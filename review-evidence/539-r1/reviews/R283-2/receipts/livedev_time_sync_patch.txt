@@ -1,0 +1,8 @@
+@@ -60,6 +60,7 @@ flowchart LR
+ - The fabric plane is their only consumer.
+ - `PTP_INGRESS_LAT` and `PTP_EGRESS_LAT` stay inert scratch.
+ - `GPTP_LAT` (`0x7F0`) publishes what is applied.
++- Link delay asymmetry is not modelled; it is zero (#511).
+ - The engine runs peer delay and synchronization.
+ - Rate updates steer PHC frequency.
+ - Phase updates step PHC time.

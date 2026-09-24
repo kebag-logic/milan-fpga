@@ -1,0 +1,138 @@
+probe mut_late_verdict_phc src=head mutant=late_verdict harness=phc
+mutate: late_verdict: applied
+[P0] lock at the silicon window scale (talker +20 ppm)
+  [ ok ] [P0] state LOCKED                        got=4 exp=4
+  [ ok ] [P0] windows to LOCKED = 11 in [1, 39]
+  [ ok ] [P0] the last window committed
+  [ ok ] [P0] last window error (x512 ppm) = 60 in [-1023, 1023]
+  [ ok ] [P0] integrator ~ talker - base (x512 ppm) = 15680 in [14664, 16712]
+[P1] one PHC step at mid-window, per size
+  [ ok ] [P1 +21000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +21000 ns] next window committed
+  [ ok ] [P1 +21000 ns] next window error = 40 in [-1023, 1023]
+  [ ok ] [P1 +21000 ns] integrator moved = 20 in [-512, 512]
+  [ ok ] [P1 +21000 ns] written rate moved = 15 in [-1024, 1024]
+  [ ok ] [P1 +21000 ns] LOCKED on every edge
+  [ ok ] [P1 +100000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +100000 ns] next window committed
+  [ ok ] [P1 +100000 ns] next window error = 40 in [-1023, 1023]
+  [ ok ] [P1 +100000 ns] integrator moved = 20 in [-512, 512]
+  [ ok ] [P1 +100000 ns] written rate moved = 20 in [-1024, 1024]
+  [ ok ] [P1 +100000 ns] LOCKED on every edge
+  [ ok ] [P1 -100000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 -100000 ns] next window committed
+  [ ok ] [P1 -100000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 -100000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 -100000 ns] written rate moved = -10 in [-1024, 1024]
+  [ ok ] [P1 -100000 ns] LOCKED on every edge
+  [ ok ] [P1 +108000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +108000 ns] next window committed
+  [ ok ] [P1 +108000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 +108000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +108000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 +108000 ns] LOCKED on every edge
+  [ ok ] [P1 +150000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +150000 ns] next window committed
+  [ ok ] [P1 +150000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 +150000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +150000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 +150000 ns] LOCKED on every edge
+  [ ok ] [P1 -150000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 -150000 ns] next window committed
+  [ ok ] [P1 -150000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 -150000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 -150000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 -150000 ns] LOCKED on every edge
+  [ ok ] [P1 +300000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +300000 ns] next window committed
+  [ ok ] [P1 +300000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 +300000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +300000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 +300000 ns] LOCKED on every edge
+  [ ok ] [P1 +524000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +524000 ns] next window committed
+  [ ok ] [P1 +524000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 +524000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +524000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 +524000 ns] LOCKED on every edge
+  [ ok ] [P1 +1000000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +1000000 ns] next window committed
+  [ ok ] [P1 +1000000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 +1000000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +1000000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 +1000000 ns] LOCKED on every edge
+  [ ok ] [P1 +1000000000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +1000000000 ns] next window committed
+  [ ok ] [P1 +1000000000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 +1000000000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +1000000000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 +1000000000 ns] LOCKED on every edge
+  [ ok ] [P1 -1000000000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 -1000000000 ns] next window committed
+  [ ok ] [P1 -1000000000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 -1000000000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 -1000000000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 -1000000000 ns] LOCKED on every edge
+[P2a] step staged on the boundary sample
+  [FAIL] [P2a] arm: the stepped sample is staged, T0 next edge
+  [ ok ] [P2a] arm: the boundary fired on it
+  [FAIL] [P2a] the boundary window is NOT committed
+  [FAIL] [P2a] integrator at the squashed close = 75000 in [0, 0]
+  [FAIL] [P2a] written rate at the squashed close = 51200 in [0, 0]
+  [ ok ] [P2a] discards counted = 1 in [1, 1]
+  [ ok ] [P2a] next window committed
+  [FAIL] [P2a] next window error = -15220 in [-1023, 1023]
+  [FAIL] [P2a] integrator moved = 67390 in [-512, 512]
+  [FAIL] [P2a] written rate moved = 63585 in [-1024, 1024]
+  [FAIL] [P2a] LOCKED on every edge
+[P2b] step staged one edge after the boundary
+  [ ok ] [P2b] arm: no stepped sample staged before T0
+  [FAIL] [P2b] arm: T0 fired as the stepped sample was staged
+  [ ok ] [P2b] the closed (pre-step) window commits
+  [FAIL] [P2b] its window error = 1280 in [-1023, 1023]
+  [ ok ] [P2b] discards counted = 1 in [1, 1]
+  [ ok ] [P2b] next window committed
+  [FAIL] [P2b] next window error = 6920 in [-1023, 1023]
+  [FAIL] [P2b] integrator moved = 4100 in [-512, 512]
+  [FAIL] [P2b] written rate moved = 9635 in [-1024, 1024]
+  [FAIL] [P2b] LOCKED on every edge
+[P2c] step inside the last tick before the boundary
+  [FAIL] [P2c] arm: window abandoned inside its last tick
+  [ ok ] [P2c] arm: the boundary tick re-based instead of closing
+  [ ok ] [P2c] discards counted = 1 in [1, 1]
+  [ ok ] [P2c] next window committed
+  [ ok ] [P2c] next window error = -720 in [-1023, 1023]
+  [ ok ] [P2c] integrator moved = -360 in [-512, 512]
+  [FAIL] [P2c] written rate moved = -2270 in [-1024, 1024]
+  [FAIL] [P2c] LOCKED on every edge
+[P3] guard discard and PHC step on one cycle
+  [FAIL] [P3] arm: S4 of a guard window with a step staged
+  [ ok ] [P3] the implausible window is NOT committed
+  [ ok ] [P3] discards counted = 2 in [2, 2]
+  [ ok ] [P3] next window committed
+  [FAIL] [P3] next window error = -9880 in [-1023, 1023]
+  [FAIL] [P3] integrator moved = -4940 in [-512, 512]
+  [FAIL] [P3] written rate moved = -7230 in [-1024, 1024]
+  [FAIL] [P3] LOCKED on every edge
+[P4] rate path: talker +20 -> -20 ppm, no step
+  [ ok ] [P4] the first window after the change commits
+  [FAIL] [P4] its error carries the rate change (x512 ppm) = 1140 in [-23040, -2560]
+  [ ok ] [P4] re-LOCKED on the new rate           got=4 exp=4
+  [ ok ] [P4] integrator ~ new talker - base (x512 ppm) = -4690 in [-5816, -3768]
+  [ ok ] [P4] nothing discarded = 0 in [0, 0]
+== mmcm_servo phc_step: checks: 113   failures: 23 ==
+RESULT: FAIL
+make: Entering directory '<packet>/scratch/work/mut_late_verdict_phc/tb/verilator/mmcm_servo/obj_phc'
+g++  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_phc_step.o ../sim_phc_step.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_mmcm_drp_servo.cpp VKL_mmcm_drp_servo___024root__0.cpp VKL_mmcm_drp_servo__Dpi.cpp VKL_mmcm_drp_servo___024root__Slow.cpp VKL_mmcm_drp_servo___024root__0__Slow.cpp VKL_mmcm_drp_servo__Syms__Slow.cpp > VKL_mmcm_drp_servo__ALL.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o VKL_mmcm_drp_servo__ALL.o VKL_mmcm_drp_servo__ALL.cpp
+g++    sim_phc_step.o verilated.o verilated_dpi.o verilated_threads.o VKL_mmcm_drp_servo__ALL.a    -pthread -lpthread -latomic   -o Vphc_step
+rm VKL_mmcm_drp_servo__ALL.verilator_deplist.tmp
+make: Leaving directory '<packet>/scratch/work/mut_late_verdict_phc/tb/verilator/mmcm_servo/obj_phc'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.127 MB sources in 4 modules, into 0.186 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 9.874 s (elab=0.002, cvt=0.015, bld=9.848); cpu 0.026 s on 1 threads; allocated 20.219 MB
+EXIT 1

@@ -1,0 +1,17 @@
+Mister-M-alt 2026-09-24T08:10:27Z https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282
+[A10] OWNER DECISION (2026-09-24): decision part b, the media grid aligner
+
+The grid aligner gets no re-centre of its own.
+
+Part b's "the media grid aligner's phase reference re-centre[s] in one bounded, counted event" is met for the aligner by keeping the step out of its reference, not by a literal re-centre:
+- `KL_media_grid_align.sv` locks to the physical sample grid (the TDM frame marker). It has no PHC or step input, so a PHC step leaves its reference unchanged. A forced re-lock would itself put a phase jump into the TDM and packet grids.
+- Under CRF selection the only path from a step to the aligner is the CRF-steered grid. #539 closes it at the servo by discarding the window that contains a step. #545 (servo slew) and #546 (talker step) cover the remaining indirect paths.
+- Under INTERNAL selection a step never reaches the audio clocks.
+
+What changes:
+- The `docs/design/GM_LOSS_RECOVERY.md` grid-aligner row stops calling this an open question and states the decided behaviour. That happens in #539's PR, which already rewrites that row.
+- No aligner RTL is added.
+- The four open `gmstep` checks are unaffected; none of them concerns the aligner.
+
+Revisit option B, an explicit counted re-lock, only if #545 or #546 cannot close its path.
+

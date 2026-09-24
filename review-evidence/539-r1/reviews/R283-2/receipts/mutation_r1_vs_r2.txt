@@ -1,0 +1,49 @@
+probe                          r1 exit/fails  r2 exit/fails  note
+base_mut_no_resync_unit        0/0            0/0            
+base_unit                      0/0            0/0            
+head_phc                       0/0            0/0            
+head_rails                     0/0            0/0            
+head_rtl_base_tb_unit          1/1            1/1            
+head_tb_rtl_base_unit          -              1/7            round-2 addition
+head_trace150                  0/0            0/0            
+head_unit                      0/0            0/0            
+mut_det_off_phc                1/66           1/66           
+mut_det_off_unit               0/0            1/7            round-1 survivor, now KILLED
+mut_disc_max3_phc              -              0/0            round-2 addition
+mut_disc_max3_unit             -              1/4            round-2 addition
+mut_early_verdict_phc          1/4            1/4            
+mut_early_verdict_unit         0/0            0/0            
+mut_fwd_only_phc               1/51           1/51           
+mut_fwd_only_unit              0/0            0/0            
+mut_guard32_phc                1/3            1/3            
+mut_guard32_unit               1/25           1/41           
+mut_guard_off_phc              1/7            1/7            
+mut_guard_off_unit             1/3            1/10           
+mut_idle_no_clear_phc          -              0/0            round-2 addition
+mut_idle_no_clear_unit         -              1/1            round-2 addition
+mut_late_verdict_phc           1/23           1/23           
+mut_late_verdict_unit          0/0            0/0            
+mut_no_abandon_phc             1/53           1/53           
+mut_no_abandon_unit            1/1            1/3            
+mut_no_resync_phc              0/0            0/0            
+mut_no_resync_unit             0/0            1/2            round-1 survivor, now KILLED
+mut_no_saturate_phc            0/0            0/0            
+mut_no_saturate_unit           0/0            1/1            round-1 survivor, now KILLED
+mut_no_squash_phc              1/19           1/19           
+mut_no_squash_unit             0/0            0/0            
+mut_no_streak_reset_phc        0/0            0/0            
+mut_no_streak_reset_unit       0/0            1/2            round-1 survivor, now KILLED
+mut_single_tally_phc           1/1            1/1            
+mut_single_tally_unit          0/0            0/0            
+mut_step_ignores_valid_phc     0/0            0/0            
+mut_step_ignores_valid_unit    0/0            1/1            round-1 survivor, now KILLED
+mut_tally_guard_only_phc       -              1/15           round-2 addition
+mut_tally_guard_only_unit      -              1/7            round-2 addition
+mut_thr_25us_phc               1/23           1/23           
+mut_thr_25us_unit              0/0            0/0            
+mut_uncond_squash_phc          1/1            1/1            
+mut_uncond_squash_unit         0/0            0/0            
+r1head_det_off_unit            -              0/0            round-2 addition
+r1head_unit                    -              0/0            round-2 addition
+repro_phc                      1/0            1/0            
+repro_trace150                 0/0            0/0            

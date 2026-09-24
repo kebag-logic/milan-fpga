@@ -1,0 +1,117 @@
+head=910b4fb5f104ac35e8cc1723a70de0d05672895d base=dev draft=false state=OPEN
+Abandon the CRF servo window that contains a PHC step
+[A240] The CRF servo abandons the rate window a PHC step lands in, so no step size is integrated as a rate error
+
+Closes #539
+
+Round 2 head: `910b4fb5f104ac35e8cc1723a70de0d05672895d`. It merges dev `f86c34fe` (which carries #540) and answers R282-1 and R283-1 (see "Round 2" below). [A243]'s last commit records the #387 part b owner decision for the grid aligner.
+
+## What was wrong (reproduced first)
+
+`KL_mmcm_drp_servo` discarded a 512 ms window only above 1024 ppm (`GUARD_THR_C = 2^19`). A new harness, `tb/verilator/mmcm_servo/sim_phc_step.cpp`, runs the servo at its default (silicon) parameters, where an S ns step inside one window is exactly S units of window error. A locked 150 us step under CRF selection was committed:
+
+| Step (pre-fix) | Window error | Integrator | Written rate | Next state |
+|---|---|---|---|---|
+| +100 us | +195.39 ppm | +30.62 -> +128.32 ppm | +30.65 -> +130.65 ppm | ACQUIRE |
+| +150 us | +293.05 ppm | +30.62 -> +177.15 ppm | +30.65 -> +130.65 ppm | ACQUIRE |
+| -150 us | -292.89 ppm | +30.62 -> -115.82 ppm | +30.65 -> -69.35 ppm | ACQUIRE |
+| +300 us, +524 us | +586, +1023.5 ppm | -> +200 ppm (clamp) | -> +130.65 ppm | ACQUIRE |
+| +525 us, 1 ms, 1 s | above 1024 ppm | held (discarded) | held | LOCKED |
+
+Every step below 524.288 us is integrated, including 100 us to 108 us and the 21 us link-up step, not only the 108 us to 524 us band the issue names. Reproduce with `make -C tb/verilator/mmcm_servo trace STEP_NS=150000`.
+
+## The change
+
+No threshold can separate a step from a rate error. Once locked the plane steps above 100 us (#387 owner step policy), which is 195 ppm of one window, while a legitimate window error reaches about 211 ppm. So the servo now recognises the step itself. `ptp_now_i` advancing by more than 4096 ns in one `clk_i` cycle is a step. A legitimate advance is `incr_i + adj_i`, both Q8.24 ns: below 256 ns plus below 128 ns, so below 384 ns on any clock. The plane's smallest step is 20 us.
+
+- The open window is abandoned on the cycle the stepped sample is staged, and the next tick re-bases it on post-step time. There is no PI update, no trim change and no `lock_cnt` change, and the discard counts once in `MCSRV_STAT[15:10]`.
+- A boundary closing on the stepped sample is squashed with it. A PI micro-sequence already in flight closed on a pre-step sample and commits.
+- The 1024 ppm guard stays as the backstop for implausible windows without a jump. Both discard causes now count through one tally, so a coincidence counts two.
+- A step restarts the 1024 ppm guard's discard streak. A step counts only when it lands in an open window. The tally saturates at 63 and clears in IDLE.
+- The port list is unchanged. **No `milan_datapath.sv` edit is needed**: the plane's `phc_step_we_o` becomes one adjtime in `timestamp_counter`, which lands in `ptp_now_w` in one cycle, and CSR adjtime and settime are caught the same way.
+
+**Interpretation for the reviewer.** Acceptance 2 reads "any PHC step (the plane's step pulse) discards the servo window that contains it". This change discards that window by detecting the pulse's effect at `ptp_now_i` instead of wiring the pulse. That covers every step source, needs no port, and cannot be misordered against the PHC write, which trails the pulse through `ptp_csr_sync`. Both round-1 reviews accepted this reading.
+
+Cost (Yosys `synth_xilinx -flatten`, the `ooc.sh` recipe): 831 -> 862 LUT, 789 -> 790 FF, 140 -> 150 CARRY4. Round 2 changes no RTL logic: the only servo edit is the detector comment.
+
+## Tests and failing arms
+
+`sim_phc_step.cpp` (113 checks, unchanged in round 2):
+
+- P0: locks at the silicon scale.
+- P1: steps of 21 us, +/-100 us, 108 us, +/-150 us, 300 us, 524 us, 1 ms and +/-1 s at mid-window. Each is counted once, the next window commits within 2 ppm, the integrator moves at most 512 and the written rate at most 1024, and LOCKED holds on every edge.
+- P2a/b/c: a step on the boundary sample, one edge after it, and inside the last tick. Each arm first asserts that it landed where it claims.
+- P3: a 1024 ppm discard and a step on one cycle.
+- P4: the rate path, a real 40 ppm talker change that must still be integrated.
+
+`sim_main.cpp` (78 checks; the compressed 4 ms window):
+
+- **U10**, a local PHC step and a storm of six. At this scale the 1024 ppm guard would also catch every one of these windows, so trim, LOCKED and the discard count cannot tell the two guards apart. The arm that does is timing. The step guard counts a step on the 2nd `clk_i` edge after it lands. The 1024 ppm guard can count it no sooner than the 6th: a boundary must snapshot the stepped sample, and the verdict comes four cycles later. So the single step and each storm step must be counted within 3 edges, and the storm must count exactly one discard per step. The trim check is an envelope over three windows (pre-step envelope +/-48). Locked, this bench's trim already cycles 1499..1579, and the re-base moves the sample phase. It still rejects the pre-guard kick of 540.
+- **U11**, the 1024 ppm guard's own arm: a CRF rate 2 ms off for seven windows, with no jump anywhere. Every window is discarded, and trim and LOCKED hold. The 4th consecutive discard re-bases the window (`DISC_MAX_C`), so the next boundary and the 5th discard land one tick late. The arm reads the gaps between discards off `MCSRV_STAT[15:10]`: 32, 32, 32, then **33**, then 32 ticks. Without the re-base every gap is 32.
+- **U12**, the discard bookkeeping:
+  - Streak restart: two guard discards, then a step at mid-window. The re-base must follow the 4th guard discard after the step (gaps 32 32 32 33), not the 2nd.
+  - Open-window rule: two steps one edge apart count once.
+  - Saturation: 64 steps from a tally below 63 read 63, not a wrapped value.
+  - IDLE clears the tally.
+
+One-line mutants, each run against the round-2 harness at `10004650` (unit failures of 78 / step-suite failures of 113):
+
+| Mutant | Fails |
+|---|---|
+| step detector off | U10 and U12 landing-edge checks (unit 7); P1 at every size, P2, P3 (66) |
+| no abandon | U10 counts, U12 open-window check (3); P1 at every size (53) |
+| no boundary squash | P2a: the stepped boundary commits integrator +75000 (19) |
+| unconditional squash | P2b: the clean pre-step window is discarded (1) |
+| 1024 ppm guard off | U11, U12 (10); P3, P4 (7) |
+| single tally | P3: 1 counted of 2 (1) |
+| guard tightened to 32 ppm | U2 onwards (41); P4: the real rate change is discarded (3) |
+| guard's 4-discard re-base removed | U11 and U12: the 33-tick gap reads 32 (2) |
+| step does not restart the streak | U12: the re-base follows the 2nd guard discard after the step (2) |
+| step tallied with no window open | U12: two steps one edge apart count 2 (1) |
+| tally wraps instead of saturating | U12: 64 steps read the starting tally, not 63 (1) |
+| step not tallied | U10, U12 (7); P1, P2, P3 (15) |
+| detector threshold 25 us | P1 from the 21 us step on (23) |
+| detector compare signed (forward steps only) | P1 from the first backward step (-100 us) on, P2, P3 (51) |
+| step verdict one cycle late | P2a/b/c, P3, P4 (23) |
+| step verdict one cycle early | P2a, P2b (4) |
+
+All 30 mutants from both round-1 reviews fail at least one named check. None survives.
+
+## Validation (local, the pinned Verilator 5.050)
+
+At `1000465004d30e6703655a3a4ff2b1cd6a2eedd1`:
+
+- `make -C tb/verilator/mmcm_servo`: 78/78, 8/8, 113/113 (199 by `suite_tally`, verdict clean). The step suite adds about 5.3 min.
+- `make -C tb/verilator/mmcm_servo_autorepair`: 47/47.
+- `docs_check` (with git, without git, and `--selftest`), `check_em_dash --base f86c34fe`, `check_doc_style`, `check_gptp_docs`, `gen_toc --check` and `--verify-anchors`, `check_doc_paths`, `xvlog_gate --check` (`hdl/` 0 findings), `check_rtl_source_lists`, `check_cpp_idiom`, `check_sv_idiom`, `lint_rtl --check` (90 <= 90), `git diff --check`: all exit 0.
+
+At round-1 head `f49b57a6` (not re-run at this head):
+
+- `make -C tb/verilator/milan_dp aclk`: 139/139. The CRF leg reads `A_MCSRV_STAT = 0x33`, with no false step on the real PHC.
+- `make -C tb/verilator/milan_dp_render tdm8render`: 150/150.
+
+Not run: the full `milan_dp` default suite, Vivado timing, hardware. The detector puts a 32-bit subtract on `ptp_now_i`, lighter than `KL_crf_rx`'s existing combinational `w_crf_ts - ptp_now_i` on the same net.
+
+## Docs
+
+- `TIME_SYNC.md` loop table: the servo's reaction to a PHC step and to an implausible window. The step row links dev's "Step policy" section and notes that a policy slew is not a step (#545).
+- `GM_LOSS_RECOVERY.md` (from #540): the CRF servo row now states that the step window is discarded and counted (#539). It names what still reaches the servo: the slew (#545) and the talker's own step (#546). The grid-aligner row points at the same paths. The gmstep leg's "does not grade" line names the step suite.
+- `GM_LOSS_RECOVERY.md` grid-aligner row and the `tb/verilator/milan_dp/README.md` gmstep list ([A243], `910b4fb5`): the aligner's re-centre is decided, not open ([#387 part b owner decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282)). The aligner gets no re-centre of its own; #539 isolates the step at the CRF servo, and #545 and #546 close the remaining paths.
+- `REGISTER_MAP.md` `0x8F8`: `[15:10]` is the discard tally. The row wrongly said `[15:9]` reserved.
+- `TESTING.md`: the `mmcm_servo` row.
+
+## Found, not fixed (outside #539's acceptance; filed)
+
+- **#545: a locked slew is integrated as a rate error.** The plane's 100 us slew at 200 ppm gives +100 ppm window error and moves the integrator from +30.62 to +80.66 ppm, with ACQUIRE and 0 discards. A slew is not a step, so neither guard sees it. Trace: `make -C tb/verilator/mmcm_servo phc_step_build`, then `obj_phc/Vphc_step +trace_slew_ns=100000`.
+- **#546: the talker's own step reaches the servo through `KL_crf_rx` `rate_o`.** In a grandmaster change the talker steps too, and its 256-PDU ring carries the step for 512 ms. A 150 us talker step moves the integrator to -115.82 ppm. Trace: `obj_phc/Vphc_step +trace_talker_step_ns=150000`.
+
+## Round 2
+
+| Finding | Resolution |
+|---|---|
+| R282-1 F1 = R283-1 F1 (Tests): U11 claimed the re-base; the mutant removing it passed | U11 now fails without it: the 4th-to-5th discard gap must be 33 ticks (`sim_main.cpp:502`). The mutant reads 32. |
+| R282-1 F1 (Tests, Docs): U10 claimed the storm was the step guard's; with the detector off it passed | U10 now fails without the detector: the step and each storm step must be counted within 3 edges (`sim_main.cpp:426`, `:452`). The comment says the 1024 ppm guard would catch these windows too. |
+| R282-1 F2 (Docs): `GM_LOSS_RECOVERY.md` stated the #539 defect as current | Merged dev `f86c34fe`; rows `:152`, `:154` and line `:181` corrected. `git grep "108 to 524" -- docs/design` is empty. |
+| R282-1 S1 = R283-1 S1/S2: streak restart, open-window rule, saturation unarmed | U12 arms each (`sim_main.cpp:542`, `:557`, `:572`), plus IDLE clearing (`:577`). |
+| R282-1 S2 = R283-1 S3: the detector comment's 256 ns bound omitted `adj` | `KL_mmcm_drp_servo.sv:296-303` now reads `incr + adj`, below 384 ns. Comment only. |
+
