@@ -1,0 +1,198 @@
+[R312] NEGATIVE - exact head b5ee412cdc0fd771d3df1f7fda49031409cf11fa
+
+# R312-1: internal independent review of issue #501 / PR #557
+
+- Reviewer: [R312], the internal reviewer, working from a cleared context.
+- Round: R312-1.
+- Head: `b5ee412cdc0fd771d3df1f7fda49031409cf11fa`, tree `dc8c383160f1ca13e401e2766003b9228420dd3c`.
+- Source base: `573f0052a0e4412e81f0845438fcec2086ce5d55`.
+- Executor: [A282].
+
+## Reconstruction
+
+I reconstructed the task from public state only, in this order:
+
+1. AGENTS.md and CONTRIBUTING.md.
+2. The issue #501 body.
+3. The 2026-09-23 decision (comment 5789750234): grow the output-map record to the stream-channel key space at 8x8 only, per Milan v1.2 5.3.10.1, with 1x1 unchanged.
+4. The frozen scope, items 1-6 (comment 5821769708).
+5. The author's REVIEW READY comment (5822166180).
+6. The PR body.
+7. `git diff 573f0052a..b5ee412cd` across its 12 files.
+8. The published evidence at `7721fe96…/review-evidence/501-r1`.
+
+No public review finding existed on PR #557 before this round: no inline comments, no reviews, and issue comments only from the manager.
+
+What the change does:
+
+- `output_map_entries()` (`scripts/nvm_shape.py:164-174`) gives each dynamic STREAM_PORT_OUTPUT `max(clusters, STREAM_OUTPUT*8)` entries.
+- The inventory (`:244`) and the firmware constants (`:204`, renamed `MILAN_NVM_MAP{IN,OUT}_ENTRIES_k`) consume it.
+- The firmware reads that same per-port array in area sizing (`milan_baremetal.c:271-306`), in record-length decode (`:498-503`) and in the backend table writes (`:732-738`).
+- The gate adds two controls, a K16/boundary journal round trip (`scripts/nvm_map_checks.py`) and a pinned 1x1 SHA-256.
+- The backend tb adds `test_output_boundaries` (`sim_main.cpp:761`).
+- The 8x8 fixture is regenerated.
+- Two design pages change.
+- No HDL, donor, or gitlink change.
+
+## Findings
+
+### F1: MAJOR, Conformance and Docs
+
+**Where:** `docs/design/SAVED_STATE_MATERIALIZATION.md:941`, with the related status statements at `:1641-1642` and `:1654`.
+
+**Evidence:**
+- Scope item 1 names "`SAVED_STATE_MATERIALIZATION.md` where it states map sizes".
+- At head, that page's normative map-record framing rule still reads: "A map record holds the port's set packed at its head, then UNUSED entries up to the port's **cluster count**."
+- At 8x8 an output port has 9 clusters, but the decided record now holds 72 entries (576 payload bytes). The gate and fixture agree on 72: `records_endstation_ax7101_8x8.txt` rows 0x70-0x77 are `584 576`.
+- The rule therefore contradicts `SAVED_STATE_FASTCONNECT.md` section 4.2 as amended by this PR.
+- The same page still lists stage 3 as "BLOCKED on #501" (`:1654`). This PR closes #501.
+
+**Impact:**
+- This page is the design the donor writer adoption (processor #61/#83) implements.
+- A writer that follows it pads an 8x8 output record to 9 entries (72 bytes).
+- The decoder refuses a length mismatch with the whole journal and zero records applied. The gate itself demonstrates this with a CRC-clean wrong-length record (`nvm_map_checks.py`, over-capacity arm, `VD_REC`).
+- So the authoritative framing contract steers the consumer into a refused journal.
+
+**Required outcome:**
+- The framing rule states the padding extent as the record's derived entry count, taken from section 4.2 of the saved-state page, not the cluster count.
+- The stage-3 status statements on this page agree with the #501 decision.
+
+**Verification:** re-read `:941`, `:1641-1642` and `:1654` at the fixing head against FASTCONNECT section 4.2 and the 8x8 fixture. The doc gates stay green.
+
+### F2: MAJOR, RTL, Robustness and Docs
+
+**Where:**
+- `docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1552-1575` (section 18 timing) and `:1660-1665` (UNRESOLVED 6).
+- `hdl/milan/KL_nvm_backend.sv:145` (`T_HOLD_MS_P = 50`).
+- `hdl/milan/KL_pp_shadow.sv:961`, where the product instance leaves `T_HOLD_MS_P` at its default.
+
+**Evidence:**
+- The snapshot-ownership page sizes the 50 ms capture hold against a derived full-copy cost at 8x8.
+- The page's model: 6 instructions/byte, 50/record, 2 DDR accesses/byte, 10 cycles/instruction, 30 cycles/DDR access, 50 MHz CPU. It uses "8,604 bytes over 156 records", giving 22 ms, 44 ms at twice both costs, and a stated margin of "about 1.1 to 2.3 times".
+- This PR grows the 8x8 record area to 12,634 bytes. No section of that page was re-derived.
+- `receipts/hold_margin.log` applies the page's own model. At the base area it reproduces the page's numbers exactly (22.2 ms / 44.4 ms, 2.25x / 1.13x).
+- At head it gives 31.9 ms and **63.8 ms**, a margin of 1.57x to **0.78x**.
+- So under the page's own pessimistic bound, a full 8x8 capture copy now outlasts the shipping hold.
+
+**Impact:**
+- A producer request deferred by a copy that overruns the hold is granted when the hold lapses, and the capture is voided and retried (C2, C2e, C2r). Safety holds.
+- Under sustained control-plane activity at 8x8, commits can be repeatedly voided. That is a liveness effect of this record-space change that nobody has assessed.
+- The published margin and the UNRESOLVED 6 summary are false at head.
+- AGENTS section 6 (RTL) requires that "latency, and resource/timing effects are understood".
+
+**Required outcome:**
+- The capture-hold margin is re-derived publicly at the grown 8x8 record area.
+- Then either (a) the hold is shown adequate under the page's cost model, or (b) the consequence is recorded with a decision: a hold-sizing change, or a tracked issue or measurement obligation with the 8x8 exposure stated.
+- Section 18 and UNRESOLVED 6 carry the head figures.
+
+**Verification:**
+- Re-run `scripts/hold_margin.py` against the fixing head's record area.
+- Review the updated sections.
+- If `T_HOLD_MS_P` changes, re-run `tb/verilator/nvm_backend` and `tb/verilator/nvm_cosim`.
+
+### F3: MINOR, Docs
+
+**Where:** current-state figures that this PR made stale in authoritative docs:
+
+| File | Line(s) | Now says | Should say at head |
+|---|---|---|---|
+| `SAVED_STATE_FASTCONNECT.md` | 188-190 | 8,648 B at 8x8, "13 percent of one 64 KiB slot" | 12,680 B, 19% |
+| `SAVED_STATE_FASTCONNECT.md` | 784 | window 52,744 of 1,048,576 | 56,776 |
+| `SAVED_STATE_FASTCONNECT.md` | 788 | "8,648 bytes byte-wide is 3 BRAM36" | 12,680 B, which needs 4 at 4 KiB per BRAM36 |
+| `SAVED_STATE_FASTCONNECT.md` | 1226 | 9.4 deadline table: 8,648 B, 34 pages, 170 ms, 5.5 ms, **3.18 s** | 12,680 B, 50 pages, 250 ms, 8.1 ms, 3.26 s |
+| `SAVED_STATE_FASTCONNECT.md` | 1231 | "2.52x at 8x8" | 2.46x |
+| `SAVED_STATE_MATERIALIZATION.md` | 1793 | 3.18 s and "4.7 s durable at 8x8" | 3.26 s |
+| `SAVED_STATE_SNAPSHOT_OWNERSHIP.md` | 1417 | 3.18 s | 3.26 s |
+| `SAVED_STATE_SNAPSHOT_OWNERSHIP.md` | 1456 | stage container 8648 at 8x8 | 12680 |
+| `SAVED_STATE_SNAPSHOT_OWNERSHIP.md` | 1552 | stage container 8648 at 8x8 | 12680 |
+
+- Section 4.2 now derives 12,680 B and 3258.1152 ms. The deadline section 9.4, which is normative for `T-NVM-COMMIT-TIMEOUT`, contradicts it on the same page.
+- In the same sentences, these were already stale at base and were not introduced by this PR: the 1x1 "2,624 B / 11 pages / 3.06 s" (base and head emit 3,264 B), and "eleven negative controls" (`:1305`).
+
+**Impact:** a cold reader gets two different 8x8 images and commit bounds from the authoritative pages. Scope item 1 asked for figures derived from the shape and not restated.
+
+**Required outcome:** every current-state 8x8 figure above matches the gate at the fixing head or cites the section 4.2 derivation. Historical tables that are explicitly labelled as such (for example `:450`) may stay.
+
+**Verification:** `git grep` for `8,648|8648|3.18 s|2.52x|52,744` returns only explicitly historical rows. The figures match `scripts/check_nvm_record_space.py` output.
+
+### S1: SUGGESTION, Tests
+
+**Where:** `sw/firmware/nvm_hosttest` and the committed gates generally, not the diff.
+
+**Evidence:**
+- The firmware's backend channel-map table programming (`milan_baremetal.c:732-738`) is not graded by any committed gate. `nvm_host.c` stores `be.map` and nothing compares it.
+- Probe `scripts/firmware_map_probe.py` planted the old 9-entry output length into the table write only. `test_nvm_firmware.py`'s own bench reported **0 findings**, while a decode/staging plant reported 56.
+- The same table plant *is* killed by the published D3 replay (`receipts/d3_replay_fw_rebase_old_len.log`: no 0x70 record reaches the journal). That replay is uncommitted evidence.
+- The gap predates this PR: the base had the same structure with cluster counts. The code at head is correct by inspection because it reads the same generated array as sizing and decode.
+
+**Required outcome (optional):** a new public issue to grade the programmed `{len, prefix}` table against the record table in the host bench.
+
+### S2: SUGGESTION, Tests
+
+**Where:** `scripts/nvm_map_checks.py:86-88`.
+
+- The "cleared-first" model store is populated with exactly `wanted` and cleared on the next line. `if live:` therefore checks the probe's own statement, not a property.
+- Seeding the store with a stale set disjoint from the journal would make "only decoded entries survive" a checked property.
+- The product-side cleared-first restore is donor work. Here it is shown by the D3 replay, which I reproduced.
+
+### S3: SUGGESTION, Tests
+
+- `check_1x1_digest` returns silently when the 1x1 config stem is absent or renamed (`nvm_map_checks.py:33`). A rename would remove the digest control instead of reddening it.
+- `expected_payloads` (`check_nvm_record_space.py:338-348`) re-states the same `max(clusters, STREAM_OUTPUT*8)` formula as the inventory, rather than cross-checking the RTL key space (`AMAP_OUT_KEYS_C = N_STREAMS*8`, `milan_datapath.sv:3644`). The structural invariant `N_STREAMS <= STREAM_OUTPUT` holds for every shipped shape.
+
+## Per-lens results (evidence for what was checked clean)
+
+```text
+[R312] PASS Conformance — scripts/nvm_shape.py:164-174, hdl/milan/milan_datapath.sv:4144-4152, receipts/shape_dump.log — output key = stream_index*8+stream_channel (okey < N_STREAMS*8, sc < 8, single owner per key); dynamic output ports get max(clusters, STREAM_OUTPUT*8) = 72 >= every legal key (64 audio keys at 8x8 via ostream_ok_c) on EACH port, so any one port may own the whole key space (item 6); 1x1 max(17,16)=17 and static Arty outputs (ADP_DMAP_OUT_MASK_C = 0) unchanged; donor obligation named with links to processor #61 and #83, both OPEN and on persisting maps (item 5); no donor or HDL edit (item 3 area delta N/A: diff touches no hdl/, no gitlink)
+[R312] PASS Conformance — receipts/emit_base.log, receipts/emit_head.log, receipts/figures_check.log — every non-8x8 shape byte-identical base->head (1x1: 3264 B, 53 records, top 0xA5, SHA-256 103ce107…3aea = pinned BASE_1X1_SHA256, equal to an emit from the base scripts); 8x8 only ids 0x70..0x77 change (72 -> 576 payload); area 770+64+4672+7128 = 12634, image 12680, growth 4032, 156 records, top 0xE2, worst commit 3258.1152 ms, 2x = 6516.2 < 8000; committed fixture rows equal the head emit
+[R312] PASS RTL — hdl/milan/KL_nvm_backend.sv:313-316,324,342-347,398-404,833-839 — tables 16-bit {len,prefix}; rec_len_w 12-bit (584 <= 4095; 16-stream ceiling 1032 fits), prefix max 4922 and name base 5506 within 16/18-bit; bound offset+len <= rec_len and span_end <= img_len serve 584 at every output port; MAX_PAYLOAD_P 1024 (protocol-processor KL_pp_nvm_port.sv:66, default used) >= 576; firmware uint8_t entry arrays hold <= 128 by the backend's 16-stream refusal
+[R312] PASS Robustness — receipts/control_old_output_length.log, receipts/record_space.log, receipts/backend_mutants.log — CRC-clean one-over-capacity record refused with zero applied on all 8 ports; one-byte-over READ/WRITE refused per port in RTL; old-length image refused for the named reason ("output-record capacity: MAPS_OUT[k] cannot save 10 keys in 9 entries")
+[R312] PASS Tests — receipts/record_space.log, receipts/record_space_selftest.log — gate rc 0 over 5 configs; --self-test 18/18 controls reddened, old_output_length and changed_1x1_image each carry their named refusal (self-test requires the substring)
+[R312] PASS Tests — receipts/nvm_backend.log, receipts/backend_mutants.log — make -C tb/verilator/nvm_backend with Verilator 5.050 (identity checked): 525/0 at 8x8, 208/0 at 1x1, 4 existing controls RED; three planted RTL defects each redden test_output_boundaries on all 8 output ports: bound +1 gives 24 new failures where the pre-existing tests alone caught 1 (record 0x00); whole-erase short by 1 gives 8 new where the pre-existing tests caught 2 (record 0x01 only); output length truncated to 9 bits gives 40 total, and the pre-existing reads also caught it on 8 ports
+[R312] PASS Tests — receipts/firmware_hosttest.log, receipts/builder_profile_contract.log — test_nvm_firmware.py --self-test rc 0 on 5 shapes (8x8 12680 B), 4 controls; test_builder.test_baremetal_profile_contract() alone PASS with the RV32 census compiled against the renamed MILAN_NVM_MAP*_ENTRIES stubs (test_builder.py:3789-3791)
+[R312] PASS Tests — receipts/d3_replay_head.log, receipts/d3_replay_head_summary.log — published D3 replay driver (sha256 d937a166…19bf1) re-run at head against a21b165a sources: K16 10 keys 17/17, boundary_audio 64 keys 23/23, boundary_storage 72 keys 23/23; every output port checked empty before boot and compared with the decoded journal after a fresh-process restore
+[R312] PASS Docs — docs/design/SAVED_STATE_FASTCONNECT.md:300-370 — section 4.2 derivation table re-computed term by term from emitted rows (receipts/figures_check.log); allocation table 1x1 column corrected to the base-true 53/0xA5; tb README/Makefile lengths match the fixtures
+```
+
+The Docs PASS line is partial: F1, F2 and F3 keep the Docs lens unclean.
+
+## Reviewer-owned lens ledger
+
+| Lens | Result | Artifacts examined | Covering round | Exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN (F1) | issue #501 decision and scope 1-6; `nvm_shape.py`; `milan_datapath.sv` `amap_edit_validate`; generated `adp_shape_defaults.svh` (all 5 shapes); base/head emits; 8x8 and 1x1 fixtures; MATERIALIZATION framing rule; processor #61/#83 | R312-1 | b5ee412cdc0fd771d3df1f7fda49031409cf11fa |
+| RTL | UNCLEAN (F2) | `KL_nvm_backend.sv` tables, widths, bounds; `KL_pp_shadow.sv:961` instance; donor `KL_pp_nvm_port.sv` MAX_PAYLOAD_P; firmware table writes; snapshot-ownership hold derivation | R312-1 | b5ee412cdc0fd771d3df1f7fda49031409cf11fa |
+| Robustness | UNCLEAN (F2) | over-capacity refusal (gate, RTL tb), max-shape widths, static/dynamic configuration dependence, capture-hold overrun path (C2) | R312-1 | b5ee412cdc0fd771d3df1f7fda49031409cf11fa |
+| Tests | CLEAN (S1-S3 are suggestions) | record-space gate, self-test and both named controls; `nvm_map_checks.py`; nvm_backend tb and 3 RTL mutants; firmware host bench and 2 firmware plants; builder census function; D3 replay and a firmware mutant | R312-1 | b5ee412cdc0fd771d3df1f7fda49031409cf11fa |
+| Docs | UNCLEAN (F1, F2, F3) | FASTCONNECT 4.2/4.3/4.4/8.1/9.4; MATERIALIZATION 3/10/18; SNAPSHOT_OWNERSHIP 17/18; tb README/Makefile | R312-1 | b5ee412cdc0fd771d3df1f7fda49031409cf11fa |
+
+## Limits
+
+- I did not run these locally because the pinned Markdown renderer (html5lib) is not installed and shared installs are forbidden: `scripts/gen_toc.py --check` and `scripts/check_em_dash.py` (both rc 2 with "renderer not installed"). The author evidence and the hosted `docs-check` at this head report them green.
+- These other doc and static gates ran locally with rc 0: `docs_check`, `check_doc_style`, `check_doc_paths`, `check_py_idiom`, `check_cpp_idiom`, `gen_module_matrix --check`, `check_rtl_source_lists`.
+- Not run, per the round's rules:
+  - the full `milan_dp` sweep, the full builder bank, `nvm_cosim`, and the Yosys, parent, processor and gPTP banks;
+  - act or Docker;
+  - hardware.
+- Physical calibration was NOT RUN, and no hardware persistence was shown; that acceptance stays with #70.
+- The D3 evidence is an uncommitted, scratch-adapted replay of immutable #500 sources. It models the processor command and map-plane faces.
+- The 72-key storage case substitutes an audio format for the CRF row, as disclosed. The product admits 64 audio keys at 8x8.
+- F2 rests on the design page's own derived cost model, not a measurement.
+- Hosted runs at the exact head: 21 executed, all `success`, including `rtl-fast`, `verilator-suites` and `yosys-portability`. One was skipped (`Physical gPTP (nightly and manual)`) and is not evidence.
+- All probes ran in scratch or as transient in-clone plants. The one in-clone plant was the firmware line for the D3 mutant, which was restored.
+- `receipts/restore_verification.log` confirms the restore:
+  - the index equals the HEAD tree in mode, blob and path;
+  - all 883 tracked non-gitlink files re-hash to their index blobs;
+  - the four gitlinks are unchanged;
+  - the tb build dirs and new caches were removed.
+
+## Pending manager duties
+
+- Hosted/act acceptance.
+- The candidate merge build at live `dev` `ffcbd33de70278ae34b533dcbadde0b36c8cba13` (source base `573f0052a`).
+- Post-merge containment.
+- Publication of this packet.
+- A fix round and re-review for F1, F2 and F3.
+- Any new issues arising from S1.
+
+R312-1 FINISHED
