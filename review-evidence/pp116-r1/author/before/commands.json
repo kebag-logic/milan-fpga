@@ -1,0 +1,64 @@
+[
+  {
+    "name": "suites",
+    "command": [
+      "./scripts/run_suites.sh"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 426.78
+  },
+  {
+    "name": "desc-mutants",
+    "command": [
+      "python3",
+      "tb/desc_mem_guard/mutate.py",
+      "--output",
+      "/tmp/pp116-before-desc-mutants"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 5.44
+  },
+  {
+    "name": "gsi-mutants",
+    "command": [
+      "python3",
+      "tb/pp_top/gsi_mutants.py",
+      "--output",
+      "/tmp/pp116-before-gsi-mutants"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 264.32
+  },
+  {
+    "name": "srp-mutants",
+    "command": [
+      "python3",
+      "tb/srp_admission/mutants.py",
+      "--output",
+      "/tmp/pp116-before-srp-mutants"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 85.6
+  },
+  {
+    "name": "nvm-figures",
+    "command": [
+      "make",
+      "-C",
+      "tb/nvm_port",
+      "figures"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 236.14
+  }
+]

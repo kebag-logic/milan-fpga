@@ -1,0 +1,37 @@
+[
+  {
+    "name": "ports",
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 1,
+    "expected": 1,
+    "seconds": 2.29
+  },
+  {
+    "name": "naming",
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 1,
+    "expected": 1,
+    "seconds": 0.45
+  },
+  {
+    "name": "test-evidence",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 1,
+    "expected": 1,
+    "seconds": 5.03
+  }
+]

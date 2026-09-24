@@ -1,0 +1,587 @@
+make: Entering directory '$LANES/pp116-parent-gates/tb/srp_admission'
+/usr/bin/make run N=1
+make[1]: Entering directory '$LANES/pp116-parent-gates/tb/srp_admission'
+verilator --cc --exe --build -j 8 --top-module srp_admission_wrap \
+  -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+  -GN_SOURCES_P=1 --Mdir obj_1 \
+  -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DTB_SOURCES=1" \
+  ../../hdl/srp/KL_srp_admission.sv srp_admission_wrap.sv sim_main.cpp \
+  -o Vsrp_admission_sim
+make[2]: Entering directory '$LANES/pp116-parent-gates/tb/srp_admission/obj_1'
+make[2]: Nothing to be done for 'default'.
+make[2]: Leaving directory '$LANES/pp116-parent-gates/tb/srp_admission/obj_1'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 29.668 MB
+./obj_1/Vsrp_admission_sim
+LATENCY N=1 source=0 phase=0 case=shrink cycles=4
+LATENCY N=1 source=0 phase=0 case=short-withdraw cycles=4
+LATENCY N=1 source=0 phase=0 case=identical cycles=4
+LATENCY N=1 source=0 phase=0 case=saturation-shrink cycles=4
+1138 checks: 1138 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/pp116-parent-gates/tb/srp_admission'
+/usr/bin/make run N=2
+make[1]: Entering directory '$LANES/pp116-parent-gates/tb/srp_admission'
+verilator --cc --exe --build -j 8 --top-module srp_admission_wrap \
+  -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+  -GN_SOURCES_P=2 --Mdir obj_2 \
+  -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DTB_SOURCES=2" \
+  ../../hdl/srp/KL_srp_admission.sv srp_admission_wrap.sv sim_main.cpp \
+  -o Vsrp_admission_sim
+make[2]: Entering directory '$LANES/pp116-parent-gates/tb/srp_admission/obj_2'
+make[2]: Nothing to be done for 'default'.
+make[2]: Leaving directory '$LANES/pp116-parent-gates/tb/srp_admission/obj_2'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 29.668 MB
+./obj_2/Vsrp_admission_sim
+LATENCY N=2 source=0 phase=0 case=shrink cycles=6
+LATENCY N=2 source=0 phase=0 case=short-withdraw cycles=6
+LATENCY N=2 source=0 phase=0 case=identical cycles=6
+LATENCY N=2 source=0 phase=0 case=saturation-shrink cycles=6
+LATENCY N=2 source=0 phase=1 case=shrink cycles=6
+LATENCY N=2 source=0 phase=1 case=short-withdraw cycles=6
+LATENCY N=2 source=0 phase=1 case=identical cycles=6
+LATENCY N=2 source=0 phase=1 case=saturation-shrink cycles=6
+LATENCY N=2 source=1 phase=0 case=shrink cycles=4
+LATENCY N=2 source=1 phase=0 case=short-withdraw cycles=4
+LATENCY N=2 source=1 phase=0 case=identical cycles=4
+LATENCY N=2 source=1 phase=0 case=saturation-shrink cycles=4
+LATENCY N=2 source=1 phase=1 case=shrink cycles=6
+LATENCY N=2 source=1 phase=1 case=short-withdraw cycles=6
+LATENCY N=2 source=1 phase=1 case=identical cycles=6
+LATENCY N=2 source=1 phase=1 case=saturation-shrink cycles=6
+LATENCY N=2 source=0 phase=0 case=cross-identical cycles=6
+LATENCY N=2 source=0 phase=0 case=cross-shrink cycles=6
+LATENCY N=2 source=0 phase=0 case=cross-grow cycles=6
+LATENCY N=2 source=0 phase=0 case=cross-double cycles=6
+LATENCY N=2 source=0 phase=1 case=cross-identical cycles=6
+LATENCY N=2 source=0 phase=1 case=cross-shrink cycles=6
+LATENCY N=2 source=0 phase=1 case=cross-grow cycles=6
+LATENCY N=2 source=0 phase=1 case=cross-double cycles=6
+12615 checks: 12615 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/pp116-parent-gates/tb/srp_admission'
+/usr/bin/make run N=3
+make[1]: Entering directory '$LANES/pp116-parent-gates/tb/srp_admission'
+verilator --cc --exe --build -j 8 --top-module srp_admission_wrap \
+  -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+  -GN_SOURCES_P=3 --Mdir obj_3 \
+  -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DTB_SOURCES=3" \
+  ../../hdl/srp/KL_srp_admission.sv srp_admission_wrap.sv sim_main.cpp \
+  -o Vsrp_admission_sim
+make[2]: Entering directory '$LANES/pp116-parent-gates/tb/srp_admission/obj_3'
+make[2]: Nothing to be done for 'default'.
+make[2]: Leaving directory '$LANES/pp116-parent-gates/tb/srp_admission/obj_3'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 8 threads; allocated 29.668 MB
+./obj_3/Vsrp_admission_sim
+LATENCY N=3 source=0 phase=0 case=shrink cycles=9
+LATENCY N=3 source=0 phase=0 case=short-withdraw cycles=9
+LATENCY N=3 source=0 phase=0 case=identical cycles=9
+LATENCY N=3 source=0 phase=0 case=saturation-shrink cycles=6
+LATENCY N=3 source=0 phase=1 case=shrink cycles=9
+LATENCY N=3 source=0 phase=1 case=short-withdraw cycles=9
+LATENCY N=3 source=0 phase=1 case=identical cycles=9
+LATENCY N=3 source=0 phase=1 case=saturation-shrink cycles=9
+LATENCY N=3 source=0 phase=2 case=shrink cycles=6
+LATENCY N=3 source=0 phase=2 case=short-withdraw cycles=6
+LATENCY N=3 source=0 phase=2 case=identical cycles=6
+LATENCY N=3 source=0 phase=2 case=saturation-shrink cycles=9
+LATENCY N=3 source=1 phase=0 case=shrink cycles=6
+LATENCY N=3 source=1 phase=0 case=short-withdraw cycles=6
+LATENCY N=3 source=1 phase=0 case=identical cycles=6
+LATENCY N=3 source=1 phase=0 case=saturation-shrink cycles=6
+LATENCY N=3 source=1 phase=1 case=shrink cycles=9
+LATENCY N=3 source=1 phase=1 case=short-withdraw cycles=9
+LATENCY N=3 source=1 phase=1 case=identical cycles=9
+LATENCY N=3 source=1 phase=1 case=saturation-shrink cycles=6
+LATENCY N=3 source=1 phase=2 case=shrink cycles=6
+LATENCY N=3 source=1 phase=2 case=short-withdraw cycles=6
+LATENCY N=3 source=1 phase=2 case=identical cycles=6
+LATENCY N=3 source=1 phase=2 case=saturation-shrink cycles=9
+LATENCY N=3 source=2 phase=0 case=shrink cycles=6
+LATENCY N=3 source=2 phase=0 case=short-withdraw cycles=6
+LATENCY N=3 source=2 phase=0 case=identical cycles=6
+LATENCY N=3 source=2 phase=0 case=saturation-shrink cycles=6
+LATENCY N=3 source=2 phase=1 case=shrink cycles=6
+LATENCY N=3 source=2 phase=1 case=short-withdraw cycles=6
+LATENCY N=3 source=2 phase=1 case=identical cycles=6
+LATENCY N=3 source=2 phase=1 case=saturation-shrink cycles=6
+LATENCY N=3 source=2 phase=2 case=shrink cycles=6
+LATENCY N=3 source=2 phase=2 case=short-withdraw cycles=6
+LATENCY N=3 source=2 phase=2 case=identical cycles=6
+LATENCY N=3 source=2 phase=2 case=saturation-shrink cycles=6
+LATENCY N=3 source=0 phase=0 case=cross-identical cycles=9
+LATENCY N=3 source=0 phase=0 case=cross-shrink cycles=9
+LATENCY N=3 source=0 phase=0 case=cross-grow cycles=9
+LATENCY N=3 source=0 phase=0 case=cross-double cycles=9
+LATENCY N=3 source=1 phase=0 case=cross-middle cycles=6
+LATENCY N=3 source=0 phase=1 case=cross-identical cycles=9
+LATENCY N=3 source=0 phase=1 case=cross-shrink cycles=9
+LATENCY N=3 source=0 phase=1 case=cross-grow cycles=9
+LATENCY N=3 source=0 phase=1 case=cross-double cycles=9
+LATENCY N=3 source=1 phase=1 case=cross-middle cycles=9
+LATENCY N=3 source=0 phase=2 case=cross-identical cycles=6
+LATENCY N=3 source=0 phase=2 case=cross-shrink cycles=6
+LATENCY N=3 source=0 phase=2 case=cross-grow cycles=6
+LATENCY N=3 source=0 phase=2 case=cross-double cycles=6
+LATENCY N=3 source=1 phase=2 case=cross-middle cycles=6
+41012 checks: 41012 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/pp116-parent-gates/tb/srp_admission'
+/usr/bin/make run N=5
+make[1]: Entering directory '$LANES/pp116-parent-gates/tb/srp_admission'
+verilator --cc --exe --build -j 8 --top-module srp_admission_wrap \
+  -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+  -GN_SOURCES_P=5 --Mdir obj_5 \
+  -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DTB_SOURCES=5" \
+  ../../hdl/srp/KL_srp_admission.sv srp_admission_wrap.sv sim_main.cpp \
+  -o Vsrp_admission_sim
+make[2]: Entering directory '$LANES/pp116-parent-gates/tb/srp_admission/obj_5'
+make[2]: Nothing to be done for 'default'.
+make[2]: Leaving directory '$LANES/pp116-parent-gates/tb/srp_admission/obj_5'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 8 threads; allocated 29.668 MB
+./obj_5/Vsrp_admission_sim
+LATENCY N=5 source=0 phase=0 case=shrink cycles=15
+LATENCY N=5 source=0 phase=0 case=short-withdraw cycles=15
+LATENCY N=5 source=0 phase=0 case=identical cycles=15
+LATENCY N=5 source=0 phase=0 case=saturation-shrink cycles=10
+LATENCY N=5 source=0 phase=1 case=shrink cycles=15
+LATENCY N=5 source=0 phase=1 case=short-withdraw cycles=10
+LATENCY N=5 source=0 phase=1 case=identical cycles=15
+LATENCY N=5 source=0 phase=1 case=saturation-shrink cycles=15
+LATENCY N=5 source=0 phase=2 case=shrink cycles=10
+LATENCY N=5 source=0 phase=2 case=short-withdraw cycles=10
+LATENCY N=5 source=0 phase=2 case=identical cycles=10
+LATENCY N=5 source=0 phase=2 case=saturation-shrink cycles=15
+LATENCY N=5 source=0 phase=3 case=shrink cycles=10
+LATENCY N=5 source=0 phase=3 case=short-withdraw cycles=10
+LATENCY N=5 source=0 phase=3 case=identical cycles=10
+LATENCY N=5 source=0 phase=3 case=saturation-shrink cycles=10
+LATENCY N=5 source=0 phase=4 case=shrink cycles=10
+LATENCY N=5 source=0 phase=4 case=short-withdraw cycles=15
+LATENCY N=5 source=0 phase=4 case=identical cycles=10
+LATENCY N=5 source=0 phase=4 case=saturation-shrink cycles=10
+LATENCY N=5 source=1 phase=0 case=shrink cycles=10
+LATENCY N=5 source=1 phase=0 case=short-withdraw cycles=15
+LATENCY N=5 source=1 phase=0 case=identical cycles=10
+LATENCY N=5 source=1 phase=0 case=saturation-shrink cycles=10
+LATENCY N=5 source=1 phase=1 case=shrink cycles=15
+LATENCY N=5 source=1 phase=1 case=short-withdraw cycles=10
+LATENCY N=5 source=1 phase=1 case=identical cycles=15
+LATENCY N=5 source=1 phase=1 case=saturation-shrink cycles=10
+LATENCY N=5 source=1 phase=2 case=shrink cycles=10
+LATENCY N=5 source=1 phase=2 case=short-withdraw cycles=10
+LATENCY N=5 source=1 phase=2 case=identical cycles=10
+LATENCY N=5 source=1 phase=2 case=saturation-shrink cycles=15
+LATENCY N=5 source=1 phase=3 case=shrink cycles=10
+LATENCY N=5 source=1 phase=3 case=short-withdraw cycles=10
+LATENCY N=5 source=1 phase=3 case=identical cycles=10
+LATENCY N=5 source=1 phase=3 case=saturation-shrink cycles=10
+LATENCY N=5 source=1 phase=4 case=shrink cycles=10
+LATENCY N=5 source=1 phase=4 case=short-withdraw cycles=10
+LATENCY N=5 source=1 phase=4 case=identical cycles=10
+LATENCY N=5 source=1 phase=4 case=saturation-shrink cycles=10
+LATENCY N=5 source=2 phase=0 case=shrink cycles=10
+LATENCY N=5 source=2 phase=0 case=short-withdraw cycles=10
+LATENCY N=5 source=2 phase=0 case=identical cycles=10
+LATENCY N=5 source=2 phase=0 case=saturation-shrink cycles=10
+LATENCY N=5 source=2 phase=1 case=shrink cycles=10
+LATENCY N=5 source=2 phase=1 case=short-withdraw cycles=10
+LATENCY N=5 source=2 phase=1 case=identical cycles=10
+LATENCY N=5 source=2 phase=1 case=saturation-shrink cycles=10
+LATENCY N=5 source=2 phase=2 case=shrink cycles=10
+LATENCY N=5 source=2 phase=2 case=short-withdraw cycles=10
+LATENCY N=5 source=2 phase=2 case=identical cycles=10
+LATENCY N=5 source=2 phase=2 case=saturation-shrink cycles=10
+LATENCY N=5 source=2 phase=3 case=shrink cycles=10
+LATENCY N=5 source=2 phase=3 case=short-withdraw cycles=10
+LATENCY N=5 source=2 phase=3 case=identical cycles=10
+LATENCY N=5 source=2 phase=3 case=saturation-shrink cycles=10
+LATENCY N=5 source=2 phase=4 case=shrink cycles=10
+LATENCY N=5 source=2 phase=4 case=short-withdraw cycles=10
+LATENCY N=5 source=2 phase=4 case=identical cycles=10
+LATENCY N=5 source=2 phase=4 case=saturation-shrink cycles=10
+LATENCY N=5 source=3 phase=0 case=shrink cycles=10
+LATENCY N=5 source=3 phase=0 case=short-withdraw cycles=10
+LATENCY N=5 source=3 phase=0 case=identical cycles=10
+LATENCY N=5 source=3 phase=0 case=saturation-shrink cycles=10
+LATENCY N=5 source=3 phase=1 case=shrink cycles=10
+LATENCY N=5 source=3 phase=1 case=short-withdraw cycles=5
+LATENCY N=5 source=3 phase=1 case=identical cycles=10
+LATENCY N=5 source=3 phase=1 case=saturation-shrink cycles=10
+LATENCY N=5 source=3 phase=2 case=shrink cycles=5
+LATENCY N=5 source=3 phase=2 case=short-withdraw cycles=10
+LATENCY N=5 source=3 phase=2 case=identical cycles=5
+LATENCY N=5 source=3 phase=2 case=saturation-shrink cycles=10
+LATENCY N=5 source=3 phase=3 case=shrink cycles=10
+LATENCY N=5 source=3 phase=3 case=short-withdraw cycles=10
+LATENCY N=5 source=3 phase=3 case=identical cycles=10
+LATENCY N=5 source=3 phase=3 case=saturation-shrink cycles=5
+LATENCY N=5 source=3 phase=4 case=shrink cycles=10
+LATENCY N=5 source=3 phase=4 case=short-withdraw cycles=10
+LATENCY N=5 source=3 phase=4 case=identical cycles=10
+LATENCY N=5 source=3 phase=4 case=saturation-shrink cycles=10
+LATENCY N=5 source=4 phase=0 case=shrink cycles=10
+LATENCY N=5 source=4 phase=0 case=short-withdraw cycles=10
+LATENCY N=5 source=4 phase=0 case=identical cycles=10
+LATENCY N=5 source=4 phase=0 case=saturation-shrink cycles=10
+LATENCY N=5 source=4 phase=1 case=shrink cycles=10
+LATENCY N=5 source=4 phase=1 case=short-withdraw cycles=5
+LATENCY N=5 source=4 phase=1 case=identical cycles=10
+LATENCY N=5 source=4 phase=1 case=saturation-shrink cycles=10
+LATENCY N=5 source=4 phase=2 case=shrink cycles=5
+LATENCY N=5 source=4 phase=2 case=short-withdraw cycles=5
+LATENCY N=5 source=4 phase=2 case=identical cycles=5
+LATENCY N=5 source=4 phase=2 case=saturation-shrink cycles=10
+LATENCY N=5 source=4 phase=3 case=shrink cycles=5
+LATENCY N=5 source=4 phase=3 case=short-withdraw cycles=10
+LATENCY N=5 source=4 phase=3 case=identical cycles=5
+LATENCY N=5 source=4 phase=3 case=saturation-shrink cycles=5
+LATENCY N=5 source=4 phase=4 case=shrink cycles=10
+LATENCY N=5 source=4 phase=4 case=short-withdraw cycles=10
+LATENCY N=5 source=4 phase=4 case=identical cycles=10
+LATENCY N=5 source=4 phase=4 case=saturation-shrink cycles=5
+LATENCY N=5 source=0 phase=0 case=cross-identical cycles=15
+LATENCY N=5 source=0 phase=0 case=cross-shrink cycles=15
+LATENCY N=5 source=0 phase=0 case=cross-grow cycles=15
+LATENCY N=5 source=0 phase=0 case=cross-double cycles=15
+LATENCY N=5 source=2 phase=0 case=cross-middle cycles=10
+LATENCY N=5 source=0 phase=1 case=cross-identical cycles=15
+LATENCY N=5 source=0 phase=1 case=cross-shrink cycles=15
+LATENCY N=5 source=0 phase=1 case=cross-grow cycles=15
+LATENCY N=5 source=0 phase=1 case=cross-double cycles=10
+LATENCY N=5 source=2 phase=1 case=cross-middle cycles=10
+LATENCY N=5 source=0 phase=2 case=cross-identical cycles=10
+LATENCY N=5 source=0 phase=2 case=cross-shrink cycles=10
+LATENCY N=5 source=0 phase=2 case=cross-grow cycles=10
+LATENCY N=5 source=0 phase=2 case=cross-double cycles=10
+LATENCY N=5 source=2 phase=2 case=cross-middle cycles=10
+LATENCY N=5 source=0 phase=3 case=cross-identical cycles=10
+LATENCY N=5 source=0 phase=3 case=cross-shrink cycles=10
+LATENCY N=5 source=0 phase=3 case=cross-grow cycles=10
+LATENCY N=5 source=0 phase=3 case=cross-double cycles=10
+LATENCY N=5 source=2 phase=3 case=cross-middle cycles=10
+LATENCY N=5 source=0 phase=4 case=cross-identical cycles=10
+LATENCY N=5 source=0 phase=4 case=cross-shrink cycles=10
+LATENCY N=5 source=0 phase=4 case=cross-grow cycles=10
+LATENCY N=5 source=0 phase=4 case=cross-double cycles=15
+LATENCY N=5 source=2 phase=4 case=cross-middle cycles=10
+201073 checks: 201073 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/pp116-parent-gates/tb/srp_admission'
+/usr/bin/make run N=8
+make[1]: Entering directory '$LANES/pp116-parent-gates/tb/srp_admission'
+verilator --cc --exe --build -j 8 --top-module srp_admission_wrap \
+  -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+  -GN_SOURCES_P=8 --Mdir obj_8 \
+  -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DTB_SOURCES=8" \
+  ../../hdl/srp/KL_srp_admission.sv srp_admission_wrap.sv sim_main.cpp \
+  -o Vsrp_admission_sim
+make[2]: Entering directory '$LANES/pp116-parent-gates/tb/srp_admission/obj_8'
+make[2]: Nothing to be done for 'default'.
+make[2]: Leaving directory '$LANES/pp116-parent-gates/tb/srp_admission/obj_8'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 29.668 MB
+./obj_8/Vsrp_admission_sim
+LATENCY N=8 source=0 phase=0 case=shrink cycles=24
+LATENCY N=8 source=0 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=0 phase=0 case=identical cycles=24
+LATENCY N=8 source=0 phase=0 case=saturation-shrink cycles=16
+LATENCY N=8 source=0 phase=1 case=shrink cycles=24
+LATENCY N=8 source=0 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=0 phase=1 case=identical cycles=24
+LATENCY N=8 source=0 phase=1 case=saturation-shrink cycles=16
+LATENCY N=8 source=0 phase=2 case=shrink cycles=16
+LATENCY N=8 source=0 phase=2 case=short-withdraw cycles=24
+LATENCY N=8 source=0 phase=2 case=identical cycles=16
+LATENCY N=8 source=0 phase=2 case=saturation-shrink cycles=16
+LATENCY N=8 source=0 phase=3 case=shrink cycles=16
+LATENCY N=8 source=0 phase=3 case=short-withdraw cycles=24
+LATENCY N=8 source=0 phase=3 case=identical cycles=16
+LATENCY N=8 source=0 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=0 phase=4 case=shrink cycles=16
+LATENCY N=8 source=0 phase=4 case=short-withdraw cycles=16
+LATENCY N=8 source=0 phase=4 case=identical cycles=16
+LATENCY N=8 source=0 phase=4 case=saturation-shrink cycles=24
+LATENCY N=8 source=0 phase=5 case=shrink cycles=16
+LATENCY N=8 source=0 phase=5 case=short-withdraw cycles=16
+LATENCY N=8 source=0 phase=5 case=identical cycles=16
+LATENCY N=8 source=0 phase=5 case=saturation-shrink cycles=24
+LATENCY N=8 source=0 phase=6 case=shrink cycles=16
+LATENCY N=8 source=0 phase=6 case=short-withdraw cycles=16
+LATENCY N=8 source=0 phase=6 case=identical cycles=16
+LATENCY N=8 source=0 phase=6 case=saturation-shrink cycles=16
+LATENCY N=8 source=0 phase=7 case=shrink cycles=16
+LATENCY N=8 source=0 phase=7 case=short-withdraw cycles=16
+LATENCY N=8 source=0 phase=7 case=identical cycles=16
+LATENCY N=8 source=0 phase=7 case=saturation-shrink cycles=16
+LATENCY N=8 source=1 phase=0 case=shrink cycles=16
+LATENCY N=8 source=1 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=0 case=identical cycles=16
+LATENCY N=8 source=1 phase=0 case=saturation-shrink cycles=16
+LATENCY N=8 source=1 phase=1 case=shrink cycles=24
+LATENCY N=8 source=1 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=1 case=identical cycles=24
+LATENCY N=8 source=1 phase=1 case=saturation-shrink cycles=16
+LATENCY N=8 source=1 phase=2 case=shrink cycles=16
+LATENCY N=8 source=1 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=2 case=identical cycles=16
+LATENCY N=8 source=1 phase=2 case=saturation-shrink cycles=16
+LATENCY N=8 source=1 phase=3 case=shrink cycles=16
+LATENCY N=8 source=1 phase=3 case=short-withdraw cycles=24
+LATENCY N=8 source=1 phase=3 case=identical cycles=16
+LATENCY N=8 source=1 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=1 phase=4 case=shrink cycles=16
+LATENCY N=8 source=1 phase=4 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=4 case=identical cycles=16
+LATENCY N=8 source=1 phase=4 case=saturation-shrink cycles=16
+LATENCY N=8 source=1 phase=5 case=shrink cycles=16
+LATENCY N=8 source=1 phase=5 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=5 case=identical cycles=16
+LATENCY N=8 source=1 phase=5 case=saturation-shrink cycles=24
+LATENCY N=8 source=1 phase=6 case=shrink cycles=16
+LATENCY N=8 source=1 phase=6 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=6 case=identical cycles=16
+LATENCY N=8 source=1 phase=6 case=saturation-shrink cycles=16
+LATENCY N=8 source=1 phase=7 case=shrink cycles=16
+LATENCY N=8 source=1 phase=7 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=7 case=identical cycles=16
+LATENCY N=8 source=1 phase=7 case=saturation-shrink cycles=16
+LATENCY N=8 source=2 phase=0 case=shrink cycles=16
+LATENCY N=8 source=2 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=0 case=identical cycles=16
+LATENCY N=8 source=2 phase=0 case=saturation-shrink cycles=16
+LATENCY N=8 source=2 phase=1 case=shrink cycles=16
+LATENCY N=8 source=2 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=1 case=identical cycles=16
+LATENCY N=8 source=2 phase=1 case=saturation-shrink cycles=16
+LATENCY N=8 source=2 phase=2 case=shrink cycles=16
+LATENCY N=8 source=2 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=2 case=identical cycles=16
+LATENCY N=8 source=2 phase=2 case=saturation-shrink cycles=16
+LATENCY N=8 source=2 phase=3 case=shrink cycles=16
+LATENCY N=8 source=2 phase=3 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=3 case=identical cycles=16
+LATENCY N=8 source=2 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=2 phase=4 case=shrink cycles=16
+LATENCY N=8 source=2 phase=4 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=4 case=identical cycles=16
+LATENCY N=8 source=2 phase=4 case=saturation-shrink cycles=16
+LATENCY N=8 source=2 phase=5 case=shrink cycles=16
+LATENCY N=8 source=2 phase=5 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=5 case=identical cycles=16
+LATENCY N=8 source=2 phase=5 case=saturation-shrink cycles=16
+LATENCY N=8 source=2 phase=6 case=shrink cycles=16
+LATENCY N=8 source=2 phase=6 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=6 case=identical cycles=16
+LATENCY N=8 source=2 phase=6 case=saturation-shrink cycles=16
+LATENCY N=8 source=2 phase=7 case=shrink cycles=16
+LATENCY N=8 source=2 phase=7 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=7 case=identical cycles=16
+LATENCY N=8 source=2 phase=7 case=saturation-shrink cycles=16
+LATENCY N=8 source=3 phase=0 case=shrink cycles=16
+LATENCY N=8 source=3 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=0 case=identical cycles=16
+LATENCY N=8 source=3 phase=0 case=saturation-shrink cycles=16
+LATENCY N=8 source=3 phase=1 case=shrink cycles=16
+LATENCY N=8 source=3 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=1 case=identical cycles=16
+LATENCY N=8 source=3 phase=1 case=saturation-shrink cycles=16
+LATENCY N=8 source=3 phase=2 case=shrink cycles=8
+LATENCY N=8 source=3 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=2 case=identical cycles=8
+LATENCY N=8 source=3 phase=2 case=saturation-shrink cycles=16
+LATENCY N=8 source=3 phase=3 case=shrink cycles=16
+LATENCY N=8 source=3 phase=3 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=3 case=identical cycles=16
+LATENCY N=8 source=3 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=3 phase=4 case=shrink cycles=16
+LATENCY N=8 source=3 phase=4 case=short-withdraw cycles=8
+LATENCY N=8 source=3 phase=4 case=identical cycles=16
+LATENCY N=8 source=3 phase=4 case=saturation-shrink cycles=16
+LATENCY N=8 source=3 phase=5 case=shrink cycles=16
+LATENCY N=8 source=3 phase=5 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=5 case=identical cycles=16
+LATENCY N=8 source=3 phase=5 case=saturation-shrink cycles=16
+LATENCY N=8 source=3 phase=6 case=shrink cycles=16
+LATENCY N=8 source=3 phase=6 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=6 case=identical cycles=16
+LATENCY N=8 source=3 phase=6 case=saturation-shrink cycles=8
+LATENCY N=8 source=3 phase=7 case=shrink cycles=16
+LATENCY N=8 source=3 phase=7 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=7 case=identical cycles=16
+LATENCY N=8 source=3 phase=7 case=saturation-shrink cycles=16
+LATENCY N=8 source=4 phase=0 case=shrink cycles=16
+LATENCY N=8 source=4 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=4 phase=0 case=identical cycles=16
+LATENCY N=8 source=4 phase=0 case=saturation-shrink cycles=16
+LATENCY N=8 source=4 phase=1 case=shrink cycles=16
+LATENCY N=8 source=4 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=4 phase=1 case=identical cycles=16
+LATENCY N=8 source=4 phase=1 case=saturation-shrink cycles=16
+LATENCY N=8 source=4 phase=2 case=shrink cycles=8
+LATENCY N=8 source=4 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=4 phase=2 case=identical cycles=8
+LATENCY N=8 source=4 phase=2 case=saturation-shrink cycles=16
+LATENCY N=8 source=4 phase=3 case=shrink cycles=8
+LATENCY N=8 source=4 phase=3 case=short-withdraw cycles=16
+LATENCY N=8 source=4 phase=3 case=identical cycles=8
+LATENCY N=8 source=4 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=4 phase=4 case=shrink cycles=16
+LATENCY N=8 source=4 phase=4 case=short-withdraw cycles=8
+LATENCY N=8 source=4 phase=4 case=identical cycles=16
+LATENCY N=8 source=4 phase=4 case=saturation-shrink cycles=16
+LATENCY N=8 source=4 phase=5 case=shrink cycles=16
+LATENCY N=8 source=4 phase=5 case=short-withdraw cycles=8
+LATENCY N=8 source=4 phase=5 case=identical cycles=16
+LATENCY N=8 source=4 phase=5 case=saturation-shrink cycles=16
+LATENCY N=8 source=4 phase=6 case=shrink cycles=16
+LATENCY N=8 source=4 phase=6 case=short-withdraw cycles=16
+LATENCY N=8 source=4 phase=6 case=identical cycles=16
+LATENCY N=8 source=4 phase=6 case=saturation-shrink cycles=8
+LATENCY N=8 source=4 phase=7 case=shrink cycles=16
+LATENCY N=8 source=4 phase=7 case=short-withdraw cycles=16
+LATENCY N=8 source=4 phase=7 case=identical cycles=16
+LATENCY N=8 source=4 phase=7 case=saturation-shrink cycles=8
+LATENCY N=8 source=5 phase=0 case=shrink cycles=16
+LATENCY N=8 source=5 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=5 phase=0 case=identical cycles=16
+LATENCY N=8 source=5 phase=0 case=saturation-shrink cycles=8
+LATENCY N=8 source=5 phase=1 case=shrink cycles=16
+LATENCY N=8 source=5 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=5 phase=1 case=identical cycles=16
+LATENCY N=8 source=5 phase=1 case=saturation-shrink cycles=16
+LATENCY N=8 source=5 phase=2 case=shrink cycles=8
+LATENCY N=8 source=5 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=5 phase=2 case=identical cycles=8
+LATENCY N=8 source=5 phase=2 case=saturation-shrink cycles=16
+LATENCY N=8 source=5 phase=3 case=shrink cycles=8
+LATENCY N=8 source=5 phase=3 case=short-withdraw cycles=16
+LATENCY N=8 source=5 phase=3 case=identical cycles=8
+LATENCY N=8 source=5 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=5 phase=4 case=shrink cycles=8
+LATENCY N=8 source=5 phase=4 case=short-withdraw cycles=8
+LATENCY N=8 source=5 phase=4 case=identical cycles=8
+LATENCY N=8 source=5 phase=4 case=saturation-shrink cycles=16
+LATENCY N=8 source=5 phase=5 case=shrink cycles=16
+LATENCY N=8 source=5 phase=5 case=short-withdraw cycles=8
+LATENCY N=8 source=5 phase=5 case=identical cycles=16
+LATENCY N=8 source=5 phase=5 case=saturation-shrink cycles=16
+LATENCY N=8 source=5 phase=6 case=shrink cycles=16
+LATENCY N=8 source=5 phase=6 case=short-withdraw cycles=8
+LATENCY N=8 source=5 phase=6 case=identical cycles=16
+LATENCY N=8 source=5 phase=6 case=saturation-shrink cycles=8
+LATENCY N=8 source=5 phase=7 case=shrink cycles=16
+LATENCY N=8 source=5 phase=7 case=short-withdraw cycles=16
+LATENCY N=8 source=5 phase=7 case=identical cycles=16
+LATENCY N=8 source=5 phase=7 case=saturation-shrink cycles=8
+LATENCY N=8 source=6 phase=0 case=shrink cycles=16
+LATENCY N=8 source=6 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=6 phase=0 case=identical cycles=16
+LATENCY N=8 source=6 phase=0 case=saturation-shrink cycles=8
+LATENCY N=8 source=6 phase=1 case=shrink cycles=16
+LATENCY N=8 source=6 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=6 phase=1 case=identical cycles=16
+LATENCY N=8 source=6 phase=1 case=saturation-shrink cycles=8
+LATENCY N=8 source=6 phase=2 case=shrink cycles=8
+LATENCY N=8 source=6 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=6 phase=2 case=identical cycles=8
+LATENCY N=8 source=6 phase=2 case=saturation-shrink cycles=16
+LATENCY N=8 source=6 phase=3 case=shrink cycles=8
+LATENCY N=8 source=6 phase=3 case=short-withdraw cycles=16
+LATENCY N=8 source=6 phase=3 case=identical cycles=8
+LATENCY N=8 source=6 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=6 phase=4 case=shrink cycles=8
+LATENCY N=8 source=6 phase=4 case=short-withdraw cycles=8
+LATENCY N=8 source=6 phase=4 case=identical cycles=8
+LATENCY N=8 source=6 phase=4 case=saturation-shrink cycles=16
+LATENCY N=8 source=6 phase=5 case=shrink cycles=8
+LATENCY N=8 source=6 phase=5 case=short-withdraw cycles=8
+LATENCY N=8 source=6 phase=5 case=identical cycles=8
+LATENCY N=8 source=6 phase=5 case=saturation-shrink cycles=16
+LATENCY N=8 source=6 phase=6 case=shrink cycles=16
+LATENCY N=8 source=6 phase=6 case=short-withdraw cycles=8
+LATENCY N=8 source=6 phase=6 case=identical cycles=16
+LATENCY N=8 source=6 phase=6 case=saturation-shrink cycles=8
+LATENCY N=8 source=6 phase=7 case=shrink cycles=16
+LATENCY N=8 source=6 phase=7 case=short-withdraw cycles=8
+LATENCY N=8 source=6 phase=7 case=identical cycles=16
+LATENCY N=8 source=6 phase=7 case=saturation-shrink cycles=8
+LATENCY N=8 source=7 phase=0 case=shrink cycles=16
+LATENCY N=8 source=7 phase=0 case=short-withdraw cycles=8
+LATENCY N=8 source=7 phase=0 case=identical cycles=16
+LATENCY N=8 source=7 phase=0 case=saturation-shrink cycles=8
+LATENCY N=8 source=7 phase=1 case=shrink cycles=16
+LATENCY N=8 source=7 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=7 phase=1 case=identical cycles=16
+LATENCY N=8 source=7 phase=1 case=saturation-shrink cycles=8
+LATENCY N=8 source=7 phase=2 case=shrink cycles=8
+LATENCY N=8 source=7 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=7 phase=2 case=identical cycles=8
+LATENCY N=8 source=7 phase=2 case=saturation-shrink cycles=8
+LATENCY N=8 source=7 phase=3 case=shrink cycles=8
+LATENCY N=8 source=7 phase=3 case=short-withdraw cycles=16
+LATENCY N=8 source=7 phase=3 case=identical cycles=8
+LATENCY N=8 source=7 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=7 phase=4 case=shrink cycles=8
+LATENCY N=8 source=7 phase=4 case=short-withdraw cycles=8
+LATENCY N=8 source=7 phase=4 case=identical cycles=8
+LATENCY N=8 source=7 phase=4 case=saturation-shrink cycles=16
+LATENCY N=8 source=7 phase=5 case=shrink cycles=8
+LATENCY N=8 source=7 phase=5 case=short-withdraw cycles=8
+LATENCY N=8 source=7 phase=5 case=identical cycles=8
+LATENCY N=8 source=7 phase=5 case=saturation-shrink cycles=16
+LATENCY N=8 source=7 phase=6 case=shrink cycles=8
+LATENCY N=8 source=7 phase=6 case=short-withdraw cycles=8
+LATENCY N=8 source=7 phase=6 case=identical cycles=8
+LATENCY N=8 source=7 phase=6 case=saturation-shrink cycles=8
+LATENCY N=8 source=7 phase=7 case=shrink cycles=16
+LATENCY N=8 source=7 phase=7 case=short-withdraw cycles=8
+LATENCY N=8 source=7 phase=7 case=identical cycles=16
+LATENCY N=8 source=7 phase=7 case=saturation-shrink cycles=8
+LATENCY N=8 source=0 phase=0 case=cross-identical cycles=24
+LATENCY N=8 source=0 phase=0 case=cross-shrink cycles=24
+LATENCY N=8 source=0 phase=0 case=cross-grow cycles=24
+LATENCY N=8 source=0 phase=0 case=cross-double cycles=16
+LATENCY N=8 source=4 phase=0 case=cross-middle cycles=16
+LATENCY N=8 source=0 phase=1 case=cross-identical cycles=24
+LATENCY N=8 source=0 phase=1 case=cross-shrink cycles=24
+LATENCY N=8 source=0 phase=1 case=cross-grow cycles=24
+LATENCY N=8 source=0 phase=1 case=cross-double cycles=16
+LATENCY N=8 source=4 phase=1 case=cross-middle cycles=16
+LATENCY N=8 source=0 phase=2 case=cross-identical cycles=16
+LATENCY N=8 source=0 phase=2 case=cross-shrink cycles=16
+LATENCY N=8 source=0 phase=2 case=cross-grow cycles=16
+LATENCY N=8 source=0 phase=2 case=cross-double cycles=24
+LATENCY N=8 source=4 phase=2 case=cross-middle cycles=8
+LATENCY N=8 source=0 phase=3 case=cross-identical cycles=16
+LATENCY N=8 source=0 phase=3 case=cross-shrink cycles=16
+LATENCY N=8 source=0 phase=3 case=cross-grow cycles=16
+LATENCY N=8 source=0 phase=3 case=cross-double cycles=24
+LATENCY N=8 source=4 phase=3 case=cross-middle cycles=8
+LATENCY N=8 source=0 phase=4 case=cross-identical cycles=16
+LATENCY N=8 source=0 phase=4 case=cross-shrink cycles=16
+LATENCY N=8 source=0 phase=4 case=cross-grow cycles=16
+LATENCY N=8 source=0 phase=4 case=cross-double cycles=16
+LATENCY N=8 source=4 phase=4 case=cross-middle cycles=16
+LATENCY N=8 source=0 phase=5 case=cross-identical cycles=16
+LATENCY N=8 source=0 phase=5 case=cross-shrink cycles=16
+LATENCY N=8 source=0 phase=5 case=cross-grow cycles=16
+LATENCY N=8 source=0 phase=5 case=cross-double cycles=16
+LATENCY N=8 source=4 phase=5 case=cross-middle cycles=16
+LATENCY N=8 source=0 phase=6 case=cross-identical cycles=16
+LATENCY N=8 source=0 phase=6 case=cross-shrink cycles=16
+LATENCY N=8 source=0 phase=6 case=cross-grow cycles=16
+LATENCY N=8 source=0 phase=6 case=cross-double cycles=16
+LATENCY N=8 source=4 phase=6 case=cross-middle cycles=16
+LATENCY N=8 source=0 phase=7 case=cross-identical cycles=16
+LATENCY N=8 source=0 phase=7 case=cross-shrink cycles=16
+LATENCY N=8 source=0 phase=7 case=cross-grow cycles=16
+LATENCY N=8 source=0 phase=7 case=cross-double cycles=16
+LATENCY N=8 source=4 phase=7 case=cross-middle cycles=16
+991231 checks: 991231 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/pp116-parent-gates/tb/srp_admission'
+make: Leaving directory '$LANES/pp116-parent-gates/tb/srp_admission'

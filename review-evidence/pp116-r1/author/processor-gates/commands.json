@@ -1,0 +1,90 @@
+[
+  {
+    "name": "links",
+    "command": [
+      "python3",
+      "scripts/check-links.py"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.08
+  },
+  {
+    "name": "matrix",
+    "command": [
+      "python3",
+      "scripts/check-matrix.py"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.04
+  },
+  {
+    "name": "waveforms",
+    "command": [
+      "python3",
+      "scripts/render-wavedrom.py",
+      "--check"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.4
+  },
+  {
+    "name": "stale",
+    "command": [
+      "make",
+      "stale"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.05
+  },
+  {
+    "name": "docs-all",
+    "command": [
+      "make",
+      "check"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 31.01
+  },
+  {
+    "name": "lint",
+    "command": [
+      "./scripts/lint_hdl.sh"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 8.12
+  },
+  {
+    "name": "module-matrix",
+    "command": [
+      "python3",
+      "scripts/gen_matrix.py",
+      "--check"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.06
+  },
+  {
+    "name": "portability",
+    "command": [
+      "./syn/yosys/run.sh"
+    ],
+    "cwd": "$LANES/pp116-parent-gates",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 71.98
+  }
+]

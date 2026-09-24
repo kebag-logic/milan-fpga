@@ -1,0 +1,77 @@
+{
+  "processor": {
+    "base": "a8f8ce810ddba1816cd129d0afcd71e6e02ade1b",
+    "head": "a43d07668ff03efc299fbbf2a3891f2aa90255f7",
+    "branch": "116-parent-gates",
+    "message": "Satisfy parent port, naming and test evidence gates",
+    "clean": true,
+    "changed_files": [
+      "hdl/aecp/KL_aecp_desc_mem_guard.sv",
+      "hdl/top/protocol_processor_top.sv",
+      "tb/desc_mem_guard/mutate.py",
+      "tb/pp_top/gsi_mutants.py",
+      "tb/srp_admission/mutants.py"
+    ]
+  },
+  "consumer": {
+    "base": "35f0695815c202392b6b4806bb9f59dd110687ed",
+    "head": "ea96db3246d34dbf3ece2d1aca2a9aaf24596216",
+    "branch": "508-pp-pin-adopt",
+    "message": "Adopt processor parent gate fixes for issue 116",
+    "clean": true,
+    "changed_files": [
+      "protocol-processor"
+    ],
+    "gitlink": "a43d07668ff03efc299fbbf2a3891f2aa90255f7",
+    "gate_inputs_unchanged": true
+  },
+  "validation": {
+    "before": {
+      "recorded_commands": 5,
+      "all_rc": 0
+    },
+    "after": {
+      "recorded_commands": 5,
+      "all_rc": 0
+    },
+    "before-shapes": {
+      "recorded_commands": 1,
+      "all_rc": 0
+    },
+    "after-shapes": {
+      "recorded_commands": 1,
+      "all_rc": 0
+    },
+    "processor-gates": {
+      "recorded_commands": 8,
+      "all_rc": 0
+    },
+    "consumer-gates": {
+      "recorded_commands": 10,
+      "all_rc": 0
+    },
+    "control": {
+      "recorded_commands": 3,
+      "all_rc": 1
+    },
+    "integration-comparison": {
+      "recorded_commands": 2,
+      "all_rc": 0
+    }
+  },
+  "parent_integration": {
+    "before": {
+      "checks": 371,
+      "failures": 0
+    },
+    "after": {
+      "checks": 371,
+      "failures": 0
+    },
+    "all_named_verdicts_identical": true
+  },
+  "frontend": {
+    "findings": 4,
+    "ratchet_unchanged": true
+  }
+}

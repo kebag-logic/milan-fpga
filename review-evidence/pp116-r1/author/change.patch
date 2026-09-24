@@ -1,0 +1,105 @@
+diff --git a/hdl/aecp/KL_aecp_desc_mem_guard.sv b/hdl/aecp/KL_aecp_desc_mem_guard.sv
+index 952fca3..88b9c79 100644
+--- a/hdl/aecp/KL_aecp_desc_mem_guard.sv
++++ b/hdl/aecp/KL_aecp_desc_mem_guard.sv
+@@ -37,7 +37,7 @@ module KL_aecp_desc_mem_guard (
+     input  wire   [8:0] s_req_beats_i,   //! number of 64-bit beats
+     output logic        s_rsp_valid_o,   //! memory response, passed through
+     input  wire         s_rsp_ready_i,   //! store consumes the response
+-    output logic [63:0] s_rsp_data_o,    //! response bytes, unchanged
++    output logic [63:0] s_rsp_data_o,    //! response data, unchanged
+     output logic        s_rsp_last_o,    //! terminal response beat
+     output logic        s_rsp_err_o,     //! terminal error response
+ 
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 7cee25d..bce6c6a 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -519,10 +519,9 @@ module protocol_processor_top
+     //! srp_sr_admitted_o (parent #551 decision; architecture 10 section 6.3).
+     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+     //! Real Σ-slope verdict for the current declaration, with no optimistic
+-    //! term. Low from acceptance until the new slope completes a full round:
+-    //! at most 3*N_STREAM_OUT_P clocks without another declaration/withdrawal
+-    //! (4 clocks at one source). While any declaration is pending, no other
+-    //! bit rises: capacity frees only by withdrawal or an evaluated shrink.
++    //! term. Low from acceptance until the new slope completes a full round.
++    //! While any declaration is pending, no other bit rises: capacity frees
++    //! only by withdrawal or an evaluated shrink.
+     //! See architecture 10 section 6.3.
+     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o, //! per-source granted idleSlope (802.1Q §34.6.1.1); zero until the real grant, follows srp_sr_admitted_o
+@@ -817,6 +816,8 @@ module protocol_processor_top
+   assign srp_tk_decl_state_o     = srp_tk_decl_state_w;
+   assign srp_lstn_reg_state_o    = srp_lstn_reg_state_w;
+   assign srp_active_o            = srp_active_w;
++  // Admission latency from acceptance is at most 3*N_STREAM_OUT_P clocks
++  // (4 clocks at one source) without another declaration/withdrawal.
+   assign srp_sr_admitted_o       = srp_sr_admitted_w;
+   assign srp_granted_slope_bps_o = srp_granted_slope_w;
+   assign srp_src_fail_code_o     = srp_src_fail_code_nc_w;
+@@ -2525,6 +2526,8 @@ module protocol_processor_top
+       .m0_err_o       (nvm_err_w),
+       .m0_err_cause_o (nvm_err_cause_w),
+       .m0_abort_i     (nvm_abort_w),
++      // The saved-state writer is not present yet; keep manager 1's request,
++      // payload and handshakes idle so only the binding manager uses the port.
+       .m1_req_i       (1'b0),
+       .m1_we_i        (1'b0),
+       .m1_rid_i       (8'd0),
+@@ -2538,6 +2541,7 @@ module protocol_processor_top
+       .m1_done_o      (nm1_done_nc_w),
+       .m1_err_o       (nm1_err_nc_w),
+       .m1_err_cause_o (nm1_err_cause_nc_w),
++      // The absent manager 1 owns no read and therefore has nothing to abort.
+       .m1_abort_i     (1'b0),
+       .p_req_o        (np_req_w),
+       .p_we_o         (np_we_w),
+diff --git a/tb/desc_mem_guard/mutate.py b/tb/desc_mem_guard/mutate.py
+index aee0c53..2f344ef 100644
+--- a/tb/desc_mem_guard/mutate.py
++++ b/tb/desc_mem_guard/mutate.py
+@@ -25,7 +25,9 @@ def main() -> int:
+     cmd = ["make", "-C", str(suite), "run", f"GUARD_SRC={mutant}",
+            "OBJ_DIR=obj_mutant", "ARGS=--late-only"]
+     with log.open("w") as stream:
+-        result = subprocess.run(cmd, stdout=stream, stderr=subprocess.STDOUT, timeout=600)
++        # The late-only case bounds boot and every read by BOUND cycles;
++        # its remaining idle steps have fixed counts, even if memory stalls.
++        result = subprocess.run(cmd, stdout=stream, stderr=subprocess.STDOUT)
+     text = log.read_text()
+     failures = [line for line in text.splitlines() if line.startswith("FAIL:")]
+     expected = "FAIL: third locate late_beats_never_served: STREAM_INPUT received another burst's bytes"
+diff --git a/tb/pp_top/gsi_mutants.py b/tb/pp_top/gsi_mutants.py
+index ebb616c..9a0bbc6 100644
+--- a/tb/pp_top/gsi_mutants.py
++++ b/tb/pp_top/gsi_mutants.py
+@@ -76,9 +76,10 @@ def mutations() -> list[tuple[str, str, str, str, int, str]]:
+ def run(command: list[str], cwd: Path, log: Path) -> int:
+     """Run in the foreground, recording the command's own status and output."""
+     with log.open("w") as stream:
++        # Each fixed variant runs gsi-internal-only: boot, query and frame
++        # waits have cycle budgets; the other loops consume finite inputs.
+         return subprocess.run(command, cwd=cwd, stdout=stream,
+-                              stderr=subprocess.STDOUT, check=False,
+-                              timeout=1800).returncode
++                              stderr=subprocess.STDOUT, check=False).returncode
+ 
+ 
+ def check_variant(tree: Path, output: Path, name: str, expected: str,
+diff --git a/tb/srp_admission/mutants.py b/tb/srp_admission/mutants.py
+index 06d621b..c61f450 100644
+--- a/tb/srp_admission/mutants.py
++++ b/tb/srp_admission/mutants.py
+@@ -58,8 +58,10 @@ def build_tree(tree: Path) -> None:
+ def run_suite(tree: Path, suite: str, command: tuple[str, ...], log: Path) -> tuple[int, str]:
+     """Run one suite in the tree; return its exit status and its log text."""
+     with log.open("w") as stream:
++        # The twelve legs use fixed source/case loops and cycle observations;
++        # decoder drains and the recurring timer cadence are not mutated.
+         result = subprocess.run(list(command), cwd=tree / suite, stdout=stream,
+-                                stderr=subprocess.STDOUT, timeout=1200, check=False)
++                                stderr=subprocess.STDOUT, check=False)
+     return result.returncode, log.read_text()
+ 
+ 

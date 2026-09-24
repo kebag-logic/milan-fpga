@@ -1,0 +1,119 @@
+[
+  {
+    "name": "ports",
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 2.3
+  },
+  {
+    "name": "naming",
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.44
+  },
+  {
+    "name": "test-evidence",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 5.04
+  },
+  {
+    "name": "cpp-idiom",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 1.16
+  },
+  {
+    "name": "py-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 2.97
+  },
+  {
+    "name": "frontend",
+    "command": [
+      "python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 144.69
+  },
+  {
+    "name": "source-lists",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 1.4
+  },
+  {
+    "name": "processor-sources",
+    "command": [
+      "python3",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.21
+  },
+  {
+    "name": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 4.12
+  },
+  {
+    "name": "integration",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow",
+      "-j8"
+    ],
+    "cwd": "$LANES/pp116-parent-consumer",
+    "rc": 0,
+    "expected": 0,
+    "seconds": 19.9
+  }
+]

@@ -1,0 +1,25 @@
+make: Entering directory '$LANES/pp116-parent-gates/tb/desc_mem_guard'
+verilator --cc --exe --build -j 2 --top-module desc_mem_guard_wrap \
+  --Mdir obj_mutant  -Wall -Wno-DECLFILENAME \
+  -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../hdl/aecp/KL_aecp_desc_store.sv /tmp/pp116-after-desc-mutants/KL_aecp_desc_mem_guard.no_hold.sv wrap.sv sim_main.cpp -o Vguard_sim
+make[1]: Entering directory '$LANES/pp116-parent-gates/tb/desc_mem_guard/obj_mutant'
+g++  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated_threads.cpp
+python3 $VALIDATION_TOOLS/verilator-v5.050/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vdesc_mem_guard_wrap.cpp Vdesc_mem_guard_wrap___024root__0.cpp Vdesc_mem_guard_wrap___024root__Slow.cpp Vdesc_mem_guard_wrap___024root__0__Slow.cpp Vdesc_mem_guard_wrap__Syms__Slow.cpp > Vdesc_mem_guard_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vdesc_mem_guard_wrap__ALL.o Vdesc_mem_guard_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vdesc_mem_guard_wrap__ALL.a    -pthread -lpthread -latomic   -o Vguard_sim
+rm Vdesc_mem_guard_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$LANES/pp116-parent-gates/tb/desc_mem_guard/obj_mutant'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.160 MB sources in 4 modules, into 0.170 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.080 s (elab=0.003, cvt=0.016, bld=5.052); cpu 0.031 s on 2 threads; allocated 45.562 MB
+./obj_mutant/Vguard_sim --late-only
+third locate bytes: 00060000deadbeef cafef00d01234567; want 0005000011223344 5566778899aabbcc
+FAIL: third locate late_beats_never_served: STREAM_INPUT received another burst's bytes
+after drain bytes: 0005000011223344 5566778899aabbcc; want 0005000011223344 5566778899aabbcc
+late case completed: accept=80 first=6080 end=6083 third-presented=4185 held=0 overlap-accepts=1 timeout-answer=4103 third-answer=1900
+18 checks: 17 PASS, 1 FAIL
+make: *** [Makefile:13: run] Error 1
+make: Leaving directory '$LANES/pp116-parent-gates/tb/desc_mem_guard'
