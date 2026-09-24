@@ -31,7 +31,19 @@ it: GitHub opens a referenced footnote's section with a visually hidden
 heading that the pinned cmark-gfm does not emit. Any other disagreement
 fails.
 
-`em_dash_arms()` runs every shape that carries one `## Old` heading through
+THE FILE VIEW. That arm compares the text of whichever element carries a
+heading's position, so a page that forged the position on an element of
+its own agreed while the walk listed a label GitHub never shows (R238-4 F1
+on PR #538). The fixture's `file_view` pages are recorded in the API's
+`markdown` mode, the view GitHub gives a repository file, whose headings
+carry their anchors. For each one an arm requires every heading
+`gen_toc.headings()` lists, its text as a reader sees it and its anchor, to
+be one GitHub shows, in order. They are the pages the walk withholds by
+design, which the arm above cannot hold: the position attribute in each
+spelling, and pages nested past the depth GitHub renders.
+
+`em_dash_arms()` runs every shape that carries one `## Old` heading, and
+every file-view page that carries one `## Old <em dash> heading`, through
 the shipped em-dash gate on real Git commits, the consumer that decides an
 exemption from these headings. Only data lives here: this module holds no
 Markdown rule and imports no expression engine (`gen_toc._owner_guards`).
@@ -42,12 +54,16 @@ import tempfile
 from pathlib import Path
 from types import ModuleType
 
-from gen_toc import refusals, rendered_headings
-from gen_toc_renderer import headings_of
+from gen_toc import headings, refusals, rendered_headings, strip_md
+from gen_toc_renderer import anchored_headings_of, headings_of
+from gen_toc_renderer_cases import FORGED
 
 SHAPES = Path(__file__).resolve().with_name("gen_toc_shapes.json")
 #: What every recorded request asked for, besides its page.
 CONTEXT, MODE = "kebag-logic/milan-fpga", "gfm"
+#: The mode of GitHub's file view, which the `file_view` pages were sent in.
+FILE_VIEW = "markdown"
+_HIDDEN_OLD = "\n## Old \u2014 heading\n"
 #: Acceptance 1's family-one grid, spelled here and not read from the
 #: fixture: every marker at and past its content column, each tag outside
 #: and inside the item, and the boundaries that already agreed.
@@ -57,9 +73,10 @@ _BOUNDARIES = ("one space", "four spaces", "block quote",
                "footnote definition four spaces", "tab")
 
 
-def load() -> list[dict]:
-    """Every recorded shape, in the fixture's order."""
-    return json.loads(SHAPES.read_text(encoding="utf-8"))["shapes"]
+def load(part: str = "shapes") -> list[dict]:
+    """Every recorded shape, or with `file_view` every page recorded in
+    the file view, in the fixture's order."""
+    return json.loads(SHAPES.read_text(encoding="utf-8"))[part]
 
 
 def _sha256(data: bytes) -> str:
@@ -67,19 +84,35 @@ def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def receipt_holds(shape: dict) -> bool:
+def receipt_holds(shape: dict, mode: str = MODE) -> bool:
     """Whether a recorded rendering is what it says: both hashes match the
-    bytes, the request asked for exactly this page in `gfm` mode with this
+    bytes, the request asked for exactly this page in `mode` with this
     repository's context, and the headings written beside it are the ones
-    the response carries."""
+    the response carries, with their anchors in the file view."""
     request = shape["request_bytes"].encode("utf-8")
     response = shape["response_bytes"].encode("utf-8")
+    read = anchored_headings_of if mode == FILE_VIEW else headings_of
     return (_sha256(request) == shape["request_sha256"]
             and _sha256(response) == shape["response_sha256"]
-            and json.loads(request) == {"context": CONTEXT, "mode": MODE,
+            and json.loads(request) == {"context": CONTEXT, "mode": mode,
                                         "text": shape["page"]}
-            and [list(h) for h in headings_of(shape["response_bytes"])]
+            and [list(h) for h in read(shape["response_bytes"])]
             == shape["headings"])
+
+
+def shown_in_file_view(text: str, shown: list[list]) -> bool:
+    """Whether every heading `headings()` lists for a page is one of the
+    headings its file view `shown`, in the same order: the same level, the
+    text a reader sees (`strip_md`, blanks collapsed) and the same anchor.
+    The walk may leave a heading out, which withholds; it may not list one
+    GitHub does not show, or give one another anchor. A walk that runs out
+    of stack on the page answers no."""
+    rest = iter(tuple(heading) for heading in shown)
+    try:
+        return all((level, " ".join(strip_md(raw).split()), anchor) in rest
+                   for level, raw, anchor in headings(text))
+    except RecursionError:
+        return False
 
 
 def _coverage(shapes: list[dict]) -> list[tuple[str, str, object]]:
@@ -119,9 +152,29 @@ def _coverage(shapes: list[dict]) -> list[tuple[str, str, object]]:
     ]
 
 
+def _view_coverage(views: list[dict]) -> list[tuple[str, str, object]]:
+    """What the file view must carry, spelled here: the position attribute
+    in every spelling the renderer's arms forge, and a page nested past
+    GitHub's depth, whose file view drops a heading the walk would list."""
+    pages = {view["page"] for view in views}
+    return [
+        ("I437 the file-view check refuses a heading the file view does "
+         "not show, or shows with another text or anchor", "",
+         lambda t: shown_in_file_view("## A\n", [[2, "A", "a"]])
+         and not any(shown_in_file_view("## A\n", shown) for shown in (
+             [], [[2, "B", "a"]], [[2, "A", "b"]], [[3, "A", "a"]]))),
+        ("I437 the file view carries every forged spelling of the position "
+         "attribute", "", lambda t: set(FORGED.values()) <= pages),
+        ("I437 the file view carries a page GitHub cuts short by depth", "",
+         lambda t: any(len(view["headings"]) == 1 and "## B\n" in view["page"]
+                       for view in views)),
+    ]
+
+
 def shape_arms() -> list[tuple[str, str, object]]:
-    """Two arms per recorded shape, then the set's coverage arms."""
-    shapes = load()
+    """Two arms per recorded shape, two per file-view page, then the
+    coverage arms of each."""
+    shapes, views = load(), load("file_view")
     arms = []
     for shape in shapes:
         want = [tuple(h) for h in shape["headings"]]
@@ -132,22 +185,34 @@ def shape_arms() -> list[tuple[str, str, object]]:
         arms.append((f"I437 renders as GitHub does: {shape['name']}",
                      shape["page"],
                      lambda t, w=want: rendered_headings(t) == w))
-    return arms + _coverage(shapes)
+    for view in views:
+        arms.append((f"I437 file-view receipt: {view['name']}", view["page"],
+                     lambda t, v=view: receipt_holds(v, FILE_VIEW)))
+        arms.append((f"I437 lists only what the file view shows, label and "
+                     f"anchor: {view['name']}", view["page"],
+                     lambda t, v=view: shown_in_file_view(t, v["headings"])))
+    return arms + _coverage(shapes) + _view_coverage(views)
 
 
 def em_dash_rows() -> list[tuple[str, str, bool]]:
     """(name, base page, GitHub rendered it) for every shape carrying one
-    `## Old` line and no other `Old`, that line taking an em dash: whether
-    GitHub rendered that heading decides whether a label copied from it
-    may be exempt."""
+    `## Old` line and no other `Old`, that line taking an em dash, and for
+    every file-view page carrying one `## Old <em dash> heading` as it is:
+    whether GitHub rendered that heading decides whether a label copied
+    from it may be exempt. The file view says so by its anchor."""
     rows = []
     for shape in load():
         page = shape["page"]
         if page.count("Old") != 1 or "\n## Old\n" not in "\n" + page:
             continue
-        base = ("\n" + page).replace("\n## Old\n",
-                                     "\n## Old \u2014 heading\n")[1:]
+        base = ("\n" + page).replace("\n## Old\n", _HIDDEN_OLD)[1:]
         rows.append((shape["name"], base, [2, "Old"] in shape["headings"]))
+    for view in load("file_view"):
+        page = view["page"]
+        if page.count("Old") == 1 and _HIDDEN_OLD in "\n" + page:
+            rows.append((f"file view: {view['name']}", page,
+                         any(anchor == "old--heading"
+                             for _, _, anchor in view["headings"])))
     return rows
 
 

@@ -59,14 +59,26 @@ A setext label is its rendered text.
 Raw HTML headings are never listed.
 GitHub's hidden footnote label is never listed either.
 
-A page naming the renderer's position attribute lists nothing.
+A page able to forge the position attribute lists nothing.
+Letter case, character references and backslash escapes all count.
+
+A page nesting elements over 200 deep lists nothing.
+GitHub drops everything from an element 256 deep.
+
 Each limit withholds a heading and grants no exemption.
 
-The global 26-character refusal policy remains unchanged.
+GitHub's file view reads some raw HTML differently.
+[CONTRIBUTING.md](../CONTRIBUTING.md) 6.1 measures that difference and its direction.
+
+The refusal policy names 26 characters.
+It also names the position attribute in any letter case.
+
 Refusal binds both provenance and the base heading's authority.
 
 [`gen_toc_shapes.json`](../scripts/gen_toc_shapes.json) records GitHub renderings.
 The self-test compares every shape with the renderer.
+
+Its file-view pages keep GitHub's anchors for withheld cases.
 
 Synthetic inputs and renderer receipts stay outside tracked Markdown.
 

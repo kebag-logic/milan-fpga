@@ -39,8 +39,8 @@ from pathlib import Path
 from gen_toc import (ARM_FAMILIES, CODE, COMMENT, FENCE, HTML, MIN_ARMS,
                      REFUSED, TEXT, _owner_guards, _tally_guards,
                      generated_block, headings, refusal_notes, refusals)
-from gen_toc_renderer_cases import (renderer_guard_arms, renderer_heading_arms,
-                                    renderer_walk_arms)
+from gen_toc_renderer_cases import (FORGED, renderer_guard_arms,
+                                    renderer_heading_arms, renderer_walk_arms)
 
 
 #: A page whose Contents block the generator owns: three sections, one
@@ -783,10 +783,26 @@ def refusal_arms() -> list[tuple[str, str, object]]:
     renderer's disagree is named with its line, its column and its code
     point and obtains no provenance, so no label copied from it can be
     exempt -- on the branch page and on the BASE page alike, which is
-    `check_em_dash`'s own arm.
+    `check_em_dash`'s own arm. So is a page that spells the renderer's
+    position attribute, in any letter case (R237-5 and R238-4 on PR #538).
     """
     page = _ARM_PAGE
+    upper = FORGED["in upper case"]
     return [
+        ("the renderer's position attribute is refused in every letter "
+         "case, with its line and column", "",
+         lambda t: [refusals(FORGED["in mixed case"]), refusals(upper),
+                    refusals(upper.replace("DATA-SOURCEPOS", "data-sourcepos"))]
+         == [[(15, 5, "Data-SourcePos")], [(15, 5, "DATA-SOURCEPOS")],
+             [(15, 5, "data-sourcepos")]]),
+        ("the note names the page, the line, the column and the attribute "
+         "as spelled", "", lambda t: [note.startswith(
+             "docs/x.md:15: `DATA-SOURCEPOS` at column 5 ")
+             for note in refusal_notes("docs/x.md", upper)] == [True]),
+        ("an attribute and a refused character on one line are named in "
+         "column order", "",
+         lambda t: refusals("\u00a0<b DATA-SOURCEPOS=1>\u2003") == [
+             (1, 1, "\u00a0"), (1, 5, "DATA-SOURCEPOS"), (1, 22, "\u2003")]),
         ("no page of spaces and tabs is refused", "",
          lambda t: refusals("# H\n\n\t \n## A\n") == []),
         ("every refused character is refused, with its line and column",

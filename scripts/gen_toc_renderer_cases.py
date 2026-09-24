@@ -12,16 +12,85 @@ walk, heading and guard families. Split off from those tables because they
 had reached rule 12's long-module ratchet (docs/development/CODE_QUALITY.md).
 Only data lives here: this module holds no Markdown rule and imports no
 expression engine (`gen_toc._owner_guards`).
+
+The first correction round on PR #538 added an arm for each property the
+reviews R237-5 and R238-4 showed could be removed with every arm green: the
+position attribute in any spelling a page can give it, a page nested past
+the recursion limit, each kind of block that renders as its own element,
+the heading tag matched to its level, the strikethrough extension, the
+drift refusal as `bind()` itself raises it, and the extensions attached.
 """
+import importlib.metadata
+
 from gen_toc import (CODE, COMMENT, FENCE, HEADING_LINE, HTML, TABLE_ROW,
                      TEXT, headings, label, line_kinds, rendered_headings)
-from gen_toc_renderer import CMARK_GFM, LOCK, PINNED, lock_pins, verify
+from gen_toc_renderer import (CMARK_GFM, EXTENSIONS, LOCK, PINNED,
+                              RendererError, bind, lock_pins, verify)
+
+#: Three plain sections, then a heading that a raw comment left open hides
+#: from GitHub (#516). With `FORGED` these are the file-view pages the
+#: em-dash gate is also run on (`gen_toc_shape_cases.em_dash_rows`).
+_SECTIONS = ("# Page\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\n"
+             "Body.\n\n")
+_HIDDEN = "<span>\n<!--\n\n## Old \u2014 heading\n</span>\n"
+#: That page with a raw element carrying the hidden heading's position, in
+#: each spelling the HTML parse reads as the renderer's own attribute
+#: (R237-5 and R238-4 F1 on PR #538). A raw `<h2>` spells it in upper or
+#: mixed case. In the last two a raw `<h2>` is left open in a quoted value
+#: that the paragraph closes, so its text is read as attributes, and the
+#: text spells the attribute through a character reference or a backslash
+#: escape, which cmark-gfm writes out decoded. Each position is the hidden
+#: heading's own: line 20, or 22 once the paragraph is added.
+FORGED = {
+    "in upper case": _SECTIONS + '<h2 DATA-SOURCEPOS="20:1-20:18">x</h2>\n\n'
+    + _HIDDEN,
+    "in mixed case": _SECTIONS + '<h2 Data-SourcePos="20:1-20:18">x</h2>\n\n'
+    + _HIDDEN,
+    "through a character reference": _SECTIONS + "<h2 title='\n\n"
+    "z' &#100;ata-sourcepos=22:1-22:18 y\n\n" + _HIDDEN,
+    "through a backslash escape": _SECTIONS + "<h2 title='\n\n"
+    "z' data\\-sourcepos=22:1-22:18 y\n\n" + _HIDDEN,
+}
+#: A raw comment left open, then a blank line: what follows renders as
+#: nothing on GitHub.
+_OPEN = "<span>\n<!--\n\n"
+#: Block quotes nested past the 1000 frames CPython allows by default.
+_DEEP = 1100
 
 
 def listed(pairs: list[tuple[str, str]]) -> object:
     """A predicate over a page: `headings()` lists exactly these (text,
     anchor) pairs, so an arm can hold a label and its anchor together."""
     return lambda text: [(r, a) for _, r, a in headings(text)] == pairs
+
+
+def _answers(pairs: list[tuple[str, str]]) -> object:
+    """`listed(pairs)`, false rather than raising when the walk runs out of
+    stack, so a page nested too deep fails its arm by name (R237-5 F2)."""
+    def holds(text: str) -> bool:
+        """Whether `text` lists exactly `pairs`, no stack left counting as
+        no."""
+        try:
+            return listed(pairs)(text)
+        except RecursionError:
+            return False
+    return holds
+
+
+def _refusal(**releases: str | None) -> str:
+    """Why `bind()` refuses the pinned releases with these replaced, or ""
+    when it binds them. A release of None is one not installed at all."""
+    def installed(name: str) -> str:
+        """The release `bind()` is told is installed for `name`."""
+        release = dict(PINNED, **releases)[name]
+        if release is None:
+            raise importlib.metadata.PackageNotFoundError(name)
+        return release
+    try:
+        bind(installed)
+    except RendererError as exc:
+        return str(exc)
+    return ""
 
 
 def renderer_walk_arms() -> list[tuple[str, str, object]]:
@@ -65,6 +134,20 @@ def renderer_walk_arms() -> list[tuple[str, str, object]]:
          "- [ ] a\n- [x] b\n", lambda k: k[:2] == [TEXT] * 2),
         ("I437 a lone carriage return ends a line for the renderer",
          "```\r```\n## Probe\n", lambda k: k[:2] == [FENCE, TEXT]),
+        # One per kind that renders as its own element (R237-5 F3): the
+        # lines of a block the open comment swallows are commented.
+        ("I437 a block quote an open comment swallows is commented, its "
+         "blank line too", _OPEN + "> a\n>\n> b\n",
+         lambda k: k[3:6] == [COMMENT] * 3),
+        ("I437 a list an open comment swallows is commented, the blank "
+         "line only the list holds too", _OPEN + "-\n\n- b\n",
+         lambda k: k[3:6] == [COMMENT] * 3),
+        ("I437 a fence an open comment swallows is commented",
+         _OPEN + "```\ncode\n```\n", lambda k: k[3:6] == [COMMENT] * 3),
+        ("I437 a thematic break an open comment swallows is commented",
+         _OPEN + "***\n", lambda k: k[3] == COMMENT),
+        ("I437 a table an open comment swallows is commented",
+         _OPEN + "| a |\n|---|\n| b |\n", lambda k: k[3:6] == [COMMENT] * 3),
     ]
 
 
@@ -104,6 +187,31 @@ def renderer_heading_arms() -> list[tuple[str, str, object]]:
          "</span>\n\n## Real\n", listed([])),
         ("I437 a page spelling the renderer's position attribute lists "
          "nothing", "## A\n\ndata-sourcepos\n\n## B\n", listed([])),
+        ("I437 a heading an open raw comment hides is not listed, the "
+         "page's other headings are", _SECTIONS + _HIDDEN,
+         listed([("Page", "page"), ("Alpha", "alpha"), ("Beta", "beta"),
+                 ("Gamma", "gamma")])),
+    ] + [
+        (f"I437 a page whose raw element carries the position attribute "
+         f"spelled {how} lists nothing", page, listed([]))
+        for how, page in FORGED.items()
+    ] + [
+        ("I437 a page nesting an element 200 deep is read",
+         "## A\n\n" + ">" * 199 + " x\n\n## B\n",
+         listed([("A", "a"), ("B", "b")])),
+        ("I437 a page nesting one 201 deep lists nothing: GitHub drops "
+         "what it nests 256 deep and all after it",
+         "## A\n\n" + ">" * 200 + " x\n\n## B\n", listed([])),
+        ("I437 a page nested past the interpreter's recursion limit is "
+         "read, and lists nothing", "## A\n\n" + ">" * _DEEP + " x\n\n## B\n",
+         _answers([])),
+        ("I437 a heading whose position an open raw tag reads as an "
+         "attribute is not listed: the tag is not its level's",
+         "<div foo\n\n## Old\n\n## Real\n", listed([("Real", "real")])),
+        ("I437 the same, the position read as an unquoted value",
+         "<div title=\n\n## Old\n\n## Real\n", listed([("Real", "real")])),
+        ("I437 a setext heading's strikethrough renders as GitHub's does",
+         "a ~~b~~\n---\n", listed([("a b", "a-b")])),
         ("I437 the rendered text of a heading is what GitHub shows",
          "## a `b` *c*\n", lambda t: rendered_headings(t) == [(2, "a b c")]),
         ("I437 a table in a block quote is a table row",
@@ -124,6 +232,11 @@ def renderer_heading_arms() -> list[tuple[str, str, object]]:
 _LOCK_SPELLED = {"cmarkgfm": "2025.10.22", "cffi": "2.1.1",
                  "pycparser": "3.0", "html5lib": "1.1", "six": "1.17.0",
                  "webencodings": "0.6.1"}
+#: GitHub's extensions spelled again for the same reason: dropping the
+#: autolink or the task list changes no heading measured, so only this
+#: holds them (R238-4 S3 on PR #538).
+_EXTENSIONS_SPELLED = ("table", "strikethrough", "autolink", "tagfilter",
+                       "tasklist")
 
 
 def renderer_guard_arms() -> list[tuple[str, str, object]]:
@@ -155,6 +268,15 @@ def renderer_guard_arms() -> list[tuple[str, str, object]]:
         ("I437 another bundled cmark-gfm is refused", "",
          lambda t: [("cmark-gfm" in note) for note in verify(
              dict(PINNED), "0.29.0.gfm.12")] == [True]),
+        ("I437 the binding binds the pinned releases", "",
+         lambda t: _refusal() == ""),
+        ("I437 the binding itself refuses another cmarkgfm release by name",
+         "", lambda t: "cmarkgfm '2025.10.20'" in _refusal(
+             cmarkgfm="2025.10.20")),
+        ("I437 the binding itself refuses a missing html5lib by name", "",
+         lambda t: "html5lib None" in _refusal(html5lib=None)),
+        ("I437 the renderer attaches exactly the extensions spelled here",
+         "", lambda t: EXTENSIONS == _EXTENSIONS_SPELLED),
         ("I437 a hash that is not a sha256 counts none", "",
          lambda t: lock_pins("a==1 --hash=md5:00\n") == {"a": ("1", 0)}),
         ("I437 a requirement with no hash counts none", "",

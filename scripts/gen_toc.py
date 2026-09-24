@@ -40,7 +40,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from gen_toc_renderer import (Node, RendererError,  # noqa: E402,F401
+from gen_toc_renderer import (POSITION, Node, RendererError,  # noqa: E402,F401
                               render as render_markdown)
 
 REPO = Path(__file__).resolve().parent.parent
@@ -64,7 +64,7 @@ NEST_WHEN_H3_ATLEAST = 8
 #: on PR #428). The floor rises with the corpus.
 ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
                 "provenance", "refusal", "I440", "shape")
-MIN_ARMS = 1433
+MIN_ARMS = 1501
 
 #: Pages that are deliberately TOC-free, with the reason.
 SKIP = {
@@ -81,6 +81,11 @@ BLANK = " \t"
 REFUSED = ("\v\f\r\x1c\x1d\x1e\x1f\x85\xa0\u1680\u2000\u2001\u2002"
            "\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u2028"
            "\u2029\u202f\u205f\u3000")
+#: The ASCII letters lowered and nothing else, as HTML reads an attribute
+#: name: `str.lower()` would also fold other letters, and change a line's
+#: length doing so.
+_ASCII_LOWER = str.maketrans("ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                             "abcdefghijklmnopqrstuvwxyz")
 
 #: A page written by a generator must not be hand-edited: the next run
 #: discards whatever was added. Both spellings this tree uses are matched,
@@ -101,11 +106,13 @@ HEADING_LINE, TABLE_ROW = "heading", "table row"
 
 
 def refusals(text: str) -> list[tuple[int, int, str]]:
-    """Every position this walk REFUSES to read: (line, column, character).
+    """Every position this walk REFUSES to read: (line, column, what).
     Every character in `REFUSED` is named with its page, line, column and
-    code point. Such a page obtains no provenance and so no exemption. The
-    raw `blocks()` and `headings()` helpers do not apply this policy
-    themselves; their callers must check it.
+    code point, and so is every place the page spells the renderer's
+    position attribute, in any ASCII letter case. Such a page obtains no
+    provenance and so no exemption. The raw `blocks()` and `headings()`
+    helpers do not apply this policy themselves; their callers must check
+    it.
 
     IT BINDS EVERY PAGE A DECISION IS READ FROM, or it holds nothing: the
     branch page provenance comes from AND the base page whose headings
@@ -121,17 +128,40 @@ def refusals(text: str) -> list[tuple[int, int, str]]:
     is unchanged; only its reason moved. There are 26 and no page in the
     corpus carries one. Both shipped readers translate line endings first,
     `Path.read_text()` in the generator and git in text mode in the gate.
+
+    AND THE POSITION ATTRIBUTE. Raw HTML that spells the attribute the
+    renderer marks its own elements with, in any letter case since HTML
+    reads an attribute name that way, could put a position on an element of
+    its own, so the renderer reads such a page as rendering nothing
+    (`gen_toc_renderer`). Unnamed, that page looked like one with no
+    sections: `--check` asked for `--write`, which deleted its Contents
+    block (R237-5 S2 and R238-4 S1 on PR #538). Named here, it is left
+    alone. A spelling the text does not carry, through a character
+    reference or a backslash escape, is not named; the renderer still reads
+    that page as rendering nothing, which withholds every heading.
     """
-    return [(n, col, char)
-            for n, line in enumerate(text.split("\n"), 1)
-            for col, char in enumerate(line, 1) if char in REFUSED]
+    found = []
+    for n, line in enumerate(text.split("\n"), 1):
+        found += [(n, col, char)
+                  for col, char in enumerate(line, 1) if char in REFUSED]
+        folded = line.translate(_ASCII_LOWER)
+        at = folded.find(POSITION)
+        while at >= 0:
+            found.append((n, at + 1, line[at:at + len(POSITION)]))
+            at = folded.find(POSITION, at + 1)
+    return sorted(found)
 
 
 def refusal_notes(name: str, text: str) -> list[str]:
-    """One message per refused position, naming the page and the character."""
-    return [f"{name}:{n}: U+{ord(char):04X} at column {col} is neither a "
+    """One message per refused position, naming the page and what is
+    refused there: the character's code point, or the attribute as spelled."""
+    return [f"{name}:{n}: U+{ord(what):04X} at column {col} is neither a "
             f"space nor a tab, so this walk does not read the page (use a "
-            f"space or a tab)" for n, col, char in refusals(text)]
+            f"space or a tab)" if len(what) == 1 else
+            f"{name}:{n}: `{what}` at column {col} spells the attribute the "
+            f"renderer marks its own elements with, so this walk does not "
+            f"read the page (reword it)"
+            for n, col, what in refusals(text)]
 
 
 def _renderer_lines(text: str) -> tuple[list[str], list[int]]:
