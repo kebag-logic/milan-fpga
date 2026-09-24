@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Negative controls for the #387 gmstep leg: prove its checks can fail.
+"""Negative controls for the #387 gmstep leg and its option-off checks: prove they can fail.
 
 sim_gmstep.cpp grades a grandmaster change that steps the PHC by 1.5 s while
 an AAF stream is bound and locked under CRF selection, against the #387
@@ -15,7 +15,16 @@ GMSTEP_MDIR, overridden) and runs it. Each control must make the leg FAIL by
 its OWN verdict (a `[FAIL]` line or a tally with failures, read by
 scripts/suite_tally.py), and the named check must be among the failures; a
 crash or an abort is not a catch. The positive control is the clean leg the
-sweep just built (obj_gmstep), re-run here.
+sweep just built (obj_gmstep), re-run here; a binary older than any input of
+its recipe is stale (a direct run after a source edit) and is rebuilt instead
+of graded.
+
+Two controls plant into the datapath but grade the option-off leg
+(sim_main.cpp, `make option-off-build` with DP_SRC and OPTOFF_MDIR
+overridden), where the harness itself commands a CLKV adjtime and a software
+settime on an INTERNAL media clock: a settime that no longer toggles mr, and
+a step toggle gated by the CRF clock-source selection. Their positive
+control is that leg's clean build (obj_dir), under the same freshness rule.
 
 Two inventories. The default run, which `make run` ends with, plants the
 three controls issue #387's acceptance names: the step not toggling mr, the
@@ -24,9 +33,10 @@ and the step not re-centring the render stage at all (ruling 5802264260
 item 1: disabling the re-centre must fail the one-counted-event check). Each
 costs one elaboration of the datapath, which is why the rest of the inventory
 is the explicit `make gmstep-mutants` target (`--all`), per
-docs/testing/TESTING.md's explicit-campaign rule. The third arm the
+docs/testing/TESTING.md's explicit-campaign rule; the option-off controls
+are in that explicit inventory too. The third arm the
 acceptance names, a pending restart that a step cancels, is in
-tb/verilator/tkdiag (T17 and mcr_mutants.py), where the restart engine's
+tb/verilator/tkdiag (T17, T18 and mcr_mutants.py), where the restart engine's
 holds can be driven PDU by PDU.
 
 What bounds a run. This driver sets no host-time deadline (rule 8's
@@ -58,8 +68,6 @@ SOURCES = {
 }
 #: the make variable that points the recipe at each source
 MAKE_VAR = {"datapath": "DP_SRC", "clkv": "CLKV_SRC", "stage": "RSP_SRC"}
-CLEAN_MDIR = HERE / "obj_gmstep"
-EXE_NAME = "Vmilan_dp_gmstep"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 
@@ -67,6 +75,25 @@ from suite_tally import log_reports_failure  # noqa: E402
 #: #386 and #447 render runners plant their clock-source control on
 RENDER_TRIGGER = "       media_rebase_p_w\n       | src_recentre_p_r;"
 TALKER_GATE = "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;"
+
+
+class Leg(NamedTuple):
+    """One elaboration a control can be graded on, built by its own recipe."""
+
+    target: str                 #: the make target that builds it alone
+    mdir_var: str               #: the make variable naming its build directory
+    clean_mdir: Path            #: where the sweep builds the clean leg
+    exe_name: str
+    harness: str                #: its C++ harness, an input of the recipe
+    takes_aem: bool             #: it reads the AEM image beside its binary
+
+
+LEGS = {
+    "gmstep": Leg("gmstep-build", "GMSTEP_MDIR", HERE / "obj_gmstep",
+                  "Vmilan_dp_gmstep", "sim_gmstep.cpp", True),
+    "option-off": Leg("option-off-build", "OPTOFF_MDIR", HERE / "obj_dir",
+                      "Vmilan_dp_sim", "sim_main.cpp", False),
+}
 
 
 class Control(NamedTuple):
@@ -78,6 +105,7 @@ class Control(NamedTuple):
     replacement: str
     breaks: str                 #: the named check that must fail
     acceptance: bool            #: named by #387's acceptance: runs by default
+    leg: str = "gmstep"         #: a key of LEGS
 
 
 CONTROLS = [
@@ -128,16 +156,25 @@ CONTROLS = [
             "                rptr_r[s]    <= prefill_r[s] ? snap_rptr_w : snap_rptr_w - 1'b1;\n"
             "                prefill_r[s] <= 1'b0;",
             "render: every PDU push leaves the target fill across the event", False),
+    Control("a software settime does not toggle mr", "datapath",
+            "                       | media_rebase_p_w;",
+            "                       | eff_ptp_adjust_w;",
+            "CLKV: the settime toggled mr once more (#387)", False, "option-off"),
+    Control("the step's mr toggle is gated by the CRF clock-source selection", "datapath",
+            "                       | media_rebase_p_w;",
+            "                       | (crf_clk_selected_r & media_rebase_p_w);",
+            "CLKV: its mr toggled once per PHC step issued so far (#387)", False,
+            "option-off"),
 ]
 
 
-def build(sources: dict[str, Path], mdir: Path) -> Path | None:
-    """Build the leg against `sources` through the suite's own recipe; the
+def build(leg: Leg, sources: dict[str, Path], mdir: Path) -> Path | None:
+    """Build `leg` against `sources` through the suite's own recipe; the
     executable, or None when the recipe failed or left none."""
-    command = ["make", "-s", "-C", str(HERE), "gmstep-build", f"GMSTEP_MDIR={mdir}"]
+    command = ["make", "-s", "-C", str(HERE), leg.target, f"{leg.mdir_var}={mdir}"]
     command += [f"{MAKE_VAR[key]}={path}" for key, path in sources.items()]
     out = subprocess.run(command, capture_output=True, text=True, check=False)
-    exe = mdir / EXE_NAME
+    exe = mdir / leg.exe_name
     if out.returncode != 0 or not exe.is_file():
         sys.stdout.write(out.stdout[-2000:])
         sys.stdout.write(out.stderr[-2000:])
@@ -145,11 +182,26 @@ def build(sources: dict[str, Path], mdir: Path) -> Path | None:
     return exe
 
 
-def run_leg(exe: Path) -> tuple[int, str]:
+def is_fresh(leg: Leg, exe: Path) -> bool:
+    """True when `exe` exists and is no older than any input of its recipe:
+    the Makefile's SRCS (`make print-srcs`), the leg's harness and the
+    Makefile itself. A list that cannot be read counts as stale."""
+    out = subprocess.run(["make", "-s", "-C", str(HERE), "print-srcs"],
+                         capture_output=True, text=True, check=False)
+    if out.returncode != 0 or not exe.is_file():
+        return False
+    inputs = [HERE / name for name in out.stdout.split()]
+    inputs += [HERE / leg.harness, HERE / "Makefile"]
+    built = exe.stat().st_mtime
+    return all(src.is_file() and src.stat().st_mtime <= built for src in inputs)
+
+
+def run_leg(leg: Leg, exe: Path) -> tuple[int, str]:
     """(rc, stdout) of one run of the leg, with no host deadline: it is
     cycle-bounded (module docstring). The AEM image sits beside the binary."""
-    out = subprocess.run([str(exe), str(exe.parent / "aemi.bin")], cwd=str(HERE),
-                         capture_output=True, text=True, check=False)
+    command = [str(exe)] + ([str(exe.parent / "aemi.bin")] if leg.takes_aem else [])
+    out = subprocess.run(command, cwd=str(HERE), capture_output=True, text=True,
+                         check=False)
     return out.returncode, out.stdout + out.stderr
 
 
@@ -190,12 +242,13 @@ def run_control(control: Control, work: Path, tag: int) -> bool:
     planted.write_text(text.replace(control.anchor, control.replacement))
     sources = {key: path.resolve() for key, path in SOURCES.items()}
     sources[control.source] = planted
-    exe = build(sources, work / f"obj_c{tag}")
+    leg = LEGS[control.leg]
+    exe = build(leg, sources, work / f"obj_c{tag}")
     if exe is None:
         print(f"[FAIL] control {control.name!r} did not compile; a control that cannot "
               f"build proves nothing about the leg")
         return False
-    rc, out = run_leg(exe)
+    rc, out = run_leg(leg, exe)
     answer = verdict(rc, out, control.breaks)
     if answer == "caught":
         broke = failed_checks(out)
@@ -227,16 +280,21 @@ def main() -> int:
     fails = 0
     with tempfile.TemporaryDirectory(prefix="gmstep-mutants-") as td:
         work = Path(td)
-        clean = CLEAN_MDIR / EXE_NAME
-        exe = clean if clean.is_file() else build({}, work / "obj_clean")
-        answer = verdict(*run_leg(exe), None) if exe else "did not compile"
-        if answer == "pass":
-            passes += 1
-            print("[PASS] the unmutated gateware still passes the gmstep leg")
-        else:
-            fails += 1
-            print(f"[FAIL] the unmutated gateware does NOT pass ({answer}) - every "
-                  f"control result is meaningless")
+        for key in dict.fromkeys(c.leg for c in selected):
+            leg = LEGS[key]
+            exe = leg.clean_mdir / leg.exe_name
+            if not is_fresh(leg, exe):
+                print(f"[INFO] {exe.relative_to(HERE)} is missing or older than its "
+                      f"sources: the positive control is rebuilt")
+                exe = build(leg, {}, work / f"obj_clean_{leg.target}")
+            answer = verdict(*run_leg(leg, exe), None) if exe else "did not compile"
+            if answer == "pass":
+                passes += 1
+                print(f"[PASS] the unmutated gateware still passes the {key} leg")
+            else:
+                fails += 1
+                print(f"[FAIL] the unmutated gateware does NOT pass the {key} leg "
+                      f"({answer}) - every control result on it is meaningless")
         for tag, control in enumerate(selected):
             if run_control(control, work, tag):
                 passes += 1

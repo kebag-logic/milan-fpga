@@ -1025,11 +1025,25 @@ class MilanDatapathHarness {
            axi_read(A_CLKV_STAT) & 1, 1);
     }
 
+    //! Talker 0's Milan Table 5.4 MEDIA_RESET, read at the counter itself:
+    //! this leg has no controller to ask for GET_COUNTERS.
+    uint32_t talker0_media_resets() const {
+        return dut->rootp->milan_datapath__DOT__talker_diag__DOT__mreset_r[0];
+    }
+
     // A fabric-observed PHC step still arms the diagnostic holdover,
     // but ownerless tu is one before, during, and after that hold.
+    // The step is a software settime, which #387 makes one mr toggle
+    // and one MEDIA_RESET like any other PHC step.
     void prove_the_phc_step_holdover_never_clears_tu() {
         constexpr uint16_t A_CLKV_TUCNT = 0x780;
         constexpr uint16_t A_PTP_CMD = 0x520;
+        //! longer than two observation intervals of every leg that runs
+        //! this harness (-GDIAG_TICK_CYC_P=256), so an interval holding a
+        //! toggle has closed before the counter is read
+        constexpr int kCountSettleCyc = 4096;
+        for (int c = 0; c < kCountSettleCyc; ++c) step();
+        const uint32_t media_resets0 = talker0_media_resets();
         axi_write(A_PTP_CMD, 0x1);
         phc_steps_issued++;
         ck("CLKV: PHC step arms holdover",
@@ -1050,6 +1064,12 @@ class MilanDatapathHarness {
         ck("CLKV: post-holdover frame is emitted", next_aaf(f), 1);
         ck("CLKV: post-holdover frame still carries tu=1",
            f.size() ? f[21] & 1 : 0xEE, 1);
+        ck("CLKV: the settime toggled mr once more (#387)",
+           f.size() ? (f[19] >> 3) & 1 : 0xEE,
+           static_cast<unsigned long>(phc_steps_issued & 1));
+        for (int c = 0; c < kCountSettleCyc; ++c) step();
+        ck("CLKV: ... and MEDIA_RESET counted that toggle once (#387)",
+           talker0_media_resets() - media_resets0, 1);
     }
 
     // ------------------------------------------------------------------

@@ -13,8 +13,9 @@
 #                 (crflic_mutants.py), outside the sweep's deadline
 #   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
 #                 the acceptance's controls of it (gmstep_mutants.py)
-#   make gmstep-mutants - that leg's whole control inventory, outside the
-#                 sweep's deadline
+#   make gmstep-mutants - that leg's whole control inventory, with two
+#                 controls of the option-off leg's #387 mr checks, outside
+#                 the sweep's deadline
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -194,7 +195,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build gmstep-mutants option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+.PHONY: all run gptp gmstep gmstep-build gmstep-mutants option-off option-off-build ax1x1 aclk aclk-build crflic crflic-build crflic-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -362,9 +363,15 @@ gptp-lat: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 
 # Focused ownerless boundary: the same 1x1 harness used by the broad suite,
 # with the gPTP product plane structurally absent and every legacy write inert.
-option-off: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
-	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
-	./obj_dir/Vmilan_dp_sim
+# Its build alone, into OPTOFF_MDIR, is what gmstep_mutants.py rebuilds with
+# a MUTATED datapath (DP_SRC) for its option-off controls (#387: a settime is
+# one mr toggle and one MEDIA_RESET, whatever the clock source).
+OPTOFF_MDIR ?= obj_dir
+option-off-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir $(OPTOFF_MDIR) $(SRCS) $(CPP) -o Vmilan_dp_sim
+
+option-off: option-off-build
+	./$(OPTOFF_MDIR)/Vmilan_dp_sim
 
 # First eight-channel datapath baseline, without the ten unrelated elaborations.
 # VERILATOR_JOBS bounds compilation without changing model parameters.
