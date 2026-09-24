@@ -1,0 +1,40 @@
+R272-2 FINDING F1 (BLOCKER) - split %: digraph directive evades every gate 1b reader
+exact head ef9034578f97ebc2951801d867b7c57f8196423d
+
+CLAIM: A `%:` digraph directive split by a backslash-newline (`%\<nl>:ifdef N`)
+is honoured by the pinned GCC 14.3 (-std=gnu99) as `#ifdef N`, but is missed by
+every gate 1b directive reader and by the KEPT `%:` substring ban. A product-only
+store hidden behind it is ACCEPTED at this head and was REFUSED on dev -> a
+reduction (issues #408/#409 acceptance 4), and the same failure class as R272-1 F1.
+
+MEASUREMENT (pinned GCC, sdk verified d42680e9...):
+  receipts/gcc-spellings.json  : `%\<nl>:ifdef FOO` keeps ("a","z") == arm dropped == honoured as a directive.
+  scratch/hostile_block.c via GCC -E:
+    - no CSR_UART_BASE (census stub tree)  -> store DROPPED
+    - -DCSR_UART_BASE=1 (shipping product) -> store `*(volatile unsigned int *)0x90000600u = 1u;` COMPILED (sw a4,0(a5))
+
+GATE PROBE (receipts/probe-split-digraph.txt, full gate 1b, SDK mapped, verilator 5.050):
+    control_hash   (#ifdef)          -> REFUSED  (SELECTION_PIN + CENSUS_PIN)
+    formfeed       (\f#ifdef)        -> REFUSED  (fix works for the corpus spellings)
+    plain_digraph  (%:ifdef)         -> REFUSED  (`# ifdef` after %: translation)
+    split_digraph  (%\<nl>:ifdef)    -> ACCEPTED  <-- store slips
+
+DEV PROBE (receipts/probe-dev-split-digraph.txt, dev 759da623 gate, same firmware):
+    control_hash   -> REFUSED (ordered cast set)
+    split_digraph  -> REFUSED (file-wide token-joining splice ban)
+  => dev refused; head accepts == reduction.
+
+WHY IT SLIPS AT HEAD:
+  - directive readers use spliced(): `%:`->`#` translation runs on raw text BEFORE
+    splice closing, so `%\<nl>:` (no `%:` substring) is not translated; then the
+    splice is blanked to `%  :ifdef`, matched by no reader (cpp_directive_re).
+  - KEPT `%:` ban is `assert "%:" not in code` on the length-preserving blanked
+    view, where the splice keeps `%`,`\`,nl,`:` -> substring `%:` absent -> ban misses.
+  - F2 narrowed the token-joining splice ban to the six boot-path bodies; the UART
+    handler is outside them, so nothing text-side refuses the splice there.
+  - the arm is never graded (readers miss the conditional) and the census stub
+    tree lacks CSR_UART_BASE, so the resolver never compiles/sees the store.
+
+REPRODUCE:
+  python3 -I $REVIEWS/408-r272-2-packet/scripts/probe_split_digraph.py <sdk> split_digraph   # exit 7 == accepted
+  python3 -I $REVIEWS/408-r272-2-packet/scripts/gcc_spellings.py <sdk>/bin/riscv32-linux-gcc <workdir>
