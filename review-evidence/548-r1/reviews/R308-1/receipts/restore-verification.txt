@@ -1,0 +1,23 @@
+HEAD e41703b2948ef53e5cb0dd01a1e13c5632637615
+TREE 4dd0f8cb28230a5a8d2e51e5e19ce25a0a24af23
+status --porcelain --ignored (expect empty):
+[end]
+worktree and index match HEAD: yes
+index vs HEAD tree (mode+blob per path):
+index entries identical to HEAD tree: yes
+worktree blob hash check:
+files=882 mismatches=0
+executable-bit check:
+[mode check end]
+gitlinks (HEAD vs checked out):
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor (heads/main)
+ 09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor (v2.0-222-g09f9bf3)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor dirty=0
+protocol-processor dirty=0
+third_party/verilog-axis dirty=0

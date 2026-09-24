@@ -1,0 +1,45 @@
+# current (non-history) references to CTLR_DIAG / 0x6F4 at e41703b2
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:471:  `CTLR_DIAG` read 0 at 13:13 UTC.
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:524:- **DUT.** The grader passed 10 of 10 at 14:13 UTC. The console read the switch as grandmaster, `CLKV_STAT` `0x00010002`, `CRFT_CTRL` `0x3`, drop counter
+docs/reference/REGISTER_MAP.md:188:  - [0x6A4  -  ACMP listener SM  (Milan v1.2 Section 5.5 listener, FR-CONN-01)](#0x6a4-----acmp-listener-sm--milan-v12-section-55-listener-fr-conn-01) -- **`ACMPL_ST
+docs/reference/REGISTER_MAP.md:1244:| `0x6F4` | `CTLR_DIAG` | RO | 🔴 **STRUCTURAL ZERO**. Reads `0`; never read it as a measurement. The deleted local monitor's probe, reply and eviction counters have
+docs/reference/REGISTER_MAP.md:1248:`CTLR_DIAG` (0x6F4) is **STRUCTURAL ZERO**. Its source was deleted;
+docs/reference/REGISTER_MAP.md:1255:The parent ties `aecp_ctlr_diag` to `32'd0`, preserving the address.
+hdl/common/csr/milan_csr.sv:309:  //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO in milan_datapath (#548).
+hdl/common/csr/milan_csr.sv:313:  input  wire [31:0]             i_ctlr_diag,
+hdl/common/csr/milan_csr.sv:766:    A_CTLR_DIAG   = 'h6F4,
+hdl/common/csr/milan_csr.sv:2400:      A_CTLR_DIAG:  live_mux = i_ctlr_diag;
+hdl/milan/milan_datapath.sv:1500:  //! CTLR_DIAG (0x6F4): STRUCTURAL ZERO, retained for the CSR ABI (#548).
+hdl/milan/milan_datapath.sv:1503:  wire [31:0]              aecp_ctlr_diag;
+hdl/milan/milan_datapath.sv:2535:    .i_ctlr_diag          (aecp_ctlr_diag),
+hdl/milan/milan_datapath.sv:3206:  assign aecp_ctlr_diag = 32'd0;
+tb/verilator/milan_dp/sim_nxn.cpp:1596:        ck("[NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic",
+tb/verilator/milan_dp/sim_nxn.cpp:1597:           axi_read(0x6F4), 0);
+
+# milan_csr.sv:758-766 at e41703b2 (decode-table comment, unchanged by the PR)
+   758	    A_ACMPL_DBG   = 'h6E8,   //! RO live: listener walker forensics {classify_cnt, fc_cnt, fc_flags, base_hits}
+   759	    A_AVTPRX_TSD  = 'h6EC,   //! RO live: signed ts_delta at last accepted PDU (stream-sync error signal)
+   760	    A_I2SPB_DBG   = 'h6F0,   //! RO live: exact 32 serial bits of the last LEFT half-frame at the DAC pin
+   761	    //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3). RO live,
+   762	    //! one word: {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
+   763	    //! CONTROLLER_AVAILABLE probes sent[11:0]}. All three wrap.
+   764	    //! 0x6F8 and 0x6FC are the LAST free words of this group — reserved, do
+   765	    //! not guess at them without checking here first.
+   766	    A_CTLR_DIAG   = 'h6F4,
+
+# milan_csr.sv:2394-2400 at e41703b2 (read-mux comment, unchanged by the PR)
+  2394	      A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
+  2395	      //! gh #59: probes sent / replies seen / controllers shed. All three
+  2396	      //! climb together on a healthy bench (each probe is answered); a
+  2397	      //! climbing eviction count with a static reply count is a controller
+  2398	      //! that died without deregistering, which is the whole point of
+  2399	      //! Milan 5.4.5.3.
+  2400	      A_CTLR_DIAG:  live_mux = i_ctlr_diag;
+
+# same lines at base 573f0052 (identical => not touched)
+identical
+
+# docs/history untouched by the PR:
+0
+# processor top outputs naming a monitor/controller count (expect none; maap_state_o is unrelated):
+604:    output logic [1:0]                   maap_state_o,       //! 0 INITIAL / 1 PROBE / 2 DEFEND
