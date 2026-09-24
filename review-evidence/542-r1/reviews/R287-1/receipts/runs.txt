@@ -1,0 +1,15 @@
+run nxn head_lever rc=0 seconds=6
+run nxn head rc=0 seconds=6
+run nxn base rc=0 seconds=6
+run nxn old_lever rc=1 seconds=6
+run notify head_lever rc=0 seconds=13
+run notify old_lever rc=1 seconds=13
+run notify head rc=0 seconds=13
+run notify base rc=0 seconds=13
+run notify oldna_lever rc=0 seconds=13
+run nxn head_lasan rc=0 seconds=47
+run notify head_lasan rc=0 seconds=68
+run notify old_lasan rc=1 seconds=71
+run notify base_asan rc=0 seconds=76
+run nxn base_asan rc=0 seconds=44
+run notify mutempty rc=1 seconds=14
