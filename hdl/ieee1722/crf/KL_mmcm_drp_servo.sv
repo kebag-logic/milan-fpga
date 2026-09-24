@@ -294,11 +294,13 @@ module KL_mmcm_drp_servo #(
   localparam int signed   GUARD_THR_C = 32'sd1 << 19;
   localparam int unsigned DISC_MAX_C  = 4;  //! consecutive discards -> resync
   //! PHC step detector (#539): one clk_i cycle's ptp_now_i advance above
-  //! this is a step, not time. The PHC's per-cycle increment is Q8.24 ns
-  //! (timestamp_counter INCR_WIDTH 32, FRAC_WIDTH 24), so a legitimate
-  //! advance stays below 256 ns on any clock; the smallest step the plane
-  //! makes is the 20 us link-up step (#387 owner step policy). 4096 ns sits
-  //! 16x above the one and 5x below the other.
+  //! this is a step, not time. The PHC advances incr_i + adj_i per cycle,
+  //! both Q8.24 ns in 32 bits (timestamp_counter INCR_WIDTH 32, FRAC_WIDTH
+  //! 24): the unsigned increment stays below 256 ns and the signed adjfine
+  //! addend below 128 ns, so a legitimate advance stays below 384 ns on any
+  //! clock; the smallest step the plane makes is the 20 us link-up step
+  //! (#387 owner step policy). 4096 ns sits over 10x above the one and 5x
+  //! below the other.
   localparam logic [31:0] STEP_DET_NS_C = 32'd4096;
 
   // ------------------------------------------------------------------ //
