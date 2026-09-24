@@ -1,0 +1,13 @@
+git grep -n 2700 at 0f003fab (tb/docs/scripts; hex, vendored and unrelated numeric hits dropped):
+docs/testing/CI_WORKFLOWS.md:167:That 1800 s deadline became 2700 s under #444.
+docs/testing/CI_WORKFLOWS.md:185:The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
+docs/testing/RUNNING_TESTS.md:79:with an 1800-second deadline except `milan_dp`, which has 2700 seconds (#444).
+docs/testing/TESTING.md:166:The default driver permits 1800 seconds per suite, and 2700 seconds for `milan_dp`.
+scripts/measure_test_evidence_selftest.py:294:                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-2700"),
+tb/verilator/milan_dp/render_mutants.py:37:per-suite guard, suite_timeout = 2700 s (#444), and reports a kill as TIMEOUT, an
+tb/verilator/milan_dp_gptp/README.md:31:The historical `milan_dp` suite has its own 2700-second budget (#444).
+
+declared budget at the head:
+245:    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
+246:    milan_dp_gptp) printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
+247:    *)             printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;

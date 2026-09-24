@@ -1,0 +1,4 @@
+head runner_contract problems: []
+'SUITE_TIMEOUT:-3600' -> 'SUITE_TIMEOUT:-2700': ['the declared 1800/3600/5400-second suite budgets changed']
+'SUITE_TIMEOUT:-3600' -> 'SUITE_TIMEOUT:-3599': ['the declared 1800/3600/5400-second suite budgets changed']
+'TMO=$(suite_timeout "$suite")' -> 'TMO=3600': ['the declared 1800/3600/5400-second suite budgets changed']

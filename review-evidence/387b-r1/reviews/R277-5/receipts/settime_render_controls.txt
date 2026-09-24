@@ -1,0 +1,15 @@
+== clean: rc=0; media_aclk: 36 checks, 0 failures
+  [ok]   RENDER-SETTIME: the settime reaches the stage as one pulse = 1
+  [ok]   RENDER-SETTIME: the settime executes one render re-base    = 1
+  [ok]   RENDER-SETTIME: no later re-base pulse                     = 1
+  [ok]   RENDER-SETTIME: the render re-base remains counted once    = 1
+== omit: rc=1; media_aclk: 36 checks, 4 failures
+  [FAIL] RENDER-SETTIME: the settime reaches the stage as one pulse got=0 exp=1
+  [FAIL] RENDER-SETTIME: the settime executes one render re-base    got=0 exp=1
+  [FAIL] RENDER-SETTIME: no later re-base pulse                     got=0 exp=1
+  [FAIL] RENDER-SETTIME: the render re-base remains counted once    got=0 exp=1
+== double: rc=1; media_aclk: 36 checks, 2 failures
+  [FAIL] RENDER-SETTIME: the settime reaches the stage as one pulse got=2 exp=1
+  [ok]   RENDER-SETTIME: the settime executes one render re-base    = 1
+  [FAIL] RENDER-SETTIME: no later re-base pulse                     got=2 exp=1
+  [ok]   RENDER-SETTIME: the render re-base remains counted once    = 1
