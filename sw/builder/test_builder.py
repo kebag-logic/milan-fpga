@@ -2346,6 +2346,13 @@ _C_LEX_STOP_RE = re.compile(r"[/\"'\f\v\0]")
 #: `%`. No other token holds either character.
 _C_PUNCTUATOR_RE = re.compile(r"[<%]")
 _C_RAW_PREFIXES = ("R", "u8R", "uR", "UR", "LR")
+#: The identifier characters the raw-prefix test below keys on, spelled as
+#: an ASCII set rather than str.isalnum(), which is Unicode-aware (#408, PR
+#: #535 round four): a non-ASCII character then ENDS a prefix word here,
+#: so every raw literal GCC lexes is one this lexer finds too, and S refuses
+#: both it and the character before any reader runs.
+_C_IDENTIFIER_CHARACTERS = frozenset(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_$")
 #: Phase results by source text: every reader of one graded firmware asks
 #: for the same text, and gate 1b grades a few hundred of them.
 _C_PHASES_CACHE: dict[str, "_CPhases"] = {}
@@ -2388,10 +2395,10 @@ def _c_raw_prefixed(raw: str, at: int) -> bool:
     """Whether the `"` at phase-2 offset `at` opens a raw literal: one of
     the raw prefixes, as a whole token, right before it."""
     word, back = "", at - 1
-    while back >= 0 and (raw[back].isalnum() or raw[back] in "_$") and \
+    while back >= 0 and raw[back] in _C_IDENTIFIER_CHARACTERS and \
             len(word) < 4:
         word, back = raw[back] + word, back - 1
-    if back >= 0 and (raw[back].isalnum() or raw[back] in "_$"):
+    if back >= 0 and raw[back] in _C_IDENTIFIER_CHARACTERS:
         return False
     return word in _C_RAW_PREFIXES
 
@@ -2666,7 +2673,8 @@ def _lexer_generated_corpus() -> tuple[tuple[str, str, str], ...]:
 #: rather than passing on a stale record.
 _LEXER_OUTCOMES = {
     "-": None, "a": ("a", "z"), "b": ("a", "b", "z"), "c": ("b", "z"),
-    "d": ("z",), "e": ("c", "z"), "f": ("a", "b"), "p": ("pq", "z")}
+    "d": ("z",), "e": ("c", "z"), "f": ("a", "b"), "p": ("pq", "z"),
+    "w": ("a", "w", "z")}
 _LEXER_GENERATED_KEPT = (
     "aaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-a"
     "aaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-a"
@@ -2695,6 +2703,155 @@ _LEXER_GENERATED_KEPT = (
     "aaaaaaaaaabcccccccdccccccdccccccdccccccccdcccccccdcccccccdcccccccc"
     "dcccccccdcccccccdccccccccdcccccccdcccccccdcccccccccdccccccccdccccc"
     "cccdeeeeeeeeeeeeeeecccccccccccccccepppppppppppppppp"
+)
+
+#: ---- the CHARACTER ALLOWLIST of S, and its GENERATED closure (#408, PR
+#: #535 round four) ------------------------------------------------------
+#:
+#: Round three closed S construct by construct, and both reviews of that
+#: head found it open one level down: the pinned GCC 14.3 at -std=gnu99
+#: reads a raw extended character (U+00B7, U+0301, U+0387, U+203F) as an
+#: identifier character, so `#if`, U+00B7, `x` is ONE unknown directive to
+#: it, which it ignores in skipped code, while the readers, stopping a name
+#: at `\b`, read `#if`. So S now starts at the character: outside a comment
+#: and a literal, the only characters are printable ASCII (U+0020 to U+007E)
+#: and the six the readers model as whitespace or a line end -- tab, line feed,
+#: vertical tab, form feed, carriage return and NUL -- and ANY other
+#: character is refused by name before a reader runs, every non-ASCII one
+#: and every other control among them, a byte-order mark at offset 0
+#: included. Inside a comment or a literal any UTF-8 character is allowed,
+#: since phase 3 blanks those bodies before any reader sees them; a byte
+#: that is not UTF-8 is refused wherever it sits (the firmware is read as
+#: UTF-8, each such byte kept as the escape `surrogateescape` gives it).
+_C_S_CHARACTERS = frozenset(
+    "\t\n\v\f\r\0" + "".join(map(chr, range(0x20, 0x7F))))
+#: ... the same set as the search the subset check runs over the code text,
+#: and the escapes a byte that is not UTF-8 is read as.
+_C_S_OUTSIDE_RE = re.compile(r"[^\t\n\v\f\r\x00\x20-\x7e]")
+_C_S_UNDECODED_RE = re.compile(r"[\udc80-\udcff]")
+#: The closure proof is a TABLE, generated rather than chosen: every byte
+#: value 0 to 255 alone (0x80 to 0xFF are then not UTF-8), and each
+#: multi-byte UTF-8 sequence below, is put in each position below, and each
+#: cell is either refused by S or read by the readers as the pinned GCC
+#: reads it (`_CLOSURE_KEPT` records GCC; gate 1b re-measures it wherever
+#: that compiler answers). The sequences are every character a review of
+#: PR #535 probed, and one of each other class: letters GCC admits in an
+#: identifier, marks, spaces and line separators it does not, a byte-order
+#: mark, a CJK ideograph, a 4-byte character and the largest code point,
+#: then four byte strings that are not UTF-8.
+_CLOSURE_SEQUENCES = tuple(chr(code).encode("utf-8") for code in (
+    0x85, 0xA0, 0xB2, 0xB5, 0xB7, 0xE9, 0x301, 0x387, 0x661, 0x200B,
+    0x2028, 0x2029, 0x203F, 0x2460, 0x3000, 0x4E2D, 0xFEFF, 0xFF21,
+    0x1F600, 0x10FFFF)) + (
+    b"\xc0\xaf", b"\xed\xa0\x80", b"\xe2\x80", b"\xf8\x88\x80\x80\x80")
+#: `(where, firmware with {X} for the bytes, reader, in code)`. The four
+#: positions the round-three findings name -- a line's lead before `#`,
+#: inside a directive name, after one, and inside an identifier in code --
+#: with the first line's lead (where phase 1 drops a byte-order mark) and
+#: the gap between `#` and the name beside them, and a comment, a string
+#: literal and a character literal, where S allows any UTF-8 character.
+#: Each directive position sits in a group GCC skips, where a directive it
+#: does not know is ignored and one it does know nests: `#if{X}def x` is an
+#: `#if` when X ends the name and an unknown directive when it does not,
+#: and the two leave different code. The identifier position asks whether
+#: X ends the name `a` before `b`, a macro: when it does, `b` expands.
+_CLOSURE_POSITIONS = (
+    ("at offset 0, before `#`", "{X}#ifdef FOO\nint b;\n#endif\nint z;\n",
+     "keeps", True),
+    ("in a line's lead before `#`",
+     "int a;\n{X}#ifdef FOO\nint b;\n{X}#endif\nint z;\n", "keeps", True),
+    ("between `#` and a directive name",
+     "int a;\n#ifdef NEVER\n#{X}ifdef x\n#endif\nint b;\n#endif\nint z;\n",
+     "keeps", True),
+    ("inside a directive name",
+     "int a;\n#ifdef NEVER\n#if{X}def x\n#endif\nint b;\n#endif\nint z;\n",
+     "keeps", True),
+    ("after a directive name",
+     "int a;\n#ifdef NEVER\n#ifdef x\n#endif{X}y\nint b;\n#endif\nint z;\n",
+     "keeps", True),
+    ("inside an identifier in code",
+     "#define b int w;\nint a;\na{X}b\nint z;\n", "names", True),
+    ("inside a block comment",
+     "int a;\n/* {X} */\n#ifdef FOO\nint b;\n#endif\nint z;\n", "keeps",
+     False),
+    ("inside a string literal",
+     "int a;\nconst char *s = \"{X}\";\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+     "keeps", False),
+    ("inside a character literal",
+     "int a;\nint c = '{X}';\n#ifdef FOO\nint b;\n#endif\nint z;\n", "keeps",
+     False),
+)
+
+
+def _closure_corpus() -> tuple[tuple[str, str, str, bool], ...]:
+    """`(label, firmware, reader, outside)` for every cell of the character
+    closure, in the order `_CLOSURE_KEPT` records what the pinned GCC keeps
+    of each. `outside` says what the allowlist must do with the cell: True
+    when the bytes are outside it where they sit (a character outside
+    `_C_S_CHARACTERS` in code, or a byte that is not UTF-8 anywhere), and the
+    cell must then be refused by the allowlist itself."""
+    cells = []
+    spelled = [(f"byte 0x{byte:02x}", bytes([byte])) for byte in range(256)]
+    for sequence in _CLOSURE_SEQUENCES:
+        try:
+            name = f"U+{ord(sequence.decode('utf-8')):04X}"
+        except UnicodeDecodeError:
+            name = "bytes " + sequence.hex(" ") + " (not UTF-8)"
+        spelled.append((name, sequence))
+    for where, template, reader, in_code in _CLOSURE_POSITIONS:
+        for name, sequence in spelled:
+            text = sequence.decode("utf-8", errors="surrogateescape")
+            outside = bool(_C_S_UNDECODED_RE.search(text)) or (
+                in_code and any(char not in _C_S_CHARACTERS for char in text))
+            cells.append((f"{name} {where}", template.replace("{X}", text),
+                          reader, outside))
+    return tuple(cells)
+
+
+#: What the pinned GCC 14.3 keeps of each closure cell at -std=gnu99, one
+#: letter per `_closure_corpus()` entry under `_LEXER_OUTCOMES`, recorded
+#: on the compiler as `_LEXER_GENERATED_KEPT` is and re-measured by gate 1b
+#: wherever that compiler answers.
+_CLOSURE_KEPT = (
+    "d--------ddddd------------------d---------------------------------"
+    "------------------------------------------------------------------"
+    "------------------------------------------------------------------"
+    "------------------------------------------------------------------"
+    "--------d-------abbbbbbbbaaaaabbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbb-bbbbbbbbbbbbbbbbba--------a-aa-------------------a-"
+    "------------------------------------------------------------------"
+    "------------------------------------------------------------------"
+    "------------------------------------------------------------------"
+    "------------------------------------------------aaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaa-aaaaaaaaaaa----------aaaaaaa-------------------"
+    "-------aaaa-a-------------a------------aaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa--------aa--a----aaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-aaaaaaaaaaa----------aaaaaaa---"
+    "-----------------------aaaa-a--------------------------aaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa--------"
+    "aa--a----aaaaawwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwawawwawwwwwwwwaaaa"
+    "aaaaaawwwwwwwaaaaaaaaaaaaaaaaaaaaaaaaaawwwwawaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaawwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
+    "wwwwwwwwaaaaaaaawwaawaaaawwwwwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaa"
 )
 
 
@@ -2767,7 +2924,11 @@ def test_baremetal_profile_contract() -> None:
     docs_path = ROOT / "docs/integration/BAREMETAL_FIRMWARE.md"
     csr_path = ROOT / "hdl/common/csr/milan_csr.sv"
     datapath_path = ROOT / "hdl/milan/milan_datapath.sv"
-    firmware_source = firmware_path.read_text(encoding="utf-8")
+    # A byte that is not UTF-8 is kept as its surrogate escape, so the
+    # character allowlist of S refuses it by name rather than the read
+    # failing on it (#408, PR #535 round four).
+    firmware_source = firmware_path.read_text(encoding="utf-8",
+                                              errors="surrogateescape")
     docs_source = docs_path.read_text(encoding="utf-8")
     csr_source = csr_path.read_text(encoding="utf-8")
     datapath_source = datapath_path.read_text(encoding="utf-8")
@@ -2809,6 +2970,9 @@ def test_baremetal_profile_contract() -> None:
     #: re-measures both wherever the compiler answers.
     c_splice_re = re.compile(r"\\[ \t\f\v\0]*(?:\r\n|\r|\n)")
     c_line_end_re = re.compile(r"\r\n|\r|\n")
+    #: An identifier as the name readers tokenize code, in ASCII mode: the
+    #: paste ban's reach and the closure table's identifier cell read it.
+    c_identifier_re = re.compile(r"[A-Za-z_$][\w$]*", re.ASCII)
 
     def c_line(source: str, at: int) -> int:
         """The line `at` is on, counted as GCC counts lines: LF, CRLF and a
@@ -2925,8 +3089,18 @@ def test_baremetal_profile_contract() -> None:
     #: before it being nothing there, and that is not a `##` (spelled `##`
     #: or `%:%:`), which GCC does not read as a directive. The view pads a
     #: digraph away from a `#` before it, so `#%:` is two `#` tokens here as
-    #: it is to GCC, a directive whose name is not an identifier.
-    cpp_hash = r"(?m)^[ \t]*#(?!#)[ \t]*"
+    #: it is to GCC, a directive whose name is not an identifier. It carries
+    #: ASCII mode, `(?a)`, into every reader built on it (#408, PR #535 round
+    #: four): `\w` and `\b` are then the `[A-Za-z0-9_]` class, whatever
+    #: Unicode says, and every other C text reader passes re.ASCII or spells
+    #: explicit ASCII classes. That is defence in depth, not a second
+    #: closure: the character allowlist S starts with keeps every non-ASCII
+    #: character out of the code these readers read, and without it the
+    #: readers would disagree with GCC on extended identifier characters in
+    #: either mode (U+00B7, U+0301, U+0387 and U+203F in Unicode mode, every
+    #: one tried in ASCII mode). What ASCII mode buys is a reader grammar
+    #: stated in ASCII, whatever Python's Unicode tables say.
+    cpp_hash = r"(?am)^[ \t]*#(?!#)[ \t]*"
     #: Every preprocessor conditional directive, one LOGICAL line each: the
     #: readers below read the phase-3 view, so a directive spliced across
     #: physical lines is found at its `#`, and its span in the source is
@@ -2997,11 +3171,13 @@ def test_baremetal_profile_contract() -> None:
     #: reader runs, so the readers never lex one. On S, they find a directive
     #: exactly where the pinned GCC does for every spelling in the two lexer
     #: corpora (assert_lexer_matches_compiler(), re-measured wherever the
-    #: compiler answers). A `$` or a universal character name in an
-    #: identifier, `__has_include`, a digraph, a raw string, a literal GCC
-    #: ends at its line end, any trigraph, and a block comment no `*/` closes
-    #: are outside S and refused before any reader ([R272] F1 and F4, and the
-    #: round-two external finding, on PR #535). That also closes what the
+    #: compiler answers). Any character outside the allowlist (non-ASCII, or
+    #: a control the readers do not model, outside a comment or a literal;
+    #: round four), a `$` or a universal character name in an identifier,
+    #: `__has_include`, a digraph, a raw string, a literal GCC ends at its
+    #: line end, any trigraph, and a block comment no `*/` closes are outside
+    #: S and refused before any reader ([R272] F1 and F4, and the round-two
+    #: external finding, on PR #535). That also closes what the
     #: comparison's arm BOUND could not:
     #: `if (\n#ifdef CSR_UART_BASE\n0 &&\n#endif\n!verified)` names nothing
     #: this file defines, moves no token and no statement, and advertises
@@ -3067,7 +3243,8 @@ def test_baremetal_profile_contract() -> None:
         """The outermost group inside load_aem_image() whose FIRST arm holds
         the CRC mismatch guard: the QSPI-slot conditional, or None."""
         found = re.search(
-            r"\bstatic\s+int\s+load_aem_image\s*\(\s*void\s*\)\s*\{", code)
+            r"\bstatic\s+int\s+load_aem_image\s*\(\s*void\s*\)\s*\{", code,
+            re.ASCII)
         if not found:
             return None
         try:
@@ -3127,7 +3304,7 @@ def test_baremetal_profile_contract() -> None:
     keyed_condition_re = re.compile(
         r"[ \t]*#[ \t]*(?:(ifdef|ifndef)[ \t]+([A-Za-z_]\w*)|if[ \t]+(!?)"
         r"[ \t]*defined[ \t]*(?:\([ \t]*([A-Za-z_]\w*)[ \t]*\)|"
-        r"[ \t]([A-Za-z_]\w*)))[ \t]*")
+        r"[ \t]([A-Za-z_]\w*)))[ \t]*", re.ASCII)
 
     def condition_key(view: str, group: dict[str, Any], movable: set[str],
                       after: int) -> tuple[str, int | None, int | None] | None:
@@ -3273,8 +3450,9 @@ def test_baremetal_profile_contract() -> None:
         they must be the same enable here. Anything carrying an identifier
         stays unreadable, and every caller fails closed on that."""
         expr = re.sub(r"\b(0[xX][0-9A-Fa-f]+|[0-9]+)[uUlL]+", r"\1",
-                      text.strip())
-        if not expr or not re.fullmatch(r"[0-9A-Fa-fxX()~|&^<>+\-\s]*", expr):
+                      text.strip(), flags=re.ASCII)
+        if not expr or not re.fullmatch(r"[0-9A-Fa-fxX()~|&^<>+\-\s]*", expr,
+                                        re.ASCII):
             return None
         if re.search(r"[A-Za-z_]", re.sub(r"0[xX][0-9A-Fa-f]+", "", expr)):
             return None
@@ -3452,10 +3630,10 @@ def test_baremetal_profile_contract() -> None:
 
     #: Whitespace-tolerant: `milan_write (` is the same call to the compiler,
     #: so it has to be the same call to the census.
-    write_call_re = re.compile(r"\bmilan_write\s*\(")
+    write_call_re = re.compile(r"\bmilan_write\s*\(", re.ASCII)
     write_def_re = re.compile(
         r"\bstatic\s+inline\s+void\s+milan_write\s*\(\s*unsigned\s+int\s+"
-        r"(?P<offset>\w+)\s*,\s*uint32_t\s+(?P<value>\w+)\s*\)\s*\{")
+        r"(?P<offset>\w+)\s*,\s*uint32_t\s+(?P<value>\w+)\s*\)\s*\{", re.ASCII)
 
     def csr_literal_default(csr: str, rtl_name: str) -> int:
         """The literal in ``csr_default``'s live, top-level address case.
@@ -3645,7 +3823,7 @@ def test_baremetal_profile_contract() -> None:
             text = record["value"]
             read = re.match(
                 r"\A\s*\bmilan_read\s*\(\s*([^()]*?)\s*\)\s*([|&])\s*"
-                r"(.*?)\s*\Z", text, re.S)
+                r"(.*?)\s*\Z", text, re.S | re.ASCII)
             mask = constant_value(read.group(3)) if read else None
             if read and mask is not None and \
                     self.address(read.group(1)) == address:
@@ -3720,14 +3898,14 @@ def test_baremetal_profile_contract() -> None:
         return re.search(
             r"\bif\s*\(\s*(?:(?P<lhs>\w+)\s*!=\s*MILAN_AEM_IMAGE_CRC32|"
             r"MILAN_AEM_IMAGE_CRC32\s*!=\s*(?P<rhs>\w+))\s*\)\s*\{",
-            load_source)
+            load_source, re.ASCII)
 
     #: What the verifier's OTHER arm may hold: literal messages and the one
     #: zero return. It is the build with no QSPI AEM slot, a verifier that
     #: can never succeed, so it is graded by nothing but this.
     no_qspi_arm_re = re.compile(
         r"\s*(?:printf\s*\(\s*\"[^\"]*\"\s*\)\s*;\s*)*"
-        r"return\s+0[uUlL]*\s*;\s*")
+        r"return\s+0[uUlL]*\s*;\s*", re.ASCII)
 
     def assert_verifier_other_arms(code: str) -> None:
         """Every arm but the first of the verifier's QSPI-slot group holds
@@ -3785,13 +3963,13 @@ def test_baremetal_profile_contract() -> None:
           proved by the label/goto/switch refusal in assert_boot_contract()."""
         reg_def = re.search(
             r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*\(\s*"
-            r"unsigned\s+int\s+(?P<offset>\w+)\s*\)\s*\{", code)
+            r"unsigned\s+int\s+(?P<offset>\w+)\s*\)\s*\{", code, re.ASCII)
         assert reg_def, \
             "firmware must define the milan_reg() CSR address helper"
         reg_span = braced_span(code, reg_def, "milan_reg()")
         read_def = re.search(
             r"\bstatic\s+inline\s+uint32_t\s+milan_read\s*\(\s*unsigned\s+int"
-            r"\s+(?P<offset>\w+)\s*\)\s*\{", code)
+            r"\s+(?P<offset>\w+)\s*\)\s*\{", code, re.ASCII)
         assert read_def, "firmware must define the milan_read() CSR helper"
         read_span = braced_span(code, read_def, "milan_read()")
         write_defs = list(write_def_re.finditer(code))
@@ -3806,7 +3984,8 @@ def test_baremetal_profile_contract() -> None:
         # handed, at the offset it was handed.
         assert re.match(
             rf"\A\s*\*\s*milan_reg\s*\(\s*{write_def.group('offset')}\s*\)"
-            rf"\s*=\s*{write_def.group('value')}\s*;", write_body) and \
+            rf"\s*=\s*{write_def.group('value')}\s*;", write_body,
+            re.ASCII) and \
             len(re.findall(r"(?<![=!<>+\-*/%&|^])=(?!=)", write_body)) == 1, \
             "milan_write() must store exactly the value it is passed at the " \
             "offset it is passed, or the bit-0 census reads the wrong register"
@@ -3822,14 +4001,14 @@ def test_baremetal_profile_contract() -> None:
         for pattern, what in (
                 (r"\bMILAN_CSR_BASE\b", "the CSR base"),
                 (r"\(\s*volatile\s+uint32_t\s*\*\s*\)", "a CSR pointer cast")):
-            for use in re.finditer(pattern, code):
+            for use in re.finditer(pattern, code, re.ASCII):
                 assert _offset_within(reg_span, use.start()), \
                     f"only milan_reg() may form a CSR address, but {what} is " \
                     "used outside it: a raw store there reaches a control " \
                     "register without passing the bit-0 census"
         # 2. ... and only milan_read()/milan_write() may call it, so the one
         #    dereference-store through it stays the one inside milan_write().
-        for use in re.finditer(r"\bmilan_reg\s*\(", code):
+        for use in re.finditer(r"\bmilan_reg\s*\(", code, re.ASCII):
             assert _offset_within(reg_span, use.start()) or \
                 _offset_within(read_span, use.start()) or \
                 _offset_within(write_span, use.start()) or \
@@ -4426,7 +4605,7 @@ def test_baremetal_profile_contract() -> None:
     #: of red a gate must never produce (#206).
     reg_helper_declaration = re.search(
         r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)\s*\(",
-        firmware_source)
+        firmware_source, re.ASCII)
     assert reg_helper_declaration, \
         "the firmware declares no `static inline volatile uint32_t *` CSR " \
         "address helper, so this gate cannot name the one function that is " \
@@ -4509,6 +4688,11 @@ def test_baremetal_profile_contract() -> None:
     #: external finding's header name in __has_include, are two such
     #: constructs). Refusing is never a reduction (acceptance 4): S admits
     #: every spelling the shipping firmware uses.
+    #: ... and FIRST of them, since round four, the CHARACTER allowlist:
+    #: printable ASCII and the six whitespace characters the readers model,
+    #: outside a comment or a literal, and UTF-8 everywhere
+    #: (`_C_S_CHARACTERS`, above the gate).
+    SUBSET_CHARACTER_PIN = "spells a character outside the allowlist of S"
     SUBSET_DOLLAR_PIN = "spells `$` in its code, outside the lexical subset S"
     SUBSET_UCN_PIN = "spells a universal character name in its code, outside S"
     SUBSET_HAS_INCLUDE_PIN = (
@@ -4723,7 +4907,7 @@ def test_baremetal_profile_contract() -> None:
     #: sees. The stub headers' values are asserted outside the CSR window,
     #: and the headers' contents are trusted rather than read (`-H` below).
     #: ONE LINE MARKER per file, GCC's own: `# <line> "<file>" [flags]`.
-    line_marker_re = re.compile(r'^#\s+\d+\s+"([^"]*)"')
+    line_marker_re = re.compile(r'^#\s+\d+\s+"([^"]*)"', re.ASCII)
     #: What each boot-path body is read for. Every token is macro-INVARIANT
     #: (each names a function this unit defines, or a keyword), so the two
     #: texts can be compared although one has its register names expanded.
@@ -4731,7 +4915,7 @@ def test_baremetal_profile_contract() -> None:
                         "configure_fabric", "nvm_boot", "load_aem_image",
                         "entity_advertise", "return")
     boot_path_token_re = re.compile(
-        r"\b(?:" + "|".join(boot_path_tokens) + r")\b")
+        r"\b(?:" + "|".join(boot_path_tokens) + r")\b", re.ASCII)
     #: The functions a TEXT rule reads, which is exactly the set the
     #: retired conditional-reach ban protected.
     boot_path_anchors = (
@@ -4890,48 +5074,107 @@ def test_baremetal_profile_contract() -> None:
     #: The one identifier context S keeps a header name in: an #include line.
     include_directive_re = re.compile(cpp_hash + r"include\b")
 
+    #: ---- S, the declared lexical subset (#408, PR #535 round three; the
+    #: manager's round-two direction: close the grammar rather than chase
+    #: GCC's whole one), and since round four its CHARACTER ALLOWLIST first
+    #: (the round-three direction: close S by an allowlist at the character
+    #: level, not by more denylist entries).
+    #:
+    #: Gate 1b's directive and macro readers are regexes over the phase-3
+    #: VIEW of _c_phases(). They model a BOUNDED set of C11 6.4 token classes
+    #: exactly and disagree with the pinned GCC on the rest -- a reviewer
+    #: found such a spelling twice, a `$` in a directive name GCC keeps as an
+    #: unknown directive ([R272] F1, round two) and a header name in
+    #: `__has_include(<...>)` whose `/*` opens no comment to GCC (the
+    #: round-two external finding) -- and round three's S admitted every
+    #: character but `$` and a UCN, while GCC reads U+00B7, U+0301, U+0387 and
+    #: U+203F as identifier characters, so `#if`, U+00B7, `x` was one unknown
+    #: directive to it, ignored in skipped code, and `#if` to the readers
+    #: ([R272] and [R273] on the round-three head). So a firmware carrying
+    #: anything outside S is refused HERE, by name, before a reader reads it,
+    #: on every machine. Refusing is never a reduction (acceptance 4): S
+    #: admits every spelling the shipping firmware uses.
+    #:
+    #: S, by character and then by C11 6.4 token class, each MODELLED
+    #: exactly by the readers or REFUSED:
+    #:   - 5.2.1 the source character set, outside a comment and a string or
+    #:     character literal: printable ASCII (U+0020 to U+007E) and the six
+    #:     the readers model as whitespace or a line end -- tab, line feed,
+    #:     vertical tab, form feed, carriage return and NUL
+    #:     (`_C_S_CHARACTERS`) -- are MODELLED; every other character is
+    #:     REFUSED, every non-ASCII one (a byte-order mark at offset 0
+    #:     included) and every other control. No list of refused characters
+    #:     can be shown complete, and this list of admitted ones can:
+    #:     `_closure_corpus()` is the proof, every byte in every position
+    #:     (assert_character_closure()).
+    #:   - 5.2.1 inside a comment or a literal: any UTF-8 character, and no
+    #:     reader sees it. _c_phases() blanks each comment and each literal's
+    #:     body in the phase-3 view every directive and macro reader reads and
+    #:     in blanked(), which every other text rule reads; the two checks
+    #:     that read raw text, the trigraph ban and the `#include` operand
+    #:     check, match ASCII spellings only. A byte that is not UTF-8 is
+    #:     REFUSED wherever it sits, a comment included: GCC reads its input
+    #:     as UTF-8 too. The lexer finds comments and literals from ASCII
+    #:     characters alone, its raw-prefix test included, so no character
+    #:     outside the set moves the boundary the allowlist trusts.
+    #:   - 6.4.1 keywords, 6.4.2.1 identifiers: MODELLED, as the
+    #:     `[A-Za-z_][A-Za-z0-9_]*` class every reader keys on, in ASCII mode;
+    #:     an extended character in one is refused by the allowlist.
+    #:   - 6.4.3 universal character names in identifiers: REFUSED. A `\`
+    #:     left in code once phase 2 has deleted every splice opens one, and
+    #:     the readers lex `\w`, not a UCN.
+    #:   - the gnu `$` identifier extension: REFUSED. GCC admits it in an
+    #:     identifier and a directive name; the readers stop a name at `\b`.
+    #:   - 6.4.4 constants, 6.4.5 string literals: MODELLED as spelled; a raw
+    #:     string literal and a literal no quote closes are REFUSED
+    #:     (assert_lexes_as_compiled()).
+    #:   - 6.4.6 punctuators: MODELLED as spelled; the digraphs and any
+    #:     trigraph are REFUSED (assert_spelled_without_digraphs() and
+    #:     assert_lexes_as_compiled()).
+    #:   - 6.4.7 header names: MODELLED only as a plain `#include` operand;
+    #:     the `__has_include`/`__has_include_next` operator lexes one
+    #:     anywhere in an `#if` and is REFUSED, and a `#include` operand that
+    #:     hides a comment or a backslash is REFUSED.
+    #:   - 6.4.9 comments: MODELLED; a block comment no `*/` closes is
+    #:     REFUSED (assert_lexes_as_compiled()).
+    #:   - the `_Pragma` operator, a `#pragma` the `#`-directive scan cannot
+    #:     see: REFUSED.
+    #: Every other class the readers do not model exactly is refused by one
+    #: of the rules above.
     def assert_within_lexical_subset(source: str) -> None:
-        """S, the declared lexical subset, checked BEFORE any reader runs
-        (#408, PR #535 round three; the manager's round-two direction: close
-        the grammar rather than chase GCC's whole one).
-
-        Gate 1b's directive and macro readers are regexes over the phase-3
-        VIEW of _c_phases(). They model a BOUNDED set of C11 6.4 token classes
-        exactly and disagree with the pinned GCC on the rest -- a reviewer
-        found such a spelling twice, a `$` in a directive name GCC keeps as an
-        unknown directive ([R272] F1, round two) and a header name in
-        `__has_include(<...>)` whose `/*` opens no comment to GCC (the
-        round-two external finding). So a firmware carrying anything outside S
-        is refused HERE, by name, before a reader reads it, on every machine.
-        Refusing is never a reduction (acceptance 4): S admits every spelling
-        the shipping firmware uses.
-
-        S, by C11 6.4 token class, each MODELLED exactly by the readers or
-        REFUSED:
-          - 6.4.1 keywords, 6.4.2.1 identifiers: MODELLED, as the
-            `[A-Za-z_][A-Za-z0-9_]*` class every reader keys on.
-          - 6.4.3 universal character names in identifiers: REFUSED. A `\\`
-            left in code once phase 2 has deleted every splice opens one, and
-            the readers lex `\\w`, not a UCN.
-          - the gnu `$` identifier extension: REFUSED. GCC admits it in an
-            identifier and a directive name; the readers stop a name at `\\b`.
-          - 6.4.4 constants, 6.4.5 string literals: MODELLED as spelled; a raw
-            string literal and a literal no quote closes are REFUSED
-            (assert_lexes_as_compiled()).
-          - 6.4.6 punctuators: MODELLED as spelled; the digraphs and any
-            trigraph are REFUSED (assert_spelled_without_digraphs() and
-            assert_lexes_as_compiled()).
-          - 6.4.7 header names: MODELLED only as a plain `#include` operand;
-            the `__has_include`/`__has_include_next` operator lexes one
-            anywhere in an `#if` and is REFUSED, and a `#include` operand that
-            hides a comment or a backslash is REFUSED.
-          - 6.4.9 comments: MODELLED; a block comment no `*/` closes is
-            REFUSED (assert_lexes_as_compiled()).
-          - the `_Pragma` operator, a `#pragma` the `#`-directive scan cannot
-            see: REFUSED.
-        Every other class the readers do not model exactly is refused by one
-        of the rules above."""
-        # literals, raw strings, trigraphs and unterminated comments first,
+        """The firmware is inside S, the declared lexical subset (the
+        comment above states it by character and by C11 6.4 token class),
+        checked BEFORE any reader runs: the CHARACTER ALLOWLIST first, then
+        each token class the readers do not model, each refused by name."""
+        # FIRST, the CHARACTER ALLOWLIST (round four): nothing below reads
+        # a character outside S. A byte that is not UTF-8, kept by the
+        # firmware read as its surrogate escape, is refused wherever it
+        # sits; every other character is judged outside a comment and a
+        # literal only.
+        undecoded = _C_S_UNDECODED_RE.search(source)
+        assert not undecoded, \
+            f"the firmware {SUBSET_CHARACTER_PIN} (the byte " \
+            f"0x{ord(undecoded.group(0)) - 0xDC00:02x}, line " \
+            f"{c_line(source, undecoded.start())}): it is not UTF-8, which " \
+            "is how GCC reads the file as well, so S refuses it wherever it " \
+            "sits, a comment or a literal included"
+        # phase 1 drops a mark at offset 0, as GCC does, so the code text
+        # holds a blank there; S refuses the character all the same
+        code = _c_phases(source).code
+        at = 0 if source.startswith("\ufeff") else -1
+        outside = _C_S_OUTSIDE_RE.search(code) if at < 0 else None
+        at = outside.start() if outside else at
+        assert at < 0, \
+            f"the firmware {SUBSET_CHARACTER_PIN} (U+{ord(source[at]):04X}, " \
+            f"line {c_line(source, at)}): outside a comment or a literal S " \
+            "admits printable ASCII, U+0020 to U+007E, and the six " \
+            "characters the readers model as whitespace or a line end (tab, " \
+            "line feed, vertical tab, form feed, carriage return and NUL), " \
+            "and nothing else. GCC reads a non-ASCII character in an " \
+            "identifier or a directive name where the readers do not: " \
+            "`#if`, U+00B7, `x` is one unknown directive to it and `#if` to " \
+            "them. The shipping firmware spells none"
+        # literals, raw strings, trigraphs and unterminated comments next,
         # then the digraphs: these settle the view every check below reads.
         assert_lexes_as_compiled(source)
         assert_spelled_without_digraphs(source)
@@ -4982,10 +5225,39 @@ def test_baremetal_profile_contract() -> None:
     #: One firmware per excluded token class, and the S pin that refuses it:
     #: the generated corpus below is restricted to spellings within S, and S
     #: is what refuses every class it drops (#408, PR #535 round three). The
-    #: first entries are the two reviewer probes, at the reader level
-    #: ([R272] F1's `$` in a directive name, and the round-two external
-    #: finding's header name in `__has_include`).
+    #: first entries are the reviewer probes, at the reader level: round
+    #: three's, each an extended character GCC keeps in an identifier or a
+    #: directive name, which the character allowlist refuses ([R272] and
+    #: [R273] on the round-three head, U+00B7 and U+0301 after `#if`, U+0387
+    #: and U+203F in the misnest shape, U+00A0 before `#`, U+00B7 inside an
+    #: identifier in code), with the other characters outside the allowlist
+    #: beside them; then round two's ([R272] F1's `$` in a directive name,
+    #: and the external finding's header name in `__has_include`).
     subset_refusal_corpus = (
+        ("U+00B7 after `#if`, which GCC reads as one unknown directive",
+         "#ifdef NEVER\n#if\u00b7a\n#endif\nint evil;\n#endif\nint z;\n",
+         SUBSET_CHARACTER_PIN),
+        ("U+0301 after `#if`, which GCC reads as one unknown directive",
+         "#ifdef NEVER\n#if\u0301a\n#endif\nint evil;\n#endif\nint z;\n",
+         SUBSET_CHARACTER_PIN),
+        ("U+0387 in two directive names, misnesting the readers",
+         "int a;\n#ifdef FOO\n#if\u0387x\n#endif\nint b;\n#ifdef BAR\n"
+         "#endif\u0387y\n#endif\nint z;\n", SUBSET_CHARACTER_PIN),
+        ("U+203F in two directive names, misnesting the readers",
+         "int a;\n#ifdef FOO\n#if\u203fx\n#endif\nint b;\n#ifdef BAR\n"
+         "#endif\u203fy\n#endif\nint z;\n", SUBSET_CHARACTER_PIN),
+        ("a no-break space before `#`",
+         "int a;\n\u00a0#ifdef FOO\nint b;\n\u00a0#endif\nint z;\n",
+         SUBSET_CHARACTER_PIN),
+        ("U+00B7 inside an identifier in code", "int a\u00b7b = 3;\nint z;\n",
+         SUBSET_CHARACTER_PIN),
+        ("a control the readers do not model, FS, before `#`",
+         "int a;\n\x1c#ifdef FOO\nint b;\n\x1c#endif\nint z;\n",
+         SUBSET_CHARACTER_PIN),
+        ("a byte-order mark at offset 0",
+         "\ufeff#ifdef FOO\nint b;\n#endif\nint z;\n", SUBSET_CHARACTER_PIN),
+        ("a byte that is not UTF-8, in a comment",
+         "int a; /* \udcff */\nint z;\n", SUBSET_CHARACTER_PIN),
         ("a `$` GCC keeps in a directive name",
          "int a;\n#if$a\nint b;\n#endif\nint z;\n", SUBSET_DOLLAR_PIN),
         ("a `$` in an identifier", "int a$b;\nint z;\n", SUBSET_DOLLAR_PIN),
@@ -5028,12 +5300,20 @@ def test_baremetal_profile_contract() -> None:
             else:
                 raise AssertionError(
                     f"S accepted {label!r}, which is outside the subset")
-        #: NEGATIVE CONTROL: a within-S firmware is NOT refused, so the loop
-        #: above proves a refusal and not a reader that always throws.
-        assert_within_lexical_subset(
-            "int a;\n#ifdef FOO\nint b;\n#endif\nint z;\n")
+        #: NEGATIVE CONTROLS: within-S firmwares are NOT refused, so the loop
+        #: above proves a refusal and not a reader that always throws: a
+        #: plain one, one spelling every whitespace character the allowlist
+        #: admits in code, and one holding non-ASCII characters in a comment,
+        #: a string literal and a character literal, where S allows them.
+        controls = (
+            "int a;\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+            "int a;\r\n\t\v\f\0#ifdef FOO\rint b;\n#endif\nint z;\n",
+            "int a; /* \u00b7 \u0301 \u00a0 \ufeff \U0001f600 */\n"
+            "const char *s = \"\u00e9\u203f\";\nint c = '\u00b2';\nint z;\n")
+        for control in controls:
+            assert_within_lexical_subset(control)
         return (f"{len(subset_refusal_corpus)} out-of-subset constructs "
-                "refused by name, one within-S control accepted")
+                f"refused by name, {len(controls)} within-S controls accepted")
 
     def assert_each_macro_defined_once(source: str) -> None:
         """Every name the firmware `#define`s, it defines ONCE.
@@ -5088,7 +5368,7 @@ def test_baremetal_profile_contract() -> None:
         outside these bodies."""
         bodies = {name: body for name, _params, body in macro_definitions(source)}
         for header, what in boot_path_anchors:
-            found = re.search(header, code)
+            found = re.search(header, code, re.ASCII)
             if not found:
                 continue
             at, to = braced_span(code, found, what)
@@ -5101,8 +5381,7 @@ def test_baremetal_profile_contract() -> None:
                     f"{c_line(source, start)}): translation " \
                     "phase 2 deletes the pair, so the compiler reads ONE name " \
                     "where every text rule reading this body reads two"
-            reached, pending = set(), re.findall(r"[A-Za-z_$][\w$]*",
-                                                 code[at:to])
+            reached, pending = set(), c_identifier_re.findall(code, at, to)
             while pending:
                 name = pending.pop()
                 if name in reached or name not in bodies:
@@ -5112,7 +5391,7 @@ def test_baremetal_profile_contract() -> None:
                     f"{PASTE_PIN} {what} through #define {name}: the " \
                     "compiler reads the name the paste builds, and every " \
                     "text rule reading this body reads the macro's arguments"
-                pending += re.findall(r"[A-Za-z_$][\w$]*", bodies[name])
+                pending += c_identifier_re.findall(bodies[name])
 
     #: ---- the C lexer, MEASURED against the compiler (#408) ------------
     #:
@@ -5148,7 +5427,12 @@ def test_baremetal_profile_contract() -> None:
     #: outside the measurement. The readers are exact ON THE SUBSET S -- a
     #: firmware outside S is refused before any reader (assert_within_lexical_subset()),
     #: so a spelling the readers would lex differently never reaches them --
-    #: not because every spelling has been tried.
+    #: not because every spelling has been tried. At the CHARACTER level the
+    #: bound is closed rather than sampled (round four): the closure table
+    #: (`_closure_corpus()`, recorded in `_CLOSURE_KEPT`) puts every byte 0
+    #: to 255 and a set of multi-byte sequences in each position a lexing
+    #: difference moves a directive, and assert_character_closure() shows
+    #: each cell refused by S or read as GCC reads it.
     LEXER_PIN = "reads a preprocessing directive where the pinned GCC does not"
     lexer_corpus = (
         ("a plain #ifdef",
@@ -5405,7 +5689,10 @@ def test_baremetal_profile_contract() -> None:
         records the compiler's answer to. A directive whose name is not an
         identifier (`#%:` is `#` and `#`) is refused, since the directive-set
         closure refuses one wherever it sits and GCC refuses one in code it
-        does not skip."""
+        does not skip. A group nested in an arm already dropped goes with it,
+        its condition unread, as GCC skips it whole: so an `#if` the closure
+        table nests in a skipped group reads as the nesting it is (#408, PR
+        #535 round four)."""
         try:
             groups = conditional_groups(text)
         except AssertionError:
@@ -5418,12 +5705,15 @@ def test_baremetal_profile_contract() -> None:
                                   view))
         dropped = []
         for group in groups:
+            opened = group["lines"][0][0]
+            if any(at <= opened < to for at, to in dropped):
+                continue
             taken = None
             for arm, (at, _stop) in enumerate(group["heads"][:-1]):
                 directive = cpp_directive_re.match(view, at)
                 kind = directive.group(1)
                 name = re.match(r"[ \t]*(\w*)",
-                                view[directive.end():]).group(1)
+                                view[directive.end():], re.ASCII).group(1)
                 if kind != "else" and kind not in lexer_conditions:
                     # a condition no corpus entry spells: a misread name
                     return (f"#{kind} {name}, which no corpus entry spells",)
@@ -5434,7 +5724,8 @@ def test_baremetal_profile_contract() -> None:
             dropped += group["lines"] + [
                 span for arm, span in enumerate(group["arms"]) if arm != taken]
         return tuple(re.findall(r"\bint\s+(\w+)\s*;",
-                                _c_phases(blank_spans(text, dropped)).view))
+                                _c_phases(blank_spans(text, dropped)).view,
+                                re.ASCII))
 
     def lexer_pastes(text: str) -> tuple[str, ...]:
         """What the paste ban's reader makes of the generated `##` firmware,
@@ -5446,6 +5737,25 @@ def test_baremetal_profile_contract() -> None:
         return ("pq", "z") if "##" in bodies.get("CAT", "") else ("z",)
 
     lexer_readers = {"keeps": lexer_keeps, "pastes": lexer_pastes}
+
+    def lexer_names(text: str) -> tuple[str, ...]:
+        """What the name readers make of the closure's identifier cell: the
+        `int` names left when every identifier the paste ban's tokenizer
+        finds in code (`c_identifier_re`, in ASCII mode) is replaced by the
+        body the definition reader reads for it, which is how that ban
+        decides which of this file's macros a body reaches. `a{X}b` then
+        reaches `b`, a macro, exactly when X ends the name `a`, as `-E`
+        expands `b` exactly when GCC ends it there."""
+        bodies = {name: body for name, _params, body in
+                  macro_definitions(text)}
+        code = re.sub(cpp_hash + r"[^\n]*", "", _c_phases(text).view)
+        expanded = c_identifier_re.sub(
+            lambda name: bodies.get(name.group(0), name.group(0)), code)
+        return tuple(re.findall(r"\bint\s+(\w+)\s*;", expanded, re.ASCII))
+
+    #: ... registered apart from the literal above, which the reviews'
+    #: extractors load as it stood before round four.
+    lexer_readers["names"] = lexer_names
 
     def assert_lexer_reads(label: str, text: str,
                            kept: tuple[str, ...] | None,
@@ -5473,7 +5783,10 @@ def test_baremetal_profile_contract() -> None:
             files = []
             for index, text in enumerate(texts):
                 files.append(Path(tmp) / f"lex{index:05d}.c")
-                files[-1].write_bytes(text.encode("utf-8"))
+                # a closure cell's byte that is not UTF-8 is written back
+                # as that byte, from the escape the firmware read gives it
+                files[-1].write_bytes(
+                    text.encode("utf-8", errors="surrogateescape"))
             batches = [files[at:at + 64] for at in range(0, len(files), 64)]
             with concurrent.futures.ThreadPoolExecutor(
                     min(8, os.cpu_count() or 1)) as pool:
@@ -5499,7 +5812,8 @@ def test_baremetal_profile_contract() -> None:
                     continue
                 lines.setdefault(name, []).append(line)
         return [None if file.name in refused else tuple(re.findall(
-            r"\bint\s+(\w+)\s*;", "\n".join(lines.get(file.name, []))))
+            r"\bint\s+(\w+)\s*;", "\n".join(lines.get(file.name, [])),
+            re.ASCII))
             for file in files]
 
     def assert_lexer_matches_compiler() -> str:
@@ -5547,6 +5861,80 @@ def test_baremetal_profile_contract() -> None:
         return (f"{counted} read as the pinned GCC recorded them, and "
                 f"re-measured on {Path(compiler).name}")
 
+    def assert_character_closure() -> str:
+        """The character allowlist of S is CLOSED, and this is the proof,
+        cell by cell (#408, PR #535 round four): every cell of
+        `_closure_corpus()` -- each byte 0 to 255 alone and each multi-byte
+        sequence, in each position -- is either refused by S or read by the
+        readers as the pinned GCC recorded it; every cell outside the
+        allowlist is refused by the allowlist ITSELF and no cell inside it
+        is; and wherever the RV32 compiler answers, every cell is asked
+        again. Returns what the gate prints."""
+        cells = _closure_corpus()
+        assert len(cells) == len(_CLOSURE_KEPT), \
+            f"the character closure has {len(cells)} cells and " \
+            f"{len(_CLOSURE_KEPT)} are recorded: re-record it on the " \
+            "pinned compiler"
+        by_allowlist, by_rule, read, closed = 0, 0, 0, []
+        for (label, text, reader, outside), letter in zip(cells,
+                                                         _CLOSURE_KEPT):
+            kept = _LEXER_OUTCOMES[letter]
+            try:
+                assert_within_lexical_subset(text)
+            except AssertionError as exc:
+                allowlist = SUBSET_CHARACTER_PIN in str(exc)
+                assert allowlist == outside, \
+                    f"S refused the closure cell {label} ({text!r}) " + \
+                    ("by another rule, and its characters are outside the "
+                     "allowlist, which must refuse them itself: "
+                     if outside else "by the allowlist, which admits it: ") + \
+                    str(exc)
+                by_allowlist += allowlist
+                by_rule += not allowlist
+                if allowlist and lexer_readers[reader](text) != kept:
+                    closed.append(label)
+                continue
+            assert not outside, \
+                f"S admitted the closure cell {label} ({text!r}), a " \
+                "character outside its allowlist where it sits"
+            assert_lexer_reads(f"closure cell {label}", text, kept, reader)
+            read += 1
+        #: NEGATIVE CONTROL, and the round-three finding itself: read with
+        #: the allowlist bypassed, U+00B7 inside a directive name ends `#if`
+        #: for the readers and not for GCC, so the comparison above can fail
+        #: and the allowlist is what closes that cell.
+        assert "U+00B7 inside a directive name" in closed, \
+            "the readers read U+00B7 inside a directive name as the pinned " \
+            "GCC recorded it, so this table no longer shows the allowlist " \
+            "closing anything: re-measure the cell"
+        undecoded = sum(1 for sequence in _CLOSURE_SEQUENCES
+                        if _C_S_UNDECODED_RE.search(sequence.decode(
+                            "utf-8", errors="surrogateescape")))
+        counted = (f"{len(cells)}/{len(cells)} character-closure cells, "
+                   f"each byte 0 to 255, "
+                   f"{len(_CLOSURE_SEQUENCES) - undecoded} multi-byte UTF-8 "
+                   f"sequences and {undecoded} byte strings that are not "
+                   f"UTF-8, in {len(_CLOSURE_POSITIONS)} "
+                   f"positions: {by_allowlist} refused by the allowlist "
+                   f"({len(closed)} of them cells the readers and GCC read "
+                   f"differently), {by_rule} by another rule of S and {read} "
+                   "read as the pinned GCC recorded them")
+        compiler = census_compiler()
+        if not census_used.get("target"):
+            return f"{counted}; NOT re-measured, since no RV32 compiler " \
+                "answers here"
+        measured = lexer_measured([text for _l, text, _r, _o in cells],
+                                  compiler,
+                                  tuple(census_used.get("flags") or ()))
+        for (label, text, _reader, _outside), letter, found in zip(
+                cells, _CLOSURE_KEPT, measured):
+            assert found == _LEXER_OUTCOMES[letter], \
+                f"{compiler} keeps {found} of the closure cell {label} " \
+                f"({text!r}) and it was recorded as " \
+                f"{_LEXER_OUTCOMES[letter]}: until the table is re-measured, " \
+                f"the lexer {LEXER_PIN}"
+        return f"{counted}, and re-measured on {Path(compiler).name}"
+
     def boot_path_shape(code: str, label: str) -> tuple[tuple[str, ...], ...]:
         """What each boot-path function's body HOLDS: one row per function,
         naming it, the number of statements in it and the ORDERED sequence
@@ -5560,7 +5948,7 @@ def test_baremetal_profile_contract() -> None:
         moves the sequence."""
         shape = []
         for header, what in boot_path_anchors:
-            found = re.search(header, code)
+            found = re.search(header, code, re.ASCII)
             if not found:
                 shape.append((what, "absent"))
                 continue
@@ -5633,7 +6021,7 @@ def test_baremetal_profile_contract() -> None:
         # mirrored here: assert_csr_store_closure() pins the same definition.
         helper = re.search(
             r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)\s*\(",
-            blanked(firmware))
+            blanked(firmware), re.ASCII)
         assert helper, \
             "the compiled census cannot find the firmware's CSR address " \
             "helper, so it cannot say which function is allowed to form an " \
@@ -5690,7 +6078,7 @@ def test_baremetal_profile_contract() -> None:
         """`(match, body, close)` for the entity-advertise choke point."""
         found = re.search(
             r"\bstatic\s+void\s+entity_advertise\s*\(\s*int\s+"
-            r"(?P<verdict>\w+)\s*\)\s*\{", code)
+            r"(?P<verdict>\w+)\s*\)\s*\{", code, re.ASCII)
         assert found, \
             f"the {label} declares no `static void entity_advertise(int)` " \
             "choke point: the boot contract is proved by data flow into ONE " \
@@ -10380,17 +10768,18 @@ def test_baremetal_profile_contract() -> None:
         init_source = firmware[init_start:init_end]
         identity_read = re.search(
             r"\buint32_t\s+(?P<name>\w+)\s*=\s*"
-            r"milan_read\s*\(\s*MILAN_ID\s*\)\s*;", init_source)
+            r"milan_read\s*\(\s*MILAN_ID\s*\)\s*;", init_source, re.ASCII)
         identity_guard = re.search(
             rf"\bif\s*\(\s*{re.escape(identity_read.group('name')) if identity_read else 'id'}"
-            r"\s*!=\s*MILAN_ID_MAGIC\s*\)\s*\{", init_source)
-        configure = re.search(r"\bconfigure_fabric\s*\(\s*\)\s*;", init_source)
+            r"\s*!=\s*MILAN_ID_MAGIC\s*\)\s*\{", init_source, re.ASCII)
+        configure = re.search(r"\bconfigure_fabric\s*\(\s*\)\s*;", init_source,
+                              re.ASCII)
         load = re.search(
             r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;",
-            init_source)
+            init_source, re.ASCII)
         guard = re.search(
             r"\bentity_advertise\s*\(\s*aem_loaded\s*\)\s*;",
-            init_source)
+            init_source, re.ASCII)
         assert identity_read and identity_guard, \
             "firmware must reject a mismatched CSR identity before " \
             "configuring fabric or verifying the AEM image"
@@ -10401,9 +10790,9 @@ def test_baremetal_profile_contract() -> None:
             rf"(?:\+\+|--)\s*\b{identity_name}\b|"
             rf"\b{identity_name}\b\s*(?:\+\+|--|"
             rf"(?:<<|>>|[-+*/%|&^])?=(?!=))",
-            identity_between)
+            identity_between, re.ASCII)
         identity_address = re.search(
-            rf"(?<!&)&(?!&)\s*\b{identity_name}\b", identity_between)
+            rf"(?<!&)&(?!&)\s*\b{identity_name}\b", identity_between, re.ASCII)
         assert not identity_write and not identity_address, \
             "CSR identity guard must consume the unmodified MILAN_ID " \
             "sample: no assignment, increment or pointer write may replace " \
@@ -10411,7 +10800,8 @@ def test_baremetal_profile_contract() -> None:
         identity_body, identity_close = braced_span(
             init_source, identity_guard, "CSR identity mismatch guard")
         identity_block = init_source[identity_body:identity_close]
-        identity_returns = list(re.finditer(r"\breturn\s*;", identity_block))
+        identity_returns = list(re.finditer(r"\breturn\s*;", identity_block,
+                                            re.ASCII))
         identity_return_is_top_level = False
         if len(identity_returns) == 1:
             identity_return = identity_returns[0]
@@ -10449,12 +10839,12 @@ def test_baremetal_profile_contract() -> None:
         # goto, or a case falling into the block, does both at once -- so the
         # constructs that make one possible are refused outright.
         for keyword in ("goto", "switch", "case", "default"):
-            assert not re.search(rf"\b{keyword}\b", init_source), \
+            assert not re.search(rf"\b{keyword}\b", init_source, re.ASCII), \
                 f"milan_init() must not contain '{keyword}': control that " \
                 "enters the AEM-success guard by any path other than the " \
                 "guard's own condition advertises an unverified entity"
         stray_label = re.search(
-            r"(?m)^[ \t]*([A-Za-z_]\w*)[ \t]*:(?!:)", init_source)
+            r"(?m)^[ \t]*([A-Za-z_]\w*)[ \t]*:(?!:)", init_source, re.ASCII)
         assert not stray_label, \
             f"milan_init() must not contain the label " \
             f"'{stray_label.group(1)}': control that enters the AEM-success " \
@@ -10493,17 +10883,19 @@ def test_baremetal_profile_contract() -> None:
         verdict_write = re.compile(
             r"(?:\+\+|--)\s*aem_loaded\b|"
             r"\baem_loaded\b\s*(?:\+\+|--|(?:[-+*/%|&^]|<<|>>)?=(?!=))"
-            r"\s*([^;]*)")
+            r"\s*([^;]*)", re.ASCII)
         assignments = list(verdict_write.finditer(firmware))
         assert len(assignments) == 1 and re.fullmatch(
-            r"\s*load_aem_image\s*\(\s*\)\s*", assignments[0].group(1) or ""), \
+            r"\s*load_aem_image\s*\(\s*\)\s*", assignments[0].group(1) or "",
+            re.ASCII), \
             "aem_loaded must contain only the image verifier's verdict"
         # ... and pinning the ASSIGNMENT only pins the spellings that name the
         # variable. A pointer to it writes the verdict with no `aem_loaded =`
         # anywhere, so the address of the verdict may not be taken at all --
         # which, for a file-scope static in a single translation unit, is the
         # only way to build such a pointer.
-        for use in re.finditer(r"(?<!&)&(?!&)\s*aem_loaded\b", firmware):
+        for use in re.finditer(r"(?<!&)&(?!&)\s*aem_loaded\b", firmware,
+                               re.ASCII):
             lead = firmware[:use.start()].rstrip()
             assert lead and (lead[-1].isalnum() or lead[-1] in "_)]"), \
                 "the address of aem_loaded must not be taken: a pointer " \
@@ -10566,12 +10958,14 @@ def test_baremetal_profile_contract() -> None:
         # argument survives on a runner whose census stands down.
         advertise_source = firmware[advertise.start():guard_close + 1]
         for keyword in ("goto", "switch", "case", "default"):
-            assert not re.search(rf"\b{keyword}\b", advertise_source), \
+            assert not re.search(rf"\b{keyword}\b", advertise_source,
+                                 re.ASCII), \
                 f"entity_advertise() must not contain '{keyword}': control " \
                 "that reaches an enable write by any path other than the " \
                 "verdict test advertises an unverified entity"
         stray_label = re.search(
-            r"(?m)^[ \t]*([A-Za-z_]\w*)[ \t]*:(?!:)", advertise_source)
+            r"(?m)^[ \t]*([A-Za-z_]\w*)[ \t]*:(?!:)", advertise_source,
+            re.ASCII)
         assert not stray_label, \
             f"entity_advertise() must not contain the label " \
             f"'{stray_label.group(1)}': control that reaches an enable " \
@@ -10579,7 +10973,7 @@ def test_baremetal_profile_contract() -> None:
             "unverified entity"
         assert re.search(
             rf"\bif\s*\([^)]*\b{re.escape(advertise.group('verdict'))}\b",
-            enable_block), \
+            enable_block, re.ASCII), \
             "entity_advertise() must test the verdict it is handed: its " \
             "parameter is the boot contract's only argument and nothing " \
             "else in this function may decide whether the entity is " \
@@ -10601,7 +10995,7 @@ def test_baremetal_profile_contract() -> None:
         # with the verifier's verdict: a second call site is a second place
         # the entity can be advertised, whatever the first one is guarded by.
         advertise_calls = [call for call in re.finditer(
-            r"\bentity_advertise\s*\(([^)]*)\)\s*;", firmware)]
+            r"\bentity_advertise\s*\(([^)]*)\)\s*;", firmware, re.ASCII)]
         assert len(advertise_calls) == 1 and \
             advertise_calls[0].group(1).strip() == "aem_loaded", \
             "entity_advertise() must be called exactly once and with the " \
@@ -10611,12 +11005,14 @@ def test_baremetal_profile_contract() -> None:
         # a stale entity. Inline configure_fabric() so its writes are ordered
         # against the AEM verifier wherever the clears are actually spelled.
         fabric = re.search(
-            r"static\s+void\s+configure_fabric\s*\(\s*void\s*\)\s*\{", firmware)
+            r"static\s+void\s+configure_fabric\s*\(\s*void\s*\)\s*\{",
+            firmware, re.ASCII)
         fabric_body = braced_block(firmware, fabric, "configure_fabric()")
         boot_path = (init_source[:configure.start()] + fabric_body +
                      init_source[configure.end():])
         boot_load = re.search(
-            r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;", boot_path)
+            r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;", boot_path,
+            re.ASCII)
         assert boot_load, "the AEM verifier left the boot path"
         for address in (model.pp, model.adp):
             assert any(w["clears"] and w["start"] < boot_load.start()
@@ -10651,7 +11047,7 @@ def test_baremetal_profile_contract() -> None:
         # resolves values rather than matching printed literals. Neither
         # alone closes the end-to-end property.
         assert re.search(rf"\b{re.escape(computed)}\s*=\s*crc32\s*\(",
-                         load_source), \
+                         load_source, re.ASCII), \
             "AEM verifier must contain a crc32() assignment to the local " \
             "named by the textual mismatch guard; this does not prove " \
             "provenance or reachability (issue #153)"
@@ -10663,8 +11059,8 @@ def test_baremetal_profile_contract() -> None:
         _load_directives, load_arm = cpp_arms(load_source)
         crc_arm = load_arm(crc_guard.start())
         refusals, successes = [], []
-        for ret in re.finditer(r"\breturn\b([^;]*);", load_source):
-            expr = re.sub(r"\s+", " ", ret.group(1)).strip()
+        for ret in re.finditer(r"\breturn\b([^;]*);", load_source, re.ASCII):
+            expr = re.sub(r"\s+", " ", ret.group(1), flags=re.ASCII).strip()
             if constant_value(ret.group(1)) == 0:
                 refusals.append((ret, expr))
                 continue
@@ -10729,15 +11125,17 @@ def test_baremetal_profile_contract() -> None:
                 census_taken["text"], model,
                 helper=re.search(
                     r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)"
-                    r"\s*\(", firmware).group(1))
+                    r"\s*\(", firmware, re.ASCII).group(1))
         return compiled_census_verdict
 
     # Before any firmware is graded: the grammar is closed (S refuses every
     # construct outside it, by name), and on the spellings S admits the
     # readers every rule stands on read a directive exactly where the pinned
-    # GCC does (#408).
+    # GCC does (#408); and at the character level every byte in every
+    # position is refused by S or read as GCC reads it (round four).
     subset_note = assert_subset_refuses()
     lexer_note = assert_lexer_matches_compiler()
+    closure_note = assert_character_closure()
     baseline_census_verdict = assert_boot_contract(
         firmware_source, docs_source, csr_source)
     #: A stand-down that is only PRINTED inside the gate is the shape of
@@ -10774,12 +11172,13 @@ def test_baremetal_profile_contract() -> None:
              "## bans KEPT inside the six boot-path bodies, one #define per "
              "name (which is what refuses a read hidden in a second "
              "definition of the identity magic), the macro-body rule, the "
-             "closed-grammar subset check S (the literal, digraph, trigraph, "
-             "$, universal-character-name, __has_include, header-name, "
-             "_Pragma and unterminated-comment refusals), read on the whole "
-             "firmware before any reader, the directive readers as the two "
-             "lexer corpora recorded them (not re-measured), and the "
-             "per-selection grading of each conditional (its text half); "
+             "closed-grammar subset check S (the character allowlist, then "
+             "the literal, digraph, trigraph, $, universal-character-name, "
+             "__has_include, header-name, _Pragma and unterminated-comment "
+             "refusals), read on the whole firmware before any reader, the "
+             "directive readers as the two lexer corpora and the "
+             "character-closure table recorded them (not re-measured), and "
+             "the per-selection grading of each conditional (its text half); "
              "and the hosted builder jobs require this compiler")
 
     def replace_once(source: str, old: str, new: str, label: str) -> str:
@@ -12327,11 +12726,52 @@ def test_baremetal_profile_contract() -> None:
         "MILAN_CAT(a, b)\n\nstatic int aem_loaded;", "nested paste macros")
     #: ... and the same paste macro behind a byte-order mark at offset 0
     #: ([R273] F1 on PR #535), which GCC drops in phase 1: a directive to
-    #: GCC there, and before #408's phase 1 to no reader here.
+    #: GCC there, and before #408's phase 1 to no reader here. Since round
+    #: four the character allowlist refuses the mark itself, first.
     bom_pasted_forgery = "\ufeff#define MILAN_CAT(a, b) a##b\n" + replace_once(
         firmware_source, identity_guard_text,
         "\tMILAN_CAT(i, d) = MILAN_ID_MAGIC;\n" + identity_guard_text,
         "identity forged by a paste defined behind a byte-order mark")
+    #: ---- (#408, PR #535 round four) the CHARACTER allowlist S starts
+    #: with, through the whole gate: round three's reviewer probes -- a
+    #: store in the CSR window hidden between two directive names spelled
+    #: with an extended character, which GCC reads as unknown directives in
+    #: a group it skips, so the store is live ([R273] on the round-three
+    #: head: U+00B7, U+0387 and U+203F; its receipt compiles the store on the
+    #: pinned GCC), the same shape with U+0301 ([R272] on that head), and the
+    #: identity sample forged behind U+00B7 -- then one character of each
+    #: other kind the allowlist refuses.
+
+    def extended_misnest(anchor: str, statement: str, character: str,
+                         label: str) -> str:
+        """`statement` before `anchor` in the firmware, between two
+        directive names spelled with `character`: each is ONE unknown
+        directive to GCC, ignored in the group it skips, so the statement is
+        live, where a reader stopping a name at an ASCII boundary reads
+        `#if` and `#endif` around it."""
+        return replace_once(
+            firmware_source, anchor,
+            f"#ifdef MILAN_NEVER_DEFINED\n#if{character}x\n#endif\n"
+            f"{statement}\n#ifdef MILAN_NEVER_DEFINED\n#endif{character}y\n"
+            f"#endif\n{anchor}", label)
+
+    window_store = f"\t*(volatile unsigned int *){raw_address} = 1u;"
+    extended_misnest_stores = tuple(
+        (f"U+{code:04X}", extended_misnest(
+            uart_tail, window_store, chr(code),
+            f"window store hidden by U+{code:04X}"))
+        for code in (0xB7, 0x387, 0x203F, 0x301))
+    extended_forged_identity = extended_misnest(
+        identity_guard_text, "\tid = MILAN_ID_MAGIC;", "\u00b7",
+        "identity forged behind U+00B7")
+    no_break_space_lead = in_uart_handler(
+        f"\u00a0#ifdef MILAN_NEVER_DEFINED\n{window_store}\n\u00a0#endif",
+        "a no-break space leading a directive line")
+    unmodelled_control_lead = in_uart_handler(
+        f"\x1c#ifdef MILAN_NEVER_DEFINED\n{window_store}\n\x1c#endif",
+        "a control the readers do not model leading a directive line")
+    undecoded_comment_byte = in_uart_handler(
+        "\t/* \udcb7 */", "a byte that is not UTF-8 in a comment")
     #: ---- one definition per name ([R273] F1): the identity magic defined
     #: a second time, as a fresh read of the sample and as the sample itself.
     magic_define = "#define MILAN_ID_MAGIC       0x4d494c4eu\n"
@@ -13609,10 +14049,9 @@ def test_baremetal_profile_contract() -> None:
                          + uart_tail, "fifth inline-asm statement"),
     }
     accepted_cases.update(retired_rule_cases)
-    #: ... and a byte-order mark at offset 0, as an editor saves one: phase
-    #: 1 drops it as GCC does ([R273] F1 on PR #535), and it spells nothing.
-    accepted_cases["a UTF-8 byte-order mark at the start of the file"] = \
-        "\ufeff" + firmware_source
+    #: (A byte-order mark at offset 0, accepted here in round two, is a
+    #: non-ASCII character outside a comment, which the character allowlist
+    #: of S refuses since round four: it is a mutation-table entry now.)
     #: ... and two edits dev accepted that grading every COMBINATION of arms
     #: refused ([R272] F3 on PR #535): a debug helper and a debug counter,
     #: each defined under one `#ifdef MILAN_DEBUG_TOD` and used under a
@@ -14586,18 +15025,40 @@ def test_baremetal_profile_contract() -> None:
          "command handler", unread_digraph_pair, docs_source, csr_source,
          DIGRAPH_PIN),
         # ... and a byte-order mark at offset 0 ([R273] F1), dropped in
-        # phase 1 as GCC drops it: the directive behind it is read by the
-        # rule that reads that directive
+        # phase 1 as GCC drops it. Round two read the directive behind it by
+        # the rule that reads that directive (the paste ban, the include
+        # pin, the directive set); since round four the character allowlist
+        # of S refuses the mark itself before any reader, so each is
+        # re-pinned on it, and those three rules keep their own entries.
         ("the CSR identity sample forged by a paste whose #define sits "
          "behind a byte-order mark", bom_pasted_forgery, docs_source,
-         csr_source, PASTE_PIN),
+         csr_source, SUBSET_CHARACTER_PIN),
         ("a second source #included behind a byte-order mark",
          "\ufeff#include \"milan_bringup.c\"\n" + firmware_source,
-         docs_source, csr_source, "the firmware's include set is pinned"),
+         docs_source, csr_source, SUBSET_CHARACTER_PIN),
         ("a #line behind a byte-order mark",
          "\ufeff#line 1 \"milan_bringup.c\"\n" + firmware_source,
-         docs_source, csr_source,
-         "the firmware's preprocessing directives are pinned"),
+         docs_source, csr_source, SUBSET_CHARACTER_PIN),
+        # ---- (#408, PR #535 round four) the CHARACTER allowlist: round
+        # three's reviewer probes through the whole gate, then one character
+        # of each other kind it refuses, each by name before any reader
+        *((f"a store in the CSR window hidden between two directive names "
+           f"GCC reads with {code}, in a UART command handler ([R273] and "
+           "[R272] on the round-three head)", text, docs_source, csr_source,
+           SUBSET_CHARACTER_PIN) for code, text in extended_misnest_stores),
+        ("the identity sample forged between two directive names GCC reads "
+         "with U+00B7, in milan_init()", extended_forged_identity,
+         docs_source, csr_source, SUBSET_CHARACTER_PIN),
+        ("a window store between two directive lines a no-break space leads",
+         no_break_space_lead, docs_source, csr_source, SUBSET_CHARACTER_PIN),
+        ("a window store between two directive lines a control the readers "
+         "do not model (FS) leads", unmodelled_control_lead, docs_source,
+         csr_source, SUBSET_CHARACTER_PIN),
+        ("a byte that is not UTF-8, in a comment", undecoded_comment_byte,
+         docs_source, csr_source, SUBSET_CHARACTER_PIN),
+        ("a UTF-8 byte-order mark at the start of the file, which round two "
+         "accepted", "\ufeff" + firmware_source, docs_source, csr_source,
+         SUBSET_CHARACTER_PIN),
         # ---- (#408, PR #535 round three) the closed grammar S: each
         # construct GCC lexes and the readers do not, refused by the subset
         # check before any reader, on every machine. The first three are the
@@ -15185,12 +15646,23 @@ def test_baremetal_profile_contract() -> None:
           "TEXT RULES and by TOOLS together, because each has been measured "
           "to miss what the other holds. The text rules that SURVIVE #408 "
           "and #409: the firmware is inside the CLOSED lexical subset S "
-          f"({subset_note}) -- a construct GCC lexes and the readers do not "
+          f"({subset_note}). S starts with a CHARACTER ALLOWLIST: outside a "
+          "comment or a string or character literal the firmware spells "
+          "printable ASCII, U+0020 to U+007E, and tab, line feed, vertical "
+          "tab, form feed, carriage return and NUL, the six the readers "
+          "model, and nothing else, and it is UTF-8 throughout; every other "
+          "character, non-ASCII or control, a byte-order mark at offset 0 "
+          "included, is refused by name before any reader, and inside a "
+          "comment or a literal any UTF-8 character is allowed, since phase "
+          "3 blanks those bodies before any reader reads them. Its closure "
+          f"is a generated table ({closure_note}). Then a construct GCC "
+          "lexes and the readers do not "
           "($ or a universal character name in an identifier, __has_include, "
           "a #include header name hiding a comment, a digraph, a trigraph, a "
           "raw string, a literal no quote closes, a block comment no */ "
           "closes, the _Pragma operator) is refused by name before any "
-          "reader; only milan_reg() may use the CSR base or a CSR pointer "
+          "reader, and every reader regex runs in ASCII mode, as defence in "
+          "depth; only milan_reg() may use the CSR base or a CSR pointer "
           "cast, no macro body hides milan_write() or milan_reg(), no "
           "conditional left ungraded carries a definition, the verifier's "
           "no-QSPI arm holds only a literal printf and `return 0;`, no %: "
@@ -15357,7 +15829,18 @@ def test_baremetal_profile_contract() -> None:
           "line; the round-two external finding), a #include header name "
           "hiding a comment or a backslash, a block comment no */ closes, and "
           "the _Pragma operator -- none of which the shipping firmware "
-          "spells, and each measured refused in subset_refusal_corpus. Also "
+          "spells, and each measured refused in subset_refusal_corpus. NEW "
+          "IN ROUND FOUR, the character allowlist S starts with, a refusal "
+          "by name on every machine before any reader: any character outside "
+          "a comment or a literal but printable ASCII and the six the "
+          "readers model -- an accented letter, U+00B7 or a no-break space "
+          "in code, a control such as FS, and a byte-order mark at offset 0, "
+          "which round two accepted -- and a byte that is not UTF-8 "
+          "anywhere, a comment included (GCC reads U+00B7, U+0301, U+0387 "
+          "and U+203F as identifier characters, so `#if` then U+00B7 then "
+          "`x` is one unknown directive to it and `#if` to the readers; "
+          "[R272] and [R273] on the round-three head). The shipping firmware "
+          "spells none. Also "
           "RED: a "
           "twelfth #include even of <string.h> -- a name that names no "
           "existing file cannot be RESOLVED at all, so the name pin is what "

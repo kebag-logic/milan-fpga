@@ -296,12 +296,15 @@ set of C11 6.4 token classes exactly and disagree with the pinned GCC on the
 rest. Rather than chase GCC's whole grammar, the grammar is CLOSED: a firmware
 carrying a construct outside S is refused, by name, before any reader runs, on
 every machine. Refusing is never a reduction (acceptance 4): S admits every
-spelling the shipping firmware uses. The subset is enumerated by C11 6.4 token
-class, each MODELLED exactly by the readers or REFUSED:
+spelling the shipping firmware uses. S starts at the character (round four)
+and is then enumerated by C11 6.4 token class, each MODELLED exactly by the
+readers or REFUSED:
 
-| C11 6.4 class | In S? | How |
+| C11 class | In S? | How |
 |---|---|---|
-| 6.4.1 keywords, 6.4.2.1 identifiers | modelled | the `[A-Za-z_][A-Za-z0-9_]*` class every reader keys on |
+| 5.2.1 source characters, outside a comment and a string or character literal | modelled: printable ASCII, U+0020 to U+007E, and tab, line feed, vertical tab, form feed, carriage return and NUL, the six the readers model as whitespace or a line end. Every other character is REFUSED | the CHARACTER ALLOWLIST, the first check S runs. Every non-ASCII character (a byte-order mark at offset 0 included) and every other control is refused by name before any reader. The pinned GCC reads U+00B7, U+0301, U+0387 and U+203F as identifier characters, so `#if`, U+00B7, `x` is one unknown directive it ignores in skipped code, while the readers, stopping a name at an ASCII boundary, read `#if` (both reviews of PR #535's round-three head). A list of refused characters cannot be shown complete; this list of admitted ones is, by the closure table below |
+| 5.2.1 source characters, inside a comment or a literal | any UTF-8 character | phase 3 blanks each comment and each literal's body in the view every directive and macro reader reads and in the code text every other rule reads, so no reader sees one; the trigraph ban and the `#include` operand check, the two that read raw text, match ASCII spellings only. A byte that is not UTF-8 is refused wherever it sits, a comment included: GCC reads the file as UTF-8 too, and the gate keeps such a byte as an escape so that S names it |
+| 6.4.1 keywords, 6.4.2.1 identifiers | modelled | the `[A-Za-z_][A-Za-z0-9_]*` class every reader keys on, in ASCII mode; an extended character in one is refused by the allowlist |
 | 6.4.3 universal character names in identifiers | REFUSED | GCC admits a `\u`/`\U` name in an identifier; the readers lex `\w`. A backslash left in code once phase 2 has deleted every splice is refused |
 | the gnu `$` identifier extension | REFUSED | GCC admits `$` in an identifier and a directive name, so `#if$a` is an unknown directive it ignores in skipped code while the readers read `#if` ([R272] F1 on PR #535) |
 | 6.4.4 constants, 6.4.5 string literals | modelled | as spelled; a raw string literal (a gnu99 extension spanning lines) and a literal no quote closes on its line (GCC ends it there with a warning) are refused |
@@ -310,16 +313,39 @@ class, each MODELLED exactly by the readers or REFUSED:
 | 6.4.9 comments | modelled | a block comment no `*/` closes is refused: GCC errors, the readers would blank to end of file |
 | the `_Pragma` operator | REFUSED | a `#pragma` built from a string the `#`-directive scan cannot see |
 
-The shipping firmware is inside S, and `subset_refusal_corpus` in the gate
-measures each excluded class refused on its own message. The two twice-found
-spellings are two of those classes: a `$` in a directive name and a header
-name in `__has_include`.
+The shipping firmware is inside S: it spells printable ASCII, tabs and line
+feeds and nothing else. `subset_refusal_corpus` in the gate measures each
+excluded class refused on its own message. The twice-found spellings are
+among those classes: a `$` in a directive name, a header name in
+`__has_include`, and U+00B7, U+0301, U+0387 and U+203F in a directive name.
+
+The allowlist's closure is a generated table, not a list of probes. Every byte
+value 0 to 255 alone, 0x80 to 0xFF then not being UTF-8, and twenty multi-byte
+UTF-8 sequences and four byte strings that are not UTF-8, is put in each of
+nine positions: at offset 0 before `#`, in a line's lead before `#`, between
+`#` and a directive name, inside a directive name, after one, inside an
+identifier in code, and inside a block comment, a string literal and a
+character literal. Each directive position sits in a group GCC skips, where an
+unknown directive is ignored and a known one nests, so a character that ends a
+name for one side and not the other leaves different code. The identifier
+position asks whether the character ends the name `a` before `b`, a macro:
+`-E` expands `b` exactly when GCC ends `a` there. The pinned GCC's answer for
+each of the 2520 cells is recorded and re-measured wherever the compiler
+answers, and gate 1b shows each cell refused by S or read as GCC reads it.
+Every cell outside the allowlist is refused by the allowlist itself, and no
+cell inside it is. The table also counts the cells the allowlist closes, those
+the readers would read differently from GCC, and fails if U+00B7 inside a
+directive name is no longer one of them, which is its negative control. Every
+reader regex runs in ASCII mode besides, `re.ASCII` or `(?a)`, or spells
+explicit ASCII classes, and the lexer's raw-prefix test keys on an ASCII set.
+That is defence in depth: with the allowlist in place no reader meets a
+non-ASCII character in code at all.
 
 Within S, the gate RUNS translation phases 1 to 3 (C11 5.1.1.2) in the
 standard's order and as the pinned GCC 14.3 runs them at `-std=gnu99`, once
 per text, and every C directive reader reads the result through one anchor.
-Phase 1 drops a UTF-8 byte-order mark at offset 0 and ends a line at LF, CRLF
-or a lone CR. Phase 2 deletes every splice: a backslash, any run of space,
+Phase 1 drops a UTF-8 byte-order mark at offset 0, as GCC does, though S
+refuses the mark before any reader, and ends a line at LF, CRLF or a lone CR. Phase 2 deletes every splice: a backslash, any run of space,
 tab, form feed, vertical tab or NUL, then a line end. Phase 3 lexes what is
 left: a comment is whitespace, on one line or across several; a form feed, a
 vertical tab or a NUL is whitespace. (The `%:` and `%:%:` digraphs of `#` and
@@ -1311,12 +1337,13 @@ The rest are refusals, and each one costs a legitimate edit:
 | `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
 | Firmware `MILAN_ID` and `MILAN_ID_MAGIC` equal the comment-blanked, directive-closed RTL `A_ID` address and readback default | otherwise inactive decoy text can hide a live address/value change that teaches the token-level guard to validate a different CSR or forged identity |
 | The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor. A splice, or a `##` paste in a macro this file defines, that rebuilds the local's name there is refused by the bans kept inside the six boot-path bodies (#408). BOUND, measured by both reviews of PR #535's first round and not changed here: an assignment inside a plain function-like macro invoked there, `MILAN_FORGE(id);`, is not refused, on dev or here (#544), and neither is a paste through a macro a header defines, `__CONCAT(i, d) = MILAN_ID_MAGIC;` ([R273] F2 on PR #535) |
-| A token-joining backslash-newline, or a `##` paste in any macro this file defines that they name at any depth, inside `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors | NARROWED (#408) from the whole file, and refused on every machine. The paste ban reads this file's `#define`s, the one behind a byte-order mark at offset 0 included ([R273] F1 on PR #535); a macro a header defines, `__CONCAT` for one, is trusted rather than read, so a paste through it is outside the ban, with the bound of the plain function-like macro (#544). The text rules reading those bodies key on names as written, and the `-E` comparison compares only the boot tokens there, so a splice or a paste rebuilding another name they read, the identity sample or the verdict, agrees in both texts ([R272] F2 on PR #535). A splice inside a comment or a literal, and one with blanks on either side, joins no token and is not refused. Outside the six bodies both are retired, below |
+| A token-joining backslash-newline, or a `##` paste in any macro this file defines that they name at any depth, inside `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors | NARROWED (#408) from the whole file, and refused on every machine. The paste ban reads this file's `#define`s, the one behind a byte-order mark at offset 0 included ([R273] F1 on PR #535), though since round four the character allowlist of S refuses the mark itself first; a macro a header defines, `__CONCAT` for one, is trusted rather than read, so a paste through it is outside the ban, with the bound of the plain function-like macro (#544). The text rules reading those bodies key on names as written, and the `-E` comparison compares only the boot tokens there, so a splice or a paste rebuilding another name they read, the identity sample or the verdict, agrees in both texts ([R272] F2 on PR #535). A splice inside a comment or a literal, and one with blanks on either side, joins no token and is not refused. Outside the six bodies both are retired, below |
 | A second `#define` of any name, an identical one included | the address model reads a register name and the identity magic by ONE definition, and the compiler expands every use after a second one with the second: `#define MILAN_ID_MAGIC (milan_read(MILAN_ID))` after the real one turned the identity guard into a comparison of the sample with a fresh read of itself ([R273] F1 on PR #535). **Remedy:** define it once, or in the arms of one graded group, where each arm's definition is the one definition of the firmware it builds |
 | A character or string literal that no quote closes on its line, an apostrophe in the text of an `#if 0` block included; a raw string literal | GCC ends an open literal at its line end with only a warning, and honours `R"d(...)d"` at `-std=gnu99` across lines; neither is what an edit writes to mean it, and before #408 this gate read an open quote as running on to the next one, lines away ([R272] F4 on PR #535) |
 | The identity refusal remains the exact `if (id != MILAN_ID_MAGIC)` spelling | an equivalent comparison such as `if ((id ^ MILAN_ID_MAGIC) != 0u)` is refused because this bounded model anchors the mismatch block by that exact expression; accepting another form requires extending the recognizer and its paired controls |
 | No `#pragma`, `#line`, `#undef` or `#include_next`, and no `#error` but the one saved-state contract guard | KEPT (#408), with this reason rather than a measurement: `#undef` changes what a register name resolves to in the address model, which reads definitions out of this file's text, and `#line` rewrites the line markers the `-E` comparison finds this file's bodies by. `#pragma` and `#include_next` change what the compiler does with text this gate has already read. It has no rule for them, so it refuses rather than ignores |
 | A `$` or a universal character name in an identifier or a directive name; `__has_include` or `__has_include_next`; a `#include` header name hiding a comment or a backslash; a block comment no `*/` closes; the `_Pragma` operator | NEW (#408, round three): the closed lexical grammar S, refused by name on the WHOLE firmware before any reader, on every machine. GCC lexes each of these and the readers do not -- `#if$a` is an unknown directive GCC keeps in skipped code while the readers read `#if` ([R272] F1 on PR #535), and `<x/*y>` after `__has_include` is one header-name token to GCC, so its `/*` opens no comment while the readers read one hiding a line (the round-two external finding). Rather than extend the readers toward GCC's whole grammar, S refuses everything outside it. The shipping firmware spells none. The full class list is the S table above; `subset_refusal_corpus` measures each refused |
+| Outside a comment or a literal, any character but printable ASCII and tab, line feed, vertical tab, form feed, carriage return and NUL: a non-ASCII letter, mark or space in code, a control such as FS, and a UTF-8 byte-order mark at offset 0; and a byte that is not UTF-8 anywhere, a comment included | NEW (#408, round four): the character allowlist S starts with, refused by name on the WHOLE firmware before any reader, on every machine. The pinned GCC reads U+00B7, U+0301, U+0387 and U+203F as identifier characters, so `#if`, U+00B7, `x` is one unknown directive it ignores in skipped code, while the readers read `#if`, and a store in the CSR window hidden between two such directive names compiled live (both reviews of PR #535's round-three head). Denying such characters one at a time cannot be shown complete, and admitting a stated set can: the closure table above is that proof, every byte in every position. A byte-order mark at offset 0 was accepted in round two, since phase 1 drops it as GCC does; it is a non-ASCII character outside a comment, and it is refused now. **Remedy:** spell code in ASCII, and keep any other character in a comment or a literal |
 | `%:` or `??` in code, and a trigraph anywhere in the file, a comment's `what??!` included | KEPT (#408), the digraph and trigraph half of the old `##`/`%:`/`??` ban, folded into the subset check S and read on the WHOLE firmware before any reader and before a conditional is resolved, as dev read it: a digraph spelling a conditional's own directive is refused on every machine, not only graded where a compiler answers. The digraphs are the tokens phase 3 builds after phase 2 has deleted every splice, so `%\`, a line end, then `:ifdef` is refused as the `%:ifdef` GCC reads; the round-one ban read the text before phase 2 and missed it ([R272] F1 on PR #535, round two). A `%:` pair phase 3 reads as other tokens, the `<%` and `:` of `<%:`, is refused too, as dev refused every `%:` pair in code, so the ban is no narrower than dev's. Outside a literal or a comment nothing but a digraph or a trigraph spells either pair, so that half costs no edit anybody writes. A trigraph is refused in comments and literals too: the pinned GCC ignores it at `-std=gnu99` and a strict `-std` replaces it before comments exist, so `// ...??/` ends its comment in one dialect and swallows the next line, a directive, in the other. The `##` half is narrowed, above |
 | A `#define` or `#include` inside the AEM verifier's QSPI-slot group or an `#error` guard | NARROWED (#408) from every conditional. Those are the two kinds of group left as written rather than graded one selection at a time, and the address model reads every definition as unconditional text, so an arm no selection resolves would choose what a register name resolves to. In a graded group each arm's definition IS unconditional in the firmware that arm builds, so an `#ifdef`/`#else` choosing a `#define` is GREEN. dev exempted the verifier's group from this rule, so a `#define` there was GREEN before and is refused now |
 | Any statement in the AEM verifier's no-QSPI arm beyond a literal `printf` and `return 0;` | no selection compiles that arm and the census stub tree takes the other, so it is the one text in the firmware no instrument compiles. The retired cast, store and asm sets used to read it with the rest of the file; it is pinned instead |
@@ -1534,6 +1561,36 @@ header name in `__has_include` are two of the seven S classes, and the earlier
 splice, form-feed, byte-order-mark and digraph probes are within S or refused
 by the digraph ban as before.
 
+PR #535's fifth round adds the character allowlist and measures it
+disconnected, with the pinned SDK and with every cross compiler hidden.
+Removing it trips `subset_refusal_corpus` first, on its first entry, U+00B7
+after `#if`, before any firmware is graded. With that tripwire bypassed, the
+closure table stops the gate on its first cell outside the allowlist, byte
+0x01 at offset 0. With both bypassed, the table read without the allowlist
+holds 43 cells on which the readers and GCC disagree, and the whole-firmware
+consequence shows. Without a compiler, eight of the twelve entries pinned on
+the allowlist pass the whole gate: the store in the CSR window hidden between
+two directive names spelled with U+00B7, U+0387 or U+203F (the external
+review's shape, whose store the pinned GCC compiles live), the same store
+with U+0301, a window store between directive lines a no-break space or an FS
+control leads, a byte that is not UTF-8 in a comment, and a byte-order mark
+at offset 0. With the compiler, the per-selection grading refuses each store
+and the byte-order mark alone passes. At the reader level, the internal
+review's `mid.c` and `comb.c` and the external review's misnest spellings pass
+S and disagree with GCC, 22 of the reviews' 89 reader-level spellings. ASCII
+mode is not a second closure: without the allowlist the readers disagree with
+GCC on every extended identifier character tried, where Unicode mode agreed
+on some of them by accident (8 of those 22 disagreed at the round-three head).
+It fixes the readers' own grammar in ASCII, whatever Python's Unicode tables
+say. Every reviewer probe of every round was run again. Of the 89 reader-level
+spellings, S refuses 62 and the readers read the other 27 as GCC does. The 233
+whole-firmware cases were graded in each mode, and the round-two split-digraph
+probe's four spellings with the compiler; S refuses those outside it and the
+whole gate grades the rest. Against the round-three head every verdict that
+changed went from accepted to refused: the external review's U+00B7, U+0387
+and U+203F stores without a compiler, and the byte-order-mark and U+00B7
+controls in both modes.
+
 **What a runner with no RV32 compiler gets** is explicitly weaker, and it is
 a registered `NOT RUN`, never coverage. The compiler-absent CI control keeps
 this path executable. The `-E` comparison, the `-H` measurement, the compiled
@@ -1552,24 +1609,32 @@ the verifier's CFG and CRC provenance. What still grades is every surviving
 text rule: the splice and `##` bans inside the six boot-path bodies, one
 `#define` per name (which is what refuses a read hidden in a second
 definition of the identity magic, on every machine), the macro-body rule, the
-closed-grammar subset check S -- the literal, digraph, trigraph, `$`,
-universal-character-name, `__has_include`, `#include` header-name, `_Pragma`
-and unterminated-comment refusals, read on the whole firmware before any
-reader -- the directive readers as the two lexer corpora recorded them (not
-re-measured there), and the text half of the per-selection grading.
+closed-grammar subset check S -- the character allowlist, then the literal,
+digraph, trigraph, `$`, universal-character-name, `__has_include`, `#include`
+header-name, `_Pragma` and unterminated-comment refusals, read on the whole
+firmware before any reader -- the directive readers as the two lexer corpora
+and the character-closure table recorded them (not re-measured there), and
+the text half of the per-selection grading.
 
 Measured on this change, once with the pinned SDK mapped and once with every
-cross compiler hidden: gate 1b refuses 271 mutations where the compiler
-answers and 213 where it does not, against 217 and 182 on dev `759da623`, and
-accepts 30 firmware edits and 4 Makefile edits in both, against 17 and 4. The
-seven new refusals over round two are the closed-grammar subset S, one per
-excluded token class, each refused on every machine. It reads the 1845 lexer
-spellings, 78 fixed and 1767 generated (round two crossed 4907, the digraph
-introducers among them; those are outside S and refused, so the generated
-corpus is now within S), as recorded in both, and re-measures them on the
-compiler where it answers. Without a compiler, 33 census and resolver entries
-and 25 entries measuring what the retired rules refused are counted as
-skipped, not rejected.
+cross compiler hidden: gate 1b refuses 280 mutations where the compiler
+answers and 222 where it does not, against 217 and 182 on dev `759da623`, and
+accepts 29 firmware edits and 4 Makefile edits in both, against 17 and 4. The
+seven refusals round three added over round two are the closed-grammar subset
+S, one per excluded token class. The nine round four adds are the character
+allowlist, each refused on every machine: the reviews' four extended-character
+stores, the identity forged behind U+00B7, a no-break space and an FS control
+leading directive lines, a byte that is not UTF-8 in a comment, and the
+byte-order mark at offset 0 that round two accepted (the thirtieth accepted
+edit then). The three entries that measured a directive behind that mark are
+re-pinned on the allowlist, which refuses the mark first; the paste ban, the
+include pin and the directive set keep their other entries. It reads the 1845
+lexer spellings, 78 fixed and 1767 generated (round two crossed 4907, the
+digraph introducers among them; those are outside S and refused, so the
+generated corpus is now within S), and the 2520 closure cells, as recorded in
+both, and re-measures them on the compiler where it answers. Without a
+compiler, 33 census and resolver entries and 25 entries measuring what the
+retired rules refused are counted as skipped, not rejected.
 
 Gate 1b's verdict says which it was in its first clause -- `TEXT RULES +
 INSTRUMENTS` or `TEXT RULES ONLY, AND WEAKER` -- and the stand-down is
