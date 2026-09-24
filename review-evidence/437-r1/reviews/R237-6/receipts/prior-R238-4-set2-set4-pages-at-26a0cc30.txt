@@ -1,0 +1,8 @@
+set2 | S0 control: heading hidden by an open raw comment | refused=0 | headings=['Alpha'] | old-listed=False
+set2 | S1 uppercase position attribute on a raw h2 | refused=1 | headings=[] | old-listed=False
+set2 | S2 mixed-case position attribute on a raw h2 | refused=1 | headings=[] | old-listed=False
+set2 | S3 uppercase position attribute on a raw span (no heading) | refused=1 | headings=[] | old-listed=False
+set4 | e2e control base page | refused=0 | headings=['Page', 'Alpha', 'Beta', 'Gamma'] | old-listed=False
+set4 | e2e control head page | refused=0 | headings=['Page', 'Contents', 'Alpha', 'Beta', 'Gamma'] | old-listed=False
+set4 | e2e spoof base page | refused=1 | headings=[] | old-listed=False
+set4 | e2e spoof head page | refused=1 | headings=[] | old-listed=False

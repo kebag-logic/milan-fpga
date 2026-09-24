@@ -1,0 +1,776 @@
+[
+ {
+  "name": "reverse: plain-HTML check case-sensitive",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a page whose raw element carries the position attribute spelled in upper case lists nothing]",
+    "FAIL [I437 a page whose raw element carries the position attribute spelled in mixed case lists nothing]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled in upper case on a raw h2]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled in mixed case on a raw h2]",
+    "TOC selftest: FAIL (1497/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1497/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "plain-HTML check removed (never forged)",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a page spelling the renderer's position attribute lists nothing]",
+    "FAIL [I437 a page whose raw element carries the position attribute spelled in upper case lists nothing]",
+    "FAIL [I437 a page whose raw element carries the position attribute spelled in mixed case lists nothing]",
+    "FAIL [I437 a page whose raw element carries the position attribute spelled through a character reference lists nothing]",
+    "FAIL [I437 a page whose raw element carries the position attribute spelled through a backslash escape lists nothing]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled in upper case on a raw h2]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled in mixed case on a raw h2]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled through a character reference on a raw h2]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled through a backslash escape on a raw h2]",
+    "TOC selftest: FAIL (1492/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1492/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 2,
+   "fails": [
+    "- [I437 em dash: file view: position attribute spelled through a character reference on a raw h2] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): ['s280.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence']",
+    "- [I437 em dash: file view: position attribute spelled through a backslash escape on a raw h2] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): ['s281.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence']"
+   ],
+   "tail": "check_em_dash: FATAL: 2 of 339 arm(s) did not hold"
+  },
+  "killed": true
+ },
+ {
+  "name": "plain-HTML check reads the RAW TEXT again, case-sensitive (old guard)",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a page whose raw element carries the position attribute spelled in upper case lists nothing]",
+    "FAIL [I437 a page whose raw element carries the position attribute spelled in mixed case lists nothing]",
+    "FAIL [I437 a page whose raw element carries the position attribute spelled through a character reference lists nothing]",
+    "FAIL [I437 a page whose raw element carries the position attribute spelled through a backslash escape lists nothing]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled in upper case on a raw h2]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled in mixed case on a raw h2]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled through a character reference on a raw h2]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled through a backslash escape on a raw h2]",
+    "TOC selftest: FAIL (1493/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1493/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 2,
+   "fails": [
+    "- [I437 em dash: file view: position attribute spelled through a character reference on a raw h2] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): ['s280.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence']",
+    "- [I437 em dash: file view: position attribute spelled through a backslash escape on a raw h2] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): ['s281.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence']"
+   ],
+   "tail": "check_em_dash: FATAL: 2 of 339 arm(s) did not hold"
+  },
+  "killed": true
+ },
+ {
+  "name": "plain-HTML check reads the raw text, any case (no decoding)",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a page whose raw element carries the position attribute spelled through a character reference lists nothing]",
+    "FAIL [I437 a page whose raw element carries the position attribute spelled through a backslash escape lists nothing]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled through a character reference on a raw h2]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled through a backslash escape on a raw h2]",
+    "TOC selftest: FAIL (1497/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1497/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 2,
+   "fails": [
+    "- [I437 em dash: file view: position attribute spelled through a character reference on a raw h2] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): ['s280.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence']",
+    "- [I437 em dash: file view: position attribute spelled through a backslash escape on a raw h2] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): ['s281.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence']"
+   ],
+   "tail": "check_em_dash: FATAL: 2 of 339 arm(s) did not hold"
+  },
+  "killed": true
+ },
+ {
+  "name": "forged page keeps its nodes (only shown emptied)",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 0,
+   "fails": [],
+   "tail": "TOC selftest: PASS (1501/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": false
+ },
+ {
+  "name": "refusals() case-sensitive",
+  "applied": true,
+  "file": "scripts/gen_toc.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [the renderer's position attribute is refused in every letter case, with its line and column]",
+    "FAIL [the note names the page, the line, the column and the attribute as spelled]",
+    "FAIL [an attribute and a refused character on one line are named in column order]",
+    "TOC selftest: FAIL (1498/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1498/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "refusals() names no attribute",
+  "applied": true,
+  "file": "scripts/gen_toc.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [the renderer's position attribute is refused in every letter case, with its line and column]",
+    "FAIL [the note names the page, the line, the column and the attribute as spelled]",
+    "FAIL [an attribute and a refused character on one line are named in column order]",
+    "TOC selftest: FAIL (1498/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1498/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "refusals() names only the first spelling on a line",
+  "applied": true,
+  "file": "scripts/gen_toc.py",
+  "toc": {
+   "rc": 0,
+   "fails": [],
+   "tail": "TOC selftest: PASS (1501/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": false
+ },
+ {
+  "name": "refusals() folds with str.lower()",
+  "applied": true,
+  "file": "scripts/gen_toc.py",
+  "toc": {
+   "rc": 0,
+   "fails": [],
+   "tail": "TOC selftest: PASS (1501/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": false
+ },
+ {
+  "name": "refusal note for the attribute uses the character wording",
+  "applied": true,
+  "file": "scripts/gen_toc.py",
+  "toc": {
+   "rc": 1,
+   "fails": [],
+   "tail": "TypeError: ord() expected a character, but string of length 14 found"
+  },
+  "em_dash": {
+   "rc": 1,
+   "fails": [],
+   "tail": "TypeError: ord() expected a character, but string of length 14 found"
+  },
+  "killed": true
+ },
+ {
+  "name": "both guards case-sensitive (plain-HTML check and refusals())",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py, scripts/gen_toc.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a page whose raw element carries the position attribute spelled in upper case lists nothing]",
+    "FAIL [I437 a page whose raw element carries the position attribute spelled in mixed case lists nothing]",
+    "FAIL [the renderer's position attribute is refused in every letter case, with its line and column]",
+    "FAIL [the note names the page, the line, the column and the attribute as spelled]",
+    "FAIL [an attribute and a refused character on one line are named in column order]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled in upper case on a raw h2]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled in mixed case on a raw h2]",
+    "TOC selftest: FAIL (1494/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1494/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 2,
+   "fails": [
+    "- [I437 em dash: file view: position attribute spelled in upper case on a raw h2] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): ['s278.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence']",
+    "- [I437 em dash: file view: position attribute spelled in mixed case on a raw h2] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): ['s279.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence']"
+   ],
+   "tail": "check_em_dash: FATAL: 2 of 339 arm(s) did not hold"
+  },
+  "killed": true
+ },
+ {
+  "name": "tight-list paragraphs given an element (prior M03/M04 equivalent)",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a tight list's bare paragraphs render]: ['commented line', 'commented line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [I437 a task list's items render]: ['commented line', 'commented line', 'prose line']",
+    "FAIL [a tag indented four spaces under a list item is that item's text, so the heading under it renders]: ['commented line', 'commented line', 'prose line', 'prose line']",
+    "FAIL [a block this script would write has provenance]",
+    "FAIL [a block written with the older separator keeps its provenance]",
+    "FAIL [a page this script owns still has provenance]",
+    "FAIL [the same page without it does]",
+    "TOC selftest: FAIL (1494/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1494/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 2,
+   "fails": [
+    "- [mirrored label of a pre-existing heading passes] expected 0 finding(s), got 1:",
+    "- [mirrored label of a pre-existing heading passes] expected 1 exempt label(s), got 0:",
+    "- [new heading with an em dash is refused, label included] expected 3 finding(s), got 2:",
+    "- [new heading with an em dash is refused, label included] no finding names 'mirrors no heading':",
+    "- [new heading with an em dash is refused, label included] no finding names 'Contents separator':",
+    "- [separator change to -- passes] expected 0 finding(s), got 1:",
+    "- [separator change to -- passes] expected 1 exempt label(s), got 0:",
+    "- [em dash in the description of an exempt entry is refused] no finding names 'Contents description':",
+    "- [em dash in the description of an exempt entry is refused] expected 1 exempt label(s), got 0:",
+    "- [an added entry keeping the em-dash separator is refused] no finding names 'Contents separator':",
+    "- [an entry whose anchor is not the generator's is refused] no finding names 'added prose line':",
+    "- [a heading that exists only in a comment authorises nothing] no finding names 'added prose line':"
+   ],
+   "tail": "check_em_dash: FATAL: 338 of 339 arm(s) did not hold"
+  },
+  "killed": true
+ },
+ {
+  "name": "depth bound removed",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a page nesting one 201 deep lists nothing: GitHub drops what it nests 256 deep and all after it]",
+    "FAIL [I437 a page nested past the interpreter's recursion limit is read, and lists nothing]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: an element nested 256 deep between two headings]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: an element nested 1101 deep between two headings]",
+    "TOC selftest: FAIL (1497/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1497/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "depth bound off by one (>=)",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a page nesting an element 200 deep is read]",
+    "FAIL [I437 renders as GitHub does: I437 arm page: an element nested 200 deep between two headings]",
+    "TOC selftest: FAIL (1499/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1499/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "depth bound raised to 255",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a page nesting one 201 deep lists nothing: GitHub drops what it nests 256 deep and all after it]",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1500/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "depth counts from 0",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a page nesting one 201 deep lists nothing: GitHub drops what it nests 256 deep and all after it]",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1500/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "syntax-tree walk recursive again",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a page nested past the interpreter's recursion limit is read, and lists nothing]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: an element nested 1101 deep between two headings]",
+    "TOC selftest: FAIL (1499/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1499/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "stack walk loses sibling order (children before next sibling swapped)",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [four spaces after a blank line is code, not a fence]: ['prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [a type-6 block INTERRUPTS a paragraph, where a type-7 block may not]: ['prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [a type-6 name the renderer carries interrupts a paragraph]: ['prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [a type-6 name that ends its line opens the block]: ['prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [a self-closing type-6 tag opens it too]: ['prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [(renderer) a second comment opened on a closing line stays open past an arrow written as text]: ['commented line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [(renderer) a comment closed and reopened inside a comment block stays open past an arrow written as text]: ['commented line', 'commented line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [a line of a no-break space ends an indented code run, which only a blank line carries through]: ['prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [a type-1 name a blank follows is still read first, so its block survives a blank line]: ['prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [a type-6 name a form feed follows opens the block, interrupting a paragraph]: ['prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [a type-1 name a line tabulation follows opens it interrupting a paragraph]: ['prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [a type-6 name in capitals opens the block]: ['prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line']"
+   ],
+   "tail": "TOC selftest: FAIL (1075/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 2,
+   "fails": [
+    "- [mirrored label of a pre-existing heading passes] expected 0 finding(s), got 1:",
+    "- [mirrored label of a pre-existing heading passes] expected 1 exempt label(s), got 0:",
+    "- [new heading with an em dash is refused, label included] expected 3 finding(s), got 2:",
+    "- [new heading with an em dash is refused, label included] no finding names 'added heading':",
+    "- [new heading with an em dash is refused, label included] no finding names 'mirrors no heading':",
+    "- [new heading with an em dash is refused, label included] no finding names 'Contents separator':",
+    "- [separator change to -- passes] expected 0 finding(s), got 1:",
+    "- [separator change to -- passes] expected 1 exempt label(s), got 0:",
+    "- [em dash in the description of an exempt entry is refused] no finding names 'Contents description':",
+    "- [em dash in the description of an exempt entry is refused] expected 1 exempt label(s), got 0:",
+    "- [an added entry keeping the em-dash separator is refused] no finding names 'Contents separator':",
+    "- [fenced copy of a mirrored label is refused] no finding names 'added fenced line':"
+   ],
+   "tail": "check_em_dash: FATAL: 344 of 339 arm(s) did not hold"
+  },
+  "killed": true
+ },
+ {
+  "name": "own element drops block_quote",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a block quote an open comment swallows is commented, its blank line too]: ['raw HTML line', 'raw HTML line', 'prose line', 'commented line', 'prose line', 'commented line', 'prose line']",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1500/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "own element drops list",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a list an open comment swallows is commented, the blank line only the list holds too]: ['raw HTML line', 'raw HTML line', 'prose line', 'commented line', 'prose line', 'commented line', 'prose line']",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1500/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "own element drops heading",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [(renderer) a second comment opened on a closing line stays open past an arrow written as text]: ['commented line', 'prose line', 'commented line', 'commented line', 'prose line']",
+    "FAIL [(renderer) a comment closed and reopened inside a comment block stays open past an arrow written as text]: ['commented line', 'commented line', 'prose line', 'commented line', 'commented line', 'prose line']",
+    "FAIL [I437 what a raw comment left open swallows is commented (#516)]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'raw HTML line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [I437 what an open quoted attribute value swallows is commented]: ['raw HTML line', 'prose line', 'prose line', 'prose line', 'commented line', 'prose line']",
+    "FAIL [I437 a heading a select swallows is commented, the next renders]: ['raw HTML line', 'prose line', 'prose line', 'prose line', 'raw HTML line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [I437 an item the HTML parse swallows is commented, its list not]: ['raw HTML line', 'commented line', 'commented line', 'prose line', 'prose line']",
+    "TOC selftest: FAIL (1495/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1495/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "own element drops code_block",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a fence an open comment swallows is commented]: ['raw HTML line', 'raw HTML line', 'prose line', 'fenced line', 'fenced line', 'fenced line', 'prose line']",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1500/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "own element drops thematic_break",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a thematic break an open comment swallows is commented]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line']",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1500/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "own element drops table",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a table an open comment swallows is commented]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1500/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "heading tag not matched to its level",
+  "applied": true,
+  "file": "scripts/gen_toc.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a heading whose position an open raw tag reads as an attribute is not listed: the tag is not its level's]",
+    "FAIL [I437 the same, the position read as an unquoted value]",
+    "FAIL [I437 renders as GitHub does: I437 arm page: an open raw tag reads a heading's position as an attribute]",
+    "FAIL [I437 renders as GitHub does: I437 arm page: an open raw tag reads a heading's position as an unquoted value]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: an open raw tag reads a heading's position as an attribute]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: an open raw tag reads a heading's position as an unquoted value]",
+    "TOC selftest: FAIL (1495/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1495/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 2,
+   "fails": [
+    "- [I437 em dash: I437 arm page: an open raw tag reads a heading's position as an attribute] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []",
+    "- [I437 em dash: I437 arm page: an open raw tag reads a heading's position as an unquoted value] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []"
+   ],
+   "tail": "check_em_dash: FATAL: 2 of 339 arm(s) did not hold"
+  },
+  "killed": true
+ },
+ {
+  "name": "heading tag matched to any heading tag",
+  "applied": true,
+  "file": "scripts/gen_toc.py",
+  "toc": {
+   "rc": 0,
+   "fails": [],
+   "tail": "TOC selftest: PASS (1501/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": false
+ },
+ {
+  "name": "bind() ignores the release it is handed",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 the binding itself refuses another cmarkgfm release by name]",
+    "FAIL [I437 the binding itself refuses a missing html5lib by name]",
+    "TOC selftest: FAIL (1499/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1499/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "verify() ignores cmarkgfm",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 another cmarkgfm release is refused by name]",
+    "FAIL [I437 a missing distribution is refused]",
+    "FAIL [I437 the binding itself refuses another cmarkgfm release by name]",
+    "TOC selftest: FAIL (1498/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1498/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "strikethrough extension dropped",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 a setext heading's strikethrough renders as GitHub's does]",
+    "FAIL [I437 the renderer attaches exactly the extensions spelled here]",
+    "FAIL [I437 renders as GitHub does: I437 arm page: a setext heading with strikethrough]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: a setext heading with strikethrough]",
+    "TOC selftest: FAIL (1497/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1497/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "autolink extension dropped",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 the renderer attaches exactly the extensions spelled here]",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1500/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "tasklist extension dropped",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 the renderer attaches exactly the extensions spelled here]",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1500/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "positions left quoted",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 what an open quoted attribute value swallows is commented]: ['raw HTML line', 'prose line', 'commented line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [I437 an item the HTML parse swallows is commented, its list not]: ['raw HTML line', 'commented line', 'commented line', 'prose line', 'prose line']",
+    "FAIL [I437 renders as GitHub does: I437 arm page: open double-quoted value, then a heading and a paragraph]",
+    "FAIL [I437 renders as GitHub does: I437 arm page: an item the parse swallows while its list renders]",
+    "TOC selftest: FAIL (1497/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1497/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 2,
+   "fails": [
+    "- [I437 em dash: I437 arm page: an item the parse swallows while its list renders] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []"
+   ],
+   "tail": "check_em_dash: FATAL: 1 of 339 arm(s) did not hold"
+  },
+  "killed": true
+ },
+ {
+  "name": "file-view check ignores anchors",
+  "applied": true,
+  "file": "scripts/gen_toc_shape_cases.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 the file-view check refuses a heading the file view does not show, or shows with another text or anchor]",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1500/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "file-view check allows any heading",
+  "applied": true,
+  "file": "scripts/gen_toc_shape_cases.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 the file-view check refuses a heading the file view does not show, or shows with another text or anchor]",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1500/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ },
+ {
+  "name": "file-view permalink not read (anchors empty)",
+  "applied": true,
+  "file": "scripts/gen_toc_renderer.py",
+  "toc": {
+   "rc": 1,
+   "fails": [
+    "FAIL [I437 file-view receipt: position attribute: none, the heading hidden by an open raw comment]",
+    "FAIL [I437 file-view receipt: position attribute spelled in upper case on a raw h2]",
+    "FAIL [I437 file-view receipt: position attribute spelled in mixed case on a raw h2]",
+    "FAIL [I437 file-view receipt: position attribute spelled through a character reference on a raw h2]",
+    "FAIL [I437 file-view receipt: position attribute spelled through a backslash escape on a raw h2]",
+    "FAIL [I437 file-view receipt: an open raw tag reads a heading's position as an attribute]",
+    "FAIL [I437 file-view receipt: an open raw tag reads a heading's position as an unquoted value]",
+    "FAIL [I437 file-view receipt: a setext heading with strikethrough]",
+    "FAIL [I437 file-view receipt: an element nested 201 deep between two headings]",
+    "FAIL [I437 file-view receipt: an element nested 256 deep between two headings]",
+    "FAIL [I437 file-view receipt: an element nested 1101 deep between two headings]",
+    "TOC selftest: FAIL (1490/1501 arm(s))"
+   ],
+   "tail": "TOC selftest: FAIL (1490/1501 arm(s))"
+  },
+  "em_dash": {
+   "rc": 0,
+   "fails": [],
+   "tail": "check_em_dash selftest: PASS (339 arm(s))"
+  },
+  "killed": true
+ }
+]

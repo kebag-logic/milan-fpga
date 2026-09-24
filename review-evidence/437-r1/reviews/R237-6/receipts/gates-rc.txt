@@ -1,0 +1,12 @@
+rc=0 scripts/gen_toc.py --selftest
+rc=0 scripts/gen_toc.py --verify-anchors
+rc=0 scripts/gen_toc.py --check
+rc=0 scripts/check_em_dash.py --selftest
+rc=0 scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+rc=0 scripts/check_py_idiom.py
+rc=2 scripts/ci_events.py --check
+rc=0 scripts/check_doc_style.py
+rc=0 scripts/docs_check.py
+rc=0 scripts/check_doc_paths.py
+rc=0 git diff --check 759da623..HEAD
+rc=0 scripts/ci_events.py --check (system python3 with pyyaml; venv lacks pyyaml)

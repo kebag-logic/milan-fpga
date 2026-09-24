@@ -1,0 +1,720 @@
+{
+ "lower-raw": {
+  "page_sha": "8554169b0ea2e59656bcdccd9b1c8bd073f4277a27d392a9bf22f5cefa25744c",
+  "tree-196cb7d9": {
+   "headings": [],
+   "refusals": [],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 1 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 332/332 [45e9fc1e..HEAD]",
+    "exempt": 0,
+    "entry_edited": false
+   },
+   "findings": [
+    "docs/probe.md:11: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence"
+   ]
+  },
+  "tree-26a0cc30": {
+   "headings": [],
+   "refusals": [
+    [
+     15,
+     5,
+     "data-sourcepos"
+    ]
+   ],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 2 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [3cfa8fe1..HEAD]",
+    "exempt": 0,
+    "entry_edited": false
+   },
+   "findings": [
+    "docs/probe.md:11: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence",
+    "docs/probe.md:15: `data-sourcepos` at column 5 spells the attribute the renderer marks its own elements with, so this walk does not read the page (reword it), so no Contents label on it is exempt"
+   ]
+  }
+ },
+ "upper-raw": {
+  "page_sha": "98d59f02c889334e34a34cebab3e1288d6bf7bb54c2f2293a0f1f317e39e65fc",
+  "tree-196cb7d9": {
+   "headings": [
+    [
+     1,
+     "Probe",
+     "probe"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Alpha",
+     "alpha"
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ],
+    [
+     2,
+     "Gamma",
+     "gamma"
+    ],
+    [
+     2,
+     "Secret \u2014 x",
+     "secret--x"
+    ]
+   ],
+   "refusals": [],
+   "gate": {
+    "rc": 0,
+    "summary": "check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [54700132..HEAD]",
+    "exempt": 1,
+    "entry_edited": true
+   },
+   "findings": []
+  },
+  "tree-26a0cc30": {
+   "headings": [],
+   "refusals": [
+    [
+     22,
+     5,
+     "DATA-SOURCEPOS"
+    ]
+   ],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 2 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [7c774cf2..HEAD]",
+    "exempt": 0,
+    "entry_edited": true
+   },
+   "findings": [
+    "docs/probe.md:8: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence",
+    "docs/probe.md:22: `DATA-SOURCEPOS` at column 5 spells the attribute the renderer marks its own elements with, so this walk does not read the page (reword it), so no Contents label on it is exempt"
+   ]
+  }
+ },
+ "mixed-raw": {
+  "page_sha": "7a72fe91c6371414bd1d1554fa73ef39bb65e6260cb1716c30df9f8f44a17dcd",
+  "tree-196cb7d9": {
+   "headings": [
+    [
+     1,
+     "Probe",
+     "probe"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Alpha",
+     "alpha"
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ],
+    [
+     2,
+     "Gamma",
+     "gamma"
+    ],
+    [
+     2,
+     "Secret \u2014 x",
+     "secret--x"
+    ]
+   ],
+   "refusals": [],
+   "gate": {
+    "rc": 0,
+    "summary": "check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [83b57fd3..HEAD]",
+    "exempt": 1,
+    "entry_edited": true
+   },
+   "findings": []
+  },
+  "tree-26a0cc30": {
+   "headings": [],
+   "refusals": [
+    [
+     22,
+     5,
+     "Data-SourcePos"
+    ]
+   ],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 2 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [4c3efe7e..HEAD]",
+    "exempt": 0,
+    "entry_edited": true
+   },
+   "findings": [
+    "docs/probe.md:8: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence",
+    "docs/probe.md:22: `Data-SourcePos` at column 5 spells the attribute the renderer marks its own elements with, so this walk does not read the page (reword it), so no Contents label on it is exempt"
+   ]
+  }
+ },
+ "mixed-raw-unquoted": {
+  "page_sha": "87c608cddfe95392e6fb0e4d8cd48a653176e2b833128132fc3cd4f65a795781",
+  "tree-196cb7d9": {
+   "headings": [
+    [
+     1,
+     "Probe",
+     "probe"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Alpha",
+     "alpha"
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ],
+    [
+     2,
+     "Gamma",
+     "gamma"
+    ],
+    [
+     2,
+     "Secret \u2014 x",
+     "secret--x"
+    ]
+   ],
+   "refusals": [],
+   "gate": {
+    "rc": 0,
+    "summary": "check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [6148cb64..HEAD]",
+    "exempt": 1,
+    "entry_edited": true
+   },
+   "findings": []
+  },
+  "tree-26a0cc30": {
+   "headings": [],
+   "refusals": [
+    [
+     22,
+     5,
+     "dAtA-sOuRcEpOs"
+    ]
+   ],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 2 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [719d3f4a..HEAD]",
+    "exempt": 0,
+    "entry_edited": true
+   },
+   "findings": [
+    "docs/probe.md:8: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence",
+    "docs/probe.md:22: `dAtA-sOuRcEpOs` at column 5 spells the attribute the renderer marks its own elements with, so this walk does not read the page (reword it), so no Contents label on it is exempt"
+   ]
+  }
+ },
+ "charref-dec": {
+  "page_sha": "579d004b8de0a99a83c20a55feaa390ff162817a29b01136aeb7b567fb8dc0b8",
+  "tree-196cb7d9": {
+   "headings": [
+    [
+     1,
+     "Probe",
+     "probe"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Alpha",
+     "alpha"
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ],
+    [
+     2,
+     "Gamma",
+     "gamma"
+    ],
+    [
+     2,
+     "Secret \u2014 x",
+     "secret--x"
+    ]
+   ],
+   "refusals": [],
+   "gate": {
+    "rc": 0,
+    "summary": "check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [7796d0f7..HEAD]",
+    "exempt": 1,
+    "entry_edited": true
+   },
+   "findings": []
+  },
+  "tree-26a0cc30": {
+   "headings": [],
+   "refusals": [],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 1 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [2a7dd1c4..HEAD]",
+    "exempt": 0,
+    "entry_edited": true
+   },
+   "findings": [
+    "docs/probe.md:8: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence"
+   ]
+  }
+ },
+ "charref-hex": {
+  "page_sha": "c6d9ba721da5d6e1ad3d4c6d09f757195120dca52f1c6eced31240713faa2cd5",
+  "tree-196cb7d9": {
+   "headings": [
+    [
+     1,
+     "Probe",
+     "probe"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Alpha",
+     "alpha"
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ],
+    [
+     2,
+     "Gamma",
+     "gamma"
+    ],
+    [
+     2,
+     "Secret \u2014 x",
+     "secret--x"
+    ]
+   ],
+   "refusals": [],
+   "gate": {
+    "rc": 0,
+    "summary": "check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [d7932fe3..HEAD]",
+    "exempt": 1,
+    "entry_edited": true
+   },
+   "findings": []
+  },
+  "tree-26a0cc30": {
+   "headings": [],
+   "refusals": [],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 1 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [f542edb6..HEAD]",
+    "exempt": 0,
+    "entry_edited": true
+   },
+   "findings": [
+    "docs/probe.md:8: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence"
+   ]
+  }
+ },
+ "charref-upper": {
+  "page_sha": "66cfde06895ab00bf7aec88d777cb0eec0d417cf968b0c7716f3c8b33b721e71",
+  "tree-196cb7d9": {
+   "headings": [
+    [
+     1,
+     "Probe",
+     "probe"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Alpha",
+     "alpha"
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ],
+    [
+     2,
+     "Gamma",
+     "gamma"
+    ],
+    [
+     2,
+     "Secret \u2014 x",
+     "secret--x"
+    ]
+   ],
+   "refusals": [],
+   "gate": {
+    "rc": 0,
+    "summary": "check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [ec83d75a..HEAD]",
+    "exempt": 1,
+    "entry_edited": true
+   },
+   "findings": []
+  },
+  "tree-26a0cc30": {
+   "headings": [],
+   "refusals": [],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 1 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [935eec6a..HEAD]",
+    "exempt": 0,
+    "entry_edited": true
+   },
+   "findings": [
+    "docs/probe.md:8: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence"
+   ]
+  }
+ },
+ "charref-hyphen": {
+  "page_sha": "14c85727bfde5bdb9c15818fdba4186022a6989e05bdaf084e91043344914120",
+  "tree-196cb7d9": {
+   "headings": [
+    [
+     1,
+     "Probe",
+     "probe"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Alpha",
+     "alpha"
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ],
+    [
+     2,
+     "Gamma",
+     "gamma"
+    ],
+    [
+     2,
+     "Secret \u2014 x",
+     "secret--x"
+    ]
+   ],
+   "refusals": [],
+   "gate": {
+    "rc": 0,
+    "summary": "check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [d603ca98..HEAD]",
+    "exempt": 1,
+    "entry_edited": true
+   },
+   "findings": []
+  },
+  "tree-26a0cc30": {
+   "headings": [],
+   "refusals": [],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 1 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [f9961332..HEAD]",
+    "exempt": 0,
+    "entry_edited": true
+   },
+   "findings": [
+    "docs/probe.md:8: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence"
+   ]
+  }
+ },
+ "charref-all": {
+  "page_sha": "053fd07b8b3ca8bd687ef6665e34bea56da9754322bfa7198b0db9616cdedd6b",
+  "tree-196cb7d9": {
+   "headings": [
+    [
+     1,
+     "Probe",
+     "probe"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Alpha",
+     "alpha"
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ],
+    [
+     2,
+     "Gamma",
+     "gamma"
+    ],
+    [
+     2,
+     "Secret \u2014 x",
+     "secret--x"
+    ]
+   ],
+   "refusals": [],
+   "gate": {
+    "rc": 0,
+    "summary": "check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [28dbed5e..HEAD]",
+    "exempt": 1,
+    "entry_edited": true
+   },
+   "findings": []
+  },
+  "tree-26a0cc30": {
+   "headings": [],
+   "refusals": [],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 1 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [aae86431..HEAD]",
+    "exempt": 0,
+    "entry_edited": true
+   },
+   "findings": [
+    "docs/probe.md:8: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence"
+   ]
+  }
+ },
+ "escape": {
+  "page_sha": "2fa198b9ca46ebc2921122f66fa3dde436902857e23f563a224efc4eb0c3487c",
+  "tree-196cb7d9": {
+   "headings": [
+    [
+     1,
+     "Probe",
+     "probe"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Alpha",
+     "alpha"
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ],
+    [
+     2,
+     "Gamma",
+     "gamma"
+    ],
+    [
+     2,
+     "Secret \u2014 x",
+     "secret--x"
+    ]
+   ],
+   "refusals": [],
+   "gate": {
+    "rc": 0,
+    "summary": "check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [95efd67b..HEAD]",
+    "exempt": 1,
+    "entry_edited": true
+   },
+   "findings": []
+  },
+  "tree-26a0cc30": {
+   "headings": [],
+   "refusals": [],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 1 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6c2f62bf..HEAD]",
+    "exempt": 0,
+    "entry_edited": true
+   },
+   "findings": [
+    "docs/probe.md:8: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence"
+   ]
+  }
+ },
+ "escape-upper": {
+  "page_sha": "5b89ab856f3e616ff76159f9bc2895a2779fd0bb2659ff9329a983f6550cd35e",
+  "tree-196cb7d9": {
+   "headings": [
+    [
+     1,
+     "Probe",
+     "probe"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Alpha",
+     "alpha"
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ],
+    [
+     2,
+     "Gamma",
+     "gamma"
+    ],
+    [
+     2,
+     "Secret \u2014 x",
+     "secret--x"
+    ]
+   ],
+   "refusals": [],
+   "gate": {
+    "rc": 0,
+    "summary": "check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [0f4802c4..HEAD]",
+    "exempt": 1,
+    "entry_edited": true
+   },
+   "findings": []
+  },
+  "tree-26a0cc30": {
+   "headings": [],
+   "refusals": [],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 1 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [329d25e5..HEAD]",
+    "exempt": 0,
+    "entry_edited": true
+   },
+   "findings": [
+    "docs/probe.md:8: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence"
+   ]
+  }
+ },
+ "control-benign": {
+  "page_sha": "9b1d486a512701715e02f8db3bfebdc11ba6ba1254e5c9b0ad5cbf1bc18af840",
+  "tree-196cb7d9": {
+   "headings": [
+    [
+     1,
+     "Probe",
+     "probe"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Alpha",
+     "alpha"
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ],
+    [
+     2,
+     "Gamma",
+     "gamma"
+    ]
+   ],
+   "refusals": [],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 1 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 332/332 [c1fea849..HEAD]",
+    "exempt": 0,
+    "entry_edited": false
+   },
+   "findings": [
+    "docs/probe.md:17: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence"
+   ]
+  },
+  "tree-26a0cc30": {
+   "headings": [
+    [
+     1,
+     "Probe",
+     "probe"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Alpha",
+     "alpha"
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ],
+    [
+     2,
+     "Gamma",
+     "gamma"
+    ]
+   ],
+   "refusals": [],
+   "gate": {
+    "rc": 1,
+    "summary": "check_em_dash: 1 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [48784c75..HEAD]",
+    "exempt": 0,
+    "entry_edited": false
+   },
+   "findings": [
+    "docs/probe.md:17: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence"
+   ]
+  }
+ }
+}
