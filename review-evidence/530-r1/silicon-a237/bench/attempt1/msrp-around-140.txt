@@ -1,0 +1,22 @@
+140.531878 DUT    MRPDU len 68
+      Domain          LA=0 nv=1 first=06030002 ev=['JoinIn'] ld=[]
+      TalkerAdvertise LA=0 nv=1 first=0200000000010001 ev=['JoinMt'] ld=[]
+140.930381 switch MRPDU len 127
+      Listener        LA=1 nv=1 first=0200000000010001 ev=['JoinMt'] ld=['Ready']
+      Domain          LA=1 nv=2 first=05020002 ev=['JoinMt', 'JoinMt'] ld=[]
+      TalkerAdvertise LA=1 nv=0 first=0000000000000000 ev=[] ld=[]
+      TalkerFailed    LA=1 nv=0 first=0000000000000000 ev=[] ld=[]
+140.931882 DUT    MRPDU len 133
+      Domain          LA=1 nv=1 first=06030002 ev=['JoinIn'] ld=[]
+      Domain          LA=0 nv=1 first=06030002 ev=['JoinIn'] ld=[]
+      TalkerAdvertise LA=1 nv=1 first=0200000000010001 ev=['Mt'] ld=[]
+      TalkerFailed    LA=1 nv=0 first=0000000000000000 ev=[] ld=[]
+      Listener        LA=1 nv=0 first=0000000000000000 ev=[] ld=[]
+141.030611 switch MRPDU len 64
+      Listener        LA=0 nv=1 first=0200000000010001 ev=['JoinMt'] ld=['Ready']
+      Domain          LA=0 nv=2 first=05020002 ev=['JoinMt', 'JoinIn'] ld=[]
+141.131879 DUT    MRPDU len 64
+      TalkerAdvertise LA=0 nv=1 first=0200000000010001 ev=['JoinMt'] ld=[]
+141.132208 switch MRPDU len 64
+      Listener        LA=0 nv=1 first=0200000000010001 ev=['JoinMt'] ld=['Ready']
+      Domain          LA=0 nv=2 first=05020002 ev=['JoinMt', 'JoinIn'] ld=[]
