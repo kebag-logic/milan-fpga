@@ -1,0 +1,44 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [
+  "disconnect/patch-LEX.json"
+ ],
+ "anchor": "mutations",
+ "compiles": 151,
+ "seconds": 92.0,
+ "results": [
+  {
+   "label": "an #undef behind a form feed",
+   "pin": [
+    "the firmware's preprocessing directives are pinned"
+   ],
+   "ok": false,
+   "said": "an #undef behind a form feed mutation was rejected for the wrong reason: the compiled census could not build the firmware with $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, which IS the RV32 target: a source this gate cannot compile is a source whose CSR stores it cannot census; ['      |                                          MILAN_PP_CTRL']"
+  },
+  {
+   "label": "a second source #included behind a form feed",
+   "pin": [
+    "the firmware's include set is pinned"
+   ],
+   "ok": false,
+   "said": "a second source #included behind a form feed mutation was rejected for the wrong reason: the preprocessed-unit instrument could not preprocess the firmware with $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, which IS the RV32 target: a source this gate cannot preprocess is a source whose boot path it cannot read as the compiler reads it; ['compilation terminated.']"
+  },
+  {
+   "label": "a second #error guard, its #error behind a vertical tab",
+   "pin": [
+    "#error directive(s) and exactly one is"
+   ],
+   "ok": false,
+   "said": "a second #error guard, its #error behind a vertical tab mutation was rejected for the wrong reason: under the arm selection line 59 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the preprocessed-unit instrument could not preprocess the firmware with $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, which IS the RV32 target: a source this gate cannot preprocess is a source whose boot path it cannot read as the compiler reads it; ['      |   ^~~~~']"
+  },
+  {
+   "label": "ADP_CTRL's name defined a second time behind a NUL",
+   "pin": [
+    "is #defined more than once"
+   ],
+   "ok": false,
+   "said": "ADP_CTRL's name defined a second time behind a NUL mutation was rejected for the wrong reason: the compiled firmware asserts ADP_CTRL (CSR 0x600) bit 0 0 time(s) inside entity_advertise(); the choke point holds exactly one enable per register"
+  }
+ ]
+}

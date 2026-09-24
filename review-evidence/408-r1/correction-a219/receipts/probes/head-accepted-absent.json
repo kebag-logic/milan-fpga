@@ -1,0 +1,105 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 0,
+ "seconds": 47.7,
+ "results": [
+  {
+   "label": "R272 r4 a debug helper defined under #ifdef MILAN_DEBUG_TOD and called under a second #ifdef MILAN_DEBUG_TOD in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r4 control: the same debug printf in ONE #ifdef in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r4 a debug-only static counter declared under #ifdef and incremented under a second #ifdef of the same macro",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V3a correlated conditionals: debug helper defined and called under two #ifdef MILAN_DEBUG_TOD",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V3b correlated conditionals: debug counter declared and incremented under two #ifdef MILAN_DEBUG_TOD",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC1 an #ifdef around a debug printf INSIDE milan_init()",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC2 a benign statement in an arm the census tree drops, inside configure_fabric()",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC3 an #ifdef/#else choosing a #define, read in a UART command handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC4 a ## token paste building a call outside the boot path",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC5 a token-joining backslash-newline inside a macro body",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC6 a read-only #define accessor over milan_read()",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC7 a fifth cast to a pointer, resolving outside the window",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC8 a fifth store through a pointer, resolving outside the window",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC9 parse_u64() and seconds_to_ns() exchanged",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC10 a fifth inline-asm statement, a fence in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC11 a README and a notes.txt beside the firmware",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 E1 #if/#elif/#else debug printfs after the choke-point call",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 E4 #if 0 around a benign statement",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 E6 four independent groups (16 selections, at the bound)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  }
+ ]
+}

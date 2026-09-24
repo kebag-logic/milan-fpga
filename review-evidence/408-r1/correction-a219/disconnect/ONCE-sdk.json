@@ -1,0 +1,305 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [
+  "disconnect/patch-ONCE.json"
+ ],
+ "anchor": "mutations",
+ "compiles": 242,
+ "seconds": 129.0,
+ "results": [
+  {
+   "label": "second source pulled in by a ??= trigraph include",
+   "pin": [
+    "carries a trigraph"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a phase-2-spliced call name",
+   "pin": [
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a space phase-2 token splice",
+   "pin": [
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a tab phase-2 token splice",
+   "pin": [
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a form-feed phase-2 token splice",
+   "pin": [
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a vertical-tab phase-2 token splice",
+   "pin": [
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a pasted call name",
+   "pin": [
+    "a `##` paste reaches"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a pasted call name in an arm the stub tree drops",
+   "pin": [
+    "graded as a firmware of its own",
+    "a `##` paste reaches"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a spliced call name in an arm the stub tree drops",
+   "pin": [
+    "graded as a firmware of its own",
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a spliced call name in an arm only the product compiles",
+   "pin": [
+    "graded as a firmware of its own",
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a spliced call name onto a literal address in a dropped arm",
+   "pin": [
+    "graded as a firmware of its own",
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the CSR identity sample forged by a splice of its name between its read and its mismatch guard",
+   "pin": [
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the CSR identity sample forged by a paste of its name",
+   "pin": [
+    "a `##` paste reaches"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the CSR identity sample forged by a paste a second macro reaches",
+   "pin": [
+    "a `##` paste reaches"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PP_CTRL's name redefined onto ADP_CTRL through a #define whose name a splice joins",
+   "pin": [
+    "is #defined more than once"
+   ],
+   "ok": false,
+   "said": "PP_CTRL's name redefined onto ADP_CTRL through a #define whose name a splice joins mutation was rejected for the wrong reason: the compiled firmware asserts PP_CTRL (CSR 0x920) bit 0 0 time(s) inside entity_advertise(); the choke point holds exactly one enable per register"
+  },
+  {
+   "label": "the identity magic redefined as a fresh read of the sample",
+   "pin": [
+    "is #defined more than once"
+   ],
+   "ok": false,
+   "said": "the identity magic redefined as a fresh read of the sample mutation was rejected for the wrong reason: the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the boot entry point', 'statements x8', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_aem_image', 'entity_advertise'), ('the boot entry point', 'statements x8', 'milan_read', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_aem_image', 'entity_advertise'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+  },
+  {
+   "label": "the identity magic redefined as the sample itself",
+   "pin": [
+    "is #defined more than once"
+   ],
+   "ok": false,
+   "said": "the identity magic redefined as the sample itself mutation passed the boot-contract gate"
+  },
+  {
+   "label": "entity enable hidden in a continuation-line macro body and invoked from a UART handler",
+   "pin": [
+    "inside a macro body: every store through a CSR primitive"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enable hidden after form-feed macro continuation whitespace",
+   "pin": [
+    "inside a macro body: every store through a CSR primitive"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the store primitive hidden in a macro whose #define a splice splits",
+   "pin": [
+    "inside a macro body: every store through a CSR primitive"
+   ],
+   "ok": true
+  },
+  {
+   "label": "open quotes in two #defines bracketing a product-only store",
+   "pin": [
+    "a literal that no quote closes on its line"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a raw string literal in a UART command handler",
+   "pin": [
+    "a raw string literal"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a ??/ trigraph ending a comment before a product-only arm",
+   "pin": [
+    "carries a trigraph"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the pre-AEM clear dropped by a product-only #ifndef behind a form feed",
+   "pin": [
+    "graded as a firmware of its own",
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the pre-AEM clear dropped by a product-only #ifndef behind a vertical tab",
+   "pin": [
+    "graded as a firmware of its own",
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the pre-AEM clear dropped by a product-only #ifndef behind a NUL",
+   "pin": [
+    "graded as a firmware of its own",
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the pre-AEM clear dropped by a product-only #ifndef behind lone CR line ends",
+   "pin": [
+    "graded as a firmware of its own",
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the verifier's #else behind a lone CR, its hidden arm returning 1",
+   "pin": [
+    "AEM verifier non-zero return must be textually after the CRC"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a spliced call name in a UART command handler",
+   "pin": [
+    "not from entity_advertise()"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler",
+   "pin": [
+    "graded as a firmware of its own",
+    "not from entity_advertise()"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a fifth pointer cast in an arm only the product compiles, behind a form feed, in a UART command handler",
+   "pin": [
+    "graded as a firmware of its own",
+    "materialises one elsewhere"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a fifth pointer cast in an arm only the product compiles, behind a vertical tab, in a UART command handler",
+   "pin": [
+    "graded as a firmware of its own",
+    "materialises one elsewhere"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a fifth pointer cast in an arm only the product compiles, behind a NUL, in a UART command handler",
+   "pin": [
+    "graded as a firmware of its own",
+    "materialises one elsewhere"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a fifth pointer cast in an arm only the product compiles, behind lone CR line ends, in a UART command handler",
+   "pin": [
+    "graded as a firmware of its own",
+    "materialises one elsewhere"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled by a lui-based inline-asm store in an arm only the product compiles, behind a form feed",
+   "pin": [
+    "graded as a firmware of its own",
+    "STORES into the Milan CSR window"
+   ],
+   "ok": true
+  },
+  {
+   "label": "an arm only the product compiles, behind a form feed, short-circuiting the choke point's verdict test",
+   "pin": [
+    "graded as a firmware of its own",
+    "verdict argument against zero"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a cast in the product's arm, behind an #else a splice splits",
+   "pin": [
+    "graded as a firmware of its own",
+    "materialises one elsewhere"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a cast in the second of two groups on CSR_UART_BASE",
+   "pin": [
+    "graded as a firmware of its own",
+    "materialises one elsewhere"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a boot step erased by a function-like macro of its own name",
+   "pin": [
+    "is not the boot path the compiler COMPILES"
+   ],
+   "ok": true
+  }
+ ]
+}

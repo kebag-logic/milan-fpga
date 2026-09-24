@@ -1,0 +1,27 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [
+  "disconnect/patch-KEY.json"
+ ],
+ "anchor": "baseline",
+ "compiles": 0,
+ "seconds": 13.7,
+ "results": [
+  {
+   "label": "R272 r4 a debug helper defined under #ifdef MILAN_DEBUG_TOD and called under a second #ifdef MILAN_DEBUG_TOD in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V3a correlated conditionals: debug helper defined and called under two #ifdef MILAN_DEBUG_TOD",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V3b correlated conditionals: debug counter declared and incremented under two #ifdef MILAN_DEBUG_TOD",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  }
+ ]
+}

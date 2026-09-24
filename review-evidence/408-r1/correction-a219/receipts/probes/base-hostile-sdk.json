@@ -1,0 +1,265 @@
+{
+ "rev": "759da623",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 39,
+ "seconds": 51.2,
+ "results": [
+  {
+   "label": "R272 r1 plain #: product-only `0 &&` in the choke point verdict test",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the entity-advertise choke point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "R272 r1 form feed: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R272 r1 vertical tab: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R272 r1 plain #: product-only paged-base cast store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "R272 r1 plain #: product-only literal-address cast store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "R272 r1 plain #: product-only lui asm store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's inline asm is pinned: an asm template carries no milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal address in one stores to a control register past every rule in the CSR store closure; found ['__asm__ volatile(\"fence iorw, iorw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"lui t0, 0x90000\\\\n\\\\t\" \"li t1, 1\\\\n\\\\t\" \"sw t1, 0x600(t0)\" ::: \"t0\", \"t1\", \"memory\")']"
+  },
+  {
+   "label": "R272 r1 plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  },
+  {
+   "label": "R272 r1 plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  },
+  {
+   "label": "R272 r1 form feed: product-only paged-base cast store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "R272 r1 form feed: product-only literal-address cast store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "R272 r1 form feed: product-only lui asm store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's inline asm is pinned: an asm template carries no milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal address in one stores to a control register past every rule in the CSR store closure; found ['__asm__ volatile(\"fence iorw, iorw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"lui t0, 0x90000\\\\n\\\\t\" \"li t1, 1\\\\n\\\\t\" \"sw t1, 0x600(t0)\" ::: \"t0\", \"t1\", \"memory\")']"
+  },
+  {
+   "label": "R272 r1 form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)",
+   "verdict": "REFUSED",
+   "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R272 r1 form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R272 r2 control: form feed arm around a SPELLED milan_write enable in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R272 r2 NUL byte before #: product-only literal-address cast store in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "R272 r2 unterminated-quote defines around a product-only literal-address cast store in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R272 r2 unterminated-quote defines around a product-only `0 &&` in the choke point verdict test",
+   "verdict": "REFUSED",
+   "reason": "entity_advertise() must test the verdict it is handed: its parameter is the boot contract's only argument and nothing else in this function may decide whether the entity is advertised"
+  },
+  {
+   "label": "R272 r2 form feed: product-only literal-address cast store inside configure_fabric() (a boot-path body)",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile unsigned int *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)']"
+  },
+  {
+   "label": "R272 r3 identity forged through a plain function-like macro",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R272 r3 identity forged through a token-joining splice of the local's name",
+   "verdict": "REFUSED",
+   "reason": "firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name"
+  },
+  {
+   "label": "R272 r3 identity forged through a ## paste of the local's name",
+   "verdict": "REFUSED",
+   "reason": "firmware must not paste tokens, and must not spell one with a digraph or a trigraph: a pasted call name builds a CSR store this gate cannot read, and an alternate spelling of `#` builds a directive it cannot read either"
+  },
+  {
+   "label": "R272 r3 plain #: product-only struct-overlay store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R272 r3 form feed: product-only struct-overlay store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R273 H1 function pointer to milan_write built by a SPLICE, called from a UART handler",
+   "verdict": "REFUSED",
+   "reason": "firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name"
+  },
+  {
+   "label": "R273 H2 function pointer to milan_write built by a PASTE, called from a UART handler",
+   "verdict": "REFUSED",
+   "reason": "firmware must not paste tokens, and must not spell one with a digraph or a trigraph: a pasted call name builds a CSR store this gate cannot read, and an alternate spelling of `#` builds a directive it cannot read either"
+  },
+  {
+   "label": "R273 H3 second choke-point call built by a SPLICE, in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name"
+  },
+  {
+   "label": "R273 H4 verdict overwritten by a PASTE between the verifier and the choke point",
+   "verdict": "REFUSED",
+   "reason": "firmware must not paste tokens, and must not spell one with a digraph or a trigraph: a pasted call name builds a CSR store this gate cannot read, and an alternate spelling of `#` builds a directive it cannot read either"
+  },
+  {
+   "label": "R273 H5 verdict overwritten by a SPLICE between the verifier and the choke point",
+   "verdict": "REFUSED",
+   "reason": "firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name"
+  },
+  {
+   "label": "R273 H11 store through milan_reg() built by a PASTE, in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "firmware must not paste tokens, and must not spell one with a digraph or a trigraph: a pasted call name builds a CSR store this gate cannot read, and an alternate spelling of `#` builds a directive it cannot read either"
+  },
+  {
+   "label": "R273 H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_ID)",
+   "verdict": "REFUSED",
+   "reason": "#define MILAN_ID_MAGIC hides milan_read() inside a macro body: every call to a CSR primitive must be spelled out so the operand census can read which register it names. A read-only accessor macro contains no store and is refused for this reason, not for storing"
+  },
+  {
+   "label": "R273 H7 second #define of MILAN_ID_MAGIC as the sample itself",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R273 H8 verifier QSPI-slot group with its #else arm deleted",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R273 H9 verifier #else behind a lone CR, its hidden arm returning 1",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R273 H10 product-only 0 && in the choke point's verdict test",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the entity-advertise choke point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "R273 H12 the same product-only 0 && with its directives behind lone CRs",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R273 H13 the same product-only 0 && with its directives behind form feeds",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R273 H14 pre-AEM ADP clear behind a lone-CR #ifndef (census keeps it, product drops it)",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R273 H15 a LINK named init.h beside the firmware to a file outside",
+   "verdict": "REFUSED",
+   "reason": "the firmware's directory is pinned to ['Makefile', 'milan_baremetal.c']: a quoted include resolves against this directory FIRST, so a file dropped in here answers to a pinned include name and puts this repository's text behind it with no name changing anywhere; found ['init.h']"
+  },
+  {
+   "label": "R273 V1a form feed before #: product-only literal-address cast store in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "R273 V1b vertical tab before #: the same store",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "R273 V1c NUL before #: the same store",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "R273 V1d lone CR before #: the same store",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "R273 V1e form feed before #: product-only lui/sw asm store",
+   "verdict": "REFUSED",
+   "reason": "the firmware's inline asm is pinned: an asm template carries no milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal address in one stores to a control register past every rule in the CSR store closure; found ['__asm__ volatile(\"fence iorw, iorw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"lui t0, 0x90000\\\\n\\\\t\" \"li t1, 1\\\\n\\\\t\" \"sw t1, 0x600(t0)\" ::: \"t0\", \"t1\", \"memory\")']"
+  },
+  {
+   "label": "R273 V1f control: plain # product-only literal cast store",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "R273 V2a identity local forged by a SPLICE between the read and the guard",
+   "verdict": "REFUSED",
+   "reason": "firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name"
+  },
+  {
+   "label": "R273 V2b identity local forged by a PASTE between the read and the guard",
+   "verdict": "REFUSED",
+   "reason": "firmware must not paste tokens, and must not spell one with a digraph or a trigraph: a pasted call name builds a CSR store this gate cannot read, and an alternate spelling of `#` builds a directive it cannot read either"
+  },
+  {
+   "label": "R273 V2c identity local forged by a plain function-like macro",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R273 V4 unterminated character literals in two #defines bracketing a product-only literal-address store",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R273 E2 an #elif arm only the product takes enabling ADP before AEM",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "R273 E3 nested groups, the inner arm enabling ADP before AEM",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "R273 E5 #if 0 around an enable before AEM",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other"
+  }
+ ]
+}

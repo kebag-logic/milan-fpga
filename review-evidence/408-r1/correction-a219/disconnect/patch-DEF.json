@@ -1,0 +1,6 @@
+[
+ [
+  "    for name, _params, body in definitions:\n        hidden = re.search(",
+  "    for name, body in re.findall(\n            r\"(?m)^[ \\t]*#[ \\t]*define[ \\t]+(\\w+)(?:\\([^)\\n]*\\))?[ \\t]*\"\n            r\"([^\\r\\n]*)$\", code):\n        hidden = re.search("
+ ]
+]

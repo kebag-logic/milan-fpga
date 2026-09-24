@@ -1,0 +1,265 @@
+{
+ "rev": "a13b6e2e",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 0,
+ "seconds": 57.8,
+ "results": [
+  {
+   "label": "R272 r1 plain #: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 form feed: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 vertical tab: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 plain #: product-only paged-base cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 plain #: product-only literal-address cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 plain #: product-only lui asm store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 31 `#ifdef CSR_UART_BASE`: arm 1 of 2 taken, one of the firmwares the product may build: ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R272 r1 plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 31 `#ifndef CSR_UART_BASE`: arm 2 of 2 taken, one of the firmwares the product may build: ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R272 r1 form feed: product-only paged-base cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 form feed: product-only literal-address cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 form feed: product-only lui asm store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)",
+   "verdict": "REFUSED",
+   "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R272 r1 form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r2 control: form feed arm around a SPELLED milan_write enable in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R272 r2 NUL byte before #: product-only literal-address cast store in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r2 unterminated-quote defines around a product-only literal-address cast store in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r2 unterminated-quote defines around a product-only `0 &&` in the choke point verdict test",
+   "verdict": "REFUSED",
+   "reason": "entity_advertise() must test the verdict it is handed: its parameter is the boot contract's only argument and nothing else in this function may decide whether the entity is advertised"
+  },
+  {
+   "label": "R272 r2 form feed: product-only literal-address cast store inside configure_fabric() (a boot-path body)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r3 identity forged through a plain function-like macro",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r3 identity forged through a token-joining splice of the local's name",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r3 identity forged through a ## paste of the local's name",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r3 plain #: product-only struct-overlay store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r3 form feed: product-only struct-overlay store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H1 function pointer to milan_write built by a SPLICE, called from a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H2 function pointer to milan_write built by a PASTE, called from a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H3 second choke-point call built by a SPLICE, in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H4 verdict overwritten by a PASTE between the verifier and the choke point",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H5 verdict overwritten by a SPLICE between the verifier and the choke point",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H11 store through milan_reg() built by a PASTE, in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_ID)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H7 second #define of MILAN_ID_MAGIC as the sample itself",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H8 verifier QSPI-slot group with its #else arm deleted",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H9 verifier #else behind a lone CR, its hidden arm returning 1",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H10 product-only 0 && in the choke point's verdict test",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H12 the same product-only 0 && with its directives behind lone CRs",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H13 the same product-only 0 && with its directives behind form feeds",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H14 pre-AEM ADP clear behind a lone-CR #ifndef (census keeps it, product drops it)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H15 a LINK named init.h beside the firmware to a file outside",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V1a form feed before #: product-only literal-address cast store in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V1b vertical tab before #: the same store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V1c NUL before #: the same store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V1d lone CR before #: the same store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V1e form feed before #: product-only lui/sw asm store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V1f control: plain # product-only literal cast store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V2a identity local forged by a SPLICE between the read and the guard",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V2b identity local forged by a PASTE between the read and the guard",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V2c identity local forged by a plain function-like macro",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V4 unterminated character literals in two #defines bracketing a product-only literal-address store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 E2 an #elif arm only the product takes enabling ADP before AEM",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1384 `#if defined(MILAN_A)`: arm 2 of 2 taken, one of the firmwares the product may build: ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R273 E3 nested groups, the inner arm enabling ADP before AEM",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1384 `#ifdef MILAN_A`: arm 1 of 1 taken; line 1385 `#ifdef CSR_UART_BASE`: arm 1 of 1 taken, one of the firmwares the product may build: ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R273 E5 #if 0 around an enable before AEM",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1384 `#if 0`: arm 1 of 1 taken, one of the firmwares the product may build: ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  }
+ ]
+}

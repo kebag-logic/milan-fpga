@@ -1,0 +1,434 @@
+riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0
+== 01-block-comment-same-line.c (no -D)
+int a;
+int z;
+exit=0
+== 01-block-comment-same-line.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 02-block-comment-multiline.c (no -D)
+int a;
+int z;
+exit=0
+== 02-block-comment-multiline.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 03-ff-before-hash.c (no -D)
+int a;
+int z;
+exit=0
+== 03-ff-before-hash.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 04-vt-before-hash.c (no -D)
+int a;
+int z;
+exit=0
+== 04-vt-before-hash.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 05-nul-before-hash.c (no -D)
+05-nul-before-hash.c:2:1: warning: null character(s) ignored
+    2 | <U+0000>#ifdef FOO
+      | ^~~~~~~~
+05-nul-before-hash.c:4:1: warning: null character(s) ignored
+    4 | <U+0000>#endif
+      | ^~~~~~~~
+int a;
+int z;
+exit=0
+== 05-nul-before-hash.c -DFOO
+05-nul-before-hash.c:2:1: warning: null character(s) ignored
+    2 | <U+0000>#ifdef FOO
+      | ^~~~~~~~
+05-nul-before-hash.c:4:1: warning: null character(s) ignored
+    4 | <U+0000>#endif
+      | ^~~~~~~~
+int a;
+int b;
+int z;
+exit=0
+== 06-cr-line-terminator.c (no -D)
+int a;
+int z;
+exit=0
+== 06-cr-line-terminator.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 07-crlf.c (no -D)
+int a;
+int z;
+exit=0
+== 07-crlf.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 08-ff-after-hash.c (no -D)
+int a;
+int z;
+exit=0
+== 08-ff-after-hash.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 09-nul-after-hash.c (no -D)
+09-nul-after-hash.c:2:2: warning: null character(s) ignored
+    2 | #<U+0000>ifdef FOO
+      |  ^~~~~~~~
+int a;
+int z;
+exit=0
+== 09-nul-after-hash.c -DFOO
+09-nul-after-hash.c:2:2: warning: null character(s) ignored
+    2 | #<U+0000>ifdef FOO
+      |  ^~~~~~~~
+int a;
+int b;
+int z;
+exit=0
+== 10-line-comment-spliced.c (no -D)
+10-line-comment-spliced.c:5:2: error: #endif without #if
+    5 | #endif
+      |  ^~~~~
+int a;
+int b;
+int z;
+exit=1
+== 10-line-comment-spliced.c -DFOO
+10-line-comment-spliced.c:5:2: error: #endif without #if
+    5 | #endif
+      |  ^~~~~
+int a;
+int b;
+int z;
+exit=1
+== 11-line-comment-spliced-ws.c (no -D)
+11-line-comment-spliced-ws.c:5:2: error: #endif without #if
+    5 | #endif
+      |  ^~~~~
+int a;
+int b;
+int z;
+exit=1
+== 11-line-comment-spliced-ws.c -DFOO
+11-line-comment-spliced-ws.c:5:2: error: #endif without #if
+    5 | #endif
+      |  ^~~~~
+int a;
+int b;
+int z;
+exit=1
+== 12-comment-open-spliced.c (no -D)
+int a;
+int b;
+int z;
+exit=0
+== 12-comment-open-spliced.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 13-string-spliced.c (no -D)
+const char *s = "a#ifdef FOO";
+int b;
+int z;
+exit=0
+== 13-string-spliced.c -DFOO
+const char *s = "a#ifdef FOO";
+int b;
+int z;
+exit=0
+== 14-raw-string.c (no -D)
+const char *s = R"x(
+#ifdef FOO
+)x";
+int b;
+const char *t = R"x(
+#endif
+)x";
+int z;
+exit=0
+== 14-raw-string.c -DFOO
+const char *s = R"x(
+#ifdef FOO
+)x";
+int b;
+const char *t = R"x(
+#endif
+)x";
+int z;
+exit=0
+== 15-splice-ff.c (no -D)
+15-splice-ff.c:5:2: error: #endif without #if
+    5 | #endif
+      |  ^~~~~
+int a;
+int b;
+int z;
+exit=1
+== 15-splice-ff.c -DFOO
+15-splice-ff.c:5:2: error: #endif without #if
+    5 | #endif
+      |  ^~~~~
+int a;
+int b;
+int z;
+exit=1
+== 16-splice-nul.c (no -D)
+16-splice-nul.c:5:2: error: #endif without #if
+    5 | #endif
+      |  ^~~~~
+int a;
+int b;
+int z;
+exit=1
+== 16-splice-nul.c -DFOO
+16-splice-nul.c:5:2: error: #endif without #if
+    5 | #endif
+      |  ^~~~~
+int a;
+int b;
+int z;
+exit=1
+== 17-splice-cr.c (no -D)
+17-splice-cr.c:5:2: error: #endif without #if
+    5 | #endif
+      |  ^~~~~
+int a;
+int b;
+int z;
+exit=1
+== 17-splice-cr.c -DFOO
+17-splice-cr.c:5:2: error: #endif without #if
+    5 | #endif
+      |  ^~~~~
+int a;
+int b;
+int z;
+exit=1
+== 18-unterminated-char.c (no -D)
+18-unterminated-char.c:1:11: warning: missing terminating ' character
+    1 | #define Q '
+      |           ^
+18-unterminated-char.c:5:11: warning: missing terminating ' character
+    5 | #define R '
+      |           ^
+int z;
+exit=0
+== 18-unterminated-char.c -DFOO
+18-unterminated-char.c:1:11: warning: missing terminating ' character
+    1 | #define Q '
+      |           ^
+18-unterminated-char.c:5:11: warning: missing terminating ' character
+    5 | #define R '
+      |           ^
+int b;
+int z;
+exit=0
+== 19-unterminated-string.c (no -D)
+19-unterminated-string.c:1:11: warning: missing terminating " character
+    1 | #define Q "
+      |           ^
+19-unterminated-string.c:5:11: warning: missing terminating " character
+    5 | #define R "
+      |           ^
+int z;
+exit=0
+== 19-unterminated-string.c -DFOO
+19-unterminated-string.c:1:11: warning: missing terminating " character
+    1 | #define Q "
+      |           ^
+19-unterminated-string.c:5:11: warning: missing terminating " character
+    5 | #define R "
+      |           ^
+int b;
+int z;
+exit=0
+== 20-trigraph-splice.c (no -D)
+20-trigraph-splice.c:2:6: warning: trigraph ??/ ignored, use -trigraphs to enable [-Wtrigraphs]
+    2 | // c ??/
+int a;
+int z;
+exit=0
+== 20-trigraph-splice.c -DFOO
+20-trigraph-splice.c:2:6: warning: trigraph ??/ ignored, use -trigraphs to enable [-Wtrigraphs]
+    2 | // c ??/
+int a;
+int b;
+int z;
+exit=0
+== 21-digraph-hash.c (no -D)
+int a;
+int z;
+exit=0
+== 21-digraph-hash.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 22-trigraph-hash.c (no -D)
+22-trigraph-hash.c:2:1: warning: trigraph ??= ignored, use -trigraphs to enable [-Wtrigraphs]
+    2 | ??=ifdef FOO
+22-trigraph-hash.c:4:1: warning: trigraph ??= ignored, use -trigraphs to enable [-Wtrigraphs]
+    4 | ??=endif
+int a;
+??=ifdef FOO
+int b;
+??=endif
+int z;
+exit=0
+== 22-trigraph-hash.c -DFOO
+22-trigraph-hash.c:2:1: warning: trigraph ??= ignored, use -trigraphs to enable [-Wtrigraphs]
+    2 | ??=ifdef FOO
+22-trigraph-hash.c:4:1: warning: trigraph ??= ignored, use -trigraphs to enable [-Wtrigraphs]
+    4 | ??=endif
+int a;
+??=ifdef 1
+int b;
+??=endif
+int z;
+exit=0
+== 23-hash-splice-name.c (no -D)
+int a;
+int z;
+exit=0
+== 23-hash-splice-name.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 24-space-before-splice-hash.c (no -D)
+int a;
+int z;
+exit=0
+== 24-space-before-splice-hash.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 25-token-splice-hash.c (no -D)
+25-token-splice-hash.c:4:2: error: #endif without #if
+    4 | #endif
+      |  ^~~~~
+int a; #ifdef FOO
+int b;
+int z;
+exit=1
+== 25-token-splice-hash.c -DFOO
+25-token-splice-hash.c:4:2: error: #endif without #if
+    4 | #endif
+      |  ^~~~~
+int a; #ifdef 1
+int b;
+int z;
+exit=1
+== 26-elifdef.c (no -D)
+int a;
+int z;
+exit=0
+== 26-elifdef.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 27-comment-then-ff.c (no -D)
+int a;
+int z;
+exit=0
+== 27-comment-then-ff.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 28-u8-raw.c (no -D)
+const char *s = u8R"x(
+#ifdef FOO
+)x";
+int b;
+const char *t = u8R"x(
+#endif
+)x";
+int z;
+exit=0
+== 28-u8-raw.c -DFOO
+const char *s = u8R"x(
+#ifdef FOO
+)x";
+int b;
+const char *t = u8R"x(
+#endif
+)x";
+int z;
+exit=0
+== 29-char-spliced.c (no -D)
+int q = '';
+int z;
+exit=0
+== 29-char-spliced.c -DFOO
+int q = '';
+int b;
+int z;
+exit=0
+== 30-FS-before-hash.c (no -D)
+int a;
+#ifdef FOO
+int b;
+#endif
+int z;
+exit=0
+== 30-FS-before-hash.c -DFOO
+int a;
+#ifdef 1
+int b;
+#endif
+int z;
+exit=0
+== 31-u2028-before-hash.c (no -D)
+int a;
+ #ifdef FOO
+int b;
+ #endif
+int z;
+exit=0
+== 31-u2028-before-hash.c -DFOO
+int a;
+ #ifdef 1
+int b;
+ #endif
+int z;
+exit=0
+== 32-nbsp-before-hash.c (no -D)
+int a;
+ #ifdef FOO
+int b;
+ #endif
+int z;
+exit=0
+== 32-nbsp-before-hash.c -DFOO
+int a;
+ #ifdef 1
+int b;
+ #endif
+int z;
+exit=0
+== 33-lf-cr.c (no -D)
+int a;
+int z;
+exit=0
+== 33-lf-cr.c -DFOO
+int a;
+int b;
+int z;
+exit=0

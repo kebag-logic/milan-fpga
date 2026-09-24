@@ -1,0 +1,18 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$REVIEWS/408-a219-packet/tools/probe.py", line 190, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/408-a219-packet/tools/probe.py", line 175, in main
+    module.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py", line 10149, in test_baremetal_profile_contract
+    lexer_note = assert_lexer_matches_compiler()
+  File "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py", line 4930, in assert_lexer_matches_compiler
+    assert_lexer_reads(label, text, kept)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py", line 4919, in assert_lexer_reads
+    assert read == kept, \
+           ^^^^^^^^^^^^
+AssertionError: gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (a form feed before #, 'int a;\n\x0c#ifdef FOO\nint b;\n\x0c#endif\nint z;\n'): its directive readers keep ('a', 'b', 'z') and the pinned GCC 14.3 at -std=gnu99 keeps ('a', 'z'), so an arm one of them grades is an arm the other compiles, or drops
+exit=1

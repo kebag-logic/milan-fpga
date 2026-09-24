@@ -1,0 +1,183 @@
+== 34-comment-after-token-multiline.c (no -D)
+34-comment-after-token-multiline.c:4:2: error: #endif without #if
+    4 | #endif
+      |  ^~~~~
+int a; #ifdef FOO
+int b;
+int z;
+exit=1
+== 34-comment-after-token-multiline.c -DFOO
+34-comment-after-token-multiline.c:4:2: error: #endif without #if
+    4 | #endif
+      |  ^~~~~
+int a; #ifdef 1
+int b;
+int z;
+exit=1
+== 35-splice-vt.c (no -D)
+35-splice-vt.c:5:2: error: #endif without #if
+    5 | #endif
+      |  ^~~~~
+int a;
+int b;
+int z;
+exit=1
+== 35-splice-vt.c -DFOO
+35-splice-vt.c:5:2: error: #endif without #if
+    5 | #endif
+      |  ^~~~~
+int a;
+int b;
+int z;
+exit=1
+== 36-comment-close-spliced.c (no -D)
+int a;
+int z;
+exit=0
+== 36-comment-close-spliced.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 37-comment-close-spliced-2.c (no -D)
+int a;
+int b;
+int z;
+exit=0
+== 37-comment-close-spliced-2.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 38-string-escape-quote-nl.c (no -D)
+38-string-escape-quote-nl.c:1:17: warning: missing terminating " character
+    1 | const char *s = "a\"
+      |                 ^
+const char *s = "a\"
+int z;
+exit=0
+== 38-string-escape-quote-nl.c -DFOO
+38-string-escape-quote-nl.c:1:17: warning: missing terminating " character
+    1 | const char *s = "a\"
+      |                 ^
+const char *s = "a\"
+int b;
+int z;
+exit=0
+== 39-elifndef.c (no -D)
+int a;
+int b;
+int z;
+exit=0
+== 39-elifndef.c -DFOO
+int a;
+int z;
+exit=0
+== 40-raw-bad-delim.c (no -D)
+40-raw-bad-delim.c:1:20: error: invalid character ' ' in raw string delimiter
+    1 | const char *s = R"x y(
+      |                 ^   
+const char *s = R"x y(
+#ifdef FOO
+)x y";
+int b;
+int z;
+exit=1
+== 40-raw-bad-delim.c -DFOO
+40-raw-bad-delim.c:1:20: error: invalid character ' ' in raw string delimiter
+    1 | const char *s = R"x y(
+      |                 ^   
+const char *s = R"x y(
+#ifdef FOO
+)x y";
+int b;
+int z;
+exit=1
+== 41-LR-raw.c (no -D)
+const int *s = LR"(
+#ifdef FOO
+)";
+int b;
+int z;
+exit=0
+== 41-LR-raw.c -DFOO
+const int *s = LR"(
+#ifdef FOO
+)";
+int b;
+int z;
+exit=0
+== 42-ident-R-string.c (no -D)
+const char *s = 1"x";
+int z;
+exit=0
+== 42-ident-R-string.c -DFOO
+const char *s = 1"x";
+int b;
+int z;
+exit=0
+== 43-hash-hash-bol.c (no -D)
+int a;
+## x
+int z;
+exit=0
+== 43-hash-hash-bol.c -DFOO
+int a;
+## x
+int z;
+exit=0
+== 44-null-directive.c (no -D)
+int a;
+int z;
+exit=0
+== 44-null-directive.c -DFOO
+int a;
+int z;
+exit=0
+== 45-linemarker.c (no -D)
+int a;
+int z;
+exit=0
+== 45-linemarker.c -DFOO
+int a;
+int z;
+exit=0
+== 46-comment-bol-then-token-multiline.c (no -D)
+    int a; #ifdef FOO
+int z;
+exit=0
+== 46-comment-bol-then-token-multiline.c -DFOO
+    int a; #ifdef 1
+int z;
+exit=0
+== 47-ff-cr.c (no -D)
+int a;
+int z;
+exit=0
+== 47-ff-cr.c -DFOO
+int a;
+int b;
+int z;
+exit=0
+== 48-pragma-op.c (no -D)
+int x = 0x604u;
+int y = 0x600u;
+exit=0
+== 48-pragma-op.c -DFOO
+int x = 0x604u;
+int y = 0x600u;
+exit=0
+== 49-bs-space-in-string.c (no -D)
+49-bs-space-in-string.c:1:19: warning: backslash and newline separated by space
+    1 | const char *s = "a\
+const char *s = "a#ifdef FOO";
+int b;
+int z;
+exit=0
+== 49-bs-space-in-string.c -DFOO
+49-bs-space-in-string.c:1:19: warning: backslash and newline separated by space
+    1 | const char *s = "a\
+const char *s = "a#ifdef FOO";
+int b;
+int z;
+exit=0

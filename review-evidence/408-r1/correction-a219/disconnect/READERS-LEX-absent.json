@@ -1,0 +1,44 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [
+  "disconnect/patch-LEX.json"
+ ],
+ "anchor": "mutations",
+ "compiles": 0,
+ "seconds": 71.3,
+ "results": [
+  {
+   "label": "an #undef behind a form feed",
+   "pin": [
+    "the firmware's preprocessing directives are pinned"
+   ],
+   "ok": false,
+   "said": "an #undef behind a form feed mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a second source #included behind a form feed",
+   "pin": [
+    "the firmware's include set is pinned"
+   ],
+   "ok": false,
+   "said": "a second source #included behind a form feed mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a second #error guard, its #error behind a vertical tab",
+   "pin": [
+    "#error directive(s) and exactly one is"
+   ],
+   "ok": false,
+   "said": "a second #error guard, its #error behind a vertical tab mutation passed the boot-contract gate"
+  },
+  {
+   "label": "ADP_CTRL's name defined a second time behind a NUL",
+   "pin": [
+    "is #defined more than once"
+   ],
+   "ok": false,
+   "said": "ADP_CTRL's name defined a second time behind a NUL mutation passed the boot-contract gate"
+  }
+ ]
+}

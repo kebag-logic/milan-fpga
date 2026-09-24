@@ -1,0 +1,10 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+REFUSED: R272-limit form feed #undef of ADP_CTRL, redefined onto EID_LO
+    the firmware's preprocessing directives are pinned, and '#undef' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R272-limit form feed #pragma
+    the firmware's preprocessing directives are pinned, and '#pragma' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R272-limit form feed #include of a second source
+    the firmware's include set is pinned, and "milan_bringup.c" is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file
+REFUSED: R272-limit _Pragma push_macro / #define / pop_macro around ADP_CTRL
+    #define MILAN_ADP_CTRL is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition
+PROBE DONE: 4 result(s), 0 compiles, 4.2 s

@@ -1,0 +1,30 @@
+{
+ "rev": "759da623",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 9,
+ "seconds": 6.1,
+ "results": [
+  {
+   "label": "R272-limit form feed #undef of ADP_CTRL, redefined onto EID_LO",
+   "verdict": "REFUSED",
+   "reason": "the compiled firmware asserts ADP_CTRL (CSR 0x600) bit 0 0 time(s) inside entity_advertise(); the choke point holds exactly one enable per register"
+  },
+  {
+   "label": "R272-limit form feed #pragma",
+   "verdict": "REFUSED",
+   "reason": "a preprocessing directive SURVIVED into the translation unit the compiler reads (#pragma): every directive this gate has a rule for is consumed by the preprocessor, so one that is still there is text the compiler acts on and no rule here has read"
+  },
+  {
+   "label": "R272-limit form feed #include of a second source",
+   "verdict": "REFUSED",
+   "reason": "the preprocessed-unit instrument could not preprocess the firmware with $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, which IS the RV32 target: a source this gate cannot preprocess is a source whose boot path it cannot read as the compiler reads it; ['compilation terminated.']"
+  },
+  {
+   "label": "R272-limit _Pragma push_macro / #define / pop_macro around ADP_CTRL",
+   "verdict": "REFUSED",
+   "reason": "the compiled firmware asserts ADP_CTRL (CSR 0x600) bit 0 0 time(s) inside entity_advertise(); the choke point holds exactly one enable per register"
+  }
+ ]
+}

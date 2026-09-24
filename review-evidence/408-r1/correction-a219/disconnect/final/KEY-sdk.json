@@ -1,0 +1,27 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [
+  "disconnect/patch-KEY.json"
+ ],
+ "anchor": "baseline",
+ "compiles": 76,
+ "seconds": 13.7,
+ "results": [
+  {
+   "label": "R272 r4 a debug helper defined under #ifdef MILAN_DEBUG_TOD and called under a second #ifdef MILAN_DEBUG_TOD in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 59 `#ifdef MILAN_DEBUG_TOD`: no arm taken; line 1506 `#ifdef MILAN_DEBUG_TOD`: arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled census could not build the firmware with $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, which IS the RV32 target: a source this gate cannot compile is a source whose CSR stores it cannot census; ['      |         ^~~~~~~~~~~~~~~']"
+  },
+  {
+   "label": "R273 V3a correlated conditionals: debug helper defined and called under two #ifdef MILAN_DEBUG_TOD",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 61 `#ifdef MILAN_DEBUG_TOD`: no arm taken; line 1506 `#ifdef MILAN_DEBUG_TOD`: arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled census could not build the firmware with $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, which IS the RV32 target: a source this gate cannot compile is a source whose CSR stores it cannot census; ['      |         ^~~~~~~~~~~~~~~']"
+  },
+  {
+   "label": "R273 V3b correlated conditionals: debug counter declared and incremented under two #ifdef MILAN_DEBUG_TOD",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 61 `#ifdef MILAN_DEBUG_TOD`: no arm taken; line 1503 `#ifdef MILAN_DEBUG_TOD`: arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled census could not build the firmware with $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, which IS the RV32 target: a source this gate cannot compile is a source whose CSR stores it cannot census; ['/tmp/milan-census-w3lu31w8/milan_baremetal.c:1504:9: note: each undeclared identifier is reported only once for each function it appears in']"
+  }
+ ]
+}
