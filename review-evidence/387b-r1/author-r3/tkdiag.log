@@ -1,0 +1,149 @@
+make: Entering directory '$LANES/387-media-rebase/tb/verilator/tkdiag'
+verilator --cc --exe --build -j 0 --top-module tkdiag_tb_top -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-GENUNNAMED -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_dir ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv tkdiag_tb_top.sv sim_main.cpp -o Vtkdiag_sim
+make[1]: Entering directory '$LANES/387-media-rebase/tb/verilator/tkdiag/obj_dir'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o /usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtkdiag_tb_top.cpp Vtkdiag_tb_top___024root__0.cpp Vtkdiag_tb_top__Dpi.cpp Vtkdiag_tb_top___024root__Slow.cpp Vtkdiag_tb_top___024root__0__Slow.cpp Vtkdiag_tb_top__Syms__Slow.cpp > Vtkdiag_tb_top__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vtkdiag_tb_top__ALL.o Vtkdiag_tb_top__ALL.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vtkdiag_tb_top__ALL.a    -pthread -lpthread -latomic   -o Vtkdiag_sim
+rm Vtkdiag_tb_top__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$LANES/387-media-rebase/tb/verilator/tkdiag/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.109 MB sources in 4 modules, into 0.097 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 6.066 s (elab=0.003, cvt=0.014, bld=6.036); cpu 0.028 s on 8 threads; allocated 17.133 MB
+======================================================================
+./obj_dir/Vtkdiag_sim
+[T1] reset state + the START/STOP invariant at zero
+  [ok]   T1 all five zero                                             = 0x0
+[T2] START/STOP edge counting (one level, invariant holds)
+  [ok]   T2 rise -> START 1                                           = 0x1
+  [ok]   T2 ... STOP still 0 (START == STOP+1 while streaming)        = 0x0
+  [ok]   T2 fall -> STOP 1 (START == STOP while stopped)              = 0x1
+[T3] FRAMES_TX is an INTERVAL count, not a frame total
+  [ok]   T3 8 PDUs in one interval -> FRAMES_TX 1 (not 8)             = 0x1
+  [ok]   T3 two more active intervals -> 3                            = 0x3
+  [ok]   T3 idle intervals do not count                               = 0x3
+[T4] TIMESTAMP_UNCERTAIN qualifies tu BY TRANSMISSION
+  [ok]   T4 tu high, nothing sent -> no count                         = 0x0
+  [ok]   T4 tu on a TRANSMITTED PDU -> 1                              = 0x1
+  [ok]   T4 clean interval leaves it                                  = 0x1
+[T5] reset-on-start zeroes the three interval counters
+  [ok]   T5 precondition: MEDIA_RESET is nonzero                      = 0x1
+  [ok]   T5 START advanced                                            = 0x3
+  [ok]   T5 FRAMES_TX reset on start (Table 5.4)                      = 0x0
+  [ok]   T5 TIMESTAMP_UNCERTAIN reset on start                        = 0x0
+  [ok]   T5 MEDIA_RESET reset on start                                = 0x0
+[T6] per-context isolation + the CRF context (index 2)
+  [ok]   T6 ctx0 unmoved by ctx2 frames                               = 0x0
+  [ok]   T6 ctx2 counted its own interval                             = 0x1
+  [ok]   T6 ctx2 never started (level low) -> START 0                 = 0x0
+[T7] the read port is combinational per index
+  [ok]   T7 idx swap changes the view same-eval                       = 0x1
+[T8] START/STOP are NOT reset by a start (no such clause)
+  [ok]   T8 stopped: START == STOP                                    = 0x3
+  [ok]   T8 five flaps -> START += 5 (survived every start)           = 0x8
+  [ok]   T8 five flaps -> STOP  += 5 (survived every start)           = 0x8
+  [ok]   T8 invariant while stopped: START == STOP                    = 0x8
+  [ok]   T8 invariant while streaming: START == STOP+1                = 0x9
+[T9] per-index independence across ALL THREE contexts
+  [ok]   T9 ctx0 FRAMES_TX 3                                          = 0x3
+  [ok]   T9 ctx1 FRAMES_TX 1                                          = 0x1
+  [ok]   T9 ctx2 FRAMES_TX 2                                          = 0x2
+  [ok]   T9 ctx0 START 1                                              = 0x1
+  [ok]   T9 ctx1 START 1                                              = 0x1
+  [ok]   T9 ctx2 START 1                                              = 0x1
+  [ok]   T9 ctx1 restart zeroed ONLY ctx1 FRAMES_TX                   = 0x0
+  [ok]   T9 ... ctx0 FRAMES_TX untouched                              = 0x3
+  [ok]   T9 ... ctx2 FRAMES_TX untouched                              = 0x2
+  [ok]   T9 ctx1 START 2                                              = 0x2
+  [ok]   T9 ctx1 STOP 1                                               = 0x1
+  [ok]   T9 ... ctx0 START still 1                                    = 0x1
+  [ok]   T9 ... ctx0 STOP still 0                                     = 0x0
+  [ok]   T9 ... ctx2 START still 1                                    = 0x1
+[T10] MEDIA_RESET counts an mr TOGGLE on a transmitted PDU
+  [ok]   T10 mr steady 0 -> MEDIA_RESET 0                             = 0x0
+  [ok]   T10 mr 0->1 on a transmitted PDU -> 1                        = 0x1
+  [ok]   T10 mr STAYS 1 -> still 1 (level is not an event)            = 0x1
+  [ok]   T10 mr 1->0 is also a toggle -> 2                            = 0x2
+  [ok]   T10 two toggles in one interval -> +1 only (interval count)  = 0x3
+  [ok]   T10 ctx1 MEDIA_RESET untouched                               = 0x0
+[T10b] a toggle with NO PDU transmitted counts nothing
+  [ok]   T10b mr level high, nothing sent -> unchanged                = 0x3
+[T11] an event ON the interval tick is not lost
+  [ok]   T11 all 160 tick phases counted the lone PDU
+[T11b] a lone mr TOGGLE on any phase is not lost
+  [ok]   T11b all 160 tick phases counted the lone mr toggle
+[T12] the 4.4.4.3 mr level: toggle, hold >= 8 PDUs, per stream
+  [ok]   T12 reset level 0                                            = 0x0
+  [ok]   T12 restart -> level toggles to 1                            = 0x1
+  [ok]   T12 ... and talker 1 toggles too (one media clock)           = 0x1
+  [ok]   T12 restart after only 4 PDUs -> level HELD at 1             = 0x1
+  [ok]   T12 8th PDU carried the state -> pending flip adopted (0)    = 0x0
+  [ok]   T12 talker 1 sent one PDU -> its own hold blocks the flip    = 0x1
+[T13] the 4.4.4.3 SOURCE-CHANGE mr trigger (PICS AAF-5)
+  [ok]   T13 reset level 0, source internal(0)                        = 0x0
+  [ok]   T13 source unchanged -> no toggle                            = 0x0
+  [ok]   T13 source change internal->CRF toggles mr to 1              = 0x1
+  [ok]   T13 no-op SET (same source) does NOT toggle                  = 0x1
+  [ok]   T13 source change CRF->internal toggles mr back to 0         = 0x0
+[T15] the CRF context (2) carries its OWN 4.4.4.3 hold
+  [ok]   T15 reset: all three contexts at level 0                     = 0x0
+  [ok]   T15 a source change toggles the CRF context with the rest    = 0x7
+  [ok]   T15 talker 0 satisfied its own hold -> adopts 0              = 0x0
+  [ok]   T15 the CRF context has 3 CRF AVTPDUs -> HELD at 1           = 0x1
+  [ok]   T15 talker 1 transmitted one PDU -> held too (per-stream hold) = 0x1
+  [ok]   T15 seven CRF AVTPDUs is not eight -> still held             = 0x1
+  [ok]   T15 ... and talker 0 did not un-adopt while waiting          = 0x0
+  [ok]   T15 the EIGHTH CRF AVTPDU releases the hold -> adopts 0      = 0x0
+  [ok]   T15 the CRF context's MEDIA_RESET scored its own wire        = 0x2
+  [ok]   T15 ... and talker 0's counter did not move for it           = 0x1
+--------------------------------------------------------------
+[T14] dirty_p_o pulses whenever any counter updates
+  [ok]   T14 idle intervals -> no pulses on any context               = 0x0
+  [ok]   T14 start edge -> ONE pulse on ctx0                          = 0x1
+  [ok]   T14 ... and none on ctx1/ctx2                                = 0x0
+  [ok]   T14 healthy FRAMES_TX close -> ONE raw pulse                 = 0x1
+  [ok]   T14 tu interval -> ONE pulse at its close                    = 0x1
+  [ok]   T14 media-reset interval -> ONE pulse                        = 0x1
+  [ok]   T14 back to healthy -> FRAMES_TX raw pulse                   = 0x1
+  [ok]   T14 stop edge -> ONE pulse on ctx0                           = 0x1
+  [ok]   T14 ctx2-only tu interval -> the pulse rides bit 2           = 0x1
+  [ok]   T14 ... and not bit 0                                        = 0x0
+[T16] all five 32-bit counters wrap on their normal events
+  [ok]   T16 STREAM_START wraps                                       = 0x0
+  [ok]   T16 STREAM_STOP wraps                                        = 0x0
+  [ok]   T16 MEDIA_RESET wraps                                        = 0x0
+  [ok]   T16 TIMESTAMP_UNCERTAIN wraps                                = 0x0
+  [ok]   T16 FRAMES_TX wraps                                          = 0x0
+[T17] a request on a PENDING restart merges: one toggle, never none
+  [ok]   T17 the disruption is adopted at once on talker 0 (hold complete) = 0x0
+  [ok]   T17 ... and is pending on talker 1 (3 of its 8 PDUs sent)    = 0x1
+  [ok]   T17 the merged restart still waits for talker 1's eighth PDU = 0x1
+  [ok]   T17 talker 1 puts exactly ONE toggle on the wire, never none = 0x1
+  [ok]   T17 ... and talker 1's MEDIA_RESET counts that one           = 0x1
+  [ok]   T17 talker 0 sent no PDU at the adopted level: the step merges, ONE toggle = 0x1
+  [ok]   T17 ... and talker 0's MEDIA_RESET counts that one           = 0x1
+[T18] a request after the first PDU at the adopted level is a new restart
+  [ok]   T18 talker 0's first PDU at the adopted level carried the toggle = 0x1
+  [ok]   T18 the step waits for the hold of talker 0's toggle         = 0x0
+  [ok]   T18 talker 1 was still waiting for its hold: the step merges, ONE toggle = 0x1
+  [ok]   T18 ... and talker 1's MEDIA_RESET counts that one           = 0x1
+  [ok]   T18 talker 0 had put the disruption on the wire: the step is its 2nd toggle = 0x2
+  [ok]   T18 ... and talker 0's MEDIA_RESET counts both               = 0x2
+checks: 96   failures: 0
+RESULT: PASS
+python3 mcr_mutants.py
+[PASS] the unmutated restart engine still passes the tkdiag harness
+[PASS] mutant caught: a request flips the target, cancelling a pending restart - breaks "T17 talker 1 puts exactly ONE toggle on the wire, never none"
+    it broke 4 check(s): T17 talker 1 puts exactly ONE toggle on the wire, never none; T17 ... and talker 1's MEDIA_RESET counts that one; T18 talker 1 was still waiting for its hold: the step merges, ONE toggle; T18 ... and talker 1's MEDIA_RESET counts that one
+[PASS] mutant caught: one shared target that merges while any stream is pending - breaks "T18 talker 0 had put the disruption on the wire: the step is its 2nd toggle"
+    it broke 2 check(s): T18 talker 0 had put the disruption on the wire: the step is its 2nd toggle; T18 ... and talker 0's MEDIA_RESET counts both
+[PASS] mutant caught: the pending window ends at the adoption, not at the first PDU - breaks "T17 talker 0 sent no PDU at the adopted level: the step merges, ONE toggle"
+    it broke 2 check(s): T17 talker 0 sent no PDU at the adopted level: the step merges, ONE toggle; T17 ... and talker 0's MEDIA_RESET counts that one
+[PASS] mutant caught: the pending window stays open for the whole hold, not until the first PDU - breaks "T18 talker 0 had put the disruption on the wire: the step is its 2nd toggle"
+    it broke 8 check(s): T12 8th PDU carried the state -> pending flip adopted (0); T15 the EIGHTH CRF AVTPDU releases the hold -> adopts 0; T17 talker 1 puts exactly ONE toggle on the wire, never none; T17 ... and talker 1's MEDIA_RESET counts that one; T18 talker 1 was still waiting for its hold: the step merges, ONE toggle; T18 ... and talker 1's MEDIA_RESET counts that one; T18 talker 0 had put the disruption on the wire: the step is its 2nd toggle; T18 ... and talker 0's MEDIA_RESET counts both
+
+5 checks: 5 PASS, 0 FAIL
+make: Leaving directory '$LANES/387-media-rebase/tb/verilator/tkdiag'

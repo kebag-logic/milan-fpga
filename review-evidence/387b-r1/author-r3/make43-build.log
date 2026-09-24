@@ -1,0 +1,695 @@
+Making all in lib
+make[1]: Entering directory '/tmp/387-a277.fg1OoL/lib'
+rm -f alloca.h-t alloca.h && \
+{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+  sed -e 's|@''HAVE_ALLOCA_H''@|1|g' < /tmp/387-a277.fg1OoL/make-4.3/lib/alloca.in.h; \
+} > alloca.h-t && \
+mv -f alloca.h-t alloca.h
+rm -f fcntl.h-t fcntl.h && \
+{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+  sed -e 's|@''GUARD_PREFIX''@|GL|g' \
+      -e 's|@''INCLUDE_NEXT''@|include_next|g' \
+      -e 's|@''PRAGMA_SYSTEM_HEADER''@|#pragma GCC system_header|g' \
+      -e 's|@''PRAGMA_COLUMNS''@||g' \
+      -e 's|@''NEXT_FCNTL_H''@|<fcntl.h>|g' \
+      -e 's/@''GNULIB_CREAT''@/0/g' \
+      -e 's/@''GNULIB_FCNTL''@/1/g' \
+      -e 's/@''GNULIB_NONBLOCKING''@/0/g' \
+      -e 's/@''GNULIB_OPEN''@/0/g' \
+      -e 's/@''GNULIB_OPENAT''@/0/g' \
+      -e 's|@''HAVE_FCNTL''@|1|g' \
+      -e 's|@''HAVE_OPENAT''@|1|g' \
+      -e 's|@''REPLACE_CREAT''@|0|g' \
+      -e 's|@''REPLACE_FCNTL''@|1|g' \
+      -e 's|@''REPLACE_OPEN''@|0|g' \
+      -e 's|@''REPLACE_OPENAT''@|0|g' \
+      -e '/definitions of _GL_FUNCDECL_RPL/r /tmp/387-a277.fg1OoL/make-4.3/lib/c++defs.h' \
+      -e '/definition of _GL_ARG_NONNULL/r /tmp/387-a277.fg1OoL/make-4.3/lib/arg-nonnull.h' \
+      -e '/definition of _GL_WARN_ON_USE/r /tmp/387-a277.fg1OoL/make-4.3/lib/warn-on-use.h' \
+      < /tmp/387-a277.fg1OoL/make-4.3/lib/fcntl.in.h; \
+} > fcntl.h-t && \
+mv fcntl.h-t fcntl.h
+rm -f limits.h-t limits.h && \
+{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */' && \
+  sed -e 's|@''GUARD_PREFIX''@|GL|g' \
+      -e 's|@''INCLUDE_NEXT''@|include_next|g' \
+      -e 's|@''PRAGMA_SYSTEM_HEADER''@|#pragma GCC system_header|g' \
+      -e 's|@''PRAGMA_COLUMNS''@||g' \
+      -e 's|@''NEXT_LIMITS_H''@|<limits.h>|g' \
+      < /tmp/387-a277.fg1OoL/make-4.3/lib/limits.in.h; \
+} > limits.h-t && \
+mv limits.h-t limits.h
+rm -f stdbool.h-t stdbool.h && \
+{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+  sed -e 's/@''HAVE__BOOL''@/1/g' < /tmp/387-a277.fg1OoL/make-4.3/lib/stdbool.in.h; \
+} > stdbool.h-t && \
+mv stdbool.h-t stdbool.h
+rm -f stdio.h-t stdio.h && \
+{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */' && \
+  sed -e 's|@''GUARD_PREFIX''@|GL|g' \
+      -e 's|@''INCLUDE_NEXT''@|include_next|g' \
+      -e 's|@''PRAGMA_SYSTEM_HEADER''@|#pragma GCC system_header|g' \
+      -e 's|@''PRAGMA_COLUMNS''@||g' \
+      -e 's|@''NEXT_STDIO_H''@|<stdio.h>|g' \
+      -e 's/@''GNULIB_DPRINTF''@/0/g' \
+      -e 's/@''GNULIB_FCLOSE''@/0/g' \
+      -e 's/@''GNULIB_FDOPEN''@/0/g' \
+      -e 's/@''GNULIB_FFLUSH''@/0/g' \
+      -e 's/@''GNULIB_FGETC''@/1/g' \
+      -e 's/@''GNULIB_FGETS''@/1/g' \
+      -e 's/@''GNULIB_FOPEN''@/0/g' \
+      -e 's/@''GNULIB_FPRINTF''@/1/g' \
+      -e 's/@''GNULIB_FPRINTF_POSIX''@/0/g' \
+      -e 's/@''GNULIB_FPURGE''@/0/g' \
+      -e 's/@''GNULIB_FPUTC''@/1/g' \
+      -e 's/@''GNULIB_FPUTS''@/1/g' \
+      -e 's/@''GNULIB_FREAD''@/1/g' \
+      -e 's/@''GNULIB_FREOPEN''@/0/g' \
+      -e 's/@''GNULIB_FSCANF''@/1/g' \
+      -e 's/@''GNULIB_FSEEK''@/0/g' \
+      -e 's/@''GNULIB_FSEEKO''@/0/g' \
+      -e 's/@''GNULIB_FTELL''@/0/g' \
+      -e 's/@''GNULIB_FTELLO''@/0/g' \
+      -e 's/@''GNULIB_FWRITE''@/1/g' \
+      -e 's/@''GNULIB_GETC''@/1/g' \
+      -e 's/@''GNULIB_GETCHAR''@/1/g' \
+      -e 's/@''GNULIB_GETDELIM''@/0/g' \
+      -e 's/@''GNULIB_GETLINE''@/0/g' \
+      -e 's/@''GNULIB_OBSTACK_PRINTF''@/0/g' \
+      -e 's/@''GNULIB_OBSTACK_PRINTF_POSIX''@/0/g' \
+      -e 's/@''GNULIB_PCLOSE''@/0/g' \
+      -e 's/@''GNULIB_PERROR''@/0/g' \
+      -e 's/@''GNULIB_POPEN''@/0/g' \
+      -e 's/@''GNULIB_PRINTF''@/1/g' \
+      -e 's/@''GNULIB_PRINTF_POSIX''@/0/g' \
+      -e 's/@''GNULIB_PUTC''@/1/g' \
+      -e 's/@''GNULIB_PUTCHAR''@/1/g' \
+      -e 's/@''GNULIB_PUTS''@/1/g' \
+      -e 's/@''GNULIB_REMOVE''@/0/g' \
+      -e 's/@''GNULIB_RENAME''@/0/g' \
+      -e 's/@''GNULIB_RENAMEAT''@/0/g' \
+      -e 's/@''GNULIB_SCANF''@/1/g' \
+      -e 's/@''GNULIB_SNPRINTF''@/0/g' \
+      -e 's/@''GNULIB_SPRINTF_POSIX''@/0/g' \
+      -e 's/@''GNULIB_STDIO_H_NONBLOCKING''@/0/g' \
+      -e 's/@''GNULIB_STDIO_H_SIGPIPE''@/0/g' \
+      -e 's/@''GNULIB_TMPFILE''@/0/g' \
+      -e 's/@''GNULIB_VASPRINTF''@/0/g' \
+      -e 's/@''GNULIB_VDPRINTF''@/0/g' \
+      -e 's/@''GNULIB_VFPRINTF''@/1/g' \
+      -e 's/@''GNULIB_VFPRINTF_POSIX''@/0/g' \
+      -e 's/@''GNULIB_VFSCANF''@/0/g' \
+      -e 's/@''GNULIB_VSCANF''@/0/g' \
+      -e 's/@''GNULIB_VPRINTF''@/1/g' \
+      -e 's/@''GNULIB_VPRINTF_POSIX''@/0/g' \
+      -e 's/@''GNULIB_VSNPRINTF''@/0/g' \
+      -e 's/@''GNULIB_VSPRINTF_POSIX''@/0/g' \
+      < /tmp/387-a277.fg1OoL/make-4.3/lib/stdio.in.h | \
+  sed -e 's|@''HAVE_DECL_FPURGE''@|1|g' \
+      -e 's|@''HAVE_DECL_FSEEKO''@|1|g' \
+      -e 's|@''HAVE_DECL_FTELLO''@|1|g' \
+      -e 's|@''HAVE_DECL_GETDELIM''@|1|g' \
+      -e 's|@''HAVE_DECL_GETLINE''@|1|g' \
+      -e 's|@''HAVE_DECL_OBSTACK_PRINTF''@|1|g' \
+      -e 's|@''HAVE_DECL_SNPRINTF''@|1|g' \
+      -e 's|@''HAVE_DECL_VSNPRINTF''@|1|g' \
+      -e 's|@''HAVE_DPRINTF''@|1|g' \
+      -e 's|@''HAVE_FSEEKO''@|1|g' \
+      -e 's|@''HAVE_FTELLO''@|1|g' \
+      -e 's|@''HAVE_PCLOSE''@|1|g' \
+      -e 's|@''HAVE_POPEN''@|1|g' \
+      -e 's|@''HAVE_RENAMEAT''@|1|g' \
+      -e 's|@''HAVE_VASPRINTF''@|1|g' \
+      -e 's|@''HAVE_VDPRINTF''@|1|g' \
+      -e 's|@''REPLACE_DPRINTF''@|0|g' \
+      -e 's|@''REPLACE_FCLOSE''@|0|g' \
+      -e 's|@''REPLACE_FDOPEN''@|0|g' \
+      -e 's|@''REPLACE_FFLUSH''@|0|g' \
+      -e 's|@''REPLACE_FOPEN''@|0|g' \
+      -e 's|@''REPLACE_FPRINTF''@|0|g' \
+      -e 's|@''REPLACE_FPURGE''@|0|g' \
+      -e 's|@''REPLACE_FREOPEN''@|0|g' \
+      -e 's|@''REPLACE_FSEEK''@|0|g' \
+      -e 's|@''REPLACE_FSEEKO''@|0|g' \
+      -e 's|@''REPLACE_FTELL''@|0|g' \
+      -e 's|@''REPLACE_FTELLO''@|0|g' \
+      -e 's|@''REPLACE_GETDELIM''@|0|g' \
+      -e 's|@''REPLACE_GETLINE''@|0|g' \
+      -e 's|@''REPLACE_OBSTACK_PRINTF''@|0|g' \
+      -e 's|@''REPLACE_PERROR''@|0|g' \
+      -e 's|@''REPLACE_POPEN''@|0|g' \
+      -e 's|@''REPLACE_PRINTF''@|0|g' \
+      -e 's|@''REPLACE_REMOVE''@|0|g' \
+      -e 's|@''REPLACE_RENAME''@|0|g' \
+      -e 's|@''REPLACE_RENAMEAT''@|0|g' \
+      -e 's|@''REPLACE_SNPRINTF''@|0|g' \
+      -e 's|@''REPLACE_SPRINTF''@|0|g' \
+      -e 's|@''REPLACE_STDIO_READ_FUNCS''@|0|g' \
+      -e 's|@''REPLACE_STDIO_WRITE_FUNCS''@|0|g' \
+      -e 's|@''REPLACE_TMPFILE''@|0|g' \
+      -e 's|@''REPLACE_VASPRINTF''@|0|g' \
+      -e 's|@''REPLACE_VDPRINTF''@|0|g' \
+      -e 's|@''REPLACE_VFPRINTF''@|0|g' \
+      -e 's|@''REPLACE_VPRINTF''@|0|g' \
+      -e 's|@''REPLACE_VSNPRINTF''@|0|g' \
+      -e 's|@''REPLACE_VSPRINTF''@|0|g' \
+      -e 's|@''ASM_SYMBOL_PREFIX''@||g' \
+      -e '/definitions of _GL_FUNCDECL_RPL/r /tmp/387-a277.fg1OoL/make-4.3/lib/c++defs.h' \
+      -e '/definition of _GL_ARG_NONNULL/r /tmp/387-a277.fg1OoL/make-4.3/lib/arg-nonnull.h' \
+      -e '/definition of _GL_WARN_ON_USE/r /tmp/387-a277.fg1OoL/make-4.3/lib/warn-on-use.h'; \
+} > stdio.h-t && \
+mv stdio.h-t stdio.h
+rm -f stdlib.h-t stdlib.h && \
+{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */' && \
+  sed -e 's|@''GUARD_PREFIX''@|GL|g' \
+      -e 's|@''INCLUDE_NEXT''@|include_next|g' \
+      -e 's|@''PRAGMA_SYSTEM_HEADER''@|#pragma GCC system_header|g' \
+      -e 's|@''PRAGMA_COLUMNS''@||g' \
+      -e 's|@''NEXT_STDLIB_H''@|<stdlib.h>|g' \
+      -e 's/@''GNULIB__EXIT''@/0/g' \
+      -e 's/@''GNULIB_ATOLL''@/0/g' \
+      -e 's/@''GNULIB_CALLOC_POSIX''@/0/g' \
+      -e 's/@''GNULIB_CANONICALIZE_FILE_NAME''@/0/g' \
+      -e 's/@''GNULIB_GETLOADAVG''@/1/g' \
+      -e 's/@''GNULIB_GETSUBOPT''@/0/g' \
+      -e 's/@''GNULIB_GRANTPT''@/0/g' \
+      -e 's/@''GNULIB_MALLOC_POSIX''@/1/g' \
+      -e 's/@''GNULIB_MBTOWC''@/0/g' \
+      -e 's/@''GNULIB_MKDTEMP''@/0/g' \
+      -e 's/@''GNULIB_MKOSTEMP''@/0/g' \
+      -e 's/@''GNULIB_MKOSTEMPS''@/0/g' \
+      -e 's/@''GNULIB_MKSTEMP''@/0/g' \
+      -e 's/@''GNULIB_MKSTEMPS''@/0/g' \
+      -e 's/@''GNULIB_POSIX_OPENPT''@/0/g' \
+      -e 's/@''GNULIB_PTSNAME''@/0/g' \
+      -e 's/@''GNULIB_PTSNAME_R''@/0/g' \
+      -e 's/@''GNULIB_PUTENV''@/0/g' \
+      -e 's/@''GNULIB_QSORT_R''@/0/g' \
+      -e 's/@''GNULIB_RANDOM''@/0/g' \
+      -e 's/@''GNULIB_RANDOM_R''@/0/g' \
+      -e 's/@''GNULIB_REALLOC_POSIX''@/0/g' \
+      -e 's/@''GNULIB_REALLOCARRAY''@/0/g' \
+      -e 's/@''GNULIB_REALPATH''@/0/g' \
+      -e 's/@''GNULIB_RPMATCH''@/0/g' \
+      -e 's/@''GNULIB_SECURE_GETENV''@/0/g' \
+      -e 's/@''GNULIB_SETENV''@/0/g' \
+      -e 's/@''GNULIB_STRTOD''@/0/g' \
+      -e 's/@''GNULIB_STRTOLD''@/0/g' \
+      -e 's/@''GNULIB_STRTOLL''@/0/g' \
+      -e 's/@''GNULIB_STRTOULL''@/0/g' \
+      -e 's/@''GNULIB_SYSTEM_POSIX''@/0/g' \
+      -e 's/@''GNULIB_UNLOCKPT''@/0/g' \
+      -e 's/@''GNULIB_UNSETENV''@/0/g' \
+      -e 's/@''GNULIB_WCTOMB''@/0/g' \
+      < /tmp/387-a277.fg1OoL/make-4.3/lib/stdlib.in.h | \
+  sed -e 's|@''HAVE__EXIT''@|1|g' \
+      -e 's|@''HAVE_ATOLL''@|1|g' \
+      -e 's|@''HAVE_CANONICALIZE_FILE_NAME''@|1|g' \
+      -e 's|@''HAVE_DECL_GETLOADAVG''@|1|g' \
+      -e 's|@''HAVE_GETSUBOPT''@|1|g' \
+      -e 's|@''HAVE_GRANTPT''@|1|g' \
+      -e 's|@''HAVE_INITSTATE''@|1|g' \
+      -e 's|@''HAVE_DECL_INITSTATE''@|1|g' \
+      -e 's|@''HAVE_MBTOWC''@|1|g' \
+      -e 's|@''HAVE_MKDTEMP''@|1|g' \
+      -e 's|@''HAVE_MKOSTEMP''@|1|g' \
+      -e 's|@''HAVE_MKOSTEMPS''@|1|g' \
+      -e 's|@''HAVE_MKSTEMP''@|1|g' \
+      -e 's|@''HAVE_MKSTEMPS''@|1|g' \
+      -e 's|@''HAVE_POSIX_OPENPT''@|1|g' \
+      -e 's|@''HAVE_PTSNAME''@|1|g' \
+      -e 's|@''HAVE_PTSNAME_R''@|1|g' \
+      -e 's|@''HAVE_QSORT_R''@|1|g' \
+      -e 's|@''HAVE_RANDOM''@|1|g' \
+      -e 's|@''HAVE_RANDOM_H''@|1|g' \
+      -e 's|@''HAVE_RANDOM_R''@|1|g' \
+      -e 's|@''HAVE_REALLOCARRAY''@|1|g' \
+      -e 's|@''HAVE_REALPATH''@|1|g' \
+      -e 's|@''HAVE_RPMATCH''@|1|g' \
+      -e 's|@''HAVE_SECURE_GETENV''@|1|g' \
+      -e 's|@''HAVE_DECL_SETENV''@|1|g' \
+      -e 's|@''HAVE_SETSTATE''@|1|g' \
+      -e 's|@''HAVE_DECL_SETSTATE''@|1|g' \
+      -e 's|@''HAVE_STRTOD''@|1|g' \
+      -e 's|@''HAVE_STRTOLD''@|1|g' \
+      -e 's|@''HAVE_STRTOLL''@|1|g' \
+      -e 's|@''HAVE_STRTOULL''@|1|g' \
+      -e 's|@''HAVE_STRUCT_RANDOM_DATA''@|1|g' \
+      -e 's|@''HAVE_SYS_LOADAVG_H''@|0|g' \
+      -e 's|@''HAVE_UNLOCKPT''@|1|g' \
+      -e 's|@''HAVE_DECL_UNSETENV''@|1|g' \
+      -e 's|@''REPLACE_CALLOC''@|0|g' \
+      -e 's|@''REPLACE_CANONICALIZE_FILE_NAME''@|0|g' \
+      -e 's|@''REPLACE_INITSTATE''@|0|g' \
+      -e 's|@''REPLACE_MALLOC''@|0|g' \
+      -e 's|@''REPLACE_MBTOWC''@|0|g' \
+      -e 's|@''REPLACE_MKSTEMP''@|0|g' \
+      -e 's|@''REPLACE_PTSNAME''@|0|g' \
+      -e 's|@''REPLACE_PTSNAME_R''@|0|g' \
+      -e 's|@''REPLACE_PUTENV''@|0|g' \
+      -e 's|@''REPLACE_QSORT_R''@|0|g' \
+      -e 's|@''REPLACE_RANDOM''@|0|g' \
+      -e 's|@''REPLACE_RANDOM_R''@|0|g' \
+      -e 's|@''REPLACE_REALLOC''@|0|g' \
+      -e 's|@''REPLACE_REALPATH''@|0|g' \
+      -e 's|@''REPLACE_SETENV''@|0|g' \
+      -e 's|@''REPLACE_SETSTATE''@|0|g' \
+      -e 's|@''REPLACE_STRTOD''@|0|g' \
+      -e 's|@''REPLACE_STRTOLD''@|0|g' \
+      -e 's|@''REPLACE_UNSETENV''@|0|g' \
+      -e 's|@''REPLACE_WCTOMB''@|0|g' \
+      -e '/definitions of _GL_FUNCDECL_RPL/r /tmp/387-a277.fg1OoL/make-4.3/lib/c++defs.h' \
+      -e '/definition of _Noreturn/r /tmp/387-a277.fg1OoL/make-4.3/lib/_Noreturn.h' \
+      -e '/definition of _GL_ARG_NONNULL/r /tmp/387-a277.fg1OoL/make-4.3/lib/arg-nonnull.h' \
+      -e '/definition of _GL_WARN_ON_USE/r /tmp/387-a277.fg1OoL/make-4.3/lib/warn-on-use.h'; \
+} > stdlib.h-t && \
+mv stdlib.h-t stdlib.h
+rm -f string.h-t string.h && \
+{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */' && \
+  sed -e 's|@''GUARD_PREFIX''@|GL|g' \
+      -e 's|@''INCLUDE_NEXT''@|include_next|g' \
+      -e 's|@''PRAGMA_SYSTEM_HEADER''@|#pragma GCC system_header|g' \
+      -e 's|@''PRAGMA_COLUMNS''@||g' \
+      -e 's|@''NEXT_STRING_H''@|<string.h>|g' \
+      -e 's/@''GNULIB_EXPLICIT_BZERO''@/0/g' \
+      -e 's/@''GNULIB_FFSL''@/0/g' \
+      -e 's/@''GNULIB_FFSLL''@/0/g' \
+      -e 's/@''GNULIB_MBSLEN''@/0/g' \
+      -e 's/@''GNULIB_MBSNLEN''@/0/g' \
+      -e 's/@''GNULIB_MBSCHR''@/0/g' \
+      -e 's/@''GNULIB_MBSRCHR''@/0/g' \
+      -e 's/@''GNULIB_MBSSTR''@/0/g' \
+      -e 's/@''GNULIB_MBSCASECMP''@/0/g' \
+      -e 's/@''GNULIB_MBSNCASECMP''@/0/g' \
+      -e 's/@''GNULIB_MBSPCASECMP''@/0/g' \
+      -e 's/@''GNULIB_MBSCASESTR''@/0/g' \
+      -e 's/@''GNULIB_MBSCSPN''@/0/g' \
+      -e 's/@''GNULIB_MBSPBRK''@/0/g' \
+      -e 's/@''GNULIB_MBSSPN''@/0/g' \
+      -e 's/@''GNULIB_MBSSEP''@/0/g' \
+      -e 's/@''GNULIB_MBSTOK_R''@/0/g' \
+      -e 's/@''GNULIB_MEMCHR''@/0/g' \
+      -e 's/@''GNULIB_MEMMEM''@/0/g' \
+      -e 's/@''GNULIB_MEMPCPY''@/0/g' \
+      -e 's/@''GNULIB_MEMRCHR''@/0/g' \
+      -e 's/@''GNULIB_RAWMEMCHR''@/0/g' \
+      -e 's/@''GNULIB_STPCPY''@/1/g' \
+      -e 's/@''GNULIB_STPNCPY''@/0/g' \
+      -e 's/@''GNULIB_STRCHRNUL''@/0/g' \
+      -e 's/@''GNULIB_STRDUP''@/0/g' \
+      -e 's/@''GNULIB_STRNCAT''@/0/g' \
+      -e 's/@''GNULIB_STRNDUP''@/0/g' \
+      -e 's/@''GNULIB_STRNLEN''@/0/g' \
+      -e 's/@''GNULIB_STRPBRK''@/0/g' \
+      -e 's/@''GNULIB_STRSEP''@/0/g' \
+      -e 's/@''GNULIB_STRSTR''@/0/g' \
+      -e 's/@''GNULIB_STRCASESTR''@/0/g' \
+      -e 's/@''GNULIB_STRTOK_R''@/0/g' \
+      -e 's/@''GNULIB_STRERROR''@/1/g' \
+      -e 's/@''GNULIB_STRERROR_R''@/0/g' \
+      -e 's/@''GNULIB_STRSIGNAL''@/0/g' \
+      -e 's/@''GNULIB_STRVERSCMP''@/0/g' \
+      < /tmp/387-a277.fg1OoL/make-4.3/lib/string.in.h | \
+  sed -e 's|@''HAVE_EXPLICIT_BZERO''@|1|g' \
+      -e 's|@''HAVE_FFSL''@|1|g' \
+      -e 's|@''HAVE_FFSLL''@|1|g' \
+      -e 's|@''HAVE_MBSLEN''@|0|g' \
+      -e 's|@''HAVE_MEMCHR''@|1|g' \
+      -e 's|@''HAVE_DECL_MEMMEM''@|1|g' \
+      -e 's|@''HAVE_MEMPCPY''@|1|g' \
+      -e 's|@''HAVE_DECL_MEMRCHR''@|1|g' \
+      -e 's|@''HAVE_RAWMEMCHR''@|1|g' \
+      -e 's|@''HAVE_STPCPY''@|1|g' \
+      -e 's|@''HAVE_STPNCPY''@|1|g' \
+      -e 's|@''HAVE_STRCHRNUL''@|1|g' \
+      -e 's|@''HAVE_DECL_STRDUP''@|1|g' \
+      -e 's|@''HAVE_DECL_STRNDUP''@|1|g' \
+      -e 's|@''HAVE_DECL_STRNLEN''@|1|g' \
+      -e 's|@''HAVE_STRPBRK''@|1|g' \
+      -e 's|@''HAVE_STRSEP''@|1|g' \
+      -e 's|@''HAVE_STRCASESTR''@|1|g' \
+      -e 's|@''HAVE_DECL_STRTOK_R''@|1|g' \
+      -e 's|@''HAVE_DECL_STRERROR_R''@|1|g' \
+      -e 's|@''HAVE_DECL_STRSIGNAL''@|1|g' \
+      -e 's|@''HAVE_STRVERSCMP''@|1|g' \
+      -e 's|@''REPLACE_MEMCHR''@|0|g' \
+      -e 's|@''REPLACE_MEMMEM''@|0|g' \
+      -e 's|@''REPLACE_STPNCPY''@|0|g' \
+      -e 's|@''REPLACE_STRCHRNUL''@|0|g' \
+      -e 's|@''REPLACE_STRDUP''@|0|g' \
+      -e 's|@''REPLACE_STRNCAT''@|0|g' \
+      -e 's|@''REPLACE_STRNDUP''@|0|g' \
+      -e 's|@''REPLACE_STRNLEN''@|0|g' \
+      -e 's|@''REPLACE_STRSTR''@|0|g' \
+      -e 's|@''REPLACE_STRCASESTR''@|0|g' \
+      -e 's|@''REPLACE_STRTOK_R''@|0|g' \
+      -e 's|@''REPLACE_STRERROR''@|0|g' \
+      -e 's|@''REPLACE_STRERROR_R''@|0|g' \
+      -e 's|@''REPLACE_STRSIGNAL''@|0|g' \
+      -e 's|@''UNDEFINE_STRTOK_R''@|0|g' \
+      -e '/definitions of _GL_FUNCDECL_RPL/r /tmp/387-a277.fg1OoL/make-4.3/lib/c++defs.h' \
+      -e '/definition of _GL_ARG_NONNULL/r /tmp/387-a277.fg1OoL/make-4.3/lib/arg-nonnull.h' \
+      -e '/definition of _GL_WARN_ON_USE/r /tmp/387-a277.fg1OoL/make-4.3/lib/warn-on-use.h'; \
+      < /tmp/387-a277.fg1OoL/make-4.3/lib/string.in.h; \
+} > string.h-t && \
+mv string.h-t string.h
+/usr/bin/mkdir -p sys
+rm -f sys/types.h-t sys/types.h && \
+{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+  sed -e 's|@''GUARD_PREFIX''@|GL|g' \
+      -e 's|@''INCLUDE_NEXT''@|include_next|g' \
+      -e 's|@''PRAGMA_SYSTEM_HEADER''@|#pragma GCC system_header|g' \
+      -e 's|@''PRAGMA_COLUMNS''@||g' \
+      -e 's|@''NEXT_SYS_TYPES_H''@|<sys/types.h>|g' \
+      -e 's|@''WINDOWS_64_BIT_OFF_T''@|0|g' \
+      -e 's|@''WINDOWS_STAT_INODES''@|0|g' \
+      < /tmp/387-a277.fg1OoL/make-4.3/lib/sys_types.in.h; \
+} > sys/types.h-t && \
+mv sys/types.h-t sys/types.h
+rm -f unistd.h-t unistd.h && \
+{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
+  sed -e 's|@''GUARD_PREFIX''@|GL|g' \
+      -e 's|@''HAVE_UNISTD_H''@|1|g' \
+      -e 's|@''INCLUDE_NEXT''@|include_next|g' \
+      -e 's|@''PRAGMA_SYSTEM_HEADER''@|#pragma GCC system_header|g' \
+      -e 's|@''PRAGMA_COLUMNS''@||g' \
+      -e 's|@''NEXT_UNISTD_H''@|<unistd.h>|g' \
+      -e 's|@''WINDOWS_64_BIT_OFF_T''@|0|g' \
+      -e 's/@''GNULIB_ACCESS''@/1/g' \
+      -e 's/@''GNULIB_CHDIR''@/0/g' \
+      -e 's/@''GNULIB_CHOWN''@/0/g' \
+      -e 's/@''GNULIB_CLOSE''@/1/g' \
+      -e 's/@''GNULIB_COPY_FILE_RANGE''@/0/g' \
+      -e 's/@''GNULIB_DUP''@/0/g' \
+      -e 's/@''GNULIB_DUP2''@/1/g' \
+      -e 's/@''GNULIB_DUP3''@/0/g' \
+      -e 's/@''GNULIB_ENVIRON''@/0/g' \
+      -e 's/@''GNULIB_EUIDACCESS''@/0/g' \
+      -e 's/@''GNULIB_FACCESSAT''@/0/g' \
+      -e 's/@''GNULIB_FCHDIR''@/0/g' \
+      -e 's/@''GNULIB_FCHOWNAT''@/0/g' \
+      -e 's/@''GNULIB_FDATASYNC''@/0/g' \
+      -e 's/@''GNULIB_FSYNC''@/0/g' \
+      -e 's/@''GNULIB_FTRUNCATE''@/0/g' \
+      -e 's/@''GNULIB_GETCWD''@/0/g' \
+      -e 's/@''GNULIB_GETDOMAINNAME''@/0/g' \
+      -e 's/@''GNULIB_GETDTABLESIZE''@/1/g' \
+      -e 's/@''GNULIB_GETGROUPS''@/0/g' \
+      -e 's/@''GNULIB_GETHOSTNAME''@/0/g' \
+      -e 's/@''GNULIB_GETLOGIN''@/0/g' \
+      -e 's/@''GNULIB_GETLOGIN_R''@/0/g' \
+      -e 's/@''GNULIB_GETPAGESIZE''@/0/g' \
+      -e 's/@''GNULIB_GETPASS''@/0/g' \
+      -e 's/@''GNULIB_GETUSERSHELL''@/0/g' \
+      -e 's/@''GNULIB_GROUP_MEMBER''@/0/g' \
+      -e 's/@''GNULIB_ISATTY''@/0/g' \
+      -e 's/@''GNULIB_LCHOWN''@/0/g' \
+      -e 's/@''GNULIB_LINK''@/0/g' \
+      -e 's/@''GNULIB_LINKAT''@/0/g' \
+      -e 's/@''GNULIB_LSEEK''@/0/g' \
+      -e 's/@''GNULIB_PIPE''@/0/g' \
+      -e 's/@''GNULIB_PIPE2''@/0/g' \
+      -e 's/@''GNULIB_PREAD''@/0/g' \
+      -e 's/@''GNULIB_PWRITE''@/0/g' \
+      -e 's/@''GNULIB_READ''@/0/g' \
+      -e 's/@''GNULIB_READLINK''@/0/g' \
+      -e 's/@''GNULIB_READLINKAT''@/0/g' \
+      -e 's/@''GNULIB_RMDIR''@/0/g' \
+      -e 's/@''GNULIB_SETHOSTNAME''@/0/g' \
+      -e 's/@''GNULIB_SLEEP''@/0/g' \
+      -e 's/@''GNULIB_SYMLINK''@/0/g' \
+      -e 's/@''GNULIB_SYMLINKAT''@/0/g' \
+      -e 's/@''GNULIB_TRUNCATE''@/0/g' \
+      -e 's/@''GNULIB_TTYNAME_R''@/0/g' \
+      -e 's/@''GNULIB_UNISTD_H_GETOPT''@/0/g' \
+      -e 's/@''GNULIB_UNISTD_H_NONBLOCKING''@/0/g' \
+      -e 's/@''GNULIB_UNISTD_H_SIGPIPE''@/0/g' \
+      -e 's/@''GNULIB_UNLINK''@/0/g' \
+      -e 's/@''GNULIB_UNLINKAT''@/0/g' \
+      -e 's/@''GNULIB_USLEEP''@/0/g' \
+      -e 's/@''GNULIB_WRITE''@/0/g' \
+      < /tmp/387-a277.fg1OoL/make-4.3/lib/unistd.in.h | \
+  sed -e 's|@''HAVE_CHOWN''@|1|g' \
+      -e 's|@''HAVE_COPY_FILE_RANGE''@|1|g' \
+      -e 's|@''HAVE_DUP2''@|1|g' \
+      -e 's|@''HAVE_DUP3''@|1|g' \
+      -e 's|@''HAVE_EUIDACCESS''@|1|g' \
+      -e 's|@''HAVE_FACCESSAT''@|1|g' \
+      -e 's|@''HAVE_FCHDIR''@|1|g' \
+      -e 's|@''HAVE_FCHOWNAT''@|1|g' \
+      -e 's|@''HAVE_FDATASYNC''@|1|g' \
+      -e 's|@''HAVE_FSYNC''@|1|g' \
+      -e 's|@''HAVE_FTRUNCATE''@|1|g' \
+      -e 's|@''HAVE_GETDTABLESIZE''@|1|g' \
+      -e 's|@''HAVE_GETGROUPS''@|1|g' \
+      -e 's|@''HAVE_GETHOSTNAME''@|1|g' \
+      -e 's|@''HAVE_GETPAGESIZE''@|1|g' \
+      -e 's|@''HAVE_GETPASS''@|1|g' \
+      -e 's|@''HAVE_GROUP_MEMBER''@|1|g' \
+      -e 's|@''HAVE_LCHOWN''@|1|g' \
+      -e 's|@''HAVE_LINK''@|1|g' \
+      -e 's|@''HAVE_LINKAT''@|1|g' \
+      -e 's|@''HAVE_PIPE''@|1|g' \
+      -e 's|@''HAVE_PIPE2''@|1|g' \
+      -e 's|@''HAVE_PREAD''@|1|g' \
+      -e 's|@''HAVE_PWRITE''@|1|g' \
+      -e 's|@''HAVE_READLINK''@|1|g' \
+      -e 's|@''HAVE_READLINKAT''@|1|g' \
+      -e 's|@''HAVE_SETHOSTNAME''@|1|g' \
+      -e 's|@''HAVE_SLEEP''@|1|g' \
+      -e 's|@''HAVE_SYMLINK''@|1|g' \
+      -e 's|@''HAVE_SYMLINKAT''@|1|g' \
+      -e 's|@''HAVE_UNLINKAT''@|1|g' \
+      -e 's|@''HAVE_USLEEP''@|1|g' \
+      -e 's|@''HAVE_DECL_ENVIRON''@|1|g' \
+      -e 's|@''HAVE_DECL_FCHDIR''@|1|g' \
+      -e 's|@''HAVE_DECL_FDATASYNC''@|1|g' \
+      -e 's|@''HAVE_DECL_GETDOMAINNAME''@|1|g' \
+      -e 's|@''HAVE_DECL_GETLOGIN''@|1|g' \
+      -e 's|@''HAVE_DECL_GETLOGIN_R''@|1|g' \
+      -e 's|@''HAVE_DECL_GETPAGESIZE''@|1|g' \
+      -e 's|@''HAVE_DECL_GETUSERSHELL''@|1|g' \
+      -e 's|@''HAVE_DECL_SETHOSTNAME''@|1|g' \
+      -e 's|@''HAVE_DECL_TRUNCATE''@|1|g' \
+      -e 's|@''HAVE_DECL_TTYNAME_R''@|1|g' \
+      -e 's|@''HAVE_OS_H''@|0|g' \
+      -e 's|@''HAVE_SYS_PARAM_H''@|0|g' \
+  | \
+  sed -e 's|@''REPLACE_ACCESS''@|0|g' \
+      -e 's|@''REPLACE_CHOWN''@|0|g' \
+      -e 's|@''REPLACE_CLOSE''@|0|g' \
+      -e 's|@''REPLACE_DUP''@|0|g' \
+      -e 's|@''REPLACE_DUP2''@|0|g' \
+      -e 's|@''REPLACE_FACCESSAT''@|0|g' \
+      -e 's|@''REPLACE_FCHOWNAT''@|0|g' \
+      -e 's|@''REPLACE_FTRUNCATE''@|0|g' \
+      -e 's|@''REPLACE_GETCWD''@|0|g' \
+      -e 's|@''REPLACE_GETDOMAINNAME''@|0|g' \
+      -e 's|@''REPLACE_GETDTABLESIZE''@|0|g' \
+      -e 's|@''REPLACE_GETLOGIN_R''@|0|g' \
+      -e 's|@''REPLACE_GETGROUPS''@|0|g' \
+      -e 's|@''REPLACE_GETPAGESIZE''@|0|g' \
+      -e 's|@''REPLACE_GETPASS''@|0|g' \
+      -e 's|@''REPLACE_ISATTY''@|0|g' \
+      -e 's|@''REPLACE_LCHOWN''@|0|g' \
+      -e 's|@''REPLACE_LINK''@|0|g' \
+      -e 's|@''REPLACE_LINKAT''@|0|g' \
+      -e 's|@''REPLACE_LSEEK''@|0|g' \
+      -e 's|@''REPLACE_PREAD''@|0|g' \
+      -e 's|@''REPLACE_PWRITE''@|0|g' \
+      -e 's|@''REPLACE_READ''@|0|g' \
+      -e 's|@''REPLACE_READLINK''@|0|g' \
+      -e 's|@''REPLACE_READLINKAT''@|0|g' \
+      -e 's|@''REPLACE_RMDIR''@|0|g' \
+      -e 's|@''REPLACE_SLEEP''@|0|g' \
+      -e 's|@''REPLACE_SYMLINK''@|0|g' \
+      -e 's|@''REPLACE_SYMLINKAT''@|0|g' \
+      -e 's|@''REPLACE_TRUNCATE''@|0|g' \
+      -e 's|@''REPLACE_TTYNAME_R''@|0|g' \
+      -e 's|@''REPLACE_UNLINK''@|0|g' \
+      -e 's|@''REPLACE_UNLINKAT''@|0|g' \
+      -e 's|@''REPLACE_USLEEP''@|0|g' \
+      -e 's|@''REPLACE_WRITE''@|0|g' \
+      -e 's|@''UNISTD_H_HAVE_WINSOCK2_H''@|0|g' \
+      -e 's|@''UNISTD_H_HAVE_WINSOCK2_H_AND_USE_SOCKETS''@|0|g' \
+      -e '/definitions of _GL_FUNCDECL_RPL/r /tmp/387-a277.fg1OoL/make-4.3/lib/c++defs.h' \
+      -e '/definition of _GL_ARG_NONNULL/r /tmp/387-a277.fg1OoL/make-4.3/lib/arg-nonnull.h' \
+      -e '/definition of _GL_WARN_ON_USE/r /tmp/387-a277.fg1OoL/make-4.3/lib/warn-on-use.h'; \
+} > unistd.h-t && \
+mv unistd.h-t unistd.h
+make  all-recursive
+make[2]: Entering directory '/tmp/387-a277.fg1OoL/lib'
+make[3]: Entering directory '/tmp/387-a277.fg1OoL/lib'
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT concat-filename.o -MD -MP -MF .deps/concat-filename.Tpo -c -o concat-filename.o /tmp/387-a277.fg1OoL/make-4.3/lib/concat-filename.c
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT dirname-lgpl.o -MD -MP -MF .deps/dirname-lgpl.Tpo -c -o dirname-lgpl.o /tmp/387-a277.fg1OoL/make-4.3/lib/dirname-lgpl.c
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT basename-lgpl.o -MD -MP -MF .deps/basename-lgpl.Tpo -c -o basename-lgpl.o /tmp/387-a277.fg1OoL/make-4.3/lib/basename-lgpl.c
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT stripslash.o -MD -MP -MF .deps/stripslash.Tpo -c -o stripslash.o /tmp/387-a277.fg1OoL/make-4.3/lib/stripslash.c
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT exitfail.o -MD -MP -MF .deps/exitfail.Tpo -c -o exitfail.o /tmp/387-a277.fg1OoL/make-4.3/lib/exitfail.c
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT fd-hook.o -MD -MP -MF .deps/fd-hook.Tpo -c -o fd-hook.o /tmp/387-a277.fg1OoL/make-4.3/lib/fd-hook.c
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT findprog-in.o -MD -MP -MF .deps/findprog-in.Tpo -c -o findprog-in.o /tmp/387-a277.fg1OoL/make-4.3/lib/findprog-in.c
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT getprogname.o -MD -MP -MF .deps/getprogname.Tpo -c -o getprogname.o /tmp/387-a277.fg1OoL/make-4.3/lib/getprogname.c
+mv -f .deps/exitfail.Tpo .deps/exitfail.Po
+mv -f .deps/fd-hook.Tpo .deps/fd-hook.Po
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT unistd.o -MD -MP -MF .deps/unistd.Tpo -c -o unistd.o /tmp/387-a277.fg1OoL/make-4.3/lib/unistd.c
+mv -f .deps/stripslash.Tpo .deps/stripslash.Po
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT xmalloc.o -MD -MP -MF .deps/xmalloc.Tpo -c -o xmalloc.o /tmp/387-a277.fg1OoL/make-4.3/lib/xmalloc.c
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT xalloc-die.o -MD -MP -MF .deps/xalloc-die.Tpo -c -o xalloc-die.o /tmp/387-a277.fg1OoL/make-4.3/lib/xalloc-die.c
+mv -f .deps/getprogname.Tpo .deps/getprogname.Po
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT xconcat-filename.o -MD -MP -MF .deps/xconcat-filename.Tpo -c -o xconcat-filename.o /tmp/387-a277.fg1OoL/make-4.3/lib/xconcat-filename.c
+mv -f .deps/concat-filename.Tpo .deps/concat-filename.Po
+mv -f .deps/dirname-lgpl.Tpo .deps/dirname-lgpl.Po
+mv -f .deps/unistd.Tpo .deps/unistd.Po
+gcc -DHAVE_CONFIG_H -I. -I/tmp/387-a277.fg1OoL/make-4.3/lib -I../src     -g -O2 -MT fcntl.o -MD -MP -MF .deps/fcntl.Tpo -c -o fcntl.o /tmp/387-a277.fg1OoL/make-4.3/lib/fcntl.c
+mv -f .deps/basename-lgpl.Tpo .deps/basename-lgpl.Po
+mv -f .deps/xalloc-die.Tpo .deps/xalloc-die.Po
+mv -f .deps/findprog-in.Tpo .deps/findprog-in.Po
+mv -f .deps/xconcat-filename.Tpo .deps/xconcat-filename.Po
+mv -f .deps/xmalloc.Tpo .deps/xmalloc.Po
+mv -f .deps/fcntl.Tpo .deps/fcntl.Po
+rm -f libgnu.a
+ar cr libgnu.a concat-filename.o dirname-lgpl.o basename-lgpl.o stripslash.o exitfail.o fd-hook.o findprog-in.o getprogname.o  unistd.o xmalloc.o xalloc-die.o xconcat-filename.o fcntl.o 
+ranlib libgnu.a
+make[3]: Leaving directory '/tmp/387-a277.fg1OoL/lib'
+make[2]: Leaving directory '/tmp/387-a277.fg1OoL/lib'
+make[1]: Leaving directory '/tmp/387-a277.fg1OoL/lib'
+Making all in po
+make[1]: Entering directory '/tmp/387-a277.fg1OoL/po'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/tmp/387-a277.fg1OoL/po'
+Making all in doc
+make[1]: Entering directory '/tmp/387-a277.fg1OoL/doc'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/tmp/387-a277.fg1OoL/doc'
+make[1]: Entering directory '/tmp/387-a277.fg1OoL'
+depbase=`echo src/ar.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/ar.o -MD -MP -MF $depbase.Tpo -c -o src/ar.o /tmp/387-a277.fg1OoL/make-4.3/src/ar.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/arscan.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/arscan.o -MD -MP -MF $depbase.Tpo -c -o src/arscan.o /tmp/387-a277.fg1OoL/make-4.3/src/arscan.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/commands.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/commands.o -MD -MP -MF $depbase.Tpo -c -o src/commands.o /tmp/387-a277.fg1OoL/make-4.3/src/commands.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/default.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/default.o -MD -MP -MF $depbase.Tpo -c -o src/default.o /tmp/387-a277.fg1OoL/make-4.3/src/default.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/dir.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/dir.o -MD -MP -MF $depbase.Tpo -c -o src/dir.o /tmp/387-a277.fg1OoL/make-4.3/src/dir.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/expand.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/expand.o -MD -MP -MF $depbase.Tpo -c -o src/expand.o /tmp/387-a277.fg1OoL/make-4.3/src/expand.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/file.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/file.o -MD -MP -MF $depbase.Tpo -c -o src/file.o /tmp/387-a277.fg1OoL/make-4.3/src/file.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/function.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/function.o -MD -MP -MF $depbase.Tpo -c -o src/function.o /tmp/387-a277.fg1OoL/make-4.3/src/function.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/getopt.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/getopt.o -MD -MP -MF $depbase.Tpo -c -o src/getopt.o /tmp/387-a277.fg1OoL/make-4.3/src/getopt.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/getopt1.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/getopt1.o -MD -MP -MF $depbase.Tpo -c -o src/getopt1.o /tmp/387-a277.fg1OoL/make-4.3/src/getopt1.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/guile.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/guile.o -MD -MP -MF $depbase.Tpo -c -o src/guile.o /tmp/387-a277.fg1OoL/make-4.3/src/guile.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/hash.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/hash.o -MD -MP -MF $depbase.Tpo -c -o src/hash.o /tmp/387-a277.fg1OoL/make-4.3/src/hash.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/implicit.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/implicit.o -MD -MP -MF $depbase.Tpo -c -o src/implicit.o /tmp/387-a277.fg1OoL/make-4.3/src/implicit.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/job.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/job.o -MD -MP -MF $depbase.Tpo -c -o src/job.o /tmp/387-a277.fg1OoL/make-4.3/src/job.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/load.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/load.o -MD -MP -MF $depbase.Tpo -c -o src/load.o /tmp/387-a277.fg1OoL/make-4.3/src/load.c &&\
+mv -f $depbase.Tpo $depbase.Po
+/tmp/387-a277.fg1OoL/make-4.3/src/implicit.c: In function ‘pattern_search’:
+/tmp/387-a277.fg1OoL/make-4.3/src/implicit.c:543:21: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  543 |                   p = strchr (nptr, '%');
+      |                     ^
+/tmp/387-a277.fg1OoL/make-4.3/src/job.c: In function ‘is_bourne_compatible_shell’:
+/tmp/387-a277.fg1OoL/make-4.3/src/job.c:442:13: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  442 |   char *p = strrchr (path, '\\');
+      |             ^~~~~~~
+depbase=`echo src/loadapi.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/loadapi.o -MD -MP -MF $depbase.Tpo -c -o src/loadapi.o /tmp/387-a277.fg1OoL/make-4.3/src/loadapi.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/main.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/main.o -MD -MP -MF $depbase.Tpo -c -o src/main.o /tmp/387-a277.fg1OoL/make-4.3/src/main.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/misc.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/misc.o -MD -MP -MF $depbase.Tpo -c -o src/misc.o /tmp/387-a277.fg1OoL/make-4.3/src/misc.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/output.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/output.o -MD -MP -MF $depbase.Tpo -c -o src/output.o /tmp/387-a277.fg1OoL/make-4.3/src/output.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/read.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/read.o -MD -MP -MF $depbase.Tpo -c -o src/read.o /tmp/387-a277.fg1OoL/make-4.3/src/read.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/remake.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/remake.o -MD -MP -MF $depbase.Tpo -c -o src/remake.o /tmp/387-a277.fg1OoL/make-4.3/src/remake.c &&\
+mv -f $depbase.Tpo $depbase.Po
+/tmp/387-a277.fg1OoL/make-4.3/src/read.c: In function ‘tilde_expand’:
+/tmp/387-a277.fg1OoL/make-4.3/src/read.c:3075:23: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3075 |       char *userend = strchr (name + 1, '/');
+      |                       ^~~~~~
+In file included from /tmp/387-a277.fg1OoL/make-4.3/src/makeint.h:31,
+                 from /tmp/387-a277.fg1OoL/make-4.3/src/read.c:17:
+/tmp/387-a277.fg1OoL/make-4.3/src/read.c: In function ‘eval_makefile’:
+lib/alloca.h:46:18: warning: ignoring return value of ‘__builtin_alloca’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+   46 | #  define alloca __builtin_alloca
+/tmp/387-a277.fg1OoL/make-4.3/src/read.c:443:3: note: in expansion of macro ‘alloca’
+  443 |   alloca (0);
+      |   ^~~~~~
+/tmp/387-a277.fg1OoL/make-4.3/src/read.c: In function ‘eval_buffer’:
+lib/alloca.h:46:18: warning: ignoring return value of ‘__builtin_alloca’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+   46 | #  define alloca __builtin_alloca
+/tmp/387-a277.fg1OoL/make-4.3/src/read.c:485:3: note: in expansion of macro ‘alloca’
+  485 |   alloca (0);
+      |   ^~~~~~
+depbase=`echo src/rule.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/rule.o -MD -MP -MF $depbase.Tpo -c -o src/rule.o /tmp/387-a277.fg1OoL/make-4.3/src/rule.c &&\
+mv -f $depbase.Tpo $depbase.Po
+In file included from /tmp/387-a277.fg1OoL/make-4.3/src/makeint.h:31,
+                 from /tmp/387-a277.fg1OoL/make-4.3/src/remake.c:17:
+/tmp/387-a277.fg1OoL/make-4.3/src/remake.c: In function ‘update_file’:
+lib/alloca.h:46:18: warning: ignoring return value of ‘__builtin_alloca’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+   46 | #  define alloca __builtin_alloca
+/tmp/387-a277.fg1OoL/make-4.3/src/remake.c:340:7: note: in expansion of macro ‘alloca’
+  340 |       alloca (0);
+      |       ^~~~~~
+depbase=`echo src/signame.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/signame.o -MD -MP -MF $depbase.Tpo -c -o src/signame.o /tmp/387-a277.fg1OoL/make-4.3/src/signame.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/strcache.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/strcache.o -MD -MP -MF $depbase.Tpo -c -o src/strcache.o /tmp/387-a277.fg1OoL/make-4.3/src/strcache.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/variable.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/variable.o -MD -MP -MF $depbase.Tpo -c -o src/variable.o /tmp/387-a277.fg1OoL/make-4.3/src/variable.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/version.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/version.o -MD -MP -MF $depbase.Tpo -c -o src/version.o /tmp/387-a277.fg1OoL/make-4.3/src/version.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/vpath.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/vpath.o -MD -MP -MF $depbase.Tpo -c -o src/vpath.o /tmp/387-a277.fg1OoL/make-4.3/src/vpath.c &&\
+mv -f $depbase.Tpo $depbase.Po
+depbase=`echo src/posixos.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/posixos.o -MD -MP -MF $depbase.Tpo -c -o src/posixos.o /tmp/387-a277.fg1OoL/make-4.3/src/posixos.c &&\
+mv -f $depbase.Tpo $depbase.Po
+/tmp/387-a277.fg1OoL/make-4.3/src/read.c: In function ‘find_percent_cached’:
+/tmp/387-a277.fg1OoL/make-4.3/src/read.c:2542:1: warning: function may return address of local variable [-Wreturn-local-addr]
+ 2542 | }
+      | ^
+lib/alloca.h:46:18: note: declared here
+   46 | #  define alloca __builtin_alloca
+/tmp/387-a277.fg1OoL/make-4.3/src/read.c:2511:19: note: in expansion of macro ‘alloca’
+ 2511 |             new = alloca (slen + 1);
+      |                   ^~~~~~
+depbase=`echo src/remote-stub.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+gcc -DHAVE_CONFIG_H   -Isrc -I/tmp/387-a277.fg1OoL/make-4.3/src -Ilib -I/tmp/387-a277.fg1OoL/make-4.3/lib -DLIBDIR=\"/tmp/387-a277.fg1OoL/make43/lib\" -DINCLUDEDIR=\"/tmp/387-a277.fg1OoL/make43/include\" -DLOCALEDIR=\"/tmp/387-a277.fg1OoL/make43/share/locale\"   -I/usr/include/guile/3.0 -I/usr -g -O2 -MT src/remote-stub.o -MD -MP -MF $depbase.Tpo -c -o src/remote-stub.o /tmp/387-a277.fg1OoL/make-4.3/src/remote-stub.c &&\
+mv -f $depbase.Tpo $depbase.Po
+gcc -I/usr/include/guile/3.0 -I/usr -g -O2 -Wl,--export-dynamic  -o make src/ar.o src/arscan.o src/commands.o src/default.o src/dir.o src/expand.o src/file.o src/function.o src/getopt.o src/getopt1.o src/guile.o src/hash.o src/implicit.o src/job.o src/load.o src/loadapi.o src/main.o src/misc.o src/output.o src/read.o src/remake.o src/rule.o src/signame.o src/strcache.o src/variable.o src/version.o src/vpath.o  src/posixos.o  src/remote-stub.o  -lguile-3.0 -lgc -lpthread -ldl lib/libgnu.a   
+make[1]: Leaving directory '/tmp/387-a277.fg1OoL'

@@ -1,0 +1,55 @@
+======================================================================
+media-grid alignment at the TRUE ratio: clk_audio = axis * 391/1591
+======================================================================
+
+[RENDER-BIND] listener 0 bound over ACMP for the render-law phases
+  [ok]   RENDER-BIND: the listener launched a PROBE_TX at the named talker = 1
+  [ok]   RENDER-BIND: listener bound (0x6A4[3], the class-D record) = 1
+
+[RENDER-INT] the render law at INTERNAL (cadence = the packet grid)
+  [ok]   RENDER-INT: every injected PDU was accepted                = 960
+  RENDER-INT: 916 PDUs, first-event delay min 17427 max 17427 mean 17427.0 cycles = 8.365..8.365 media ticks
+  RENDER-INT: the law: 8 < d/T <= 9 (+64 cycles of registration slack); setpoint 8 events = 166.67 us
+  [ok]   RENDER-INT: PDUs measured in the window                    = 1
+  [ok]   RENDER-INT: every PDU's first event inside the law band    = 916
+  [ok]   RENDER-INT: the fill at accept is the setpoint for every PDU = 916
+  [ok]   RENDER-INT: one constant: spread within 64 cycles          = 1
+  [ok]   RENDER-INT: no rail inside the window                      = 0
+  [ok]   RENDER-INT: no underrun inside the window                  = 0
+  [ok]   RENDER-INT: converged                                      = 1
+
+[RENDER-RC-INT] shift the cadence three ticks late, then early; a PHC adjtime recentres ONCE each
+  RENDER-RC-INT: displaced 3 ticks late: 12 PDUs, delay min 11177 max 11177 cycles = 5.365..5.365 ticks
+  [ok]   RENDER-RC-INT: the instrument sees the late displacement (fill at accept = setpoint -3) = 12
+  [ok]   RENDER-RC-INT: ...and the delay left the law band (late)   = 0
+  [ok]   RENDER-RC-INT: a three-tick displacement trips no rail (late) = 0
+  [ok]   RENDER-RC-INT: the step reached the render stage as one pulse (late) = 1
+  [ok]   RENDER-RC-INT: the recentre executed once (late)           = 1
+  [ok]   RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late) = 13
+  [ok]   RENDER-RC-INT: ...and the delay is back inside the band (late) = 13
+  [ok]   RENDER-RC-INT: counted once, never again (late)            = 1
+  [ok]   RENDER-RC-INT: no drift back: every later PDU at the setpoint (late) = 96
+  [ok]   RENDER-RC-INT: no drift back: every later PDU inside the band (late) = 96
+  [ok]   RENDER-RC-INT: the recentre is not a rail (late)           = 0
+  RENDER-RC-INT: displaced 3 ticks early: 13 PDUs, delay min 23677 max 23677 cycles = 11.365..11.365 ticks
+  [ok]   RENDER-RC-INT: the instrument sees the early displacement (fill at accept = setpoint +3) = 13
+  [ok]   RENDER-RC-INT: ...and the delay left the law band (early)  = 0
+  [ok]   RENDER-RC-INT: a three-tick displacement trips no rail (early) = 0
+  [ok]   RENDER-RC-INT: the step reached the render stage as one pulse (early) = 2
+  [ok]   RENDER-RC-INT: the recentre executed once (early)          = 2
+  [ok]   RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early) = 13
+  [ok]   RENDER-RC-INT: ...and the delay is back inside the band (early) = 13
+  [ok]   RENDER-RC-INT: counted once, never again (early)           = 2
+  [ok]   RENDER-RC-INT: no drift back: every later PDU at the setpoint (early) = 96
+  [ok]   RENDER-RC-INT: no drift back: every later PDU inside the band (early) = 96
+  [ok]   RENDER-RC-INT: the recentre is not a rail (early)          = 0
+  [FAIL] RENDER-SETTIME: the settime reaches the stage as one pulse got=0 exp=1
+  [FAIL] RENDER-SETTIME: the settime executes one render re-base    got=0 exp=1
+  [FAIL] RENDER-SETTIME: no later re-base pulse                     got=0 exp=1
+  [FAIL] RENDER-SETTIME: the render re-base remains counted once    got=0 exp=1
+
+----------------------------------------------------------------------
+media_aclk: 36 checks, 4 failures
+RESULT: FAIL
+
+PASS: dropping only software settime from the render trigger fails the named check

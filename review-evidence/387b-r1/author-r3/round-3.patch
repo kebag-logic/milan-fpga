@@ -1,0 +1,296 @@
+diff --git a/docs/MILAN_V12_ROADMAP.md b/docs/MILAN_V12_ROADMAP.md
+index 71a70bbac..5137d86c9 100644
+--- a/docs/MILAN_V12_ROADMAP.md
++++ b/docs/MILAN_V12_ROADMAP.md
+@@ -356,7 +356,10 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
+ > and wrapper output landed first, and #74 landed the consumer: the root's
+ > `media_clk_resolve` turns the stored index into the one registered verdict
+ > that arms `KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain
+-> and the 4.4.4.3 `mr` machinery. The INTERNAL selection constant is gone.
++> and the CRF triggers of the 4.4.4.3 `mr` machinery.
++> A PHC step toggles `mr` whatever the clock-source selection.
++> Every running Stream Output counts that toggle in MEDIA_RESET.
++> The INTERNAL selection constant is gone.
+ 
+ ### P2.4 — dynamic audio mappings
+ 
+diff --git a/docs/fpga/FPGA_DESIGN.md b/docs/fpga/FPGA_DESIGN.md
+index 6674114ec..c3234ecf6 100644
+--- a/docs/fpga/FPGA_DESIGN.md
++++ b/docs/fpga/FPGA_DESIGN.md
+@@ -166,14 +166,18 @@ numbers reads the wrong mux.** The stagger is deliberate: an abandoned source
+ starves every downstream mux on the same cycle, so equal windows would each
+ inject their own close beat and put a runt on the wire per level.
+ 
+-Two losses are functional rather than cosmetic (a third — the CRF media
+-clock could never be SELECTED — closed with #74: `milan_datapath`'s
+-`media_clk_resolve` compares the stored `SET_CLOCK_SOURCE` index against the
+-shape's generated `AEM_CRF_CLKSRC_C`, and the one registered verdict gates
+-`KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain and the
+-1722-2016 4.4.4.3 `mr` machinery; at the INTERNAL power-on state everything
+-still reads idle, by the standing free-run rule rather than by tie-off). Each remaining loss
+-has a module in the inventory below that is present but idle:
++Two losses remain functional; #74 closed CRF media-clock selection.
++`media_clk_resolve` compares `SET_CLOCK_SOURCE` against the shape's `AEM_CRF_CLKSRC_C`.
++Its registered verdict gates these CRF consumers:
++
++- `KL_mmcm_drp_servo`;
++- the `KL_media_grid_align` packet-grid chain;
++- the CRF triggers of IEEE 1722-2016 4.4.4.3 `mr`.
++
++At INTERNAL, those CRF consumers stay idle under free-run policy.
++A PHC step toggles `mr` whatever the clock-source selection.
++Every running Stream Output counts that toggle in MEDIA_RESET.
++Each remaining loss has a present but idle module:
+ 
+ 1. *(closed by #74 — see above.)*
+ 2. **Presentation-time offset is pinned at the Milan 2 ms DEFAULT** for every
+diff --git a/docs/reference/MILAN_COMPLIANCE_MATRIX.md b/docs/reference/MILAN_COMPLIANCE_MATRIX.md
+index 40301cd64..77685e666 100644
+--- a/docs/reference/MILAN_COMPLIANCE_MATRIX.md
++++ b/docs/reference/MILAN_COMPLIANCE_MATRIX.md
+@@ -117,7 +117,7 @@ input, are silently refused.
+ | 5.4.2.9 / .10 | SET/GET_STREAM_INFO (Milan 80-byte form) | implemented | `MSRP_ACC_LAT` presentation-offset leg included — PP pp_top byte-exact |
+ | 5.4.2.11 / .12 | SET/GET_NAME | implemented | landed 0x0054; nonvolatile restore stays with persistence (Section 1.7) |
+ | 5.4.2.13 / .14 | SET/GET_SAMPLING_RATE | implemented | stored + served; media-plane adoption open (Section 1.8, audit B3) |
+-| 5.4.2.15 / .16 | SET/GET_CLOCK_SOURCE | implemented | stored + served + consumed: #74's `media_clk_resolve` arms the servo, the grid-align chain and `mr` from the stored index (milan_dp `[CRF-SEL]` grades the chain). The advertised set is truthful since #389: only INTERNAL (free run) and the CRF sink's INPUT_STREAM source drive the media clock, so those are the only CLOCK_SOURCE descriptors the builder emits and the CLOCK_DOMAIN lists (no per-AAF-listener source; milan_dp `[AECP-MODEL]` walks the set); an index the domain does not list answers `BAD_ARGUMENTS` with the current index and moves nothing (processor `E_SCLKS` range check; milan_dp `[CLKSRC-RANGE]`, pp_top W10e-h for the verdict, the carried index and the readback, W10i for the same on a row no controller has set, and W10j for the "moves nothing" half: no store write, no NVM mark, no notification enqueued and no unsolicited frame at a second registered controller) |
++| 5.4.2.15 / .16 | SET/GET_CLOCK_SOURCE | implemented | stored + served + consumed: #74's `media_clk_resolve` arms the servo, the grid-align chain and the CRF triggers of `mr` from the stored index (milan_dp `[CRF-SEL]` grades the chain). A PHC step toggles `mr` whatever the clock-source selection. Every running Stream Output counts that toggle in MEDIA_RESET (milan_dp option-off legs). The advertised set is truthful since #389: only INTERNAL (free run) and the CRF sink's INPUT_STREAM source drive the media clock, so those are the only CLOCK_SOURCE descriptors the builder emits and the CLOCK_DOMAIN lists (no per-AAF-listener source; milan_dp `[AECP-MODEL]` walks the set); an index the domain does not list answers `BAD_ARGUMENTS` with the current index and moves nothing (processor `E_SCLKS` range check; milan_dp `[CLKSRC-RANGE]`, pp_top W10e-h for the verdict, the carried index and the readback, W10i for the same on a row no controller has set, and W10j for the "moves nothing" half: no store write, no NVM mark, no notification enqueued and no unsolicited frame at a second registered controller) |
+ | 5.4.2.17 / .18 | SET/GET_CONTROL (Identify, 0/255, volatile) | implemented | PP dyn_state; no public indication output yet (audit B7) |
+ | 5.4.2.19 / .20 | START/STOP_STREAMING (inputs; `NOT_SUPPORTED` on outputs) | implemented | binding-record interlock (issue #78); started-state persistence open (audit B12) |
+ | 5.4.2.21 / .22 | REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | implemented | PP aecp_notify |
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 8078556f2..c82aa4ad6 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -156,23 +156,40 @@ margin sets each named entry:
+ | Suite | Budget | Basis |
+ |---|---|---|
+ | every other default suite | 1800 s | longest default suite besides `milan_dp` measured at most 548 s hosted |
+-| `milan_dp` | 2700 s | hosted worst case about 1815 s, plus 885 s (49%) |
++| `milan_dp` | 3600 s | hosted window 2459.9 s; 1140.1 s remains (31.7% of budget) |
+ | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
+ 
+-The `milan_dp` figures come from the 37 hosted runs of the current suite,
+-from 2026-09-15, when #447 split out `milan_dp_render`, to 2026-09-19.
+-Passing runs took 1055-1773 s, and the slowest runner class, 19 of them,
+-took 1726-1773 s. Two runs of that class were killed at 1800 s, 1 s and 13 s
+-short of the end. A timeout stays a red context: the driver exits 92 and the
+-worker fails. `scripts/measure_test_evidence.py` pins the table.
+-
+-The `milan_dp` basis has since grown. Measured on 2026-09-24 from the
+-`shard: 4/5` line to `PASS milan_dp` of hosted shard 4/5: 2099.5 s on dev
+-`59b81670` and 2133.3 s on dev `57456af9`, then 2264.9 s (9775 checks) for
+-the #387 candidate merge of PR #555 head `a9636e0f` onto `57456af9`, which
+-adds the gmstep leg and three of its controls to the suite. That leaves
+-435 s (16%) of the 2700 s budget, not the 885 s the table's basis states.
+-The budget is unchanged; raising it is a maintainer decision.
++The previous `milan_dp` budget used 37 hosted runs.
++Those ran between 2026-09-15 and 2026-09-19, after #447's split.
++Passing runs took 1055-1773 s.
++The slowest runner class took 1726-1773 s across 19 runs.
++Two runs timed out 1 s and 13 s early.
++That 1800 s deadline became 2700 s under #444.
++A timeout still fails the worker with exit 92.
++`scripts/measure_test_evidence.py` pins the budgets.
++
++The 2026-09-24 samples prompted [decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308).
++It raises `milan_dp` to 3600 s and retains its controls.
++Windows run from `shard: 4/5` through `PASS milan_dp`.
++Each row represents one hosted sample.
++
++| Revision | Window | Checks | Hosted job |
++|---|---|---|---|
++| dev `9d3288107e` | 1296.1 s | 9635 | [107573353073](https://github.com/kebag-logic/milan-fpga/actions/runs/35981190398/job/107573353073) |
++| dev `57456af9` | 2133.3 s | 9720 | [107688389193](https://github.com/kebag-logic/milan-fpga/actions/runs/36015896775/job/107688389193) |
++| PR #555 head `a9636e0f` | 2264.9 s | 9775 | [107720800104](https://github.com/kebag-logic/milan-fpga/actions/runs/36025349467/job/107720800104) |
++| PR #555 head `a21cd358` | 2459.9 s | 9781 | [107763352706](https://github.com/kebag-logic/milan-fpga/actions/runs/36038109516/job/107763352706) |
++
++The PR samples build candidate merges onto dev `57456af9`.
++The day's observed spread was 1296-2460 s.
++The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
++That crossed [decision 5819379503](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5819379503)'s 10% trigger.
++The new budget leaves 1140.1 s: 31.7%, approximately 32%.
++These historical samples do not measure the corrected candidate.
++The three default gmstep controls remain in `run`.
++The additional controls stay in the explicit `gmstep-mutants` campaign.
++The hosted shards allow 120 minutes, accommodating this one-hour deadline.
++If later exact-head margin falls below 10%, split further.
+ 
+ The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
+ It runs nightly at 01:17 UTC and on manual dispatch.
+diff --git a/hdl/ieee1722/aaf/KL_render_setpoint.sv b/hdl/ieee1722/aaf/KL_render_setpoint.sv
+index c358f7c7e..6f209bb6d 100644
+--- a/hdl/ieee1722/aaf/KL_render_setpoint.sv
++++ b/hdl/ieee1722/aaf/KL_render_setpoint.sv
+@@ -117,7 +117,8 @@
+ 
+ //! Render setpoint stage: per-stream elastic queue of media events whose
+ //! fill is the constant accept-to-render latency (SETPOINT_EVT_P), prefilled
+-//! to it, band-observed at every PDU end, re-centred once on a GM/PHC step;
++//! to it, band-observed at every PDU end, re-centred once on a PHC step or
++//! a settled clock-source change;
+ //! pops one event per stream per media tick into the render crossbar as
+ //! clone-format beats and hands the crossbar a delayed render tick.
+ 
+diff --git a/hdl/ieee1722/avtp/KL_media_clock_restart.sv b/hdl/ieee1722/avtp/KL_media_clock_restart.sv
+index e29df070e..11425d65d 100644
+--- a/hdl/ieee1722/avtp/KL_media_clock_restart.sv
++++ b/hdl/ieee1722/avtp/KL_media_clock_restart.sv
+@@ -233,6 +233,8 @@ module KL_media_clock_restart #(
+       //! has seen that toggle, so the request merges into it and the target
+       //! stays the level just adopted (#387, ruling 5818091077). The first
+       //! PDU at that level moves hold_r off 0 and ends the window.
++      //! streaming_i keeps a stop on hold_r == 0 tracking the new target,
++      //! like every non-streaming talker, instead of merging that request.
+       for (int t = 0; t < N_TALKERS_P; t++)
+         if ((restart_p_i | src_change_w) && streaming_i[t] && (hold_r[t] == '0))
+           tgt_r[t] <= mr_o[t];
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index 7ff0c7374..14d2e7c52 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -715,13 +715,13 @@ def runner_contract(text: str) -> list[str]:
+         problems.append("the per-suite wall-clock guard is missing")
+     budget = '''suite_timeout() {
+   case "$1" in
+-    milan_dp)      printf '%s\\n' "${SUITE_TIMEOUT:-2700}" ;;
++    milan_dp)      printf '%s\\n' "${SUITE_TIMEOUT:-3600}" ;;
+     milan_dp_gptp) printf '%s\\n' "${SUITE_TIMEOUT:-5400}" ;;
+     *)             printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
+   esac
+ }'''
+     if budget not in text or 'TMO=$(suite_timeout "$suite")' not in text:
+-        problems.append("the declared 1800/2700/5400-second suite budgets changed")
++        problems.append("the declared 1800/3600/5400-second suite budgets changed")
+     selection = ('selector=(python3 "$ROOT/scripts/suite_shards.py"',
+                  '--suite-root "$ROOT/tb/verilator" --shard "$SHARD")',
+                  '[ "$PHYSICAL_GPTP" = 1 ] && selector+=(--physical-gptp)',
+diff --git a/scripts/measure_test_evidence_selftest.py b/scripts/measure_test_evidence_selftest.py
+index fd3a0697f..302544ab7 100644
+--- a/scripts/measure_test_evidence_selftest.py
++++ b/scripts/measure_test_evidence_selftest.py
+@@ -291,7 +291,7 @@ def _arms_runner_contract(ck):
+     for old, new in (("PHYSICAL_GPTP=0", "PHYSICAL_GPTP=1"),
+                      ('[ "$PHYSICAL_GPTP" = 1 ]', '[ 1 = 1 ]'),
+                      ("SUITE_TIMEOUT:-1800", "SUITE_TIMEOUT:-2400"),
+-                     ("SUITE_TIMEOUT:-2700", "SUITE_TIMEOUT:-3600"),
++                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-2700"),
+                      ("SUITE_TIMEOUT:-5400", "SUITE_TIMEOUT:-7200"),
+                      ("milan_dp_gptp)", "milan_dp)"),
+                      ("    milan_dp)      ", "    milan_dp_render) "),
+diff --git a/scripts/run_all_suites.sh b/scripts/run_all_suites.sh
+index ba61d8607..997bea9fb 100755
+--- a/scripts/run_all_suites.sh
++++ b/scripts/run_all_suites.sh
+@@ -36,7 +36,7 @@
+ #
+ # Environment:
+ #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
+-#                        Defaults: 1800 s; milan_dp gets 2700 s and the
++#                        Defaults: 1800 s; milan_dp gets 3600 s and the
+ #                        scheduled milan_dp_gptp 5400 s (suite_timeout below).
+ #                        See docs/testing/TESTING.md for the physical timer floor.
+ #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
+@@ -237,12 +237,12 @@ acquire_lock() {
+ 
+ #! Declared per-suite defaults; an explicit caller override retains its meaning.
+ #! The CI runner contract pins every budget and each named suite.
+-#! milan_dp (#444): hosted worst case about 1815 s (1726-1773 s passing on the
+-#! slower runner class; two runs killed at 1800 s, 1 s and 13 s short of the
+-#! end), plus a stated 885 s (49%) margin.
++#! milan_dp (#387, decision 5820240308): hosted window 2459.9 s at a21cd358,
++#! with a 1296-2460 s spread on 2026-09-24. The 3600 s budget leaves
++#! 1140.1 s (31.7% of the budget); CI_WORKFLOWS.md cites the samples.
+ suite_timeout() {
+   case "$1" in
+-    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-2700}" ;;
++    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
+     milan_dp_gptp) printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
+     *)             printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
+   esac
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index 60eb4e026..97f71c869 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -241,7 +241,7 @@ The unchanged acquisition deadline expires before the acquired-publication check
+ First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
+ Its separate deadline is 5400 seconds, including compilation.
+ The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
+-Every other default suite retains its 1800-second deadline; `milan_dp` has 2700 seconds (#444).
++Every other default suite retains its 1800-second deadline; `milan_dp` has 3600 seconds ([#387 decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308)).
+ The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
+ Physical regressions are therefore caught nightly, outside the PR aggregate.
+ Expiry still reports TIMEOUT/UNKNOWN and exits nonzero.
+@@ -433,6 +433,10 @@ should read STREAM_START 1 and FRAMES_TX equal to the seconds it has streamed.
+ 
+ ## GM step re-base leg (#387)
+ 
++The true-ratio leg also commands an absolute software settime.
++`RENDER-SETTIME` requires one pulse and one counted render re-base.
++A further 100 PDUs must produce no second event.
++
+ `make gmstep` builds `obj_gmstep` from `sim_gmstep.cpp` on the `gptp` leg's
+ elaboration: the AX7101 1x1 TDM8 entity, fabric gPTP on, a 2 MHz fabric clock
+ and an 8 ns PHC. It drives issue #387's acceptance 3: a grandmaster change
+@@ -857,7 +861,7 @@ The limits, so a reader does not over-read a record:
+ * **A case whose pattern check fails builds and runs nothing**, so it
+   contributes no phase record at all; its existing `[FAIL]` line is the report.
+ * **The clock is the host's.** A duration includes whatever else that machine
+-  was doing, and the per-suite guard (2700 s for this suite since #444) is
++  was doing, and the per-suite guard (3600 s for this suite under #387) is
+   still owned by `scripts/run_all_suites.sh`.
+ 
+ `test_render_phase_observation.py` holds this contract with pure fixtures: a
+diff --git a/tb/verilator/milan_dp/gmstep_mutants.py b/tb/verilator/milan_dp/gmstep_mutants.py
+index 30970b8f2..e97c3b9ab 100755
+--- a/tb/verilator/milan_dp/gmstep_mutants.py
++++ b/tb/verilator/milan_dp/gmstep_mutants.py
+@@ -186,7 +186,9 @@ def is_fresh(leg: Leg, exe: Path) -> bool:
+     """True when `exe` exists and is no older than any input of its recipe:
+     the Makefile's SRCS (`make print-srcs`), the leg's harness and the
+     Makefile itself. A list that cannot be read counts as stale."""
+-    out = subprocess.run(["make", "-s", "-C", str(HERE), "print-srcs"],
++    # GNU make 4.3 can inherit directory printing from a parent recipe even
++    # with -s. Keep that chatter out of the source-path inventory for both legs.
++    out = subprocess.run(["make", "--no-print-directory", "-s", "-C", str(HERE), "print-srcs"],
+                          capture_output=True, text=True, check=False)
+     if out.returncode != 0 or not exe.is_file():
+         return False
+diff --git a/tb/verilator/milan_dp/sim_aclk.cpp b/tb/verilator/milan_dp/sim_aclk.cpp
+index 06f491d42..7eed394ae 100644
+--- a/tb/verilator/milan_dp/sim_aclk.cpp
++++ b/tb/verilator/milan_dp/sim_aclk.cpp
+@@ -1391,6 +1391,25 @@ class MediaGridAlignmentHarness {
+         displace_then_step(tag, -3, rc0, pulses0, rails0, 1);
+     }
+ 
++    //! A software settime is also one PHC re-base, through the live CSR path.
++    void prove_settime_recentres_once() {
++        constexpr uint16_t A_PTP_CMD = 0x520;
++        const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
++        const long pulses0 = recentre_pulses;
++        // The reset load value is zero: command one absolute PHC settime.
++        axi_write(A_PTP_CMD, 0x1);
++        run_fed(25 * kAafPduPeriodCycles);
++        ck("RENDER-SETTIME: the settime reaches the stage as one pulse",
++           recentre_pulses - pulses0, 1);
++        ck("RENDER-SETTIME: the settime executes one render re-base",
++           dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, 1);
++        run_fed(100 * kAafPduPeriodCycles);
++        ck("RENDER-SETTIME: no later re-base pulse",
++           recentre_pulses - pulses0, 1);
++        ck("RENDER-SETTIME: the render re-base remains counted once",
++           dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, 1);
++    }
++
+     // =================================================================== //
+     //  [RENDER-LIVE] the running feed is moved past a tick: the grid-moved  //
+     //  equivalent the review probed. `later` = the grid later (fill one     //
+@@ -1530,6 +1549,7 @@ int MediaGridAlignmentHarness::run() {
+     bind_listener_zero_over_acmp();
+     measure_the_render_law_at_internal();
+     prove_the_recentre_is_one_shot("RENDER-RC-INT");
++    prove_settime_recentres_once();
+     //! --render-only: the mutation arm's leg - the law and the recentre at
+     //! INTERNAL are what the stage's mutants must break, and the grid phases
+     //! below are the expensive half of this binary
