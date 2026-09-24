@@ -1,0 +1,25 @@
+git version 2.55.0
+== fixture-30 linear-control-exact-revert: source 9a9c1e7b26ff2d3439ef5c5ec439cc3a13c9a34a target 219aa2256e055e8a577f9899ac6d36bd8bd986e0
+   args=['(default)'] exit=0
+     |   contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]
+   args=['--current-retention'] exit=1
+     |   contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]
+     |   UNKNOWN    refs/heads/pr: current retention: unproved on: 'mod.txt'
+     | 1 tip(s) lack a requested proof; see UNKNOWN above.
+     |   Unresolved history or current retention is not a pass.
+== fixture-31 linear-control-adjacent-extension: source 1bd2b82f0e618d3a8a3cdeb2e47a8c2f2dfb6182 target fe6d591afdc008a7314761b3f9e7dbb6bc2a49d6
+   args=['(default)'] exit=0
+     |   contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]
+   args=['--current-retention'] exit=1
+     |   contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]
+     |   UNKNOWN    refs/heads/pr: current retention: unproved on: 'mod.txt'
+     | 1 tip(s) lack a requested proof; see UNKNOWN above.
+     |   Unresolved history or current retention is not a pass.
+== linear-patch-fallback replica: source bf544df74846d65ca6294c0a8ce76ead3c9b70c5 target e17e0539f7f3724268d6541ffe5f5439167ea6cd
+   args=['(default)'] exit=0
+     |   contained  refs/heads/linear-feature  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/linear-base (1 not ancestors -- rebase merge)]
+   args=['--current-retention'] exit=1
+     |   contained  refs/heads/linear-feature  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/linear-base (1 not ancestors -- rebase merge)]
+     |   UNKNOWN    refs/heads/linear-feature: current retention: unproved on: 'linear'
+     | 1 tip(s) lack a requested proof; see UNKNOWN above.
+     |   Unresolved history or current retention is not a pass.
