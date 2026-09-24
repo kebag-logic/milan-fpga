@@ -1,0 +1,10 @@
+FAIL: C2 grant carries exact current slope <= ceiling
+FAIL: C5 publication == greedy over current declarations
+FAIL: C2 grant carries exact current slope <= ceiling
+FAIL: C2 grant carries exact current slope <= ceiling
+FAIL: C5 publication == greedy over current declarations
+FAIL: C5 publication == greedy over current declarations
+FUZZ N=8 seed=2008 episodes=60 publications=12226 held_clocks=154314 max_latency=24 bound=24
+FAILCOUNT C2 grant carries exact current slope <= ceiling: 1985
+FAILCOUNT C5 publication == greedy over current declarations: 206
+8627774 checks: 8625583 PASS, 2191 FAIL

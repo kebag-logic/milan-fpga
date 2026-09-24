@@ -1,0 +1,9 @@
+eq_A5 N=1 rc=0 5030561 checks: 5030561 PASS, 0 FAIL
+eq_A5 N=2 rc=0 7632342 checks: 7632342 PASS, 0 FAIL
+eq_A5 N=8 rc=0 22169905 checks: 22169905 PASS, 0 FAIL
+eq_all_validity N=1 rc=1 5030561 checks: 4936821 PASS, 93740 FAIL
+   FAILCOUNT C8 lockstep equality of the two variants: 93740
+eq_all_validity N=2 rc=1 7632342 checks: 7532173 PASS, 100169 FAIL
+   FAILCOUNT C8 lockstep equality of the two variants: 100169
+eq_all_validity N=8 rc=1 22169905 checks: 22041652 PASS, 128253 FAIL
+   FAILCOUNT C8 lockstep equality of the two variants: 128253
