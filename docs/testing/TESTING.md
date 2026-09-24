@@ -163,8 +163,8 @@ VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/suite-logs
 Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
 `ls tb/verilator/` is authoritative (one dir per suite).
 
-The default driver permits 1800 seconds per suite, and 2700 seconds for `milan_dp`.
-That figure is the suite's measured hosted worst case plus a stated margin (#444).
+The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
+[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets this deadline from recorded hosted samples.
 The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
 It excludes only the scheduled `milan_dp_gptp` directory.
 The separate physical job permits 5400 seconds, including compilation.
