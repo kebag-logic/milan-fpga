@@ -1617,8 +1617,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  t -> row (L-1)+t, so the CRF talker at t = N_STREAMS lands on row
   //  (N_STREAMS-1) + N_STREAMS = 2*N_STREAMS-1, one past the AAF talkers,
   //  and the table needs L+T-1 = 2*N_STREAMS rows. Widening N_TALKERS_P by
-  //  one is what puts the CRF stream's slope into the bw-gate's Sigma - the
-  //  class A queue must budget for the media clock like any other stream.
+  //  one put the CRF stream's slope into the deleted bw-gate's Sigma. Today
+  //  the processor's Sigma (LWSRP_SLOPE 0x698) counts it once admitted, and no
+  //  shaper reads that Sigma (the SRP block below).
   //
   //  Only when this shape HAS a CRF Media Clock Output (ACMP_SRC_C >
   //  N_STREAMS, the same condition as g_acmp_crf_src). Configs without one
