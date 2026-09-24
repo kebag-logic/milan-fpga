@@ -1,0 +1,9 @@
+[A265] REVIEW READY
+
+Head: `49d23b20fcad15a3c03554476d8b8c9116b3b375` on `75-slew-active`, local only. Working tree and index clean.
+
+Implemented the registered `phc_slew_active_o` level, its full lifecycle contract, generated ROM updates, and named mutation controls. Completion is explicitly defined as two consecutive consumed pairs inside ±100 ns; ordinary tracking continues.
+
+The complete required gate returns 0 with no skipped suites. Engine: 1,532/1,532 on all three images; 30/30 mutants caught. Area delta: +80 LUTs, +6 registers, no additional RAM or DSPs.
+
+`HANDOFF.md` and `PR-BODY.md` are complete in the assigned output packet. The handoff records the exact parent connection for #545 and the measured duration conflict: the existing PI loop's ±90 us corrections can last 3.069413 s and 1.916689 s, so the level uses measured completion rather than a 0.5 s expiry. Parent consumer validation remains with #545.
