@@ -1,0 +1,23 @@
+# R277-4 scripts/repro_gmstep_freshness.sh sha256 370ea465f6b3df2b8091104db853777666758292068f4e2c5d4732897ef8b713, run unchanged
+## make 4.3
+GNU Make 4.3
+direct run (no parent make):
+is_fresh: True
+inside a parent make -C recipe (parent without -s, as the hosted log shows):
+make: Entering directory '$TMP'
+cd $PACKET/scratch/tree/tb/verilator/milan_dp && python3 -c 'import subprocess, gmstep_mutants as g; l = g.LEGS["gmstep"]; o = subprocess.run(["make", "-s", "-C", str(g.HERE), "print-srcs"], capture_output=True, text=True); print("print-srcs first tokens:", o.stdout.split()[:3]); print("is_fresh:", g.is_fresh(l, l.clean_mdir / l.exe_name))'
+print-srcs first tokens: ['make[1]:', 'Entering', 'directory']
+is_fresh: True
+make: Leaving directory '$TMP'
+rc=0
+## make 4.4.1
+GNU Make 4.4.1
+direct run (no parent make):
+is_fresh: True
+inside a parent make -C recipe (parent without -s, as the hosted log shows):
+make: Entering directory '$TMP'
+cd $PACKET/scratch/tree/tb/verilator/milan_dp && python3 -c 'import subprocess, gmstep_mutants as g; l = g.LEGS["gmstep"]; o = subprocess.run(["make", "-s", "-C", str(g.HERE), "print-srcs"], capture_output=True, text=True); print("print-srcs first tokens:", o.stdout.split()[:3]); print("is_fresh:", g.is_fresh(l, l.clean_mdir / l.exe_name))'
+print-srcs first tokens: ['../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv', '../../../protocol-processor/hdl/adp/pp_adp_pkg.sv', '../../../protocol-processor/hdl/aecp/ucpu_pkg.sv']
+is_fresh: True
+make: Leaving directory '$TMP'
+rc=0

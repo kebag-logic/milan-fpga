@@ -1,0 +1,15 @@
+# exact-head hosted job 107806587623 (shard 4/5, run 36050997581), artifact suite-logs-4 zip sha256 2626a8004d10d90a02cf84458ca2bb964b662120865b88ef8ac2279608957b58, file milan_dp.log
+# lines naming the gmstep runner, its positive control, a rebuild, or the gmstep leg tally
+1643:== gmstep: checks: 48   failures: 0 ==
+16894:  [ok]   RENDER-SETTIME: the settime reaches the stage as one pulse = 1
+16895:  [ok]   RENDER-SETTIME: the settime executes one render re-base    = 1
+16896:  [ok]   RENDER-SETTIME: no later re-base pulse                     = 1
+16897:  [ok]   RENDER-SETTIME: the render re-base remains counted once    = 1
+17060:media_aclk: 143 checks, 0 failures
+17096:python3 gmstep_mutants.py
+17097:[PASS] the unmutated gateware still passes the gmstep leg
+17098:[PASS] control caught: the step does not toggle mr - breaks "restart: the outgoing mr toggles exactly once"
+17100:[PASS] control caught: the grandmaster identity re-bases the render stage as well as the step - breaks "render: the GM change is one counted re-base event"
+17102:[PASS] control caught: the step does not re-centre the render stage - breaks "render: the GM change is one counted re-base event"
+17105:4 checks: 4 PASS, 0 FAIL
+# count of '[INFO] ... rebuilt' lines: 0
