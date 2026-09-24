@@ -820,10 +820,44 @@ class NxnDatapathHarness {
     bool aecp_is_originated(const std::vector<uint8_t>& f) {
         return f.size() > 37 && (f[15] & 0xF) == 0;   // an AEM_COMMAND we sent
     }
+    // THE FORCED-REALLOCATION LEVER (#542), off unless the build passes
+    // -DNOTIFY_REALLOC_TB. await_aecp and drain_tx are the only code that
+    // pushes into uns_log, and a push that meets a full buffer moves every
+    // entry to a new one and frees the old. A frame arriving while a waiter
+    // waits can do that, so a pointer or reference into the log held across
+    // either call can dangle, but only when the arrival meets a full buffer,
+    // which no leg arranges. The lever makes it certain: each call first
+    // moves the log into a buffer allocated while the old one is still live
+    // (so it cannot land at the old address), pushes one empty entry stamped
+    // -1 there, and frees the old buffer. No reader matches an empty entry,
+    // so no verdict moves. A stale pointer reads the freed old buffer, whose
+    // entries were moved out, so the check that reads it fails, and an
+    // AddressSanitizer build reports that read as a heap-use-after-free.
+#ifdef NOTIFY_REALLOC_TB
+    static constexpr bool kForceRealloc = true;
+#else
+    static constexpr bool kForceRealloc = false;
+#endif
+    //! moves of a log holding a REAL frame, one a pointer could name: the
+    //! lever's own empty entries do not count, or it would bank its own moves
+    long realloc_moves = 0;
+    void force_uns_log_realloc() {
+        if (!kForceRealloc) return;
+        if (std::any_of(uns_log.begin(), uns_log.end(),
+                        [](const std::vector<uint8_t>& f) { return !f.empty(); }))
+            realloc_moves++;
+        std::vector<std::vector<uint8_t> > moved;
+        moved.reserve(uns_log.size() + 1);
+        for (std::vector<uint8_t>& f : uns_log) moved.push_back(std::move(f));
+        moved.emplace_back();
+        uns_log.swap(moved);
+        uns_log_when.push_back(-1);
+    }   // `moved` owns the old buffer now, and frees it here
     std::vector<uint8_t> await_aecp(int cyc = 200000) {
         std::vector<uint8_t> cur, resp;
         cur.reserve(1514);                  // one Ethernet frame off the TX trunk
         dut->m_axis_mac_tx_tready = 1;
+        force_uns_log_realloc();
         for (int c = 0; c < cyc && resp.empty(); c++) {
             lo();
             if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
@@ -854,6 +888,7 @@ class NxnDatapathHarness {
         std::vector<uint8_t> cur;
         cur.reserve(1514);
         dut->m_axis_mac_tx_tready = 1;
+        force_uns_log_realloc();
         for (int c = 0; c < cyc; c++) {
             lo();
             if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
@@ -1089,8 +1124,9 @@ class NxnDatapathHarness {
     unsigned notify_cdl(const std::vector<uint8_t>& f) {
         return ((static_cast<unsigned>(f[16]) & 7) << 8) | f[17];
     }
-    long notify_seq(const std::vector<uint8_t>* f) {
-        return f ? static_cast<long>((static_cast<unsigned>(f->at(34)) << 8) | f->at(35)) : -1L;
+    //! the sequence_id of a notify_last() copy (-1 when it is empty: absent)
+    long notify_seq(const std::vector<uint8_t>& f) {
+        return f.size() > 35 ? static_cast<long>((static_cast<unsigned>(f[34]) << 8) | f[35]) : -1L;
     }
     //! a RESPONSE to controller c: its MAC is the destination and its entity_id
     //! is the controller_entity_id field
@@ -1121,19 +1157,23 @@ class NxnDatapathHarness {
         }
         return n;
     }
-    //! the LAST matching unsolicited frame - the one the content bar names
-    const std::vector<uint8_t>* notify_last(uint16_t cmd, const Ctlr& to,
-                                                   int ty = -1, int ix = -1) {
-        const std::vector<uint8_t>* r = nullptr;
+    //! a COPY of the LAST matching unsolicited frame - the one the content bar
+    //! names - or an empty frame when none matches (a match is always longer
+    //! than 37 bytes, so empty means absent). A copy, never a pointer into
+    //! uns_log (#542): the content bars keep it across a solicited exchange,
+    //! and every wait can push into the log and reallocate it.
+    std::vector<uint8_t> notify_last(uint16_t cmd, const Ctlr& to,
+                                     int ty = -1, int ix = -1) {
+        size_t last = uns_log.size();
         for (size_t i = 0; i < uns_log.size(); i++) {
             const std::vector<uint8_t>& f = uns_log[i];
             if (!aecp_is_unsolicited(f) || notify_cmd(f) != cmd || !notify_to(f, to)) continue;
             if (ty >= 0 && (f.size() < 42
                             || ((static_cast<unsigned>(f[38]) << 8) | f[39]) != static_cast<unsigned>(ty)
                             || ((static_cast<unsigned>(f[40]) << 8) | f[41]) != static_cast<unsigned>(ix))) continue;
-            r = &f;
+            last = i;
         }
-        return r;
+        return last < uns_log.size() ? uns_log[last] : std::vector<uint8_t>();
     }
     //! the cycle stamp of the i-th matching frame (-1 when absent)
     long notify_when(uint16_t cmd, const Ctlr& to, unsigned nth, bool originated) {
@@ -1147,11 +1187,12 @@ class NxnDatapathHarness {
         }
         return -1;
     }
-    //! byte-identical from offset `off` on (the frames are the same length)
-    bool notify_same_from(const std::vector<uint8_t>* a,
-                                 const std::vector<uint8_t>& b, size_t off) {
-        return a && a->size() == b.size() && a->size() > off
-            && std::equal(a->begin() + off, a->end(), b.begin() + off);
+    //! byte-identical from offset `off` on (the frames are the same length);
+    //! an empty `a` is an absent frame and never matches
+    bool notify_same_from(const std::vector<uint8_t>& a,
+                          const std::vector<uint8_t>& b, size_t off) {
+        return a.size() == b.size() && a.size() > off
+            && std::equal(a.begin() + off, a.end(), b.begin() + off);
     }
     //! SET_NAME(ENTITY, 0, name_index 0 = entity_name, configuration 0)
     std::vector<uint8_t> notify_set_name(const Ctlr& c, const char* name,
@@ -1173,6 +1214,7 @@ class NxnDatapathHarness {
         else
             printf("-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the "
                    "wire --\n");
+        const long realloc_moves0 = realloc_moves;
         const uint8_t teid[8] = {
             0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
         const std::vector<uint8_t> name_key(8, 0);   // ENTITY,0 / name 0 / cfg 0
@@ -1187,7 +1229,7 @@ class NxnDatapathHarness {
         register_two_controllers(timed, fl0);
         prove_the_exclusion_gate_pushes_to_b_alone(teid);
         prove_a_no_op_set_pushes_nothing();
-        const std::vector<uint8_t>* nB2 =
+        const std::vector<uint8_t> nB2 =
             prove_each_registry_entry_has_its_own_sequence();
         // ---- (N5) the content bar ---------------------------------------
         const std::vector<uint8_t> gB = aecp_xact_from(CTL_B, 0x0011, notify_sq++, name_key);
@@ -1197,6 +1239,13 @@ class NxnDatapathHarness {
         prove_the_ownerless_publication_faces_stay_ownerless();
         if (timed) prove_the_departing_controller_monitor(fl0);
         deregister_both_controllers_and_restore_the_name(g0, name0);
+        //! a lever build whose lever never moved a real frame proves nothing
+        if (kForceRealloc) {
+            printf("  [i]    #542 lever: %ld moves of a log holding a real "
+                   "frame in this section\n", realloc_moves - realloc_moves0);
+            ck("[NOTIFY] (#542 lever) the waits moved logs holding real frames",
+               static_cast<long>(realloc_moves > realloc_moves0), 1);
+        }
     }
 
     // ---- (N1) two registered controllers, A and B ---------------------
@@ -1237,14 +1286,14 @@ class NxnDatapathHarness {
            notify_count(0x0010, &CTL_B), 1);
         ck("[NOTIFY] ...and none to A, the requester (5.4.5.2 'except')",
            notify_count(0x0010, &CTL_A), 0);
-        const std::vector<uint8_t>* nB1 = notify_last(0x0010, CTL_B);
+        const std::vector<uint8_t> nB1 = notify_last(0x0010, CTL_B);
         ck("[NOTIFY] ...B's sequence_id starts at 0 (5.4.2.21: a new entry)",
            notify_seq(nB1), 0);
         ck("[NOTIFY] ...target_entity_id is this entity",
-           static_cast<long>(nB1 && memcmp(nB1->data() + 18, teid, 8) == 0), 1);
+           static_cast<long>(!nB1.empty() && memcmp(nB1.data() + 18, teid, 8) == 0), 1);
         ck("[NOTIFY] ...status SUCCESS with the full cdl-84 SET_NAME body",
-           static_cast<long>(nB1 && nB1->size() >= 110 && aecp_status(*nB1) == 0
-                  && notify_cdl(*nB1) == 84), 1);
+           static_cast<long>(nB1.size() >= 110 && aecp_status(nB1) == 0
+                  && notify_cdl(nB1) == 84), 1);
         ck("[NOTIFY] ...carrying the NEW name: current state, not history",
            static_cast<long>(notify_same_from(nB1, sA1, 38)), 1);
     }
@@ -1261,7 +1310,9 @@ class NxnDatapathHarness {
     }
 
     // ---- (N4) one sequence_id variable per registry entry ---------------
-    const std::vector<uint8_t>* prove_each_registry_entry_has_its_own_sequence() {
+    //! returns a copy of B's last push for the (N5) content bar, which reads
+    //! it after an exchange that can reallocate the log (#542)
+    std::vector<uint8_t> prove_each_registry_entry_has_its_own_sequence() {
         notify_clear();
         const std::vector<uint8_t> sB1 = notify_set_name(CTL_B, "Notify-B1", notify_sq++);
         ck("[NOTIFY] SET_NAME from B is SUCCESS",
@@ -1277,7 +1328,7 @@ class NxnDatapathHarness {
         ck("[NOTIFY] a second change from A is SUCCESS",
            sA3.size() >= 110 ? aecp_status(sA3) : -1, 0);
         drain_tx(NOTIFY_WIN);
-        const std::vector<uint8_t>* nB2 = notify_last(0x0010, CTL_B);
+        const std::vector<uint8_t> nB2 = notify_last(0x0010, CTL_B);
         ck("[NOTIFY] ...reaches B with sequence_id 1 (its entry advanced)",
            notify_seq(nB2), 1);
         ck("[NOTIFY] ...and A's entry did not move (independent per entry)",
@@ -1319,12 +1370,13 @@ class NxnDatapathHarness {
         ck("[NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) "
            "to A", notify_count(0x0029, &CTL_A, 0x0005, ix), 1);
         ck("[NOTIFY-CRF] ...and to B", notify_count(0x0029, &CTL_B, 0x0005, ix), 1);
-        const std::vector<uint8_t>* n1 = notify_last(0x0029, CTL_B, 0x0005, ix);
+        //! a copy: the solicited GET_COUNTERS below can reallocate the log
+        const std::vector<uint8_t> n1 = notify_last(0x0029, CTL_B, 0x0005, ix);
         ck("[NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body",
-           static_cast<long>(n1 && n1->size() >= 174 && aecp_status(*n1) == 0
-                  && notify_cdl(*n1) == 148), 1);
+           static_cast<long>(n1.size() >= 174 && aecp_status(n1) == 0
+                  && notify_cdl(n1) == 148), 1);
         ck("[NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F)",
-           n1 ? ctr_word(*n1, 32) : 0, CRF_CTR_MASK);
+           n1.empty() ? 0 : ctr_word(n1, 32), CRF_CTR_MASK);
         const std::vector<uint8_t> key = {0x00, 0x05, 0x00,
                                           static_cast<uint8_t>(ix)};
         const std::vector<uint8_t> g = aecp_xact_from(CTL_B, 0x0029, notify_sq++, key);
