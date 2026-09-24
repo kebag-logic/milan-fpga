@@ -9,7 +9,7 @@
 # What makes this suite different from tb/verilator/nvm_backend, which grades
 # the same module: the FIRMWARE IS IN THE LOOP, and so is the REAL donor
 # producer path at the pinned revision (KL_acmp_nvm_shadow driving
-# KL_pp_nvm_port, and KL_aecp_dyn_state). nvm_backend grades the module's byte
+# KL_pp_nvm_mgr_arb and KL_pp_nvm_port, and KL_aecp_dyn_state). nvm_backend grades the module's byte
 # pump, its region decode and its section 9 status against a harness; this one
 # grades the pair against the ORDERINGS of the contract page's section 9 --
 # the acknowledgement race of issue #418, the ERASE-error counterexample, the
@@ -48,7 +48,8 @@ RTL     = ../../../hdl/milan
 BACKEND = $(RTL)/KL_nvm_backend.sv
 PP      = ../../../protocol-processor/hdl
 DONOR   = $(PP)/acmp/pp_acmp_pkg.sv $(PP)/aecp/KL_aecp_dyn_state.sv \
-          $(PP)/acmp/KL_acmp_nvm_shadow.sv $(PP)/packet_engine/KL_pp_nvm_port.sv
+          $(PP)/acmp/KL_acmp_nvm_shadow.sv $(PP)/packet_engine/KL_pp_nvm_mgr_arb.sv \
+          $(PP)/packet_engine/KL_pp_nvm_port.sv
 
 .PHONY: all run quick wrap control lint clean
 all: run
