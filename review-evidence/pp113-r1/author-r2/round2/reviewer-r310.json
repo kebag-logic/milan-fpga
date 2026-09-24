@@ -1,0 +1,27 @@
+{
+  "label": "reviewer-r310",
+  "cwd": "$LANES/pp113-latency-notify",
+  "command": [
+    "python3",
+    "/tmp/pp113-a287-review/r310_probes.py",
+    "--repo",
+    "$LANES/pp113-latency-notify",
+    "--commit",
+    "4f6185ce97e31f3bdacc090ec1ab7ede32456d2e",
+    "--work",
+    "/tmp/pp113-a287-review/r310-work",
+    "--out",
+    "$MANAGEMENT/2026-09-23/pp113-a287/round2/reviewer-r310",
+    "--verilator",
+    "$VALIDATION_TOOLS/verilator-v5.050/bin/verilator",
+    "--cpus",
+    "32-39",
+    "golden",
+    "cmp-low3",
+    "cmp-high2",
+    "cmp-no-bit31",
+    "cmp-low16"
+  ],
+  "rc": 0,
+  "seconds": 193.29
+}

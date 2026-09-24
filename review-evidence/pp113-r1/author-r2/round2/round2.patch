@@ -1,0 +1,159 @@
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index c43e37b..01fbfea 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -374,7 +374,7 @@ verification).
+ |---|---|---|---|---|---|---|---|---|
+ | REQ-NOT-001 | Milan §5.4.5.1 | Fan-out: one message per registered controller excluding requester; per-entry DA/EID/seq on recorded port; seq +1 after handing to stack | shall | A | [GAP-06](#gap-06) | KL_aecp_notify row walk (landed) | 06 §7 | STORM |
+ | REQ-NOT-002 | Milan §5.4.5.2 | Triggers: every successful state-changing command; equivalent non-ATDECC changes while unlocked | shall | A | [GAP-06](#gap-06) | command effect queue and observed fabric triggers (landed) | 06 §7 | RND |
+-| REQ-NOT-003 | Milan Table 5.22 | Async triggers: GET_STREAM_INFO/GET_AVB_INFO/GET_AS_PATH field changes; GET_COUNTERS ≤1/descriptor/s; LOCK auto-unlock; auto-DEREGISTER | shall | P | [GAP-06](#gap-06) | KL_aecp_notify observed trigger set and per-descriptor limiter (landed); committed per-sink accumulated-latency changes notify, unchanged refreshes stay silent (#113, pp_top GI response tests) | 06 §7 | STORM |
++| REQ-NOT-003 | Milan Table 5.22 | Async triggers: GET_STREAM_INFO/GET_AVB_INFO/GET_AS_PATH field changes; GET_COUNTERS ≤1/descriptor/s; LOCK auto-unlock; auto-DEREGISTER | shall | P | [GAP-06](#gap-06) | KL_aecp_notify observed trigger set and per-descriptor limiter (landed); committed per-sink accumulated-latency changes notify, unchanged refreshes stay silent (#113, pp_top GI response tests: walking one and walking zero isolate every comparator bit; six truncation mutants require named failures) | 06 §7 | STORM |
+ | REQ-NOT-004 | Milan §5.4.5.3 | Departing-controller detection: per-controller random 30–60 s; CONTROLLER_AVAILABLE + retry; any-status reply re-arms; silence ⇒ remove + targeted DEREGISTER | shall | A | [GAP-06](#gap-06) | registry monitor plus originator (landed) | 06 §7 | TIM |
+ | REQ-NOT-005 | Milan §5.3.4.2 | Registry cleared by power cycle | shall | A | [GAP-09](#gap-09) | volatile policy | 07 §5 | NVM |
+ 
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 636b186..3fa6221 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -62,8 +62,18 @@ tally.
+   delay. Every changed refresh must emit exactly one byte-exact unsolicited
+   response carrying the new value; a solicited read must agree. An unchanged
+   refresh emits none, and neither the other sink nor any other descriptor may
+-  be notified. Distinct values, bit 31, zero and all ones exercise the full
+-  comparison width and sink selection. The processor's external ports are
++  be notified. The original distinct-value, zero and all-ones cases remain.
++  A walking one on the Advertise sink then a walking zero on the Failed sink
++  each cover all 32 bit positions (bit 0 is the least significant bit). Between
++  walking values the latch returns to zero or all ones, respectively, so each
++  of the 128 changed refreshes differs from its previous committed value in
++  exactly one bit. Every changed value, including each return, is repeated
++  unchanged. All 256 refreshes use the same response, solicited-read and
++  other-sink checks. Before each bit, discovery and an unchanged, response-graded
++  refresh of the other peer keep both streams live through the long sweep.
++  These 64 maintenance refreshes must also stay silent. The added checks have
++  a separate subtotal in the run log;
++  the original GI and suite checks are retained. The processor's external ports are
+   unchanged; the test wrapper exposes an existing output for the gather model.
+ 
+   Focused reproduction: `make -C tb/pp_top gsi-internal`. The normal suite
+@@ -81,6 +91,12 @@ tally.
+   | Mutation | Required failing check |
+   |---|---|
+   | Latency trigger disconnected from `stri_events` | `GI LATENCY-CHANGE: exactly one unsolicited response` |
++  | Latency comparison truncated to [7:0] | `GI LATENCY-WALK-ONE bit 8 step: exactly one unsolicited response` |
++  | Latency comparison truncated to [15:0] | `GI LATENCY-WALK-ONE bit 16 step: exactly one unsolicited response` |
++  | Latency comparison truncated to [31:16] | `GI LATENCY-WALK-ONE bit 0 step: exactly one unsolicited response` |
++  | Latency comparison truncated to [30:0] | `GI LATENCY-WALK-ONE bit 31 step: exactly one unsolicited response` |
++  | Latency comparison truncated to [31:30] | `GI LATENCY-WALK-ONE bit 0 step: exactly one unsolicited response` |
++  | Latency bit 31 dropped by masking both operands | `GI LATENCY-WALK-ONE bit 31 step: exactly one unsolicited response` |
+   | Failure code tied to zero | `GI FAILED-0 solicited: failure code` |
+   | Failure bridge tied to zero | `GI FAILED-0 solicited: full failure bridge` |
+   | pbsta tied to zero | `GI PASSIVE solicited: pbsta` |
+diff --git a/tb/pp_top/gsi_internal.hpp b/tb/pp_top/gsi_internal.hpp
+index e00a6b5..a1229b7 100644
+--- a/tb/pp_top/gsi_internal.hpp
++++ b/tb/pp_top/gsi_internal.hpp
+@@ -269,7 +269,7 @@ struct InternalStreamInfoPhase {
+   // Change only the latency bytes of a real Talker JoinIn refresh; grade
+   // every emitted response and the solicited read through the same gather.
+   void latency_refresh(unsigned sink, uint32_t latency, uint32_t other_latency,
+-                       bool changed) {
++                       bool changed, const char* step = "LATENCY-CHANGE") {
+     const unsigned other = sink ^ 1;
+     const uint8_t code = sink == 1 ? 11 : 0;
+     const uint64_t bridge = sink == 1 ? BRIDGE1 : 0;
+@@ -277,14 +277,14 @@ struct InternalStreamInfoPhase {
+     const auto uns = input_uns(sink, 100);
+     if (changed) {
+       CHECK(uns.size() == 1,
+-            "GI LATENCY-CHANGE: exactly one unsolicited response for sink %u, got %zu",
+-            sink, uns.size());
++            "GI %s: exactly one unsolicited response for sink %u, got %zu",
++            step, sink, uns.size());
+       const auto pushed = uns.empty() ? std::vector<uint8_t>{} : uns[0];
+-      check_frame(pushed, "LATENCY-CHANGE", sink, 3, 0, code, bridge,
++      check_frame(pushed, step, sink, 3, 0, code, bridge,
+                   true, true, false, latency);
+     } else {
+-      CHECK(uns.empty(), "GI LATENCY-SAME: unchanged refresh sends no response for sink %u",
+-            sink);
++      CHECK(uns.empty(), "GI LATENCY-SAME: unchanged refresh sends no response for sink %u (%s)",
++            sink, step);
+     }
+     check_frame(query(sink), "LATENCY-READ", sink, 3, 0, code, bridge,
+                 false, true, false, latency);
+@@ -296,6 +296,40 @@ struct InternalStreamInfoPhase {
+     CHECK(io.q_aecp.empty(), "GI LATENCY: no duplicate or unrelated response");
+   }
+ 
++  // Start and finish at the existing zero/all-ones latches. Returning to
++  // the baseline between walking values makes EACH transition differ in
++  // only the named bit, in both directions. Repeat every committed value.
++  void latency_walks() {
++    const int before_checks = h.checks;
++    const int before_fails = h.fails;
++    for (unsigned walk = 0; walk < 2; ++walk) {
++      const unsigned sink = walk;
++      const uint32_t baseline = walk == 0 ? 0u : UINT32_MAX;
++      const uint32_t other_latency = ~baseline;
++      for (unsigned bit = 0; bit < 32; ++bit) {
++        // Keep both real peers discovered and registered through the long
++        // sweep. This unchanged refresh is graded before the isolated step,
++        // so a registration event cannot substitute for its latency event.
++        discover(0);
++        discover(1);
++        latency_refresh(sink ^ 1, other_latency, baseline, false,
++                        "LATENCY-WALK-PEER-REFRESH");
++        const uint32_t value = baseline ^ (uint32_t{1} << bit);
++        for (unsigned returning = 0; returning < 2; ++returning) {
++          const uint32_t latency = returning ? baseline : value;
++          char step[80];
++          snprintf(step, sizeof(step), "LATENCY-WALK-%s bit %u %s",
++                   walk == 0 ? "ONE" : "ZERO", bit,
++                   returning ? "return" : "step");
++          latency_refresh(sink, latency, other_latency, true, step);
++          latency_refresh(sink, latency, other_latency, false, step);
++        }
++      }
++    }
++    printf("GI latency walks added: %d checks, %d failures\n",
++           h.checks - before_checks, h.fails - before_fails);
++  }
++
+   void latency_changes() {
+     io.gsi_fold_latency = true;
+     check_frame(query(0), "LATENCY-BEFORE", 0, 3, 0, 0, 0,
+@@ -308,6 +342,7 @@ struct InternalStreamInfoPhase {
+     latency_refresh(1, 0xABCDEF01, 0x81234567, false);
+     latency_refresh(0, 0, 0xABCDEF01, true);
+     latency_refresh(1, 0xFFFFFFFF, 0, true);
++    latency_walks();
+     io.gsi_fold_latency = false;
+   }
+ 
+diff --git a/tb/pp_top/gsi_mutants.py b/tb/pp_top/gsi_mutants.py
+index b072b41..a6704af 100644
+--- a/tb/pp_top/gsi_mutants.py
++++ b/tb/pp_top/gsi_mutants.py
+@@ -20,6 +20,21 @@ def mutations() -> list[tuple[str, str, str, str, int, str]]:
+         ("latency-trigger-removed", top,
+          " || srp_evt_tk_latency_chg_w[k]", "", 1,
+          "GI LATENCY-CHANGE: exactly one unsolicited response"),
++        *[("latency-cmp-" + name, srp,
++           "(lat_r[s] != evt_acc_latency_i)",
++           f"(lat_r[s][{bits}] != evt_acc_latency_i[{bits}])", 1,
++           f"GI LATENCY-WALK-ONE bit {missed} step: exactly one unsolicited response")
++          for name, bits, missed in (
++              ("low8", "7:0", 8),
++              ("low16", "15:0", 16),
++              ("high16", "31:16", 0),
++              ("low31", "30:0", 31),
++              ("high2", "31:30", 0),
++          )],
++        ("latency-cmp-bit31-dropped", srp,
++         "(lat_r[s] != evt_acc_latency_i)",
++         "((lat_r[s] & 32'h7fffffff) != (evt_acc_latency_i & 32'h7fffffff))", 1,
++         "GI LATENCY-WALK-ONE bit 31 step: exactly one unsolicited response"),
+         ("failure-code-zero", top,
+          "{gsi_data_i[63:16], gsi_fail_code_w, 8'd0}",
+          "{gsi_data_i[63:16], 8'd0, 8'd0}", 1,

@@ -1,0 +1,126 @@
+{
+  "gates": {
+    "focused-live-peers": 0,
+    "docs-final": 0,
+    "lint": 0,
+    "yosys": 0,
+    "suites": 0,
+    "nvm-figures": 0,
+    "mutants": 0,
+    "reviewer-r310": 0,
+    "reviewer-r311": 0,
+    "parent-cpp": 0,
+    "parent-python": 0,
+    "parent-xvlog": 0,
+    "parent-source-lists": 0,
+    "parent-pp-srcs": 0,
+    "parent-builder": 0,
+    "parent-consumer": 0
+  },
+  "original_suites": 33,
+  "original_checks": 1009045,
+  "added_checks": 5568,
+  "candidate_checks": 1014613,
+  "suite_counts": {
+    "acmp_listener": 2544,
+    "acmp_nvm": 349,
+    "acmp_talker": 839,
+    "adp_engine": 533,
+    "aecp_notify": 10,
+    "ca_originator": 16,
+    "desc_mem_guard": 78,
+    "desc_store": 584,
+    "dispatch": 211,
+    "dyn_state": 89,
+    "event_router": 81,
+    "lsn_admit": 18,
+    "maap": 75,
+    "nvm_port": 136,
+    "originator": 104,
+    "pp_top": 7642,
+    "prng": 76,
+    "release_merge": 18,
+    "resp_buf": 64,
+    "rx_slots": 130,
+    "rx_validator": 393,
+    "scoreboard": 3705,
+    "side_port": 368,
+    "srp_admission": 991231,
+    "srp_decoder": 190,
+    "srp_encoder": 556,
+    "srp_stream_fsms": 1087,
+    "srp_top": 1531,
+    "timer_map": 1360,
+    "timer_service": 48,
+    "tx_arbiter": 66,
+    "tx_slots": 95,
+    "ucpu": 386
+  },
+  "retained_mutants": 20,
+  "reviewer_truncations": [
+    {
+      "role": "r310",
+      "variant": "cmp-low3",
+      "build_rc": 0,
+      "run_rc": 1,
+      "named_check": "FAIL: GI LATENCY-WALK-ONE bit 3 step: exactly one unsolicited response for sink 0, got 0",
+      "named_failure_count": 116
+    },
+    {
+      "role": "r310",
+      "variant": "cmp-high2",
+      "build_rc": 0,
+      "run_rc": 1,
+      "named_check": "FAIL: GI LATENCY-WALK-ONE bit 0 step: exactly one unsolicited response for sink 0, got 0",
+      "named_failure_count": 120
+    },
+    {
+      "role": "r310",
+      "variant": "cmp-no-bit31",
+      "build_rc": 0,
+      "run_rc": 1,
+      "named_check": "FAIL: GI LATENCY-WALK-ONE bit 31 step: exactly one unsolicited response for sink 0, got 0",
+      "named_failure_count": 4
+    },
+    {
+      "role": "r310",
+      "variant": "cmp-low16",
+      "build_rc": 0,
+      "run_rc": 1,
+      "named_check": "FAIL: GI LATENCY-WALK-ONE bit 16 step: exactly one unsolicited response for sink 0, got 0",
+      "named_failure_count": 64
+    },
+    {
+      "role": "r311",
+      "variant": "r-cmp-low8",
+      "build_rc": 0,
+      "run_rc": 1,
+      "named_check": "FAIL: GI LATENCY-WALK-ONE bit 8 step: exactly one unsolicited response for sink 0, got 0",
+      "named_failure_count": 96
+    },
+    {
+      "role": "r311",
+      "variant": "r-cmp-low16",
+      "build_rc": 0,
+      "run_rc": 1,
+      "named_check": "FAIL: GI LATENCY-WALK-ONE bit 16 step: exactly one unsolicited response for sink 0, got 0",
+      "named_failure_count": 64
+    },
+    {
+      "role": "r311",
+      "variant": "r-cmp-high16",
+      "build_rc": 0,
+      "run_rc": 1,
+      "named_check": "FAIL: GI LATENCY-WALK-ONE bit 0 step: exactly one unsolicited response for sink 0, got 0",
+      "named_failure_count": 64
+    },
+    {
+      "role": "r311",
+      "variant": "r-cmp-no-bit31",
+      "build_rc": 0,
+      "run_rc": 1,
+      "named_check": "FAIL: GI LATENCY-WALK-ONE bit 31 step: exactly one unsolicited response for sink 0, got 0",
+      "named_failure_count": 4
+    }
+  ]
+}
