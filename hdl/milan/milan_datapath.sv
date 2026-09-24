@@ -6549,7 +6549,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! NO SHAPER READS THE SLOPE OR THE VERDICT HERE. The 802.1Qav chain is
   //! not in this wrapper (NO GENERAL-DATA TX CHAIN at the top of the file,
   //! HONEST BOUND at the CRF merge): no AAF or CRF frame is credit-shaped.
-  //! The admission outputs reach two readers, both status words:
+  //! The raw verdict and the slope sum reach one status word each:
   //! lwsrp_slope_en -> LWSRP_STATUS[9] and lwsrp_idle_slope -> LWSRP_SLOPE
   //! 0x698. No other logic reads either, and software sees them only
   //! through those two words.
