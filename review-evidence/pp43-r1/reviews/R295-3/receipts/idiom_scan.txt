@@ -1,0 +1,46 @@
+checker LONG_FUNCTION_LINES = 100
+== 939c143333d11e2378a514f1c7b6abd4c3259bfd (33 C/C++ files under tb/)
+  build without warnings         = 0
+  c-style cast                   = 0
+  file-scope mutable             = 0
+  goto                           = 0
+  long function                  = 0
+  macro constant                 = 0
+  multi-declarator declaration   = 0
+  naked new/delete               = 0
+  unbounded C call               = 0
+  unnamed enum block             = 0
+  tb/srp_stream_fsms/sim_main.cpp: 25 functions, max 85 lines
+    tb/srp_stream_fsms/sim_main.cpp:641 85 lines: void SrpStreamFsmsSuite::listener_matcher_registers_swaps_and_unregisters() {
+== a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72 (34 C/C++ files under tb/)
+  build without warnings         = 0
+  c-style cast                   = 0
+  file-scope mutable             = 0
+  goto                           = 0
+  long function                  = 1
+  macro constant                 = 0
+  multi-declarator declaration   = 0
+  naked new/delete               = 0
+  unbounded C call               = 0
+  unnamed enum block             = 0
+  LONG tb/srp_stream_fsms/sim_main.cpp:922 121 lines: void SrpStreamFsmsSuite::listener_failure_change_notifies_without_rede
+  tb/srp_stream_fsms/sim_main.cpp: 26 functions, max 121 lines
+    tb/srp_stream_fsms/sim_main.cpp:645 90 lines: void SrpStreamFsmsSuite::listener_matcher_registers_swaps_and_unregisters() {
+    tb/srp_stream_fsms/sim_main.cpp:922 121 lines: void SrpStreamFsmsSuite::listener_failure_change_notifies_without_redeclaring() {
+== a024ab51b926690be5ade8ec35ec1fa7dd23981b (34 C/C++ files under tb/)
+  build without warnings         = 0
+  c-style cast                   = 0
+  file-scope mutable             = 0
+  goto                           = 0
+  long function                  = 0
+  macro constant                 = 0
+  multi-declarator declaration   = 0
+  naked new/delete               = 0
+  unbounded C call               = 0
+  unnamed enum block             = 0
+  tb/srp_stream_fsms/sim_main.cpp: 28 functions, max 90 lines
+    tb/srp_stream_fsms/sim_main.cpp:647 90 lines: void SrpStreamFsmsSuite::listener_matcher_registers_swaps_and_unregisters() {
+    tb/srp_stream_fsms/sim_main.cpp:924 79 lines: void SrpStreamFsmsSuite::listener_failure_change_notifies_without_redeclaring() {
+    tb/srp_stream_fsms/sim_main.cpp:1004 20 lines: void SrpStreamFsmsSuite::listener_failure_change_compares_each_sink_with_its_own_latch() {
+    tb/srp_stream_fsms/sim_main.cpp:1025 24 lines: void SrpStreamFsmsSuite::listener_failure_change_notifies_registered_sinks_on_a_shared_str
+long-function sites present in some listed commit: yes

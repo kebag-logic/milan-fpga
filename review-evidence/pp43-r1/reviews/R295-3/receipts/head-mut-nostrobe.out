@@ -1,0 +1,7 @@
+FAIL: L2: a changed FailureInformation strobes the change once and nothing else (fchg 0, reg 0, unreg 0)
+FAIL: L3: a bridge-only change strobes the change
+FAIL: L3: a code-only change strobes the change
+FAIL: L6: a changed re-join in LV strobes the change, back IN, no REGISTERED (fchg 0, reg 0)
+FAIL: L8: sink 1 taking sink 0's values still strobes sink 1 only (fchg 0/0)
+FAIL: L9: a change on a shared stream strobes every registered sink once (fchg 0/0/0)
+1087 checks: 1081 PASS, 6 FAIL

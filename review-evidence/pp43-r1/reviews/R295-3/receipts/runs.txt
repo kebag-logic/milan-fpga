@@ -1,0 +1,15 @@
+Verilator 5.050 2026-07-01 rev v5.050
+anc-plain rc=0 1087 checks: 1087 PASS, 0 FAIL
+anc-trace rc=0 1087 checks: 1087 PASS, 0 FAIL
+anc-mut-sink0 rc=2 1087 checks: 1085 PASS, 2 FAIL
+anc-mut-nostrobe rc=2 1087 checks: 1081 PASS, 6 FAIL
+head-plain rc=0 1087 checks: 1087 PASS, 0 FAIL
+head-trace rc=0 1087 checks: 1087 PASS, 0 FAIL
+head-mut-sink0 rc=2 1087 checks: 1085 PASS, 2 FAIL
+head-mut-nostrobe rc=2 1087 checks: 1081 PASS, 6 FAIL
+head-fault-dropcall rc=0 1085 checks: 1085 PASS, 0 FAIL
+compare plain: IDENTICAL (1 lines)
+compare trace: IDENTICAL (1088 lines)
+compare mut-sink0: IDENTICAL (3 lines)
+compare mut-nostrobe: IDENTICAL (7 lines)
+trace checks at head: 1087, PASS 1087
