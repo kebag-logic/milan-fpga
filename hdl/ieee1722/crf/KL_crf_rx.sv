@@ -33,16 +33,16 @@
                             for 8 consecutive PDUs; drops after 100 ms
                             without an accepted PDU (mirrors the AAF
                             media-lock contract) or on a validation error.
-                  lock/unlock event counters: CLOCK_DOMAIN GET_COUNTERS
-                            LOCKED/UNLOCKED when clock_source = CRF.
+                  lock/unlock event counters: this Stream Input's Table
+                            5.6 MEDIA_LOCKED / MEDIA_UNLOCKED.
 
                 COUNTER SEMANTICS split per Milan v1.2 Table 5.6, exactly
                 (5.3.8.10 keeps the Stream Input counters "for each Stream
                 Input" with no CRF exemption, and 5.4.2.25 Table 5.16
                 makes ALL TEN mandatory "for each Stream Input" - so the
-                0x0F3F mask KL_aecp_response_builder serves for the CRF
-                Media Clock Input stays whole and every bit in it has to
-                be a MEASUREMENT, never a constant):
+                0x0F3F mask milan_datapath serves on GET_COUNTERS for the
+                CRF Media Clock Input (#529) stays whole and every bit in
+                it has to be a MEASUREMENT, never a constant):
 
                 * cnt_locked / cnt_unlocked / cnt_intr (STREAM_INTERRUPTED)
                   are EVENT counters ("incremented each time ...") - per
@@ -129,10 +129,9 @@
                 would strand the sink at UNLOCKED = LOCKED + 1, which is
                 neither of the two states the clause allows.
 
-                The stream to follow is selected by sid_i/en_i (CSR pair
-                today, the ACMP sink-1 SM once it exists - the remaining
-                CRF integration gaps are recorded in
-                docs/testing/MILAN_V12_AUDIT_2026-08-16.md B3 and B4).
+                The stream to follow is selected by sid_i/en_i: the
+                processor's ACMP bind of the CRF sink, ORed in
+                milan_datapath with the CSR pair as the bench lever.
 
   Spec refs   : Milan v1.2 7.3.2-7.3.4, 5.3.8.10 Table 5.6, 5.4.2.25
                 Table 5.16; IEEE 1722-2016 Clause 10 (10.4.3 mr, 10.4.5 tu,
@@ -189,7 +188,7 @@ module KL_crf_rx #(
 
   input  wire [63:0]  ptp_now_i,      //! gPTP-synced time (ns)
 
-  //! CRF sink selection (CSR-provisioned; ACMP sink-1 SM later)
+  //! CRF sink selection (the ACMP bind, or the CSR lever)
   input  wire         en_i,
   input  wire [63:0]  sid_i,
 
@@ -226,8 +225,8 @@ module KL_crf_rx #(
   output logic [31:0] late_cnt_o,
   output logic [31:0] early_cnt_o,
   output logic        locked_o,
-  output logic [31:0] cnt_locked_o,       //! lock events (CLOCK_DOMAIN ctr)
-  output logic [31:0] cnt_unlocked_o,     //! unlock events
+  output logic [31:0] cnt_locked_o,       //! lock events (MEDIA_LOCKED)
+  output logic [31:0] cnt_unlocked_o,     //! unlock events (MEDIA_UNLOCKED)
   output logic [31:0] cnt_intr_o,         //! STREAM_INTERRUPTED events
   //! one-cycle "a counter a controller should hear about moved" pulse -
   //! the Table 5.22 push source for the CRF Media Clock Input's

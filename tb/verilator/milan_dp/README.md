@@ -36,6 +36,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 
 - **[First AX7101 1x1 eight-channel run](#first-ax7101-1x1-eight-channel-run)** -- Run the focused datapath baseline and identify its coverage limits.
 - **[AX7101 1x1 eight-channel gPTP physical-rate run](#ax7101-1x1-eight-channel-gptp-physical-rate-run)** -- Run combined clocks, peer exchange, and diagnostic audio checks.
+- **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 decision; not in the default sweep until the datapath edit lands
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
 - **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
@@ -336,6 +337,66 @@ The historical `milan_dp` directory runs alone on hosted shard 4/5 (#444).
 The existing `gptp` compressed smoke remains separately counted.
 The option-OFF and fractional-audio legs retain their original models.
 
+## GM step re-base leg (#387)
+
+`make gmstep` builds `obj_gmstep` from `sim_gmstep.cpp` on the `gptp` leg's
+elaboration: the AX7101 1x1 TDM8 entity, fabric gPTP on, a 2 MHz fabric clock
+and an 8 ns PHC. It drives issue #387's acceptance 3: a grandmaster change
+that steps the PHC by 1.5 s while the AAF listener is bound and locked under
+CRF selection.
+
+| Phase | What it grades |
+|---|---|
+| Acquisition | Pdelay to asCapable, then GM A's Sync; the link-up pair steps once, above 20 us |
+| Media | SET_CLOCK_SOURCE to the CRF answers SUCCESS and the root resolves it; the CRF sink locks; the talker gate opens |
+| Baseline | every PDU push leaves the #386 target fill (setpoint 8 + one PDU = 14 events); the talker streams with `tu` clear |
+| GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear, with talker PDUs graded both inside the hold and after it; every talker PDU carries the verdict of its instant; the talker keeps its gate, sequence and rate, and no pause beyond four of its intervals up to the end of the window; the listener stays locked and its FRAMES_RX moves by the PDUs it accepted; one counted render re-base, no rail, every push on the target fill; one outgoing `mr` toggle; the talker's MEDIA_RESET counts one |
+
+**The counted event is the step's, not the commit's.** The render re-base
+must be counted at a PDU end within two AAF periods (500 cycles) after the
+plane's step pulse, and the first PDU carrying the new `mr` level must leave
+within two talker intervals of it. The talker's counters are read once more
+between the commit and the step, and MEDIA_RESET must not have moved there.
+A re-base keyed to the grandmaster identity change therefore fails; in this
+scenario the identity change lands about 160000 cycles before the step.
+
+**The render law is graded where the stage states it.** `KL_render_setpoint`
+judges its bands on the fill right after each PDU's push, TARGET_C =
+setpoint + one PDU. The leg reads that fill as the peak of the registered fill
+between two accepts: pops only lower it after the push, and the next PDU
+pushes only after its own accept. The fill at the accept is printed, not
+graded: it depends on how many media ticks fall between the last push and the
+accept, so it moves with the feed's start phase (9 or 10 events here).
+
+**Start phase.** The binary's optional second argument, `GMSTEP_FEED_DELAY`
+through `make`, idles that many fabric cycles before the peer's media feed
+starts. One media tick is 41.67 cycles at 2 MHz, so delays 0 to 41 cover every
+accept phase. With the #387 datapath edit the leg passes at all 42.
+
+**It is not in the default sweep yet.** At this revision the leg passes 44 of
+its 48 checks. The four it fails are decided behaviour the datapath does not
+implement yet: the render stage counts two re-bases, one on the grandmaster
+identity (outside the step's window) and one on the step, and the step neither
+toggles `mr` nor counts MEDIA_RESET. The datapath edit that closes them waits
+behind the lane holding `milan_datapath.sv`, and issue #387 records it. The
+leg joins `run` in the change that makes it pass, together with its
+negative-control runner.
+
+What the leg does not grade:
+
+- The grid aligner. The TDM clocks are held, so it stays disengaged. Whether it needs its own re-centre on a step is a question with the owner on #387.
+- The CRF servo. The MMCM DRP answers zero; its step guard gap is #539.
+- An lwSRP licence. The talker is opened by `AAF_CTRL[1]`; no SRP peer exists here.
+- A step that lands while an `mr` restart is pending. Ruling 5802264260 item 2 merges the two; its arm joins the datapath edit.
+- The step policy's thresholds. The donor's engine suite proves them; this leg only relies on them.
+- The physical re-base. The #117 bench measures it.
+
+The talker's cadence in this compressed model is not the product's, so its
+stream is graded against its own baseline rate.
+
+`CLKV_SRC`, like `RSP_SRC` and `DP_SRC`, rebuilds this leg against a mutated copy.
+Measured on 2026-09-24 with Verilator 5.050: 8.04 M cycles, about 40 s including the build.
+
 ## 2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it
 
 The entire legacy IEEE 1722.1 / SRP control plane is **deleted**:
@@ -498,6 +559,45 @@ The timed option-OFF leg keeps the scheduler timebase compressed for the
 30–60 s controller monitor. `[CTRS]`/`[CTRS-OUT]`/`[CTRS2]` still grade the
 served counter geometry and lossless descriptor arbiter; their gPTP writes
 specifically prove that ownerless state cannot create a hidden counter edge.
+
+**`[CTRS-CRF]` is the CRF Media Clock Input's row (#529).** The shape appends
+that Stream Input at index `N_STREAMS`, and its ten Milan Table 5.16 counters
+are `KL_crf_rx`'s. On every broad `sim_nxn` leg, before the 5.3.8.7 section
+binds the sink, the section reads `GET_COUNTERS(STREAM_INPUT, N_STREAMS)`
+through the processor. It checks the full SUCCESS response from reset (cdl 148,
+mask `0xF3F`, ten zeros, every unclaimed quadlet zero). It writes a distinct
+full-width signature into each root tally wire by name and reads each quadlet
+back, with `CRF_STATUS` as the second reader of three of them. That arm grades
+the gather mux only: it cannot see which `KL_crf_rx` output drives a wire. It
+proves that no AAF input carries a CRF quadlet or loses `0xFFF`, and that index
+`N_STREAMS + 1` is still NO_SUCH_DESCRIPTOR with the empty body. Raising the
+bench lever at `0x738` is the not-bound to bound edge. It must wipe the row and
+reach the descriptor arbiter as {STREAM_INPUT, `N_STREAMS`} alone. The harness
+records every tuple the arbiter hands over in that window, of any type and at
+any index, so another STREAM_INPUT row, a STREAM_OUTPUT row (the CRF output's
+at the same index included), AVB_INTERFACE 0, CLOCK_DOMAIN 0 or any other tuple
+there fails. Real PDUs of the followed stream then carry FRAMES_RX (interval
+law) and STREAM_INTERRUPTED (per-event law) from `0xFFFFFFFF` through zero.
+Last, in a fresh era and with no tally seeded, each of the ten is moved by its
+own engine event to a count no other tally shares. The events are rejected
+PDUs, sequence gaps of one and of two or more, two runs of eight clean PDUs
+that each lock, `mr` toggles, `tu` bits, timestamps in the past and beyond the
+early limit, and the engine's 100 ms silence timeout for the unlock. The
+harness advances that timeout counter to its last millisecond, which runs for
+real. This arm grades each `KL_crf_rx` output binding, not only the mux. The
+timed leg's `[NOTIFY-CRF]` raises the same edge with two controllers
+registered. The push must reach both controllers, each copy byte-identical from
+the body on to the solicited answer. A second edge inside the same processor
+second is withheld until the one-second limit releases it, and the next two
+seconds without a change bring no further push. Each of these wiring mutations
+turns at least one of those checks red: the row removed, two quadlets permuted,
+a 16-bit slice, a claimed tv pair, the dirty source removed, the CRF row
+answering for the AAF inputs, the AAF guard answering for the CRF input, one
+tally unwired, the row's pending bit never cleared, and the CRF pulse also
+raising the AAF inputs, STREAM_OUTPUT `N_STREAMS`, AVB_INTERFACE 0,
+CLOCK_DOMAIN 0 or a tuple at an undeclared index. Each of the 45 pairwise
+exchanges of the ten `KL_crf_rx` output bindings turns both of its quadlets red
+on `obj_nxn` and `obj_nxn8`.
 
 `sim_nxn.cpp`'s `[T66]` covers the other side of the same coin.
 `GET_AUDIO_MAP` succeeds on both Stream Port directions, and

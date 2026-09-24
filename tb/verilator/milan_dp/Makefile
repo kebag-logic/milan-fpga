@@ -85,16 +85,21 @@ DP_VFLAGS = $(GPTP_OFF_VFLAGS)
 # reopen without letting that selected Sync expire. Keep both overrides local
 # to obj_gptp; option OFF retains the broad-suite 4096-cycle shortcut.
 GPTP_MS_CYC = 100
+GPTP_QTICK_CYC = 131072
 GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
-                 -GCLKV_QTICK_CYC_P=131072 \
+                 -GCLKV_QTICK_CYC_P=$(GPTP_QTICK_CYC) \
                  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=$(GPTP_MS_CYC) \
-                 -CFLAGS "-DPP_MS_CYC_TB=$(GPTP_MS_CYC) -Wall -Wextra"
+                 -CFLAGS "-DPP_MS_CYC_TB=$(GPTP_MS_CYC) -DCLKV_QTICK_CYC_TB=$(GPTP_QTICK_CYC) -Wall -Wextra"
 
 # #386: the render setpoint stage and the datapath, overridable so the
 # render-law mutation arm (render_mutants.py) elaborates a MUTATED COPY of
 # either through this same recipe
 RSP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv
 DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
+# #387: the clock-validity block, overridable the same way so the gmstep
+# leg's negative controls elaborate a MUTATED copy through its recipe (their
+# runner joins the tree with the #387 datapath edit).
+CLKV_SRC ?= $(RTL_DIR)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv
 # #447: the TDM master render serializer, overridable the same way so
 # tdm8_render_mutants.py elaborates a MUTATED copy through this same recipe.
 TDMRM_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_tdm_render_master.sv
@@ -139,7 +144,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(AXIS_DIR)/arbiter.v $(AXIS_DIR)/priority_encoder.v \
        $(P)/timestamp_counter.sv $(P)/ptp_csr_sync.sv \
        $(C)/cdc_pulse.sv $(C)/cdc_handshake.sv \
-       $(P)/KL_ptp_clock_validity.sv \
+       $(CLKV_SRC) \
        $(RTL_DIR)/ieee8021q/filtering/tcam.sv $(RTL_DIR)/ieee8021q/filtering/rx_mac_filter.sv $(C)/tx_ifg_gasket.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_lpf.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
        $(C)/KL_link_guard.sv \
        $(RTL_DIR)/ieee17221/adp/adp_tx_arbiter.sv \
@@ -182,7 +187,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp option-off ax1x1 aclk aclk-build ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -266,6 +271,26 @@ gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
 	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptp
 	./obj_gptp/Vmilan_dp_gptp
+
+# issue #387 acceptance 3: the `gptp` leg's elaboration, driven through a
+# grandmaster change that steps the PHC by 1.5 s while the AAF listener is
+# bound and locked under CRF selection (sim_gmstep.cpp's banner has the
+# model). GMSTEP_MDIR is overridable so the leg's negative controls build
+# through this same recipe (their runner joins with the #387 datapath edit);
+# the AEM image is the shipping config's. GMSTEP_FEED_DELAY idles that many
+# fabric cycles before the peer's media feed starts, which moves the accept
+# phase against the media tick; the leg must pass at every delay.
+GMSTEP_MDIR ?= obj_gmstep
+GMSTEP_FEED_DELAY ?= 0
+gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o $(GMSTEP_MDIR)/aem-build
+	python3 ../../../avdecc/gen_aemi_image.py --overlay $(GMSTEP_MDIR)/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o $(GMSTEP_MDIR)/aemi.bin
+	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir $(GMSTEP_MDIR) \
+	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
+	  $(SRCS) sim_gmstep.cpp -o Vmilan_dp_gmstep
+
+gmstep: gmstep-build
+	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)
 
 # issue #358: THE SAME LEG WITH THE BOARD LATENCY CORRECTIONS ON. The `gptp`
 # target above leaves both constants at their zero defaults and therefore
@@ -468,4 +493,4 @@ print-dp-vflags:
 	@echo '$(GPTP_OFF_VFLAGS)'
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
