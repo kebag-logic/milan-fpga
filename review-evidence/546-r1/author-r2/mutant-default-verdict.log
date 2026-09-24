@@ -1,0 +1,17 @@
+$ env VERILATOR=$TOOLS/verilator-v5.050/bin/verilator make -C tb/verilator/crf_rx mutants
+make: Entering directory '$WORKTREE/tb/verilator/crf_rx'
+python3 mutants.py
+[PASS] clean: rc=0
+[PASS] tu_ignored: rc=1
+  named rejection: tu edge invalidates before the sampling edge
+[PASS] jump_removed: rc=1
+  named rejection: unmarked timestamp jump invalidates the rate
+[PASS] refill_short: rc=1
+  named rejection: all 255 crossing intervals are withheld
+[PASS] accept_edge_late: rc=1
+  named rejection: tu edge invalidates before the sampling edge
+[PASS] servo_clean: rc=0
+[PASS] servo_ignores_valid: rc=1
+  named rejection: [U13] invalid remote sample holds trim
+== crf_rx mutants: checks: 7   failures: 0 ==
+make: Leaving directory '$WORKTREE/tb/verilator/crf_rx'

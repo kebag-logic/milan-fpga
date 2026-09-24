@@ -1,0 +1,49 @@
+$ env VERILATOR=$TOOLS/verilator-v5.050/bin/verilator python3 $OUTPUT/run_review_probes.py
+Candidate 8f432ba77548d0e3ff6f93fb87dd0323ca356d6e
+probe_jitter.cpp 428d051e98b7c6c531972c06222422bffdbceab4e53404dcb4da14bccc3216fa
+probe_loop.cpp 7d051697c512429c0acdfb73039deaad187429d91cab6ee9be9113676250fd13
+run_probes.py e4aa82aa870415ba477a5022ad9f2bbbdce1e68c9b60f4721e03ad7412b9d98b
+OK  clean                    disc                   expect=PASS  got=PASS
+OK  clean                    talker                 expect=PASS  got=PASS
+OK  clean                    unit                   expect=PASS  got=PASS
+OK  clean                    jitter                 expect=PASS  got=PASS
+OK  clean                    loop:tu_only           expect=PASS  got=PASS
+OK  clean                    loop:step_inside_tu    expect=PASS  got=PASS
+OK  clean                    loop:step20us          expect=PASS  got=PASS
+OK  clean                    loop:local_first       expect=PASS  got=PASS
+OK  clean                    loop:repeated          expect=PASS  got=PASS
+OK  clean                    loop:quiet             expect=PASS  got=PASS
+OK  clean                    loop:talker_only_neg   expect=PASS  got=PASS
+OK  clean                    loop:talker_only_pos   expect=PASS  got=PASS
+OK  clean                    loop:lag_sweep         expect=PASS  got=PASS
+OK  clean                    loop:subthreshold      expect=INFO  got=FAIL
+OK  servo_ignores_valid      talker                 expect=INFO  got=FAIL
+OK  servo_ignores_valid      unit                   expect=FAIL  got=FAIL
+OK  servo_ignores_valid      loop:talker_only_neg   expect=INFO  got=PASS
+OK  rx_no_detection          talker                 expect=INFO  got=FAIL
+OK  rx_no_detection          disc                   expect=FAIL  got=FAIL
+OK  rx_no_detection          loop:talker_only_neg   expect=FAIL  got=FAIL
+OK  rx_no_detection          loop:talker_only_pos   expect=FAIL  got=FAIL
+OK  rx_no_detection          loop:lag_sweep         expect=FAIL  got=FAIL
+OK  jump_removed             talker                 expect=INFO  got=FAIL
+OK  jump_removed             disc                   expect=FAIL  got=FAIL
+OK  jump_removed             loop:talker_only_neg   expect=FAIL  got=FAIL
+OK  tu_ignored               talker                 expect=INFO  got=PASS
+OK  tu_ignored               disc                   expect=FAIL  got=FAIL
+OK  tu_ignored               loop:tu_only           expect=FAIL  got=FAIL
+OK  tu_ignored               loop:talker_only_pos   expect=INFO  got=PASS
+OK  seq_gap_removed          disc                   expect=FAIL  got=FAIL
+OK  silence_keeps_valid      disc                   expect=FAIL  got=FAIL
+OK  bind_keeps_valid         disc                   expect=FAIL  got=FAIL
+OK  stop_ungated             disc                   expect=FAIL  got=FAIL
+OK  refill_long              disc                   expect=FAIL  got=FAIL
+OK  break_keeps_valid        disc                   expect=FAIL  got=FAIL
+OK  pending_not_cancelled    disc                   expect=FAIL  got=FAIL
+OK  thr_doubled              disc                   expect=FAIL  got=FAIL
+OK  thr_halved               disc                   expect=FAIL  got=FAIL
+OK  thr_halved               jitter                 expect=FAIL  got=FAIL
+OK  spacing_32bit            disc                   expect=FAIL  got=FAIL
+OK  lower_bound_removed      disc                   expect=FAIL  got=FAIL
+OK  lower_bound_removed      talker                 expect=INFO  got=FAIL
+OK  lower_bound_removed      loop:talker_only_neg   expect=FAIL  got=FAIL
+campaign PASS

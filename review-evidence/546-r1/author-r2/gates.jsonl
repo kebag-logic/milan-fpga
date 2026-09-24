@@ -1,0 +1,30 @@
+{"name": "cpp-idiom", "command": ["python3", "scripts/check_cpp_idiom.py"], "rc": 0, "seconds": 1.17}
+{"name": "py-idiom", "command": ["python3", "scripts/check_py_idiom.py"], "rc": 0, "seconds": 3.28}
+{"name": "docs-git", "command": ["python3", "scripts/docs_check.py"], "rc": 0, "seconds": 4.22}
+{"name": "docs-no-git", "command": ["env", "GIT_DIR=/tmp/546-a271-no-git-metadata", "python3", "scripts/docs_check.py"], "rc": 0, "seconds": 4.02}
+{"name": "doc-style", "command": ["python3", "scripts/check_doc_style.py"], "rc": 0, "seconds": 0.07}
+{"name": "toc", "command": ["python3", "scripts/gen_toc.py", "--check"], "rc": 2, "seconds": 0.12}
+{"name": "doc-paths", "command": ["python3", "scripts/check_doc_paths.py"], "rc": 0, "seconds": 0.12}
+{"name": "module-matrix", "command": ["python3", "scripts/../docs/traceability/gen_module_matrix.py", "--check"], "rc": 0, "seconds": 0.97}
+{"name": "source-lists", "command": ["python3", "scripts/check_rtl_source_lists.py"], "rc": 0, "seconds": 1.32}
+{"name": "behave", "command": ["behave", "--no-capture", "-f", "plain"], "rc": 0, "seconds": 1.27}
+{"name": "toc-pinned", "command": ["$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3", "scripts/gen_toc.py", "--check"], "rc": 0, "seconds": 2.37}
+{"name": "receiver-mutants", "command": ["make", "-C", "tb/verilator/crf_rx", "mutants"], "rc": 0, "seconds": 92.76}
+{"name": "r302-probes", "command": ["env", "VERILATOR=$VALIDATION_TOOLS/verilator-v5.050/bin/verilator", "python3", "$MANAGEMENT/2026-09-23/546-a271/run_review_probes.py"], "rc": 1, "seconds": 0.06}
+{"name": "em-dash", "command": ["$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3", "scripts/check_em_dash.py", "--base", "57456af96b3127b9d309a995bbbd35a6113ce52d"], "rc": 0, "seconds": 4.64}
+{"name": "xvlog", "command": ["python3", "scripts/xvlog_gate.py", "--check"], "rc": 0, "seconds": 186.46}
+{"name": "rtl-comment-only", "command": ["python3", "-c", "import re, subprocess; paths=[\"hdl/ieee1722/crf/KL_crf_rx.sv\", \"hdl/ieee1722/crf/KL_mmcm_drp_servo.sv\"]; strip=lambda s: re.sub(r\"\\s+\", \"\", re.sub(r\"/\\*.*?\\*/|//[^\\n]*\", \"\", s, flags=re.S)); [(print(p, \"logic unchanged\"), None if strip(subprocess.check_output([\"git\",\"show\",\"39a0171c:\"+p],text=True)) == strip(open(p).read()) else exit(1)) for p in paths]"], "rc": 0, "seconds": 0.12}
+{"name": "py-idiom-final", "command": ["python3", "scripts/check_py_idiom.py"], "rc": 0, "seconds": 9.29}
+{"name": "mutant-default-verdict", "command": ["env", "VERILATOR=$VALIDATION_TOOLS/verilator-v5.050/bin/verilator", "make", "-C", "tb/verilator/crf_rx", "mutants"], "rc": 0, "seconds": 156.52}
+{"name": "r303-artifact", "command": ["python3", "$MANAGEMENT/2026-09-23/546-a271/run_artifact_probe.py"], "rc": 0, "seconds": 10.44}
+{"name": "mutant-sweep-reader", "command": ["python3", "scripts/suite_tally.py", "--verdict", "$MANAGEMENT/2026-09-23/546-a271/mutant-default-verdict.log"], "rc": 0, "seconds": 0.12}
+{"name": "talker-first", "command": ["make", "-C", "tb/verilator/crf_rx", "talker_step"], "rc": 0, "seconds": 604.75}
+{"name": "diff-check", "command": ["git", "diff", "--check", "39a0171c8c39e68065b14b9178b30d708a9f7645", "HEAD"], "rc": 0, "seconds": 0.02}
+{"name": "mmcm-servo", "command": ["env", "VERILATOR=$VALIDATION_TOOLS/verilator-v5.050/bin/verilator", "make", "-C", "tb/verilator/mmcm_servo"], "rc": 0, "seconds": 750.25}
+{"name": "docs-git-final", "command": ["python3", "scripts/docs_check.py"], "rc": 0, "seconds": 8.18}
+{"name": "docs-no-git-final", "command": ["env", "GIT_DIR=/tmp/546-a271-no-git-metadata", "python3", "scripts/docs_check.py"], "rc": 0, "seconds": 8.18}
+{"name": "crf-rx-default", "command": ["env", "VERILATOR=$VALIDATION_TOOLS/verilator-v5.050/bin/verilator", "PYTHONUNBUFFERED=1", "stdbuf", "-oL", "-eL", "make", "-C", "tb/verilator/crf_rx"], "rc": 0, "seconds": 784.52}
+{"name": "crf-default-sweep-reader", "command": ["python3", "scripts/suite_tally.py", "--verdict", "$MANAGEMENT/2026-09-23/546-a271/crf-rx-default.log"], "rc": 0, "seconds": 0.06}
+{"name": "r302-probes-rerun", "command": ["env", "VERILATOR=$VALIDATION_TOOLS/verilator-v5.050/bin/verilator", "python3", "$MANAGEMENT/2026-09-23/546-a271/run_review_probes.py"], "rc": 0, "seconds": 1426.12}
+{"name": "milan-dp", "command": ["make", "-C", "tb/verilator/milan_dp", "run", "VERILATOR_JOBS=4"], "rc": 0, "seconds": 1810.05}
+{"name": "r303-probes", "command": ["python3", "/tmp/546-a271-review-4gbqea6u/review-evidence/546-r1/reviews/R303-1/probes/mutant_probe.py", "$LANES/546-crf-talker-step", "/tmp/546-a271-review-4gbqea6u/r303-rerun", "$VALIDATION_TOOLS/verilator-v5.050/bin/verilator"], "rc": 0, "seconds": 2495.05}

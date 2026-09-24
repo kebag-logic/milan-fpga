@@ -1,0 +1,26 @@
+$ git rev-parse HEAD
+d04a61678c9fc710df9bc2cad5e1bcb9d8925ae1
+
+rc=0
+$ git branch --show-current
+546-crf-talker-step
+
+rc=0
+$ git status --porcelain=v1
+
+rc=0
+$ git diff --check
+
+rc=0
+$ git log -2 --format=%H%n%B
+d04a61678c9fc710df9bc2cad5e1bcb9d8925ae1
+test(crf): report mutation campaign verdicts to the suite gate
+
+8f432ba77548d0e3ff6f93fb87dd0323ca356d6e
+test(crf): expose talker steps at servo sample boundaries
+
+
+rc=0
+PR body format and privacy checks passed.
+
+Final verification: exact head and branch; clean worktree; diff check rc 0; one-line commit messages; PR body format/privacy pass; both campaigns rc 0; review scratch removed.

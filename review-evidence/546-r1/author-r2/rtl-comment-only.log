@@ -1,0 +1,3 @@
+$ python3 -c import re, subprocess; paths=["hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv"]; strip=lambda s: re.sub(r"\s+", "", re.sub(r"/\*.*?\*/|//[^\n]*", "", s, flags=re.S)); [(print(p, "logic unchanged"), None if strip(subprocess.check_output(["git","show","39a0171c:"+p],text=True)) == strip(open(p).read()) else exit(1)) for p in paths]
+hdl/ieee1722/crf/KL_crf_rx.sv logic unchanged
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv logic unchanged

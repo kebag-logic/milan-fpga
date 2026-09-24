@@ -1,0 +1,24 @@
+clean_disc: target=disc expect=clean rc=0 -> PASS
+clean_talker: target=talker expect=clean rc=0 -> PASS
+clean_probe: target=probe expect=clean rc=0 -> PASS
+C1_tu_ignored: target=talker expect=report rc=0 -> PASSES
+C2_jump_removed: target=talker expect=kill rc=2 -> KILLED
+C3_tu_and_jump_removed: target=talker expect=kill rc=2 -> KILLED
+C4_servo_ignores_valid: target=talker expect=kill rc=2 -> KILLED
+C5_rx_valid_forced: target=talker expect=kill rc=2 -> KILLED
+D1_seq_gap_ignored: target=disc expect=kill rc=2 -> KILLED
+D2_stop_gate_removed: target=disc expect=kill rc=2 -> KILLED
+D3_silence_keeps_valid: target=disc expect=kill rc=2 -> KILLED
+D4_bind_keeps_valid: target=disc expect=kill rc=2 -> KILLED
+D5_spacing_32bit: target=disc expect=kill rc=2 -> KILLED
+D6_pend_not_cancelled: target=disc expect=kill rc=2 -> KILLED
+D7_threshold_4096: target=disc expect=kill rc=2 -> KILLED
+D8_threshold_1024: target=disc expect=kill rc=2 -> KILLED
+D9_break_keeps_valid: target=disc expect=kill rc=2 -> KILLED
+D10_tu_rise_only: target=disc expect=kill rc=2 -> KILLED
+O0_clean: target=order expect=clean rc=0 -> PASS
+O1_tu_ignored: target=order expect=report rc=0 -> PASSES
+O2_jump_removed: target=order expect=kill rc=1 -> KILLED
+O3_tu_and_jump_removed: target=order expect=kill rc=1 -> KILLED
+O4_servo_ignores_valid: target=order expect=kill rc=1 -> KILLED
+campaign PASS
