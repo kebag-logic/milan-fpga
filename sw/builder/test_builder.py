@@ -8794,8 +8794,8 @@ def test_baremetal_profile_contract() -> None:
                 "cfg_ptp_tod_wr": 3,
                 "cfg_ptp_offset": 3,
                 #: settime strobe: declaration, CLKV observer port, milan_csr
-                #: port, ptp_sync port, plus the #386 render-setpoint recentre
-                #: OR term (a read-only consumer, pinned below; no driver).
+                #: port, ptp_sync port, plus the #387 media re-base OR term
+                #: (a read-only consumer, pinned below; no driver).
                 "cfg_ptp_cmd_load": 5,
                 "cfg_ptp_cmd_adjust": 4,
                 "cfg_ptp_cmd_snapshot": 3,
@@ -8806,8 +8806,12 @@ def test_baremetal_profile_contract() -> None:
                 "eff_ptp_adj_w": 2,
                 "eff_ptp_offset_w": 2,
                 #: effective adjtime strobe: initializer and ptp_sync port,
-                #: plus the same #386 render-setpoint recentre OR term.
+                #: plus the same #387 media re-base OR term.
                 "eff_ptp_adjust_w": 3,
+                #: #387: initializer plus exactly the render and restart
+                #: readers. The restart net reaches only its engine port.
+                "media_rebase_p_w": 3,
+                "mcr_restart_p_w": 2,
                 "gptp_adj_w": 4,
                 # The engine step strobe has its original declaration,
                 # effective-PHC mux, engine port, and option-off tieoff plus
@@ -8853,18 +8857,34 @@ def test_baremetal_profile_contract() -> None:
             "cfg_ptp_cmd_adjust",
             "effective PHC adjust strobe must select only gPTP or CSR "
             "control")
-        #: #386: the render stage's recentre pulse is the one consumer the two
-        #: census rows above admit beyond the PHC crossing; pin its exact
-        #: term set so the extra reference can only ever be this read. The
-        #: fourth term is the settled clock-source change (round 5), a
-        #: datapath-local pulse that reads no PHC net.
+        #: #387: media re-base is the one extra reader of the PHC strobes.
+        #: Pin it and both consumers so the census admits only these reads.
+        #: GM identity alone no longer re-centres the render stage; a step
+        #: does so once, alongside the settled clock-source change (#386).
+        direct_initializer(
+            datapath, r"wire[ \t]+media_rebase_p_w",
+            "media_rebase_p_w", "eff_ptp_adjust_w | cfg_ptp_cmd_load",
+            "media re-base pulse must read only adjtime and settime")
+        direct_initializer(
+            datapath, r"wire[ \t]+mcr_restart_p_w",
+            "mcr_restart_p_w",
+            "(crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) "
+            "| crf_mr_toggle_p_w)) | media_rebase_p_w",
+            "media restart pulse must read only selected CRF disruption "
+            "and the ungated media re-base")
+        restart_reason = (
+            "media restart engine must consume mcr_restart_p_w directly")
+        restart_ports = instance_ports(
+            datapath, "KL_media_clock_restart", "media_clock_restart",
+            restart_reason)
+        direct_port(restart_ports, "restart_p_i", "mcr_restart_p_w",
+                    restart_reason)
         direct_initializer(
             datapath, r"wire[ \t]+render_recentre_p_w",
             "render_recentre_p_w",
-            "gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load "
-            "| src_recentre_p_r",
-            "render recentre pulse must read only the GM-change, adjtime, "
-            "settime and settled clock-source discontinuities")
+            "media_rebase_p_w | src_recentre_p_r",
+            "render recentre pulse must read only the media re-base "
+            "and settled clock-source discontinuities")
         #: 915cbcc3 (PR #294 lane) removed the dead 802.1Q shaper and the
         #: ptp_ts record chain from milan_datapath: the ptp_ts_top
         #: "ptp_timestamp" instance this gate pinned is gone, and the PHC is
@@ -10285,15 +10305,57 @@ def test_baremetal_profile_contract() -> None:
         "  wand        cfg_ptp_enable;\n"
         "  and (cfg_ptp_enable, cfg_adp_enable, 1'b1);",
         "ADP-controlled second PHC-enable driver")
-    #: #386: an ADP term spliced into the render recentre read keeps every
-    #: PHC census count, so only the recentre pin can refuse it.
+    #: #387 keeps #386's ADP control on the decided render expression.
+    #: Adding an ADP or GM-identity term preserves every PHC census count,
+    #: so the exact recentre pin must refuse each.
     render_recentre_adp_term = replace_once(
         datapath_source,
-        "       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load\n"
+        "       media_rebase_p_w\n"
         "       | src_recentre_p_r;",
-        "       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load\n"
+        "       media_rebase_p_w\n"
         "       | src_recentre_p_r | cfg_adp_enable;",
         "ADP-controlled render recentre term")
+    render_recentre_gm_term = replace_once(
+        datapath_source,
+        "       media_rebase_p_w\n"
+        "       | src_recentre_p_r;",
+        "       gm_recentre_p_r | media_rebase_p_w\n"
+        "       | src_recentre_p_r;",
+        "GM identity restored as a render recentre term")
+    media_rebase_adp_term = replace_once(
+        datapath_source,
+        "wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;",
+        "wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load "
+        "| cfg_adp_enable;",
+        "ADP-controlled media re-base term")
+    mcr_restart_adp_term = replace_once(
+        datapath_source,
+        "                       | media_rebase_p_w;",
+        "                       | media_rebase_p_w | cfg_adp_enable;",
+        "ADP-controlled media restart term")
+    mcr_restart_port_gated = gate_instance_port(
+        datapath_source, "KL_media_clock_restart", "media_clock_restart",
+        "restart_p_i", "mcr_restart_p_w", "ADP-gated media restart port")
+    #: The raw crossing and both new media-path nets remain closed to
+    #: additional readers. These aliases are valid RTL, refused by census.
+    phc_crossing_extra_reader = replace_once(
+        datapath_source,
+        "  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;",
+        "  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;\n"
+        "  wire extra_phc_reader_w = phc_load_ts_w;",
+        "additional PHC crossing reader")
+    media_rebase_extra_reader = replace_once(
+        datapath_source,
+        "  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;",
+        "  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;\n"
+        "  wire extra_media_reader_w = media_rebase_p_w;",
+        "additional media re-base reader")
+    mcr_restart_extra_reader = replace_once(
+        datapath_source,
+        "                       | media_rebase_p_w;",
+        "                       | media_rebase_p_w;\n"
+        "  wire extra_restart_reader_w = mcr_restart_p_w;",
+        "additional media restart reader")
     phc_effective_adjust_gated_by_adp = replace_once(
         datapath_source,
         "                               ? unsigned'(gptp_adj_w)   : "
@@ -12556,9 +12618,39 @@ def test_baremetal_profile_contract() -> None:
          MutantFiles(datapath=phc_wand_second_driver)),
         ("ADP term spliced into the render recentre pulse", firmware_source,
          docs_source, csr_source,
-         "render recentre pulse must read only the GM-change, adjtime, "
-         "settime and settled clock-source discontinuities",
+         "render recentre pulse must read only the media re-base "
+         "and settled clock-source discontinuities",
          MutantFiles(datapath=render_recentre_adp_term)),
+        ("GM identity restored as a render recentre term", firmware_source,
+         docs_source, csr_source,
+         "render recentre pulse must read only the media re-base "
+         "and settled clock-source discontinuities",
+         MutantFiles(datapath=render_recentre_gm_term)),
+        ("ADP term spliced into the media re-base pulse", firmware_source,
+         docs_source, csr_source,
+         "media re-base pulse must read only adjtime and settime",
+         MutantFiles(datapath=media_rebase_adp_term)),
+        ("ADP term spliced into the media restart pulse", firmware_source,
+         docs_source, csr_source,
+         "media restart pulse must read only selected CRF disruption "
+         "and the ungated media re-base",
+         MutantFiles(datapath=mcr_restart_adp_term)),
+        ("media restart engine port gated by ADP", firmware_source,
+         docs_source, csr_source,
+         "media restart engine must consume mcr_restart_p_w directly",
+         MutantFiles(datapath=mcr_restart_port_gated)),
+        ("additional PHC crossing reader", firmware_source,
+         docs_source, csr_source,
+         "phc_load_ts_w must have exactly 4 live references, found 5",
+         MutantFiles(datapath=phc_crossing_extra_reader)),
+        ("additional media re-base reader", firmware_source,
+         docs_source, csr_source,
+         "media_rebase_p_w must have exactly 3 live references, found 4",
+         MutantFiles(datapath=media_rebase_extra_reader)),
+        ("additional media restart reader", firmware_source,
+         docs_source, csr_source,
+         "mcr_restart_p_w must have exactly 2 live references, found 3",
+         MutantFiles(datapath=mcr_restart_extra_reader)),
         #: 915cbcc3: the PHC consumer is the ptp_csr_sync crossing; the
         #: reasons follow the re-pointed pins.
         ("PHC crossing consumer gated by ADP", firmware_source,
@@ -13642,6 +13734,11 @@ def test_baremetal_profile_contract() -> None:
           "the ptp_csr_sync/ts_counter pair consumes that net with direct "
           "clocks, resets, PHC "
           "controls and readback; "
+          "the exact PHC-net census admits media_rebase_p_w as the shared "
+          "adjtime/settime read, feeding only render_recentre_p_w and "
+          "mcr_restart_p_w. Render combines it with the settled source "
+          "change, never GM identity; restart combines it ungated with "
+          "selected CRF disruption and feeds its engine port directly; "
           "external MAC RX "
           "traverses the pre-filter tap, both RXFILT_P arms and the "
           "fabric-gPTP "
