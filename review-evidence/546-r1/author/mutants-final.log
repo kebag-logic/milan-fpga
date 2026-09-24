@@ -1,0 +1,73 @@
+make: Entering directory '$LANES/546-crf-talker-step/tb/verilator/crf_rx'
+python3 mutants.py
+PASS clean: rc=0
+== crf_rx discontinuity: checks: 1658   failures: 0 ==
+PASS tu_ignored: rc=1
+  [FAIL] tu edge invalidates before the sampling edge
+  [FAIL] tu edge holds the published rate
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] tu edge invalidates before the sampling edge
+  [FAIL] tu edge holds the published rate
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] back-to-back marker cancels pending publication
+  [FAIL] back-to-back marker leaves invalid history
+  [FAIL] all 255 crossing intervals are withheld
+== crf_rx discontinuity: checks: 1658   failures: 9 ==
+PASS jump_removed: rc=1
+  [FAIL] unmarked timestamp jump invalidates the rate
+  [FAIL] unmarked timestamp jump cannot publish
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] unmarked timestamp jump invalidates the rate
+  [FAIL] unmarked timestamp jump cannot publish
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] unmarked timestamp jump invalidates the rate
+  [FAIL] unmarked timestamp jump cannot publish
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] unmarked timestamp jump invalidates the rate
+  [FAIL] unmarked timestamp jump cannot publish
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] unmarked timestamp jump invalidates the rate
+  [FAIL] unmarked timestamp jump cannot publish
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] unmarked timestamp jump invalidates the rate
+  [FAIL] unmarked timestamp jump cannot publish
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] unmarked timestamp jump invalidates the rate
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] unmarked timestamp jump invalidates the rate
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] unmarked timestamp jump invalidates the rate
+  [FAIL] unmarked timestamp jump cannot publish
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] unmarked timestamp jump invalidates the rate
+  [FAIL] unmarked timestamp jump cannot publish
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] 2049 ns boundary is rejected
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] 2049 ns boundary is rejected
+  [FAIL] all 255 crossing intervals are withheld
+== crf_rx discontinuity: checks: 1658   failures: 32 ==
+PASS refill_short: rc=1
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+  [FAIL] all 255 crossing intervals are withheld
+== crf_rx discontinuity: checks: 1658   failures: 17 ==
+PASS accept_edge_late: rc=1
+  [FAIL] tu edge invalidates before the sampling edge
+  [FAIL] tu edge invalidates before the sampling edge
+== crf_rx discontinuity: checks: 1658   failures: 2 ==
+make: Leaving directory '$LANES/546-crf-talker-step/tb/verilator/crf_rx'

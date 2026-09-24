@@ -1,0 +1,7 @@
+command	rc	log
+make -C tb/verilator/crf_rx	0	crf-rx-final.log
+make -C tb/verilator/crf_rx mutants	0	mutants-final.log
+make -C tb/verilator/mmcm_servo	0	mmcm-servo.log
+make -C tb/verilator/mmcm_servo_autorepair	0	mmcm-autorepair.log
+python3 servo-valid-mutant.py	0	servo-valid-mutant.log (mutant rc 1)
+make -C tb/verilator/milan_dp run VERILATOR_JOBS=4	0	milan-dp.log
