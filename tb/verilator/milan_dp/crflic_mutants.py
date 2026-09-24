@@ -136,6 +136,7 @@ def run_mutant(src: str, mutation: tuple[str, str, str, str], work: Path) -> boo
 def main() -> int:
     """Run the positive control and every mutant; 1 if any mutant survived."""
     def on_sigterm(*_: object) -> None:
+        """Exit on a kill so the temporary directory is removed."""
         sys.exit(143)
 
     signal.signal(signal.SIGTERM, on_sigterm)

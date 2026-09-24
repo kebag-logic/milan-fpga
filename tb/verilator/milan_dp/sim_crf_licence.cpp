@@ -125,6 +125,20 @@ struct StreamPdu {
     uint64_t da = 0;
 };
 
+//! One source's side of the two scripted peers, and what the DUT did to it.
+struct Peer {
+    bool listener_on = false;      // the listener wants the stream
+    bool listener_bound = false;
+    int probe_status = -1;         // last CONNECT_TX_RESPONSE status
+    int first_status = -1;
+    uint64_t last_probe = kNever;
+    long probes = 0;
+    int bridge_decl = 0;           // the switch's Listener declaration, 0 = none
+    uint64_t first_ready = kNever;
+    long dut_ta_leave = 0;
+    uint64_t ta_on_wire = kNever;
+};
+
 class CrfLicenceHarness {
  public:
     int run();
@@ -183,21 +197,12 @@ class CrfLicenceHarness {
 
     // ---- the scripted peers -------------------------------------------------
     std::multimap<uint64_t, std::function<void()>> sched;
-    bool listener_on[kSources] = {false, false};   // the listener wants the stream
-    bool listener_bound[kSources] = {false, false};
-    int probe_status[kSources] = {-1, -1};         // last CONNECT_TX_RESPONSE status
-    int first_status[kSources] = {-1, -1};
-    uint64_t last_probe[kSources] = {kNever, kNever};
-    long probes[kSources] = {0, 0};
-    int bridge_decl[kSources] = {0, 0};  // switch Listener declaration, 0 = none
-    uint64_t first_ready[kSources] = {kNever, kNever};
+    Peer peer[kSources];                           // per source uid
     uint64_t bridge_la_gen = 0;
     long bridge_la = 0;
     long dut_la = 0;
     long dut_la_not_all_types = 0;
     int dut_la_last_mask = 0;
-    long dut_ta_leave[kSources] = {0, 0};
-    uint64_t ta_on_wire[kSources] = {kNever, kNever};
     long timeline_lines = 0;
     long dut_malformed = 0;
     uint64_t maap_off = 0;
@@ -466,7 +471,7 @@ std::vector<uint8_t> CrfLicenceHarness::probe_tx(int uid) {
     put_be(f, 34, kTestEid, 8);                    // @20 talker_entity_id
     put_be(f, 42, 0x2222222222222222ull, 8);       // @28 listener_entity_id
     put_be(f, 50, static_cast<uint64_t>(uid), 2);  // @36 talker_unique_id
-    put_be(f, 62, static_cast<uint64_t>(probes[uid] + 1), 2);   // @48 sequence_id
+    put_be(f, 62, static_cast<uint64_t>(peer[uid].probes + 1), 2);   // @48 sequence_id
     return f;
 }
 
@@ -518,9 +523,9 @@ std::vector<uint8_t> CrfLicenceHarness::bridge_leave_all() {
     std::vector<uint8_t> p;
     int declared = -1;
     for (int s = 0; s < kSources; s++)
-        if (bridge_decl[s] != 0 && declared < 0) declared = s;
+        if (peer[s].bridge_decl != 0 && declared < 0) declared = s;
     const std::vector<uint8_t> lm = (declared >= 0)
-        ? listener_msg(sid_of(declared), 1, 3, bridge_decl[declared])
+        ? listener_msg(sid_of(declared), 1, 3, peer[declared].bridge_decl)
         : leave_all_only_msg(3, 8);
     p.insert(p.end(), lm.begin(), lm.end());
     const std::vector<uint8_t> dm = domain_msg(1, 3);
@@ -613,15 +618,15 @@ void CrfLicenceHarness::on_acmp(const std::vector<uint8_t>& f) {
     const uint64_t uid64 = get_be(f, 50, 2);
     if (uid64 >= kSources) return;
     const int uid = static_cast<int>(uid64);
-    probe_status[uid] = status;
-    if (first_status[uid] < 0) first_status[uid] = status;
+    peer[uid].probe_status = status;
+    if (peer[uid].first_status < 0) peer[uid].first_status = status;
     note("PROBE_TX answered, status", uid, status);
-    if (!listener_on[uid]) return;
-    if (status == 0 && !listener_bound[uid]) {
-        listener_bound[uid] = true;
-        at(cyc + ms(40), [this, uid] { if (listener_on[uid]) bridge_declare(uid, 0, 2); });
+    if (!peer[uid].listener_on) return;
+    if (status == 0 && !peer[uid].listener_bound) {
+        peer[uid].listener_bound = true;
+        at(cyc + ms(40), [this, uid] { if (peer[uid].listener_on) bridge_declare(uid, 0, 2); });
     } else if (status == 3) {
-        at(cyc + ms(4000), [this, uid] { if (listener_on[uid]) probe(uid); });
+        at(cyc + ms(4000), [this, uid] { if (peer[uid].listener_on) probe(uid); });
     }
 }
 
@@ -658,8 +663,8 @@ void CrfLicenceHarness::on_dut_leave_all(int mask) {
     note("DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1)", -1, mask);
     if (mask & 0x4) {
         for (int s = 0; s < kSources; s++)
-            if (bridge_decl[s] != 0)
-                at(cyc + ms(2), [this, s] { if (bridge_decl[s] != 0) bridge_declare(s, 1, bridge_decl[s]); });
+            if (peer[s].bridge_decl != 0)
+                at(cyc + ms(2), [this, s] { if (peer[s].bridge_decl != 0) bridge_declare(s, 1, peer[s].bridge_decl); });
     }
     if (mask & 0x8) at(cyc + ms(1), [this] { rx_q.push_back(msrp_frame(domain_msg(0, 1))); });
     const uint64_t gen = ++bridge_la_gen;
@@ -668,39 +673,39 @@ void CrfLicenceHarness::on_dut_leave_all(int mask) {
 
 void CrfLicenceHarness::on_dut_talker_event(int uid, int ev) {
     if (ev == 5) {
-        dut_ta_leave[uid]++;
+        peer[uid].dut_ta_leave++;
         note("DUT Talker Advertise LEAVE", uid, -1);
-        if (bridge_decl[uid] != 0) at(cyc + ms(2), [this, uid] { bridge_withdraw(uid); });
-        if (listener_on[uid]) {
-            listener_bound[uid] = false;
-            at(cyc + ms(500), [this, uid] { if (listener_on[uid]) probe(uid); });
+        if (peer[uid].bridge_decl != 0) at(cyc + ms(2), [this, uid] { bridge_withdraw(uid); });
+        if (peer[uid].listener_on) {
+            peer[uid].listener_bound = false;
+            at(cyc + ms(500), [this, uid] { if (peer[uid].listener_on) probe(uid); });
         }
-    } else if ((ev == 0 || ev == 1 || ev == 3) && ta_on_wire[uid] == kNever) {
-        ta_on_wire[uid] = cyc;
+    } else if ((ev == 0 || ev == 1 || ev == 3) && peer[uid].ta_on_wire == kNever) {
+        peer[uid].ta_on_wire = cyc;
         note("DUT Talker Advertise first on the wire", uid, ev);
     }
 }
 
 void CrfLicenceHarness::probe(int uid) {
     rx_q.push_back(probe_tx(uid));
-    probes[uid]++;
-    last_probe[uid] = cyc;
-    note("listener PROBE_TX", uid, probes[uid]);
+    peer[uid].probes++;
+    peer[uid].last_probe = cyc;
+    note("listener PROBE_TX", uid, peer[uid].probes);
 }
 
 void CrfLicenceHarness::bridge_declare(int uid, int ev, int decl) {
-    bridge_decl[uid] = decl;
+    peer[uid].bridge_decl = decl;
     rx_q.push_back(msrp_frame(listener_msg(sid_of(uid), 0, ev, decl)));
-    if ((decl == 2 || decl == 3) && first_ready[uid] == kNever) {
-        first_ready[uid] = cyc;
+    if ((decl == 2 || decl == 3) && peer[uid].first_ready == kNever) {
+        peer[uid].first_ready = cyc;
         note("switch declares the FIRST Listener Ready", uid, -1);
     }
 }
 
 void CrfLicenceHarness::bridge_withdraw(int uid) {
-    const int decl = (bridge_decl[uid] != 0) ? bridge_decl[uid] : 2;
+    const int decl = (peer[uid].bridge_decl != 0) ? peer[uid].bridge_decl : 2;
     rx_q.push_back(msrp_frame(listener_msg(sid_of(uid), 0, 5, decl)));
-    bridge_decl[uid] = 0;
+    peer[uid].bridge_decl = 0;
     note("switch withdraws its Listener (Lv)", uid, -1);
 }
 
@@ -804,18 +809,18 @@ uint64_t CrfLicenceHarness::phase_a() {
     printf("[A] the Run B opening: probe refused, MAAP grant, Talker Advertise "
            "declared and admitted, NO Listener Ready - nothing may be emitted\n");
     const uint64_t t0 = cyc;
-    listener_on[kUidCrf] = true;
-    listener_on[kUidAaf] = true;
+    peer[kUidCrf].listener_on = true;
+    peer[kUidAaf].listener_on = true;
     probe(kUidCrf);
     probe(kUidAaf);
     run_until(t0 + ms(3900));
     for (int s = 0; s < kSources; s++) {
         printf("  -- source uid %d (%s)\n", s, s == kUidCrf ? "CRF Media Clock Output" : "AAF");
-        ck("the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)", static_cast<uint64_t>(first_status[s]), 3);
+        ck("the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)", static_cast<uint64_t>(peer[s].first_status), 3);
         ck_true("...and MAAP's grant opens the DA gate after it", declaring[s].first_rise != kNever);
-        ck_true("the DUT declares Talker Advertise on the wire", ta_on_wire[s] != kNever);
+        ck_true("the DUT declares Talker Advertise on the wire", peer[s].ta_on_wire != kNever);
         ck("the processor's RAW admission verdict is up (the pre-#530 gate)", admitted[s].v, 1);
-        ck_true("...while no Listener Ready has been declared to the DUT", first_ready[s] == kNever);
+        ck_true("...while no Listener Ready has been declared to the DUT", peer[s].first_ready == kNever);
         ck("ACTIVE never rose", static_cast<uint64_t>(active[s].rises), 0);
     }
     ck("the CRF licence never opened (every cycle sampled)", static_cast<uint64_t>(licence.rises), 0);
@@ -842,11 +847,11 @@ void CrfLicenceHarness::phase_b(uint64_t t0) {
     run_until(t0 + ms(7000));
     for (int s = 0; s < kSources; s++) {
         printf("  -- source uid %d\n", s);
-        ck("the retried PROBE_TX is answered SUCCESS", static_cast<uint64_t>(probe_status[s]), 0);
-        ck_true("the switch's first Listener Ready reached the DUT", first_ready[s] != kNever);
+        ck("the retried PROBE_TX is answered SUCCESS", static_cast<uint64_t>(peer[s].probe_status), 0);
+        ck_true("the switch's first Listener Ready reached the DUT", peer[s].first_ready != kNever);
         ck_true("ACTIVE rose after it, within 50 ms", active[s].first_rise != kNever
-                && active[s].first_rise > first_ready[s]
-                && active[s].first_rise - first_ready[s] <= ms(50));
+                && active[s].first_rise > peer[s].first_ready
+                && active[s].first_rise - peer[s].first_ready <= ms(50));
     }
     ck("the CRF licence opened on the cycle ACTIVE[CRF] rose", licence.first_rise, active[kUidCrf].first_rise);
     ck("the AAF gate opened on the cycle ACTIVE[AAF] rose", aaf_gate.first_rise, active[kUidAaf].first_rise);
@@ -871,7 +876,7 @@ void CrfLicenceHarness::phase_b(uint64_t t0) {
 // ============================================================================
 void CrfLicenceHarness::phase_b2(uint64_t t0) {
     printf("[B2] the AAF listener unbinds; the switch withdraws that Listener\n");
-    listener_on[kUidAaf] = false;
+    peer[kUidAaf].listener_on = false;
     bridge_withdraw(kUidAaf);
     const uint64_t t_lv = cyc;
     run_until(t0 + ms(13500));
@@ -896,13 +901,13 @@ void CrfLicenceHarness::phase_c(uint64_t t0) {
     const long bla0 = bridge_la;
     run_until(t0 + ms(80000));
     ck("the DUT sent no Talker Advertise Leave for its bound CRF output",
-       static_cast<uint64_t>(dut_ta_leave[kUidCrf]), 0);
+       static_cast<uint64_t>(peer[kUidCrf].dut_ta_leave), 0);
     ck("ACTIVE[CRF] never fell", static_cast<uint64_t>(active[kUidCrf].falls), 0);
     ck("the CRF licence never fell", static_cast<uint64_t>(licence.falls), 0);
     ck("the CRF DA gate never closed", static_cast<uint64_t>(declaring[kUidCrf].falls), 0);
-    ck("the listener never had to re-probe (two probes in all)", static_cast<uint64_t>(probes[kUidCrf]), 2);
+    ck("the listener never had to re-probe (two probes in all)", static_cast<uint64_t>(peer[kUidCrf].probes), 2);
     ck_true("the registration alone held the DA gate for >= 45 s (probe window + 15 s closed)",
-            last_probe[kUidCrf] + ms(15000) + ms(45000) <= cyc);
+            peer[kUidCrf].last_probe + ms(15000) + ms(45000) <= cyc);
     printf("  [i]    %ld DUT and %ld switch LeaveAll MRPDUs in this phase\n", dut_la - la0, bridge_la - bla0);
     ck_true("the DUT sent >= 4 LeaveAll MRPDUs", dut_la - la0 >= 4);
     ck("every DUT LeaveAll flagged all four MSRP attribute types (802.1Q-2014 10.7.5.20)",
@@ -983,11 +988,11 @@ void CrfLicenceHarness::phase_d() {
 // ============================================================================
 void CrfLicenceHarness::phase_e() {
     printf("[E] the CRF listener unbinds inside a fresh probe window\n");
-    listener_on[kUidCrf] = false;
+    peer[kUidCrf].listener_on = false;
     bridge_withdraw(kUidCrf);
     const uint64_t t_lv = cyc;
     run_until(t_lv + ms(7000));
-    ck_true("the probe window is still open", last_probe[kUidCrf] + ms(15000) > cyc);
+    ck_true("the probe window is still open", peer[kUidCrf].last_probe + ms(15000) > cyc);
     ck_true("ACTIVE fell at the registrar's leave, after the Lv",
             !active[kUidCrf].v && active[kUidCrf].last_fall > t_lv);
     ck("the licence closed on that cycle", licence.last_fall, active[kUidCrf].last_fall);
