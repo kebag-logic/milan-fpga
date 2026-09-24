@@ -1,0 +1,22 @@
+HEAD 446e79b977640d13fa1e5dc0f9896d6c5a70391d
+=== sr_admitted / raw (admission) verdict in current Markdown (docs/history and findings excluded)
+HEAD:CHANGELOG.md:32:- Every talker gate read the processor's raw admission verdict.
+HEAD:CHANGELOG.md:38:- Only `LWSRP_STATUS[9]` and `LWSRP_SLOPE` keep the raw verdict.
+HEAD:docs/reference/EGRESS_QUEUE_MAP.md:68:shaper consumes a slope or an admission verdict on the wire. An admitted SRP
+HEAD:docs/reference/EGRESS_QUEUE_MAP.md:72:raw admission verdict, until #530, opening a source and accounting its slope
+HEAD:docs/reference/EGRESS_QUEUE_MAP.md:83:readers of the raw verdict and the sum, for those rounds
+HEAD:docs/reference/REGISTER_MAP.md:933:| `0x750` | `CRFT_CTRL` | RW | `0` | `[0]` CRF talker enable; `[1]` **class-A declare + tag** (Milan v1.2 7.3.3: "An AVB Class A Stream Reservation *shall* be used to transmit [the] CRF Media Clock Stream"): the fabric p
+HEAD:docs/reference/REGISTER_MAP.md:1111:processor's raw admission verdict and slope sum reach only `LWSRP_STATUS[9]` and
+HEAD:docs/reference/REGISTER_MAP.md:1137:is true since #530: until then it read the processor's raw admission verdict,
+HEAD:docs/reference/REGISTER_MAP.md:1151:| `0x694` | `LWSRP_STATUS` | RO | `0` | Mixed. 🟢 **LIVE, REPOINTED** from the processor's class-D face. **`[3:0]` describes ONE subject: the Listener attribute REGISTERED on talker SOURCE 0** (the processor's `lstn_reg_
+HEAD:docs/traceability/ieee8021q.md:54:  processor's Σ and raw admission verdict are read back as status only
+HEAD:docs/traceability/ieee8021q.md:89:| Q-9 | 34.3 | Bandwidth availability: SR classes limited to 75 % (deltaBandwidth defaults) | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → the fabric's stream gate through ACTIVE; status at `LWSRP_STATU
+HEAD:tb/verilator/milan_dp/README.md:356:   the processor's raw admission verdict, which the declaration alone raises,
+HEAD:tb/verilator/milan_dp/README.md:382:The licence, both sources' ACTIVE, raw verdict, DA gate and Talker
+HEAD:tb/verilator/milan_dp/README.md:400:| the licence mutants | `make crflic-mutants`: `crflic_mutants.py` plants each consumer back on the raw verdict (the whole gate, the CRF slot alone, AAF source 0 alone) | all three caught, each on its named check; the c
+=== shaper-budget, slope-mux and stale-Sigma wording in current Markdown and milan_datapath.sv
+HEAD:docs/ENDSTATION_BUILDER.md:1005:| 37 | `srp.class_queue` | `LWSRP_CTRL[4:2]` of the `0x680` reset word. Readback only: the classifier/queue/CBS chain is not instantiated since VERSION `0x0056` ([EGRESS_QUEUE_MAP.md](reference/EGRESS_QUEUE_MAP.md)), so no 
+HEAD:docs/reference/EGRESS_QUEUE_MAP.md:75:could transmit against an unbudgeted slope.
+HEAD:docs/reference/REGISTER_MAP.md:1122:words above. No slope mux exists, so `LWSRP_CTRL[4:2]` selects nothing and the
+HEAD:docs/reference/REGISTER_MAP.md:1146:| `0x680` | `LWSRP_CTRL` | RW | `0x10` | `[0]` engine enable, `[1]` talker declare, `[4:2]` class-A queue index, readback only: no slope mux or shaper is instantiated since VERSION `0x0056`, so it selects nothing (reset
+HEAD:docs/reference/REGISTER_MAP.md:1658:CBS slope mux disengages, so an admitted talker stream transmits UNPACED

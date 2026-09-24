@@ -1,0 +1,26 @@
+range c593cbeffaffa647cda70fb1a233455bf9c80d55..446e79b977640d13fa1e5dc0f9896d6c5a70391d  tree 9f1c9511ca70d889ea2eb2b0a9a3f06d3b29f7fb
+--- name-status
+M	CHANGELOG.md
+M	docs/reference/EGRESS_QUEUE_MAP.md
+M	docs/reference/FR_NFR.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/traceability/ieee8021q.md
+M	hdl/milan/milan_datapath.sv
+--- gitlinks at HEAD
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+--- gitlinks at c593cbef
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+--- changed files under tb/ tests/ scripts/ syn/ sw/ (Tests, Conformance and Robustness scope):
+0
+--- commits
+446e79b977640d13fa1e5dc0f9896d6c5a70391d Say in milan_datapath's SRP block that the raw verdict and the slope sum, not every admission output, reach one status word each
+1ac860255931bfd7784921d69bfc15e2652c871e Say in FR_NFR's FR-CONN-01/02 row that the CBS/classifier programming has no object in the shipped datapath
+a018575e11b14dd3860ed8915f2b2d52e1cfdffd Say in milan_datapath's CRF row-map note that the processor's Sigma, which no shaper reads, now counts the CRF slope, not the deleted bw-gate's
+c08d7c0977c76a7f21575c8d839f10f6d0978f80 Name ACTIVE as the stream gate in ieee8021q Q-9, FR_NFR and REGISTER_MAP, and scope the slope/gate ordering in EGRESS_QUEUE_MAP and ieee8021q to the uninstantiated shaper chain
+9f607f7db495de86a6f33e77fc4ee0f617e0befe State in milan_datapath's SRP block and the CHANGELOG that no shaper reads the raw verdict or the slope sum, and describe the ACTIVE opening-edge corner as status skew between LWSRP_STATUS[8] and [9]/0x698
+--- non-empty commit body lines (must be 0)
+0
