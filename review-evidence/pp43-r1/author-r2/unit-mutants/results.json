@@ -1,0 +1,85 @@
+[
+  {
+    "mutant": "srp-fchg-redeclares",
+    "suite": "srp_stream_fsms",
+    "rc": 2,
+    "tally": [
+      "1087 checks: 1079 PASS, 8 FAIL"
+    ],
+    "fails": [
+      "FAIL: L2: a changed FailureInformation strobes the change once and nothing else (fchg 1, reg 1, unreg 0)",
+      "FAIL: L2: no Listener New, no message at all, on the next tick (got 1)",
+      "FAIL: L3: a bridge-only change strobes the change",
+      "FAIL: L3: a code-only change strobes the change",
+      "FAIL: L4: ...and declares nothing",
+      "FAIL: L6: a changed re-join in LV strobes the change, back IN, no REGISTERED (fchg 1, reg 1)",
+      "FAIL: L6: the LeaveAll re-declaration carries no New",
+      "FAIL: L9: a change on a shared stream strobes every registered sink once (fchg 1/1/1)"
+    ]
+  },
+  {
+    "mutant": "srp-fchg-strobe-removed",
+    "suite": "srp_stream_fsms",
+    "rc": 2,
+    "tally": [
+      "1087 checks: 1081 PASS, 6 FAIL"
+    ],
+    "fails": [
+      "FAIL: L2: a changed FailureInformation strobes the change once and nothing else (fchg 0, reg 0, unreg 0)",
+      "FAIL: L3: a bridge-only change strobes the change",
+      "FAIL: L3: a code-only change strobes the change",
+      "FAIL: L6: a changed re-join in LV strobes the change, back IN, no REGISTERED (fchg 0, reg 0)",
+      "FAIL: L8: sink 1 taking sink 0's values still strobes sink 1 only (fchg 0/0)",
+      "FAIL: L9: a change on a shared stream strobes every registered sink once (fchg 0/0/0)"
+    ]
+  },
+  {
+    "mutant": "srp-fchg-compare-sink0",
+    "suite": "srp_stream_fsms",
+    "rc": 2,
+    "tally": [
+      "1087 checks: 1085 PASS, 2 FAIL"
+    ],
+    "fails": [
+      "FAIL: L8: sink 1's unchanged refresh is compared with sink 1's latch, not sink 0's (fchg 0/1)",
+      "FAIL: L9: unchanged on a shared stream: the late sink registers, the registered pair stays quiet (reg 1/0/0, fchg 0/1/1)"
+    ]
+  },
+  {
+    "mutant": "srp-fchg-any-hit",
+    "suite": "srp_stream_fsms",
+    "rc": 2,
+    "tally": [
+      "1087 checks: 1085 PASS, 2 FAIL"
+    ],
+    "fails": [
+      "FAIL: L1: a fresh Failed registration strobes REGISTERED, not the change (reg 1, fchg 1)",
+      "FAIL: L9: unchanged on a shared stream: the late sink registers, the registered pair stays quiet (reg 1/0/0, fchg 1/1/1)"
+    ]
+  },
+  {
+    "mutant": "srptop-fchg-redeclares",
+    "suite": "srp_top",
+    "rc": 2,
+    "tally": [
+      "259 checks: 256 PASS, 3 FAIL"
+    ],
+    "fails": [
+      "FAIL: D: a changed FailureInformation strobes the change only (fchg +1, reg +1)",
+      "FAIL: D: no Listener New on the wire after a changed FailureInformation",
+      "FAIL: D: an unchanged Failed refresh strobes nothing"
+    ]
+  },
+  {
+    "mutant": "lstn-rebind-excluded",
+    "suite": "acmp_listener",
+    "rc": 2,
+    "tally": [
+      "2544 checks: 2542 PASS, 2 FAIL"
+    ],
+    "fails": [
+      "FAIL: RV8b: ...and raised the started/stopped trigger exactly once (got 0)",
+      "FAIL: RV8d: ...one cycle after its record write, for that sink (pulse @-1 sink -1, write @43156 sink 2)"
+    ]
+  }
+]

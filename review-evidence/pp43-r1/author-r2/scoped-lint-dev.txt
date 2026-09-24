@@ -1,0 +1,5 @@
+protocol_processor_top -GN_STREAM_IN_P=1 -GN_STREAM_OUT_P=1 rc=0 findings=0
+protocol_processor_top -GN_STREAM_IN_P=8 -GN_STREAM_OUT_P=8 rc=0 findings=0
+KL_srp_listener_fsm -GN_SINKS_P=1 rc=0 findings=0
+KL_srp_top -GN_SINKS_P=1 -GN_SOURCES_P=1 rc=0 findings=0
+KL_pp_acmp_listener -GN_SINKS_P=1 rc=0 findings=0
