@@ -1,0 +1,45 @@
+8223a8224,8264
+> 
+> // ==== R281-1 reviewer probe (disposable scratch copy only) ================
+> #include <cstdlib>
+> #include <fstream>
+> #include <sstream>
+> #include <string>
+> struct R281Probe {
+>   H& h;
+>   void run() {
+>     const char* in = std::getenv("R281_CASES");
+>     const char* out = std::getenv("R281_OUT");
+>     CHECK(in && out, "R281: R281_CASES and R281_OUT must be set");
+>     if (!in || !out) return;
+>     std::ifstream fi(in);
+>     std::ofstream fo(out);
+>     std::string line;
+>     int n = 0;
+>     while (std::getline(fi, line)) {
+>       std::istringstream ls(line);
+>       std::string name, hex;
+>       if (!(ls >> name >> hex)) continue;
+>       std::vector<uint8_t> f;
+>       for (size_t i = 0; i + 1 < hex.size(); i += 2)
+>         f.push_back(static_cast<uint8_t>(std::stoul(hex.substr(i, 2), nullptr, 16)));
+>       h.q_aecp.clear();
+>       h.feed(f);
+>       auto got = h.wait_any(h.q_aecp, 200);
+>       fo << name << ' ';
+>       if (got.empty()) {
+>         fo << "NONE";
+>       } else {
+>         static const char* d = "0123456789abcdef";
+>         for (uint8_t b : got) fo << d[b >> 4] << d[b & 15];
+>       }
+>       fo << '\n';
+>       ++n;
+>     }
+>     printf("R281 probe: %d cases answered into %s\n", n, out);
+>   }
+> };
+> 
+8255a8297,8298
+>     R281Probe{h}.run();
+>     return;

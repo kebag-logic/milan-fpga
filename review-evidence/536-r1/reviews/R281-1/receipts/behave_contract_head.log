@@ -1,0 +1,391 @@
+USING RUNNER: behave.runner:Runner
+Feature: the AECP answer contract - served commands, fallback, and two silent cases
+  Background: 
+
+  Scenario Outline: an unimplemented AEM command is echoed, not dropped -- @1.1 opcodes with no command behind them at all
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 104 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 104 with u clear ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario Outline: an unimplemented AEM command is echoed, not dropped -- @1.2 opcodes with no command behind them at all
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 16383 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 16383 with u clear ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario: an ADDRESS_ACCESS command is answered as an ADDRESS_ACCESS response
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an ADDRESS_ACCESS command to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 3 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 22 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @1.1 SHALL, served
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends Milan MVU command_type 0x0000 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 0 ... passed in 0.000s
+    And the Milan protocol_id comes back whole in the AECP response ... passed in 0.000s
+    And the AECP response carries the Figure 5.4 body ... passed in 0.000s
+    And the AECP response control_data_length is 32 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.1 RECOMMENDED by the #510 decision, not implemented, echoed
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends Milan MVU command_type 0x0001 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the Milan protocol_id comes back whole in the AECP response ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.2 RECOMMENDED by the #510 decision, not implemented, echoed
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends Milan MVU command_type 0x0002 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the Milan protocol_id comes back whole in the AECP response ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.3 RECOMMENDED by the #510 decision, not implemented, echoed
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends Milan MVU command_type 0x0003 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the Milan protocol_id comes back whole in the AECP response ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.4 RECOMMENDED by the #510 decision, not implemented, echoed
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends Milan MVU command_type 0x0004 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the Milan protocol_id comes back whole in the AECP response ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario: GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends Milan MVU command_type 0x0000 to the AECP engine ... passed in 0.000s
+    Then the GET_MILAN_INFO protocol_version is 1 ... passed in 0.000s
+    And the GET_MILAN_INFO features_flags is 0x00000000 ... passed in 0.000s
+    And the GET_MILAN_INFO certification_version is 0x00000000 ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.1 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-C1-01, word @28 0x0000, reserved 0x0000 and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.2 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-C1-00, word @28 0x8000, reserved 0x0000 and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.3 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-C1-00, word @28 0x0000, reserved 0x0000 and control_data_length 19 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 19 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.1 the one field the receiver ignores
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-C1-00, word @28 0x0000, reserved 0xDEAD and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 0 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the Figure 5.4 body ... passed in 0.000s
+    And the AECP response control_data_length is 32 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario: the served MVU command types are the ones the engine RTL decodes
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    Then the served MVU inventory matches the MVU command types the engine RTL decodes ... passed in 0.001s
+
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @1.1 the AEM opcodes the dispatch names
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts 0x0004 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @1.2 the AEM opcodes the dispatch names
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts 0x0026 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @1.3 the AEM opcodes the dispatch names
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts 0x0029 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @1.4 the AEM opcodes the dispatch names
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts 0x002B to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @2.1 OUIs with bit 15 set, which the u-bit mask used to eat
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts 0x8004 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @2.2 OUIs with bit 15 set, which the u-bit mask used to eat
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts 0xFC1B to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.1 the residual bucket
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a message_type 4 command whose word at 22 is 0x0004 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.2 the residual bucket
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a message_type 4 command whose word at 22 is 0x0014 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.3 the residual bucket
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a message_type 8 command whose word at 22 is 0x0004 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.4 the residual bucket
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a message_type 10 command whose word at 22 is 0x0006 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.5 the residual bucket
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a message_type 12 command whose word at 22 is 0x0016 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.6 the residual bucket
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a message_type 14 command whose word at 22 is 0x0018 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario: IDENTIFY_NOTIFICATION arriving as a command is BAD_ARGUMENTS
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 38 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 7 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 38 with u clear ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @1.1 Milan 5.4.2.19/5.4.2.20 - a Stream Output is refused by name
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 34 naming descriptor type 6 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 34 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @1.2 Milan 5.4.2.19/5.4.2.20 - a Stream Output is refused by name
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 35 naming descriptor type 6 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 35 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @2.1 every other descriptor type takes the same refusal
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 34 naming descriptor type 0 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 34 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @2.2 every other descriptor type takes the same refusal
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 35 naming descriptor type 0 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 35 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @2.3 every other descriptor type takes the same refusal
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 34 naming descriptor type 26 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 34 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @2.4 every other descriptor type takes the same refusal
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 35 naming descriptor type 26 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 35 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a Stream Input is served -- @1.1 Milan 5.4.2.19/5.4.2.20 - "for each Stream Input"
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 34 naming descriptor type 5 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 34 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a Stream Input is served -- @1.2 Milan 5.4.2.19/5.4.2.20 - "for each Stream Input"
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 35 naming descriptor type 5 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 35 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario: the whole AEM opcode space answers, and the verdicts partition it
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sweeps AEM opcodes 0 to 104 plus 16383 ... passed in 0.001s
+    Then every swept opcode was answered and none was met with silence ... passed in 0.000s
+    And every swept answer is well formed against its command ... passed in 0.000s
+    And the swept opcodes partition into the served set and the NOT_IMPLEMENTED remainder ... passed in 0.000s
+    And the served inventory matches the opcodes the engine RTL decodes ... passed in 0.000s
+    And every swept answer carries the command payload verbatim except the served set ... passed in 0.000s
+
+  Scenario: a command addressed to another entity gets no frame back
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When a command for entity 0x001B92FFFE00DEAD reaches the AECP engine ... passed in 0.000s
+    Then the AECP engine emits no frame at all ... passed in 0.000s
+    And the AECP engine counted a drop and no command ... passed in 0.000s
+
+  Scenario: an entity_id one bit away from ours is still not ours
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When a command for entity 0x001B92FFFE001123 reaches the AECP engine ... passed in 0.000s
+    Then the AECP engine emits no frame at all ... passed in 0.000s
+    And the AECP engine counted a drop and no command ... passed in 0.000s
+
+  Scenario Outline: an AECP response arriving as input is never answered -- @1.1 every odd message_type is a response, and answering one builds a storm
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When an AECP AEM response arrives at the AECP engine as input ... passed in 0.000s
+    Then the AECP engine emits no frame at all ... passed in 0.000s
+    And the AECP engine counted a drop and no command ... passed in 0.000s
+
+  Scenario Outline: an AECP response arriving as input is never answered -- @1.2 every odd message_type is a response, and answering one builds a storm
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When an AECP ADDRESS_ACCESS response arrives at the AECP engine as input ... passed in 0.000s
+    Then the AECP engine emits no frame at all ... passed in 0.000s
+    And the AECP engine counted a drop and no command ... passed in 0.000s
+
+  Scenario Outline: an AECP response arriving as input is never answered -- @1.3 every odd message_type is a response, and answering one builds a storm
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When an AECP VENDOR_UNIQUE response arrives at the AECP engine as input ... passed in 0.000s
+    Then the AECP engine emits no frame at all ... passed in 0.000s
+    And the AECP engine counted a drop and no command ... passed in 0.000s
+
+  Scenario: Milan Delta 7 ACQUIRE_ENTITY returns NOT_SUPPORTED with no owner
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends ACQUIRE_ENTITY to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response owner_id is zero, not the acquiring controller ... passed in 0.000s
+
+1 feature passed, 0 failed, 0 skipped
+42 scenarios passed, 0 failed, 0 skipped
+299 steps passed, 0 failed, 0 skipped
+Took 0min 0.017s
