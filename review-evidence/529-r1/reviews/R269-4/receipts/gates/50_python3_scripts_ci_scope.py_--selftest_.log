@@ -1,0 +1,85 @@
+$ python3 scripts/ci_scope.py --selftest
+  ok   ['docs/testing/CI_WORKFLOWS.md']: rtl=False
+  ok   ['README.md', 'AGENTS.md']: rtl=False
+  ok   ['LICENSES/CERN-OHL-W-2.0.txt']: rtl=False
+  ok   ['docs/diagrams/x.drawio', 'docs/diagrams/x.svg', 'docs/diagrams/x.png']: rtl=False
+  ok   ['hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+  ok   ['hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md']: rtl=True
+  ok   ['docs/reference/REGISTER_MAP.md']: rtl=True
+  ok   ['docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+  ok   ['docs/reference/TRACE_EVENTS.md']: rtl=True
+  ok   ['docs/traceability/gen_module_matrix.py']: rtl=True
+  ok   ['docs/diagrams/PNG_MANIFEST.json']: rtl=True
+  ok   ['docs/traceability/untested.budget']: rtl=True
+  ok   ['docs/notes.txt']: rtl=True
+  ok   ['tb/verilator/milan_dp/README.md']: rtl=True
+  ok   ['hdl/ieee1722/aaf/doc/x.svg']: rtl=True
+  ok   ['cdc_census.drawio']: rtl=True
+  ok   ['cdc_census.svg']: rtl=True
+  ok   ['docs/x.md', 'hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+  ok   ['docs/testing/MILAN_V12_AUDIT_2026-10-01.md', 'docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+  ok   ['docs/design/KL_pp_shadow.md', 'hdl/milan/KL_pp_shadow.sv']: rtl=True
+  ok   ['hdl/milan/KL_pp_shadow.sv']: rtl=True
+  ok   ['.github/ISSUE_TEMPLATE/task.yml']: rtl=True
+  ok   ['LICENSE']: rtl=True
+  ok   ['notes.rst']: rtl=True
+  ok   ['docs/x.md', 'hdl/ieee1722/aaf/doc/x.svg.in']: rtl=True
+  ok   ['requirements.txt']: rtl=True
+  ok   ['hdl/milan/milan_datapath.sv']: rtl=True
+  ok   ['scripts/lint_rtl.py']: rtl=True
+  ok   ['.github/workflows/rtl.yml']: rtl=True
+  ok   ['docs/x.md', 'tb/verilator/cdc/Makefile']: rtl=True
+  ok   []: rtl=True
+  ok   ['gptp-processor']: rtl=True
+  ok   ['protocol-processor']: rtl=True
+  ok   ['external']: rtl=True
+  ok   ['third_party/verilog-axis']: rtl=True
+  ok   ['.gitmodules']: rtl=True
+  ok   ['docs/x.md', 'gptp-processor']: rtl=True
+  ok   submodule rule names protocol-processor
+  ok   submodule rule names gptp-processor
+  ok   submodule rule names external
+  ok   submodule rule names third_party/verilog-axis
+  ok   submodule rule names .gitmodules
+  ok   gate-read page docs/reference/REGISTER_MAP.md (named at tests/steps/counters_contract_steps.py:38) is relevant
+  ok   gate-read page docs/reference/TRACE_EVENTS.md (named at sw/trace/gen_trace_events.py:28) is relevant
+  ok   gate-read page docs/testing/MILAN_V12_AUDIT_2026-08-16.md (named at tests/steps/milan_streaming_licence_steps.py:27) is relevant
+  ok   a new reader spelt as a whole path literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a pathlib join of literals names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as os.path.join of its pieces names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a docs directory constant joined later names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as an f-string over a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as an f-string over a literal directory names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a relative literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a join wrapped over two lines names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a bare file name handed to a helper names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a top-level page as a whole literal names ['QUICKSTART.md']
+  ok   a new reader spelt as a recipe reading it through a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a recipe reading its whole path names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a shell line reading it names ['docs/reference/EGRESS_QUEUE_MAP.md']
+  ok   a new reader spelt as a comment naming it names nothing
+  ok   a new reader spelt as a message naming it names nothing
+  ok   a new reader spelt as a reader docs-check runs too names nothing
+  ok   mutation: gptp-processor filed as docs-only is rejected
+  ok   mutation: protocol-processor filed as docs-only is rejected
+  ok   mutation: external filed as docs-only is rejected
+  ok   mutation: third_party/verilog-axis filed as docs-only is rejected
+  ok   mutation: .gitmodules filed as docs-only is rejected
+  ok   mutation: .github/ISSUE_TEMPLATE/ filed as docs-only is rejected
+  ok   mutation: LICENSE filed as docs-only is rejected
+  ok   mutation: .rst filed as docs-only is rejected
+  ok   mutation: docs/ filed as docs-only is rejected
+  ok   mutation: hdl/ieee1722/avtp/doc/ filed as docs-only is rejected
+  ok   mutation: hdl/ieee8021as/gptp_plane/doc/ filed as docs-only is rejected
+  ok   mutation: tb/ filed as docs-only is rejected
+  ok   mutation: .py filed as docs-only is rejected
+  ok   mutation: .json filed as docs-only is rejected
+  ok   mutation: .svg filed as docs-only is rejected
+  ok   mutation: gate-read docs/reference/REGISTER_MAP.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/REGISTER_MAP.md once the table drops it
+  ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+exit=0

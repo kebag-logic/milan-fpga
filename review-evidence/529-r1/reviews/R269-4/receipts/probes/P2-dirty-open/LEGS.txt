@@ -1,0 +1,7 @@
+suite <packet>/scratch/probe/tb/verilator/milan_dp
+milan_datapath.sv sha256 2c8951f1fe42a7b7f7273f75e593fb69eaf0577d29314ba8126f4e948a1f4261; sim_nxn.cpp sha256 46cc9b158dfe26c7acedb5084a03932ebba17d5fed43ee70f04df755701a14b1; sim_main.cpp sha256 7cee727280ba521991354fb96c97e58ec3da84662c9c23d5be66d9a0406e10ee
+verilator Verilator 5.050 2026-07-01 rev v5.050
+legs obj_nxn,obj_notify
+leg              build    build_s    run      run_s      tally
+obj_nxn          0        21         1        6          checks 1708 failures 1; RESULT FAIL
+obj_notify       0        18         1        18         checks 146 failures 11; RESULT FAIL

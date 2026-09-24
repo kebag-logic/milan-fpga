@@ -1,0 +1,13 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/P2-dirty-open.sv
+@@ -5497,8 +5497,9 @@
+     //! ...and that row's Table 5.22 source: the descriptor arbiter in front
+     //! of KL_pp_shadow delivers it as {STREAM_INPUT, N_STREAMS} to the
+     //! processor's rate-limited counter-change scheduler
+-    .dirty_p_o      (crf_dirty_p_w)
++    .dirty_p_o      ()
+   );
++  assign crf_dirty_p_w = 1'b0;  // probe P2
+ 
+   // ==========================================================================
+   //  CRF media-clock recovery ACTUATOR (Milan 7.3.4): the audio-MMCM servo.

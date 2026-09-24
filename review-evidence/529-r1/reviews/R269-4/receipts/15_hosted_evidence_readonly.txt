@@ -1,0 +1,105 @@
+## check runs on PR head 31e62ffead16e43d648993278b0ab9190d99b672 (name, status, conclusion)
+bdd-conformance	completed	success
+changes	completed	success
+docs-check	completed	success
+docs-check-no-git	completed	success
+elaborate	completed	success
+full-ci-gate	completed	success
+Physical gPTP (nightly and manual)	completed	skipped
+rtl-fast	completed	success
+verilator-lint	completed	success
+Verilator shard 0/5	completed	success
+Verilator shard 1/5	completed	success
+Verilator shard 2/5	completed	success
+Verilator shard 3/5	completed	success
+Verilator shard 4/5	completed	success
+verilator-suites	completed	success
+wire-accountability	completed	success
+yosys-elaboration	completed	success
+yosys-portability	completed	success
+Yosys shard 0/4	completed	success
+Yosys shard 1/4	completed	success
+Yosys shard 2/4	completed	success
+Yosys shard 3/4	completed	success
+
+## GitHub test merge 6d22951890a2b8b906fefe0e80c6a047df9313fa
+tree bc40b183a9c999cbd3369c29ad7f7e3ff0dd64af
+parents 26d855a9176d63625e6635a029a0c44e3d57ce9a 31e62ffead16e43d648993278b0ab9190d99b672
+date 2026-09-23T23:53:20Z
+message Merge 31e62ffead16e43d648993278b0ab9190d99b672 into 26d855a9176d63625e6635a029a0c44e3d57ce9a
+
+## job 107432501807: Verilator shard 0/5 (success)
+HEAD is now at 6d22951
+PASS     aaf_latency_tap_bank
+PASS     avtp_stream
+PASS     cls
+PASS     eth_tx_reset
+PASS     gptp_txts
+PASS     i2spb
+PASS     ifg
+PASS     milan_dp_render
+PASS     ptp
+PASS     queues
+PASS     rx_filter
+## job 107432501828: Verilator shard 1/5 (success)
+HEAD is now at 6d22951
+PASS     aaf_latency_taps
+PASS     avtp_rxmon
+PASS     cbs
+PASS     cdc
+PASS     clkvalid
+PASS     controller_rate
+PASS     crf_rx
+PASS     datapath
+PASS     gptp_plane
+PASS     gptp_shadow
+PASS     lat_history_ring
+PASS     maap
+PASS     mac_rmon
+PASS     media_nco
+PASS     mmcm_servo_autorepair
+PASS     nvm_cosim
+PASS     pair_fill
+PASS     pcmlpf
+PASS     pp_shadow
+PASS     tcam_csr
+PASS     tsn_fuzz
+## job 107432501844: Verilator shard 2/5 (success)
+HEAD is now at 6d22951
+PASS     aaf
+PASS     aaf_audio_loop
+PASS     aes3
+PASS     chmap_render
+PASS     crf_tx
+PASS     mmcm_servo
+PASS     ptp_sync
+PASS     ptp_ts
+PASS     render_setpoint
+PASS     shaper_core
+## job 107432501848: Verilator shard 3/5 (success)
+HEAD is now at 6d22951
+PASS     adp_tx
+PASS     avtp_parser
+PASS     chmap_capture
+PASS     classifier
+PASS     csr
+PASS     link_guard
+PASS     media_grid_align
+PASS     nvm_backend
+PASS     tcam
+PASS     tdm
+PASS     tdm_render
+PASS     tkdiag
+## job 107432501776: Verilator shard 4/5 (success)
+HEAD is now at 6d22951
+PASS     milan_dp
+## job 107432419046: docs-check (success)
+HEAD is now at 6d2295189
+## job 107432418968: elaborate (success)
+HEAD is now at 6d2295189
+PASS     test_cpu_memory_port_cdc
+PASS     test_gptp_tx_timestamp
+PASS     test_pp_boot_bus_freeze
+PASS     test_pp_mem_bridge
+## job 107432496951: yosys-elaboration (success)
+HEAD is now at 6d22951

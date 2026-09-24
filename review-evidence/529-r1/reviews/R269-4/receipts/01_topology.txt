@@ -1,0 +1,234 @@
+candidate      87abaf33a439c1cef05092aadd3377a36552a4be tree bc40b183a9c999cbd3369c29ad7f7e3ff0dd64af
+parents        26d855a9176d63625e6635a029a0c44e3d57ce9a 31e62ffead16e43d648993278b0ab9190d99b672
+dev            26d855a9176d63625e6635a029a0c44e3d57ce9a tree d5bc65c7fa99581a18d3f3b25ebb01b78c4f0344
+source         31e62ffead16e43d648993278b0ab9190d99b672 tree 4d32ede1eba65adcee359d00751ddadf3314a36b
+merge-base     ede8d48ecd7c7f589a14b957951f040d92c99c70
+merge-bases    ede8d48ecd7c7f589a14b957951f040d92c99c70 
+
+## dev-side commits not in source (ede8d48ecd7c7f589a14b957951f040d92c99c70..26d855a9176d63625e6635a029a0c44e3d57ce9a), --format='%H %P | %s'
+26d855a9176d63625e6635a029a0c44e3d57ce9a 759da623072358afdb0e9d570a7b4b6a788492c9 2accfadfd3d4d8a318e3e714ee0dc87fc84e4164 | Merge PR #528: Stop the junction counters chattering at a raced media-grid lock
+759da623072358afdb0e9d570a7b4b6a788492c9 07d85dacb02da719d8da4861478a1d8e9a127add 4876423d4cf8e89b820c56f8339f230abefb4827 | Merge PR #521: run hosted firmware gates with a verified pinned RV32 compiler
+07d85dacb02da719d8da4861478a1d8e9a127add ede8d48ecd7c7f589a14b957951f040d92c99c70 015edd9ab2248289ff000f6ef14890be1812ba7b | Merge PR #526: isolate gPTP mutations and stop suite execution on cancellation
+2accfadfd3d4d8a318e3e714ee0dc87fc84e4164 553edeb86b9144f7b15721255fbe5ad11ef1fe36 | The SLIP_TDM docs claim only what the raced-lock arms prove: a passage is exact in its net count, and the lock clears the tick by the keep-off less its dither (#74 item 2)
+553edeb86b9144f7b15721255fbe5ad11ef1fe36 6d1572d6caeb94cd3dd871b9df90e4c5298998b6 | Regenerate the module matrix for the media-grid raced-lock arms
+6d1572d6caeb94cd3dd871b9df90e4c5298998b6 ede8d48ecd7c7f589a14b957951f040d92c99c70 | The junction counters stop chattering at a raced lock: the align loop parks the frame marker 1/128 sample off the tick, and a coincident tick takes the pending marker instead of dropping it (#74 item 2)
+015edd9ab2248289ff000f6ef14890be1812ba7b 26353960ae2763cc09741d0f7bcc720621bd5148 | Assert the sweep shell's cancellation report and log attribution at every boundary
+4876423d4cf8e89b820c56f8339f230abefb4827 97aa1ec943ac740a27b942210a248f6512ae3ff6 | builder: control the store census overlap at a modelled word's last byte
+97aa1ec943ac740a27b942210a248f6512ae3ff6 3f7f083e63b048817bf10199ab60035abc424728 | docs: state exactly which stores the RV32 store census observes
+3f7f083e63b048817bf10199ab60035abc424728 4914eea5faac2e4816c38455584f259263ad8c20 | builder: forget rewritten frame slots in the store census and control each correction
+26353960ae2763cc09741d0f7bcc720621bd5148 6674c278a8db5f0886d036dceff02d33b7ca6a37 | Use the lifecycle test, not the suite README, as the unread suite-directory file
+4914eea5faac2e4816c38455584f259263ad8c20 5081a25a451b4ac1c00f286ec59ab041c22fdde9 574c29fa111c74e5e5ed63e4670aff1f492e28e2 | Merge dev 574c29fa into 504-hosted-rv32-compiler
+6674c278a8db5f0886d036dceff02d33b7ca6a37 88b17a3ee9ee5f5ded9c29df760323f116edabae | Claim only the controlled hard-stop signals in the sweep contract
+88b17a3ee9ee5f5ded9c29df760323f116edabae 4095fc36f92655f45aec206ad3f9cd46c9885bd5 | Control the copied-dependency refusal and make's death with a killed campaign
+4095fc36f92655f45aec206ad3f9cd46c9885bd5 64a6c373b090478daf3d5fcad9346bb137675d67 | Initialise pinned submodules in a lane instead of copying them
+64a6c373b090478daf3d5fcad9346bb137675d67 29329cea992101281423576607ba6443e1798ab6 | Verify only the shadow build's inputs and accept non-redirecting Git settings
+29329cea992101281423576607ba6443e1798ab6 86149f2b2a3575dc0e7c99c3f207e3cb7f466538 | Tie owned commands to their owner and refuse missing process facilities
+86149f2b2a3575dc0e7c99c3f207e3cb7f466538 b5ce20eca8b59709ec5bc6115e5e15bfc312f283 776bc77d1b06bf57f9c64ac8ac08ea37cab06e7d | Merge live dev 776bc77d into the #523 correction lane
+5081a25a451b4ac1c00f286ec59ab041c22fdde9 48226b2f7f56e4d6eef782ba384ff1ca76ec1e92 | ci: fail the SDK installer self-test on download and receipt faults
+48226b2f7f56e4d6eef782ba384ff1ca76ec1e92 f6a55e4c85b6bdcdaeab6caa6b6e575c51cf97df | builder: classify every RV32 store class in the resolved store census
+f6a55e4c85b6bdcdaeab6caa6b6e575c51cf97df 3d90958f3a82ca2a9617112c107a22f332117e17 483a133ed08867ea0d300d2b4a027b5b48a4282f | Merge dev 483a133e into 504-hosted-rv32-compiler
+b5ce20eca8b59709ec5bc6115e5e15bfc312f283 37e43cdc9d0f1afb3804b038b3389120725ae4c3 | Keep cancelled preflight logs attributable to the current invocation
+37e43cdc9d0f1afb3804b038b3389120725ae4c3 b6508147cf020105e9cb3dfe7ee32e200e1fcfbd | Accept presentation-only Git settings and keep cleanup bounded
+b6508147cf020105e9cb3dfe7ee32e200e1fcfbd 1bf7230b204535f3e140ddaf524574c4d73686bc | Copy only the shadow build dependency source populations
+1bf7230b204535f3e140ddaf524574c4d73686bc 483a133ed08867ea0d300d2b4a027b5b48a4282f | Isolate gPTP shadow mutations and stop cancelled sweeps
+3d90958f3a82ca2a9617112c107a22f332117e17 ab2671c0f12cdd68df8a9260f98960b92f533efc | ci: bound SDK metadata to the host tooling scope
+ab2671c0f12cdd68df8a9260f98960b92f533efc 52711029f374650dc93830d5ea28e81cb5c8f410 | ci: provision the pinned Bootlin RV32 firmware compiler
+
+## dev-side first-parent chain (ede8d48ecd7c7f589a14b957951f040d92c99c70..26d855a9176d63625e6635a029a0c44e3d57ce9a)
+26d855a9176d63625e6635a029a0c44e3d57ce9a 759da623072358afdb0e9d570a7b4b6a788492c9 2accfadfd3d4d8a318e3e714ee0dc87fc84e4164 | Merge PR #528: Stop the junction counters chattering at a raced media-grid lock
+759da623072358afdb0e9d570a7b4b6a788492c9 07d85dacb02da719d8da4861478a1d8e9a127add 4876423d4cf8e89b820c56f8339f230abefb4827 | Merge PR #521: run hosted firmware gates with a verified pinned RV32 compiler
+07d85dacb02da719d8da4861478a1d8e9a127add ede8d48ecd7c7f589a14b957951f040d92c99c70 015edd9ab2248289ff000f6ef14890be1812ba7b | Merge PR #526: isolate gPTP mutations and stop suite execution on cancellation
+
+## source-side commits (ede8d48ecd7c7f589a14b957951f040d92c99c70..31e62ffead16e43d648993278b0ab9190d99b672)
+31e62ffead16e43d648993278b0ab9190d99b672 78cdff20776ac3745ffa1e78d13d327eeb94cd1d | Point the CRF output config comments at the open audit B3 only now that B4 is closed
+78cdff20776ac3745ffa1e78d13d327eeb94cd1d b65030e0a11589337ef93d1338f30b69f2c6c537 | State the CRF bind edge's arbiter exclusivity and both push copies as the strengthened sim_nxn checks prove them
+b65030e0a11589337ef93d1338f30b69f2c6c537 535701a06128d54c7f0f161e1c061fa02d4d1342 | Require the CRF bind edge to reach the arbiter as no tuple but STREAM_INPUT N and compare A's CRF push copy too in sim_nxn
+535701a06128d54c7f0f161e1c061fa02d4d1342 a51d5164c688dbafdbe65a7282c2dc9ea764cb2b | Narrow the CRF counter evidence to what the root-wire tests prove and clear the stale REGISTER_MAP opening gap
+a51d5164c688dbafdbe65a7282c2dc9ea764cb2b f815577559d4922c945dcf1436d4394ff2c10567 | Drive each CRF input tally through its own engine event at the root and hold the CRF push quiet after its release in sim_nxn
+f815577559d4922c945dcf1436d4394ff2c10567 d8340bd55e8e79f4fbba687cf6ef4fcd8dba00e7 | Log the CRF input counters as an unreleased product change
+d8340bd55e8e79f4fbba687cf6ef4fcd8dba00e7 2a798d191439477c4bff2b1dbb2482ec82945640 | Record the CRF Stream Input counter gap as closed by #529 with its root-wire evidence
+2a798d191439477c4bff2b1dbb2482ec82945640 869da89e58600f5892341e4a95b0ab0d20910922 | Grade the CRF input's counters row, wrap, isolation and one-second push at the root in sim_nxn
+869da89e58600f5892341e4a95b0ab0d20910922 ede8d48ecd7c7f589a14b957951f040d92c99c70 | Serve the CRF Media Clock Input's Table 5.16 bank on GET_COUNTERS and deliver its dirty pulse to the Table 5.22 arbiter
+
+## commits in candidate not in dev (must be exactly source side + candidate)
+87abaf33a439c1cef05092aadd3377a36552a4be
+31e62ffead16e43d648993278b0ab9190d99b672
+78cdff20776ac3745ffa1e78d13d327eeb94cd1d
+b65030e0a11589337ef93d1338f30b69f2c6c537
+535701a06128d54c7f0f161e1c061fa02d4d1342
+a51d5164c688dbafdbe65a7282c2dc9ea764cb2b
+f815577559d4922c945dcf1436d4394ff2c10567
+d8340bd55e8e79f4fbba687cf6ef4fcd8dba00e7
+2a798d191439477c4bff2b1dbb2482ec82945640
+869da89e58600f5892341e4a95b0ab0d20910922
+
+## net-changed paths, dev side (ede8d48ecd7c7f589a14b957951f040d92c99c70..26d855a9176d63625e6635a029a0c44e3d57ce9a)
+M	CONTRIBUTING.md
+M	docs/design/TIME_SYNC.md
+M	docs/integration/BAREMETAL_FIRMWARE.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/CI_WORKFLOWS.md
+M	docs/testing/TESTING.md
+M	docs/traceability/MODULE_MATRIX.md
+M	.github/workflows/docs.yml
+M	.github/workflows/elaborate.yml
+M	hdl/ieee1722/aaf/KL_chan_map_capture.sv
+M	hdl/ieee1722/aaf/README-tests.md
+M	hdl/ieee1722/crf/KL_media_grid_align.sv
+M	scripts/check_baremetal_only.py
+M	scripts/ci_events.py
+A	scripts/ci_rv32_sdk.py
+A	scripts/ci_rv32_sdk_selftest.py
+M	scripts/measure_test_evidence.py
+A	scripts/owned_process.py
+A	scripts/process_test_support.py
+M	scripts/run_all_suites.sh
+A	scripts/test_suite_cancellation.py
+M	sw/builder/test_builder.py
+A	sw/builder/test_firmware_compiler.py
+M	tb/verilator/chmap_capture/sim_main.cpp
+M	tb/verilator/gptp_shadow/Makefile
+M	tb/verilator/gptp_shadow/mutants.py
+A	tb/verilator/gptp_shadow/private_inputs.py
+M	tb/verilator/gptp_shadow/README.md
+A	tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+M	tb/verilator/media_grid_align/Makefile
+M	tb/verilator/media_grid_align/media_grid_align_wrap.sv
+M	tb/verilator/media_grid_align/README.md
+M	tb/verilator/media_grid_align/sim_main.cpp
+
+## net-changed paths, source side (ede8d48ecd7c7f589a14b957951f040d92c99c70..31e62ffead16e43d648993278b0ab9190d99b672)
+M	CHANGELOG.md
+M	configs/endstation_arty_4x4.yaml
+M	configs/endstation_arty_8ch.yaml
+M	configs/endstation_ax7101_8x8.yaml
+M	docs/ENDSTATION_BUILDER.md
+M	docs/MILAN_V12_ROADMAP.md
+M	docs/reference/FR_NFR.md
+M	docs/reference/MILAN_COMPLIANCE_MATRIX.md
+M	docs/reference/REGISTER_MAP_CLASSES.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/MILAN_V12_AUDIT_2026-08-16.md
+M	hdl/ieee1722/crf/KL_crf_rx.sv
+M	hdl/milan/milan_datapath.sv
+M	scripts/port_docs.budget
+M	tb/verilator/milan_dp/README.md
+M	tb/verilator/milan_dp/sim_nxn.cpp
+
+## paths changed on BOTH sides
+docs/reference/REGISTER_MAP.md M M
+## (end of overlap)
+
+## candidate tree == 3-way merge-tree of dev and source?
+merge-tree --write-tree: bc40b183a9c999cbd3369c29ad7f7e3ff0dd64af
+MATCH candidate tree
+
+## candidate vs dev: paths changed (must equal source-side set)
+M	CHANGELOG.md
+M	configs/endstation_arty_4x4.yaml
+M	configs/endstation_arty_8ch.yaml
+M	configs/endstation_ax7101_8x8.yaml
+M	docs/ENDSTATION_BUILDER.md
+M	docs/MILAN_V12_ROADMAP.md
+M	docs/reference/FR_NFR.md
+M	docs/reference/MILAN_COMPLIANCE_MATRIX.md
+M	docs/reference/REGISTER_MAP_CLASSES.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/MILAN_V12_AUDIT_2026-08-16.md
+M	hdl/ieee1722/crf/KL_crf_rx.sv
+M	hdl/milan/milan_datapath.sv
+M	scripts/port_docs.budget
+M	tb/verilator/milan_dp/README.md
+M	tb/verilator/milan_dp/sim_nxn.cpp
+
+## candidate vs source: paths changed (must equal dev-side set)
+M	CONTRIBUTING.md
+M	docs/design/TIME_SYNC.md
+M	docs/integration/BAREMETAL_FIRMWARE.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/CI_WORKFLOWS.md
+M	docs/testing/TESTING.md
+M	docs/traceability/MODULE_MATRIX.md
+M	.github/workflows/docs.yml
+M	.github/workflows/elaborate.yml
+M	hdl/ieee1722/aaf/KL_chan_map_capture.sv
+M	hdl/ieee1722/aaf/README-tests.md
+M	hdl/ieee1722/crf/KL_media_grid_align.sv
+M	scripts/check_baremetal_only.py
+M	scripts/ci_events.py
+A	scripts/ci_rv32_sdk.py
+A	scripts/ci_rv32_sdk_selftest.py
+M	scripts/measure_test_evidence.py
+A	scripts/owned_process.py
+A	scripts/process_test_support.py
+M	scripts/run_all_suites.sh
+A	scripts/test_suite_cancellation.py
+M	sw/builder/test_builder.py
+A	sw/builder/test_firmware_compiler.py
+M	tb/verilator/chmap_capture/sim_main.cpp
+M	tb/verilator/gptp_shadow/Makefile
+M	tb/verilator/gptp_shadow/mutants.py
+A	tb/verilator/gptp_shadow/private_inputs.py
+M	tb/verilator/gptp_shadow/README.md
+A	tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+M	tb/verilator/media_grid_align/Makefile
+M	tb/verilator/media_grid_align/media_grid_align_wrap.sv
+M	tb/verilator/media_grid_align/README.md
+M	tb/verilator/media_grid_align/sim_main.cpp
+
+## set equality checks
+cand-vs-dev paths == source-side paths
+cand-vs-source paths == dev-side paths
+
+## per-path blob identity: candidate blob == source blob for every source-side path
+SAME M CHANGELOG.md cand=4367f5c8d24d5df9e2844e8575323a12259adf59 src=4367f5c8d24d5df9e2844e8575323a12259adf59
+SAME M configs/endstation_arty_4x4.yaml cand=254da2eb0ff165743c95a03ef058cd7d5848a971 src=254da2eb0ff165743c95a03ef058cd7d5848a971
+SAME M configs/endstation_arty_8ch.yaml cand=f3f065d6a6e03028a461aed442300910388507f8 src=f3f065d6a6e03028a461aed442300910388507f8
+SAME M configs/endstation_ax7101_8x8.yaml cand=c1104446655fa079f2269ac211cb88a7dd5de989 src=c1104446655fa079f2269ac211cb88a7dd5de989
+SAME M docs/ENDSTATION_BUILDER.md cand=79b88ebf9343c0e29ed3c7efaaddca71a8601de1 src=79b88ebf9343c0e29ed3c7efaaddca71a8601de1
+SAME M docs/MILAN_V12_ROADMAP.md cand=9c0f2946103b6eebc493367b5a20a6753e71dd60 src=9c0f2946103b6eebc493367b5a20a6753e71dd60
+SAME M docs/reference/FR_NFR.md cand=ab95a372980f9eb717f550c4f5fef03155a1fa28 src=ab95a372980f9eb717f550c4f5fef03155a1fa28
+SAME M docs/reference/MILAN_COMPLIANCE_MATRIX.md cand=21bc41216d9e52f6a550da62263122c87acb5ae6 src=21bc41216d9e52f6a550da62263122c87acb5ae6
+SAME M docs/reference/REGISTER_MAP_CLASSES.md cand=4c0aacfbc0c959e867081ab8b9c6981ccd7c3de7 src=4c0aacfbc0c959e867081ab8b9c6981ccd7c3de7
+DIFF M docs/reference/REGISTER_MAP.md cand=2a6dff104fa4d3c79f024d3c707d5e524106d36e src=d85c99f3ae7e461f6fa0368549219f30bc7a378c
+SAME M docs/testing/MILAN_V12_AUDIT_2026-08-16.md cand=6ea51210fe89617290582f0df9cad1b3c3aa3202 src=6ea51210fe89617290582f0df9cad1b3c3aa3202
+SAME M hdl/ieee1722/crf/KL_crf_rx.sv cand=7c0f56e5663fb9309268d9c864dbae1337894f3b src=7c0f56e5663fb9309268d9c864dbae1337894f3b
+SAME M hdl/milan/milan_datapath.sv cand=2bfbb3e729e25f3b3fbde7e7f8f22843c1629946 src=2bfbb3e729e25f3b3fbde7e7f8f22843c1629946
+SAME M scripts/port_docs.budget cand=6f42d880beb81ff0ad3a8e8c2b6b35e023f128f4 src=6f42d880beb81ff0ad3a8e8c2b6b35e023f128f4
+SAME M tb/verilator/milan_dp/README.md cand=ec4984104cbdaee7c695abcfd492e7eac2a859c2 src=ec4984104cbdaee7c695abcfd492e7eac2a859c2
+SAME M tb/verilator/milan_dp/sim_nxn.cpp cand=235afd9918c7dd3997f500e7b970577280f26e27 src=235afd9918c7dd3997f500e7b970577280f26e27
+
+## per-path blob identity: candidate blob == dev blob for every dev-side path
+SAME M CONTRIBUTING.md cand=117c372f0b57dc3f47aead475e917d534fd23372 dev=117c372f0b57dc3f47aead475e917d534fd23372
+SAME M docs/design/TIME_SYNC.md cand=31a6f503f54a377a8ffdf431f58b4f4bfb0f38da dev=31a6f503f54a377a8ffdf431f58b4f4bfb0f38da
+SAME M docs/integration/BAREMETAL_FIRMWARE.md cand=cec7d8eb602271402705165bbbd3a2d3a7d7ab6a dev=cec7d8eb602271402705165bbbd3a2d3a7d7ab6a
+DIFF M docs/reference/REGISTER_MAP.md cand=2a6dff104fa4d3c79f024d3c707d5e524106d36e dev=8338434e77b2f737c9d80eb8c2d775797eee1dde
+SAME M docs/testing/CI_WORKFLOWS.md cand=a22a2828b43733599fd24c52baf5c926a039dddb dev=a22a2828b43733599fd24c52baf5c926a039dddb
+SAME M docs/testing/TESTING.md cand=e8d287f12a09fe6dcb8a28b657d533e01a442dc2 dev=e8d287f12a09fe6dcb8a28b657d533e01a442dc2
+SAME M docs/traceability/MODULE_MATRIX.md cand=771ee5f373ebd91c39157c475211f1c7a369189e dev=771ee5f373ebd91c39157c475211f1c7a369189e
+SAME M .github/workflows/docs.yml cand=7b629a8c2837a927d54ba4ead7935e9da1a2c9f0 dev=7b629a8c2837a927d54ba4ead7935e9da1a2c9f0
+SAME M .github/workflows/elaborate.yml cand=af8f3700266d344f6de2f281cd4a7598b6a7639a dev=af8f3700266d344f6de2f281cd4a7598b6a7639a
+SAME M hdl/ieee1722/aaf/KL_chan_map_capture.sv cand=a46611c423e902c0f8ddade0dae0654236e8a85b dev=a46611c423e902c0f8ddade0dae0654236e8a85b
+SAME M hdl/ieee1722/aaf/README-tests.md cand=61857d6949fe2bf5976126a4d5f5adcf25b9a4ca dev=61857d6949fe2bf5976126a4d5f5adcf25b9a4ca
+SAME M hdl/ieee1722/crf/KL_media_grid_align.sv cand=cc41832204a2b572df077d1fd9561a695d97cf88 dev=cc41832204a2b572df077d1fd9561a695d97cf88
+SAME M scripts/check_baremetal_only.py cand=73770b17136f12954b7d7418c65ce19c158a3b32 dev=73770b17136f12954b7d7418c65ce19c158a3b32
+SAME M scripts/ci_events.py cand=39b72110ae2f475ba84a19735f6d036a4285320a dev=39b72110ae2f475ba84a19735f6d036a4285320a
+SAME A scripts/ci_rv32_sdk.py cand=b6ac4138972d2dd321edc523ab9c65ec1ad69fe3 dev=b6ac4138972d2dd321edc523ab9c65ec1ad69fe3
+SAME A scripts/ci_rv32_sdk_selftest.py cand=89ac5d445718229f2ecc53f1d1e0910c2c90c152 dev=89ac5d445718229f2ecc53f1d1e0910c2c90c152
+SAME M scripts/measure_test_evidence.py cand=c4892f181d6307b871ddb93c18874d99f1cbb055 dev=c4892f181d6307b871ddb93c18874d99f1cbb055
+SAME A scripts/owned_process.py cand=2f01be03e115ae05749e79c98baf758050b38075 dev=2f01be03e115ae05749e79c98baf758050b38075
+SAME A scripts/process_test_support.py cand=531dce0d5d19bd7e87f5cdb3ae6e645f15a3f5a5 dev=531dce0d5d19bd7e87f5cdb3ae6e645f15a3f5a5
+SAME M scripts/run_all_suites.sh cand=ba61d8607c26242b7335e06e955df5ff6ccc8853 dev=ba61d8607c26242b7335e06e955df5ff6ccc8853
+SAME A scripts/test_suite_cancellation.py cand=839a870321c830c3107cb2d65bca8da0f42c6c85 dev=839a870321c830c3107cb2d65bca8da0f42c6c85
+SAME M sw/builder/test_builder.py cand=408e8790c48795dd654d4e7d403853af6f58853e dev=408e8790c48795dd654d4e7d403853af6f58853e
+SAME A sw/builder/test_firmware_compiler.py cand=2bde32ce1bca5562a1a08a064b277ad9eab6efce dev=2bde32ce1bca5562a1a08a064b277ad9eab6efce
+SAME M tb/verilator/chmap_capture/sim_main.cpp cand=0fb053bc119c088518cc95c5d3d8b73ea9b9df4a dev=0fb053bc119c088518cc95c5d3d8b73ea9b9df4a
+SAME M tb/verilator/gptp_shadow/Makefile cand=3820e8444affb7d442cc1eae832fda9bb07439c4 dev=3820e8444affb7d442cc1eae832fda9bb07439c4
+SAME M tb/verilator/gptp_shadow/mutants.py cand=a5ac251599e20dd80182eb3978ed661e0a84a509 dev=a5ac251599e20dd80182eb3978ed661e0a84a509
+SAME A tb/verilator/gptp_shadow/private_inputs.py cand=2b13fe5e726621ac088f9474c92e8e4ab5317f0d dev=2b13fe5e726621ac088f9474c92e8e4ab5317f0d
+SAME M tb/verilator/gptp_shadow/README.md cand=0f97bf4d5d38dbb59cc3ccff229930df627c092f dev=0f97bf4d5d38dbb59cc3ccff229930df627c092f
+SAME A tb/verilator/gptp_shadow/test_mutant_lifecycle.py cand=dca6bdc33f7f8ef4fd0e8b981769b5e8585be24a dev=dca6bdc33f7f8ef4fd0e8b981769b5e8585be24a
+SAME M tb/verilator/media_grid_align/Makefile cand=920e6c98c7b8dc2cccb152231ccdf222be5dd425 dev=920e6c98c7b8dc2cccb152231ccdf222be5dd425
+SAME M tb/verilator/media_grid_align/media_grid_align_wrap.sv cand=4bd71a385ed8e3690ab7169f4c8d7d24d45ce59e dev=4bd71a385ed8e3690ab7169f4c8d7d24d45ce59e
+SAME M tb/verilator/media_grid_align/README.md cand=2bf5f337b9697ef52d6c348daaf9faef4e0ab58e dev=2bf5f337b9697ef52d6c348daaf9faef4e0ab58e
+SAME M tb/verilator/media_grid_align/sim_main.cpp cand=86c5c32c08d31ec03b1141342291e97384eb9da5 dev=86c5c32c08d31ec03b1141342291e97384eb9da5
