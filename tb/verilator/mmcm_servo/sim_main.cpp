@@ -18,9 +18,14 @@
 //       power+RMW writes, reserved bits preserved, relock waited
 //   U9  ps_invert knob     -> locks vs inverted-polarity MMCM; control never locks
 //   U10 local ptp step     -> stepped ptp_now windows DISCARDED (trim held,
-//       stays LOCKED), one step or a sustained storm of them (#539: the
-//       PHC step guard's)
-//   U11 implausible rate   -> the 1024 ppm guard discards, resyncs, holds
+//       stays LOCKED), one step or a sustained storm of them; each step is
+//       counted as its sample is staged, which only the PHC step guard
+//       does (#539)
+//   U11 implausible rate   -> the 1024 ppm guard discards; the 4th in a row
+//       re-bases the window one tick late; trim and LOCKED hold
+//   U12 discard bookkeeping -> a PHC step restarts the guard's streak; a
+//       step with no window open is not counted; the MCSRV_STAT[15:10]
+//       tally saturates at 63 and IDLE clears it
 //
 // Sim-compressed servo params (-G): 125 us tick, 4 ms window; the ns/512ms
 // CSR unit scale is preserved by NORM_SHIFT so crf_rate_i uses REAL units.
@@ -32,6 +37,8 @@
 #include <cstdio>
 #include <cstdint>
 #include <cmath>
+#include <limits>
+#include <vector>
 
 namespace {
 
@@ -56,6 +63,9 @@ class MmcmServoUnitHarness {
         prove_ps_invert_knob_matches_an_inverted_mmcm();
         prove_local_ptp_step_windows_are_discarded();
         prove_implausible_windows_meet_the_guard();
+        prove_step_restarts_the_guard_streak();
+        prove_step_with_no_window_open_is_not_counted();
+        prove_tally_saturates_and_idle_clears_it();
         return report();
     }
 
@@ -70,6 +80,11 @@ class MmcmServoUnitHarness {
         if (got < lo || got > hi) { fails++; printf("  [FAIL] %-52s got=%.3f exp=[%.3f,%.3f]\n", w, got, lo, hi); }
         else            printf("  [ ok ] %-52s = %.3f\n", w, got);
     }
+    void ckin(const char* w, long got, long lo, long hi) {
+        checks++;
+        if (got < lo || got > hi) { fails++; printf("  [FAIL] %-52s got=%ld exp=[%ld,%ld]\n", w, got, lo, hi); }
+        else            printf("  [ ok ] %-52s = %ld\n", w, got);
+    }
 
     int state() const  { return static_cast<int>(dut->status_o & 7); }
     int16_t trim() const { return static_cast<int16_t>(dut->status_o >> 16); }
@@ -79,7 +94,10 @@ class MmcmServoUnitHarness {
         if (next_i <= next_p && next_i <= next_a) {
             t_fs = next_i; next_i += HALF_I;
             dut->clk_i ^= 1;
-            if (dut->clk_i) dut->ptp_now_i = static_cast<uint64_t>(t_fs / 1e6 + ptp_step_ns);
+            if (dut->clk_i) {
+                dut->ptp_now_i = static_cast<uint64_t>(t_fs / 1e6 + ptp_step_ns);
+                clk_rises++;
+            }
             dut->eval();
             if (dut->clk_i) {   // registered model side of the DRP/reset
                 mm.dclk_edge(dut->drp_addr_o, dut->drp_en_o, dut->drp_we_o,
@@ -108,6 +126,49 @@ class MmcmServoUnitHarness {
     void run_ms(double ms) {
         double te = t_fs + ms * 1e12;
         while (t_fs < te) tick_one();
+    }
+    //! Advance through the next clk_i rising edge: the edge that stages
+    //! whatever ptp_step_ns now holds.
+    void clk_rise() {
+        const long r0 = clk_rises;
+        while (clk_rises == r0) tick_one();
+    }
+    //! clk_i edges from a PHC step until the tally counts it, the edge that
+    //! stages the stepped sample being the first; 0 if not within `limit`.
+    //! The PHC step guard counts on the 2nd: its verdict rides with that
+    //! sample. The 1024 ppm guard can count no sooner than the 6th: a window
+    //! boundary must snapshot the stepped sample, and its verdict is four
+    //! micro-sequence cycles after that boundary.
+    long edges_until_counted(int disc0, long limit) {
+        for (long e = 1; e <= limit; e++) {
+            clk_rise();
+            if (disc_cnt() != disc0) return e;
+        }
+        return 0;
+    }
+    //! Run up to `ms`, noting the time of every discard the tally counts;
+    //! stop early once `at_fs` holds `stop_at` of them.
+    void run_noting_discards(double ms, size_t stop_at, std::vector<double>& at_fs) {
+        const double te = t_fs + ms * 1e12;
+        int seen = disc_cnt();
+        while (t_fs < te && at_fs.size() < stop_at) {
+            tick_one();
+            const int now = disc_cnt();
+            for (; seen < now; seen++) at_fs.push_back(t_fs);
+            seen = now;
+        }
+    }
+    //! Whole ticks from discard `i` to discard `i + 1` (-1 if `i + 1` was not
+    //! counted). A tick is TICK_CYC_P = 3072 audio cycles, 125 us; the trim
+    //! moves it by 2e-4 at most, so a 33-tick gap reads 33.
+    static long ticks_after(const std::vector<double>& at_fs, size_t i) {
+        if (i + 1 >= at_fs.size()) return -1;
+        return llround((at_fs[i + 1] - at_fs[i]) / TICK_FS);
+    }
+    static void print_gaps(const std::vector<double>& at_fs) {
+        printf("  info: %zu discards, ticks between them:", at_fs.size());
+        for (size_t i = 0; i + 1 < at_fs.size(); i++) printf(" %ld", ticks_after(at_fs, i));
+        printf("\n");
     }
     static int32_t rate_for_ppm(double ppm) {   // KL_crf_rx rate_o for a talker offset
         return static_cast<int32_t>(llround(512e6 * (1.0 / (1.0 + ppm * 1e-6) - 1.0)));
@@ -317,8 +378,15 @@ class MmcmServoUnitHarness {
     //      3 checks failed; all green with the guard.
     //      Since #539 every one of these JUMPS is the PHC step guard's: the
     //      window is abandoned on the cycle the stepped sample is staged,
-    //      before the 1024 ppm guard sees it, so this leg now proves the
-    //      step guard rides out a sustained storm (every window abandoned).
+    //      before the 1024 ppm guard sees it, so this leg proves the step
+    //      guard rides out a sustained storm (each step abandons the window
+    //      it lands in). At this compressed scale the 1024 ppm guard would
+    //      catch every one of these windows too, so trim, LOCKED and the
+    //      count cannot tell the two guards apart. What only the step guard
+    //      does is count a step two clk_i edges after it lands; the 1024 ppm
+    //      guard counts it at the window's close, six edges on at the
+    //      soonest. So the step and each storm step must be counted within
+    //      three edges, and the storm counts once per step.
     //      U11 is the 1024 ppm guard's own arm; sim_phc_step.cpp proves the
     //      step guard at the silicon window scale.
     //      The step check reads an ENVELOPE, not one sample: locked at +80
@@ -328,11 +396,13 @@ class MmcmServoUnitHarness {
     //      the re-base a step causes moves the phase. Every window after the
     //      step must sit inside the pre-step envelope +-48.
     // ---------------------------------------------------------------- //
-    //! the locked trim's range over `ms`, sampled every 1 ms (a window is 4)
-    void trim_range(double ms, int& lo, int& hi) {
+    //! the locked trim's range over `ms`, sampled every 1 ms (a window is 4),
+    //! noting each discard's time in `disc_at` when one is given
+    void trim_range(double ms, int& lo, int& hi, std::vector<double>* disc_at = nullptr) {
         lo = hi = trim();
         for (double t = 0; t < ms; t += 1.0) {
-            run_ms(1);
+            if (disc_at) run_noting_discards(1.0, std::numeric_limits<size_t>::max(), *disc_at);
+            else         run_ms(1);
             if (trim() < lo) lo = trim();
             if (trim() > hi) hi = trim();
         }
@@ -353,6 +423,8 @@ class MmcmServoUnitHarness {
         trim_range(16.0, env_lo, env_hi);    // 4 windows: the locked envelope
         const int disc0 = disc_cnt();
         ptp_step_ns += 50e6;                 // gPTP-owner STEP: +50 ms, once
+        ckin("[U10] step counted as it lands (edges; guard: >= 6)",
+             edges_until_counted(disc0, 64), 1, 3);
         int lo = 0;
         int hi = 0;
         trim_range(12.0, lo, hi);            // 3 windows on the new timeline
@@ -367,9 +439,18 @@ class MmcmServoUnitHarness {
         // (the servo must ride it out - silicon railed to trim -3200 in
         // state ACQUIRE here and never came back)
         int16_t t1 = trim();
-        for (int i = 0; i < 6; i++) { ptp_step_ns += 8e6; run_ms(4); }
+        const int disc1 = disc_cnt();
+        long landed = 0;
+        for (int i = 0; i < 6; i++) {
+            ptp_step_ns += 8e6;
+            const long e = edges_until_counted(disc_cnt(), 64);
+            if (e >= 1 && e <= 3) landed++;
+            run_ms(4);
+        }
         printf("  info: trim pre-storm=%d in-storm=%d state=%d\n",
                t1, trim(), state());
+        ck("[U10] storm: every step counted as it lands (<= 3 edges)", landed, 6);
+        ck("[U10] storm: one discard per step", disc_cnt() - disc1, 6);
         ck("[U10] still LOCKED through the slew storm", state(), 4);
         ck("[U10] trim held through the storm (|d|<=48)",
            labs(static_cast<long>(trim()) - static_cast<long>(t1)) <= 48, 1);
@@ -389,29 +470,37 @@ class MmcmServoUnitHarness {
     // ---------------------------------------------------------------- //
     // U11: the 1024 ppm guard's own arm (#539 moved every ptp_now JUMP to
     //      the step guard, so U10 no longer reaches it). A broken rate
-    //      measurement - crf_rate_i 2 ms off for six windows - makes every
+    //      measurement - crf_rate_i 2 ms off for seven windows - makes every
     //      window's |ew| implausible with no jump anywhere; it is
     //      snapshotted whole at each boundary, so no window sees part of it.
-    //      Every window is discarded, the 4th consecutive one resyncs the
-    //      baseline, trim and LOCKED hold, and the loop resumes after.
+    //      Every window is discarded, trim and LOCKED hold, and the loop
+    //      resumes after. The 4th consecutive discard re-bases (DISC_MAX_C):
+    //      the window its boundary opened is dropped and the next tick opens
+    //      a fresh one, so the next boundary, and the 5th discard with it,
+    //      lands one tick late. Discards 1 to 4 and 5 to 6
+    //      are 32 ticks apart, and 4 to 5 is 33; without the re-base every
+    //      gap is 32.
     // ---------------------------------------------------------------- //
     void prove_implausible_windows_meet_the_guard() {
-        printf("[U11] implausible CRF rate: the 1024 ppm guard and its resync\n");
+        printf("[U11] implausible CRF rate: the 1024 ppm guard and its re-base\n");
         ck("[U11] LOCKED before", state(), 4);
         int env_lo = 0;
         int env_hi = 0;
         trim_range(16.0, env_lo, env_hi);
-        const int disc0 = disc_cnt();
+        std::vector<double> at;
         dut->crf_rate_i = rate_for_ppm(+80.0) + 2'000'000;
         int lo = 0;
         int hi = 0;
-        trim_range(24.0, lo, hi);
+        trim_range(28.0, lo, hi, &at);
         dut->crf_rate_i = rate_for_ppm(+80.0);
-        printf("  info: locked trim envelope [%d, %d], through it [%d, %d] "
-               "discards=%d state=%d\n", env_lo, env_hi, lo, hi,
-               disc_cnt() - disc0, state());
-        ck("[U11] >= 5 windows discarded (the resync path included)",
-           disc_cnt() - disc0 >= 5, 1);
+        printf("  info: locked trim envelope [%d, %d], through it [%d, %d] state=%d\n",
+               env_lo, env_hi, lo, hi, state());
+        print_gaps(at);
+        ck("[U11] >= 6 windows discarded", at.size() >= 6, 1);
+        ck("[U11] discards 1 to 4 one window (32 ticks) apart",
+           ticks_after(at, 0) == 32 && ticks_after(at, 1) == 32 && ticks_after(at, 2) == 32, 1);
+        ck("[U11] the 4th re-bases: 5th is 33 ticks on", ticks_after(at, 3), 33);
+        ck("[U11] then 32 ticks apart again (5th to 6th)", ticks_after(at, 4), 32);
         ck("[U11] still LOCKED through it", state(), 4);
         ck("[U11] trim held (inside envelope +-48)",
            lo >= env_lo - 48 && hi <= env_hi + 48, 1);
@@ -419,6 +508,73 @@ class MmcmServoUnitHarness {
         ck("[U11] LOCKED after the measurement recovers", state(), 4);
         double eff = eff_ppm_meas(20.0);
         ckr("[U11] effective clock still ~ talker (+80)", eff, 77.0, 83.0);
+    }
+
+    // ---------------------------------------------------------------- //
+    // U12: the discard bookkeeping. The RTL restarts the 1024 ppm guard's
+    //      streak on a PHC step, and counts a step only when it lands in an
+    //      open window. REGISTER_MAP 0x8F8 documents [15:10] as saturating
+    //      at 63 and cleared in IDLE.
+    //      Streak: two guard discards open a streak (2 of DISC_MAX_C), then
+    //      a step lands mid-window. If the step restarts the streak, the
+    //      re-base (U11's 33-tick gap) follows the 4th guard discard after
+    //      the step; if it does not, it follows the 2nd.
+    // ---------------------------------------------------------------- //
+    void prove_step_restarts_the_guard_streak() {
+        printf("[U12] a PHC step restarts the 1024 ppm guard's streak\n");
+        ck("[U12] LOCKED before", state(), 4);
+        std::vector<double> before;
+        dut->crf_rate_i = rate_for_ppm(+80.0) + 2'000'000;
+        run_noting_discards(12.0, 2, before);
+        ck("[U12] arm: two guard discards open a streak", static_cast<long>(before.size()), 2);
+        run_ms(2);                               // half a window on: mid-window
+        const int d0 = disc_cnt();
+        ptp_step_ns += 8e6;
+        ckin("[U12] arm: the step counted as it lands (edges)",
+             edges_until_counted(d0, 64), 1, 3);
+        std::vector<double> after;
+        run_noting_discards(40.0, 5, after);
+        dut->crf_rate_i = rate_for_ppm(+80.0);
+        print_gaps(after);
+        ck("[U12] guard discards 1 to 4 after the step 32 ticks apart",
+           ticks_after(after, 0) == 32 && ticks_after(after, 1) == 32 &&
+           ticks_after(after, 2) == 32, 1);
+        ck("[U12] the 4th after the step re-bases: 33 ticks", ticks_after(after, 3), 33);
+        run_ms(24);
+        ck("[U12] LOCKED after the streak", state(), 4);
+    }
+
+    //! Two steps one clk_i edge apart: the first abandons its window, so the
+    //! second lands with no window open, and the tally counts one.
+    void prove_step_with_no_window_open_is_not_counted() {
+        printf("[U12] a step with no window open is not counted\n");
+        run_ms(8);
+        const int d0 = disc_cnt();
+        ptp_step_ns += 8e6;
+        clk_rise();                              // the first step is staged
+        ptp_step_ns += 8e6;                      // the second, one edge later
+        run_ms(1);
+        ck("[U12] two steps one edge apart counted once", disc_cnt() - d0, 1);
+        ck("[U12] still LOCKED", state(), 4);
+    }
+
+    //! 64 steps two ticks apart, each in the window the one before re-based,
+    //! take the tally past 63 from below: it holds at 63, never wraps.
+    void prove_tally_saturates_and_idle_clears_it() {
+        printf("[U12] the discard tally saturates at 63; IDLE clears it\n");
+        const int d0 = disc_cnt();
+        ck("[U12] arm: tally below 63 before the burst", d0 < 63, 1);
+        for (int i = 0; i < 64; i++) {
+            ptp_step_ns += 8e6;
+            run_ms(0.25);
+        }
+        printf("  info: tally %d before 64 steps, %d after\n", d0, disc_cnt());
+        ck("[U12] tally after 64 steps (saturated)", disc_cnt(), 63);
+        ck("[U12] still LOCKED after the burst", state(), 4);
+        dut->clk_src_i = 0;
+        run_ms(3);
+        ck("[U12] back to IDLE", state(), 0);
+        ck("[U12] IDLE clears the tally", disc_cnt(), 0);
     }
 
     int report() const {
@@ -435,7 +591,8 @@ class MmcmServoUnitHarness {
 
     // ---- clocks (femtosecond wheel) ------------------------------------------
     double t_fs = 0;
-    double ptp_step_ns = 0;                // U10: injected local-PHC step
+    long clk_rises = 0;                    // clk_i rising edges so far
+    double ptp_step_ns = 0;                // U10, U12: injected local-PHC step
     double next_i = 10000e3;
     double next_p = 2500e3;
     double next_a = 12345e3;
@@ -444,6 +601,8 @@ class MmcmServoUnitHarness {
     // audio base: 24.576 MHz - 10.64 ppm (the integer two-stage MMCM plan)
     static constexpr double BASE_PPM = -10.64;
     static constexpr double HALF_A0 = 0.5 * (1e15 / 24.576e6) * (1.0 - BASE_PPM * 1e-6);
+    // one servo tick: TICK_CYC_P = 3072 nominal audio cycles (125 us)
+    static constexpr double TICK_FS = 3072.0 * 1e15 / 24.576e6;
     double base_a = 12345e3;               // un-shifted audio edge grid
 };
 
