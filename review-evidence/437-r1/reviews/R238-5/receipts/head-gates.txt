@@ -1,0 +1,56 @@
+### scripts/gen_toc.py --selftest
+TOC selftest: PASS (1501/1501 arm(s))
+rc=0
+### scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+### scripts/gen_toc.py --verify-anchors
+anchor check: 147 existing cross-page fragment links reproduced
+rc=0
+### scripts/check_em_dash.py --selftest
+check_em_dash selftest: PASS (339 arm(s))
+rc=0
+### scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+check_em_dash: 0 finding(s) over 100 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [759da623..HEAD]
+rc=0
+### scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 852 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+### scripts/check_py_idiom.py
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+### scripts/ci_events.py --check
+ci_events: cannot run: pyyaml is not importable; install python3-yaml or `pip install pyyaml`
+rc=2
+### scripts/ci_events.py --selftest
+selftest: cannot load the pristine tree: pyyaml is not importable; install python3-yaml or `pip install pyyaml`
+rc=2
+### git diff --check
+rc=0
+### (system python3 Python 3.14.7) scripts/ci_events.py --check
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (1647 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0
+### (system python3 Python 3.14.7) scripts/ci_events.py --selftest
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (1647 contract items, 2188 arms)
+rc=0
+### check_py_idiom long module/function
+  long function: 9 <= 9
+  long module: 10 <= 10
+  over-long line: 0 <= 0
+   880 scripts/gen_toc_cases.py
+   153 scripts/gen_toc_closer_cases.py
+   697 scripts/gen_toc.py
+   285 scripts/gen_toc_renderer_cases.py
+   424 scripts/gen_toc_renderer.py
+   261 scripts/gen_toc_shape_cases.py
+  1000 scripts/check_em_dash.py
+  3700 total

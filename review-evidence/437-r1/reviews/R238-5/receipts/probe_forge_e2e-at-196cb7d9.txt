@@ -1,0 +1,56 @@
+FAIL raw <h2 DATA-SOURCEPOS>: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL raw <H2 DATA-SOURCEPOS>: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL raw <h2 Data-Sourcepos>: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL raw <H2 Data-Sourcepos>: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL raw <h2 dAtA-sOuRcEpOs>: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL raw <H2 dAtA-sOuRcEpOs>: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL raw <h2 data-sourcePOS>: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL raw <H2 data-sourcePOS>: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL raw <h2 DATA-sourcepos>: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL raw <H2 DATA-sourcepos>: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL raw unquoted value upper: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL raw single-quoted value mixed: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL inline raw tag upper in a paragraph: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL text via decimal reference: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL text via hex reference upper X: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL text via hex reference lower: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL text via reference mid-word: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL text via backslash escape: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL text via upper text: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL text via reference, upper rest: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL MARGIN depth 201 block quotes then Old: GitHub shows Old=margin; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL depth 256 block quotes then Old: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL MARGIN depth 101 list levels then Old: GitHub shows Old=margin; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL depth 129 list levels then Old: GitHub shows Old=False; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+FAIL MARGIN depth 201 raw divs then Old: GitHub shows Old=margin; walk lists Old=True; headings=5; refusals=0; gate: label refused=False, base refusal named=False, exempt=1
+Traceback (most recent call last):
+  File "<packet>/scripts/probe_forge_e2e.py", line 146, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scripts/probe_forge_e2e.py", line 123, in main
+    listed = [(r, a) for _, r, a in headings(base)]
+                                    ~~~~~~~~^^^^^^
+  File "<scratch>/tree-196cb7d9/scripts/gen_toc.py", line 320, in headings
+    for level, raw, _, _ in _page(text)[2]]
+                            ~~~~~^^^^^^
+  File "<scratch>/tree-196cb7d9/scripts/gen_toc.py", line 201, in _page
+    rendered = render_markdown(text)
+  File "<scratch>/tree-196cb7d9/scripts/gen_toc_renderer.py", line 275, in render
+    nodes = tuple(_nodes(bound, root))
+                  ~~~~~~^^^^^^^^^^^^^
+  File "<scratch>/tree-196cb7d9/scripts/gen_toc_renderer.py", line 248, in _nodes
+    out += _nodes(bound, child, bare=holder == "tight")
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/tree-196cb7d9/scripts/gen_toc_renderer.py", line 248, in _nodes
+    out += _nodes(bound, child, bare=holder == "tight")
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/tree-196cb7d9/scripts/gen_toc_renderer.py", line 248, in _nodes
+    out += _nodes(bound, child, bare=holder == "tight")
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 990 more times]
+  File "<scratch>/tree-196cb7d9/scripts/gen_toc_renderer.py", line 235, in _nodes
+    child = api.cmark_node_first_child(ffi.cast("cmark_node *", parent))
+                                       ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<venv>/lib/python3.14/site-packages/cffi/api.py", line 292, in cast
+    cdecl = self._typeof(cdecl)
+RecursionError: maximum recursion depth exceeded

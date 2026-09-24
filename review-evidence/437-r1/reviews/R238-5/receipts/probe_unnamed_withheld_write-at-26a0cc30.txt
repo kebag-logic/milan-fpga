@@ -1,0 +1,14 @@
+### gen_toc.py --check
+  TOC DRIFT docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md  (headings changed, or a description is still 'TODO describe this section')
+  TOC DRIFT docs/testing/TESTING.md  (headings changed, or a description is still 'TODO describe this section')
+
+2 page(s) need attention. Run: python3 scripts/gen_toc.py --write <page>
+then WRITE the description for each entry - the generator cannot, and a list that only repeats the headings is not worth the space it takes.
+rc=1
+### gen_toc.py --write
+TOC: 2 page(s) written
+### lines --write removed per page
+0	24	docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+0	17	docs/testing/TESTING.md
+### Contents headings removed
+2

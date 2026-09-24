@@ -1,0 +1,28 @@
+  [control-no-forgery] generated_block(head) present: True
+=== control-no-forgery
+  base page: '# Page\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n\n<span>\n<!--\n\n## Old — heading\n</span>\n'
+  base headings (gen_toc): [(1, 'Page', 'page'), (2, 'Alpha', 'alpha'), (2, 'Beta', 'beta'), (2, 'Gamma', 'gamma')]
+  head Contents lines: ['- **[Alpha](#alpha)** -- Described.', '- **[Beta](#beta)** -- Described.', '- **[Gamma](#gamma)** -- Described.']
+  check_em_dash rc=0
+    check_em_dash: 0 finding(s) over 6 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [9e783a07..HEAD]
+  [forged-DATA-SOURCEPOS] generated_block(head) present: False
+=== forged-DATA-SOURCEPOS
+  base page: '# Page\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n\n<h2 DATA-SOURCEPOS="20:1-20:18">Harmless</h2>\n\n<span>\n<!--\n\n## Old — heading\n</span>\n'
+  base headings (gen_toc): []
+  head Contents lines: []
+  check_em_dash rc=0
+    check_em_dash: 0 finding(s) over 0 added line(s) in 0 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [42013a76..HEAD]
+  [forged-Data-SourcePos] generated_block(head) present: False
+=== forged-Data-SourcePos
+  base page: '# Page\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n\n<h2 Data-SourcePos="20:1-20:18">Harmless</h2>\n\n<span>\n<!--\n\n## Old — heading\n</span>\n'
+  base headings (gen_toc): []
+  head Contents lines: []
+  check_em_dash rc=0
+    check_em_dash: 0 finding(s) over 0 added line(s) in 0 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [3351b371..HEAD]
+  [guarded-lowercase-data-sourcepos] generated_block(head) present: False
+=== guarded-lowercase-data-sourcepos
+  base page: '# Page\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n\n<h2 data-sourcepos="20:1-20:18">Harmless</h2>\n\n<span>\n<!--\n\n## Old — heading\n</span>\n'
+  base headings (gen_toc): []
+  head Contents lines: []
+  check_em_dash rc=0
+    check_em_dash: 0 finding(s) over 0 added line(s) in 0 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [680d8bbd..HEAD]
