@@ -1,0 +1,31 @@
+## OOC figures from the published reports
+== area-base
+| Slice LUTs*                | 28649 |     0 |          0 |     63400 | 45.19 |
+| Slice Registers            | 31095 |     0 |          0 |    126800 | 24.52 |
+|   RAMB36/FIFO*    |   23 |     0 |          0 |       135 | 17.04 |
+|   RAMB18          |    2 |     0 |          0 |       270 |  0.74 |
+| DSPs           |    4 |     0 |          0 |       240 |  1.67 |
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Design       : protocol_processor_top
+|     u_listener             |                 KL_srp_listener_fsm |       1795 |       1795 |       0 |    0 |  2328 |      0 |      0 |          0 |
+WNS/TNS line:     -10.089    -6507.684                   3081                73551        3.870        0.000                       0                 33486  
+WNS/TNS line: clk               -10.089    -6507.684                   3081                73551        3.870        0.000                       0                 33486  
+WNS/TNS line: 
+WNS/TNS line: 
+== area-head
+| Slice LUTs*                | 28643 |     0 |          0 |     63400 | 45.18 |
+| Slice Registers            | 31123 |     0 |          0 |    126800 | 24.54 |
+|   RAMB36/FIFO*    |   23 |     0 |          0 |       135 | 17.04 |
+|   RAMB18          |    2 |     0 |          0 |       270 |  0.74 |
+| DSPs           |    4 |     0 |          0 |       240 |  1.67 |
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Design       : protocol_processor_top
+|     u_listener             |                 KL_srp_listener_fsm |       1868 |       1868 |       0 |    0 |  2336 |      0 |      0 |          0 |
+WNS/TNS line:      -8.192    -4444.392                   3077                73648        3.870        0.000                       0                 33514  
+WNS/TNS line: clk                -8.192    -4444.392                   3077                73648        3.870        0.000                       0                 33514  
+WNS/TNS line: 
+WNS/TNS line: 
+## provenance: every hdl sha256 against the exact head blob
+entries=45 mismatches=0 head_sv=45 uncovered=[] head=29840136bb2d21bc0fbe92c7c533368f40837ff6 tree=03bdccaf528aa94098544cf04f5598292fe855c8 spec_sha256=6bb902be1c1de8c44f4c4c583a645b0b37e0b2dac27870486ce229e68ce3bba8
+## OOC recipe unchanged base..head
+protocol_processor_ooc.tcl unchanged

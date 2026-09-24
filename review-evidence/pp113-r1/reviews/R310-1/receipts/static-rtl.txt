@@ -1,0 +1,39 @@
+## top-level port header (module ... through first ');')
+base e7470860216ed13b7da31d39652bbef57af59ff50a9b03bef05044555728b5a9  -
+head e7470860216ed13b7da31d39652bbef57af59ff50a9b03bef05044555728b5a9  -
+RESULT identical
+## every reference to the new strobe at head
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/srp/KL_srp_listener_fsm.sv:39://                raises evt_tk_latency_chg_o for GET_STREAM_INFO only
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/srp/KL_srp_listener_fsm.sv:156:    output logic [N_SINKS_P-1:0]       evt_tk_latency_chg_o, //! committed accumulated_latency change; notification only
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/srp/KL_srp_listener_fsm.sv:701:      evt_tk_latency_chg_o  <= '0;
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/srp/KL_srp_listener_fsm.sv:711:      evt_tk_latency_chg_o  <= '0;
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/srp/KL_srp_listener_fsm.sv:738:          evt_tk_latency_chg_o[s] <= (lat_r[s] != evt_acc_latency_i);
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/srp/KL_srp_top.sv:198:    output logic [N_SINKS_P-1:0]   evt_tk_latency_chg_o, //! committed sink latency change; GET_STREAM_INFO only
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/srp/KL_srp_top.sv:626:      .evt_tk_latency_chg_o    (evt_tk_latency_chg_o),
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/top/protocol_processor_top.sv:2213:  logic [N_STREAM_IN_P-1:0]  srp_evt_tk_latency_chg_w;
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/top/protocol_processor_top.sv:2291:      .evt_tk_latency_chg_o  (srp_evt_tk_latency_chg_w),
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/top/protocol_processor_top.sv:3146:          || srp_evt_tk_fail_chg_w[k] || srp_evt_tk_latency_chg_w[k];
+29840136bb2d21bc0fbe92c7c533368f40837ff6:tb/pp_top/gsi_mutants.py:21:         " || srp_evt_tk_latency_chg_w[k]", "", 1,
+29840136bb2d21bc0fbe92c7c533368f40837ff6:tb/srp_stream_fsms/srp_stream_fsms_wrap.sv:252:      .evt_tk_latency_chg_o   (),
+29840136bb2d21bc0fbe92c7c533368f40837ff6:tb/srp_top/srp_top_wrap.sv:222:      .evt_tk_latency_chg_o (),
+## event-router strobe map entries for SRP talker events (must not name latency)
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/top/protocol_processor_top.sv:2821:      evr_strobe_w[EVR_TKREG_BASE_C + k]  = srp_evt_tk_reg_w[k];
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/top/protocol_processor_top.sv:2824:      evr_strobe_w[EVR_TKUNR_BASE_C + k]  = srp_evt_tk_unreg_w[k];
+29840136bb2d21bc0fbe92c7c533368f40837ff6:hdl/top/protocol_processor_top.sv:2831:    evr_strobe_w[EVR_DOMAIN_C]    = srp_evt_domain_change_w;
+## changed files base..head
+ docs/00_MILAN_COMPLIANCE_REVIEW.md         |  2 +-
+ docs/architecture/02_interfaces.md         |  1 +
+ docs/architecture/06_aecp_engine.md        | 11 ++++--
+ docs/architecture/10_srp_engine.md         | 14 ++++++--
+ hdl/srp/KL_srp_listener_fsm.sv             | 11 +++++-
+ hdl/srp/KL_srp_top.sv                      |  2 ++
+ hdl/top/protocol_processor_top.sv          |  7 ++--
+ syn/ooc/README.md                          | 21 ++++++++++++
+ tb/pp_top/README.md                        | 11 ++++++
+ tb/pp_top/gsi_internal.hpp                 | 54 ++++++++++++++++++++++++++++--
+ tb/pp_top/gsi_mutants.py                   |  3 ++
+ tb/pp_top/pp_top_wrap.sv                   |  2 ++
+ tb/pp_top/sim_main.cpp                     |  3 ++
+ tb/srp_stream_fsms/srp_stream_fsms_wrap.sv |  1 +
+ tb/srp_top/srp_top_wrap.sv                 |  1 +
+ 15 files changed, 132 insertions(+), 12 deletions(-)
