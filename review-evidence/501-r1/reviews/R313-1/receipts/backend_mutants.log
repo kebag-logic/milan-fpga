@@ -1,0 +1,6 @@
+mutant one_over: rc=1, output-boundary check failures=24, first: FAIL: endstation_ax7101_8x8: output WRITE beyond capacity accepted on port 0
+nvm_backend[endstation_ax7101_8x8]: checks: 525  failures: 24
+mutant nine_bit: rc=1, output-boundary check failures=32, first: FAIL: endstation_ax7101_8x8: a READ of record 0x70 (MAPS_OUT[0]) was REFUSED
+nvm_backend[endstation_ax7101_8x8]: checks: 525  failures: 40
+mutant stale_prefix: rc=1, output-boundary check failures=7, first: FAIL: endstation_ax7101_8x8: MAPS_OUT[1] (record 0x71, 584 framed bytes at area offset 1418) reads the wrong span: byte 0 came back 0x18, the image holds 0x17. The backend resolved this record to a different place in the image
+nvm_backend[endstation_ax7101_8x8]: checks: 525  failures: 42

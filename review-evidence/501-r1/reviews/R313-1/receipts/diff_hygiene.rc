@@ -1,0 +1,7 @@
+name=diff_hygiene
+cwd=$REVIEWS/r313-1-501
+argv=bash -c echo\ \"added\ lines\ with\ U+2014:\ \$\(git\ diff\ 573f0052a0e4412e81f0845438fcec2086ce5d55..b5ee412cdc0fd771d3df1f7fda49031409cf11fa\ \|\ grep\ \"\^+\"\ \|\ grep\ -c\ \$\(printf\ \"\\xe2\\x80\\x94\"\)\)\"\;\ git\ diff\ --check\ 573f0052a0e4412e81f0845438fcec2086ce5d55..b5ee412cdc0fd771d3df1f7fda49031409cf11fa\;\ echo\ \"git\ diff\ --check\ rc=\$\?\" 
+head=b5ee412cdc0fd771d3df1f7fda49031409cf11fa
+start=2026-09-24T22:49:51Z
+end=2026-09-24T22:49:51Z
+rc=0
