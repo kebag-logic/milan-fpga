@@ -1,0 +1,21 @@
+- 0x82C talker pack: bit [2] = i_tlk_lobs_v[idx]
+    hdl/common/csr/milan_csr.sv:2918: i_tlk_lobs_v[snap_idx_r[2:0]],
+- only the N_STREAMS AAF indices reach the window (no CRF index)
+    hdl/milan/milan_datapath.sv:2483: .i_tlk_lobs_v         (8'(acmp_lobs_v_w[N_STREAMS-1:0])),
+- index 0 = listener_observed_w
+    hdl/milan/milan_datapath.sv:1883: assign acmp_lobs_v_w[gj] = listener_observed_w;
+- index > 0 = cfg_acmp_lobs | (cfg_lwsrp_enable & lwsrp_stream_gate[gj]) (ACTIVE)
+    hdl/milan/milan_datapath.sv:1885: assign acmp_lobs_v_w[gj] = cfg_acmp_lobs |
+- listener_observed_w = cfg_acmp_lobs | (cfg_lwsrp_enable & lwsrp_listener_ready)
+    hdl/milan/milan_datapath.sv:1861: wire listener_observed_w = cfg_acmp_lobs |
+-   (continuation)
+    hdl/milan/milan_datapath.sv:1862: (cfg_lwsrp_enable & lwsrp_listener_ready);
+- lwsrp_listener_ready = source 0 registered Ready / Ready Failed
+    hdl/milan/milan_datapath.sv:6693: assign lwsrp_listener_ready =
+- the registration level of source 0, from the processor's lstn_reg_state
+    hdl/milan/milan_datapath.sv:6690: wire [1:0]  lwsrp_lstn_reg0_w = pp_cd_srp_lstn_reg_state_w[1:0];
+- the round-2 comment claim under review
+    hdl/milan/milan_datapath.sv:6614: //!   talker lobs pulse with it. ACTIVE still needs a registered Listener
+- REGISTER_MAP 0x82C row: idx 0 is the registration, idx > 0 is ACTIVE
+    docs/reference/REGISTER_MAP.md:1522: | `0x82C` | `A_STRMW_STATE` | RO snap | `0` | Snap-latched pack. listener: `[2:0]` ACMP lsm state, `[4:3]` probing, `[9:5]` acmp_status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` SRP bits (
+RESULT CHAIN PRESENT

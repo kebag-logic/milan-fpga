@@ -1,0 +1,183 @@
+parent HEAD e65dccfe586bea9455cf1e10397d275c220c740a, protocol-processor gitlink 09f9bf3846511f8388d995126502ed92eaa65213
+hdl/srp/KL_srp_top.sv:444:   // a fresh declaration counts as admitted until fully evaluated (banner)
+hdl/srp/KL_srp_top.sv:445:   assign sr_adm_fsm_w = opt_r | adm_admitted_w;
+hdl/srp/KL_srp_top.sv:772:       // ---- optimistic-window aging (one full round with the request
+hdl/srp/KL_srp_top.sv:773:       // visible must complete before the verdict is trusted) --------------
+hdl/srp/KL_srp_top.sv:774:       if (adm_round_w) begin
+hdl/srp/KL_srp_top.sv:775:         for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+hdl/srp/KL_srp_top.sv:776:           if (opt_r[s]) begin
+hdl/srp/KL_srp_top.sv:777:             if (opt_cnt_r[s] != 2'd0) opt_cnt_r[s] <= opt_cnt_r[s] - 2'd1;
+hdl/srp/KL_srp_top.sv:778:             else                      opt_r[s]     <= 1'b0;
+hdl/srp/KL_srp_top.sv:779:           end
+hdl/srp/KL_srp_top.sv:780:         end
+hdl/srp/KL_srp_top.sv:781:       end
+hdl/srp/KL_srp_top.sv:850:           if (gate_acc_w) begin
+hdl/srp/KL_srp_top.sv:851:             if (a_open_r) begin
+hdl/srp/KL_srp_top.sv:852:               // TSpec joins the admission request set; verdict optimistic
+hdl/srp/KL_srp_top.sv:853:               // until one full round has evaluated it (banner)
+hdl/srp/KL_srp_top.sv:854:               adm_req_r[a_idx_r[SRC_W_C-1:0]]   <= 1'b1;
+hdl/srp/KL_srp_top.sv:855:               adm_mfs_r[a_idx_r[SRC_W_C-1:0]]   <= a_mfs_r;
+hdl/srp/KL_srp_top.sv:856:               adm_mif_r[a_idx_r[SRC_W_C-1:0]]   <= a_mif_r;
+hdl/srp/KL_srp_top.sv:857:               opt_r[a_idx_r[SRC_W_C-1:0]]       <= 1'b1;
+hdl/srp/KL_srp_top.sv:858:               opt_cnt_r[a_idx_r[SRC_W_C-1:0]]   <= 2'd2;
+hdl/srp/KL_srp_top.sv:859:             end else begin
+hdl/srp/KL_srp_top.sv:860:               adm_req_r[a_idx_r[SRC_W_C-1:0]]   <= 1'b0;
+hdl/srp/KL_srp_top.sv:861:               opt_r[a_idx_r[SRC_W_C-1:0]]       <= 1'b0;
+hdl/srp/KL_srp_top.sv:862:             end
+hdl/srp/KL_srp_admission.sv:152:   assign cand_w   = {1'b0, acc_r} + {1'b0, slope_q_r[aidx_r]};
+hdl/srp/KL_srp_admission.sv:153:   assign fit_w    = req_i[aidx_r] && (cand_w <= {1'b0, limit_w});
+hdl/srp/KL_srp_admission.sv:154:   assign refuse_w = req_i[aidx_r] && !fit_w;
+hdl/srp/KL_srp_admission.sv:155:   assign round_w  = (32'(aidx_r) == N_SOURCES_P - 1);
+hdl/srp/KL_srp_admission.sv:206:   always_comb begin : publish
+hdl/srp/KL_srp_admission.sv:207:     for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+hdl/srp/KL_srp_admission.sv:208:       sr_admitted_o[s]       = grant_r[s] && req_i[s];
+hdl/srp/KL_srp_admission.sv:209:       granted_slope_bps_o[s] = (grant_r[s] && req_i[s]) ? gslope_r[s] : 32'd0;
+hdl/srp/KL_srp_admission.sv:210:     end
+hdl/srp/KL_srp_admission.sv:211:   end
+hdl/srp/KL_srp_admission.sv:212: 
+hdl/srp/KL_srp_admission.sv:213:   assign sum_slope_bps_o = sum_r;
+hdl/srp/KL_srp_admission.sv:214:   assign over_limit_o    = over_r;
+hdl/srp/KL_srp_talker_fsm.sv:438:       // the Failed swap re-declares whenever the published mode disagrees
+hdl/srp/KL_srp_talker_fsm.sv:439:       // with the admission level while declaring (10 §6.3)
+hdl/srp/KL_srp_talker_fsm.sv:440:       adm_fix_w[s] = rec_valid_r[s] && app_declaring_f(app_r[s])
+hdl/srp/KL_srp_talker_fsm.sv:441:                   && (fail_r[s] != !sr_admitted_i[s]);
+hdl/srp/KL_srp_talker_fsm.sv:539:         // admission swap flips the declared variant with its New!
+hdl/srp/KL_srp_talker_fsm.sv:540:         if (adm_grant_w[s]) begin
+hdl/srp/KL_srp_talker_fsm.sv:541:           fail_r[s] <= !sr_admitted_i[s];
+hdl/srp/KL_srp_talker_fsm.sv:542:         end
+hdl/srp/KL_srp_talker_fsm.sv:636:   always_comb begin : lstn_out_map
+hdl/srp/KL_srp_talker_fsm.sv:637:     for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+hdl/srp/KL_srp_talker_fsm.sv:638:       lstn_out_w[s] = (reg_r[s] != R_MT_C) ? lstn_val_r[s] : 2'd0;
+hdl/srp/KL_srp_talker_fsm.sv:639:     end
+hdl/srp/KL_srp_talker_fsm.sv:684:       // ---- per-source registrar events ----------------------------------
+hdl/srp/KL_srp_talker_fsm.sv:685:       for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+hdl/srp/KL_srp_talker_fsm.sv:686:         if (reg_rx_hit_w[s] && ((evt_mrp_event_i == 3'(SRP_EV_NEW))
+hdl/srp/KL_srp_talker_fsm.sv:687:                                 || (evt_mrp_event_i == 3'(SRP_EV_JOININ))
+hdl/srp/KL_srp_talker_fsm.sv:688:                                 || (evt_mrp_event_i == 3'(SRP_EV_JOINMT)))) begin
+hdl/srp/KL_srp_talker_fsm.sv:689:           // registering event: -> IN, latch the declaration parameter
+hdl/srp/KL_srp_talker_fsm.sv:690:           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+hdl/srp/KL_srp_talker_fsm.sv:691:           reg_r[s]      <= R_IN_C;
+hdl/srp/KL_srp_talker_fsm.sv:692:           lstn_val_r[s] <= evt_fourpacked_i;
+hdl/srp/KL_srp_talker_fsm.sv:693:         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+hdl/srp/KL_srp_talker_fsm.sv:694:           if (reg_r[s] == R_IN_C) begin
+hdl/srp/KL_srp_talker_fsm.sv:695:             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
+hdl/srp/KL_srp_talker_fsm.sv:696:           end
+hdl/srp/KL_srp_talker_fsm.sv:697:           // LV: table 10-4 rLv on LV is -x- (the LeaveAll aging continues)
+hdl/srp/KL_srp_talker_fsm.sv:698:         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
+hdl/srp/KL_srp_talker_fsm.sv:699:           reg_r[s]   <= R_LV_C;
+hdl/srp/KL_srp_talker_fsm.sv:700:           tpend_r[s] <= T_ARM_C;
+hdl/srp/KL_srp_talker_fsm.sv:701:         end else if (exp_hit_w && (exp_idx_w == s)
+hdl/srp/KL_srp_talker_fsm.sv:702:                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+hdl/srp/KL_srp_talker_fsm.sv:703:           reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+hdl/srp/KL_srp_talker_fsm.sv:704:         end
+hdl/srp/KL_srp_talker_fsm.sv:705:         // gate re-open arms a fresh tracker for the (possibly new) stream
+hdl/srp/KL_srp_talker_fsm.sv:706:         if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
+hdl/srp/KL_srp_talker_fsm.sv:707:           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+hdl/srp/KL_srp_talker_fsm.sv:708:           reg_r[s]      <= R_MT_C;
+hdl/srp/KL_srp_talker_fsm.sv:709:           lstn_val_r[s] <= 2'd0;
+hdl/srp/KL_srp_talker_fsm.sv:710:         end
+hdl/srp/KL_srp_talker_fsm.sv:711:       end
+hdl/srp/KL_srp_talker_fsm.sv:800:       active_o[s] = rec_valid_r[s] && app_declaring_f(app_r[s]) && !fail_r[s]
+hdl/srp/KL_srp_talker_fsm.sv:801:                  && ((lstn_out_w[s] == 2'(SRP_DECL_READY))
+hdl/srp/KL_srp_talker_fsm.sv:802:                      || (lstn_out_w[s] == 2'(SRP_DECL_READY_FAILED)))
+hdl/srp/KL_srp_talker_fsm.sv:803:                  && sr_admitted_i[s];
+hdl/milan/milan_datapath.sv:1652:   wire        lwsrp_slope_en, lwsrp_res_active;
+hdl/milan/milan_datapath.sv:1653:   //! sticky ctx-table shortfall -> LWSRP_STATUS[11]
+hdl/milan/milan_datapath.sv:1654:   wire        lwsrp_ctx_oor_w;
+hdl/milan/milan_datapath.sv:1655:   wire [31:0] lwsrp_idle_slope;
+hdl/milan/milan_datapath.sv:1656:   wire        lwsrp_listener_ready, lwsrp_listener_reg;
+hdl/milan/milan_datapath.sv:1657:   wire [1:0]  lwsrp_listener_decl;
+hdl/milan/milan_datapath.sv:1658:   wire        lwsrp_domain_ok, lwsrp_over_limit, lwsrp_talker_declared;
+hdl/milan/milan_datapath.sv:2505:                             lwsrp_stream_gate[0], lwsrp_over_limit,
+hdl/milan/milan_datapath.sv:2506:                             lwsrp_res_active, lwsrp_domain_ok,
+hdl/milan/milan_datapath.sv:2507:                             lwsrp_talker_declared, lwsrp_listener_ready,
+hdl/milan/milan_datapath.sv:2508:                             lwsrp_listener_reg, lwsrp_listener_decl}),
+hdl/milan/milan_datapath.sv:2509:     .i_lwsrp_slope        (lwsrp_idle_slope),
+hdl/milan/milan_datapath.sv:2510:     .i_lwsrp_cnt          ({lwsrp_rx_pdus, lwsrp_tx_count}),
+hdl/milan/milan_datapath.sv:2511:     //! LWSRP_DOM 0x788: the Milan 4.2.7.2.1 operational Domain pair -
+hdl/milan/milan_datapath.sv:3055:   wire [ACMP_SRC_C-1:0] tkd_streaming_w;
+hdl/milan/milan_datapath.sv:3056:   generate if (ACMP_SRC_C > N_STREAMS) begin : g_tkd_crf
+hdl/milan/milan_datapath.sv:3057:     assign tkd_streaming_w = {crft_emit_en_w, aaf_stream_en_w};
+hdl/milan/milan_datapath.sv:3058:   end else begin : g_tkd_nocrf
+hdl/milan/milan_datapath.sv:3059:     assign tkd_streaming_w = aaf_stream_en_w;
+hdl/milan/milan_datapath.sv:5280:   wire crft_res_active_w = (SRP_CRF_TK_C != 0) &
+hdl/milan/milan_datapath.sv:5281:                            lwsrp_stream_gate[SRP_TALKERS_C-1];
+hdl/milan/milan_datapath.sv:5305:   wire crft_emit_en_w /* verilator public_flat_rd */ = cfg_crft_en &
+hdl/milan/milan_datapath.sv:5306:                         (cfg_aaf_bypass | ~cfg_lwsrp_enable |
+hdl/milan/milan_datapath.sv:5307:                          ~cfg_lwsrp_talker_en | crft_res_active_w);
+hdl/milan/milan_datapath.sv:5308: 
+hdl/milan/milan_datapath.sv:5309:   //! 0x750 live status (see milan_csr A_CRFT_CTRL); [1:0] come from the CSR
+hdl/milan/milan_datapath.sv:5310:   logic [31:0] crft_stat_c;
+hdl/milan/milan_datapath.sv:5311:   always_comb begin : crft_stat_pack
+hdl/milan/milan_datapath.sv:5312:     crft_stat_c        = 32'd0;
+hdl/milan/milan_datapath.sv:5313:     //! [4] used to be "the fabric provisioned this stream's TA row valid".
+hdl/milan/milan_datapath.sv:5314:     //! There is no row to provision: STRUCTURAL ZERO. [5]/[6] below still
+hdl/milan/milan_datapath.sv:5315:     //! carry the real tagged/reserved levels, from the processor.
+hdl/milan/milan_datapath.sv:5316:     crft_stat_c[4]     = 1'b0;
+hdl/milan/milan_datapath.sv:5317:     crft_stat_c[5]     = crft_class_a_w;        //! frames leaving tagged
+hdl/milan/milan_datapath.sv:5318:     crft_stat_c[6]     = crft_res_active_w;     //! reservation ACTIVE
+hdl/milan/milan_datapath.sv:5319:     crft_stat_c[7]     = crft_emit_en_w;        //! emission licensed NOW
+hdl/milan/milan_datapath.sv:6632:   assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
+hdl/milan/milan_datapath.sv:6633:   //! STATUS ONLY (no shaper, above): LWSRP_STATUS[9] reads the RAW verdict
+hdl/milan/milan_datapath.sv:6634:   //! of any source and LWSRP_SLOPE 0x698 the processor's Sigma across
+hdl/milan/milan_datapath.sv:6635:   //! admitted sources. Both report admitted DECLARATIONS, licensed or not,
+hdl/milan/milan_datapath.sv:6636:   //! so a declared, admitted output with no Listener Ready reads [9] set
+hdl/milan/milan_datapath.sv:6637:   //! while its gate is closed. The gate never reads either.
+hdl/milan/milan_datapath.sv:6638:   assign lwsrp_slope_en    = |pp_cd_srp_sr_admitted_w;
+hdl/milan/milan_datapath.sv:6639:   assign lwsrp_idle_slope  = pp_cd_srp_sum_slope_bps_w;
+hdl/milan/milan_datapath.sv:6640:   //! Milan 4.2.7.2.1 Domain adoption surface: the OPERATIONAL {priority, VID}
+hdl/milan/milan_datapath.sv:6641:   //! every declaration serializes, and which the AAF/CRF C-TAG muxes take.
+hdl/milan/milan_datapath.sv:6642:   assign lwsrp_adopt_valid = pp_cd_srp_domain_adopted_w;
+hdl/milan/milan_datapath.sv:6643:   assign lwsrp_op_prio     = {5'd0, pp_cd_srp_class_a_prio_w};
+hdl/milan/milan_datapath.sv:6644:   assign lwsrp_op_vid      = pp_cd_srp_class_a_vid_w;
+hdl/milan/milan_datapath.sv:6645:   assign lwsrp_domain_ok   = pp_cd_srp_domain_adopted_w;
+hdl/milan/milan_datapath.sv:6646:   assign lwsrp_over_limit  = pp_cd_srp_over_limit_w;
+hdl/milan/milan_datapath.sv:6647:   assign lwsrp_res_active  = |pp_cd_srp_active_w;
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:255:       //! streaming edges: START/STOP count the SAME level so the clause
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:256:       //! invariant (START == STOP or STOP+1) holds structurally; a start
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:257:       //! zeroes the three interval counters per Table 5.4
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:258:       strm_q_r <= streaming_i;
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:259:       for (int c = 0; c < N_CTX_P; c++) begin
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:260:         if (streaming_i[c] && !strm_q_r[c]) begin : g_start
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:261:           start_r[c]  <= start_r[c] + 32'd1;
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:262:           mreset_r[c] <= '0;
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:263:           tuiv_r[c]   <= '0;
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:264:           ftx_r[c]    <= '0;
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:265:           //! and the pending flags: a stop->start inside one interval must
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:266:           //! not carry the pre-stop activity into the fresh counters - but
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:267:           //! THIS cycle's event belongs to the stream that just started, so
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:268:           //! it survives the wipe instead of being erased with the history
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:269:           seen_f_r[c]  <= ev_f_w[c];
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:270:           seen_tu_r[c] <= ev_tu_w[c];
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:271:           seen_mr_r[c] <= ev_mr_w[c];
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:272:           dirty_p_o[c] <= 1'b1;
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:273:         end
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:274:         else if (!streaming_i[c] && strm_q_r[c]) begin : g_stop
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:275:           stop_r[c]    <= stop_r[c] + 32'd1;
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:276:           dirty_p_o[c] <= 1'b1;
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:277:         end : g_stop
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:278:       end
+hdl/ieee1722/crf/KL_crf_tx.sv:497:       if (evt_milan_w && enable_i && !frame_pend_r && (st_r == IDLE_S)) begin
+hdl/ieee1722/crf/KL_crf_tx.sv:498:         //! Equation 14: the ROUNDED offset, never the raw transit_ns_i. If a
+hdl/ieee1722/crf/KL_crf_tx.sv:499:         //! conversion is in flight this is still the previous whole answer.
+hdl/ieee1722/crf/KL_crf_tx.sv:500:         ts_r         <= ptp_ns_i + 64'(mtt_ofs_r);
+hdl/ieee1722/crf/KL_crf_tx.sv:501:         tu_r         <= ts_uncertain_i;   //! same PHC, same verdict
+hdl/ieee1722/crf/KL_crf_tx.sv:502:         mr_r         <= mr_i;             //! 10.4.3 level frozen for this PDU
+hdl/ieee1722/crf/KL_crf_tx.sv:503:         vln_r        <= vlan_en_i;        //! shape frozen for this frame
+hdl/ieee1722/crf/KL_crf_tx.sv:504:         vpcp_r       <= vlan_pcp_i;
+hdl/ieee1722/crf/KL_crf_tx.sv:505:         vvid_r       <= vlan_vid_i;
+hdl/ieee1722/crf/KL_crf_tx.sv:506:         frame_pend_r <= 1'b1;
+hdl/ieee1722/crf/KL_crf_tx.sv:507:       end
+hdl/ieee1722/crf/KL_crf_tx.sv:508:       if (!enable_i) begin
+hdl/ieee1722/crf/KL_crf_tx.sv:509:         frame_pend_r <= 1'b0;
+hdl/ieee1722/crf/KL_crf_tx.sv:510:       end
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:314:   wire pair_ok_w = pair_valid_i && pown_v_w && stream_en_i[pown_t_w] &&
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:315:                    !(pend_r[pown_t_w] && own_last_w &&
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:316:                      (32'(nsamp_r[pown_t_w]) == SAMPLES_PER_FRAME_C - 1));
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:732:       //! disabled stream: clear its accumulation (flat-talker semantics)
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:733:       for (int t = 0; t < N_TALKERS_P; t++) begin
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:734:         if (!stream_en_i[t]) begin
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:735:           nsamp_r[t] <= '0;
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:736:           pend_r[t]  <= 1'b0;
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:737:         end
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:738:       end
