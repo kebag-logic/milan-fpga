@@ -1,0 +1,20 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+REFUSED: MD1 literal-address cast store into the CSR window in a UART handler, hidden by U+00B7 in two directive names
+    the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do 
+REFUSED: MD1a the same store hidden by U+0387
+    the firmware spells a character outside the allowlist of S (U+0387, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do 
+REFUSED: MD1b the same store hidden by U+203F
+    the firmware spells a character outside the allowlist of S (U+203F, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do 
+REFUSED: MD1c control: the same store hidden by `$` (S refuses)
+    the firmware spells `$` in its code, outside the lexical subset S (line 1500): GCC admits `$` in an identifier and a directive name, so `#if$a` is an unknown directive it ignores in skipped code while the readers here read `#if`; the shipping firmware spells none
+ACCEPTED: MD1p control: the same store, plain
+REFUSED: MD2 identity sample forged in milan_init(), hidden by U+00B7
+    the firmware spells a character outside the allowlist of S (U+00B7, line 1440): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do 
+REFUSED: MD3 ADP enable in a UART handler, hidden by U+00B7
+    the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do 
+REFUSED: MD4 AEM verdict overwritten after the verifier, hidden by U+00B7
+    the firmware spells a character outside the allowlist of S (U+00B7, line 1454): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do 
+REFUSED: MD5 benign control: a printf in a UART handler, hidden by U+00B7
+    the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do 
+ACCEPTED: MD6 benign control: U+00B7 in a comment only
+PROBE DONE: 10 result(s), 0 compiles, 4.0 s

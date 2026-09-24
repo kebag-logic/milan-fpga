@@ -1,0 +1,55 @@
+  A agree: 2237
+  A agree(both refuse): 309
+  A reader refuses, GCC reads (fail-closed): 1
+  A refused-allowlist: 3421
+  A refused-allowlist+closes: 226
+  A refused-other: 246
+  B GCC refuses to preprocess, reader reads names: 29
+  B agree: 1909
+  B agree(both refuse): 384
+  B refused-allowlist: 3526
+  B refused-other: 389
+  C GCC refuses to preprocess, reader reads names: 3
+  C agree: 1133
+  C agree(both refuse): 310
+  C reader refuses, GCC reads (fail-closed): 4
+  C refused-other: 755
+Part A: {'cells': 6440, 'record_vs_gcc mismatches': 0, 'closes': 226, 'negative control among closes': 1}
+cells whose raw kind is HOLE:
+  A reader refuses, GCC reads (fail-closed): byte 0x23 at the end of the file, in code (reader None, gcc ['a', 'z'])
+  B GCC refuses to preprocess, reader reads names: byte 0x0a gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x0d gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x21 gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x23 gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x25 gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x26 gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x28 gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x29 gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x2a gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x2b gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x2c gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x2d gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x2e gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x2f gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x3a gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x3b gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x3c gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x3d gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x3e gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x3f gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x40 gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x5b gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x5d gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x5e gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x60 gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x7b gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x7c gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x7d gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  B GCC refuses to preprocess, reader reads names: byte 0x7e gap between #ifdef and its (defined) name (reader ['a', 'z'], gcc None)
+  C reader refuses, GCC reads (fail-closed): '\n''#' pair between # and a directive name (reader None, gcc ['a', 'z'])
+  C reader refuses, GCC reads (fail-closed): '\r''#' pair between # and a directive name (reader None, gcc ['a', 'z'])
+  C reader refuses, GCC reads (fail-closed): '#''\n' pair in a line's lead before # (reader None, gcc ['a', 'z'])
+  C reader refuses, GCC reads (fail-closed): '#''\r' pair in a line's lead before # (reader None, gcc ['a', 'z'])
+  C GCC refuses to preprocess, reader reads names: '#''a' pair in a line's lead before # (reader ['a', 'b', 'z'], gcc None)
+  C GCC refuses to preprocess, reader reads names: '\n''#' pair inside an identifier in code (reader ['a', 'z'], gcc None)
+  C GCC refuses to preprocess, reader reads names: '\r''#' pair inside an identifier in code (reader ['a', 'z'], gcc None)

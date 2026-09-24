@@ -1,0 +1,34 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+ACCEPTED: ACC1 an #ifdef around a debug printf INSIDE milan_init()
+ACCEPTED: ACC2 a benign statement in an arm the census tree drops, inside configure_fabric()
+ACCEPTED: ACC3 an #ifdef/#else choosing a #define, read in a UART command handler
+ACCEPTED: ACC4 a ## token paste building a call outside the boot path
+ACCEPTED: ACC5 a token-joining backslash-newline inside a macro body
+ACCEPTED: ACC6 a read-only #define accessor over milan_read()
+ACCEPTED: ACC7 a fifth cast to a pointer, resolving outside the window
+ACCEPTED: ACC8 a fifth store through a pointer, resolving outside the window
+ACCEPTED: ACC9 parse_u64() and seconds_to_ns() exchanged, with nothing added or removed
+ACCEPTED: ACC10 a fifth inline-asm statement, a fence in a UART command handler
+ACCEPTED: H1 function pointer to milan_write built by a SPLICE, called from a UART handler
+ACCEPTED: H2 function pointer to milan_write built by a PASTE, called from a UART handler
+ACCEPTED: H3 second choke-point call built by a SPLICE, in a UART handler
+REFUSED: H4 verdict overwritten by a PASTE between the verifier and the choke point
+    a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments
+REFUSED: H5 verdict overwritten by a SPLICE between the verifier and the choke point
+    a backslash-newline JOINS two tokens inside the boot entry point (line 1453): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two
+ACCEPTED: H11 store through milan_reg() built by a PASTE, in a UART handler
+REFUSED: H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_ID)
+    #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition
+REFUSED: H7 second #define of MILAN_ID_MAGIC as the sample itself (control)
+    #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition
+ACCEPTED: H8 verifier QSPI-slot group with its #else arm deleted (the no-slot build falls off the end of load_aem_image())
+REFUSED: H9 verifier #else behind a lone CR, its hidden arm returning 1
+    AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary
+ACCEPTED: H10 product-only 0 && in the choke point's verdict test (the gate's own control, graded here in both environments)
+ACCEPTED: H12 the same product-only 0 && with its directives behind lone CRs
+ACCEPTED: H13 the same product-only 0 && with its directives behind form feeds
+REFUSED: H14 a product-only arm clearing nothing: pre-AEM ADP clear behind a lone-CR #ifndef (census keeps it, product drops it)
+    under the arm selection line 1367 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, no arm taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image is verified
+ACCEPTED: ACC11 a README and a notes.txt beside the firmware
+ACCEPTED: H15 a LINK named init.h beside the firmware to a file outside
+PROBE DONE: 26 result(s), 0 compiles, 30.1 s

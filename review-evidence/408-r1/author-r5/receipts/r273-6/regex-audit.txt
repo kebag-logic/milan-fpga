@@ -1,0 +1,112 @@
+re.* calls in lines 2342-16443: 197; without ASCII mode and Unicode-sensitive or built at run time: 111
+  2343 compile   reads=(compiled)                                                   pattern=r"[/\"'\f\v\0]"
+  3176 finditer  reads=source[:stop]                                                pattern=r"\b(?:begin|end|generate|endgenerate|case|casex|casez|" r"endcase|fork|join|join_any|join
+  3196 sub       reads=""                                                           pattern=r"\b(?:end|endgenerate|endcase|join|join_any|join_none)\b" r"(?:\s*:\s*[A-Za-z_$][A-Za-z0-
+  3232 compile   reads=(compiled)                                                   pattern=cpp_hash + r"(if|ifdef|ifndef|elif|elifdef|elifndef|else|endif)\b"
+  3316 compile   reads=(compiled)                                                   pattern=cpp_hash + r"error\b[^\n]*"
+  3489 findall   reads=view                                                         pattern=cpp_hash + r"undef[ \t]+([A-Za-z_]\w*)"
+  3558 search    reads=text[at:stop]                                                pattern=cpp_hash + r"(define|undef|include)\b"
+  3589 compile   reads=(compiled)                                                   pattern=r"\b(A_[A-Z0-9_]+)\s*=\s*(?:[0-9]+)?'[hH]([0-9A-Fa-f_]+)"
+  3594 compile   reads=(compiled)                                                   pattern=r"\bcase[xz]?\b|\bendcase\b"
+  3597 compile   reads=(compiled)                                                   pattern=r"\A\s*(?:[0-9]+[ \t]*)?'[sS]?[hdboHDBO][0-9A-Fa-f_xzXZ?]+\s*\Z|" r"\A\s*[0-9][0-9_]*\s*\Z
+  3612 sub       reads=""                                                           pattern=r"[\s_]"
+  3645 compile   reads=(compiled)                                                   pattern=rf"\b{re.escape(signal)}\b\s*(?:\[[^\]]*\])?\s*" rf"(?:<=|=)\s*([^;]*);"
+  3660 finditer  reads=csr                                                          pattern=r"\bcase\b\s*\(\s*wr_addr\s*\)"
+  3708 search    reads=csr                                                          pattern=r"\bwire\s*\[\s*ADDR_WIDTH\s*-\s*1\s*:\s*0\s*\]\s*wr_addr\s*=\s*" r"s_axi_awaddr\s*;"
+  3713 finditer  reads=csr                                                          pattern=r"\bcase[xz]\b\s*\(\s*wr_addr\s*\)"
+  3746 finditer  reads=csr                                                          pattern=rf"\bassign\s+{port}\s*=\s*{re.escape(signal)}\s*" rf"\[\s*0\s*\]\s*;"
+  3771 finditer  reads=csr                                                          pattern=r"\bfunction\s+automatic\s+\[\s*31\s*:\s*0\s*\]\s+" r"csr_default\s*\(\s*input\s+\[\s*10\s
+  3778 finditer  reads=body                                                         pattern=r"\bunique\s+case\s*\(\s*a\s*\)"
+  3783 fullmatch reads=body[:case.start()]                                          pattern=r"\s*csr_default\s*=\s*32\s*'\s*[hH]0\s*;\s*"
+  3807 finditer  reads=case_body                                                    pattern=rf"\b{re.escape(rtl_name)}\s*{low_eleven}\s*:\s*" r"csr_default\s*=\s*(?P<value>[^;]+);"
+  3988 compile   reads=(compiled)                                                   pattern=r"\bptp_ctrl\s*<=\s*" r"(?P<literal>(?:(?:[0-9]+)\s*)?'[hHdDbB]\s*[0-9A-Fa-f_]+|" r"[0-9][
+  4005 finditer  reads=csr                                                          pattern=r"\bassign\s+o_ptp_enable\s*=\s*(?P<value>[^;]+);"
+  4011 fullmatch reads=value                                                        pattern=r"\s*ptp_ctrl\s*\[\s*0\s*\]\s*"
+  4220 compile   reads=(compiled)                                                   pattern=r"^(\.+)\s+(\S.*?)\s*$"
+  4340 compile   reads=(compiled)                                                   pattern=cpp_hash + r"([A-Za-z_]\w*)?"
+  4341 compile   reads=(compiled)                                                   pattern=r"\A[ \t]*(<[^>\n]*>|\"[^\"\n]*\")[ \t]*\Z"
+  4447 search    reads=soc_source                                                   pattern=r"(?m)^MILAN_CSR_BASE\s*=\s*(0x[0-9A-Fa-f_]+)"
+  4449 search    reads=soc_source                                                   pattern=r"(?m)^MILAN_CSR_SIZE\s*=\s*(0x[0-9A-Fa-f_]+)"
+  4458 compile   reads=(compiled)                                                   pattern=r"^\s*\.(?:cfi|file|loc|size|ident|align|globl)"
+  4614 compile   reads=re.M                                                         pattern=r'^\s*\.attribute\s+arch\s*,\s*"([^"]*)"'
+  5100 compile   reads=(compiled)                                                   pattern=cpp_hash + r"define[ \t]+([A-Za-z_$][\w$]*)(\([^)\n]*\))?(.*)$"
+  5197 compile   reads=(compiled)                                                   pattern=cpp_hash + r"include\b"
+  5838 findall   reads=view                                                         pattern=cpp_hash + r"undef[ \t]+([A-Za-z_]\w*)"
+  5885 sub       reads=""                                                           pattern=cpp_hash + r"[^\n]*"
+  5933 findall   reads=build.stderr.decode("utf-8", errors="replace")               pattern=r"(?m)(lex\d{5}\.c):\d+(?::\d+)?: (?:fatal )?error:"
+  6143 search    reads=compiled                                                     pattern=cpp_hash + r"([A-Za-z_]\w*)"
+  6198 match     reads=line                                                         pattern=r"^([A-Za-z_][\w.]*):"
+  6345 compile   reads=(compiled)                                                   pattern=rf"^{re.escape(choke)}:$" rf"|^\.type\s+{re.escape(choke)},\s*@function$" rf"|^\.size\s+{r
+  6350 compile   reads=(compiled)                                                   pattern=rf"(?<![\w.$]){re.escape(choke)}(?![\w.$])"
+  7322 compile   reads=(compiled)                                                   pattern=r"(?m)^" + make_lead + assign_prefix + r"OBJECTS" + make_name_gap + assign_operator + make
+  7342 finditer  reads=text                                                         pattern=r"\bOBJECTS\b"
+  7440 compile   reads=(compiled)                                                   pattern=r"\A" + make_lead + r"(?:-|s)?include" + make_token_end + r"|\A" + make_lead + r"(?:export
+  7446 compile   reads=(compiled)                                                   pattern=r"(?m)^" + make_lead + r"((?:-|s)?include" + make_space + r"+[^\n]*)$"
+  7462 compile   reads=(compiled)                                                   pattern=r"(?m)^" + make_lead + assign_prefix + assign_body + r"(.*)$"
+  7466 compile   reads=(compiled)                                                   pattern=r"\A" + make_lead + assign_prefix + assign_body + r"(.*)\Z"
+  7490 compile   reads=(compiled)                                                   pattern=r"\A" + make_lead + assign_prefix + make_outer_name + make_name_gap + r"(?:" + assign_oper
+  7506 compile   reads=(compiled)                                                   pattern=r"\A" + make_lead + assign_prefix + r"define" + make_space + r"+([A-Za-z_][A-Za-z0-9_]*)" 
+  7527 compile   reads=(compiled)                                                   pattern=r"\A" + make_lead + r"endef" + make_body_token_end
+  7540 compile   reads=(compiled)                                                   pattern=r"\A" + make_lead + assign_prefix + r"define" + make_space + r"+[^ \t\v\f\r\n]"
+  7559 compile   reads=(compiled)                                                   pattern=r"\A" + make_lead + r"define" + make_body_token_end
+  7568 compile   reads=(compiled)                                                   pattern=r"\A" + make_lead + r"(?:ifeq|ifneq|ifdef|ifndef|else|endif)" + make_token_end
+  7765 compile   reads=(compiled)                                                   pattern=r"eval(?:" + make_fn_space + r"|[)}])"
+  7832 sub       reads=" "                                                          pattern=r"\s+"
+  8036 compile   reads=(compiled)                                                   pattern=r"[$][({][ \t]*call" + make_fn_space + r"+([A-Za-z][A-Za-z0-9_-]*)(?=" + make_fn_space + r
+  8350 sub       reads=" "                                                          pattern=r"\s+"
+  8427 sub       reads=" "                                                          pattern=r"\s+"
+  8530 sub       reads=" "                                                          pattern=r"\s+"
+  8588 sub       reads=" "                                                          pattern=r"\s+"
+ 10037 findall   reads=makefile                                                     pattern=r"\b([\w.-]+)\.o\b"
+ 10093 findall   reads=origins_run.stdout + origins_run.stderr                      pattern=r"(?m)^PROBE_ORIGIN_(\w+)=\[(.*)\]$"
+ 10097 findall   reads=plan.stdout + plan.stderr                                    pattern=r"(?m)^PROBE_(\w+)=\[(.*)\]$"
+ 10253 finditer  reads=code                                                         pattern=r"`[ \t]*(?P<name>[A-Za-z_][A-Za-z0-9_$]*)\b"
+ 10268 fullmatch reads=raw[match.start():line_end]                                  pattern=r"[ \t]*`[ \t]*include[ \t]+" r"\"(?P<path>[^\"\r\n]+)\"[ \t]*"
+ 10299 finditer  reads=ports                                                        pattern=rf"\.{re.escape(port)}\s*\(\s*(?P<value>[^)]*?)\s*\)"
+ 10304 sub       reads=""                                                           pattern=r"\s+"
+ 10305 sub       reads=""                                                           pattern=r"\s+"
+ 10321 findall   reads=source                                                       pattern=rf"\b{re.escape(name)}\b"
+ 10335 sub       reads=""                                                           pattern=r"\s+"
+ 10336 sub       reads=""                                                           pattern=r"\s+"
+ 10352 fullmatch reads=matches[0].group("value")                                    pattern=rf"\s*{re.escape(rhs)}\s*"
+ 10361 finditer  reads=source                                                       pattern=rf"\b{re.escape(module)}\b\s*#\s*\([^;]*?\)\s*" rf"{re.escape(instance)}\s*\((?P<ports>.*?
+ 10379 finditer  reads=csr_code                                                     pattern=r"\binitial\s+begin\b(?P<body>.*?)\bend\b"
+ 10382 search    reads=match.group("body")                                          pattern=r"\bdflt_rom\b"
+ 10385 fullmatch reads=rom_initializers[0].group("body")                            pattern=r"\s*for\s*\(\s*int\s+k\s*=\s*0\s*;\s*k\s*<\s*512\s*;" r"\s*k\+\+\s*\)\s*dflt_rom\s*\[\s*k
+ 10596 search    reads=datapath                                                     pattern=r"\bgenerate\s+if\s*\(\s*RXFILT_P\s*!=\s*0\s*\)\s*" r"begin\s*:\s*g_rx_filter\b(?P<enabled
+ 10678 search    reads=datapath                                                     pattern=r"\bgenerate\s+if\s*\(\s*GPTP_PLANE_EN_P\s*\)\s*" r"begin\s*:\s*g_gptp_plane\b(?P<body>.*?
+ 10782 finditer  reads=datapath                                                     pattern=r"\bKL_link_guard\s+link_guard\s*\((?P<ports>.*?)\)\s*;"
+ 11526 search    reads=csr_source                                                   pattern=r"\bparameter\s+logic\s*\[\s*31\s*:\s*0\s*\]\s+VERSION\s*=\s*" r"(?P<literal>[0-9]+\s*'\s*
+ 11557 search    reads=init_code                                                    pattern=r"\buint32_t\s+(?P<name>\w+)\s*=\s*" r"milan_read\s*\(\s*MILAN_ID\s*\)\s*;"
+ 11564 search    reads=init_code                                                    pattern=r"\bif\s*\(\s*\w+\s*!=\s*MILAN_ID_MAGIC\s*\)\s*\{"
+ 11575 search    reads=init_code                                                    pattern=r"\bentity_advertise\s*\(\s*aem_loaded\s*\)\s*;"
+ 11582 search    reads=firmware_code                                                pattern=r"\bif\s*\(\s*![ \t]*" + re.escape(source_advertise.group("verdict")) + r"\s*\)\s*\n\s*ret
+ 11596 search    reads=firmware_code                                                pattern=r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;"
+ 11616 search    reads=firmware_code                                                pattern=r"static\s+void\s+configure_fabric\s*\(\s*void\s*\)\s*\{"
+ 11622 search    reads=firmware_code                                                pattern=r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*\(\s*" r"unsigned\s+int\s+(?P
+ 11635 search    reads=firmware_code                                                pattern=r"\bstatic\s+inline\s+uint32_t\s+milan_read\s*\(\s*unsigned\s+int" r"\s+(?P<offset>\w+)\s*
+ 11658 search    reads=code                                                         pattern=r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*" r"\(\s*unsigned\s+int\s+(?P
+ 11674 search    reads=init_code                                                    pattern=r"\bconfigure_fabric\s*\(\s*\)\s*;"
+ 11761 search    reads=firmware_code                                                pattern=rf"(?m)^#define\s+{spare_name}\s+\S+[ \t]*$"
+ 11768 sub       reads=f"0x{source_model.pp:03x}u"                                  pattern=r"\S+[ \t]*$"
+ 11824 search    reads=docs_source                                                  pattern=r"After\s+the\s+identity\s+check\s+and\s+AEM\s+verification\s+" r"succeed,\s+set\s+the\s+`
+ 11829 sub       reads="enable the PTP clock and set the `PP_CTRL"                  pattern=r"set\s+the\s+`PP_CTRL"
+ 11836 search    reads=source_identity_block                                        pattern=r"\breturn\s*;"
+ 11925 finditer  reads=source                                                       pattern=rf"\b{re.escape(module)}\b\s*#\s*\([^;]*?\)\s*" rf"{re.escape(instance)}\s*\((?P<ports>.*?
+ 11933 finditer  reads=ports                                                        pattern=rf"\.{re.escape(port)}\s*\(\s*(?P<value>[^)]*?)\s*\)"
+ 11936 fullmatch reads=connections[0].group("value")                                pattern=rf"\s*{re.escape(value)}\s*"
+ 11946 sub       reads="ptp_ctrl[0] & adp_ctrl[0]"                                  pattern=r"ptp_ctrl\s*\[\s*0\s*\]"
+ 12349 search    reads=csr_source                                                   pattern=r"\bA_ADP_CTRL\s*=\s*(?:[0-9]+)?'[hH][0-9A-Fa-f_]+"
+ 12352 search    reads=csr_source                                                   pattern=r"(?m)^([ \t]*)A_ADP_CTRL\s*:\s*adp_ctrl\s*<=[^;]*;"
+ 12372 finditer  reads=source_load_code                                             pattern=r"\breturn\b([^;]*);"
+ 13136 search    reads=statement                                                    pattern=r"(?:<=|=)\s*([^;]*);"
+ 13138 sub       reads=""                                                           pattern=r"\s"
+ 13155 finditer  reads=csr_source                                                   pattern=rf"\b{re.escape(signal)}\s*(?:<=|=)\s*([^;]*);"
+ 13175 search    reads=csr_source                                                   pattern=r"\bA_ADP_CTRL\s*\[[^\]]*\]\s*:\s*csr_default\s*=\s*[^;]*;"
+ 13198 search    reads=code                                                         pattern=r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*" r"\(\s*unsigned\s+int\s+\w+
+ 13417 findall   reads=census_arch                                                  pattern=r"(?:^rv32|_)([a-z][a-z0-9]*?)\d+p\d+"
+ 13509 search    reads=_taken["text"]                                               pattern=rf"(?m)^\s+{re.escape(mnemonic)}(?:\.[a-z]+)*\s"
+ 13535 search    reads=source_load_code                                             pattern=rf"\b{re.escape(crc_local)}\s*=\s*crc32\s*\([^;]*;"
+ 13599 search    reads=source_load_code                                             pattern=r"volatile\s+uint8_t\s*\*\s*dst\s*=\s*\(\s*volatile\s+uint8_t\s*" r"\*\s*\)\s*MILAN_AEM_DE
+ 13974 sub       reads=""                                                           pattern=r"\s+"
+ 14322 subn      reads="The paste ban reads every macro those bodies name, a header pattern=r"\s+".join(map(re.escape, PASTE_BOUND_CLAIM.split()))

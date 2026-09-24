@@ -1,0 +1,20 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] SKIP: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS THE TEXT RULES RETIRED BY #408 AND #409 REST ON ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- so on this runner NOTHING refuses what those instruments carry: a token-joining splice or a ## paste OUTSIDE the six boot-path bodies, a file beside the firmware, a cast, store or asm the resolver would place in the window, and the COMPILER half of the retired conditional-reach ban -- an arm only one build compiles whose defect no text rule reads, such as `0 &&` in the choke point's verdict test, is graded here by the text rules alone, which do not refuse it -- and every mutation pinned on those instruments is SKIPPED, not counted. WHAT STILL GRADED is every text rule that survives: the splice and ## bans KEPT inside the six boot-path bodies, one #define per name (which is what refuses a read hidden in a second definition of the identity magic), the macro-body rule, the closed-grammar subset check S (the character allowlist, then the literal, digraph, trigraph, $, universal-character-name, __has_include, header-name, _Pragma and unterminated-comment refusals), read on the whole firmware before any reader, the directive readers as the two lexer corpora and the character-closure table recorded them (not re-measured), and the per-selection grading of each conditional (its text half); and the hosted builder jobs require this compiler
+Traceback (most recent call last):
+  File "$SCRATCH/r272-5/review-evidence/408-r1/reviews/R272-5/scripts/r1/probe_gate1b.py", line 140, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$SCRATCH/r272-5/review-evidence/408-r1/reviews/R272-5/scripts/r1/probe_gate1b.py", line 126, in main
+    module.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANE/sw/builder/test_builder.py", line 14253, in test_baremetal_profile_contract
+    assert accepted != firmware_source, \
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "$SCRATCH/r272-5/review-evidence/408-r1/reviews/R272-5/scripts/r1/probe_gate1b.py", line 78, in hook
+    for case in cases_module.cases(ns):
+                ~~~~~~~~~~~~~~~~~~^^^^
+  File "$SCRATCH/r272-5/review-evidence/408-r1/reviews/R272-5/scripts/r5/cases_r5_closure.py", line 137, in cases
+    assert len(cells) == len(mod._CLOSURE_KEPT) == 2520, len(cells)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 6440
+exit=1

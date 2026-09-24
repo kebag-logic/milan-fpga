@@ -1,0 +1,40 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 183,
+ "seconds": 59.0,
+ "results": [
+  {
+   "label": "E1 #if/#elif/#else debug printfs after the choke-point call (three selections, benign)",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "E2 an #elif arm only the product takes enabling ADP before AEM",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1384 `#if defined(MILAN_A)`: arm 2 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "E3 nested groups, the inner arm enabling ADP before AEM",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1384 `#ifdef MILAN_A`: MILAN_A defined, arm 1 of 1 taken; line 1385 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "E4 #if 0 around a benign statement (graded as code, benign)",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "E5 #if 0 around an enable before AEM (graded as the code it would be)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1384 `#if 0`: arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "E6 four independent groups (16 selections, at the bound, benign)",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  }
+ ]
+}

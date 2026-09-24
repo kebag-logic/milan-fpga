@@ -1,0 +1,19 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+REFUSED: HI1 identity sample forged in milan_init() behind `#if !__has_include(<r273/*none>)`, `*/` behind a //
+    the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1439): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither
+REFUSED: HI1q control: the same with the QUOTED header name "r273/*none" (a string to the gate)
+    the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1439): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither
+REFUSED: HI1p control: the same forgery under a plain `#if 1`
+    under the arm selection line 1439 `#if 1`: arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): CSR identity guard must consume the unmodified MILAN_ID sample: no assignment, increment or pointer write may replace the value between its CSR read and mismatch comparison
+REFUSED: HI2 ADP enable in a UART command handler behind the header name
+    the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither
+REFUSED: HI2p control: the same enable in the handler, plain
+    ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+REFUSED: HI3 literal-address cast store into the CSR window in a UART command handler behind the header name
+    the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither
+ACCEPTED: HI3p control: the same store, plain
+REFUSED: HI4 AEM verdict overwritten after the verifier behind the header name
+    the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1453): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither
+REFUSED: HI5 benign control: a printf in a UART command handler behind the header name
+    the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither
+PROBE DONE: 9 result(s), 0 compiles, 4.5 s

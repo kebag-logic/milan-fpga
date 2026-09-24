@@ -1,0 +1,12 @@
+docs_check (git) rc=0
+docs_check (no git) rc=0
+check_baremetal_only --check rc=0
+check_baremetal_only --selftest rc=0
+check_em_dash --base 759da623 rc=0
+check_doc_style rc=0
+gen_toc --check rc=0
+check_doc_paths rc=0
+check_py_idiom rc=0
+git diff --check 759da623..HEAD rc=0
+git diff --check (worktree) rc=0
+test_firmware_compiler --selftest rc=0

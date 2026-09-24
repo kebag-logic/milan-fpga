@@ -1,0 +1,1577 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "mutations",
+ "compiles": 0,
+ "seconds": 254.4,
+ "results": [
+  {
+   "label": "old AEM-gated PTP documentation",
+   "pin": [
+    "bare-metal boot contract lost"
+   ],
+   "ok": true
+  },
+  {
+   "label": "documentation claiming the paste ban reads a header's macro",
+   "pin": [
+    "bare-metal boot contract lost"
+   ],
+   "ok": true
+  },
+  {
+   "label": "CSR identity contract repointed to VERSION",
+   "pin": [
+    "firmware MILAN_ID must resolve to the RTL A_ID address"
+   ],
+   "ok": true
+  },
+  {
+   "label": "CSR identity magic changed to the VERSION value",
+   "pin": [
+    "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"
+   ],
+   "ok": true
+  },
+  {
+   "label": "CSR identity magic replaced by the sampled value",
+   "pin": [
+    "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"
+   ],
+   "ok": true
+  },
+  {
+   "label": "CSR identity magic replaced by a sampled expression",
+   "pin": [
+    "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"
+   ],
+   "ok": true
+  },
+  {
+   "label": "RTL A_ID address hidden behind a comment decoy",
+   "pin": [
+    "firmware MILAN_ID must resolve to the RTL A_ID address"
+   ],
+   "ok": true
+  },
+  {
+   "label": "RTL A_ID default hidden behind a comment decoy",
+   "pin": [
+    "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"
+   ],
+   "ok": true
+  },
+  {
+   "label": "RTL A_ID address selected through an inactive preprocessor arm",
+   "pin": [
+    "CSR integration proof requires unconditional live SystemVerilog text"
+   ],
+   "ok": true
+  },
+  {
+   "label": "RTL A_ID address hidden in an inactive static generate arm",
+   "pin": [
+    "RTL CSR address declarations must be unconditional module-scope items"
+   ],
+   "ok": true
+  },
+  {
+   "label": "RTL A_ID default hidden in a dead procedural case",
+   "pin": [
+    "RTL csr_default's address case must be a direct top-level item after its literal-zero default"
+   ],
+   "ok": true
+  },
+  {
+   "label": "RTL A_ID defaults-ROM fill forged",
+   "pin": [
+    "RTL A_ID readback plumbing must preserve the canonical csr_default ROM and direct AXI read address"
+   ],
+   "ok": true
+  },
+  {
+   "label": "RTL A_ID read address offset",
+   "pin": [
+    "RTL A_ID readback plumbing must preserve the canonical csr_default ROM and direct AXI read address"
+   ],
+   "ok": true
+  },
+  {
+   "label": "CSR identity mismatch guard removed",
+   "pin": [
+    "firmware must reject a mismatched CSR identity"
+   ],
+   "ok": true
+  },
+  {
+   "label": "CSR identity mismatch guard does not return",
+   "pin": [
+    "CSR identity mismatch guard must return"
+   ],
+   "ok": true
+  },
+  {
+   "label": "CSR identity mismatch guard inverted",
+   "pin": [
+    "firmware must reject a mismatched CSR identity"
+   ],
+   "ok": true
+  },
+  {
+   "label": "CSR identity sample overwritten before the guard",
+   "pin": [
+    "CSR identity guard must consume the unmodified MILAN_ID sample"
+   ],
+   "ok": true
+  },
+  {
+   "label": "milan_reg() ignores its offset",
+   "pin": [
+    "milan_reg() must return exactly MILAN_CSR_BASE plus the offset it is passed"
+   ],
+   "ok": true
+  },
+  {
+   "label": "milan_read() forges the identity value",
+   "pin": [
+    "milan_read() must return exactly the value loaded through milan_reg(offset)"
+   ],
+   "ok": true
+  },
+  {
+   "label": "unconditional entity enable",
+   "pin": [
+    "firmware must configure, load AEM, then guard entity enable"
+   ],
+   "ok": true
+  },
+  {
+   "label": "inverted entity enable",
+   "pin": [
+    "firmware must configure, load AEM, then guard entity enable"
+   ],
+   "ok": true
+  },
+  {
+   "label": "software PTP enable write",
+   "pin": [
+    "firmware must not write the reset-enabled PHC"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PHC disabled during fabric configuration",
+   "pin": [
+    "firmware must not write the reset-enabled PHC"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP before PP",
+   "pin": [
+    "AEM-success guard must enable PP before ADP"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PP bit 0 not asserted",
+   "pin": [
+    "PP_CTRL (CSR 0x920) enable write must assert bit 0"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP bit 0 cleared",
+   "pin": [
+    "ADP_CTRL (CSR 0x600) must have exactly one read/OR enable write"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PP enabled before AEM verification",
+   "pin": [
+    "PP_CTRL (CSR 0x920) bit 0 may be set only inside the"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP enabled before AEM verification",
+   "pin": [
+    "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through an indirect helper",
+   "pin": [
+    "milan_write() must name a register the RTL decodes"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP enabled through an address alias",
+   "pin": [
+    "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PP enabled through an address alias",
+   "pin": [
+    "PP_CTRL (CSR 0x920) bit 0 may be set only inside the"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PHC written through an address alias",
+   "pin": [
+    "firmware must not write the reset-enabled PHC"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a repointed register name",
+   "pin": [
+    "PP_CTRL (CSR 0x920) bit 0 may be set only inside the"
+   ],
+   "ok": true
+  },
+  {
+   "label": "milan_write() given a value constant as its register",
+   "pin": [
+    "milan_write() must name a register the RTL decodes"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled with a space before the call paren",
+   "pin": [
+    "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a function pointer",
+   "pin": [
+    "milan_write must always be called, never used as a value"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled by storing through milan_reg()",
+   "pin": [
+    "milan_reg() may be called only by milan_read()/milan_write()"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a second consumer of the address helper's return",
+   "pin": [
+    "milan_reg() may be called only by milan_read()/milan_write()"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a raw CSR pointer",
+   "pin": [
+    "only milan_reg() may form a CSR address"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a digraph-pasted call name",
+   "pin": [
+    "must not spell a token with a digraph or a trigraph"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a single-line macro hiding the store primitive, invoked from a UART handler",
+   "pin": [
+    "inside a macro body: every store through a CSR primitive"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PP pre-AEM clear removed",
+   "pin": [
+    "PP_CTRL (CSR 0x920) bit 0 must be cleared before the AEM image"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP pre-AEM clear removed",
+   "pin": [
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ],
+   "ok": true
+  },
+  {
+   "label": "CRC failure accepted",
+   "pin": [
+    "AEM verifier non-zero return must be textually after"
+   ],
+   "ok": true
+  },
+  {
+   "label": "AEM verdict overridden",
+   "pin": [
+    "aem_loaded must contain only the image verifier's verdict"
+   ],
+   "ok": true
+  },
+  {
+   "label": "AEM verdict forced by compound assignment",
+   "pin": [
+    "aem_loaded must contain only the image verifier's verdict"
+   ],
+   "ok": true
+  },
+  {
+   "label": "AEM verdict incremented",
+   "pin": [
+    "aem_loaded must contain only the image verifier's verdict"
+   ],
+   "ok": true
+  },
+  {
+   "label": "disabled PHC reset",
+   "pin": [
+    "bare-metal PHC contract requires the documented enabled reset"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PHC output gated by ADP",
+   "pin": [
+    "milan_csr PHC output assignments must remain direct and independent"
+   ],
+   "ok": true
+  },
+  {
+   "label": "milan_csr PHC increment output gated by ADP",
+   "pin": [
+    "milan_csr PHC output assignments must remain direct and independent"
+   ],
+   "ok": true
+  },
+  {
+   "label": "milan_csr PHC output binding gated by ADP",
+   "pin": [
+    "milan_csr PHC output must drive cfg_ptp_enable directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PHC enable hidden behind a resolved second driver",
+   "pin": [
+    "datapath PHC nets must retain sole-driver reference ownership"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP term spliced into the render recentre pulse",
+   "pin": [
+    "render recentre pulse must read only the GM-change, adjtime, settime and settled clock-source discontinuities"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PHC crossing consumer gated by ADP",
+   "pin": [
+    "PHC CSR crossing enable must be driven directly by cfg_ptp_enable"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PHC crossing increment gated by ADP",
+   "pin": [
+    "PHC CSR-crossing controls and readback must remain direct and independent"
+   ],
+   "ok": true
+  },
+  {
+   "label": "effective PHC frequency adjustment gated by ADP",
+   "pin": [
+    "effective PHC adjustment must select only gPTP or CSR control"
+   ],
+   "ok": true
+  },
+  {
+   "label": "effective PHC offset gated by ADP",
+   "pin": [
+    "effective PHC offset must select only gPTP or CSR control"
+   ],
+   "ok": true
+  },
+  {
+   "label": "effective PHC adjustment strobe gated by ADP",
+   "pin": [
+    "effective PHC adjust strobe must select only gPTP or CSR control"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PHC counter gtx reset gated by ADP",
+   "pin": [
+    "PHC CSR-crossing and counter clocks and resets must be direct"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PHC crossing axis reset gated by ADP",
+   "pin": [
+    "PHC CSR-crossing and counter clocks and resets must be direct"
+   ],
+   "ok": true
+  },
+  {
+   "label": "external MAC RX ready gated by ADP",
+   "pin": [
+    "external MAC RX handshake must drive rx_axis_from_mac directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "enabled RX-filter ingress valid gated by ADP",
+   "pin": [
+    "MAC RX must traverse the enabled RX-filter arm directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "enabled RX-filter clock gated by ADP",
+   "pin": [
+    "MAC RX must traverse the enabled RX-filter arm directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "enabled RX-filter reset gated by ADP",
+   "pin": [
+    "MAC RX must traverse the enabled RX-filter arm directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "RX-filter default policy gated by ADP",
+   "pin": [
+    "reset-time RX filter policy must remain independent of ADP"
+   ],
+   "ok": true
+  },
+  {
+   "label": "bypass RX-filter ingress valid gated by ADP",
+   "pin": [
+    "MAC RX must traverse the bypass RX-filter arm directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "fabric gPTP reset gated by ADP",
+   "pin": [
+    "fabric gPTP RX and control inputs must observe the live datapath directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "fabric gPTP ingress valid gated by ADP",
+   "pin": [
+    "fabric gPTP RX and control inputs must observe the live datapath directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "fabric gPTP local egress valid gated by ADP",
+   "pin": [
+    "fabric gPTP TX must traverse gptp_ctl_mux directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "fabric gPTP control-mux reset gated by ADP",
+   "pin": [
+    "fabric gPTP TX must traverse gptp_ctl_mux directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "fabric gPTP MAC-boundary valid gated by ADP",
+   "pin": [
+    "fabric gPTP control output must reach the MAC-boundary arbiter directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "fabric gPTP boundary-mux reset gated by ADP",
+   "pin": [
+    "fabric gPTP control output must reach the MAC-boundary arbiter directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "external MAC TX valid gated by ADP",
+   "pin": [
+    "external MAC TX handshake must be driven directly by tx_axis_to_mac"
+   ],
+   "ok": true
+  },
+  {
+   "label": "external MAC TX valid hidden behind a resolved second driver",
+   "pin": [
+    "external MAC handshake ports must retain sole-driver/reference ownership"
+   ],
+   "ok": true
+  },
+  {
+   "label": "commented direct TX decoy with live macro gate",
+   "pin": [
+    "datapath integration proof requires unconditional live SystemVerilog text"
+   ],
+   "ok": true
+  },
+  {
+   "label": "direct TX connection made an inactive conditional",
+   "pin": [
+    "datapath integration proof requires unconditional live SystemVerilog text"
+   ],
+   "ok": true
+  },
+  {
+   "label": "direct TX connection put in an inactive static generate arm",
+   "pin": [
+    "external MAC TX handshake must be driven directly by tx_axis_to_mac"
+   ],
+   "ok": true
+  },
+  {
+   "label": "direct TX decoy selected by mid-line compiler directives",
+   "pin": [
+    "datapath integration proof requires unconditional live SystemVerilog text"
+   ],
+   "ok": true
+  },
+  {
+   "label": "direct TX decoy selected by an implicit conditional generate",
+   "pin": [
+    "external MAC TX handshake must be driven directly by tx_axis_to_mac"
+   ],
+   "ok": true
+  },
+  {
+   "label": "external MAC RX valid gated by ADP",
+   "pin": [
+    "external MAC RX handshake must drive rx_axis_from_mac directly"
+   ],
+   "ok": true
+  },
+  {
+   "label": "AEM guard selected by a build flag",
+   "pin": [
+    "graded as a firmware of its own",
+    "firmware must configure, load AEM, then guard entity enable"
+   ],
+   "ok": true
+  },
+  {
+   "label": "pre-AEM clear behind a build flag",
+   "pin": [
+    "graded as a firmware of its own",
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a dropped arm inside a CSR write's argument",
+   "pin": [
+    "graded as a firmware of its own",
+    "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+   ],
+   "ok": true
+  },
+  {
+   "label": "fabric configuration made dead by a compile-time constant",
+   "pin": [
+    "the fabric configuration step must be a statement of milan_init() itself"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled by a goto into the AEM-success guard",
+   "pin": [
+    "milan_init() must not contain 'goto'"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled by a case falling into the AEM-success guard",
+   "pin": [
+    "milan_init() must not contain 'switch'"
+   ],
+   "ok": true
+  },
+  {
+   "label": "AEM verdict overwritten through a pointer",
+   "pin": [
+    "the address of aem_loaded must not be taken"
+   ],
+   "ok": true
+  },
+  {
+   "label": "AEM verifier returning a non-boolean status before the CRC gate",
+   "pin": [
+    "AEM verifier non-zero return must be textually after"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP_CTRL given a second decode address",
+   "pin": [
+    "the RTL must write adp_ctrl from exactly one CSR address"
+   ],
+   "ok": true
+  },
+  {
+   "label": "AEM verifier succeeding from the no-QSPI preprocessor arm",
+   "pin": [
+    "AEM verifier non-zero return must be textually after"
+   ],
+   "ok": true
+  },
+  {
+   "label": "CRC comparison itself put behind a build flag",
+   "pin": [
+    "graded as a firmware of its own",
+    "firmware boot guard missing: CRC mismatch refusal"
+   ],
+   "ok": true
+  },
+  {
+   "label": "AEM verifier that can never succeed",
+   "pin": [
+    "AEM verifier never returns a non-zero verdict"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second translation unit listed on the OBJECTS line",
+   "pin": [
+    "make builds ['milan_baremetal.o', 'milan_bringup.o']"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second translation unit appended with OBJECTS +=",
+   "pin": [
+    "make builds ['milan_baremetal.o', 'milan_bringup.o']"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second translation unit on an OBJECTS continuation line",
+   "pin": [
+    "make builds ['milan_baremetal.o', 'milan_bringup.o']"
+   ],
+   "ok": true
+  },
+  {
+   "label": "object list this gate cannot evaluate",
+   "pin": [
+    "must stay ONE translation unit"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second object archived past the OBJECTS list",
+   "pin": [
+    "make must build and archive exactly the one object"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second source pulled in by #include of a .c",
+   "pin": [
+    "the firmware's include set is pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second source pulled in by a macro include operand",
+   "pin": [
+    "a #include operand must be a literal header name"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second source pulled in by a spliced #include directive",
+   "pin": [
+    "the firmware's include set is pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second source pulled in by a %: digraph include",
+   "pin": [
+    "must not spell a token with a digraph or a trigraph"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second source pulled in by a ??= trigraph include",
+   "pin": [
+    "carries a trigraph"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a preprocessing directive this gate has no rule for",
+   "pin": [
+    "the firmware's preprocessing directives are pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a store planted in the AEM verifier's no-QSPI arm",
+   "pin": [
+    "is the one arm this gate does not compile"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a #define planted in the AEM verifier's QSPI-slot group",
+   "pin": [
+    "firmware must not select boot code with the preprocessor"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP_CTRL's name moved to another register by an arm only the product compiles",
+   "pin": [
+    "graded as a firmware of its own",
+    "AEM-success guard must contain exactly one PP and one ADP enable"
+   ],
+   "ok": true
+  },
+  {
+   "label": "more preprocessor arm selections than gate 1b grades",
+   "pin": [
+    "more than 16 arm selections"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled by a store whose whole value a read-only accessor macro builds, in a UART command handler",
+   "pin": [
+    "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+   ],
+   "ok": true
+  },
+  {
+   "label": "CSR identity sample forged through a read-only accessor macro",
+   "pin": [
+    "firmware must reject a mismatched CSR identity before configuring"
+   ],
+   "ok": true
+  },
+  {
+   "label": "pinned include shadowed by an added -I search path",
+   "pin": [
+    "the commands make would run are pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "object list the environment can override",
+   "pin": [
+    "lets the ENVIRONMENT decide what gets compiled"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second file injected through -Wp, the preprocessor pass-through",
+   "pin": [
+    "the commands make would run are pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second file injected through a response file",
+   "pin": [
+    "the commands make would run are pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "search path added through the -iprefix chain",
+   "pin": [
+    "the commands make would run are pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second file injected through the CC tool variable",
+   "pin": [
+    "the commands make would run are pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "search path added through the CC tool variable",
+   "pin": [
+    "the commands make would run are pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags deferred to an undefined environment name",
+   "pin": [
+    "defers a pinned-recipe input to the environment"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags routed through a computed variable name",
+   "pin": [
+    "computes a variable NAME at expansion time"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags deferred to the environment through a define body",
+   "pin": [
+    "defers a pinned-recipe input to the environment"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags deferred to the environment through a $(call) first argument",
+   "pin": [
+    "defers a pinned-recipe input to the environment"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags deferred to the environment through a $(value) first argument",
+   "pin": [
+    "defers a pinned-recipe input to the environment"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags deferred to the environment through a top-level $(eval) assignment",
+   "pin": [
+    "defers a pinned-recipe input to the environment"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through an $(eval) of a called template",
+   "pin": [
+    "hands $(eval) text that is not a whole-line literal assignment"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags routed through a computed $(call) first argument",
+   "pin": [
+    "computes a variable NAME at expansion time"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a $(call eval,...) line",
+   "pin": [
+    "reaches a make BUILT-IN function through $(call)"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a ${call eval,...} line",
+   "pin": [
+    "reaches a make BUILT-IN function through $(call)"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a $(call eval,...) on an unwalked right-hand side",
+   "pin": [
+    "reaches a make BUILT-IN function through $(call)"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a Makefile fragment written at parse time by $(call file,...)",
+   "pin": [
+    "reaches a make BUILT-IN function through $(call)"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through an $(eval) of a plain reference",
+   "pin": [
+    "hands $(eval) text that is not a whole-line literal assignment"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a Makefile fragment included by an $(eval) whose value expands to a second line",
+   "pin": [
+    "hands $(eval) a value that can expand to more than one LINE"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a define-body $(eval) of the call's own argument",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a define-body $(eval) of the second call argument",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a define-body $(eval) of the tenth call argument",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a define-body $(eval) of ${1}",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a define-body $(eval) of $1",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a define-body $(eval) of $(1) behind a function",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a define-body $(eval) reaching $(1) through a named define",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a define-body $(eval) reached by a computed $(call) name",
+   "pin": [
+    "computes a variable NAME at expansion time"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a define-body $(eval) wrapped onto a continuation line",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a define-body $(eval) reached through a second define",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through an $(eval) in a define whose NAME is not an identifier",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected by a $(foreach) rebinding the pinned name a define-body $(eval) reads",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected by a $(let) rebinding the pinned name a define-body $(eval) reads",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a literal define-body $(eval) the environment decides to run",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a recipe $(eval) on a rule the environment adds",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a top-level $(eval) of $(1)",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a top-level $(eval) of $M",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a top-level $(eval) reaching $(1) through a named define",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile flags injected through a top-level $(eval) whose $$ becomes a live reference",
+   "pin": [
+    "hands $(eval) an assignment the walker cannot bind"
+   ],
+   "ok": true
+  },
+  {
+   "label": "pinned include shadowed by an -iquote search path",
+   "pin": [
+    "the commands make would run are pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "one object linked from two sources by an explicit rule",
+   "pin": [
+    "make must compile exactly one source"
+   ],
+   "ok": true
+  },
+  {
+   "label": "objects added by a Makefile fragment this gate does not read",
+   "pin": [
+    "the Makefile's include set is pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second source injected by a -include compiler flag",
+   "pin": [
+    "make must compile exactly one source"
+   ],
+   "ok": true
+  },
+  {
+   "label": "compile recipe redefined to take a second source",
+   "pin": [
+    "make must compile exactly one source"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second source injected by an exported assignment",
+   "pin": [
+    "make must compile exactly one source"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second source injected by a target-specific assignment",
+   "pin": [
+    "make must compile exactly one source"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the compiled source directory moved out from under the rule",
+   "pin": [
+    "make could not plan this Makefile"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP_CTRL reset value advertising the entity",
+   "pin": [
+    "the RTL must reset adp_ctrl with bit 0 CLEAR"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PP_CTRL reset value enabling the protocol processor",
+   "pin": [
+    "the RTL must reset pp_ctrl_r with bit 0 CLEAR"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a CSR base held in a variable",
+   "pin": [
+    "but a CSR pointer cast is used outside it"
+   ],
+   "ok": true
+  },
+  {
+   "label": "one object linked from two sources by literally named tools",
+   "pin": [
+    "make must compile exactly one source"
+   ],
+   "ok": true
+  },
+  {
+   "label": "second object archived by a literally named ar",
+   "pin": [
+    "make must compile exactly one source"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP_CTRL reset written blocking with the enable bit set",
+   "pin": [
+    "the RTL must reset adp_ctrl with bit 0 CLEAR"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP_CTRL given no reset value at all",
+   "pin": [
+    "the RTL must give adp_ctrl a reset value"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP_CTRL reset and readback default both advertising",
+   "pin": [
+    "the RTL must reset adp_ctrl with bit 0 CLEAR"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a phase-2-spliced call name",
+   "pin": [
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a space phase-2 token splice",
+   "pin": [
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a tab phase-2 token splice",
+   "pin": [
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a form-feed phase-2 token splice",
+   "pin": [
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a vertical-tab phase-2 token splice",
+   "pin": [
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a pasted call name",
+   "pin": [
+    "a `##` paste reaches"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a pasted call name in an arm the stub tree drops",
+   "pin": [
+    "graded as a firmware of its own",
+    "a `##` paste reaches"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a spliced call name in an arm the stub tree drops",
+   "pin": [
+    "graded as a firmware of its own",
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a spliced call name in an arm only the product compiles",
+   "pin": [
+    "graded as a firmware of its own",
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a spliced call name onto a literal address in a dropped arm",
+   "pin": [
+    "graded as a firmware of its own",
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the CSR identity sample forged by a splice of its name between its read and its mismatch guard",
+   "pin": [
+    "a backslash-newline JOINS two tokens inside"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the CSR identity sample forged by a paste of its name",
+   "pin": [
+    "a `##` paste reaches"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the CSR identity sample forged by a paste a second macro reaches",
+   "pin": [
+    "a `##` paste reaches"
+   ],
+   "ok": true
+  },
+  {
+   "label": "PP_CTRL's name redefined onto ADP_CTRL through a #define whose name a splice joins",
+   "pin": [
+    "is #defined more than once"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the identity magic redefined as a fresh read of the sample",
+   "pin": [
+    "is #defined more than once"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the identity magic redefined as the sample itself",
+   "pin": [
+    "is #defined more than once"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enable hidden in a continuation-line macro body and invoked from a UART handler",
+   "pin": [
+    "inside a macro body: every store through a CSR primitive"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enable hidden after form-feed macro continuation whitespace",
+   "pin": [
+    "inside a macro body: every store through a CSR primitive"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the store primitive hidden in a macro whose #define a splice splits",
+   "pin": [
+    "inside a macro body: every store through a CSR primitive"
+   ],
+   "ok": true
+  },
+  {
+   "label": "open quotes in two #defines bracketing a product-only store",
+   "pin": [
+    "a literal that no quote closes on its line"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a raw string literal in a UART command handler",
+   "pin": [
+    "a raw string literal"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a ??/ trigraph ending a comment before a product-only arm",
+   "pin": [
+    "carries a trigraph"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the pre-AEM clear dropped by a product-only #ifndef behind a form feed",
+   "pin": [
+    "graded as a firmware of its own",
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the pre-AEM clear dropped by a product-only #ifndef behind a vertical tab",
+   "pin": [
+    "graded as a firmware of its own",
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the pre-AEM clear dropped by a product-only #ifndef behind a NUL",
+   "pin": [
+    "graded as a firmware of its own",
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the pre-AEM clear dropped by a product-only #ifndef behind lone CR line ends",
+   "pin": [
+    "graded as a firmware of its own",
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the verifier's #else behind a lone CR, its hidden arm returning 1",
+   "pin": [
+    "AEM verifier non-zero return must be textually after the CRC"
+   ],
+   "ok": true
+  },
+  {
+   "label": "an #undef behind a form feed",
+   "pin": [
+    "the firmware's preprocessing directives are pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a second source #included behind a form feed",
+   "pin": [
+    "the firmware's include set is pinned"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a second #error guard, its #error behind a vertical tab",
+   "pin": [
+    "#error directive(s) and exactly one is"
+   ],
+   "ok": true
+  },
+  {
+   "label": "ADP_CTRL's name defined a second time behind a NUL",
+   "pin": [
+    "is #defined more than once"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a fifth pointer cast in an arm only the product compiles, behind a `%:` digraph a splice splits, in a UART command handler",
+   "pin": [
+    "must not spell a token with a digraph or a trigraph"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a fifth pointer cast in an arm only the product compiles, behind a `%:` digraph, in a UART command handler",
+   "pin": [
+    "must not spell a token with a digraph or a trigraph"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled through a store-primitive name pasted by a `%:%:` two splices split, in a UART command handler",
+   "pin": [
+    "must not spell a token with a digraph or a trigraph"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a `%:` pair maximal munch reads as `<%` and `:`, in a UART command handler",
+   "pin": [
+    "must not spell a token with a digraph or a trigraph"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the CSR identity sample forged by a paste whose #define sits behind a byte-order mark",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a second source #included behind a byte-order mark",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a #line behind a byte-order mark",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a store in the CSR window hidden between two directive names GCC reads with U+00B7, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a store in the CSR window hidden between two directive names GCC reads with U+0387, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a store in the CSR window hidden between two directive names GCC reads with U+203F, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a store in the CSR window hidden between two directive names GCC reads with U+0301, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the identity sample forged between two directive names GCC reads with U+00B7, in milan_init()",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a window store between two directive lines a no-break space leads",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a window store between two directive lines a control the readers do not model (FS) leads",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a byte that is not UTF-8, in a comment",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a UTF-8 byte-order mark at the start of the file, which round two accepted",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a store hidden by a `$` GCC keeps in a directive name ([R272] F1)",
+   "pin": [
+    "spells `$` in its code, outside the lexical subset S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the identity local forged through a universal character name",
+   "pin": [
+    "spells a universal character name in its code, outside S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a store hidden behind a header name in __has_include (the round-two external finding)",
+   "pin": [
+    "uses __has_include or __has_include_next, outside S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a store hidden behind a header name in __has_include_next",
+   "pin": [
+    "uses __has_include or __has_include_next, outside S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a comment hidden inside a #include header name",
+   "pin": [
+    "hides a comment or a backslash in a #include header name, outside S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a _Pragma operator the #-directive scan cannot see",
+   "pin": [
+    "uses the _Pragma operator, outside S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a block comment no `*/` closes, blanking the file to its end",
+   "pin": [
+    "opens a block comment no `*/` closes"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (shipping baseline)",
+   "pin": [
+    "milan_reg() must return exactly MILAN_CSR_BASE plus the offset"
+   ],
+   "ok": true
+  },
+  {
+   "label": "entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (reflowed baseline)",
+   "pin": [
+    "milan_reg() must return exactly MILAN_CSR_BASE plus the offset"
+   ],
+   "ok": true
+  },
+  {
+   "label": "MAKEFLAGS += -e letting the environment choose",
+   "pin": [
+    "lets the ENVIRONMENT decide what gets compiled"
+   ],
+   "ok": true
+  }
+ ]
+}

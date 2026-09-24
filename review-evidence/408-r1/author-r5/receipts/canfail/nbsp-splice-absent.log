@@ -1,0 +1,4 @@
+Compiler mode: absent cross tools
+Compiler audit: /tmp/a261-dis-j2y8x_5i/audit.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+GATE STOPPED: gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell U+00A0 between a backslash and the line end in a line comment, 'int a;\n// c\\\xa0\n#define FOO\n#ifdef FOO\nint b;\n#endif\nint z;\n'): its directive readers keep ('a', 'z') and the pinned GCC 14.3 at -std=gnu99 keeps ('a', 'b', 'z'), so an arm one of them grades is an arm the other compiles, or drops

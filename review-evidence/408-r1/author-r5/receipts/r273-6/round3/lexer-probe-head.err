@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "$SCRATCH/r273-6/review-evidence/408-r1/reviews/R273-6/probes/round3/lexer_probe.py", line 117, in <module>
+    main()
+    ~~~~^^
+  File "$SCRATCH/r273-6/review-evidence/408-r1/reviews/R273-6/probes/round3/lexer_probe.py", line 94, in main
+    gate = keeps(text)
+  File "$LANE/sw/builder/test_builder.py", line 5831, in lexer_keeps
+    groups = conditional_groups(text)
+  File "$LANE/sw/builder/test_builder.py", line 3331, in conditional_groups
+    phases = _c_phases(source)
+             ^^^^^^^^^
+NameError: name '_c_phases' is not defined
