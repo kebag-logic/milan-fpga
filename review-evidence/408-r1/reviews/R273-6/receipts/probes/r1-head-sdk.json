@@ -1,0 +1,140 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 122,
+ "seconds": 41.6,
+ "results": [
+  {
+   "label": "ACC1 an #ifdef around a debug printf INSIDE milan_init()",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC2 a benign statement in an arm the census tree drops, inside configure_fabric()",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC3 an #ifdef/#else choosing a #define, read in a UART command handler",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC4 a ## token paste building a call outside the boot path",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC5 a token-joining backslash-newline inside a macro body",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC6 a read-only #define accessor over milan_read()",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC7 a fifth cast to a pointer, resolving outside the window",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC8 a fifth store through a pointer, resolving outside the window",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC9 parse_u64() and seconds_to_ns() exchanged, with nothing added or removed",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC10 a fifth inline-asm statement, a fence in a UART command handler",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "H1 function pointer to milan_write built by a SPLICE, called from a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must read as an ENTRANCE into the choke point this gate cannot tie to the AEM verdict: milan_status_handler() at .L307 through a5. An instrument that cannot place a call edge must REFUSE it rather than assume where it goes, because entity_advertise() is precisely what it cannot rule out"
+  },
+  {
+   "label": "H2 function pointer to milan_write built by a PASTE, called from a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must read as an ENTRANCE into the choke point this gate cannot tie to the AEM verdict: milan_status_handler() at .L307 through a5. An instrument that cannot place a call edge must REFUSE it rather than assume where it goes, because entity_advertise() is precisely what it cannot rule out"
+  },
+  {
+   "label": "H3 second choke-point call built by a SPLICE, in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the compiled firmware enters entity_advertise() from ['milan_init', 'milan_status_handler'], not from milan_init() exactly once: a second call site is an ENTRANCE into the choke point this gate cannot tie to the AEM verdict, and one edge from the boot path is what makes the argument resolved next the only argument this function is ever handed"
+  },
+  {
+   "label": "H4 verdict overwritten by a PASTE between the verifier and the choke point",
+   "verdict": "REFUSED",
+   "reason": "a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+  },
+  {
+   "label": "H5 verdict overwritten by a SPLICE between the verifier and the choke point",
+   "verdict": "REFUSED",
+   "reason": "a backslash-newline JOINS two tokens inside the boot entry point (line 1453): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two"
+  },
+  {
+   "label": "H11 store through milan_reg() built by a PASTE, in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the compiled firmware stores through milan_reg()'s return from ['milan_status_handler', 'milan_write'] (2 store(s)): that return is the ONE address this firmware may reach a control register through, so exactly one function may store through it and it must be the milan_write() whose operands the bit-0 census below reads. A second consumer of the helper's return is a control-register write outside the census, however it is spelled"
+  },
+  {
+   "label": "H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_ID)",
+   "verdict": "REFUSED",
+   "reason": "#define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition"
+  },
+  {
+   "label": "H7 second #define of MILAN_ID_MAGIC as the sample itself (control)",
+   "verdict": "REFUSED",
+   "reason": "#define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition"
+  },
+  {
+   "label": "H8 verifier QSPI-slot group with its #else arm deleted (the no-slot build falls off the end of load_aem_image())",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "H9 verifier #else behind a lone CR, its hidden arm returning 1",
+   "verdict": "REFUSED",
+   "reason": "AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary"
+  },
+  {
+   "label": "H10 product-only 0 && in the choke point's verdict test (the gate's own control, graded here in both environments)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware never compares entity_advertise()'s verdict argument against zero, so no edge in it can dominate the enable writes and the entity is advertised unconditionally"
+  },
+  {
+   "label": "H12 the same product-only 0 && with its directives behind lone CRs",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware never compares entity_advertise()'s verdict argument against zero, so no edge in it can dominate the enable writes and the entity is advertised unconditionally"
+  },
+  {
+   "label": "H13 the same product-only 0 && with its directives behind form feeds",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware never compares entity_advertise()'s verdict argument against zero, so no edge in it can dominate the enable writes and the entity is advertised unconditionally"
+  },
+  {
+   "label": "H14 a product-only arm clearing nothing: pre-AEM ADP clear behind a lone-CR #ifndef (census keeps it, product drops it)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1367 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, no arm taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image is verified"
+  },
+  {
+   "label": "ACC11 a README and a notes.txt beside the firmware",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "H15 a LINK named init.h beside the firmware to a file outside",
+   "verdict": "REFUSED",
+   "reason": "a pinned include resolved to a file this repository supplies beside the firmware: ['<tmp>/milan-beside-1f532ybx/init.h']. A quoted include resolves against the including file's directory FIRST, so a file or a link there answers to a pinned name and puts text this gate never read behind it with no name changing anywhere -- measured by the PATH the preprocessor opened and the file it reached, in the tree it was handed"
+  }
+ ]
+}

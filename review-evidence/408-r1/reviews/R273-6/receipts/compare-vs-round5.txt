@@ -1,0 +1,500 @@
+## r1 sdk: 26 cases
+  ACCEPTED -> ACCEPTED ACC1 an #ifdef around a debug printf INSIDE milan_init()
+  ACCEPTED -> ACCEPTED ACC2 a benign statement in an arm the census tree drops, inside config
+  ACCEPTED -> ACCEPTED ACC3 an #ifdef/#else choosing a #define, read in a UART command handle
+  ACCEPTED -> ACCEPTED ACC4 a ## token paste building a call outside the boot path
+  ACCEPTED -> ACCEPTED ACC5 a token-joining backslash-newline inside a macro body
+  ACCEPTED -> ACCEPTED ACC6 a read-only #define accessor over milan_read()
+  ACCEPTED -> ACCEPTED ACC7 a fifth cast to a pointer, resolving outside the window
+  ACCEPTED -> ACCEPTED ACC8 a fifth store through a pointer, resolving outside the window
+  ACCEPTED -> ACCEPTED ACC9 parse_u64() and seconds_to_ns() exchanged, with nothing added or 
+  ACCEPTED -> ACCEPTED ACC10 a fifth inline-asm statement, a fence in a UART command handler
+  REFUSED  -> REFUSED  H1 function pointer to milan_write built by a SPLICE, called from a UA
+           the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must
+  REFUSED  -> REFUSED  H2 function pointer to milan_write built by a PASTE, called from a UAR
+           the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must
+  REFUSED  -> REFUSED  H3 second choke-point call built by a SPLICE, in a UART handler
+           the compiled firmware enters entity_advertise() from ['milan_init', 'milan_status_handler'], not from milan_in
+  REFUSED  -> REFUSED  H4 verdict overwritten by a PASTE between the verifier and the choke p
+           a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste bui
+  REFUSED  -> REFUSED  H5 verdict overwritten by a SPLICE between the verifier and the choke 
+           a backslash-newline JOINS two tokens inside the boot entry point (line 1453): translation phase 2 deletes the 
+  REFUSED  -> REFUSED  H11 store through milan_reg() built by a PASTE, in a UART handler
+           the compiled firmware stores through milan_reg()'s return from ['milan_status_handler', 'milan_write'] (2 stor
+  REFUSED  -> REFUSED  H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_ID)
+           #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the se
+  REFUSED  -> REFUSED  H7 second #define of MILAN_ID_MAGIC as the sample itself (control)
+           #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the se
+  ACCEPTED -> ACCEPTED H8 verifier QSPI-slot group with its #else arm deleted (the no-slot bu
+  REFUSED  -> REFUSED  H9 verifier #else behind a lone CR, its hidden arm returning 1
+           AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG r
+  REFUSED  -> REFUSED  H10 product-only 0 && in the choke point's verdict test (the gate's ow
+           under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  H12 the same product-only 0 && with its directives behind lone CRs
+           under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  H13 the same product-only 0 && with its directives behind form feeds
+           under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  H14 a product-only arm clearing nothing: pre-AEM ADP clear behind a lo
+           under the arm selection line 1367 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, no arm taken, graded as a fi
+  ACCEPTED -> ACCEPTED ACC11 a README and a notes.txt beside the firmware
+  REFUSED  -> REFUSED  H15 a LINK named init.h beside the firmware to a file outside
+           a pinned include resolved to a file this repository supplies beside the firmware: ['<tmp>/milan-beside-1f532ybx
+## r1 absent: 26 cases
+  ACCEPTED -> ACCEPTED ACC1 an #ifdef around a debug printf INSIDE milan_init()
+  ACCEPTED -> ACCEPTED ACC2 a benign statement in an arm the census tree drops, inside config
+  ACCEPTED -> ACCEPTED ACC3 an #ifdef/#else choosing a #define, read in a UART command handle
+  ACCEPTED -> ACCEPTED ACC4 a ## token paste building a call outside the boot path
+  ACCEPTED -> ACCEPTED ACC5 a token-joining backslash-newline inside a macro body
+  ACCEPTED -> ACCEPTED ACC6 a read-only #define accessor over milan_read()
+  ACCEPTED -> ACCEPTED ACC7 a fifth cast to a pointer, resolving outside the window
+  ACCEPTED -> ACCEPTED ACC8 a fifth store through a pointer, resolving outside the window
+  ACCEPTED -> ACCEPTED ACC9 parse_u64() and seconds_to_ns() exchanged, with nothing added or 
+  ACCEPTED -> ACCEPTED ACC10 a fifth inline-asm statement, a fence in a UART command handler
+  ACCEPTED -> ACCEPTED H1 function pointer to milan_write built by a SPLICE, called from a UA
+  ACCEPTED -> ACCEPTED H2 function pointer to milan_write built by a PASTE, called from a UAR
+  ACCEPTED -> ACCEPTED H3 second choke-point call built by a SPLICE, in a UART handler
+  REFUSED  -> REFUSED  H4 verdict overwritten by a PASTE between the verifier and the choke p
+           a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste bui
+  REFUSED  -> REFUSED  H5 verdict overwritten by a SPLICE between the verifier and the choke 
+           a backslash-newline JOINS two tokens inside the boot entry point (line 1453): translation phase 2 deletes the 
+  ACCEPTED -> ACCEPTED H11 store through milan_reg() built by a PASTE, in a UART handler
+  REFUSED  -> REFUSED  H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_ID)
+           #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the se
+  REFUSED  -> REFUSED  H7 second #define of MILAN_ID_MAGIC as the sample itself (control)
+           #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the se
+  ACCEPTED -> ACCEPTED H8 verifier QSPI-slot group with its #else arm deleted (the no-slot bu
+  REFUSED  -> REFUSED  H9 verifier #else behind a lone CR, its hidden arm returning 1
+           AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG r
+  ACCEPTED -> ACCEPTED H10 product-only 0 && in the choke point's verdict test (the gate's ow
+  ACCEPTED -> ACCEPTED H12 the same product-only 0 && with its directives behind lone CRs
+  ACCEPTED -> ACCEPTED H13 the same product-only 0 && with its directives behind form feeds
+  REFUSED  -> REFUSED  H14 a product-only arm clearing nothing: pre-AEM ADP clear behind a lo
+           under the arm selection line 1367 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, no arm taken, graded as a fi
+  ACCEPTED -> ACCEPTED ACC11 a README and a notes.txt beside the firmware
+  ACCEPTED -> ACCEPTED H15 a LINK named init.h beside the firmware to a file outside
+## r2 sdk: 15 cases
+  ACCEPTED -> ACCEPTED C0 shipping firmware unchanged (must be ACCEPTED)
+  REFUSED  -> REFUSED  C1 struct-overlay store to ADP_CTRL, unconditional
+           only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address insi
+  REFUSED  -> REFUSED  C2 same store in a plain `#ifdef CSR_UART_BASE` arm (product-only)
+           under the arm selection line 1386 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  C3 same store, `#ifdef CSR_UART_BASE` behind a form feed (R272 F1 shap
+           under the arm selection line 1386 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  C4 same store, plain `%:ifdef` digraph (kept ban)
+           firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` a
+  REFUSED  -> REFUSED  H1 same store, `%:` digraph SPLIT BY A SPLICE, #ifdef CSR_UART_BASE
+           firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` a
+  REFUSED  -> REFUSED  H2 same store, split digraph, #ifndef MILAN_CENSUS_SOC
+           firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` a
+  REFUSED  -> REFUSED  H3 same store, split digraph with a blank before the newline
+           firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` a
+  REFUSED  -> REFUSED  C5 `0 &&` in the verdict test under a plain #ifdef CSR_UART_BASE
+           under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  H4 `0 &&` in the verdict test under a split-digraph #ifdef CSR_UART_BA
+           firmware must not spell a token with a digraph or a trigraph (%:, line 1396): the compiler reads `%:` as `#` a
+  REFUSED  -> REFUSED  C6 second #define of MILAN_ID_MAGIC as a fresh read (plain `#`)
+           #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the se
+  REFUSED  -> REFUSED  H5 same second definition spelled with a split `%:` digraph
+           firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and
+  REFUSED  -> REFUSED  H6 split-digraph #undef + #define retargeting MILAN_ADP_EID_LO to ADP_
+           firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and
+  ACCEPTED -> REFUSED  B1 a byte order mark before the first line, nothing else  <-- CHANGED
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  REFUSED  -> REFUSED  B2 a byte order mark, then `#include <string.h>` on line 1
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+## r2 absent: 15 cases
+  ACCEPTED -> ACCEPTED C0 shipping firmware unchanged (must be ACCEPTED)
+  ACCEPTED -> ACCEPTED C1 struct-overlay store to ADP_CTRL, unconditional
+  ACCEPTED -> ACCEPTED C2 same store in a plain `#ifdef CSR_UART_BASE` arm (product-only)
+  ACCEPTED -> ACCEPTED C3 same store, `#ifdef CSR_UART_BASE` behind a form feed (R272 F1 shap
+  REFUSED  -> REFUSED  C4 same store, plain `%:ifdef` digraph (kept ban)
+           firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` a
+  REFUSED  -> REFUSED  H1 same store, `%:` digraph SPLIT BY A SPLICE, #ifdef CSR_UART_BASE
+           firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` a
+  REFUSED  -> REFUSED  H2 same store, split digraph, #ifndef MILAN_CENSUS_SOC
+           firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` a
+  REFUSED  -> REFUSED  H3 same store, split digraph with a blank before the newline
+           firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` a
+  ACCEPTED -> ACCEPTED C5 `0 &&` in the verdict test under a plain #ifdef CSR_UART_BASE
+  REFUSED  -> REFUSED  H4 `0 &&` in the verdict test under a split-digraph #ifdef CSR_UART_BA
+           firmware must not spell a token with a digraph or a trigraph (%:, line 1396): the compiler reads `%:` as `#` a
+  REFUSED  -> REFUSED  C6 second #define of MILAN_ID_MAGIC as a fresh read (plain `#`)
+           #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the se
+  REFUSED  -> REFUSED  H5 same second definition spelled with a split `%:` digraph
+           firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and
+  REFUSED  -> REFUSED  H6 split-digraph #undef + #define retargeting MILAN_ADP_EID_LO to ADP_
+           firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and
+  ACCEPTED -> REFUSED  B1 a byte order mark before the first line, nothing else  <-- CHANGED
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  REFUSED  -> REFUSED  B2 a byte order mark, then `#include <string.h>` on line 1
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+## bom sdk: 11 cases
+  REFUSED  -> REFUSED  B1 BOM: identity local forged by a ## paste whose #define sits behind 
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  REFUSED  -> REFUSED  B1c control: the same paste #define at offset 0 with no BOM (V2b respe
+           a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste bui
+  REFUSED  -> REFUSED  B2 BOM: verdict overwritten by a ## paste whose #define sits behind a 
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  REFUSED  -> REFUSED  B2c control: the same verdict overwrite through a plain function-like 
+           the compiled firmware enters entity_advertise() with [1] rather than with the one value load_aem_image() hande
+  REFUSED  -> REFUSED  B3 BOM: store primitive hidden in a macro behind a BOM, invoked in a U
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  REFUSED  -> REFUSED  B3c control: the same macro with no BOM
+           #define MILAN_ADP_ON hides milan_write() inside a macro body: every store through a CSR primitive must be spel
+  REFUSED  -> REFUSED  B4 BOM: a twelfth #include <string.h> behind a BOM
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  REFUSED  -> REFUSED  B4c control: the same #include with no BOM
+           the firmware's include set is pinned, and <string.h> is not in it: every rule in this gate reads ONE file, so 
+  REFUSED  -> REFUSED  B5 BOM: a literal-address cast store macro behind a BOM, invoked in a 
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  ACCEPTED -> REFUSED  B6 BOM alone at offset 0, nothing else changed (benign control)  <-- CHANGED
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  REFUSED  -> REFUSED  B7 BOM: #line behind a BOM
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+## bom absent: 11 cases
+  REFUSED  -> REFUSED  B1 BOM: identity local forged by a ## paste whose #define sits behind 
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  REFUSED  -> REFUSED  B1c control: the same paste #define at offset 0 with no BOM (V2b respe
+           a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste bui
+  REFUSED  -> REFUSED  B2 BOM: verdict overwritten by a ## paste whose #define sits behind a 
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  ACCEPTED -> ACCEPTED B2c control: the same verdict overwrite through a plain function-like 
+  REFUSED  -> REFUSED  B3 BOM: store primitive hidden in a macro behind a BOM, invoked in a U
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  REFUSED  -> REFUSED  B3c control: the same macro with no BOM
+           #define MILAN_ADP_ON hides milan_write() inside a macro body: every store through a CSR primitive must be spel
+  REFUSED  -> REFUSED  B4 BOM: a twelfth #include <string.h> behind a BOM
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  REFUSED  -> REFUSED  B4c control: the same #include with no BOM
+           the firmware's include set is pinned, and <string.h> is not in it: every rule in this gate reads ONE file, so 
+  ACCEPTED -> REFUSED  B5 BOM: a literal-address cast store macro behind a BOM, invoked in a   <-- CHANGED
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  ACCEPTED -> REFUSED  B6 BOM alone at offset 0, nothing else changed (benign control)  <-- CHANGED
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+  REFUSED  -> REFUSED  B7 BOM: #line behind a BOM
+           the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S 
+## extra sdk: 4 cases
+  REFUSED  -> REFUSED  X1 verifier returns 1 before the CRC through a token-joining splice of
+           the compiled firmware resolves 0 bounded store(s) in load_aem_image() (none) where the AEM copy loop's destina
+  REFUSED  -> REFUSED  X2 verifier returns 1 before the CRC through a ## paste of `return`
+           the compiled firmware resolves 0 bounded store(s) in load_aem_image() (none) where the AEM copy loop's destina
+  REFUSED  -> REFUSED  X3 control: verifier returns 1 before the CRC, spelled plainly
+           AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG r
+  ACCEPTED -> ACCEPTED X4 identity sample forged through the libc header's __CONCAT paste (no
+## extra absent: 4 cases
+  ACCEPTED -> ACCEPTED X1 verifier returns 1 before the CRC through a token-joining splice of
+  ACCEPTED -> ACCEPTED X2 verifier returns 1 before the CRC through a ## paste of `return`
+  REFUSED  -> REFUSED  X3 control: verifier returns 1 before the CRC, spelled plainly
+           AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG r
+  ACCEPTED -> ACCEPTED X4 identity sample forged through the libc header's __CONCAT paste (no
+## hi sdk: 9 cases
+  REFUSED  -> REFUSED  HI1 identity sample forged in milan_init() behind `#if !__has_include(
+           the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1439): GCC lexes its ope
+  REFUSED  -> REFUSED  HI1q control: the same with the QUOTED header name "r273/*none" (a str
+           the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1439): GCC lexes its ope
+  REFUSED  -> REFUSED  HI1p control: the same forgery under a plain `#if 1`
+           under the arm selection line 1439 `#if 1`: arm 1 of 1 taken, graded as a firmware of its own (whatever its hea
+  REFUSED  -> REFUSED  HI2 ADP enable in a UART command handler behind the header name
+           the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its ope
+  REFUSED  -> REFUSED  HI2p control: the same enable in the handler, plain
+           ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+  REFUSED  -> REFUSED  HI3 literal-address cast store into the CSR window in a UART command h
+           the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its ope
+  REFUSED  -> REFUSED  HI3p control: the same store, plain
+           only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address insi
+  REFUSED  -> REFUSED  HI4 AEM verdict overwritten after the verifier behind the header name
+           the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1453): GCC lexes its ope
+  REFUSED  -> REFUSED  HI5 benign control: a printf in a UART command handler behind the head
+           the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its ope
+## hi absent: 9 cases
+  REFUSED  -> REFUSED  HI1 identity sample forged in milan_init() behind `#if !__has_include(
+           the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1439): GCC lexes its ope
+  REFUSED  -> REFUSED  HI1q control: the same with the QUOTED header name "r273/*none" (a str
+           the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1439): GCC lexes its ope
+  REFUSED  -> REFUSED  HI1p control: the same forgery under a plain `#if 1`
+           under the arm selection line 1439 `#if 1`: arm 1 of 1 taken, graded as a firmware of its own (whatever its hea
+  REFUSED  -> REFUSED  HI2 ADP enable in a UART command handler behind the header name
+           the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its ope
+  REFUSED  -> REFUSED  HI2p control: the same enable in the handler, plain
+           ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+  REFUSED  -> REFUSED  HI3 literal-address cast store into the CSR window in a UART command h
+           the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its ope
+  ACCEPTED -> ACCEPTED HI3p control: the same store, plain
+  REFUSED  -> REFUSED  HI4 AEM verdict overwritten after the verifier behind the header name
+           the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1453): GCC lexes its ope
+  REFUSED  -> REFUSED  HI5 benign control: a printf in a UART command handler behind the head
+           the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its ope
+## md sdk: 10 cases
+  REFUSED  -> REFUSED  MD1 literal-address cast store into the CSR window in a UART handler, 
+           the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal
+  REFUSED  -> REFUSED  MD1a the same store hidden by U+0387
+           the firmware spells a character outside the allowlist of S (U+0387, line 1500): outside a comment or a literal
+  REFUSED  -> REFUSED  MD1b the same store hidden by U+203F
+           the firmware spells a character outside the allowlist of S (U+203F, line 1500): outside a comment or a literal
+  REFUSED  -> REFUSED  MD1c control: the same store hidden by `$` (S refuses)
+           the firmware spells `$` in its code, outside the lexical subset S (line 1500): GCC admits `$` in an identifier
+  REFUSED  -> REFUSED  MD1p control: the same store, plain
+           only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address insi
+  REFUSED  -> REFUSED  MD2 identity sample forged in milan_init(), hidden by U+00B7
+           the firmware spells a character outside the allowlist of S (U+00B7, line 1440): outside a comment or a literal
+  REFUSED  -> REFUSED  MD3 ADP enable in a UART handler, hidden by U+00B7
+           the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal
+  REFUSED  -> REFUSED  MD4 AEM verdict overwritten after the verifier, hidden by U+00B7
+           the firmware spells a character outside the allowlist of S (U+00B7, line 1454): outside a comment or a literal
+  ACCEPTED -> REFUSED  MD5 benign control: a printf in a UART handler, hidden by U+00B7  <-- CHANGED
+           the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal
+  ACCEPTED -> ACCEPTED MD6 benign control: U+00B7 in a comment only
+## md absent: 10 cases
+  ACCEPTED -> REFUSED  MD1 literal-address cast store into the CSR window in a UART handler,   <-- CHANGED
+           the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal
+  ACCEPTED -> REFUSED  MD1a the same store hidden by U+0387  <-- CHANGED
+           the firmware spells a character outside the allowlist of S (U+0387, line 1500): outside a comment or a literal
+  ACCEPTED -> REFUSED  MD1b the same store hidden by U+203F  <-- CHANGED
+           the firmware spells a character outside the allowlist of S (U+203F, line 1500): outside a comment or a literal
+  REFUSED  -> REFUSED  MD1c control: the same store hidden by `$` (S refuses)
+           the firmware spells `$` in its code, outside the lexical subset S (line 1500): GCC admits `$` in an identifier
+  ACCEPTED -> ACCEPTED MD1p control: the same store, plain
+  REFUSED  -> REFUSED  MD2 identity sample forged in milan_init(), hidden by U+00B7
+           the firmware spells a character outside the allowlist of S (U+00B7, line 1440): outside a comment or a literal
+  REFUSED  -> REFUSED  MD3 ADP enable in a UART handler, hidden by U+00B7
+           the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal
+  REFUSED  -> REFUSED  MD4 AEM verdict overwritten after the verifier, hidden by U+00B7
+           the firmware spells a character outside the allowlist of S (U+00B7, line 1454): outside a comment or a literal
+  ACCEPTED -> REFUSED  MD5 benign control: a printf in a UART handler, hidden by U+00B7  <-- CHANGED
+           the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal
+  ACCEPTED -> ACCEPTED MD6 benign control: U+00B7 in a comment only
+## unread sdk: 2 cases
+  REFUSED  -> REFUSED  U1 a `<%:` pair (punctuators `<%` and `:`) in a UART command handler
+           firmware must not spell a token with a digraph or a trigraph (%:, line 1499): the compiler reads `%:` as `#` a
+  ACCEPTED -> ACCEPTED U0 control: shipping firmware
+## unread absent: 2 cases
+  REFUSED  -> REFUSED  U1 a `<%:` pair (punctuators `<%` and `:`) in a UART command handler
+           firmware must not spell a token with a digraph or a trigraph (%:, line 1499): the compiler reads `%:` as `#` a
+  ACCEPTED -> ACCEPTED U0 control: shipping firmware
+## published sdk: 74 cases
+  REFUSED  -> REFUSED  R272 r1 plain #: product-only `0 &&` in the choke point verdict test
+           under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R272 r1 form feed: product-only `0 &&` in the choke point verdict test
+           under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R272 r1 vertical tab: product-only `0 &&` in the choke point verdict t
+           under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R272 r1 plain #: product-only paged-base cast store to ADP_CTRL in a U
+           under the arm selection line 1501 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R272 r1 plain #: product-only literal-address cast store to ADP_CTRL i
+           under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R272 r1 plain #: product-only lui asm store to ADP_CTRL in a UART hand
+           under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R272 r1 plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (pro
+           under the arm selection line 31 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 2 taken, graded as a f
+  REFUSED  -> REFUSED  R272 r1 plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (pro
+           under the arm selection line 31 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, arm 2 of 2 taken, graded as a 
+  REFUSED  -> REFUSED  R272 r1 form feed: product-only paged-base cast store to ADP_CTRL in a
+           under the arm selection line 1501 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R272 r1 form feed: product-only literal-address cast store to ADP_CTRL
+           under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R272 r1 form feed: product-only lui asm store to ADP_CTRL in a UART ha
+           under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R272 r1 form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (p
+           under the arm selection line 31 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 2 taken, graded as a f
+  REFUSED  -> REFUSED  R272 r1 form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (p
+           under the arm selection line 31 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, arm 2 of 2 taken, graded as a 
+  REFUSED  -> REFUSED  R272 r2 control: form feed arm around a SPELLED milan_write enable in 
+           under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R272 r2 NUL byte before #: product-only literal-address cast store in 
+           under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R272 r2 unterminated-quote defines around a product-only literal-addre
+           the firmware opens a literal that no quote closes on its line (line 1499): GCC ends it at the end of that line
+  REFUSED  -> REFUSED  R272 r2 unterminated-quote defines around a product-only `0 &&` in the
+           the firmware opens a literal that no quote closes on its line (line 1395): GCC ends it at the end of that line
+  REFUSED  -> REFUSED  R272 r2 form feed: product-only literal-address cast store inside conf
+           under the arm selection line 1384 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  ACCEPTED -> ACCEPTED R272 r3 identity forged through a plain function-like macro
+  REFUSED  -> REFUSED  R272 r3 identity forged through a token-joining splice of the local's 
+           a backslash-newline JOINS two tokens inside the boot entry point (line 1442): translation phase 2 deletes the 
+  REFUSED  -> REFUSED  R272 r3 identity forged through a ## paste of the local's name
+           a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste bui
+  REFUSED  -> REFUSED  R272 r3 plain #: product-only struct-overlay store to ADP_CTRL in a UA
+           under the arm selection line 1501 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R272 r3 form feed: product-only struct-overlay store to ADP_CTRL in a 
+           under the arm selection line 1501 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R273 H1 function pointer to milan_write built by a SPLICE, called from
+           the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must
+  REFUSED  -> REFUSED  R273 H2 function pointer to milan_write built by a PASTE, called from 
+           the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must
+  REFUSED  -> REFUSED  R273 H3 second choke-point call built by a SPLICE, in a UART handler
+           the compiled firmware enters entity_advertise() from ['milan_init', 'milan_status_handler'], not from milan_in
+  REFUSED  -> REFUSED  R273 H4 verdict overwritten by a PASTE between the verifier and the ch
+           a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste bui
+  REFUSED  -> REFUSED  R273 H5 verdict overwritten by a SPLICE between the verifier and the c
+           a backslash-newline JOINS two tokens inside the boot entry point (line 1453): translation phase 2 deletes the 
+  REFUSED  -> REFUSED  R273 H11 store through milan_reg() built by a PASTE, in a UART handler
+           the compiled firmware stores through milan_reg()'s return from ['milan_status_handler', 'milan_write'] (2 stor
+  REFUSED  -> REFUSED  R273 H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_I
+           #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the se
+  REFUSED  -> REFUSED  R273 H7 second #define of MILAN_ID_MAGIC as the sample itself
+           #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the se
+  ACCEPTED -> ACCEPTED R273 H8 verifier QSPI-slot group with its #else arm deleted
+  REFUSED  -> REFUSED  R273 H9 verifier #else behind a lone CR, its hidden arm returning 1
+           AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG r
+  REFUSED  -> REFUSED  R273 H10 product-only 0 && in the choke point's verdict test
+           under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R273 H12 the same product-only 0 && with its directives behind lone CR
+           under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R273 H13 the same product-only 0 && with its directives behind form fe
+           under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R273 H14 pre-AEM ADP clear behind a lone-CR #ifndef (census keeps it, 
+           under the arm selection line 1367 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, no arm taken, graded as a fi
+  REFUSED  -> REFUSED  R273 H15 a LINK named init.h beside the firmware to a file outside
+           a pinned include resolved to a file this repository supplies beside the firmware: ['<tmp>/milan-beside-plhoxh5m
+  REFUSED  -> REFUSED  R273 V1a form feed before #: product-only literal-address cast store i
+           under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R273 V1b vertical tab before #: the same store
+           under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R273 V1c NUL before #: the same store
+           under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R273 V1d lone CR before #: the same store
+           under the arm selection line 1500 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R273 V1e form feed before #: product-only lui/sw asm store
+           under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R273 V1f control: plain # product-only literal cast store
+           under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  REFUSED  -> REFUSED  R273 V2a identity local forged by a SPLICE between the read and the gu
+           a backslash-newline JOINS two tokens inside the boot entry point (line 1442): translation phase 2 deletes the 
+  REFUSED  -> REFUSED  R273 V2b identity local forged by a PASTE between the read and the gua
+           a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste bui
+  ACCEPTED -> ACCEPTED R273 V2c identity local forged by a plain function-like macro
+  REFUSED  -> REFUSED  R273 V4 unterminated character literals in two #defines bracketing a p
+           the firmware opens a literal that no quote closes on its line (line 1499): GCC ends it at the end of that line
+  REFUSED  -> REFUSED  R273 E2 an #elif arm only the product takes enabling ADP before AEM
+           under the arm selection line 1384 `#if defined(MILAN_A)`: arm 2 of 2 taken, graded as a firmware of its own (w
+  REFUSED  -> REFUSED  R273 E3 nested groups, the inner arm enabling ADP before AEM
+           under the arm selection line 1384 `#ifdef MILAN_A`: MILAN_A defined, arm 1 of 1 taken; line 1385 `#ifdef CSR_U
+  REFUSED  -> REFUSED  R273 E5 #if 0 around an enable before AEM
+           under the arm selection line 1384 `#if 0`: arm 1 of 1 taken, graded as a firmware of its own (whatever its hea
+  ACCEPTED -> ACCEPTED R272 r4 a debug helper defined under #ifdef MILAN_DEBUG_TOD and called
+  ACCEPTED -> ACCEPTED R272 r4 control: the same debug printf in ONE #ifdef in a UART handler
+  ACCEPTED -> ACCEPTED R272 r4 a debug-only static counter declared under #ifdef and incremen
+  ACCEPTED -> ACCEPTED R273 V3a correlated conditionals: debug helper defined and called unde
+  ACCEPTED -> ACCEPTED R273 V3b correlated conditionals: debug counter declared and increment
+  ACCEPTED -> ACCEPTED R273 ACC1 an #ifdef around a debug printf INSIDE milan_init()
+  ACCEPTED -> ACCEPTED R273 ACC2 a benign statement in an arm the census tree drops, inside c
+  ACCEPTED -> ACCEPTED R273 ACC3 an #ifdef/#else choosing a #define, read in a UART command h
+  ACCEPTED -> ACCEPTED R273 ACC4 a ## token paste building a call outside the boot path
+  ACCEPTED -> ACCEPTED R273 ACC5 a token-joining backslash-newline inside a macro body
+  ACCEPTED -> ACCEPTED R273 ACC6 a read-only #define accessor over milan_read()
+  ACCEPTED -> ACCEPTED R273 ACC7 a fifth cast to a pointer, resolving outside the window
+  ACCEPTED -> ACCEPTED R273 ACC8 a fifth store through a pointer, resolving outside the windo
+  ACCEPTED -> ACCEPTED R273 ACC9 parse_u64() and seconds_to_ns() exchanged
+  ACCEPTED -> ACCEPTED R273 ACC10 a fifth inline-asm statement, a fence in a UART handler
+  ACCEPTED -> ACCEPTED R273 ACC11 a README and a notes.txt beside the firmware
+  ACCEPTED -> ACCEPTED R273 E1 #if/#elif/#else debug printfs after the choke-point call
+  ACCEPTED -> ACCEPTED R273 E4 #if 0 around a benign statement
+  ACCEPTED -> ACCEPTED R273 E6 four independent groups (16 selections, at the bound)
+  REFUSED  -> REFUSED  R272-limit form feed #undef of ADP_CTRL, redefined onto EID_LO
+           the firmware's preprocessing directives are pinned, and '#undef' is not one of them: a directive this gate has
+  REFUSED  -> REFUSED  R272-limit form feed #pragma
+           the firmware's preprocessing directives are pinned, and '#pragma' is not one of them: a directive this gate ha
+  REFUSED  -> REFUSED  R272-limit form feed #include of a second source
+           the firmware's include set is pinned, and "milan_bringup.c" is not in it: every rule in this gate reads ONE fi
+  REFUSED  -> REFUSED  R272-limit _Pragma push_macro / #define / pop_macro around ADP_CTRL
+           the firmware uses the _Pragma operator, outside S (line 31): it is a `#pragma` built from a string, which the 
+## published absent: 74 cases
+  ACCEPTED -> ACCEPTED R272 r1 plain #: product-only `0 &&` in the choke point verdict test
+  ACCEPTED -> ACCEPTED R272 r1 form feed: product-only `0 &&` in the choke point verdict test
+  ACCEPTED -> ACCEPTED R272 r1 vertical tab: product-only `0 &&` in the choke point verdict t
+  ACCEPTED -> ACCEPTED R272 r1 plain #: product-only paged-base cast store to ADP_CTRL in a U
+  ACCEPTED -> ACCEPTED R272 r1 plain #: product-only literal-address cast store to ADP_CTRL i
+  ACCEPTED -> ACCEPTED R272 r1 plain #: product-only lui asm store to ADP_CTRL in a UART hand
+  REFUSED  -> REFUSED  R272 r1 plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (pro
+           under the arm selection line 31 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 2 taken, graded as a f
+  REFUSED  -> REFUSED  R272 r1 plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (pro
+           under the arm selection line 31 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, arm 2 of 2 taken, graded as a 
+  ACCEPTED -> ACCEPTED R272 r1 form feed: product-only paged-base cast store to ADP_CTRL in a
+  ACCEPTED -> ACCEPTED R272 r1 form feed: product-only literal-address cast store to ADP_CTRL
+  ACCEPTED -> ACCEPTED R272 r1 form feed: product-only lui asm store to ADP_CTRL in a UART ha
+  REFUSED  -> REFUSED  R272 r1 form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (p
+           under the arm selection line 31 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 2 taken, graded as a f
+  REFUSED  -> REFUSED  R272 r1 form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (p
+           under the arm selection line 31 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, arm 2 of 2 taken, graded as a 
+  REFUSED  -> REFUSED  R272 r2 control: form feed arm around a SPELLED milan_write enable in 
+           under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a
+  ACCEPTED -> ACCEPTED R272 r2 NUL byte before #: product-only literal-address cast store in 
+  REFUSED  -> REFUSED  R272 r2 unterminated-quote defines around a product-only literal-addre
+           the firmware opens a literal that no quote closes on its line (line 1499): GCC ends it at the end of that line
+  REFUSED  -> REFUSED  R272 r2 unterminated-quote defines around a product-only `0 &&` in the
+           the firmware opens a literal that no quote closes on its line (line 1395): GCC ends it at the end of that line
+  ACCEPTED -> ACCEPTED R272 r2 form feed: product-only literal-address cast store inside conf
+  ACCEPTED -> ACCEPTED R272 r3 identity forged through a plain function-like macro
+  REFUSED  -> REFUSED  R272 r3 identity forged through a token-joining splice of the local's 
+           a backslash-newline JOINS two tokens inside the boot entry point (line 1442): translation phase 2 deletes the 
+  REFUSED  -> REFUSED  R272 r3 identity forged through a ## paste of the local's name
+           a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste bui
+  ACCEPTED -> ACCEPTED R272 r3 plain #: product-only struct-overlay store to ADP_CTRL in a UA
+  ACCEPTED -> ACCEPTED R272 r3 form feed: product-only struct-overlay store to ADP_CTRL in a 
+  ACCEPTED -> ACCEPTED R273 H1 function pointer to milan_write built by a SPLICE, called from
+  ACCEPTED -> ACCEPTED R273 H2 function pointer to milan_write built by a PASTE, called from 
+  ACCEPTED -> ACCEPTED R273 H3 second choke-point call built by a SPLICE, in a UART handler
+  REFUSED  -> REFUSED  R273 H4 verdict overwritten by a PASTE between the verifier and the ch
+           a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste bui
+  REFUSED  -> REFUSED  R273 H5 verdict overwritten by a SPLICE between the verifier and the c
+           a backslash-newline JOINS two tokens inside the boot entry point (line 1453): translation phase 2 deletes the 
+  ACCEPTED -> ACCEPTED R273 H11 store through milan_reg() built by a PASTE, in a UART handler
+  REFUSED  -> REFUSED  R273 H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_I
+           #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the se
+  REFUSED  -> REFUSED  R273 H7 second #define of MILAN_ID_MAGIC as the sample itself
+           #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the se
+  ACCEPTED -> ACCEPTED R273 H8 verifier QSPI-slot group with its #else arm deleted
+  REFUSED  -> REFUSED  R273 H9 verifier #else behind a lone CR, its hidden arm returning 1
+           AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG r
+  ACCEPTED -> ACCEPTED R273 H10 product-only 0 && in the choke point's verdict test
+  ACCEPTED -> ACCEPTED R273 H12 the same product-only 0 && with its directives behind lone CR
+  ACCEPTED -> ACCEPTED R273 H13 the same product-only 0 && with its directives behind form fe
+  REFUSED  -> REFUSED  R273 H14 pre-AEM ADP clear behind a lone-CR #ifndef (census keeps it, 
+           under the arm selection line 1367 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, no arm taken, graded as a fi
+  ACCEPTED -> ACCEPTED R273 H15 a LINK named init.h beside the firmware to a file outside
+  ACCEPTED -> ACCEPTED R273 V1a form feed before #: product-only literal-address cast store i
+  ACCEPTED -> ACCEPTED R273 V1b vertical tab before #: the same store
+  ACCEPTED -> ACCEPTED R273 V1c NUL before #: the same store
+  ACCEPTED -> ACCEPTED R273 V1d lone CR before #: the same store
+  ACCEPTED -> ACCEPTED R273 V1e form feed before #: product-only lui/sw asm store
+  ACCEPTED -> ACCEPTED R273 V1f control: plain # product-only literal cast store
+  REFUSED  -> REFUSED  R273 V2a identity local forged by a SPLICE between the read and the gu
+           a backslash-newline JOINS two tokens inside the boot entry point (line 1442): translation phase 2 deletes the 
+  REFUSED  -> REFUSED  R273 V2b identity local forged by a PASTE between the read and the gua
+           a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste bui
+  ACCEPTED -> ACCEPTED R273 V2c identity local forged by a plain function-like macro
+  REFUSED  -> REFUSED  R273 V4 unterminated character literals in two #defines bracketing a p
+           the firmware opens a literal that no quote closes on its line (line 1499): GCC ends it at the end of that line
+  REFUSED  -> REFUSED  R273 E2 an #elif arm only the product takes enabling ADP before AEM
+           under the arm selection line 1384 `#if defined(MILAN_A)`: arm 2 of 2 taken, graded as a firmware of its own (w
+  REFUSED  -> REFUSED  R273 E3 nested groups, the inner arm enabling ADP before AEM
+           under the arm selection line 1384 `#ifdef MILAN_A`: MILAN_A defined, arm 1 of 1 taken; line 1385 `#ifdef CSR_U
+  REFUSED  -> REFUSED  R273 E5 #if 0 around an enable before AEM
+           under the arm selection line 1384 `#if 0`: arm 1 of 1 taken, graded as a firmware of its own (whatever its hea
+  ACCEPTED -> ACCEPTED R272 r4 a debug helper defined under #ifdef MILAN_DEBUG_TOD and called
+  ACCEPTED -> ACCEPTED R272 r4 control: the same debug printf in ONE #ifdef in a UART handler
+  ACCEPTED -> ACCEPTED R272 r4 a debug-only static counter declared under #ifdef and incremen
+  ACCEPTED -> ACCEPTED R273 V3a correlated conditionals: debug helper defined and called unde
+  ACCEPTED -> ACCEPTED R273 V3b correlated conditionals: debug counter declared and increment
+  ACCEPTED -> ACCEPTED R273 ACC1 an #ifdef around a debug printf INSIDE milan_init()
+  ACCEPTED -> ACCEPTED R273 ACC2 a benign statement in an arm the census tree drops, inside c
+  ACCEPTED -> ACCEPTED R273 ACC3 an #ifdef/#else choosing a #define, read in a UART command h
+  ACCEPTED -> ACCEPTED R273 ACC4 a ## token paste building a call outside the boot path
+  ACCEPTED -> ACCEPTED R273 ACC5 a token-joining backslash-newline inside a macro body
+  ACCEPTED -> ACCEPTED R273 ACC6 a read-only #define accessor over milan_read()
+  ACCEPTED -> ACCEPTED R273 ACC7 a fifth cast to a pointer, resolving outside the window
+  ACCEPTED -> ACCEPTED R273 ACC8 a fifth store through a pointer, resolving outside the windo
+  ACCEPTED -> ACCEPTED R273 ACC9 parse_u64() and seconds_to_ns() exchanged
+  ACCEPTED -> ACCEPTED R273 ACC10 a fifth inline-asm statement, a fence in a UART handler
+  ACCEPTED -> ACCEPTED R273 ACC11 a README and a notes.txt beside the firmware
+  ACCEPTED -> ACCEPTED R273 E1 #if/#elif/#else debug printfs after the choke-point call
+  ACCEPTED -> ACCEPTED R273 E4 #if 0 around a benign statement
+  ACCEPTED -> ACCEPTED R273 E6 four independent groups (16 selections, at the bound)
+  REFUSED  -> REFUSED  R272-limit form feed #undef of ADP_CTRL, redefined onto EID_LO
+           the firmware's preprocessing directives are pinned, and '#undef' is not one of them: a directive this gate has
+  REFUSED  -> REFUSED  R272-limit form feed #pragma
+           the firmware's preprocessing directives are pinned, and '#pragma' is not one of them: a directive this gate ha
+  REFUSED  -> REFUSED  R272-limit form feed #include of a second source
+           the firmware's include set is pinned, and "milan_bringup.c" is not in it: every rule in this gate reads ONE fi
+  REFUSED  -> REFUSED  R272-limit _Pragma push_macro / #define / pop_macro around ADP_CTRL
+           the firmware uses the _Pragma operator, outside S (line 31): it is a `#pragma` built from a string, which the 

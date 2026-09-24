@@ -1,0 +1,29 @@
+part/classification counts (A = the gate's own 2520 cells re-measured one file per GCC call):
+  A agree: 711
+  A agree(both refuse): 307
+  A refused-allowlist: 1470
+  A refused-other: 32
+  B GCC refuses to preprocess, reader reads names: 29
+  B agree: 1909
+  B agree(both refuse): 384
+  B refused-allowlist: 3526
+  B refused-other: 389
+  C GCC refuses to preprocess, reader reads names: 3
+  C agree: 1133
+  C agree(both refuse): 310
+  C reader refuses, GCC reads (fail-closed cost): 4
+  C refused-other: 755
+admitted cells holding a non-ASCII byte, by position (must be comment/literal positions only):
+    32  a backslash inside a char literal
+    32  a backslash inside a string literal
+    20  a block comment
+    32  a block comment between # and a directive name
+    32  a block comment inside a directive name gap
+    32  a block comment spanning a directive line
+    32  a char literal in a skipped directive
+    20  a character literal
+    32  a line comment before a directive
+    32  a line comment on a directive line
+    32  a string in a skipped directive
+    20  a string literal
+Part A: 2520 gate cells; recorded-vs-GCC (one file per invocation) mismatches: 0; 'outside' vs refused-by-allowlist mismatches: 0; cells the allowlist closes: 43; negative control 'U+00B7 inside a directive name' among them: True

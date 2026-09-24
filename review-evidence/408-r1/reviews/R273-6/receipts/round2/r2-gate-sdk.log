@@ -1,0 +1,24 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=<home>/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+LEXER S1 `%:` split by a splice (ifdef FOO): ['a', 'z']
+LEXER S2 `%:` split by a splice (ifndef FOO): ['a', 'b', 'z']
+LEXER S3 `%:` split by a splice with a blank: ['a', 'z']
+LEXER S4 byte order mark then #ifdef FOO on line 1: ['z']
+LEXER S5 `%:` split by a splice, #define FOO: ['b', 'z']
+LEXER S6 corpus control: a form feed before #: ['a', 'z']
+ACCEPTED C0 shipping firmware unchanged (must be ACCEPTED)
+REFUSED  C1 struct-overlay store to ADP_CTRL, unconditional :: only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, 
+REFUSED  C2 same store in a plain `#ifdef CSR_UART_BASE` arm (product-only) :: under the arm selection line 1386 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only mila
+REFUSED  C3 same store, `#ifdef CSR_UART_BASE` behind a form feed (R272 F1 shape) :: under the arm selection line 1386 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only mila
+REFUSED  C4 same store, plain `%:ifdef` digraph (kept ban) :: firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either p
+REFUSED  H1 same store, `%:` digraph SPLIT BY A SPLICE, #ifdef CSR_UART_BASE :: firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either p
+REFUSED  H2 same store, split digraph, #ifndef MILAN_CENSUS_SOC :: firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either p
+REFUSED  H3 same store, split digraph with a blank before the newline :: firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either p
+REFUSED  C5 `0 &&` in the verdict test under a plain #ifdef CSR_UART_BASE :: under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compi
+REFUSED  H4 `0 &&` in the verdict test under a split-digraph #ifdef CSR_UART_BASE :: firmware must not spell a token with a digraph or a trigraph (%:, line 1396): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either p
+REFUSED  C6 second #define of MILAN_ID_MAGIC as a fresh read (plain `#`) :: #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition
+REFUSED  H5 same second definition spelled with a split `%:` digraph :: firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pai
+REFUSED  H6 split-digraph #undef + #define retargeting MILAN_ADP_EID_LO to ADP_CTRL :: firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pai
+REFUSED  B1 a byte order mark before the first line, nothing else :: the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end
+REFUSED  B2 a byte order mark, then `#include <string.h>` on line 1 :: the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end
+mode=sdk baseline_census_ran=True compiles=86 lexer_note=1845/1845 directive spellings (78 fixed, 1767 generated) read as the pinned GCC recorded them, and re-measured on riscv32-linux-gcc

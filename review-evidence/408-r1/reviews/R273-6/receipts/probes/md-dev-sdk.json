@@ -1,0 +1,60 @@
+{
+ "rev": "759da623",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 9,
+ "seconds": 11.7,
+ "results": [
+  {
+   "label": "MD1 literal-address cast store into the CSR window in a UART handler, hidden by U+00B7 in two directive names",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "MD1a the same store hidden by U+0387",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "MD1b the same store hidden by U+203F",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "MD1c control: the same store hidden by `$` (S refuses)",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "MD1p control: the same store, plain",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "MD2 identity sample forged in milan_init(), hidden by U+00B7",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "MD3 ADP enable in a UART handler, hidden by U+00B7",
+   "verdict": "REFUSED",
+   "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "MD4 AEM verdict overwritten after the verifier, hidden by U+00B7",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "MD5 benign control: a printf in a UART handler, hidden by U+00B7",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "MD6 benign control: U+00B7 in a comment only",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  }
+ ]
+}

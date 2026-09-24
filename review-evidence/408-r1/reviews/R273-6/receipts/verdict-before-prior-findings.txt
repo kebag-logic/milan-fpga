@@ -1,0 +1,25 @@
+[R273] R273-6 verdict and ledger, fixed BEFORE reading any prior public finding
+or any other reviewer's report on this head (exact head 4a56ef08ffb5c6e4dc3d1d31761949870c5bbe23).
+
+Verdict: NEGATIVE (one open MINOR, F1, Docs + Conformance).
+F1 MINOR Docs, Conformance: BAREMETAL_FIRMWARE.md:306 and :1346, and the gate's
+   refusal message (test_builder.py:5160-5165), give GCC parity as the reason
+   for refusing a byte that is not UTF-8 in a comment ("GCC reads the file as
+   UTF-8 too"), and the :1346 remedy says to keep any other character in a
+   comment. The pinned GCC accepts such a byte in a comment (rc 0, even with
+   -Winvalid-utf8), the manager decision 5815136430 item 2 says so, and asks
+   that the page state the cost; the page does not say GCC accepts it.
+S1 SUGGESTION Docs, Tests: ":1346 ... the closure table above is that proof,
+   every byte in every position" and the code comment say "every position";
+   the table holds nine. Outside them (21 more positions, 10962 cells) no
+   admitted cell has the readers and GCC both read names and differ; 32 cells
+   are files GCC refuses to preprocess where the reader reads names, 4 are
+   reader refusals of valid files.
+
+Ledger:
+| Lens        | State   | covering round | head     |
+| Conformance | UNCLEAN | R273-6         | 4a56ef08 |
+| RTL         | CLEAN   | R273-6         | 4a56ef08 |
+| Robustness  | CLEAN   | R273-6         | 4a56ef08 |
+| Tests       | CLEAN   | R273-6         | 4a56ef08 |
+| Docs        | UNCLEAN | R273-6         | 4a56ef08 |
