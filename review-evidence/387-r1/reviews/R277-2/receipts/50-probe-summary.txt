@@ -1,0 +1,98 @@
+R277-2 gmstep probe summary (exact head 021b2e07b009158bcb0ce19529126eb1d330bba5)
+edited datapath = tree milan_datapath.sv + published proposed patch, sha256 45ac96c0...5930 (receipt 11)
+
+CLEAN SWEEP on the edited datapath: 125 feed delays, delays covered = True (0..124)
+  verdicts: {'PASS as required': 125}
+  fill after push: {'14..14 events (target 14 = setpoint 8 + 6)': 125}
+  fill at accept (printed, not graded): {'9..9': 106, '10..10': 16, '9..10': 3}
+
+UNEDITED HEAD: 5 runs
+  delay   0: == gmstep: checks: 48   failures: 4 == failed=['render: the GM change is one counted re-base event', 'render: every counted re-base lands at a PDU end right after the step', 'restart: the outgoing mr toggles exactly once', "restart: the talker's MEDIA_RESET counts exactly one"] -> CAUGHT
+  delay  12: == gmstep: checks: 48   failures: 4 == failed=['render: the GM change is one counted re-base event', 'render: every counted re-base lands at a PDU end right after the step', 'restart: the outgoing mr toggles exactly once', "restart: the talker's MEDIA_RESET counts exactly one"] -> CAUGHT
+  delay  29: == gmstep: checks: 48   failures: 4 == failed=['render: the GM change is one counted re-base event', 'render: every counted re-base lands at a PDU end right after the step', 'restart: the outgoing mr toggles exactly once', "restart: the talker's MEDIA_RESET counts exactly one"] -> CAUGHT
+  delay  83: == gmstep: checks: 48   failures: 4 == failed=['render: the GM change is one counted re-base event', 'render: every counted re-base lands at a PDU end right after the step', 'restart: the outgoing mr toggles exactly once', "restart: the talker's MEDIA_RESET counts exactly one"] -> CAUGHT
+  delay 124: == gmstep: checks: 48   failures: 4 == failed=['render: the GM change is one counted re-base event', 'render: every counted re-base lands at a PDU end right after the step', 'restart: the outgoing mr toggles exactly once', "restart: the talker's MEDIA_RESET counts exactly one"] -> CAUGHT
+
+PROBES on the edited datapath: 54 runs
+  P1 [dp] render re-base keyed to the GM identity only (restart still on the step)
+      expected: ['render: every counted re-base lands at a PDU end right after the step']
+      delay   0: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every counted re-base lands at a PDU end right after the step']
+      delay  29: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every counted re-base lands at a PDU end right after the step']
+      delay  83: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every counted re-base lands at a PDU end right after the step']
+      delay 124: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every counted re-base lands at a PDU end right after the step']
+  P2 [dp] mr restart keyed to the GM identity only (render still on the step)
+      expected: ['restart: every mr toggle is first sent right after the step', 'restart: MEDIA_RESET does not move between the commit and the step']
+      delay   0: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['restart: every mr toggle is first sent right after the step', 'restart: MEDIA_RESET does not move between the commit and the step']
+      delay  29: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['restart: every mr toggle is first sent right after the step', 'restart: MEDIA_RESET does not move between the commit and the step']
+      delay  83: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['restart: every mr toggle is first sent right after the step', 'restart: MEDIA_RESET does not move between the commit and the step']
+      delay 124: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['restart: every mr toggle is first sent right after the step', 'restart: MEDIA_RESET does not move between the commit and the step']
+  P3 [dp] mr restart 3000 cycles (~4.7 talker intervals) after the step
+      expected: ['restart: every mr toggle is first sent right after the step']
+      delay   0: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['restart: every mr toggle is first sent right after the step']
+      delay  29: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['restart: every mr toggle is first sent right after the step']
+      delay  83: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['restart: every mr toggle is first sent right after the step']
+      delay 124: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['restart: every mr toggle is first sent right after the step']
+  P4 [dp] render re-base 600 cycles after the step (beyond the 500-cycle window)
+      expected: ['render: every counted re-base lands at a PDU end right after the step']
+      delay   0: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every counted re-base lands at a PDU end right after the step']
+      delay  29: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every counted re-base lands at a PDU end right after the step']
+      delay  83: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every counted re-base lands at a PDU end right after the step']
+      delay 124: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every counted re-base lands at a PDU end right after the step']
+  P5 [dp] BOUNDARY: render re-base 150 cycles after the step (must still pass)
+      expected: PASS (boundary control)
+      delay   0: PASS as required; == gmstep: checks: 48   failures: 0 ==; failed=[]
+      delay  29: PASS as required; == gmstep: checks: 48   failures: 0 ==; failed=[]
+      delay  83: PASS as required; == gmstep: checks: 48   failures: 0 ==; failed=[]
+      delay 124: PASS as required; == gmstep: checks: 48   failures: 0 ==; failed=[]
+  P6 [dp] talker silenced for good at the step
+      expected: ['licence: the talker never pauses beyond four of its intervals', 'licence: the talker keeps its baseline rate within 1%', 'tu: talker PDUs graded after tu clears']
+      delay   0: CAUGHT; == gmstep: checks: 48   failures: 5 ==; failed=['tu: talker PDUs graded after tu clears', 'licence: the talker never pauses beyond four of its intervals', 'licence: the talker keeps its baseline rate within 1%', 'restart: the outgoing mr toggles exactly once', "restart: the talker's MEDIA_RESET counts exactly one"]
+      delay  29: CAUGHT; == gmstep: checks: 48   failures: 5 ==; failed=['tu: talker PDUs graded after tu clears', 'licence: the talker never pauses beyond four of its intervals', 'licence: the talker keeps its baseline rate within 1%', 'restart: the outgoing mr toggles exactly once', "restart: the talker's MEDIA_RESET counts exactly one"]
+      delay  83: CAUGHT; == gmstep: checks: 48   failures: 5 ==; failed=['tu: talker PDUs graded after tu clears', 'licence: the talker never pauses beyond four of its intervals', 'licence: the talker keeps its baseline rate within 1%', 'restart: the outgoing mr toggles exactly once', "restart: the talker's MEDIA_RESET counts exactly one"]
+      delay 124: CAUGHT; == gmstep: checks: 48   failures: 5 ==; failed=['tu: talker PDUs graded after tu clears', 'licence: the talker never pauses beyond four of its intervals', 'licence: the talker keeps its baseline rate within 1%', 'restart: the outgoing mr toggles exactly once', "restart: the talker's MEDIA_RESET counts exactly one"]
+  P7 [dp] talker silenced for good 640000 cycles after the step (tu long clear)
+      expected: ['licence: the talker never pauses beyond four of its intervals', 'licence: the talker keeps its baseline rate within 1%']
+      delay   0: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['licence: the talker never pauses beyond four of its intervals', 'licence: the talker keeps its baseline rate within 1%']
+      delay  29: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['licence: the talker never pauses beyond four of its intervals', 'licence: the talker keeps its baseline rate within 1%']
+      delay  83: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['licence: the talker never pauses beyond four of its intervals', 'licence: the talker keeps its baseline rate within 1%']
+      delay 124: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['licence: the talker never pauses beyond four of its intervals', 'licence: the talker keeps its baseline rate within 1%']
+  P8 [stage] recentre snaps one event LOW (fill 13 after the push)
+      expected: ['render: every PDU push leaves the target fill across the event']
+      delay   0: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every PDU push leaves the target fill across the event']
+      delay  29: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every PDU push leaves the target fill across the event']
+      delay  83: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every PDU push leaves the target fill across the event']
+      delay 124: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every PDU push leaves the target fill across the event']
+  P9 [stage] recentre snaps one event HIGH (fill 15 after the push)
+      expected: ['render: every PDU push leaves the target fill across the event']
+      delay   0: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every PDU push leaves the target fill across the event']
+      delay  29: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every PDU push leaves the target fill across the event']
+      delay  83: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every PDU push leaves the target fill across the event']
+      delay 124: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['render: every PDU push leaves the target fill across the event']
+  P10 [dp] mr restart on the step AND the identity (two toggles)
+      expected: ['restart: the outgoing mr toggles exactly once', 'restart: every mr toggle is first sent right after the step', 'restart: MEDIA_RESET does not move between the commit and the step']
+      delay   0: CAUGHT; == gmstep: checks: 48   failures: 4 ==; failed=['restart: the outgoing mr toggles exactly once', 'restart: every mr toggle is first sent right after the step', 'restart: MEDIA_RESET does not move between the commit and the step', "restart: the talker's MEDIA_RESET counts exactly one"]
+      delay  29: CAUGHT; == gmstep: checks: 48   failures: 4 ==; failed=['restart: the outgoing mr toggles exactly once', 'restart: every mr toggle is first sent right after the step', 'restart: MEDIA_RESET does not move between the commit and the step', "restart: the talker's MEDIA_RESET counts exactly one"]
+      delay  83: CAUGHT; == gmstep: checks: 48   failures: 4 ==; failed=['restart: the outgoing mr toggles exactly once', 'restart: every mr toggle is first sent right after the step', 'restart: MEDIA_RESET does not move between the commit and the step', "restart: the talker's MEDIA_RESET counts exactly one"]
+      delay 124: CAUGHT; == gmstep: checks: 48   failures: 4 ==; failed=['restart: the outgoing mr toggles exactly once', 'restart: every mr toggle is first sent right after the step', 'restart: MEDIA_RESET does not move between the commit and the step', "restart: the talker's MEDIA_RESET counts exactly one"]
+  P11 [dp] re-base (render and restart) keyed to tu falling, not the step
+      expected: ['render: every counted re-base lands at a PDU end right after the step', 'restart: every mr toggle is first sent right after the step']
+      delay   0: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['render: every counted re-base lands at a PDU end right after the step', 'restart: every mr toggle is first sent right after the step']
+      delay  29: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['render: every counted re-base lands at a PDU end right after the step', 'restart: every mr toggle is first sent right after the step']
+      delay  83: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['render: every counted re-base lands at a PDU end right after the step', 'restart: every mr toggle is first sent right after the step']
+      delay 124: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['render: every counted re-base lands at a PDU end right after the step', 'restart: every mr toggle is first sent right after the step']
+  P12 [clkv] INFO: tu reaches the talkers ONE cycle late (the bank copy lags the discontinuity pulse by one cycle, so this may sit inside the contract)
+      expected: INFO
+      delay   0: INFO PASSED; == gmstep: checks: 48   failures: 0 ==; failed=[]
+      delay  29: INFO PASSED; == gmstep: checks: 48   failures: 0 ==; failed=[]
+      delay  83: INFO PASSED; == gmstep: checks: 48   failures: 0 ==; failed=[]
+      delay 124: INFO PASSED; == gmstep: checks: 48   failures: 0 ==; failed=[]
+  P13 [clkv] tu reaches the talkers TWO cycles late
+      expected: ['tu: set in the first cycle the bank names GM B']
+      delay   0: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['tu: set in the first cycle the bank names GM B']
+      delay  29: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['tu: set in the first cycle the bank names GM B']
+      delay  83: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['tu: set in the first cycle the bank names GM B']
+      delay 124: CAUGHT; == gmstep: checks: 48   failures: 1 ==; failed=['tu: set in the first cycle the bank names GM B']
+  P14 [dp] Stream Input GET_COUNTERS answer an empty mask (vacuous listener arms)
+      expected: ['licence: both Stream Input answers carry MEDIA_UNLOCKED and FRAMES_RX', 'licence: FRAMES_RX advances by the PDUs the listener accepted']
+      delay   0: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['licence: both Stream Input answers carry MEDIA_UNLOCKED and FRAMES_RX', 'licence: FRAMES_RX advances by the PDUs the listener accepted']
+      delay  83: CAUGHT; == gmstep: checks: 48   failures: 2 ==; failed=['licence: both Stream Input answers carry MEDIA_UNLOCKED and FRAMES_RX', 'licence: FRAMES_RX advances by the PDUs the listener accepted']

@@ -1,0 +1,57 @@
+head 021b2e07b009158bcb0ce19529126eb1d330bba5 base 759da623072358afdb0e9d570a7b4b6a788492c9
+=== GATE docs_check exit=0
+docs_check: 0 finding(s) across 164 md files + 849 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+=== GATE check_doc_style exit=0
+documentation style: OK (22 current documents)
+=== GATE check_em_dash exit=0
+check_em_dash: 0 finding(s) over 161 added line(s) in 10 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [759da623..HEAD]
+=== GATE check_gptp_docs exit=0
+gPTP documentation: OK (8 current pages)
+=== GATE check_gptp_docs_with_submodule exit=0
+gPTP documentation: OK (8 current pages, donor checkout verified)
+=== GATE gen_toc_check exit=0
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+=== GATE check_feature_status exit=0
+feature_status: 0 finding(s)
+=== GATE check_submodule_docs exit=0
+submodule documentation: OK (4 exact gitlinks)
+=== GATE measure_test_evidence_check exit=0
+
+suite files using host wall-clock/process deadlines (3):
+   tb/verilator/tcam/mutants.py
+   tb/verilator/tsn_fuzz/cosim.py
+   tb/verilator/tsn_fuzz/tsn_model.py
+
+Verilator scheduling: 55 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (74 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 74
+=== GATE check_cpp_idiom exit=0
+cpp idiom: 147 first-party translation units, 22 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+=== GATE check_py_idiom exit=0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+=== GATE git_diff_check exit=0
+
