@@ -1,0 +1,168 @@
+[
+ {
+  "name": "R238-1 F3 P02 (reconstructed): item, span at content column, column-0 fence",
+  "page": "- item\n\n  <span>\n```\n\n## Old\n",
+  "local": [],
+  "local_anchors": [],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  <span>\\n```\\n\\n## Old\\n\"}",
+   "request_sha256": "4a8227d6a3ea275707729b0b517f5a43b889b0debeb347bf82476675935db22f",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<span>\n</span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>",
+   "response_sha256": "5c1188dc98f29fd302e660470f512e0db779c35b883a8dafc2e4bc9c92de2af4",
+   "recorded_utc": "2026-09-24T01:18:16+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"- item\\n\\n  <span>\\n```\\n\\n## Old\\n\"}",
+   "request_sha256": "08bded92cf315c1556e2defc000a229b61a5e71ab452ad20a8a74d241368e285",
+   "response_bytes": "<ul>\n<li>\n<p>item</p>\n<span>\n</span>\n</li>\n</ul>\n<pre><code>\n## Old\n</code></pre>\n",
+   "response_sha256": "25d2842727cf42b36ea6612ce63101794489b87878ea5097cfd26ae9d4bac232",
+   "recorded_utc": "2026-09-24T01:18:16+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  }
+ },
+ {
+  "name": "R238-1 F3 P03 (reconstructed): item, div at content column, column-0 fence",
+  "page": "- item\n\n  <div>\n```\n\n## Old\n",
+  "local": [],
+  "local_anchors": [],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  <div>\\n```\\n\\n## Old\\n\"}",
+   "request_sha256": "d515f0097e2f267b567ba16ba9510ea9950c67e00d5a70f44524e05916297d46",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<div dir=\"auto\">\n</div></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>",
+   "response_sha256": "240d35fbb79736228d4be782f554c62f7c200b76d60dca339c6642d82cbaeafe",
+   "recorded_utc": "2026-09-24T01:18:17+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"- item\\n\\n  <div>\\n```\\n\\n## Old\\n\"}",
+   "request_sha256": "ad3568e075171b1ea403e0c4390812ec73587842af5cde62e2d7007ca00cc798",
+   "response_bytes": "<ul>\n<li>\n<p>item</p>\n<div>\n\n\n<pre><code>\n## Old\n</code></pre>\n</div>\n</li>\n</ul>",
+   "response_sha256": "b2847751be170b613ce9b093b42c76989598a793da5386fb8a10d1a39a17ca2d",
+   "recorded_utc": "2026-09-24T01:18:17+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  }
+ },
+ {
+  "name": "R238-1 F3 F09 (reconstructed): heading right after the item ends the block",
+  "page": "- item\n\n  <span>\n## Old\n\n## Real\n",
+  "local": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "local_anchors": [
+   "old",
+   "real"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  <span>\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "c051dbafd2dd4daf5f1ec73b6f7cfcaaa761758b24dc44a49c36f47f6b85fbd5",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<span>\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "029804870d6b65b25c71bfab95860b9a123589892c46bc222da3b7560929649a",
+   "recorded_utc": "2026-09-24T01:18:17+00:00",
+   "headings": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"- item\\n\\n  <span>\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "a462f350e61d2856e8d96233a89e86603da249cb0b0ffc4f3f7fbb116d838feb",
+   "response_bytes": "<ul>\n<li>\n<p>item</p>\n<span>\n</span>\n</li>\n</ul>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Old</h2><a id=\"user-content-old\" class=\"anchor\" aria-label=\"Permalink: Old\" href=\"#old\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Real</h2><a id=\"user-content-real\" class=\"anchor\" aria-label=\"Permalink: Real\" href=\"#real\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "2ac3c8c91b04d86a464e26c6bdb9ef36187df279f1290731c71929cfb6e46b42",
+   "recorded_utc": "2026-09-24T01:18:18+00:00",
+   "headings": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "anchors": [
+    "old",
+    "real"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "R237-2 S1 page 1 (exact)",
+  "page": "- item\n\n    <!--\n\n## Old\n\n## Real\n",
+  "local": [],
+  "local_anchors": [],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n    <!--\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "d74c7581b8e10e2d7b8474480012cc075520e161805c6ef278d200dbf6577152",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n  </li></ul>",
+   "response_sha256": "723ec4f71c22e4763334ef3f54127d74a92b2e645f26897a3bcfad87d87cec52",
+   "recorded_utc": "2026-09-24T01:18:18+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"- item\\n\\n    <!--\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "c1465810f29fcfd1fe0b454516e710d38b06b3d014ff2a78f49dc255c232402b",
+   "response_bytes": "<ul>\n<li>\n<p>item</p>\n  </li>\n</ul>",
+   "response_sha256": "45b0ab3ef8611db3d6365dfec39af8106923848838cc3b132435875f5ed91799",
+   "recorded_utc": "2026-09-24T01:18:19+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  }
+ },
+ {
+  "name": "R237-2 S1 page 2 (exact)",
+  "page": "- item\n\n    <div><!--\n\n## Old\n\n## Real\n",
+  "local": [],
+  "local_anchors": [],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n    <div><!--\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "92498b5ed01bb90613e6d5caa3e97a94258b2e50cefe85618308ddcb228df2dc",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n  <div dir=\"auto\"></div></li></ul>",
+   "response_sha256": "9a346da52cf2f9225fcb76e60093f3f484e4a5dd8e5a167305270eb0dc231115",
+   "recorded_utc": "2026-09-24T01:18:19+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"- item\\n\\n    <div><!--\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "15daae2bb009d5e0939c5e661a1cd2074f44756218bd3e6aa8e7fba3ef595f2a",
+   "response_bytes": "<ul>\n<li>\n<p>item</p>\n  <div></div>\n</li>\n</ul>",
+   "response_sha256": "ca0764fe9233245c386ba6ab93e7321adef9c81e00626cd5ef3028c0251f3072",
+   "recorded_utc": "2026-09-24T01:18:19+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  }
+ }
+]

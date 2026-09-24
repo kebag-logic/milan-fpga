@@ -1,0 +1,8 @@
+gfm=ok markdown=ok  e2e control base page: local=[[1, 'Page'], [2, 'Alpha'], [2, 'Beta'], [2, 'Gamma']]
+gfm=ok markdown=ok  e2e control head page: local=[[1, 'Page'], [2, 'Contents'], [2, 'Alpha'], [2, 'Beta'], [2, 'Gamma']]
+gfm=ok markdown=ok  e2e spoof base page: local=[[1, 'Page'], [2, 'Alpha'], [2, 'x'], [2, 'Beta'], [2, 'Gamma']]
+gfm=ok markdown=ok  e2e spoof head page: local=[[1, 'Page'], [2, 'Contents'], [2, 'Alpha'], [2, 'x'], [2, 'Beta'], [2, 'Gamma']]
+e2e control base page | local anchors ['page', 'alpha', 'beta', 'gamma'] | file-view ids ['page', 'alpha', 'beta', 'gamma'] | gfm headings [[1, 'Page'], [2, 'Alpha'], [2, 'Beta'], [2, 'Gamma']]
+e2e control head page | local anchors ['page', 'contents', 'alpha', 'beta', 'gamma'] | file-view ids ['page', 'contents', 'alpha', 'beta', 'gamma'] | gfm headings [[1, 'Page'], [2, 'Contents'], [2, 'Alpha'], [2, 'Beta'], [2, 'Gamma']]
+e2e spoof base page | local anchors ['page', 'alpha', 'old--heading', 'beta', 'gamma'] | file-view ids ['page', 'alpha', 'x', 'beta', 'gamma'] | gfm headings [[1, 'Page'], [2, 'Alpha'], [2, 'x'], [2, 'Beta'], [2, 'Gamma']]
+e2e spoof head page | local anchors ['page', 'contents', 'alpha', 'old--heading', 'beta', 'gamma'] | file-view ids ['page', 'contents', 'alpha', 'x', 'beta', 'gamma'] | gfm headings [[1, 'Page'], [2, 'Contents'], [2, 'Alpha'], [2, 'x'], [2, 'Beta'], [2, 'Gamma']]

@@ -1,0 +1,5 @@
+submodule dirs in the export (entries): external=0 gptp-processor=0 protocol-processor=0 third_party/verilog-axis=0; export = git archive 196cb7d9, fresh single-commit repo
+py3.12 no-submodules | rc=0 | scripts/gen_toc.py --selftest | TOC selftest: PASS (1433/1433 arm(s))
+py3.12 no-submodules | rc=0 | scripts/gen_toc.py --verify-anchors | anchor check: 147 existing cross-page fragment links reproduced
+py3.12 no-submodules | rc=0 | scripts/gen_toc.py --check | TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+py3.12 no-submodules | rc=0 | scripts/check_em_dash.py --selftest | check_em_dash selftest: PASS (332 arm(s))

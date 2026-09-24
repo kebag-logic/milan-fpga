@@ -1,0 +1,190 @@
+[
+ {
+  "name": "M17 witness: heading absorbed as an attribute of an open raw tag (attribute name)",
+  "page": "<div foo\n\n## Old\n\n## Real\n",
+  "local": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "local_anchors": [
+   "real"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div foo\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "000f41abcbb041a95546d86b203e6025540efdc651fbe95fa0d158ce50abf3de",
+   "response_bytes": "<div dir=\"auto\">Old\n<h2 dir=\"auto\">Real</h2></div>",
+   "response_sha256": "3892cd287b7786bccc40a2b7e81d6db39eb1b4b6607ba309d3b78113743ff433",
+   "recorded_utc": "2026-09-24T01:09:47+00:00",
+   "headings": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "anchors": [
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div foo\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "4d01fb1581a253d7dad707dae13f4cf60017312a43b658e4c48af46f2554d57e",
+   "response_bytes": "<div>Old\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Real</h2><a id=\"user-content-real\" class=\"anchor\" aria-label=\"Permalink: Real\" href=\"#real\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n</div>",
+   "response_sha256": "d5736fb7488f045c6cfa4c18ccf0cc4a466720a0811500dd24dde786cf691241",
+   "recorded_utc": "2026-09-24T01:09:47+00:00",
+   "headings": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "anchors": [
+    "real"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "M17 witness: heading absorbed as an unquoted attribute value",
+  "page": "<div title=\n\n## Old\n\n## Real\n",
+  "local": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "local_anchors": [
+   "real"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div title=\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "9baea63dddc9c6700b3fb317ce8ea02ba73342efa02b70182fa7a04d1c74f19a",
+   "response_bytes": "<div title=\"&lt;h2\" dir=\"auto\">Old\n<h2 dir=\"auto\">Real</h2></div>",
+   "response_sha256": "f0511d8253e51fd5fb8032083c5b0746c3593cf59bb2ca4568a8c574e1883524",
+   "recorded_utc": "2026-09-24T01:09:47+00:00",
+   "headings": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "anchors": [
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div title=\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "781bc063b7804601a1dc2d4edaa4ae4999f859bcc0176c9b6f6616dab08c9c05",
+   "response_bytes": "<div title=\"&lt;h2\">Old\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Real</h2><a id=\"user-content-real\" class=\"anchor\" aria-label=\"Permalink: Real\" href=\"#real\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n</div>",
+   "response_sha256": "65b200698db9f0c09876b4370d9151fcd71d01527e7003e2e24217f388728d23",
+   "recorded_utc": "2026-09-24T01:09:48+00:00",
+   "headings": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "anchors": [
+    "real"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "M11 witness: setext heading with strikethrough",
+  "page": "a ~~b~~\n---\n",
+  "local": [
+   [
+    2,
+    "a b"
+   ]
+  ],
+  "local_anchors": [
+   "a-b"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"a ~~b~~\\n---\\n\"}",
+   "request_sha256": "5b1e8a6390680128ff9ccd532dec506d5ffe4acd3f7294681ae3fdf263a29c79",
+   "response_bytes": "<h2 dir=\"auto\">a <del>b</del></h2>",
+   "response_sha256": "59dbd52c5aa55bad98921c8b5ded865b0d1a9371d986d980c1c11aeaa6bd3760",
+   "recorded_utc": "2026-09-24T01:09:48+00:00",
+   "headings": [
+    [
+     2,
+     "a b"
+    ]
+   ],
+   "anchors": [
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"a ~~b~~\\n---\\n\"}",
+   "request_sha256": "a8f76e36854b63e1467e7b05f45ae9262010bf59d5a80d91bbea7b4f84441022",
+   "response_bytes": "<div class=\"markdown-heading\"><h2 class=\"heading-element\">a <del>b</del>\n</h2><a id=\"user-content-a-b\" class=\"anchor\" aria-label=\"Permalink: a b\" href=\"#a-b\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "38c7e5cb9e3ce66b2a9540ba651c0b712fbc46a2b636a14e44b0e7c87311dc6f",
+   "recorded_utc": "2026-09-24T01:09:49+00:00",
+   "headings": [
+    [
+     2,
+     "a b"
+    ]
+   ],
+   "anchors": [
+    "a-b"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "M10 witness: setext heading with an autolink",
+  "page": "see www.example.com now\n---\n",
+  "local": [
+   [
+    2,
+    "see www.example.com now"
+   ]
+  ],
+  "local_anchors": [
+   "see-wwwexamplecom-now"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"see www.example.com now\\n---\\n\"}",
+   "request_sha256": "0f1c4ff05503c92ea0f1d764a4982710e31d1ab021f820a81fdd847846cb4be1",
+   "response_bytes": "<h2 dir=\"auto\">see <a href=\"http://www.example.com\" rel=\"nofollow\">www.example.com</a> now</h2>",
+   "response_sha256": "8f61c650af10423f6f21d7d0fd1fa6697d45fa312ec330b381c009176d43b386",
+   "recorded_utc": "2026-09-24T01:09:49+00:00",
+   "headings": [
+    [
+     2,
+     "see www.example.com now"
+    ]
+   ],
+   "anchors": [
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"see www.example.com now\\n---\\n\"}",
+   "request_sha256": "cf1f3958ccc5b037626e32986f5148c643d10d878191510104ce253b8fd7599f",
+   "response_bytes": "<div class=\"markdown-heading\"><h2 class=\"heading-element\">see <a href=\"http://www.example.com\" rel=\"nofollow\">www.example.com</a> now</h2><a id=\"user-content-see-wwwexamplecom-now\" class=\"anchor\" aria-label=\"Permalink: see www.example.com now\" href=\"#see-wwwexamplecom-now\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "f8e1761aabe13280b4261f30ad8957b31a98ddb981062ab2eca1ec43f1dd1c9f",
+   "recorded_utc": "2026-09-24T01:09:49+00:00",
+   "headings": [
+    [
+     2,
+     "see www.example.com now"
+    ]
+   ],
+   "anchors": [
+    "see-wwwexamplecom-now"
+   ],
+   "agrees": true
+  }
+ }
+]

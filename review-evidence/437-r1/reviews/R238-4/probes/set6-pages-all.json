@@ -1,0 +1,188 @@
+[
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "- item\n  > quote\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "- item\n  - nested\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "- item\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "<div title=\"<!--\">\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "<span title=\"<!--\">\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "<div>\n<img alt=\"<!-- x\">\n</div>\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "<div>\n<![CDATA[<!--]]>\n</div>\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "<div>\n<!-- a --!>\n</div>\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "<div>\n<!--\n--!>\n</div>\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "<div>\n<!--\n</div>\n\ntext <a title=\"-->\"> more\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "- item\n\n  <div>\ntext `<!--` more\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "- item\n\n  <div>\ntext \\<!-- more\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "- item\n\n  <div>\ntext <a title=\"<!--\"> more\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "-\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "-\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "- item\n\n    <!--\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE 4741498f",
+  "comment": 5790354117,
+  "page": "- item\n\n    <div><!--\n\n## Old\n\n## Real\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "Text <?p > <!-- ?> more.\n\n## Old\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "Text <![CDATA[ > <!-- ]]> more.\n\n## Old\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "- item <?p > <!-- ?>\n\n## Old\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "## A <?p > <!-- ?>\n\n## Old\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "<![CDATA[\nx <!---> y\n\n## Old\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": " y\n\n## Old",
+  "in_fixture": false
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "t <!--\n\n<?x\n\n## Old\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "t <!--\n\n<div title='\n\n## Old\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "- [r]: /u\n\n\n    <!--\n\n## Old\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "<div>\n<!--\n\n![<b title=\"-->\">](https://github.com/kebag-logic/milan-fpga/blob/a75d3b918bec05e287bcb576ab3d6855afe3f092/review-evidence/437-r1/reviews/R237-3/u)\n\n## Old\n",
+  "in_fixture": false
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "<div>\n<!--\n\n[r]: /u '<b title=\"-->\">'\n\n## Old\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "Text <?p > <b title=\" ?> more.\n\n## Old\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "Text <!-- a --!> <b title=\"-->\"> more.\n\n## Old\n",
+  "in_fixture": true
+ },
+ {
+  "report": "[R237] NEGATIVE e4906bfc",
+  "comment": 5794524773,
+  "page": "> ```\n\n> <!--\n\n## Old\n",
+  "in_fixture": true
+ }
+]
