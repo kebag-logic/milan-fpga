@@ -1,0 +1,30 @@
+{
+  "runs": [
+    {
+      "name": "guard",
+      "command": [
+        "make",
+        "-C",
+        "tb/desc_mem_guard",
+        "run"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "priority-mutant",
+      "command": [
+        "make",
+        "-C",
+        "tb/desc_mem_guard",
+        "run",
+        "GUARD_SRC=$PACKET/KL_aecp_desc_mem_guard.clear_priority.sv",
+        "OBJ_DIR=obj_priority_mutant"
+      ],
+      "rc": 2
+    }
+  ],
+  "detected": true,
+  "failures": [
+    "FAIL: request acceptance must win over a coincident stray terminal beat"
+  ]
+}

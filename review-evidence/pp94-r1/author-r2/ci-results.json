@@ -1,0 +1,114 @@
+[
+  {
+    "gate": "version",
+    "command": [
+      "verilator",
+      "--version"
+    ],
+    "rc": 0,
+    "seconds": 0.06
+  },
+  {
+    "gate": "links",
+    "command": [
+      "python3",
+      "scripts/check-links.py"
+    ],
+    "rc": 0,
+    "seconds": 0.11
+  },
+  {
+    "gate": "matrix",
+    "command": [
+      "python3",
+      "scripts/check-matrix.py"
+    ],
+    "rc": 0,
+    "seconds": 0.03
+  },
+  {
+    "gate": "wavedrom",
+    "command": [
+      "python3",
+      "scripts/render-wavedrom.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.46
+  },
+  {
+    "gate": "stale",
+    "command": [
+      "make",
+      "stale"
+    ],
+    "rc": 0,
+    "seconds": 0.06
+  },
+  {
+    "gate": "lint",
+    "command": [
+      "./scripts/lint_hdl.sh"
+    ],
+    "rc": 0,
+    "seconds": 10.59
+  },
+  {
+    "gate": "suites",
+    "command": [
+      "./scripts/run_suites.sh"
+    ],
+    "rc": 0,
+    "seconds": 232.49
+  },
+  {
+    "gate": "gen-matrix",
+    "command": [
+      "python3",
+      "scripts/gen_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.06
+  },
+  {
+    "gate": "fetch-pr13",
+    "command": [
+      "git",
+      "fetch",
+      "--no-tags",
+      "origin",
+      "refs/pull/13/head"
+    ],
+    "rc": 0,
+    "seconds": 0.51
+  },
+  {
+    "gate": "nvm-figures",
+    "command": [
+      "make",
+      "-C",
+      "tb/nvm_port",
+      "figures"
+    ],
+    "rc": 0,
+    "seconds": 253.26
+  },
+  {
+    "gate": "portability",
+    "command": [
+      "./syn/yosys/run.sh"
+    ],
+    "rc": 0,
+    "seconds": 71.56
+  },
+  {
+    "gate": "make-check",
+    "command": [
+      "make",
+      "check"
+    ],
+    "rc": 0,
+    "seconds": 26.72
+  }
+]

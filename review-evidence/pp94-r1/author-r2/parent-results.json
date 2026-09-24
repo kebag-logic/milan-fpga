@@ -1,0 +1,50 @@
+[
+  {
+    "gate": "cpp-idiom",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.17
+  },
+  {
+    "gate": "py-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 3.07
+  },
+  {
+    "gate": "xvlog",
+    "command": [
+      "python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 141.44
+  },
+  {
+    "gate": "rtl-source-lists",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "rc": 0,
+    "seconds": 1.37
+  },
+  {
+    "gate": "pp-shadow",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow",
+      "-j8"
+    ],
+    "rc": 0,
+    "seconds": 19.81
+  }
+]
