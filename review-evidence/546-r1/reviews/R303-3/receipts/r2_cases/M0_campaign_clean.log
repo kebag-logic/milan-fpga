@@ -1,0 +1,15 @@
+[PASS] clean: rc=0
+[PASS] tu_ignored: rc=1
+  named rejection: tu edge invalidates before the sampling edge
+[PASS] jump_removed: rc=1
+  named rejection: unmarked timestamp jump invalidates the rate
+[PASS] refill_short: rc=1
+  named rejection: all 255 crossing intervals are withheld
+[PASS] accept_edge_late: rc=1
+  named rejection: tu edge invalidates before the sampling edge
+[PASS] servo_clean: rc=0
+[PASS] servo_ignores_valid: rc=1
+  named rejection: [U13] invalid remote sample holds trim
+[PASS] servo_never_resumes: rc=1
+  named rejection: [U13] valid offset resumes PI trim
+== crf_rx mutants: checks: 8   failures: 0 ==

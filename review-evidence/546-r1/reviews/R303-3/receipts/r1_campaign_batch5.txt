@@ -1,0 +1,24 @@
+D6_pend_not_cancelled: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] back-to-back marker cancels pending publication
+    == crf_rx discontinuity: checks: 1658   failures: 1 ==
+D7_threshold_4096: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] 2049 ns boundary is rejected
+    [FAIL] all 255 crossing intervals are withheld
+    == crf_rx discontinuity: checks: 1658   failures: 4 ==
+D8_threshold_1024: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] 2048 ns boundary remains valid
+    == crf_rx discontinuity: checks: 1658   failures: 2 ==
+D9_break_keeps_valid: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] 2049 ns boundary is rejected
+    [FAIL] all 255 crossing intervals are withheld
+    [FAIL] back-to-back marker leaves invalid history
+    [FAIL] duplicate PDU restarts the rate history
+    [FAIL] lost PDU cannot poison a 256-PDU rate
+    [FAIL] unmarked timestamp jump invalidates the rate
+    == crf_rx discontinuity: checks: 1658   failures: 32 ==
+D10_tu_rise_only: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] all 255 crossing intervals are withheld
+    [FAIL] tu edge holds the published rate
+    [FAIL] tu edge invalidates before the sampling edge
+    == crf_rx discontinuity: checks: 1658   failures: 3 ==
+rc=0 elapsed=16s

@@ -1,0 +1,18 @@
+H2_neg_case_without_step: target=talker expect=report rc=2 -> FAILS
+    [FAIL] GM change: receiver withholds crossing rate samples
+    [FAIL] servo samples invalid history at a boundary
+    quiet: post-edge artifacts 550, sampled invalid 0
+    talker_only_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+    talker_only_neg: integrator range 30.703..30.723 ppm, state 4, crossing boundaries 1, invalid boundaries 0
+    both_short_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 0, invalid boundaries 1
+    both_short_neg: integrator range 30.703..30.723 ppm, state 4, crossing boundaries 0, invalid boundaries 0
+    both_long_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+    both_long_neg: integrator range 30.703..30.723 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+    == crf_rx talker_step: checks: 69   failures: 2 ==
+M0_campaign_clean: target=mutants expect=clean rc=0 -> PASS
+    == crf_rx mutants: checks: 8   failures: 0 ==
+M1_campaign_survivor: target=mutants expect=kill rc=2 -> KILLED
+    [FAIL] jump_removed: rc=0
+    == crf_rx discontinuity: checks: 1658   failures: 0 ==
+    == crf_rx mutants: checks: 8   failures: 1 ==
+rc=0 elapsed=430s

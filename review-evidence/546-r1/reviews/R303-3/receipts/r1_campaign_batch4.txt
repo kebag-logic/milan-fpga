@@ -1,0 +1,21 @@
+D1_seq_gap_ignored: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] all 255 crossing intervals are withheld
+    [FAIL] duplicate PDU restarts the rate history
+    == crf_rx discontinuity: checks: 1658   failures: 2 ==
+D2_stop_gate_removed: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] STOP gates sample validity immediately
+    == crf_rx discontinuity: checks: 1658   failures: 1 ==
+D3_silence_keeps_valid: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] initial history stays invalid for 256 timestamps
+    [FAIL] silence invalidates the old rate
+    == crf_rx discontinuity: checks: 1658   failures: 257 ==
+D4_bind_keeps_valid: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] initial history stays invalid for 256 timestamps
+    [FAIL] rebind invalidates old history
+    == crf_rx discontinuity: checks: 1658   failures: 257 ==
+D5_spacing_32bit: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] all 255 crossing intervals are withheld
+    [FAIL] unmarked timestamp jump cannot publish
+    [FAIL] unmarked timestamp jump invalidates the rate
+    == crf_rx discontinuity: checks: 1658   failures: 10 ==
+rc=0 elapsed=16s

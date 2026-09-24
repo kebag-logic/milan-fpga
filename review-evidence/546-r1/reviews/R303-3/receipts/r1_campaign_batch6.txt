@@ -1,0 +1,11 @@
+O0_clean: target=order expect=clean rc=0 -> PASS
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.703..30.723 ppm, state 4
+    step -150000 ns: integrator range 30.703..30.723 ppm, state 4
+    == reviewer probe gm_order: checks: 19   failures: 0 ==
+O1_tu_ignored: target=order expect=report rc=0 -> PASSES
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.703..30.723 ppm, state 4
+    step -150000 ns: integrator range 30.703..30.723 ppm, state 4
+    == reviewer probe gm_order: checks: 19   failures: 0 ==
+rc=0 elapsed=201s

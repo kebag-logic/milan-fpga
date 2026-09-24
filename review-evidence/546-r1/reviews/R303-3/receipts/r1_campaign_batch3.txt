@@ -1,0 +1,12 @@
+C4_servo_ignores_valid: target=talker expect=kill rc=2 -> KILLED
+    [FAIL] invalid sample cannot update the integrator got=1 exp=0
+    [FAIL] invalid sample cannot update the integrator got=2 exp=0
+    steady integrator 30.723 ppm
+    == crf_rx talker_step: checks: 69   failures: 5 ==
+C5_rx_valid_forced: target=talker expect=kill rc=2 -> KILLED
+    [FAIL] GM change: receiver withholds crossing rate samples
+    [FAIL] quiet: post-edge artifact was exercised
+    [FAIL] servo samples invalid history at a boundary
+    steady integrator 30.723 ppm
+    == crf_rx talker_step: checks: 69   failures: 11 ==
+rc=0 elapsed=433s

@@ -1,0 +1,13 @@
+S5_campaign_resume_noop: target=mutants expect=kill rc=2 -> KILLED
+    [FAIL] servo_never_resumes: rc=0
+    [ ok ] [U13] LOCKED before invalid remote sample            = 4
+    [ ok ] [U13] invalid remote sample holds trim               = 1576
+    [ ok ] [U13] invalid remote sample holds LOCKED             = 4
+    [ ok ] [U13] clean remote sample resumes locked             = 4
+    [ ok ] [U13] valid offset resumes PI trim                   = 1
+    [ ok ] [U13] valid offset stays LOCKED                      = 4
+    [ ok ] [U13] original rate recovers LOCKED                  = 4
+    KL_mmcm_drp_servo: 85 checks, 0 failures
+    == crf_rx mutants: checks: 8   failures: 1 ==
+rc=0 elapsed=103s
+S5 sweep_verdict_rc=1

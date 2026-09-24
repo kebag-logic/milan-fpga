@@ -1,0 +1,23 @@
+== python3 -B scripts/check_em_dash.py --base 57456af96b3127b9d309a995bbbd35a6113ce52d
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+== python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== python3 -B scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+== python3 -B scripts/check_doc_paths.py
+doc path gate: OK (841 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+== python3 -B docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+rc=0
+== python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 861 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+added lines containing U+2014 (em dash) in 57456af9..0c61d458:
+0
+added lines containing U+2014 in d04a6167..0c61d458:
+0

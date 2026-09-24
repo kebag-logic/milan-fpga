@@ -1,0 +1,23 @@
+O2_jump_removed: target=order expect=kill rc=1 -> KILLED
+    [FAIL] GM change: integrator stays within 1 ppm
+    [FAIL] GM change: receiver withholds crossing rate samples
+    [FAIL] GM change: servo stays LOCKED on every clock
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.703..30.723 ppm, state 4
+    step -150000 ns: integrator range 30.703..177.188 ppm, state 3
+    == reviewer probe gm_order: checks: 19   failures: 3 ==
+O3_tu_and_jump_removed: target=order expect=kill rc=1 -> KILLED
+    [FAIL] GM change: integrator stays within 1 ppm
+    [FAIL] GM change: receiver withholds crossing rate samples
+    [FAIL] GM change: servo stays LOCKED on every clock
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range -115.742..30.723 ppm, state 3
+    step -150000 ns: integrator range -70.352..115.488 ppm, state 3
+    == reviewer probe gm_order: checks: 19   failures: 6 ==
+O4_servo_ignores_valid: target=order expect=kill rc=1 -> KILLED
+    [FAIL] invalid sample cannot update the integrator got=1 exp=0
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.703..30.742 ppm, state 4
+    step -150000 ns: integrator range 30.703..30.703 ppm, state 4
+    == reviewer probe gm_order: checks: 19   failures: 1 ==
+rc=0 elapsed=465s
