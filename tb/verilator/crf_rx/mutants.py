@@ -58,10 +58,12 @@ def run_case(work: Path, name: str, source: str, failure: str | None,
     else:
         passed = (result.returncode == 1 and (servo or "RESULT: FAIL" in output) and
                   f"[FAIL] {failure}" in output)
-    print(f"{'PASS' if passed else 'FAIL'} {name}: rc={result.returncode}")
-    for line in output.splitlines():
-        if "[FAIL]" in line or "checks:" in line:
-            print(line)
+    print(f"[{'PASS' if passed else 'FAIL'}] {name}: rc={result.returncode}")
+    if passed and failure is not None:
+        # The sweep judges this campaign's verdict, not expected DUT failures.
+        print(f"  named rejection: {failure}")
+    elif not passed:
+        print(output)
     return passed
 
 
@@ -77,23 +79,25 @@ def main() -> int:
         work = Path(directory)
         if not run_case(work, "clean", source, None):
             return 1
-        passed = True
+        results = [True]
         for name, anchor, replacement, failure in MUTANTS:
             if source.count(anchor) != 1:
                 print(f"FAIL {name}: expected exactly one mutation anchor")
-                passed = False
+                results.append(False)
                 continue
-            passed = run_case(work, name, source.replace(anchor, replacement), failure) and passed
+            results.append(run_case(work, name, source.replace(anchor, replacement), failure))
         servo_source = SERVO.read_text()
         anchor = "\n                           && crf_rate_valid_i;"
         if servo_source.count(anchor) != 1:
             print("FAIL servo_ignores_valid: expected exactly one mutation anchor")
             return 1
-        passed = run_case(work, "servo_clean", servo_source, None, servo=True) and passed
-        passed = run_case(
+        results.append(run_case(work, "servo_clean", servo_source, None, servo=True))
+        results.append(run_case(
             work, "servo_ignores_valid", servo_source.replace(anchor, ";"),
-            "[U13] invalid remote sample holds trim", servo=True) and passed
-    return 0 if passed else 1
+            "[U13] invalid remote sample holds trim", servo=True))
+    failures = sum(not passed for passed in results)
+    print(f"== crf_rx mutants: checks: {len(results)}   failures: {failures} ==")
+    return 1 if failures else 0
 
 
 if __name__ == "__main__":
