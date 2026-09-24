@@ -12203,6 +12203,11 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
     for events, described, named in (
         ("low 0\nmax 9\noom 2\noom_kill 2\n", "a cap that ran out twice",
          "ran out of its own memory cap (MemoryMax=24G) 2 time(s)"),
+        # The slice runs no process itself, so the kill is counted in the
+        # victim's own cgroup below it and the slice's own oom_kill stays 0.
+        ("low 0\nhigh 0\nmax 7\noom 1\noom_kill 0\noom_group_kill 0\n",
+         "one OOM at its cap and no kill in its own events",
+         "ran out of its own memory cap (MemoryMax=24G) 1 time(s)"),
         (None, "unreadable events", "cannot prove replay slot 2's memory cap never ran out"),
         ("oom\n", "malformed events", "cannot prove replay slot 2's memory cap never ran out"),
         ("low 0\nmax 0\n", "events without an oom count",
