@@ -1,0 +1,32 @@
+e68c1b1ac08c8b1e12a28e281b266d06f881e402
+Compiler mode: absent cross tools
+Compiler audit: $DATA/reviews/387b-r276-4-packet/scratch/builder/head.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$DATA/reviews/387b-r276-4-packet/scratch/builder/head/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$DATA/reviews/387b-r276-4-packet/scratch/builder/head/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$DATA/reviews/387b-r276-4-packet/scratch/builder/head/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$DATA/reviews/387b-r276-4-packet/scratch/builder/head/sw/builder/test_builder.py", line 9616, in test_baremetal_profile_contract
+    baseline_census_verdict = assert_boot_contract(
+        firmware_source, docs_source, csr_source)
+  File "$DATA/reviews/387b-r276-4-packet/scratch/builder/head/sw/builder/test_builder.py", line 8861, in assert_boot_contract
+    direct_initializer(
+    ~~~~~~~~~~~~~~~~~~^
+        datapath, r"wire[ \t]+render_recentre_p_w",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        "render recentre pulse must read only the GM-change, adjtime, "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "settime and settled clock-source discontinuities")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$DATA/reviews/387b-r276-4-packet/scratch/builder/head/sw/builder/test_builder.py", line 8677, in direct_initializer
+    assert actual == expected_value, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: render recentre pulse must read only the GM-change, adjtime, settime and settled clock-source discontinuities: unexpected render_recentre_p_w initializer 'media_rebase_p_w\n       | src_recentre_p_r'
+rc=1

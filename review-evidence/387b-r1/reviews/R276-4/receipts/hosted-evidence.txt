@@ -1,0 +1,62 @@
+# Hosted workflow evidence for exact head e68c1b1ac08c8b1e12a28e281b266d06f881e402 (read-only API, 2026-09-24T16:17:22Z)
+run 36021667565 docs pull_request completed failure
+run 36021667494 elaborate pull_request completed failure
+run 36021667645 rtl-fast pull_request completed success
+run 36021667821 rtl-full pull_request completed cancelled
+  job 107707833579 elaborate | completed failure 2026-09-24T15:38:42Z 2026-09-24T15:40:06Z
+  job 107707833745 docs-check-no-git | completed success 2026-09-24T15:38:42Z 2026-09-24T15:38:52Z
+  job 107707833793 docs-check | completed failure 2026-09-24T15:38:44Z 2026-09-24T15:40:26Z
+  job 107707833981 wire-accountability | completed success 2026-09-24T15:38:42Z 2026-09-24T15:38:50Z
+  job 107707834744 changes | completed success 2026-09-24T15:38:44Z 2026-09-24T15:39:08Z
+  job 107707834753 bdd-conformance | completed success 2026-09-24T15:38:42Z 2026-09-24T15:38:57Z
+  job 107708027538 verilator-lint | completed success 2026-09-24T15:39:10Z 2026-09-24T15:39:40Z
+  job 107708027767 yosys-elaboration | completed success 2026-09-24T15:39:11Z 2026-09-24T15:49:24Z
+  job 107712284011 rtl-fast | completed success 2026-09-24T15:49:27Z 2026-09-24T15:49:30Z
+  job 107707835364 full-ci-gate | completed success 2026-09-24T15:38:42Z 2026-09-24T15:39:06Z
+  job 107708015035 Verilator shard 1/5 | completed success 2026-09-24T15:39:20Z 2026-09-24T16:03:38Z
+  job 107708015084 Yosys shard 3/4 | completed success 2026-09-24T15:39:09Z 2026-09-24T15:39:45Z
+  job 107708015086 Verilator shard 2/5 | completed success 2026-09-24T15:39:09Z 2026-09-24T15:54:03Z
+  job 107708015088 Yosys shard 2/4 | completed success 2026-09-24T15:39:09Z 2026-09-24T15:40:14Z
+  job 107708015127 Verilator shard 3/5 | completed success 2026-09-24T15:39:09Z 2026-09-24T15:48:37Z
+  job 107708015133 Yosys shard 0/4 | completed success 2026-09-24T15:39:09Z 2026-09-24T15:44:35Z
+  job 107708015155 Verilator shard 0/5 | completed success 2026-09-24T15:39:09Z 2026-09-24T15:52:17Z
+  job 107708015172 Verilator shard 4/5 | completed cancelled 2026-09-24T15:39:09Z 2026-09-24T16:09:31Z
+  job 107708015224 Yosys shard 1/4 | completed success 2026-09-24T15:39:09Z 2026-09-24T15:39:49Z
+  job 107708016543 Physical gPTP (nightly and manual) | completed skipped 2026-09-24T15:39:07Z 2026-09-24T15:39:06Z
+  job 107720465192 verilator-suites | completed failure 2026-09-24T16:09:34Z 2026-09-24T16:09:42Z
+  job 107720537635 yosys-portability | completed success 2026-09-24T16:09:45Z 2026-09-24T16:09:54Z
+
+## elaborate job 107707833579 failing step (excerpt)
+﻿2026-09-24T15:40:01.1859165Z ##[group]Run python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+2026-09-24T15:40:01.1859851Z ^[[36;1mpython3 sw/builder/test_builder.py --require-elaboration --require-rv32^[[0m
+2026-09-24T15:40:03.3631767Z   [gate 1b] 5 product configs and 11 refusal arms pass
+2026-09-24T15:40:03.3633413Z   [gate 1b] compiler argv[0]=<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+2026-09-24T15:40:03.3717048Z AssertionError: render recentre pulse must read only the GM-change, adjtime, settime and settled clock-source discontinuities: unexpected render_recentre_p_w initializer 'media_rebase_p_w\n       | src_recentre_p_r'
+2026-09-24T15:40:03.3992454Z ##[error]Process completed with exit code 1.
+
+## docs / docs-check job 107707833793 failing step (excerpt)
+2026-09-24T15:40:19.9454396Z ^[[36;1mpython3 sw/builder/test_firmware_compiler.py --absent --audit "$RUNNER_TEMP/rv32-absent.jsonl"^[[0m
+2026-09-24T15:40:23.2364979Z AssertionError: render recentre pulse must read only the GM-change, adjtime, settime and settled clock-source discontinuities: unexpected render_recentre_p_w initializer 'media_rebase_p_w\n       | src_recentre_p_r'
+2026-09-24T15:40:23.2678751Z ##[error]Process completed with exit code 1.
+
+## rtl-full Verilator shard 4/5 (milan_dp only) at this head: job 107708015172
+2026-09-24T15:40:23.5561972Z shard: 4/5   selected suites: 1
+2026-09-24T16:09:29.2953720Z ##[error]The operation was canceled.
+2026-09-24T16:09:30.5425326Z Terminate orphan process: pid (22042) (Vmilan_dp_aclk)
+
+## hosted milan_dp suite window on dev (shard 4/5, rtl-full push runs)
+shard4-base-57456af9:
+2026-09-24T14:53:35.9236660Z shard: 4/5   selected suites: 1
+2026-09-24T15:29:09.1835099Z PASS     milan_dp
+2026-09-24T15:29:09.5519600Z checks: 9720   in-suite failures: 0
+shard4-base-59b81670:
+2026-09-24T13:22:33.5167605Z shard: 4/5   selected suites: 1
+2026-09-24T13:57:33.0091676Z PASS     milan_dp
+2026-09-24T13:57:33.3689710Z checks: 9720   in-suite failures: 0
+
+PR head at time of recording: a9636e0f670f90f411da3024a141e93efa1872df (not reviewed in this round)
+
+## computed suite windows ("shard: 4/5" line to verdict or cancel)
+dev 57456af9: 2133.3 s
+dev 59b81670: 2099.5 s
+head e68c1b1a: cancelled at 1745.7 s, unfinished (a later push superseded the run)
