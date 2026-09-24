@@ -1,0 +1,7 @@
+C1r KILLED rc=2 secs=11 136 checks: 126 PASS, 10 FAIL | 10 FAIL lines
+    FAIL: T23 a the header read refused at the grant: one err, nothing forwarded, cause DEVICE (read 0)
+    FAIL: T23 b a device error inside the header: one err, nothing forwarded, cause DEVICE (read 0)
+    FAIL: T23 c the header read ended short at 5 bytes: one err, nothing forwarded, cause DEVICE (read 0)
+    FAIL: T23 d a device error after the header, before its done: one err, nothing forwarded, cause DEVICE (read 0)
+    FAIL: T23e a device error in the payload: cause DEVICE (read 0)
+    FAIL: T23f a failed erase on a commit: cause DEVICE (read 0)

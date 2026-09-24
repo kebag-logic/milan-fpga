@@ -1,0 +1,19 @@
+== lint_hdl.sh
+lint rc=0
+39
+LINT OK  KL_acmp_nvm_shadow
+LINT OK  KL_pp_acmp_lsn_admit
+LINT OK  KL_pp_nvm_mgr_arb
+LINT OK  KL_pp_nvm_port
+LINT OK  protocol_processor_top
+== check-links
+links: 830 checked, OK
+rc=0
+== check-matrix
+matrix: 115 REQ rows, 17 GAP findings, OK
+== gen_matrix --check
+matrix: OK (90 rows, 0 untested)
+== lint-diagrams
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+== make stale (clone, read-only)
+stale rc=0

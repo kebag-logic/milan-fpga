@@ -1,0 +1,5 @@
+C2r KILLED rc=2 secs=11 136 checks: 132 PASS, 4 FAIL | 4 FAIL lines
+    FAIL: T23 g an erased header (8 x 0xFF): one err, nothing forwarded, cause UNFRAMED (read 1)
+    FAIL: T23 h a corrupted magic: one err, nothing forwarded, cause UNFRAMED (read 1)
+    FAIL: T23 i a payload_length over the bound: one err, nothing forwarded, cause UNFRAMED (read 1)
+    FAIL: T23j a commit whose header fails the gate: cause UNFRAMED (read 1)
