@@ -1,0 +1,69 @@
+$ python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 841 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+
+$ python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 839 tracked first-party file(s))
+rc=0
+
+$ python3 scripts/check_em_dash.py --base ede8d48ecd7c7f589a14b957951f040d92c99c70
+check_em_dash: 0 finding(s) over 670 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+rc=0
+
+$ python3 scripts/gen_toc.py --check
+TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+
+$ python3 scripts/gen_toc.py --verify-anchors
+anchor check: 148 existing cross-page fragment links reproduced
+rc=0
+
+$ python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+
+$ python3 scripts/check_doc_paths.py
+doc path gate: OK (836 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+
+$ python3 scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+rc=0
+
+$ python3 scripts/check_feature_status.py
+feature_status: 0 finding(s)
+rc=0
+
+$ python3 scripts/check_archive.py
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+rc=0
+
+$ python3 scripts/check_solution_docs.py
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+rc=0
+
+$ python3 scripts/check_hygiene.py --check
+  tb/utests/1722/kl-avtp-common-parser/tb_top.tcl
+  tb/utests/ptp_timestamp/tb_ptp_ts_core.tcl
+  tb/utests/ptp_timestamp/tb_timestamp_counter.tcl
+
+                                superproject  protocol-processor      gptp-processor
+  trailing whitespace                      0                   0                   0
+  missing EOF newline                      0                   0                   0
+  CRLF line ending                         0                   0                   0
+  UTF-8 BOM                                0                   0                   0
+  tab in SystemVerilog                     0                   0                   0
+
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 718 file(s))
+rc=0
+
+$ python3 scripts/check_todo_ownership.py
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 768 first-party file(s) read)
+rc=0
+
+$ git diff --check ede8d48ecd7c7f589a14b957951f040d92c99c70..HEAD
+rc=0
+

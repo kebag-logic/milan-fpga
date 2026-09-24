@@ -1,0 +1,22 @@
+run  records  envelope-less  span_s
+A 8683 76 314.9
+B 37350 0 114.9
+RunB CRF PDUs 34061 tu values {0} sequence gaps 0 streams {'0200000000010001'} vlan {(3, 2)}
+RunB bursts (s) [19.67, 18.45, 15.0, 15.0] pauses (ms) [1106, 578, 148]
+RunB PDU rate per s within bursts 500.1
+C 2882 0 99.9
+final 1062 0 39.9
+tapped span total (s) 569.6
+sync_sw intervals 4556 mean per run [125.0, 125.0, 125.01, 125.02] min 100.622 max 149.383 outside 30% 0
+ann_sw intervals 565 mean per run [1000.42, 1002.19, 1000.21, 1006.04] min 999.71 max 1010.612 outside 30% 0
+preq_sw intervals 564 mean per run [1002.01, 1006.73, 1007.58, 1006.85] min 999.886 max 1029.584 outside 30% 0
+preq_dut intervals 566 mean per run [1000.0, 1000.0, 1000.0, 1000.0] min 1000.002 max 1000.002 outside 30% 0
+lmi [('A', {(2, 'gPTP Announce'): {0}, (2, 'gPTP Sync'): {-3}, (2, 'gPTP Pdelay_Req'): {0}, (3, 'gPTP Pdelay_Req'): {0}}), ('B', {(2, 'gPTP Sync'): {-3}, (2, 'gPTP Announce'): {0}, (3, 'gPTP Pdelay_Req'): {0}, (2, 'gPTP Pdelay_Req'): {0}}), ('C', {(2, 'gPTP Sync'): {-3}, (2, 'gPTP Announce'): {0}, (2, 'gPTP Pdelay_Req'): {0}, (3, 'gPTP Pdelay_Req'): {0}}), ('final', {(2, 'gPTP Sync'): {-3}, (3, 'gPTP Pdelay_Req'): {0}, (2, 'gPTP Announce'): {0}, (2, 'gPTP Pdelay_Req'): {0}})]
+announce [('A', 315, {('3cc0c6fffefe0210', 246, 248, 32, 17258, 248, 160, 0, ('3cc0c6fffefe0210',))}), ('B', 115, {('3cc0c6fffefe0210', 246, 248, 32, 17258, 248, 160, 0, ('3cc0c6fffefe0210',))}), ('C', 100, {('3cc0c6fffefe0210', 246, 248, 32, 17258, 248, 160, 0, ('3cc0c6fffefe0210',))}), ('final', 39, {('3cc0c6fffefe0210', 246, 248, 32, 17258, 248, 160, 0, ('3cc0c6fffefe0210',))})]
+DUT Sync/Announce sent [('A', 0), ('B', 0), ('C', 0), ('final', 0)]
+DUT source port ids [('A', {'020000fffe000001:0001'}), ('B', {'020000fffe000001:0001'}), ('C', {'020000fffe000001:0001'}), ('final', {'020000fffe000001:0001'})]
+domains [('A', {0}), ('B', {0}), ('C', {0}), ('final', {0})]
+sw_req_dut_resp requests 568 complete 568 tap turnaround ns min/max 10984 11009 resp->fu ns min/max 7552 7569 claimed ns min/max 10608 10629 tap-claimed median per run [384, 384, 383, 391] min/max 371 400
+   largest three tap turnarounds (ms) [0.011, 0.011, 0.011]
+dut_req_sw_resp requests 570 complete 570 tap turnaround ns min/max 679394 18359403 resp->fu ns min/max 532193 1113995 claimed ns min/max 679000 18358880 tap-claimed median per run [394, 394, 393, 394] min/max 385 524
+   largest three tap turnarounds (ms) [0.88, 18.33, 18.359]
