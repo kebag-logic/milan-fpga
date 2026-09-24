@@ -1,0 +1,35 @@
+KILLED   toc rc=1 em rc=0 | reverse: plain-HTML check case-sensitive | FAIL [I437 a page whose raw element carries the position attribute spelled in upper case lists nothing]
+KILLED   toc rc=1 em rc=2 | plain-HTML check removed (never forged) | FAIL [I437 a page spelling the renderer's position attribute lists nothing]
+KILLED   toc rc=1 em rc=2 | plain-HTML check reads the RAW TEXT again, case-sensitive (old guard) | FAIL [I437 a page whose raw element carries the position attribute spelled in upper case lists nothing]
+KILLED   toc rc=1 em rc=2 | plain-HTML check reads the raw text, any case (no decoding) | FAIL [I437 a page whose raw element carries the position attribute spelled through a character reference lists nothing]
+SURVIVED toc rc=0 em rc=0 | forged page keeps its nodes (only shown emptied) | 
+KILLED   toc rc=1 em rc=0 | refusals() case-sensitive | FAIL [the renderer's position attribute is refused in every letter case, with its line and column]
+KILLED   toc rc=1 em rc=0 | refusals() names no attribute | FAIL [the renderer's position attribute is refused in every letter case, with its line and column]
+SURVIVED toc rc=0 em rc=0 | refusals() names only the first spelling on a line | 
+SURVIVED toc rc=0 em rc=0 | refusals() folds with str.lower() | 
+KILLED   toc rc=1 em rc=1 | refusal note for the attribute uses the character wording | 
+KILLED   toc rc=1 em rc=2 | both guards case-sensitive (plain-HTML check and refusals()) | FAIL [I437 a page whose raw element carries the position attribute spelled in upper case lists nothing]
+KILLED   toc rc=1 em rc=2 | tight-list paragraphs given an element (prior M03/M04 equivalent) | FAIL [I437 a tight list's bare paragraphs render]: ['commented line', 'commented line', 'prose line', 'prose line', 'prose line']
+KILLED   toc rc=1 em rc=0 | depth bound removed | FAIL [I437 a page nesting one 201 deep lists nothing: GitHub drops what it nests 256 deep and all after it]
+KILLED   toc rc=1 em rc=0 | depth bound off by one (>=) | FAIL [I437 a page nesting an element 200 deep is read]
+KILLED   toc rc=1 em rc=0 | depth bound raised to 255 | FAIL [I437 a page nesting one 201 deep lists nothing: GitHub drops what it nests 256 deep and all after it]
+KILLED   toc rc=1 em rc=0 | depth counts from 0 | FAIL [I437 a page nesting one 201 deep lists nothing: GitHub drops what it nests 256 deep and all after it]
+KILLED   toc rc=1 em rc=0 | syntax-tree walk recursive again | FAIL [I437 a page nested past the interpreter's recursion limit is read, and lists nothing]
+KILLED   toc rc=1 em rc=2 | stack walk loses sibling order (children before next sibling swapped) | FAIL [four spaces after a blank line is code, not a fence]: ['prose line', 'prose line', 'prose line', 'prose line']
+KILLED   toc rc=1 em rc=0 | own element drops block_quote | FAIL [I437 a block quote an open comment swallows is commented, its blank line too]: ['raw HTML line', 'raw HTML line', 'prose line', 'commented line'
+KILLED   toc rc=1 em rc=0 | own element drops list | FAIL [I437 a list an open comment swallows is commented, the blank line only the list holds too]: ['raw HTML line', 'raw HTML line', 'prose line', 'co
+KILLED   toc rc=1 em rc=0 | own element drops heading | FAIL [(renderer) a second comment opened on a closing line stays open past an arrow written as text]: ['commented line', 'prose line', 'commented line
+KILLED   toc rc=1 em rc=0 | own element drops code_block | FAIL [I437 a fence an open comment swallows is commented]: ['raw HTML line', 'raw HTML line', 'prose line', 'fenced line', 'fenced line', 'fenced line
+KILLED   toc rc=1 em rc=0 | own element drops thematic_break | FAIL [I437 a thematic break an open comment swallows is commented]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line']
+KILLED   toc rc=1 em rc=0 | own element drops table | FAIL [I437 a table an open comment swallows is commented]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line', 'prose line', 
+KILLED   toc rc=1 em rc=2 | heading tag not matched to its level | FAIL [I437 a heading whose position an open raw tag reads as an attribute is not listed: the tag is not its level's]
+SURVIVED toc rc=0 em rc=0 | heading tag matched to any heading tag | 
+KILLED   toc rc=1 em rc=0 | bind() ignores the release it is handed | FAIL [I437 the binding itself refuses another cmarkgfm release by name]
+KILLED   toc rc=1 em rc=0 | verify() ignores cmarkgfm | FAIL [I437 another cmarkgfm release is refused by name]
+KILLED   toc rc=1 em rc=0 | strikethrough extension dropped | FAIL [I437 a setext heading's strikethrough renders as GitHub's does]
+KILLED   toc rc=1 em rc=0 | autolink extension dropped | FAIL [I437 the renderer attaches exactly the extensions spelled here]
+KILLED   toc rc=1 em rc=0 | tasklist extension dropped | FAIL [I437 the renderer attaches exactly the extensions spelled here]
+KILLED   toc rc=1 em rc=2 | positions left quoted | FAIL [I437 what an open quoted attribute value swallows is commented]: ['raw HTML line', 'prose line', 'commented line', 'prose line', 'prose line', '
+KILLED   toc rc=1 em rc=0 | file-view check ignores anchors | FAIL [I437 the file-view check refuses a heading the file view does not show, or shows with another text or anchor]
+KILLED   toc rc=1 em rc=0 | file-view check allows any heading | FAIL [I437 the file-view check refuses a heading the file view does not show, or shows with another text or anchor]
+KILLED   toc rc=1 em rc=0 | file-view permalink not read (anchors empty) | FAIL [I437 file-view receipt: position attribute: none, the heading hidden by an open raw comment]

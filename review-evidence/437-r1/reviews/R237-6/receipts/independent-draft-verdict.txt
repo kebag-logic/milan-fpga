@@ -1,0 +1,7 @@
+Independent draft written 2026-09-24T05:07:18Z, BEFORE reading any prior review report or finding text on PR #538.
+Exact head 26a0cc3042300d5213edf7b1c0037a3ae2612ecd (tree dd03278237b213f237e911ce3c370e6471bc8be8).
+Draft verdict: POSITIVE (no open BLOCKER/MAJOR/MINOR from the independent pass).
+Draft findings: SUGGESTION only.
+  S-a Robustness+Docs: pages spelling the attribute through an escape or character reference, or nesting >200, are not named by refusals(); --check reports TOC DRIFT and --write deletes the human-written Contents block (withholding direction; receipts/check-write-unrefused.txt).
+  S-b Tests: 4 of 32 own mutants survive (first-spelling-only naming, str.lower() column folding, heading tag matched to any heading level, forged page keeping nodes); none changes a listed anchor or an exemption (receipts/mutations-r237-6-at-26a0cc30.txt, receipts/render-probe-level.json).
+Draft ledger (all at 26a0cc30): Conformance CLEAN, RTL CLEAN, Robustness CLEAN, Tests CLEAN, Docs CLEAN.
