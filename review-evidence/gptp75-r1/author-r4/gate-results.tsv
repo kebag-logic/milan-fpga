@@ -1,0 +1,15 @@
+gate	command	rc	seconds
+before-engine	make -C tb/verilator/engine run	0	112.918
+before-mutants	make -C tb/verilator/engine mutants	0	1316.519
+before-source-evidence	python3 scripts/check_source_evidence.py	0	0.114
+before-source-selftest	python3 scripts/check_source_evidence.py --selftest	0	0.114
+after-source-evidence	python3 scripts/check_source_evidence.py	0	0.064
+after-source-selftest	python3 scripts/check_source_evidence.py --selftest	0	0.064
+after-make	make -j8	0	1388.91
+after-mutants	make -C tb/verilator/engine mutants	0	1315.587
+parent-cpp	python3 scripts/check_cpp_idiom.py	0	1.217
+parent-python	python3 scripts/check_py_idiom.py	0	3.121
+parent-xvlog	python3 scripts/xvlog_gate.py --check	0	137.362
+parent-source-lists	python3 scripts/check_rtl_source_lists.py	0	1.417
+parent-builder	python3 sw/builder/test_builder.py	0	388.041
+parent-shadow	make -C tb/verilator/gptp_shadow -j8	0	232.773

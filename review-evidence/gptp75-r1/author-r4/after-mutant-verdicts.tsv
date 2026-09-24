@@ -1,0 +1,34 @@
+mutant	verdict	first failed check	required named check	failing checks
+slew level tied low	caught	slew: real jump starts the level	slew: policy decision starts at +101 ns	43
+slew clears at the first in-band pair	caught	slew: first in-band pair cannot clear	slew: first in-band pair cannot clear	15
+slew clears before the replacement rate	caught	slew: completion clears with its replacement rate	slew: no clear precedes the replacement rate	5
+slew idle lapse arms qualification	caught	slew: in-band pair after idle timeout stays inactive	slew: in-band pair after idle timeout stays inactive	10
+slew idle asCapable loss arms qualification	caught	slew: in-band pair after asCapable recovery stays inactive	slew: in-band pair after asCapable recovery stays inactive	3
+slew mastership keeps qualification	caught	slew: in-band return from GM stays inactive	slew: in-band return from GM stays inactive	2
+result face always ready	caught	reset holds the result face closed		42
+result value taken without an accepted beat	caught	D1 response keeps its own t3		9
+result tag taken without an accepted beat	caught	D1 response Follow_Up sent		216
+recorded t1 survives reset	caught	D3c a pre-reset t1 cannot pair after reset		2
+byte face advances without ready	caught	raw-empty overload: only frozen A commits		315
+lost t1 fabricates a time and a companion	caught	D2c lost t1 publishes no delay		2
+lost Sync cancels the requester exchange	caught	D2b lost Sync left the recorded t1 alone value		2
+lost response cancels the requester exchange	caught	D2a lost response left the frozen pair alone value		3
+a later response re-arms the frozen pair	caught	D3a the pair computes from its own operands value		5
+the tail runs before its own t1	caught	D2a the pair publishes nothing without its t1		19
+a new request leaves the old pair live	caught	D2a the pair publishes nothing without its t1		17
+credit gate removed from the Pdelay_Req leg	caught	D4 Pdelay_Req beats are withheld		1
+credit gate removed from the Sync leg	caught	D4 Sync beats are withheld		1
+credit gate removed from the Announce leg	caught	D4 Announce beats are withheld		1
+every pair uses the locked threshold	caught	link-up +25 us: step pulses		49
+every pair uses the link-up threshold	caught	receipt timeout, same GM, +50 us: step pulses		138
+exactly the threshold steps	caught	link-up +20 us: step pulses		63
+the step arm is unreachable	caught	big offset re-bases the phc		118
+a grandmaster change unlocks the servo	caught	GM change, +50 us: step pulses		47
+a receipt timeout unlocks the servo	caught	receipt timeout, same GM, +50 us: step pulses		46
+becoming grandmaster unlocks the servo	caught	return from mastership, +50 us: step pulses		38
+the locked threshold is 200 us	caught	receipt timeout, same GM, +150 us: step pulses		80
+asCapable's rise keeps the lock	caught	link-up +25 us: step pulses		49
+becoming grandmaster keeps sync-ok	caught	becoming grandmaster clears sync-ok		1
+the whole trim is not clamped	caught	receipt timeout, same GM, +50 us: addend matches the mirror		36
+the trim clamp is one unit wider than the envelope	caught	receipt timeout, same GM, +50 us: addend matches the mirror		37
+the integrator is not clamped	caught	locked +110 us: addend matches the mirror		69

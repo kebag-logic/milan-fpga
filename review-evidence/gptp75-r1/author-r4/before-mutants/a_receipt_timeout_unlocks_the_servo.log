@@ -1,0 +1,49 @@
+FAIL receipt timeout, same GM, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL receipt timeout, same GM, +50 us: addend matches the mirror got 0000000000000000 exp 00000000ffe66666
+FAIL receipt timeout, same GM, +50 us: no step pulse got 0000000000000009 exp 0000000000000008
+FAIL receipt timeout, same GM, +150 us: addend matches the mirror got 0000000000000000 exp 00000000fff3332d
+FAIL receipt timeout, same GM, +150 us: one step pulse got 000000000000000a exp 0000000000000009
+FAIL link-up +15 us: addend matches the mirror got 00000000fff0a3d0 exp 00000000ffe66666
+FAIL link-up +25 us: addend matches the mirror got 00000000fffc28f4 exp 00000000ffef5c21
+FAIL link-up +25 us: the step writes the bare estimate got 00000000fffc28f4 exp 00000000ffef5c21
+FAIL link-up -15 us: addend matches the mirror got 00000000000b8525 exp 00000000fffeb852
+FAIL link-up -25 us: addend matches the mirror got 0000000000000001 exp 00000000fff3332e
+FAIL link-up -25 us: the step writes the bare estimate got 0000000000000001 exp 00000000fff3332e
+FAIL link-up +20 us: addend matches the mirror got 00000000ffeb8516 exp 00000000ffe66666
+FAIL link-up -20 us: addend matches the mirror got 00000000000f5c33 exp 0000000000028f60
+FAIL link-up +20 us + 1 ns: addend matches the mirror got 0000000000000002 exp 00000000fff3332f
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 0000000000000002 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: addend matches the mirror got 0000000000000002 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 0000000000000002 exp 00000000fff3332f
+FAIL locked +110 us: addend matches the mirror got 0000000000000003 exp 00000000fffd70af
+FAIL locked -110 us: addend matches the mirror got 0000000000000003 exp 00000000fffd70af
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+FAIL failover, -50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL failover, -50 us: addend matches the mirror got 0000000000019676 exp 000000000019999a
+FAIL failover, -50 us: no step pulse got 0000000000000015 exp 0000000000000014
+FAIL failover, +150 us: addend matches the mirror got 0000000000019676 exp 00000000000e634a
+FAIL link-up after asCapable returns, -25 us: addend matches the mirror got 00000000fff4c9a3 exp 0000000000019677
+FAIL warm-reset link-up: first pair: addend matches the mirror got 00000000fff1b733 exp 00000000fffe8407
+FAIL warm-reset link-up: +25 us: addend matches the mirror got 00000000ffec56ef exp 00000000fff923c3
+FAIL slew: arithmetic remains the PI policy got 00000000ffec56ef exp 00000000fff923c3
+FAIL slew: arithmetic remains the PI policy got 00000000ffec56ef exp 00000000fff923c3
+FAIL slew: arithmetic remains the PI policy got 00000000ffec3cb9 exp 00000000fff9098d
+FAIL slew: arithmetic remains the PI policy got 00000000ffec6a99 exp 00000000fff9376d
+FAIL slew: arithmetic remains the PI policy got 00000000ffec56f0 exp 00000000fff923c4
+FAIL slew: arithmetic remains the PI policy got 00000000ffec56f0 exp 00000000fff923c4
+FAIL slew: arithmetic remains the PI policy got 00000000ffec3cba exp 00000000fff9098e
+FAIL slew: arithmetic remains the PI policy got 00000000ffec6a9a exp 00000000fff9376e
+FAIL slew: arithmetic remains the PI policy got 00000000ffec56f1 exp 00000000fff923c5
+FAIL slew: arithmetic remains the PI policy got 00000000ffec56f1 exp 00000000fff923c5
+FAIL slew: arithmetic remains the PI policy got 00000000ffec3cbb exp 00000000fff9098f
+FAIL slew: arithmetic remains the PI policy got 00000000ffec35ea exp 00000000fff902be
+FAIL slew: arithmetic remains the PI policy got 00000000ffec2f90 exp 00000000fff8fc64
+FAIL slew: arithmetic remains the PI policy got 00000000ffec5db4 exp 00000000fff92a88
+FAIL slew: arithmetic remains the PI policy got 00000000ffec49d8 exp 00000000fff916ac
+FAIL slew: arithmetic remains the PI policy got 00000000ffec640f exp 00000000fff930e3
+FAIL slew: arithmetic remains the PI policy got 00000000ffec434b exp 00000000fff9101f
+FAIL slew: arithmetic remains the PI policy got 00000000ffec679b exp 00000000fff9346f
+FAIL slew: arithmetic remains the PI policy got 00000000ffec53bf exp 00000000fff92093
+FAIL slew: arithmetic remains the PI policy got 00000000ffec53bf exp 00000000fff92093
+1613 checks: 1567 PASS, 46 FAIL

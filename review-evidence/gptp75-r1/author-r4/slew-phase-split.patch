@@ -1,0 +1,98 @@
+--- a/tb/verilator/engine/sim_main.cpp
++++ b/tb/verilator/engine/sim_main.cpp
+@@ -4727,7 +4727,19 @@
+ 
+   uint16_t slew_seq = 0x7500;
+ 
++  // Each phase continues from the state left by its predecessor.
+   void exercise_the_slew_level_contract() {
++    start_slew_contract_with_inactive_tracking();
++    keep_slew_inactive_across_idle_lapses();
++    keep_slew_inactive_across_capability_loss();
++    exercise_slew_boundaries_and_replacement_steps();
++    hold_slew_across_missing_pairs_and_gm_change();
++    retire_slew_on_mastership_and_resume_tracking();
++    hold_slew_across_capability_loss();
++    clear_slew_on_warm_reset();
++  }
++
++  void start_slew_contract_with_inactive_tracking() {
+     pd_mode = PD_NORMAL;
+     pd_seen = txf.size();
+     warm_reset();
+@@ -4739,7 +4751,9 @@
+     for (int64_t off : {0, 100, -100, 0})
+       slew_probe("slew: tracking band never asserts", off, false);
+     expect("slew: tracking includes a nonzero frequency trim", phc_adj != 0, 1);
+-
++  }
++
++  void keep_slew_inactive_across_idle_lapses() {
+     // An idle receipt lapse must not arm the completion qualifier. Check
+     // both the lapse itself and fresh consumed pairs, including every edge.
+     const size_t idle_edges = slew_edges.size();
+@@ -4762,7 +4776,9 @@
+     expect("slew: idle GM change has no level edge", slew_edges.size(), idle_edges);
+     slew_probe("slew: in-band pair after idle GM change stays inactive", -100, false);
+     slew_probe("slew: second pair after idle GM change stays inactive", 0, false);
+-
++  }
++
++  void keep_slew_inactive_across_capability_loss() {
+     // Losing capability while tracking must also leave qualification unarmed.
+     // Bad and good Pdelay exchanges drive the entire loss/recovery on the wire.
+     const size_t idle_cap_edges = slew_edges.size();
+@@ -4789,7 +4805,9 @@
+     slew_probe("slew: in-band pair after asCapable recovery stays inactive", 0, false, false, true);
+     slew_probe("slew: second in-band pair after asCapable recovery stays inactive", 100, false);
+     expect("slew: idle capability recovery pairs have no level edge", slew_edges.size(), idle_cap_edges);
+-
++  }
++
++  void exercise_slew_boundaries_and_replacement_steps() {
+     slew_probe("slew: policy decision starts at +101 ns", 101, true);
+     const size_t held_edges = slew_edges.size();
+     run_svc(250000);
+@@ -4806,7 +4824,9 @@
+     slew_probe("slew: locked step never starts an interval", 100001, false, true);
+     slew_probe("slew: exactly 100 us starts an interval", 100000, true);
+     slew_probe("slew: first settled pair before lapse", 0, true);
+-
++  }
++
++  void hold_slew_across_missing_pairs_and_gm_change() {
+     // One unpaired Sync times out. Its late FU must neither replace the
+     // held rate nor count as the second settled sample.
+     const size_t lapse_edges = slew_edges.size();
+@@ -4835,7 +4855,9 @@
+     expect("slew: GM identity change holds active", dut->phc_slew_active_o, 1);
+     slew_probe("slew: GM change restarts completion qualification", 0, true);
+     slew_probe("slew: new GM can complete correction", 0, false);
+-
++  }
++
++  void retire_slew_on_mastership_and_resume_tracking() {
+     slew_probe("slew: active before mastership", 5000, true);
+     const size_t master_rates = adj_seen.size();
+     const size_t master_edges = slew_edges.size();
+@@ -4856,6 +4878,9 @@
+     slew_probe("slew: in-band return from GM stays inactive", 0, false);
+     slew_probe("slew: second in-band return pair stays inactive", 0, false);
+     slew_probe("slew: return from GM uses locked slew", 50000, true);
++  }
++
++  void hold_slew_across_capability_loss() {
+     pd_mode = PD_FAR;
+     expect("slew: bad delay drops asCapable", wait_flags(FL_ASCAP, 0, 2500000), 1);
+     const size_t lost_edges = slew_edges.size();
+@@ -4869,7 +4894,9 @@
+     expect("slew: capability can recover", wait_flags(FL_ASCAP, FL_ASCAP, 5000000), 1);
+     announce(0x7504, 100, GMID, 0, PEER_CID);
+     slew_probe("slew: recovery pair retains active", 5000, true, false, true);
+-
++  }
++
++  void clear_slew_on_warm_reset() {
+     dut->rst_n = 0;
+     tick();
+     expect("slew: warm reset clears on its first clock", dut->phc_slew_active_o, 0);
