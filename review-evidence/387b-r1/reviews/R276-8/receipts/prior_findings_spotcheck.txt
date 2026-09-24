@@ -1,0 +1,48 @@
+== 2700 remaining (docs scripts tb)
+docs/testing/CI_WORKFLOWS.md:167:That 1800 s deadline became 2700 s under #444.
+docs/testing/CI_WORKFLOWS.md:185:The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
+scripts/measure_test_evidence_selftest.py:294:                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-2700"),
+== 3600 statements
+docs/testing/CI_WORKFLOWS.md:159:| `milan_dp` | 3600 s | hosted window 2459.9 s; 1140.1 s remains (31.7% of budget) |
+docs/testing/CI_WORKFLOWS.md:172:It raises `milan_dp` to 3600 s and retains its controls.
+docs/testing/RUNNING_TESTS.md:84:with an 1800-second deadline except `milan_dp`, which has 3600 seconds
+docs/testing/TESTING.md:166:The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
+scripts/run_all_suites.sh:39:#                        Defaults: 1800 s; milan_dp gets 3600 s and the
+scripts/run_all_suites.sh:241:#! with a 1296-2460 s spread on 2026-09-24. The 3600 s budget leaves
+scripts/run_all_suites.sh:245:    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
+tb/verilator/milan_dp/render_mutants.py:37:per-suite guard, suite_timeout = 3600 s (decision 5820240308), and reports a kill as TIMEOUT, an
+tb/verilator/milan_dp_gptp/README.md:31:The historical `milan_dp` suite has its own 3600-second budget.
+== render setpoint triggers
+82:                integration's set since #387: a PHC step, and a clock-source
+83:                change once its grid settled; a GM identity change is no
+120://! to it, band-observed at every PDU end, re-centred once on a PHC step or
+121://! a settled clock-source change;
+170:  input  wire                      recentre_p_i, //! one-cycle: a PHC step or
+171:                                                 //! a settled clock-source
+== restart engine wire boundary
+66:                exactly ONE toggle on the wire, and its MEDIA_RESET counts
+73:                flipped it back and NEITHER restart reached the wire. A
+83:                PDU on the wire. The window ends when that feed reports the
+84:                first PDU at the adopted level, which hold_r records by
+111:                restarts the media clock on the wire (2026-07-30).
+121:                wired. The integration gates the echo with clock_source ==
+148://! change has been on the wire for HOLD_PDU_P transmitted PDUs (1722-2016
+159:  input  wire                    clk_i,
+160:  input  wire                    rst_n,
+167:  input  wire                    restart_p_i,
+174:  input  wire [15:0]             clk_src_i,
+177:  input  wire [N_TALKERS_P-1:0]  streaming_i,
+== gmstep is_fresh
+185:def is_fresh(leg: Leg, exe: Path) -> bool:
+191:    out = subprocess.run(["make", "--no-print-directory", "-s", "-C", str(HERE), "print-srcs"],
+== settime check
+109:    //! PHC steps this harness itself commanded (PTP_CMD settime or adjtime).
+1036:    // The step is a software settime, which #387 makes one mr toggle
+1067:        ck("CLKV: the settime toggled mr once more (#387)",
+== FPGA_DESIGN scope
+docs/fpga/FPGA_DESIGN.md:178:A PHC step toggles `mr` whatever the clock-source selection.
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:120:| 5.4.2.15 / .16 | SET/GET_CLOCK_SOURCE | implemented | stored + served + consumed: #74's `media_clk_resolve` arms the servo, the grid-align chain and the
+docs/MILAN_V12_ROADMAP.md:360:> A PHC step toggles `mr` whatever the clock-source selection.
+== builder pins
+10529:            "media_rebase_p_w", "eff_ptp_adjust_w | cfg_ptp_cmd_load",
+10548:            "media_rebase_p_w | src_recentre_p_r",
