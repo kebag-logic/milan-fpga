@@ -2732,9 +2732,11 @@ _C_S_UNDECODED_RE = re.compile(r"[\udc80-\udcff]")
 #: The closure proof is a TABLE, generated rather than chosen: every byte
 #: value 0 to 255 alone (0x80 to 0xFF are then not UTF-8), and each
 #: multi-byte UTF-8 sequence below, is put in each position below, and each
-#: cell is either refused by S or read by the readers as the pinned GCC
-#: reads it (`_CLOSURE_KEPT` records GCC; gate 1b re-measures it wherever
-#: that compiler answers). The sequences are every character a review of
+#: cell is either refused by S, refused by the readers where
+#: `_CLOSURE_READERS_REFUSE` names it, or read by the readers as the pinned
+#: GCC reads it (`_CLOSURE_KEPT` records GCC; gate 1b re-measures it
+#: wherever that compiler answers). It proves nothing about a position it
+#: does not hold. The sequences are every character a review of
 #: PR #535 probed, and one of each other class: letters GCC admits in an
 #: identifier, marks, spaces and line separators it does not, a byte-order
 #: mark, a CJK ideograph, a 4-byte character and the largest code point,
@@ -2755,6 +2757,20 @@ _CLOSURE_SEQUENCES = tuple(chr(code).encode("utf-8") for code in (
 #: `#if` when X ends the name and an unknown directive when it does not,
 #: and the two leave different code. The identifier position asks whether
 #: X ends the name `a` before `b`, a macro: when it does, `b` expands.
+#:
+#: Then the fourteen comment and literal BOUNDARIES a review of round four
+#: measured outside those nine ([R272] F1 on PR #535's round-four head),
+#: where X can decide whether a comment or a literal opens, closes or runs
+#: on (round five): X splitting `/*`, `*/` and `//`, ending a line comment,
+#: between a backslash and the line end in a line comment and in a
+#: `#define`, after an escaping backslash in a string and a character
+#: literal, between a raw-string prefix and its quote, between a digit and a
+#: quote, at the end of the file in a line comment and in code, before a
+#: string's closing quote, and after the `<` of an `#include` in a skipped
+#: group. Each but the two at the end of the file is followed by a
+#: `#define FOO` that a comment or a literal X opens or continues would
+#: hide, and an `#ifdef FOO` that keeps `b` only when that definition is
+#: live.
 _CLOSURE_POSITIONS = (
     ("at offset 0, before `#`", "{X}#ifdef FOO\nint b;\n#endif\nint z;\n",
      "keeps", True),
@@ -2780,6 +2796,46 @@ _CLOSURE_POSITIONS = (
     ("inside a character literal",
      "int a;\nint c = '{X}';\n#ifdef FOO\nint b;\n#endif\nint z;\n", "keeps",
      False),
+    ("between the `/` and `*` of a block comment's opener",
+     "int a;\n/{X}* \n#define FOO\n */\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+     "keeps", True),
+    ("between the `*` and `/` of a block comment's closer",
+     "int a;\n/* c *{X}/\n#define FOO\n/* */\n#ifdef FOO\nint b;\n#endif\n"
+     "int z;\n", "keeps", False),
+    ("between the two `/` of a line comment's opener",
+     "int a;\n/{X}/ /*\n#define FOO\n// */\n#ifdef FOO\nint b;\n#endif\n"
+     "int z;\n", "keeps", True),
+    ("at the end of a line comment",
+     "int a;\n// c{X}\n#define FOO\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+     "keeps", False),
+    ("between a backslash and the line end in a line comment",
+     "int a;\n// c\\{X}\n#define FOO\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+     "keeps", False),
+    ("between a backslash and the line end in a `#define`",
+     "int a;\n#define BAR \\{X}\n#define FOO\n#ifdef FOO\nint b;\n#endif\n"
+     "int z;\n", "keeps", True),
+    ("after an escaping backslash in a string literal",
+     "int a;\nconst char *s = \"\\{X}\"; /* \";\n#define FOO\n// */\n"
+     "#ifdef FOO\nint b;\n#endif\nint z;\n", "keeps", False),
+    ("after an escaping backslash in a character literal",
+     "int a;\nint c = '\\{X}'; /* ';\n#define FOO\n// */\n#ifdef FOO\n"
+     "int b;\n#endif\nint z;\n", "keeps", False),
+    ("between a raw-string prefix and its quote",
+     "int a;\nconst char *s = R{X}\"x(\";\n#define FOO\n// )x\";\n"
+     "#ifdef FOO\nint b;\n#endif\nint z;\n", "keeps", True),
+    ("between a digit and a quote",
+     "int a;\nint n = 1{X}'2; /* ';\n#define FOO\n// */\n#ifdef FOO\n"
+     "int b;\n#endif\nint z;\n", "keeps", True),
+    ("at the end of the file, in a line comment",
+     "int a;\n#ifdef FOO\nint b;\n#endif\nint z;\n// c{X}", "keeps", False),
+    ("at the end of the file, in code",
+     "int a;\n#ifdef FOO\nint b;\n#endif\nint z;\n{X}", "keeps", True),
+    ("before a string literal's closing quote",
+     "int a;\nconst char *s = \"{X}\"; /* \";\n#define FOO\n// */\n"
+     "#ifdef FOO\nint b;\n#endif\nint z;\n", "keeps", False),
+    ("after the `<` of an `#include` in a skipped group",
+     "int a;\n#ifdef NEVER\n#include <{X}/*>\n#endif\n#define FOO\n// */\n"
+     "#ifdef FOO\nint b;\n#endif\nint z;\n", "keeps", True),
 )
 
 
@@ -2851,8 +2907,74 @@ _CLOSURE_KEPT = (
     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    "aaaaaaaaaaaa"
+    "aaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbb-bbbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaabaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaabaaaabaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-aaaaaaaaaaaaaaaaabbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbabbbbbbbbabaaabbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbabaaabbbbbbbbbbbbbbbbbbabbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbb-bbbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-bbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-aaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaabaabaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "aaaaaaaaaaaaaaaaaaaaaabbbbbbbbbb-bb-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbb-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
 )
+#: The closure cells S admits and the readers REFUSE although the pinned
+#: GCC keeps code of them, each by name: gate 1b shows the readers refuse
+#: each, and so does the directive-set closure every whole firmware is
+#: read by, so it fails closed. A `#` alone at the end of the file is a
+#: null directive to GCC and, to the readers, a directive with no name
+#: (round five).
+_CLOSURE_READERS_REFUSE = ("byte 0x23 at the end of the file, in code",)
 
 
 def test_baremetal_profile_contract() -> None:
@@ -5104,17 +5226,23 @@ def test_baremetal_profile_contract() -> None:
     #:     (`_C_S_CHARACTERS`) -- are MODELLED; every other character is
     #:     REFUSED, every non-ASCII one (a byte-order mark at offset 0
     #:     included) and every other control. No list of refused characters
-    #:     can be shown complete, and this list of admitted ones can:
-    #:     `_closure_corpus()` is the proof, every byte in every position
-    #:     (assert_character_closure()).
+    #:     can be shown complete; this list of admitted ones is closed by
+    #:     construction, since the allowlist reads the whole code text, so
+    #:     where a character outside it sits does not matter. That the
+    #:     readers read an admitted one as GCC does is measured, not closed:
+    #:     `_closure_corpus()` puts every byte in each of the 23 positions it
+    #:     holds (assert_character_closure()), and at any other position
+    #:     agreement rests on the two lexer corpora.
     #:   - 5.2.1 inside a comment or a literal: any UTF-8 character, and no
     #:     reader sees it. _c_phases() blanks each comment and each literal's
     #:     body in the phase-3 view every directive and macro reader reads and
     #:     in blanked(), which every other text rule reads; the two checks
     #:     that read raw text, the trigraph ban and the `#include` operand
     #:     check, match ASCII spellings only. A byte that is not UTF-8 is
-    #:     REFUSED wherever it sits, a comment included: GCC reads its input
-    #:     as UTF-8 too. The lexer finds comments and literals from ASCII
+    #:     REFUSED wherever it sits, a comment or a literal included,
+    #:     although the pinned GCC accepts one inside a comment or a literal:
+    #:     a deliberate fail-closed choice (#408 decision), and a cost the
+    #:     page states. The lexer finds comments and literals from ASCII
     #:     characters alone, its raw-prefix test included, so no character
     #:     outside the set moves the boundary the allowlist trusts.
     #:   - 6.4.1 keywords, 6.4.2.1 identifiers: MODELLED, as the
@@ -5155,9 +5283,11 @@ def test_baremetal_profile_contract() -> None:
         assert not undecoded, \
             f"the firmware {SUBSET_CHARACTER_PIN} (the byte " \
             f"0x{ord(undecoded.group(0)) - 0xDC00:02x}, line " \
-            f"{c_line(source, undecoded.start())}): it is not UTF-8, which " \
-            "is how GCC reads the file as well, so S refuses it wherever it " \
-            "sits, a comment or a literal included"
+            f"{c_line(source, undecoded.start())}): it is not UTF-8. The " \
+            "pinned GCC accepts such a byte inside a comment or a literal, " \
+            "and S refuses it wherever it sits all the same, a comment or a " \
+            "literal included: a deliberate fail-closed choice, since the " \
+            "firmware is read as UTF-8. Re-encode the file as UTF-8"
         # phase 1 drops a mark at offset 0, as GCC does, so the code text
         # holds a blank there; S refuses the character all the same
         code = _c_phases(source).code
@@ -5427,12 +5557,16 @@ def test_baremetal_profile_contract() -> None:
     #: outside the measurement. The readers are exact ON THE SUBSET S -- a
     #: firmware outside S is refused before any reader (assert_within_lexical_subset()),
     #: so a spelling the readers would lex differently never reaches them --
-    #: not because every spelling has been tried. At the CHARACTER level the
-    #: bound is closed rather than sampled (round four): the closure table
-    #: (`_closure_corpus()`, recorded in `_CLOSURE_KEPT`) puts every byte 0
-    #: to 255 and a set of multi-byte sequences in each position a lexing
-    #: difference moves a directive, and assert_character_closure() shows
-    #: each cell refused by S or read as GCC reads it.
+    #: not because every spelling has been tried. At the CHARACTER level,
+    #: REFUSAL does not depend on position: the allowlist reads the whole
+    #: code text, so a character outside it is refused wherever it sits
+    #: (round four). AGREEMENT is measured at the positions the closure
+    #: table (`_closure_corpus()`, recorded in `_CLOSURE_KEPT`) holds: every
+    #: byte 0 to 255 and a set of multi-byte sequences in each of 23, the
+    #: nine of round four and the fourteen comment and literal boundaries of
+    #: round five, where assert_character_closure() shows each cell refused
+    #: or read as GCC reads it. At a position the table does not hold,
+    #: agreement rests on these two corpora and is bounded by them.
     LEXER_PIN = "reads a preprocessing directive where the pinned GCC does not"
     lexer_corpus = (
         ("a plain #ifdef",
@@ -5865,17 +5999,18 @@ def test_baremetal_profile_contract() -> None:
         """The character allowlist of S is CLOSED, and this is the proof,
         cell by cell (#408, PR #535 round four): every cell of
         `_closure_corpus()` -- each byte 0 to 255 alone and each multi-byte
-        sequence, in each position -- is either refused by S or read by the
-        readers as the pinned GCC recorded it; every cell outside the
-        allowlist is refused by the allowlist ITSELF and no cell inside it
-        is; and wherever the RV32 compiler answers, every cell is asked
-        again. Returns what the gate prints."""
+        sequence, in each position the table holds -- is either refused by
+        S, refused by the readers where `_CLOSURE_READERS_REFUSE` names it
+        (round five), or read by the readers as the pinned GCC recorded it;
+        every cell outside the allowlist is refused by the allowlist ITSELF
+        and no cell inside it is; and wherever the RV32 compiler answers,
+        every cell is asked again. Returns what the gate prints."""
         cells = _closure_corpus()
         assert len(cells) == len(_CLOSURE_KEPT), \
             f"the character closure has {len(cells)} cells and " \
             f"{len(_CLOSURE_KEPT)} are recorded: re-record it on the " \
             "pinned compiler"
-        by_allowlist, by_rule, read, closed = 0, 0, 0, []
+        by_allowlist, by_rule, read, closed, refused = 0, 0, 0, [], []
         for (label, text, reader, outside), letter in zip(cells,
                                                          _CLOSURE_KEPT):
             kept = _LEXER_OUTCOMES[letter]
@@ -5897,8 +6032,30 @@ def test_baremetal_profile_contract() -> None:
             assert not outside, \
                 f"S admitted the closure cell {label} ({text!r}), a " \
                 "character outside its allowlist where it sits"
+            if label in _CLOSURE_READERS_REFUSE:
+                # FAIL-CLOSED, by name: GCC keeps code of the cell, and the
+                # readers and the directive-set closure both refuse it
+                read_as = lexer_readers[reader](text)
+                assert kept is not None and read_as is None, \
+                    f"the closure cell {label} ({text!r}) is named as one " \
+                    "the readers refuse and GCC keeps code of, and the " \
+                    f"readers keep {read_as} and GCC {kept}: re-measure it"
+                try:
+                    assert_directive_set_is_closed(text)
+                except AssertionError as exc:
+                    assert "preprocessing directives are pinned" in str(exc), \
+                        f"the directive-set closure refused {label}: {exc}"
+                else:
+                    raise AssertionError(
+                        f"the directive-set closure admits {label}, which "
+                        "the readers refuse, so it would not fail closed")
+                refused.append(label)
+                continue
             assert_lexer_reads(f"closure cell {label}", text, kept, reader)
             read += 1
+        assert sorted(refused) == sorted(_CLOSURE_READERS_REFUSE), \
+            f"the closure cells the readers refuse are {refused}, and " \
+            f"{list(_CLOSURE_READERS_REFUSE)} are named: re-measure them"
         #: NEGATIVE CONTROL, and the round-three finding itself: read with
         #: the allowlist bypassed, U+00B7 inside a directive name ends `#if`
         #: for the readers and not for GCC, so the comparison above can fail
@@ -5917,8 +6074,11 @@ def test_baremetal_profile_contract() -> None:
                    f"UTF-8, in {len(_CLOSURE_POSITIONS)} "
                    f"positions: {by_allowlist} refused by the allowlist "
                    f"({len(closed)} of them cells the readers and GCC read "
-                   f"differently), {by_rule} by another rule of S and {read} "
-                   "read as the pinned GCC recorded them")
+                   f"differently), {by_rule} by another rule of S, "
+                   f"{len(refused)} by the readers and the directive-set "
+                   "closure where the pinned GCC keeps code "
+                   f"({'; '.join(refused)}), and {read} read as the pinned "
+                   "GCC recorded them")
         compiler = census_compiler()
         if not census_used.get("target"):
             return f"{counted}; NOT re-measured, since no RV32 compiler " \
