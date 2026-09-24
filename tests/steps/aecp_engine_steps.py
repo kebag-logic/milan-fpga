@@ -86,6 +86,8 @@
 #                               recommendation (RECOMMENDED here by the #510
 #                               decision); not implemented, so each draws the
 #                               NOT_IMPLEMENTED echo (Table 5.19 status 1).
+#                               Each command is sent in its own figure: 5.5,
+#                               5.3, 5.6 and 5.7.
 
 from __future__ import annotations
 
@@ -111,6 +113,7 @@ from aecp_engine_model import (  # noqa: E402
     D_ENTITY,
     FRAME_HDR,
     MILAN_PROTOCOL_ID,
+    MVU_COMMAND_FORMS,
     MT_AA_RESPONSE,
     MT_AEM_COMMAND,
     MT_AEM_RESPONSE,
@@ -375,10 +378,22 @@ def step_send_aa(context: Context) -> None:
     _send(context, build_address_access())
 
 
-@when('the controller sends Milan MVU command_type {word} to the AECP engine')
-def step_send_mvu(context: Context, word: str) -> None:
-    """One Figure 5.3 Milan MVU command, whose protocol_id straddles @22 and the payload."""
-    _send(context, build_mvu_command(int(word, 0)))
+@when('the controller sends Milan MVU command_type {word} in its {figure} form '
+      'to the AECP engine')
+def step_send_mvu(context: Context, word: str, figure: str) -> None:
+    """One Milan MVU command in the figure its own clause gives it, whose
+    protocol_id straddles @22 and the payload.
+
+    The row names the figure and `MVU_COMMAND_FORMS` builds it; the two must
+    agree, so a row cannot claim one command shape while sending another.
+    """
+    command_type = int(word, 0)
+    form, at_30, from_32 = MVU_COMMAND_FORMS[command_type]
+    assert form == figure, \
+        "MVU command_type %#06x is sent in %s, the row says %s" \
+        % (command_type, form, figure)
+    _send(context, build_mvu_command(command_type, reserved=at_30,
+                                     from_32=from_32))
 
 
 @when('the controller sends an MVU command with protocol_id {pid}, word @28 '
@@ -395,6 +410,7 @@ def step_send_mvu_shaped(context: Context, pid: str, word: str, reserved: str,
                               int(reserved, 0), cdl=cdl)
     context.vu_oui_payload = decode_command(frame)["payload"]
     _send(context, frame)
+
 
 
 @when('the controller sends a VENDOR_UNIQUE command whose protocol_id '

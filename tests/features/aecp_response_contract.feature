@@ -103,11 +103,13 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
   # octets from @24, so cdl 32. The four commands of 5.4.4.2 to 5.4.4.5 are
   # RECOMMENDED (the #510 decision), the engine implements none of them, and
   # each draws the NOT_IMPLEMENTED echo at the command's own length (Table
-  # 5.19 status 1, IEEE 9.3.5.3.3). Until issue #536 this scenario asserted
-  # NOT_IMPLEMENTED for GET_MILAN_INFO as well: the model had no MVU dispatch
-  # while the processor's tb/pp_top M1 graded the served answer.
+  # 5.19 status 1, IEEE 9.3.5.3.3). Each command is sent in the figure its
+  # own clause gives it, so the echo is graded at that command's real length:
+  # Figure 5.5 is cdl 28 and Figure 5.6 is cdl 92. Until issue #536 this
+  # scenario asserted NOT_IMPLEMENTED for GET_MILAN_INFO as well: the model had
+  # no MVU dispatch while the processor's tb/pp_top M1 graded the served answer.
   Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact
-    When the controller sends Milan MVU command_type <command_type> to the AECP engine
+    When the controller sends Milan MVU command_type <command_type> in its <form> form to the AECP engine
     Then the AECP response message_type is 7
     And the AECP response message_type is the command type plus one
     And the AECP response status is <status>
@@ -120,16 +122,16 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
 
     @class:positive
     Examples: SHALL, served
-      | command_type | command        | clause  | status | cdl | body                |
-      | 0x0000       | GET_MILAN_INFO | 5.4.4.1 | 0      | 32  | the Figure 5.4 body |
+      | command_type | command        | clause  | form       | status | cdl | body                |
+      | 0x0000       | GET_MILAN_INFO | 5.4.4.1 | Figure 5.3 | 0      | 32  | the Figure 5.4 body |
 
     @class:negative
-    Examples: RECOMMENDED by the #510 decision, not implemented, echoed
-      | command_type | command                        | clause  | status | cdl | body                         |
-      | 0x0001       | SET_SYSTEM_UNIQUE_ID           | 5.4.4.2 | 1      | 20  | the command payload verbatim |
-      | 0x0002       | GET_SYSTEM_UNIQUE_ID           | 5.4.4.3 | 1      | 20  | the command payload verbatim |
-      | 0x0003       | SET_MEDIA_CLOCK_REFERENCE_INFO | 5.4.4.4 | 1      | 20  | the command payload verbatim |
-      | 0x0004       | GET_MEDIA_CLOCK_REFERENCE_INFO | 5.4.4.5 | 1      | 20  | the command payload verbatim |
+    Examples: RECOMMENDED by the #510 decision, not implemented, echoed at the command's own length
+      | command_type | command                        | clause  | form       | status | cdl | body                         |
+      | 0x0001       | SET_SYSTEM_UNIQUE_ID           | 5.4.4.2 | Figure 5.5 | 1      | 28  | the command payload verbatim |
+      | 0x0002       | GET_SYSTEM_UNIQUE_ID           | 5.4.4.3 | Figure 5.3 | 1      | 20  | the command payload verbatim |
+      | 0x0003       | SET_MEDIA_CLOCK_REFERENCE_INFO | 5.4.4.4 | Figure 5.6 | 1      | 92  | the command payload verbatim |
+      | 0x0004       | GET_MEDIA_CLOCK_REFERENCE_INFO | 5.4.4.5 | Figure 5.7 | 1      | 20  | the command payload verbatim |
 
   # What a controller records from the answer, decoded field by field rather
   # than inferred from the layout (the processor's tb/pp_top M2).
@@ -140,7 +142,7 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
   # certification_version is 0 because no Milan certification has been passed.
   @class:positive
   Scenario: GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
-    When the controller sends Milan MVU command_type 0x0000 to the AECP engine
+    When the controller sends Milan MVU command_type 0x0000 in its Figure 5.3 form to the AECP engine
     Then the GET_MILAN_INFO protocol_version is 1
     And the GET_MILAN_INFO features_flags is 0x00000000
     And the GET_MILAN_INFO certification_version is 0x00000000

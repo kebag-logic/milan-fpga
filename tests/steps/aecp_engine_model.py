@@ -658,7 +658,7 @@ def build_address_access(tlv_count: int = 1,
 
 def build_mvu_command(mvu_command_type: int = MVU_GET_MILAN_INFO,
                       protocol_id: bytes = MILAN_PROTOCOL_ID,
-                      reserved: int = 0,
+                      reserved: int = 0, from_32: bytes = b"",
                       **kw: int | bytes | None) -> bytes:
     """F06.11: protocol_id spans @22..@27, so its first two octets ride the
     header field the engine echoes and its last four ride the payload.
@@ -666,10 +666,33 @@ def build_mvu_command(mvu_command_type: int = MVU_GET_MILAN_INFO,
     Milan v1.2 Figure 5.3 lays out the rest: the @28..@29 word (r, then the
     Table 5.18 command_type) and a reserved halfword, eight payload octets
     in all.  `mvu_command_type` is the whole word, so r = 1 is 0x8000.
+    `reserved` is the @30 halfword, which Figures 5.6 and 5.7 name
+    clock_domain_index, and `from_32` is whatever the command's own figure
+    carries after it (`MVU_COMMAND_FORMS`); Figure 5.3 carries nothing.
     """
     ct_word = (protocol_id[0] << 8) | protocol_id[1]
-    payload = protocol_id[2:6] + struct.pack(">HH", mvu_command_type, reserved)
+    payload = (protocol_id[2:6] + struct.pack(">HH", mvu_command_type, reserved)
+               + from_32)
     return build_command(MT_VU_COMMAND, ct_word, payload, **kw)
+
+
+#! Each Milan v1.2 Table 5.18 command in the figure its own clause gives the
+#! COMMAND, as (figure, the @30 halfword, the octets from @32). A command sent
+#! in another command's shape is a malformed command: SET_SYSTEM_UNIQUE_ID in
+#! the Figure 5.3 frame is eight octets short of Figure 5.5. The values are
+#! ones a controller could send: 5.4.4.2 forbids the default system_unique_id
+#! 0, and the Figure 5.6 command sets both Table 5.21 flags (0x03), leaves the
+#! ignored default_mcr_prio at 0, and names clock domain 0 "DEFAULT", zero
+#! padded to 64 octets.
+MVU_COMMAND_FORMS = {
+    0x0000: ("Figure 5.3", 0, b""),              # GET_MILAN_INFO, 5.4.4.1
+    0x0001: ("Figure 5.5", 0,                    # SET_SYSTEM_UNIQUE_ID, 5.4.4.2
+             struct.pack(">Q", 0x0102030405060708)),
+    0x0002: ("Figure 5.3", 0, b""),              # GET_SYSTEM_UNIQUE_ID, 5.4.4.3
+    0x0003: ("Figure 5.6", 0,                    # SET_MEDIA_CLOCK_REFERENCE_INFO, 5.4.4.4
+             struct.pack(">BBBBI64s", 0x03, 0, 0, 0x80, 0, b"DEFAULT")),
+    0x0004: ("Figure 5.7", 0, b""),              # GET_MEDIA_CLOCK_REFERENCE_INFO, 5.4.4.5
+}
 
 
 # ---------------------------------------------------------------------------
