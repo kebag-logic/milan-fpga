@@ -1,0 +1,8 @@
+python3 scripts/generate_diagrams.py --check
+diagram check: PASS (9 pinned assets, 3 source-bound PNGs)
+python3 scripts/generate_diagrams.py --selftest
+diagram selftest: PASS (10 arms)
+python3 scripts/check_docs.py
+docs check: FAIL (1 findings)
+  docs/MANAGER.md:48: 11 words: Its measured baseline used 4,773 LUTs and 3,646 registers.
+make: *** [Makefile:29: docs] Error 1
