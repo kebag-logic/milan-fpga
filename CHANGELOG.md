@@ -35,7 +35,11 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - ACTIVE needs a Listener Ready or Ready Failed as well.
 - That covers the CRF licence and every AAF talker gate.
 - `CRFT_CTRL[6]`, `LWSRP_STATUS[8]` and the `0x82C` talker lobs follow.
-- The CBS slope enable keeps the raw verdict.
+- Only `LWSRP_STATUS[9]` and `LWSRP_SLOPE` keep the raw verdict.
+- No shaper reads either: none is instantiated.
+- ACTIVE can lead them by up to three admission rounds.
+- That needs a Listener Ready registered at the declaration.
+- That status skew is the corner's only effect.
 - A bound CRF talker also ended its own bursts.
 - The processor pin moves to `09f9bf38` (processor issue 106).
 - Its LeaveAll now flags every MSRP attribute type.

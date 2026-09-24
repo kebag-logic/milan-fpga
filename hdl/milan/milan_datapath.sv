@@ -1991,10 +1991,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //!   * ACMP term     : per-stream talker-active state from the processor's
   //!                     class-D face, with t0's cfg_aaf_bypass escape hatch
   //!                     mirrored.
-  //!   * SRP term      : the processor's per-stream bandwidth gate, REQUIRED.
+  //!   * SRP term      : the processor's per-stream ACTIVE (#530), REQUIRED.
   //!                     Allowing an engine-off escape would make every talker
   //!                     admissible out of reset on a bare PROBE_TX with no
-  //!                     reservation and therefore no CBS pacing. It could
+  //!                     reservation (and no source here is credit-paced
+  //!                     either: HONEST BOUND at the CRF merge). It could
   //!                     transmit about 56 k frames/s without reservation,
   //!                     which can overwhelm the peer softcore. The historical
   //!                     mitigation used to be "never arm a t>0 context
@@ -2250,7 +2251,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   //! ---- the control plane's CLASS-D FABRIC FACE (02 §6, F02.10) ----
   //! Landed as datapath nets rather than as new module ports: the consumers -
-  //! the AAF talker gate, the CBS slope MUX, the RX stream filter, the ACMP
+  //! the talker gates, the SRP status words, the RX stream filter, the ACMP
   //! bind record every listener path reads - all live INSIDE this file, so
   //! publishing them at the LiteX boundary would be a detour through the SoC
   //! for signals that never leave. Marked public_flat_rd (the media_tick_p /
@@ -6544,14 +6545,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! bridge's answers, adopts the Domain and publishes the result through the
   //! class-D face.
   //!
-  //! THE CBS SLOPE ORDERING CHANGED. RECORDED HONESTLY, WITH THE ANSWER.
+  //! NO SHAPER READS THE SLOPE OR THE VERDICT HERE. The 802.1Qav chain is
+  //! not in this wrapper (NO GENERAL-DATA TX CHAIN at the top of the file,
+  //! HONEST BOUND at the CRF merge): no AAF or CRF frame is credit-shaped.
+  //! The admission outputs reach two readers, both status words:
+  //! lwsrp_slope_en -> LWSRP_STATUS[9] and lwsrp_idle_slope -> LWSRP_SLOPE
+  //! 0x698. No other logic reads either, and software sees them only
+  //! through those two words.
   //!
-  //! KL_lwsrp_bw_gate sequenced the two edges explicitly, with a settling
-  //! HOLD between them: on activation the stream's idleSlope joined the
-  //! running Sigma, then HOLD_CYCLES_C elapsed, then the gate opened; on
-  //! teardown the gate closed, then HOLD_CYCLES_C, then the slope left the
-  //! Sigma. The invariant it bought is "no stream ever transmits against a
-  //! slope the shaper has not budgeted".
+  //! KL_lwsrp_bw_gate sequenced slope and gate with a settling HOLD between
+  //! them: on activation the stream's idleSlope joined the running Sigma,
+  //! then HOLD_CYCLES_C elapsed, then the gate opened; on teardown the gate
+  //! closed, then HOLD_CYCLES_C, then the slope left the Sigma. Its
+  //! invariant, "no stream ever transmits against a slope the shaper has
+  //! not budgeted", needs a shaper, and the only one is the retained,
+  //! uninstantiated chain. It has no object on this wire, and this wrapper
+  //! claims no slope/gate ordering.
   //!
   //! The processor has no hold. KL_srp_admission walks its sources and
   //! latches grant_r, gslope_r and sum_r TOGETHER at round end; the published
@@ -6570,32 +6579,35 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //!   OPENING EDGE - ACTIVE takes the admission term through the
   //!   processor's optimistic window (sr_adm_fsm = opt | admitted, three
   //!   admission rounds after a fresh declaration, a round walking one
-  //!   source per cycle), so it can rise before the round that puts the
-  //!   slope into sum_r. It can do so only when a Listener Ready is
-  //!   registered within those rounds, which in practice means already
-  //!   registered at the declaration (a re-declaration the bridge's Listener
-  //!   outlived); a first Listener Ready arrives by MRPDU long after those
-  //!   rounds. In that corner the first frames leave
-  //!   against a Sigma at most three rounds stale: NARROWER than the
-  //!   bw-gate, recorded rather than hidden. The processor takes the window
-  //!   so that a declaration is never Talker Failed first.
+  //!   source per cycle, so N_SOURCES cycles), so it can rise before the
+  //!   round that sets sr_admitted_o and puts the slope into sum_r. It can
+  //!   do so only when a Listener Ready is registered within those rounds,
+  //!   which in practice means already registered at the declaration (a
+  //!   re-declaration the bridge's Listener outlived); a first Listener
+  //!   Ready arrives by MRPDU long after those rounds. In that corner the
+  //!   gates and LWSRP_STATUS[8] rise up to three rounds before
+  //!   LWSRP_STATUS[9] and 0x698 include the stream. If the round then
+  //!   refuses it, ACTIVE falls inside the window and the declaration swaps
+  //!   to Talker Failed. That status skew is the corner's whole effect here.
+  //!   The processor takes the window so that a declaration is never Talker
+  //!   Failed first.
   //!
-  //!   CLOSING EDGE - ACTIVE drops the cycle any of its terms drops, but
-  //!   sum_r is ROUND-LATCHED and keeps the stopped stream's slope until the
-  //!   next round completes. The shaper goes on budgeting bandwidth for a
-  //!   stream that has already stopped: MORE conservative than the bw-gate,
-  //!   not less.
+  //!   CLOSING EDGE - ACTIVE drops the cycle any of its terms drops.
+  //!   sr_admitted_o, whose OR is LWSRP_STATUS[9], does not follow the
+  //!   Listener: it drops with the request (the declaration) or a refusing
+  //!   round. sum_r is ROUND-LATCHED, so 0x698 keeps a withdrawn
+  //!   declaration's slope until the next round completes.
   //!
-  //! ANSWER: the invariant HOLDS on the closing edge, and on the opening
-  //! edge outside the optimistic corner above. What is genuinely lost is
-  //! the bw-gate's explicit hold as a named, testable behaviour - the
-  //! ordering is now a consequence of the admission round's structure
-  //! rather than a sequencer anyone can point at.
+  //! A LATER LANE that credit-shapes these sources must not pair this gate
+  //! with sum_r and inherit the bw-gate's ordering: at the opening edge
+  //! above the gate can lead the Sigma by three rounds. That lane derives
+  //! its own ordering and its own test for it.
   assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
-  //! the class-A idleSlope the CBS mux takes: the SUM across admitted
-  //! sources, which is what a single shaped queue's idleSlope must be. The
-  //! shaper keeps the RAW verdict: it budgets every admitted declaration,
-  //! licensed or not, which is the conservative side of the gate above.
+  //! STATUS ONLY (no shaper, above): LWSRP_STATUS[9] reads the RAW verdict
+  //! of any source and LWSRP_SLOPE 0x698 the processor's Sigma across
+  //! admitted sources. Both report admitted DECLARATIONS, licensed or not,
+  //! so a declared, admitted output with no Listener Ready reads [9] set
+  //! while its gate is closed. The gate never reads either.
   assign lwsrp_slope_en    = |pp_cd_srp_sr_admitted_w;
   assign lwsrp_idle_slope  = pp_cd_srp_sum_slope_bps_w;
   //! Milan 4.2.7.2.1 Domain adoption surface: the OPERATIONAL {priority, VID}
