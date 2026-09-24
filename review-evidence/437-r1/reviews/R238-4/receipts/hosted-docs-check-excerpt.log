@@ -1,0 +1,81 @@
+﻿2026-09-23T20:07:59.7842143Z Current runner version: '2.337.0'
+2026-09-23T20:07:59.7891865Z ##[group]Runner Image Provisioner
+2026-09-23T20:07:59.7892712Z Hosted Compute Agent
+2026-09-23T20:07:59.7893443Z Version: 20260828.587
+2026-09-23T20:07:59.7894156Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-23T20:07:59.7894839Z Build Date: 2026-08-28T16:44:25Z
+2026-09-23T20:07:59.7895462Z Worker ID: {b467d9f7-6974-461e-ab84-635ef162b797}
+2026-09-23T20:07:59.7896272Z Azure Region: westcentralus
+2026-09-23T20:07:59.7896849Z ##[endgroup]
+2026-09-23T20:07:59.7898220Z ##[group]Operating System
+2026-09-23T20:07:59.7898796Z Ubuntu
+2026-09-23T20:07:59.7899269Z 24.04.5
+2026-09-23T20:07:59.7899796Z LTS
+2026-09-23T20:07:59.7900281Z ##[endgroup]
+2026-09-23T20:07:59.7900880Z ##[group]Runner Image
+2026-09-23T20:07:59.7901473Z Image: ubuntu-24.04
+2026-09-23T20:07:59.7901997Z Version: 20260907.300.1
+2026-09-23T20:07:59.7903177Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260907.300/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-23T20:07:59.7904776Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260907.300
+2026-09-23T20:07:59.7905678Z ##[endgroup]
+2026-09-23T20:08:19.7036929Z ##[group]Run actions/cache@v4
+2026-09-23T20:08:19.7037354Z with:
+2026-09-23T20:08:19.7037750Z   path: ~/.cache/milan-markdown-pip
+2026-09-23T20:08:19.7038413Z   key: markdown-renderer-pip-Linux-02c5ed9d8043b6dea8b20afb0521264eee8ff3ddfbc7d2d9a238bf7fc77f1795
+2026-09-23T20:08:19.7039042Z   enableCrossOsArchive: false
+2026-09-23T20:08:19.7039448Z   fail-on-cache-miss: false
+2026-09-23T20:08:19.7039827Z   lookup-only: false
+2026-09-23T20:08:19.7040183Z   save-always: false
+2026-09-23T20:08:19.7040520Z ##[endgroup]
+2026-09-23T20:08:19.8150193Z (node:2384) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-23T20:08:19.8151372Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-23T20:08:20.2254730Z Cache not found for input keys: markdown-renderer-pip-Linux-02c5ed9d8043b6dea8b20afb0521264eee8ff3ddfbc7d2d9a238bf7fc77f1795
+2026-09-23T20:08:20.2329134Z ##[group]Run python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip \
+2026-09-23T20:08:20.2329838Z python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip \
+2026-09-23T20:08:20.2330417Z   --require-hashes -r tools/markdown/requirements.txt
+2026-09-23T20:08:20.2354513Z shell: /usr/bin/bash -e {0}
+2026-09-23T20:08:20.2354957Z ##[endgroup]
+2026-09-23T20:08:23.7161528Z ##[group]Run sudo apt-get update -qq
+2026-09-23T20:08:23.7162036Z sudo apt-get update -qq
+2026-09-23T20:08:23.7162505Z sudo apt-get install -y --no-install-recommends librsvg2-bin
+2026-09-23T20:08:23.7163058Z python3 -m pip install --quiet wavedrom==2.0.3.post3
+2026-09-23T20:08:23.7186774Z shell: /usr/bin/bash -e {0}
+2026-09-23T20:08:23.7187133Z ##[endgroup]
+2026-09-23T20:08:29.7950258Z Reading package lists...
+2026-09-23T20:08:30.0035970Z Building dependency tree...
+2026-09-23T20:08:30.0041001Z Reading state information...
+2026-09-23T20:08:43.5550644Z   *) echo "a $EVENT_NAME event carries no base to judge from"; exit 2 ;;
+2026-09-23T20:08:43.5551124Z esac
+2026-09-23T20:08:43.5551656Z if [ -z "$base" ] || [ "$base" = 0000000000000000000000000000000000000000 ]; then
+2026-09-23T20:08:43.5552198Z   echo "the $EVENT_NAME event names no base commit"; exit 2
+2026-09-23T20:08:43.5552614Z fi
+2026-09-23T20:08:43.5553101Z git cat-file -e "$base^{commit}" 2>/dev/null || git fetch --quiet --depth=1 origin "$base"
+2026-09-23T20:08:43.5553885Z python3 scripts/check_em_dash.py --base "$base"
+2026-09-23T20:08:43.5577786Z shell: /usr/bin/bash -e {0}
+2026-09-23T20:08:43.5578141Z env:
+2026-09-23T20:08:43.5578518Z   EVENT_NAME: pull_request
+2026-09-23T20:08:43.5578858Z   PR_BASE_REF: dev
+2026-09-23T20:08:43.5579153Z   PUSH_BEFORE_SHA: 
+2026-09-23T20:08:43.5579483Z ##[endgroup]
+2026-09-23T20:08:46.5515343Z check_em_dash: 0 finding(s) over 75 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 332/332 [26d855a9..HEAD]
+2026-09-23T20:08:46.5760901Z ##[group]Run python3 scripts/check_doc_style.py
+2026-09-23T20:18:15.6256625Z archive selftest: OK (24 controls)
+2026-09-23T20:18:15.6349333Z ##[group]Run python3 scripts/gen_toc.py --selftest
+2026-09-23T20:18:15.6349715Z python3 scripts/gen_toc.py --selftest
+2026-09-23T20:18:15.6350068Z python3 scripts/gen_toc.py --verify-anchors
+2026-09-23T20:18:15.6350407Z python3 scripts/gen_toc.py --check
+2026-09-23T20:18:15.6373542Z shell: /usr/bin/bash -e {0}
+2026-09-23T20:18:15.6373867Z ##[endgroup]
+2026-09-23T20:18:16.2027620Z TOC selftest: PASS (1433/1433 arm(s))
+2026-09-23T20:18:17.8972571Z anchor check: 147 existing cross-page fragment links reproduced
+2026-09-23T20:18:20.6835697Z TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+2026-09-23T20:18:20.7214191Z ##[group]Run python3 avdecc/gen_aem_store.py --self-test
+2026-09-23T20:18:20.7214616Z python3 avdecc/gen_aem_store.py --self-test
+2026-09-23T20:18:20.7237371Z shell: /usr/bin/bash -e {0}
+2026-09-23T20:19:07.2894367Z (node:15312) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-23T20:19:07.2895386Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-23T20:19:07.3029980Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --files-from manifest.txt --use-compress-program zstdmt
+2026-09-23T20:19:07.5197071Z (node:15312) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-23T20:19:08.0649284Z Sent 1186458 of 1186458 (100.0%), 2.0 MBs/sec
+2026-09-23T20:19:08.1893111Z Cache saved with key: markdown-renderer-pip-Linux-02c5ed9d8043b6dea8b20afb0521264eee8ff3ddfbc7d2d9a238bf7fc77f1795
+2026-09-23T20:19:08.2005883Z Post job cleanup.

@@ -1,0 +1,110 @@
+[
+ {
+  "name": "author N2: R238-2 F1a control",
+  "page": "text <? <!-- ?>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "author N2: R238-2 F2 H06",
+  "page": "<div>\n<? a <!-- ?>\n</div>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "author N2: s437212-0163",
+  "page": "## H1\n</div>\n  ## H2\n  - nested\n   ## H3\n<details>\n<? x\n\n## H4\n"
+ },
+ {
+  "name": "author N2: s437212-0235",
+  "page": "--!>\n<select>\n> ## H1\n## H2\n"
+ },
+ {
+  "name": "author N2: s437212-0256",
+  "page": "<b title=\"x\">\n\n## H1\n- [r]: /u\n\n> ## H2\ntext <? > <!-- ?>\nH3\n---\n\n## H4\n"
+ },
+ {
+  "name": "author N2: s437212-0304",
+  "page": "</style>\n\n  ## H1\n   ## H2\n\n<xmp>\n<? x\n10. item\n\n## H3\n"
+ },
+ {
+  "name": "author N2: s437212-0471",
+  "page": "[x](<a-->)\n<a href='\n<select>\n  ## H1\n1. item\n\n## H2\n<noscript>\n## H3\n"
+ },
+ {
+  "name": "author N2: s437212-0656",
+  "page": "> ## H1\ntext <? > <!-- ?>\n</style>\n-\n\n</pre>\n\n## H2\n"
+ },
+ {
+  "name": "empty comment <!--> as a block",
+  "page": "<!-->\n\n## X\n\n## Y\n\n<!-- -->\n\n## Z\n"
+ },
+ {
+  "name": "empty comment <!---> as a block",
+  "page": "<!--->\n\n## X\n\n## Y\n\n<!-- -->\n\n## Z\n"
+ },
+ {
+  "name": "empty comment <!--> in a div block",
+  "page": "<div>\n<!-->\n</div>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "--!> closer in a div block",
+  "page": "<div>\n<!-- a --!>\n</div>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "--!> closer as a comment block",
+  "page": "<!-- a --!>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "CDATA with > in a div block",
+  "page": "<div>\n<![CDATA[ a > b\n</div>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "CDATA inline complete",
+  "page": "text <![CDATA[ a > b ]]>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "declaration with <!-- in a div",
+  "page": "<div>\n<!x <!-- >\n</div>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "declaration inline with <!--",
+  "page": "text <!X <!-- >\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "double hyphen inside a comment",
+  "page": "<div>\n<!-- a -- b -->\n</div>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "comment opened in attribute value",
+  "page": "<div title=\"<!--\">\n</div>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "unclosed quote in a div, closed later",
+  "page": "<div title=\"\n\n## X\n\n\"></div>\n\n## Y\n"
+ },
+ {
+  "name": "select inline in a paragraph",
+  "page": "text <select> more\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "option outside select",
+  "page": "<option>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "textarea inline",
+  "page": "text <textarea> more\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "table open then comment",
+  "page": "<table>\n<!--\n</table>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "nested comment open",
+  "page": "<div>\n<!-- <!-- -->\n</div>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "comment ending with ---> ",
+  "page": "<div>\n<!-- a --->\n</div>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "comment ending with -- >",
+  "page": "<div>\n<!-- a -- >\n</div>\n\n## X\n\n## Y\n"
+ }
+]
