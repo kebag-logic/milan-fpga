@@ -1,0 +1,70 @@
+Public evidence: kebag-logic/milan-fpga@2636504d2cb0e9771c18670ea49d277a50443915 review-evidence/gptp75-r1/author-r2 (fetched read-only via the hosting API)
+
+## fetched files vs top-level MANIFEST.json published_sha256
+MATCH author-r2/HANDOFF.md 
+MATCH author-r2/MANIFEST.sha256 
+not fetched author-r2/PR-BODY.md
+MATCH author-r2/all-result.json 
+MATCH author-r2/all.log (path-redacted copy)
+MATCH author-r2/candidate-sources.sha256 
+MATCH author-r2/engine-mutants-result.json 
+MATCH author-r2/engine-mutants.log (path-redacted copy)
+MATCH author-r2/engine-mutation-proof.txt 
+MATCH author-r2/final-verification.json 
+MATCH author-r2/head.json 
+MATCH author-r2/review-archive-check.txt 
+not fetched author-r2/review-ready-comment.txt
+not fetched author-r2/reviewer-r304/control.json
+not fetched author-r2/reviewer-r304/reviewer_06.json
+not fetched author-r2/reviewer-r304/reviewer_13.json
+MATCH author-r2/reviewer-r304.log 
+MATCH author-r2/reviewer-r305-control.log 
+MATCH author-r2/reviewer-r305.log 
+MATCH author-r2/reviewer-results.json (path-redacted copy)
+MATCH author-r2/reviewer-script-identity.json 
+MATCH author-r2/rom-regeneration.txt 
+MATCH author-r2/source-evidence.log 
+MATCH author-r2/validation-environment.json 
+
+## author-r2/candidate-sources.sha256 against this clone's worktree (== HEAD blobs, see clone_integrity.txt)
+    104 OK
+
+## key published claims
+{
+  "head": "4a897e44243d39945df763d00b96049363a58e78",
+  "verified_utc": "2026-09-24T17:22:02.211315+00:00",
+  "branch": "75-slew-active",
+  "clean_tracked_worktree": true,
+  "source_hashes_match": true,
+  "required_gate_rc": 0,
+  "explicit_engine_mutants_rc": 0,
+  "skipped_suites": 0,
+  "engine_images": 3,
+  "engine_checks_per_image": 1586,
+  "engine_mutants_caught": 32,
+  "reviewer_driver_subsets_caught": {
+    "R304": [
+      "R07",
+      "R14"
+    ],
+    "R305": [
+      "R01",
+      "R06"
+    ]
+  },
+  "local_source_anchors_exact": 20,
+  "rom_images_byte_exact": 4,
+  "review_scratch_deleted": true,
+  "rtl_and_rom_changed_in_round2": false,
+  "commit_subject_only": true
+}
+
+{
+  "simulator_version": "Verilator 5.050 2026-07-01 rev v5.050",
+  "simulator_binary_sha256": "44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd",
+  "simulator_wrapper_sha256": "6ed706aadc559f2412dbe79711f5ed2dbd68831a2e1d7e32175995edfe3fa3a0",
+  "python": "Python 3.14.7",
+  "compiler": "c++ (GCC) 16.2.1 20260810",
+  "parallel_build_limit": 8,
+  "tsngen_head": "f52f1f9a04d8266850f15f416fcec3a2ad4bd5b3"
+}

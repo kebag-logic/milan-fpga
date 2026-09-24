@@ -1,0 +1,15 @@
+### probe C tree: control (head + probe C)
+1606 checks: 1606 PASS, 0 FAIL
+[CONTROL] unmutated: pass
+### R305C diagnostic lines from the control run
+### probe C tree: R21/R22
+[CAUGHT] R21 asCapable lapse arms qualification while inactive  | first: FAIL r305c: in-band pair after asCapable recovery stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+[CAUGHT] R22 sync-ok lapse arms qualification while inactive  | first: FAIL slew: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000 || FAIL slew: idle GM change has no level edge got 000000000000001e exp 000000000000001c || FAIL slew: in-band pair after idle GM change stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000 || FAIL r305c: in-band pair after asCapable recovery stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactl
+
+2 probes: 2 caught, 0 not caught
+### probe C tree: round-1 R01/R02/R06
+[CAUGHT] R01 lapse hook fires while inactive  | first: FAIL slew: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000 || FAIL slew: idle GM change has no level edge got 000000000000001e exp 000000000000001c || FAIL slew: in-band pair after idle GM change stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000 || FAIL r305c: in-band pair after asCapable recovery stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactl
+[PASS] R02 lapse hook ignores asCapable (bit 2)
+[CAUGHT] R06 mastership leaves the qualifier armed  | first: FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+
+3 probes: 2 caught, 1 not caught

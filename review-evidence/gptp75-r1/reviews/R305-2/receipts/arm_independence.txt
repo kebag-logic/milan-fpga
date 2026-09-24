@@ -1,0 +1,62 @@
+--- head/tb/verilator/engine/sim_main.cpp	2026-09-24 18:56:40.000000000 +0200
++++ arms/no_idle/tb/verilator/engine/sim_main.cpp	2026-09-24 20:06:46.918863154 +0200
+@@ -4744,14 +4744,7 @@
+     // both the lapse itself and fresh consumed pairs, including every edge.
+     const size_t idle_edges = slew_edges.size();
+     const size_t idle_rates = adj_seen.size();
+-    run_svc(800000); // 400 ms exceeds the 375 ms Sync receipt watch
+-    expect("slew: idle timeout clears sync-ok", dut->pub_flags_o & FL_SYNCOK, 0);
+-    expect("slew: idle timeout stays asCapable", dut->pub_flags_o & FL_ASCAP, FL_ASCAP);
+-    expect("slew: idle timeout stays inactive", dut->phc_slew_active_o, 0);
+-    expect("slew: idle timeout has no level edge", slew_edges.size(), idle_edges);
+-    expect("slew: idle timeout leaves the rate alone", adj_seen.size(), idle_rates);
+-    slew_probe("slew: in-band pair after idle timeout stays inactive", 0, false);
+-    slew_probe("slew: second pair after idle timeout stays inactive", 100, false);
++    (void)idle_rates;
+ 
+     // Change identity while already inactive and still a capable slave.
+     announce(0x7506, 100, GMID + 2, 0, PEER_CID);
+### variant no_idle: control
+1567 checks: 1567 PASS, 0 FAIL
+[CONTROL] unmutated: pass
+### variant no_idle: R01,R06
+[CAUGHT] R01 lapse hook fires while inactive  | first: FAIL slew: in-band pair after idle GM change stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000 || FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+[CAUGHT] R06 mastership leaves the qualifier armed  | first: FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+
+2 probes: 2 caught, 0 not caught
+--- head/tb/verilator/engine/sim_main.cpp	2026-09-24 18:56:40.000000000 +0200
++++ arms/no_idle_no_gm/tb/verilator/engine/sim_main.cpp	2026-09-24 20:06:46.941613424 +0200
+@@ -4744,24 +4744,10 @@
+     // both the lapse itself and fresh consumed pairs, including every edge.
+     const size_t idle_edges = slew_edges.size();
+     const size_t idle_rates = adj_seen.size();
+-    run_svc(800000); // 400 ms exceeds the 375 ms Sync receipt watch
+-    expect("slew: idle timeout clears sync-ok", dut->pub_flags_o & FL_SYNCOK, 0);
+-    expect("slew: idle timeout stays asCapable", dut->pub_flags_o & FL_ASCAP, FL_ASCAP);
+-    expect("slew: idle timeout stays inactive", dut->phc_slew_active_o, 0);
+-    expect("slew: idle timeout has no level edge", slew_edges.size(), idle_edges);
+-    expect("slew: idle timeout leaves the rate alone", adj_seen.size(), idle_rates);
+-    slew_probe("slew: in-band pair after idle timeout stays inactive", 0, false);
+-    slew_probe("slew: second pair after idle timeout stays inactive", 100, false);
+ 
+     // Change identity while already inactive and still a capable slave.
+     announce(0x7506, 100, GMID + 2, 0, PEER_CID);
+-    expect("slew: idle GM change selects the new identity", dut->pub_gm_id_o, GMID + 2);
+-    expect("slew: idle GM change clears sync-ok", dut->pub_flags_o & FL_SYNCOK, 0);
+-    expect("slew: idle GM change stays slave", dut->pub_flags_o & FL_AMGM, 0);
+-    expect("slew: idle GM change stays inactive", dut->phc_slew_active_o, 0);
+-    expect("slew: idle GM change has no level edge", slew_edges.size(), idle_edges);
+-    slew_probe("slew: in-band pair after idle GM change stays inactive", -100, false);
+-    slew_probe("slew: second pair after idle GM change stays inactive", 0, false);
++    (void)idle_rates;
+ 
+     slew_probe("slew: policy decision starts at +101 ns", 101, true);
+     const size_t held_edges = slew_edges.size();
+### variant no_idle_no_gm: control
+1548 checks: 1548 PASS, 0 FAIL
+[CONTROL] unmutated: pass
+### variant no_idle_no_gm: R01,R06
+[CAUGHT] R01 lapse hook fires while inactive  | first: FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+[CAUGHT] R06 mastership leaves the qualifier armed  | first: FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000 || FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+
+2 probes: 2 caught, 0 not caught

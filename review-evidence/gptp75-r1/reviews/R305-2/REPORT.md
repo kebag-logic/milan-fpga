@@ -1,0 +1,243 @@
+[R305] NEGATIVE - exact head 4a897e44243d39945df763d00b96049363a58e78
+
+# R305-2 independent external review: FPGA-gPTP issue #75 / PR #76, round 2
+
+- **Head:** `4a897e44243d39945df763d00b96049363a58e78`, tree `8f396508dc595076d84bdb6c8cf597792b8ee48e`.
+- **Commits:** two since source base `e5dcea6e351abff18a27a00f8e345f3251bdbd8f`:
+  - `49d23b2`, the round-1 head, which I reviewed as R305-1;
+  - `4a897e4`, the round-2 revision.
+- **Round-2 changes:** 8 files. It changes only tests, documentation and a new documentation checker. RTL, the generator, the bench and all four ROM images are byte-identical to the round-1 head (`git diff --stat 49d23b2 4a897e4 -- hdl syn bench tb/tsngen tb/verilator/ucpu tb/verilator/engine/gptp_ucode.hex` is empty; see `receipts/rom_regen.txt`).
+- **Reconstruction order:**
+  - The repository has no AGENTS.md or CONTRIBUTING.md. I read `docs/README.md`, the role guides and `docs/SOURCE_EVIDENCE.md`.
+  - Then issue #75: its body (frozen acceptance items 1–5), the executor assignment, and the round-2 assignment [A272] (issue comment 5818374671).
+  - Then the PR body, and the `e5dcea6..4a897e4` diff and history.
+  - Last, the public evidence at kebag-logic/milan-fpga `2636504d…/review-evidence/gptp75-r1/author-r2`.
+- **How this verdict was reached:**
+  - My independent pass (everything I ran before reading any other report) resolved both round-1 findings and found no new defect. I wrote a POSITIVE verdict and ledger on that basis.
+  - I then read the prior and concurrent public reports. The other reviewer's round-2 report (R304-2, PR comment 5819327202, posted at this head during my review) raises F3: an unpinned inactive-direction asCapable-loss edge.
+  - I reproduced it independently, with my own mutant (R21) and my own directed probe (C). It is real, observable and not equivalent.
+  - I retain it as **F1** below. That changes the verdict to **NEGATIVE** and makes the Conformance and Tests lenses UNCLEAN.
+  - My independent pass missed this gap because my round-1 mutant set weakened the asCapable term (R02) but never strengthened it. My round-1 F1 impact did name "a Pdelay-driven asCapable loss or cease while inactive" as a trigger, but its required outcome did not ask for that arm.
+
+## Verdict summary
+
+- **Round-1 F1 is resolved as specified.**
+  - The engine suite now pins three inactive-direction arms through the public wire interface:
+    - an idle Sync receipt timeout;
+    - an idle grandmaster change;
+    - an in-band first pair after returning from grandmaster duty.
+  - Two named controls fail their named checks.
+  - My unchanged round-1 R01 and R06 are now caught by the head harness, and each new arm independently catches R01.
+- **Round-1 F2 is resolved.**
+  - All 20 local anchors are exact at head, including the new slew-level row.
+  - The new `make docs` gate rejects stale anchors, which my seven negative controls confirm.
+- **Suggestions taken:** ROM headroom and prefix-packing policy (verified against the generator), the lapse-hook documentation, and the R02 equivalence note.
+- **One MINOR finding remains open, F1:**
+  - Issue #75 names asCapable loss as a defined edge case, and the PR's contract says in-band tracking without an active correction stays inactive.
+  - The inactive direction of that edge is unpinned. The lapse hook's asCapable term can fire while inactive and the suite still passes 1,586/1,586.
+  - The shipped RTL behaves correctly (probe C control 1,606/1,606). What is missing is the test pin.
+
+## Findings
+
+### F1 - MINOR - Tests, Conformance - inactive asCapable loss and recovery is not pinned; an arming regression passes
+
+- **Where:**
+  - `hdl/top/KL_gptp_engine.sv:876-878`: the `phc_slew_active_o &&` guard, specifically its asCapable (`st_wdata_w[2]`) term.
+  - `tb/verilator/engine/sim_main.cpp:4743-4764`: the round-2 idle arms clear only sync-ok. "slew: idle timeout stays asCapable" is asserted at `:4749`.
+  - `tb/verilator/engine/sim_main.cpp:4832-4845`: the only asCapable-loss scenario, which starts with the level already high (`:4831`).
+- **Authority:**
+  - Issue #75 Required item 3: "ordinary tracking that does not assert it, and each defined edge case". asCapable loss is one of item 2's named edges.
+  - `docs/INTEGRATION.md:301`: "Tracking inside the band without an active correction | Stay inactive".
+  - `docs/INTEGRATION.md:325`: the asCapable loss row.
+  - `docs/HDL_DEVELOPER.md:127-135` (added in this round): "Bit 2 means asCapable … While inactive, these writes must leave qualification unarmed."
+  - This is the same class and severity as R305-1 F1 and R304-1 F1, which the manager adopted as required.
+- **Evidence** (pinned Verilator 5.050; `receipts/r2_mutants_head_harness.txt`, `receipts/probe_c.txt`, `receipts/r305_probe_c_harness.diff`):
+  - Mutant R21 makes the asCapable term fire while inactive: `if ((phc_slew_active_o && !st_wdata_w[3]) || !st_wdata_w[2])`. It **survives the unmodified head harness**.
+  - Its mirror image, R22, makes the sync-ok term fire while inactive. It is caught by the new "slew: in-band pair after idle timeout stays inactive". So only the asCapable half of the guard is unpinned.
+  - Probe C adds one scenario after the idle GM-change arm, while inactive:
+    - bad Pdelay on the wire until asCapable drops;
+    - recovery through good exchanges;
+    - re-announce of the same GM;
+    - two in-band pairs.
+  - The unmodified head passes it, 1,606/1,606.
+  - R21 fails "r305c: in-band pair after asCapable recovery stays inactive" (got 1, expected 0). The mutant is therefore reachable and observable, not equivalent.
+  - This matches R304-2 F3 (its X01), reached through my own mutant and probe.
+- **Impact:**
+  - A regression that arms qualification on any asCapable fall passes every gate. Examples: making the capability term unconditional, or re-ordering the hook's terms. Entering the documented multiple-responder cease also clears asCapable.
+  - After a Pdelay glitch during ordinary tracking, the first in-band pair after recovery would then raise `phc_slew_active_o` with no correction in progress.
+  - The consumer (#545) would discard CRF windows and hold its integrator during ordinary tracking. That is exactly what issue item 3 forbids.
+  - Of item 2's five named edges, this is the only one without an inactive-direction pin.
+- **Required outcome:**
+  - Add an engine check, through the public wire interface, that runs this sequence while `phc_slew_active_o` is low:
+    - asCapable is lost and then recovered;
+    - the first consumed pairs after recovery are in-band;
+    - the level stays low with no edge, and each pair writes exactly one PI rate.
+  - Add a named control to `tb/verilator/engine/mutants.py` equivalent to R21 (R304-2's X01) that must fail that named check.
+- **Verification:**
+  - The engine suite passes on all three images, and `make -C tb/verilator/engine mutants` reports the new control caught on its named check.
+  - Reviewer reproduction: `scripts/probe_r2.py --tree <head export> --set reviewer` must report R21 caught by the unmodified new head harness.
+
+### S1 - SUGGESTION - Docs - the manager guide's area snapshot predates this PR
+
+- **Where:** `docs/MANAGER.md:29-44` ("Latest measured snapshot", dated 2026-08-27).
+- **What:** it lists the complete engine at 4,719 LUTs and 3,639 registers. The round-1 public OOC reports for this PR measured 4,773 → 4,853 LUTs and 3,646 → 3,652 registers. The snapshot is dated, so it is not false, and its staleness predates this PR.
+- **Suggestion:** refresh it, or label it pre-#75, the next time synthesis runs.
+- **Not required for this PR.** R304-2 S1 is the same observation.
+
+## Lens assessment (artifact-specific evidence)
+
+### Conformance: UNCLEAN (F1)
+
+- **Issue #75 items 1, 2 and 4:** met at round 1 and unchanged, because the RTL, generator, ROM and INTEGRATION.md are byte-identical.
+- **Item 3 is demonstrated for:**
+  - start and end on the policy decision;
+  - the step;
+  - ordinary tracking, including after an idle Sync lapse, an idle GM change and an in-band return from mastership;
+  - the active-direction edges;
+  - the tied-low and early-clear mutants.
+- **Item 3 is not demonstrated** for the inactive asCapable-loss edge (F1).
+- **Item 5:** scoped to kebag-logic/milan-fpga #545.
+- **Round-2 assignment [A272]:** every required and taken item is implemented as specified:
+  - 1(a) `sim_main.cpp:4743-4764`; 1(b) `:4826-4830`;
+  - controls `mutants.py:97-105`;
+  - 2: anchors, row and checker;
+  - `docs/MANAGER.md:46-70` and `docs/HDL_DEVELOPER.md:125-137`;
+  - no RTL change.
+
+### RTL: CLEAN
+
+- The RTL is unchanged since round 1. `KL_gptp_engine.sv:872-879` and `:916-944` are the bytes I reviewed as clean in R305-1.
+- Probe C confirms that the shipped guard behaves correctly in the inactive asCapable direction.
+- Engine and bench lint pass with no warnings (`receipts/static_gates.txt`).
+- The four ROM images regenerate byte-identically and match the published hashes (`receipts/rom_regen.txt`).
+- The `docs/MANAGER.md` statements hold against source:
+  - `SERVO@0` and `FUTO@13` are in the prefix.
+  - The entry table in `KL_gptp_engine.sv:523-541` starts at 16.
+  - The packer raises on an unfit leg and asserts on overlap (`gen_gptp_ucode.py:2071-2088`).
+  - The 16 free words form six runs, the largest 7 words (`receipts/rom_gaps.txt`).
+
+### Robustness: CLEAN
+
+- There is no behavioural change since round 1, and the round-1 edge walk applies to identical RTL, generator and ROM.
+- New coverage:
+  - the idle lapse changes only sync-ok, with no rate write and no edge;
+  - the idle GM change keeps slave duty with no edge;
+  - probe C shows the inactive asCapable loss and recovery path behaves correctly.
+- The durations are unchanged (SLEW TRACE 6,138,826 / 3,833,378 cycles at 2 MHz, i.e. 3.069 s / 1.917 s; `receipts/engine_run.log`).
+
+### Tests: UNCLEAN (F1)
+
+- **Engine suite:** 1,586/1,586 on each of the three images (`receipts/engine_run.log`).
+- **PR mutants:** 32/32 caught, with the five slew controls on their named checks (`receipts/pr_mutants_00_16.txt`, `receipts/pr_mutants_16_32.txt`).
+- **My 20 round-1 mutants on the unmodified head harness:** 19 caught. R02 is the documented equivalent (`receipts/reviewer_mutants_head_harness.txt`).
+- **Round-1 probes A/B on top of the head harness:** control 1,627/1,627; R01 and R06 caught (`receipts/probe_harness_*.txt`).
+- **Arm independence:** each new inactive arm alone catches R01 (`receipts/arm_independence.txt`).
+- **Round-2 mutants:** R22 caught. **R21 survives** the head harness, and my probe C catches it (F1).
+
+### Docs: CLEAN
+
+- **`docs/SOURCE_EVIDENCE.md`:** all 20 local anchors are exact at head (`receipts/static_anchor_review.txt`, resolved independently at base and head). The base parser anchor L373 was already a blank line, and the head corrects it to L374.
+- **`scripts/check_source_evidence.py`:** in `make docs`. 20 exact, 7-arm selftest. My 7 negative controls all report findings, and the unaltered and restored trees report none (`receipts/checker_controls.txt`). The slew row's constructs are unique in their files.
+- **`docs/HDL_DEVELOPER.md:125-137`:** matches `KL_gptp_engine.sv:872-879` and the flag bits at `sim_main.cpp:193-195`.
+- **`docs/MANAGER.md`:** accurate, and the PHC control row names the slew level.
+- **`docs/TEST_DEVELOPER.md`:** lists the new coverage.
+- **Gates:** `make docs` and `make contract` pass.
+- **Open suggestion:** only S1.
+
+## Other evidence
+
+- **Published evidence:**
+  - Every fetched `author-r2` file matches the top-level `MANIFEST.json` published hash. Three are disclosed path-redacted copies.
+  - `candidate-sources.sha256` matches all 104 tracked files (`receipts/evidence_crosscheck.txt`).
+  - The published claims (1,586 × 3, 32/32, 20 exact anchors, 4 ROMs byte-exact) agree with my runs.
+- **Hosted:** there are no check runs, statuses or workflow runs at this head, and no workflow files are tracked (`receipts/hosted_evidence.txt`). Nothing hosted executed, and I count none as evidence.
+- **Area and timing:** not rerun. Round 2 changes no RTL, so the round-1 published OOC comparison applies (+80 LUTs, +6 registers, WNS +1.773 ns, met).
+
+## Reviewer-owned ledger
+
+| Lens | Status | Examined artifacts | Covering round | Exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN (F1) | Issue #75 body, executor and round-2 [A272] assignments; PR body; `e5dcea6..4a897e4` diff; INTEGRATION.md:301-331 against the new arms and probe C | R305-2 | 4a897e44243d39945df763d00b96049363a58e78 |
+| RTL | CLEAN | `KL_gptp_engine.sv` (unchanged since `49d23b2`; lapse hook, PHC words 0–3, entry table); `gen_gptp_ucode.py` packer; four ROM images regenerated; engine and bench lint | R305-2 | 4a897e44243d39945df763d00b96049363a58e78 |
+| Robustness | CLEAN | Inactive lapse, GM change, asCapable loss and recovery (probe C), return from mastership; all round-1 edges on identical RTL/ROM; SLEW TRACE | R305-2 | 4a897e44243d39945df763d00b96049363a58e78 |
+| Tests | UNCLEAN (F1) | `sim_main.cpp:4730-4861`; `mutants.py`; 3 engine images; 32 PR, 20 round-1 and 2 round-2 reviewer mutants; probes A/B/C; two arm-independence variants | R305-2 | 4a897e44243d39945df763d00b96049363a58e78 |
+| Docs | CLEAN (S1 open, SUGGESTION) | SOURCE_EVIDENCE.md (anchor resolution at base and head), `check_source_evidence.py` + 7 negative controls, HDL_DEVELOPER.md, MANAGER.md, TEST_DEVELOPER.md; `make docs`, `make contract` | R305-2 | 4a897e44243d39945df763d00b96049363a58e78 |
+
+## Real limits
+
+- **Simulation only:**
+  - The pinned simulator (Verilator 5.050, binary hash `44898b22…`, matching the published environment) ran:
+    - the engine suite on three images;
+    - all mutants (shipping engine image);
+    - the probe and variant trees;
+    - lint;
+    - the contract and docs gates.
+  - Not rerun this round, because their sources and inputs are unchanged: the microCPU, parser, gasket, tsngen and bench-tag suites, and OOC synthesis.
+  - Not run, by mandate: the full parent/PP/gPTP/Yosys/builder banks and hosted/act.
+- **Tests are not proofs:** the R02 equivalence rests on a code-reading reachability argument, as the `mutants.py` docstring says. I did not execute R304-2's X03 and did not rule on it.
+- **Field behaviour:**
+  - The harness uses ideal timestamps. Steady-state jitter inside ±100 ns is not demonstrated.
+  - Physical calibration was NOT RUN. Field skips are not hardware proof.
+- **Parent consumer:** the `KL_gptp_shadow` connection and CRF-servo consumption belong to kebag-logic/milan-fpga #545. I did not examine them.
+- **Candidates:** source validation at this head is distinct from the final current-dev candidate (source base `e5dcea6e`, live dev `573f0052`), which the manager builds at the merge turn.
+
+## Pending manager duties
+
+- **F1:** close it on a new head, then run an exact-head re-review.
+- **Tolerance:** explicitly accept or override the author-chosen ±100 ns / two-pair completion tolerance.
+- **Duration:** reconcile the parent decision's 0.5 s premise with the measured 1.9–3.1 s intervals and the documented indefinite hold under asCapable loss or cease. This belongs in #545.
+- **Parent validation:** in #545, confirm the mastership-retire addend source (PHC word 3) against the parent PHC, and run the parent consumer gates on the branch that connects the port.
+- **Merge candidate:** build and gate the merge-turn current-dev candidate, and own hosted/act acceptance.
+
+## Reconciliation with prior and concurrent public review findings (read after my independent verdict and ledger were written)
+
+My pre-reconciliation verdict was POSITIVE, with all five lenses clean. The only change reconciliation made is F1, which I reproduced independently before adopting it.
+
+| Finding | Status at this head | Basis |
+|---|---|---|
+| R305-1 F1 (MINOR; Tests, Conformance): inactive lapse and in-band return-to-slave unpinned; R01/R06 survive | **Resolved as specified.** The residual asCapable arm is retained as R305-2 F1. | `sim_main.cpp:4743-4764`, `:4826-4830`; `mutants.py:97-105`. R01 and R06 caught by the head harness and by probes A/B. Arm independence confirmed. |
+| R305-1 F2 (MINOR; Docs): stale anchors; no slew row | **Resolved.** | 20/20 exact; checker in `make docs`; 7 negative controls |
+| R305-1 S1 (SUGGESTION): ROM headroom and PHC row | **Taken.** | `docs/MANAGER.md:21`, `:46-70`; `receipts/rom_gaps.txt` |
+| R305-1 S2 (SUGGESTION): record the R02 equivalence | **Taken.** | `mutants.py:38-44`; R02 still survives, as recorded |
+| R304-1 F1 (MINOR): inactive direction; controls ≡ R07/R14 | **Resolved as specified.** | The same checks and controls. Its R14 ≡ my R01 and its R07 ≡ my R06, both caught at the named checks. |
+| R304-1 F2 (MINOR): ten stale anchors | **Resolved.** | Same as R305-1 F2 |
+| R304-1 S1 (SUGGESTION): ROM headroom and prefix policy | **Taken.** | `docs/MANAGER.md:46-70`, verified against the generator |
+| R304-1 S2 (SUGGESTION): lapse hook undocumented | **Taken.** | `docs/HDL_DEVELOPER.md:125-137` matches the RTL |
+| R304-1 S3 (SUGGESTION): field behaviour uncharacterised | Agreed. | Carried in Real limits |
+| R304-2 F3 (MINOR; Tests, Conformance): inactive asCapable loss unpinned; X01 survives | **Retained as R305-2 F1.** | Independently reproduced: R21 (≡ X01) survives the head harness, the head passes probe C 1,606/1,606, and R21 fails probe C's named check. The mirror R22 is caught. |
+| R304-2 S1 (SUGGESTION): MANAGER area snapshot | Agreed; the same as R305-2 S1. | `docs/MANAGER.md:29-44` |
+| R304-2 S2 (SUGGESTION): field characterisation | Agreed. | Real limits |
+| R304-2 X03 equivalence (idle one-pair arming) | Not ruled on. | Not executed by me |
+
+## Receipts and reproduction
+
+Every run used a `git archive` export of the exact head (or a probe copy) under `scratch/`. The reviewed clone was never built in, and it was verified exact afterwards (`receipts/clone_integrity.txt`: HEAD, tree and index exact; 104 blobs and modes exact; no untracked or ignored files; 0 gitlinks, and none are required).
+
+**Parallelism:**
+
+- The engine builds used `-j 8`, through `scratch/j8.mk`, which only substitutes the Makefile's `-j 0`.
+- The mutant pools ran at most 4 workers × 2 build threads.
+
+**Round-1 scripts:** `scripts/make_probe_tree.py` and `scripts/probe_mutants.py` are byte-identical to R305-1 (sha256 `5dd4de3e…`, `12ced094…`).
+
+- `make_probe_tree.py` pins its export revision in a module constant. `scripts/run_probe_tree_at_head.py` rebinds that constant to this head without editing the script.
+- The round-2 mutants run through the unchanged `probe_mutants.py` via `scripts/probe_r2.py`.
+- Round 1 had no `static_checks.sh`. `scripts/static_checks.sh` is this round's independent anchor resolver.
+
+| Receipt | Content |
+|---|---|
+| `receipts/tool_identity.txt` | Simulator wrapper and binary identity, Python and compiler |
+| `receipts/rom_regen.txt`, `receipts/rom_gaps.txt` | Four ROMs byte-exact; round-2 no-change stat; free-word runs |
+| `receipts/engine_run.log` | Engine suite on three images, 1,586/1,586 each |
+| `receipts/pr_mutants_00_16.txt`, `receipts/pr_mutants_16_32.txt` | 32/32 PR mutants caught |
+| `receipts/reviewer_mutants_head_harness.txt` | Round-1 R01–R20 on the head harness: 19 caught, R02 equivalent |
+| `receipts/r305_probe_harness_at_head.diff`, `receipts/probe_harness_control.txt`, `receipts/probe_harness_survivors.txt` | Round-1 probes A/B on the head: control 1,627; R01/R06 caught |
+| `receipts/arm_independence.txt` | Arm-deletion variants: each inactive arm alone catches R01 |
+| `receipts/r2_mutants_head_harness.txt` | R21 survives, R22 caught on the head harness |
+| `receipts/r305_probe_c_harness.diff`, `receipts/probe_c.txt` | Probe C: control 1,606; R21 caught at the named check; R01/R06 caught; R02 equivalent |
+| `receipts/static_anchor_review.txt`, `receipts/checker_controls.txt`, `receipts/static_gates.txt` | Anchor resolution at base and head; checker negative controls; lint, contract and docs gates |
+| `receipts/evidence_crosscheck.txt`, `receipts/hosted_evidence.txt`, `receipts/clone_integrity.txt` | Published-evidence hashes; hosted state; clone integrity |
+
+Everything ran in the foreground. I made no source edit, commit, push or GitHub write.
+
+R305-2 FINISHED

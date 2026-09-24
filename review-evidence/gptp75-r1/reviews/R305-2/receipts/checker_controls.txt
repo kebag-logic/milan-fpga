@@ -1,0 +1,38 @@
+[OK] unaltered head ledger: 20 exact, 0 findings
+[OK] base e5dcea6 ledger against head sources: 5 exact, 12 findings
+      hdl/top/KL_gptp_engine.sv#L57 (Single clock domain): STALE; expected 'module KL_gptp_engine'
+      hdl/top/KL_gptp_engine.sv#L156 (Four instantiated blocks): STALE; expected 'KL_gptp_rx_parser u_parser ('
+      hdl/wire/KL_gptp_rx_parser.sv#L373 (Deferred receive event): STALE; expected 'if (fin_r) begin'
+      hdl/top/KL_gptp_engine.sv#L401 (Four-entry event queue): STALE; expected 'logic [39:0] evq_r [0:3];'
+      hdl/top/KL_gptp_engine.sv#L428 (Parser arbitration priority): STALE; expected 'always_comb begin : push_arb'
+      hdl/top/KL_gptp_engine.sv#L339 (Priority timestamp return): STALE; expected 'logic        txts_pend_r;'
+      hdl/top/KL_gptp_engine.sv#L345 (Accepted-beat result face): STALE; expected 'assign txts_ready_o  = !txts_pend_r && rst_n;'
+      hdl/top/KL_gptp_engine.sv#L236 (Reset-backed pairing validity): STALE; expected 'logic t1v_valid_r, pdwait_valid_r;'
+      hdl/top/KL_gptp_engine.sv#L99 (Transmit admission credit): STALE; expected 'input  wire         tx_credit_i,'
+      hdl/top/KL_gptp_engine.sv#L381 (Eight timer slots): STALE; expected 'KL_gptp_timer #('
+      hdl/top/KL_gptp_engine.sv#L120 (Committed publication): STALE; expected 'output logic        pub_commit_o,'
+      missing claim: Registered policy slew level
+[OK] slew port anchor shifted +1: 19 exact, 1 findings
+      hdl/top/KL_gptp_engine.sv#L110 (Registered policy slew level): STALE; expected 'output logic        phc_slew_active_o,'
+[OK] word 2 and word 3 anchors swapped: 18 exact, 2 findings
+      hdl/top/KL_gptp_engine.sv#L934 (Registered policy slew level): STALE; expected "2'd2: begin"
+      hdl/top/KL_gptp_engine.sv#L929 (Registered policy slew level): STALE; expected "2'd3: begin"
+[OK] policy anchor removed: 16 exact, 1 findings
+      Registered policy slew level: unbound or missing local line anchor
+[OK] slew row deleted: 16 exact, 1 findings
+      missing claim: Registered policy slew level
+[OK] one line inserted at the top of the engine source: 6 exact, 14 findings
+      hdl/top/KL_gptp_engine.sv#L58 (Single clock domain): STALE; expected 'module KL_gptp_engine'
+      hdl/top/KL_gptp_engine.sv#L160 (Four instantiated blocks): STALE; expected 'KL_gptp_rx_parser u_parser ('
+      hdl/top/KL_gptp_engine.sv#L405 (Four-entry event queue): STALE; expected 'logic [39:0] evq_r [0:3];'
+      hdl/top/KL_gptp_engine.sv#L432 (Parser arbitration priority): STALE; expected 'always_comb begin : push_arb'
+      hdl/top/KL_gptp_engine.sv#L343 (Priority timestamp return): STALE; expected 'logic        txts_pend_r;'
+      hdl/top/KL_gptp_engine.sv#L349 (Accepted-beat result face): STALE; expected 'assign txts_ready_o  = !txts_pend_r && rst_n;'
+      hdl/top/KL_gptp_engine.sv#L240 (Reset-backed pairing validity): STALE; expected 'logic t1v_valid_r, pdwait_valid_r;'
+      hdl/top/KL_gptp_engine.sv#L100 (Transmit admission credit): STALE; expected 'input  wire         tx_credit_i,'
+      hdl/top/KL_gptp_engine.sv#L385 (Eight timer slots): STALE; expected 'KL_gptp_timer #('
+      hdl/top/KL_gptp_engine.sv#L20 (Six state regions): STALE; expected '//                  0  message bank      RO  (parser-written, PING-PONG'
+      hdl/top/KL_gptp_engine.sv#L124 (Committed publication): STALE; expected 'output logic        pub_commit_o,'
+      hdl/top/KL_gptp_engine.sv#L109 (Registered policy slew level): STALE; expected 'output logic        phc_slew_active_o,'
+[OK] engine source restored: 20 exact, 0 findings
+checker controls: PASS (0 bad)

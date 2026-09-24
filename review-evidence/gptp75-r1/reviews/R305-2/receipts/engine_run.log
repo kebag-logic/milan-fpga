@@ -1,0 +1,13 @@
+engine suite at 4a897e44 (git archive export), rc=0, 111 s, build -j 8 (wrapper makefile scratch/j8.mk only substitutes -j 0 -> -j 8)
+verilator --cc --exe --build -j 8 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+1586 checks: 1586 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+1586 checks: 1586 PASS, 0 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+1586 checks: 1586 PASS, 0 FAIL
