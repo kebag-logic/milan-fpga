@@ -1,0 +1,23 @@
+hex-0: rc=0 (0.0 s)
+hex-1: rc=0 (0.1 s)
+clean-build: rc=0 (14.2 s)
+clean-run: rc=0 (13.0 s)
+clean: rc=0 fails=0 named_ok=1 ['checks: 147   failures: 0']
+m1-dp-01001001-build: rc=0 (14.6 s)
+m1-dp-01001001-run: rc=1 (13.5 s)
+m1-dp-01001001: rc=1 fails=1 caught_exactly=True ['checks: 147   failures: 1']
+   [FAIL] [NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic got=0x1001001 exp=0x0
+m2-dp-lsb-build: rc=0 (13.8 s)
+m2-dp-lsb-run: rc=1 (12.9 s)
+m2-dp-lsb: rc=1 fails=1 caught_exactly=True ['checks: 147   failures: 1']
+   [FAIL] [NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic got=0x1 exp=0x0
+m3-dp-msb-build: rc=0 (14.3 s)
+m3-dp-msb-run: rc=1 (12.9 s)
+m3-dp-msb: rc=1 fails=1 caught_exactly=True ['checks: 147   failures: 1']
+   [FAIL] [NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic got=0x80000000 exp=0x0
+m4-csr-mux-build: rc=0 (14.5 s)
+m4-csr-mux-run: rc=1 (12.9 s)
+m4-csr-mux: rc=1 fails=1 caught_exactly=True ['checks: 147   failures: 1']
+   [FAIL] [NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic got=0x100 exp=0x0
+PROBE PASS
+probe_rc=0
