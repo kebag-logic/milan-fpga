@@ -1,0 +1,75 @@
+HEAD:CHANGELOG.md:40:- ACTIVE can lead them by up to three admission rounds.
+HEAD:CHANGELOG.md:41:- That needs a Listener Ready decoded within those rounds.
+HEAD:CHANGELOG.md:43:- For an admitted stream the lead is status skew only.
+HEAD:CHANGELOG.md:45:- It stays licensed for up to three rounds.
+HEAD:Containerfile.bdd-runner:7:# features happen to cover. It was written for the AECP tier and outlived it -
+HEAD:docs/design/GPTP_PLANE.md:134:| PHC discontinuity inside the window | not a bound | invalidated and returned as counted loss, never absorbed |
+HEAD:docs/design/SAVED_STATE_FASTCONNECT.md:28:> method.** Three rounds running, a finding landed in the same class: a check
+HEAD:docs/design/SAVED_STATE_MATERIALIZATION.md:53:> `d0256846`. Section 16 maps every finding of the three rounds to its
+HEAD:docs/limitations/TROUBLESHOOTING.md:617:inside the window **parser match → monitor accept**, not on the wire, not in the bridge, and
+HEAD:docs/reference/EGRESS_QUEUE_MAP.md:78:reads the processor's ACTIVE, which takes the processor's optimistic admission
+HEAD:docs/reference/EGRESS_QUEUE_MAP.md:81:Listener, so ACTIVE opens inside the window only if a Listener Ready or Ready
+HEAD:docs/reference/EGRESS_QUEUE_MAP.md:85:- **Admitted.** ACTIVE can open the source up to three admission rounds before
+HEAD:docs/reference/EGRESS_QUEUE_MAP.md:89:- **Refused.** ACTIVE does not fall inside the window. It falls at the window's
+HEAD:docs/reference/EGRESS_QUEUE_MAP.md:90:  end, and the declaration then swaps to Talker Failed. For up to three rounds a
+HEAD:docs/reference/FR_NFR.md:214:> term is the grant except inside the optimistic window, up to three admission
+HEAD:docs/reference/REGISTER_MAP.md:1113:optimistic admission window counts a fresh declaration as admitted until the end
+HEAD:docs/reference/REGISTER_MAP.md:1115:registered Listener, so ACTIVE rises inside the window only if a Listener Ready
+HEAD:docs/reference/REGISTER_MAP.md:1120:  three admission rounds. That status skew is this branch's whole effect.
+HEAD:docs/reference/REGISTER_MAP.md:1123:  Failed. For up to three rounds a declaration the 75 % ceiling refuses holds the
+HEAD:docs/reference/REGISTER_MAP.md:1167:| `0x694` | `LWSRP_STATUS` | RO | `0` | Mixed. 🟢 **LIVE, REPOINTED** from the processor's class-D face. **`[3:0]` describes ONE subject: the Listener attribute REGISTERED on talker SOURCE 0** (the processor's `lstn_reg_state[0]`), which is the subject it had before the control plane was substituted and the subject it has again since VERSION `0x005C`. `[1:0]` is that attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value (0 none/ignore, 1 asking-failed, 2 ready, 3 ready-failed); `[2]` listener registered = the value is not 0, **asking-failed INCLUDED** (the field answers "does anyone want this stream", and an asking-failed Listener does: it must still see our TalkerAdvertise or it can never become Ready); `[3]` listener ready = the value is ready or ready-failed, the Milan v1.2 5.3.7.3 pair. From the substitution to VERSION `0x005B` this nibble mixed two subjects and misread both: `[1:0]` carried sink 0's OWN Listener declaration, `[2]` read bit 1 of the registered value (so a registered asking-failed Listener reported 0) and `[3]` compared the sink's declaration against the asking-failed code (so it read 1 while this station declared asking-failed and 0 while it declared ready). `[4]` talker declared, `[5]` domain ok, `[6]` reservation ACTIVE, `[7]` **over the 75 % gate**, `[8]` stream gate open: source 0's licence, the processor's ACTIVE (since #530; its raw admission verdict before), `[9]` the processor's raw admission verdict, ORed over sources: status only, since no shaper is instantiated to read it; it can trail the licensed source's ACTIVE (`[6]`, `[8]` for source 0, `CRFT_CTRL[6]` for the CRF output) by up to three admission rounds at a fresh declaration (#530), `[10]` TalkerFailed seen, `[23:16]` MSRP failure code. 🔴 **STRUCTURAL ZERO**: `[11]` attribute-row shortfall (there is no attribute-row table in this fabric any more) and `[31:24]` ingress FIFO frame drops (that ingress path is deleted; the protocol processor's own control-frame FIFO drop counter lives at `PP_DIAG` `0x930[15:8]`). `[15:12]` reserved 0 |
+HEAD:docs/reference/REGISTER_MAP.md:1168:| `0x698` | `LWSRP_SLOPE` | RO | `0` | 🟢 **LIVE, REPOINTED**: the granted idleSlope in bits/s, now the processor's **sum across admitted sources** (which is what a single shaped queue's idleSlope must be), not a single stream's `MaxIntervalFrames × (MaxFrameSize+42) × 8 × 8000`. Status only: no shaper is instantiated to consume it, and it can trail the licensed source's ACTIVE (`LWSRP_STATUS[6]`, `[8]` for source 0, `CRFT_CTRL[6]` for the CRF output) by up to three admission rounds at a fresh declaration (#530) |
+HEAD:docs/reference/REGISTER_MAP_CLASSES.md:103:| `0x800–0x868` | Stream window (SEL/SID/FMT/CTRL/DMAC + per-stream RO views incl `A_STRMW_SRP`/`_CNT`) | **needed** | **mostly live** | The write half provisions the stream table and the RO views are the per-stream field picture — both unaffected. Two sub-ports inside the window are structural zeros: the **ACMP context-table read** (grant never asserts, record reads zero) and the **SRP attribute-row port** (no grant, no "stolen", readback zero) |
+HEAD:docs/testing/MILAN_V12_AUDIT_2026-08-16.md:287:The fabric gPTP plane's `pub_pdelay_ns_o` is now the only effective
+HEAD:docs/traceability/ieee8021q.md:56:  gate is ACTIVE since #530, which the processor's optimistic admission window
+HEAD:docs/traceability/ieee8021q.md:59:  rises inside the window only if a Listener Ready or Ready Failed is decoded
+HEAD:docs/traceability/ieee8021q.md:61:  trail ACTIVE by up to three rounds, and that skew is the whole effect. If it
+HEAD:docs/traceability/ieee8021q.md:64:  v1.2 5.3.7.7 Table 5.4 streaming level for up to three rounds. A controller
+HEAD:docs/traceability/ieee8021q.md:98:| Q-9 | 34.3 | Bandwidth availability: SR classes limited to 75 % (deltaBandwidth defaults) | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → the fabric's stream gate through ACTIVE; status at `LWSRP_STATUS[7]`/`[9]` and `LWSRP_SLOPE` `0x698` | 🔵 PROCESSOR - the 75 % TSpec-refusal scenario went with the deleted `lwsrp` suite. The fabric consumes the verdict inside ACTIVE: `srp_active_o` is the per-source stream gate since #530, and a stream the round refuses loses ACTIVE when the three-round optimistic window ends and swaps to Talker Failed; until then it is licensed (the second consequence above, issue #551). The raw verdict `srp_sr_admitted_o` (the gate until #530) and `srp_sum_slope_bps_o` are read back as status only; no shaper is instantiated | 34.3: exceeding 75 % legally starves best-effort, and the bridge will reject what we'd declare anyway. |
+HEAD:docs/traceability/ieee8021q.md:99:| Q-10 | 34.4 | Actual bandwidth derived from TSpec MSDU size incl. per-frame overheads → idleSlope | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → `LWSRP_SLOPE` `0x698`, status only | 🔵 PROCESSOR - the derived slope has no shaper to program in the shipping datapath, so the slope-versus-gate ORDERING has no object on this wire (see the second consequence above: since #530 the ACTIVE gate can lead Σ by up to three admission rounds). The MaxFrameSize the recipe consumes is still derived in [`milan_datapath`](../../hdl/milan/milan_datapath.sv) from the real AAF geometry and handed over as `cfg_tspec_max_frame_i` | 34.4: forgetting the 42-byte per-frame overhead undersizes idleSlope and the shaper throttles in-contract media. |
+HEAD:hdl/ieee1722/aaf/KL_render_setpoint.sv:445:  //! rail, a recentre or a flush inside the window therefore lands between
+HEAD:hdl/milan/KL_pp_shadow.sv:629:    //! RAW Sigma-slope verdict; lags srp_active_o by up to three admission rounds
+HEAD:hdl/milan/milan_datapath.sv:6581:  //!   processor's optimistic window (sr_adm_fsm = opt | admitted): a fresh
+HEAD:hdl/milan/milan_datapath.sv:6589:  //!   rises inside the window only if a registering Listener event for the
+HEAD:hdl/milan/milan_datapath.sv:6593:  //!   branches, and status skew is the whole effect of the first only:
+HEAD:hdl/milan/milan_datapath.sv:6596:  //!   LWSRP_STATUS[9] and 0x698 by up to three rounds, and no shaper reads
+HEAD:hdl/milan/milan_datapath.sv:6604:  //!   207-214). ACTIVE does not fall inside the window: it holds on opt
+HEAD:hdl/milan/milan_datapath.sv:6607:  //!   up to three rounds, the emission licence (crft_emit_en_w into
+HEAD:hdl/milan/milan_datapath.sv:6629:  //! above the gate can lead the Sigma by three rounds, or open for three
+HEAD:scripts/check_doc_paths.py:238:    # outlived its reason. Warn rather than fail: a file coming back is a good
+HEAD:scripts/check_merge_review_integrity.py:63:the honest one after three rounds of dialect-chasing ([R]/[R1]/[R2]).
+HEAD:scripts/check_nvm_record_space.py:30:silent. Three rounds of the same class is a statement about the SHAPE of the
+HEAD:scripts/ci_events.py:1346:#: Three rounds of [R0] on PR #239 each found one more member of a perimeter
+HEAD:scripts/merge_containment_selftest.py:91:    #! repository, runs without the housekeeping that once outlived its
+HEAD:scripts/test_suite_cancellation.py:322:            eventually(lambda: not running(shell, shell_start), 5, "sweep shell outlived its owner")
+HEAD:sw/builder/test_builder.py:11929:        # regex parser called it equivalent for three rounds; the plan,
+HEAD:sw/builder/test_builder.py:20239:#  A third was by design and had outlived it: the L2 patch was documented as
+HEAD:syn/ooc/dp_srcs.py:58:Three rounds, three spellings, one question: which of these `module` keywords
+HEAD:syn/ooc/dp_srcs.py:65:toolchain is exactly what all three rounds measured. That costs no new tool --
+HEAD:syn/ooc/ooc_tcl_harness.py:359:        """Name `img` as wrongly published when it outlived the refusal."""
+HEAD:tb/tools/torture_campaign.py:560:                                "wrapped inside the window"})
+HEAD:tb/tools/torture_campaign.py:710:                                       "wrap inside the window"))
+HEAD:tb/tools/torture_campaign.py:3013:    "condition APPLIED, not a result - timeouts inside the window are never "
+HEAD:tb/tools/torture_campaign.py:3727:        # a reset inside the window is not a backwards counter finding
+HEAD:tb/verilator/csr/sim_main.cpp:393:  // is what discriminates - inside the window `is_plain_rw` puts the word in
+HEAD:tb/verilator/gptp_shadow/sim_main.cpp:2242:  //! A SETTIME inside the window re-bases the counter, so nothing before
+HEAD:tb/verilator/gptp_shadow/test_mutant_lifecycle.py:232:        eventually(lambda: not running(make, make_start), 5, "make outlived the killed driver")
+HEAD:tb/verilator/milan_dp/README.md:25:| `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): the INTERNAL free-run drift (-10.64 ppm, the standing free-run rule), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and dups once per beat period at INTERNAL on the predicted beat, one event per fed pair. The closed form: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup comes (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts the first dup from the first beat and grades it within 25 percent over a window of 1.5 times the prediction. The same aim and window under CRF show zero, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
+HEAD:tb/verilator/milan_dp/sim_aclk.cpp:1281:        ck("RENDER-INT: no rail inside the window",
+HEAD:tb/verilator/milan_dp/sim_aclk.cpp:1283:        ck("RENDER-INT: no underrun inside the window",
+HEAD:tb/verilator/milan_dp/sim_aclk.cpp:1309:        ck("RENDER-CRF: no rail inside the window",
+HEAD:tb/verilator/milan_dp/sim_aclk.cpp:1311:        ck("RENDER-CRF: no underrun inside the window",
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1544:      // The restore is exact only if no pop fired inside the window; a pop
+HEAD:tb/verilator/milan_dp/sim_main.cpp:912:    //! false if none emerged inside the window. Shared by the [CLKV] steps,
+HEAD:tb/verilator/milan_dp/test_render_phase_observation.py:695:    assert run.work_exists is False, "the temporary directory outlived the kill"
+HEAD:tb/verilator/milan_dp/test_render_phase_observation.py:762:    assert killed.work_exists is False, "the temporary directory outlived the kill"
+HEAD:tb/verilator/milan_dp/test_render_phase_observation.py:814:    assert run.work_exists is False, "the temporary directory outlived the kill"
+HEAD:tb/verilator/milan_dp_render/sim_tdm8_render.cpp:1903:            check.dec("T7 LATENCY: every decoded frame inside the window "
+HEAD:tb/verilator/render_setpoint/mutants.py:28:pop re-reading the head pointer every beat (a recentre snap inside the window
+HEAD:tb/verilator/render_setpoint/mutants.py:113:    ("pop re-reads the prefill flag every beat (a flush or prefill entry inside the window truncates)",
+HEAD:tb/verilator/render_setpoint/mutants.py:117:    ("pop re-reads the head pointer every beat (a snap inside the window tears the event)",
+HEAD:tb/verilator/render_setpoint/sim_main.cpp:778:// ---- A: a recentre consumed at a PDU end inside the window, as a prefill
+HEAD:tb/verilator/render_setpoint/sim_main.cpp:785:  check.dec("[X] A: the recentre was consumed at the PDU end inside the window", dut->recentres_o - x_rc0, 1);
+HEAD:tb/verilator/render_setpoint/sim_main.cpp:796:// ---- B: a recentre SNAP at a PDU end inside the window (the read pointer
+HEAD:tb/verilator/render_setpoint/sim_main.cpp:807:  check.dec("[X] B: the recentre snapped at the PDU end inside the window", dut->recentres_o - x_rc0, 2);
+HEAD:tb/verilator/render_setpoint/sim_main.cpp:815:// ---- C: a FLUSH inside the window; stream 1 in lock beside stream 0 is

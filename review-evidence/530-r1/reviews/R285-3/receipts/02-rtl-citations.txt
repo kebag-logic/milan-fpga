@@ -1,0 +1,367 @@
+# pin 09f9bf3846511f8388d995126502ed92eaa65213; parent head e65dccfe586bea9455cf1e10397d275c220c740a
+
+=== protocol-processor/hdl/srp/KL_srp_top.sv:442-445
+  442    assign sr_admitted_o = adm_admitted_w;
+  443    assign dbg_adm_round_o = adm_round_w;
+  444    // a fresh declaration counts as admitted until fully evaluated (banner)
+  445    assign sr_adm_fsm_w = opt_r | adm_admitted_w;
+
+=== protocol-processor/hdl/srp/KL_srp_top.sv:770-780
+  770        rsp_valid_o <= 1'b0;
+  771  
+  772        // ---- optimistic-window aging (one full round with the request
+  773        // visible must complete before the verdict is trusted) --------------
+  774        if (adm_round_w) begin
+  775          for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+  776            if (opt_r[s]) begin
+  777              if (opt_cnt_r[s] != 2'd0) opt_cnt_r[s] <= opt_cnt_r[s] - 2'd1;
+  778              else                      opt_r[s]     <= 1'b0;
+  779            end
+  780          end
+
+=== protocol-processor/hdl/srp/KL_srp_top.sv:850-862
+  850            if (gate_acc_w) begin
+  851              if (a_open_r) begin
+  852                // TSpec joins the admission request set; verdict optimistic
+  853                // until one full round has evaluated it (banner)
+  854                adm_req_r[a_idx_r[SRC_W_C-1:0]]   <= 1'b1;
+  855                adm_mfs_r[a_idx_r[SRC_W_C-1:0]]   <= a_mfs_r;
+  856                adm_mif_r[a_idx_r[SRC_W_C-1:0]]   <= a_mif_r;
+  857                opt_r[a_idx_r[SRC_W_C-1:0]]       <= 1'b1;
+  858                opt_cnt_r[a_idx_r[SRC_W_C-1:0]]   <= 2'd2;
+  859              end else begin
+  860                adm_req_r[a_idx_r[SRC_W_C-1:0]]   <= 1'b0;
+  861                opt_r[a_idx_r[SRC_W_C-1:0]]       <= 1'b0;
+  862              end
+
+=== protocol-processor/hdl/srp/KL_srp_top.sv:742-748
+  742    logic svc_acc_w, gate_acc_w, ctl_acc_w;
+  743  
+  744    assign req_ready_o = (svc_st_r == S_IDLE);
+  745    assign svc_acc_w   = req_valid_i && req_ready_o;
+  746    assign gate_valid_w = (svc_st_r == S_GATE);
+  747    assign ctl_valid_w  = (svc_st_r == S_CTL);
+  748    assign gate_acc_w   = gate_valid_w && gate_ready_w;
+
+=== protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:432-442
+  432    assign gate_ready_o = !evt_valid_i;
+  433    assign gate_acc_w   = gate_valid_i && gate_ready_o;
+  434  
+  435    always_comb begin : app_arb
+  436      walk_grant_w = 1'b0;
+  437      for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+  438        // the Failed swap re-declares whenever the published mode disagrees
+  439        // with the admission level while declaring (10 §6.3)
+  440        adm_fix_w[s] = rec_valid_r[s] && app_declaring_f(app_r[s])
+  441                    && (fail_r[s] != !sr_admitted_i[s]);
+  442        app_ev_v_w[s]  = 1'b0;
+
+=== protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:539-542
+  539          // admission swap flips the declared variant with its New!
+  540          if (adm_grant_w[s]) begin
+  541            fail_r[s] <= !sr_admitted_i[s];
+  542          end
+
+=== protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:634-639
+  634  
+  635    logic [N_SOURCES_P-1:0][1:0] lstn_out_w;
+  636    always_comb begin : lstn_out_map
+  637      for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+  638        lstn_out_w[s] = (reg_r[s] != R_MT_C) ? lstn_val_r[s] : 2'd0;
+  639      end
+
+=== protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:684-710
+  684        // ---- per-source registrar events ----------------------------------
+  685        for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+  686          if (reg_rx_hit_w[s] && ((evt_mrp_event_i == 3'(SRP_EV_NEW))
+  687                                  || (evt_mrp_event_i == 3'(SRP_EV_JOININ))
+  688                                  || (evt_mrp_event_i == 3'(SRP_EV_JOINMT)))) begin
+  689            // registering event: -> IN, latch the declaration parameter
+  690            if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+  691            reg_r[s]      <= R_IN_C;
+  692            lstn_val_r[s] <= evt_fourpacked_i;
+  693          end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+  694            if (reg_r[s] == R_IN_C) begin
+  695              reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
+  696            end
+  697            // LV: table 10-4 rLv on LV is -x- (the LeaveAll aging continues)
+  698          end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
+  699            reg_r[s]   <= R_LV_C;
+  700            tpend_r[s] <= T_ARM_C;
+  701          end else if (exp_hit_w && (exp_idx_w == s)
+  702                       && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+  703            reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+  704          end
+  705          // gate re-open arms a fresh tracker for the (possibly new) stream
+  706          if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
+  707            if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+  708            reg_r[s]      <= R_MT_C;
+  709            lstn_val_r[s] <= 2'd0;
+  710          end
+
+=== protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:796-803
+  796        tk_decl_state_o[s] = (rec_valid_r[s] && app_declaring_f(app_r[s]))
+  797                           ? (fail_r[s] ? 2'd2 : 2'd1)
+  798                           : 2'd0;
+  799        lstn_reg_state_o[s] = lstn_out_w[s];
+  800        active_o[s] = rec_valid_r[s] && app_declaring_f(app_r[s]) && !fail_r[s]
+  801                   && ((lstn_out_w[s] == 2'(SRP_DECL_READY))
+  802                       || (lstn_out_w[s] == 2'(SRP_DECL_READY_FAILED)))
+  803                   && sr_admitted_i[s];
+
+=== protocol-processor/hdl/srp/KL_srp_admission.sv:150-154
+  150    logic        round_w;
+  151  
+  152    assign cand_w   = {1'b0, acc_r} + {1'b0, slope_q_r[aidx_r]};
+  153    assign fit_w    = req_i[aidx_r] && (cand_w <= {1'b0, limit_w});
+  154    assign refuse_w = req_i[aidx_r] && !fit_w;
+
+=== protocol-processor/hdl/srp/KL_srp_admission.sv:179-200
+  179      end else begin
+  180        round_done_o <= 1'b0;
+  181        if (round_w) begin
+  182          grant_r      <= wgrant_now_w;
+  183          gslope_r     <= wgslope_now_w;
+  184          // a FIT candidate sum is <= the ceiling < 2^32: the slice is exact
+  185          sum_r        <= fit_w ? cand_w[31:0] : acc_r;
+  186          over_r       <= over_acc_r | refuse_w;
+  187          round_done_o <= 1'b1;
+  188          aidx_r       <= '0;
+  189          acc_r        <= 32'd0;
+  190          over_acc_r   <= 1'b0;
+  191          wgrant_r     <= '0;
+  192          wgslope_r    <= '0;
+  193        end else begin
+  194          wgrant_r   <= wgrant_now_w;
+  195          wgslope_r  <= wgslope_now_w;
+  196          acc_r      <= fit_w ? cand_w[31:0] : acc_r;
+  197          over_acc_r <= over_acc_r | refuse_w;
+  198          aidx_r     <= aidx_r + SRC_W_C'(1);
+  199        end
+  200      end
+
+=== protocol-processor/hdl/srp/KL_srp_admission.sv:205-214
+  205    // granted_slope is 0 whenever not admitted (F02.10 sample rule)
+  206    always_comb begin : publish
+  207      for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+  208        sr_admitted_o[s]       = grant_r[s] && req_i[s];
+  209        granted_slope_bps_o[s] = (grant_r[s] && req_i[s]) ? gslope_r[s] : 32'd0;
+  210      end
+  211    end
+  212  
+  213    assign sum_slope_bps_o = sum_r;
+  214    assign over_limit_o    = over_r;
+
+=== hdl/milan/milan_datapath.sv:1858-1889
+ 1858    //! never reaches acmp_declaring_o. One decision, one place.
+ 1859    //! listener_observed: the lwSRP Listener registrar is the real source once
+ 1860    //! the engine is enabled; A_ACMP_LOBS stays as the manual override socket.
+ 1861    wire listener_observed_w = cfg_acmp_lobs |
+ 1862                               (cfg_lwsrp_enable & lwsrp_listener_ready);
+ 1863  
+ 1864    //! per-source ACMP talker parameters. The DMAC/VID/observed/asking-failed
+ 1865    //! vectors that used to be composed here fed KL_acmp_tlkr_ctx, which is
+ 1866    //! deleted: the processor resolves a source's destination MAC through its
+ 1867    //! own ALLOC_DA (KL_pp_maap_shim -> KL_maap, the same block+uid law) and
+ 1868    //! its own SRP registrar tells it when a Listener is ready. Composing them
+ 1869    //! here as well would be a second copy of a decision the plane already
+ 1870    //! makes. Only the per-AAF-talker activity slice survives, because the
+ 1871    //! FRAMER admission gate below reads it.
+ 1872    wire [N_STREAMS-1:0]     acmp_talker_active_aaf_w =
+ 1873                                 acmp_talker_active_v[N_STREAMS-1:0];
+ 1874    //! A_ACMP_LOBS + the SRP Listener-Ready level: "a listener is observed for
+ 1875    //! talker j", composed from the manual socket and the reservation. Its one
+ 1876    //! reader is i_tlk_lobs_v, which is the 0x800 snapshot window's per-stream
+ 1877    //! talker STATE bit 2 (milan_csr.sv:2835-2839) - NOT the 0x6E8 forensics
+ 1878    //! word this comment used to name, which is a structural zero.
+ 1879    wire [ACMP_SRC_C-1:0] acmp_lobs_v_w;
+ 1880    generate
+ 1881      for (genvar gj = 0; gj < ACMP_SRC_C; gj++) begin : g_acmp_lobs
+ 1882        if (gj == 0) begin : g_lobs0
+ 1883          assign acmp_lobs_v_w[gj] = listener_observed_w;
+ 1884        end else begin : g_lobsn
+ 1885          assign acmp_lobs_v_w[gj] = cfg_acmp_lobs |
+ 1886                                     (cfg_lwsrp_enable & lwsrp_stream_gate[gj]);
+ 1887        end
+ 1888      end
+ 1889    endgenerate
+
+=== hdl/milan/milan_datapath.sv:2502-2508
+ 2502      .i_lwsrp_status       ({lwsrp_rx_drops, lwsrp_tfail_code, 4'd0,
+ 2503                              lwsrp_ctx_oor_w,
+ 2504                              lwsrp_tfail_valid, lwsrp_slope_en,
+ 2505                              lwsrp_stream_gate[0], lwsrp_over_limit,
+ 2506                              lwsrp_res_active, lwsrp_domain_ok,
+ 2507                              lwsrp_talker_declared, lwsrp_listener_ready,
+ 2508                              lwsrp_listener_reg, lwsrp_listener_decl}),
+
+=== hdl/milan/milan_datapath.sv:3055-3058
+ 3055    wire [ACMP_SRC_C-1:0] tkd_streaming_w;
+ 3056    generate if (ACMP_SRC_C > N_STREAMS) begin : g_tkd_crf
+ 3057      assign tkd_streaming_w = {crft_emit_en_w, aaf_stream_en_w};
+ 3058    end else begin : g_tkd_nocrf
+
+=== hdl/milan/milan_datapath.sv:5278-5320
+ 5278    //! the CRF talker's own slot of the processor's ACTIVE vector (top of the
+ 5279    //! vector when it exists): a reservation EXISTS, Milan v1.2 5.3.7.3
+ 5280    wire crft_res_active_w = (SRP_CRF_TK_C != 0) &
+ 5281                             lwsrp_stream_gate[SRP_TALKERS_C-1];
+ 5282    //! the C-TAG's {PCP, VID}: SR class A defaults {3, LWSRP_VID} (802.1Q
+ 5283    //! 34.5 / Table 34-1; Milan v1.2 4.2.7.2.1 starts the Domain triple at
+ 5284    //! {class A, priority 3, VID 2}) - and the OPERATIONAL pair once a
+ 5285    //! received Domain FirstValue is ADOPTED (4.2.7.2.1's update clause):
+ 5286    //! the lwSRP applicant serializes op_{prio,vid} into the Domain, the
+ 5287    //! MVRP VID and the TalkerAdvertise DataFrameParameters, so muxing the
+ 5288    //! SAME pair here keeps the frame and the declaration one wire.
+ 5289    wire [2:0]  crft_pcp_w = lwsrp_adopt_valid
+ 5290                             ? lwsrp_op_prio[2:0]
+ 5291                             : SR_CLASS_A_PRIO_C[2:0];
+ 5292    wire [11:0] crft_vid_w = lwsrp_adopt_valid ? lwsrp_op_vid : cfg_lwsrp_vid;
+ 5293    //! THE LICENCE (Milan v1.2 5.3.7.3): a talker streams while it declares a
+ 5294    //! Talker Advertise AND receives a Listener Ready - the CRF output is a
+ 5295    //! Stream Output like any other, so its emission rides the same bw-gate
+ 5296    //! the AAF talkers use (aaf_gate / aaf_stream_en_w), not the bare CSR
+ 5297    //! enable. ax-rv32-e wire truth: with zero listeners and no reservation
+ 5298    //! the old bare-CSR gate kept 500 PDU/s on the wire (FRAMES_TX +1/s,
+ 5299    //! stat[6]=0), which 5.3.7.3 does not license. The bring-up escapes
+ 5300    //! mirror the AAF term: AAF bypass, or an lwSRP that is not policing
+ 5301    //! (engine or talker declarations off - no TA can form, so silence would
+ 5302    //! deadlock the media clock during bring-up, same doctrine as the
+ 5303    //! untagged-but-alive fallback above). Until #530 the slot read the raw
+ 5304    //! admission verdict, so a declared output with no Listener streamed.
+ 5305    wire crft_emit_en_w /* verilator public_flat_rd */ = cfg_crft_en &
+ 5306                          (cfg_aaf_bypass | ~cfg_lwsrp_enable |
+ 5307                           ~cfg_lwsrp_talker_en | crft_res_active_w);
+ 5308  
+ 5309    //! 0x750 live status (see milan_csr A_CRFT_CTRL); [1:0] come from the CSR
+ 5310    logic [31:0] crft_stat_c;
+ 5311    always_comb begin : crft_stat_pack
+ 5312      crft_stat_c        = 32'd0;
+ 5313      //! [4] used to be "the fabric provisioned this stream's TA row valid".
+ 5314      //! There is no row to provision: STRUCTURAL ZERO. [5]/[6] below still
+ 5315      //! carry the real tagged/reserved levels, from the processor.
+ 5316      crft_stat_c[4]     = 1'b0;
+ 5317      crft_stat_c[5]     = crft_class_a_w;        //! frames leaving tagged
+ 5318      crft_stat_c[6]     = crft_res_active_w;     //! reservation ACTIVE
+ 5319      crft_stat_c[7]     = crft_emit_en_w;        //! emission licensed NOW
+ 5320      crft_stat_c[19:8]  = crft_class_a_w ? crft_vid_w : 12'd0;
+
+=== hdl/milan/milan_datapath.sv:6576-6650
+ 6576    //! bridge has answered, so gating on it put the #117 Run B CRF output on
+ 6577    //! the wire 4.7 s before its first Listener Ready and kept it there after
+ 6578    //! the Listener had left. So:
+ 6579    //!
+ 6580    //!   OPENING EDGE - ACTIVE takes the admission term through the
+ 6581    //!   processor's optimistic window (sr_adm_fsm = opt | admitted): a fresh
+ 6582    //!   declaration counts as admitted until the end of the third admission
+ 6583    //!   round after it, a round walking one source per cycle, so N_SOURCES
+ 6584    //!   cycles each (protocol-processor hdl/srp/KL_srp_top.sv:445,772-779,
+ 6585    //!   855-858).
+ 6586    //!   The same declaration clears that source's talker-side Listener
+ 6587    //!   registrar (KL_srp_talker_fsm.sv:705-710), so no Listener Ready is
+ 6588    //!   ever registered at a declaration and ACTIVE is 0 after it. ACTIVE
+ 6589    //!   rises inside the window only if a registering Listener event for the
+ 6590    //!   stream (New, JoinIn or JoinMt with Ready or Ready Failed) is decoded
+ 6591    //!   within those few cycles; the Listener Ready that answers the Talker
+ 6592    //!   Advertise arrives by MRPDU long after them. That corner has two
+ 6593    //!   branches, and status skew is the whole effect of the first only:
+ 6594    //!
+ 6595    //!   ADMITTED - the round admits the stream. ACTIVE and the gates lead
+ 6596    //!   LWSRP_STATUS[9] and 0x698 by up to three rounds, and no shaper reads
+ 6597    //!   either word. The lead shows on the licensed source's own bits:
+ 6598    //!   LWSRP_STATUS[8] is source 0's gate only, so the CRF output (the top
+ 6599    //!   ACTIVE slot, source 1 on the AX7101 1x1 shape) shows it on
+ 6600    //!   CRFT_CTRL[6]/[7] and LWSRP_STATUS[6] (|ACTIVE), never on [8].
+ 6601    //!
+ 6602    //!   REFUSED - the round refuses the stream: over_limit (LWSRP_STATUS[7])
+ 6603    //!   rises and sr_admitted_o stays 0 (KL_srp_admission.sv:152-154,
+ 6604    //!   207-214). ACTIVE does not fall inside the window: it holds on opt
+ 6605    //!   and falls at the window's end, and the declaration then swaps to
+ 6606    //!   Talker Failed. So a declaration the 75 % ceiling refuses holds, for
+ 6607    //!   up to three rounds, the emission licence (crft_emit_en_w into
+ 6608    //!   KL_crf_tx.enable_i, the AAF gates) and the Milan v1.2 5.3.7.7 Table
+ 6609    //!   5.4 streaming level (tkd_streaming_w). KL_talker_diag_ctx counts a
+ 6610    //!   STREAM_START and a STREAM_STOP a controller reads, the start zeroes
+ 6611    //!   MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX, and at most one PDU
+ 6612    //!   per source can leave, if its media event falls in the window.
+ 6613    //!   CRFT_CTRL[6]/[7], LWSRP_STATUS[6], [8] for source 0 and the 0x82C
+ 6614    //!   talker lobs pulse with it. ACTIVE still needs a registered Listener
+ 6615    //!   Ready or Ready Failed, so nothing leaves before one (#530). Whether
+ 6616    //!   the licence should also need the real grant is issue #551.
+ 6617    //!
+ 6618    //!   The processor takes the window so that a declaration is never Talker
+ 6619    //!   Failed first.
+ 6620    //!
+ 6621    //!   CLOSING EDGE - ACTIVE drops the cycle any of its terms drops.
+ 6622    //!   sr_admitted_o, whose OR is LWSRP_STATUS[9], does not follow the
+ 6623    //!   Listener: it drops with the request (the declaration) or a refusing
+ 6624    //!   round. sum_r is ROUND-LATCHED, so 0x698 keeps a withdrawn
+ 6625    //!   declaration's slope until the next round completes.
+ 6626    //!
+ 6627    //! A LATER LANE that credit-shapes these sources must not pair this gate
+ 6628    //! with sum_r and inherit the bw-gate's ordering: at the opening edge
+ 6629    //! above the gate can lead the Sigma by three rounds, or open for three
+ 6630    //! rounds on a stream the Sigma never includes. That lane derives its
+ 6631    //! own ordering and its own test for it.
+ 6632    assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
+ 6633    //! STATUS ONLY (no shaper, above): LWSRP_STATUS[9] reads the RAW verdict
+ 6634    //! of any source and LWSRP_SLOPE 0x698 the processor's Sigma across
+ 6635    //! admitted sources. Both report admitted DECLARATIONS, licensed or not,
+ 6636    //! so a declared, admitted output with no Listener Ready reads [9] set
+ 6637    //! while its gate is closed. The gate never reads either.
+ 6638    assign lwsrp_slope_en    = |pp_cd_srp_sr_admitted_w;
+ 6639    assign lwsrp_idle_slope  = pp_cd_srp_sum_slope_bps_w;
+ 6640    //! Milan 4.2.7.2.1 Domain adoption surface: the OPERATIONAL {priority, VID}
+ 6641    //! every declaration serializes, and which the AAF/CRF C-TAG muxes take.
+ 6642    assign lwsrp_adopt_valid = pp_cd_srp_domain_adopted_w;
+ 6643    assign lwsrp_op_prio     = {5'd0, pp_cd_srp_class_a_prio_w};
+ 6644    assign lwsrp_op_vid      = pp_cd_srp_class_a_vid_w;
+ 6645    assign lwsrp_domain_ok   = pp_cd_srp_domain_adopted_w;
+ 6646    assign lwsrp_over_limit  = pp_cd_srp_over_limit_w;
+ 6647    assign lwsrp_res_active  = |pp_cd_srp_active_w;
+ 6648    //! per-source Talker failure (802.1Q 35.2.2.8.6 FailureCode + BridgeID)
+ 6649    assign lwsrp_tfail_code   = pp_cd_srp_src_fail_code_w[7:0];
+ 6650    assign lwsrp_tfail_valid  = |pp_cd_srp_src_fail_code_w[7:0];
+
+=== hdl/milan/KL_pp_shadow.sv:626-630
+  626      output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,
+  627      //! THE AVTP transmit gate — never rebuild it from the terms below
+  628      output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+  629      //! RAW Sigma-slope verdict; lags srp_active_o by up to three admission rounds
+  630      output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+
+=== hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:24-40
+   24  
+   25                  * STREAM_START / STREAM_STOP count edges of the talker's
+   26                    streaming state. The clause's invariant - START == STOP+1
+   27                    while streaming, START == STOP while not - holds by
+   28                    construction because both count edges of the SAME level.
+   29                    The level is the COMPOSED admission gate (ACMP+lwSRP+MAAP
+   30                    terms), i.e. "is this talker licensed and emitting", not a
+   31                    bare enable bit.
+   32                  * MEDIA_RESET / TIMESTAMP_UNCERTAIN / FRAMES_TX are
+   33                    OBSERVATION-INTERVAL counts ("incremented at the end of
+   34                    every observation interval during which ..."), interval
+   35                    <= 1 s, and all three "reset to 0 each time the Talker
+   36                    starts streaming". FRAMES_TX therefore advances at 1/s
+   37                    while streaming - NOT at the frame rate; a controller
+   38                    reading the raw frame total where the clause defines an
+   39                    interval count reads a number 8000x off.
+   40                  * TIMESTAMP_UNCERTAIN qualifies tu BY TRANSMISSION: "the tu
+
+=== hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:255-266
+  255        //! streaming edges: START/STOP count the SAME level so the clause
+  256        //! invariant (START == STOP or STOP+1) holds structurally; a start
+  257        //! zeroes the three interval counters per Table 5.4
+  258        strm_q_r <= streaming_i;
+  259        for (int c = 0; c < N_CTX_P; c++) begin
+  260          if (streaming_i[c] && !strm_q_r[c]) begin : g_start
+  261            start_r[c]  <= start_r[c] + 32'd1;
+  262            mreset_r[c] <= '0;
+  263            tuiv_r[c]   <= '0;
+  264            ftx_r[c]    <= '0;
+  265            //! and the pending flags: a stop->start inside one interval must
+  266            //! not carry the pre-stop activity into the fresh counters - but
+
+=== docs/reference/REGISTER_MAP.md 0x82C row
+1522:| `0x82C` | `A_STRMW_STATE` | RO snap | `0` | Snap-latched pack. listener: `[2:0]` ACMP lsm state, `[4:3]` probing, `[9:5]` acmp_status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` SRP bits (= low 9 bits of `A_STRMW_SRP`). talker (LIVE per-stream since 0x000C: bits `[3:0]` at idx>0 were hardwired 0 before, the 2026-07-26 window-honesty fix): `[0]` probe_armed, `[1]` talker_active, `[2]` lobs (`A_ACMP_LOBS`, or with `LWSRP_CTRL[0]` set: at idx 0 source 0's registered Listener Ready or Ready Failed, at idx > 0 that source's ACTIVE since #530), `[3]` composed admission (`aaf_stream_en[idx]`; idx 0 = `aaf_gate`), `[27:19]` SRP bits |
