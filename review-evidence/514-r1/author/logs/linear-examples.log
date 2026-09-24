@@ -1,0 +1,100 @@
+PASS linear-exact-retention-historical (0, True)
+PASS linear-exact-retention (0, ['retained'])
+PASS linear-exact-retention-landing True
+PASS linear-exact-reversion-historical (0, True)
+PASS linear-exact-reversion (1, ['UNKNOWN'])
+PASS linear-exact-reversion-landing True
+PASS linear-exact-reversion-claim True
+PASS linear-exact-reversion-path True
+PASS linear-mutant-exact-reversion (0, ['retained'])
+PASS linear-kills-exact-reversion True
+PASS linear-partial-reversion-historical (0, True)
+PASS linear-partial-reversion (1, ['UNKNOWN'])
+PASS linear-partial-reversion-landing True
+PASS linear-partial-reversion-claim True
+PASS linear-partial-reversion-path True
+PASS linear-mutant-partial-reversion (0, ['retained'])
+PASS linear-kills-partial-reversion True
+PASS linear-legitimate-extension-historical (0, True)
+PASS linear-legitimate-extension (0, ['retained'])
+PASS linear-legitimate-extension-landing True
+PASS linear-intentional-supersession-historical (0, True)
+PASS linear-intentional-supersession (1, ['UNKNOWN'])
+PASS linear-intentional-supersession-landing True
+PASS linear-intentional-supersession-claim True
+PASS linear-intentional-supersession-path True
+PASS linear-mutant-intentional-supersession (0, ['retained'])
+PASS linear-kills-intentional-supersession True
+PASS linear-mode-loss-historical (0, True)
+PASS linear-mode-loss (1, ['UNKNOWN'])
+PASS linear-mode-loss-landing True
+PASS linear-mode-loss-claim True
+PASS linear-mode-loss-path True
+PASS linear-mutant-mode-loss (0, ['retained'])
+PASS linear-kills-mode-loss True
+PASS linear-later-mode-change-historical (0, True)
+PASS linear-later-mode-change (0, ['retained'])
+PASS linear-later-mode-change-landing True
+PASS linear-file-kind-change-historical (0, True)
+PASS linear-file-kind-change (1, ['UNKNOWN'])
+PASS linear-file-kind-change-landing True
+PASS linear-file-kind-change-claim True
+PASS linear-file-kind-change-path True
+PASS linear-mutant-file-kind-change (0, ['retained'])
+PASS linear-kills-file-kind-change True
+PASS linear-symlink-identity-historical (0, True)
+PASS linear-symlink-identity (0, ['retained'])
+PASS linear-symlink-identity-landing True
+PASS linear-symlink-reversion-historical (0, True)
+PASS linear-symlink-reversion (1, ['UNKNOWN'])
+PASS linear-symlink-reversion-landing True
+PASS linear-symlink-reversion-claim True
+PASS linear-symlink-reversion-path True
+PASS linear-mutant-symlink-reversion (0, ['retained'])
+PASS linear-kills-symlink-reversion True
+PASS linear-gitlink-identity-historical (0, True)
+PASS linear-gitlink-identity (0, ['retained'])
+PASS linear-gitlink-identity-landing True
+PASS linear-gitlink-reversion-historical (0, True)
+PASS linear-gitlink-reversion (1, ['UNKNOWN'])
+PASS linear-gitlink-reversion-landing True
+PASS linear-gitlink-reversion-claim True
+PASS linear-gitlink-reversion-path True
+PASS linear-mutant-gitlink-reversion (0, ['retained'])
+PASS linear-kills-gitlink-reversion True
+PASS linear-binary-unmeasurable-historical (0, True)
+PASS linear-binary-unmeasurable (1, ['UNKNOWN'])
+PASS linear-binary-unmeasurable-landing True
+PASS linear-binary-unmeasurable-claim True
+PASS linear-binary-unmeasurable-path True
+PASS linear-mutant-binary-unmeasurable (0, ['retained'])
+PASS linear-kills-binary-unmeasurable True
+PASS linear-binary-diagnostic True
+PASS linear-deletion-retained-historical (0, True)
+PASS linear-deletion-retained (0, ['retained'])
+PASS linear-deletion-retained-landing True
+PASS linear-deletion-reverted-historical (0, True)
+PASS linear-deletion-reverted (1, ['UNKNOWN'])
+PASS linear-deletion-reverted-landing True
+PASS linear-deletion-reverted-claim True
+PASS linear-deletion-reverted-path True
+PASS linear-mutant-deletion-reverted (0, ['retained'])
+PASS linear-kills-deletion-reverted True
+PASS linear-missing-object-measurement-historical (0, True)
+PASS linear-missing-object-measurement (1, ['UNKNOWN'])
+PASS linear-missing-object-measurement-landing True
+PASS linear-missing-object-measurement-claim True
+PASS linear-missing-object-measurement-path True
+PASS linear-kills-measurement-mutant (0, ['retained'])
+PASS linear-measurement-diagnostic True
+PASS linear-cli-refuses---current-retention 2
+PASS linear-cli-refuses---selftest 2
+PASS linear-cli-multiple (1, ['retained', 'UNKNOWN'])
+PASS linear-cli-sweep (0, ['retained'])
+PASS linear-ancestry-unsupported (1, ['UNKNOWN'])
+PASS linear-ancestry-diagnostic True
+PASS linear-kills-ancestry-mutant (0, ['retained'])
+PASS linear-merge-unsupported (1, ['UNKNOWN'])
+PASS linear-kills-shape-mutant (0, ['retained'])
+PASS linear-squash-unsupported (1, ['UNKNOWN'])
+PASS linear-kills-history-mutant (0, ['retained'])

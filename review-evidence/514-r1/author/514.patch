@@ -1,0 +1,545 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index b9d500cc4..4e39ed10e 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -413,7 +413,7 @@ A task is complete only when:
+ - no review round remains in flight;
+ - the candidate merge result is validated;
+ - the change lands in `dev`;
+-- post-merge containment is clean;
++- post-merge containment is clean under CONTRIBUTING's stated proof claims;
+ - authoritative documentation is current;
+ - the Issue is closed (by the merge through `Closes #N`, or by hand) and
+   moved to `Done`.
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index 117c372f0..89c6fb0a7 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -207,7 +207,42 @@ flowchart LR
+ 
+    Ancestry and linear replay prove historical landing.
+    Later reversions do not revoke those existing proofs.
+-   Linear retention policy belongs to Issue #514.
++   Their `contained` diagnostics explicitly identify that historical claim.
++   Exact path equality instead proves the current net-changed entries.
++   A net-zero verdict proves only an empty source delta.
++
++   [Issue #514's decision](https://github.com/kebag-logic/milan-fpga/issues/514#issuecomment-5789750055)
++   adds an optional, separate linear retention check:
++
++   ```bash
++   python3 scripts/check_merge_containment.py --current-retention origin/<branch>
++   python3 scripts/check_merge_containment.py --current-retention --merged-prs
++   ```
++
++   Each successful landing verdict keeps its own `contained` line.
++   The option adds `retained` or `UNKNOWN` for current retention.
++   It requires a nonempty, source-only linear range with exact replays.
++   H and T below supply the replay and retention criteria.
++   This optional arm excludes ancestry-only, squash-only and merge-shaped proofs.
++   Empty net deltas also remain unmeasurable by this arm.
++   These exclusions never revoke the separate default landing verdict.
++   Unsupported or unmeasurable retention reports `UNKNOWN`, exit 1.
++   Any unresolved target makes the optional command exit 1.
++   Without the option, existing verdicts and exits remain unchanged.
++
++   | Later change after exact linear replay | Historical inclusion | Optional current retention |
++   |---|---|---|
++   | Exact or partial reversion | Still proved | `UNKNOWN` for lost source changes |
++   | Non-overlapping extension | Still proved | `retained` when T succeeds |
++   | Intentional supersession or overlapping extension | Still proved | `UNKNOWN` when T fails |
++   | Mode change | Still proved | Apply T's mode rule |
++   | File-kind change | Still proved | Require exact entry identity |
++   | Binary change or failed object measurement | Still proved | `UNKNOWN` when T is unmeasurable |
++
++   Intentional supersession needs a separate public disposition.
++   Commit messages and declared intent never prove retained bytes.
++   A retention refusal does not itself establish an accidental regression.
++   The default self-test exercises these examples and killing mutations.
+ 
+    [Issue #423's decision](https://github.com/kebag-logic/milan-fpga/issues/423#issuecomment-5777210218)
+    adds one final fallback after every existing arm declines:
+@@ -232,7 +267,8 @@ flowchart LR
+      Symlinks, gitlinks and other types require exact tip/source identity.
+ 
+    G1/H rejection preserves the existing verdict.
+-   Historical replay without T reports `UNKNOWN`, naming unproved current paths.
++   In that fallback, historical replay without T reports `UNKNOWN`.
++   It names unproved current paths.
+    Measurement failures also remain `UNKNOWN`; neither result clears containment.
+    Exit codes remain 0/1/2, plus self-test cleanup status 3.
+    Actual gPTP processor PR62 and published adjacent extension remain unresolved.
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index a22a2828b..7ccf2712a 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -1751,6 +1751,14 @@ whose linked Issue is open, for bodies in a form GitHub does not read and for
+ the history before 2026-08-22, when every PR merged into a non-default branch
+ and the keyword never fired.
+ 
++Containment reports the proof named beside each verdict.
++Ancestry and linear replay prove historical inclusion.
++Later reversions leave those historical verdicts unchanged.
++The optional `--current-retention` arm separately assesses linear replay retention.
++Its unsupported histories and unproved paths remain `UNKNOWN`.
++The [containment contract](../../CONTRIBUTING.md#21-the-issue-to-merge-lane)
++defines the bounded proofs and their exit codes.
++
+ ## Local commands
+ 
+ Sharding is a hosted-runner scheduling detail. The no-option commands remain
+diff --git a/docs/testing/RUNNING_TESTS.md b/docs/testing/RUNNING_TESTS.md
+index 38a276ccc..134a7b954 100644
+--- a/docs/testing/RUNNING_TESTS.md
++++ b/docs/testing/RUNNING_TESTS.md
+@@ -73,6 +73,11 @@ by name before any suite runs. That self-test exits 3 when every arm passed
+ but a temporary tree it built could not be removed; the runner prints a
+ `CLEANUP:` notice and carries on, because no verdict is in doubt, while any
+ other failure still aborts the sweep.
++It preserves historical linear replay verdicts after later reversions.
++It also tests the separate, optional `--current-retention` arm.
++That arm measures bytes and entries, without inferring supersession intent.
++See the [containment contract](../../CONTRIBUTING.md#21-the-issue-to-merge-lane)
++for its supported histories and unresolved cases.
+ The runner discovers suites from the filesystem, serializes whole-tree sweeps,
+ enforces a per-suite wall clock, and refuses to quote a total when a suite's
+ check count cannot be read. The default selection contains 54 suites, each
+diff --git a/scripts/check_merge_containment.py b/scripts/check_merge_containment.py
+index 256491cfa..141baec9e 100755
+--- a/scripts/check_merge_containment.py
++++ b/scripts/check_merge_containment.py
+@@ -5,6 +5,7 @@
+     python3 scripts/check_merge_containment.py --merged-prs [N]
+     python3 scripts/check_merge_containment.py --selftest
+     python3 scripts/check_merge_containment.py --no-fetch ...   (skip Git fetch)
++    python3 scripts/check_merge_containment.py --current-retention <branch>...
+ 
+     Needs Git 2.39.0 or newer: whitespace-exact patch identity comes from
+     ``git patch-id --verbatim``, and an older Git is refused by name.
+@@ -43,8 +44,12 @@ THREE WAYS TO GET THE WRONG ANSWER, ALL OF WHICH THIS HAS DONE
+ 
+ HISTORICAL REPLAY AND CURRENT RETENTION
+ ---------------------------------------
+-Ancestry and the existing linear patch arm certify historical landing. Later
+-reversions do not revoke those proofs; changing that policy belongs to #514.
++Ancestry and the linear patch arm certify historical inclusion only (#514).
++Later reversions do not revoke those proofs. --current-retention adds a
++separate linear H + T result: retained, or UNKNOWN/nonzero. It requires a
++nonempty source-only linear range with exact replays. Ancestry alone, squash-
++only equivalence and merge histories are unsupported by this optional arm.
++Intentional supersession is not retention evidence; no intent is inferred.
+ The final fallback (#423) admits exactly one source-only two-parent merge:
+ P2's only parent is P1, and the merge tree equals P2's tree. Every non-merge
+ commit still needs a distinct whitespace-exact replay with matching postimages.
+@@ -76,7 +81,7 @@ from pathlib import Path
+ sys.path.insert(0, str(Path(__file__).resolve().parent))
+ from merge_containment_git import (  # noqa: E402
+     git_bytes as _git_raw, git_text as _git, path_label)
+-from merge_containment_replay import replay_verdict  # noqa: E402
++from merge_containment_replay import linear_retention_verdict, replay_verdict  # noqa: E402
+ 
+ USAGE = __doc__.split("WHY THIS EXISTS")[0].strip()
+ 
+@@ -191,7 +196,7 @@ def _same_patch_postimage(branch_commit, base_commit):
+ 
+ 
+ def _linear_patches_contained(branch, base):
+-    """Prove linear replay equivalence without ignoring whitespace."""
++    """Prove historical inclusion by exact replay, not current retention."""
+     rc, branch_out = _git("rev-list", "--no-merges", f"{base}..{branch}")
+     if rc != 0:
+         return (None, f"rev-list could not enumerate {branch}")
+@@ -499,7 +504,7 @@ def _patch_id_verdict(branch, base, ahead):
+             return (None, None, err)
+         if equivalent:
+             return (True, ahead,
+-                    f"every commit has a whitespace-exact equivalent in "
++                    f"historical inclusion only: every commit has a whitespace-exact equivalent in "
+                     f"{base} ({ahead} not ancestors -- rebase merge)")
+     return None
+ 
+@@ -533,7 +538,7 @@ def contained(branch: str,
+ 
+     rc, _ = _git("merge-base", "--is-ancestor", branch, base)
+     if rc == 0:
+-        return (True, 0, None)
++        return (True, 0, "historical inclusion by ancestry; current retention not implied")
+     if rc != 1:
+         return (None, None,
+                 f"merge-base could not compare {branch} with {base}")
+@@ -706,17 +711,11 @@ def continuous_merged_pr_tip(head_oid: str, live_ref: str) -> str | None:
+     return None
+ 
+ 
+-KNOWN_FLAGS = {"--selftest", "--base", "--merged-prs", "--no-fetch"}
++KNOWN_FLAGS = {"--selftest", "--base", "--merged-prs", "--no-fetch", "--current-retention"}
+ 
+ 
+ def _run_selftest():
+-    """Run the self-test, which lives in two modules beside this one.
+-
+-    It is handed THIS module rather than importing it: the cases patch the
+-    namespace ``main()`` and ``contained()`` resolve their helpers from, which
+-    is this module's own, and importing by name would build a second copy of
+-    it whose globals no patch here would reach.
+-    """
++    """Pass this module to the self-tests so patches reach its own globals."""
+     here = str(Path(__file__).resolve().parent)
+     if here not in sys.path:
+         sys.path.insert(0, here)
+@@ -734,7 +733,7 @@ def _option_error(args):
+         if a.startswith("-") and a not in KNOWN_FLAGS:
+             return f"unknown option: {a}\n{USAGE}\n"
+ 
+-    for flag in ("--selftest", "--base", "--merged-prs", "--no-fetch"):
++    for flag in ("--selftest", "--base", "--merged-prs", "--no-fetch", "--current-retention"):
+         if args.count(flag) > 1:
+             return f"{flag} may be specified only once\n{USAGE}\n"
+     return None
+@@ -877,8 +876,8 @@ def _branch_targets(args, do_fetch):
+     return (targets, None)
+ 
+ 
+-def _report(targets, base):
+-    """Print one verdict per target and return the process exit status."""
++def _report(targets, base, current_retention=False):
++    """Report landing and optional linear retention as separate claims."""
+     stranded = 0
+     unknown = 0
+     for label, ref, pre_error in targets:
+@@ -892,6 +891,11 @@ def _report(targets, base):
+             unknown += 1
+         elif ok:
+             print(f"  contained  {label}" + (f"  [{note}]" if note else ""))
++            if current_retention:
++                retained, detail = linear_retention_verdict(ref, base, _git, _linear_patches_contained)
++                word = "retained" if retained else "UNKNOWN"
++                print(f"  {word:<10} {label}: current retention: {detail}")
++                unknown += not retained
+         else:
+             print(f"  STRANDED   {label}: {ahead} commit(s) not in {base}"
+                   + (f"  [{note}]" if note else ""))
+@@ -906,7 +910,7 @@ def _report(targets, base):
+         print("  step 7.")
+     if unknown:
+         print()
+-        print(f"{unknown} tip(s) lack a containment proof; see UNKNOWN above.")
++        print(f"{unknown} tip(s) lack a requested proof; see UNKNOWN above.")
+         print("  Unresolved history or current retention is not a pass.")
+     return RC_FINDING if (stranded or unknown) else RC_OK
+ 
+@@ -941,6 +945,8 @@ def main(argv: list[str]) -> int:
+             return RC_CANNOT_RUN
+         return _run_selftest()
+ 
++    current_retention = "--current-retention" in args
++    args = [a for a in args if a != "--current-retention"]
+     base, refusal = _take_base(args)
+     if refusal:
+         sys.stderr.write(refusal)
+@@ -984,7 +990,7 @@ def main(argv: list[str]) -> int:
+         sys.stderr.write(refusal)
+         return RC_CANNOT_RUN
+ 
+-    return _report(targets, base)
++    return _report(targets, base, current_retention)
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/scripts/merge_containment_replay.py b/scripts/merge_containment_replay.py
+index bca0c6a6f..5652be97c 100644
+--- a/scripts/merge_containment_replay.py
++++ b/scripts/merge_containment_replay.py
+@@ -1,9 +1,10 @@
+-"""The final, bounded redundant-merge replay proof (#423).
++"""Bounded redundant-merge replay (#423) and optional linear retention (#514).
+ 
+ G1 admits one content-free merge with a direct, ordered parent relation.
+ H is supplied by the checker's existing distinct whitespace-exact replay
+ helper. T measures raw current entries, then a conflict-free no-op re-merge.
+ This is a byte-level criterion, not a judgment about later edits' intent.
++The optional linear arm supplies H + T as a separate current-retention result.
+ Filenames stay bytes from Git's output to Git's argv.
+ """
+ 
+@@ -151,3 +152,32 @@ def replay_verdict(branch: str, base: str, ahead: int, git: Git,
+     return (True, ahead, f"historical whitespace-exact replay across one "
+             f"redundant merge; raw no-op retention at {base} "
+             f"({ahead} not ancestors)")
++
++
++def linear_retention_verdict(source: str, target: str, git: Git,
++                             replay: Replay) -> tuple[bool, str]:
++    """Optional linear H + T proof, independent of the landing verdict.
++
++    Only nonempty source-only linear ranges with exact replays qualify.
++    Ancestry alone, squash-only equivalence and merge histories cannot supply
++    this arm's baseline. Supersession intent never supplies byte evidence.
++    False means UNKNOWN, including unsupported or unmeasurable cases.
++    """
++    try:
++        merges = _measure(git, "rev-list", "--min-parents=2", "--count",
++                          f"{target}..{source}")
++        if not merges.isdigit():
++            raise _MeasurementError("invalid source merge count")
++        if int(merges) != 0:
++            return False, "unsupported: source-only history contains merges"
++        matched, error = replay(source, target)
++        if matched is None:
++            raise _MeasurementError(error)
++        if not matched:
++            return False, "unsupported: needs a nonempty whitespace-exact linear replay"
++        missing = _retained_at_tip(source, target, git)
++    except (_MeasurementError, OSError) as exc:
++        return False, f"linear retention unmeasurable: {exc}"
++    if missing:
++        return False, "unproved on: " + ", ".join(missing)
++    return True, f"raw no-op retention at {target}; historical linear replay proved"
+diff --git a/scripts/merge_containment_selftest.py b/scripts/merge_containment_selftest.py
+index 6b766421c..838afa59f 100644
+--- a/scripts/merge_containment_selftest.py
++++ b/scripts/merge_containment_selftest.py
+@@ -106,6 +106,7 @@ def _fixture_cases(fx):
+     from merge_containment_selftest_replay import replay_cases
+     from merge_containment_selftest_retention import retention_cases
+     from merge_containment_selftest_locale import locale_cases
++    from merge_containment_selftest_linear import linear_retention_cases
+ 
+     with scratch(fx.leftovers) as td:
+         cwd = os.getcwd()
+@@ -134,6 +135,7 @@ def _fixture_cases(fx):
+             content_cases(fx)
+             replay_cases(fx)
+             retention_cases(fx)
++            linear_retention_cases(fx)
+             locale_cases(fx)
+         finally:
+             os.chdir(cwd)
+diff --git a/scripts/merge_containment_selftest_linear.py b/scripts/merge_containment_selftest_linear.py
+new file mode 100644
+index 000000000..357e99b52
+--- /dev/null
++++ b/scripts/merge_containment_selftest_linear.py
+@@ -0,0 +1,222 @@
++"""Optional linear retention examples for #514, through the shipped CLI.
++
++Historical verdicts remain separate. Each negative content example also runs
++against a source mutant that bypasses this arm's T measurement. The same
++expected verdict and exit reject that mutant; no oracle calls the predicate.
++"""
++
++import os
++import subprocess
++import sys
++from pathlib import Path
++from unittest.mock import patch
++
++import merge_containment_replay as proof
++from merge_containment_selftest_replay import MOD, _History
++from merge_containment_selftest_retention import _commit, _tree
++from merge_containment_selftest_scratch import scratch
++
++
++SOURCE = MOD.replace("line 05", "source 05").replace("line 20", "source 20").encode()
++ORIGINAL = MOD.encode()
++EXTENSION = SOURCE.replace(b"line 35", b"extension 35")
++
++
++def _blob(data, mode="100644"):
++    return mode, data
++
++
++def _examples(old_oid, new_oid):
++    """Independent input/output cases, including mode and kind boundaries."""
++    original, source = _blob(ORIGINAL), _blob(SOURCE)
++    link_old, link_new = _blob(b"old", "120000"), _blob(b"new", "120000")
++    pin_old, pin_new = _blob(old_oid, "160000"), _blob(new_oid, "160000")
++    return (
++        ("exact-retention", (original, source, source), True),
++        ("exact-reversion", (original, source, original), False),
++        ("partial-reversion", (original, source,
++                               _blob(SOURCE.replace(b"source 20", b"line 20"))), False),
++        ("legitimate-extension", (original, source, _blob(EXTENSION)), True),
++        ("intentional-supersession", (original, source,
++                                      _blob(SOURCE.replace(b"source 05", b"replacement 05"))), False),
++        ("mode-loss", (original, _blob(SOURCE, "100755"), source), False),
++        ("later-mode-change", (original, source, _blob(EXTENSION, "100755")), True),
++        ("file-kind-change", (original, source, _blob(SOURCE, "120000")), False),
++        ("symlink-identity", (link_old, link_new, link_new), True),
++        ("symlink-reversion", (link_old, link_new, link_old), False),
++        ("gitlink-identity", (pin_old, pin_new, pin_new), True),
++        ("gitlink-reversion", (pin_old, pin_new, pin_old), False),
++        ("binary-unmeasurable", (_blob(b"old\0data"), _blob(b"source\0data"),
++                                   _blob(b"later\0data")), False),
++        ("deletion-retained", (original, None, None), True),
++        ("deletion-reverted", (original, None, original), False),
++    )
++
++
++def _history(history, entries):
++    """Linear exact replay, followed by an independently specified tip."""
++    trees = [_tree({"work": entry, "control": _blob(control)})
++             for entry, control in zip(entries, (b"unrelated\n", b"unrelated\n", b"later\n"))]
++    initial = _commit(history, trees[0], [], "initial")
++    source = _commit(history, trees[1], [initial], "source")
++    replay = _commit(history, trees[1], [initial], "replay")
++    tip = _commit(history, trees[2], [replay], "later intent is not evidence")
++    history._git("update-ref", "refs/heads/pr", source)
++    history._git("update-ref", "refs/heads/main", tip)
++    return initial, source, tip
++
++
++def _observed(result):
++    rc, output = result
++    words = [line.split()[0] for line in output.splitlines()
++             if "current retention:" in line]
++    return rc, words
++
++
++def _mutant(fx, args, before, after):
++    """Run the actual CLI with one guard edited in a disposable copy."""
++    sources = Path(__file__).resolve().parent
++    with scratch(fx.leftovers) as directory:
++        target = Path(directory)
++        for name in ("check_merge_containment.py", "merge_containment_git.py",
++                     "merge_containment_replay.py"):
++            data = (sources / name).read_bytes()
++            if name == "merge_containment_replay.py":
++                if data.count(before) != 1:
++                    raise RuntimeError("linear retention mutant needs one guard location")
++                data = data.replace(before, after)
++            (target / name).write_bytes(data)
++        result = subprocess.run((sys.executable, "-B", "-I",
++                                 str(target / "check_merge_containment.py"), *args),
++                                capture_output=True, text=True, errors="backslashreplace")
++    return result.returncode, result.stdout
++
++
++def _check(fx, name, retained, mutation=True):
++    args = ["--no-fetch", "--base", "main", "pr"]
++    rc, output = fx.run(args)
++    fx.case("linear-" + name + "-historical", (rc, "contained" in output), (0, True),
++            "existing landing verdict remains contained/0")
++    args.append("--current-retention")
++    result = fx.run(args)
++    expected = (0, ["retained"]) if retained else (1, ["UNKNOWN"])
++    fx.case("linear-" + name, _observed(result), expected,
++            "separate current retention verdict AND process exit")
++    fx.case("linear-" + name + "-landing", "contained" in result[1], True,
++            "the optional result does not replace historical landing")
++    if not retained:
++        fx.case("linear-" + name + "-claim", "historical inclusion only" in output, True,
++                "the default replay diagnostic names its historical claim")
++        fx.case("linear-" + name + "-path", "'work'" in result[1], True,
++                "unproved current path is named")
++        if mutation:
++            mutant = _mutant(fx, args,
++                              b"missing = _retained_at_tip(source, target, git)", b"missing = []")
++            fx.case("linear-mutant-" + name, _observed(mutant), (0, ["retained"]),
++                    "bypassing T is rejected by this example's UNKNOWN/1 oracle")
++            fx.case("linear-kills-" + name, _observed(mutant) != expected, True,
++                    "the negative example fails against the new arm's mutant")
++    return result
++
++
++def _measurement_cases(fx):
++    saved = proof._git_bytes
++
++    def fail(*args: object) -> tuple[int, bytes]:
++        """Inject one unavailable raw object measurement, keeping Git history real."""
++        if args[0] == "cat-file":
++            return 128, b""
++        return saved(*args)
++
++    with patch.object(proof, "_git_bytes", fail):
++        result = _check(fx, "missing-object-measurement", False, mutation=False)
++        with patch.object(proof, "_retained_at_tip", return_value=[]):
++            mutant = fx.run(["--no-fetch", "--base", "main", "pr", "--current-retention"])
++        fx.case("linear-kills-measurement-mutant", _observed(mutant), (0, ["retained"]),
++                "bypassing T while the same object read fails violates the UNKNOWN/1 oracle")
++    fx.case("linear-measurement-diagnostic", "cat-file failed (exit 128)" in result[1], True,
++            "measurement failure is explicit, never a retained certificate")
++
++
++def _scope_cases(fx, history, initial, source):
++    """Unsupported histories and missing H cannot become optional passes."""
++    args = ["--no-fetch", "--current-retention", "--base", "main", "pr"]
++    # Ancestry proves landing but supplies no source-only replay range.
++    history._git("update-ref", "refs/heads/main", source)
++    result = fx.run(args)
++    fx.case("linear-ancestry-unsupported", _observed(result), (1, ["UNKNOWN"]),
++            "an empty source-only range is explicitly unsupported")
++    fx.case("linear-ancestry-diagnostic", "unsupported" in result[1], True,
++            "ancestry alone supplies no current-retention baseline")
++    mutant = _mutant(fx, args,
++                      b'return False, "unsupported: needs a nonempty whitespace-exact linear replay"',
++                      b'return True, "unsupported: needs a nonempty whitespace-exact linear replay"')
++    fx.case("linear-kills-ancestry-mutant", _observed(mutant), (0, ["retained"]),
++            "the ancestry example rejects certifying an unsupported history")
++    # A merge-shaped source with identical current entries passes the old
++    # path arm, but is outside this optional linear arm's scope.
++    tree = history._git("rev-parse", source + "^{tree}")
++    merge = _commit(history, tree, [initial, source], "redundant merge")
++    history._git("update-ref", "refs/heads/pr", merge)
++    history._git("update-ref", "refs/heads/main", _commit(history, tree, [initial], "exact replay"))
++    result = fx.run(args)
++    fx.case("linear-merge-unsupported", _observed(result), (1, ["UNKNOWN"]),
++            "this optional arm never generalizes the source topology")
++    mutant = _mutant(fx, args, b"if int(merges) != 0:", b"if False:")
++    fx.case("linear-kills-shape-mutant", _observed(mutant), (0, ["retained"]),
++            "the unsupported merge example rejects the removed shape guard")
++    # Two linear commits squashed to one have exact current entries but no H.
++    intermediate = _commit(history, _tree({"control": _blob(b"unrelated\n")}),
++                           [initial], "delete first")
++    split = _commit(history, tree, [intermediate], "restore and change")
++    history._git("update-ref", "refs/heads/pr", split)
++    result = fx.run(args)
++    fx.case("linear-squash-unsupported", _observed(result), (1, ["UNKNOWN"]),
++            "exact endpoint equality does not stand in for distinct replay evidence")
++    mutant = _mutant(fx, args, b"matched, error = replay(source, target)",
++                      b"matched, error = True, None")
++    fx.case("linear-kills-history-mutant", _observed(mutant), (0, ["retained"]),
++            "the squash example rejects bypassing the optional arm's H guard")
++
++
++def _cli_cases(fx, source, tip):
++    args = ["--no-fetch", "--base", "main", "pr", "--current-retention"]
++    for extra in (["--current-retention"], ["--selftest"]):
++        fx.case("linear-cli-refuses-" + extra[0], fx.run([*args, *extra])[0], 2,
++                "malformed optional invocation is refused")
++    fx.mc._git("update-ref", "refs/heads/good", tip)
++    # The ancestral target is unsupported while pr retains its replay.
++    result = fx.run([*args, "good"])
++    fx.case("linear-cli-multiple", _observed(result), (1, ["retained", "UNKNOWN"]),
++            "one unresolved optional result makes the whole command fail")
++    with patch.object(fx.mc, "_merged_pr_targets",
++                      return_value=([("#1 pr", source, None)], None)):
++        result = fx.run(["--no-fetch", "--base", "main", "--merged-prs", "1",
++                         "--current-retention"])
++    fx.case("linear-cli-sweep", _observed(result), (0, ["retained"]),
++            "the optional arm reaches merged-PR targets too")
++
++
++def linear_retention_cases(fx: object) -> None:
++    """Run the new arm's executable policy, refusal and mutation controls."""
++    cwd = os.getcwd()
++    with scratch(fx.leftovers) as directory:
++        try:
++            os.chdir(directory)
++            history = _History()
++            history._git("init", "-q", "-b", "main")
++            empty = _tree({})
++            old_oid = _commit(history, empty, [], "old pin")
++            new_oid = _commit(history, empty, [old_oid], "new pin")
++            for name, entries, retained in _examples(old_oid, new_oid):
++                _history(history, entries)
++                result = _check(fx, name, retained)
++                if name == "binary-unmeasurable":
++                    fx.case("linear-binary-diagnostic", "raw merge-file failed" in result[1], True,
++                            "binary overlap is reported as an unmeasurable raw merge")
++            initial, source, tip = _history(history, (_blob(ORIGINAL), _blob(SOURCE), _blob(EXTENSION)))
++            _measurement_cases(fx)
++            _cli_cases(fx, source, tip)
++            _scope_cases(fx, history, initial, source)
++        finally:
++            os.chdir(cwd)

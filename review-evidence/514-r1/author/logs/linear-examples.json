@@ -1,0 +1,2045 @@
+{
+  "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+  "assertions": [
+    {
+      "name": "linear-exact-retention-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-exact-retention",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-exact-retention-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-exact-reversion-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-exact-reversion",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-exact-reversion-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-exact-reversion-claim",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the default replay diagnostic names its historical claim"
+    },
+    {
+      "name": "linear-exact-reversion-path",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "unproved current path is named"
+    },
+    {
+      "name": "linear-mutant-exact-reversion",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "bypassing T is rejected by this example's UNKNOWN/1 oracle"
+    },
+    {
+      "name": "linear-kills-exact-reversion",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the negative example fails against the new arm's mutant"
+    },
+    {
+      "name": "linear-partial-reversion-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-partial-reversion",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-partial-reversion-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-partial-reversion-claim",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the default replay diagnostic names its historical claim"
+    },
+    {
+      "name": "linear-partial-reversion-path",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "unproved current path is named"
+    },
+    {
+      "name": "linear-mutant-partial-reversion",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "bypassing T is rejected by this example's UNKNOWN/1 oracle"
+    },
+    {
+      "name": "linear-kills-partial-reversion",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the negative example fails against the new arm's mutant"
+    },
+    {
+      "name": "linear-legitimate-extension-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-legitimate-extension",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-legitimate-extension-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-intentional-supersession-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-intentional-supersession",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-intentional-supersession-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-intentional-supersession-claim",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the default replay diagnostic names its historical claim"
+    },
+    {
+      "name": "linear-intentional-supersession-path",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "unproved current path is named"
+    },
+    {
+      "name": "linear-mutant-intentional-supersession",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "bypassing T is rejected by this example's UNKNOWN/1 oracle"
+    },
+    {
+      "name": "linear-kills-intentional-supersession",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the negative example fails against the new arm's mutant"
+    },
+    {
+      "name": "linear-mode-loss-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-mode-loss",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-mode-loss-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-mode-loss-claim",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the default replay diagnostic names its historical claim"
+    },
+    {
+      "name": "linear-mode-loss-path",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "unproved current path is named"
+    },
+    {
+      "name": "linear-mutant-mode-loss",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "bypassing T is rejected by this example's UNKNOWN/1 oracle"
+    },
+    {
+      "name": "linear-kills-mode-loss",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the negative example fails against the new arm's mutant"
+    },
+    {
+      "name": "linear-later-mode-change-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-later-mode-change",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-later-mode-change-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-file-kind-change-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-file-kind-change",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-file-kind-change-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-file-kind-change-claim",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the default replay diagnostic names its historical claim"
+    },
+    {
+      "name": "linear-file-kind-change-path",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "unproved current path is named"
+    },
+    {
+      "name": "linear-mutant-file-kind-change",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "bypassing T is rejected by this example's UNKNOWN/1 oracle"
+    },
+    {
+      "name": "linear-kills-file-kind-change",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the negative example fails against the new arm's mutant"
+    },
+    {
+      "name": "linear-symlink-identity-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-symlink-identity",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-symlink-identity-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-symlink-reversion-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-symlink-reversion",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-symlink-reversion-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-symlink-reversion-claim",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the default replay diagnostic names its historical claim"
+    },
+    {
+      "name": "linear-symlink-reversion-path",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "unproved current path is named"
+    },
+    {
+      "name": "linear-mutant-symlink-reversion",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "bypassing T is rejected by this example's UNKNOWN/1 oracle"
+    },
+    {
+      "name": "linear-kills-symlink-reversion",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the negative example fails against the new arm's mutant"
+    },
+    {
+      "name": "linear-gitlink-identity-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-gitlink-identity",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-gitlink-identity-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-gitlink-reversion-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-gitlink-reversion",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-gitlink-reversion-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-gitlink-reversion-claim",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the default replay diagnostic names its historical claim"
+    },
+    {
+      "name": "linear-gitlink-reversion-path",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "unproved current path is named"
+    },
+    {
+      "name": "linear-mutant-gitlink-reversion",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "bypassing T is rejected by this example's UNKNOWN/1 oracle"
+    },
+    {
+      "name": "linear-kills-gitlink-reversion",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the negative example fails against the new arm's mutant"
+    },
+    {
+      "name": "linear-binary-unmeasurable-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-binary-unmeasurable",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-binary-unmeasurable-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-binary-unmeasurable-claim",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the default replay diagnostic names its historical claim"
+    },
+    {
+      "name": "linear-binary-unmeasurable-path",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "unproved current path is named"
+    },
+    {
+      "name": "linear-mutant-binary-unmeasurable",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "bypassing T is rejected by this example's UNKNOWN/1 oracle"
+    },
+    {
+      "name": "linear-kills-binary-unmeasurable",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the negative example fails against the new arm's mutant"
+    },
+    {
+      "name": "linear-binary-diagnostic",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "binary overlap is reported as an unmeasurable raw merge"
+    },
+    {
+      "name": "linear-deletion-retained-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-deletion-retained",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-deletion-retained-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-deletion-reverted-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-deletion-reverted",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-deletion-reverted-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-deletion-reverted-claim",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the default replay diagnostic names its historical claim"
+    },
+    {
+      "name": "linear-deletion-reverted-path",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "unproved current path is named"
+    },
+    {
+      "name": "linear-mutant-deletion-reverted",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "bypassing T is rejected by this example's UNKNOWN/1 oracle"
+    },
+    {
+      "name": "linear-kills-deletion-reverted",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the negative example fails against the new arm's mutant"
+    },
+    {
+      "name": "linear-missing-object-measurement-historical",
+      "got": [
+        0,
+        true
+      ],
+      "want": [
+        0,
+        true
+      ],
+      "pass_": true,
+      "why": "existing landing verdict remains contained/0"
+    },
+    {
+      "name": "linear-missing-object-measurement",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "separate current retention verdict AND process exit"
+    },
+    {
+      "name": "linear-missing-object-measurement-landing",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the optional result does not replace historical landing"
+    },
+    {
+      "name": "linear-missing-object-measurement-claim",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "the default replay diagnostic names its historical claim"
+    },
+    {
+      "name": "linear-missing-object-measurement-path",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "unproved current path is named"
+    },
+    {
+      "name": "linear-kills-measurement-mutant",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "bypassing T while the same object read fails violates the UNKNOWN/1 oracle"
+    },
+    {
+      "name": "linear-measurement-diagnostic",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "measurement failure is explicit, never a retained certificate"
+    },
+    {
+      "name": "linear-cli-refuses---current-retention",
+      "got": 2,
+      "want": 2,
+      "pass_": true,
+      "why": "malformed optional invocation is refused"
+    },
+    {
+      "name": "linear-cli-refuses---selftest",
+      "got": 2,
+      "want": 2,
+      "pass_": true,
+      "why": "malformed optional invocation is refused"
+    },
+    {
+      "name": "linear-cli-multiple",
+      "got": [
+        1,
+        [
+          "retained",
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "retained",
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "one unresolved optional result makes the whole command fail"
+    },
+    {
+      "name": "linear-cli-sweep",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "the optional arm reaches merged-PR targets too"
+    },
+    {
+      "name": "linear-ancestry-unsupported",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "an empty source-only range is explicitly unsupported"
+    },
+    {
+      "name": "linear-ancestry-diagnostic",
+      "got": true,
+      "want": true,
+      "pass_": true,
+      "why": "ancestry alone supplies no current-retention baseline"
+    },
+    {
+      "name": "linear-kills-ancestry-mutant",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "the ancestry example rejects certifying an unsupported history"
+    },
+    {
+      "name": "linear-merge-unsupported",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "this optional arm never generalizes the source topology"
+    },
+    {
+      "name": "linear-kills-shape-mutant",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "the unsupported merge example rejects the removed shape guard"
+    },
+    {
+      "name": "linear-squash-unsupported",
+      "got": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "want": [
+        1,
+        [
+          "UNKNOWN"
+        ]
+      ],
+      "pass_": true,
+      "why": "exact endpoint equality does not stand in for distinct replay evidence"
+    },
+    {
+      "name": "linear-kills-history-mutant",
+      "got": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "want": [
+        0,
+        [
+          "retained"
+        ]
+      ],
+      "pass_": true,
+      "why": "the squash example rejects bypassing the optional arm's H guard"
+    }
+  ],
+  "receipts": [
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "2d5bc422fcfa42b89acbe1e038bdfea5b3c8eb9d",
+        "main": "9581a5bc2b1fda22b3ad397c41272f194452842c"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "2d5bc422fcfa42b89acbe1e038bdfea5b3c8eb9d",
+        "main": "9581a5bc2b1fda22b3ad397c41272f194452842c"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "15d7fdcce8604068bf348bbed6352688dda7a4b2",
+        "main": "e774e297ababc4e2dc5a499c0c53cabf0efafbf3"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "15d7fdcce8604068bf348bbed6352688dda7a4b2",
+        "main": "e774e297ababc4e2dc5a499c0c53cabf0efafbf3"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unproved on: 'work'\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "mutant",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "15d7fdcce8604068bf348bbed6352688dda7a4b2",
+        "main": "e774e297ababc4e2dc5a499c0c53cabf0efafbf3"
+      },
+      "before": "missing = _retained_at_tip(source, target, git)",
+      "after": "missing = []",
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "cf3a8a615673463d8e38b39b470432e5a6ac7976",
+        "main": "d9800be468d9197165d81316edd4ee42f2158855"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "cf3a8a615673463d8e38b39b470432e5a6ac7976",
+        "main": "d9800be468d9197165d81316edd4ee42f2158855"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unproved on: 'work'\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "mutant",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "cf3a8a615673463d8e38b39b470432e5a6ac7976",
+        "main": "d9800be468d9197165d81316edd4ee42f2158855"
+      },
+      "before": "missing = _retained_at_tip(source, target, git)",
+      "after": "missing = []",
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "ba85dfbd6fbc41ad5a4434aa2269f6845c862238",
+        "main": "514fc5c9b5d78f8fef97eb70f10e708f3d95b5f0"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "ba85dfbd6fbc41ad5a4434aa2269f6845c862238",
+        "main": "514fc5c9b5d78f8fef97eb70f10e708f3d95b5f0"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "edfce74165337b488da1e1a60094a3d4151e1c6c",
+        "main": "2e4b25a6fd3cd2e5b7b1fb57767e18bc92e112fc"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "edfce74165337b488da1e1a60094a3d4151e1c6c",
+        "main": "2e4b25a6fd3cd2e5b7b1fb57767e18bc92e112fc"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unproved on: 'work'\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "mutant",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "edfce74165337b488da1e1a60094a3d4151e1c6c",
+        "main": "2e4b25a6fd3cd2e5b7b1fb57767e18bc92e112fc"
+      },
+      "before": "missing = _retained_at_tip(source, target, git)",
+      "after": "missing = []",
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "6e2d172d55ecd4751fbdb4024c4b9e0e92f70504",
+        "main": "08872b0913409c55af82890b70fb08f06ee53e4d"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "6e2d172d55ecd4751fbdb4024c4b9e0e92f70504",
+        "main": "08872b0913409c55af82890b70fb08f06ee53e4d"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unproved on: 'work'\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "mutant",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "6e2d172d55ecd4751fbdb4024c4b9e0e92f70504",
+        "main": "08872b0913409c55af82890b70fb08f06ee53e4d"
+      },
+      "before": "missing = _retained_at_tip(source, target, git)",
+      "after": "missing = []",
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "ede5e92b0bd21324bf329487a6ba586a41f46e81",
+        "main": "58fb68c04d0d35d3ce0128b8d0cddcc5dd4a41de"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "ede5e92b0bd21324bf329487a6ba586a41f46e81",
+        "main": "58fb68c04d0d35d3ce0128b8d0cddcc5dd4a41de"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "e531c5c66a3bea47858253304441a276aec5520f",
+        "main": "f0e1fe0fde1f62e2ac8236c38f55bd71475fd093"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "e531c5c66a3bea47858253304441a276aec5520f",
+        "main": "f0e1fe0fde1f62e2ac8236c38f55bd71475fd093"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unproved on: 'work'\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "mutant",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "e531c5c66a3bea47858253304441a276aec5520f",
+        "main": "f0e1fe0fde1f62e2ac8236c38f55bd71475fd093"
+      },
+      "before": "missing = _retained_at_tip(source, target, git)",
+      "after": "missing = []",
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "cf404721bb32409bc13e68315dbf1f43598d03d7",
+        "main": "48ead78bef3f97cc9ca59e52667c0c7b1fc85d78"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "cf404721bb32409bc13e68315dbf1f43598d03d7",
+        "main": "48ead78bef3f97cc9ca59e52667c0c7b1fc85d78"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "831f9f58e4b6141fa34b26b74fbbd727d132b82d",
+        "main": "b7a9182a428bb725ae516d9ec1f51d1b178d2bab"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "831f9f58e4b6141fa34b26b74fbbd727d132b82d",
+        "main": "b7a9182a428bb725ae516d9ec1f51d1b178d2bab"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unproved on: 'work'\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "mutant",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "831f9f58e4b6141fa34b26b74fbbd727d132b82d",
+        "main": "b7a9182a428bb725ae516d9ec1f51d1b178d2bab"
+      },
+      "before": "missing = _retained_at_tip(source, target, git)",
+      "after": "missing = []",
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "f959852d3ff785557e44e4e33b5f20c0222d5355",
+        "main": "091e84cd2b9a64ebd95c4da0debed88bea884209"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "f959852d3ff785557e44e4e33b5f20c0222d5355",
+        "main": "091e84cd2b9a64ebd95c4da0debed88bea884209"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "00c4ea50e6ff5bee933851f1cd085af154b355ba",
+        "main": "2924a468779bcc500bcb73d5bfedf967ee365a1e"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "00c4ea50e6ff5bee933851f1cd085af154b355ba",
+        "main": "2924a468779bcc500bcb73d5bfedf967ee365a1e"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unproved on: 'work'\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "mutant",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "00c4ea50e6ff5bee933851f1cd085af154b355ba",
+        "main": "2924a468779bcc500bcb73d5bfedf967ee365a1e"
+      },
+      "before": "missing = _retained_at_tip(source, target, git)",
+      "after": "missing = []",
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "0d3df38c9218fb30420b84690684320617f8f4e5",
+        "main": "3035a6da64f4dd8b4935ba927e76c7a1c0f0f725"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "0d3df38c9218fb30420b84690684320617f8f4e5",
+        "main": "3035a6da64f4dd8b4935ba927e76c7a1c0f0f725"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unproved on: 'work' (raw merge-file failed (exit 255))\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "mutant",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "0d3df38c9218fb30420b84690684320617f8f4e5",
+        "main": "3035a6da64f4dd8b4935ba927e76c7a1c0f0f725"
+      },
+      "before": "missing = _retained_at_tip(source, target, git)",
+      "after": "missing = []",
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "ecf140669b8552fd7402ec46b6e215a4b6c1d404",
+        "main": "1d1861149cce0389548ec5ba346fb6d92935feb7"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "ecf140669b8552fd7402ec46b6e215a4b6c1d404",
+        "main": "1d1861149cce0389548ec5ba346fb6d92935feb7"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "0e3612c1cd08bc750fe13add2b374780849f9c56",
+        "main": "789455b338200944ca1b51e0b2bb09b7c78d02e2"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "0e3612c1cd08bc750fe13add2b374780849f9c56",
+        "main": "789455b338200944ca1b51e0b2bb09b7c78d02e2"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unproved on: 'work'\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "mutant",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "0e3612c1cd08bc750fe13add2b374780849f9c56",
+        "main": "789455b338200944ca1b51e0b2bb09b7c78d02e2"
+      },
+      "before": "missing = _retained_at_tip(source, target, git)",
+      "after": "missing = []",
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "f0e07d679eb07c71af8ec3581cae7ce92c931531",
+        "main": "be67da8cfd7b40b9bc10a2350e9ef395e3c5e2c3"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "f0e07d679eb07c71af8ec3581cae7ce92c931531",
+        "main": "be67da8cfd7b40b9bc10a2350e9ef395e3c5e2c3"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unproved on: 'work' (git cat-file failed (exit 128))\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "in-process T bypass under injected object-read failure",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "f0e07d679eb07c71af8ec3581cae7ce92c931531",
+        "main": "be67da8cfd7b40b9bc10a2350e9ef395e3c5e2c3"
+      },
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "f0e07d679eb07c71af8ec3581cae7ce92c931531",
+        "main": "be67da8cfd7b40b9bc10a2350e9ef395e3c5e2c3"
+      },
+      "rc": 2,
+      "stdout": "",
+      "stderr": "--current-retention may be specified only once\nDid the merge actually take the branch?\n\n    python3 scripts/check_merge_containment.py [--base <ref>] <branch>...\n    python3 scripts/check_merge_containment.py --merged-prs [N]\n    python3 scripts/check_merge_containment.py --selftest\n    python3 scripts/check_merge_containment.py --no-fetch ...   (skip Git fetch)\n    python3 scripts/check_merge_containment.py --current-retention <branch>...\n\n    Needs Git 2.39.0 or newer: whitespace-exact patch identity comes from\n    ``git patch-id --verbatim``, and an older Git is refused by name.\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention",
+        "--selftest"
+      ],
+      "heads": {
+        "pr": "f0e07d679eb07c71af8ec3581cae7ce92c931531",
+        "main": "be67da8cfd7b40b9bc10a2350e9ef395e3c5e2c3"
+      },
+      "rc": 2,
+      "stdout": "",
+      "stderr": "--selftest accepts no other arguments\nDid the merge actually take the branch?\n\n    python3 scripts/check_merge_containment.py [--base <ref>] <branch>...\n    python3 scripts/check_merge_containment.py --merged-prs [N]\n    python3 scripts/check_merge_containment.py --selftest\n    python3 scripts/check_merge_containment.py --no-fetch ...   (skip Git fetch)\n    python3 scripts/check_merge_containment.py --current-retention <branch>...\n\n    Needs Git 2.39.0 or newer: whitespace-exact patch identity comes from\n    ``git patch-id --verbatim``, and an older Git is refused by name.\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr",
+        "--current-retention",
+        "good"
+      ],
+      "heads": {
+        "pr": "f0e07d679eb07c71af8ec3581cae7ce92c931531",
+        "main": "be67da8cfd7b40b9bc10a2350e9ef395e3c5e2c3"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n  contained  refs/heads/good  [historical inclusion by ancestry; current retention not implied]\n  UNKNOWN    refs/heads/good: current retention: unsupported: needs a nonempty whitespace-exact linear replay\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "--merged-prs",
+        "1",
+        "--current-retention"
+      ],
+      "heads": {
+        "pr": "f0e07d679eb07c71af8ec3581cae7ce92c931531",
+        "main": "be67da8cfd7b40b9bc10a2350e9ef395e3c5e2c3"
+      },
+      "rc": 0,
+      "stdout": "  contained  #1 pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n  retained   #1 pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n",
+      "stderr": ""
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--current-retention",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "heads": {
+        "pr": "f0e07d679eb07c71af8ec3581cae7ce92c931531",
+        "main": "f0e07d679eb07c71af8ec3581cae7ce92c931531"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion by ancestry; current retention not implied]\n  UNKNOWN    refs/heads/pr: current retention: unsupported: needs a nonempty whitespace-exact linear replay\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "mutant",
+      "args": [
+        "--no-fetch",
+        "--current-retention",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "heads": {
+        "pr": "f0e07d679eb07c71af8ec3581cae7ce92c931531",
+        "main": "f0e07d679eb07c71af8ec3581cae7ce92c931531"
+      },
+      "before": "return False, \"unsupported: needs a nonempty whitespace-exact linear replay\"",
+      "after": "return True, \"unsupported: needs a nonempty whitespace-exact linear replay\"",
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [historical inclusion by ancestry; current retention not implied]\n  retained   refs/heads/pr: current retention: unsupported: needs a nonempty whitespace-exact linear replay\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--current-retention",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "heads": {
+        "pr": "09aa4449ddc2d53d838f693d9c5d049f3a3b6765",
+        "main": "7468b275f4150dd7efeb2bbd9c685aa7f0e9e2be"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (2 commit(s) not ancestors -- squash or rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unsupported: source-only history contains merges\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "mutant",
+      "args": [
+        "--no-fetch",
+        "--current-retention",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "heads": {
+        "pr": "09aa4449ddc2d53d838f693d9c5d049f3a3b6765",
+        "main": "7468b275f4150dd7efeb2bbd9c685aa7f0e9e2be"
+      },
+      "before": "if int(merges) != 0:",
+      "after": "if False:",
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (2 commit(s) not ancestors -- squash or rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n"
+    },
+    {
+      "kind": "production",
+      "args": [
+        "--no-fetch",
+        "--current-retention",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "heads": {
+        "pr": "67de1659db8ca6b4d1a32bddceb6da3185b3fd91",
+        "main": "7468b275f4150dd7efeb2bbd9c685aa7f0e9e2be"
+      },
+      "rc": 1,
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (2 commit(s) not ancestors -- squash or rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unsupported: needs a nonempty whitespace-exact linear replay\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    {
+      "kind": "mutant",
+      "args": [
+        "--no-fetch",
+        "--current-retention",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "heads": {
+        "pr": "67de1659db8ca6b4d1a32bddceb6da3185b3fd91",
+        "main": "7468b275f4150dd7efeb2bbd9c685aa7f0e9e2be"
+      },
+      "before": "matched, error = replay(source, target)",
+      "after": "matched, error = True, None",
+      "rc": 0,
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (2 commit(s) not ancestors -- squash or rebase merge)]\n  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved\n"
+    }
+  ]
+}

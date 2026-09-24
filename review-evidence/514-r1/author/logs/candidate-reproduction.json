@@ -1,0 +1,22 @@
+[
+  {
+    "name": "fixture30",
+    "branch_head": "9a9c1e7b26ff2d3439ef5c5ec439cc3a13c9a34a",
+    "base_tip": "219aa2256e055e8a577f9899ac6d36bd8bd986e0",
+    "rc": 0,
+    "stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n",
+    "stderr": "",
+    "optional_rc": 1,
+    "optional_stdout": "  contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n  UNKNOWN    refs/heads/pr: current retention: unproved on: 'mod.txt'\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n"
+  },
+  {
+    "name": "linear-patch-fallback",
+    "branch_head": "8c7f71d524a70c49ae12d4f9d38bfc6adf782077",
+    "base_tip": "206dc8a16726a10e15dfe9946a51777139402daa",
+    "rc": 0,
+    "stdout": "  contained  refs/heads/linear-feature  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/linear-base (1 not ancestors -- rebase merge)]\n",
+    "stderr": "",
+    "optional_rc": 1,
+    "optional_stdout": "  contained  refs/heads/linear-feature  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/linear-base (1 not ancestors -- rebase merge)]\n  UNKNOWN    refs/heads/linear-feature: current retention: unproved on: 'linear'\n\n1 tip(s) lack a requested proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n"
+  }
+]

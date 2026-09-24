@@ -1,0 +1,166 @@
+[
+  {
+    "name": "containment-selftest",
+    "command": [
+      "python3",
+      "scripts/check_merge_containment.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/containment-selftest.log"
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/docs-check.log"
+  },
+  {
+    "name": "docs-check-no-git",
+    "command": [
+      "env",
+      "GIT_DIR=/dev/null",
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/docs-check-no-git.log"
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "3d2f3e3131c9db5898e1db9dd3e2a35149843109"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/em-dash.log"
+  },
+  {
+    "name": "em-dash-selftest",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/em-dash-selftest.log"
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/doc-style.log"
+  },
+  {
+    "name": "doc-style-selftest",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/doc-style-selftest.log"
+  },
+  {
+    "name": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/toc.log"
+  },
+  {
+    "name": "toc-selftest",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/toc-selftest.log"
+  },
+  {
+    "name": "toc-anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/toc-anchors.log"
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/doc-paths.log"
+  },
+  {
+    "name": "python-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/python-idiom.log"
+  },
+  {
+    "name": "python-idiom-selftest",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/python-idiom-selftest.log"
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "3d2f3e3131c9db5898e1db9dd3e2a35149843109"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/diff-check.log"
+  },
+  {
+    "name": "diff-check-worktree",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "head": "20b7bdaa307eba722ec6cc89d2683ba1636a0cb6",
+    "log": "logs/diff-check-worktree.log"
+  }
+]
