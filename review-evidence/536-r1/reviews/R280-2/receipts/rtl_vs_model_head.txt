@@ -1,0 +1,42 @@
+f002 MATCH line 89 mt=2 cdl=22 @22..=0001000000000000dead -> model mt=3 st=1 cdl=22 | an ADDRESS_ACCESS command is answered as an ADDRESS_ACCESS response
+f003 MATCH line 131 mt=6 cdl=20 @22..=001bc50ac10000000000 -> model mt=7 st=0 cdl=32 | a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact --
+f004 MATCH line 136 mt=6 cdl=28 @22..=001bc50ac10000010000 -> model mt=7 st=1 cdl=28 | a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact --
+f005 MATCH line 137 mt=6 cdl=20 @22..=001bc50ac10000020000 -> model mt=7 st=1 cdl=20 | a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact --
+f006 MATCH line 138 mt=6 cdl=92 @22..=001bc50ac10000030000 -> model mt=7 st=1 cdl=92 | a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact --
+f007 MATCH line 139 mt=6 cdl=20 @22..=001bc50ac10000040000 -> model mt=7 st=1 cdl=20 | a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact --
+f008 MATCH line 150 mt=6 cdl=20 @22..=001bc50ac10000000000 -> model mt=7 st=0 cdl=32 | GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
+f009 MATCH line 181 mt=6 cdl=20 @22..=ff1bc50ac10000000000 -> model mt=7 st=1 cdl=20 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.1 each compared field, one at a tim
+f010 MATCH line 182 mt=6 cdl=20 @22..=00ffc50ac10000000000 -> model mt=7 st=1 cdl=20 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.2 each compared field, one at a tim
+f011 MATCH line 183 mt=6 cdl=20 @22..=001bff0ac10000000000 -> model mt=7 st=1 cdl=20 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.3 each compared field, one at a tim
+f012 MATCH line 184 mt=6 cdl=20 @22..=001bc5ffc10000000000 -> model mt=7 st=1 cdl=20 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.4 each compared field, one at a tim
+f013 MATCH line 185 mt=6 cdl=20 @22..=001bc50aff0000000000 -> model mt=7 st=1 cdl=20 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.5 each compared field, one at a tim
+f014 MATCH line 186 mt=6 cdl=20 @22..=001bc50ad10000000000 -> model mt=7 st=1 cdl=20 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.6 each compared field, one at a tim
+f015 MATCH line 187 mt=6 cdl=20 @22..=001bc50ac20000000000 -> model mt=7 st=1 cdl=20 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.7 each compared field, one at a tim
+f016 MATCH line 188 mt=6 cdl=20 @22..=001bc50ac1ff00000000 -> model mt=7 st=1 cdl=20 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.8 each compared field, one at a tim
+f017 MATCH line 189 mt=6 cdl=20 @22..=001bc50ac10100000000 -> model mt=7 st=1 cdl=20 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.9 each compared field, one at a tim
+f018 MATCH line 190 mt=6 cdl=20 @22..=001bc50ac10080000000 -> model mt=7 st=1 cdl=20 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.10 each compared field, one at a ti
+f019 MATCH line 191 mt=6 cdl=19 @22..=001bc50ac10000000000 -> model mt=7 st=1 cdl=19 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.11 each compared field, one at a ti
+f020 MATCH line 196 mt=6 cdl=20 @22..=001bc50ac1000000dead -> model mt=7 st=0 cdl=32 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.1 the two things the sub-decode doe
+f021 MATCH line 197 mt=6 cdl=24 @22..=001bc50ac10000000000 -> model mt=7 st=0 cdl=32 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.2 the two things the sub-decode doe
+f022 MATCH line 198 mt=6 cdl=112 @22..=001bc50ac10000000000 -> model mt=7 st=0 cdl=32 | only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.3 the two things the sub-decode doe
+f023 MATCH line 219 mt=0 cdl=20 @22..=001bc50ac10000000000 -> model mt=1 st=1 cdl=20 | the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.1 every 
+f024 MATCH line 220 mt=2 cdl=20 @22..=001bc50ac10000000000 -> model mt=3 st=1 cdl=20 | the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.2 every 
+f025 MATCH line 221 mt=4 cdl=20 @22..=001bc50ac10000000000 -> model mt=5 st=1 cdl=20 | the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.3 every 
+f026 MATCH line 222 mt=8 cdl=20 @22..=001bc50ac10000000000 -> model mt=9 st=1 cdl=20 | the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.4 every 
+f027 MATCH line 223 mt=10 cdl=20 @22..=001bc50ac10000000000 -> model mt=11 st=1 cdl=20 | the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.5 every 
+f028 MATCH line 224 mt=12 cdl=20 @22..=001bc50ac10000000000 -> model mt=13 st=1 cdl=20 | the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.6 every 
+f029 MATCH line 225 mt=14 cdl=20 @22..=001bc50ac10000000000 -> model mt=15 st=1 cdl=20 | the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.7 every 
+f030 MATCH line 255 mt=6 cdl=20 @22..=0004aabbccdd00000000 -> model mt=7 st=1 cdl=20 | a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @
+f031 MATCH line 256 mt=6 cdl=20 @22..=0026aabbccdd00000000 -> model mt=7 st=1 cdl=20 | a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @
+f032 MATCH line 257 mt=6 cdl=20 @22..=0029aabbccdd00000000 -> model mt=7 st=1 cdl=20 | a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @
+f033 MATCH line 258 mt=6 cdl=20 @22..=002baabbccdd00000000 -> model mt=7 st=1 cdl=20 | a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @
+f034 MATCH line 262 mt=6 cdl=20 @22..=8004aabbccdd00000000 -> model mt=7 st=1 cdl=20 | a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @
+f035 MATCH line 263 mt=6 cdl=20 @22..=fc1baabbccdd00000000 -> model mt=7 st=1 cdl=20 | a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @
+f036 MATCH line 279 mt=4 cdl=20 @22..=0004aabbccdd00000000 -> model mt=5 st=1 cdl=20 | a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.1 the 
+f037 MATCH line 280 mt=4 cdl=20 @22..=0014aabbccdd00000000 -> model mt=5 st=1 cdl=20 | a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.2 the 
+f038 MATCH line 281 mt=8 cdl=20 @22..=0004aabbccdd00000000 -> model mt=9 st=1 cdl=20 | a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.3 the 
+f039 MATCH line 282 mt=10 cdl=20 @22..=0006aabbccdd00000000 -> model mt=11 st=1 cdl=20 | a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.4 the 
+f040 MATCH line 283 mt=12 cdl=20 @22..=0016aabbccdd00000000 -> model mt=13 st=1 cdl=20 | a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.5 the 
+f041 MATCH line 284 mt=14 cdl=20 @22..=0018aabbccdd00000000 -> model mt=15 st=1 cdl=20 | a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.6 the 
+f042 MATCH line 288 mt=0 cdl=20 @22..=00260000000000000000 -> model mt=1 st=7 cdl=20 | IDENTIFY_NOTIFICATION arriving as a command is BAD_ARGUMENTS
+frames 41  match 41  mismatch 0  sim exit 0

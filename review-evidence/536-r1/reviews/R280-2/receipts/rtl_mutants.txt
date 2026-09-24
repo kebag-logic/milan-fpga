@@ -1,0 +1,13 @@
+3193:                pid_lo_r[1] <= (rxs_rd_data_i[7:4] == MVU_PID_L1_C[7:4]);
+f041 MATCH line 284 mt=14 cdl=20 @22..=0018aabbccdd00000000 -> model mt=15 st=1 cdl=20 | a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.6 the 
+f042 MATCH line 288 mt=0 cdl=20 @22..=00260000000000000000 -> model mt=1 st=7 cdl=20 | IDENTIFY_NOTIFICATION arriving as a command is BAD_ARGUMENTS
+frames 41  match 40  mismatch 1  sim exit 0
+arm nib exit 1
+f015 MISMATCH line 187 mt=6 cdl=20 @22..=001bc50ac20000000000 -> model mt=7 st=1 cdl=20 | only a whole Figure 
+1292:                                && (pld_cmd_r  == MVU_CMD_PLD_C)
+f041 MATCH line 284 mt=14 cdl=20 @22..=0018aabbccdd00000000 -> model mt=15 st=1 cdl=20 | a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.6 the 
+f042 MATCH line 288 mt=0 cdl=20 @22..=00260000000000000000 -> model mt=1 st=7 cdl=20 | IDENTIFY_NOTIFICATION arriving as a command is BAD_ARGUMENTS
+frames 41  match 39  mismatch 2  sim exit 0
+arm len exit 1
+f021 MISMATCH line 197 mt=6 cdl=24 @22..=001bc50ac10000000000 -> model mt=7 st=0 cdl=32 | only a whole Figure 
+f022 MISMATCH line 198 mt=6 cdl=112 @22..=001bc50ac10000000000 -> model mt=7 st=0 cdl=32 | only a whole Figure
