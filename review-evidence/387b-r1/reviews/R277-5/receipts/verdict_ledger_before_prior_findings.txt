@@ -1,0 +1,9 @@
+Written before any other reviewer's findings on PR #555 round 2 (R276-5) were read.
+Verdict: [R277] NEGATIVE - exact head 0f003fab3303858ba4db955ad3c0512e67a8018b
+F1 MINOR Docs: the 2700 s milan_dp budget is still stated as current in docs/testing/TESTING.md:166-167,
+  docs/testing/RUNNING_TESTS.md:79, tb/verilator/milan_dp_gptp/README.md:31 and the
+  tb/verilator/milan_dp/render_mutants.py:37 docstring, contradicting run_all_suites.sh:245 (3600 s).
+S1 SUGGESTION Docs: CI_WORKFLOWS.md:166 "Two runs timed out 1 s and 13 s early" misstates the old record.
+Ledger draft:
+Conformance CLEAN | RTL CLEAN | Robustness CLEAN | Tests CLEAN (pending the exact-head hosted shard 4/5 read) | Docs UNCLEAN (F1)
+Thu Sep 24 08:26:25 PM UTC 2026

@@ -1,0 +1,56 @@
+GNU Make 4.3
+== parent: make  -C (recipe runs the runner's freshness check)
+make: Entering directory '<tmp>'
+gmstep fresh is_fresh: True
+option-off fresh is_fresh: True
+make: Leaving directory '<tmp>'
+make: Entering directory '<tmp>'
+gmstep src-newer is_fresh: False
+option-off src-newer is_fresh: False
+make: Leaving directory '<tmp>'
+make: Entering directory '<tmp>'
+gmstep fresh-again is_fresh: True
+option-off fresh-again is_fresh: True
+make: Leaving directory '<tmp>'
+== parent: make -w -C (recipe runs the runner's freshness check)
+make: Entering directory '<tmp>'
+gmstep fresh is_fresh: True
+option-off fresh is_fresh: True
+make: Leaving directory '<tmp>'
+make: Entering directory '<tmp>'
+gmstep src-newer is_fresh: False
+option-off src-newer is_fresh: False
+make: Leaving directory '<tmp>'
+make: Entering directory '<tmp>'
+gmstep fresh-again is_fresh: True
+option-off fresh-again is_fresh: True
+make: Leaving directory '<tmp>'
+rc=0
+GNU Make 4.4.1
+== parent: make  -C (recipe runs the runner's freshness check)
+make: Entering directory '<tmp>'
+gmstep fresh is_fresh: True
+option-off fresh is_fresh: True
+make: Leaving directory '<tmp>'
+make: Entering directory '<tmp>'
+gmstep src-newer is_fresh: False
+option-off src-newer is_fresh: False
+make: Leaving directory '<tmp>'
+make: Entering directory '<tmp>'
+gmstep fresh-again is_fresh: True
+option-off fresh-again is_fresh: True
+make: Leaving directory '<tmp>'
+== parent: make -w -C (recipe runs the runner's freshness check)
+make: Entering directory '<tmp>'
+gmstep fresh is_fresh: True
+option-off fresh is_fresh: True
+make: Leaving directory '<tmp>'
+make: Entering directory '<tmp>'
+gmstep src-newer is_fresh: False
+option-off src-newer is_fresh: False
+make: Leaving directory '<tmp>'
+make: Entering directory '<tmp>'
+gmstep fresh-again is_fresh: True
+option-off fresh-again is_fresh: True
+make: Leaving directory '<tmp>'
+rc=0
