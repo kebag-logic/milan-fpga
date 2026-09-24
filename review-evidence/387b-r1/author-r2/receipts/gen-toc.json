@@ -1,0 +1,17 @@
+{
+  "label": "gen-toc",
+  "command": [
+    "python3",
+    "scripts/gen_toc.py",
+    "--check"
+  ],
+  "cwd": "$LANES/387-media-rebase",
+  "env_overrides": {
+    "PATH": "$VALIDATION_STORAGE/387b-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$WORKSPACE_HOME/.claude/plugins/cache/zoharbabin-claude-tools/message-timestamps/1.3.0/bin"
+  },
+  "path": "$VALIDATION_STORAGE/387b-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$WORKSPACE_HOME/.claude/plugins/cache/zoharbabin-claude-tools/message-timestamps/1.3.0/bin",
+  "exit_code": 0,
+  "started_utc": "2026-09-24T17:41:14Z",
+  "elapsed_seconds": 2.286,
+  "log_sha256": "90c5a357d41bba61547c6d1f3160cf9d4923570db22a4ae9e670acad3d15b3af"
+}

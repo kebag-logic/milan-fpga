@@ -1,0 +1,22 @@
+{
+  "label": "gmstep-mutants-all",
+  "command": [
+    "make",
+    "-C",
+    "tb/verilator/milan_dp",
+    "gmstep-mutants",
+    "VERILATOR=$VALIDATION_TOOLS/verilator-v5.050/bin/verilator",
+    "VERILATOR_JOBS=8"
+  ],
+  "cwd": "$LANES/387-media-rebase",
+  "env_overrides": {
+    "PATH": "$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$WORKSPACE_HOME/.claude/plugins/cache/zoharbabin-claude-tools/message-timestamps/1.3.0/bin",
+    "VERILATOR": "$VALIDATION_TOOLS/verilator-v5.050/bin/verilator",
+    "VERILATOR_JOBS": "8"
+  },
+  "path": "$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$WORKSPACE_HOME/.claude/plugins/cache/zoharbabin-claude-tools/message-timestamps/1.3.0/bin",
+  "exit_code": 0,
+  "started_utc": "2026-09-24T17:18:12Z",
+  "elapsed_seconds": 404.86,
+  "log_sha256": "32b6d4cda032e67d1084cd977d98ae7aba605f435aff71b35486429944c9012a"
+}

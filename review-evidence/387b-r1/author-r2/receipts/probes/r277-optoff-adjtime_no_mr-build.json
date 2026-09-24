@@ -1,0 +1,23 @@
+{
+  "label": "probes/r277-optoff-adjtime_no_mr-build",
+  "command": [
+    "make",
+    "-s",
+    "-C",
+    "tb/verilator/milan_dp",
+    "option-off-build",
+    "VERILATOR=$VALIDATION_TOOLS/verilator-v5.050/bin/verilator",
+    "VERILATOR_JOBS=8",
+    "OPTOFF_MDIR=/tmp/a270-scratch/r277-plant-adjtime_no_mr/obj",
+    "DP_SRC=/tmp/a270-scratch/r277-plant-adjtime_no_mr/hdl/milan/milan_datapath.sv"
+  ],
+  "cwd": "$LANES/387-media-rebase",
+  "env_overrides": {
+    "PATH": "$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$WORKSPACE_HOME/.claude/plugins/cache/zoharbabin-claude-tools/message-timestamps/1.3.0/bin"
+  },
+  "path": "$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$WORKSPACE_HOME/.claude/plugins/cache/zoharbabin-claude-tools/message-timestamps/1.3.0/bin",
+  "exit_code": 0,
+  "started_utc": "2026-09-24T17:52:20Z",
+  "elapsed_seconds": 11.745,
+  "log_sha256": "ac06a9b612658379301feabc845cf96caa6566617e099db6d9d6cfeeb6598197"
+}

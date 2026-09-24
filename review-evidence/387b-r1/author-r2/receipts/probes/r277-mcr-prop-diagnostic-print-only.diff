@@ -1,0 +1,14 @@
+--- /tmp/a270-scratch/ev/review-evidence/387b-r1/reviews/R277-3/probes/mcr_prop/tb.cpp	2026-09-24 18:31:26.807811925 +0200
++++ /tmp/a270-scratch/r277-diag/tb.cpp	2026-09-24 19:51:32.378789690 +0200
+@@ -90,7 +90,10 @@
+         for (; k < launch_cyc[t].size() && launch_cyc[t][k] <= c; k++) before = launches[t][k];
+         bool served = false;
+         for (; k < launches[t].size(); k++) if (launches[t][k] != before) { served = true; break; }
+-        if (!served && before >= 0) lost++;
++        if (!served && before >= 0) { lost++;
++          size_t j = k; /* unused */ (void)j; size_t kk=0; for (; kk < launch_cyc[t].size() && launch_cyc[t][kk] <= c; kk++);
++          long lc = launch_cyc[t][kk-1]; bool first = kk>=2 && launches[t][kk-1] != launches[t][kk-2];
++          printf("LOST t=%d req=%ld lastlaunch=%ld dt=%ld first_at_level=%d\n", t, c, lc, c-lc, (int)first); }
+       }
+       // P2
+       long last = -1000;
