@@ -11,6 +11,10 @@
 #   make crflic - run only the #530 CRF talker licence leg (compressed time)
 #   make crflic-mutants - that leg's explicit mutation campaign
 #                 (crflic_mutants.py), outside the sweep's deadline
+#   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
+#                 the acceptance's controls of it (gmstep_mutants.py)
+#   make gmstep-mutants - that leg's whole control inventory, outside the
+#                 sweep's deadline
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -190,7 +194,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+.PHONY: all run gptp gmstep gmstep-build gmstep-mutants option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -306,11 +310,13 @@ gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 # issue #387 acceptance 3: the `gptp` leg's elaboration, driven through a
 # grandmaster change that steps the PHC by 1.5 s while the AAF listener is
 # bound and locked under CRF selection (sim_gmstep.cpp's banner has the
-# model). GMSTEP_MDIR is overridable so the leg's negative controls build
-# through this same recipe (their runner joins with the #387 datapath edit);
-# the AEM image is the shipping config's. GMSTEP_FEED_DELAY idles that many
-# fabric cycles before the peer's media feed starts, which moves the accept
-# phase against the media tick; the leg must pass at every delay.
+# model). `run` runs it and then its negative controls, gmstep_mutants.py,
+# which build mutated copies through this same recipe (GMSTEP_MDIR and
+# DP_SRC, CLKV_SRC or RSP_SRC overridden); the sweep plants the three
+# controls the acceptance names, and gmstep-mutants below the whole
+# inventory. The AEM image is the shipping config's. GMSTEP_FEED_DELAY idles
+# that many fabric cycles before the peer's media feed starts, which moves
+# the accept phase against the media tick; the leg must pass at every delay.
 GMSTEP_MDIR ?= obj_gmstep
 GMSTEP_FEED_DELAY ?= 0
 gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
@@ -322,6 +328,11 @@ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 
 gmstep: gmstep-build
 	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)
+
+# An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md): the
+# gmstep leg's whole control inventory, one datapath elaboration per control.
+gmstep-mutants: gmstep
+	python3 gmstep_mutants.py --all
 
 # issue #358: THE SAME LEG WITH THE BOARD LATENCY CORRECTIONS ON. The `gptp`
 # target above leaves both constants at their zero defaults and therefore
@@ -415,7 +426,7 @@ ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) 
 ax1x1gptp-extended: AX_GPTP_ARGS = --extended
 ax1x1gptp-extended: ax1x1gptp
 
-run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
+run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat gmstep
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
@@ -511,6 +522,8 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 	./obj_aclk/Vmilan_dp_aclk
 	@echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
 	python3 render_mutants.py
+	@echo "---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----"
+	python3 gmstep_mutants.py
 # The physical-rate leg has its own milan_dp_gptp suite deadline. Its focused
 # target stays here so there is only one source/parameter/build recipe.
 
