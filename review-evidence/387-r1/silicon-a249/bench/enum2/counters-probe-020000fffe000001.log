@@ -1,0 +1,14 @@
+LOG [Info] Using libpcap.so: libpcap version 1.10.6 (64-bit time_t, with TPACKET_V3)
+LOG [Info] Using libpcap.so: libpcap version 1.10.6 (64-bit time_t, with TPACKET_V3)
+PROBE: la_avdecc 4.3.1-beta1 on ens10
+PROBE: DUT entity 0x020000fffe000001
+PROBE: GET_COUNTERS ENTITY -> The command is implemented but the target of the command is not supported. For example trying to set the value of a read - only Control.
+PROBE: stream_input[0] counters_valid 0x00000fff
+PROBE: GET_COUNTERS STREAM_INPUT 0 -> Success.
+PROBE: GET_COUNTERS STREAM_INPUT 999 -> A descriptor with the descriptor_type and descriptor_index specified does not exist.
+PROBE: avb_interface[0] counters_valid 0x00000023
+PROBE: GET_COUNTERS AVB_INTERFACE 0 -> Success.
+PROBE: clock_domain[0] counters_valid 0x00000003
+PROBE: GET_COUNTERS CLOCK_DOMAIN 0 -> Success.
+PROBE: verdict CLEAN (rc=0, complaints=0)
+PROBE_RC=0

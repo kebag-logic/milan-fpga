@@ -1,0 +1,2624 @@
+{
+    "$schema": "https://raw.githubusercontent.com/L-Acoustics/avdecc/refs/heads/main/resources/schemas/AVE/v2/schema.json",
+    "_dump_source (informative)": "issue 117 A200 enumeration",
+    "adp_information": {
+        "common": {
+            "association_id": null,
+            "controller_capabilities": null,
+            "entity_capabilities": [
+                "EFU_MODE",
+                "ADDRESS_ACCESS_SUPPORTED",
+                "AEM_SUPPORTED",
+                "VENDOR_UNIQUE_SUPPORTED",
+                "CLASS_A_SUPPORTED",
+                "GPTP_SUPPORTED",
+                "AEM_IDENTIFY_CONTROL_INDEX_VALID",
+                "AEM_INTERFACE_INDEX_VALID"
+            ],
+            "entity_id": "0x3CC0C60102030000",
+            "entity_model_id": "0x3CC0C60000010101",
+            "identify_control_index": 0,
+            "listener_capabilities": [
+                "IMPLEMENTED",
+                "AUDIO_SINK"
+            ],
+            "listener_stream_sinks": 10,
+            "talker_capabilities": [
+                "IMPLEMENTED",
+                "AUDIO_SOURCE"
+            ],
+            "talker_stream_sources": 4
+        },
+        "interfaces": [
+            {
+                "available_index": 17845,
+                "avb_interface_index": 0,
+                "gptp_domain_number": 0,
+                "gptp_grandmaster_id": "0x3CC0C6FFFEFE0210",
+                "mac_address": "3C:C0:C6:01:02:03",
+                "valid_time": 10
+            }
+        ]
+    },
+    "compatibility_events": [],
+    "compatibility_flags": [
+        "IEEE17221",
+        "MILAN"
+    ],
+    "diagnostics": {
+        "redundancy_warning": false,
+        "stream_input_latency_errors": []
+    },
+    "dump_version": 2,
+    "entity_model": {
+        "aem_format_version": 2,
+        "entity_descriptor": {
+            "configuration_descriptors": [
+                {
+                    "_index (informative)": 0,
+                    "audio_unit_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "control_descriptors": null,
+                            "dynamic": {
+                                "current_sampling_rate": "0x00017700",
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_domain_index": 0,
+                                "control_counts": 0,
+                                "localized_description": null,
+                                "sampling_rates": [
+                                    "0x00017700"
+                                ]
+                            },
+                            "stream_port_input_descriptors": [
+                                {
+                                    "_index (informative)": 0,
+                                    "audio_cluster_descriptors": [
+                                        {
+                                            "_index (informative)": 0,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 0,
+                                                    "offset": 3
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 1,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 1,
+                                                    "offset": 3
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 2,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 2,
+                                                    "offset": 3
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 3,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 3,
+                                                    "offset": 3
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 4,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 4,
+                                                    "offset": 3
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 5,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 5,
+                                                    "offset": 3
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 6,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 6,
+                                                    "offset": 3
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 7,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 0,
+                                                    "offset": 4
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 8,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 1,
+                                                    "offset": 4
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 9,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 2,
+                                                    "offset": 4
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 10,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 3,
+                                                    "offset": 4
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 11,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 4,
+                                                    "offset": 4
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 12,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 5,
+                                                    "offset": 4
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 13,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 6,
+                                                    "offset": 4
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 14,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 0,
+                                                    "offset": 5
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 15,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 1,
+                                                    "offset": 5
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        }
+                                    ],
+                                    "audio_map_descriptors": null,
+                                    "control_descriptors": null,
+                                    "dynamic": {
+                                        "dynamic_mappings": [
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 0,
+                                                "stream_channel": 0,
+                                                "stream_index": 0
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 1,
+                                                "stream_channel": 1,
+                                                "stream_index": 0
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 2,
+                                                "stream_channel": 2,
+                                                "stream_index": 0
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 3,
+                                                "stream_channel": 3,
+                                                "stream_index": 0
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 0,
+                                                "stream_channel": 0,
+                                                "stream_index": 1
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 1,
+                                                "stream_channel": 1,
+                                                "stream_index": 1
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 2,
+                                                "stream_channel": 2,
+                                                "stream_index": 1
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 3,
+                                                "stream_channel": 3,
+                                                "stream_index": 1
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 4,
+                                                "stream_channel": 0,
+                                                "stream_index": 2
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 5,
+                                                "stream_channel": 1,
+                                                "stream_index": 2
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 6,
+                                                "stream_channel": 2,
+                                                "stream_index": 2
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 7,
+                                                "stream_channel": 3,
+                                                "stream_index": 2
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 4,
+                                                "stream_channel": 0,
+                                                "stream_index": 3
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 5,
+                                                "stream_channel": 1,
+                                                "stream_index": 3
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 6,
+                                                "stream_channel": 2,
+                                                "stream_index": 3
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 7,
+                                                "stream_channel": 3,
+                                                "stream_index": 3
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 8,
+                                                "stream_channel": 0,
+                                                "stream_index": 4
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 9,
+                                                "stream_channel": 1,
+                                                "stream_index": 4
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 10,
+                                                "stream_channel": 2,
+                                                "stream_index": 4
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 11,
+                                                "stream_channel": 3,
+                                                "stream_index": 4
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 8,
+                                                "stream_channel": 0,
+                                                "stream_index": 5
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 9,
+                                                "stream_channel": 1,
+                                                "stream_index": 5
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 10,
+                                                "stream_channel": 2,
+                                                "stream_index": 5
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 11,
+                                                "stream_channel": 3,
+                                                "stream_index": 5
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 12,
+                                                "stream_channel": 0,
+                                                "stream_index": 6
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 13,
+                                                "stream_channel": 1,
+                                                "stream_index": 6
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 14,
+                                                "stream_channel": 2,
+                                                "stream_index": 6
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 15,
+                                                "stream_channel": 3,
+                                                "stream_index": 6
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 12,
+                                                "stream_channel": 0,
+                                                "stream_index": 7
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 13,
+                                                "stream_channel": 1,
+                                                "stream_index": 7
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 14,
+                                                "stream_channel": 2,
+                                                "stream_index": 7
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 15,
+                                                "stream_channel": 3,
+                                                "stream_index": 7
+                                            }
+                                        ]
+                                    },
+                                    "static": {
+                                        "clock_domain_index": 0,
+                                        "control_counts": 0,
+                                        "flags": [
+                                            "CLOCK_SYNC_SOURCE"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "stream_port_output_descriptors": [
+                                {
+                                    "_index (informative)": 0,
+                                    "audio_cluster_descriptors": [
+                                        {
+                                            "_index (informative)": 16,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 2,
+                                                    "offset": 5
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 17,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 3,
+                                                    "offset": 5
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 18,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 4,
+                                                    "offset": 5
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 19,
+                                            "dynamic": {
+                                                "object_name": ""
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": {
+                                                    "index": 5,
+                                                    "offset": 5
+                                                },
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        }
+                                    ],
+                                    "audio_map_descriptors": null,
+                                    "control_descriptors": null,
+                                    "dynamic": {
+                                        "dynamic_mappings": [
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 0,
+                                                "stream_channel": 0,
+                                                "stream_index": 0
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 1,
+                                                "stream_channel": 1,
+                                                "stream_index": 0
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 2,
+                                                "stream_channel": 2,
+                                                "stream_index": 0
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 3,
+                                                "stream_channel": 3,
+                                                "stream_index": 0
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 0,
+                                                "stream_channel": 0,
+                                                "stream_index": 1
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 1,
+                                                "stream_channel": 1,
+                                                "stream_index": 1
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 2,
+                                                "stream_channel": 2,
+                                                "stream_index": 1
+                                            },
+                                            {
+                                                "cluster_channel": 0,
+                                                "cluster_offset": 3,
+                                                "stream_channel": 3,
+                                                "stream_index": 1
+                                            }
+                                        ]
+                                    },
+                                    "static": {
+                                        "clock_domain_index": 0,
+                                        "control_counts": 0,
+                                        "flags": null
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "avb_interface_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "as_path": [
+                                    "0x3CC0C6FFFEFE0210",
+                                    "0x3CC0C6FFFE010203"
+                                ],
+                                "avb_interface_info": {
+                                    "flags": [
+                                        "AS_CAPABLE",
+                                        "GPTP_ENABLED",
+                                        "SRP_ENABLED"
+                                    ],
+                                    "msrp_mappings": [
+                                        {
+                                            "priority": 3,
+                                            "traffic_class": 6,
+                                            "vlan_id": 2
+                                        }
+                                    ],
+                                    "propagation_delay": 0
+                                },
+                                "clock_accuracy": 33,
+                                "clock_class": 248,
+                                "clock_identity": "0x3CC0C6FFFE010203",
+                                "counters": {
+                                    "GPTP_GM_CHANGED": 15,
+                                    "LINK_DOWN": 0,
+                                    "LINK_UP": 1
+                                },
+                                "domain_number": 0,
+                                "gptp_domain_number": 0,
+                                "gptp_grandmaster_id": "0x3CC0C6FFFEFE0210",
+                                "log_announce_interval": 0,
+                                "log_pdelay_interval": 0,
+                                "log_sync_interval": 0,
+                                "mac_address": "3C:C0:C6:01:02:03",
+                                "object_name": "",
+                                "offset_scaled_log_variance": 17258,
+                                "priority1": 248,
+                                "priority2": 248
+                            },
+                            "static": {
+                                "flags": [
+                                    "GPTP_GRANDMASTER_SUPPORTED",
+                                    "GPTP_SUPPORTED",
+                                    "SRP_SUPPORTED"
+                                ],
+                                "localized_description": {
+                                    "index": 3,
+                                    "offset": 0
+                                },
+                                "port_number": 0
+                            }
+                        },
+                        {
+                            "_index (informative)": 1,
+                            "dynamic": {
+                                "as_path": [
+                                    "0x3CC0C6FFFE010204"
+                                ],
+                                "avb_interface_info": {
+                                    "flags": [
+                                        "AS_CAPABLE",
+                                        "GPTP_ENABLED",
+                                        "SRP_ENABLED"
+                                    ],
+                                    "msrp_mappings": [
+                                        {
+                                            "priority": 3,
+                                            "traffic_class": 6,
+                                            "vlan_id": 2
+                                        }
+                                    ],
+                                    "propagation_delay": 0
+                                },
+                                "clock_accuracy": 33,
+                                "clock_class": 248,
+                                "clock_identity": "0x3CC0C6FFFE010204",
+                                "counters": {
+                                    "GPTP_GM_CHANGED": 0,
+                                    "LINK_DOWN": 0,
+                                    "LINK_UP": 1
+                                },
+                                "domain_number": 0,
+                                "gptp_domain_number": 0,
+                                "gptp_grandmaster_id": "0x3CC0C6FFFE010204",
+                                "log_announce_interval": 0,
+                                "log_pdelay_interval": 0,
+                                "log_sync_interval": 0,
+                                "mac_address": "3C:C0:C6:01:02:04",
+                                "object_name": "",
+                                "offset_scaled_log_variance": 17258,
+                                "priority1": 248,
+                                "priority2": 248
+                            },
+                            "static": {
+                                "flags": [
+                                    "GPTP_GRANDMASTER_SUPPORTED",
+                                    "GPTP_SUPPORTED",
+                                    "SRP_SUPPORTED"
+                                ],
+                                "localized_description": {
+                                    "index": 4,
+                                    "offset": 0
+                                },
+                                "port_number": 1
+                            }
+                        }
+                    ],
+                    "clock_domain_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "clock_source_index": 0,
+                                "counters": {
+                                    "LOCKED": 1,
+                                    "UNLOCKED": 0
+                                },
+                                "media_clock_reference_info": {
+                                    "media_clock_domain_name": null,
+                                    "user_media_clock_priority": null
+                                },
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_sources": [
+                                    0,
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10
+                                ],
+                                "default_media_clock_priority": 128,
+                                "localized_description": null
+                            }
+                        }
+                    ],
+                    "clock_source_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x3CC0C60102030000",
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_source_location_index": 0,
+                                "clock_source_location_type": "ENTITY",
+                                "clock_source_type": "INTERNAL",
+                                "localized_description": {
+                                    "index": 0,
+                                    "offset": 6
+                                }
+                            }
+                        },
+                        {
+                            "_index (informative)": 1,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x3CC0C6010203000A",
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_source_location_index": 8,
+                                "clock_source_location_type": "STREAM_INPUT",
+                                "clock_source_type": "INPUT_STREAM",
+                                "localized_description": {
+                                    "index": 1,
+                                    "offset": 6
+                                }
+                            }
+                        },
+                        {
+                            "_index (informative)": 2,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x3CC0C6010203000B",
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_source_location_index": 9,
+                                "clock_source_location_type": "STREAM_INPUT",
+                                "clock_source_type": "INPUT_STREAM",
+                                "localized_description": {
+                                    "index": 2,
+                                    "offset": 6
+                                }
+                            }
+                        },
+                        {
+                            "_index (informative)": 3,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x3CC0C6010203000C",
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_source_location_index": 0,
+                                "clock_source_location_type": "STREAM_INPUT",
+                                "clock_source_type": "INPUT_STREAM",
+                                "localized_description": {
+                                    "index": 3,
+                                    "offset": 6
+                                }
+                            }
+                        },
+                        {
+                            "_index (informative)": 4,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x3CC0C6010203000D",
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_source_location_index": 1,
+                                "clock_source_location_type": "STREAM_INPUT",
+                                "clock_source_type": "INPUT_STREAM",
+                                "localized_description": {
+                                    "index": 4,
+                                    "offset": 6
+                                }
+                            }
+                        },
+                        {
+                            "_index (informative)": 5,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x3CC0C6010203000E",
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_source_location_index": 2,
+                                "clock_source_location_type": "STREAM_INPUT",
+                                "clock_source_type": "INPUT_STREAM",
+                                "localized_description": {
+                                    "index": 5,
+                                    "offset": 6
+                                }
+                            }
+                        },
+                        {
+                            "_index (informative)": 6,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x3CC0C6010203000F",
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_source_location_index": 3,
+                                "clock_source_location_type": "STREAM_INPUT",
+                                "clock_source_type": "INPUT_STREAM",
+                                "localized_description": {
+                                    "index": 6,
+                                    "offset": 6
+                                }
+                            }
+                        },
+                        {
+                            "_index (informative)": 7,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x3CC0C6010203001A",
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_source_location_index": 4,
+                                "clock_source_location_type": "STREAM_INPUT",
+                                "clock_source_type": "INPUT_STREAM",
+                                "localized_description": {
+                                    "index": 0,
+                                    "offset": 7
+                                }
+                            }
+                        },
+                        {
+                            "_index (informative)": 8,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x3CC0C6010203001B",
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_source_location_index": 5,
+                                "clock_source_location_type": "STREAM_INPUT",
+                                "clock_source_type": "INPUT_STREAM",
+                                "localized_description": {
+                                    "index": 1,
+                                    "offset": 7
+                                }
+                            }
+                        },
+                        {
+                            "_index (informative)": 9,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x3CC0C6010203001C",
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_source_location_index": 6,
+                                "clock_source_location_type": "STREAM_INPUT",
+                                "clock_source_type": "INPUT_STREAM",
+                                "localized_description": {
+                                    "index": 2,
+                                    "offset": 7
+                                }
+                            }
+                        },
+                        {
+                            "_index (informative)": 10,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x3CC0C6010203001D",
+                                "object_name": ""
+                            },
+                            "static": {
+                                "clock_source_location_index": 7,
+                                "clock_source_location_type": "STREAM_INPUT",
+                                "clock_source_type": "INPUT_STREAM",
+                                "localized_description": {
+                                    "index": 3,
+                                    "offset": 7
+                                }
+                            }
+                        }
+                    ],
+                    "control_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "object_name": "",
+                                "values": {
+                                    "type": "CONTROL_LINEAR_UINT8",
+                                    "values": [
+                                        0
+                                    ]
+                                }
+                            },
+                            "static": {
+                                "block_latency": 0,
+                                "control_domain": 0,
+                                "control_latency": 0,
+                                "control_type": "0x90E0F00000000001",
+                                "control_value_type": {
+                                    "read_only": false,
+                                    "unknown": false,
+                                    "value_type": "CONTROL_LINEAR_UINT8"
+                                },
+                                "localized_description": {
+                                    "index": 5,
+                                    "offset": 0
+                                },
+                                "number_of_values": 1,
+                                "reset_time": 0,
+                                "signal_index": 0,
+                                "signal_output": 0,
+                                "signal_type": "INVALID",
+                                "values": {
+                                    "type": "CONTROL_LINEAR_UINT8",
+                                    "values": [
+                                        {
+                                            "default": 0,
+                                            "maximum": 255,
+                                            "minimum": 0,
+                                            "step": 255,
+                                            "string": null,
+                                            "unit": {
+                                                "code": "UNITLESS",
+                                                "multiplier": 0
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    "dynamic": {
+                        "object_name": ""
+                    },
+                    "jack_input_descriptors": null,
+                    "jack_output_descriptors": null,
+                    "locale_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "static": {
+                                "_base_string_descriptor (informative)": 0,
+                                "locale_id": "en"
+                            },
+                            "strings_descriptors": [
+                                {
+                                    "_index (informative)": 0,
+                                    "static": {
+                                        "strings": [
+                                            "<bench-switch-vendor-name> <bench-switch-vendor-name>",
+                                            "<peer-product-name>",
+                                            "Redundant - 96kHz",
+                                            "Ethernet (p)",
+                                            "Ethernet (s)",
+                                            "Identify",
+                                            ""
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 1,
+                                    "static": {
+                                        "strings": [
+                                            "Stream 1 (p)",
+                                            "Stream 1 (s)",
+                                            "Stream 2 (p)",
+                                            "Stream 2 (s)",
+                                            "Stream 3 (p)",
+                                            "Stream 3 (s)",
+                                            ""
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 2,
+                                    "static": {
+                                        "strings": [
+                                            "Stream 4 (p)",
+                                            "Stream 4 (s)",
+                                            "Clock Reference Stream (p)",
+                                            "Clock Reference Stream (s)",
+                                            "",
+                                            "",
+                                            ""
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 3,
+                                    "static": {
+                                        "strings": [
+                                            "Front Output 1",
+                                            "Front Output 2",
+                                            "Front Output 3",
+                                            "Front Output 4",
+                                            "Back Output 5",
+                                            "Back Output 6",
+                                            "Back Output 7"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 4,
+                                    "static": {
+                                        "strings": [
+                                            "Back Output 8",
+                                            "Back Output 9",
+                                            "Back Output 10",
+                                            "Back Output 11",
+                                            "Back Output 12",
+                                            "Back Output 13",
+                                            "Back Output 14"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 5,
+                                    "static": {
+                                        "strings": [
+                                            "Back Output 15",
+                                            "Back Output 16",
+                                            "Front Input 1",
+                                            "Front Input 2",
+                                            "Front Input 3",
+                                            "Front Input 4",
+                                            ""
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 6,
+                                    "static": {
+                                        "strings": [
+                                            "Internal",
+                                            "Input Stream CRF (p)",
+                                            "Input Stream CRF (s)",
+                                            "Input Stream 1 AAF (p)",
+                                            "Input Stream 1 AAF (s)",
+                                            "Input Stream 2 AAF (p)",
+                                            "Input Stream 2 AAF (s)"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 7,
+                                    "static": {
+                                        "strings": [
+                                            "Input Stream 3 AAF (p)",
+                                            "Input Stream 3 AAF (s)",
+                                            "Input Stream 4 AAF (p)",
+                                            "Input Stream 4 AAF (s)",
+                                            "",
+                                            "",
+                                            ""
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 8,
+                                    "static": {
+                                        "strings": [
+                                            "Firmware Update",
+                                            "Manufacturer PNG",
+                                            "Entity PNG",
+                                            "Firmware Versions",
+                                            "",
+                                            "",
+                                            ""
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "memory_object_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "length": 10485760,
+                                "object_name": ""
+                            },
+                            "static": {
+                                "localized_description": {
+                                    "index": 0,
+                                    "offset": 8
+                                },
+                                "maximum_length": 10485760,
+                                "memory_object_type": "FIRMWARE_IMAGE",
+                                "start_address": "0x0000000000200000",
+                                "target_descriptor_index": 0,
+                                "target_descriptor_type": "ENTITY"
+                            }
+                        },
+                        {
+                            "_index (informative)": 1,
+                            "dynamic": {
+                                "length": 2708,
+                                "object_name": ""
+                            },
+                            "static": {
+                                "localized_description": {
+                                    "index": 1,
+                                    "offset": 8
+                                },
+                                "maximum_length": 2708,
+                                "memory_object_type": "PNG_MANUFACTURER",
+                                "start_address": "0x0000000000000000",
+                                "target_descriptor_index": 0,
+                                "target_descriptor_type": "ENTITY"
+                            }
+                        },
+                        {
+                            "_index (informative)": 2,
+                            "dynamic": {
+                                "length": 2150,
+                                "object_name": ""
+                            },
+                            "static": {
+                                "localized_description": {
+                                    "index": 2,
+                                    "offset": 8
+                                },
+                                "maximum_length": 9111,
+                                "memory_object_type": "PNG_ENTITY",
+                                "start_address": "0x0000000000100000",
+                                "target_descriptor_index": 0,
+                                "target_descriptor_type": "ENTITY"
+                            }
+                        },
+                        {
+                            "_index (informative)": 3,
+                            "dynamic": {
+                                "length": 254,
+                                "object_name": ""
+                            },
+                            "static": {
+                                "localized_description": {
+                                    "index": 3,
+                                    "offset": 8
+                                },
+                                "maximum_length": 254,
+                                "memory_object_type": "VENDOR_SPECIFIC",
+                                "start_address": "0x0000000000C00000",
+                                "target_descriptor_index": 0,
+                                "target_descriptor_type": "ENTITY"
+                            }
+                        }
+                    ],
+                    "ptp_instance_descriptors": null,
+                    "static": {
+                        "descriptor_counts": [
+                            [
+                                "CONTROL",
+                                1
+                            ],
+                            [
+                                "LOCALE",
+                                1
+                            ],
+                            [
+                                "MEMORY_OBJECT",
+                                4
+                            ],
+                            [
+                                "CLOCK_DOMAIN",
+                                1
+                            ],
+                            [
+                                "CLOCK_SOURCE",
+                                11
+                            ],
+                            [
+                                "AVB_INTERFACE",
+                                2
+                            ],
+                            [
+                                "STREAM_OUTPUT",
+                                4
+                            ],
+                            [
+                                "STREAM_INPUT",
+                                10
+                            ],
+                            [
+                                "AUDIO_UNIT",
+                                1
+                            ]
+                        ],
+                        "localized_description": {
+                            "index": 2,
+                            "offset": 0
+                        }
+                    },
+                    "stream_input_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "connected_talker": {
+                                    "entity_id": "0xFFFFFFFFFFFFFFFF",
+                                    "stream_index": 65535
+                                },
+                                "connection_state": "NOT_CONNECTED",
+                                "counters": {
+                                    "EARLY_TIMESTAMP": 0,
+                                    "FRAMES_RX": 0,
+                                    "LATE_TIMESTAMP": 0,
+                                    "MEDIA_LOCKED": 0,
+                                    "MEDIA_RESET": 0,
+                                    "MEDIA_UNLOCKED": 0,
+                                    "SEQ_NUM_MISMATCH": 0,
+                                    "STREAM_INTERRUPTED": 0,
+                                    "TIMESTAMP_NOT_VALID": 0,
+                                    "TIMESTAMP_UNCERTAIN": 0,
+                                    "TIMESTAMP_VALID": 0,
+                                    "UNSUPPORTED_FORMAT": 0
+                                },
+                                "object_name": "",
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": null,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x020702200200C000",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 0,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x021702200200C000"
+                                ],
+                                "localized_description": {
+                                    "index": 0,
+                                    "offset": 1
+                                },
+                                "redundant_streams": [
+                                    1
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 1,
+                            "dynamic": {
+                                "connected_talker": {
+                                    "entity_id": "0xFFFFFFFFFFFFFFFF",
+                                    "stream_index": 65535
+                                },
+                                "connection_state": "NOT_CONNECTED",
+                                "counters": {
+                                    "EARLY_TIMESTAMP": 0,
+                                    "FRAMES_RX": 0,
+                                    "LATE_TIMESTAMP": 0,
+                                    "MEDIA_LOCKED": 0,
+                                    "MEDIA_RESET": 0,
+                                    "MEDIA_UNLOCKED": 0,
+                                    "SEQ_NUM_MISMATCH": 0,
+                                    "STREAM_INTERRUPTED": 0,
+                                    "TIMESTAMP_NOT_VALID": 0,
+                                    "TIMESTAMP_UNCERTAIN": 0,
+                                    "TIMESTAMP_VALID": 0,
+                                    "UNSUPPORTED_FORMAT": 0
+                                },
+                                "object_name": "",
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": null,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x020702200200C000",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 1,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x021702200200C000"
+                                ],
+                                "localized_description": {
+                                    "index": 1,
+                                    "offset": 1
+                                },
+                                "redundant_streams": [
+                                    0
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 2,
+                            "dynamic": {
+                                "connected_talker": {
+                                    "entity_id": "0xFFFFFFFFFFFFFFFF",
+                                    "stream_index": 65535
+                                },
+                                "connection_state": "NOT_CONNECTED",
+                                "counters": {
+                                    "EARLY_TIMESTAMP": 0,
+                                    "FRAMES_RX": 0,
+                                    "LATE_TIMESTAMP": 0,
+                                    "MEDIA_LOCKED": 0,
+                                    "MEDIA_RESET": 0,
+                                    "MEDIA_UNLOCKED": 0,
+                                    "SEQ_NUM_MISMATCH": 0,
+                                    "STREAM_INTERRUPTED": 0,
+                                    "TIMESTAMP_NOT_VALID": 0,
+                                    "TIMESTAMP_UNCERTAIN": 0,
+                                    "TIMESTAMP_VALID": 0,
+                                    "UNSUPPORTED_FORMAT": 0
+                                },
+                                "object_name": "",
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": null,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x020702200200C000",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 0,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x021702200200C000"
+                                ],
+                                "localized_description": {
+                                    "index": 2,
+                                    "offset": 1
+                                },
+                                "redundant_streams": [
+                                    3
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 3,
+                            "dynamic": {
+                                "connected_talker": {
+                                    "entity_id": "0xFFFFFFFFFFFFFFFF",
+                                    "stream_index": 65535
+                                },
+                                "connection_state": "NOT_CONNECTED",
+                                "counters": {
+                                    "EARLY_TIMESTAMP": 0,
+                                    "FRAMES_RX": 0,
+                                    "LATE_TIMESTAMP": 0,
+                                    "MEDIA_LOCKED": 0,
+                                    "MEDIA_RESET": 0,
+                                    "MEDIA_UNLOCKED": 0,
+                                    "SEQ_NUM_MISMATCH": 0,
+                                    "STREAM_INTERRUPTED": 0,
+                                    "TIMESTAMP_NOT_VALID": 0,
+                                    "TIMESTAMP_UNCERTAIN": 0,
+                                    "TIMESTAMP_VALID": 0,
+                                    "UNSUPPORTED_FORMAT": 0
+                                },
+                                "object_name": "",
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": null,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x020702200200C000",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 1,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x021702200200C000"
+                                ],
+                                "localized_description": {
+                                    "index": 3,
+                                    "offset": 1
+                                },
+                                "redundant_streams": [
+                                    2
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 4,
+                            "dynamic": {
+                                "connected_talker": {
+                                    "entity_id": "0xFFFFFFFFFFFFFFFF",
+                                    "stream_index": 65535
+                                },
+                                "connection_state": "NOT_CONNECTED",
+                                "counters": {
+                                    "EARLY_TIMESTAMP": 0,
+                                    "FRAMES_RX": 0,
+                                    "LATE_TIMESTAMP": 0,
+                                    "MEDIA_LOCKED": 0,
+                                    "MEDIA_RESET": 0,
+                                    "MEDIA_UNLOCKED": 0,
+                                    "SEQ_NUM_MISMATCH": 0,
+                                    "STREAM_INTERRUPTED": 0,
+                                    "TIMESTAMP_NOT_VALID": 0,
+                                    "TIMESTAMP_UNCERTAIN": 0,
+                                    "TIMESTAMP_VALID": 0,
+                                    "UNSUPPORTED_FORMAT": 0
+                                },
+                                "object_name": "",
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": null,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x020702200100C000",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 0,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x021702200200C000"
+                                ],
+                                "localized_description": {
+                                    "index": 4,
+                                    "offset": 1
+                                },
+                                "redundant_streams": [
+                                    5
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 5,
+                            "dynamic": {
+                                "connected_talker": {
+                                    "entity_id": "0xFFFFFFFFFFFFFFFF",
+                                    "stream_index": 65535
+                                },
+                                "connection_state": "NOT_CONNECTED",
+                                "counters": {
+                                    "EARLY_TIMESTAMP": 0,
+                                    "FRAMES_RX": 0,
+                                    "LATE_TIMESTAMP": 0,
+                                    "MEDIA_LOCKED": 0,
+                                    "MEDIA_RESET": 0,
+                                    "MEDIA_UNLOCKED": 0,
+                                    "SEQ_NUM_MISMATCH": 0,
+                                    "STREAM_INTERRUPTED": 0,
+                                    "TIMESTAMP_NOT_VALID": 0,
+                                    "TIMESTAMP_UNCERTAIN": 0,
+                                    "TIMESTAMP_VALID": 0,
+                                    "UNSUPPORTED_FORMAT": 0
+                                },
+                                "object_name": "",
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": null,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x020702200100C000",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 1,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x021702200200C000"
+                                ],
+                                "localized_description": {
+                                    "index": 5,
+                                    "offset": 1
+                                },
+                                "redundant_streams": [
+                                    4
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 6,
+                            "dynamic": {
+                                "connected_talker": {
+                                    "entity_id": "0xFFFFFFFFFFFFFFFF",
+                                    "stream_index": 65535
+                                },
+                                "connection_state": "NOT_CONNECTED",
+                                "counters": {
+                                    "EARLY_TIMESTAMP": 0,
+                                    "FRAMES_RX": 0,
+                                    "LATE_TIMESTAMP": 0,
+                                    "MEDIA_LOCKED": 0,
+                                    "MEDIA_RESET": 0,
+                                    "MEDIA_UNLOCKED": 0,
+                                    "SEQ_NUM_MISMATCH": 0,
+                                    "STREAM_INTERRUPTED": 0,
+                                    "TIMESTAMP_NOT_VALID": 0,
+                                    "TIMESTAMP_UNCERTAIN": 0,
+                                    "TIMESTAMP_VALID": 0,
+                                    "UNSUPPORTED_FORMAT": 0
+                                },
+                                "object_name": "",
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": null,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x020702200100C000",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 0,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x021702200200C000"
+                                ],
+                                "localized_description": {
+                                    "index": 0,
+                                    "offset": 2
+                                },
+                                "redundant_streams": [
+                                    7
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 7,
+                            "dynamic": {
+                                "connected_talker": {
+                                    "entity_id": "0xFFFFFFFFFFFFFFFF",
+                                    "stream_index": 65535
+                                },
+                                "connection_state": "NOT_CONNECTED",
+                                "counters": {
+                                    "EARLY_TIMESTAMP": 0,
+                                    "FRAMES_RX": 0,
+                                    "LATE_TIMESTAMP": 0,
+                                    "MEDIA_LOCKED": 0,
+                                    "MEDIA_RESET": 0,
+                                    "MEDIA_UNLOCKED": 0,
+                                    "SEQ_NUM_MISMATCH": 0,
+                                    "STREAM_INTERRUPTED": 0,
+                                    "TIMESTAMP_NOT_VALID": 0,
+                                    "TIMESTAMP_UNCERTAIN": 0,
+                                    "TIMESTAMP_VALID": 0,
+                                    "UNSUPPORTED_FORMAT": 0
+                                },
+                                "object_name": "",
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": null,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x020702200100C000",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 1,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x021702200200C000"
+                                ],
+                                "localized_description": {
+                                    "index": 1,
+                                    "offset": 2
+                                },
+                                "redundant_streams": [
+                                    6
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 8,
+                            "dynamic": {
+                                "connected_talker": {
+                                    "entity_id": "0xFFFFFFFFFFFFFFFF",
+                                    "stream_index": 65535
+                                },
+                                "connection_state": "NOT_CONNECTED",
+                                "counters": {
+                                    "EARLY_TIMESTAMP": 0,
+                                    "FRAMES_RX": 359892,
+                                    "LATE_TIMESTAMP": 0,
+                                    "MEDIA_LOCKED": 1,
+                                    "MEDIA_RESET": 0,
+                                    "MEDIA_UNLOCKED": 1,
+                                    "SEQ_NUM_MISMATCH": 0,
+                                    "STREAM_INTERRUPTED": 0,
+                                    "TIMESTAMP_NOT_VALID": 0,
+                                    "TIMESTAMP_UNCERTAIN": 0,
+                                    "TIMESTAMP_VALID": 359892,
+                                    "UNSUPPORTED_FORMAT": 0
+                                },
+                                "object_name": "",
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": null,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x041060010000BB80",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 0,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x041060010000BB80"
+                                ],
+                                "localized_description": {
+                                    "index": 2,
+                                    "offset": 2
+                                },
+                                "redundant_streams": [
+                                    9
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 9,
+                            "dynamic": {
+                                "connected_talker": {
+                                    "entity_id": "0xFFFFFFFFFFFFFFFF",
+                                    "stream_index": 65535
+                                },
+                                "connection_state": "NOT_CONNECTED",
+                                "counters": {
+                                    "EARLY_TIMESTAMP": 0,
+                                    "FRAMES_RX": 0,
+                                    "LATE_TIMESTAMP": 0,
+                                    "MEDIA_LOCKED": 0,
+                                    "MEDIA_RESET": 0,
+                                    "MEDIA_UNLOCKED": 0,
+                                    "SEQ_NUM_MISMATCH": 0,
+                                    "STREAM_INTERRUPTED": 0,
+                                    "TIMESTAMP_NOT_VALID": 0,
+                                    "TIMESTAMP_UNCERTAIN": 0,
+                                    "TIMESTAMP_VALID": 0,
+                                    "UNSUPPORTED_FORMAT": 0
+                                },
+                                "object_name": "",
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": null,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x041060010000BB80",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 1,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x041060010000BB80"
+                                ],
+                                "localized_description": {
+                                    "index": 3,
+                                    "offset": 2
+                                },
+                                "redundant_streams": [
+                                    8
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        }
+                    ],
+                    "stream_output_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "counters": {
+                                    "counter_type": 1,
+                                    "counters": {
+                                        "FRAMES_TX": 0,
+                                        "MEDIA_RESET": 0,
+                                        "STREAM_START": 0,
+                                        "STREAM_STOP": 0,
+                                        "TIMESTAMP_UNCERTAIN": 0
+                                    }
+                                },
+                                "object_name": "",
+                                "presentation_time_offset": 2000000,
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "MSRP_ACC_LAT_VALID",
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": 2000000,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x020702200100C000",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 0,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 6,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x020702200100C000"
+                                ],
+                                "localized_description": {
+                                    "index": 0,
+                                    "offset": 1
+                                },
+                                "redundant_streams": [
+                                    1
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 1,
+                            "dynamic": {
+                                "counters": {
+                                    "counter_type": 1,
+                                    "counters": {
+                                        "FRAMES_TX": 0,
+                                        "MEDIA_RESET": 0,
+                                        "STREAM_START": 0,
+                                        "STREAM_STOP": 0,
+                                        "TIMESTAMP_UNCERTAIN": 0
+                                    }
+                                },
+                                "object_name": "",
+                                "presentation_time_offset": 2000000,
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "MSRP_ACC_LAT_VALID",
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": 2000000,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x020702200100C000",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 1,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 6,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x020702200100C000"
+                                ],
+                                "localized_description": {
+                                    "index": 1,
+                                    "offset": 1
+                                },
+                                "redundant_streams": [
+                                    0
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 2,
+                            "dynamic": {
+                                "counters": {
+                                    "counter_type": 1,
+                                    "counters": {
+                                        "FRAMES_TX": 0,
+                                        "MEDIA_RESET": 0,
+                                        "STREAM_START": 0,
+                                        "STREAM_STOP": 0,
+                                        "TIMESTAMP_UNCERTAIN": 0
+                                    }
+                                },
+                                "object_name": "",
+                                "presentation_time_offset": 2000000,
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "MSRP_ACC_LAT_VALID",
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": 2000000,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x041060010000BB80",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 0,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x041060010000BB80"
+                                ],
+                                "localized_description": {
+                                    "index": 2,
+                                    "offset": 2
+                                },
+                                "redundant_streams": [
+                                    3
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 3,
+                            "dynamic": {
+                                "counters": {
+                                    "counter_type": 1,
+                                    "counters": {
+                                        "FRAMES_TX": 0,
+                                        "MEDIA_RESET": 0,
+                                        "STREAM_START": 0,
+                                        "STREAM_STOP": 0,
+                                        "TIMESTAMP_UNCERTAIN": 0
+                                    }
+                                },
+                                "object_name": "",
+                                "presentation_time_offset": 2000000,
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "MSRP_ACC_LAT_VALID",
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": 2000000,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x041060010000BB80",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 1,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x041060010000BB80"
+                                ],
+                                "localized_description": {
+                                    "index": 3,
+                                    "offset": 2
+                                },
+                                "redundant_streams": [
+                                    2
+                                ],
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        }
+                    ],
+                    "timing_descriptors": null
+                },
+                {
+                    "_index (informative)": 1,
+                    "audio_unit_descriptors": null,
+                    "avb_interface_descriptors": null,
+                    "clock_domain_descriptors": null,
+                    "clock_source_descriptors": null,
+                    "control_descriptors": null,
+                    "dynamic": {
+                        "object_name": ""
+                    },
+                    "jack_input_descriptors": null,
+                    "jack_output_descriptors": null,
+                    "locale_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "static": {
+                                "_base_string_descriptor (informative)": 0,
+                                "locale_id": "en"
+                            },
+                            "strings_descriptors": [
+                                {
+                                    "_index (informative)": 0,
+                                    "static": {
+                                        "strings": [
+                                            "<bench-switch-vendor-name> <bench-switch-vendor-name>",
+                                            "<peer-product-name>",
+                                            "Redundant - 48kHz",
+                                            "Ethernet (p)",
+                                            "Ethernet (s)",
+                                            "Identify",
+                                            ""
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 1,
+                                    "static": {
+                                        "strings": [
+                                            "Stream 1 (p)",
+                                            "Stream 1 (s)",
+                                            "Stream 2 (p)",
+                                            "Stream 2 (s)",
+                                            "Stream 3 (p)",
+                                            "Stream 3 (s)",
+                                            ""
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 2,
+                                    "static": {
+                                        "strings": [
+                                            "Stream 4 (p)",
+                                            "Stream 4 (s)",
+                                            "Clock Reference Stream (p)",
+                                            "Clock Reference Stream (s)",
+                                            "",
+                                            "",
+                                            ""
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 3,
+                                    "static": {
+                                        "strings": [
+                                            "Front Output 1",
+                                            "Front Output 2",
+                                            "Front Output 3",
+                                            "Front Output 4",
+                                            "Back Output 5",
+                                            "Back Output 6",
+                                            "Back Output 7"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 4,
+                                    "static": {
+                                        "strings": [
+                                            "Back Output 8",
+                                            "Back Output 9",
+                                            "Back Output 10",
+                                            "Back Output 11",
+                                            "Back Output 12",
+                                            "Back Output 13",
+                                            "Back Output 14"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 5,
+                                    "static": {
+                                        "strings": [
+                                            "Back Output 15",
+                                            "Back Output 16",
+                                            "Front Input 1",
+                                            "Front Input 2",
+                                            "Front Input 3",
+                                            "Front Input 4",
+                                            ""
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 6,
+                                    "static": {
+                                        "strings": [
+                                            "Internal",
+                                            "Input Stream CRF (p)",
+                                            "Input Stream CRF (s)",
+                                            "Input Stream 1 AAF (p)",
+                                            "Input Stream 1 AAF (s)",
+                                            "Input Stream 2 AAF (p)",
+                                            "Input Stream 2 AAF (s)"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 7,
+                                    "static": {
+                                        "strings": [
+                                            "Input Stream 3 AAF (p)",
+                                            "Input Stream 3 AAF (s)",
+                                            "Input Stream 4 AAF (p)",
+                                            "Input Stream 4 AAF (s)",
+                                            "",
+                                            "",
+                                            ""
+                                        ]
+                                    }
+                                },
+                                {
+                                    "_index (informative)": 8,
+                                    "static": {
+                                        "strings": [
+                                            "Firmware Update",
+                                            "Manufacturer PNG",
+                                            "Entity PNG",
+                                            "Firmware Versions",
+                                            "",
+                                            "",
+                                            ""
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "memory_object_descriptors": null,
+                    "ptp_instance_descriptors": null,
+                    "static": {
+                        "descriptor_counts": [
+                            [
+                                "CONTROL",
+                                1
+                            ],
+                            [
+                                "LOCALE",
+                                1
+                            ],
+                            [
+                                "MEMORY_OBJECT",
+                                4
+                            ],
+                            [
+                                "CLOCK_DOMAIN",
+                                1
+                            ],
+                            [
+                                "CLOCK_SOURCE",
+                                11
+                            ],
+                            [
+                                "AVB_INTERFACE",
+                                2
+                            ],
+                            [
+                                "STREAM_OUTPUT",
+                                4
+                            ],
+                            [
+                                "STREAM_INPUT",
+                                10
+                            ],
+                            [
+                                "AUDIO_UNIT",
+                                1
+                            ]
+                        ],
+                        "localized_description": {
+                            "index": 2,
+                            "offset": 0
+                        }
+                    },
+                    "stream_input_descriptors": null,
+                    "stream_output_descriptors": null,
+                    "timing_descriptors": null
+                }
+            ],
+            "dynamic": {
+                "counters": null,
+                "current_configuration": 0,
+                "entity_name": "<peer-product-name> 01:02:03",
+                "firmware_version": "<peer-firmware>",
+                "group_name": "<bench-switch-vendor-name> <bench-switch-vendor-name>",
+                "serial_number": "<device-serial>"
+            },
+            "static": {
+                "model_name_string": {
+                    "index": 1,
+                    "offset": 0
+                },
+                "vendor_name_string": {
+                    "index": 0,
+                    "offset": 0
+                }
+            }
+        }
+    },
+    "entity_model_id": "0x3CC0C60000010101",
+    "milan_compatibility_version": "1.2.0.0",
+    "milan_information": {
+        "certification_version": "1.1.0.0",
+        "flags": [
+            "REDUNDANCY"
+        ],
+        "protocol_version": 1,
+        "specification_version": "1.2.0.0"
+    },
+    "state": {
+        "acquire_state": "NOT_SUPPORTED",
+        "active_configuration": 0,
+        "lock_state": "NOT_LOCKED",
+        "locking_controller_id": "0x0000000000000000",
+        "owning_controller_id": "0xFFFFFFFFFFFFFFFF",
+        "subscribed_unsol": true,
+        "unsol_supported": true
+    },
+    "statistics": {
+        "aecp_response_average_time": 3,
+        "aecp_retry_counter": 0,
+        "aecp_timeout_counter": 0,
+        "aecp_unexpected_response_counter": 0,
+        "aem_aecp_unsolicited_counter": 1,
+        "aem_aecp_unsolicited_loss_counter": 0,
+        "enumeration_time": 390,
+        "mvu_aecp_unsolicited_counter": 0,
+        "mvu_aecp_unsolicited_loss_counter": 0
+    }
+}

@@ -1,0 +1,67 @@
+file: tap-soak.pcap  tapped records 35112  host-generated excluded 168  tap span 907.947 s
+tap->UTC fit over 182 5 s minima: slope -6.623 ppm; first record 09:51:56.386698Z
+
+== frames by (tap port, source, kind)
+  port 2 3c:c0:c6:01:02:03 ADP                          151
+  port 2 3c:c0:c6:01:02:03 MAAP                         58
+  port 2 3c:c0:c6:fe:02:10 ethertype 0x0800             67
+  port 2 3c:c0:c6:fe:02:11 MSRP                         213
+  port 2 3c:c0:c6:fe:02:11 MVRP                         998
+  port 2 3c:c0:c6:fe:02:11 ethertype 0x0027             454
+  port 2 3c:c0:c6:fe:02:11 gPTP Announce                907
+  port 2 3c:c0:c6:fe:02:11 gPTP Follow_Up               7264
+  port 2 3c:c0:c6:fe:02:11 gPTP Pdelay_Req              905
+  port 2 3c:c0:c6:fe:02:11 gPTP Pdelay_Resp             908
+  port 2 3c:c0:c6:fe:02:11 gPTP Pdelay_Resp_Follow_Up   908
+  port 2 3c:c0:c6:fe:02:11 gPTP Sync                    7264
+  port 2 68:05:ca:95:b2:ed AECP                         5400
+  port 2 68:05:ca:95:b2:ed ethertype 0x0800             48
+  port 2 68:05:ca:95:b2:ed ethertype 0x86dd             72
+  port 3 02:00:00:00:00:01 ADP                          131
+  port 3 02:00:00:00:00:01 AECP                         5400
+  port 3 02:00:00:00:00:01 MAAP                         228
+  port 3 02:00:00:00:00:01 MSRP                         1018
+  port 3 02:00:00:00:00:01 gPTP Pdelay_Req              908
+  port 3 02:00:00:00:00:01 gPTP Pdelay_Resp             905
+  port 3 02:00:00:00:00:01 gPTP Pdelay_Resp_Follow_Up   905
+
+== grandmaster samples: Syncs 7264, Follow_Ups 7264, matched 7264
+   Sync intervals ms: n=7263 median=124.889 min=100.729 max=149.302 mean=125.000; sequence gaps 0
+   Follow_Up correctionField ns values: {0.0: 7264}
+   Follow_Up cumulativeScaledRateOffset {0: 7264}; gmTimeBaseIndicator {0: 7264}
+   Announce (port, GM id, priority1, stepsRemoved) counts: {('3cc0c6fffefe0210', 246, 0): 907} by port {2: 907}
+   GM time per tap ns: 0.999992402635 (-7597.365 ppb vs the tap oscillator); residual ns: min -3312.5 max +1.1 stdev 1116.2
+
+== DUT samples: switch Pdelay_Req 905, DUT Pdelay_Resp 905, Resp_Follow_Up 905, usable 904
+   span 0.070 to 906.947 s tap (09:51:56.456233Z to 10:07:03.327392Z)
+   o2 = t2 - G(T_req) ns: n=904 median=386.7 mean=386.4 stdev=10.0 p1=362.2 p99=407.7 min=360.8 max=417.0 p2p=56.2
+   o3 = t3 - G(T_resp) ns: n=904 median=0.3 mean=0.4 stdev=7.7 p1=-17.2 p99=17.8 min=-24.7 max=24.8 p2p=49.5
+   o2 - o3 = 2 x tap-to-DUT delay ns: n=904 median=382.9 mean=386.0 stdev=7.4 p1=374.9 p99=398.9 min=366.9 max=399.9 p2p=33.0
+   offset estimate o2 - d (d = 385 ns, the DUT's published peer delay) ns: n=904 median=1.7 mean=1.4 stdev=10.0 p1=-22.8 p99=22.7 min=-24.2 max=32.0 p2p=56.2
+   consecutive o2 change ns: n=903 median=-0.4 mean=0.0 stdev=14.2 p1=-31.7 p99=32.8 min=-46.8 max=37.6 p2p=84.4; |change| > 1000 ns: 0 []
+   o2 deviation from its median ns: max |dev| 30.3
+   consecutive o3 change ns: n=903 median=0.1 mean=0.0 stdev=10.9 p1=-25.1 p99=25.1 min=-32.3 max=34.3 p2p=66.6; |change| > 1000 ns: 0 []
+   o3 deviation from its median ns: max |dev| 24.9
+   o2 drift over the span: -0.001 ns/s = -0.001 ppb (DUT minus GM frequency)
+   o3 drift over the span: +0.000 ns/s = +0.000 ppb (DUT minus GM frequency)
+   DUT PHC per tap ns: 0.999992402629 (-7597.371 ppb vs the tap oscillator); DUT minus GM -0.006 ppb
+   per-60 s windows (tap s from first record): o2 median, o2 min..max, o2 stdev, drift ppb
+     [    0,   60) n= 60 median    386.5 range    365.3..   410.9 stdev    9.8 drift  -0.076
+     [   60,  120) n= 60 median    390.6 range    366.9..   403.7 stdev    9.3 drift  -0.045
+     [  120,  180) n= 60 median    387.4 range    367.3..   404.9 stdev    8.2 drift  -0.033
+     [  180,  240) n= 59 median    386.8 range    361.0..   404.6 stdev    8.7 drift  -0.078
+     [  240,  300) n= 60 median    388.2 range    367.4..   407.5 stdev    9.8 drift  -0.070
+     [  300,  360) n= 60 median    380.8 range    361.9..   410.9 stdev   11.6 drift  +0.069
+     [  360,  420) n= 60 median    387.4 range    364.9..   403.0 stdev    9.4 drift  +0.003
+     [  420,  480) n= 60 median    385.9 range    362.7..   413.5 stdev   10.7 drift  -0.063
+     [  480,  540) n= 59 median    385.0 range    361.4..   405.7 stdev   10.1 drift  -0.093
+     [  540,  600) n= 60 median    385.1 range    361.6..   412.6 stdev   10.0 drift  -0.052
+     [  600,  660) n= 60 median    385.8 range    366.2..   410.0 stdev    9.5 drift  +0.166
+     [  660,  720) n= 59 median    386.0 range    360.9..   408.1 stdev   11.0 drift  -0.005
+     [  720,  780) n= 60 median    384.4 range    365.9..   408.6 stdev   10.1 drift  -0.060
+     [  780,  840) n= 60 median    388.6 range    360.8..   417.0 stdev   10.9 drift  +0.048
+     [  840,  900) n= 60 median    387.3 range    361.4..   406.1 stdev    9.8 drift  +0.083
+     [  900,  960) n=  7 median    390.9 range    364.0..   399.6 stdev   12.0 drift  +4.027
+
+== DUT as Pdelay requester: requests 908, answered with Resp+Resp_FU 908
+   DUT Pdelay_Req intervals ms: n=907 median=1000.002 min=1000.002 max=1000.002 mean=1000.002

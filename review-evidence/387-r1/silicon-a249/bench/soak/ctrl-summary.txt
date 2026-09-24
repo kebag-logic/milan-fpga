@@ -1,0 +1,45 @@
+== watch watch.jsonl: 3881 records
+  020000fffe000001 as_path: status {'SUCCESS': 900}; first 09:51:59.446Z last 10:06:58.446Z
+     x900 {"count": 1, "path": ["3cc0c6fffefe0210"]}
+     response ms median=0.064 max=0.091
+  020000fffe000001 avb_info: status {'SUCCESS': 900}; first 09:51:59.446Z last 10:06:58.446Z
+     x900 {"as_capable": 1, "domain": 0, "flags": "0x17", "gm": "3cc0c6fffefe0210", "gptp_enabled": 1, "srp_enabled": 1}
+     pdelay_ns n=900 median=385.0 min=375 max=391
+     response ms median=0.105 max=0.216
+  3cc0c60102030000 as_path: status {'SUCCESS': 900}; first 09:51:59.446Z last 10:06:58.446Z
+     x900 {"count": 2, "path": ["3cc0c6fffefe0210", "3cc0c6fffe010203"]}
+     response ms median=0.109 max=0.270
+  3cc0c60102030000 avb_info: status {'SUCCESS': 900}; first 09:51:59.446Z last 10:06:58.446Z
+     x900 {"as_capable": 1, "domain": 0, "flags": "0x07", "gm": "3cc0c6fffefe0210", "gptp_enabled": 1, "srp_enabled": 1}
+     pdelay_ns n=900 median=0.0 min=0 max=0
+     response ms median=0.136 max=0.218
+  ADP (entity, gptp_gm) seen: {('3cc0c60102030000', '3cc0c6fffefe0210'): 150, ('020000fffe000001', '3cc0c6fffefe0210'): 129}
+== counters counters.jsonl: 4500 answers, done [{'type': 'done', 'rounds': 900, 't': 1790244419.486186}]
+  020000fffe000001 type 0x0006 index 0: status {'SUCCESS': 900}; first 09:51:59.486Z last 10:06:58.486Z
+     counters_valid {'0x0000001f': 900}; answers with a non-zero unclaimed quadlet: 0
+     STREAM_START         first 0 last 0 changes 0 []
+     STREAM_STOP          first 0 last 0 changes 0 []
+     MEDIA_RESET          first 0 last 0 changes 0 []
+     TIMESTAMP_UNCERTAIN  first 0 last 0 changes 0 []
+     FRAMES_TX            first 0 last 0 changes 0 []
+  020000fffe000001 type 0x0006 index 1: status {'SUCCESS': 900}; first 09:51:59.486Z last 10:06:58.486Z
+     counters_valid {'0x0000001f': 900}; answers with a non-zero unclaimed quadlet: 0
+     STREAM_START         first 0 last 0 changes 0 []
+     STREAM_STOP          first 0 last 0 changes 0 []
+     MEDIA_RESET          first 0 last 0 changes 0 []
+     TIMESTAMP_UNCERTAIN  first 0 last 0 changes 0 []
+     FRAMES_TX            first 0 last 0 changes 0 []
+  020000fffe000001 type 0x0009 index 0: status {'SUCCESS': 900}; first 09:51:59.486Z last 10:06:58.486Z
+     counters_valid {'0x00000023': 900}; answers with a non-zero unclaimed quadlet: 0
+     LINK_UP              first 1 last 1 changes 0 []
+     LINK_DOWN            first 0 last 0 changes 0 []
+     GPTP_GM_CHANGED      first 0 last 0 changes 0 []
+  020000fffe000001 type 0x0024 index 0: status {'SUCCESS': 900}; first 09:51:59.486Z last 10:06:58.486Z
+     counters_valid {'0x00000003': 900}; answers with a non-zero unclaimed quadlet: 0
+     LOCKED               first 1 last 1 changes 0 []
+     UNLOCKED             first 0 last 0 changes 0 []
+  3cc0c60102030000 type 0x0009 index 0: status {'SUCCESS': 900}; first 09:51:59.486Z last 10:06:58.487Z
+     counters_valid {'0x00000023': 900}; answers with a non-zero unclaimed quadlet: 0
+     LINK_UP              first 1 last 1 changes 0 []
+     LINK_DOWN            first 0 last 0 changes 0 []
+     GPTP_GM_CHANGED      first 15 last 15 changes 0 []

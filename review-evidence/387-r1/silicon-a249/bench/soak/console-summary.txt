@@ -1,0 +1,31 @@
+rounds: 900 (complete: 900)
+first 09:51:58.008Z  last 10:06:57.008Z  span 899.000 s (build-box clock)
+round spacing s: median 1.000 min 1.000 max 1.000; gaps > 1.5 s: 0
+  ID             {'4d494c4e': 900}
+  VERSION        {'00020060': 900}
+  GPTP_GM        {'3cc0c6fffefe0210': 900}
+  GPTP_PARENT    {'3cc0c6fffefe0210': 900}
+  AS_PATH_COUNT  {'1': 900}
+  AS_PATH_GEN    {'1': 900}
+  CLKV_STAT      {'00010002': 900}
+  SYNC           {'1': 900}
+  ASCAPABLE      {'1': 900}
+  TU             {'0': 900}
+  GPTP_LAT       {'029000db': 900}
+  AEM            {'loaded': 900}
+  CLKV_STAT[0] tu        set in 0 of 900 samples
+  CLKV_STAT[1] sync_ok   set in 900 of 900 samples
+  CLKV_STAT[3] holdover  set in 0 of 900 samples
+  CLKV_STAT[16] asCapable set in 900 of 900 samples
+  samples with CLKV_STAT != 00010002: 0 []
+  PDELAY_NS n=900 median=385.0 min=375 max=391 mean=385.40 stdev=3.18
+  CLKV_TUCNT  first 0xa last 0xa distinct ['0xa'] changes 0 []
+  ASP_CMD     first 0x11 last 0x11 distinct ['0x11'] changes 0 []
+  GPTP_DROPW  first 0x0 last 0x0 distinct ['0x0'] changes 0 []
+  GPTP_DROPE  first 0x0 last 0x0 distinct ['0x0'] changes 0 []
+  RST_EPOCH   first 0x1 last 0x1 distinct ['0x1'] changes 0 []
+  LINKG_STAT  first 0x83 last 0x83 distinct ['0x83'] changes 0 []
+  PHC seconds per build-box second (LSQ over 900 reads): 0.999995119 (-4.881 ppm; the build box is not NTP-disciplined)
+  PHC residual vs that line, ms: min -0.082 max +0.241 stdev 0.030
+  PHC advance minus build-box advance between consecutive reads, ms: min -0.212 max +0.203 (console latency jitter bounds this)
+  PHC at first read: 70862078928822 ns (70862.079 s); at last: 71761074677294 ns

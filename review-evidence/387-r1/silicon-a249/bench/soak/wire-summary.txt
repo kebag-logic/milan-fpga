@@ -1,0 +1,39 @@
+file: tap-soak.pcap
+tapped records: 35112  host-generated records excluded: 168  tap span: 907.947 s  ports: [2, 3]
+
+== per (tap port, source, kind): count, interval statistics (ms)
+  port 2 (far->DUT) 3c:c0:c6:01:02:03 ADP                        n=150 median=5949.178 min=5009.597 max=6990.011 mean=6001.270
+      entity 3cc0c60102030000 model 3cc0c60000010101 gptp_gm 3cc0c6fffefe0210 domain 0 interface 0
+  port 2 (far->DUT) 3c:c0:c6:01:02:03 MAAP                       n=57 median=11873.853 min=6636.379 max=23467.325 mean=15358.951
+  port 2 (far->DUT) 3c:c0:c6:fe:02:10 ethertype 0x0800           n=66 median=15000.113 min=1188.269 max=15000.158 mean=13409.193
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 MSRP                       n=212 median=2904.857 min=91.543 max=9902.307 mean=4249.561
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 MVRP                       n=997 median=999.862 min=319.574 max=1002.722 mean=909.735
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 ethertype 0x0027           n=453 median=2000.015 min=1997.899 max=2002.101 mean=2000.015
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Announce              n=906 median=1000.013 min=999.798 max=1010.416 mean=1001.387
+      logMessageInterval [0] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+      GM 3cc0c6fffefe0210 prio1 246 class 248 accuracy 0x20 variance 0x436a prio2 248 stepsRemoved 0 timeSource 0xa0 tlvs [["PathTrace", ["3cc0c6fffefe0210"]]]
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Follow_Up             n=7263 median=124.897 min=100.829 max=149.213 mean=125.000
+      logMessageInterval [-3] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+      gmTimeBaseIndicator [0]
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Pdelay_Req            n=904 median=1000.024 min=999.908 max=1019.543 mean=1004.289
+      logMessageInterval [0] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Pdelay_Resp           n=907 median=1000.002 min=999.885 max=1000.113 mean=1000.002
+      logMessageInterval [127] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Pdelay_Resp_Follow_Up n=907 median=1000.002 min=999.474 max=1000.595 mean=1000.002
+      logMessageInterval [127] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Sync                  n=7263 median=124.889 min=100.729 max=149.302 mean=125.000
+      logMessageInterval [-3] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+  port 2 (far->DUT) 68:05:ca:95:b2:ed AECP                       n=5399 median=0.211 min=0.106 max=959.779 mean=166.520
+  port 2 (far->DUT) 68:05:ca:95:b2:ed ethertype 0x0800           n=47 median=4814.498 min=1999.921 max=311011.766 mean=13798.337
+  port 2 (far->DUT) 68:05:ca:95:b2:ed ethertype 0x86dd           n=71 median=1024.364 min=12.987 max=313863.584 mean=9105.721
+  port 3 (DUT->far) 02:00:00:00:00:01 ADP                        n=130 median=6843.516 min=5028.012 max=8971.021 mean=6956.170
+      entity 020000fffe000001 model 001bc5c40236ba0e gptp_gm 3cc0c6fffefe0210 domain 0 interface 0
+  port 3 (DUT->far) 02:00:00:00:00:01 AECP                       n=5399 median=0.209 min=0.101 max=959.747 mean=166.520
+  port 3 (DUT->far) 02:00:00:00:00:01 MAAP                       n=227 median=3945.009 min=3011.007 max=5030.012 mean=3983.313
+  port 3 (DUT->far) 02:00:00:00:00:01 MSRP                       n=1017 median=1000.002 min=199.999 max=1000.004 mean=891.841
+  port 3 (DUT->far) 02:00:00:00:00:01 gPTP Pdelay_Req            n=907 median=1000.002 min=1000.002 max=1000.002 mean=1000.002
+      logMessageInterval [0] domain [0] sourcePortIdentity ['020000fffe0000010001']
+  port 3 (DUT->far) 02:00:00:00:00:01 gPTP Pdelay_Resp           n=904 median=1000.024 min=999.908 max=1019.543 mean=1004.289
+      logMessageInterval [127] domain [0] sourcePortIdentity ['020000fffe0000010001']
+  port 3 (DUT->far) 02:00:00:00:00:01 gPTP Pdelay_Resp_Follow_Up n=904 median=1000.024 min=999.908 max=1019.543 mean=1004.289
+      logMessageInterval [127] domain [0] sourcePortIdentity ['020000fffe0000010001']
