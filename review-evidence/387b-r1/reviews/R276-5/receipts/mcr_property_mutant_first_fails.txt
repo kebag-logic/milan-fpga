@@ -1,0 +1,18 @@
+run_m1_flip_per_request: [FAIL] seed=1 cyc=1739 talker=1 STARVED: a pending request is not on the wire within one hold + one PDU
+run_m1_flip_per_request: [FAIL] seed=1 cyc=2436 talker=0 STARVED: a pending request is not on the wire within one hold + one PDU
+run_m1_flip_per_request: [FAIL] seed=1 cyc=2706 talker=0 STARVED: a pending request is not on the wire within one hold + one PDU
+run_m2_window_ends_at_adoption: [FAIL] seed=1 cyc=2610 talker=1 SPURIOUS toggle (no pending request)
+run_m2_window_ends_at_adoption: [FAIL] seed=1 cyc=12213 talker=1 SPURIOUS toggle (no pending request)
+run_m2_window_ends_at_adoption: [FAIL] seed=1 cyc=22114 talker=0 SPURIOUS toggle (no pending request)
+run_m3_window_whole_hold: [FAIL] seed=1 cyc=1550 talker=1 STARVED: a pending request is not on the wire within one hold + one PDU
+run_m3_window_whole_hold: [FAIL] seed=1 cyc=1586 talker=0 STARVED: a pending request is not on the wire within one hold + one PDU
+run_m3_window_whole_hold: [FAIL] seed=1 cyc=1856 talker=0 STARVED: a pending request is not on the wire within one hold + one PDU
+run_m4_window_one_pdu_late: [FAIL] seed=1 cyc=5645 talker=0 STARVED: a pending request is not on the wire within one hold + one PDU
+run_m4_window_one_pdu_late: [FAIL] seed=1 cyc=5849 talker=1 STARVED: a pending request is not on the wire within one hold + one PDU
+run_m4_window_one_pdu_late: [FAIL] seed=1 cyc=10548 talker=0 STARVED: a pending request is not on the wire within one hold + one PDU
+run_m5_hold_seven: [FAIL] seed=1 cyc=786 talker=1 HOLD violated (< 8 PDUs at the level)
+run_m5_hold_seven: [FAIL] seed=1 cyc=1055 talker=1 HOLD violated (< 8 PDUs at the level)
+run_m5_hold_seven: [FAIL] seed=1 cyc=1190 talker=0 HOLD violated (< 8 PDUs at the level)
+run_m6_hold_counts_any_level: [FAIL] seed=1 cyc=7097 talker=1 HOLD violated (< 8 PDUs at the level)
+run_m6_hold_counts_any_level: [FAIL] seed=1 cyc=10997 talker=0 SPURIOUS toggle (no pending request)
+run_m6_hold_counts_any_level: [FAIL] seed=1 cyc=10997 talker=0 HOLD violated (< 8 PDUs at the level)
