@@ -1,0 +1,131 @@
+# corner-premise and effect statements at 446e79b977640d13fa1e5dc0f9896d6c5a70391d
+## hdl/milan/milan_datapath.sv:6580-6593
+6580:   //!   OPENING EDGE - ACTIVE takes the admission term through the
+6581:   //!   processor's optimistic window (sr_adm_fsm = opt | admitted, three
+6582:   //!   admission rounds after a fresh declaration, a round walking one
+6583:   //!   source per cycle, so N_SOURCES cycles), so it can rise before the
+6584:   //!   round that sets sr_admitted_o and puts the slope into sum_r. It can
+6585:   //!   do so only when a Listener Ready is registered within those rounds,
+6586:   //!   which in practice means already registered at the declaration (a
+6587:   //!   re-declaration the bridge's Listener outlived); a first Listener
+6588:   //!   Ready arrives by MRPDU long after those rounds. In that corner the
+6589:   //!   gates and LWSRP_STATUS[8] rise up to three rounds before
+6590:   //!   LWSRP_STATUS[9] and 0x698 include the stream. If the round then
+6591:   //!   refuses it, ACTIVE falls inside the window and the declaration swaps
+6592:   //!   to Talker Failed. That status skew is the corner's whole effect here.
+6593:   //!   The processor takes the window so that a declaration is never Talker
+## CHANGELOG.md:37-42
+37: - `CRFT_CTRL[6]`, `LWSRP_STATUS[8]` and the `0x82C` talker lobs follow.
+38: - Only `LWSRP_STATUS[9]` and `LWSRP_SLOPE` keep the raw verdict.
+39: - No shaper reads either: none is instantiated.
+40: - ACTIVE can lead them by up to three admission rounds.
+41: - That needs a Listener Ready registered at the declaration.
+42: - That status skew is the corner's only effect.
+## docs/reference/EGRESS_QUEUE_MAP.md:77-85
+77: That ordering does not hold for the shipping gate. Since #530 every talker gate
+78: reads the processor's ACTIVE, which takes the processor's optimistic admission
+79: window: with a Listener Ready already registered at a fresh declaration, ACTIVE
+80: can open a source up to three admission rounds before the round that adds its
+81: slope to the sum. In the shipping datapath the only effect is status skew:
+82: `LWSRP_STATUS[8]` can lead `LWSRP_STATUS[9]` and `LWSRP_SLOPE` `0x698`, the only
+83: readers of the raw verdict and the sum, for those rounds
+84: ([REGISTER_MAP.md](REGISTER_MAP.md)). A lane that credit-shapes the fabric's own
+85: sources derives its own slope/gate ordering rather than inheriting this one.
+## docs/reference/REGISTER_MAP.md:1110-1118
+1110: now ([EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md#credit-based-shaping)): the
+1111: processor's raw admission verdict and slope sum reach only `LWSRP_STATUS[9]` and
+1112: `LWSRP_SLOPE`. The stream gate is the processor's ACTIVE since #530. When a
+1113: Listener Ready is already registered at a fresh declaration, the processor's
+1114: optimistic admission window can raise ACTIVE up to three admission rounds before
+1115: the round that adds the slope to the sum. The only effect is that
+1116: `LWSRP_STATUS[8]` can lead `LWSRP_STATUS[9]` and `LWSRP_SLOPE` for those rounds.
+1117: After a withdrawal `LWSRP_SLOPE` keeps the stream's slope until the next round.
+1118: 
+## docs/traceability/ieee8021q.md:53-60
+53:   shipping datapath ([REQUIREMENTS.md section 5](../../REQUIREMENTS.md)), so the
+54:   processor's Σ and raw admission verdict are read back as status only
+55:   (`LWSRP_SLOPE` `0x698`, `LWSRP_STATUS[9]`). Nor would the old ordering hold: the
+56:   gate is ACTIVE since #530, which the processor's optimistic admission window can
+57:   raise up to three admission rounds before the round that adds the slope to Σ.
+58:   The only effect here is that those status words can trail `LWSRP_STATUS[8]` for
+59:   those rounds. A later lane that credit-shapes these sources derives its own
+60:   ordering.
+## docs/traceability/ieee8021q.md:89 (Q-9, excerpt)
+The fabric consumes the verdict inside ACTIVE: `srp_active_o` is the per-source stream gate since #530, and a stream the round refuses loses ACTIVE within the three-round optimistic window and swaps to Talker Failed. The raw verdict `srp_sr_admitted_o` (the gate until #530) and `srp_sum_slope_bps_o` are read back as status only; no shaper is instantiated 
+
+# processor authority (pin 09f9bf38)
+## protocol-processor/hdl/srp/KL_srp_top.sv:444-445
+444:   // a fresh declaration counts as admitted until fully evaluated (banner)
+445:   assign sr_adm_fsm_w = opt_r | adm_admitted_w;
+## protocol-processor/hdl/srp/KL_srp_top.sv:772-781
+772:       // ---- optimistic-window aging (one full round with the request
+773:       // visible must complete before the verdict is trusted) --------------
+774:       if (adm_round_w) begin
+775:         for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+776:           if (opt_r[s]) begin
+777:             if (opt_cnt_r[s] != 2'd0) opt_cnt_r[s] <= opt_cnt_r[s] - 2'd1;
+778:             else                      opt_r[s]     <= 1'b0;
+779:           end
+780:         end
+781:       end
+## protocol-processor/hdl/srp/KL_srp_top.sv:849-862
+849:         S_GATE: begin
+850:           if (gate_acc_w) begin
+851:             if (a_open_r) begin
+852:               // TSpec joins the admission request set; verdict optimistic
+853:               // until one full round has evaluated it (banner)
+854:               adm_req_r[a_idx_r[SRC_W_C-1:0]]   <= 1'b1;
+855:               adm_mfs_r[a_idx_r[SRC_W_C-1:0]]   <= a_mfs_r;
+856:               adm_mif_r[a_idx_r[SRC_W_C-1:0]]   <= a_mif_r;
+857:               opt_r[a_idx_r[SRC_W_C-1:0]]       <= 1'b1;
+858:               opt_cnt_r[a_idx_r[SRC_W_C-1:0]]   <= 2'd2;
+859:             end else begin
+860:               adm_req_r[a_idx_r[SRC_W_C-1:0]]   <= 1'b0;
+861:               opt_r[a_idx_r[SRC_W_C-1:0]]       <= 1'b0;
+862:             end
+## protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:705-710
+705:         // gate re-open arms a fresh tracker for the (possibly new) stream
+706:         if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
+707:           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+708:           reg_r[s]      <= R_MT_C;
+709:           lstn_val_r[s] <= 2'd0;
+710:         end
+## protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:800-803
+800:       active_o[s] = rec_valid_r[s] && app_declaring_f(app_r[s]) && !fail_r[s]
+801:                  && ((lstn_out_w[s] == 2'(SRP_DECL_READY))
+802:                      || (lstn_out_w[s] == 2'(SRP_DECL_READY_FAILED)))
+803:                  && sr_admitted_i[s];
+## protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:438-441
+438:       // the Failed swap re-declares whenever the published mode disagrees
+439:       // with the admission level while declaring (10 §6.3)
+440:       adm_fix_w[s] = rec_valid_r[s] && app_declaring_f(app_r[s])
+441:                   && (fail_r[s] != !sr_admitted_i[s]);
+## protocol-processor/hdl/srp/KL_srp_admission.sv:155-155
+155:   assign round_w  = (32'(aidx_r) == N_SOURCES_P - 1);
+## hdl/milan/milan_datapath.sv:3055-3060
+3055:   wire [ACMP_SRC_C-1:0] tkd_streaming_w;
+3056:   generate if (ACMP_SRC_C > N_STREAMS) begin : g_tkd_crf
+3057:     assign tkd_streaming_w = {crft_emit_en_w, aaf_stream_en_w};
+3058:   end else begin : g_tkd_nocrf
+3059:     assign tkd_streaming_w = aaf_stream_en_w;
+3060:   end endgenerate
+## hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:25-37
+25:                 * STREAM_START / STREAM_STOP count edges of the talker's
+26:                   streaming state. The clause's invariant - START == STOP+1
+27:                   while streaming, START == STOP while not - holds by
+28:                   construction because both count edges of the SAME level.
+29:                   The level is the COMPOSED admission gate (ACMP+lwSRP+MAAP
+30:                   terms), i.e. "is this talker licensed and emitting", not a
+31:                   bare enable bit.
+32:                 * MEDIA_RESET / TIMESTAMP_UNCERTAIN / FRAMES_TX are
+33:                   OBSERVATION-INTERVAL counts ("incremented at the end of
+34:                   every observation interval during which ..."), interval
+35:                   <= 1 s, and all three "reset to 0 each time the Talker
+36:                   starts streaming". FRAMES_TX therefore advances at 1/s
+37:                   while streaming - NOT at the frame rate; a controller
+## hdl/milan/milan_datapath.sv:3124-3124
+3124:   wire [MCR_CTX_C-1:0] mcr_streaming_w = {cfg_crft_en, aaf_stream_en_w};
+## hdl/milan/milan_datapath.sv:7350-7350
+7350:       .N_STREAM_OUT_P (ACMP_SRC_C),
+## hdl/milan/milan_datapath.sv:7492-7492
+7492:       .port_rate_bps_i   (cfg_mac_is_1g ? 32'd1_000_000_000 : 32'd100_000_000),

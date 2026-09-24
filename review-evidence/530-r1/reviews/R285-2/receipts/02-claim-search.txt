@@ -1,0 +1,70 @@
+# claim search at 446e79b977640d13fa1e5dc0f9896d6c5a70391d, excluding docs/history
+## sr_admitted / raw verdict / admission verdict mentions
+./CHANGELOG.md:32:- Every talker gate read the processor's raw admission verdict.
+./CHANGELOG.md:38:- Only `LWSRP_STATUS[9]` and `LWSRP_SLOPE` keep the raw verdict.
+./tests/features/milan_streaming_licence.feature:87:  Scenario: the stream gate is the processor's ACTIVE, never its raw admission verdict
+./tests/steps/milan_streaming_licence_steps.py:178:    admitted - and never the raw admission verdict a declaration raises."""
+./tests/steps/milan_streaming_licence_steps.py:183:    assert "sr_admitted" not in context.expr, context.expr
+./docs/traceability/ieee8021q.md:54:  processor's Σ and raw admission verdict are read back as status only
+./docs/traceability/ieee8021q.md:89:| Q-9 | 34.3 | Bandwidth availability: SR classes limited to 75 % (deltaBandwidth defaults) | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → the fabric's stream gate through ACTIVE; status at `LWSRP_STATUS[7]`/`[9]` and `LWSRP_SLOPE` `0x698` | 🔵 PROCESSOR - the 75 % TSpec-refu
+./docs/reference/FR_NFR.md:147:| **FR-SRP-01/02/03** | **OWNED BY THE PROTOCOL PROCESSOR** | Its SRP engine registers/deregisters and admits. Its ACTIVE (Talker Advertise declared, a Listener Ready or Ready Failed registered, admitted) drives every talker gate since #530, and the adopted domain drives the C-TAGs. No shaper is in
+./docs/reference/REGISTER_MAP.md:933:| `0x750` | `CRFT_CTRL` | RW | `0` | `[0]` CRF talker enable; `[1]` **class-A declare + tag** (Milan v1.2 7.3.3: "An AVB Class A Stream Reservation *shall* be used to transmit [the] CRF Media Clock Stream"): the fabric provisions its own lwSRP talker row and derives the C-TAG (PCP 3, VID = `L
+./docs/reference/REGISTER_MAP.md:1111:processor's raw admission verdict and slope sum reach only `LWSRP_STATUS[9]` and
+./docs/reference/REGISTER_MAP.md:1137:is true since #530: until then it read the processor's raw admission verdict,
+./docs/reference/REGISTER_MAP.md:1151:| `0x694` | `LWSRP_STATUS` | RO | `0` | Mixed. 🟢 **LIVE, REPOINTED** from the processor's class-D face. **`[3:0]` describes ONE subject: the Listener attribute REGISTERED on talker SOURCE 0** (the processor's `lstn_reg_state[0]`), which is the subject it had before the control plane was subs
+./docs/reference/EGRESS_QUEUE_MAP.md:68:shaper consumes a slope or an admission verdict on the wire. An admitted SRP
+./docs/reference/EGRESS_QUEUE_MAP.md:72:raw admission verdict, until #530, opening a source and accounting its slope
+./docs/reference/EGRESS_QUEUE_MAP.md:83:readers of the raw verdict and the sum, for those rounds
+./tb/verilator/milan_dp/README.md:356:   the processor's raw admission verdict, which the declaration alone raises,
+./tb/verilator/milan_dp/README.md:382:The licence, both sources' ACTIVE, raw verdict, DA gate and Talker
+./tb/verilator/milan_dp/README.md:400:| the licence mutants | `make crflic-mutants`: `crflic_mutants.py` plants each consumer back on the raw verdict (the whole gate, the CRF slot alone, AAF source 0 alone) | all three caught, each on its named check; the clean leg passes |
+./tb/verilator/milan_dp/sim_crf_licence.cpp:19://      the processor's raw admission verdict, which rises at DECLARE_TALKER,
+./tb/verilator/milan_dp/sim_crf_licence.cpp:183:    Level admitted[kSources];      // the processor's raw sr_admitted
+./tb/verilator/milan_dp/sim_crf_licence.cpp:356:    const unsigned adm = rp->milan_datapath__DOT__pp_cd_srp_sr_admitted_w;
+./tb/verilator/milan_dp/sim_crf_licence.cpp:836:        ck("the processor's RAW admission verdict is up (the pre-#530 gate)", admitted[s].v, 1);
+./tb/verilator/milan_dp/sim_crf_licence.cpp:851:        printf("  [i]    the raw verdict has stood %.2f ms: the window Run B streamed through\n",
+./tb/verilator/milan_dp/sim_crf_licence.cpp:902:    ck("...and its raw verdict still stands (the pre-#530 gate stayed open)", admitted[kUidAaf].v, 1);
+./tb/verilator/milan_dp/sim_crf_licence.cpp:988:    ck("...and its raw verdict still stands", admitted[kUidCrf].v, 1);
+./tb/verilator/milan_dp/sim_crf_licence.cpp:1016:    ck("...and its raw verdict still stands", admitted[kUidCrf].v, 1);
+./tb/verilator/milan_dp/crflic_mutants.py:10:all three consumers read the processor's raw admission verdict, which rises
+./tb/verilator/milan_dp/crflic_mutants.py:54:    ("every gate reads the raw verdict",
+./tb/verilator/milan_dp/crflic_mutants.py:56:     "  assign lwsrp_stream_gate = pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];",
+./tb/verilator/milan_dp/crflic_mutants.py:58:    ("the CRF licence alone reads the raw verdict",
+./tb/verilator/milan_dp/crflic_mutants.py:60:     "                           pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1];",
+./tb/verilator/milan_dp/crflic_mutants.py:62:    ("the AAF source 0 gate alone reads the raw verdict",
+./tb/verilator/milan_dp/crflic_mutants.py:64:     "                   (~cfg_lwsrp_enable | pp_cd_srp_sr_admitted_w[0])));",
+./hdl/milan/KL_pp_shadow.sv:630:    output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+./hdl/milan/KL_pp_shadow.sv:1249:      .srp_sr_admitted_o       (srp_sr_admitted_o),
+./hdl/milan/milan_datapath.sv:1588:  //!                          gates stop consulting the admission verdict;
+./hdl/milan/milan_datapath.sv:2273:  wire [ACMP_SRC_C-1:0]      pp_cd_srp_sr_admitted_w /* verilator public_flat_rd */;
+./hdl/milan/milan_datapath.sv:5304:  //! admission verdict, so a declared output with no Listener streamed.
+./hdl/milan/milan_datapath.sv:6552:  //! The raw verdict and the slope sum reach one status word each:
+./hdl/milan/milan_datapath.sv:6568:  //! sr_admitted_o is grant_r AND the live request.
+./hdl/milan/milan_datapath.sv:6574:  //! and tells a consumer never to rebuild from its terms. The raw verdict
+./hdl/milan/milan_datapath.sv:6584:  //!   round that sets sr_admitted_o and puts the slope into sum_r. It can
+./hdl/milan/milan_datapath.sv:6597:  //!   sr_admitted_o, whose OR is LWSRP_STATUS[9], does not follow the
+./hdl/milan/milan_datapath.sv:6607:  //! STATUS ONLY (no shaper, above): LWSRP_STATUS[9] reads the RAW verdict
+./hdl/milan/milan_datapath.sv:6612:  assign lwsrp_slope_en    = |pp_cd_srp_sr_admitted_w;
+./hdl/milan/milan_datapath.sv:7604:      .srp_sr_admitted_o       (pp_cd_srp_sr_admitted_w),
+## slope mux / CBS mux / unbudgeted / budgets
+./scripts/xvlog_gate.py:1935:                            "which the budget format cannot represent")
+./scripts/check_cpp_idiom.py:858:       all(key in budget for key in RATCHETED),
+./scripts/check_port_contracts.py:566:        "# <submodule>:<path>, the naming.budget form). A LINE MAY ONLY LEAVE, by",
+./scripts/check_sh_idiom.py:804:       all(key in budget for key in RATCHETED),
+./scripts/check_sv_idiom.py:390:    population, and a budget the measured counts have outgrown."""
+./scripts/check_py_idiom.py:685:       all(key in budget for key in RATCHETED),
+./scripts/lint_rtl.py:468:            # would move this budget every time that pin advances. Their
+./tests/steps/gptp_bmca_steps.py:199:# budget therefore certifies safety when the shortfall is <= timeout-1, and
+./docs/reference/REGISTER_MAP.md:1122:words above. No slope mux exists, so `LWSRP_CTRL[4:2]` selects nothing and the
+./docs/reference/REGISTER_MAP.md:1146:| `0x680` | `LWSRP_CTRL` | RW | `0x10` | `[0]` engine enable, `[1]` talker declare, `[4:2]` class-A queue index, readback only: no slope mux or shaper is instantiated since VERSION `0x0056`, so it selects nothing (reset **4** = the reset PCP3→TC3→**q4** map; it was 5 from VERSION `0x0011` to
+./docs/reference/REGISTER_MAP.md:1658:CBS slope mux disengages, so an admitted talker stream transmits UNPACED
+./docs/reference/EGRESS_QUEUE_MAP.md:75:could transmit against an unbudgeted slope.
+./docs/ENDSTATION_BUILDER.md:1005:| 37 | `srp.class_queue` | `LWSRP_CTRL[4:2]` of the `0x680` reset word. Readback only: the classifier/queue/CBS chain is not instantiated since VERSION `0x0056` ([EGRESS_QUEUE_MAP.md](reference/EGRESS_QUEUE_MAP.md)), so no slope mux reads the field | - | scratch ([register map](reference/REGISTE
+./sw/litex/milan_soc.py:2130:#: Share of the processor's budget the BRIDGE is allowed to spend before it
+./sw/litex/test_pp_boot_bus_freeze.py:103:#: here would let this file grade a budget the build does not use - then scaled
+./sw/builder/test_builder.py:16813:            "the bw-gate must budget the CRF stream's slope too"
+./sw/builder/endstation_builder.py:316:#: the 28-octet CRF AVTPDU: the pad is on the wire and the bridge budgets for
+./sw/builder/endstation_builder.py:332:#: which is why milan_datapath gates the slope MUX on qidx < NUM_QUEUES.)
+./hdl/common/csr/milan_csr.sv:360:  //! CBS slope MUX target, and there is no shaper to select a queue of
+./hdl/milan/KL_pp_shadow.sv:143:                DA gate and the stream enable, a CBS slope MUX needs the
+./hdl/milan/KL_pp_shadow.sv:1238:      //! needs the per-index values (its CBS slope MUX reads one source's
