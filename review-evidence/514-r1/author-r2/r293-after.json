@@ -1,0 +1,278 @@
+[
+ {
+  "mutant": "control-unmutated",
+  "file": null,
+  "before": "",
+  "after": "",
+  "rc": 0,
+  "status": "PASS",
+  "failing_cases": [],
+  "failing_count": 0
+ },
+ {
+  "mutant": "T-bypass",
+  "file": "merge_containment_replay.py",
+  "before": "missing = _retained_at_tip(source, target, git)",
+  "after": "missing = []",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-exact-reversion     separate current retention verdict AND process exit",
+   "FAIL linear-exact-reversion-path unproved current path is named"
+  ],
+  "failing_count": 2
+ },
+ {
+  "mutant": "shape-guard-off",
+  "file": "merge_containment_replay.py",
+  "before": "if int(merges) != 0:",
+  "after": "if False:",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-merge-unsupported   this optional arm never generalizes the source topology"
+  ],
+  "failing_count": 1
+ },
+ {
+  "mutant": "merge-count-digit-guard-off",
+  "file": "merge_containment_replay.py",
+  "before": "if not merges.isdigit():\n            raise",
+  "after": "if False:\n            raise",
+  "rc": 0,
+  "status": "SURVIVED",
+  "failing_cases": [],
+  "failing_count": 0
+ },
+ {
+  "mutant": "H-unmatched-accepted",
+  "file": "merge_containment_replay.py",
+  "before": "if not matched:\n            return False",
+  "after": "if False:\n            return False",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-ancestry-diagnostic ancestry alone supplies no current-retention baseline",
+   "FAIL linear-kills-ancestry-mutant the ancestry example rejects certifying an unsupported history",
+   "FAIL linear-squash-unsupported  exact endpoint equality does not stand in for distinct replay evidence"
+  ],
+  "failing_count": 3
+ },
+ {
+  "mutant": "H-error-ignored",
+  "file": "merge_containment_replay.py",
+  "before": "if matched is None:\n            raise _MeasurementError(error)",
+  "after": "if matched is None:\n            matched = True",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-H-measurement-failure an unavailable H measurement is never a retention certificate",
+   "FAIL linear-H-failure-diagnostic the arm reports its H measurement failure explicitly"
+  ],
+  "failing_count": 2
+ },
+ {
+  "mutant": "measurement-except-certifies",
+  "file": "merge_containment_replay.py",
+  "before": "return False, f\"linear retention unmeasurable: {exc}\"",
+  "after": "return True, f\"linear retention unmeasurable: {exc}\"",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-empty-delta         exact replays of a change and its revert cannot certify an empty delta",
+   "FAIL linear-H-measurement-failure an unavailable H measurement is never a retention certificate"
+  ],
+  "failing_count": 2
+ },
+ {
+  "mutant": "missing-list-ignored",
+  "file": "merge_containment_replay.py",
+  "before": "    if missing:\n        return False",
+  "after": "    if False:\n        return False",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-exact-reversion     separate current retention verdict AND process exit",
+   "FAIL linear-exact-reversion-path unproved current path is named",
+   "FAIL linear-partial-reversion   separate current retention verdict AND process exit",
+   "FAIL linear-partial-reversion-path unproved current path is named",
+   "FAIL linear-intentional-supersession separate current retention verdict AND process exit",
+   "FAIL linear-intentional-supersession-path unproved current path is named",
+   "FAIL linear-mode-loss           separate current retention verdict AND process exit",
+   "FAIL linear-mode-loss-path      unproved current path is named",
+   "FAIL linear-file-kind-change    separate current retention verdict AND process exit",
+   "FAIL linear-file-kind-change-path unproved current path is named",
+   "FAIL linear-symlink-reversion   separate current retention verdict AND process exit",
+   "FAIL linear-symlink-reversion-path unproved current path is named"
+  ],
+  "failing_count": 22
+ },
+ {
+  "mutant": "retained-diagnostic-blank",
+  "file": "merge_containment_replay.py",
+  "before": "return True, f\"raw no-op retention at {target}; historical linear replay proved\"",
+  "after": "return True, \"\"",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-exact-retention-retained-claim the retained line names current retention and historical replay",
+   "FAIL linear-legitimate-extension-retained-claim the retained line names current retention and historical replay",
+   "FAIL linear-later-mode-change-retained-claim the retained line names current retention and historical replay",
+   "FAIL linear-symlink-identity-retained-claim the retained line names current retention and historical replay",
+   "FAIL linear-gitlink-identity-retained-claim the retained line names current retention and historical replay",
+   "FAIL linear-deletion-retained-retained-claim the retained line names current retention and historical replay"
+  ],
+  "failing_count": 6
+ },
+ {
+  "mutant": "report-unknown-not-counted",
+  "file": "check_merge_containment.py",
+  "before": "unknown += not retained",
+  "after": "unknown += 0",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-exact-reversion     separate current retention verdict AND process exit",
+   "FAIL linear-partial-reversion   separate current retention verdict AND process exit",
+   "FAIL linear-intentional-supersession separate current retention verdict AND process exit",
+   "FAIL linear-mode-loss           separate current retention verdict AND process exit",
+   "FAIL linear-file-kind-change    separate current retention verdict AND process exit",
+   "FAIL linear-symlink-reversion   separate current retention verdict AND process exit",
+   "FAIL linear-gitlink-reversion   separate current retention verdict AND process exit",
+   "FAIL linear-binary-unmeasurable separate current retention verdict AND process exit",
+   "FAIL linear-deletion-reverted   separate current retention verdict AND process exit",
+   "FAIL linear-missing-object-measurement separate current retention verdict AND process exit",
+   "FAIL linear-cli-multiple        one unresolved optional result makes the whole command fail",
+   "FAIL linear-ancestry-unsupported an empty source-only range is explicitly unsupported"
+  ],
+  "failing_count": 16
+ },
+ {
+  "mutant": "report-word-always-retained",
+  "file": "check_merge_containment.py",
+  "before": "word = \"retained\" if retained else \"UNKNOWN\"",
+  "after": "word = \"retained\"",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-exact-reversion     separate current retention verdict AND process exit",
+   "FAIL linear-partial-reversion   separate current retention verdict AND process exit",
+   "FAIL linear-intentional-supersession separate current retention verdict AND process exit",
+   "FAIL linear-mode-loss           separate current retention verdict AND process exit",
+   "FAIL linear-file-kind-change    separate current retention verdict AND process exit",
+   "FAIL linear-symlink-reversion   separate current retention verdict AND process exit",
+   "FAIL linear-gitlink-reversion   separate current retention verdict AND process exit",
+   "FAIL linear-binary-unmeasurable separate current retention verdict AND process exit",
+   "FAIL linear-deletion-reverted   separate current retention verdict AND process exit",
+   "FAIL linear-missing-object-measurement separate current retention verdict AND process exit",
+   "FAIL linear-cli-multiple        one unresolved optional result makes the whole command fail",
+   "FAIL linear-ancestry-unsupported an empty source-only range is explicitly unsupported"
+  ],
+  "failing_count": 16
+ },
+ {
+  "mutant": "option-never-enabled",
+  "file": "check_merge_containment.py",
+  "before": "current_retention = \"--current-retention\" in args",
+  "after": "current_retention = False",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-exact-retention     separate current retention verdict AND process exit",
+   "FAIL linear-exact-retention-retained-claim the retained line names current retention and historical replay",
+   "FAIL linear-exact-reversion     separate current retention verdict AND process exit",
+   "FAIL linear-exact-reversion-path unproved current path is named",
+   "FAIL linear-mutant-exact-reversion bypassing T is rejected by this example's UNKNOWN/1 oracle",
+   "FAIL linear-partial-reversion   separate current retention verdict AND process exit",
+   "FAIL linear-partial-reversion-path unproved current path is named",
+   "FAIL linear-mutant-partial-reversion bypassing T is rejected by this example's UNKNOWN/1 oracle",
+   "FAIL linear-legitimate-extension separate current retention verdict AND process exit",
+   "FAIL linear-legitimate-extension-retained-claim the retained line names current retention and historical replay",
+   "FAIL linear-intentional-supersession separate current retention verdict AND process exit",
+   "FAIL linear-intentional-supersession-path unproved current path is named"
+  ],
+  "failing_count": 58
+ },
+ {
+  "mutant": "option-dup-check-dropped",
+  "file": "check_merge_containment.py",
+  "before": "for flag in (\"--selftest\", \"--base\", \"--merged-prs\", \"--no-fetch\", \"--current-retention\"):",
+  "after": "for flag in (\"--selftest\", \"--base\", \"--merged-prs\", \"--no-fetch\"):",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-cli-refuses---current-retention malformed optional invocation is refused"
+  ],
+  "failing_count": 1
+ },
+ {
+  "mutant": "ancestry-diagnostic-dropped",
+  "file": "check_merge_containment.py",
+  "before": "return (True, 0, \"historical inclusion by ancestry; current retention not implied\")",
+  "after": "return (True, 0, None)",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-ancestry-optional-claim the ancestry contained line names historical inclusion and disclaims retention",
+   "FAIL linear-ancestry-default-claim the ancestry contained line names historical inclusion and disclaims retention"
+  ],
+  "failing_count": 2
+ },
+ {
+  "mutant": "linear-diagnostic-historical-dropped",
+  "file": "check_merge_containment.py",
+  "before": "f\"historical inclusion only: every commit has",
+  "after": "f\"every commit has",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-exact-reversion-claim the default replay diagnostic names its historical claim",
+   "FAIL linear-partial-reversion-claim the default replay diagnostic names its historical claim",
+   "FAIL linear-intentional-supersession-claim the default replay diagnostic names its historical claim",
+   "FAIL linear-mode-loss-claim     the default replay diagnostic names its historical claim",
+   "FAIL linear-file-kind-change-claim the default replay diagnostic names its historical claim",
+   "FAIL linear-symlink-reversion-claim the default replay diagnostic names its historical claim",
+   "FAIL linear-gitlink-reversion-claim the default replay diagnostic names its historical claim",
+   "FAIL linear-binary-unmeasurable-claim the default replay diagnostic names its historical claim",
+   "FAIL linear-deletion-reverted-claim the default replay diagnostic names its historical claim",
+   "FAIL linear-missing-object-measurement-claim the default replay diagnostic names its historical claim"
+  ],
+  "failing_count": 10
+ },
+ {
+  "mutant": "retention-uses-default-arm-verdict",
+  "file": "check_merge_containment.py",
+  "before": "retained, detail = linear_retention_verdict(ref, base, _git, _linear_patches_contained)",
+  "after": "retained, detail = (True, str(note))",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL linear-exact-retention-retained-claim the retained line names current retention and historical replay",
+   "FAIL linear-exact-reversion     separate current retention verdict AND process exit",
+   "FAIL linear-exact-reversion-path unproved current path is named",
+   "FAIL linear-partial-reversion   separate current retention verdict AND process exit",
+   "FAIL linear-partial-reversion-path unproved current path is named",
+   "FAIL linear-legitimate-extension-retained-claim the retained line names current retention and historical replay",
+   "FAIL linear-intentional-supersession separate current retention verdict AND process exit",
+   "FAIL linear-intentional-supersession-path unproved current path is named",
+   "FAIL linear-mode-loss           separate current retention verdict AND process exit",
+   "FAIL linear-mode-loss-path      unproved current path is named",
+   "FAIL linear-later-mode-change-retained-claim the retained line names current retention and historical replay",
+   "FAIL linear-file-kind-change    separate current retention verdict AND process exit"
+  ],
+  "failing_count": 38
+ },
+ {
+  "mutant": "mode-rule-dropped",
+  "file": "merge_containment_replay.py",
+  "before": "    if not (tip[0] == branch[0]\n            or (original is not None and original[0] == branch[0])):\n        return False",
+  "after": "    if False:\n        return False",
+  "rc": 1,
+  "status": "KILLED",
+  "failing_cases": [
+   "FAIL replay-10-later-exec-bit-loss settled public matrix: exit AND verdict",
+   "FAIL replay-10-evidence         historical landing is distinguished from unproved paths"
+  ],
+  "failing_count": 2
+ }
+]

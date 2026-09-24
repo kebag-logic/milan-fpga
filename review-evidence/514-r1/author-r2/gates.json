@@ -1,0 +1,100 @@
+[
+  {
+    "gate": "selftest",
+    "command": "python3 scripts/check_merge_containment.py --selftest",
+    "env": {},
+    "rc": 0,
+    "seconds": 33.92,
+    "log": "gates/selftest.log"
+  },
+  {
+    "gate": "linear",
+    "command": "python3 -B $MANAGEMENT/2026-09-23/514-a251/run_linear.py $LANES/514-containment-retention/scripts",
+    "env": {},
+    "rc": 0,
+    "seconds": 4.28,
+    "log": "gates/linear.log"
+  },
+  {
+    "gate": "docs-git",
+    "command": "python3 scripts/docs_check.py",
+    "env": {},
+    "rc": 0,
+    "seconds": 3.93,
+    "log": "gates/docs-git.log"
+  },
+  {
+    "gate": "docs-no-git",
+    "command": "python3 scripts/docs_check.py",
+    "env": {
+      "GIT_DIR": "/dev/null"
+    },
+    "rc": 0,
+    "seconds": 3.88,
+    "log": "gates/docs-no-git.log"
+  },
+  {
+    "gate": "em-dash",
+    "command": "python3 scripts/check_em_dash.py --base 3d2f3e3131c9db5898e1db9dd3e2a35149843109",
+    "env": {},
+    "rc": 0,
+    "seconds": 1.22,
+    "log": "gates/em-dash.log"
+  },
+  {
+    "gate": "doc-style",
+    "command": "python3 scripts/check_doc_style.py",
+    "env": {},
+    "rc": 0,
+    "seconds": 0.07,
+    "log": "gates/doc-style.log"
+  },
+  {
+    "gate": "toc",
+    "command": "python3 scripts/gen_toc.py --check",
+    "env": {},
+    "rc": 0,
+    "seconds": 0.42,
+    "log": "gates/toc.log"
+  },
+  {
+    "gate": "anchors",
+    "command": "python3 scripts/gen_toc.py --verify-anchors",
+    "env": {},
+    "rc": 0,
+    "seconds": 0.47,
+    "log": "gates/anchors.log"
+  },
+  {
+    "gate": "doc-paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "env": {},
+    "rc": 0,
+    "seconds": 0.12,
+    "log": "gates/doc-paths.log"
+  },
+  {
+    "gate": "python-idiom",
+    "command": "python3 scripts/check_py_idiom.py",
+    "env": {},
+    "rc": 0,
+    "seconds": 2.97,
+    "log": "gates/python-idiom.log"
+  },
+  {
+    "gate": "diff-check",
+    "command": "git diff --check",
+    "env": {},
+    "rc": 0,
+    "seconds": 0.02,
+    "log": "gates/diff-check.log"
+  },
+  {
+    "gate": "diff-check-base",
+    "command": "git diff --check 3d2f3e3131c9db5898e1db9dd3e2a35149843109 HEAD",
+    "env": {},
+    "rc": 0,
+    "seconds": 0.01,
+    "log": "gates/diff-check-base.log"
+  }
+]

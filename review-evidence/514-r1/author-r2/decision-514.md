@@ -1,0 +1,1 @@
+[A10] DECISION (manager, 2026-09-23): linear-replay containment keeps historical inclusion as its verdict; current-tip retention becomes a separate, optional arm (the shape #423 adds for redundant merges). No existing test or verdict is weakened. Implementation waits for PR #519 (#423) to land because both edit scripts/check_merge_containment.py.

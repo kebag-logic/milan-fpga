@@ -1,0 +1,108 @@
+base 3d2f3e3131c9db5898e1db9dd3e2a35149843109 case lines: 678, non-ok: 0
+head 20b7bdaa307eba722ec6cc89d2683ba1636a0cb6 case lines: 778, non-ok: 0
+base lines absent at head (name+description verbatim): 0
+head lines added: 100; added not named linear-*: 0
+selftest modules changed base..head:
+2	0	scripts/merge_containment_selftest.py
+222	0	scripts/merge_containment_selftest_linear.py
+--- added case lines:
+ok   linear-ancestry-diagnostic ancestry alone supplies no current-retention baseline
+ok   linear-ancestry-unsupported an empty source-only range is explicitly unsupported
+ok   linear-binary-diagnostic   binary overlap is reported as an unmeasurable raw merge
+ok   linear-binary-unmeasurable-claim the default replay diagnostic names its historical claim
+ok   linear-binary-unmeasurable-historical existing landing verdict remains contained/0
+ok   linear-binary-unmeasurable-landing the optional result does not replace historical landing
+ok   linear-binary-unmeasurable-path unproved current path is named
+ok   linear-binary-unmeasurable separate current retention verdict AND process exit
+ok   linear-cli-multiple        one unresolved optional result makes the whole command fail
+ok   linear-cli-refuses---current-retention malformed optional invocation is refused
+ok   linear-cli-refuses---selftest malformed optional invocation is refused
+ok   linear-cli-sweep           the optional arm reaches merged-PR targets too
+ok   linear-deletion-retained-historical existing landing verdict remains contained/0
+ok   linear-deletion-retained-landing the optional result does not replace historical landing
+ok   linear-deletion-retained   separate current retention verdict AND process exit
+ok   linear-deletion-reverted-claim the default replay diagnostic names its historical claim
+ok   linear-deletion-reverted-historical existing landing verdict remains contained/0
+ok   linear-deletion-reverted-landing the optional result does not replace historical landing
+ok   linear-deletion-reverted-path unproved current path is named
+ok   linear-deletion-reverted   separate current retention verdict AND process exit
+ok   linear-exact-retention-historical existing landing verdict remains contained/0
+ok   linear-exact-retention-landing the optional result does not replace historical landing
+ok   linear-exact-retention     separate current retention verdict AND process exit
+ok   linear-exact-reversion-claim the default replay diagnostic names its historical claim
+ok   linear-exact-reversion-historical existing landing verdict remains contained/0
+ok   linear-exact-reversion-landing the optional result does not replace historical landing
+ok   linear-exact-reversion-path unproved current path is named
+ok   linear-exact-reversion     separate current retention verdict AND process exit
+ok   linear-file-kind-change-claim the default replay diagnostic names its historical claim
+ok   linear-file-kind-change-historical existing landing verdict remains contained/0
+ok   linear-file-kind-change-landing the optional result does not replace historical landing
+ok   linear-file-kind-change-path unproved current path is named
+ok   linear-file-kind-change    separate current retention verdict AND process exit
+ok   linear-gitlink-identity-historical existing landing verdict remains contained/0
+ok   linear-gitlink-identity-landing the optional result does not replace historical landing
+ok   linear-gitlink-identity    separate current retention verdict AND process exit
+ok   linear-gitlink-reversion-claim the default replay diagnostic names its historical claim
+ok   linear-gitlink-reversion-historical existing landing verdict remains contained/0
+ok   linear-gitlink-reversion-landing the optional result does not replace historical landing
+ok   linear-gitlink-reversion-path unproved current path is named
+ok   linear-gitlink-reversion   separate current retention verdict AND process exit
+ok   linear-intentional-supersession-claim the default replay diagnostic names its historical claim
+ok   linear-intentional-supersession-historical existing landing verdict remains contained/0
+ok   linear-intentional-supersession-landing the optional result does not replace historical landing
+ok   linear-intentional-supersession-path unproved current path is named
+ok   linear-intentional-supersession separate current retention verdict AND process exit
+ok   linear-kills-ancestry-mutant the ancestry example rejects certifying an unsupported history
+ok   linear-kills-binary-unmeasurable the negative example fails against the new arm's mutant
+ok   linear-kills-deletion-reverted the negative example fails against the new arm's mutant
+ok   linear-kills-exact-reversion the negative example fails against the new arm's mutant
+ok   linear-kills-file-kind-change the negative example fails against the new arm's mutant
+ok   linear-kills-gitlink-reversion the negative example fails against the new arm's mutant
+ok   linear-kills-history-mutant the squash example rejects bypassing the optional arm's H guard
+ok   linear-kills-intentional-supersession the negative example fails against the new arm's mutant
+ok   linear-kills-measurement-mutant bypassing T while the same object read fails violates the UNKNOWN/1 oracle
+ok   linear-kills-mode-loss     the negative example fails against the new arm's mutant
+ok   linear-kills-partial-reversion the negative example fails against the new arm's mutant
+ok   linear-kills-shape-mutant  the unsupported merge example rejects the removed shape guard
+ok   linear-kills-symlink-reversion the negative example fails against the new arm's mutant
+ok   linear-later-mode-change-historical existing landing verdict remains contained/0
+ok   linear-later-mode-change-landing the optional result does not replace historical landing
+ok   linear-later-mode-change   separate current retention verdict AND process exit
+ok   linear-legitimate-extension-historical existing landing verdict remains contained/0
+ok   linear-legitimate-extension-landing the optional result does not replace historical landing
+ok   linear-legitimate-extension separate current retention verdict AND process exit
+ok   linear-measurement-diagnostic measurement failure is explicit, never a retained certificate
+ok   linear-merge-unsupported   this optional arm never generalizes the source topology
+ok   linear-missing-object-measurement-claim the default replay diagnostic names its historical claim
+ok   linear-missing-object-measurement-historical existing landing verdict remains contained/0
+ok   linear-missing-object-measurement-landing the optional result does not replace historical landing
+ok   linear-missing-object-measurement-path unproved current path is named
+ok   linear-missing-object-measurement separate current retention verdict AND process exit
+ok   linear-mode-loss-claim     the default replay diagnostic names its historical claim
+ok   linear-mode-loss-historical existing landing verdict remains contained/0
+ok   linear-mode-loss-landing   the optional result does not replace historical landing
+ok   linear-mode-loss-path      unproved current path is named
+ok   linear-mode-loss           separate current retention verdict AND process exit
+ok   linear-mutant-binary-unmeasurable bypassing T is rejected by this example's UNKNOWN/1 oracle
+ok   linear-mutant-deletion-reverted bypassing T is rejected by this example's UNKNOWN/1 oracle
+ok   linear-mutant-exact-reversion bypassing T is rejected by this example's UNKNOWN/1 oracle
+ok   linear-mutant-file-kind-change bypassing T is rejected by this example's UNKNOWN/1 oracle
+ok   linear-mutant-gitlink-reversion bypassing T is rejected by this example's UNKNOWN/1 oracle
+ok   linear-mutant-intentional-supersession bypassing T is rejected by this example's UNKNOWN/1 oracle
+ok   linear-mutant-mode-loss    bypassing T is rejected by this example's UNKNOWN/1 oracle
+ok   linear-mutant-partial-reversion bypassing T is rejected by this example's UNKNOWN/1 oracle
+ok   linear-mutant-symlink-reversion bypassing T is rejected by this example's UNKNOWN/1 oracle
+ok   linear-partial-reversion-claim the default replay diagnostic names its historical claim
+ok   linear-partial-reversion-historical existing landing verdict remains contained/0
+ok   linear-partial-reversion-landing the optional result does not replace historical landing
+ok   linear-partial-reversion-path unproved current path is named
+ok   linear-partial-reversion   separate current retention verdict AND process exit
+ok   linear-squash-unsupported  exact endpoint equality does not stand in for distinct replay evidence
+ok   linear-symlink-identity-historical existing landing verdict remains contained/0
+ok   linear-symlink-identity-landing the optional result does not replace historical landing
+ok   linear-symlink-identity    separate current retention verdict AND process exit
+ok   linear-symlink-reversion-claim the default replay diagnostic names its historical claim
+ok   linear-symlink-reversion-historical existing landing verdict remains contained/0
+ok   linear-symlink-reversion-landing the optional result does not replace historical landing
+ok   linear-symlink-reversion-path unproved current path is named
+ok   linear-symlink-reversion   separate current retention verdict AND process exit

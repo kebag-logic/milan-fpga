@@ -1,0 +1,121 @@
+diff --git a/scripts/merge_containment_selftest_linear.py b/scripts/merge_containment_selftest_linear.py
+index 357e99b52..6032fa554 100644
+--- a/scripts/merge_containment_selftest_linear.py
++++ b/scripts/merge_containment_selftest_linear.py
+@@ -104,6 +104,13 @@ def _check(fx, name, retained, mutation=True):
+             "separate current retention verdict AND process exit")
+     fx.case("linear-" + name + "-landing", "contained" in result[1], True,
+             "the optional result does not replace historical landing")
++    if retained:
++        lines = [line for line in result[1].splitlines()
++                 if line.lstrip().startswith("retained ")]
++        fx.case("linear-" + name + "-retained-claim",
++                len(lines) == 1 and "raw no-op retention at refs/heads/main" in lines[0]
++                and "historical linear replay proved" in lines[0], True,
++                "the retained line names current retention and historical replay")
+     if not retained:
+         fx.case("linear-" + name + "-claim", "historical inclusion only" in output, True,
+                 "the default replay diagnostic names its historical claim")
+@@ -138,6 +145,56 @@ def _measurement_cases(fx):
+             "measurement failure is explicit, never a retained certificate")
+ 
+ 
++def _arm_measurement_cases(fx, history):
++    """Reach the arm-level handler with an empty delta and a failed H read."""
++    original_tree = _tree({"work": _blob(ORIGINAL)})
++    source_tree = _tree({"work": _blob(SOURCE)})
++    initial = _commit(history, original_tree, [], "net-zero initial")
++    source = _commit(history, source_tree, [initial], "source change")
++    source_revert = _commit(history, original_tree, [source], "source revert")
++    replay = _commit(history, source_tree, [initial], "replayed change")
++    replay_revert = _commit(history, original_tree, [replay], "replayed revert")
++    history._git("update-ref", "refs/heads/pr", source_revert)
++    history._git("update-ref", "refs/heads/main", replay_revert)
++    args = ["--no-fetch", "--base", "main", "pr"]
++    rc, output = fx.run(args)
++    fx.case("linear-empty-delta-historical", (rc, "contained" in output), (0, True),
++            "an empty source delta keeps its existing landing verdict")
++    result = fx.run([*args, "--current-retention"])
++    fx.case("linear-empty-delta", _observed(result), (1, ["UNKNOWN"]),
++            "exact replays of a change and its revert cannot certify an empty delta")
++    fx.case("linear-empty-delta-diagnostic",
++            "linear retention unmeasurable: retention has no measurable changed-path set" in result[1],
++            True, "the example reaches the arm-level unmeasurable result after H")
++
++    # Exact current paths establish landing without H. Only the optional arm
++    # reads this history, so a failed read cannot mask its UNKNOWN result.
++    _history(history, (_blob(ORIGINAL), _blob(SOURCE), _blob(SOURCE)))
++    saved = fx.mc._git
++    failed_reads = []
++
++    def fail(*args: str) -> tuple[int, str]:
++        """Fail H's source enumeration without replacing its verdict helper."""
++        if args[:2] == ("rev-list", "--no-merges"):
++            failed_reads.append(args)
++            return 128, ""
++        return saved(*args)
++
++    with patch.object(fx.mc, "_git", fail):
++        rc, output = fx.run(args)
++        fx.case("linear-H-failure-historical",
++                (rc, "every path this branch touched is identical" in output, len(failed_reads)),
++                (0, True, 0), "the path landing proof does not require the failed H measurement")
++        result = fx.run([*args, "--current-retention"])
++    fx.case("linear-H-measurement-failure", _observed(result), (1, ["UNKNOWN"]),
++            "an unavailable H measurement is never a retention certificate")
++    fx.case("linear-H-failure-reached", len(failed_reads), 1,
++            "the optional arm actually attempted the failing Git read")
++    fx.case("linear-H-failure-diagnostic",
++            "linear retention unmeasurable: rev-list could not enumerate refs/heads/pr" in result[1],
++            True, "the arm reports its H measurement failure explicitly")
++
++
+ def _scope_cases(fx, history, initial, source):
+     """Unsupported histories and missing H cannot become optional passes."""
+     args = ["--no-fetch", "--current-retention", "--base", "main", "pr"]
+@@ -148,6 +205,13 @@ def _scope_cases(fx, history, initial, source):
+             "an empty source-only range is explicitly unsupported")
+     fx.case("linear-ancestry-diagnostic", "unsupported" in result[1], True,
+             "ancestry alone supplies no current-retention baseline")
++    for name, output in (("optional", result[1]),
++                         ("default", fx.run([arg for arg in args if arg != "--current-retention"])[1])):
++        lines = [line for line in output.splitlines() if line.lstrip().startswith("contained ")]
++        fx.case("linear-ancestry-" + name + "-claim",
++                len(lines) == 1 and "historical inclusion by ancestry" in lines[0]
++                and "current retention not implied" in lines[0], True,
++                "the ancestry contained line names historical inclusion and disclaims retention")
+     mutant = _mutant(fx, args,
+                       b'return False, "unsupported: needs a nonempty whitespace-exact linear replay"',
+                       b'return True, "unsupported: needs a nonempty whitespace-exact linear replay"')
+@@ -179,6 +243,23 @@ def _scope_cases(fx, history, initial, source):
+             "the squash example rejects bypassing the optional arm's H guard")
+ 
+ 
++def _failed_landing_cases(fx, history):
++    """A failed landing must never acquire an optional retention certificate."""
++    initial, _, _ = _history(history, (_blob(ORIGINAL), _blob(SOURCE), _blob(SOURCE)))
++    history._git("update-ref", "refs/heads/main", initial)
++    for target, word in (("pr", "STRANDED"), ("no-such-branch", "UNKNOWN")):
++        result = fx.run(["--no-fetch", "--base", "main", target, "--current-retention"])
++        lines = [line.split() for line in result[1].splitlines() if line.strip()]
++        fx.case("linear-failed-landing-" + word,
++                (result[0], lines[0][0] if lines else "no verdict"), (1, word),
++                "the option preserves the failed landing verdict and exit")
++        fx.case("linear-no-retained-on-" + word,
++                any(line[0] == "retained" for line in lines), False,
++                "a failed landing emits no retained line")
++        fx.case("linear-no-retention-on-" + word, _observed(result), (1, []),
++                "current retention is evaluated only for a contained landing")
++
++
+ def _cli_cases(fx, source, tip):
+     args = ["--no-fetch", "--base", "main", "pr", "--current-retention"]
+     for extra in (["--current-retention"], ["--selftest"]):
+@@ -218,5 +299,7 @@ def linear_retention_cases(fx: object) -> None:
+             _measurement_cases(fx)
+             _cli_cases(fx, source, tip)
+             _scope_cases(fx, history, initial, source)
++            _arm_measurement_cases(fx, history)
++            _failed_landing_cases(fx, history)
+         finally:
+             os.chdir(cwd)
