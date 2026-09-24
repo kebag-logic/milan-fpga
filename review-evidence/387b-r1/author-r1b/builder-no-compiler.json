@@ -1,0 +1,17 @@
+{
+  "command": [
+    "env",
+    "PYTHONPATH=$VALIDATION_STORAGE/387-a269-absent-control",
+    "PYTHONUNBUFFERED=1",
+    "python3",
+    "sw/builder/test_builder.py"
+  ],
+  "cwd": "$LANES/387-media-rebase",
+  "exit_code": 0,
+  "elapsed_seconds": 402.77,
+  "environment": {
+    "PATH": "$VALIDATION_STORAGE/387b-manager-r1/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+    "VERILATOR_ROOT": "$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator"
+  },
+  "log_sha256": "1adfd87abb8b516732579bf19cd82102542d2265147af88229bd8454ea7d27b4"
+}
