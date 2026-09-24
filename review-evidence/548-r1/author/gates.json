@@ -1,0 +1,68 @@
+[
+  {
+    "name": "docs-check",
+    "command": "python3 scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 4.097
+  },
+  {
+    "name": "docs-check-no-git",
+    "command": "env GIT_DIR=/dev/null python3 scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 4.029
+  },
+  {
+    "name": "doc-style",
+    "command": "python3 scripts/check_doc_style.py",
+    "rc": 0,
+    "seconds": 0.048
+  },
+  {
+    "name": "toc",
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 2,
+    "seconds": 0.079
+  },
+  {
+    "name": "doc-paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "module-matrix",
+    "command": "python3 docs/traceability/gen_module_matrix.py --check",
+    "rc": 0,
+    "seconds": 0.93
+  },
+  {
+    "name": "xvlog",
+    "command": "python3 scripts/xvlog_gate.py --check",
+    "rc": 0,
+    "seconds": 139.707
+  },
+  {
+    "name": "rtl-source-lists",
+    "command": "python3 scripts/check_rtl_source_lists.py",
+    "rc": 0,
+    "seconds": 1.446
+  },
+  {
+    "name": "cpp-idiom",
+    "command": "python3 scripts/check_cpp_idiom.py",
+    "rc": 0,
+    "seconds": 1.208
+  },
+  {
+    "name": "py-idiom",
+    "command": "python3 scripts/check_py_idiom.py",
+    "rc": 0,
+    "seconds": 2.92
+  },
+  {
+    "name": "diff-check",
+    "command": "git diff --check",
+    "rc": 0,
+    "seconds": 0.026
+  }
+]
