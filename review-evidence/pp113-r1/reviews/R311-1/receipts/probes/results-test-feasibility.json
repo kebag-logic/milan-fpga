@@ -1,0 +1,74 @@
+[
+  {
+    "variant": "t-cmp-low16",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": "GI LATENCY-CHANGE: exactly one unsolicited response",
+    "verdict": "KILLED-BY-NAMED-CHECK",
+    "fail_lines": [
+      "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 1, got 0",
+      "FAIL: GI LATENCY-CHANGE unsolicited: complete Milan response"
+    ],
+    "fail_count": 2,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 651 checks, 2 failures"
+    ]
+  },
+  {
+    "variant": "t-cmp-no-bit31",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": "GI LATENCY-CHANGE: exactly one unsolicited response",
+    "verdict": "KILLED-BY-NAMED-CHECK",
+    "fail_lines": [
+      "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 1, got 0",
+      "FAIL: GI LATENCY-CHANGE unsolicited: complete Milan response"
+    ],
+    "fail_count": 2,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 651 checks, 2 failures"
+    ]
+  },
+  {
+    "variant": "t-cmp-low8",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": "GI LATENCY-CHANGE: exactly one unsolicited response",
+    "verdict": "KILLED-BY-NAMED-CHECK",
+    "fail_lines": [
+      "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 1, got 0",
+      "FAIL: GI LATENCY-CHANGE unsolicited: complete Milan response"
+    ],
+    "fail_count": 2,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 651 checks, 2 failures"
+    ]
+  },
+  {
+    "variant": "t-cmp-high16",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": "GI LATENCY-CHANGE: exactly one unsolicited response",
+    "verdict": "KILLED-BY-NAMED-CHECK",
+    "fail_lines": [
+      "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 1, got 0",
+      "FAIL: GI LATENCY-CHANGE unsolicited: complete Milan response"
+    ],
+    "fail_count": 2,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 651 checks, 2 failures"
+    ]
+  },
+  {
+    "variant": "t-golden",
+    "build_rc": 0,
+    "run_rc": 0,
+    "expected_named_check": null,
+    "verdict": "SURVIVED",
+    "fail_lines": [],
+    "fail_count": 0,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 656 checks, 0 failures"
+    ]
+  }
+]

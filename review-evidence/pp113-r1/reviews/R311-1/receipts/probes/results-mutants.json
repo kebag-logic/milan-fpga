@@ -1,0 +1,187 @@
+[
+  {
+    "variant": "r-trigger-removed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": "GI LATENCY-CHANGE: exactly one unsolicited response",
+    "verdict": "KILLED-BY-NAMED-CHECK",
+    "fail_lines": [
+      "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-CHANGE unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 1, got 0",
+      "FAIL: GI LATENCY-CHANGE unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-CHANGE unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 1, got 0",
+      "FAIL: GI LATENCY-CHANGE unsolicited: complete Milan response"
+    ],
+    "fail_count": 8,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 594 checks, 8 failures"
+    ]
+  },
+  {
+    "variant": "r-cmp-low16",
+    "build_rc": 0,
+    "run_rc": 0,
+    "expected_named_check": null,
+    "verdict": "SURVIVED",
+    "fail_lines": [],
+    "fail_count": 0,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 614 checks, 0 failures"
+    ]
+  },
+  {
+    "variant": "r-cmp-no-bit31",
+    "build_rc": 0,
+    "run_rc": 0,
+    "expected_named_check": null,
+    "verdict": "SURVIVED",
+    "fail_lines": [],
+    "fail_count": 0,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 614 checks, 0 failures"
+    ]
+  },
+  {
+    "variant": "r-cmp-low8",
+    "build_rc": 0,
+    "run_rc": 0,
+    "expected_named_check": null,
+    "verdict": "SURVIVED",
+    "fail_lines": [],
+    "fail_count": 0,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 614 checks, 0 failures"
+    ]
+  },
+  {
+    "variant": "r-cmp-high16",
+    "build_rc": 0,
+    "run_rc": 0,
+    "expected_named_check": null,
+    "verdict": "SURVIVED",
+    "fail_lines": [],
+    "fail_count": 0,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 614 checks, 0 failures"
+    ]
+  },
+  {
+    "variant": "r-always-pulse",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": "GI LATENCY-SAME",
+    "verdict": "KILLED-BY-NAMED-CHECK",
+    "fail_lines": [
+      "FAIL: GI unchanged Failed: no fabricated failure transition",
+      "FAIL: GI ADVERTISE unsolicited: failure code sink 0 = 0, got 9",
+      "FAIL: GI ADVERTISE unsolicited: full failure bridge sink 0",
+      "FAIL: GI ADVERTISE unsolicited: byte-exact sink 0 response",
+      "FAIL: GI ADVERTISE: solicited and unsolicited bodies agree for sink 0",
+      "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 0, got 2",
+      "FAIL: GI LATENCY-CHANGE unsolicited: byte-exact sink 0 response",
+      "FAIL: GI LATENCY-SAME: unchanged refresh sends no response for sink 0",
+      "FAIL: GI LATENCY-CHANGE unsolicited: byte-exact sink 1 response",
+      "FAIL: GI LATENCY-SAME: unchanged refresh sends no response for sink 1",
+      "FAIL: GI LATENCY-CHANGE unsolicited: byte-exact sink 0 response",
+      "FAIL: GI LATENCY-CHANGE unsolicited: byte-exact sink 1 response"
+    ],
+    "fail_count": 16,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 614 checks, 16 failures"
+    ]
+  },
+  {
+    "variant": "r-advertise-only",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": "GI LATENCY-CHANGE: exactly one unsolicited response for sink 1",
+    "verdict": "KILLED-BY-NAMED-CHECK",
+    "fail_lines": [
+      "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 1, got 0",
+      "FAIL: GI LATENCY-CHANGE unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 1, got 0",
+      "FAIL: GI LATENCY-CHANGE unsolicited: complete Milan response"
+    ],
+    "fail_count": 4,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 604 checks, 4 failures"
+    ]
+  },
+  {
+    "variant": "r-all-sinks",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": "GI LATENCY-OTHER",
+    "verdict": "KILLED-BY-NAMED-CHECK",
+    "fail_lines": [
+      "FAIL: GI FAILED-1 unsolicited: failure code sink 1 = 11, got 0",
+      "FAIL: GI FAILED-1 unsolicited: full failure bridge sink 1",
+      "FAIL: GI FAILED-1 unsolicited: byte-exact sink 1 response",
+      "FAIL: GI FAILED-1: solicited and unsolicited bodies agree for sink 1",
+      "FAIL: GI FAILED-REFRESH unsolicited: pbsta sink 0 = 3, got 0",
+      "FAIL: GI FAILED-REFRESH unsolicited: failure code sink 0 = 9, got 0",
+      "FAIL: GI FAILED-REFRESH unsolicited: full failure bridge sink 0",
+      "FAIL: GI FAILED-REFRESH unsolicited: byte-exact sink 0 response",
+      "FAIL: GI FAILED-REFRESH: solicited and unsolicited bodies agree for sink 0",
+      "FAIL: GI unchanged Failed: no fabricated failure transition",
+      "FAIL: GI ADVERTISE unsolicited: pbsta sink 0 = 3, got 0",
+      "FAIL: GI ADVERTISE unsolicited: byte-exact sink 0 response"
+    ],
+    "fail_count": 43,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 614 checks, 43 failures"
+    ]
+  },
+  {
+    "variant": "r-delayed-strobe",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": null,
+    "verdict": "KILLED",
+    "fail_lines": [
+      "FAIL: GI FAILED-REFRESH unsolicited: failure code sink 0 = 9, got 7",
+      "FAIL: GI FAILED-REFRESH unsolicited: full failure bridge sink 0",
+      "FAIL: GI FAILED-REFRESH unsolicited: byte-exact sink 0 response",
+      "FAIL: GI FAILED-REFRESH: solicited and unsolicited bodies agree for sink 0",
+      "FAIL: GI unchanged Failed: no fabricated failure transition",
+      "FAIL: GI ADVERTISE unsolicited: failure code sink 0 = 0, got 11",
+      "FAIL: GI ADVERTISE unsolicited: full failure bridge sink 0",
+      "FAIL: GI ADVERTISE unsolicited: byte-exact sink 0 response",
+      "FAIL: GI ADVERTISE: solicited and unsolicited bodies agree for sink 0",
+      "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 0, got 3",
+      "FAIL: GI LATENCY-CHANGE unsolicited: failure code sink 0 = 0, got 9",
+      "FAIL: GI LATENCY-CHANGE unsolicited: full failure bridge sink 0"
+    ],
+    "fail_count": 22,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 614 checks, 22 failures"
+    ]
+  },
+  {
+    "variant": "r-strobe-to-acmp",
+    "build_rc": 0,
+    "run_rc": 0,
+    "expected_named_check": null,
+    "verdict": "SURVIVED",
+    "fail_lines": [],
+    "fail_count": 0,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 614 checks, 0 failures"
+    ]
+  },
+  {
+    "variant": "r-strobe-to-applicant",
+    "build_rc": 0,
+    "run_rc": 0,
+    "expected_named_check": null,
+    "verdict": "SURVIVED",
+    "fail_lines": [],
+    "fail_count": 0,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 614 checks, 0 failures"
+    ]
+  }
+]

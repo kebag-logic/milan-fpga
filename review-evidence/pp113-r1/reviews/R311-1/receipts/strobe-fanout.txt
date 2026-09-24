@@ -1,0 +1,21 @@
+# fan-out of the new strobe and the stream-input notify vector at 29840136 (sources only)
+hdl/top/protocol_processor_top.sv:2213:  logic [N_STREAM_IN_P-1:0]  srp_evt_tk_latency_chg_w;
+hdl/top/protocol_processor_top.sv:2291:      .evt_tk_latency_chg_o  (srp_evt_tk_latency_chg_w),
+hdl/top/protocol_processor_top.sv:3051:  logic [N_STREAM_IN_P-1:0]  ntfy_stri_in_w;
+hdl/top/protocol_processor_top.sv:3138:    ntfy_stri_in_w  = '0;
+hdl/top/protocol_processor_top.sv:3141:      ntfy_stri_in_w[k] =
+hdl/top/protocol_processor_top.sv:3146:          || srp_evt_tk_fail_chg_w[k] || srp_evt_tk_latency_chg_w[k];
+hdl/top/protocol_processor_top.sv:3537:      .ev_stri_in_i          (ntfy_stri_in_w),
+hdl/srp/KL_srp_listener_fsm.sv:39://                raises evt_tk_latency_chg_o for GET_STREAM_INFO only
+hdl/srp/KL_srp_listener_fsm.sv:156:    output logic [N_SINKS_P-1:0]       evt_tk_latency_chg_o, //! committed accumulated_latency change; notification only
+hdl/srp/KL_srp_listener_fsm.sv:701:      evt_tk_latency_chg_o  <= '0;
+hdl/srp/KL_srp_listener_fsm.sv:711:      evt_tk_latency_chg_o  <= '0;
+hdl/srp/KL_srp_listener_fsm.sv:738:          evt_tk_latency_chg_o[s] <= (lat_r[s] != evt_acc_latency_i);
+hdl/srp/KL_srp_top.sv:198:    output logic [N_SINKS_P-1:0]   evt_tk_latency_chg_o, //! committed sink latency change; GET_STREAM_INFO only
+hdl/srp/KL_srp_top.sv:626:      .evt_tk_latency_chg_o    (evt_tk_latency_chg_o),
+hdl/aecp/KL_aecp_notify.sv:187:    input  wire  [N_STREAM_IN_P-1:0]  ev_stri_in_i,  //! per-sink GET_STREAM_INFO change
+hdl/aecp/KL_aecp_notify.sv:758:        if (ev_stri_in_i[s]) pe_sin_r[s] <= 1'b1;
+tb/srp_stream_fsms/srp_stream_fsms_wrap.sv:252:      .evt_tk_latency_chg_o   (),
+tb/aecp_notify/sim_main.cpp:126:  dut->ev_stri_in_i = 0;
+tb/pp_top/gsi_mutants.py:21:         " || srp_evt_tk_latency_chg_w[k]", "", 1,
+tb/srp_top/srp_top_wrap.sv:222:      .evt_tk_latency_chg_o (),
