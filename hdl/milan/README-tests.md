@@ -12,6 +12,6 @@ hand-edit. Part of the Milan integration family; rolled up in
 |---|---|---|---|
 | ✅ `KL_nvm_backend` | `KL_nvm_backend.sv` | `milan_dp` · `nvm_backend` · `nvm_cosim` · ➰milan_dp_render | -- |
 | ✅ `KL_pp_maap_shim` | `KL_pp_maap_shim.sv` | `milan_dp` · ➰milan_dp_render | -- |
-| ✅ `KL_pp_shadow` | `KL_pp_shadow.sv` | `milan_dp` · ➰milan_dp_render | 34.3, 34.4 |
+| ✅ `KL_pp_shadow` | `KL_pp_shadow.sv` | `milan_dp` · ➰milan_dp_render | -- |
 | ✅ `milan_datapath` | `milan_datapath.sv` | `milan_dp` · `milan_dp_render` | 34.4, 35.2.2.8.4, 35.2.7, 802.1 |
 
