@@ -1,0 +1,12 @@
+Focused consumer suites at the exact head (pinned Verilator 5.050; tally lines verbatim):
+## milan_dp-gptp: make -C tb/verilator/milan_dp gptp (VERILATOR_JOBS=4) -> exit 0
+  181 checks: 181 PASS, 0 FAIL
+  failing check lines: 0
+## gptp_shadow-run: make -C tb/verilator/gptp_shadow run (VERILATOR_JOBS=2) -> exit 0
+  309 checks: 309 PASS, 0 FAIL
+  failing check lines: 0
+## clkvalid: make -C tb/verilator/clkvalid run (VERILATOR_JOBS=2) -> exit 0
+  == clkvalid: checks: 22  failures: 0 ==
+  == clkvalid: checks: 19  failures: 0 ==
+  == clkvalid: checks: 14  failures: 0 ==
+  failing check lines: 0

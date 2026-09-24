@@ -1,0 +1,6 @@
+Vmilan_dp_gmstep <aem image> <feed delay> argument handling at the exact head (binary built by the tree's gmstep recipe):
+arg='abc'      rc=2  gmstep: the feed delay abc is not a cycle count below 10^6
+arg='1234567'  rc=2  gmstep: the feed delay 1234567 is not a cycle count below 10^6
+arg=''         rc=2  gmstep: the feed delay  is not a cycle count below 10^6
+arg='-5'       rc=2  gmstep: the feed delay -5 is not a cycle count below 10^6
+arg='999999'   rc=1  accepted ("gmstep: feed delay 999999 cycles"); the run then fails its checks at this head, as every delay does before the datapath edit

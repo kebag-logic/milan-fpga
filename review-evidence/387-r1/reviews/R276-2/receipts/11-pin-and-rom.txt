@@ -1,0 +1,11 @@
+gptp_ucode.hex regenerated from the pinned generator with default arguments (the ooc.sh recipe):
+<packet>/scratch/gptp_ucode_default.hex: 1024 words, 994 real (97.1%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@159 BECGATE@309 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@125 SERVO@651 RESUME@1016 PDREQ@900 TXLOST@103 TXT1OK@180
+sha256: 4afe436d48763a0c178d0e4191851501de26d6b9f1fe6634d5ea206c36f643bb
+rom_digests.tsv row at the pin: e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp_ucode.hex	4afe436d48763a0c178d0e4191851501de26d6b9f1fe6634d5ea206c36f643bb
+gptp-processor gitlink: e5dcea6e351abff18a27a00f8e345f3251bdbd8f
+donor e5dcea6e parents: c1b617435824929a790739ea8585c3fe1a328cc0 ba9268100ebe92dfc61aed30e2910245fc8c97cf
+donor e5dcea6e tree: 5a02fa35db15d9a773895f82bb17020b55cfa775
+donor ba926810 tree: 5a02fa35db15d9a773895f82bb17020b55cfa775
+donor public main compare e5dcea6e...main: identical (FPGA-gPTP PR 74 merged, merge commit e5dcea6e, head ba926810)
+donor thresholds: 405:STEP_LINKUP_NS_C = 20000        # a link-up pair steps above this, ns (#68) 406:STEP_LOCKED_NS_C = 100000       # a locked pair steps above this, ns (#68) 407:RATE_PPM_C = 200                # the rate envelope, ppm: the integrator clamp 

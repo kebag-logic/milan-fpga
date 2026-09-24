@@ -1,0 +1,53 @@
+$ python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 849 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+
+$ python3 scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+check_em_dash: 0 finding(s) over 161 added line(s) in 10 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [759da623..HEAD]
+rc=0
+
+$ python3 scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+rc=0
+
+$ python3 scripts/check_gptp_docs.py --with-submodule
+gPTP documentation: OK (8 current pages, donor checkout verified)
+rc=0
+
+$ python3 scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+
+$ python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+
+$ python3 scripts/check_cpp_idiom.py
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0
+
+$ python3 scripts/check_feature_status.py
+feature_status: 0 finding(s)
+rc=0
+
+$ python3 scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+rc=0
+
+$ python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+rc=0
+
+$ python3 scripts/measure_test_evidence.py --check
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (74 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 74
+rc=0
+
+$ git diff --check 759da623072358afdb0e9d570a7b4b6a788492c9 HEAD
+rc=0
+

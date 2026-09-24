@@ -1,0 +1,133 @@
+### D1-restart-on-identity.milan_datapath.sv (sha256 693b37030713281b575247c3f158e43517c560064465368b2c5446e79eb49e42) against edited milan_datapath.sv
+--- edited milan_datapath.sv
++++ D1-restart-on-identity.milan_datapath.sv
+@@ -3100,3 +3100,3 @@
+                           & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+-                       | media_rebase_p_w;
++                       | gm_recentre_p_r;
+ 
+
+### D2-restart-on-both.milan_datapath.sv (sha256 5ecfed1642f6c600746fa6a78b4242572a4c814af47ee683a532b89d7c87d133) against edited milan_datapath.sv
+--- edited milan_datapath.sv
++++ D2-restart-on-both.milan_datapath.sv
+@@ -3100,3 +3100,3 @@
+                           & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+-                       | media_rebase_p_w;
++                       | media_rebase_p_w | gm_recentre_p_r;
+ 
+
+### D3-restart-late-4000.milan_datapath.sv (sha256 492983aa5750cf0a1dc5ad84b313a659d54ad91543339cfd77c5df4bae2e6c15) against edited milan_datapath.sv
+--- edited milan_datapath.sv
++++ D3-restart-late-4000.milan_datapath.sv
+@@ -3098,5 +3098,19 @@
+   wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
++  logic [12:0] rv_rs_cnt_r;
++  logic rv_rs_p_r;
++  always_ff @(posedge axis_clk) begin : g_rv_rs
++    if (!axis_resetn) begin
++      rv_rs_cnt_r <= '0; rv_rs_p_r <= 1'b0;
++    end else begin
++      rv_rs_p_r <= 1'b0;
++      if (media_rebase_p_w) rv_rs_cnt_r <= 13'd4000;
++      else if (rv_rs_cnt_r != '0) begin
++        rv_rs_cnt_r <= rv_rs_cnt_r - 1'b1;
++        if (rv_rs_cnt_r == 13'd1) rv_rs_p_r <= 1'b1;
++      end
++    end
++  end : g_rv_rs
+   wire mcr_restart_p_w = (crf_clk_selected_r
+                           & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+-                       | media_rebase_p_w;
++                       | rv_rs_p_r;
+ 
+
+### D4-render-late-1000.milan_datapath.sv (sha256 225c6c16524c3f665b033ebe33ac93d3ea009772d7674253a385a4f568e79546) against edited milan_datapath.sv
+--- edited milan_datapath.sv
++++ D4-render-late-1000.milan_datapath.sv
+@@ -3098,2 +3098,16 @@
+   wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
++  logic [10:0] rv_rc_cnt_r;
++  logic rv_rc_p_r;
++  always_ff @(posedge axis_clk) begin : g_rv_rc
++    if (!axis_resetn) begin
++      rv_rc_cnt_r <= '0; rv_rc_p_r <= 1'b0;
++    end else begin
++      rv_rc_p_r <= 1'b0;
++      if (media_rebase_p_w) rv_rc_cnt_r <= 11'd1000;
++      else if (rv_rc_cnt_r != '0) begin
++        rv_rc_cnt_r <= rv_rc_cnt_r - 1'b1;
++        if (rv_rc_cnt_r == 11'd1) rv_rc_p_r <= 1'b1;
++      end
++    end
++  end : g_rv_rc
+   wire mcr_restart_p_w = (crf_clk_selected_r
+@@ -5975,3 +5989,3 @@
+   wire render_recentre_p_w /* verilator public_flat_rd */ =
+-       media_rebase_p_w | src_recentre_p_r;
++       rv_rc_p_r | src_recentre_p_r;
+ 
+
+### D5-recentre-snap-short.KL_render_setpoint.sv (sha256 4c04d3ca4cd8177759b1373d33aa676e3f4e8ab768d8ffb14633a84bf9ca091e) against tree hdl/ieee1722/aaf/KL_render_setpoint.sv
+--- tree hdl/ieee1722/aaf/KL_render_setpoint.sv
++++ D5-recentre-snap-short.KL_render_setpoint.sv
+@@ -583,3 +583,4 @@
+               if (enough_w) begin
+-                rptr_r[s]    <= snap_rptr_w;
++                rptr_r[s]    <= (pend_r[s] && !prefill_r[s]) ? snap_rptr_w + 1'b1
++                                                       : snap_rptr_w;
+                 prefill_r[s] <= 1'b0;
+
+### D6-talker-stops-300k.milan_datapath.sv (sha256 c3d297c8f6ab828eabda1afc83599d7f43c558055ff17f91114d5bc36afd0e83) against edited milan_datapath.sv
+--- edited milan_datapath.sv
++++ D6-talker-stops-300k.milan_datapath.sv
+@@ -1363,3 +1363,3 @@
+     //! composed aaf_stream_en_w - see its comment for the honest gaps)
+-    .stream_en_i (aaf_stream_en_w),
++    .stream_en_i (aaf_stream_en_w & {N_STREAMS{~rv_kill_r}}),
+     .dest_mac_i (eff_aaf_dmac),
+@@ -3098,2 +3098,17 @@
+   wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
++  logic [20:0] rv_kill_cnt_r;
++  logic rv_kill_r;
++  logic rv_seen_r;
++  always_ff @(posedge axis_clk) begin : g_rv_kill
++    if (!axis_resetn) begin
++      rv_kill_cnt_r <= '0; rv_kill_r <= 1'b0; rv_seen_r <= 1'b0;
++    end else begin
++      if (gptp_step_we_w) rv_seen_r <= 1'b1;
++      if (gptp_step_we_w && rv_seen_r && !rv_kill_r) rv_kill_cnt_r <= 21'd300000;
++      else if (rv_kill_cnt_r != '0) begin
++        rv_kill_cnt_r <= rv_kill_cnt_r - 1'b1;
++        if (rv_kill_cnt_r == 21'd1) rv_kill_r <= 1'b1;
++      end
++    end
++  end : g_rv_kill
+   wire mcr_restart_p_w = (crf_clk_selected_r
+
+### D7-talker-stops-600k.milan_datapath.sv (sha256 87355143ce7f7ea8ddf6e8b4d647b033fad9a54f172a094afb1a957623d73d69) against edited milan_datapath.sv
+--- edited milan_datapath.sv
++++ D7-talker-stops-600k.milan_datapath.sv
+@@ -1363,3 +1363,3 @@
+     //! composed aaf_stream_en_w - see its comment for the honest gaps)
+-    .stream_en_i (aaf_stream_en_w),
++    .stream_en_i (aaf_stream_en_w & {N_STREAMS{~rv_kill_r}}),
+     .dest_mac_i (eff_aaf_dmac),
+@@ -3098,2 +3098,17 @@
+   wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
++  logic [20:0] rv_kill_cnt_r;
++  logic rv_kill_r;
++  logic rv_seen_r;
++  always_ff @(posedge axis_clk) begin : g_rv_kill
++    if (!axis_resetn) begin
++      rv_kill_cnt_r <= '0; rv_kill_r <= 1'b0; rv_seen_r <= 1'b0;
++    end else begin
++      if (gptp_step_we_w) rv_seen_r <= 1'b1;
++      if (gptp_step_we_w && rv_seen_r && !rv_kill_r) rv_kill_cnt_r <= 21'd600000;
++      else if (rv_kill_cnt_r != '0) begin
++        rv_kill_cnt_r <= rv_kill_cnt_r - 1'b1;
++        if (rv_kill_cnt_r == 21'd1) rv_kill_r <= 1'b1;
++      end
++    end
++  end : g_rv_kill
+   wire mcr_restart_p_w = (crf_clk_selected_r
+
