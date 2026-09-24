@@ -272,8 +272,9 @@ module KL_crf_rx #(
   localparam logic [63:0] NOM_WIN_NS_C  = 64'(NOM_PDU_NS_C) << RATE_LOG2_C;
 
   //! Adjacent timestamps, unlike the 512 ms rate, expose a phase step.
-  //! The media oscillator inherits the +/-100 ppm LocalClock bound
-  //! (Milan Annex B.1.1), rather than an independent media-clock clause.
+  //! Assume the media oscillator meets IEEE 802.1AS Annex B.1.1's
+  //! +/-100 ppm LocalClock bound. Milan v1.2 section 7.4 requires media
+  //! sources better than +/-50 ppm; 100 ppm is a conservative margin.
   //! Assume the remote talker shares our PHC envelope: +/-200 ppm trim
   //! (TIME_SYNC) and <384 ns timestamp quantisation (incr + adj).
   //! 2 ms * (200 + 100) / (1e6 - 100), rounded up, is 601 ns.

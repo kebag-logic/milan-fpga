@@ -95,6 +95,22 @@ def main() -> int:
         results.append(run_case(
             work, "servo_ignores_valid", servo_source.replace(anchor, ";"),
             "[U13] invalid remote sample holds trim", servo=True))
+        resume_anchor = "  always_ff @(posedge clk_i) begin : servo_engine"
+        if servo_source.count(resume_anchor) != 1:
+            print("FAIL servo_never_resumes: expected exactly one mutation anchor")
+            return 1
+        # A sticky invalid sample stops PI forever, while preserving LOCKED.
+        resume_latch = """  logic invalid_seen_r;
+  always_ff @(posedge clk_i) begin : latch_invalid_sample
+    if (!rst_n) invalid_seen_r <= 1'b0;
+    else if (!crf_rate_valid_i) invalid_seen_r <= 1'b1;
+  end
+"""
+        never_resumes = servo_source.replace(resume_anchor, resume_latch + resume_anchor)
+        never_resumes = never_resumes.replace(anchor, anchor[:-1] + " && !invalid_seen_r;")
+        results.append(run_case(
+            work, "servo_never_resumes", never_resumes,
+            "[U13] valid offset resumes PI trim", servo=True))
     failures = sum(not passed for passed in results)
     print(f"== crf_rx mutants: checks: {len(results)}   failures: {failures} ==")
     return 1 if failures else 0
