@@ -1,0 +1,22 @@
+EXACT | A00 control (no substitution) | expect SURVIVE | failing none | 59 scenarios passed, 0 failed, 0 skipped
+EXACT | A01 length floor 8 -> 7 | expect [191] | failing [191] | 58 scenarios passed, 1 failed, 0 skipped
+EXACT | A02 length ceiling at 100 payload octets (cdl 112 still served) | expect SURVIVE | failing none | 59 scenarios passed, 0 failed, 0 skipped
+EXACT | A03 length ceiling at 99 payload octets | expect [198] | failing [198] | 58 scenarios passed, 1 failed, 0 skipped
+EXACT | A04 command reserved field forwarded into the Figure 5.4 body | expect [196] | failing [196] | 58 scenarios passed, 1 failed, 0 skipped
+EXACT | A05 protocol_id head (@22..@23) not compared | expect [181, 182] | failing [181, 182] | 57 scenarios passed, 2 failed, 0 skipped
+EXACT | A06 @26 compared on its high nibble only | expect [187] | failing [187] | 58 scenarios passed, 1 failed, 0 skipped
+EXACT | A07 @26 compared on its low nibble only | expect [186] | failing [186] | 58 scenarios passed, 1 failed, 0 skipped
+EXACT | A08 message_type 14 also decoded as MVU | expect [225] | failing [225] | 58 scenarios passed, 1 failed, 0 skipped
+EXACT | A09 r bit masked off the @28 word | expect [190] | failing [190] | 58 scenarios passed, 1 failed, 0 skipped
+EXACT | A10 every whole MVU command runs the GET_MILAN_INFO program | expect [136, 137, 138, 139, 190] | failing [136, 137, 138, 139, 190] | 54 scenarios passed, 5 failed, 0 skipped
+EXACT | A11 VU echo capped at 20 payload octets | expect [138] | failing [138] | 58 scenarios passed, 1 failed, 0 skipped
+EXACT | A12 Figure 5.4 body one quadlet long | expect [131, 196, 197, 198] | failing [131, 196, 197, 198] | 55 scenarios passed, 4 failed, 0 skipped
+EXACT | A13 Figure 5.6 name field 32 octets (cdl 60) | expect [138] | failing [138] | 58 scenarios passed, 1 failed, 0 skipped
+EXACT | A14 Figure 5.5 system_unique_id dropped (cdl 20) | expect [136] | failing [136] | 58 scenarios passed, 1 failed, 0 skipped
+EXACT | A15 guard step ignores its protocol_id cell | expect [181, 182, 183, 184, 185, 186, 187, 188, 189] | failing [181, 182, 183, 184, 185, 186, 187, 188, 189] | 50 scenarios passed, 9 failed, 0 skipped
+EXACT | A16 guard step sends cdl > 20 without the extra octets | expect [198] | failing [198] | 58 scenarios passed, 1 failed, 0 skipped
+EXACT | A17 other-type step leaves message_type at 6 | expect [219, 220, 221, 222, 223, 224, 225] | failing [219, 220, 221, 222, 223, 224, 225] | 52 scenarios passed, 7 failed, 0 skipped
+EXACT | A18 VU response u-bit mask applied to message_type 6 | expect [181, 262, 263] | failing [181, 262, 263] | 56 scenarios passed, 3 failed, 0 skipped
+EXACT | A19 gate regex misses SET_ constants | expect SURVIVE | failing none | 59 scenarios passed, 0 failed, 0 skipped
+EXACT | A20 MVU dispatch arm made unreachable | expect [131, 150, 196, 197, 198] | failing [131, 150, 196, 197, 198] | 54 scenarios passed, 5 failed, 0 skipped
+21 of 21 arms exactly as expected

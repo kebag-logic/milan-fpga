@@ -1,0 +1,26 @@
+R281-2 citation check at head fb84de54ee9c1e3a2b51d2a239efbc04e4a22bad
+Sources: local plain-text renderings of Milan Specification v1.2 (consolidated,
+2023-11-29; text sha256 8264854244415e364e1968b1da8e2bae7c067fa3cc98594ea54db08fc8a152c7)
+and IEEE Std 1722.1-2021 (text sha256 966138f9a20368c94ee24456ca485b69956777f3821adf0b1d019685dd1c8a9a).
+Only the short phrases needed for each check are quoted.
+
+| Claim in the head (file) | Clause | Result |
+|---|---|---|
+| protocol_id 00-1B-C5-0A-C1-00 = OUI-36 00-1B-C5-0A-C + 12-bit 0x100; @26 holds the OUI-36 last nibble and the protocol id top nibble (feature :162-165, rows :185-187) | Milan 5.4.3.2.1 "OUI-36 owned by Avnu (00-1B-C5-0A-C) appended with a 12-bit protocol unique identifier (0x100 for MVU)" | correct; D1-00 = OUI-36 ...0A-D + 0x100, C2-00 = OUI-36 ...0A-C + 0x200, C1-01 = 0x101 |
+| r must be zero, so r = 1 names no command (model :76-77, feature :190) | Milan 5.4.3.2.2 "shall be set to zero (0) in all AECP MVU command and response messages" | correct |
+| Table 5.18 command types 0x0000-0x0004 and names (feature :131-139) | Milan Table 5.18 | correct |
+| Figure 5.3 = GET_MILAN_INFO and GET_SYSTEM_UNIQUE_ID command, 8 payload octets, cdl 20 | Milan Fig 5.3 caption and layout (@22 protocol_id, @28 r+command_type, @30 reserved) | correct |
+| Figure 5.5 SET_SYSTEM_UNIQUE_ID: + 64-bit system_unique_id at @32, cdl 28; value must not be 0 (model MVU_COMMAND_FORMS, uses 0x0102030405060708) | Milan 5.4.4.2 / Fig 5.5 "shall be different than the default value, 0" | correct |
+| Figure 5.6 SET_MEDIA_CLOCK_REFERENCE_INFO: @30 clock_domain_index, @32 flags/reserved/default_mcr_prio/user_mcr_prio, @36 reserved, @40 64-octet name, cdl 92; flags 0x03 = both Table 5.21 flags; default_mcr_prio ignored in a command; name "DEFAULT" zero padded | Milan 5.4.4.4 / Fig 5.6 / Table 5.21 | correct (struct >BBBBI64s after the @30 halfword = 72 + 8 = 80 payload octets) |
+| Figure 5.7 GET_MEDIA_CLOCK_REFERENCE_INFO: clock_domain_index at @30, cdl 20 | Milan 5.4.4.5 / Fig 5.7 | correct |
+| Figure 5.4 response: body from @24 is 20 octets, cdl 32; reserved zeroed by sender, ignored by receiver | Milan 5.4.4.1 / Fig 5.4 | correct |
+| protocol_version: 5.4.4.1 "The value of this field is 1"; SHALL sentence attributed to Section 4.2.4 (model :82-85) | Milan 5.4.4.1 and 4.2.4 "A PAAD shall set the value of the protocol_version field in the GET_MILAN_INFO response to 1." | correct (both quotations verbatim, each under its own clause) |
+| features_flags 0 (neither Table 5.20 bit), certification_version 0 when no certification passed | Milan Table 5.20, 5.4.4.1 "set to 0 if the PAAD-AE has not passed any Milan certification" | correct |
+| 5.4.4.2-5.4.4.5 are recommendations | each clause's Note "Support for this feature is a recommendation" | correct; RECOMMENDED per the #510 owner decision (issuecomment-5789766089) |
+| NOT_IMPLEMENTED = 1: Milan Table 5.19, IEEE Table 9-6 (feature :104-106, steps :91-92: header entry "IEEE 1722.1-2021 9.6", Table 9-6 split across the line break) | Milan 5.4.3.3 Table 5.19; IEEE 9.6.2.3 Table 9-6 "1 NOT_IMPLEMENTED" | correct |
+| IEEE 9.6.5.3.1 quotation "the appropriate details from the command and an appropriate status code", no size rule; Milan 5.4.3.3 gives none either (feature :106-109) | IEEE 9.6.5.3.1; Milan 5.4.3.3 | correct, verbatim |
+| 9.3.5.3.3 "correctly sized response" is the AEM rule (feature :110, steps :97-98) | IEEE 9.3.5.3.3 "respond to an AEM Command other than ACQUIRE_ENTITY and LOCK_ENTITY" | correct |
+| Message types 0, 2, 4, 8, 10, 12, 14 labels (feature :217-225) | IEEE Table 9-1 (10 to 13 reserved, 14 EXTENDED_COMMAND) | correct; 10 and 12 are labelled "reserved" |
+
+No incorrect citation found in the diff 26d855a9..fb84de54.
+Note, pre-existing and not in the diff: the feature description (:6-15) applies 9.3.5.3.3's fallback wording to "unsupported opcodes and message types"; the new MVU block (:104-110) scopes it correctly to AEM.

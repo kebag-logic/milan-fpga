@@ -1,0 +1,5 @@
+# scratch pp_top copy vs pinned protocol-processor 424c688 blobs
+DIFFERS: tb/pp_top/Makefile
+DIFFERS: tb/pp_top/sim_main.cpp
+files compared: 52
+expected differences: tb/pp_top/sim_main.cpp (probe insertion, receipts/pp_top_probe.diff) and tb/pp_top/Makefile (build jobs 0 -> 8; run step replaced by a no-op so the probe binary is launched separately; receipts/pp_top_makefile.diff)
