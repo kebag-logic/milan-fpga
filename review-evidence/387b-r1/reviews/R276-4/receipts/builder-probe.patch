@@ -1,0 +1,26 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index 408e8790c..0a8e04d30 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -8861,8 +8861,7 @@ def test_baremetal_profile_contract() -> None:
+         direct_initializer(
+             datapath, r"wire[ \t]+render_recentre_p_w",
+             "render_recentre_p_w",
+-            "gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load "
+-            "| src_recentre_p_r",
++            "media_rebase_p_w | src_recentre_p_r",
+             "render recentre pulse must read only the GM-change, adjtime, "
+             "settime and settled clock-source discontinuities")
+         #: 915cbcc3 (PR #294 lane) removed the dead 802.1Q shaper and the
+@@ -10289,9 +10288,9 @@ def test_baremetal_profile_contract() -> None:
+     #: PHC census count, so only the recentre pin can refuse it.
+     render_recentre_adp_term = replace_once(
+         datapath_source,
+-        "       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load\n"
++        "       media_rebase_p_w\n"
+         "       | src_recentre_p_r;",
+-        "       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load\n"
++        "       media_rebase_p_w\n"
+         "       | src_recentre_p_r | cfg_adp_enable;",
+         "ADP-controlled render recentre term")
+     phc_effective_adjust_gated_by_adp = replace_once(

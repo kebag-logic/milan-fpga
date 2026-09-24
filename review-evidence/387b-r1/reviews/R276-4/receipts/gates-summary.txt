@@ -1,0 +1,12 @@
+scripts/docs_check.py -> rc=0
+scripts/measure_test_evidence.py --check -> rc=0
+scripts/check_em_dash.py --base 57456af96b3127b9d309a995bbbd35a6113ce52d -> rc=2
+scripts/check_doc_style.py -> rc=0
+scripts/gen_toc.py --check -> rc=2
+scripts/check_gptp_docs.py -> rc=0
+scripts/check_doc_paths.py -> rc=0
+scripts/check_py_idiom.py -> rc=0
+scripts/check_cpp_idiom.py -> rc=0
+(pinned markdown venv) scripts/check_em_dash.py --base 57456af96b3127b9d309a995bbbd35a6113ce52d -> rc=0
+(pinned markdown venv) scripts/gen_toc.py --check -> rc=0
+note: the two rc=2 lines are the gates refusing because the pinned Markdown renderer was not installed in the system interpreter; they were rerun with the hash-pinned lock (tools/markdown/requirements.txt) in an isolated environment, and their gate-*.log receipts are those reruns
