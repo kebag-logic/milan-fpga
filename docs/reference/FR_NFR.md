@@ -207,10 +207,16 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 > **Scope (VERSION `0x0002_0060`):** FR-CONN-02's queue/CBS programming and
 > FR-SRP-03's shaper configuration have no object in the shipped datapath - the
 > classifier/CBS chain is not instantiated ([REQUIREMENTS.md section 5](../../REQUIREMENTS.md)).
-> The obligation that survives, *no transmit without a grant*, is met at the
-> AAF admission gate and the CRF licence from the processor's SRP class-D face:
-> its ACTIVE, which needs a registered Listener Ready or Ready Failed as well as
-> the grant (#530).
+> The obligation that survives, in FR-SRP-03's own words *on failure the stream
+> MUST NOT transmit*, is met at the AAF admission gate and the CRF licence from
+> the processor's SRP class-D face: its ACTIVE, which needs a registered
+> Listener Ready or Ready Failed and the processor's admission term (#530). That
+> term is the grant except inside the optimistic window, up to three admission
+> rounds after a fresh declaration, where it holds before the round's verdict.
+> So a declaration the admission round refuses can be licensed for up to three
+> rounds. Its licence stops at the window's end, when the verdict the talker
+> reads turns to refused and before the declaration swaps to Talker Failed
+> (issue #551).
 
 ### 2.6 Time & media clock  -  gPTP, CRF  *(802.1AS; 1722-2016 Section 10; Milan Section 5.7)*
 | ID | Requirement | Pri | Ver |
