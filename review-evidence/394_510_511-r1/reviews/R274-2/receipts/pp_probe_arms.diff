@@ -1,0 +1,31 @@
+--- base
++++ arms
+@@ -2337,6 +2337,28 @@
+     auto want = mvu_expect(AECP_NOT_IMPLEMENTED, 0xC003, suid);
+     CHECK(!got.empty(), "M4: an unimplemented MVU command_type got silence");
+     CHECK(got == want, "M4: the unimplemented-MVU echo is not byte-exact");
++
++    // [R274-2 probe] every other Table 5.18 command this build does not serve
++    struct ProbeArm { uint16_t ct; size_t bytes; uint16_t seq; const char* what; };
++    static const ProbeArm probe_arms[] = {
++      {0x0001,  8, 0xC0A1, "SET_SYSTEM_UNIQUE_ID 8B"},
++      {0x0001, 12, 0xC0A2, "SET_SYSTEM_UNIQUE_ID 12B"},
++      {0x0002, 12, 0xC0A3, "GET_SYSTEM_UNIQUE_ID 12B"},
++      {0x0003,  8, 0xC0A4, "SET_MEDIA_CLOCK_REFERENCE_INFO 8B"},
++      {0x0003, 80, 0xC0A5, "SET_MEDIA_CLOCK_REFERENCE_INFO 80B"},
++      {0x0004,  8, 0xC0A6, "GET_MEDIA_CLOCK_REFERENCE_INFO 8B"},
++      {0x0004, 12, 0xC0A7, "GET_MEDIA_CLOCK_REFERENCE_INFO 12B"},
++    };
++    int probe_n = 0;
++    for (const auto& x : probe_arms) {
++      auto pl = mvu_cmd_pl(MVU_PID_LO, x.ct, x.bytes);
++      auto got2 = mvu(MVU_PID_LO, x.ct, x.seq, x.bytes);
++      auto want2 = mvu_expect(AECP_NOT_IMPLEMENTED, x.seq, pl);
++      CHECK(!got2.empty(), "M4x: %s got silence", x.what);
++      CHECK(got2 == want2, "M4x: %s is not the byte-exact NOT_IMPLEMENTED echo", x.what);
++      ++probe_n;
++    }
++    std::printf("[R274-2 probe] M4x arms executed: %d\n", probe_n);
+   }
+ 
+   // ---- M5: the r field is compared, the reserved field is not -----------

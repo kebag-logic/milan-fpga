@@ -1,0 +1,120 @@
+# as2011: 802.1AS-2011.pdf sha256=a07215b346fe0019b719b445abd4acb96d687f822b85c55ee1030d7195298ae3
+# cor1: 802.1AS-2011_Cor1-2013.pdf sha256=e704e89c636e7b1e94db3af7afab619c9f8d137ba12211c99d55abeac370f31a
+# cor2: 802.1AS-2011_Cor_2-2015.pdf sha256=dbe16669ca5e647c8a6d5cf2ed5356eb258beefd7b9c12ec9d260727e65a0080
+# as2020: 802.1AS-2020.pdf sha256=762d15eb65b4401b251255c11e3bde7cabdda71b8d5d9e8703292714b0f02dcb
+# milan: Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf sha256=6bb902be1c1de8c44f4c4c583a645b0b37e0b2dac27870486ce229e68ce3bba8
+
+## IEEE 802.1AS-2011
+PASS 8.3 measurement not required: line 2182: This standard does not explicitly require the measurement of delayAsymmetry; however, if
+PASS 8.3 sign: positive when responder->initiator longer: line 2179: In other words, delayAsymmetry is defined to be positive when the responder to initiator propagation time is
+PASS 10.2.4.8 unmodelled means zero: lines 3873-3876
+PASS 10.2.4.8 names no data type: lines 3873-3876
+PASS 10.2.4.5 is syncInterval (donor citation): line 3861: 10.2.4.5 syncInterval: a variable containing the mean time-synchronization event message transmission
+PASS Fig 10-9 syncReceiptTime + delayAsymmetry: line 4699: neighborPropDelay*(rcvdPSSyncPtr->rateRatio/neighborRateRatio) + delayAsymmetry;
+PASS Fig 10-9 syncReceiptLocalTime + delayAsymmetry/rateRatio: line 4701: delayAsymmetry/rcvdPSSyncPtr->rateRatio;
+PASS Fig 10-4 rateRatio += (neighborRateRatio - 1): line 4101: rateRatio += (neighborRateRatio – 1.0);
+PASS 11.1.3 d) delayAsymmetry divided by rateRatio_i: line 7050: d) The quantity delayAsymmetry (see 10.2.4.8) divided by rateRatioi.
+PASS 11.1.3 e) (ts,i - upstreamTxTime)(rateRatio_i) in setFollowUp: line 7058: e) The quantity (ts,i – upstreamTxTime)(rateRatioi).
+PASS 11.2.13.2.1 f) minus delayAsymmetry/rateRatio: line 7526: delayAsymmetry (see 10.2.4.8) for this port divided by rateRatio [see e) above]. The
+PASS 11.2.13.2.1 NOTE 2 negligible, same for delayAsymmetry: line 7538: same is true of any delayAsymmetry. See NOTE 2 of 11.2.15.2.4.
+PASS 11.2.14.2.3 a) rateRatio x (egress - upstreamTxTime): line 7685: rateRatio u (<syncEventEgressTimestamp> upstreamTxTime),
+PASS 10.2.11 relays only another port's PortSyncSync: line 4555: (rcvdPSSyncPtr->localPortNumber != thisPort) && rcvdPSSync = FALSE;
+PASS 11.2.15 is the MDPdelayReq machine (donor citation): line 7806: 11.2.15 MDPdelayReq state machine
+PASS 11.2.15.2.4 computePropTime has no asymmetry term: lines 7923-7975
+PASS Table 11-5 Follow_Up asymmetry corrections via 11.2.13.2.1/11.2.14.2.3: line 8615: and 11.2.14.2.3; the quantity delayAsymmetry is used in the
+PASS 14.6.9 defines without grading: lines 11248-11253
+PASS Table 14-6 row: delayAsymmetry scaledNs RW Tdot3FD 14.6.9: line 11391: delayAsymmetry scaledNs RW Tdot3FD 14.6.9
+PASS Table 14-6 '(recommended)' sits under the data type: (recommended)
+PASS Table 14-6 footnote Tdot3FD text: line 11413: Tdot3FD = Required for time-aware IEEE 802.3 full-duplex port;
+PASS 14.6.25 is the Port Parameter Data Set Table: line 11358: 14.6.25 Port Parameter Data Set Table
+PASS 14.3.2 recommended data type scaledNs (offsetFromMaster): lines 10885-10890
+PASS A.5 MGT status O: line 15418: MGT Is management of the timing O Clause 15 Yes [ ] No [ ]
+INFO A.5 MGT continuation: synchronization in Bridges supported?
+PASS A.7 MINTA-8 asymmetry modelling optional (O, 8.3): line 15484: MINTA-8 If path delay asymmetry is modeled by this O 8.3 Yes [ ] No [ ]
+PASS E.5.2.2 CSN egress ClockSlaveSync takes delayAsymmetry from CSN TLV: line 17355: upstreamTxTime, neighborPropDelay, neighborRateRatio, and delayAsymmetry values from the respective
+PASS 8.4.3 generation of event message timestamps: line 2225: 8.4.3 Generation of event message timestamps
+
+## Every 2011 occurrence of delayAsymmetry, by enclosing numbered clause
+  line  2149 | clause: 8.3 Communication path asymmetry | caption above:  | caption below: Figure 8-1—Propagation asymmetry
+  line  2172 | clause: 8.3 Communication path asymmetry | caption above: Figure 8-1—Propagation asymmetry | caption below: 
+  line  2175 | clause: 8.3 Communication path asymmetry | caption above: Figure 8-1—Propagation asymmetry | caption below: 
+  line  2177 | clause: 8.3 Communication path asymmetry | caption above: Figure 8-1—Propagation asymmetry | caption below: 
+  line  2179 | clause: 8.3 Communication path asymmetry | caption above: Figure 8-1—Propagation asymmetry | caption below: 
+  line  2182 | clause: 8.3 Communication path asymmetry | caption above: Figure 8-1—Propagation asymmetry | caption below: 
+  line  2183 | clause: 8.3 Communication path asymmetry | caption above: Figure 8-1—Propagation asymmetry | caption below: 
+  line  2196 | clause: 8.3 Communication path asymmetry | caption above:  | caption below: 
+  line  3873 | clause: 10.2.4.8 delayAsymmetry: the asymmetry in the propagation de | caption above:  | caption below: 
+  line  3875 | clause: 10.2.4.8 delayAsymmetry: the asymmetry in the propagation de | caption above:  | caption below: 
+  line  4699 | clause: 10.2.12.3 State diagram | caption above:  | caption below: Figure 10-9—ClockSlaveSync state machine
+  line  4701 | clause: 10.2.12.3 State diagram | caption above:  | caption below: Figure 10-9—ClockSlaveSync state machine
+  line  7037 | clause: 11.1.3 Transport of time-synchronization information | caption above:  | caption below: 
+  line  7050 | clause: 11.1.3 Transport of time-synchronization information | caption above:  | caption below: 
+  line  7052 | clause: 11.1.3 Transport of time-synchronization information | caption above:  | caption below: 
+  line  7360 | clause: 11.2.5 Use of link aggregation | caption above:  | caption below: 
+  line  7526 | clause: 11.2.13.2.1 setMDSyncReceive(): creates an MDSyncReceive str | caption above:  | caption below: 
+  line  7532 | clause: 11.2.13.2.1 setMDSyncReceive(): creates an MDSyncReceive str | caption above:  | caption below: 
+  line  7538 | clause: 11.2.13.2.1 setMDSyncReceive(): creates an MDSyncReceive str | caption above:  | caption below: 
+  line  8615 | clause: 11.4.2.5 sourcePortIdentity (PortIdentity) | caption above: Table 11-5—Value of correction field | caption below: Table 11-6—References for sequenceId value excepti
+  line 11248 | clause: 14.6.9 delayAsymmetry | caption above:  | caption below: 
+  line 11252 | clause: 14.6.9 delayAsymmetry | caption above:  | caption below: 
+  line 11391 | clause: 14.6.25 Port Parameter Data Set Table | caption above:  | caption below: 
+  line 11777 | clause: 15.3 Security considerations | caption above:  | caption below: Table 15-1—IEEE8021-AS MIB structure and object cr
+  line 11872 | clause: 15.3 Security considerations | caption above: Table 15-1—IEEE8021-AS MIB structure and object cr | caption below: 
+  line 13248 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13249 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13250 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13662 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13674 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13677 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13678 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13689 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13701 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13704 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13705 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13727 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13739 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13742 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 13743 | clause: 7.6.2.6 of IEEE Std 1588 - 2008 for more detailed descriptio | caption above:  | caption below: 
+  line 14978 | clause: 11.2.15 and Figure 11-8). | caption above:  | caption below: 
+  line 14979 | clause: 11.2.15 and Figure 11-8). | caption above:  | caption below: 
+  line 14980 | clause: 11.2.15 and Figure 11-8). | caption above:  | caption below: 
+  line 17295 | clause: E.5.2.1.1.1 General | caption above:  | caption below: 
+  line 17341 | clause: E.5.2.1.1.9 delayAsymmetry (UScaledNs) | caption above:  | caption below: 
+  line 17343 | clause: E.5.2.1.1.9 delayAsymmetry (UScaledNs) | caption above:  | caption below: 
+  line 17355 | clause: E.5.2.2 CSN egress node | caption above:  | caption below: 
+
+## IEEE 802.1AS-2011/Cor1-2013
+PASS Cor1 replacement Table 14-6 keeps the delayAsymmetry row: line 2725: delayAsymmetry scaledNs RW Tdot3FD 14.6.9
+PASS Cor1 does not touch Figure 10-9
+PASS Cor1 changes 10.2.12.2.1 prose: line 1241: Change 10.2.12.2.1 as follows:
+PASS Cor1 restates 11.2.13.2.1 f): line 1997: delayAsymmetry (see 10.2.4.8) for this port divided by rateRatio [see e) above]. The
+PASS Cor1 has no MGT change
+
+## IEEE 802.1AS-2011/Cor2-2015
+PASS Cor2 has no delayAsymmetry text
+PASS Cor2 only changes Figure 11-8: ['Change Figure 11-8 as follows:']
+
+## IEEE 802.1AS-2020 (comparison only)
+PASS 2020 10.2.13 is ClockSlaveSync: line 5736: 10.2.13 ClockSlaveSync state machine
+PASS 2020 10.2.13 syncReceiptTime + delayAsymmetry: line 5826: meanLinkDelay*(rcvdPSSyncPtrCSS->rateRatio/neighborRateRatio) + delayAsymmetry;
+PASS 2020 11.2.14.2.1 is setMDSyncReceiveMDSR: line 10696: 11.2.14.2.1 setMDSyncReceiveMDSR(): Creates an MDSyncReceive structure, and returns a pointer to
+PASS 2020 11.2.14.2.1 f) subtracts asymmetry only for instance-specific peer delay: line 10717: state machine is invoked by the instance-specific peer-to-peer delay mechanism, minus
+PASS 2020 11.2.15.2.3 is setFollowUp: line 10925: 11.2.15.2.3 setFollowUp(): Creates a structure whose parameters contain the fields (see 11.4) of a
+PASS 2020 11.2.17.2 a) CMLDS corrects mean link delay for delayAsymmetry: line 11307: function of the MDSyncReceive state machine, while CMLDS corrects the computed mean link
+
+## Milan v1.2
+PASS Milan v1.2 never mentions asymmetry
+PASS 4.2.5 redundancy optional: line 1037: A PAAD may implement seamless redundancy as defined by Section 8.
+PASS 4.2.6 defers to 802.1AS: line 1045: defined by [802.1AS], [802.1AS-2011/Cor1], and [802.1AS-2011/Cor2].
+PASS Table 5.19 NOT_IMPLEMENTED = 1: line 3248: 1 NOT_IMPLEMENTED The PAAD-AE does not support the command type.
+PASS Table 5.20 bit 31 REDUNDANCY: line 3378: 31 0x00000001 REDUNDANCY The ATDECC Entity, in its currently active
+PASS 5.4.4.2 carries the recommendation note: line 3395: Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+PASS 5.4.4.3 carries the recommendation note: line 3449: Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+PASS 5.4.4.4 carries the recommendation note: line 3462: Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+PASS 5.4.4.5 carries the recommendation note: line 3566: Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+PASS 7.6 carries the recommendation note: line 6147: Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+PASS 8.1 redundancy not mandatory: line 6259: Seamless network redundancy is not a mandatory requirement for a PAAD to be compliant with this specifica-
+PASS 8.3.1 at least two AVB-capable Ethernet ports: line 6331: • The R-PAAD shall have at least two AVB-capable Ethernet ports.
+
+RESULT: 0 failure(s) []
+exit=0

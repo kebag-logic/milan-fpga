@@ -1,0 +1,27 @@
+Prior public review findings on PR #537, read AFTER the independent verdict
+(receipts/independent_verdict_before_prior_findings.md, 2026-09-24T03:42:44Z).
+Read: R274-1 https://github.com/kebag-logic/milan-fpga/pull/537#issuecomment-5805065861 (head 64bcf768)
+      R275-1 https://github.com/kebag-logic/milan-fpga/pull/537#issuecomment-5805241709 (head 64bcf768)
+PR review objects at read time: 0; PR comments: 7 (manager round starts plus the two verdicts above).
+
+R274-1 F1 = R275-1-F1 (MINOR; Conformance, Docs): RESOLVED at 70f2c50d.
+  GPTP_PLANE.md:359 names three terms; :378-394 table gives 11.2.13.2.1 f), both Figure 10-9 assignments,
+  11.2.14.2.3 a) carriage, Annex E.5.2.2, the 2020 comparison, and the net effect; :422 application point
+  names all three. "both terms" is gone (git grep exit 1). Checked against 2011 Figure 10-9, 11.2.13.2.1 f),
+  Figure 10-4, 11.1.3 d)/e), Table 11-5, 10.2.11; Cor1 keeps f) and does not touch Figure 10-9; Cor2 has no
+  asymmetry text (receipts/clause_check.txt).
+R274-1 F2 = R275-1-F2 (MINOR; Conformance, Docs): RESOLVED at 70f2c50d.
+  GPTP_PLANE.md:360 states Table 14-6 (14.6.25; Cor1 row kept): RW, Tdot3FD with its legend text,
+  "(recommended)" qualifying the scaledNs data type (14.3.2 analogue), 14.6.9 ungraded, PICS MGT = O, none
+  claimed. Revisit trigger adds the management condition at GPTP_PLANE.md:402-410, REQUIREMENTS.md:141-146,
+  FR_NFR.md:421-424 and the compliance matrix :226. The optional Units point is taken at GPTP_PLANE.md:418.
+  The stale phrase "lists it read-write and recommended" is gone.
+R275-1 independent S1: superseded by R275-1-F2 in that round; resolved with F2.
+R274-1 S1 = R275-1-S3 (SUGGESTION; Tests): RETAINED, optional. No committed builder test plants an asymmetry
+  key; receipts/probe_builder_asym_refusal.txt shows the refusal works at this head.
+R275-1-S2 (SUGGESTION; Tests, Docs): RETAINED, optional. scripts/check_gptp_docs.py:15 and :74 still
+  require only range(1, 13), so AS-13 is ungated.
+R275-1-S4 (SUGGESTION; Docs, Conformance): RETAINED, optional. docs/traceability/ieee8021as.md:49 does not
+  name its clause edition.
+The A215 REVIEW READY statements both rounds flagged are publicly superseded by the A226 REVIEW READY on #511.
+Nothing in the prior rounds changes this round's independent verdict.

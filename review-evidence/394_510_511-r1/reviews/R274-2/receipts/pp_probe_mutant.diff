@@ -1,0 +1,11 @@
+--- base
++++ mutant
+@@ -1293,7 +1293,7 @@
+                                 && (raw_ct_r   == MVU_PID_HI_C)
+                                 && (cfg_ix_r   == MVU_PID_MD_C)
+                                 && (pid_lo_r   == 2'b11)
+-                                && (desc_ty_r  == MVU_GET_MILAN_INFO_C);
++                                && ((desc_ty_r == MVU_GET_MILAN_INFO_C) || (desc_ty_r == 16'h0003));
+ 
+   // ---- payload sizing ------------------------------------------------------
+   //! cdl is the offset-from-@12 length (F06.14), so the command payload is

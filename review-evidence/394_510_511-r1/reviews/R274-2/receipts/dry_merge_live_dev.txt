@@ -1,0 +1,5 @@
+live dev 50e78097564244c124e1ec30dd8821f83951ab06 vs source base 759da623072358afdb0e9d570a7b4b6a788492c9: ahead 14, behind 0 (compare API)
+pages changed by both this PR and live dev: docs/MILAN_V12_ROADMAP.md docs/design/TIME_SYNC.md docs/reference/FR_NFR.md docs/reference/MILAN_COMPLIANCE_MATRIX.md
+live dev hunks in those pages: CRF counters (#529) roadmap/FR_NFR/matrix rows 5.4.2.25 and 5.4.5.1; TIME_SYNC grid-aligner table row. No overlap with the #394/#510/#511 rows.
+disposable --shared clone, git merge-tree --write-tree 50e78097 70f2c50d: exit 0, no conflict, tree 348267ed0ccdf364f4e81bbd9ffe1939126f33c9
+NOT a gated candidate: the manager builds and gates the candidate at the merge turn.
