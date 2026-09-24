@@ -1,0 +1,10 @@
+probe repro_trace_525000 src=repro mutant=none harness=trace:525000
+[TRACE] step 525000 ns at mid-window, talker +20.0 ppm
+  locked     ew=     +60 (   +0.12 ppm) integ= +15680 ( +30.62 ppm) u_cmd= +15695 ( +30.65 ppm) trim= +490 COMMIT  state=4
+  step applied at t=6912.919 ms (tick 256 of the window)
+  window +1  ew= +525040 (+1025.47 ppm) integ= +15680 ( +30.62 ppm) u_cmd= +15695 ( +30.65 ppm) trim= +490 discard state=4
+  window +2  ew=     +60 (   +0.12 ppm) integ= +15710 ( +30.68 ppm) u_cmd= +15725 ( +30.71 ppm) trim= +491 COMMIT  state=4
+  window +3  ew=     +20 (   +0.04 ppm) integ= +15720 ( +30.70 ppm) u_cmd= +15725 ( +30.71 ppm) trim= +491 COMMIT  state=4
+  window +4  ew=     +20 (   +0.04 ppm) integ= +15730 ( +30.72 ppm) u_cmd= +15735 ( +30.73 ppm) trim= +491 COMMIT  state=4
+  guard discards counted across the trace: 1
+EXIT 0

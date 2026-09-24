@@ -1,0 +1,80 @@
+probe mut_early_verdict_unit src=head mutant=early_verdict harness=unit
+mutate: early_verdict: applied
+[U0] clock_source != 2: fully inert
+  [ ok ] [U0] state IDLE                                      = 0
+  [ ok ] [U0] zero DRP accesses                               = 0
+  [ ok ] [U0] zero PS operations                              = 0
+  [ ok ] [U0] trim 0                                          = 0
+[U1] activation: DRP read-verify only
+  [ ok ] [U1] verify reads = 2                                = 2
+  [ ok ] [U1] verify writes = 0                               = 0
+  [ ok ] [U1] verified flag                                   = 1
+  [ ok ] [U1] no mismatch                                     = 0
+[U2] lock from +100 ppm talker
+  [ ok ] [U2] reached LOCKED                                  = 4
+  [ ok ] [U2] effective clock ppm ~ talker (+100)             = 98.389
+  [ ok ] [U2] trim readout ~ +110.6 ppm (x16)                 = 1818.000
+[U3] bounded step + PS protocol
+  [ ok ] [U3] per-window trim step <= SLEW (100 ppm x16)      = 1
+  [ ok ] [U3] no PSEN while shift in flight                   = 0
+  [ ok ] [U3] no PS during DRP reset                          = 0
+[U4] step response: talker +100 -> +80 ppm
+  [ ok ] [U4] re-locked after step                            = 4
+  [ ok ] [U4] re-lock within PI budget (<48 ms = 12 windows)  = 1
+  [ ok ] [U4] effective clock ppm ~ talker (+80)              = 82.417
+[U5] holdover on CRF unlock
+  [ ok ] [U5] state HOLDOVER                                  = 5
+  [ ok ] [U5] trim frozen across holdover                     = 1558
+  [ ok ] [U5] held rate ~ last talker (+80)                   = 81.549
+  [ ok ] [U5] relock after CRF returns                        = 4
+[U6] deselect + fresh lock from -100 ppm
+  [ ok ] [U6] back to IDLE                                    = 0
+  [ ok ] [U6] trim 0 in IDLE                                  = 0
+  [ ok ] [U6] PS silent in IDLE                               = 0
+  [ ok ] [U6] locked from -100 ppm                            = 4
+  [ ok ] [U6] effective clock ppm ~ talker (-100)             = -98.912
+  [ ok ] [U6] trim ~ -89.4 ppm (x16)                          = -1462.000
+[U7] config mismatch, auto_repair OFF: informative only
+  [ ok ] [U7] mismatch flagged                                = 1
+  [ ok ] [U7] verified NOT set                                = 0
+  [ ok ] [U7] zero DRP writes                                 = 0
+  [ ok ] [U7] PS servo still locks on the live config         = 4
+[U8] auto_repair ON: full XAPP888 safe sequence
+  [ ok ] [U8] repair completed (ACQUIRE/LOCKED)               = 1
+  [ ok ] [U8] power reg written 0xFFFF (XAPP888 T14)          = 65535
+  [ ok ] [U8] ClkReg1 repaired, RESERVED[12] preserved        = 5525
+  [ ok ] [U8] ClkReg2 repaired, RESERVED[15] preserved        = 32896
+  [ ok ] [U8] writes under reset only (safe seq)              = 0
+  [ ok ] [U8] no PS during reconfiguration                    = 0
+  [ ok ] [U8] mmcm reset released                             = 0
+  [ ok ] [U8] relock seen (LOCKED synced)                     = 1
+  [ ok ] [U8] locks after repair                              = 4
+[U9] ps_invert knob vs an inverted-polarity MMCM
+  [ ok ] [U9] back to IDLE                                    = 0
+  [ ok ] [U9] locks with knob vs inverted MMCM                = 4
+  [ ok ] [U9] control: wrong polarity never locks             = 0
+[U10] local ptp step: bad window discarded, no rail-out
+  [ ok ] [U10] back to IDLE                                   = 0
+  [ ok ] [U10] locked before the step                         = 4
+  info: locked trim envelope [1459, 1559], after the step [1519, 1579] state=4
+  [ ok ] [U10] trim held across the step (3 win inside envelope +-48) = 1
+  [ ok ] [U10] the step counted once                          = 1
+  [ ok ] [U10] still LOCKED 10 windows after the step         = 4
+  info: trim pre-storm=1498 in-storm=1498 state=4
+  [ ok ] [U10] still LOCKED through the slew storm            = 4
+  [ ok ] [U10] trim held through the storm (|d|<=48)          = 1
+  info: trim post-recovery=1518 state=4
+  [ ok ] [U10] LOCKED after the storm ends                    = 4
+  [ ok ] [U10] trim near pre-storm after recovery (|d|<=160)  = 1
+  [ ok ] [U10] effective clock still ~ talker (+80)           = 80.084
+[U11] implausible CRF rate: the 1024 ppm guard and its resync
+  [ ok ] [U11] LOCKED before                                  = 4
+  info: locked trim envelope [1497, 1577], through it [1577, 1577] discards=6 state=4
+  [ ok ] [U11] >= 5 windows discarded (the resync path included) = 1
+  [ ok ] [U11] still LOCKED through it                        = 4
+  [ ok ] [U11] trim held (inside envelope +-48)               = 1
+  [ ok ] [U11] LOCKED after the measurement recovers          = 4
+  [ ok ] [U11] effective clock still ~ talker (+80)           = 80.006
+======================================================================
+KL_mmcm_drp_servo: 59 checks, 0 failures
+EXIT 0

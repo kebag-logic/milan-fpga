@@ -1,0 +1,16 @@
+CRF servo integrates a locked PHC step of about 108 to 524 us as a rate error
+OPEN
+[A10] Newly found by [A214] while adopting the gPTP step policy for #387 (derived from reading, not yet simulated).
+
+## Observed
+`KL_mmcm_drp_servo` discards a 512 ms measurement window only above 1024 ppm. The legitimate rate bound is about 211 ppm (the 200 ppm envelope plus margin). Under the #387 policy, a locked PHC step is always above 100 us, and a step between about 108 us and 524 us lands in neither class, so the servo integrates it as a rate error.
+
+## Authority
+The owner step policy on #387 (5794731090) and FPGA-gPTP#68 ruling 5798089412; #387 decision part b (each step is one counted event); Milan v1.2 Annex B.1.1 (the +-100 ppm media clock bound cited at milan_datapath.sv).
+
+## Acceptance
+1. A simulation first reproduces the claim: a locked step of 150 us under CRF selection, with the servo's integrator traced.
+2. If it reproduces, any PHC step (the plane's step pulse) discards the servo window that contains it, or the guard threshold is derived from the envelope, and every step size between 100 us and 1 s leaves the integrator untouched.
+3. Failing arms for the step-window discard, the guard and the rate path. Gates green.
+
+Relations: #387 (step policy), #74 (CRF rate loop). Backlog.

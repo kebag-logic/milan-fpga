@@ -1,0 +1,39 @@
+base_mut_no_resync_unit        EXIT 0  fails=0    | KL_mmcm_drp_servo: 52 checks, 0 failures 
+base_unit                      EXIT 0  fails=0    | KL_mmcm_drp_servo: 52 checks, 0 failures 
+head_phc                       EXIT 0  fails=0    | == mmcm_servo phc_step: checks: 113   failures: 0 == 
+head_rails                     EXIT 0  fails=0    | mmcm_servo rails: 8 checks, 0 failures 
+head_rtl_base_tb_unit          EXIT 1  fails=1   [U10]  | KL_mmcm_drp_servo: 52 checks, 1 failures 
+head_trace150                  EXIT 0  fails=0    | 
+head_unit                      EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+mut_det_off_phc                EXIT 1  fails=66  [P1] [P2a] [P2b] [P2c] [P3]  | == mmcm_servo phc_step: checks: 113   failures: 66 == 
+mut_det_off_unit               EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+mut_early_verdict_phc          EXIT 1  fails=4   [P2a] [P2b]  | == mmcm_servo phc_step: checks: 113   failures: 4 == 
+mut_early_verdict_unit         EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+mut_fwd_only_phc               EXIT 1  fails=51  [P1] [P2a] [P2b] [P2c] [P3]  | == mmcm_servo phc_step: checks: 113   failures: 51 == 
+mut_fwd_only_unit              EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+mut_guard32_phc                EXIT 1  fails=3   [P4]  | == mmcm_servo phc_step: checks: 113   failures: 3 == 
+mut_guard32_unit               EXIT 1  fails=25  [U10] [U11] [U2] [U4] [U5] [U6] [U7] [U8] [U9]  | KL_mmcm_drp_servo: 59 checks, 25 failures 
+mut_guard_off_phc              EXIT 1  fails=7   [P3] [P4]  | == mmcm_servo phc_step: checks: 113   failures: 7 == 
+mut_guard_off_unit             EXIT 1  fails=3   [U11]  | KL_mmcm_drp_servo: 59 checks, 3 failures 
+mut_late_verdict_phc           EXIT 1  fails=23  [P2a] [P2b] [P2c] [P3] [P4]  | == mmcm_servo phc_step: checks: 113   failures: 23 == 
+mut_late_verdict_unit          EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+mut_no_abandon_phc             EXIT 1  fails=53  [P1] [P2a] [P2b] [P2c] [P3]  | == mmcm_servo phc_step: checks: 113   failures: 53 == 
+mut_no_abandon_unit            EXIT 1  fails=1   [U10]  | KL_mmcm_drp_servo: 59 checks, 1 failures 
+mut_no_resync_phc              EXIT 0  fails=0    | == mmcm_servo phc_step: checks: 113   failures: 0 == 
+mut_no_resync_unit             EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+mut_no_saturate_phc            EXIT 0  fails=0    | == mmcm_servo phc_step: checks: 113   failures: 0 == 
+mut_no_saturate_unit           EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+mut_no_squash_phc              EXIT 1  fails=19  [P2a] [P2b] [P2c] [P3] [P4]  | == mmcm_servo phc_step: checks: 113   failures: 19 == 
+mut_no_squash_unit             EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+mut_no_streak_reset_phc        EXIT 0  fails=0    | == mmcm_servo phc_step: checks: 113   failures: 0 == 
+mut_no_streak_reset_unit       EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+mut_single_tally_phc           EXIT 1  fails=1   [P3]  | == mmcm_servo phc_step: checks: 113   failures: 1 == 
+mut_single_tally_unit          EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+mut_step_ignores_valid_phc     EXIT 0  fails=0    | == mmcm_servo phc_step: checks: 113   failures: 0 == 
+mut_step_ignores_valid_unit    EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+mut_thr_25us_phc               EXIT 1  fails=23  [P1]  | == mmcm_servo phc_step: checks: 113   failures: 23 == 
+mut_thr_25us_unit              EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+mut_uncond_squash_phc          EXIT 1  fails=1   [P2b]  | == mmcm_servo phc_step: checks: 113   failures: 1 == 
+mut_uncond_squash_unit         EXIT 0  fails=0    | KL_mmcm_drp_servo: 59 checks, 0 failures 
+repro_phc                      EXIT 1  fails=0    | 
+repro_trace150                 EXIT 0  fails=0    | 

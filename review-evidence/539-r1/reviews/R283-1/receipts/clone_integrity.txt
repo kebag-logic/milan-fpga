@@ -1,0 +1,22 @@
+HEAD=f49b57a60ae4ce72e7a1a9ea8e5db13f1ca838ed tree=52329eb1f29ffbc774a23da9a3c6e062514ee9e3
+worktree vs HEAD: identical
+index vs HEAD: identical
+status --porcelain --ignored:
+(end)
+gitlinks at HEAD:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (c1b6174)
+ 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+hash-object sweep of tracked files vs index:
+checked=873 mismatches=0
+core.fileMode=true
+mode sweep done
+gptp-processor head=c1b617435824929a790739ea8585c3fe1a328cc0 dirty=0
+protocol-processor head=424c688fa2205b934a7689a58f2aa766420f2326 dirty=0
+third_party/verilog-axis head=48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0
