@@ -1,0 +1,110 @@
+{
+  "head": "29840136bb2d21bc0fbe92c7c533368f40837ff6",
+  "gates": [
+    {
+      "label": "gsi-initial",
+      "cwd": "$LANES/pp113-latency-notify",
+      "command": [
+        "make",
+        "-C",
+        "tb/pp_top",
+        "gsi-internal"
+      ],
+      "rc": 0,
+      "seconds": 20.26
+    },
+    {
+      "label": "lint",
+      "cwd": "$LANES/pp113-latency-notify",
+      "command": [
+        "./scripts/lint_hdl.sh"
+      ],
+      "rc": 0,
+      "seconds": 9.77
+    },
+    {
+      "label": "docs-final",
+      "cwd": "$LANES/pp113-latency-notify",
+      "command": [
+        "make",
+        "check"
+      ],
+      "rc": 0,
+      "seconds": 40.89
+    },
+    {
+      "label": "yosys",
+      "cwd": "$LANES/pp113-latency-notify",
+      "command": [
+        "./syn/yosys/run.sh"
+      ],
+      "rc": 0,
+      "seconds": 297.89
+    },
+    {
+      "label": "suites",
+      "cwd": "$LANES/pp113-latency-notify",
+      "command": [
+        "./scripts/run_suites.sh"
+      ],
+      "rc": 0,
+      "seconds": 704.06
+    },
+    {
+      "label": "nvm-figures",
+      "cwd": "$LANES/pp113-latency-notify",
+      "command": [
+        "make",
+        "-C",
+        "tb/nvm_port",
+        "figures"
+      ],
+      "rc": 0,
+      "seconds": 526.87
+    },
+    {
+      "label": "mutants",
+      "cwd": "$LANES/pp113-latency-notify",
+      "command": [
+        "python3",
+        "tb/pp_top/gsi_mutants.py",
+        "--output",
+        "$MANAGEMENT/2026-09-23/pp113-a280/mutants"
+      ],
+      "rc": 0,
+      "seconds": 604.35
+    },
+    {
+      "label": "ooc-base",
+      "cwd": "$VALIDATION_STORAGE/pp113-a280/ooc-base",
+      "command": [
+        "$WORKSPACE_HOME/Xilinx/2026.1/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-source",
+        "$VALIDATION_STORAGE/pp113-a280/base/syn/ooc/protocol_processor_ooc.tcl",
+        "-nojournal",
+        "-log",
+        "ooc.log"
+      ],
+      "rc": 0,
+      "seconds": 499.48
+    },
+    {
+      "label": "ooc-head",
+      "cwd": "$VALIDATION_STORAGE/pp113-a280/ooc-head",
+      "command": [
+        "$WORKSPACE_HOME/Xilinx/2026.1/Vivado/bin/vivado",
+        "-mode",
+        "batch",
+        "-source",
+        "$LANES/pp113-latency-notify/syn/ooc/protocol_processor_ooc.tcl",
+        "-nojournal",
+        "-log",
+        "ooc.log"
+      ],
+      "rc": 0,
+      "seconds": 496.74
+    }
+  ]
+}
