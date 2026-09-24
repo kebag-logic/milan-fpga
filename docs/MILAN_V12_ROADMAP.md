@@ -538,7 +538,7 @@ The ladder, cheapest first. A row is not done until it has all four.
 | microprogram | `protocol-processor/tb/ucpu` | the program runs, branches and sets status |
 | wire truth | `protocol-processor/tb/pp_top` Section W and siblings | the response is byte-exact against a payload the bench builds from the IEEE figure |
 | against the model | `tb/verilator/milan_dp` `sim_nxn.cpp` `[AECP-MODEL]` | the answer matches the **generated entity model**, for every descriptor the generator emitted, with a negative oracle for every absent one |
-| the inventory | `tests/features/aecp_response_contract.feature` | the opcode partition, gated against the engine RTL's own `OP_*_C` constants so the suite cannot go stale |
+| the inventory | `tests/features/aecp_response_contract.feature` | the opcode partition and the served MVU command types, gated against the engine RTL's own `OP_*_C` and `MVU_GET_*`/`MVU_SET_*` constants so the suite cannot go stale |
 
 The `[AECP-MODEL]` block is the one that answers "do all the commands respond
 correctly to the entity model": it runs `endstation_builder.py` and

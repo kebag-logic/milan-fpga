@@ -11,7 +11,8 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
   protocol-processor's AECP engine satisfies that fallback for unsupported
   opcodes and message types by copying the command payload into the response
   buffer before the microprogram runs and emitting the command's own length
-  back. Served opcodes use their command-specific microprograms instead.
+  back. Served opcodes use their command-specific microprograms instead, and
+  so does the one served Milan Vendor Unique command, GET_MILAN_INFO.
 
   ONE OPCODE IS NOT NOT_IMPLEMENTED. IEEE 7.4.39.2 is opcode-specific:
   "IDENTIFY_NOTIFICATION is only ever sent as an unsolicited response ... If
@@ -94,16 +95,143 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
     And the AECP response control_data_length is 22
     And the AECP response is well formed against its command
 
-  @class:negative
-  Scenario: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact
-    When the controller sends the Milan MVU command to the AECP engine
+  # ------------------------------------------------- Milan Vendor Unique ---
+  # Milan v1.2 5.4.3.2 puts a 48-bit protocol_id at @22..@27 and r plus the
+  # Table 5.18 command_type at @28..@29, so the @22 word is the head of
+  # 00-1B-C5-0A-C1-00 and names no command. GET_MILAN_INFO (5.4.4.1) is a
+  # SHALL and the engine serves it: SUCCESS and the Figure 5.4 body, 20
+  # octets from @24, so cdl 32. The four commands of 5.4.4.2 to 5.4.4.5 are
+  # RECOMMENDED (the #510 decision), and the engine implements none of them.
+  # Each answer carries status NOT_IMPLEMENTED: Milan Table 5.19 value 1, the
+  # value IEEE 1722.1-2021 Table 9-6 gives it. IEEE 9.6.5.3.1 fills a Vendor
+  # Unique response with "the appropriate details from the command and an
+  # appropriate status code" and gives it no size, and neither does Milan
+  # 5.4.3.3. Echoing the command at its own length is the engine's choice, and
+  # IEEE 9.3.5.3.3's "correctly sized response" is the rule for AEM commands.
+  # Each command is sent in the figure its own clause gives it, so the echo is
+  # graded at that command's real length: Figure 5.5 is cdl 28 and Figure 5.6
+  # is cdl 92. Until issue #536 this scenario asserted NOT_IMPLEMENTED for
+  # GET_MILAN_INFO as well: the model had no MVU dispatch while the
+  # processor's tb/pp_top M1 graded the served answer.
+  Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact
+    When the controller sends Milan MVU command_type <command_type> in its <form> form to the AECP engine
     Then the AECP response message_type is 7
     And the AECP response message_type is the command type plus one
+    And the AECP response status is <status>
+    And the Milan protocol_id comes back whole in the AECP response
+    And the AECP response carries <body>
+    And the AECP response control_data_length is <cdl>
+    And the AECP response control_data_length counts its own payload
+    And the AECP response is well formed against its command
+    And the AECP engine counted a command and a response
+
+    @class:positive
+    Examples: SHALL, served
+      | command_type | command        | clause  | form       | status | cdl | body                |
+      | 0x0000       | GET_MILAN_INFO | 5.4.4.1 | Figure 5.3 | 0      | 32  | the Figure 5.4 body |
+
+    @class:negative
+    Examples: RECOMMENDED by the #510 decision, not implemented, echoed at the command's own length
+      | command_type | command                        | clause  | form       | status | cdl | body                         |
+      | 0x0001       | SET_SYSTEM_UNIQUE_ID           | 5.4.4.2 | Figure 5.5 | 1      | 28  | the command payload verbatim |
+      | 0x0002       | GET_SYSTEM_UNIQUE_ID           | 5.4.4.3 | Figure 5.3 | 1      | 20  | the command payload verbatim |
+      | 0x0003       | SET_MEDIA_CLOCK_REFERENCE_INFO | 5.4.4.4 | Figure 5.6 | 1      | 92  | the command payload verbatim |
+      | 0x0004       | GET_MEDIA_CLOCK_REFERENCE_INFO | 5.4.4.5 | Figure 5.7 | 1      | 20  | the command payload verbatim |
+
+  # What a controller records from the answer, decoded field by field rather
+  # than inferred from the layout (the processor's tb/pp_top M2).
+  # protocol_version is 1 by 5.4.4.1 and by Section 4.2.4. features_flags
+  # claims neither Table 5.20 bit: REDUNDANCY would claim Section 8 on a
+  # single-interface PAAD (FR-MVU-03), and
+  # TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING would claim map changes on a running
+  # Stream Output, which is refused.
+  # certification_version is 0 because no Milan certification has been passed.
+  @class:positive
+  Scenario: GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
+    When the controller sends Milan MVU command_type 0x0000 in its Figure 5.3 form to the AECP engine
+    Then the GET_MILAN_INFO protocol_version is 1
+    And the GET_MILAN_INFO features_flags is 0x00000000
+    And the GET_MILAN_INFO certification_version is 0x00000000
+
+  # The sub-decode compares every octet that names the command and no other
+  # (the processor's tb/pp_top M3, M5, M5b, M6 and M8): each of the six
+  # protocol_id octets, the whole @28 word with its r bit, and the Figure 5.3
+  # length as a floor. Anything else keeps the echo. The protocol_id rows move
+  # one octet each, as M8 does. The engine compares in four terms (@22..@23,
+  # @24..@25, @26, @27), and a row that moves two octets, or only the last,
+  # lets a dropped term through. @26 also moves one nibble at a time, because
+  # 5.4.3.2.1 ends the OUI-36 and starts the 12-bit protocol id inside it, and
+  # an all-ones octet cannot see a comparison cut down to either half. Two
+  # things are not compared. The reserved field is ignored on the way in and
+  # restated as zero on the way out. The length is bounded from below only, so
+  # a longer command is still GET_MILAN_INFO and draws the 20-octet body, not
+  # an echo of itself.
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served
+    When the controller sends an MVU command with protocol_id <protocol_id>, word @28 <word>, reserved <reserved> and control_data_length <cdl_in>
+    Then the AECP response message_type is 7
+    And the AECP response status is <status>
+    And the AECP response protocol_id is echoed whole
+    And the AECP response carries <body>
+    And the AECP response control_data_length is <cdl>
+    And the AECP response is well formed against its command
+
+    @class:negative
+    Examples: each compared field, one at a time
+      | protocol_id       | word   | reserved | cdl_in | status | cdl | body                         | varied                                            |
+      | FF-1B-C5-0A-C1-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @22, the first OUI-36 octet                       |
+      | 00-FF-C5-0A-C1-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @23, the second OUI-36 octet                      |
+      | 00-1B-FF-0A-C1-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @24, the third OUI-36 octet                       |
+      | 00-1B-C5-FF-C1-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @25, the fourth OUI-36 octet                      |
+      | 00-1B-C5-0A-FF-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @26, the last OUI-36 nibble and protocol id's top |
+      | 00-1B-C5-0A-D1-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @26 high nibble only: OUI-36 00-1B-C5-0A-D        |
+      | 00-1B-C5-0A-C2-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @26 low nibble only: protocol id 0x200            |
+      | 00-1B-C5-0A-C1-FF | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @27, the protocol id's low octet                  |
+      | 00-1B-C5-0A-C1-01 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @27 by one bit: protocol id 0x101, same OUI-36    |
+      | 00-1B-C5-0A-C1-00 | 0x8000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | r = 1, which 5.4.3.2.2 requires to be 0           |
+      | 00-1B-C5-0A-C1-00 | 0x0000 | 0x0000   | 19     | 1      | 19  | the command payload verbatim | one octet short of Figure 5.3                     |
+
+    @class:positive
+    Examples: the two things the sub-decode does not compare
+      | protocol_id       | word   | reserved | cdl_in | status | cdl | body                | varied                          |
+      | 00-1B-C5-0A-C1-00 | 0x0000 | 0xDEAD   | 20     | 0      | 32  | the Figure 5.4 body | a junk reserved field (5.4.4.1) |
+      | 00-1B-C5-0A-C1-00 | 0x0000 | 0x0000   | 24     | 0      | 32  | the Figure 5.4 body | four octets past Figure 5.3     |
+      | 00-1B-C5-0A-C1-00 | 0x0000 | 0x0000   | 112    | 0      | 32  | the Figure 5.4 body | 92 octets past Figure 5.3       |
+
+  # The message type is the sub-decode's remaining term. The engine matches
+  # MVU only in the RX validator's VENDOR_UNIQUE bucket (message_type 6; a 7
+  # is a response and is dropped), so the served command's octets under any
+  # other command type are not GET_MILAN_INFO. Each is echoed NOT_IMPLEMENTED
+  # under its own type. Under type 0 the protocol_id head sits where an AEM
+  # command keeps its command_type, and 0x001B is DECREMENT_CONTROL, which the
+  # sweep below already holds to NOT_IMPLEMENTED.
+  @class:negative
+  Scenario Outline: the GET_MILAN_INFO octets under another message_type are not an MVU command
+    When the controller sends the GET_MILAN_INFO command as message_type <mt> to the AECP engine
+    Then the AECP response message_type is the command type plus one
     And the AECP response status is 1
-    And the Milan protocol_id survives the AECP echo whole
+    And the AECP response protocol_id is echoed whole
     And the AECP response carries the command payload verbatim
     And the AECP response control_data_length is 20
     And the AECP response is well formed against its command
+
+    Examples: every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+      | mt | message_type           |
+      |  0 | AEM_COMMAND            |
+      |  2 | ADDRESS_ACCESS_COMMAND |
+      |  4 | AVC_COMMAND            |
+      |  8 | HDCP_APM_COMMAND       |
+      | 10 | reserved               |
+      | 12 | reserved               |
+      | 14 | EXTENDED_COMMAND       |
+
+  # The anti-staleness gate the AEM sweep carries, for the MVU half: the
+  # engine's MVU_GET_*/MVU_SET_* constants are parsed and compared to the
+  # SERVED_MVU declaration the model is built from, so a pin that starts
+  # serving a Table 5.18 command turns this suite red instead of leaving a
+  # row above asserting NOT_IMPLEMENTED for it.
+  @class:negative
+  Scenario: the served MVU command types are the ones the engine RTL decodes
+    Then the served MVU inventory matches the MVU command types the engine RTL decodes
 
   # An OUI head that collides with an AEM opcode (issue #83). The engine and
   # this model both read @22..@23 as `opcode`, and on a VENDOR_UNIQUE PDU those
