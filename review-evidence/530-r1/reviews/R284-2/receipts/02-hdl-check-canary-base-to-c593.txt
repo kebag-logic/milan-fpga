@@ -1,0 +1,18 @@
+changed hdl diff lines: 96; non-comment lines: 14
+  NONCOMMENT: -  Spec refs   : Milan v1.2 5.3.7.10 Table 5.4, 5.4.2.25 Table 5.17
+  NONCOMMENT: +  Spec refs   : Milan v1.2 5.3.7.7 Table 5.4, 5.4.2.25 Table 5.17
+  NONCOMMENT: -  wire [ACMP_SRC_C*2-1:0]    pp_cd_srp_tk_decl_state_w;
+  NONCOMMENT: -  wire [ACMP_SRC_C*2-1:0]    pp_cd_srp_lstn_reg_state_w;
+  NONCOMMENT: -  wire [ACMP_SRC_C-1:0]      pp_cd_srp_active_w;
+  NONCOMMENT: -  wire [ACMP_SRC_C-1:0]      pp_cd_srp_sr_admitted_w;
+  NONCOMMENT: +  wire [ACMP_SRC_C*2-1:0]    pp_cd_srp_tk_decl_state_w /* verilator public_flat_rd */;
+  NONCOMMENT: +  wire [ACMP_SRC_C*2-1:0]    pp_cd_srp_lstn_reg_state_w /* verilator public_flat_rd */;
+  NONCOMMENT: +  wire [ACMP_SRC_C-1:0]      pp_cd_srp_active_w /* verilator public_flat_rd */;
+  NONCOMMENT: +  wire [ACMP_SRC_C-1:0]      pp_cd_srp_sr_admitted_w /* verilator public_flat_rd */;
+  NONCOMMENT: -  wire crft_emit_en_w = cfg_crft_en &
+  NONCOMMENT: +  wire crft_emit_en_w /* verilator public_flat_rd */ = cfg_crft_en &
+  NONCOMMENT: -  assign lwsrp_stream_gate = pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];
+  NONCOMMENT: +  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
+hdl/ieee1722/avtp/KL_talker_diag_ctx.sv: stripped sha256 base=330f8d589194f724b4d46232648f57a3c9bb7f2d23251e5412f978f7e2037781 head=330f8d589194f724b4d46232648f57a3c9bb7f2d23251e5412f978f7e2037781 identical=True
+hdl/milan/milan_datapath.sv: stripped sha256 base=43e83855ea445ba4be9760fdd4fb0bbddcd8e5115cc9b9acd891b2153d319881 head=a6f57d09429393535ca73538d6b060f5e2ff5e17ab268478729a9c8d100de08d identical=False
+RESULT: FAIL
