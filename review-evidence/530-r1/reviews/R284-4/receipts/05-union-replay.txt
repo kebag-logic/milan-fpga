@@ -1,0 +1,25 @@
+### tb/verilator/milan_dp/README.md: union replay vs merge commit
+431a432
+> 
+diff rc=1
+### docs/reference/SUBMODULES.md: union replay vs merge commit
+24,25d23
+< | `gptp-processor` | `c1b617435824929a790739ea8585c3fe1a328cc0` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+< | `protocol-processor` | `09f9bf3846511f8388d995126502ed92eaa65213` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+27c25
+< | `protocol-processor` | `424c688fa2205b934a7689a58f2aa766420f2326` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+---
+> | `protocol-processor` | `09f9bf3846511f8388d995126502ed92eaa65213` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+diff rc=1
+### tb/verilator/milan_dp/Makefile: union replay vs merge commit
+193,194c193
+< .PHONY: all run gptp option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+< .PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+---
+> .PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+544,545c543
+< 	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex
+< 	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+---
+> 	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+diff rc=1

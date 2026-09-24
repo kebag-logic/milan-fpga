@@ -1,0 +1,12 @@
+### python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (4 exact gitlinks, decoded PNG)
+rc=0
+### python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+submodule diagram selftest: OK (valid wrong-raster control)
+rc=0
+### python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+rc=0
+### python3 scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+rc=0
