@@ -1,0 +1,18 @@
+N5_upper_bound_removed_disc: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] 2049 ns boundary is rejected
+    [FAIL] all 255 crossing intervals are withheld
+    [FAIL] unmarked timestamp jump cannot publish
+    [FAIL] unmarked timestamp jump invalidates the rate
+    == crf_rx discontinuity: checks: 1658   failures: 24 ==
+H2_neg_case_without_step: target=talker expect=report rc=2 -> FAILS
+    [FAIL] GM change: receiver withholds crossing rate samples
+    [FAIL] servo samples invalid history at a boundary
+    quiet: post-edge artifacts 550, sampled invalid 0
+    talker_only_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+    talker_only_neg: integrator range 30.703..30.723 ppm, state 4, crossing boundaries 1, invalid boundaries 0
+    both_short_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 0, invalid boundaries 1
+    both_short_neg: integrator range 30.703..30.723 ppm, state 4, crossing boundaries 0, invalid boundaries 0
+    both_long_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+    both_long_neg: integrator range 30.703..30.723 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+    == crf_rx talker_step: checks: 69   failures: 2 ==
+rc=0 wall=425s

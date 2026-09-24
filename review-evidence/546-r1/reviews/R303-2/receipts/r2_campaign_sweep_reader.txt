@@ -1,0 +1,6 @@
+VERDICT CONTRADICTED -- its tallies report 1 failure(s) across 1665 checks.
+  The suite exited 0 while its own log reports a failure: an
+  assertion that only logs is a masked verdict (Rule 6). Make the
+  harness return non-zero when a check fails.
+M1 suite_tally --verdict rc=1
+M0 suite_tally --verdict rc=0
