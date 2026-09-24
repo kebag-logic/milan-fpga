@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Mutation arm for the #530 streaming licence in milan_dp: prove the checks can fail.
+"""Mutation arm for the #530/#551 streaming licence in milan_dp: prove the checks can fail.
 
 sim_crf_licence.cpp (the obj_crflic leg) asserts on the shipping AX 1x1 TDM8
 shape that nothing is emitted while the processor declares and admits a
 Stream Output that no Listener Ready has reached, and that the CRF licence
-and the AAF gate follow the processor's ACTIVE on every cycle. Before #530
+and the AAF gate require ACTIVE AND the real grant on every cycle. Before #530
 all three consumers read the processor's raw admission verdict, which rises
 at DECLARE_TALKER. So the real milan_datapath is mutated back, one consumer
 at a time, and the SAME leg is rebuilt through the Makefile's own recipe
@@ -49,20 +49,34 @@ EXE_NAME = "Vmilan_dp_crflic"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 
-# (name, the ONE line it replaces, its replacement, the check it must fail)
+# (name, the exact source fragment, its replacement, the check it must fail)
 MUTATIONS = [
     ("every gate reads the raw verdict",
-     "  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];",
+     "  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0] &\n"
+     "                             pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];",
      "  assign lwsrp_stream_gate = pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];",
      "the CRF licence never opened (every cycle sampled)"),
     ("the CRF licence alone reads the raw verdict",
      "                           lwsrp_stream_gate[SRP_TALKERS_C-1];",
      "                           pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1];",
-     "the CRF licence equals ACTIVE[CRF]"),
+     "the CRF licence equals ACTIVE[CRF] AND real grant"),
     ("the AAF source 0 gate alone reads the raw verdict",
      "                   (~cfg_lwsrp_enable | lwsrp_stream_gate[0])));",
      "                   (~cfg_lwsrp_enable | pp_cd_srp_sr_admitted_w[0])));",
      "the AAF gate never opened"),
+    ("every gate drops the real grant",
+     "  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0] &\n"
+     "                             pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];",
+     "  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];",
+     "refused CRF licence never opened"),
+    ("the CRF licence alone drops the real grant",
+     "                           lwsrp_stream_gate[SRP_TALKERS_C-1];",
+     "                           pp_cd_srp_active_w[SRP_TALKERS_C-1];",
+     "refused CRF licence never opened"),
+    ("the AAF source 0 gate alone drops the real grant",
+     "                   (~cfg_lwsrp_enable | lwsrp_stream_gate[0])));",
+     "                   (~cfg_lwsrp_enable | pp_cd_srp_active_w[0])));",
+     "refused AAF gate never opened"),
 ]
 
 

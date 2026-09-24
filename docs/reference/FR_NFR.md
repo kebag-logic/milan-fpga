@@ -213,16 +213,15 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 > **Scope (VERSION `0x0002_0060`):** FR-CONN-02's queue/CBS programming and
 > FR-SRP-03's shaper configuration have no object in the shipped datapath - the
 > classifier/CBS chain is not instantiated ([REQUIREMENTS.md section 5](../../REQUIREMENTS.md)).
-> The obligation that survives, in FR-SRP-03's own words *on failure the stream
-> MUST NOT transmit*, is met at the AAF admission gate and the CRF licence from
-> the processor's SRP class-D face: its ACTIVE, which needs a registered
-> Listener Ready or Ready Failed and the processor's admission term (#530). That
-> term is the grant except inside the optimistic window, up to three admission
-> rounds after a fresh declaration, where it holds before the round's verdict.
-> So a declaration the admission round refuses can be licensed for up to three
-> rounds. Its licence stops at the window's end, when the verdict the talker
-> reads turns to refused and before the declaration swaps to Talker Failed
-> (issue #551).
+> FR-SRP-03 still requires silence when admission fails.
+> Every talker licence requires ACTIVE and its real admission grant.
+> ACTIVE includes the registered Listener Ready or Ready Failed (#530).
+> The real grant excludes the processor's optimistic admission term (#551).
+> Refused re-declarations therefore cannot open CRF or AAF licences.
+> They cause no STREAM_START/STREAM_STOP pair or Table 5.4 reset.
+> They emit no PDU, including during the optimistic window.
+> The `milan_dp` licence leg checks both sources and admission phases.
+> Its grant-removal mutants must fail the refused-case checks.
 
 ### 2.6 Time & media clock  -  gPTP, CRF  *(802.1AS; 1722-2016 Section 10; Milan Section 5.7)*
 | ID | Requirement | Pri | Ver |

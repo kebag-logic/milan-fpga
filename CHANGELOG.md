@@ -31,26 +31,25 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Silicon streamed the CRF output before any Listener Ready (#530).
 - Every talker gate read the processor's raw admission verdict.
 - The Talker Advertise declaration alone raises that verdict.
-- The gates now read the processor's ACTIVE.
+- The gates require ACTIVE and the real per-source grant (#551).
 - ACTIVE needs a Listener Ready or Ready Failed as well.
 - That covers the CRF licence and every AAF talker gate.
 - `CRFT_CTRL[6]` and `LWSRP_STATUS[8]` follow.
 - So do the `0x82C` talker lobs above index 0.
-- Only `LWSRP_STATUS[9]` and `LWSRP_SLOPE` keep the raw verdict.
-- No shaper reads either: none is instantiated.
-- ACTIVE can lead them by up to three admission rounds.
+- `LWSRP_STATUS[9]` remains the OR of real admission grants.
+- `LWSRP_SLOPE` remains their diagnostic sum; no shaper consumes it.
+- ACTIVE can lead admission by up to three rounds.
 - That needs a Listener Ready decoded within those rounds.
 - Each declaration clears its registered Listener first.
-- For an admitted stream the lead is status skew only.
-- A refused stream keeps ACTIVE until that window ends.
-- It stays licensed for up to three rounds.
-- A controller reads a `STREAM_START` and `STREAM_STOP` pair.
-- The start resets the Table 5.4 interval counters.
-- At most one PDU per source can leave.
-- The CRF output shows this on `CRFT_CTRL[6]`/`[7]`.
-- `LWSRP_STATUS[6]` is ACTIVE ORed over all sources.
-- `LWSRP_STATUS[8]` shows source 0 only.
-- Issue #551 asks whether the licence should need the grant.
+- A refused stream can keep ACTIVE until optimism expires.
+- Its licence stays closed throughout that window.
+- No `STREAM_START`/`STREAM_STOP` pair or interval-counter reset follows.
+- The refused re-declaration emits no PDU.
+- `LWSRP_STATUS[6]` remains raw ACTIVE ORed over all sources.
+- The licence simulation covers refused and admitted re-declarations.
+- Grant-removal mutants must fail its refused-source checks.
+- Measured added latency: 0--2 admission cycles on two sources.
+- Ordinary Listener Ready arrivals add no cycles.
 - A bound CRF talker also ended its own bursts.
 - The processor pin moves to `09f9bf38` (processor issue 106).
 - Its LeaveAll now flags every MSRP attribute type.

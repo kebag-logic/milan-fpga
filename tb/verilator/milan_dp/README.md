@@ -357,7 +357,7 @@ was a counter question:
    the processor's raw admission verdict, which the declaration alone raises,
    instead of its ACTIVE: Talker Advertise declared, a Listener Ready or Ready
    Failed registered, admitted (Milan v1.2 5.3.7.3). `milan_datapath` now
-   drives `lwsrp_stream_gate` from `pp_cd_srp_active_w`.
+   requires `pp_cd_srp_active_w` AND `pp_cd_srp_sr_admitted_w` (#551).
 3. **FRAMES_TX read 16 against 34,061 PDUs.** That is the documented
    semantics, not a defect; see [FRAMES_TX is an interval count](#frames_tx-is-an-interval-count).
 
@@ -392,20 +392,58 @@ Advertise state are sampled on every cycle.
 | `[D]` | A registered Asking Failed closes the licence; Ready Failed reopens it. |
 | `[E]` | The unbind: the licence closes when the Listener registration ends, inside a fresh probe window, not when the window closes (Run B's last burst ran 9.95 s past its unbind). |
 | `[F]` | Item 3: FRAMES_TX counts observation intervals since STREAM_START, far fewer than the PDUs, and restarts at the next STREAM_START. |
-| `[INV]` | Every cycle: the CRF licence equals ACTIVE[CRF], and the AAF gate is never open without ACTIVE[AAF]. |
+| `[G]` | Each source and admission phase: an oversized re-declaration raises optimistic ACTIVE but receives no real grant. No licence edge, STREAM_START/STREAM_STOP pair, interval-counter reset or PDU follows. |
+| `[H]` | Matching admitted re-declarations stream and reset interval counters. Logs measure ACTIVE-to-licence latency for each source and admission phase. |
+| `[INV]` | Every cycle: CRF equals ACTIVE AND its real grant. AAF never opens without both terms. |
 
-**Failing arms.** Each was run on this head (2026-09-24 UTC):
+**Refused re-declaration fixture (#551).**
+`crflic_probes.vlt` exposes captured SRP service request registers.
+The harness stages a pending DECLARE/WITHDRAW_TALKER tuple at that boundary.
+The processor executes it on the next clock.
+No admission result, registrar, optimistic flag or licence is forced.
+An actual MAC Listener Ready frame supplies the registering event.
+Its measured decoder delay aligns it immediately after re-declaration.
+The replay must reproduce that timing and raise optimistic ACTIVE.
+
+An oversized 20,000-byte TSpec exceeds the real admission ceiling.
+The real slope pipeline is warmed before the graded re-declaration.
+Withdrawal clears its grant before each case starts.
+Both source indexes run at both phases of the two-cycle round.
+Nonzero counter seeds distinguish preservation from an unnoticed reset.
+Previous frames and observation intervals finish before those seeds apply.
+Each case refreshes its genuine ACMP/MAAP declaration window.
+The media clocks continue through several packet periods.
+Matching admitted cases use a 224-byte TSpec and must stream.
+This is boundary staging, not an end-to-end controller timing claim.
+
+Measured added start latency, in admission-clock cycles:
+
+| Source | Round phase 0 | Round phase 1 |
+|---|---|---|
+| AAF source 0 | 2 | 1 |
+| CRF source 1 | 0 | 1 |
+
+This leg uses the 100 MHz admission clock: 0--20 ns.
+At a 50 MHz product clock, those cycles represent 0--40 ns.
+The ordinary Listener Ready cases add zero cycles.
+These measurements cover this two-source shape, not every supported geometry.
+The processor's optimistic window spans three rounds of `N_SOURCES` cycles.
+
+**Failing arms.** The #530 rows retain their dated evidence.
+The #551 campaign additionally removes each real-grant term.
+
+
 
 | arm | how | result |
 |---|---|---|
-| the licence mutants | `make crflic-mutants`: `crflic_mutants.py` plants each consumer back on the raw verdict (the whole gate, the CRF slot alone, AAF source 0 alone) | all three caught, each on its named check; the clean leg passes |
+| the licence mutants | `make crflic-mutants`: each consumer reads raw admission, removing ACTIVE | Three named checks must fail; the clean leg must pass. |
+| the real-grant mutants (#551) | Same command: every gate, CRF alone, or AAF source 0 alone reads ACTIVE without its real grant | Each refused-source licence check must fail. |
 | the gate reverted | the first mutant, run as the reproduction before the fix | 23 of 85 fail, the Run B item 2 signature: the licence opens at 1770.38 ms, 1.34 ms after the first probe and before its TALKER_DEST_MAC_FAIL answer at 1772.00 ms; the first CRF PDU leaves at 1966.30 ms, 3.85 s before the first Listener Ready; and the licence never closes again, through Asking Failed and the unbind |
 | the previous processor pin `424c688f` | by hand, the only arm that needs a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 17 of 85 fail, the Run B item 1 signature: every DUT LeaveAll flags only the Domain. ACTIVE and the licence fall six times by the end of `[C]`, each 5.0 s after a LeaveAll that aged the Listener registration with no re-declaration. The DUT withdraws its Talker Advertise four times: once at a registration loss 5.0 s after a switch LeaveAll, three times 15.1 s after the listener's latest probe, as Run B's bursts ended |
 
-The mutants are an explicit campaign, not a sweep step: three elaborations
-and four runs, 139 s on an eight-core host, which the stated `milan_dp`
-deadline margin was not sized for. The leg itself builds in about 14 s
-there and runs in about 20 s.
+The mutants remain an explicit campaign outside the default sweep.
+Six additional elaborations exercise both missing-term failure modes.
+The normal licence leg remains part of the default sweep.
 
 **What it cannot show.** The switch's timing is modelled from the Run B
 capture: its LeaveAll 9.99 s after each DUT LeaveAll. A switch with a fixed

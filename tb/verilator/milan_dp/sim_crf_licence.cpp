@@ -51,11 +51,16 @@
 //          ends, not when the probe window does (the Run B last burst).
 //   [F]    item 3: FRAMES_TX counts observation intervals, not PDUs, and
 //          restarts at STREAM_START (Milan v1.2 5.3.7.7 Table 5.4).
+//   [G]    #551: real admission refuses a re-declaration while a wire Listener
+//          Ready lands inside the optimistic window. No licence, counter edge,
+//          interval-counter reset or PDU. Both sources and round phases run.
+//   [H]    the matching admitted cases stream; measure ACTIVE-to-licence delay.
 
 #include "Vmilan_datapath.h"
 #include "Vmilan_datapath___024root.h"
 #include "verilated.h"
 #include "../../common/verilator_harness.hpp"
+#include <array>
 #include <cstdint>
 #include <cstdio>
 #include <deque>
@@ -184,8 +189,10 @@ class CrfLicenceHarness {
     Level declaring[kSources];     // the ACMP DA gate
     Level ta_declared[kSources];   // SRP Talker Advertise self-declared
     Level aaf_gate;                // aaf_stream_en_w[0]
-    long licence_ne_active = 0;    // cycles the CRF licence differs from ACTIVE
-    long aaf_without_active = 0;   // cycles the AAF gate is open without ACTIVE
+    long licence_ne_active = 0;    // cycles CRF differs from ACTIVE AND real grant
+    long aaf_without_active = 0;   // cycles AAF opens without ACTIVE AND real grant
+    std::array<uint64_t, kSources> listener_event{kNever, kNever};
+    bool corner_phase = false;
 
     // ---- the MAC ports -----------------------------------------------------
     std::deque<std::vector<uint8_t>> rx_q;
@@ -270,6 +277,10 @@ class CrfLicenceHarness {
     void phase_f_after_c(uint64_t t_start);
     void phase_f_after_d(uint64_t t_restart);
     void grade_invariants();
+    void stage_declaration(int uid, uint16_t max_frame, bool open);
+    uint64_t listener_decode_delay(int uid);
+    void phase_real_grant();
+    void grant_case(int uid, bool refuse, unsigned round_phase, uint64_t decode_delay);
 };
 
 // ============================================================================
@@ -369,8 +380,15 @@ void CrfLicenceHarness::sample_levels() {
     note_edge("ACTIVE", active[kUidCrf], crf_active);
     active[kUidCrf].sample(crf_active, cyc);
     aaf_gate.sample(rp->milan_datapath__DOT__aaf_stream_en_w & 1u, cyc);
-    if (lic != active[kUidCrf].v) licence_ne_active++;
-    if (aaf_gate.v && !active[kUidAaf].v) aaf_without_active++;
+    if (lic != (active[kUidCrf].v && admitted[kUidCrf].v)) licence_ne_active++;
+    if (aaf_gate.v && !(active[kUidAaf].v && admitted[kUidAaf].v)) aaf_without_active++;
+    if (rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__dec_evt_valid_w
+        && rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__dec_evt_attr_type_w == 3) {
+        for (int s = 0; s < kSources; s++) {
+            if (rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__dec_evt_stream_id_w == sid_of(s))
+                listener_event[s] = cyc;
+        }
+    }
 }
 
 //! The CRF output's edges go into the timeline, so a run reads like the Run B
@@ -672,6 +690,7 @@ void CrfLicenceHarness::on_mrpdu(const std::vector<uint8_t>& f) {
 //! only the Domain was flagged), and restarts its own leavealltimer on it.
 void CrfLicenceHarness::on_dut_leave_all(int mask) {
     dut_la++;
+    if (corner_phase) return;
     dut_la_last_mask = mask;
     if (mask != 0xF) dut_la_not_all_types++;
     note("DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1)", -1, mask);
@@ -686,6 +705,7 @@ void CrfLicenceHarness::on_dut_leave_all(int mask) {
 }
 
 void CrfLicenceHarness::on_dut_talker_event(int uid, int ev) {
+    if (corner_phase) return;
     if (ev == 5) {
         peer[uid].dut_ta_leave++;
         note("DUT Talker Advertise LEAVE", uid, -1);
@@ -1021,11 +1041,143 @@ void CrfLicenceHarness::phase_e() {
     ck("CRFT_CTRL[7] emission licensed reads 0", (st >> 7) & 1u, 0);
 }
 
+//! Verification-only service staging: the same captured tuple that a
+//! DECLARE/WITHDRAW_TALKER request leaves in S_GATE. The next real clock
+//! performs the declaration and updates the real TSpec admission engine.
+//! No result, registrar, optimistic flag, or transmit gate is deposited.
+void CrfLicenceHarness::stage_declaration(int uid, uint16_t max_frame, bool open) {
+    auto* rp = dut->rootp;
+    ck("SRP service is idle before staging", rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__svc_st_r, 0);
+    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_idx_r = static_cast<uint8_t>(uid);
+    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_sid_r = sid_of(uid);
+    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_da_r = kMaapPoolBase | ((maap_off + static_cast<uint64_t>(uid)) & 0xFFFFu);
+    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_vid_r = 2;
+    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_mfs_r = max_frame;
+    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_mif_r = 1;
+    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__a_open_r = open;
+    rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_srp__DOT__svc_st_r = 1;
+}
+
+//! Measure the real MAC-to-decoder delay with an identical Listener frame.
+//! The graded replay asserts this delay again; a changed schedule fails.
+uint64_t CrfLicenceHarness::listener_decode_delay(int uid) {
+    run_until(cyc + 4096);
+    const uint64_t sent = cyc;
+    rx_q.push_back(msrp_frame(listener_msg(sid_of(uid), 0, 1, 2)));
+    run_until(sent + 4096);
+    ck_true("calibration decoded a real Listener frame", listener_event[uid] > sent && listener_event[uid] < cyc);
+    return listener_event[uid] - sent;
+}
+
+void CrfLicenceHarness::grant_case(int uid, bool refuse, unsigned round_phase, uint64_t decode_delay) {
+    printf("[%s] source %d, admission phase %u: %s re-declaration\n",
+           refuse ? "G" : "H", uid, round_phase, refuse ? "refused" : "admitted");
+    probe(uid);
+    run_until(cyc + ms(500));
+    // 20000+42 bytes at 8000 intervals/s exceeds even the 1 Gb/s ceiling.
+    // Warm the real TSpec pipeline, then withdraw until its grant clears.
+    const uint16_t max_frame = refuse ? 20000 : 224;
+    stage_declaration(uid, max_frame, true);
+    run_until(cyc + 128);
+    stage_declaration(uid, max_frame, false);
+    run_until(cyc + ms(kDiagTickMs + 100)); // drain frames and close their last interval
+    ck("withdrawal cleared the real grant", admitted[uid].v, 0);
+    ck("withdrawal closed ACTIVE", active[uid].v, 0);
+    ck("the ACMP declaration still stands", declaring[uid].v, 1);
+
+    // Seed nonzero, distinct interval histories: an accidental start cannot
+    // pass a reset check by resetting counters that were already zero.
+    auto* rp = dut->rootp;
+    rp->milan_datapath__DOT__talker_diag__DOT__mreset_r[uid] = 17;
+    rp->milan_datapath__DOT__talker_diag__DOT__tuiv_r[uid] = 29;
+    rp->milan_datapath__DOT__talker_diag__DOT__ftx_r[uid] = 43;
+    const uint32_t starts = diag(Ctr::kStreamStart, uid);
+    const uint32_t stops = diag(Ctr::kStreamStop, uid);
+    Level& gate = uid == kUidCrf ? licence : aaf_gate;
+    const long opens = gate.rises;
+    const long active_opens = active[uid].rises;
+    const long grants = admitted[uid].rises;
+    const auto& pdus = uid == kUidCrf ? crf_pdus : aaf_pdus;
+    const size_t pdu_count = pdus.size();
+    const uint32_t crf_count = axi_read(A_CRFT_COUNT);
+    while (cyc % kSources != round_phase) step();
+    const uint64_t sent = cyc;
+    rx_q.push_back(msrp_frame(listener_msg(sid_of(uid), 0, 1, 2)));
+    run_until(sent + decode_delay - 1);
+    stage_declaration(uid, max_frame, true);
+    const uint64_t declared = cyc;
+    // This step clears the registrar. The next one consumes the real
+    // decoded Listener Ready while opt_r is still alive.
+    step();
+    run_until(cyc + 64);
+    ck("Listener replay retained the measured decoder timing", listener_event[uid], sent + decode_delay);
+    ck("Listener Ready registered after re-declaration", lstn_reg(uid), 2);
+    ck("the optimistic window actually raised ACTIVE", static_cast<uint64_t>(active[uid].rises - active_opens), 1);
+    ck_true("ACTIVE rose within three admission rounds", active[uid].last_rise > declared
+            && active[uid].last_rise - declared <= 3 * kSources);
+    if (refuse) {
+        ck("the ceiling refused the re-declaration throughout", static_cast<uint64_t>(admitted[uid].rises - grants), 0);
+        ck("the live over-limit bit confirms refusal", (axi_read(A_LWSRP_STATUS) >> 7) & 1u, 1);
+        ck("ACTIVE fell after the optimistic window", active[uid].v, 0);
+        ck("the declaration became Talker Failed",
+           (rp->milan_datapath__DOT__pp_cd_srp_tk_decl_state_w >> (2 * uid)) & 3u, 2);
+        run_until(cyc + ms(2500)); // multiple running media periods, including pipeline drain
+        ck(uid == kUidCrf ? "refused CRF licence never opened" : "refused AAF gate never opened",
+           static_cast<uint64_t>(gate.rises - opens), 0);
+        ck("refused re-declaration adds no STREAM_START", diag(Ctr::kStreamStart, uid), starts);
+        ck("refused re-declaration adds no STREAM_STOP", diag(Ctr::kStreamStop, uid), stops);
+        ck("refused re-declaration preserves MEDIA_RESET", rp->milan_datapath__DOT__talker_diag__DOT__mreset_r[uid], 17);
+        ck("refused re-declaration preserves TIMESTAMP_UNCERTAIN", rp->milan_datapath__DOT__talker_diag__DOT__tuiv_r[uid], 29);
+        ck("refused re-declaration preserves FRAMES_TX", diag(Ctr::kFramesTx, uid), 43);
+        ck("refused re-declaration emits no PDU", pdus.size(), pdu_count);
+        if (uid == kUidCrf) ck("refused CRF leaves CRFT_COUNT unchanged", axi_read(A_CRFT_COUNT), crf_count);
+    } else {
+        ck("admitted re-declaration opens the licence once", static_cast<uint64_t>(gate.rises - opens), 1);
+        ck_true("licence waits for both ACTIVE and grant", gate.last_rise >= active[uid].last_rise
+                && gate.last_rise >= admitted[uid].last_rise);
+        const uint64_t delay = gate.last_rise - active[uid].last_rise;
+        printf("  [LATENCY] uid=%d phase=%u ACTIVE=%llu grant=%llu licence=%llu added_cycles=%llu\n",
+               uid, round_phase, static_cast<unsigned long long>(active[uid].last_rise),
+               static_cast<unsigned long long>(admitted[uid].last_rise),
+               static_cast<unsigned long long>(gate.last_rise), static_cast<unsigned long long>(delay));
+        ck_true("added start latency fits three admission rounds", delay <= 3 * kSources);
+        ck("admitted start resets MEDIA_RESET", rp->milan_datapath__DOT__talker_diag__DOT__mreset_r[uid], 0);
+        ck("admitted start resets TIMESTAMP_UNCERTAIN", rp->milan_datapath__DOT__talker_diag__DOT__tuiv_r[uid], 0);
+        ck("admitted start resets FRAMES_TX", diag(Ctr::kFramesTx, uid), 0);
+        run_until(cyc + ms(2500));
+        ck_true("admitted re-declaration still streams", pdus.size() >= pdu_count + 2);
+        ck("admitted re-declaration adds one STREAM_START", diag(Ctr::kStreamStart, uid), starts + 1);
+        ck("admitted re-declaration adds no STREAM_STOP", diag(Ctr::kStreamStop, uid), stops);
+    }
+}
+
+void CrfLicenceHarness::phase_real_grant() {
+    printf("[G/H] #551: real admission ceiling and both round phases\n");
+    corner_phase = true;
+    sched.clear();
+    for (auto& p : peer) { p.listener_on = false; p.bridge_decl = 0; }
+    // Refresh the genuine ACMP/MAAP DA gate; staging SRP does not fake it.
+    for (int uid = 0; uid < kSources; uid++) probe(uid);
+    run_until(cyc + ms(500));
+    sched.clear();
+    for (int uid = 0; uid < kSources; uid++) {
+        const uint64_t delay = listener_decode_delay(uid);
+        ck_true("decoder delay can bracket a declaration", delay > 1 && delay < 4096);
+        if (delay <= 1 || delay >= 4096) continue;
+        for (unsigned phase = 0; phase < kSources; phase++) {
+            grant_case(uid, true, phase, delay);
+            grant_case(uid, false, phase, delay);
+        }
+        stage_declaration(uid, 224, false);
+        run_until(cyc + ms(100));
+    }
+}
+
 void CrfLicenceHarness::grade_invariants() {
     printf("[INV] over the whole run, every cycle\n");
-    ck("the CRF licence equals ACTIVE[CRF] (config: en, class A, SRP policing)",
+    ck("the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing)",
        static_cast<uint64_t>(licence_ne_active), 0);
-    ck("the AAF gate is never open without ACTIVE[AAF]", static_cast<uint64_t>(aaf_without_active), 0);
+    ck("the AAF gate is never open without ACTIVE[AAF] AND real grant", static_cast<uint64_t>(aaf_without_active), 0);
     ck("no malformed DUT MRPDU", static_cast<uint64_t>(dut_malformed), 0);
 }
 
@@ -1043,6 +1195,7 @@ int CrfLicenceHarness::run() {
     phase_f_after_c(licence.first_rise);
     phase_d();
     phase_e();
+    phase_real_grant();
     grade_invariants();
     printf("--------------------------------------------------------------\n");
     printf("simulated %.2f ms (%llu cycles)\n", t_ms(cyc), static_cast<unsigned long long>(cyc));

@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// #551: stage a pending SRP service request; observe the actual decoded
+// Listener event to place a re-declaration one cycle before its consumption.
+// No admission result, optimistic state, ACTIVE, licence or registrar is forced.
+`verilator_config
+public_flat_rw -module "KL_srp_top" -var "svc_st_r"
+public_flat_rw -module "KL_srp_top" -var "a_*_r"
+public_flat_rd -module "KL_srp_top" -var "dec_evt_valid_w"
+public_flat_rd -module "KL_srp_top" -var "dec_evt_attr_type_w"
+public_flat_rd -module "KL_srp_top" -var "dec_evt_stream_id_w"

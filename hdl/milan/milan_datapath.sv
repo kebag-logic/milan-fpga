@@ -1906,9 +1906,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! live only while the processor declares it (acmp_talker_active is the
   //! processor's acmp_declaring_o, which is itself only reachable through an
   //! ALLOC_DA success) and, when a reservation is required, only while the
-  //! processor reports this stream ACTIVE: Talker Advertise declared, a
+  //! processor reports this stream ACTIVE with a real grant: TA declared, a
   //! Listener Ready or Ready Failed registered, admitted (Milan v1.2 5.3.7.3;
-  //! FR-SRP-03: no reservation -> no stream tx; #530). The bypass bit stays
+  //! FR-SRP-03: no reservation -> no stream tx; #530, #551). The bypass stays
   //! the legacy stream-whenever-enabled escape hatch.
   wire aaf_gate = cfg_aaf_enable & (~cfg_maap_enable | maap_addr_valid) &
                   (cfg_aaf_bypass |
@@ -5275,8 +5275,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam int CRF_DECL_SLOT_C = (ACMP_SRC_C > N_STREAMS) ? CRF_TUID_C : 0;
   wire crft_class_a_w = (ACMP_SRC_C > N_STREAMS) &
                         (|pp_cd_srp_tk_decl_state_w[2*CRF_DECL_SLOT_C +: 2]);
-  //! the CRF talker's own slot of the processor's ACTIVE vector (top of the
-  //! vector when it exists): a reservation EXISTS, Milan v1.2 5.3.7.3
+  //! The CRF source's ACTIVE AND real admission grant (top slot when
+  //! present). Optimistic admission alone cannot license this output (#551).
   wire crft_res_active_w = (SRP_CRF_TK_C != 0) &
                            lwsrp_stream_gate[SRP_TALKERS_C-1];
   //! the C-TAG's {PCP, VID}: SR class A defaults {3, LWSRP_VID} (802.1Q
@@ -6567,82 +6567,38 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! latches grant_r, gslope_r and sum_r TOGETHER at round end; the published
   //! sr_admitted_o is grant_r AND the live request.
   //!
-  //! THE GATE IS NOT THAT VERDICT (#530). It is the processor's ACTIVE,
-  //! srp_active_o: declaring Talker Advertise AND not failed AND a Listener
-  //! Ready or Ready Failed registered AND admitted - the Milan v1.2 5.3.7.3
-  //! licence, which protocol_processor_top names "THE AVTP transmit gate"
-  //! and tells a consumer never to rebuild from its terms. The raw verdict
-  //! is only the last term. It rises at the DECLARE_TALKER, before any
-  //! bridge has answered, so gating on it put the #117 Run B CRF output on
-  //! the wire 4.7 s before its first Listener Ready and kept it there after
-  //! the Listener had left. So:
+  //! THE LICENCE (#530, #551): ACTIVE AND the real per-source grant.
+  //! ACTIVE supplies the processor's complete Milan v1.2 5.3.7.3 verdict:
+  //! Talker Advertise, not failed, Listener Ready or Ready Failed, admitted.
+  //! Its admission term includes opt_r for three admission rounds after a
+  //! declaration. sr_admitted_o excludes opt_r; requiring it here prevents
+  //! optimistic admission alone from licensing any CRF or AAF consumer.
   //!
-  //!   OPENING EDGE - ACTIVE takes the admission term through the
-  //!   processor's optimistic window (sr_adm_fsm = opt | admitted): a fresh
-  //!   declaration counts as admitted until the end of the third admission
-  //!   round after it, a round walking one source per cycle, so N_SOURCES
-  //!   cycles each (protocol-processor hdl/srp/KL_srp_top.sv:445,772-779,
-  //!   855-858).
-  //!   The same declaration clears that source's talker-side Listener
-  //!   registrar (KL_srp_talker_fsm.sv:705-710), so no Listener Ready is
-  //!   ever registered at a declaration and ACTIVE is 0 after it. ACTIVE
-  //!   rises inside the window only if a registering Listener event for the
-  //!   stream (New, JoinIn or JoinMt with Ready or Ready Failed) is decoded
-  //!   within those few cycles; the Listener Ready that answers the Talker
-  //!   Advertise arrives by MRPDU long after them. That corner has two
-  //!   branches, and status skew is the whole effect of the first only:
+  //! OPENING EDGE - a declaration clears its Listener registrar. Normally
+  //! Listener Ready arrives after the real grant and adds no start delay.
+  //! A registering Listener event decoded inside the optimistic window can
+  //! raise ACTIVE earlier. The licence waits for the real grant, bounded by
+  //! the three-round window (N_SOURCES cycles per admission round).
   //!
-  //!   ADMITTED - the round admits the stream. ACTIVE and the gates lead
-  //!   LWSRP_STATUS[9] and 0x698 by up to three rounds, and no shaper reads
-  //!   either word. The lead shows on the licensed source's own bits:
-  //!   LWSRP_STATUS[8] is source 0's gate only, so the CRF output (the top
-  //!   ACTIVE slot, source 1 on the AX7101 1x1 shape) shows it on
-  //!   CRFT_CTRL[6]/[7] and LWSRP_STATUS[6] (ACTIVE ORed over sources),
-  //!   never on [8].
+  //! REFUSED - with no real grant, ACTIVE may pulse inside that window but
+  //! the licence stays closed. No STREAM_START/STREAM_STOP pair, Table 5.4
+  //! counter reset, or PDU follows. ACTIVE then falls and the declaration
+  //! swaps to Talker Failed. LWSRP_STATUS[6] remains raw |ACTIVE; source 0's
+  //! gate bit [8] and CRFT_CTRL[6]/[7] require the real grant as well.
   //!
-  //!   REFUSED - the round refuses the stream: over_limit (LWSRP_STATUS[7])
-  //!   rises and sr_admitted_o stays 0 (KL_srp_admission.sv:152-154,
-  //!   207-214). ACTIVE does not fall inside the window: it holds on opt
-  //!   and falls at the window's end, and the declaration then swaps to
-  //!   Talker Failed. So a declaration the 75 % ceiling refuses holds, for
-  //!   up to three rounds, the emission licence (crft_emit_en_w into
-  //!   KL_crf_tx.enable_i, the AAF gates) and the Milan v1.2 5.3.7.7 Table
-  //!   5.4 streaming level (tkd_streaming_w). KL_talker_diag_ctx counts a
-  //!   STREAM_START and a STREAM_STOP a controller reads, the start zeroes
-  //!   MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX, and at most one PDU
-  //!   per source can leave, if its media event falls in the window.
-  //!   CRFT_CTRL[6]/[7] pulse with it for the CRF output and LWSRP_STATUS[8]
-  //!   for source 0; LWSRP_STATUS[6] is |ACTIVE, so it pulses only while no
-  //!   other source is ACTIVE. The snap-latched 0x82C talker window's
-  //!   per-index bits hold the AAF sources only, never the CRF output: its
-  //!   gate bit [3] pulses at every index, its lobs bit [2] only above
-  //!   index 0, because index 0's lobs is source 0's registered Listener
-  //!   level, not ACTIVE. At index 0 its [27:19] mirrors LWSRP_STATUS[8:0],
-  //!   so [27] pulses as LWSRP_STATUS[8] does and [25] as the OR
-  //!   LWSRP_STATUS[6] does. ACTIVE still needs a registered Listener Ready
-  //!   or Ready Failed, so nothing leaves before one (#530). Whether the
-  //!   licence should also need the real grant is issue #551.
-  //!
-  //!   The processor takes the window so that a declaration is never Talker
-  //!   Failed first.
-  //!
-  //!   CLOSING EDGE - ACTIVE drops the cycle any of its terms drops.
-  //!   sr_admitted_o, whose OR is LWSRP_STATUS[9], does not follow the
-  //!   Listener: it drops with the request (the declaration) or a refusing
-  //!   round. sum_r is ROUND-LATCHED, so 0x698 keeps a withdrawn
-  //!   declaration's slope until the next round completes.
-  //!
-  //! A LATER LANE that credit-shapes these sources must not pair this gate
-  //! with sum_r and inherit the bw-gate's ordering: at the opening edge
-  //! above the gate can lead the Sigma by three rounds, or open for three
-  //! rounds on a stream the Sigma never includes. That lane derives its
-  //! own ordering and its own test for it.
-  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
+  //! CLOSING EDGE - either ACTIVE or the real grant falling closes the gate.
+  //! The raw grant does not follow Listener withdrawal; ACTIVE does.
+  //! LWSRP_SLOPE is round-latched and can retain a withdrawn declaration's
+  //! slope until the next round. No shaper consumes it. A future shaping
+  //! lane must establish its own slope/gate ordering and verification.
+  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0] &
+                             pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];
   //! STATUS ONLY (no shaper, above): LWSRP_STATUS[9] reads the RAW verdict
   //! of any source and LWSRP_SLOPE 0x698 the processor's Sigma across
   //! admitted sources. Both report admitted DECLARATIONS, licensed or not,
   //! so a declared, admitted output with no Listener Ready reads [9] set
-  //! while its gate is closed. The gate never reads either.
+  //! while its gate is closed. The licence reads the per-source grant,
+  //! never this OR reduction or the sum.
   assign lwsrp_slope_en    = |pp_cd_srp_sr_admitted_w;
   assign lwsrp_idle_slope  = pp_cd_srp_sum_slope_bps_w;
   //! Milan 4.2.7.2.1 Domain adoption surface: the OPERATIONAL {priority, VID}
