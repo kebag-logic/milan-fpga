@@ -1,0 +1,23 @@
+$ git grep -n "step guard gap" -- tb docs
+rc=1
+$ git grep -n "108 to 524" -- docs/design tb
+rc=1
+$ servo margin comment
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:300:  //! addend below 128 ns, so a legitimate advance stays below 384 ns on any
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:302:  //! (#387 owner step policy). 4096 ns sits 10.7x above the one and 4.9x
+$ U11 33-tick gap and U12 arms
+tb/verilator/mmcm_servo/sim_main.cpp:24://   U11 implausible rate   -> the 1024 ppm guard discards; the 4th in a row
+tb/verilator/mmcm_servo/sim_main.cpp:26://   U12 discard bookkeeping -> a PHC step restarts the guard's streak; a
+tb/verilator/mmcm_servo/sim_main.cpp:390:    //      U11 is the 1024 ppm guard's own arm; sim_phc_step.cpp proves the
+tb/verilator/mmcm_servo/sim_main.cpp:471:    // U11: the 1024 ppm guard's own arm (#539 moved every ptp_now JUMP to
+tb/verilator/mmcm_servo/sim_main.cpp:485:        printf("[U11] implausible CRF rate: the 1024 ppm guard and its re-base\n");
+tb/verilator/mmcm_servo/sim_main.cpp:486:        ck("[U11] LOCKED before", state(), 4);
+tb/verilator/mmcm_servo/sim_main.cpp:499:        ck("[U11] >= 6 windows discarded", at.size() >= 6, 1);
+tb/verilator/mmcm_servo/sim_main.cpp:500:        ck("[U11] discards 1 to 4 one window (32 ticks) apart",
+tb/verilator/mmcm_servo/sim_main.cpp:502:        ck("[U11] the 4th re-bases: 5th is 33 ticks on", ticks_after(at, 3), 33);
+tb/verilator/mmcm_servo/sim_main.cpp:503:        ck("[U11] then 32 ticks apart again (5th to 6th)", ticks_after(at, 4), 32);
+tb/verilator/mmcm_servo/sim_main.cpp:504:        ck("[U11] still LOCKED through it", state(), 4);
+tb/verilator/mmcm_servo/sim_main.cpp:505:        ck("[U11] trim held (inside envelope +-48)",
+$ README vs GM_LOSS
+- The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades its step discard (#539).
+- The CRF servo: its DRP answers zero. `Vphc_step` grades its step discard (#539).

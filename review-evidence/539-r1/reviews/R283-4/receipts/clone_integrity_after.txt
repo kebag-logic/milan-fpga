@@ -1,0 +1,33 @@
+HEAD cf43b4716772582d0c77d40f1eeac5934a0cd9da
+HEAD tree e13a00368b65ae5d29559541467d5f07b4dc29c3
+index tree e13a00368b65ae5d29559541467d5f07b4dc29c3
+status (tracked, incl. submodules):
+untracked:
+ignored (new files from gate runs?):
+diff-index vs HEAD (blob/mode):
+rc=0
+gitlinks at HEAD:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor (heads/main)
+ 09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor (v2.0-222-g09f9bf3)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+skip-worktree/assume-unchanged flags:
+submodule worktrees (porcelain, all files):
+gptp-processor HEAD=e5dcea6e351abff18a27a00f8e345f3251bdbd8f dirty=0
+protocol-processor HEAD=09f9bf3846511f8388d995126502ed92eaa65213 dirty=0
+third_party/verilog-axis HEAD=48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0
+content check of the PR's nine paths vs HEAD blobs:
+docs/design/GM_LOSS_RECOVERY.md f8424c7c8b7a99a6dea35d76df5917364140278e f8424c7c8b7a99a6dea35d76df5917364140278e mode=644/100644
+docs/design/TIME_SYNC.md 964c5013e0dfe6953de76f7a67236be3cbf940e9 964c5013e0dfe6953de76f7a67236be3cbf940e9 mode=644/100644
+docs/reference/REGISTER_MAP.md 2c9b7764fbfe582e10798ca8d455bdbe4ec4cba8 2c9b7764fbfe582e10798ca8d455bdbe4ec4cba8 mode=644/100644
+docs/testing/TESTING.md ce12dd40ae46dfeca37914c027786d20abe05784 ce12dd40ae46dfeca37914c027786d20abe05784 mode=644/100644
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv 9459a26bdd106b6b94fd0fb1b46c7fc9f8afc578 9459a26bdd106b6b94fd0fb1b46c7fc9f8afc578 mode=644/100644
+tb/verilator/milan_dp/README.md a016e7c1b7c6e9d00f98af2fb9adfd79e805753e a016e7c1b7c6e9d00f98af2fb9adfd79e805753e mode=644/100644
+tb/verilator/mmcm_servo/Makefile 68326d9e2a17505631d0c1f3f27eb9d0606b2165 68326d9e2a17505631d0c1f3f27eb9d0606b2165 mode=644/100644
+tb/verilator/mmcm_servo/sim_main.cpp 84e121352ec0e8659f29d9c4e098ca339b570ecf 84e121352ec0e8659f29d9c4e098ca339b570ecf mode=644/100644
+tb/verilator/mmcm_servo/sim_phc_step.cpp 181253a31032d33ed4b586a9964c6fdb9e891de1 181253a31032d33ed4b586a9964c6fdb9e891de1 mode=644/100644

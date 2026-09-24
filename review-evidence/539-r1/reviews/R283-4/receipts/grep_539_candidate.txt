@@ -1,0 +1,33 @@
+Binary file aem-and-aecp.pdf matches
+docs/design/GM_LOSS_RECOVERY.md:152:| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has n
+docs/design/GM_LOSS_RECOVERY.md:154:| CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm.
+docs/design/GM_LOSS_RECOVERY.md:181:- The CRF servo: its DRP answers zero. `Vphc_step` grades its step discard (#539).
+docs/design/SAVED_STATE_FASTCONNECT.md:45:> | the area measurement | 539 LUT, with 128 LUT6 of distributed RAM in no column at all | **781 LUT-equivalents** at 8x8 worst case, with a LUTRAM column added to `ooc.sh`, section 8.3 |
+docs/design/TIME_SYNC.md:148:| MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A [step-policy](#step-policy) slew is not a step and still reaches the integrator (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15
+docs/development/CODE_QUALITY.md:815:project-owned processor submodules: 117 files, 3459 ports and 539
+docs/diagrams/submodule_boundaries.svg:36:<text x="133" y="539" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">ACTIVE TIME</text>
+docs/diagrams/submodule_boundaries.svg:57:<text x="1143" y="539" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">UNUSED IMPORT</text>
+docs/diagrams/ts_wrap_walk.svg:37:<polyline points="196.00,290.77 196.47,290.66 196.95,290.55 197.42,290.44 197.89,290.33 198.37,290.22 198.84,290.11 199.32,290.00 199.79,289.89 200.26,289.78 200.74,289.67 201.21,289.56 201.68,289.45 202.16,289.34 202.63,289.2
+docs/diagrams/ts_wrap_walk.svg:40:<polyline points="483.47,391.90 483.95,391.64 484.42,391.38 484.89,391.12 485.37,390.86 485.84,390.60 486.32,390.34 486.79,390.08 487.26,389.82 487.74,389.56 488.21,389.30 488.68,389.04 489.16,388.78 489.63,388.52 490.10,388.2
+docs/reference/REGISTER_MAP.md:1963:| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_
+docs/testing/TESTING.md:482:| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Since #74 the build enables it through the live clock-source resolve (Section 7). `sim_phc_step.cpp` runs it at the silicon window scale 
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:54:                  PHC step guard (#539): that threshold alone let a
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:296:  //! PHC step detector (#539): one clk_i cycle's ptp_now_i advance above
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:446:  //! PHC step detector (#539), aligned with ptp_q_r: set on the edge that
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:650:        //! PHC step guard (#539, see header): the open window straddles
+sw/builder/endstation_builder.py:535:    "rx_filter": _cost(539, 1570, 0, 0,
+sw/builder/test_builder.py:5865:    #: `next_token()` (`src/read.c:533-539`), so `define<VT>MILAN_TMPL` opens
+sw/litex/sweep.sh:23:    # - a 539-LUT spread, on a design that fills 89% of the part, attached to
+tb/verilator/milan_dp/README.md:480:- The grid aligner. The TDM clocks are held, so it stays disengaged. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) it gets no re-centre of its own: #539 keeps the s
+tb/verilator/milan_dp/README.md:481:- The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades its step discard (#539).
+tb/verilator/milan_dp/sim_gmstep.cpp:16:// the CRF servo (the DRP answers zero; #539), an lwSRP licence (the talker is
+tb/verilator/mmcm_servo/Makefile:11:#     (1 ms tick, 512 ms window, NORM_SHIFT_P = 0) against a PHC step (#539)
+tb/verilator/mmcm_servo/Makefile:13:#   make trace STEP_NS=<n> - the #539 reproduction record: one n ns step at
+tb/verilator/mmcm_servo/sim_main.cpp:23://       does (#539)
+tb/verilator/mmcm_servo/sim_main.cpp:379:    //      Since #539 every one of these JUMPS is the PHC step guard's: the
+tb/verilator/mmcm_servo/sim_main.cpp:471:    // U11: the 1024 ppm guard's own arm (#539 moved every ptp_now JUMP to
+tb/verilator/mmcm_servo/sim_phc_step.cpp:4:// KL_mmcm_drp_servo against a PHC step, at the SILICON window scale (#539).
+tb/verilator/mmcm_servo/sim_phc_step.cpp:12:// (1 ppm = 512 units), which is the arithmetic #539 reads.
+tb/verilator/mmcm_servo/sim_phc_step.cpp:25:// Trace modes (the #539 records; lock, then one disturbance at mid-window,
+tb/verilator/mmcm_servo/sim_phc_step.cpp:58://! P1: the #539 range, 100 us to 1 s, both signs, plus the 20 us link-up
+Binary file ti_eth.pdf matches

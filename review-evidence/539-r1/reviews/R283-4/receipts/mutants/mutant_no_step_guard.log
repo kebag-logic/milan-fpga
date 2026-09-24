@@ -1,0 +1,122 @@
+[P0] lock at the silicon window scale (talker +20 ppm)
+  [ ok ] [P0] state LOCKED                        got=4 exp=4
+  [ ok ] [P0] windows to LOCKED = 11 in [1, 39]
+  [ ok ] [P0] the last window committed
+  [ ok ] [P0] last window error (x512 ppm) = 60 in [-1023, 1023]
+  [ ok ] [P0] integrator ~ talker - base (x512 ppm) = 15680 in [14664, 16712]
+[P1] one PHC step at mid-window, per size
+  [FAIL] [P1 +21000 ns] discards counted = 0 in [1, 1]
+  [ ok ] [P1 +21000 ns] next window committed
+  [FAIL] [P1 +21000 ns] next window error = 21040 in [-1023, 1023]
+  [FAIL] [P1 +21000 ns] integrator moved = 10520 in [-512, 512]
+  [FAIL] [P1 +21000 ns] written rate moved = 15765 in [-1024, 1024]
+  [FAIL] [P1 +21000 ns] LOCKED on every edge
+  [FAIL] [P1 +100000 ns] discards counted = 0 in [1, 1]
+  [ ok ] [P1 +100000 ns] next window committed
+  [FAIL] [P1 +100000 ns] next window error = 84840 in [-1023, 1023]
+  [FAIL] [P1 +100000 ns] integrator moved = 42420 in [-512, 512]
+  [FAIL] [P1 +100000 ns] written rate moved = 51200 in [-1024, 1024]
+  [FAIL] [P1 +100000 ns] LOCKED on every edge
+  [FAIL] [P1 -100000 ns] discards counted = 0 in [1, 1]
+  [ ok ] [P1 -100000 ns] next window committed
+  [FAIL] [P1 -100000 ns] next window error = -115200 in [-1023, 1023]
+  [FAIL] [P1 -100000 ns] integrator moved = -57600 in [-512, 512]
+  [FAIL] [P1 -100000 ns] written rate moved = -51200 in [-1024, 1024]
+  [FAIL] [P1 -100000 ns] LOCKED on every edge
+  [FAIL] [P1 +108000 ns] discards counted = 0 in [1, 1]
+  [ ok ] [P1 +108000 ns] next window committed
+  [FAIL] [P1 +108000 ns] next window error = 92800 in [-1023, 1023]
+  [FAIL] [P1 +108000 ns] integrator moved = 46400 in [-512, 512]
+  [FAIL] [P1 +108000 ns] written rate moved = 49160 in [-1024, 1024]
+  [FAIL] [P1 +108000 ns] LOCKED on every edge
+  [FAIL] [P1 +150000 ns] discards counted = 0 in [1, 1]
+  [ ok ] [P1 +150000 ns] next window committed
+  [FAIL] [P1 +150000 ns] next window error = 173200 in [-1023, 1023]
+  [FAIL] [P1 +150000 ns] integrator moved = 44980 in [-512, 512]
+  [FAIL] [P1 +150000 ns] written rate moved = 21780 in [-1024, 1024]
+  [FAIL] [P1 +150000 ns] LOCKED on every edge
+  [FAIL] [P1 -150000 ns] discards counted = 0 in [1, 1]
+  [ ok ] [P1 -150000 ns] next window committed
+  [FAIL] [P1 -150000 ns] next window error = -164320 in [-1023, 1023]
+  [FAIL] [P1 -150000 ns] integrator moved = -82160 in [-512, 512]
+  [FAIL] [P1 -150000 ns] written rate moved = -51200 in [-1024, 1024]
+  [FAIL] [P1 -150000 ns] LOCKED on every edge
+  [FAIL] [P1 +300000 ns] discards counted = 0 in [1, 1]
+  [ ok ] [P1 +300000 ns] next window committed
+  [FAIL] [P1 +300000 ns] next window error = 338380 in [-1023, 1023]
+  [FAIL] [P1 +300000 ns] integrator moved = 82160 in [-512, 512]
+  [FAIL] [P1 +300000 ns] written rate moved = 51200 in [-1024, 1024]
+  [FAIL] [P1 +300000 ns] LOCKED on every edge
+  [FAIL] [P1 +524000 ns] discards counted = 0 in [1, 1]
+  [ ok ] [P1 +524000 ns] next window committed
+  [FAIL] [P1 +524000 ns] next window error = 511200 in [-1023, 1023]
+  [ ok ] [P1 +524000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +524000 ns] written rate moved = 0 in [-1024, 1024]
+  [FAIL] [P1 +524000 ns] LOCKED on every edge
+  [ ok ] [P1 +1000000 ns] discards counted = 1 in [1, 1]
+  [FAIL] [P1 +1000000 ns] next window committed
+  [FAIL] [P1 +1000000 ns] next window error = 1015580 in [-1023, 1023]
+  [ ok ] [P1 +1000000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +1000000 ns] written rate moved = 0 in [-1024, 1024]
+  [FAIL] [P1 +1000000 ns] LOCKED on every edge
+  [ ok ] [P1 +1000000000 ns] discards counted = 1 in [1, 1]
+  [FAIL] [P1 +1000000000 ns] next window committed
+  [FAIL] [P1 +1000000000 ns] next window error = 1058816 in [-1023, 1023]
+  [ ok ] [P1 +1000000000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +1000000000 ns] written rate moved = 0 in [-1024, 1024]
+  [FAIL] [P1 +1000000000 ns] LOCKED on every edge
+  [ ok ] [P1 -1000000000 ns] discards counted = 1 in [1, 1]
+  [FAIL] [P1 -1000000000 ns] next window committed
+  [FAIL] [P1 -1000000000 ns] next window error = -1038336 in [-1023, 1023]
+  [ ok ] [P1 -1000000000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 -1000000000 ns] written rate moved = 0 in [-1024, 1024]
+  [FAIL] [P1 -1000000000 ns] LOCKED on every edge
+[P2a] step staged on the boundary sample
+  [ ok ] [P2a] arm: the stepped sample is staged, T0 next edge
+  [ ok ] [P2a] arm: the boundary fired on it
+  [FAIL] [P2a] the boundary window is NOT committed
+  [ ok ] [P2a] integrator at the squashed close = 0 in [0, 0]
+  [ ok ] [P2a] written rate at the squashed close = 0 in [0, 0]
+  [FAIL] [P2a] discards counted = 0 in [1, 1]
+  [ ok ] [P2a] next window committed
+  [FAIL] [P2a] next window error = 12800 in [-1023, 1023]
+  [ ok ] [P2a] integrator moved = 0 in [-512, 512]
+  [ ok ] [P2a] written rate moved = 0 in [-1024, 1024]
+  [FAIL] [P2a] LOCKED on every edge
+[P2b] step staged one edge after the boundary
+  [ ok ] [P2b] arm: no stepped sample staged before T0
+  [ ok ] [P2b] arm: T0 fired as the stepped sample was staged
+  [ ok ] [P2b] the closed (pre-step) window commits
+  [FAIL] [P2b] its window error = -10540 in [-1023, 1023]
+  [FAIL] [P2b] discards counted = 0 in [1, 1]
+  [ ok ] [P2b] next window committed
+  [FAIL] [P2b] next window error = 169660 in [-1023, 1023]
+  [ ok ] [P2b] integrator moved = 0 in [-512, 512]
+  [ ok ] [P2b] written rate moved = 0 in [-1024, 1024]
+  [FAIL] [P2b] LOCKED on every edge
+[P2c] step inside the last tick before the boundary
+  [FAIL] [P2c] arm: window abandoned inside its last tick
+  [FAIL] [P2c] arm: the boundary tick re-based instead of closing
+  [FAIL] [P2c] discards counted = 0 in [1, 1]
+  [ ok ] [P2c] next window committed
+  [FAIL] [P2c] next window error = 153940 in [-1023, 1023]
+  [ ok ] [P2c] integrator moved = 0 in [-512, 512]
+  [ ok ] [P2c] written rate moved = 0 in [-1024, 1024]
+  [FAIL] [P2c] LOCKED on every edge
+[P3] guard discard and PHC step on one cycle
+  [ ok ] [P3] arm: S4 of a guard window with a step staged
+  [ ok ] [P3] the implausible window is NOT committed
+  [FAIL] [P3] discards counted = 1 in [2, 2]
+  [ ok ] [P3] next window committed
+  [FAIL] [P3] next window error = 167880 in [-1023, 1023]
+  [ ok ] [P3] integrator moved = 0 in [-512, 512]
+  [ ok ] [P3] written rate moved = 0 in [-1024, 1024]
+  [FAIL] [P3] LOCKED on every edge
+[P4] rate path: talker +20 -> -20 ppm, no step
+  [ ok ] [P4] the first window after the change commits
+  [ ok ] [P4] its error carries the rate change (x512 ppm) = -20020 in [-23040, -2560]
+  [ ok ] [P4] re-LOCKED on the new rate           got=4 exp=4
+  [ ok ] [P4] integrator ~ new talker - base (x512 ppm) = -4660 in [-5816, -3768]
+  [ ok ] [P4] nothing discarded = 0 in [0, 0]
+== mmcm_servo phc_step: checks: 113   failures: 63 ==
+RESULT: FAIL
