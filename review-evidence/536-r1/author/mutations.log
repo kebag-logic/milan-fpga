@@ -1,0 +1,153 @@
+lane head 612db13c244335b0fa3467d02ebab1c350b01990
+CONTROL (no mutation): exit 0, 42 scenarios passed, 0 failed, 0 skipped
+
+[RED] model reverted: the MVU dispatch arm never taken
+  file: tests/steps/aecp_engine_model.py
+  expected to fail: row 0x0000, the field scenario, the junk-reserved row
+  39 scenarios passed, 3 failed, 0 skipped
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @1.1 SHALL, served
+    fails: Scenario: GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
+    fails: Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.1 the one field the receiver ignores
+
+[RED] row 0x0000 status flipped 0 -> 1
+  file: tests/features/aecp_response_contract.feature
+  expected to fail: row 0x0000
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @1.1 SHALL, served
+
+[RED] row 0x0001 status flipped 1 -> 0
+  file: tests/features/aecp_response_contract.feature
+  expected to fail: row 0x0001
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.1 RECOMMENDED by the #510 decision, not implemented, echoed
+
+[RED] row 0x0002 status flipped 1 -> 0
+  file: tests/features/aecp_response_contract.feature
+  expected to fail: row 0x0002
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.2 RECOMMENDED by the #510 decision, not implemented, echoed
+
+[RED] row 0x0003 status flipped 1 -> 0
+  file: tests/features/aecp_response_contract.feature
+  expected to fail: row 0x0003
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.3 RECOMMENDED by the #510 decision, not implemented, echoed
+
+[RED] row 0x0004 status flipped 1 -> 0
+  file: tests/features/aecp_response_contract.feature
+  expected to fail: row 0x0004
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.4 RECOMMENDED by the #510 decision, not implemented, echoed
+
+[RED] model serves 0x0001 (declared in SERVED_MVU)
+  file: tests/steps/aecp_engine_steps.py
+  expected to fail: row 0x0001 (no program), the RTL gate
+  40 scenarios passed, 2 failed, 0 skipped
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.1 RECOMMENDED by the #510 decision, not implemented, echoed
+    fails: Scenario: the served MVU command types are the ones the engine RTL decodes
+
+[RED] model serves 0x0002 (declared in SERVED_MVU)
+  file: tests/steps/aecp_engine_steps.py
+  expected to fail: row 0x0002 (no program), the RTL gate
+  40 scenarios passed, 2 failed, 0 skipped
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.2 RECOMMENDED by the #510 decision, not implemented, echoed
+    fails: Scenario: the served MVU command types are the ones the engine RTL decodes
+
+[RED] model serves 0x0003 (declared in SERVED_MVU)
+  file: tests/steps/aecp_engine_steps.py
+  expected to fail: row 0x0003 (no program), the RTL gate
+  40 scenarios passed, 2 failed, 0 skipped
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.3 RECOMMENDED by the #510 decision, not implemented, echoed
+    fails: Scenario: the served MVU command types are the ones the engine RTL decodes
+
+[RED] model serves 0x0004 (declared in SERVED_MVU)
+  file: tests/steps/aecp_engine_steps.py
+  expected to fail: row 0x0004 (no program), the RTL gate
+  40 scenarios passed, 2 failed, 0 skipped
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.4 RECOMMENDED by the #510 decision, not implemented, echoed
+    fails: Scenario: the served MVU command types are the ones the engine RTL decodes
+
+[RED] command_type ignored: every whole Milan MVU command is GET_MILAN_INFO
+  file: tests/steps/aecp_engine_model.py
+  expected to fail: rows 0x0001-0x0004, the r = 1 row
+  37 scenarios passed, 5 failed, 0 skipped
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.1 RECOMMENDED by the #510 decision, not implemented, echoed
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.2 RECOMMENDED by the #510 decision, not implemented, echoed
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.3 RECOMMENDED by the #510 decision, not implemented, echoed
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.4 RECOMMENDED by the #510 decision, not implemented, echoed
+    fails: Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.2 each compared field, one at a time
+
+[RED] Figure 5.3 length guard dropped
+  file: tests/steps/aecp_engine_model.py
+  expected to fail: the one-octet-short row
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.3 each compared field, one at a time
+
+[RED] protocol_id tail not compared (head only)
+  file: tests/steps/aecp_engine_model.py
+  expected to fail: the foreign 12-bit protocol id row
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.1 each compared field, one at a time
+
+[RED] r bit masked off the @28 word
+  file: tests/steps/aecp_engine_model.py
+  expected to fail: the r = 1 row
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.2 each compared field, one at a time
+
+[RED] reserved field forwarded from the command
+  file: tests/steps/aecp_engine_model.py
+  expected to fail: the junk-reserved row
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.1 the one field the receiver ignores
+
+[RED] protocol_version 2
+  file: tests/steps/aecp_engine_model.py
+  expected to fail: the field scenario
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario: GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
+
+[RED] features_flags claims REDUNDANCY
+  file: tests/steps/aecp_engine_model.py
+  expected to fail: the field scenario
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario: GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
+
+[RED] certification_version claims 1.0.0.0
+  file: tests/steps/aecp_engine_model.py
+  expected to fail: the field scenario
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario: GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
+
+[RED] Figure 5.4 body one quadlet short (cdl 28)
+  file: tests/steps/aecp_engine_model.py
+  expected to fail: row 0x0000, the field scenario, the junk-reserved row
+  39 scenarios passed, 3 failed, 0 skipped
+    fails: Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @1.1 SHALL, served
+    fails: Scenario: GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
+    fails: Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.1 the one field the receiver ignores
+
+[RED] a future pin serves GET_SYSTEM_UNIQUE_ID (RTL copy)
+  file: tests/steps/aecp_engine_steps.py
+  expected to fail: the RTL gate (and the AEM inventory gate stays green)
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario: the served MVU command types are the ones the engine RTL decodes
+
+[RED] SERVED_MVU names the command wrongly
+  file: tests/steps/aecp_engine_steps.py
+  expected to fail: the RTL gate
+  41 scenarios passed, 1 failed, 0 skipped
+    fails: Scenario: the served MVU command types are the ones the engine RTL decodes
+
+21 arms, 0 survived; tree after restore: clean
+
+== cross-check 1: the BASE feature (26d855a9) against the new model ==
+(base feature needs the base When step; restoring the base steps as well, with the new model)
+  Scenario: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact
+31 scenarios passed, 1 failed, 0 skipped
+
+== cross-check 2: the BASE model file restored whole, new steps and feature ==
+      1 0 scenarios passed, 0 failed, 42 error, 0 skipped
+     42 TypeError: AecpEngineModel.__init__() got an unexpected keyword argument 'mvu_served'
+tree: 0 changed paths
+    And the AECP response status is 1 ... failed in 0.000s

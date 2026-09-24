@@ -1,0 +1,41 @@
+head 612db13c244335b0fa3467d02ebab1c350b01990 base 26d855a9176d63625e6635a029a0c44e3d57ce9a
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (remotes/origin/72-split-the-three-69-functions-that-exceed-the-parents-100-line-rule-1-gc1b6174)
+ 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)
+-48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+== behave, whole suite
+14 features passed, 0 failed, 0 skipped
+326 scenarios passed, 0 failed, 0 skipped
+1600 steps passed, 0 failed, 0 skipped
+Took 0min 0.653s
+exit 0
+== behave, the touched feature
+1 feature passed, 0 failed, 0 skipped
+42 scenarios passed, 0 failed, 0 skipped
+299 steps passed, 0 failed, 0 skipped
+Took 0min 0.020s
+exit 0
+== check_py_idiom
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+exit 0
+== docs_check
+docs_check: 0 finding(s) across 164 md files + 848 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+exit 0
+== check_em_dash --base 26d855a9
+check_em_dash: 0 finding(s) over 2 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [26d855a9..HEAD]
+exit 0
+== git diff --check 26d855a9 HEAD
+exit 0
+== check_feature_status
+feature_status: 0 finding(s)
+exit 0
+== status
+0
