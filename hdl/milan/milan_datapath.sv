@@ -6591,8 +6591,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! scalars and always described sink 0, and [2*k +: 2] is the per-sink
   //! slice. tk_reg_state is a CODE, not a one-hot: the processor publishes
   //! 0 NONE / 1 ADVERTISE / 2 FAILED (protocol-processor
-  //! hdl/srp/KL_srp_top.sv:193, driven at hdl/srp/KL_srp_listener_fsm.sv:
-  //! 783-784), so bit 1 of the slice is set for a registered Talker FAILED
+  //! hdl/srp/KL_srp_top.sv:207, driven at hdl/srp/KL_srp_listener_fsm.sv:
+  //! 795-796), so bit 1 of the slice is set for a registered Talker FAILED
   //! and clear for the registered Talker ADVERTISE this field is named for -
   //! the inversion #472 measured. The compare is against the ADVERTISE code,
   //! named below because the processor spells this word's codes in a port
