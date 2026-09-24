@@ -1,0 +1,938 @@
+diff --git a/docs/architecture/10_srp_engine.md b/docs/architecture/10_srp_engine.md
+index f1a132a..3d8b36c 100644
+--- a/docs/architecture/10_srp_engine.md
++++ b/docs/architecture/10_srp_engine.md
+@@ -257,7 +257,7 @@ Ready or ReadyFailed (Milan §5.3.7.3, Δ14 — exported as a level to the AVTP
+ `GET_TX_STATE`'s REGISTERING_FAILED reports the AskingFailed case
+ ([F05.11](05_acmp_engine.md#fig-05-talker)). The streaming level additionally
+ requires admission: ACTIVE(src) = declaring Advertise ∧ registering
+-Ready/ReadyFailed ∧ `sr_admitted[src]` — the engine computes Σ-slope admission
++Ready/ReadyFailed ∧ (`optimistic[src]` ∨ `sr_admitted[src]`) — the engine computes Σ-slope admission
+ against the port ceiling and publishes `granted_slope_bps[src]`
+ ([F02.10](02_interfaces.md#fig-02-statusdict)); the shaper consumes it, never
+ computes it. **Local admission can fail**, and that failure is reported the
+@@ -273,6 +273,62 @@ FailureInformation system identifier be an end-station MAC, and Milan
+ self-declared failure — the class-D `msrp_fail_code/bridge[x]` publication
+ covers sources for that path.
+ 
++<a id="sec-10-admission-freshness"></a>**Admission freshness and latency.**
++The real `sr_admitted[src]` verdict belongs to the source's current
++declaration. Every accepted `DECLARE_TALKER`, including an identical
++re-declaration, clears that source's grant at the edge that captures its
++TSpec. `WITHDRAW_TALKER` does the same. The admission block invalidates
++that source's cached slope and in-flight pipeline stages, then restarts
++the partial greedy admission round at source zero. Unchanged sources keep
++their published grants until a completed round updates them. This is an
++internal connection; neither SRP nor processor top-level ports change.
++
++The three-stage slope pipeline continues sampling one source per clock.
++Only a slope computed entirely after declaration acceptance may participate
++in admission. The grant stays low until that slope is evaluated and its
++full source-order round completes. Pending evaluation contributes neither
++a grant nor a ceiling refusal. Repeated declarations restart this process;
++there is no generation counter that can wrap and resurrect an older result.
++
++Let M be `P-N-STREAM-OUT`, and count the accepted declaration edge as cycle
++zero. Once declarations and withdrawals stop, the new TSpec is sampled
++within M cycles, its slope is stored two cycles later, and the next visit
++and completion of its admission round are within another `2*M - 1`
++cycles. Thus the conservative bound is `3*M + 1` clocks; with the restart
++at source zero, the completion boundary makes it at most three rounds
++for M ≥ 2, and four clocks for M = 1. A refused TSpec never produces a
++grant pulse. Measured shrink/identical/restart cases in
++[`tb/srp_admission`](../../tb/srp_admission/README.md) give 4 clocks for
++M = 1, 4 or 6 for M = 2, 6 or 9 for M = 3, 5/10/15 for M = 5, and
++8/16/24 for the default M = 8. The real service-port suite measures
++8/16/24 clocks at M = 8, from gate acceptance to the published grant.
++At `P-CLK-HZ` = 100 MHz those default-shape cases are 80/160/240 ns;
++at 50 MHz they are 160/320/480 ns. Service request waiting time and
++Listener registration time are additional, independently controlled delays.
++
++The **optimistic window** serves only the talker FSM: it keeps the initial
++Advertise from becoming a premature Failed before admission has completed.
++It lasts until the third completed admission round has been observed
++(one clock after that round's latch). A new declaration restarts its
++window; any declaration or withdrawal restarts the partial admission
++round and can extend another source's window. Re-declaration resets the
++Listener tracker, so ACTIVE still needs a fresh Ready/ReadyFailed. During
++the window ACTIVE can be high even for a TSpec that will be refused;
++the real `sr_admitted[src]` stays low. A consumer requiring confirmed
++admission uses ACTIVE AND the real grant (parent issue #551).
++
++`granted_slope_bps[src]` is the evaluated current slope while that source
++is admitted and zero otherwise, including pending evaluation and teardown.
++`sum_slope_bps` and `over_limit` remain **round-latched snapshots**. A
++declaration/withdrawal immediately retires the individual grant but holds
++the previous aggregate until the next completed round; it can therefore
++temporarily differ from the sum of the live per-source outputs. Aborted
++partial-round sums are discarded. At each round publication, sum equals
++the granted slopes and over-limit reports evaluated requests refused by
++the ceiling; a still-pending source contributes neither. Once every
++current slope is valid, the unchanged greedy walk grants in source-index
++order, retries refused sources each round, and never exceeds the 75% ceiling.
++
+ ### 6.4 Listener-side stream FSM (×N)
+ 
+ <a id="fig-10-listenersm"></a>**F10.5 — Per-sink matcher + Listener declaration (Milan §5.3.8.5)**
+diff --git a/docs/guides/integrator.md b/docs/guides/integrator.md
+index 268bc41..057cfe7 100644
+--- a/docs/guides/integrator.md
++++ b/docs/guides/integrator.md
+@@ -281,10 +281,10 @@ gate on them per cycle.
+ | `acmp_declaring_o` | **the talker egress gate.** AND it with your own stream enable. |
+ | `acmp_bound_o` | per-sink binding installed, **debounced** — safe to edge-detect. The raw internal register dips low and high again inside a single rebind transaction; this port does not. |
+ | `acmp_bound_eid_o`, `acmp_bound_sid_o`, `acmp_bound_dmac_o`, `acmp_bound_vlan_o` | the bound stream's identity on the wire: who the talker is, which stream, on what address and VLAN. Arm your RX filter and stream table from these — you cannot derive them from the entity id. |
+-| `srp_active_o` | **the AVTP transmit gate.** Declaring, not failed, a listener is ready, and admitted. Use this one. |
+-| `srp_sr_admitted_o` | the raw Σ-slope verdict. It **lags** `srp_active_o` by up to three admission rounds after a fresh declare, because admission is optimistic. Gating on this instead mutes a legal stream for those rounds. |
+-| `srp_granted_slope_bps_o`, `srp_sum_slope_bps_o` | per-source and summed granted idleSlope — the value your credit-based shaper's slope multiplexer needs. |
+-| `srp_over_limit_o` | at least one source was refused against the port ceiling. |
++| `srp_active_o` | declaring Advertise, a Listener is Ready/ReadyFailed, and optimistic or real admission. For confirmed admission use **ACTIVE AND `srp_sr_admitted_o`** (parent issue #551 decision). |
++| `srp_sr_admitted_o` | real Σ-slope verdict for the current declaration; low after every accepted declaration until its new slope completes an admission round. No optimistic term. Latency is at most three rounds after the last declaration/withdrawal, or four clocks for one source; [10 §6.3](../architecture/10_srp_engine.md#sec-10-admission-freshness) gives the measured cases. |
++| `srp_granted_slope_bps_o`, `srp_sum_slope_bps_o` | current per-source granted idleSlope (zero while pending or unadmitted) and the round-latched sum for the shaper. Sum holds the previous snapshot across declaration/withdrawal until the next completed round. |
++| `srp_over_limit_o` | round-latched: at least one evaluated source was refused against the port ceiling; pending evaluation is not refusal. |
+ | `srp_class_a_prio_o`, `srp_class_a_vid_o`, `srp_domain_adopted_o`, `srp_domain_change_o` | the Class A identity in force. The two values are defaults until `srp_domain_adopted_o` says a bridge Domain was adopted. The VID default is `SRP_DOM_DEF_VID_P`, and a link-down restores both defaults. |
+ | `srp_tk_decl_state_o`, `srp_lstn_reg_state_o`, `srp_tk_reg_state_o`, `srp_lstn_decl_state_o` | the four declaration/registration state vectors, two bits per index. Read each one against its port comment, never against a listed order: `srp_lstn_reg_state_o` carries `srp_pkg::srp_decl_e` (1 Asking Failed, 2 Ready, 3 Ready Failed, [02 F02.10](../architecture/02_interfaces.md#fig-02-statusdict)), so "a Listener is registered" is any non-zero code and "Ready or Ready Failed" is bit 1 |
+ | `srp_acc_latency_o` | per-sink registered accumulated latency in nanoseconds, **raw** — add your own ingress delay |
+diff --git a/docs/traceability/MODULE_MATRIX.md b/docs/traceability/MODULE_MATRIX.md
+index 27c78f3..d2f6f4f 100644
+--- a/docs/traceability/MODULE_MATRIX.md
++++ b/docs/traceability/MODULE_MATRIX.md
+@@ -35,7 +35,7 @@
+ | `KL_pp_trace_ring` | `hdl/packet_engine/KL_pp_trace_ring.sv` | pp_top, side_port |
+ | `KL_pp_tx_arbiter` | `hdl/packet_engine/KL_pp_tx_arbiter.sv` | pp_top, tx_arbiter |
+ | `KL_pp_tx_slots` | `hdl/packet_engine/KL_pp_tx_slots.sv` | maap, pp_top, srp_encoder, srp_top, tx_arbiter, tx_slots |
+-| `KL_srp_admission` | `hdl/srp/KL_srp_admission.sv` | pp_top, srp_top |
++| `KL_srp_admission` | `hdl/srp/KL_srp_admission.sv` | pp_top, srp_admission, srp_top |
+ | `KL_srp_decoder` | `hdl/srp/KL_srp_decoder.sv` | pp_top, srp_decoder, srp_top |
+ | `KL_srp_domain` | `hdl/srp/KL_srp_domain.sv` | pp_top, srp_encoder, srp_top |
+ | `KL_srp_encoder` | `hdl/srp/KL_srp_encoder.sv` | pp_top, srp_encoder, srp_top |
+diff --git a/hdl/srp/KL_srp_admission.sv b/hdl/srp/KL_srp_admission.sv
+index f456f6c..cf8aad9 100644
+--- a/hdl/srp/KL_srp_admission.sv
++++ b/hdl/srp/KL_srp_admission.sv
+@@ -45,6 +45,11 @@
+ //                sequential walk — one source through the 3-stage slope
+ //                pipeline per cycle, one admission decision per cycle —
+ //                never a parallel wide adder tree.
++//                A declaration invalidates its source at every pipeline
++//                stage and clears its published grant. The partial admission
++//                round restarts, so no saved decision from the old TSpec can
++//                be published. Only a valid slope in a completed new round
++//                can grant; pending evaluation is not a ceiling refusal.
+ //---------------------------------------------------------------------------//
+ `default_nettype none
+ 
+@@ -59,6 +64,7 @@ module KL_srp_admission #(
+     input  wire                           rst_n,        //! synchronous active-low reset
+ 
+     input  wire  [N_SOURCES_P-1:0]        req_i,        //! per-source reservation request level (declaration standing)
++    input  wire  [N_SOURCES_P-1:0]        invalidate_i, //! strobe on accepted declare/withdraw, at the edge updating req/TSpec
+     input  wire  [N_SOURCES_P-1:0][15:0]  max_frame_i,  //! per-source TSpec MaxFrameSize (talker declare face)
+     input  wire  [N_SOURCES_P-1:0][15:0]  interval_frames_i, //! per-source TSpec MaxIntervalFrames (talker declare face)
+     input  wire  [31:0]                   port_rate_bps_i,   //! port rate in bps (quasi-static; 1G = 1_000_000_000)
+@@ -97,6 +103,13 @@ module KL_srp_admission #(
+   logic [16:0]                 frame_bytes_r;   // W = clamped F + wire overhead
+   logic [32:0]                 iv_bytes_r;      // W x MaxIntervalFrames
+   logic [N_SOURCES_P-1:0][31:0] slope_q_r;
++  logic                         valid_q1_r, valid_q2_r;
++  logic [N_SOURCES_P-1:0]       slope_valid_r;
++  logic [N_SOURCES_P-1:0]       invalid_w;
++
++  // TSpec/request changes must strobe invalidate_i, even for a same-TSpec
++  // re-declaration. A dropped request also makes all its old work unusable.
++  assign invalid_w = invalidate_i | ~req_i;
+ 
+   logic [16:0] f_raw_w;
+   logic [32:0] slope_prod_w;
+@@ -112,11 +125,22 @@ module KL_srp_admission #(
+       frame_bytes_r <= '0;
+       iv_bytes_r    <= '0;
+       slope_q_r     <= '0;
++      valid_q1_r    <= 1'b0;
++      valid_q2_r    <= 1'b0;
++      slope_valid_r <= '0;
+     end else begin
+       cidx_r    <= (32'(cidx_r) == N_SOURCES_P - 1) ? '0
+                                                     : cidx_r + SRC_W_C'(1);
+       cidx_q1_r <= cidx_r;
+       cidx_q2_r <= cidx_q1_r;
++      valid_q1_r <= !invalid_w[cidx_r];
++      valid_q2_r <= valid_q1_r && !invalid_w[cidx_q1_r];
++      slope_valid_r[cidx_q2_r] <= valid_q2_r;
++      // Invalidation wins over a same-edge pipeline arrival, including
++      // N_SOURCES_P = 1/2 where several stages hold the same source.
++      for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
++        if (invalid_w[s]) slope_valid_r[s] <= 1'b0;
++      end
+       // stage 1: F clamped to the tagged minimum, plus the wire overhead
+       frame_bytes_r <= ((f_raw_w < MIN_L2_BYTES_C) ? MIN_L2_BYTES_C : f_raw_w)
+                        + WIRE_OVERHEAD_C;
+@@ -150,8 +174,9 @@ module KL_srp_admission #(
+   logic        round_w;
+ 
+   assign cand_w   = {1'b0, acc_r} + {1'b0, slope_q_r[aidx_r]};
+-  assign fit_w    = req_i[aidx_r] && (cand_w <= {1'b0, limit_w});
+-  assign refuse_w = req_i[aidx_r] && !fit_w;
++  assign fit_w    = !invalid_w[aidx_r] && slope_valid_r[aidx_r]
++                   && (cand_w <= {1'b0, limit_w});
++  assign refuse_w = !invalid_w[aidx_r] && slope_valid_r[aidx_r] && !fit_w;
+   assign round_w  = (32'(aidx_r) == N_SOURCES_P - 1);
+ 
+   logic [N_SOURCES_P-1:0]       wgrant_now_w;
+@@ -178,7 +203,16 @@ module KL_srp_admission #(
+       round_done_o <= 1'b0;
+     end else begin
+       round_done_o <= 1'b0;
+-      if (round_w) begin
++      if (|invalidate_i) begin
++        // Retire the changed sources immediately, keep unrelated grants,
++        // and discard the partial sum/decisions as one coherent snapshot.
++        grant_r    <= grant_r & ~invalid_w;
++        aidx_r     <= '0;
++        acc_r      <= 32'd0;
++        over_acc_r <= 1'b0;
++        wgrant_r   <= '0;
++        wgslope_r  <= '0;
++      end else if (round_w) begin
+         grant_r      <= wgrant_now_w;
+         gslope_r     <= wgslope_now_w;
+         // a FIT candidate sum is <= the ceiling < 2^32: the slice is exact
+diff --git a/hdl/srp/KL_srp_top.sv b/hdl/srp/KL_srp_top.sv
+index 816ff95..87c6652 100644
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -29,8 +29,8 @@
+ //                computes the 10 §6.3 Σ-slope verdicts from the TSpecs
+ //                captured at DECLARE_TALKER and feeds the talker FSMs'
+ //                sr_admitted_i (through a short optimistic window: a fresh
+-//                declaration counts as admitted until the first full
+-//                admission round after it has been evaluated, so the wire
++//                declaration counts as admitted for three completed
++//                admission rounds, separately from the real grant, so the wire
+ //                order is always declare-Advertise-then-swap-to-Failed —
+ //                the exact §6.3 sentence — never a spurious Failed-first).
+ //                The class-B ops of 02 §4.1 (DECLARE_TALKER 0,
+@@ -418,6 +418,7 @@ module KL_srp_top
+   logic [N_SOURCES_P-1:0][15:0] adm_mfs_r;
+   logic [N_SOURCES_P-1:0][15:0] adm_mif_r;
+   logic [N_SOURCES_P-1:0]       adm_admitted_w;
++  logic [N_SOURCES_P-1:0]       adm_invalidate_w;
+   logic                         adm_round_w;
+   logic [N_SOURCES_P-1:0]       opt_r;
+   logic [N_SOURCES_P-1:0][1:0]  opt_cnt_r;
+@@ -429,6 +430,7 @@ module KL_srp_top
+       .clk_i               (clk_i),
+       .rst_n               (rst_n),
+       .req_i               (adm_req_r),
++      .invalidate_i        (adm_invalidate_w),
+       .max_frame_i         (adm_mfs_r),
+       .interval_frames_i   (adm_mif_r),
+       .port_rate_bps_i     (port_rate_bps_i),
+@@ -748,6 +750,13 @@ module KL_srp_top
+   assign gate_acc_w   = gate_valid_w && gate_ready_w;
+   assign ctl_acc_w    = ctl_valid_w && ctl_ready_w;
+ 
++  // This is the same edge that installs/removes the current declaration.
++  // Include identical re-declarations: a new declaration needs a new round.
++  always_comb begin : admission_invalidation
++    adm_invalidate_w = '0;
++    if (gate_acc_w) adm_invalidate_w[a_idx_r[SRC_W_C-1:0]] = 1'b1;
++  end
++
+   always_ff @(posedge clk_i) begin : service_plane
+     if (!rst_n) begin
+       svc_st_r     <= S_IDLE;
+@@ -769,8 +778,9 @@ module KL_srp_top
+     end else begin
+       rsp_valid_o <= 1'b0;
+ 
+-      // ---- optimistic-window aging (one full round with the request
+-      // visible must complete before the verdict is trusted) --------------
++      // ---- optimistic-window aging (three completed admission rounds;
++      // invalidation restarts a partial round). The real grant separately
++      // waits for a valid current-TSpec slope and a completed round. --------
+       if (adm_round_w) begin
+         for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+           if (opt_r[s]) begin
+@@ -849,8 +859,8 @@ module KL_srp_top
+         S_GATE: begin
+           if (gate_acc_w) begin
+             if (a_open_r) begin
+-              // TSpec joins the admission request set; verdict optimistic
+-              // until one full round has evaluated it (banner)
++              // TSpec joins the admission request set; only the talker FSM
++              // sees optimistic admission during the three-round window.
+               adm_req_r[a_idx_r[SRC_W_C-1:0]]   <= 1'b1;
+               adm_mfs_r[a_idx_r[SRC_W_C-1:0]]   <= a_mfs_r;
+               adm_mif_r[a_idx_r[SRC_W_C-1:0]]   <= a_mif_r;
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 08cd55f..1a1f134 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -511,20 +511,20 @@ module protocol_processor_top
+     output logic                         srp_domain_change_o,     //! one-cycle DOMAIN_CHANGE, pairs with the two levels above
+     output logic [N_STREAM_OUT_P*2-1:0]  srp_tk_decl_state_o,     //! per-source self-declared {0 NONE, 1 ADVERTISE, 2 FAILED}
+     output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,    //! per-source registered Listener attr (srp_pkg::srp_decl_e)
+-    //! THE AVTP transmit gate: declaring AND not failed AND a listener is
+-    //! READY AND admitted. Use THIS — never rebuild it from the terms below,
+-    //! which carry an optimistic window (see srp_sr_admitted_o).
++    //! Declaring Advertise AND Listener Ready/ReadyFailed AND optimistic-or-
++    //! real admission. For confirmed admission, gate with srp_active_o AND
++    //! srp_sr_admitted_o (parent #551 decision; architecture 10 section 6.3).
+     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+-    //! RAW Σ-slope verdict. It lags srp_active_o by up to three admission
+-    //! rounds after a fresh declare, because the FSM admits optimistically
+-    //! (KL_srp_top: sr_adm_fsm = opt_r | adm_admitted). A consumer that gates
+-    //! on this instead of srp_active_o mutes a legal stream for those rounds.
++    //! Real Σ-slope verdict for the current declaration, with no optimistic
++    //! term. Low from acceptance until the new slope completes a full round:
++    //! at most 3*N_STREAM_OUT_P clocks without another declaration/withdrawal
++    //! (4 clocks at one source). See architecture 10 section 6.3.
+     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o, //! per-source granted idleSlope, 0 when not admitted (802.1Q §34.6.1.1); same optimistic lag
+     output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,     //! per-source SELF-declared Failed code; valid only with tk_decl_state == FAILED
+     output logic [N_STREAM_OUT_P*64-1:0] srp_src_fail_bridge_o,   //! per-source SELF-declared FailureInformation; same validity
+-    output logic [31:0]                  srp_sum_slope_bps_o,     //! Σ granted idleSlope over admitted sources — the CBS slope-MUX value
+-    output logic                         srp_over_limit_o,        //! at least one source was refused against the port ceiling
++    output logic [31:0]                  srp_sum_slope_bps_o,     //! round-latched Σ; may retain a retired source until the next completed round
++    output logic                         srp_over_limit_o,        //! round-latched: at least one evaluated source refused against the ceiling
+     output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,      //! per-sink registered Talker attr {0 NONE, 1 ADVERTISE, 2 FAILED}
+     output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,   //! per-sink OUR Listener declaration
+     output logic [N_STREAM_IN_P*32-1:0]  srp_acc_latency_o,       //! per-sink registered accumulated_latency, ns, RAW — the consumer adds its own ingress delay
+diff --git a/syn/ooc/README.md b/syn/ooc/README.md
+index a4314db..40b6a3c 100644
+--- a/syn/ooc/README.md
++++ b/syn/ooc/README.md
+@@ -71,3 +71,18 @@ Measured 2026-09-24 with Vivado 2026.1, `xc7a100tfgg484-2`: **4 Slice LUTs,
+ [immutable T9 estimate](https://github.com/kebag-logic/milan-fpga/blob/c1ee27d81c4a1e98f9584e979b73a88acfe238b3/design-evidence/500-materialization/tickets/T9-processor-descriptor-memory-response-isolation.md)
+ of 5 LUTs and 1 flip-flop. The guard was synthesized as its own top with all
+ ports present. This is post-synthesis area, not routed timing or hardware proof.
++
++## SRP admission freshness — issue #112
++
++`srp_ooc.tcl` measures the complete `KL_srp_top` at its default shape
++(eight sources, eight sinks), with all ports present, using the same part,
++OOC synthesis, clock and reports:
++
++```sh
++cd <empty-output-directory>
++vivado -mode batch -source <repo>/syn/ooc/srp_ooc.tcl -nojournal -log ooc.log
++```
++
++For a base/head comparison, run this identical recipe against each source
++tree. `util_hier.rpt` includes the admission block as well as the enclosing
++engine, so the internal invalidation wiring is included in the total.
+diff --git a/syn/ooc/srp_ooc.tcl b/syn/ooc/srp_ooc.tcl
+new file mode 100644
+index 0000000..e61aa56
+--- /dev/null
++++ b/syn/ooc/srp_ooc.tcl
+@@ -0,0 +1,10 @@
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++# Default SRP shape, same part/mode/clock/reports as ucpu_ooc.tcl.
++set SPEC [file normalize [file dirname [info script]]/../..]
++read_verilog -sv $SPEC/hdl/common/pp_pkg.sv $SPEC/hdl/srp/srp_pkg.sv
++foreach src [lsort [glob $SPEC/hdl/srp/KL_*.sv]] { read_verilog -sv $src }
++synth_design -mode out_of_context -top KL_srp_top -part xc7a100tfgg484-2
++create_clock -period 10.000 -name clk [get_ports clk_i]
++report_utilization -hierarchical -file util_hier.rpt
++report_utilization -file util.rpt
++report_timing_summary -delay_type max -max_paths 3 -file timing.rpt
+diff --git a/tb/srp_admission/Makefile b/tb/srp_admission/Makefile
+new file mode 100644
+index 0000000..afcfaee
+--- /dev/null
++++ b/tb/srp_admission/Makefile
+@@ -0,0 +1,24 @@
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++VERILATOR ?= verilator
++N ?= 8
++
++run:
++	$(VERILATOR) --cc --exe --build -j 8 --top-module srp_admission_wrap \
++	  -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
++	  -GN_SOURCES_P=$(N) --Mdir obj_$(N) \
++	  -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DTB_SOURCES=$(N)" \
++	  ../../hdl/srp/KL_srp_admission.sv srp_admission_wrap.sv sim_main.cpp \
++	  -o Vsrp_admission_sim
++	./obj_$(N)/Vsrp_admission_sim
++
++shapes:
++	$(MAKE) run N=1
++	$(MAKE) run N=2
++	$(MAKE) run N=3
++	$(MAKE) run N=5
++	$(MAKE) run N=8
++
++clean:
++	rm -rf obj_1 obj_2 obj_3 obj_5 obj_8
++
++.PHONY: run shapes clean
+diff --git a/tb/srp_admission/README.md b/tb/srp_admission/README.md
+new file mode 100644
+index 0000000..2b74e3c
+--- /dev/null
++++ b/tb/srp_admission/README.md
+@@ -0,0 +1,55 @@
++<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
++# SRP admission freshness
++
++`make` runs the default eight-source admission shape. `make shapes` runs
++1, 2, 3, 5 and 8 sources. The wrapper captures request/TSpec changes at the
++same edge as `KL_srp_top` and strobes the admission invalidation input. Its
++only internal probe reads the slope sampling index to cover every phase.
++
++The independent oracle computes exact 64-bit slopes from Milan §4.3.3.2:
++`(max(MaxFrameSize + 22, 68) + 20) * MaxIntervalFrames * 64000`, followed
++by greedy source-order admission against the 75% ceiling. On every clock,
++any grant must carry the current declaration's exact slope, a refused
++TSpec must have no grant, and an unadmitted source must publish zero slope.
++Every completed round must publish the sum of its granted slopes. Settled
++grants, sum and refusal are checked against the independent model.
++Declaration acceptance must retain unrelated published grants and hold the
++previous aggregate while discarding the partial round.
++
++Every source and sampling phase covers cold refusal, grow from 224 to
++20000 bytes, shrink back, identical re-declaration, withdrawal for just one
++cycle, rapid changes to both TSpec fields at each pipeline stage, and
++saturating overflow followed by an admissible minimum frame. A competing
++source set checks greedy priority and capacity reuse. The corresponding
++service-port/Listener-PDU integration is in [srp_top](../srp_top/README.md).
++
++Latency is counted from the declaration capture edge (cycle 0) to the
++first grant. With no further changes, the measured cycle sets are:
++
++| Sources | Grant latency, cycles |
++|---|---|
++| 1 | 4 |
++| 2 | 4, 6 |
++| 3 | 6, 9 |
++| 5 | 5, 10, 15 |
++| 8 | 8, 16, 24 |
++
++The general bound and optimistic-window/accounting contract are documented
++in [10 §6.3](../../docs/architecture/10_srp_engine.md#sec-10-admission-freshness).
++The unit bench does not model the Listener registrar or parent licences.
++
++Mutation command (logs go to a caller-selected directory):
++
++```sh
++python3 tb/srp_admission/mutants.py --output /tmp/srp-admission-mutants
++```
++
++The campaign builds clean controls and a mutant that removes the slope
++validity guards from fit/refusal, restoring evaluation of the old cached
++slope. Both the two-source and eight-source mutants must fail the named
++`refused current TSpec never pulses a grant` assertion. A build failure
++does not count as a killed mutant. Each temporary build tree is deleted.
++
++Measured 2026-09-24: both controls pass; the mutant fails 184 of 5252
++checks at two sources and 4032 of 723046 at eight sources. The campaign
++itself reports 4 checks, 4 PASS, 0 FAIL.
+diff --git a/tb/srp_admission/mutants.py b/tb/srp_admission/mutants.py
+new file mode 100644
+index 0000000..9512b37
+--- /dev/null
++++ b/tb/srp_admission/mutants.py
+@@ -0,0 +1,54 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Clean controls and stale-evaluation mutants, built only in temporary trees."""
++import argparse
++from pathlib import Path
++import shutil
++import subprocess
++import tempfile
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--output", type=Path, required=True)
++    args = parser.parse_args()
++    args.output.mkdir(parents=True, exist_ok=True)
++    repo = Path(__file__).resolve().parents[2]
++    original = (repo / "hdl/srp/KL_srp_admission.sv").read_text()
++    anchor = " && slope_valid_r[aidx_r]"
++    if original.count(anchor) != 2:
++        raise RuntimeError("expected exactly the fit/refusal validity guards")
++    failed = 0
++    checks = 0
++    with tempfile.TemporaryDirectory(prefix="pp112-mutants-") as tmp:
++        tree = Path(tmp)
++        (tree / "hdl/srp").mkdir(parents=True)
++        shutil.copytree(repo / "tb/common", tree / "tb/common")
++        shutil.copytree(repo / "tb/srp_admission", tree / "tb/srp_admission",
++                        ignore=shutil.ignore_patterns("obj_*", "__pycache__"))
++        for n in (2, 8):
++            for label, source in (("control", original),
++                                  ("stale-evaluation", original.replace(anchor, ""))):
++                (tree / "hdl/srp/KL_srp_admission.sv").write_text(source)
++                log = args.output / f"{label}-{n}.log"
++                with log.open("w") as stream:
++                    result = subprocess.run(["make", "run", f"N={n}"],
++                                            cwd=tree / "tb/srp_admission",
++                                            stdout=stream, stderr=subprocess.STDOUT,
++                                            timeout=1200, check=False)
++                contents = log.read_text()
++                if label == "control":
++                    passed = result.returncode == 0 and "0 FAIL" in contents
++                else:
++                    passed = (result.returncode != 0 and "checks:" in contents and
++                              "FAIL: refused current TSpec never pulses a grant" in contents)
++                checks += 1
++                failed += not passed
++                print(f"{label} N={n}: rc={result.returncode} "
++                      f"{'PASS' if passed else 'FAIL'}", flush=True)
++    print(f"{checks} checks: {checks - failed} PASS, {failed} FAIL")
++    return int(failed != 0)
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tb/srp_admission/sim_main.cpp b/tb/srp_admission/sim_main.cpp
+new file mode 100644
+index 0000000..2e325e7
+--- /dev/null
++++ b/tb/srp_admission/sim_main.cpp
+@@ -0,0 +1,144 @@
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Fresh declaration provenance and the Milan 4.3.3.2 bandwidth recipe.
++// The oracle uses current declarations and exact 64-bit arithmetic; it has
++// no copy of the DUT's pipeline, validity bits, or saturating arithmetic.
++#include "Vsrp_admission_wrap.h"
++#include "../common/verilator_harness.hpp"
++#include <algorithm>
++#include <array>
++#include <cstdint>
++#include <cstdio>
++
++namespace {
++constexpr unsigned N = TB_SOURCES;
++constexpr unsigned SETTLE = 3 * N + 4;
++constexpr unsigned MAX_LATENCY = N == 1 ? 4 : 3 * N;
++constexpr uint64_t LIMIT = 750000000;
++uint64_t slope(unsigned frame, unsigned intervals) {
++  return (std::max(frame + 22u, 68u) + 20ull) * intervals * 64000ull;
++}
++class Suite {
++  milan::tb::Model<Vsrp_admission_wrap> model;
++  Vsrp_admission_wrap* d = model.get();
++  std::array<unsigned, 8> frame{}, intervals{}, age{};
++  unsigned requests = 0;
++  unsigned checks = 0, fails = 0;
++  void check(bool ok, const char* name) {
++    ++checks;
++    if (!ok) { ++fails; std::printf("FAIL: %s N=%u\n", name, N); }
++  }
++  void tick() {
++    d->clk_i = 0; d->eval();
++    d->clk_i = 1; d->eval();
++    for (unsigned s = 0; s < N; ++s) {
++      ++age[s];
++      bool grant = d->admitted_o & (1u << s);
++      check(!grant || ((requests & (1u << s)) && age[s] >= 4 &&
++            d->granted_o[s] == slope(frame[s], intervals[s])),
++            "grant belongs to the current declaration after pipeline evaluation");
++      check(grant || d->granted_o[s] == 0, "unadmitted slope is zero");
++      check(!grant || slope(frame[s], intervals[s]) <= LIMIT,
++            "refused current TSpec never pulses a grant");
++    }
++    if (d->round_o) {
++      uint64_t sum = 0;
++      for (unsigned s = 0; s < N; ++s) sum += d->granted_o[s];
++      check(sum == d->sum_o && sum <= LIMIT, "round publishes coherent bounded sum");
++    }
++  }
++  void idle(unsigned cycles) { while (cycles--) tick(); }
++  void reset() {
++    d->rst_n = 0; d->change_i = 0; d->req_i = 0;
++    d->port_rate_bps_i = 1000000000;
++    requests = 0; frame.fill(0); intervals.fill(0); age.fill(0);
++    idle(4); d->rst_n = 1;
++  }
++  void change(unsigned s, bool req, unsigned mfs, unsigned mif) {
++    const unsigned previous_grants = d->admitted_o;
++    const uint32_t previous_sum = d->sum_o;
++    const bool previous_over = d->over_o;
++    const unsigned shift = 16 * (s % 2);
++    d->max_frame_i[s / 2] = (d->max_frame_i[s / 2] & ~(0xffffu << shift))
++                           | (mfs << shift);
++    d->interval_frames_i[s / 2] = (d->interval_frames_i[s / 2] & ~(0xffffu << shift))
++                                 | (mif << shift);
++    requests = (requests & ~(1u << s)) | (unsigned(req) << s);
++    frame[s] = mfs; intervals[s] = mif; age[s] = 0;
++    d->req_i = requests; d->change_i = 1u << s;
++    tick(); d->change_i = 0;
++    // Acceptance edge is age 0 for the latency printed below.
++    age[s] = 0;
++    check(!(d->admitted_o & (1u << s)), "declaration immediately retires its old grant");
++    check((d->admitted_o & ~(1u << s)) == (previous_grants & ~(1u << s)),
++          "unrelated published grants survive declaration acceptance");
++    check(d->sum_o == previous_sum && bool(d->over_o) == previous_over && !d->round_o,
++          "invalidation holds the previous aggregate and aborts the partial round");
++  }
++  void settled() {
++    idle(SETTLE);
++    uint64_t sum = 0;
++    unsigned grants = 0;
++    bool over = false;
++    for (unsigned s = 0; s < N; ++s) {
++      if (!(requests & (1u << s))) continue;
++      auto sl = slope(frame[s], intervals[s]);
++      if (sum + sl <= LIMIT) { grants |= 1u << s; sum += sl; }
++      else over = true;
++    }
++    check(d->admitted_o == grants, "settled greedy grants");
++    check(d->sum_o == sum, "settled sum of grants");
++    check(bool(d->over_o) == over, "settled ceiling refusal");
++  }
++  void phase(unsigned p) {
++    for (unsigned n = 0; d->sample_index_o != p && n < N; ++n) tick();
++    check(d->sample_index_o == p, "source sampling phase reached");
++  }
++  void admit_latency(unsigned s, unsigned p, const char* kind) {
++    int latency = -1;
++    for (unsigned c = 1; c <= SETTLE; ++c) {
++      tick();
++      if (latency < 0 && (d->admitted_o & (1u << s))) {
++        latency = c;
++        check(d->round_o, "first grant is published at round completion");
++      }
++    }
++    check(latency >= 4 && latency <= int(MAX_LATENCY), "admitted latency bound");
++    std::printf("LATENCY N=%u source=%u phase=%u case=%s cycles=%d\n",
++                N, s, p, kind, latency);
++    settled();
++  }
++ public:
++  int run() {
++    for (unsigned s = 0; s < N; ++s) {
++      for (unsigned p = 0; p < N; ++p) {
++        reset(); phase(p);
++        change(s, true, 20000, 1); settled(); // cold first declaration
++        phase(p); change(s, true, 224, 1); admit_latency(s, p, "shrink");
++        phase(p); change(s, true, 20000, 1); settled(); // grow, no withdrawal
++        change(s, false, 20000, 1); // less than a round withdrawn
++        change(s, true, 224, 1); admit_latency(s, p, "short-withdraw");
++        phase(p); change(s, true, 224, 1); admit_latency(s, p, "identical");
++        // Different values in BOTH fields at each stage, with repeated
++        // redeclarations faster than the pipeline/round can drain.
++        for (unsigned gap = 0; gap <= 3; ++gap) {
++          change(s, true, 29, 1); idle(gap);
++          change(s, true, 900, 100); settled();
++        }
++        change(s, true, 0xffff, 0xffff); settled(); // saturation refuses
++        change(s, true, 29, 1); admit_latency(s, p, "saturation-shrink");
++      }
++    }
++    reset();
++    for (unsigned s = 0; s < N; ++s) change(s, true, 4000, 1);
++    settled(); // competition for the common ceiling
++    for (unsigned s = 0; s < N; ++s) { change(s, false, 4000, 1); settled(); }
++    std::printf("%u checks: %u PASS, %u FAIL\n", checks, checks - fails, fails);
++    return fails ? 1 : 0;
++  }
++};
++}
++int main(int argc, char** argv) {
++  Verilated::commandArgs(argc, argv);
++  Suite suite;
++  return suite.run();
++}
+diff --git a/tb/srp_admission/srp_admission_wrap.sv b/tb/srp_admission/srp_admission_wrap.sv
+new file mode 100644
+index 0000000..a1bed01
+--- /dev/null
++++ b/tb/srp_admission/srp_admission_wrap.sv
+@@ -0,0 +1,57 @@
++/* SPDX-License-Identifier: CERN-OHL-W-2.0 */
++// Capture declarations at the same edge as KL_srp_top. Fixed-width bench
++// ports let the identical C++ oracle cover one through eight sources.
++`default_nettype none
++module srp_admission_wrap #(
++    parameter int unsigned N_SOURCES_P = 8
++) (
++    input wire clk_i,
++    input wire rst_n,
++    input wire [7:0] change_i,
++    input wire [7:0] req_i,
++    input wire [7:0][15:0] max_frame_i,
++    input wire [7:0][15:0] interval_frames_i,
++    input wire [31:0] port_rate_bps_i,
++    output logic [7:0] admitted_o,
++    output logic [7:0][31:0] granted_o,
++    output wire [31:0] sum_o,
++    output wire over_o,
++    output wire round_o,
++    output wire [7:0] sample_index_o
++);
++  logic [N_SOURCES_P-1:0] req_r;
++  logic [N_SOURCES_P-1:0][15:0] mfs_r, mif_r;
++  wire [N_SOURCES_P-1:0] admitted_w;
++  wire [N_SOURCES_P-1:0][31:0] granted_w;
++  always_ff @(posedge clk_i) begin
++    if (!rst_n) begin
++      req_r <= '0;
++      mfs_r <= '0;
++      mif_r <= '0;
++    end else begin
++      for (int s = 0; s < N_SOURCES_P; s++) begin
++        if (change_i[s]) begin
++          req_r[s] <= req_i[s];
++          mfs_r[s] <= max_frame_i[s];
++          mif_r[s] <= interval_frames_i[s];
++        end
++      end
++    end
++  end
++  KL_srp_admission #(.N_SOURCES_P(N_SOURCES_P)) u_dut (
++      .clk_i(clk_i), .rst_n(rst_n), .req_i(req_r),
++      .invalidate_i(change_i[N_SOURCES_P-1:0]),
++      .max_frame_i(mfs_r), .interval_frames_i(mif_r),
++      .port_rate_bps_i(port_rate_bps_i), .sr_admitted_o(admitted_w),
++      .granted_slope_bps_o(granted_w), .sum_slope_bps_o(sum_o),
++      .over_limit_o(over_o), .round_done_o(round_o)
++  );
++  always_comb begin
++    admitted_o = '0;
++    granted_o = '0;
++    admitted_o[N_SOURCES_P-1:0] = admitted_w;
++    granted_o[N_SOURCES_P-1:0] = granted_w;
++  end
++  assign sample_index_o = 8'(u_dut.cidx_r);
++endmodule
++`default_nettype wire
+diff --git a/tb/srp_top/README.md b/tb/srp_top/README.md
+index f36c1ec..0d69603 100644
+--- a/tb/srp_top/README.md
++++ b/tb/srp_top/README.md
+@@ -11,7 +11,7 @@ real `KL_pp_tx_slots` serialize face (the C++ side plays the 03 §8 TX
+ arbiter), cadence and registrar-leave timers run on a real
+ `KL_pp_timer_service` (time-compressed: 1 ms = 40 clk, 32 slots), and the
+ T-MRP-LEAVEALL draws come from a real `KL_pp_prng` (kind 3, 10–15 s).
+-`make` = build + run, exit 0 = PASS, **255 checks**.
++`make` = build + run, exit 0 = PASS, **735 checks**.
+ 
+ Expectations are independent: an MRPDU builder/parser written here from
+ 802.1Q §10.8.1.2 / §35.2.2, a Σ-slope model transcribing the Milan v1.2
+@@ -85,6 +85,19 @@ Covered end to end:
+ - **Admission sweep**: 30 randomized declare/withdraw rounds across all 8
+   sources vs the model — admitted vector, per-source granted slopes, Σ
+   and over_limit, exercising the greedy order and capacity reuse.
++- **Current-declaration grant (H, issue #112)**: sources 0, 1 and 7 at all
++  eight slope-sampling phases. Cold refusal, 224 → 20000-byte growth,
++  20000 → 224-byte shrink, and identical re-declaration are observed on
++  every cycle from real service-gate acceptance. The refused source never
++  grants; every admitted slope belongs to the current declaration; the
++  grant is low on acceptance and only returns at round completion.
++  Shrink/identical latency is 8/16/24 clocks from acceptance, printed per
++  case. An actual Listener Ready PDU is paused before its packed events
++  and completed just after acceptance, exercising optimistic ACTIVE before
++  the real grant. The suite checks the three-round window, the ACTIVE
++  equation, zero slope while unadmitted, and settled sum/refusal. No state
++  or verdict is forced. The [unit suite](../srp_admission/README.md) covers
++  smaller shapes, rapid changes, both TSpec fields and failing mutants.
+ 
+ Known limits (recorded honestly): the C++ side emulates the TX arbiter
+ and the processor-top header strip (both out of scope here — 03 §8 / 03
+diff --git a/tb/srp_top/sim_main.cpp b/tb/srp_top/sim_main.cpp
+index 4de8db9..e18c0ea 100644
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -307,6 +307,13 @@ struct H {
+   int unreg_cnt[8] = {};
+   int domchg = 0;
+   int malformed = 0;
++  struct Sample {
++    unsigned decl, withdraw, phase, grants, active, opt, round, tk_decl, listener;
++    uint32_t sum;
++    std::vector<uint32_t> slopes;
++  };
++  bool recording = false;
++  std::vector<Sample> samples;
+ 
+   explicit H(Vsrp_top_wrap* dd) : d(dd) {}
+ 
+@@ -315,6 +322,8 @@ struct H {
+   // Returns the decoder's ready as sampled in the low phase.
+   bool step() {
+     d->clk_i = 0; d->eval();
++    unsigned decl = d->dbg_decl_o, withdraw = d->dbg_withdraw_o;
++    unsigned phase = d->dbg_sample_index_o;
+     bool mready = d->mrp_ready_o != 0;
+     for (int k = 0; k < 8; k++) {
+       if ((d->evt_tk_registered_o >> k) & 1)   reg_cnt[k]++;
+@@ -345,6 +354,13 @@ struct H {
+       cur.clear();
+     }
+     d->clk_i = 1; d->eval();
++    if (recording) {
++      Sample sample{decl, withdraw, phase, d->sr_admitted_o, d->active_o,
++                    d->dbg_opt_o, d->dbg_adm_round_o, d->tk_decl_state_o,
++                    d->lstn_reg_state_o, d->sum_slope_bps_o, {}};
++      for (int s = 0; s < 8; ++s) sample.slopes.push_back(granted(s));
++      samples.push_back(sample);
++    }
+     t++;
+     return mready;
+   }
+@@ -353,6 +369,7 @@ struct H {
+   void run_ms(int ms) { idle(ms * MS_CYC); }
+ 
+   void reset() {
++    streaming = false; cur.clear(); q_msrp.clear(); q_mvrp.clear(); archive.clear();
+     d->rst_n = 0;
+     d->own_mac_i = OWN_MAC; d->entity_id_i = EID;
+     d->link_up_i = 0; d->p2p_i = 1; d->cfg_rank_i = 1;
+@@ -494,6 +511,7 @@ class SrpTopHarness {
+     check_peer_leaveall_cadence_stays_bounded();
+     check_received_leaveall_is_routed_per_type();
+     check_admission_sweep_matches_the_model();
++    check_redeclaration_never_publishes_a_stale_slope();
+ 
+     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+     return fails ? 1 : 0;
+@@ -1038,6 +1056,116 @@ class SrpTopHarness {
+     }
+   }
+ 
++  // ==== H. issue #112: current TSpec, every cycle from gate acceptance =====
++  void check_redeclaration_never_publishes_a_stale_slope() {
++    // All eight sampling phases, sources at the start and end of the round.
++    // A real Listener Ready arrives just after each re-declaration resets
++    // the tracker. Only the request and byte-stream ports are driven.
++    for (int s : {0, 1, 7}) {
++      unsigned mask = 1u << s;
++      for (unsigned phase = 0; phase < 8; ++phase) {
++        h.reset(); d->link_up_i = 1; h.idle(40);
++        uint64_t sid = (OWN_MAC << 16) | (0x400 + s);
++        uint64_t da = DA0 + s;
++        auto declare = [&](unsigned mfs) {
++          return h.op(OP_DECL_TK, s, sid, da, 2, mfs, 1);
++        };
++        auto align = [&]() {
++          for (unsigned n = 0; d->dbg_sample_index_o != phase && n < 8; ++n)
++            h.cycle();
++          h.samples.clear(); h.recording = true;
++        };
++        // Cold refusal checks the reset slope as well as re-declaration.
++        align(); auto r = declare(20000); h.idle(64); h.recording = false;
++        bool cold_low = true;
++        for (const auto& x : h.samples) cold_low &= !(x.grants & mask);
++        CHECK(r.got && r.status == ST_OK && cold_low,
++              "H: cold refusal never grants source %d phase %u", s, phase);
++        declare(224); h.idle(64);
++        h.feed(mrpdu_body(true, {Msg{3, 8, true,
++          {Vec{false, 1, fv_sid(sid), {EV_NEW}, {DECL_READY}}}}}), true);
++        CHECK(h.active(s) && (d->sr_admitted_o & mask),
++              "H: previous small declaration is active source %d", s);
++
++        for (unsigned mfs : {20000u, 224u, 224u}) {
++          auto ready = mrpdu_body(true, {Msg{3, 8, true,
++            {Vec{false, 1, fv_sid(sid), {EV_NEW}, {DECL_READY}}}}});
++          // Stop before the packed events, with the FirstValue received.
++          for (size_t i = 0; i < 15;) {
++            d->mrp_valid_i = 1; d->mrp_data_i = ready[i];
++            d->mrp_last_i = 0; d->mrp_msrp_i = 1;
++            if (h.step()) ++i;
++          }
++          d->mrp_valid_i = 0;
++          align();
++          CHECK(d->req_ready_o, "H: service ready for concurrent declaration");
++          d->req_valid_i = 1; d->req_op_i = OP_DECL_TK; d->req_index_i = s;
++          d->req_stream_id_i = sid; d->req_da_i = da; d->req_vid_i = 2;
++          d->req_max_frame_i = mfs; d->req_max_interval_i = 1;
++          h.cycle(); d->req_valid_i = 0;
++          bool response_ok = false;
++          for (size_t i = 15; i < ready.size();) {
++            d->mrp_valid_i = 1; d->mrp_data_i = ready[i];
++            d->mrp_last_i = (i + 1 == ready.size());
++            if (h.step()) ++i;
++            response_ok |= d->rsp_valid_o && d->rsp_status_o == ST_OK;
++          }
++          d->mrp_valid_i = 0; d->mrp_last_i = 0;
++          for (int i = 0; i < 64; ++i) {
++            h.cycle(); response_ok |= d->rsp_valid_o && d->rsp_status_o == ST_OK;
++          }
++          h.recording = false;
++          int accepted = -1, first_grant = -1, accepted_phase = -1;
++          bool current = true, no_early_grant = true, zero_if_refused = true;
++          bool active_equation = true, optimistic_seen = false;
++          unsigned rounds = 0;
++          bool window_correct = true;
++          unsigned previous_round = 0;
++          for (size_t i = 0; i < h.samples.size(); ++i) {
++            const auto& x = h.samples[i];
++            if (x.decl & mask) {
++              accepted = int(i); accepted_phase = int(x.phase);
++              no_early_grant &= !(x.grants & mask);
++              previous_round = 0;
++            }
++            if (accepted < 0) continue;
++            if (int(i) > accepted) rounds += previous_round;
++            previous_round = x.round;
++            window_correct &= bool(x.opt & mask) == (rounds < 3);
++            optimistic_seen |= (x.opt & mask) && (x.active & mask) && !(x.grants & mask);
++            unsigned listener = (x.listener >> (2 * s)) & 3;
++            bool declaring = ((x.tk_decl >> (2 * s)) & 3) == 1;
++            bool expected_active = declaring && listener >= DECL_READY &&
++                                   ((x.opt | x.grants) & mask);
++            active_equation &= bool(x.active & mask) == expected_active;
++            bool grant = x.grants & mask;
++            current &= !grant || (mfs == 224 && x.slopes[s] == slope_bps(mfs, 1));
++            zero_if_refused &= grant || x.slopes[s] == 0;
++            if (grant && first_grant < 0) {
++              first_grant = int(i) - accepted;
++              no_early_grant &= first_grant >= 4 && x.round;
++            }
++          }
++          bool admitted = mfs == 224;
++          CHECK(response_ok && accepted >= 0,
++                "H: real declaration accepted source %d", s);
++          CHECK(current && no_early_grant && zero_if_refused,
++                "H: no stale grant or slope source %d phase %u frame %u", s, phase, mfs);
++          CHECK(admitted ? (first_grant >= 4 && first_grant <= 24) : first_grant == -1,
++                "H: grow has no grant pulse, shrink has bounded grant source %d frame %u latency %d",
++                s, mfs, first_grant);
++          CHECK(window_correct && optimistic_seen && active_equation,
++                "H: ACTIVE and three-round optimistic window source %d phase %u", s, phase);
++          CHECK(d->sum_slope_bps_o == (admitted ? slope_bps(mfs, 1) : 0) &&
++                bool(d->over_limit_o) == !admitted,
++                "H: settled sum and refusal source %d frame %u", s, mfs);
++          printf("LATENCY source=%d request_phase=%u accepted_phase=%d frame=%u cycles=%d\n",
++                 s, phase, accepted_phase, mfs, first_grant);
++        }
++      }
++    }
++  }
++
+   const milan::tb::Model<Vsrp_top_wrap> model;
+   Vsrp_top_wrap* const d;
+   H h;
+diff --git a/tb/srp_top/srp_top_wrap.sv b/tb/srp_top/srp_top_wrap.sv
+index f8e510a..9d39025 100644
+--- a/tb/srp_top/srp_top_wrap.sv
++++ b/tb/srp_top/srp_top_wrap.sv
+@@ -100,11 +100,22 @@ module srp_top_wrap (
+     output logic [3:0]  dbg_vid_active_o,
+     output logic        dbg_vlan_err_o,
+     output logic        dbg_adm_round_o,
++    output wire [7:0]   dbg_decl_o,
++    output wire [7:0]   dbg_withdraw_o,
++    output wire [7:0]   dbg_opt_o,
++    output wire [7:0]   dbg_sample_index_o,
+     output logic        dbg_pdu_done_o,
+     output logic        dbg_pdu_ok_o,
+     output logic        dbg_pdu_malformed_o
+ );
+ 
++  // Read-only probes: acceptance at the real service gate, its optimistic
++  // window, and the free-running slope phase. No forced service state.
++  assign dbg_decl_o = u_dut.adm_invalidate_w & {8{u_dut.a_open_r}};
++  assign dbg_withdraw_o = u_dut.adm_invalidate_w & {8{!u_dut.a_open_r}};
++  assign dbg_opt_o = u_dut.opt_r;
++  assign dbg_sample_index_o = 8'(u_dut.u_admission.cidx_r);
++
+   // time compression: 1 ms = DIV_US x DIV_MS = 40 clk cycles; the 32-slot
+   // sweep (34 cycles) fits inside it (KL_pp_timer_service constraint)
+   localparam int unsigned TB_SLOTS_C  = 32;

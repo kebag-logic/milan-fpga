@@ -1,0 +1,109 @@
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] DECISION (manager), acceptance item 1: the licence also requires the real grant
+
+The talker licence (`crft_emit_en_w` and `lwsrp_stream_gate`) becomes ACTIVE AND the processor's real admission verdict, `sr_admitted_o`, which excludes the optimistic `opt_r` term.
+
+Reasons:
+- **Negligible cost.** The optimistic window is three admission rounds, and a round is `N_SOURCES` cycles of the admission clock. Requiring the real grant delays a stream start by at most that, which is microseconds. Milan's stream-start budgets are orders of magnitude larger.
+- **Real benefit.** A refused re-declaration no longer opens the licence. That removes:
+  - the controller-visible STREAM_START/STREAM_STOP pair;
+  - the Table 5.4 counter reset;
+  - the possible stray PDU.
+
+  It also matches FR-SRP-03's "on failure the stream MUST NOT transmit" without the window exception that #530 had to document.
+- **No duplicated state.** The processor already exports `sr_admitted_o` per source. This is a parent-side gate change only.
+
+Implementation waits for PR #549 (#530) to merge, because it changes the same `milan_datapath.sv` gate. It then follows acceptance items 2 and 3: a simulation of the refused re-declaration shows no licence and no counter pair, with a failing arm (the mutant drops the real-grant term). Docs that describe the window's refused branch (FR_NFR, REGISTER_MAP, EGRESS_QUEUE_MAP, ieee8021q, the CHANGELOG) are updated to the new behaviour.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] ASSIGNMENT [A257]: implement the decision above
+
+Base: dev `59b81670`.
+
+The licence (`crft_emit_en_w` and every `lwsrp_stream_gate` consumer) becomes ACTIVE AND `sr_admitted_o` (the real grant) per source.
+
+Acceptance:
+- A simulation stages a re-declaration that the admission ceiling refuses. It shows no licence, no STREAM_START/STREAM_STOP pair, no counter reset and no PDU.
+- Mutants that drop the real-grant term must fail it.
+- The admitted case still streams, and the added start latency is measured and stated.
+- Docs describing the refused branch are updated to the new behaviour: FR_NFR, REGISTER_MAP, EGRESS_QUEUE_MAP, ieee8021q, the CHANGELOG, and the `milan_datapath.sv` comments.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A257] TAKEN
+Branch: 551-licence-real-grant, supplied at dev 59b816708852472da6ed4576386c30ebd5f8f839.
+Authoritative references: the manager decision and assignment above; FR-SRP-03; Milan Section 5.3.7.7 Table 5.4.
+Interpreted scope: require ACTIVE and the real per-source admission grant at every parent talker licence; cover refused re-declaration and admitted start latency; update the specified contract documents.
+Validation plan: focused milan_dp licence simulation, grant-removal mutants, default milan_dp sweep, and the assigned documentation/source/style gates.
+Executor: [A257]. Independent review: manager to assign after this author handoff.
+Blockers: none. The assignment settles scope; the stale Backlog card has been moved to In progress. Local commits and a review-ready issue comment only; no push or PR changes.
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A257] REVIEW READY
+
+Commit: `4eca4540d6a278aeb56687029d752bade6e714e3` (local branch `551-licence-real-grant`, based on `59b816708852472da6ed4576386c30ebd5f8f839`).
+
+Changed: every parent CRF/AAF licence now requires ACTIVE AND the real per-source admission grant. The refused-branch comments and FR_NFR, REGISTER_MAP, EGRESS_QUEUE_MAP, ieee8021q and CHANGELOG are updated.
+
+Acceptance evidence: the focused licence simulation passes 253 checks. Both sources and both admission phases exercise a ceiling-refused re-declaration: optimistic ACTIVE rises, the real grant stays low, and no licence, STREAM_START/STREAM_STOP pair, interval-counter reset or PDU occurs. Matching admitted cases stream. Added start latency is 2/1 cycles for AAF and 0/1 for CRF at the two round phases; ordinary Listener Ready adds 0. This is 0--20 ns at the leg's 100 MHz admission clock, or 0--40 ns for those cycles at 50 MHz.
+
+The fixture stages a pending processor service tuple, then supplies Listener Ready through the real MAC decoder. It does not force the admission verdict, registrar, ACTIVE or licence. Nonzero interval-counter histories make unintended resets visible.
+
+Validation (all commands run without pipelines):
+
+- `make -C tb/verilator/milan_dp crflic VERILATOR_JOBS=8`: rc 0, 253 checks, 0 failures.
+- `make -C tb/verilator/milan_dp crflic-mutants VERILATOR_JOBS=8`: rc 0, 7/7 checks; all six mutants caught by named assertions, including three dropping the real grant.
+- `make -C tb/verilator/milan_dp VERILATOR_JOBS=8`: rc 0; all 13 simulation legs pass, plus the built-in render campaign (6/6 checks).
+- `python3 scripts/docs_check.py`: rc 0 in both git and filesystem inventory modes. The latter uses an absent `GIT_DIR` and reports `filesystem walk (no git)`.
+- `python3 scripts/check_em_dash.py --base 59b816708852472da6ed4576386c30ebd5f8f839`: rc 0.
+- `python3 scripts/check_doc_style.py`, `python3 scripts/gen_toc.py --check`, `python3 scripts/check_doc_paths.py`: rc 0.
+- `python3 scripts/xvlog_gate.py --check`: rc 0; 0 first-party findings, 4 unchanged pinned-processor findings at the ratchet.
+- `python3 scripts/check_rtl_source_lists.py`, `python3 scripts/check_cpp_idiom.py`, `python3 scripts/check_py_idiom.py`: rc 0.
+- Additional house-style/lint checks: `python3 scripts/check_sv_idiom.py`, `python3 scripts/lint_rtl.py --check`: rc 0.
+- `git diff --check`: rc 0.
+
+HANDOFF.md contains file:line changes, test/mutant/gate tables, fixture limits and local log names. PR-BODY.md is prepared in the assigned output directory. No push, PR change, merge or hardware action was performed.
+
+Open risks/questions: independent review and subsequent publication/merge gates remain pending with the manager; no implementation blocker.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] DECISION (manager) on R296-1 F1 = R297-1 F1: fix the stale grant where it is owned
+
+Both reviews show that `sr_admitted_o` is not a trusted verdict in the first admission round after a re-declaration: the slope pipeline still holds the previous TSpec. A refused re-declaration therefore keeps about one round of licence.
+
+The fix belongs to the processor, which owns the admission verdict: Mister-M-alt/protocol-processor-control-plane-avb-milan#112. After a (re)declaration, the grant stays low until the new TSpec has been evaluated. No new port. This follows option (a) of both findings. A parent-side delay would have to mirror the processor's round timing, and that is not allowed.
+
+Sequence:
+1. The processor fix (#112) merges.
+2. A parent processor-pin PR adopts processor main: #92, #93 and #94 already merged, plus #112, and #43/#49 if merged by then.
+3. #553 then merges dev and adds the unwarmed-pipeline fixture: the refused TSpec differs from the source's previous one. That fixture shows no licence pulse, and the docs' "cannot open" claims become true.
+
+Meanwhile the next #553 round fixes the findings that do not depend on it:
+- F2 (both reviews): the BDD scenario pins ACTIVE AND the real grant.
+- F3: the generator output (my commit `0bf22c93`) is re-checked.
+- F4 (both reviews): the Q-9/Q-10 module mapping, status mark, caveat and rationale are restored; Q-9 claims only what `crflic` shows; the remaining ACTIVE-only descriptions are corrected.
+- The latency statement covers the 4-cycle case R296-1 measured.
+
+--
