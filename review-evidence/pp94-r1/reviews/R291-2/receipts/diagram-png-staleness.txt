@@ -1,0 +1,14 @@
+# Diagram export staleness at exact head (base 008edbbf -> head cc077a6f)
+20-rtl-dataflow.svg base=68f60d0e30689214fc611a07146b72d3ca8c2155 head=8791e7152f16a2f682174697c92707d4dcd24858 CHANGED
+20-rtl-dataflow.png base=cd2525f5d9d2178e7d506495b1d6c7e56de3e61c head=cd2525f5d9d2178e7d506495b1d6c7e56de3e61c UNCHANGED
+22-aecp-descriptor-fetch.svg base=d71e87b4da8c9cf0735910bac7a4ac9b2a8137ec head=2f25086d6f4c1876083f2086220e44b2105eed5f CHANGED
+22-aecp-descriptor-fetch.png base=abe76f523c0ac3f6ad4dcdace2ac9e36bde322cd head=abe76f523c0ac3f6ad4dcdace2ac9e36bde322cd UNCHANGED
+
+# PNG commits on the base line (practice of re-rendering the committed PNG when its SVG changes)
+f8d30ec 2026-09-24 Render the dataflow diagram's PNG again now that it shows the admission gate and the manager arbiter (#92, #93)
+2ca216e 2026-08-13 Keep the PNG renders beside the SVG sources so a wiki can show them without a renderer
+
+# Committed-PNG content check: text removed from the head SVG still appears only in the (base) PNG render
+head SVG occurrences of "req_ready tied 0 is LEGAL": 0
+base SVG occurrences: 1
+Visual comparison: receipts/renders/*.head.png (rsvg-convert -w 1500 of the head SVGs) vs docs/diagrams/*.png at head (base content, no guard).

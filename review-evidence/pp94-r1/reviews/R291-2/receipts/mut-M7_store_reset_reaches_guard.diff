@@ -1,0 +1,11 @@
+--- $REVIEWS/pp94-r291-2-packet/scratch/tree/tb/desc_mem_guard/wrap.sv	2026-09-24 11:55:35.000000000 +0200
++++ $REVIEWS/pp94-r291-2-packet/scratch/mut/M7tree/tb/desc_mem_guard/wrap.sv	2026-09-24 12:11:20.253000000 +0200
+@@ -75,7 +75,7 @@
+   assign debt_o = 1'b0;
+ `else
+   KL_aecp_desc_mem_guard u_guard (
+-      .clk_i(clk_i), .rst_n(rst_n),
++      .clk_i(clk_i), .rst_n(rst_n && store_rst_n),
+       .s_req_valid_i(unit_i ? unit_req_valid_i : store_req_o),
+       .s_req_ready_o(store_ready_o),
+       .s_req_addr_i(unit_i ? unit_req_addr_i : req_addr_w),

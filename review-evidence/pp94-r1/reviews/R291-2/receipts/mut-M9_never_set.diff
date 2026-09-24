@@ -1,0 +1,11 @@
+--- $REVIEWS/pp94-r291-2-packet/scratch/tree/hdl/aecp/KL_aecp_desc_mem_guard.sv	2026-09-24 11:55:35.000000000 +0200
++++ $REVIEWS/pp94-r291-2-packet/scratch/mut/M9_never_set.sv	2026-09-24 12:11:09.518000000 +0200
+@@ -70,7 +70,7 @@
+     if (!rst_n) begin
+       owed_r <= 1'b0;
+     end else if (m_req_valid_o && m_req_ready_i) begin
+-      owed_r <= 1'b1;
++      owed_r <= 1'b0;
+     end else if (m_rsp_valid_i && m_rsp_ready_o
+                  && (m_rsp_last_i || m_rsp_err_i)) begin
+       owed_r <= 1'b0;

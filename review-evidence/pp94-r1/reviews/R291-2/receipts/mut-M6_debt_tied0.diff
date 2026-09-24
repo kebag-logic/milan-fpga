@@ -1,0 +1,10 @@
+--- $REVIEWS/pp94-r291-2-packet/scratch/tree/hdl/aecp/KL_aecp_desc_mem_guard.sv	2026-09-24 11:55:35.000000000 +0200
++++ $REVIEWS/pp94-r291-2-packet/scratch/mut/M6_debt_tied0.sv	2026-09-24 12:11:09.510000000 +0200
+@@ -77,6 +77,6 @@
+     end
+   end
+ 
+-  assign debt_o = owed_r;
++  assign debt_o = 1'b0;
+ endmodule : KL_aecp_desc_mem_guard
+ `default_nettype wire
