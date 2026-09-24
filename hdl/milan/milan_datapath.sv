@@ -6610,10 +6610,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //!   STREAM_START and a STREAM_STOP a controller reads, the start zeroes
   //!   MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX, and at most one PDU
   //!   per source can leave, if its media event falls in the window.
-  //!   CRFT_CTRL[6]/[7], LWSRP_STATUS[6], [8] for source 0 and the 0x82C
-  //!   talker lobs pulse with it. ACTIVE still needs a registered Listener
-  //!   Ready or Ready Failed, so nothing leaves before one (#530). Whether
-  //!   the licence should also need the real grant is issue #551.
+  //!   CRFT_CTRL[6]/[7] pulse with it for the CRF output and LWSRP_STATUS[8]
+  //!   for source 0; LWSRP_STATUS[6] is |ACTIVE, so it pulses only while no
+  //!   other source is ACTIVE. The snap-latched 0x82C talker window holds
+  //!   the AAF sources only, never the CRF output: its gate bit [3] pulses
+  //!   at every index, its lobs bit [2] only at index > 0, because index
+  //!   0's lobs is source 0's registered Listener level, not ACTIVE. ACTIVE
+  //!   still needs a registered Listener Ready or Ready Failed, so nothing
+  //!   leaves before one (#530). Whether the licence should also need the
+  //!   real grant is issue #551.
   //!
   //!   The processor takes the window so that a declaration is never Talker
   //!   Failed first.
