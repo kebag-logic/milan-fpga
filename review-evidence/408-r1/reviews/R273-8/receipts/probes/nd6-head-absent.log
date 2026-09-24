@@ -1,0 +1,14 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+ACCEPTED: R273-8 N1 shipping firmware unchanged (control)
+REFUSED: R273-8 N6 a lone # inside the #error guard group (skipped by the shipping build)
+    under the arm selection line 209 `#if !defined(MILAN_NVM_CONTRACT) || MILAN_NVM_CONTRACT != 3`: no arm taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the firmware carries 0 #error directive(s) and exactly one is pinned: the saved-state contract check that stops this writer compiling against a generator which does not publish M
+REFUSED: R273-8 N7 a lone # inside the verifier's #else arm
+    the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R273-8 N8 a # followed by a block comment
+    the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R273-8 N9 a # followed by a line comment
+    the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R273-8 N10 a # whose line a splice continues onto an empty line
+    the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+ACCEPTED: R273-8 N11 a # inside a block comment (not a directive; control)
+PROBE DONE: 7 result(s), 0 compiles, 6.4 s

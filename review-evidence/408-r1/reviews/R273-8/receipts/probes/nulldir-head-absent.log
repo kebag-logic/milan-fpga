@@ -1,0 +1,11 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+ACCEPTED: R273-7 N1 shipping firmware unchanged (control)
+REFUSED: R273-7 N2 a lone # at the end of the file, no newline
+    the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R273-7 N3 a lone # line at the end of the file
+    the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R273-7 N4 a lone # line after the first #include
+    the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R273-7 N5 a # then blanks at the end of the file
+    the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+PROBE DONE: 5 result(s), 0 compiles, 5.1 s

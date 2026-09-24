@@ -1,0 +1,109 @@
+{
+ "lexer": {
+  "S1 `%:` split by a splice (ifdef FOO)": [
+   "a",
+   "z"
+  ],
+  "S2 `%:` split by a splice (ifndef FOO)": [
+   "a",
+   "b",
+   "z"
+  ],
+  "S3 `%:` split by a splice with a blank": [
+   "a",
+   "z"
+  ],
+  "S4 byte order mark then #ifdef FOO on line 1": [
+   "z"
+  ],
+  "S5 `%:` split by a splice, #define FOO": [
+   "b",
+   "z"
+  ],
+  "S6 corpus control: a form feed before #": [
+   "a",
+   "z"
+  ]
+ },
+ "cases": [
+  {
+   "label": "C0 shipping firmware unchanged (must be ACCEPTED)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "C1 struct-overlay store to ADP_CTRL, unconditional",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "C2 same store in a plain `#ifdef CSR_UART_BASE` arm (product-only)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "C3 same store, `#ifdef CSR_UART_BASE` behind a form feed (R272 F1 shape)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "C4 same store, plain `%:ifdef` digraph (kept ban)",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "H1 same store, `%:` digraph SPLIT BY A SPLICE, #ifdef CSR_UART_BASE",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "H2 same store, split digraph, #ifndef MILAN_CENSUS_SOC",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "H3 same store, split digraph with a blank before the newline",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "C5 `0 &&` in the verdict test under a plain #ifdef CSR_UART_BASE",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "H4 `0 &&` in the verdict test under a split-digraph #ifdef CSR_UART_BASE",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 1396): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "C6 second #define of MILAN_ID_MAGIC as a fresh read (plain `#`)",
+   "verdict": "REFUSED",
+   "reason": "#define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition"
+  },
+  {
+   "label": "H5 same second definition spelled with a split `%:` digraph",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "H6 split-digraph #undef + #define retargeting MILAN_ADP_EID_LO to ADP_CTRL",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "B1 a byte order mark before the first line, nothing else",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none"
+  },
+  {
+   "label": "B2 a byte order mark, then `#include <string.h>` on line 1",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none"
+  }
+ ],
+ "baseline_census_ran": false,
+ "lexer_note": "1846/1846 directive spellings (79 fixed, 1767 generated) read as the pinned GCC recorded them; NOT re-measured, since no RV32 compiler answers here",
+ "mode": "absent",
+ "compiler_invocations": 0
+}

@@ -1,0 +1,18 @@
+SDK argv: ["<packet>/scratch/sdk/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<packet>/scratch/sdk/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<packet>/scratch/sdk/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<packet>/scratch/sdk/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<packet>/scratch/sdk", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "<packet>/scratch/sdk/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<packet>/scratch/sdk/bin/toolchain-wrapper", "sysroot": "<packet>/scratch/sdk/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=<home>/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+ACCEPTED: R273-7 N1 shipping firmware unchanged (control)
+REFUSED: R273-7 N2 a lone # at the end of the file, no newline
+    the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R273-7 N3 a lone # line at the end of the file
+    the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R273-7 N4 a lone # line after the first #include
+    the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R273-7 N5 a # then blanks at the end of the file
+    the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+PROBE DONE: 5 result(s), 135 compiles, 15.5 s

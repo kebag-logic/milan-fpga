@@ -1,0 +1,380 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 0,
+ "seconds": 107.2,
+ "results": [
+  {
+   "label": "R272 r1 plain #: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 form feed: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 vertical tab: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 plain #: product-only paged-base cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 plain #: product-only literal-address cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 plain #: product-only lui asm store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 31 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R272 r1 plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 31 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, arm 2 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R272 r1 form feed: product-only paged-base cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 form feed: product-only literal-address cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 form feed: product-only lui asm store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r1 form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 31 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R272 r1 form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 31 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, arm 2 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R272 r2 control: form feed arm around a SPELLED milan_write enable in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R272 r2 NUL byte before #: product-only literal-address cast store in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r2 unterminated-quote defines around a product-only literal-address cast store in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware opens a literal that no quote closes on its line (line 1499): GCC ends it at the end of that line with only a warning, which is not what a quote there is written to mean"
+  },
+  {
+   "label": "R272 r2 unterminated-quote defines around a product-only `0 &&` in the choke point verdict test",
+   "verdict": "REFUSED",
+   "reason": "the firmware opens a literal that no quote closes on its line (line 1395): GCC ends it at the end of that line with only a warning, which is not what a quote there is written to mean"
+  },
+  {
+   "label": "R272 r2 form feed: product-only literal-address cast store inside configure_fabric() (a boot-path body)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r3 identity forged through a plain function-like macro",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r3 identity forged through a token-joining splice of the local's name",
+   "verdict": "REFUSED",
+   "reason": "a backslash-newline JOINS two tokens inside the boot entry point (line 1442): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two"
+  },
+  {
+   "label": "R272 r3 identity forged through a ## paste of the local's name",
+   "verdict": "REFUSED",
+   "reason": "a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+  },
+  {
+   "label": "R272 r3 plain #: product-only struct-overlay store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r3 form feed: product-only struct-overlay store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H1 function pointer to milan_write built by a SPLICE, called from a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H2 function pointer to milan_write built by a PASTE, called from a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H3 second choke-point call built by a SPLICE, in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H4 verdict overwritten by a PASTE between the verifier and the choke point",
+   "verdict": "REFUSED",
+   "reason": "a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+  },
+  {
+   "label": "R273 H5 verdict overwritten by a SPLICE between the verifier and the choke point",
+   "verdict": "REFUSED",
+   "reason": "a backslash-newline JOINS two tokens inside the boot entry point (line 1453): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two"
+  },
+  {
+   "label": "R273 H11 store through milan_reg() built by a PASTE, in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_ID)",
+   "verdict": "REFUSED",
+   "reason": "#define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition"
+  },
+  {
+   "label": "R273 H7 second #define of MILAN_ID_MAGIC as the sample itself",
+   "verdict": "REFUSED",
+   "reason": "#define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition"
+  },
+  {
+   "label": "R273 H8 verifier QSPI-slot group with its #else arm deleted",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H9 verifier #else behind a lone CR, its hidden arm returning 1",
+   "verdict": "REFUSED",
+   "reason": "AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary"
+  },
+  {
+   "label": "R273 H10 product-only 0 && in the choke point's verdict test",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H12 the same product-only 0 && with its directives behind lone CRs",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H13 the same product-only 0 && with its directives behind form feeds",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 H14 pre-AEM ADP clear behind a lone-CR #ifndef (census keeps it, product drops it)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1367 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, no arm taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image is verified"
+  },
+  {
+   "label": "R273 H15 a LINK named init.h beside the firmware to a file outside",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V1a form feed before #: product-only literal-address cast store in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V1b vertical tab before #: the same store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V1c NUL before #: the same store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V1d lone CR before #: the same store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V1e form feed before #: product-only lui/sw asm store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V1f control: plain # product-only literal cast store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V2a identity local forged by a SPLICE between the read and the guard",
+   "verdict": "REFUSED",
+   "reason": "a backslash-newline JOINS two tokens inside the boot entry point (line 1442): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two"
+  },
+  {
+   "label": "R273 V2b identity local forged by a PASTE between the read and the guard",
+   "verdict": "REFUSED",
+   "reason": "a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+  },
+  {
+   "label": "R273 V2c identity local forged by a plain function-like macro",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V4 unterminated character literals in two #defines bracketing a product-only literal-address store",
+   "verdict": "REFUSED",
+   "reason": "the firmware opens a literal that no quote closes on its line (line 1499): GCC ends it at the end of that line with only a warning, which is not what a quote there is written to mean"
+  },
+  {
+   "label": "R273 E2 an #elif arm only the product takes enabling ADP before AEM",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1384 `#if defined(MILAN_A)`: arm 2 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R273 E3 nested groups, the inner arm enabling ADP before AEM",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1384 `#ifdef MILAN_A`: MILAN_A defined, arm 1 of 1 taken; line 1385 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R273 E5 #if 0 around an enable before AEM",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1384 `#if 0`: arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "R272 r4 a debug helper defined under #ifdef MILAN_DEBUG_TOD and called under a second #ifdef MILAN_DEBUG_TOD in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r4 control: the same debug printf in ONE #ifdef in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272 r4 a debug-only static counter declared under #ifdef and incremented under a second #ifdef of the same macro",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V3a correlated conditionals: debug helper defined and called under two #ifdef MILAN_DEBUG_TOD",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 V3b correlated conditionals: debug counter declared and incremented under two #ifdef MILAN_DEBUG_TOD",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC1 an #ifdef around a debug printf INSIDE milan_init()",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC2 a benign statement in an arm the census tree drops, inside configure_fabric()",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC3 an #ifdef/#else choosing a #define, read in a UART command handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC4 a ## token paste building a call outside the boot path",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC5 a token-joining backslash-newline inside a macro body",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC6 a read-only #define accessor over milan_read()",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC7 a fifth cast to a pointer, resolving outside the window",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC8 a fifth store through a pointer, resolving outside the window",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC9 parse_u64() and seconds_to_ns() exchanged",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC10 a fifth inline-asm statement, a fence in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 ACC11 a README and a notes.txt beside the firmware",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 E1 #if/#elif/#else debug printfs after the choke-point call",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 E4 #if 0 around a benign statement",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R273 E6 four independent groups (16 selections, at the bound)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "R272-limit form feed #undef of ADP_CTRL, redefined onto EID_LO",
+   "verdict": "REFUSED",
+   "reason": "the firmware's preprocessing directives are pinned, and '#undef' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads"
+  },
+  {
+   "label": "R272-limit form feed #pragma",
+   "verdict": "REFUSED",
+   "reason": "the firmware's preprocessing directives are pinned, and '#pragma' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads"
+  },
+  {
+   "label": "R272-limit form feed #include of a second source",
+   "verdict": "REFUSED",
+   "reason": "the firmware's include set is pinned, and \"milan_bringup.c\" is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file"
+  },
+  {
+   "label": "R272-limit _Pragma push_macro / #define / pop_macro around ADP_CTRL",
+   "verdict": "REFUSED",
+   "reason": "the firmware uses the _Pragma operator, outside S (line 31): it is a `#pragma` built from a string, which the `#`-directive scan does not see, so this gate has no rule for what it does; the shipping firmware uses none"
+  }
+ ]
+}

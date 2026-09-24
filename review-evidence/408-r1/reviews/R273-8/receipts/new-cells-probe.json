@@ -1,0 +1,132 @@
+{
+ "intact": {
+  "corpora": {
+   "ok": true,
+   "said": "1846/1846 directive spellings (79 fixed, 1767 generated) read as the pinned GCC recorded them; NOT re-measured, since no RV32 compiler answers here"
+  },
+  "full": {
+   "ok": true,
+   "said": "6440/6440 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 23 positions: 3647 refused by the allowlist (226 of them cells the readers and GCC read differently), 246 by another rule of S, 1 by the readers and the directive-set closure where the pinned GCC keeps code (byte 0x23 at the end of the file, in code), and 2546 read as the "
+  },
+  "misread_full": {},
+  "nine": {
+   "ok": true,
+   "said": "2520/2520 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 9 positions: 1470 refused by the allowlist (43 of them cells the readers and GCC read differently), 32 by another rule of S, 0 by the readers and the directive-set closure where the pinned GCC keeps code (), and 1018 read as the pinned GCC recorded them; NOT re-measured, s"
+  },
+  "misread_nine": {}
+ },
+ "splice-blank+U+00A0": {
+  "corpora": {
+   "ok": true,
+   "said": "1846/1846 directive spellings (79 fixed, 1767 generated) read as the pinned GCC recorded them; NOT re-measured, since no RV32 compiler answers here"
+  },
+  "full": {
+   "ok": false,
+   "said": "gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell U+00A0 between a backslash and the line end in a line comment, 'int a;\\n// c\\\\\\xa0\\n#define FOO\\n#ifdef FOO\\nint b;\\n#endif\\nint z;\\n'): its directive readers keep ('a', 'z') and the pinned GCC 14.3 at -std=gnu99 keeps ('a', 'b', 'z'), so an arm one of them grades is an arm the other compiles, or drops"
+  },
+  "misread_full": {
+   "between a backslash and the line end in a line comment": [
+    "U+00A0 between"
+   ]
+  },
+  "nine": {
+   "ok": true,
+   "said": "2520/2520 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 9 positions: 1470 refused by the allowlist (43 of them cells the readers and GCC read differently), 32 by another rule of S, 0 by the readers and the directive-set closure where the pinned GCC keeps code (), and 1018 read as the pinned GCC recorded them; NOT re-measured, s"
+  },
+  "misread_nine": {}
+ },
+ "digit-separator-quote": {
+  "corpora": {
+   "ok": true,
+   "said": "1846/1846 directive spellings (79 fixed, 1767 generated) read as the pinned GCC recorded them; NOT re-measured, since no RV32 compiler answers here"
+  },
+  "full": {
+   "ok": false,
+   "said": "gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell byte 0x27 between a digit and a quote, \"int a;\\nint n = 1''2; /* ';\\n#define FOO\\n// */\\n#ifdef FOO\\nint b;\\n#endif\\nint z;\\n\"): its directive readers keep ('a', 'b', 'z') and the pinned GCC 14.3 at -std=gnu99 keeps ('a', 'z'), so an arm one of them grades is an arm the other compiles, or drops"
+  },
+  "misread_full": {
+   "between a digit and a quote": [
+    "byte 0x27",
+    "byte 0x30",
+    "byte 0x31",
+    "byte 0x32",
+    "byte 0x33",
+    "byte 0x34",
+    "byte 0x35",
+    "byte 0x36",
+    "byte 0x37",
+    "byte 0x38",
+    "byte 0x39"
+   ]
+  },
+  "nine": {
+   "ok": true,
+   "said": "2520/2520 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 9 positions: 1470 refused by the allowlist (43 of them cells the readers and GCC read differently), 32 by another rule of S, 0 by the readers and the directive-set closure where the pinned GCC keeps code (), and 1018 read as the pinned GCC recorded them; NOT re-measured, s"
+  },
+  "misread_nine": {}
+ },
+ "closer-tolerates-blanks": {
+  "corpora": {
+   "ok": true,
+   "said": "1846/1846 directive spellings (79 fixed, 1767 generated) read as the pinned GCC recorded them; NOT re-measured, since no RV32 compiler answers here"
+  },
+  "full": {
+   "ok": false,
+   "said": "gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell byte 0x09 between the `*` and `/` of a block comment's closer, 'int a;\\n/* c *\\t/\\n#define FOO\\n/* */\\n#ifdef FOO\\nint b;\\n#endif\\nint z;\\n'): its directive readers keep ('a', 'b', 'z') and the pinned GCC 14.3 at -std=gnu99 keeps ('a', 'z'), so an arm one of them grades is an arm the other compiles, or drops"
+  },
+  "misread_full": {
+   "between the `*` and `/` of a block comment's closer": [
+    "byte 0x09",
+    "byte 0x20"
+   ]
+  },
+  "nine": {
+   "ok": true,
+   "said": "2520/2520 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 9 positions: 1470 refused by the allowlist (43 of them cells the readers and GCC read differently), 32 by another rule of S, 0 by the readers and the directive-set closure where the pinned GCC keeps code (), and 1018 read as the pinned GCC recorded them; NOT re-measured, s"
+  },
+  "misread_nine": {}
+ },
+ "escape-skips-quote": {
+  "corpora": {
+   "ok": true,
+   "said": "1846/1846 directive spellings (79 fixed, 1767 generated) read as the pinned GCC recorded them; NOT re-measured, since no RV32 compiler answers here"
+  },
+  "full": {
+   "ok": false,
+   "said": "gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell byte 0x22 after an escaping backslash in a string literal, 'int a;\\nconst char *s = \"\\\\\"\"; /* \";\\n#define FOO\\n// */\\n#ifdef FOO\\nint b;\\n#endif\\nint z;\\n'): its directive readers keep ('a', 'b', 'z') and the pinned GCC 14.3 at -std=gnu99 keeps ('a', 'z'), so an arm one of them grades is an arm the other compiles, or drops"
+  },
+  "misread_full": {
+   "after an escaping backslash in a string literal": [
+    "byte 0x22"
+   ],
+   "before a string literal's closing quote": [
+    "byte 0x5c"
+   ]
+  },
+  "nine": {
+   "ok": true,
+   "said": "2520/2520 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 9 positions: 1470 refused by the allowlist (43 of them cells the readers and GCC read differently), 31 by another rule of S, 0 by the readers and the directive-set closure where the pinned GCC keeps code (), and 1019 read as the pinned GCC recorded them; NOT re-measured, s"
+  },
+  "misread_nine": {}
+ },
+ "splice-blank-NUL": {
+  "corpora": {
+   "ok": false,
+   "said": "gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (a // comment a splice with a NUL continues over #, 'int a;\\n// c \\\\\\x00\\n#ifdef FOO\\nint b;\\n#endif\\nint z;\\n'): its directive readers keep ('a', 'z') and the pinned GCC 14.3 at -std=gnu99 keeps None, so an arm one of them grades is an arm the other compiles, or drops"
+  },
+  "full": {
+   "ok": false,
+   "said": "gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell byte 0x00 between a backslash and the line end in a line comment, 'int a;\\n// c\\\\\\x00\\n#define FOO\\n#ifdef FOO\\nint b;\\n#endif\\nint z;\\n'): its directive readers keep ('a', 'b', 'z') and the pinned GCC 14.3 at -std=gnu99 keeps ('a', 'z'), so an arm one of them grades is an arm the other compiles, or drops"
+  },
+  "misread_full": {
+   "between a backslash and the line end in a line comment": [
+    "byte 0x00"
+   ]
+  },
+  "nine": {
+   "ok": true,
+   "said": "2520/2520 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 9 positions: 1470 refused by the allowlist (43 of them cells the readers and GCC read differently), 32 by another rule of S, 0 by the readers and the directive-set closure where the pinned GCC keeps code (), and 1018 read as the pinned GCC recorded them; NOT re-measured, s"
+  },
+  "misread_nine": {}
+ }
+}

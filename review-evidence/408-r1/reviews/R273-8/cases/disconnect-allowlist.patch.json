@@ -1,0 +1,18 @@
+[
+ [
+  "        undecoded = _C_S_UNDECODED_RE.search(source)\n",
+  "        undecoded = None  # R273-6 DISCONNECT\n"
+ ],
+ [
+  "        at = 0 if source.startswith(\"\\ufeff\") else -1\n        outside = _C_S_OUTSIDE_RE.search(code) if at < 0 else None\n",
+  "        at, outside = -1, None  # R273-6 DISCONNECT\n"
+ ],
+ [
+  "    subset_note = assert_subset_refuses()\n",
+  "    subset_note = 'DISCONNECTED'\n"
+ ],
+ [
+  "    closure_note = assert_character_closure()\n",
+  "    closure_note = 'DISCONNECTED'\n"
+ ]
+]

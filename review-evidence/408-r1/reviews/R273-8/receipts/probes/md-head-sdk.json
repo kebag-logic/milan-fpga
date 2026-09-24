@@ -1,0 +1,60 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 137,
+ "seconds": 17.2,
+ "results": [
+  {
+   "label": "MD1 literal-address cast store into the CSR window in a UART handler, hidden by U+00B7 in two directive names",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none"
+  },
+  {
+   "label": "MD1a the same store hidden by U+0387",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+0387, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none"
+  },
+  {
+   "label": "MD1b the same store hidden by U+203F",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+203F, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none"
+  },
+  {
+   "label": "MD1c control: the same store hidden by `$` (S refuses)",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells `$` in its code, outside the lexical subset S (line 1500): GCC admits `$` in an identifier and a directive name, so `#if$a` is an unknown directive it ignores in skipped code while the readers here read `#if`; the shipping firmware spells none"
+  },
+  {
+   "label": "MD1p control: the same store, plain",
+   "verdict": "REFUSED",
+   "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]"
+  },
+  {
+   "label": "MD2 identity sample forged in milan_init(), hidden by U+00B7",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+00B7, line 1440): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none"
+  },
+  {
+   "label": "MD3 ADP enable in a UART handler, hidden by U+00B7",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none"
+  },
+  {
+   "label": "MD4 AEM verdict overwritten after the verifier, hidden by U+00B7",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+00B7, line 1454): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none"
+  },
+  {
+   "label": "MD5 benign control: a printf in a UART handler, hidden by U+00B7",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none"
+  },
+  {
+   "label": "MD6 benign control: U+00B7 in a comment only",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  }
+ ]
+}

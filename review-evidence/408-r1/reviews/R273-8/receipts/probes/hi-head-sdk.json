@@ -1,0 +1,55 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 137,
+ "seconds": 17.8,
+ "results": [
+  {
+   "label": "HI1 identity sample forged in milan_init() behind `#if !__has_include(<r273/*none>)`, `*/` behind a //",
+   "verdict": "REFUSED",
+   "reason": "the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1439): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither"
+  },
+  {
+   "label": "HI1q control: the same with the QUOTED header name \"r273/*none\" (a string to the gate)",
+   "verdict": "REFUSED",
+   "reason": "the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1439): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither"
+  },
+  {
+   "label": "HI1p control: the same forgery under a plain `#if 1`",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1439 `#if 1`: arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): CSR identity guard must consume the unmodified MILAN_ID sample: no assignment, increment or pointer write may replace the value between its CSR read and mismatch comparison"
+  },
+  {
+   "label": "HI2 ADP enable in a UART command handler behind the header name",
+   "verdict": "REFUSED",
+   "reason": "the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither"
+  },
+  {
+   "label": "HI2p control: the same enable in the handler, plain",
+   "verdict": "REFUSED",
+   "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "HI3 literal-address cast store into the CSR window in a UART command handler behind the header name",
+   "verdict": "REFUSED",
+   "reason": "the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither"
+  },
+  {
+   "label": "HI3p control: the same store, plain",
+   "verdict": "REFUSED",
+   "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]"
+  },
+  {
+   "label": "HI4 AEM verdict overwritten after the verifier behind the header name",
+   "verdict": "REFUSED",
+   "reason": "the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1453): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither"
+  },
+  {
+   "label": "HI5 benign control: a printf in a UART command handler behind the header name",
+   "verdict": "REFUSED",
+   "reason": "the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither"
+  }
+ ]
+}

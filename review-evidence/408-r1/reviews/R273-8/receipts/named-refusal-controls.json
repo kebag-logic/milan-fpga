@@ -1,0 +1,18 @@
+{
+ "intact": {
+  "ok": true,
+  "said": "6440/6440 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 23 positions: 3647 refused by the allowlist (226 of them cells the readers and GCC read differently), 246 by another rule of S, 1 by the readers and the directive-set closure where the pinned GCC keeps code (byte 0x23 at the end of the file, in code), and 2546 read as the "
+ },
+ "named-emptied": {
+  "ok": false,
+  "said": "gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell byte 0x23 at the end of the file, in code, 'int a;\\n#ifdef FOO\\nint b;\\n#endif\\nint z;\\n#'): its directive readers keep None and the pinned GCC 14.3 at -std=gnu99 keeps ('a', 'z'), so an arm one of them grades is an arm the other compiles, or drops"
+ },
+ "extra-name": {
+  "ok": false,
+  "said": "the closure cell byte 0x61 at the end of the file, in code ('int a;\\n#ifdef FOO\\nint b;\\n#endif\\nint z;\\na') is named as one the readers refuse and GCC keeps code of, and the readers keep ('a', 'z') and GCC ('a', 'z'): re-measure it"
+ },
+ "closure-admits-nameless": {
+  "ok": false,
+  "said": "the directive-set closure refused byte 0x23 at the end of the file, in code: the firmware carries 0 #error directive(s) and exactly one is pinned: the saved-state contract check that stops this writer compiling against a generator which does not publish MILAN_NVM_CONTRACT 3. A second refusal is one this gate has not read"
+ }
+}

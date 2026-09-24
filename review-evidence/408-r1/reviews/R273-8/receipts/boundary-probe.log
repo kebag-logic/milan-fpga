@@ -1,0 +1,33 @@
+     S=ADMITTED                          reader=('a', 'b', 'z') gcc=('a', 'b', 'z')  splice inside a block-comment opener
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  splice inside a block-comment closer
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  splice inside a line-comment opener
+     S=ADMITTED                          reader=None gcc=None  line comment continued by a splice over a directive
+     S=ADMITTED                          reader=None gcc=None  line comment continued by a splice with trailing blanks
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  line comment ended by a lone CR
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  apostrophe after a pp-number (no digit separator in gnu99)
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  apostrophe after a pp-number, then a quote
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  u8 char prefix (not in gnu99)
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  escaped quote then the character
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  backslash-backslash then the quote
+     S=ADMITTED                          reader=('a', 'b', 'z') gcc=('a', 'b', 'z')  string continued by a splice
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  char literal holding a double quote
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  string holding an apostrophe
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  comment opener inside a string
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  string opener inside a comment
+     S=ADMITTED                          reader=('a', 'b', 'z') gcc=('a', 'b', 'z')  quoted include operand holding the character, skipped
+     S=ADMITTED                          reader=('a', 'b', 'z') gcc=('a', 'b', 'z')  apostrophes in an angled include operand, skipped
+     S=ADMITTED                          reader=('#if def, which no corpus entry spells',) gcc=None  the character in a comment inside a directive name gap, live
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  the character in a comment glued to a directive name, skipped
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  the character in a string glued to a directive name, skipped
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  the character in a char literal glued to #endif, skipped
+     S=ADMITTED                          reader=None gcc=None  L prefix glued to a directive name
+     S=ADMITTED                          reader=None gcc=None  U prefix after #endif
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  NEL U+0085 inside a comment before a directive
+     S=ADMITTED                          reader=None gcc=None  U+2028 inside a line comment before a directive
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  U+2029 inside a string before a directive
+     S=ADMITTED                          reader=('a', 'z') gcc=('a', 'z')  right-to-left override inside a comment on a directive line
+     S=ADMITTED                          reader=('z',) gcc=('z',)  U+FEFF inside a comment at offset 0
+     S=REFUSED  SUBSET_CHARACTER_PIN     reader=None gcc=None  U+FEFF as the second character
+     S=REFUSED  SUBSET_CHARACTER_PIN     reader=None gcc=None  two byte-order marks at offset 0
+     S=REFUSED  SUBSET_CHARACTER_PIN     reader=('z',) gcc=('z',)  control: the character in code
+spellings=32 holes=0

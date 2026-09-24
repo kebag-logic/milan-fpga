@@ -1,0 +1,9 @@
+parent intact           corpora=PASS closure=PASS readers on the /*/ text keep ['a', 'z']
+parent closer-from-i+1  corpora=PASS closure=PASS readers on the /*/ text keep ['a', 'b', 'z']
+parent closer-from-i+3  corpora=PASS closure=PASS readers on the /*/ text keep ['a', 'z']
+head   intact           corpora=PASS closure=PASS readers on the /*/ text keep ['a', 'z']
+head   closer-from-i+1  corpora=FAIL closure=PASS readers on the /*/ text keep ['a', 'b', 'z']
+    corpora: gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (a /*/ opener does not close its own block comment, 'int a;\n/*/\n#define FOO\n*/\n#ifdef FOO\nint b;\n#endif\nint z;\n'): its directive readers keep ('a', 'b',
+head   closer-from-i+3  corpora=PASS closure=PASS readers on the /*/ text keep ['a', 'z']
+scope: {'removed_rows': [('a /*/ opener does not close its own block comment', 'int a;\n/*/\n#define FOO\n*/\n#ifdef FOO\nint b;\n#endif\nint z;\n', ('a', 'z'))], 'trees_equal_without_row': True}
+new row on the pinned GCC: {'rc': 0, 'kept': ('a', 'z'), 'stderr': '', 'recorded': ('a', 'z'), 'agrees': True}

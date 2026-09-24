@@ -1,0 +1,14 @@
+$ grep -n "every byte in every position\|every position" sw/builder/test_builder.py docs/integration/BAREMETAL_FIRMWARE.md
+sw/builder/test_builder.py:13830:    #: every positional position and bracket, the parameter behind a
+rc=0
+$ grep -n "\[R272\] F1 on PR #535" docs/integration/BAREMETAL_FIRMWARE.md
+309:| the gnu `$` identifier extension |
+339:  ([R272] F1 on PR #535's round-four
+1369:| A `$` or a universal character na
+1371:| `%:` or `??` in code, and a trigr
+1485:  ([R272] F1 on PR #535 at `a13b6e2
+309:[R272] F1 on PR #535 at `8e12d31f`)
+339:[R272] F1 on PR #535's round-four head)
+1369:[R272] F1 on PR #535 at `8e12d31f`)
+1371:[R272] F1 on PR #535's round-one head)
+1485:[R272] F1 on PR #535 at `a13b6e2e`)

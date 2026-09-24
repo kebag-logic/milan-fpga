@@ -1,0 +1,116 @@
+{
+ "scope": {
+  "removed_rows": [
+   [
+    "a /*/ opener does not close its own block comment",
+    "int a;\n/*/\n#define FOO\n*/\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+    [
+     "a",
+     "z"
+    ]
+   ]
+  ],
+  "trees_equal_without_row": true
+ },
+ "new_row_gcc": {
+  "rc": 0,
+  "kept": [
+   "a",
+   "z"
+  ],
+  "stderr": "",
+  "recorded": [
+   "a",
+   "z"
+  ],
+  "agrees": true
+ },
+ "detection": {
+  "parent/intact": {
+   "corpora": {
+    "ok": true,
+    "said": "1845/1845 directive spellings (78 fixed, 1767 generated) read as the pinned GCC recorded them; NOT re-measured, since no RV32 compiler answers here"
+   },
+   "closure": {
+    "ok": true,
+    "said": "6440/6440 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 23 positions: 3647 refused by the allowlist (226 of them cells the readers and GCC read differently), 246 by another rule of S, 1 by the readers and the directive-set closur"
+   },
+   "readers_on_new_row": [
+    "a",
+    "z"
+   ]
+  },
+  "parent/closer-from-i+1": {
+   "corpora": {
+    "ok": true,
+    "said": "1845/1845 directive spellings (78 fixed, 1767 generated) read as the pinned GCC recorded them; NOT re-measured, since no RV32 compiler answers here"
+   },
+   "closure": {
+    "ok": true,
+    "said": "6440/6440 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 23 positions: 3647 refused by the allowlist (226 of them cells the readers and GCC read differently), 246 by another rule of S, 1 by the readers and the directive-set closur"
+   },
+   "readers_on_new_row": [
+    "a",
+    "b",
+    "z"
+   ]
+  },
+  "parent/closer-from-i+3": {
+   "corpora": {
+    "ok": true,
+    "said": "1845/1845 directive spellings (78 fixed, 1767 generated) read as the pinned GCC recorded them; NOT re-measured, since no RV32 compiler answers here"
+   },
+   "closure": {
+    "ok": true,
+    "said": "6440/6440 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 23 positions: 3647 refused by the allowlist (226 of them cells the readers and GCC read differently), 246 by another rule of S, 1 by the readers and the directive-set closur"
+   },
+   "readers_on_new_row": [
+    "a",
+    "z"
+   ]
+  },
+  "head/intact": {
+   "corpora": {
+    "ok": true,
+    "said": "1846/1846 directive spellings (79 fixed, 1767 generated) read as the pinned GCC recorded them; NOT re-measured, since no RV32 compiler answers here"
+   },
+   "closure": {
+    "ok": true,
+    "said": "6440/6440 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 23 positions: 3647 refused by the allowlist (226 of them cells the readers and GCC read differently), 246 by another rule of S, 1 by the readers and the directive-set closur"
+   },
+   "readers_on_new_row": [
+    "a",
+    "z"
+   ]
+  },
+  "head/closer-from-i+1": {
+   "corpora": {
+    "ok": false,
+    "said": "gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (a /*/ opener does not close its own block comment, 'int a;\\n/*/\\n#define FOO\\n*/\\n#ifdef FOO\\nint b;\\n#endif\\nint z;\\n'): its directive readers keep ('a', 'b', 'z') and the pinned GCC 14.3 at -std=gnu99 keeps ('a', 'z'), so an arm one of them grades is an arm the other compiles, or drops"
+   },
+   "closure": {
+    "ok": true,
+    "said": "6440/6440 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 23 positions: 3647 refused by the allowlist (226 of them cells the readers and GCC read differently), 246 by another rule of S, 1 by the readers and the directive-set closur"
+   },
+   "readers_on_new_row": [
+    "a",
+    "b",
+    "z"
+   ]
+  },
+  "head/closer-from-i+3": {
+   "corpora": {
+    "ok": true,
+    "said": "1846/1846 directive spellings (79 fixed, 1767 generated) read as the pinned GCC recorded them; NOT re-measured, since no RV32 compiler answers here"
+   },
+   "closure": {
+    "ok": true,
+    "said": "6440/6440 character-closure cells, each byte 0 to 255, 20 multi-byte UTF-8 sequences and 4 byte strings that are not UTF-8, in 23 positions: 3647 refused by the allowlist (226 of them cells the readers and GCC read differently), 246 by another rule of S, 1 by the readers and the directive-set closur"
+   },
+   "readers_on_new_row": [
+    "a",
+    "z"
+   ]
+  }
+ }
+}

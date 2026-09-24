@@ -1,0 +1,12 @@
+intact                     corpora=PASS nine=PASS full=PASS  misread positions (full): {}
+splice-blank+U+00A0        corpora=PASS nine=PASS full=FAIL  misread positions (full): {'between a backslash and the line end in a line comment': 1}
+    full: gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell U+00A0 between a backslash and the line end in a line comment, 'int a;\n// c\\\xa0\n#define FOO\n#ifdef FOO\nint b;\n#endif\nint z;\n'): its directive readers keep ('
+digit-separator-quote      corpora=PASS nine=PASS full=FAIL  misread positions (full): {'between a digit and a quote': 11}
+    full: gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell byte 0x27 between a digit and a quote, "int a;\nint n = 1''2; /* ';\n#define FOO\n// */\n#ifdef FOO\nint b;\n#endif\nint z;\n"): its directive readers keep ('a', 'b',
+closer-tolerates-blanks    corpora=PASS nine=PASS full=FAIL  misread positions (full): {"between the `*` and `/` of a block comment's closer": 2}
+    full: gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell byte 0x09 between the `*` and `/` of a block comment's closer, 'int a;\n/* c *\t/\n#define FOO\n/* */\n#ifdef FOO\nint b;\n#endif\nint z;\n'): its directive readers k
+escape-skips-quote         corpora=PASS nine=PASS full=FAIL  misread positions (full): {'after an escaping backslash in a string literal': 1, "before a string literal's closing quote": 1}
+    full: gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell byte 0x22 after an escaping backslash in a string literal, 'int a;\nconst char *s = "\\""; /* ";\n#define FOO\n// */\n#ifdef FOO\nint b;\n#endif\nint z;\n'): its dire
+splice-blank-NUL           corpora=FAIL nine=PASS full=FAIL  misread positions (full): {'between a backslash and the line end in a line comment': 1}
+    corpora: gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (a // comment a splice with a NUL continues over #, 'int a;\n// c \\\x00\n#ifdef FOO\nint b;\n#endif\nint z;\n'): its directive readers keep ('a', 'z') and the pinned GCC 14.3 at -
+    full: gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell byte 0x00 between a backslash and the line end in a line comment, 'int a;\n// c\\\x00\n#define FOO\n#ifdef FOO\nint b;\n#endif\nint z;\n'): its directive readers keep

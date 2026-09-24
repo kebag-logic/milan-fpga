@@ -1,0 +1,10 @@
+R273-8 independent pass, written before reading any prior review finding on PR #535 (2026-09-24).
+Head 062e89ad098806ae5def8341fcb8c2815583ca00, delta from 991d5965.
+- Executable scope: syntax tree of sw/builder/test_builder.py equals the parent's once the one added lexer_corpus row is removed (delta-probe.json).
+- New row `/*/`: pinned GCC keeps (a, z) = recorded; head catches the closer-from-i+1 mutation, parent does not.
+- Gate 1b: SDK 280/280, 0 NOT RUN, 467 compiles; absent 222/222, 1 NOT RUN, 0 compiles; 29/29 + 4/4 accepted edits; 1846/1846 (79 fixed, 1767 generated); 6440/6440 closure cells.
+- Round-five probes re-run unchanged: 348 whole-firmware cases, 0 verdict / 0 pin changes; standalone probes identical modulo the 1845->1846 counter and a +4 line shift.
+- Null directive doc claim: refused in 5 further placements by the gate and by the directive-set closure called directly; a # in a block comment stays accepted.
+- Scoped call-site sentence matches the table (23 positions; corpora elsewhere). The 11 + 1 + 2 split of the fourteen boundaries matches _CLOSURE_POSITIONS.
+Provisional: no BLOCKER/MAJOR/MINOR. SUGGESTIONS: (a) a `/**/` corpus row (closer-from-i+3 passes both corpora and the table); (b) the doc label "comment, literal and directive-line boundaries" omits the file-end-in-code position that the code comment names as "file ends".
+Pending: checking the three finding-reference edits (`8e12d31f`, `a13b6e2e`) against the public review record.
