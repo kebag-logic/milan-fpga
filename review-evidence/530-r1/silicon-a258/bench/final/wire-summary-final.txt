@@ -1,0 +1,42 @@
+file: tap-final.pcap
+tapped records: 1128  host-generated records excluded: 21  tap span: 39.890 s  ports: [2, 3]
+
+== per (tap port, source, kind): count, interval statistics (ms)
+  port 2 (far->DUT) 3c:c0:c6:01:02:03 ACMP                       n=13 median=48.001 min=44.002 max=54.002 mean=48.991
+  port 2 (far->DUT) 3c:c0:c6:01:02:03 ADP                        n=6 median=6117.618 min=5025.974 max=6586.502 mean=5933.031
+      entity 3cc0c60102030000 model 3cc0c60000010101 gptp_gm 3cc0c6fffefe0210 domain 0 interface 0
+  port 2 (far->DUT) 3c:c0:c6:01:02:03 MAAP                       n=1 median=16778.199 min=16778.199 max=16778.199 mean=16778.199
+  port 2 (far->DUT) 3c:c0:c6:fe:02:10 ethertype 0x0800           n=2 median=11405.374 min=7810.644 max=15000.105 mean=11405.374
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 MSRP                       n=10 median=2405.474 min=94.540 max=9900.029 mean=3849.478
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 MVRP                       n=43 median=999.869 min=161.660 max=1002.723 mean=906.983
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 ethertype 0x0027           n=19 median=2000.016 min=1999.683 max=2000.347 mean=2000.015
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Announce              n=39 median=1000.024 min=999.793 max=1010.357 mean=1002.277
+      logMessageInterval [0] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+      GM 3cc0c6fffefe0210 prio1 246 class 248 accuracy 0x20 variance 0x436a prio2 248 stepsRemoved 0 timeSource 0xa0 tlvs [["PathTrace", ["3cc0c6fffefe0210"]]]
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Follow_Up             n=319 median=128.395 min=100.857 max=149.049 mean=125.045
+      logMessageInterval [-3] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+      gmTimeBaseIndicator [0]
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Pdelay_Req            n=39 median=1009.958 min=999.971 max=1019.180 mean=1006.408
+      logMessageInterval [0] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Pdelay_Resp           n=39 median=1000.004 min=999.966 max=1000.020 mean=1000.001
+      logMessageInterval [127] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Pdelay_Resp_Follow_Up n=39 median=1000.002 min=999.961 max=1000.020 mean=1000.001
+      logMessageInterval [127] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Sync                  n=319 median=128.384 min=100.724 max=149.184 mean=125.046
+      logMessageInterval [-3] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+  port 2 (far->DUT) 68:05:ca:95:b2:ed ACMP                       n=17 median=48.010 min=44.065 max=54.013 mean=48.991
+  port 2 (far->DUT) 68:05:ca:95:b2:ed AECP                       n=4 median=0.104 min=0.074 max=0.258 mean=0.135
+  port 2 (far->DUT) 68:05:ca:95:b2:ed ethertype 0x0800           n=3 median=2442.915 min=1999.967 max=4165.522 mean=2869.468
+  port 2 (far->DUT) 68:05:ca:95:b2:ed ethertype 0x86dd           n=7 median=836.702 min=123.255 max=7514.037 mean=1930.774
+  port 3 (DUT->far) 02:00:00:00:00:01 ACMP                       n=3 median=48.010 min=47.998 max=49.998 mean=48.669
+  port 3 (DUT->far) 02:00:00:00:00:01 ADP                        n=5 median=7669.018 min=5588.013 max=8174.020 mean=7018.817
+      entity 020000fffe000001 model 001bc5c40236ba0e gptp_gm 3cc0c6fffefe0210 domain 0 interface 0
+  port 3 (DUT->far) 02:00:00:00:00:01 AECP                       n=4 median=0.086 min=0.082 max=0.157 mean=0.103
+  port 3 (DUT->far) 02:00:00:00:00:01 MAAP                       n=9 median=4102.010 min=3446.008 max=4678.011 mean=4116.343
+  port 3 (DUT->far) 02:00:00:00:00:01 MSRP                       n=46 median=1000.002 min=199.997 max=1000.004 mean=847.828
+  port 3 (DUT->far) 02:00:00:00:00:01 gPTP Pdelay_Req            n=39 median=1000.002 min=1000.002 max=1000.002 mean=1000.002
+      logMessageInterval [0] domain [0] sourcePortIdentity ['020000fffe0000010001']
+  port 3 (DUT->far) 02:00:00:00:00:01 gPTP Pdelay_Resp           n=39 median=1009.958 min=999.971 max=1019.180 mean=1006.408
+      logMessageInterval [127] domain [0] sourcePortIdentity ['020000fffe0000010001']
+  port 3 (DUT->far) 02:00:00:00:00:01 gPTP Pdelay_Resp_Follow_Up n=39 median=1009.958 min=999.971 max=1019.180 mean=1006.408
+      logMessageInterval [127] domain [0] sourcePortIdentity ['020000fffe0000010001']
