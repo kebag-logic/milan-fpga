@@ -1,0 +1,24 @@
+{
+ "name": "R15 band excludes +100 ns",
+ "file": "ucode/gen_gptp_ucode.py",
+ "breaks": "inclusive band upper edge",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL slew: tracking band never asserts got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: tracking band never asserts got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: second pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: idle GM change stays inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: idle GM change has no level edge got 000000000000001f exp 000000000000001e",
+  "FAIL slew: in-band pair after idle GM change stays inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001"
+ ],
+ "tally": [
+  "1588 checks: 1578 PASS, 10 FAIL"
+ ],
+ "index": 14
+}

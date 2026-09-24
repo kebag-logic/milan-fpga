@@ -1,0 +1,16 @@
+{
+ "name": "recorded t1 survives reset",
+ "file": "top/KL_gptp_engine.sv",
+ "breaks": "a t1 measured before a reset cannot pair with a later Follow_Up",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL D3c a pre-reset t1 cannot pair after reset got 0000000000000259 exp 0000000000000000",
+  "FAIL D3d interval 0 keeps its frozen operands moved got 0000000000000000 exp 0000000000000001"
+ ],
+ "tally": [
+  "1586 checks: 1584 PASS, 2 FAIL"
+ ],
+ "index": 8
+}

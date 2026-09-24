@@ -1,0 +1,19 @@
+{
+ "name": "R16 band admits +101 ns",
+ "file": "ucode/gen_gptp_ucode.py",
+ "breaks": "decision at +101 ns",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: high between pairs     got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001"
+ ],
+ "tally": [
+  "1586 checks: 1581 PASS, 5 FAIL"
+ ],
+ "index": 15
+}

@@ -1,0 +1,16 @@
+{
+ "name": "R10 reset keeps the level",
+ "file": "top/KL_gptp_engine.sv",
+ "breaks": "reset clears",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL slew: warm reset clears on its first clock got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: retained scratch cannot revive the level got 0000000000000001 exp 0000000000000000"
+ ],
+ "tally": [
+  "1587 checks: 1585 PASS, 2 FAIL"
+ ],
+ "index": 9
+}

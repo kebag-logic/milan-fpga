@@ -1,0 +1,8 @@
+probe tree ready: scratch/gaptree
+make_gap_tree rc=0
+harness diff lines: 24
+control: {'answer': 'pass', 'tally': ['1609 checks: 1609 PASS, 0 FAIL']}
+reviewer[13] R14 lapse hook arms while inactive: caught first=['FAIL probeA: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000']
+reviewer[01] R02 lapse hook ignores asCapable: pass
+reviewer[06] R07 mastership keeps qualification: caught first=['FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000']
+probe rc=0

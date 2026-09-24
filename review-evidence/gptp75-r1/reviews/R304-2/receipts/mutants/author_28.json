@@ -1,0 +1,15 @@
+{
+ "name": "becoming grandmaster keeps sync-ok",
+ "file": "ucode/gen_gptp_ucode.py",
+ "breaks": "becoming grandmaster clears the sync-ok verdict",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL becoming grandmaster clears sync-ok got 0000000000000008 exp 0000000000000000"
+ ],
+ "tally": [
+  "1586 checks: 1585 PASS, 1 FAIL"
+ ],
+ "index": 28
+}

@@ -1,0 +1,20 @@
+{
+ "name": "slew clears before the replacement rate",
+ "file": "top/KL_gptp_engine.sv",
+ "breaks": "slew: no clear precedes the replacement rate",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: no clear precedes the replacement rate got 0000000000000007 exp 0000000000000000"
+ ],
+ "tally": [
+  "1586 checks: 1581 PASS, 5 FAIL"
+ ],
+ "named_check_failed": true,
+ "index": 2
+}

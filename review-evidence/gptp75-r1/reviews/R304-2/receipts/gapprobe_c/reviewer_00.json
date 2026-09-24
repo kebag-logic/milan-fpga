@@ -1,0 +1,16 @@
+{
+ "name": "X01 asCapable loss arms while inactive",
+ "file": "top/KL_gptp_engine.sv",
+ "breaks": "an inactive asCapable lapse cannot turn tracking into a slew",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL probeC: in-band pair after asCapable recovery stays inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000"
+ ],
+ "tally": [
+  "1605 checks: 1603 PASS, 2 FAIL"
+ ],
+ "index": 0
+}

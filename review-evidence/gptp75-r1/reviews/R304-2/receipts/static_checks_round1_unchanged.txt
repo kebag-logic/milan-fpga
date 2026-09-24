@@ -1,0 +1,31 @@
+== ROM regeneration at 4a897e44243d39945df763d00b96049363a58e78
+$REVIEWS/gptp75-r304-2-packet/scratch/static/rg_ooc.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+$REVIEWS/gptp75-r304-2-packet/scratch/static/rg_ucpu.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+$REVIEWS/gptp75-r304-2-packet/scratch/static/rg_tsngen.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+$REVIEWS/gptp75-r304-2-packet/scratch/static/rg_engine.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+MATCH c496ed8af59edd424e7d980aa3442bb725c745f44469ce53ec3a4d219fa30371 syn/ooc/work/gptp_ucode.hex
+MATCH c496ed8af59edd424e7d980aa3442bb725c745f44469ce53ec3a4d219fa30371 tb/verilator/ucpu/gptp_ucode.hex
+MATCH bb2f541e315e0f2a8a6fbeaed89bd8ab801618f0d9574e8b99747b6a610b0d47 tb/tsngen/gptp_ucode.hex
+MATCH 71f8606bb1e0bd635188bbf39d2d3eac399296b00a14a7fa1ab641c79e7d74a0 tb/verilator/engine/gptp_ucode.hex
+== SOURCE_EVIDENCE.md KL_gptp_engine.sv anchors (base line text -> head)
+L20 EXACT :: base='//                  0  message bank      RO  (parser-written, PING-PONG' head='//                  0  message bank      RO  (parser-written, PING-PONG'
+L58 STALE(now at line 59) :: base='  import gptp_ucpu_pkg::*;' head='module KL_gptp_engine'
+L100 STALE(now at line 57 66 74 81 96 101 110 125 131 138 159 178 191 198 217 226 233 241 251 311 336 351 375 384 399 421 425 430 448 450 474 477 478 495 497 501 511 520 544 555 562 601 624 671 696 701 762 776 821 836 840 953 962 972 991 993 1004) :: base='' head='    input  wire         tx_credit_i,'
+L109 STALE(now at line 113) :: base='    output logic [63:0] pub_parent_id_o,' head='    output logic        phc_slew_active_o,'
+L124 STALE(now at line 128) :: base='    output logic  [7:0] eff_nvm_mark_o,' head='    output logic        pub_commit_o,'
+L160 STALE(now at line 164) :: base='      .rx_data_i    (rx_data_i),' head='  KL_gptp_rx_parser u_parser ('
+L240 STALE(now at line 244) :: base='  initial begin : ram_poweron' head='  logic t1v_valid_r, pdwait_valid_r;'
+L343 STALE(now at line 347) :: base='  logic  [3:0] txts_pend_gen_r;' head='  logic        txts_pend_r;'
+L349 STALE(now at line 253 353 452 564 778) :: base='    if (!rst_n) begin' head='  assign txts_ready_o  = !txts_pend_r && rst_n;'
+L385 STALE(now at line 389) :: base='      .clk_i          (clk_i),' head='  KL_gptp_timer #('
+L405 STALE(now at line 409) :: base='  //! event queue's write/read pointers; non-Pdelay slots are don't-care.' head='  logic [39:0] evq_r [0:3];'
+L432 STALE(now at line 436) :: base='    ann_reject_w = pev_valid_w &&' head='  always_comb begin : push_arb'
+L929 STALE(now at line 968) :: base='  assign pub_annq_o      = pub_annq_r;' head='              2'd2: begin'
+L934 STALE(now at line 973) :: base='  // ------------------------------------------------------------ TX slot' head='              2'd3: begin'
+== SOURCE_EVIDENCE.md changed by the PR?
+changed
+rc=0
