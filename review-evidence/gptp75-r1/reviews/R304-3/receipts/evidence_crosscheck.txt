@@ -1,0 +1,26 @@
+# R304-3 evidence crosscheck: docs/MANAGER.md:35-52 vs published reports
+# source: kebag-logic/milan-fpga branch gptp75-review-evidence; 4999d8d6 (author/) is an ancestor of 26975a0c (author-r3/)
+author_baseline-engine_util.rpt sha256=5804341bb2ba1a705338e929b601e6cb10adef01b89ca7306a4c9faa60ffdbbe date=Thu_Sep_24_17:06:23_2026  Slice LUTs* =4773; LUT as Memory =466; Slice Registers =3646; Block RAM Tile =1.5; DSPs =4;
+author_candidate-engine_util.rpt sha256=bb1b7dfe4ce660dedbc27cac4aa48f9eed7ab65ecaf0752f1a5eefb32621e8d2 date=Thu_Sep_24_17:17:40_2026  Slice LUTs* =4853; LUT as Memory =466; Slice Registers =3652; Block RAM Tile =1.5; DSPs =4;
+author-r3_engine_util.rpt sha256=efb38da4566a55ff4e9a4a1870d30f2cc0e3db2c2dd524a7853eda729e97fe2e date=Thu_Sep_24_20:53:30_2026  Slice LUTs* =4853; LUT as Memory =466; Slice Registers =3652; Block RAM Tile =1.5; DSPs =4;
+author-r3_ucpu_util.rpt sha256=ae0049425008ab9d863989fbc7e909aac92a2818ba87380f374f8fc3b22b63cc date=Thu_Sep_24_20:52:37_2026  Slice LUTs* =1643; LUT as Memory =132; Slice Registers =733; Block RAM Tile =1.5; DSPs =4;
+author_baseline-engine_timing.rpt sha256=b5cb968eded1264517ba72555c87af165afab892dc64c4576988c0f70d524ca8 WNS=2.249 All user specified timing constraints are met. | | Design : KL_gptp_engine
+author_candidate-engine_timing.rpt sha256=ecac00cb8724a5263529f05f8d14bfc483d7b127015681f5eccc96dd0680ac1c WNS=1.773 All user specified timing constraints are met. | | Design : KL_gptp_engine
+author-r3_engine_timing.rpt sha256=f20017417d08cfc688e320e57c5b2550f6653aa5f9646c5adff2c57e05db3bda WNS=1.773 All user specified timing constraints are met. | | Design : KL_gptp_engine
+author-r3_ucpu_timing.rpt sha256=cb1a85f3a1b66d5df4d3f75c07ae7b57eb8ad180def4c0a87b42f08be8db462c WNS=1.941 All user specified timing constraints are met. | | Design : KL_gptp_ucpu
+author/area.json: {"baseline":{"SliceLUTs*":4773.0,"SliceRegisters":3646.0,"LUTasMemory":466.0,"BlockRAMTile":1.5,"DSPs":4.0},"candidate":{"SliceLUTs*":4853.0,"SliceRegisters":3652.0,"LUTasMemory":466.0,"BlockRAMTile":1.5,"DSPs":4.0},"delta":{"SliceLUTs*":80.0,"SliceRegisters":6.0,"LUTasMemory":0.0,"BlockRAMTile":0.0,"DSPs":0.0}}
+engine_ooc.tcl part/clock: xc7a100tfgg484-2 period=period 10.000
+MANAGER.md claims:
+Measurements used Vivado 2026.1.
+The target was `xc7a100tfgg484-2` at 100 MHz.
+Measurements finished on 2026-09-24 for PR #76.
+| Block | LUTs | Registers | BRAM tiles | DSPs | WNS |
+|---|---:|---:|---:|---:|---:|
+| Complete engine | 4,853 | 3,652 | 1.5 | 4 | +1.773 ns |
+| Standalone microCPU | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
+These figures describe one synthesis instrument.
+PR #76 adds 80 LUTs and six registers.
+The baseline used 4,773 LUTs and 3,646 registers.
+Memory LUTs remain 466; BRAM and DSP usage stay unchanged.
+WNS moves from +2.249 ns; timing remains met.
+The [PR measurement reports](https://github.com/kebag-logic/milan-fpga/tree/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author) record the comparison.

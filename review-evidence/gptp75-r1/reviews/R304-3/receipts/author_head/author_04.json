@@ -1,0 +1,18 @@
+{
+ "name": "slew idle asCapable loss arms qualification",
+ "file": "top/KL_gptp_engine.sv",
+ "breaks": "slew: in-band pair after asCapable recovery stays inactive",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL slew: in-band pair after asCapable recovery stays inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: idle capability recovery pairs have no level edge got 000000000000001e exp 000000000000001c"
+ ],
+ "tally": [
+  "1614 checks: 1611 PASS, 3 FAIL"
+ ],
+ "named_check_failed": true,
+ "index": 4
+}

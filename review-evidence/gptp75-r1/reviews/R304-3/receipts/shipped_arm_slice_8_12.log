@@ -1,0 +1,9 @@
+slice [8:12] of 33 shipped mutants
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: result tag taken without an accepted beat - breaks "the accepted result keeps its own tag and outcome until its dispatch"
+[PASS] mutant caught: recorded t1 survives reset - breaks "a t1 measured before a reset cannot pair with a later Follow_Up"
+[PASS] mutant caught: byte face advances without ready - breaks "a stalled byte, including the final one, waits for an accepted transfer"
+[PASS] mutant caught: lost t1 fabricates a time and a companion - breaks "a lost result writes no time and completes no exchange"
+
+5 checks: 5 PASS, 0 FAIL
+slice [8:12] rc=0

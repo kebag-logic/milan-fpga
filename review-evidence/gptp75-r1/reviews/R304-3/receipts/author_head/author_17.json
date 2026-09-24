@@ -1,0 +1,15 @@
+{
+ "name": "credit gate removed from the Pdelay_Req leg",
+ "file": "ucode/gen_gptp_ucode.py",
+ "breaks": "a Pdelay_Req beat is postponed while the transmit path has no credit",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL D4 Pdelay_Req beats are withheld got 0000000000000001 exp 0000000000000000"
+ ],
+ "tally": [
+  "1613 checks: 1612 PASS, 1 FAIL"
+ ],
+ "index": 17
+}
