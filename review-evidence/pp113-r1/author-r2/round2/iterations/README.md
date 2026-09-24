@@ -1,0 +1,1 @@
+Pre-commit development run: the longer sequence expired the peer that was not being refreshed. The committed test adds response-graded unchanged peer refreshes and discovery. The current-head run is recorded in ../focused-live-peers.json and ../focused-live-peers.log.

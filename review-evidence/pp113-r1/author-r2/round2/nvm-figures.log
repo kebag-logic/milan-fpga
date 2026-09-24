@@ -1,0 +1,66 @@
+make: Entering directory '$LANES/pp113-latency-notify/tb/nvm_port'
+46 Verilator builds: 1 baseline + 12 arms + 22 mutations + 6 models + 5 matrix
+baseline: 136 checks, 136 PASS, 0 FAIL
+
+arm coverage (measured vs README):
+  [ok ]  222 S_WEREQ    measured=0    readme=0
+  [ok ]  231 S_WEWAIT   measured=76   readme=76
+  [ok ]  241 S_WWREQ    measured=0    readme=0
+  [ok ]  251 S_WHPUMP   measured=64   readme=64
+  [ok ]  264 S_WDPUMP   measured=52   readme=52
+  [ok ]  274 S_WWAIT    measured=39   readme=39
+  [ok ]  285 S_RHREQ    measured=2    readme=2
+  [ok ]  295 S_RHCOLL   measured=43   readme=43
+  [ok ]  313 S_RHWAIT   measured=38   readme=38
+  [ok ]  340 S_RPREQ    measured=0    readme=0
+  [ok ]  350 S_RPPUMP   measured=71   readme=71
+  [ok ]  360 S_RPWAIT   measured=26   readme=26
+
+mutations and probes (measured vs README):
+  [ok ] M1               measured=24   readme=24
+  [ok ] M1-sibling       measured=5    readme=5
+  [ok ] M2               measured=8    readme=8
+  [ok ] M3               measured=105  readme=105
+  [ok ] M4               measured=52   readme=52
+  [ok ] M5               measured=39   readme=39
+  [ok ] M6               measured=6    readme=6
+  [ok ] M6-sibling       measured=5    readme=5
+  [ok ] probe-armearly   measured=1    readme=1
+  [ok ] probe-nodevice   measured=3    readme=3
+  [ok ] probe-t18        measured=3    readme=3
+  [ok ] done_seen_r/coincident measured=105  readme=105
+  [ok ] done_seen_r/pristine measured=9    readme=9
+  [ok ] own-states-dropped measured=6    readme=6
+  [ok ] own-minus-rhcoll measured=3    readme=3
+  [ok ] own-minus-wwait  measured=0    readme=0
+  [ok ] own-plus-rhreq   measured=1    readme=1
+  [ok ] C1               measured=10   readme=10
+  [ok ] C2               measured=4    readme=4
+  [ok ] C3               measured=6    readme=6
+  [ok ] C4               measured=1    readme=1
+  [ok ] retraction       measured=2    readme=2
+
+device models (measured vs README):
+  [ok ] pristine                   measured=136 PASS, 0 FAIL  readme=(136, 0)
+  [ok ] half-page                  measured=136 PASS, 0 FAIL  readme=(136, 0)
+  [ok ] half-page                  measured=136 PASS, 0 FAIL  readme=(136, 0)
+  [ok ] page-buffered NOR          measured=136 PASS, 0 FAIL  readme=(136, 0)
+  [ok ] lazy erase                 measured=135 PASS, 1 FAIL  readme=(135, 1)
+  [ok ] lazy erase + page-buffered measured=135 PASS, 1 FAIL  readme=(135, 1)
+  [ok ] coincident completion      measured=136 PASS, 0 FAIL  readme=(136, 0)
+
+pre-fix matrix (measured vs README), 5 builds:
+  [ok ] T16 byte comparison                measured=pass FAIL FAIL FAIL FAIL
+  [ok ] T17 restore vs the record          measured=pass FAIL FAIL pass FAIL
+  [ok ] T17 restore vs the array           measured=pass pass FAIL pass pass
+  [ok ] T15 branch pin                     measured=pass pass FAIL pass FAIL
+  [ok ] T15 cut was real                   measured=pass pass pass pass FAIL
+  [ok ] T15 #70 property, unconditioned    measured=pass pass pass pass FAIL
+
+all measured figures agree with the tree
+
+NOT measured (waived, with the reason, so the exclusion set is
+derived from the file rather than asserted in a comment):
+  - /`fails 22 of the 136 checks` and `fails\s+22 out of 136`/ absorbs 2 (cap 4): two illustrative phrasings quoted inside the paragraph explaining what the inverted default does not close; not claims about this suite
+  - /\b136/136\b/ absorbs 2 (cap 4): suite tally shorthand; both halves are the suite size, which the size check already pins against the measured total
+make: Leaving directory '$LANES/pp113-latency-notify/tb/nvm_port'

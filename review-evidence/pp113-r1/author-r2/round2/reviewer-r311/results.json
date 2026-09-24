@@ -1,0 +1,115 @@
+[
+  {
+    "variant": "golden",
+    "build_rc": 0,
+    "run_rc": 0,
+    "expected_named_check": null,
+    "verdict": "PASS",
+    "fail_lines": [],
+    "fail_count": 0,
+    "tally": [
+      "GI latency walks added: 5568 checks, 0 failures",
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 6182 checks, 0 failures"
+    ]
+  },
+  {
+    "variant": "r-cmp-low16",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": null,
+    "verdict": "KILLED",
+    "fail_lines": [
+      "FAIL: GI LATENCY-WALK-ONE bit 16 step: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 16 step unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 16 return: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 16 return unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 17 step: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 17 step unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 17 return: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 17 return unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 18 step: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 18 step unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 18 return: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 18 return unsolicited: complete Milan response"
+    ],
+    "fail_count": 128,
+    "tally": [
+      "GI latency walks added: 5248 checks, 128 failures",
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 5862 checks, 128 failures"
+    ]
+  },
+  {
+    "variant": "r-cmp-no-bit31",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": null,
+    "verdict": "KILLED",
+    "fail_lines": [
+      "FAIL: GI LATENCY-WALK-ONE bit 31 step: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 31 step unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 31 return: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 31 return unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ZERO bit 31 step: exactly one unsolicited response for sink 1, got 0",
+      "FAIL: GI LATENCY-WALK-ZERO bit 31 step unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ZERO bit 31 return: exactly one unsolicited response for sink 1, got 0",
+      "FAIL: GI LATENCY-WALK-ZERO bit 31 return unsolicited: complete Milan response"
+    ],
+    "fail_count": 8,
+    "tally": [
+      "GI latency walks added: 5548 checks, 8 failures",
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 6162 checks, 8 failures"
+    ]
+  },
+  {
+    "variant": "r-cmp-low8",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": null,
+    "verdict": "KILLED",
+    "fail_lines": [
+      "FAIL: GI LATENCY-WALK-ONE bit 8 step: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 8 step unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 8 return: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 8 return unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 9 step: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 9 step unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 9 return: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 9 return unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 10 step: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 10 step unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 10 return: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 10 return unsolicited: complete Milan response"
+    ],
+    "fail_count": 192,
+    "tally": [
+      "GI latency walks added: 5088 checks, 192 failures",
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 5702 checks, 192 failures"
+    ]
+  },
+  {
+    "variant": "r-cmp-high16",
+    "build_rc": 0,
+    "run_rc": 1,
+    "expected_named_check": null,
+    "verdict": "KILLED",
+    "fail_lines": [
+      "FAIL: GI LATENCY-WALK-ONE bit 0 step: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 0 step unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 0 return: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 0 return unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 1 step: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 1 step unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 1 return: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 1 return unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 2 step: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 2 step unsolicited: complete Milan response",
+      "FAIL: GI LATENCY-WALK-ONE bit 2 return: exactly one unsolicited response for sink 0, got 0",
+      "FAIL: GI LATENCY-WALK-ONE bit 2 return unsolicited: complete Milan response"
+    ],
+    "fail_count": 128,
+    "tally": [
+      "GI latency walks added: 5248 checks, 128 failures",
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 5862 checks, 128 failures"
+    ]
+  }
+]
