@@ -1,0 +1,66 @@
+### python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 852 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### python3 scripts/check_em_dash.py --base 50e78097564244c124e1ec30dd8821f83951ab06
+check_em_dash: 0 finding(s) over 1100 added line(s) in 20 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [50e78097..HEAD]
+rc=0
+### python3 scripts/check_em_dash.py --base f86c34fe2ddbc6cfb7c8c70ddbe0d9726f4d3c2f
+check_em_dash: 0 finding(s) over 269 added line(s) in 10 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [f86c34fe..HEAD]
+rc=0
+### python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+### python3 scripts/gen_toc.py --check
+TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+### python3 scripts/gen_toc.py --verify-anchors
+anchor check: 156 existing cross-page fragment links reproduced
+rc=0
+### python3 scripts/check_doc_paths.py
+doc path gate: OK (840 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+### python3 scripts/check_feature_status.py
+feature_status: 0 finding(s)
+rc=0
+### python3 docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+rc=0
+### python3 scripts/check_rtl_source_lists.py
+protocol-processor native tops list (syn/yosys/run.sh): 32 top(s) for 38 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_processor_top
+RTL source-list gate: OK (103 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 32/38 tops, 6 recorded)
+rc=0
+### python3 scripts/xvlog_gate.py --check
+xvlog gate: 4 finding(s) across 4 module(s)
+  analysed: 72 tracked .sv/.v file(s) under hdl/ and 48 under the pinned processors (protocol-processor/hdl, gptp-processor/hdl)
+  pinned at: protocol-processor@09f9bf38; gptp-processor@e5dcea6e - the superproject gitlink, which each checkout was required to BE before anything was enumerated
+  NOT analysed: third_party/ and external/ (leaf IP this repo neither owns nor edits), and
+                any defect only ELABORATION rejects - xvlog analyses; the split-initialiser
+                class needs xelab, which nothing in this repo runs (#224)
+  hdl/: 0 finding(s)
+  pinned processors: 4 finding(s)
+    protocol-processor:hdl/aecp/KL_aecp_notify.sv:502  [VRFC 10-3380] 'pd_ix_w'  identifier 'pd_ix_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_originator.sv:194  [VRFC 10-3380] 'cancel_hit_w'  identifier 'cancel_hit_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv:364  [VRFC 10-3380] 'vd_push_w'  identifier 'vd_push_w' is used before its declaration
+    protocol-processor:hdl/top/protocol_processor_top.sv:792  [VRFC 10-3380] 'srp_class_a_prio_w'  identifier 'srp_class_a_prio_w' is used before its declaration
+xvlog gate: PASS (4 finding(s) == ratchet; 0 hdl/, 4 pinned processors)
+rc=0
+### python3 scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+rc=0
+### python3 docs/diagrams/timesync_chain.gen.py --check
+time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+rc=0
+### git diff --check 50e78097564244c124e1ec30dd8821f83951ab06 f814d37d94e17435f3b6dcc424f8b2b606cdd3e9
+rc=0
+### git diff --check f86c34fe2ddbc6cfb7c8c70ddbe0d9726f4d3c2f f814d37d94e17435f3b6dcc424f8b2b606cdd3e9
+rc=0
+### cd tests && behave --no-capture -f progress features/milan_streaming_licence.feature
+USING RUNNER: behave.runner:Runner
+features/milan_streaming_licence.feature  .....
+
+1 feature passed, 0 failed, 0 skipped
+5 scenarios passed, 0 failed, 0 skipped
+26 steps passed, 0 failed, 0 skipped
+Took 0min 0.013s
+rc=0

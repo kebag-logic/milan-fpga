@@ -1,0 +1,8 @@
+gmstep check-name/verdict comparison head f814d37d vs dev f86c34fe (values stripped)
+IDENTICAL verdict lists: 48 checks, 4 FAIL
+  [FAIL] render: the GM change is one counted re-base event
+  [FAIL] render: every counted re-base lands at a PDU end right after the step
+  [FAIL] restart: the outgoing mr toggles exactly once
+  [FAIL] restart: the talker's MEDIA_RESET counts exactly one
+full-log verdict diff including got/exp values:
+no value differences

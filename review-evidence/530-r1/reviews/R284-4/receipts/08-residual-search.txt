@@ -1,0 +1,12 @@
+## LWSRP_STATUS[6] mentions at f814d37d (tracked md/sv/py/cpp)
+f814d37d9:CHANGELOG.md:51:- `LWSRP_STATUS[6]` is ACTIVE ORed over all sources.
+f814d37d9:docs/reference/EGRESS_QUEUE_MAP.md:101:only. `LWSRP_STATUS[6]` is ACTIVE ORed over sources, not one source's own bit,
+f814d37d9:docs/reference/REGISTER_MAP.md:1132:so it never shows the CRF output's corner. `LWSRP_STATUS[6]` is ACTIVE ORed
+f814d37d9:docs/reference/REGISTER_MAP.md:1170:| `0x698` | `LWSRP_SLOPE` | RO | `0` | 🟢 **LIVE, REPOINTED**: the granted idleSlope in bits/s, now the processor's **sum across admitted sources** (which is what a single shaped queue's idleSlope must be), not a single stream's `MaxIntervalFrames × (MaxFrameSize+42) × 8 × 8000`. Status only: no shaper is instantiated to consume it, and it can trail the licensed source's ACTIVE (`LWSRP_STATUS[6]` ORed over sources, `[8]` for source 0, `CRFT_CTRL[6]` for the CRF output) by up to three admission rounds at a fresh declaration (#530) |
+f814d37d9:docs/traceability/ieee8021q.md:68:  output, `LWSRP_STATUS[8]` for source 0 only. `LWSRP_STATUS[6]` is ACTIVE ORed
+f814d37d9:hdl/milan/milan_datapath.sv:6600:  //!   CRFT_CTRL[6]/[7] and LWSRP_STATUS[6] (|ACTIVE), never on [8].
+f814d37d9:hdl/milan/milan_datapath.sv:6614:  //!   for source 0; LWSRP_STATUS[6] is |ACTIVE, so it pulses only while no
+
+## [6] near CRF in 0x694/CRFT rows
+f814d37d9:CHANGELOG.md:38:- So do the `0x82C` talker lobs above index 0.
+f814d37d9:hdl/milan/milan_datapath.sv:6617:  //!   at every index, its lobs bit [2] only at index > 0, because index
