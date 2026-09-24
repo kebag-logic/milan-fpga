@@ -1,0 +1,57 @@
+make lint / contract / docs on git-archive export of 4a897e44 with the pinned simulator on PATH
+### make lint
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+  -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+  --top-module KL_gptp_engine \
+  hdl/ucpu/gptp_ucpu_pkg.sv hdl/ucpu/KL_gptp_ucpu.sv \
+  hdl/wire/KL_gptp_rx_parser.sv hdl/wire/KL_gptp_tx_slot.sv \
+  hdl/common/KL_gptp_timer.sv hdl/top/KL_gptp_engine.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.405 MB sources in 7 modules, into 0.292 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.059 s (elab=0.007, cvt=0.036, bld=0.000); cpu 0.059 s on 1 threads; allocated 23.609 MB
+make -C bench/arty lint
+make[1]: Entering directory '$REVIEWS/gptp75-r305-2-packet/scratch/head/bench/arty'
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-PINCONNECTEMPTY --top-module bench_arty_top ../../hdl/ucpu/gptp_ucpu_pkg.sv ../../hdl/ucpu/KL_gptp_ucpu.sv ../../hdl/wire/KL_gptp_rx_parser.sv ../../hdl/wire/KL_gptp_tx_slot.sv ../../hdl/common/KL_gptp_timer.sv ../../hdl/top/KL_gptp_engine.sv bench_afifo.sv bench_mii_rx.sv bench_mii_tx.sv bench_phc.sv bench_uart_report.sv bench_arty_top.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.100 MB sources in 13 modules, into 0.408 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.079 s (elab=0.010, cvt=0.047, bld=0.000); cpu 0.078 s on 1 threads; allocated 25.559 MB
+make[1]: Leaving directory '$REVIEWS/gptp75-r305-2-packet/scratch/head/bench/arty'
+rc=0
+### make contract
+python3 tb/check_phc_contract.py
+PHC interface contract: PASS
+rc=0
+### make docs
+python3 scripts/generate_diagrams.py --check
+diagram check: PASS (9 pinned assets, 3 source-bound PNGs)
+python3 scripts/generate_diagrams.py --selftest
+diagram selftest: PASS (10 arms)
+python3 scripts/check_docs.py
+docs check: PASS (11 current pages, 17 historical pages)
+python3 scripts/check_docs.py --selftest
+docs selftest: PASS (10 arms)
+python3 scripts/check_source_evidence.py
+EXACT hdl/top/KL_gptp_engine.sv#L58 (Single clock domain): module KL_gptp_engine
+EXACT hdl/top/KL_gptp_engine.sv#L160 (Four instantiated blocks): KL_gptp_rx_parser u_parser (
+EXACT hdl/wire/KL_gptp_rx_parser.sv#L374 (Deferred receive event): if (fin_r) begin
+EXACT hdl/top/KL_gptp_engine.sv#L405 (Four-entry event queue): logic [39:0] evq_r [0:3];
+EXACT hdl/top/KL_gptp_engine.sv#L432 (Parser arbitration priority): always_comb begin : push_arb
+EXACT hdl/top/KL_gptp_engine.sv#L343 (Priority timestamp return): logic        txts_pend_r;
+EXACT hdl/top/KL_gptp_engine.sv#L349 (Accepted-beat result face): assign txts_ready_o  = !txts_pend_r && rst_n;
+EXACT hdl/top/KL_gptp_engine.sv#L240 (Reset-backed pairing validity): logic t1v_valid_r, pdwait_valid_r;
+EXACT hdl/top/KL_gptp_engine.sv#L100 (Transmit admission credit): input  wire         tx_credit_i,
+EXACT hdl/top/KL_gptp_engine.sv#L385 (Eight timer slots): KL_gptp_timer #(
+EXACT hdl/top/KL_gptp_engine.sv#L20 (Six state regions): //                  0  message bank      RO  (parser-written, PING-PONG
+EXACT hdl/wire/KL_gptp_tx_slot.sv#L117 (Stable stalled transmission): assign tx_valid_o = ser_run_r;
+EXACT hdl/top/KL_gptp_engine.sv#L124 (Committed publication): output logic        pub_commit_o,
+EXACT hdl/ucpu/KL_gptp_ucpu.sv#L105 (1,024-word microcode ROM): // ------------------------------------------------------------------ ROM
+EXACT hdl/ucpu/KL_gptp_ucpu.sv#L113 (Sixteen registers): // 16 x 64 distributed RAM, 1W3R (SET_MASKED reads rd as well).
+EXACT hdl/top/KL_gptp_engine.sv#L109 (Registered policy slew level): output logic        phc_slew_active_o,
+EXACT hdl/top/KL_gptp_engine.sv#L929 (Registered policy slew level): 2'd2: begin
+EXACT hdl/top/KL_gptp_engine.sv#L934 (Registered policy slew level): 2'd3: begin
+EXACT hdl/ucode/gen_gptp_ucode.py#L837 (Registered policy slew level): def prog_leg_slew(base: int) -> Prog:
+EXACT hdl/wire/KL_gptp_rx_parser.sv#L456 (Ignored receive flag bits): 11'(OFF_FLAGS0_C + 1): flags_r <= acc_nxt_w[15:0];
+source evidence: 20 exact, 0 findings
+python3 scripts/check_source_evidence.py --selftest
+source evidence selftest: PASS (7 arms)
+rc=0

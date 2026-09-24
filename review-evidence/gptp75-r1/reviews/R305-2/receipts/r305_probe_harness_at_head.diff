@@ -1,0 +1,32 @@
+--- head/tb/verilator/engine/sim_main.cpp	2026-09-24 18:56:40.000000000 +0200
++++ probe/tb/verilator/engine/sim_main.cpp	2026-09-24 20:04:53.014187105 +0200
+@@ -4801,6 +4801,12 @@
+     expect("slew: missing Sync holds the affected rate", adj_seen.size(), lapse_rates);
+     slew_probe("slew: timeout restarts completion qualification", 0, true);
+     slew_probe("slew: two fresh pairs complete after timeout", 0, false);
++    // [R305 probe A] a Sync lapse while inactive must not arm tracking
++    run_svc(800000);
++    expect("r305: inactive lapse clears sync-ok", dut->pub_flags_o & FL_SYNCOK, 0);
++    expect("r305: inactive lapse stays inactive", dut->phc_slew_active_o, 0);
++    slew_probe("r305: tracking after an inactive Sync lapse stays inactive", 0, false);
++    slew_probe("r305: second tracking pair after lapse stays inactive", 0, false);
+ 
+     slew_probe("slew: next correction starts", -5000, true);
+     slew_probe("slew: first settled pair before GM change", 0, true);
+@@ -4858,6 +4864,16 @@
+     slew_probe("slew: warm-reset qualification completes", 0, false);
+     expect("slew: every change is clk-synchronous", slew_async_changes, 0);
+     expect("slew: no clear precedes the replacement rate", slew_early_clears, 0);
++    // [R305 probe B] return to slave duty with an in-band first pair
++    slew_probe("r305: correction before mastership", -5000, true);
++    announce(0x7506, 250, GMID, 0, PEER_CID);
++    expect("r305: degraded parent returns to GM", dut->pub_flags_o & FL_AMGM, FL_AMGM);
++    expect("r305: mastership retires", dut->phc_slew_active_o, 0);
++    run_svc(250000);
++    announce(0x7507, 100, GMID, 0, PEER_CID);
++    expect("r305: slave again", dut->pub_flags_o & FL_AMGM, 0);
++    slew_probe("r305: in-band return pair stays inactive", 0, false);
++    slew_probe("r305: second in-band return pair stays inactive", 0, false);
+   }
+ 
+   void slew_probe_unconsumed() {

@@ -1,0 +1,110 @@
+=== anchors at e5dcea6e351abff18a27a00f8e345f3251bdbd8f (e5dcea6e351abff18a27a00f8e345f3251bdbd8f)
+Single clock domain              hdl/top/KL_gptp_engine.sv#L57
+    L57-1: 
+    L57  : module KL_gptp_engine
+Four instantiated blocks         hdl/top/KL_gptp_engine.sv#L156
+    L156-1: 
+    L156  :   KL_gptp_rx_parser u_parser (
+Deferred receive event           hdl/wire/KL_gptp_rx_parser.sv#L373
+    L373-1:                       ((fin_drop_w && runt_drop_w) ? 16'd2 : 16'd1);
+    L373  : 
+Four-entry event queue           hdl/top/KL_gptp_engine.sv#L401
+    L401-1:   //! stamp that releases the first response's claim/context (#40).
+    L401  :   logic [39:0] evq_r [0:3];
+Parser arbitration priority      hdl/top/KL_gptp_engine.sv#L428
+    L428-1:   logic [39:0] push_data_w;
+    L428  :   always_comb begin : push_arb
+Priority timestamp return        hdl/top/KL_gptp_engine.sv#L339
+    L339-1:   //! record must not look accepted to the producer.
+    L339  :   logic        txts_pend_r;
+Accepted-beat result face        hdl/top/KL_gptp_engine.sv#L345
+    L345-1:   logic        txts_accept_w;
+    L345  :   assign txts_ready_o  = !txts_pend_r && rst_n;
+Reset-backed pairing validity    hdl/top/KL_gptp_engine.sv#L236
+    L236-1:   //! a pre-reset deferred pair as live. Validity is bit 0 of the write.
+    L236  :   logic t1v_valid_r, pdwait_valid_r;
+Transmit admission credit        hdl/top/KL_gptp_engine.sv#L99
+    L99-1:     //! responses and both Follow_Up companions are never gated.
+    L99  :     input  wire         tx_credit_i,
+Eight timer slots                hdl/top/KL_gptp_engine.sv#L381
+    L381-1: 
+    L381  :   KL_gptp_timer #(
+Six state regions                hdl/top/KL_gptp_engine.sv#L20
+    L20-1: //
+    L20  : //                  0  message bank      RO  (parser-written, PING-PONG
+Stable stalled transmission      hdl/wire/KL_gptp_tx_slot.sv#L117
+    L117-1:   assign ser_idle_o = !ser_run_r;
+    L117  :   assign tx_valid_o = ser_run_r;
+Committed publication            hdl/top/KL_gptp_engine.sv#L120
+    L120-1:     output logic [7*64-1:0] pub_path_o,
+    L120  :     output logic        pub_commit_o,
+1,024-word microcode ROM         hdl/ucpu/KL_gptp_ucpu.sv#L105
+    L105-1: 
+    L105  :   // ------------------------------------------------------------------ ROM
+Sixteen registers                hdl/ucpu/KL_gptp_ucpu.sv#L113
+    L113-1:   // ------------------------------------------------------- register file
+    L113  :   // 16 x 64 distributed RAM, 1W3R (SET_MASKED reads rd as well).
+Ignored receive flag bits        hdl/wire/KL_gptp_rx_parser.sv#L456
+    L456-1:             end
+    L456  :             11'(OFF_FLAGS0_C + 1): flags_r <= acc_nxt_w[15:0];
+=== anchors at 4a897e44243d39945df763d00b96049363a58e78 (4a897e44243d39945df763d00b96049363a58e78)
+Single clock domain              hdl/top/KL_gptp_engine.sv#L58
+    L58-1: 
+    L58  : module KL_gptp_engine
+Four instantiated blocks         hdl/top/KL_gptp_engine.sv#L160
+    L160-1: 
+    L160  :   KL_gptp_rx_parser u_parser (
+Deferred receive event           hdl/wire/KL_gptp_rx_parser.sv#L374
+    L374-1: 
+    L374  :       if (fin_r) begin
+Four-entry event queue           hdl/top/KL_gptp_engine.sv#L405
+    L405-1:   //! stamp that releases the first response's claim/context (#40).
+    L405  :   logic [39:0] evq_r [0:3];
+Parser arbitration priority      hdl/top/KL_gptp_engine.sv#L432
+    L432-1:   logic [39:0] push_data_w;
+    L432  :   always_comb begin : push_arb
+Priority timestamp return        hdl/top/KL_gptp_engine.sv#L343
+    L343-1:   //! record must not look accepted to the producer.
+    L343  :   logic        txts_pend_r;
+Accepted-beat result face        hdl/top/KL_gptp_engine.sv#L349
+    L349-1:   logic        txts_accept_w;
+    L349  :   assign txts_ready_o  = !txts_pend_r && rst_n;
+Reset-backed pairing validity    hdl/top/KL_gptp_engine.sv#L240
+    L240-1:   //! a pre-reset deferred pair as live. Validity is bit 0 of the write.
+    L240  :   logic t1v_valid_r, pdwait_valid_r;
+Transmit admission credit        hdl/top/KL_gptp_engine.sv#L100
+    L100-1:     //! responses and both Follow_Up companions are never gated.
+    L100  :     input  wire         tx_credit_i,
+Eight timer slots                hdl/top/KL_gptp_engine.sv#L385
+    L385-1: 
+    L385  :   KL_gptp_timer #(
+Six state regions                hdl/top/KL_gptp_engine.sv#L20
+    L20-1: //
+    L20  : //                  0  message bank      RO  (parser-written, PING-PONG
+Stable stalled transmission      hdl/wire/KL_gptp_tx_slot.sv#L117
+    L117-1:   assign ser_idle_o = !ser_run_r;
+    L117  :   assign tx_valid_o = ser_run_r;
+Committed publication            hdl/top/KL_gptp_engine.sv#L124
+    L124-1:     output logic [7*64-1:0] pub_path_o,
+    L124  :     output logic        pub_commit_o,
+1,024-word microcode ROM         hdl/ucpu/KL_gptp_ucpu.sv#L105
+    L105-1: 
+    L105  :   // ------------------------------------------------------------------ ROM
+Sixteen registers                hdl/ucpu/KL_gptp_ucpu.sv#L113
+    L113-1:   // ------------------------------------------------------- register file
+    L113  :   // 16 x 64 distributed RAM, 1W3R (SET_MASKED reads rd as well).
+Registered policy slew level     hdl/top/KL_gptp_engine.sv#L109
+    L109-1:     //! completing/replacement rate. Holds across missing Sync/asCapable loss.
+    L109  :     output logic        phc_slew_active_o,
+Registered policy slew level     hdl/top/KL_gptp_engine.sv#L929
+    L929-1:               end
+    L929  :               2'd2: begin
+Registered policy slew level     hdl/top/KL_gptp_engine.sv#L934
+    L934-1:               end
+    L934  :               2'd3: begin
+Registered policy slew level     hdl/ucode/gen_gptp_ucode.py#L837
+    L837-1: 
+    L837  : def prog_leg_slew(base: int) -> Prog:
+Ignored receive flag bits        hdl/wire/KL_gptp_rx_parser.sv#L456
+    L456-1:             end
+    L456  :             11'(OFF_FLAGS0_C + 1): flags_r <= acc_nxt_w[15:0];
