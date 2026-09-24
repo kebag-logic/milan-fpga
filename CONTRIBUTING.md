@@ -207,7 +207,42 @@ flowchart LR
 
    Ancestry and linear replay prove historical landing.
    Later reversions do not revoke those existing proofs.
-   Linear retention policy belongs to Issue #514.
+   Their `contained` diagnostics explicitly identify that historical claim.
+   Exact path equality instead proves the current net-changed entries.
+   A net-zero verdict proves only an empty source delta.
+
+   [Issue #514's decision](https://github.com/kebag-logic/milan-fpga/issues/514#issuecomment-5789750055)
+   adds an optional, separate linear retention check:
+
+   ```bash
+   python3 scripts/check_merge_containment.py --current-retention origin/<branch>
+   python3 scripts/check_merge_containment.py --current-retention --merged-prs
+   ```
+
+   Each successful landing verdict keeps its own `contained` line.
+   The option adds `retained` or `UNKNOWN` for current retention.
+   It requires a nonempty, source-only linear range with exact replays.
+   H and T below supply the replay and retention criteria.
+   This optional arm excludes ancestry-only, squash-only and merge-shaped proofs.
+   Empty net deltas also remain unmeasurable by this arm.
+   These exclusions never revoke the separate default landing verdict.
+   Unsupported or unmeasurable retention reports `UNKNOWN`, exit 1.
+   Any unresolved target makes the optional command exit 1.
+   Without the option, existing verdicts and exits remain unchanged.
+
+   | Later change after exact linear replay | Historical inclusion | Optional current retention |
+   |---|---|---|
+   | Exact or partial reversion | Still proved | `UNKNOWN` for lost source changes |
+   | Non-overlapping extension | Still proved | `retained` when T succeeds |
+   | Intentional supersession or overlapping extension | Still proved | `UNKNOWN` when T fails |
+   | Mode change | Still proved | Apply T's mode rule |
+   | File-kind change | Still proved | Require exact entry identity |
+   | Binary change or failed object measurement | Still proved | `UNKNOWN` when T is unmeasurable |
+
+   Intentional supersession needs a separate public disposition.
+   Commit messages and declared intent never certify retained bytes.
+   A retention refusal does not itself establish an accidental regression.
+   The default self-test exercises these examples and killing mutations.
 
    [Issue #423's decision](https://github.com/kebag-logic/milan-fpga/issues/423#issuecomment-5777210218)
    adds one final fallback after every existing arm declines:
@@ -232,7 +267,8 @@ flowchart LR
      Symlinks, gitlinks and other types require exact tip/source identity.
 
    G1/H rejection preserves the existing verdict.
-   Historical replay without T reports `UNKNOWN`, naming unproved current paths.
+   In that fallback, historical replay without T reports `UNKNOWN`.
+   It names unproved current paths.
    Measurement failures also remain `UNKNOWN`; neither result clears containment.
    Exit codes remain 0/1/2, plus self-test cleanup status 3.
    Actual gPTP processor PR62 and published adjacent extension remain unresolved.

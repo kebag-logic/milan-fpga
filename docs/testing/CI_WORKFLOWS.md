@@ -1751,6 +1751,14 @@ whose linked Issue is open, for bodies in a form GitHub does not read and for
 the history before 2026-08-22, when every PR merged into a non-default branch
 and the keyword never fired.
 
+Containment reports the proof named beside each verdict.
+Ancestry and linear replay certify historical inclusion.
+Later reversions leave those historical verdicts unchanged.
+The optional `--current-retention` arm separately assesses linear replay retention.
+Its unsupported histories and unproved paths remain `UNKNOWN`.
+The [containment contract](../../CONTRIBUTING.md#21-the-issue-to-merge-lane)
+defines the bounded proofs and their exit codes.
+
 ## Local commands
 
 Sharding is a hosted-runner scheduling detail. The no-option commands remain

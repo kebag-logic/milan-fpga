@@ -5,6 +5,7 @@
     python3 scripts/check_merge_containment.py --merged-prs [N]
     python3 scripts/check_merge_containment.py --selftest
     python3 scripts/check_merge_containment.py --no-fetch ...   (skip Git fetch)
+    python3 scripts/check_merge_containment.py --current-retention <branch>...
 
     Needs Git 2.39.0 or newer: whitespace-exact patch identity comes from
     ``git patch-id --verbatim``, and an older Git is refused by name.
@@ -43,8 +44,12 @@ THREE WAYS TO GET THE WRONG ANSWER, ALL OF WHICH THIS HAS DONE
 
 HISTORICAL REPLAY AND CURRENT RETENTION
 ---------------------------------------
-Ancestry and the existing linear patch arm certify historical landing. Later
-reversions do not revoke those proofs; changing that policy belongs to #514.
+Ancestry and the linear patch arm certify historical inclusion only (#514).
+Later reversions do not revoke those proofs. --current-retention adds a
+separate linear H + T result: retained, or UNKNOWN/nonzero. It requires a
+nonempty source-only linear range with exact replays. Ancestry alone, squash-
+only equivalence and merge histories are unsupported by this optional arm.
+Intentional supersession is not retention evidence; no intent is inferred.
 The final fallback (#423) admits exactly one source-only two-parent merge:
 P2's only parent is P1, and the merge tree equals P2's tree. Every non-merge
 commit still needs a distinct whitespace-exact replay with matching postimages.
@@ -76,7 +81,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from merge_containment_git import (  # noqa: E402
     git_bytes as _git_raw, git_text as _git, path_label)
-from merge_containment_replay import replay_verdict  # noqa: E402
+from merge_containment_replay import linear_retention_verdict, replay_verdict  # noqa: E402
 
 USAGE = __doc__.split("WHY THIS EXISTS")[0].strip()
 
@@ -191,7 +196,7 @@ def _same_patch_postimage(branch_commit, base_commit):
 
 
 def _linear_patches_contained(branch, base):
-    """Prove linear replay equivalence without ignoring whitespace."""
+    """Prove historical inclusion by exact replay, not current retention."""
     rc, branch_out = _git("rev-list", "--no-merges", f"{base}..{branch}")
     if rc != 0:
         return (None, f"rev-list could not enumerate {branch}")
@@ -499,7 +504,7 @@ def _patch_id_verdict(branch, base, ahead):
             return (None, None, err)
         if equivalent:
             return (True, ahead,
-                    f"every commit has a whitespace-exact equivalent in "
+                    f"historical inclusion only: every commit has a whitespace-exact equivalent in "
                     f"{base} ({ahead} not ancestors -- rebase merge)")
     return None
 
@@ -533,7 +538,7 @@ def contained(branch: str,
 
     rc, _ = _git("merge-base", "--is-ancestor", branch, base)
     if rc == 0:
-        return (True, 0, None)
+        return (True, 0, "historical inclusion by ancestry; current retention not implied")
     if rc != 1:
         return (None, None,
                 f"merge-base could not compare {branch} with {base}")
@@ -706,17 +711,11 @@ def continuous_merged_pr_tip(head_oid: str, live_ref: str) -> str | None:
     return None
 
 
-KNOWN_FLAGS = {"--selftest", "--base", "--merged-prs", "--no-fetch"}
+KNOWN_FLAGS = {"--selftest", "--base", "--merged-prs", "--no-fetch", "--current-retention"}
 
 
 def _run_selftest():
-    """Run the self-test, which lives in two modules beside this one.
-
-    It is handed THIS module rather than importing it: the cases patch the
-    namespace ``main()`` and ``contained()`` resolve their helpers from, which
-    is this module's own, and importing by name would build a second copy of
-    it whose globals no patch here would reach.
-    """
+    """Pass this module to the self-tests so patches reach its own globals."""
     here = str(Path(__file__).resolve().parent)
     if here not in sys.path:
         sys.path.insert(0, here)
@@ -734,7 +733,7 @@ def _option_error(args):
         if a.startswith("-") and a not in KNOWN_FLAGS:
             return f"unknown option: {a}\n{USAGE}\n"
 
-    for flag in ("--selftest", "--base", "--merged-prs", "--no-fetch"):
+    for flag in ("--selftest", "--base", "--merged-prs", "--no-fetch", "--current-retention"):
         if args.count(flag) > 1:
             return f"{flag} may be specified only once\n{USAGE}\n"
     return None
@@ -877,8 +876,8 @@ def _branch_targets(args, do_fetch):
     return (targets, None)
 
 
-def _report(targets, base):
-    """Print one verdict per target and return the process exit status."""
+def _report(targets, base, current_retention=False):
+    """Report landing and optional linear retention as separate claims."""
     stranded = 0
     unknown = 0
     for label, ref, pre_error in targets:
@@ -892,6 +891,11 @@ def _report(targets, base):
             unknown += 1
         elif ok:
             print(f"  contained  {label}" + (f"  [{note}]" if note else ""))
+            if current_retention:
+                retained, detail = linear_retention_verdict(ref, base, _git, _linear_patches_contained)
+                word = "retained" if retained else "UNKNOWN"
+                print(f"  {word:<10} {label}: current retention: {detail}")
+                unknown += not retained
         else:
             print(f"  STRANDED   {label}: {ahead} commit(s) not in {base}"
                   + (f"  [{note}]" if note else ""))
@@ -906,7 +910,7 @@ def _report(targets, base):
         print("  step 7.")
     if unknown:
         print()
-        print(f"{unknown} tip(s) lack a containment proof; see UNKNOWN above.")
+        print(f"{unknown} tip(s) lack a requested proof; see UNKNOWN above.")
         print("  Unresolved history or current retention is not a pass.")
     return RC_FINDING if (stranded or unknown) else RC_OK
 
@@ -941,6 +945,8 @@ def main(argv: list[str]) -> int:
             return RC_CANNOT_RUN
         return _run_selftest()
 
+    current_retention = "--current-retention" in args
+    args = [a for a in args if a != "--current-retention"]
     base, refusal = _take_base(args)
     if refusal:
         sys.stderr.write(refusal)
@@ -984,7 +990,7 @@ def main(argv: list[str]) -> int:
         sys.stderr.write(refusal)
         return RC_CANNOT_RUN
 
-    return _report(targets, base)
+    return _report(targets, base, current_retention)
 
 
 if __name__ == "__main__":

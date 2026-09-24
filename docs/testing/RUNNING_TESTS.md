@@ -73,6 +73,11 @@ by name before any suite runs. That self-test exits 3 when every arm passed
 but a temporary tree it built could not be removed; the runner prints a
 `CLEANUP:` notice and carries on, because no verdict is in doubt, while any
 other failure still aborts the sweep.
+It preserves historical linear replay verdicts after later reversions.
+It also tests the separate, optional `--current-retention` arm.
+That arm measures bytes and entries, without inferring supersession intent.
+See the [containment contract](../../CONTRIBUTING.md#21-the-issue-to-merge-lane)
+for its supported histories and unresolved cases.
 The runner discovers suites from the filesystem, serializes whole-tree sweeps,
 enforces a per-suite wall clock, and refuses to quote a total when a suite's
 check count cannot be read. The default selection contains 54 suites, each
