@@ -1,0 +1,42 @@
+README.md:397:| 9 | Departing-controller detection (Milan 5.4.5.3) | [#59](https://github.com/kebag-logic/milan-fpga/issues/59) |
+docs/MILAN_V12_ROADMAP.md:446:### P3.3 — departing-controller detection (Milan 5.4.5.3)
+docs/MILAN_V12_ROADMAP.md:525:8. **P3.3** departing-controller monitor. Completed at 0x0055 with P3.2.
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:471:  `CTLR_DIAG` read 0 at 13:13 UTC.
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:524:- **DUT.** The grader passed 10 of 10 at 14:13 UTC. The console read the switch as grandmaster, `CLKV_STAT` `0x00010002`, `CRFT_CTRL` `0x3`, drop counters 0, `CTLR_DIAG` 0 (STRUCTURAL ZERO, not a measurement), `LINKG_STAT` `0x83` and `RST_EPOCH` 1. A 22 s tap capture around that read carried no AVTP stream.
+docs/fpga/FPGA_DESIGN.md:46:and the departing-controller monitor. Saved-state persistence and commands
+docs/reference/FR_NFR.md:124:the other root-observed notification triggers, and the departing-controller
+docs/reference/FR_NFR.md:147:| **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **PARTLY MET** | The processor serves the mandatory command inventory. `ACQUIRE_ENTITY` returns Milan Delta 7 `NOT_SUPPORTED` with no owner. FR-CTRL-03's registration, successful-command notifications, Table 5.22 scheduler, and departing-controller monitor are implemented. FR-CTRL-04 serves every supported counter bank and rate-limits each descriptor's push to at most once per second. The declared CRF Stream Input's bank is served and pushed since #529. Persistence remains open |
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:144:| 5.4.5.3 | departing-controller monitor: random 30–60 s timer, CONTROLLER_AVAILABLE probe + one retry, targeted auto-deregister | implemented at 0x0055 — `KL_aecp_ca_originator` on the processor's shared originator; PP ca_originator; timed leg measures probe, 250 ms retry, deregistration |
+docs/reference/REGISTER_MAP.md:32:departing-controller monitor are live since 0x0055. Remaining gaps include the
+docs/reference/REGISTER_MAP.md:188:  - [0x6A4  -  ACMP listener SM  (Milan v1.2 Section 5.5 listener, FR-CONN-01)](#0x6a4-----acmp-listener-sm--milan-v12-section-55-listener-fr-conn-01) -- **`ACMPL_STATE` no longer tracks PROBING/SETTLED -- take `bound` as the truth.** The processor publishes a bind record, not a state machine, so the ladder fields, the bound talker id, the counters and the walker forensics are structural zeros; bound, active and the CRF-sink bit are real. The Milan Table 7-156 stream counters, MAAP status, pilot tone, playback rails and ts_delta in this group are untouched and still live. **CTLR_DIAG (0x6F4) is STRUCTURAL ZERO; never read it as a measurement.** The departing-controller monitor lives in the protocol processor.
+docs/reference/REGISTER_MAP.md:1244:| `0x6F4` | `CTLR_DIAG` | RO | 🔴 **STRUCTURAL ZERO**. Reads `0`; never read it as a measurement. The deleted local monitor's probe, reply and eviction counters have no replacement source for this word. The departing-controller monitor lives in the protocol processor |
+docs/reference/REGISTER_MAP.md:1248:`CTLR_DIAG` (0x6F4) is **STRUCTURAL ZERO**. Its source was deleted;
+docs/reference/REGISTER_MAP.md:1252:The departing-controller monitor (Milan v1.2 Section 5.4.5.3) lives in the
+docs/reference/REGISTER_MAP.md:1255:The parent ties `aecp_ctlr_diag` to `32'd0`, preserving the address.
+docs/testing/TESTING.md:41:> Table 5.22 triggers and the departing-controller monitor. Root IDENTIFY and
+hdl/common/csr/milan_csr.sv:309:  //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO in milan_datapath (#548).
+hdl/common/csr/milan_csr.sv:311:  //! The processor owns departing-controller detection (Milan 5.4.5.3),
+hdl/common/csr/milan_csr.sv:313:  input  wire [31:0]             i_ctlr_diag,
+hdl/common/csr/milan_csr.sv:761:    //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO (#548).
+hdl/common/csr/milan_csr.sv:763:    //! The processor owns the departing-controller monitor (Milan 5.4.5.3)
+hdl/common/csr/milan_csr.sv:768:    A_CTLR_DIAG   = 'h6F4,
+hdl/common/csr/milan_csr.sv:2397:      //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO (#548).
+hdl/common/csr/milan_csr.sv:2399:      //! The processor owns the departing-controller monitor (Milan 5.4.5.3)
+hdl/common/csr/milan_csr.sv:2402:      A_CTLR_DIAG:  live_mux = i_ctlr_diag;
+hdl/milan/KL_pp_shadow.sv:47:                departing-controller monitor are SERVED since VERSION
+hdl/milan/milan_datapath.sv:1500:  //! CTLR_DIAG (0x6F4): STRUCTURAL ZERO, retained for the CSR ABI (#548).
+hdl/milan/milan_datapath.sv:1501:  //! Departing-controller detection lives in the processor's KL_aecp_notify
+hdl/milan/milan_datapath.sv:1503:  wire [31:0]              aecp_ctlr_diag;
+hdl/milan/milan_datapath.sv:2535:    .i_ctlr_diag          (aecp_ctlr_diag),
+hdl/milan/milan_datapath.sv:3206:  assign aecp_ctlr_diag = 32'd0;
+tb/verilator/milan_dp/Makefile:482:# limit and the 30-60 s departing-controller monitor are both runnable in a
+tb/verilator/milan_dp/README.md:26:| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification |
+tb/verilator/milan_dp/README.md:631:departing-controller monitor over the real RX and TX trunks. Its gPTP block
+tb/verilator/milan_dp/sim_nxn.cpp:1240:        if (timed) prove_the_departing_controller_monitor(fl0);
+tb/verilator/milan_dp/sim_nxn.cpp:1516:    // ---- (N9) the departing-controller monitor (Milan 5.4.5.3) --------
+tb/verilator/milan_dp/sim_nxn.cpp:1529:    void prove_the_departing_controller_monitor(
+tb/verilator/milan_dp/sim_nxn.cpp:1596:        ck("[NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic",
+tb/verilator/milan_dp/sim_nxn.cpp:1597:           axi_read(0x6F4), 0);
+tests/README.md:65:the departing-controller monitor; commands outside the served inventory and
+## docs/history (frozen) hit counts
+docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:1
