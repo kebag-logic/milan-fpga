@@ -1,0 +1,19 @@
+wrapper sha256: 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  $PINNED_BIN/verilator
+#!/bin/sh
+exec env VERILATOR_ROOT=$VERILATOR_IMAGE/usr/share/verilator $VERILATOR_IMAGE/usr/bin/verilator "$@"
+
+Verilator 5.050 2026-07-01 rev v5.050
+-rwxr-xr-x 1 user user    32093 Jul  2 08:43 $VERILATOR_IMAGE/usr/bin/verilator
+-rwxr-xr-x 1 user user 12906200 Jul  2 08:43 $VERILATOR_IMAGE/usr/bin/verilator_bin
+-rwxr-xr-x 1 user user 15097920 Jul  2 08:43 $VERILATOR_IMAGE/usr/bin/verilator_bin_dbg
+-rwxr-xr-x 1 user user     7617 Jul  2 08:43 $VERILATOR_IMAGE/usr/bin/verilator_coverage
+-rwxr-xr-x 1 user user   871536 Jul  2 08:43 $VERILATOR_IMAGE/usr/bin/verilator_coverage_bin_dbg
+-rwxr-xr-x 1 user user    25787 Jul  2 08:43 $VERILATOR_IMAGE/usr/bin/verilator_gantt
+-rwxr-xr-x 1 user user     7543 Jul  2 08:43 $VERILATOR_IMAGE/usr/bin/verilator_profcfunc
+44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd  $VERILATOR_IMAGE/usr/bin/verilator_bin
+/usr/bin/python3
+/usr/bin/make
+/usr/bin/g++
+Python 3.14.7
+g++ (GCC) 16.2.1 20260810
+16

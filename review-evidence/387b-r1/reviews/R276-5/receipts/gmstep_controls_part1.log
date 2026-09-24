@@ -1,0 +1,19 @@
+[PASS] positive gmstep: pass
+[PASS] positive option-off: pass
+---- h0: the step does not toggle mr (leg gmstep, must break 'restart: the outgoing mr toggles exactly once')
+[PASS] control caught: the step does not toggle mr - breaks "restart: the outgoing mr toggles exactly once"
+    it broke 2 check(s): restart: the outgoing mr toggles exactly once; restart: the talker's MEDIA_RESET counts exactly one
+---- h1: the grandmaster identity re-bases the render stage as well as the step (leg gmstep, must break 'render: the GM change is one counted re-base event')
+[PASS] control caught: the grandmaster identity re-bases the render stage as well as the step - breaks "render: the GM change is one counted re-base event"
+    it broke 2 check(s): render: the GM change is one counted re-base event; render: every counted re-base lands at a PDU end right after the step
+---- h2: the step does not re-centre the render stage (leg gmstep, must break 'render: the GM change is one counted re-base event')
+[PASS] control caught: the step does not re-centre the render stage - breaks "render: the GM change is one counted re-base event"
+    it broke 1 check(s): render: the GM change is one counted re-base event
+---- x_step_toggles_twice_gmstep: R276: the step requests a second restart 3000 cycles later (leg gmstep, must break 'restart: the outgoing mr toggles exactly once')
+[PASS] control caught: R276: the step requests a second restart 3000 cycles later - breaks "restart: the outgoing mr toggles exactly once"
+    it broke 3 check(s): restart: the outgoing mr toggles exactly once; restart: every mr toggle is first sent right after the step; restart: the talker's MEDIA_RESET counts exactly one
+
+real	2m58.000s
+user	5m48.218s
+sys	0m14.944s
+rc=0
