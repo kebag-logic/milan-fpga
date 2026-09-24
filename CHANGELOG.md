@@ -34,7 +34,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The gates now read the processor's ACTIVE.
 - ACTIVE needs a Listener Ready or Ready Failed as well.
 - That covers the CRF licence and every AAF talker gate.
-- `CRFT_CTRL[6]`, `LWSRP_STATUS[8]` and the `0x82C` talker lobs follow.
+- `CRFT_CTRL[6]` and `LWSRP_STATUS[8]` follow.
+- So do the `0x82C` talker lobs above index 0.
 - Only `LWSRP_STATUS[9]` and `LWSRP_SLOPE` keep the raw verdict.
 - No shaper reads either: none is instantiated.
 - ACTIVE can lead them by up to three admission rounds.
@@ -46,7 +47,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - A controller reads a `STREAM_START` and `STREAM_STOP` pair.
 - The start resets the Table 5.4 interval counters.
 - At most one PDU per source can leave.
-- The CRF output shows this on `CRFT_CTRL[6]`/`[7]` and `LWSRP_STATUS[6]`.
+- The CRF output shows this on `CRFT_CTRL[6]`/`[7]`.
+- `LWSRP_STATUS[6]` is ACTIVE ORed over all sources.
 - `LWSRP_STATUS[8]` shows source 0 only.
 - Issue #551 asks whether the licence should need the grant.
 - A bound CRF talker also ended its own bursts.
