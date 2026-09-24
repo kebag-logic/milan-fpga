@@ -1,0 +1,104 @@
+[
+  {
+    "mutant": "golden-full",
+    "mode": "full",
+    "run_rc": 0,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 1928 checks, 0 failures"
+    ],
+    "first_failures": [],
+    "n_fail_lines": 0,
+    "verdict": "SURVIVED"
+  },
+  {
+    "mutant": "desc-type-ignored",
+    "mode": "full",
+    "run_rc": 1,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 1928 checks, 1 failures"
+    ],
+    "first_failures": [
+      "FAIL: G2: STREAM_OUTPUT[1] Milan response byte-exact"
+    ],
+    "n_fail_lines": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "mutant": "status-view-reads-sink0",
+    "mode": "gi",
+    "run_rc": 1,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 37 failures"
+    ],
+    "first_failures": [
+      "FAIL: GI BIND-ACTIVE unsolicited: pbsta sink 1 = 2, got 1",
+      "FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 1 response",
+      "FAIL: GI BIND-ACTIVE solicited: pbsta sink 1 = 2, got 1",
+      "FAIL: GI BIND-ACTIVE solicited: byte-exact sink 1 response",
+      "FAIL: GI BIND-TIMEOUT unsolicited: pbsta sink 1 = 2, got 1",
+      "FAIL: GI BIND-TIMEOUT unsolicited: acmpsta sink 1 = 7, got 0"
+    ],
+    "n_fail_lines": 37,
+    "verdict": "KILLED"
+  },
+  {
+    "mutant": "fchg-lv-excluded",
+    "mode": "srpfsm",
+    "run_rc": 2,
+    "tally": [
+      "1087 checks: 1086 PASS, 1 FAIL"
+    ],
+    "first_failures": [
+      "FAIL: L6: a changed re-join in LV strobes the change, back IN, no REGISTERED (fchg 0, reg 0)"
+    ],
+    "n_fail_lines": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "mutant": "fchg-compare-sink0",
+    "mode": "srpfsm",
+    "run_rc": 2,
+    "tally": [
+      "1087 checks: 1085 PASS, 2 FAIL"
+    ],
+    "first_failures": [
+      "FAIL: L8: sink 1's unchanged refresh is compared with sink 1's latch, not sink 0's (fchg 0/1)",
+      "FAIL: L9: unchanged on a shared stream: the late sink registers, the registered pair stays quiet (reg 1/0/0, fchg 0/1/1)"
+    ],
+    "n_fail_lines": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "mutant": "fchg-compare-sink0-gi",
+    "mode": "gi",
+    "run_rc": 0,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 0 failures"
+    ],
+    "first_failures": [],
+    "n_fail_lines": 0,
+    "verdict": "SURVIVED"
+  },
+  {
+    "mutant": "strt-bound-before-removed",
+    "mode": "lsm",
+    "run_rc": 0,
+    "tally": [
+      "2544 checks: 2544 PASS, 0 FAIL"
+    ],
+    "first_failures": [],
+    "n_fail_lines": 0,
+    "verdict": "SURVIVED"
+  },
+  {
+    "mutant": "strt-bound-before-removed-gi",
+    "mode": "gi",
+    "run_rc": 0,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 0 failures"
+    ],
+    "first_failures": [],
+    "n_fail_lines": 0,
+    "verdict": "SURVIVED"
+  }
+]

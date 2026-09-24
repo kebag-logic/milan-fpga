@@ -1,0 +1,11 @@
+R295-OBS R4 first-failed listener_decl any=4 first250ms=1 New=2 JoinIn=0 In=0 JoinMt=2 Mt=0 Lv=0
+R295-OBS R4 unchanged-refresh listener_decl any=2 first250ms=0 New=0 JoinIn=0 In=0 JoinMt=2 Mt=0 Lv=0
+R295-OBS R4 changed-refresh listener_decl any=1 first250ms=0 New=0 JoinIn=0 In=0 JoinMt=1 Mt=0 Lv=0
+R295-OBS R4 uns_unchanged=0 uns_changed=0 code=999 bridge=0000000000000000 pb=0xff acmp_frames_unchanged=0 acmp_frames_changed=0
+FAIL: R295 R4: exactly one push carrying the new code, full bridge, COMPLETED/0
+R295-OBS R6 uns_failed_to_advertise=1 adv_code=1 adv_bridge=00d0000005010005 uns_latency_only_refresh=0
+FAIL: R295 R6: Failed->Advertise pushes once with code and bridge cleared
+R295-OBS R7 started_before=1 started_after=0 uns=2 pb=0x60 flags=80000500
+FAIL: R295 R7: pbsta and started/stopped moving in one write push exactly one ACTIVE/0 frame
+[r295 probe2] 16 checks, 3 failures
+rc=1

@@ -1,0 +1,7 @@
+R295-OBS R1 bind_notifications=1 started_before=1 rebind_notifications=2 started_after=0
+R295-OBS R1b rebind_same_sw_notifications=2
+R295-OBS R2 settle_probe=70 first_failed_new=2 unchanged_refresh_new=0 changed_refresh_new=0 q_code=1 q_pb=0x61
+R295-OBS R3 q1=94 stuck_resp=60 stuck_status=10 q0=94 q0_code=0 q0_bridge=00d0000005000005
+FAIL: R295 R3: no cross-sink failure data after a voided gather
+[r295 probe] 8 checks, 1 failures
+rc=1
