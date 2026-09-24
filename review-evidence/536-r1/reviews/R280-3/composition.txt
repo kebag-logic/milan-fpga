@@ -1,0 +1,76 @@
+# composition receipt, run from the candidate checkout
+$ git rev-parse HEAD HEAD^{tree}
+639fc41a41bda896cf7316d5e27d39575727efb0
+e4cd9ffb49baebd5add305f62f6f42892fb42d58
+$ git log --format='%H %P %s' -5
+639fc41a41bda896cf7316d5e27d39575727efb0 8b7be584da62657f9767ad07e294d278144869c5 fb84de54ee9c1e3a2b51d2a239efbc04e4a22bad Validate issue 536 merge-train candidate
+8b7be584da62657f9767ad07e294d278144869c5 70da0bcdf7896b26efb4cc3f854c17a02f2c4126 70f2c50d45550f65c9d71ed0f5b0d70dc48acdb6 Validate issue 394_510_511 merge-train candidate
+70da0bcdf7896b26efb4cc3f854c17a02f2c4126 5c51569bd269b73a82ab767290fea92c134e5d02 021b2e07b009158bcb0ce19529126eb1d330bba5 Validate issue 387 merge-train candidate
+5c51569bd269b73a82ab767290fea92c134e5d02 50e78097564244c124e1ec30dd8821f83951ab06 b71061d7fbc1119b02eb430f293672ff8b3f85b8 Validate issue 117 merge-train candidate
+fb84de54ee9c1e3a2b51d2a239efbc04e4a22bad bfe2e5c797b6abcf3900aee5585650cb47977729 Move protocol_id octet @26 one nibble at a time, where Milan 5.4.3.2.1 ends the OUI-36 and starts the MVU protocol id (#536)
+$ git merge-base 8b7be584 fb84de54  # source base
+26d855a9176d63625e6635a029a0c44e3d57ce9a
+$ git diff --name-only 26d855a9176d63625e6635a029a0c44e3d57ce9a fb84de54  # PR paths
+docs/MILAN_V12_ROADMAP.md
+tests/README.md
+tests/features/aecp_response_contract.feature
+tests/steps/aecp_engine_model.py
+tests/steps/aecp_engine_steps.py
+$ git diff --name-only 26d855a9176d63625e6635a029a0c44e3d57ce9a 8b7be584 -- <PR paths>  # overlap with queued predecessors
+docs/MILAN_V12_ROADMAP.md
+$ diff <(git diff 26d855a9176d63625e6635a029a0c44e3d57ce9a fb84de54) <(git diff 8b7be584 639fc41a)  # PR patch vs composed patch
+2c2
+< index 58e9f152..b322f438 100644
+---
+> index 57afd57e..71a70bba 100644
+5c5
+< @@ -536,7 +536,7 @@ The ladder, cheapest first. A row is not done until it has all four.
+---
+> @@ -538,7 +538,7 @@ The ladder, cheapest first. A row is not done until it has all four.
+$ git merge-tree --write-tree 8b7be584 fb84de54
+e4cd9ffb49baebd5add305f62f6f42892fb42d58
+$ source vs candidate blob identity
+tests 9264168afb0c4a5e83a077af25b8f9e5dd09d794 9264168afb0c4a5e83a077af25b8f9e5dd09d794
+docs/reference/milan_feature_status.json 06bb776ddb495f4e7a3decf3907dee03d9f984d5 06bb776ddb495f4e7a3decf3907dee03d9f984d5
+scripts/check_feature_status.py d68591fc3bbfdbf76db8799ded2556b5196005b0 d68591fc3bbfdbf76db8799ded2556b5196005b0
+protocol-processor 424c688fa2205b934a7689a58f2aa766420f2326 424c688fa2205b934a7689a58f2aa766420f2326
+$ live dev 615b5a5d tree vs first train stage 5c51569b tree
+ad69eb9f74f02a8350b9d1962de4715bab6321d6 ad69eb9f74f02a8350b9d1962de4715bab6321d6
+$ gitlinks base/source/parent/candidate
+26d855a9176d63625e6635a029a0c44e3d57ce9a pp=424c688fa2205b934a7689a58f2aa766420f2326 gptp=c1b617435824929a790739ea8585c3fe1a328cc0
+fb84de54 pp=424c688fa2205b934a7689a58f2aa766420f2326 gptp=c1b617435824929a790739ea8585c3fe1a328cc0
+8b7be584 pp=424c688fa2205b934a7689a58f2aa766420f2326 gptp=e5dcea6e351abff18a27a00f8e345f3251bdbd8f
+639fc41a pp=424c688fa2205b934a7689a58f2aa766420f2326 gptp=e5dcea6e351abff18a27a00f8e345f3251bdbd8f
+$ predecessor roadmap hunks (git diff 26d855a9176d63625e6635a029a0c44e3d57ce9a 8b7be584 -- docs/MILAN_V12_ROADMAP.md)
+diff --git a/docs/MILAN_V12_ROADMAP.md b/docs/MILAN_V12_ROADMAP.md
+index 58e9f152..57afd57e 100644
+--- a/docs/MILAN_V12_ROADMAP.md
++++ b/docs/MILAN_V12_ROADMAP.md
+@@ -434,8 +434,9 @@ second**), the LOCK auto-unlock, and auto-DEREGISTER. The parent proof is
+ leg (`obj_notify`, the processor timebase compressed to 100 cycles per
+ millisecond) measuring the one-second limit.
+ 
+-What stays open: the declared CRF Stream Input has no served counters, so it
+-has no counter push either (audit B4).
++The declared CRF Stream Input, the last descriptor without served counters,
++has served and pushed its Table 5.16 ten since #529 (audit B4, closed); the
++timed leg's `[NOTIFY-CRF]` measures its push under the same limit.
+ 
+ For AS_PATH, COMMIT is deliberately not a publish operation: it changes a
+ staging slot that neither solicited reads nor notifications observe. PUBLISH
+@@ -467,11 +468,12 @@ Do not schedule these as SHALLs and do not let a grader count them.
+ 
+ | Item | Clause | Level |
+ |---|---|---|
+-| MVU `0x0001`/`0x0002` SET/GET_SYSTEM_UNIQUE_ID | 5.4.4.2/.3 | **RECOMMENDED** — *"Support for this feature is a recommendation … will become a requirement in a future revision"* |
+-| MVU `0x0003`/`0x0004` SET/GET_MEDIA_CLOCK_REFERENCE_INFO | 5.4.4.4/.5 | **RECOMMENDED**, same construction |
++| MVU `0x0001`/`0x0002` SET/GET_SYSTEM_UNIQUE_ID | 5.4.4.2/.3 | **RECOMMENDED**: *"Support for this feature is a recommendation … will become a requirement in a future revision"*. Not served for the October release by the [owner decision on #510](https://github.com/kebag-logic/milan-fpga/issues/510#issuecomment-5789766089); answered `NOT_IMPLEMENTED`; P4 (#416) if the conformance lab requires it |
++| MVU `0x0003`/`0x0004` SET/GET_MEDIA_CLOCK_REFERENCE_INFO | 5.4.4.4/.5 | **RECOMMENDED**, same construction, same decision and fallback |
+ | IDENTIFY_NOTIFICATION as a transmitted unsolicited response | 5.4.5.4 | **SHOULD** — *"it should implement the Identification Notification"* |
+ | `ACQUIRE_ENTITY` answering specifically `NOT_SUPPORTED` | 5.4.2.1 | the SHALL is only *"shall not reply SUCCESS"*; the code choice is a SHOULD (we do answer `NOT_SUPPORTED`) |
+-| Redundancy (Section 8, R-PAAD) | 8.x | out of scope: this is a single-AVB_INTERFACE PAAD, so item 11.x is Not Applicable |
++| Redundancy (Section 8, R-PAAD) | 8.x | out of scope: this is a single-AVB_INTERFACE PAAD, so item 11.x is Not Applicable. **OPTIONAL** by Sections 4.2.5 and 8.1; out of scope for the October release by the [owner decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478) (2026-09-23), revisited with the P4/P5 PCB (#416/#417) |
++| IEEE 802.1AS-2011 delayAsymmetry | 802.1AS 8.3 / 10.2.4.8 | **OPTIONAL** to model, zero when not modelled; excluded for v1.2 by the [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257), [gPTP plane record](design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled) |
+ 
+ ---
+ 
