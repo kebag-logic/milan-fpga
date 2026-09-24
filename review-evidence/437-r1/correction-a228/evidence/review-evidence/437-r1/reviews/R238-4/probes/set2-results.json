@@ -1,0 +1,220 @@
+[
+ {
+  "name": "S0 control: heading hidden by an open raw comment",
+  "page": "<span>\n<!--\n\n## Old \u2014 heading\n\n<!-- -->\n\n## Alpha\n",
+  "local": [
+   [
+    2,
+    "Alpha"
+   ]
+  ],
+  "local_anchors": [
+   "alpha"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Alpha\\n\"}",
+   "request_sha256": "6b6c18ed07c02cf3d8cd889d0ac7c0013344928f8e32824d5d7356056e38f125",
+   "response_bytes": "<span>\n\n<h2 dir=\"auto\">Alpha</h2></span>",
+   "response_sha256": "cc3a94191468737723945ce86c6b6c014298a757903e2e95bc3f8823cc0ff8be",
+   "recorded_utc": "2026-09-24T01:03:37+00:00",
+   "headings": [
+    [
+     2,
+     "Alpha"
+    ]
+   ],
+   "anchors": [
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Alpha\\n\"}",
+   "request_sha256": "c66a6d25f92c3beec13fb6eb7e69d3e824b13664fb104211053e2be20736d5f4",
+   "response_bytes": "<span>\n\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Alpha</h2><a id=\"user-content-alpha\" class=\"anchor\" aria-label=\"Permalink: Alpha\" href=\"#alpha\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n</span>",
+   "response_sha256": "3585207eb997a12642645dfb221f39d13e3a07d6548c8d8c09fbcf0bcc777f4a",
+   "recorded_utc": "2026-09-24T01:03:37+00:00",
+   "headings": [
+    [
+     2,
+     "Alpha"
+    ]
+   ],
+   "anchors": [
+    "alpha"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "S1 uppercase position attribute on a raw h2",
+  "page": "<h2 DATA-SOURCEPOS=\"6:1-6:18\">x</h2>\n\n<span>\n<!--\n\n## Old \u2014 heading\n\n<!-- -->\n\n## Alpha\n",
+  "local": [
+   [
+    2,
+    "x"
+   ],
+   [
+    2,
+    "Alpha"
+   ]
+  ],
+  "local_anchors": [
+   "old--heading",
+   "alpha"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<h2 DATA-SOURCEPOS=\\\"6:1-6:18\\\">x</h2>\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Alpha\\n\"}",
+   "request_sha256": "895ae07e3cbdd69313a350a04993428f6d14fbf60a414c70432b75df7fdbf007",
+   "response_bytes": "<h2 dir=\"auto\">x</h2>\n<span>\n\n<h2 dir=\"auto\">Alpha</h2></span>",
+   "response_sha256": "6c5507410fd11ae4906f3b5f153c3630baaf63bfb67e42440b0cf9d3b2350b94",
+   "recorded_utc": "2026-09-24T01:03:37+00:00",
+   "headings": [
+    [
+     2,
+     "x"
+    ],
+    [
+     2,
+     "Alpha"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<h2 DATA-SOURCEPOS=\\\"6:1-6:18\\\">x</h2>\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Alpha\\n\"}",
+   "request_sha256": "acfbd4c7ba5df899eaffeb387e77d59ddcc6bbf511d535eac6c3fc4028c61f70",
+   "response_bytes": "<div class=\"markdown-heading\"><h2 class=\"heading-element\">x</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: x\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<span>\n\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Alpha</h2><a id=\"user-content-alpha\" class=\"anchor\" aria-label=\"Permalink: Alpha\" href=\"#alpha\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n</span>",
+   "response_sha256": "d01879bcb1b1f7e0c0e762c684f1a4e4af20b86b86a223559349e2f52a8889e5",
+   "recorded_utc": "2026-09-24T01:03:38+00:00",
+   "headings": [
+    [
+     2,
+     "x"
+    ],
+    [
+     2,
+     "Alpha"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "alpha"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "S2 mixed-case position attribute on a raw h2",
+  "page": "<h2 Data-SourcePos=\"6:1-6:18\">x</h2>\n\n<span>\n<!--\n\n## Old \u2014 heading\n\n<!-- -->\n\n## Alpha\n",
+  "local": [
+   [
+    2,
+    "x"
+   ],
+   [
+    2,
+    "Alpha"
+   ]
+  ],
+  "local_anchors": [
+   "old--heading",
+   "alpha"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<h2 Data-SourcePos=\\\"6:1-6:18\\\">x</h2>\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Alpha\\n\"}",
+   "request_sha256": "e32afd26719a18347b0d31ac9d367f11773effd30a81f9dc2441a674e655a854",
+   "response_bytes": "<h2 dir=\"auto\">x</h2>\n<span>\n\n<h2 dir=\"auto\">Alpha</h2></span>",
+   "response_sha256": "6c5507410fd11ae4906f3b5f153c3630baaf63bfb67e42440b0cf9d3b2350b94",
+   "recorded_utc": "2026-09-24T01:03:38+00:00",
+   "headings": [
+    [
+     2,
+     "x"
+    ],
+    [
+     2,
+     "Alpha"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<h2 Data-SourcePos=\\\"6:1-6:18\\\">x</h2>\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Alpha\\n\"}",
+   "request_sha256": "83167a081b1427df08a52c517b7bd342ebc4ab51b53d404cf3071c0b8c02a4bf",
+   "response_bytes": "<div class=\"markdown-heading\"><h2 class=\"heading-element\">x</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: x\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<span>\n\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Alpha</h2><a id=\"user-content-alpha\" class=\"anchor\" aria-label=\"Permalink: Alpha\" href=\"#alpha\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n</span>",
+   "response_sha256": "d01879bcb1b1f7e0c0e762c684f1a4e4af20b86b86a223559349e2f52a8889e5",
+   "recorded_utc": "2026-09-24T01:03:39+00:00",
+   "headings": [
+    [
+     2,
+     "x"
+    ],
+    [
+     2,
+     "Alpha"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "alpha"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "S3 uppercase position attribute on a raw span (no heading)",
+  "page": "<span DATA-SOURCEPOS=\"6:1-6:18\">x</span>\n\n<span>\n<!--\n\n## Old \u2014 heading\n\n<!-- -->\n\n## Alpha\n",
+  "local": [
+   [
+    2,
+    "Alpha"
+   ]
+  ],
+  "local_anchors": [
+   "alpha"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<span DATA-SOURCEPOS=\\\"6:1-6:18\\\">x</span>\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Alpha\\n\"}",
+   "request_sha256": "4e6475515c1b33bfc93beda44e64581258984813b81995735520aae78b8da65c",
+   "response_bytes": "<p dir=\"auto\"><span>x</span></p>\n<span>\n\n<h2 dir=\"auto\">Alpha</h2></span>",
+   "response_sha256": "5d67ba55c4826d5b29266362ae2c9d42192d5ff1fbb0c3595d1b7e4b3a719d82",
+   "recorded_utc": "2026-09-24T01:03:39+00:00",
+   "headings": [
+    [
+     2,
+     "Alpha"
+    ]
+   ],
+   "anchors": [
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<span DATA-SOURCEPOS=\\\"6:1-6:18\\\">x</span>\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Alpha\\n\"}",
+   "request_sha256": "5a315885f43985113769ae01339e04a1913adae79e7d0e0d1a6dd2fe266d1738",
+   "response_bytes": "<p><span>x</span></p>\n<span>\n\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Alpha</h2><a id=\"user-content-alpha\" class=\"anchor\" aria-label=\"Permalink: Alpha\" href=\"#alpha\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n</span>",
+   "response_sha256": "174d2b345e9f12a49867eea3ed9d27101513328e82323a785ca058157c2ef3c4",
+   "recorded_utc": "2026-09-24T01:03:39+00:00",
+   "headings": [
+    [
+     2,
+     "Alpha"
+    ]
+   ],
+   "anchors": [
+    "alpha"
+   ],
+   "agrees": true
+  }
+ }
+]

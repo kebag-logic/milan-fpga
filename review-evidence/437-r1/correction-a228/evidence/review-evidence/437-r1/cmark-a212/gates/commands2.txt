@@ -1,0 +1,19 @@
+python3 scripts/check_sv_idiom.py
+python3 scripts/check_sv_idiom.py --selftest
+python3 scripts/check_cpp_idiom.py
+python3 scripts/check_cpp_idiom.py --selftest
+python3 scripts/check_py_idiom.py
+python3 scripts/check_py_idiom.py --selftest
+python3 scripts/check_sh_idiom.py
+python3 scripts/check_sh_idiom.py --selftest
+python3 scripts/ci_events.py --check
+python3 scripts/ci_events.py --selftest
+python3 scripts/act_ci.py --selftest
+python3 scripts/check_doc_paths.py
+python3 scripts/check_archive.py
+python3 scripts/check_archive.py --selftest
+python3 avdecc/gen_aem_store.py --self-test
+python3 scripts/check_sweep_shape.py --self-test
+python3 scripts/check_deploy_shape.py --self-test
+python3 scripts/check_entity_shape.py --self-test
+python3 scripts/check_wire_accountability.py --self-test

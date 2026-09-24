@@ -1,0 +1,16 @@
+$ HOME=$REVIEWS/437-a228-packet/scratch/home python3 scripts/ci_rv32_sdk.py --destination "$REVIEWS/437-a228-packet/scratch<home-path>/host"
+SDK download: https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz
+SDK archive verified: /tmp/milan-rv32-download-_xtephwi/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz sha256=d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f
+SDK argv: ["$REVIEWS/437-a228-packet/scratch<home-path>/host/relocate-sdk.sh"]
+Relocating the buildroot SDK from /builds/buildroot.org/toolchains-builder/build/riscv32-ilp32d--glibc--stable-2025.08-1 to $REVIEWS/437-a228-packet/scratch<home-path>/host ...
+SDK argv: ["$REVIEWS/437-a228-packet/scratch<home-path>/host/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$REVIEWS/437-a228-packet/scratch<home-path>/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$REVIEWS/437-a228-packet/scratch<home-path>/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$REVIEWS/437-a228-packet/scratch<home-path>/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["$REVIEWS/437-a228-packet/scratch<home-path>/host/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$REVIEWS/437-a228-packet/scratch<home-path>/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$REVIEWS/437-a228-packet/scratch<home-path>/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$REVIEWS/437-a228-packet/scratch<home-path>/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "$REVIEWS/437-a228-packet/scratch<home-path>/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "$REVIEWS/437-a228-packet/scratch<home-path>/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "$REVIEWS/437-a228-packet/scratch<home-path>/host/bin/toolchain-wrapper", "sysroot": "$REVIEWS/437-a228-packet/scratch<home-path>/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+SDK fresh installation: verified

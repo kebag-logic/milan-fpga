@@ -1,0 +1,18 @@
+[
+ {
+  "name": "S0 control: heading hidden by an open raw comment",
+  "page": "<span>\n<!--\n\n## Old \u2014 heading\n\n<!-- -->\n\n## Alpha\n"
+ },
+ {
+  "name": "S1 uppercase position attribute on a raw h2",
+  "page": "<h2 DATA-SOURCEPOS=\"6:1-6:18\">x</h2>\n\n<span>\n<!--\n\n## Old \u2014 heading\n\n<!-- -->\n\n## Alpha\n"
+ },
+ {
+  "name": "S2 mixed-case position attribute on a raw h2",
+  "page": "<h2 Data-SourcePos=\"6:1-6:18\">x</h2>\n\n<span>\n<!--\n\n## Old \u2014 heading\n\n<!-- -->\n\n## Alpha\n"
+ },
+ {
+  "name": "S3 uppercase position attribute on a raw span (no heading)",
+  "page": "<span DATA-SOURCEPOS=\"6:1-6:18\">x</span>\n\n<span>\n<!--\n\n## Old \u2014 heading\n\n<!-- -->\n\n## Alpha\n"
+ }
+]

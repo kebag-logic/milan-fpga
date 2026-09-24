@@ -1,0 +1,149 @@
+[
+ {
+  "mode": "gfm",
+  "set": "renderer",
+  "name": "I437 arm page: a heading an open raw comment hides, after three sections",
+  "source": "the page of a gen_toc_renderer_cases I437 arm (A228, PR #538 correction round 1), exact page",
+  "page": "# Page\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n\n<span>\n<!--\n\n## Old — heading\n</span>\n"
+ },
+ {
+  "mode": "gfm",
+  "set": "renderer",
+  "name": "I437 arm page: an open raw tag reads a heading's position as an attribute",
+  "source": "the page of a gen_toc_renderer_cases I437 arm (A228, PR #538 correction round 1), exact page",
+  "page": "<div foo\n\n## Old\n\n## Real\n"
+ },
+ {
+  "mode": "gfm",
+  "set": "renderer",
+  "name": "I437 arm page: an open raw tag reads a heading's position as an unquoted value",
+  "source": "the page of a gen_toc_renderer_cases I437 arm (A228, PR #538 correction round 1), exact page",
+  "page": "<div title=\n\n## Old\n\n## Real\n"
+ },
+ {
+  "mode": "gfm",
+  "set": "renderer",
+  "name": "I437 arm page: a setext heading with strikethrough",
+  "source": "the page of a gen_toc_renderer_cases I437 arm (A228, PR #538 correction round 1), exact page",
+  "page": "a ~~b~~\n---\n"
+ },
+ {
+  "mode": "gfm",
+  "set": "renderer",
+  "name": "I437 arm page: a block quote an open comment swallows",
+  "source": "the page of a gen_toc_renderer_cases I437 arm (A228, PR #538 correction round 1), exact page",
+  "page": "<span>\n<!--\n\n> a\n>\n> b\n"
+ },
+ {
+  "mode": "gfm",
+  "set": "renderer",
+  "name": "I437 arm page: a list an open comment swallows, an empty item first",
+  "source": "the page of a gen_toc_renderer_cases I437 arm (A228, PR #538 correction round 1), exact page",
+  "page": "<span>\n<!--\n\n-\n\n- b\n"
+ },
+ {
+  "mode": "gfm",
+  "set": "renderer",
+  "name": "I437 arm page: a fence an open comment swallows",
+  "source": "the page of a gen_toc_renderer_cases I437 arm (A228, PR #538 correction round 1), exact page",
+  "page": "<span>\n<!--\n\n```\ncode\n```\n"
+ },
+ {
+  "mode": "gfm",
+  "set": "renderer",
+  "name": "I437 arm page: a thematic break an open comment swallows",
+  "source": "the page of a gen_toc_renderer_cases I437 arm (A228, PR #538 correction round 1), exact page",
+  "page": "<span>\n<!--\n\n***\n"
+ },
+ {
+  "mode": "gfm",
+  "set": "renderer",
+  "name": "I437 arm page: a table an open comment swallows",
+  "source": "the page of a gen_toc_renderer_cases I437 arm (A228, PR #538 correction round 1), exact page",
+  "page": "<span>\n<!--\n\n| a |\n|---|\n| b |\n"
+ },
+ {
+  "mode": "gfm",
+  "set": "renderer",
+  "name": "I437 arm page: an element nested 200 deep between two headings",
+  "source": "the page of a gen_toc_renderer_cases I437 arm (A228, PR #538 correction round 1), exact page",
+  "page": "## A\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> x\n\n## B\n"
+ },
+ {
+  "mode": "markdown",
+  "set": "file view",
+  "name": "position attribute: none, the heading hidden by an open raw comment",
+  "source": "R237-5 F1, R238-4 F1 and F2 on PR #538: the page of a gen_toc_renderer_cases I437 arm, exact page",
+  "page": "# Page\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n\n<span>\n<!--\n\n## Old — heading\n</span>\n"
+ },
+ {
+  "mode": "markdown",
+  "set": "file view",
+  "name": "position attribute spelled in upper case on a raw h2",
+  "source": "R237-5 F1, R238-4 F1 and F2 on PR #538: the page of a gen_toc_renderer_cases I437 arm, exact page",
+  "page": "# Page\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n\n<h2 DATA-SOURCEPOS=\"20:1-20:18\">x</h2>\n\n<span>\n<!--\n\n## Old — heading\n</span>\n"
+ },
+ {
+  "mode": "markdown",
+  "set": "file view",
+  "name": "position attribute spelled in mixed case on a raw h2",
+  "source": "R237-5 F1, R238-4 F1 and F2 on PR #538: the page of a gen_toc_renderer_cases I437 arm, exact page",
+  "page": "# Page\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n\n<h2 Data-SourcePos=\"20:1-20:18\">x</h2>\n\n<span>\n<!--\n\n## Old — heading\n</span>\n"
+ },
+ {
+  "mode": "markdown",
+  "set": "file view",
+  "name": "position attribute spelled through a character reference on a raw h2",
+  "source": "R237-5 F1, R238-4 F1 and F2 on PR #538: the page of a gen_toc_renderer_cases I437 arm, exact page",
+  "page": "# Page\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n\n<h2 title='\n\nz' &#100;ata-sourcepos=22:1-22:18 y\n\n<span>\n<!--\n\n## Old — heading\n</span>\n"
+ },
+ {
+  "mode": "markdown",
+  "set": "file view",
+  "name": "position attribute spelled through a backslash escape on a raw h2",
+  "source": "R237-5 F1, R238-4 F1 and F2 on PR #538: the page of a gen_toc_renderer_cases I437 arm, exact page",
+  "page": "# Page\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n\n<h2 title='\n\nz' data\\-sourcepos=22:1-22:18 y\n\n<span>\n<!--\n\n## Old — heading\n</span>\n"
+ },
+ {
+  "mode": "markdown",
+  "set": "file view",
+  "name": "an open raw tag reads a heading's position as an attribute",
+  "source": "R237-5 F1, R238-4 F1 and F2 on PR #538: the page of a gen_toc_renderer_cases I437 arm, exact page",
+  "page": "<div foo\n\n## Old\n\n## Real\n"
+ },
+ {
+  "mode": "markdown",
+  "set": "file view",
+  "name": "an open raw tag reads a heading's position as an unquoted value",
+  "source": "R237-5 F1, R238-4 F1 and F2 on PR #538: the page of a gen_toc_renderer_cases I437 arm, exact page",
+  "page": "<div title=\n\n## Old\n\n## Real\n"
+ },
+ {
+  "mode": "markdown",
+  "set": "file view",
+  "name": "a setext heading with strikethrough",
+  "source": "R237-5 F1, R238-4 F1 and F2 on PR #538: the page of a gen_toc_renderer_cases I437 arm, exact page",
+  "page": "a ~~b~~\n---\n"
+ },
+ {
+  "mode": "markdown",
+  "set": "file view",
+  "name": "an element nested 201 deep between two headings",
+  "source": "R237-5 F1, R238-4 F1 and F2 on PR #538: the page of a gen_toc_renderer_cases I437 arm, exact page",
+  "page": "## A\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> x\n\n## B\n"
+ },
+ {
+  "mode": "markdown",
+  "set": "file view",
+  "name": "an element nested 256 deep between two headings",
+  "source": "R237-5 F1, R238-4 F1 and F2 on PR #538: the page of a gen_toc_renderer_cases I437 arm, exact page",
+  "page": "## A\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> x\n\n## B\n"
+ },
+ {
+  "mode": "markdown",
+  "set": "file view",
+  "name": "an element nested 1101 deep between two headings",
+  "source": "R237-5 F1, R238-4 F1 and F2 on PR #538: the page of a gen_toc_renderer_cases I437 arm, exact page",
+  "page": "## A\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> x\n\n## B\n"
+ }
+]

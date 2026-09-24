@@ -1,0 +1,38 @@
+source: 196cb7d99cb06631df514715979a5f82fbb1f7aa
+===== block quotes 1200 deep
+  scripts/gen_toc.py --check: rc=1
+          cdecl = self._typeof(cdecl)
+                  ^^^^^^^^^^^^^^^^^^^
+      RecursionError: maximum recursion depth exceeded
+  scripts/check_em_dash.py --base: rc=1
+          cdecl = self._typeof(cdecl)
+                  ^^^^^^^^^^^^^^^^^^^
+      RecursionError: maximum recursion depth exceeded
+===== list levels 1200 deep
+  scripts/gen_toc.py --check: rc=1
+          cdecl = self._typeof(cdecl)
+                  ^^^^^^^^^^^^^^^^^^^
+      RecursionError: maximum recursion depth exceeded
+  scripts/check_em_dash.py --base: rc=1
+          cdecl = self._typeof(cdecl)
+                  ^^^^^^^^^^^^^^^^^^^
+      RecursionError: maximum recursion depth exceeded
+source: edbe7f31997c6d4c287876d940b620752d604479
+===== block quotes 1200 deep
+  scripts/gen_toc.py --check: rc=1
+      
+      1 page(s) need attention. Run: python3 scripts/gen_toc.py --write <page>
+      then WRITE the description for each entry - the generator cannot, and a list that only repeats the headings is not worth the space it takes.
+  scripts/check_em_dash.py --base: rc=1
+      docs/DEEP.md:7: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+      docs/DEEP.md:15: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+      check_em_dash: 2 finding(s) over 15 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6ea9b8d8..HEAD]
+===== list levels 1200 deep
+  scripts/gen_toc.py --check: rc=1
+      
+      1 page(s) need attention. Run: python3 scripts/gen_toc.py --write <page>
+      then WRITE the description for each entry - the generator cannot, and a list that only repeats the headings is not worth the space it takes.
+  scripts/check_em_dash.py --base: rc=1
+      docs/DEEP.md:7: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+      docs/DEEP.md:1214: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+      check_em_dash: 2 finding(s) over 1214 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [68e88b35..HEAD]

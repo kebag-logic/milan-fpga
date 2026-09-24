@@ -1,0 +1,73 @@
+KILLED  toc rc=1 emdash rc=2  M01 positions left quoted
+      toc: FAIL [I437 what an open quoted attribute value swallows is commented]: ['raw HTML line', 'prose line', 'commented line', 'prose line', 'prose line', 'prose line']
+      toc: FAIL [I437 an item the HTML parse swallows is commented, its list not]: ['raw HTML line', 'commented line', 'commented line', 'prose line', 'prose line']
+      emdash: - [I437 em dash: I437 arm page: an item the parse swallows while its list renders] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False
+KILLED  toc rc=1 emdash rc=2  M02 walk ignores what the HTML parse swallows
+      toc: FAIL [(renderer) a second comment opened on a closing line stays open past an arrow written as text]: ['commented line', 'prose line', 'prose line', 'prose line', 'prose 
+      toc: FAIL [(renderer) a comment closed and reopened inside a comment block stays open past an arrow written as text]: ['commented line', 'commented line', 'prose line', 'prose
+      emdash: - [a second comment on a closing line still hides the block] no finding names 'added commented line':
+KILLED  toc rc=1 emdash rc=2  M03 headings not filtered by the HTML parse
+      toc: FAIL [a lone tag directly under a setext underline hides the heading it wraps]
+      toc: FAIL [a lone tag directly under a setext underline indented one space hides the heading it wraps]
+      emdash: - [I437 em dash: #516 first tag column 0 open] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []
+      emdash: - [I437 em dash: #516 first tag column 0 close] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []
+NOT APPLIED (0 matches): M04 tight-list paragraphs given an element
+KILLED  toc rc=1 emdash rc=0  M05 raw HTML/indented code extent from reported end
+      toc: FAIL [a fence delimiter inside a comment opens no fence]: ['commented line', 'commented line', 'prose line', 'prose line', 'prose line', 'prose line']
+      toc: FAIL [a raw HTML block's content is not Markdown]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line', 'prose line']
+NOT APPLIED (0 matches): M06 position-attribute guard removed
+KILLED  toc rc=1 emdash rc=0  M07 ATX label from rendered text
+      toc: FAIL [a no-break space after a run of hashes is not a closing sequence]
+      toc: FAIL [I437 a heading in a list item is read off its own line]
+KILLED  toc rc=1 emdash rc=2  M08 tagfilter extension dropped
+      toc: FAIL [I440-T-valid script/pre '\n']: ['raw HTML line', 'raw HTML line', 'commented line', 'prose line']
+      toc: FAIL [I440-T-valid script/PRE '\n']: ['raw HTML line', 'raw HTML line', 'commented line', 'prose line']
+      emdash: - [I437 em dash: type-1 script leaves comment open] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []
+KILLED  toc rc=1 emdash rc=2  M09 table extension dropped
+      toc: FAIL [a lone tag directly under a table row hides the heading it wraps]
+      toc: FAIL [a lone tag directly under a table row without a pipe hides the heading it wraps]
+      emdash: - [added table row is refused] no finding names 'added table row':
+KILLED  toc rc=1 emdash rc=0  M10 autolink extension dropped
+      toc: FAIL [I437 the renderer attaches exactly the extensions spelled here]
+      toc: TOC selftest: FAIL (1500/1501 arm(s))
+KILLED  toc rc=1 emdash rc=0  M11 strikethrough extension dropped
+      toc: FAIL [I437 a setext heading's strikethrough renders as GitHub's does]
+      toc: FAIL [I437 the renderer attaches exactly the extensions spelled here]
+KILLED  toc rc=1 emdash rc=0  M12 tasklist extension dropped
+      toc: FAIL [I437 the renderer attaches exactly the extensions spelled here]
+      toc: TOC selftest: FAIL (1500/1501 arm(s))
+KILLED  toc rc=1 emdash rc=2  M13 footnotes option dropped
+      toc: FAIL [a lone tag directly under a footnote definition hides the heading it wraps]
+      toc: FAIL [a lone tag directly under a footnote definition interrupting a paragraph hides the heading it wraps]
+      emdash: - [I437 em dash: footnote content is read at the page end] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []
+      emdash: - [I437 em dash: R238-r1 D02 dedented footnote then resumed text] label refused, base refusal named, exempt: expected (False, False, 1), got (True, False, 0): ['s199.md:5
+KILLED  toc rc=1 emdash rc=2  M14 unsafe option dropped
+      toc: FAIL [(renderer) a second comment opened on a closing line stays open past an arrow written as text]: ['commented line', 'prose line', 'prose line', 'prose line', 'prose 
+      toc: FAIL [(renderer) a comment closed and reopened inside a comment block stays open past an arrow written as text]: ['commented line', 'commented line', 'prose line', 'prose
+      emdash: - [a second comment on a closing line still hides the block] no finding names 'added commented line':
+      emdash: - [I437 em dash: #516 first tag column 0 open] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []
+KILLED  toc rc=1 emdash rc=0  M15 binding ignores a drifted release
+      toc: FAIL [I437 the binding itself refuses another cmarkgfm release by name]
+      toc: FAIL [I437 the binding itself refuses a missing html5lib by name]
+KILLED  toc rc=1 emdash rc=0  M16 bundled cmark-gfm release unchecked
+      toc: FAIL [I437 another bundled cmark-gfm is refused]
+      toc: TOC selftest: FAIL (1500/1501 arm(s))
+KILLED  toc rc=1 emdash rc=2  M17 element tag not matched to heading level
+      toc: FAIL [I437 a heading whose position an open raw tag reads as an attribute is not listed: the tag is not its level's]
+      toc: FAIL [I437 the same, the position read as an unquoted value]
+      emdash: - [I437 em dash: I437 arm page: an open raw tag reads a heading's position as an attribute] label refused, base refusal named, exempt: expected (True, False, 0), got (Fal
+      emdash: - [I437 em dash: I437 arm page: an open raw tag reads a heading's position as an unquoted value] label refused, base refusal named, exempt: expected (True, False, 0), got
+KILLED  toc rc=1 emdash rc=2  M18 comment block labelled raw HTML
+      toc: FAIL [a fence delimiter inside a comment opens no fence]: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line']
+      toc: FAIL [a comment that really closes ends the span]: ['raw HTML line', 'prose line', 'prose line']
+      emdash: - [commented-out copy of a mirrored label is refused] no finding names 'added commented line':
+KILLED  toc rc=1 emdash rc=0  M19 lone carriage return not a line end
+      toc: FAIL [I437 a lone carriage return ends a line for the renderer]: ['fenced line', 'fenced line', 'prose line']
+      toc: TOC selftest: FAIL (1500/1501 arm(s))
+KILLED  toc rc=1 emdash rc=0  M20 headings in source order, not rendered order
+      toc: FAIL [I437 a heading in a referenced footnote is listed where the renderer places it, and numbered there]
+      toc: FAIL [I437 renders as GitHub does: I437 arm page: a footnote heading follows the page's own]
+KILLED  toc rc=1 emdash rc=0  M21 own-element kinds ignored
+      toc: FAIL [(renderer) a second comment opened on a closing line stays open past an arrow written as text]: ['commented line', 'prose line', 'commented line', 'commented line',
+      toc: FAIL [(renderer) a comment closed and reopened inside a comment block stays open past an arrow written as text]: ['commented line', 'commented line', 'prose line', 'comme
+NOT APPLIED (0 matches): M22 position guard case-sensitive -> ignore case (FIX-PROBE)

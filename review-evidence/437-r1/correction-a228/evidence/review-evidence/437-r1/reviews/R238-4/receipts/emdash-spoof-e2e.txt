@@ -1,0 +1,28 @@
+===== variant: control (base d41c18482ad30a5bd0a1f14f7adbbfe25d54b9b3, head 7dd26b088fc40ec85b6129933edca31c71e878fb)
+--- added lines:
++## Contents
++- **[Alpha](#alpha)** -- What alpha holds.
++- **[Old — heading](#old--heading)** -- Copied.
++- **[Beta](#beta)** -- What beta holds.
++- **[Gamma](#gamma)** -- What gamma holds.
+--- headings() at base and head:
+base [(1, 'Page', 'page'), (2, 'Alpha', 'alpha'), (2, 'Beta', 'beta'), (2, 'Gamma', 'gamma')]
+head [(1, 'Page', 'page'), (2, 'Contents', 'contents'), (2, 'Alpha', 'alpha'), (2, 'Beta', 'beta'), (2, 'Gamma', 'gamma')]
+--- check_em_dash.py --base d41c18482ad30a5bd0a1f14f7adbbfe25d54b9b3:
+P.md:6: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+check_em_dash: 1 finding(s) over 7 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 332/332 [d41c1848..HEAD]
+rc=1
+===== variant: spoof (base 59c0375733b23f0efd98ef06072245d25f83edd7, head 6b7552b6aa693aecd03e585371069f15d37d2bc4)
+--- added lines:
++## Contents
++- **[Alpha](#alpha)** -- What alpha holds.
++- **[Old — heading](#old--heading)** -- Copied.
++- **[Beta](#beta)** -- What beta holds.
++- **[Gamma](#gamma)** -- What gamma holds.
++<h2 DATA-SOURCEPOS="19:1-19:18">x</h2>
+--- headings() at base and head:
+base [(1, 'Page', 'page'), (2, 'Alpha', 'alpha'), (2, 'Old — heading', 'old--heading'), (2, 'Beta', 'beta'), (2, 'Gamma', 'gamma')]
+head [(1, 'Page', 'page'), (2, 'Contents', 'contents'), (2, 'Alpha', 'alpha'), (2, 'Old — heading', 'old--heading'), (2, 'Beta', 'beta'), (2, 'Gamma', 'gamma')]
+--- check_em_dash.py --base 59c0375733b23f0efd98ef06072245d25f83edd7:
+check_em_dash: 0 finding(s) over 8 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [59c03757..HEAD]
+rc=0

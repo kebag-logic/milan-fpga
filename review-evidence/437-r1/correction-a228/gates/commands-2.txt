@@ -1,0 +1,39 @@
+sv2v --version
+python3 scripts/check_baremetal_only.py --check
+python3 scripts/check_baremetal_only.py --selftest
+python3 scripts/check_nvm_record_space.py
+python3 scripts/check_nvm_record_space.py --self-test
+python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+python3 scripts/check_soc_sources.py
+python3 scripts/check_soc_sources.py --selftest
+python3 sw/litex/iob_pack_selftest.py
+python3 scripts/check_rtl_source_lists.py
+python3 scripts/check_rtl_source_lists.py --selftest
+python3 scripts/measure_naming.py --check
+python3 scripts/measure_naming.py --selftest
+python3 scripts/check_port_contracts.py
+python3 scripts/check_port_contracts.py --selftest
+python3 scripts/measure_fail_fast.py --check
+python3 scripts/measure_fail_fast.py --selftest
+python3 scripts/check_todo_ownership.py
+python3 scripts/check_todo_ownership.py --selftest
+python3 scripts/measure_test_evidence.py --check
+python3 scripts/measure_test_evidence.py --selftest
+python3 scripts/check_hygiene.py --check
+python3 scripts/check_hygiene.py --selftest
+python3 scripts/check_sv_idiom.py
+python3 scripts/check_sv_idiom.py --selftest
+python3 scripts/check_cpp_idiom.py
+python3 scripts/check_cpp_idiom.py --selftest
+python3 scripts/check_sh_idiom.py
+python3 scripts/check_sh_idiom.py --selftest
+python3 scripts/ci_events.py --check
+python3 scripts/ci_events.py --selftest
+python3 scripts/check_doc_paths.py
+python3 scripts/check_archive.py
+python3 scripts/check_archive.py --selftest
+python3 avdecc/gen_aem_store.py --self-test
+python3 scripts/check_sweep_shape.py --self-test
+python3 scripts/check_deploy_shape.py --self-test
+python3 scripts/check_entity_shape.py --self-test
+python3 scripts/check_wire_accountability.py --self-test

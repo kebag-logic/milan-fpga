@@ -1,0 +1,85 @@
+{
+ "pages": 352,
+ "heading_differences": [
+  {
+   "name": "R238-2 F1a control",
+   "page": "text <? <!-- ?>\n\n## X\n\n## Y\n",
+   "github": [],
+   "parser": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ]
+  },
+  {
+   "name": "R238-2 F2 H06",
+   "page": "<div>\n<? a <!-- ?>\n</div>\n\n## X\n\n## Y\n",
+   "github": [],
+   "parser": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ]
+  }
+ ],
+ "anchor_differences": [
+  {
+   "name": "R237-3 E8",
+   "page": "## A <?p > <!-- ?>\n\n## Old\n",
+   "github": [
+    [
+     2,
+     "A",
+     "a--"
+    ]
+   ],
+   "parser": [
+    "a-p-----"
+   ]
+  },
+  {
+   "name": "I437 arm page: empty ATX heading",
+   "page": "##\n",
+   "github": [
+    [
+     2,
+     "",
+     null
+    ]
+   ],
+   "parser": [
+    ""
+   ]
+  },
+  {
+   "name": "arm: a lone tag directly under an empty ATX heading hides the heading it wraps",
+   "page": "text\n##\n<span>\n## Old\n</span>\n\n## Beta\n",
+   "github": [
+    [
+     2,
+     "",
+     null
+    ],
+    [
+     2,
+     "Beta",
+     "beta"
+    ]
+   ],
+   "parser": [
+    "",
+    "beta"
+   ]
+  }
+ ]
+}

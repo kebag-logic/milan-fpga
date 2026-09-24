@@ -1,0 +1,23 @@
+source head: 26a0cc3042300d5213edf7b1c0037a3ae2612ecd
+===== control: headings() at head ['Page', 'Contents', 'Alpha', 'Beta', 'Gamma']
+    P.md:6: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+    check_em_dash: 1 finding(s) over 7 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [9f8eaace..HEAD]
+    rc=1
+===== upper case: headings() at head []
+    P.md:6: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+    P.md:14: `DATA-SOURCEPOS` at column 5 spells the attribute the renderer marks its own elements with, so this walk does not read the page (reword it), so no Contents label on it is exempt
+    check_em_dash: 2 finding(s) over 8 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [f3c90bd3..HEAD]
+    rc=1
+===== mixed case: headings() at head []
+    P.md:6: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+    P.md:14: `Data-SourcePos` at column 5 spells the attribute the renderer marks its own elements with, so this walk does not read the page (reword it), so no Contents label on it is exempt
+    check_em_dash: 2 finding(s) over 8 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [213fb790..HEAD]
+    rc=1
+===== character reference: headings() at head []
+    P.md:6: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+    check_em_dash: 1 finding(s) over 8 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [96e63aa7..HEAD]
+    rc=1
+===== backslash escape: headings() at head []
+    P.md:6: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+    check_em_dash: 1 finding(s) over 8 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6992475c..HEAD]
+    rc=1

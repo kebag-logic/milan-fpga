@@ -1,0 +1,21 @@
+A raw comment left open, closed by an inline comment inside a container:
+the container's own element is swallowed, a later line is not.
+== partial quote (with and without 'block_quote' in _OWN_ELEMENT)
+  1 raw HTML line    raw HTML line    '<span>'
+  2 raw HTML line    raw HTML line    '<!--'
+  3 prose line       prose line       ''
+  4 commented line   commented line   '> a <!-- x -->'
+  5 commented line   prose line       '>'
+  6 commented line   prose line       '> b'
+  7 prose line       prose line       ''
+  shown elements: [('p', '6:3-6:3')]
+== partial list (with and without 'list' in _OWN_ELEMENT)
+  1 raw HTML line    raw HTML line    '<span>'
+  2 raw HTML line    raw HTML line    '<!--'
+  3 prose line       prose line       ''
+  4 commented line   commented line   '- a'
+  5 commented line   commented line   '- b <!-- x -->'
+  6 commented line   prose line       '- c'
+  7 prose line       prose line       ''
+  shown elements: [('li', '6:1-6:3')]
+head 26a0cc3042300d5213edf7b1c0037a3ae2612ecd

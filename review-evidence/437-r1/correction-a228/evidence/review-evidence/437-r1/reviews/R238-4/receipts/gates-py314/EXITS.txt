@@ -1,0 +1,13 @@
+01	rc=0	1s	scripts/gen_toc.py --selftest
+02	rc=0	1s	scripts/gen_toc.py --verify-anchors
+03	rc=0	3s	scripts/gen_toc.py --check
+04	rc=0	3s	scripts/check_em_dash.py --selftest
+05	rc=0	2s	scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+06	rc=0	3s	scripts/check_py_idiom.py
+07	rc=0	3s	scripts/check_py_idiom.py --selftest
+08	rc=0	0s	scripts/ci_events.py --check
+09	rc=0	1s	scripts/check_hygiene.py --check
+10	rc=0	4s	scripts/docs_check.py
+11	rc=0	0s	scripts/check_doc_style.py
+12	rc=0	0s	scripts/check_doc_paths.py
+13	rc=0	1s	scripts/check_todo_ownership.py

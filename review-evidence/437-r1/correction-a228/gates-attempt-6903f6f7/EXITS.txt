@@ -1,0 +1,41 @@
+0	0s	python3 --version
+0	0s	python3 -m pip freeze
+0	0s	git rev-parse HEAD
+0	0s	git status --porcelain
+0	0s	git diff --check 759da623072358afdb0e9d570a7b4b6a788492c9 HEAD
+0	3s	python3 scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+0	1s	python3 scripts/gen_toc.py --selftest
+0	1s	python3 scripts/gen_toc.py --verify-anchors
+0	2s	python3 scripts/gen_toc.py --check
+0	3s	python3 scripts/check_em_dash.py --selftest
+0	3s	python3 scripts/check_py_idiom.py
+0	3s	python3 scripts/check_py_idiom.py --selftest
+0	0s	python3 scripts/gen_hdl_reference.py --selftest
+0	2s	python3 scripts/gen_hdl_reference.py --output "$RUNNER_TEMP/milan-hdl-reference"
+1	4s	python3 scripts/docs_check.py
+0	0s	python3 scripts/check_doc_style.py
+0	0s	python3 scripts/check_doc_style.py --selftest
+0	0s	python3 scripts/check_gptp_docs.py
+0	0s	python3 scripts/check_gptp_docs.py --selftest
+0	1s	python3 docs/DOC_MAP.gen.py --check
+0	0s	python3 docs/DOC_MAP.gen.py --selftest
+0	0s	python3 docs/diagrams/timesync_chain.gen.py --check
+0	1s	python3 docs/diagrams/timesync_chain.gen.py --selftest
+0	0s	python3 scripts/check_solution_docs.py
+0	2s	python3 scripts/check_solution_docs.py --selftest
+0	1s	python3 docs/diagrams/submodule_boundaries.gen.py --check
+0	0s	python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+0	0s	python3 scripts/check_submodule_docs.py
+0	0s	python3 scripts/check_submodule_docs.py --selftest
+0	1s	python3 scripts/gen_wavedrom.py --selftest
+0	0s	python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+0	0s	python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+0	0s	python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+0	1s	python3 scripts/check_diagram_pngs.py
+0	6s	python3 scripts/check_diagram_pngs.py --selftest
+0	1s	python3 scripts/check_feature_status.py --self-test
+0	1s	python3 docs/traceability/gen_module_matrix.py --check
+0	0s	python3 scripts/check_gptp_docs.py --with-submodule
+0	0s	make -C gptp-processor docs
+0	1s	python3 scripts/measure_control_flow.py --selftest
+0	0s	python3 scripts/measure_cohesion.py --selftest

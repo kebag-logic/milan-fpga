@@ -1,0 +1,430 @@
+[
+ {
+  "name": "e2e control base page",
+  "page": "# Page\n\n## Alpha\n\nBody.\n\n<span>\n<!--\n\n## Old \u2014 heading\n\n<!-- -->\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "local": [
+   [
+    1,
+    "Page"
+   ],
+   [
+    2,
+    "Alpha"
+   ],
+   [
+    2,
+    "Beta"
+   ],
+   [
+    2,
+    "Gamma"
+   ]
+  ],
+  "local_anchors": [
+   "page",
+   "alpha",
+   "beta",
+   "gamma"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"# Page\\n\\n## Alpha\\n\\nBody.\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+   "request_sha256": "ac9e1cc09260eabbe87e1c95633e0248651e25af18dc7d11bde321a4289a2e93",
+   "response_bytes": "<h1 dir=\"auto\">Page</h1>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<span>\n\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></span>",
+   "response_sha256": "fff42faf8dfa298dd1fbc7801d00916d578e40d69f88d92979624c5ab2d08a54",
+   "recorded_utc": "2026-09-24T01:06:51+00:00",
+   "headings": [
+    [
+     1,
+     "Page"
+    ],
+    [
+     2,
+     "Alpha"
+    ],
+    [
+     2,
+     "Beta"
+    ],
+    [
+     2,
+     "Gamma"
+    ]
+   ],
+   "anchors": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"# Page\\n\\n## Alpha\\n\\nBody.\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+   "request_sha256": "d4dffae2238f70dc074bc26ead3db1c889148b2f4f68232487bf0b28acb5be0b",
+   "response_bytes": "<div class=\"markdown-heading\"><h1 class=\"heading-element\">Page</h1><a id=\"user-content-page\" class=\"anchor\" aria-label=\"Permalink: Page\" href=\"#page\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Alpha</h2><a id=\"user-content-alpha\" class=\"anchor\" aria-label=\"Permalink: Alpha\" href=\"#alpha\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<p>Body.</p>\n<span>\n\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Beta</h2><a id=\"user-content-beta\" class=\"anchor\" aria-label=\"Permalink: Beta\" href=\"#beta\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<p>Body.</p>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Gamma</h2><a id=\"user-content-gamma\" class=\"anchor\" aria-label=\"Permalink: Gamma\" href=\"#gamma\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<p>Body.</p>\n</span>",
+   "response_sha256": "a92faccc3bfd9cc0634edc3dff459db86d0cbdfc5ad02c377980c3f75ae3285e",
+   "recorded_utc": "2026-09-24T01:06:52+00:00",
+   "headings": [
+    [
+     1,
+     "Page"
+    ],
+    [
+     2,
+     "Alpha"
+    ],
+    [
+     2,
+     "Beta"
+    ],
+    [
+     2,
+     "Gamma"
+    ]
+   ],
+   "anchors": [
+    "page",
+    "alpha",
+    "beta",
+    "gamma"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "e2e control head page",
+  "page": "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Old \u2014 heading](#old--heading)** -- Copied.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n## Alpha\n\nBody.\n\n<span>\n<!--\n\n## Old \u2014 heading\n\n<!-- -->\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "local": [
+   [
+    1,
+    "Page"
+   ],
+   [
+    2,
+    "Contents"
+   ],
+   [
+    2,
+    "Alpha"
+   ],
+   [
+    2,
+    "Beta"
+   ],
+   [
+    2,
+    "Gamma"
+   ]
+  ],
+  "local_anchors": [
+   "page",
+   "contents",
+   "alpha",
+   "beta",
+   "gamma"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"# Page\\n\\n## Contents\\n\\n- **[Alpha](#alpha)** -- What alpha holds.\\n- **[Old \\u2014 heading](#old--heading)** -- Copied.\\n- **[Beta](#beta)** -- What beta holds.\\n- **[Gamma](#gamma)** -- What gamma holds.\\n\\n## Alpha\\n\\nBody.\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+   "request_sha256": "0f0a125f8e90dd892312e9ced2097c40b403af737557758b03749692a2fcb509",
+   "response_bytes": "<h1 dir=\"auto\">Page</h1>\n<h2 dir=\"auto\">Contents</h2>\n<ul dir=\"auto\">\n<li><strong><a href=\"#alpha\">Alpha</a></strong> -- What alpha holds.</li>\n<li><strong><a href=\"#old--heading\">Old \u2014 heading</a></strong> -- Copied.</li>\n<li><strong><a href=\"#beta\">Beta</a></strong> -- What beta holds.</li>\n<li><strong><a href=\"#gamma\">Gamma</a></strong> -- What gamma holds.</li>\n</ul>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<span>\n\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></span>",
+   "response_sha256": "b102a1a4e3353ee97a985ad89d98bcfbf18af749b30122f2f6a1d1e05bbc401d",
+   "recorded_utc": "2026-09-24T01:06:52+00:00",
+   "headings": [
+    [
+     1,
+     "Page"
+    ],
+    [
+     2,
+     "Contents"
+    ],
+    [
+     2,
+     "Alpha"
+    ],
+    [
+     2,
+     "Beta"
+    ],
+    [
+     2,
+     "Gamma"
+    ]
+   ],
+   "anchors": [
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"# Page\\n\\n## Contents\\n\\n- **[Alpha](#alpha)** -- What alpha holds.\\n- **[Old \\u2014 heading](#old--heading)** -- Copied.\\n- **[Beta](#beta)** -- What beta holds.\\n- **[Gamma](#gamma)** -- What gamma holds.\\n\\n## Alpha\\n\\nBody.\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+   "request_sha256": "3816d218df609b3388f584f8ec4b7a5d61c2073e31649e4c8174e409e9a9d3e0",
+   "response_bytes": "<div class=\"markdown-heading\"><h1 class=\"heading-element\">Page</h1><a id=\"user-content-page\" class=\"anchor\" aria-label=\"Permalink: Page\" href=\"#page\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Contents</h2><a id=\"user-content-contents\" class=\"anchor\" aria-label=\"Permalink: Contents\" href=\"#contents\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<ul>\n<li>\n<strong><a href=\"#alpha\">Alpha</a></strong> -- What alpha holds.</li>\n<li>\n<strong><a href=\"#old--heading\">Old \u2014 heading</a></strong> -- Copied.</li>\n<li>\n<strong><a href=\"#beta\">Beta</a></strong> -- What beta holds.</li>\n<li>\n<strong><a href=\"#gamma\">Gamma</a></strong> -- What gamma holds.</li>\n</ul>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Alpha</h2><a id=\"user-content-alpha\" class=\"anchor\" aria-label=\"Permalink: Alpha\" href=\"#alpha\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<p>Body.</p>\n<span>\n\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Beta</h2><a id=\"user-content-beta\" class=\"anchor\" aria-label=\"Permalink: Beta\" href=\"#beta\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<p>Body.</p>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Gamma</h2><a id=\"user-content-gamma\" class=\"anchor\" aria-label=\"Permalink: Gamma\" href=\"#gamma\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<p>Body.</p>\n</span>",
+   "response_sha256": "3e6501d710aecbae1635cad3656ba8c3af3fc7443ab4ab0c85015e808e20f59e",
+   "recorded_utc": "2026-09-24T01:06:52+00:00",
+   "headings": [
+    [
+     1,
+     "Page"
+    ],
+    [
+     2,
+     "Contents"
+    ],
+    [
+     2,
+     "Alpha"
+    ],
+    [
+     2,
+     "Beta"
+    ],
+    [
+     2,
+     "Gamma"
+    ]
+   ],
+   "anchors": [
+    "page",
+    "contents",
+    "alpha",
+    "beta",
+    "gamma"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "e2e spoof base page",
+  "page": "# Page\n\n## Alpha\n\nBody.\n\n<h2 DATA-SOURCEPOS=\"12:1-12:18\">x</h2>\n\n<span>\n<!--\n\n## Old \u2014 heading\n\n<!-- -->\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "local": [
+   [
+    1,
+    "Page"
+   ],
+   [
+    2,
+    "Alpha"
+   ],
+   [
+    2,
+    "x"
+   ],
+   [
+    2,
+    "Beta"
+   ],
+   [
+    2,
+    "Gamma"
+   ]
+  ],
+  "local_anchors": [
+   "page",
+   "alpha",
+   "old--heading",
+   "beta",
+   "gamma"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"# Page\\n\\n## Alpha\\n\\nBody.\\n\\n<h2 DATA-SOURCEPOS=\\\"12:1-12:18\\\">x</h2>\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+   "request_sha256": "b886b7e6dc4fef986db74a870fa039146a29530898de8de66e839c8138ae6e0a",
+   "response_bytes": "<h1 dir=\"auto\">Page</h1>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">x</h2>\n<span>\n\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></span>",
+   "response_sha256": "aede64773ed1578bcef933f88357c1a64b42ec6c1848cc26fd24c064e9df128d",
+   "recorded_utc": "2026-09-24T01:06:53+00:00",
+   "headings": [
+    [
+     1,
+     "Page"
+    ],
+    [
+     2,
+     "Alpha"
+    ],
+    [
+     2,
+     "x"
+    ],
+    [
+     2,
+     "Beta"
+    ],
+    [
+     2,
+     "Gamma"
+    ]
+   ],
+   "anchors": [
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"# Page\\n\\n## Alpha\\n\\nBody.\\n\\n<h2 DATA-SOURCEPOS=\\\"12:1-12:18\\\">x</h2>\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+   "request_sha256": "06493f97d450c4e5cb06003d1e3c08304b3c768af6b6fd7370ab4e67aaa90ff9",
+   "response_bytes": "<div class=\"markdown-heading\"><h1 class=\"heading-element\">Page</h1><a id=\"user-content-page\" class=\"anchor\" aria-label=\"Permalink: Page\" href=\"#page\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Alpha</h2><a id=\"user-content-alpha\" class=\"anchor\" aria-label=\"Permalink: Alpha\" href=\"#alpha\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<p>Body.</p>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">x</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: x\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<span>\n\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Beta</h2><a id=\"user-content-beta\" class=\"anchor\" aria-label=\"Permalink: Beta\" href=\"#beta\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<p>Body.</p>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Gamma</h2><a id=\"user-content-gamma\" class=\"anchor\" aria-label=\"Permalink: Gamma\" href=\"#gamma\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<p>Body.</p>\n</span>",
+   "response_sha256": "3d35147d2f331aa21395bd93c84b036373ac137ab9c73b5dda311296f4d0111c",
+   "recorded_utc": "2026-09-24T01:06:53+00:00",
+   "headings": [
+    [
+     1,
+     "Page"
+    ],
+    [
+     2,
+     "Alpha"
+    ],
+    [
+     2,
+     "x"
+    ],
+    [
+     2,
+     "Beta"
+    ],
+    [
+     2,
+     "Gamma"
+    ]
+   ],
+   "anchors": [
+    "page",
+    "alpha",
+    "x",
+    "beta",
+    "gamma"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "e2e spoof head page",
+  "page": "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Old \u2014 heading](#old--heading)** -- Copied.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n## Alpha\n\nBody.\n\n<h2 DATA-SOURCEPOS=\"19:1-19:18\">x</h2>\n\n<span>\n<!--\n\n## Old \u2014 heading\n\n<!-- -->\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "local": [
+   [
+    1,
+    "Page"
+   ],
+   [
+    2,
+    "Contents"
+   ],
+   [
+    2,
+    "Alpha"
+   ],
+   [
+    2,
+    "x"
+   ],
+   [
+    2,
+    "Beta"
+   ],
+   [
+    2,
+    "Gamma"
+   ]
+  ],
+  "local_anchors": [
+   "page",
+   "contents",
+   "alpha",
+   "old--heading",
+   "beta",
+   "gamma"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"# Page\\n\\n## Contents\\n\\n- **[Alpha](#alpha)** -- What alpha holds.\\n- **[Old \\u2014 heading](#old--heading)** -- Copied.\\n- **[Beta](#beta)** -- What beta holds.\\n- **[Gamma](#gamma)** -- What gamma holds.\\n\\n## Alpha\\n\\nBody.\\n\\n<h2 DATA-SOURCEPOS=\\\"19:1-19:18\\\">x</h2>\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+   "request_sha256": "755bec47334eea456afb932215d052dd76973c89035bd7403b72e03768e07126",
+   "response_bytes": "<h1 dir=\"auto\">Page</h1>\n<h2 dir=\"auto\">Contents</h2>\n<ul dir=\"auto\">\n<li><strong><a href=\"#alpha\">Alpha</a></strong> -- What alpha holds.</li>\n<li><strong><a href=\"#old--heading\">Old \u2014 heading</a></strong> -- Copied.</li>\n<li><strong><a href=\"#beta\">Beta</a></strong> -- What beta holds.</li>\n<li><strong><a href=\"#gamma\">Gamma</a></strong> -- What gamma holds.</li>\n</ul>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">x</h2>\n<span>\n\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></span>",
+   "response_sha256": "16274bc1f2cfbde32ce99b379841918bfb5d88ef2ba5fd78fa9ab9c457b9f823",
+   "recorded_utc": "2026-09-24T01:06:54+00:00",
+   "headings": [
+    [
+     1,
+     "Page"
+    ],
+    [
+     2,
+     "Contents"
+    ],
+    [
+     2,
+     "Alpha"
+    ],
+    [
+     2,
+     "x"
+    ],
+    [
+     2,
+     "Beta"
+    ],
+    [
+     2,
+     "Gamma"
+    ]
+   ],
+   "anchors": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"# Page\\n\\n## Contents\\n\\n- **[Alpha](#alpha)** -- What alpha holds.\\n- **[Old \\u2014 heading](#old--heading)** -- Copied.\\n- **[Beta](#beta)** -- What beta holds.\\n- **[Gamma](#gamma)** -- What gamma holds.\\n\\n## Alpha\\n\\nBody.\\n\\n<h2 DATA-SOURCEPOS=\\\"19:1-19:18\\\">x</h2>\\n\\n<span>\\n<!--\\n\\n## Old \\u2014 heading\\n\\n<!-- -->\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+   "request_sha256": "6d9a80e3819c2485b7ba70d19d9b42abd75a76e4a5c638a26492edb68f51d272",
+   "response_bytes": "<div class=\"markdown-heading\"><h1 class=\"heading-element\">Page</h1><a id=\"user-content-page\" class=\"anchor\" aria-label=\"Permalink: Page\" href=\"#page\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Contents</h2><a id=\"user-content-contents\" class=\"anchor\" aria-label=\"Permalink: Contents\" href=\"#contents\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<ul>\n<li>\n<strong><a href=\"#alpha\">Alpha</a></strong> -- What alpha holds.</li>\n<li>\n<strong><a href=\"#old--heading\">Old \u2014 heading</a></strong> -- Copied.</li>\n<li>\n<strong><a href=\"#beta\">Beta</a></strong> -- What beta holds.</li>\n<li>\n<strong><a href=\"#gamma\">Gamma</a></strong> -- What gamma holds.</li>\n</ul>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Alpha</h2><a id=\"user-content-alpha\" class=\"anchor\" aria-label=\"Permalink: Alpha\" href=\"#alpha\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<p>Body.</p>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">x</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: x\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<span>\n\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Beta</h2><a id=\"user-content-beta\" class=\"anchor\" aria-label=\"Permalink: Beta\" href=\"#beta\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<p>Body.</p>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Gamma</h2><a id=\"user-content-gamma\" class=\"anchor\" aria-label=\"Permalink: Gamma\" href=\"#gamma\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<p>Body.</p>\n</span>",
+   "response_sha256": "45ac6f6ac58c2453b54bf8942a7a2f74f65268861e358d5330d27b5f13025a4b",
+   "recorded_utc": "2026-09-24T01:06:54+00:00",
+   "headings": [
+    [
+     1,
+     "Page"
+    ],
+    [
+     2,
+     "Contents"
+    ],
+    [
+     2,
+     "Alpha"
+    ],
+    [
+     2,
+     "x"
+    ],
+    [
+     2,
+     "Beta"
+    ],
+    [
+     2,
+     "Gamma"
+    ]
+   ],
+   "anchors": [
+    "page",
+    "contents",
+    "alpha",
+    "x",
+    "beta",
+    "gamma"
+   ],
+   "agrees": true
+  }
+ }
+]

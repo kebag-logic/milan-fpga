@@ -1,0 +1,84 @@
+python3 --version
+python3 -m pip freeze
+git rev-parse HEAD
+git status --porcelain
+git diff --check 759da623072358afdb0e9d570a7b4b6a788492c9 HEAD
+python3 scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+python3 scripts/gen_toc.py --selftest
+python3 scripts/gen_toc.py --verify-anchors
+python3 scripts/gen_toc.py --check
+python3 scripts/check_em_dash.py --selftest
+python3 scripts/check_py_idiom.py
+python3 scripts/check_py_idiom.py --selftest
+python3 scripts/gen_hdl_reference.py --selftest
+python3 scripts/gen_hdl_reference.py --output "$RUNNER_TEMP/milan-hdl-reference"
+python3 scripts/docs_check.py
+python3 scripts/check_doc_style.py
+python3 scripts/check_doc_style.py --selftest
+python3 scripts/check_gptp_docs.py
+python3 scripts/check_gptp_docs.py --selftest
+python3 docs/DOC_MAP.gen.py --check
+python3 docs/DOC_MAP.gen.py --selftest
+python3 docs/diagrams/timesync_chain.gen.py --check
+python3 docs/diagrams/timesync_chain.gen.py --selftest
+python3 scripts/check_solution_docs.py
+python3 scripts/check_solution_docs.py --selftest
+python3 docs/diagrams/submodule_boundaries.gen.py --check
+python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+python3 scripts/check_submodule_docs.py
+python3 scripts/check_submodule_docs.py --selftest
+python3 scripts/gen_wavedrom.py --selftest
+python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+python3 scripts/check_diagram_pngs.py
+python3 scripts/check_diagram_pngs.py --selftest
+python3 scripts/check_feature_status.py --self-test
+python3 docs/traceability/gen_module_matrix.py --check
+python3 scripts/check_gptp_docs.py --with-submodule
+make -C gptp-processor docs
+python3 scripts/measure_control_flow.py --selftest
+python3 scripts/measure_cohesion.py --selftest
+sv2v --version
+python3 scripts/check_baremetal_only.py --check
+python3 scripts/check_baremetal_only.py --selftest
+python3 scripts/check_nvm_record_space.py
+python3 scripts/check_nvm_record_space.py --self-test
+python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+python3 scripts/check_soc_sources.py
+python3 scripts/check_soc_sources.py --selftest
+python3 sw/litex/iob_pack_selftest.py
+python3 scripts/check_rtl_source_lists.py
+python3 scripts/check_rtl_source_lists.py --selftest
+python3 scripts/measure_naming.py --check
+python3 scripts/measure_naming.py --selftest
+python3 scripts/check_port_contracts.py
+python3 scripts/check_port_contracts.py --selftest
+python3 scripts/measure_fail_fast.py --check
+python3 scripts/measure_fail_fast.py --selftest
+python3 scripts/check_todo_ownership.py
+python3 scripts/check_todo_ownership.py --selftest
+python3 scripts/measure_test_evidence.py --check
+python3 scripts/measure_test_evidence.py --selftest
+python3 scripts/check_hygiene.py --check
+python3 scripts/check_hygiene.py --selftest
+python3 scripts/check_sv_idiom.py
+python3 scripts/check_sv_idiom.py --selftest
+python3 scripts/check_cpp_idiom.py
+python3 scripts/check_cpp_idiom.py --selftest
+python3 scripts/check_sh_idiom.py
+python3 scripts/check_sh_idiom.py --selftest
+python3 scripts/ci_events.py --check
+python3 scripts/ci_events.py --selftest
+python3 scripts/check_doc_paths.py
+python3 scripts/check_archive.py
+python3 scripts/check_archive.py --selftest
+python3 avdecc/gen_aem_store.py --self-test
+python3 scripts/check_sweep_shape.py --self-test
+python3 scripts/check_deploy_shape.py --self-test
+python3 scripts/check_entity_shape.py --self-test
+python3 scripts/check_wire_accountability.py --self-test
+python3 scripts/act_ci.py --selftest
+python3 scripts/ci_rv32_sdk_selftest.py
+HOME=$REVIEWS/437-a228-packet/scratch/home python3 scripts/ci_rv32_sdk.py --destination "$REVIEWS/437-a228-packet/scratch<home-path>/host"
+HOME=$REVIEWS/437-a228-packet/scratch/home python3 sw/builder/test_firmware_compiler.py --selftest

@@ -1,0 +1,45 @@
+== position attribute: none, the heading hidden by an open raw comment
+   GitHub file view: [(1, 'Page', 'page'), (2, 'Alpha', 'alpha'), (2, 'Beta', 'beta'), (2, 'Gamma', 'gamma')]
+   reviewed head 196cb7d9: [('Page', 'page'), ('Alpha', 'alpha'), ('Beta', 'beta'), ('Gamma', 'gamma')] -> PASS
+   this head:              [('Page', 'page'), ('Alpha', 'alpha'), ('Beta', 'beta'), ('Gamma', 'gamma')] -> PASS
+== position attribute spelled in upper case on a raw h2
+   GitHub file view: [(1, 'Page', 'page'), (2, 'Alpha', 'alpha'), (2, 'Beta', 'beta'), (2, 'Gamma', 'gamma'), (2, 'x', 'x')]
+   reviewed head 196cb7d9: [('Page', 'page'), ('Alpha', 'alpha'), ('Beta', 'beta'), ('Gamma', 'gamma'), ('Old — heading', 'old--heading')] -> FAIL
+   this head:              [] -> PASS
+== position attribute spelled in mixed case on a raw h2
+   GitHub file view: [(1, 'Page', 'page'), (2, 'Alpha', 'alpha'), (2, 'Beta', 'beta'), (2, 'Gamma', 'gamma'), (2, 'x', 'x')]
+   reviewed head 196cb7d9: [('Page', 'page'), ('Alpha', 'alpha'), ('Beta', 'beta'), ('Gamma', 'gamma'), ('Old — heading', 'old--heading')] -> FAIL
+   this head:              [] -> PASS
+== position attribute spelled through a character reference on a raw h2
+   GitHub file view: [(1, 'Page', 'page'), (2, 'Alpha', 'alpha'), (2, 'Beta', 'beta'), (2, 'Gamma', 'gamma'), (2, '', '')]
+   reviewed head 196cb7d9: [('Page', 'page'), ('Alpha', 'alpha'), ('Beta', 'beta'), ('Gamma', 'gamma'), ('Old — heading', 'old--heading')] -> FAIL
+   this head:              [] -> PASS
+== position attribute spelled through a backslash escape on a raw h2
+   GitHub file view: [(1, 'Page', 'page'), (2, 'Alpha', 'alpha'), (2, 'Beta', 'beta'), (2, 'Gamma', 'gamma'), (2, '', '')]
+   reviewed head 196cb7d9: [('Page', 'page'), ('Alpha', 'alpha'), ('Beta', 'beta'), ('Gamma', 'gamma'), ('Old — heading', 'old--heading')] -> FAIL
+   this head:              [] -> PASS
+== an open raw tag reads a heading's position as an attribute
+   GitHub file view: [(2, 'Real', 'real')]
+   reviewed head 196cb7d9: [('Real', 'real')] -> PASS
+   this head:              [('Real', 'real')] -> PASS
+== an open raw tag reads a heading's position as an unquoted value
+   GitHub file view: [(2, 'Real', 'real')]
+   reviewed head 196cb7d9: [('Real', 'real')] -> PASS
+   this head:              [('Real', 'real')] -> PASS
+== a setext heading with strikethrough
+   GitHub file view: [(2, 'a b', 'a-b')]
+   reviewed head 196cb7d9: [('a b', 'a-b')] -> PASS
+   this head:              [('a b', 'a-b')] -> PASS
+== an element nested 201 deep between two headings
+   GitHub file view: [(2, 'A', 'a'), (2, 'B', 'b')]
+   reviewed head 196cb7d9: [('A', 'a'), ('B', 'b')] -> PASS
+   this head:              [] -> PASS
+== an element nested 256 deep between two headings
+   GitHub file view: [(2, 'A', 'a')]
+   reviewed head 196cb7d9: [('A', 'a'), ('B', 'b')] -> FAIL
+   this head:              [] -> PASS
+== an element nested 1101 deep between two headings
+   GitHub file view: [(2, 'A', 'a')]
+   reviewed head 196cb7d9: RecursionError -> FAIL
+   this head:              [] -> PASS
+head 26a0cc3042300d5213edf7b1c0037a3ae2612ecd
