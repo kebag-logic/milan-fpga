@@ -1,0 +1,76 @@
+[A227] The CRF servo abandons the rate window a PHC step lands in, so no step size is integrated as a rate error
+
+Closes #539
+
+## What was wrong (reproduced first)
+
+`KL_mmcm_drp_servo` discarded a 512 ms window only above 1024 ppm (`GUARD_THR_C = 2^19`). A new harness, `tb/verilator/mmcm_servo/sim_phc_step.cpp`, runs the servo at its default (silicon) parameters, where an S ns step inside one window is exactly S units of window error. A locked 150 us step under CRF selection was committed:
+
+| Step (pre-fix) | Window error | Integrator | Written rate | Next state |
+|---|---|---|---|---|
+| +100 us | +195.39 ppm | +30.62 -> +128.32 ppm | +30.65 -> +130.65 ppm | ACQUIRE |
+| +150 us | +293.05 ppm | +30.62 -> +177.15 ppm | +30.65 -> +130.65 ppm | ACQUIRE |
+| -150 us | -292.89 ppm | +30.62 -> -115.82 ppm | +30.65 -> -69.35 ppm | ACQUIRE |
+| +300 us, +524 us | +586, +1023.5 ppm | -> +200 ppm (clamp) | -> +130.65 ppm | ACQUIRE |
+| +525 us, 1 ms, 1 s | above 1024 ppm | held (discarded) | held | LOCKED |
+
+Every step below 524.288 us is integrated, including 100 us to 108 us and the 21 us link-up step, not only the 108 us to 524 us band the issue names. Reproduce with `make -C tb/verilator/mmcm_servo trace STEP_NS=150000`.
+
+## The change
+
+No threshold can separate a step from a rate error. Once locked the plane steps above 100 us (#387 owner step policy), which is 195 ppm of one window, while a legitimate window error reaches about 211 ppm. So the servo now recognises the step itself. `ptp_now_i` advancing by more than 4096 ns in one `clk_i` cycle is a step. A legitimate advance is below 256 ns on any clock (the PHC increment is Q8.24), and the plane's smallest step is 20 us.
+
+- The open window is abandoned on the cycle the stepped sample is staged, and the next tick re-bases it on post-step time. There is no PI update, no trim change and no `lock_cnt` change, and the discard counts once in `MCSRV_STAT[15:10]`.
+- A boundary closing on the stepped sample is squashed with it. A PI micro-sequence already in flight closed on a pre-step sample and commits.
+- The 1024 ppm guard stays as the backstop for implausible windows without a jump. Both discard causes now count through one tally, so a coincidence counts two.
+- The port list is unchanged. **No `milan_datapath.sv` edit is needed**: the plane's `phc_step_we_o` becomes one adjtime in `timestamp_counter`, which lands in `ptp_now_w` in one cycle, and CSR adjtime and settime are caught the same way.
+
+**Interpretation for the reviewer.** Acceptance 2 reads "any PHC step (the plane's step pulse) discards the servo window that contains it". This change discards that window by detecting the pulse's effect at `ptp_now_i` instead of wiring the pulse. That covers every step source, needs no port, and cannot be misordered against the PHC write, which trails the pulse through `ptp_csr_sync`.
+
+Cost (Yosys `synth_xilinx -flatten`, the `ooc.sh` recipe): 831 -> 862 LUT, 789 -> 790 FF, 140 -> 150 CARRY4.
+
+## Tests and failing arms
+
+`sim_phc_step.cpp` (113 checks):
+
+- P0: locks at the silicon scale.
+- P1: steps of 21 us, +/-100 us, 108 us, +/-150 us, 300 us, 524 us, 1 ms and +/-1 s at mid-window. Each is counted once, the next window commits within 2 ppm, the integrator moves at most 512 and the written rate at most 1024, and LOCKED holds on every edge.
+- P2a/b/c: a step on the boundary sample, one edge after it, and inside the last tick. Each arm first asserts that it landed where it claims.
+- P3: a 1024 ppm discard and a step on one cycle.
+- P4: the rate path, a real 40 ppm talker change that must still be integrated.
+
+`sim_main.cpp`: every jump in U10 is now the step guard's, so a new U11 is the 1024 ppm guard's own arm: a 2 ms-off CRF rate for six windows gives 6 discards and the resync, with trim and LOCKED held. U10's single-sample trim check became an envelope check. Locked, that bench's trim already cycles 1499..1579, and the re-base moved the sample phase. The envelope check is stricter, and it still rejects the pre-guard kick of 540.
+
+One-line mutants, each run against the final harness:
+
+| Mutant | Fails |
+|---|---|
+| step detector off | P1 at every size, P2 (66 checks) |
+| no abandon | P1 at every size (53) |
+| no boundary squash | P2a: the stepped boundary commits integrator +75000 (19) |
+| unconditional squash | P2b: the clean pre-step window is discarded (1) |
+| 1024 ppm guard off | P3 and U11 |
+| single tally | P3: 1 counted of 2 |
+| guard tightened to 32 ppm | P4: the real rate change is discarded and never followed |
+
+## Validation (local, Verilator 5.050)
+
+- `make -C tb/verilator/mmcm_servo`: 59/59, 8/8, 113/113 (180 by `suite_tally`). The step suite adds about 5.3 min.
+- `make -C tb/verilator/mmcm_servo_autorepair`: 47/47.
+- `make -C tb/verilator/milan_dp aclk`: 139/139. The CRF leg reads `A_MCSRV_STAT = 0x33`, with no false step on the real PHC.
+- `make -C tb/verilator/milan_dp_render tdm8render`: 150/150.
+- `check_rtl_source_lists`, `xvlog_gate --check` (`hdl/` 0 findings), `check_sv_idiom`, `check_cpp_idiom`, `lint_rtl --check`, `check_em_dash --base 26d855a9`, `docs_check`, `gen_module_matrix --check`, `git diff --check`: all clean.
+
+Not run: the full `milan_dp` default suite, Vivado timing. The detector puts a 32-bit subtract on `ptp_now_i`, lighter than `KL_crf_rx`'s existing combinational `w_crf_ts - ptp_now_i` on the same net.
+
+## Docs
+
+- `TIME_SYNC.md` loop table: the servo's reaction to a PHC step and to an implausible window.
+- `REGISTER_MAP.md` `0x8F8`: `[15:10]` is the discard tally. The row wrongly said `[15:9]` reserved.
+- `TESTING.md`: the `mmcm_servo` row.
+
+## Found, not fixed (outside #539's acceptance; proposed as new issues)
+
+- **A locked slew is integrated as a rate error.** The plane's 100 us slew at 200 ppm gives +100 ppm window error and moves the integrator from +30.62 to +80.66 ppm, with ACQUIRE and 0 discards. A slew is not a step, so neither guard sees it. Trace: `make -C tb/verilator/mmcm_servo phc_step_build`, then `obj_phc/Vphc_step +trace_slew_ns=100000`.
+- **The talker's own step reaches the servo through `KL_crf_rx` `rate_o`.** In a grandmaster change the talker steps too, and its 256-PDU ring carries the step for 512 ms. A 150 us talker step moves the integrator to -115.82 ppm. Trace: `obj_phc/Vphc_step +trace_talker_step_ns=150000`.
+- PR #540's `GM_LOSS_RECOVERY.md` row ("a locked step of about 108 to 524 us passes that guard (#539)") goes stale when this lands; whichever PR lands second updates it.

@@ -1,0 +1,45 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    3 descriptor burst(s) served from the 7352-byte generated image
+
+[SERIAL] the pins, decoded, against the injection record
+  [i]    T6 PREFILL: silence for 13 frame(s), then ordinal 4 with 0 counted skip(s); derived first eligible ordinal 4 (18 events pushed at the snap, 14 kept)
+  [i]    first decoded ordinal 351; 360 events had been injected when collection opened
+  [i]    839 frames graded, 10 repeat(s), 11 skipped event(s), 0 counted skip(s) still pending adoption
+  [i]    worst observed frames_o lead over decoded frame boundaries: 0
+  [i]    lane counters: frames 1205 underruns 11 skips 11 overruns 0 epochs 1 (skips before the window 0, underruns before 1)
+  [i]    T7 bank walk and commit: 9..9 axis cycles (90.0..90.0 ns at this leg's 100 MHz model axis clock; 180.0..180.0 ns at the shipping 50 MHz milan clock) over 840 pairs
+  [i]    T7 frame commit to slot 0 MSB sampling edge: 30..2113 axis cycles (0.300..21.130 us) over 838 frames, 1 past the window's end; one frame = 20.834 us, one bit period = 0.0814 us, CDC floor = 24.4 cycles
+  [i]    T7 published terms, measured: bank walk and commit 9..9 axis cycles = 90.0..90.0 ns at the model axis clock, 180.0..180.0 ns at the shipping milan clock; adopt wait phi 0.219..21.049 us (the measured interval less slot 0's one bit period of serial position) = 1 axis cycle + 0.209..21.039 us of serial-domain wait, so 0.229..21.059 us on the shipping image; slot k adds 2.6042 us
+  [i]    T14: skips 11 -> 13, overruns 0 -> 0 across a two-and-a-half-frame serial-clock hold
+  [i]    T14: commit-to-pin after the hold = 1066 axis cycles (10.660 us)
+
+[CRF] the CRF clock source selected under the running stream, and the same pins decoded again
+  [i]    T30 INTERNAL: 1799 frames decoded from ordinal 231, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 1081..1121 axis cycles (10.810..11.210 us) over 1798 frames, spread 40 of one frame = 2083
+  [i]    T30 INTERNAL: the commit-to-pin interval WALKS at +10.6844 ppm over 3743790 axis cycles, which is one whole frame of phi - one counted skip - every 1.9499 s
+  [i]    T30 INTERNAL LAW: 292 PDUs, first-event delay 17676..17676 cycles = 8.484..8.484 media ticks; the law is 8 < d/T <= 9 (+64 cycles of registration slack)
+  [i]    T30 CRF aligned: 1799 frames decoded from ordinal 8752, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 1174..1177 axis cycles (11.740..11.770 us) over 1799 frames, spread 3 of one frame = 2083
+  [i]    T30 CRF aligned: the commit-to-pin interval WALKS at -0.8009 ppm over 3745873 axis cycles, which is one whole frame of phi - one counted skip - every 26.0133 s
+  [i]    T30: the divider plan's closed form is +10.6394 ppm; measured +10.6844 ppm at INTERNAL and -0.8009 ppm under CRF
+  [i]    T30 CRF LAW: 292 PDUs, first-event delay 17642..17645 cycles = 8.468..8.470 media ticks; the law is 8 < d/T <= 9 (+64 cycles of registration slack)
+  [i]    T31 back at INTERNAL: 239 frames decoded from ordinal 13432, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 1238..1244 axis cycles (12.380..12.440 us) over 238 frames, spread 6 of one frame = 2083
+  [i]    T31 back at INTERNAL: the commit-to-pin interval WALKS at +12.1518 ppm over 493756 axis cycles, which is one whole frame of phi - one counted skip - every 1.7144 s
+  [i]    T31: 13686 of the record's 14400 events were injected
+
+[CSR] the diagnostic write window, by CLUSTER key
+  [i]    T11: a suppressed CSR write is a CSR behaviour; no AECP status is asserted for it. The in-range PROJECTED mirror is T11b below; the in-range NONPHYSICAL one is the multi-stream leg's M6.
+
+[RESET] the four-phase render epoch over reset and a stopped serial clock
+  [i]    epochs 1 -> 2 across the stopped-clock reset
+  [i]    T21: 12 crossbar offer(s) and 0 commit(s) between the reset release and the counted reopening
+  [i]    T22: the reset landed 123 bclk rise(s) into the frame; the decoder re-armed, saw its first boundary 257 bclk rise(s) later and 5 in all, and decoded 4 frame(s)
+  [i]    T20: the reset landed 0 bclk rise(s) into the frame; the decoder re-armed, saw its first boundary 257 bclk rise(s) later and 5 in all, and decoded 4 frame(s)
+  [i]    T19: 12 crossbar offer(s) and 0 commit(s) while the round trip was outstanding; epochs 1 -> 2
+
+[BIND] the render epoch over a bind loss and a rebind
+  [i]    T27: boundary at decoded frame 24 of 42; the last non-silent frame is ordinal 494 with 8 routed slot(s), 0 of them zeroed
+  [i]    events injected before the loss: 480; epochs 2 -> 3
+  [i]    T25: epochs 3 -> 5 across two bind falls inside one round trip
+== tdm8_render: checks: 150   failures: 0 ==
+RESULT: PASS
+exit=0
