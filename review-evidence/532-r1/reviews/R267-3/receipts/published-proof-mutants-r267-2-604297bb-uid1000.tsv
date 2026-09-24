@@ -1,0 +1,16 @@
+# r267-2-proof-mutants.py: 14 entries; head proof sha256 3cffa803fc6dd2dad0904f59970570d4e52c372c250a496cb83236db504fe4d7; mode user
+P00 no-op control: a comment word changes	SURVIVED	rc=0	-
+P01 isolation: the slot's internet reachability is no longer required	KILLED	rc=1	a slot cannot reach the probe name
+P02 slot-0 collision: any refusal counts, not act's global names	KILLED	rc=1	the slot-0 rival is refused for neither the tool cache nor a job volume
+P03 complete: a run that printed every PASS counts whatever its exit status	KILLED	rc=1	a run passes every workflow and is then refused
+P04 complete: a run whose FAILED line is followed by any exit status counts	KILLED	rc=1	a run fails a workflow and is then refused
+P05 verify_runner: the recorded digest is not compared	KILLED	rc=1	the runner is not the recorded digest
+P06 verify_runner: a writable runner install is accepted	KILLED	rc=1	the runner install is group-writable
+P07 verify_runner: a non-empty log directory is accepted	KILLED	rc=1	the log directory is not empty
+P08 isolation: the host-side reachability of both targets is not required (expected KILLED)	KILLED	rc=1	the isolation target is dead; the host cannot reach the container; the host cannot reach the published port while the container answers
+P09 overlap: neither run is required to be still unended (expected KILLED)	KILLED	rc=1	the parallel runs never overlap; a run is refused before the other slot is taken
+P10 collide: a rival refused after the holder ended still counts (expected KILLED)	KILLED	rc=1	the rival is refused only after the holder left
+P11 remove_target: a surviving target network is not reported	KILLED	rc=1	the isolation network survives removal
+P12 parse_arguments: slot A may equal slot B or be slot 0	KILLED	rc=1	slots A and B are the same slot; slot A is slot 0; slot B is slot 0
+P13 interrupt gate: the runner's PASS line is not required	KILLED	rc=1	the interrupt gate prints no PASS line
+# head proof after run sha256 3cffa803fc6dd2dad0904f59970570d4e52c372c250a496cb83236db504fe4d7 EXACT

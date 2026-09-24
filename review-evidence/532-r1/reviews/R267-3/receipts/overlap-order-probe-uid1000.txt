@@ -1,0 +1,8 @@
+A-first  head  case passes (head correct)             | FAIL overlap: the parallel runs never held slots 1 and 2 at 
+A-first  Q26   case passes (mutant would SURVIVE)     | FAIL overlap: the parallel runs never held slots 1 and 2 at 
+A-first  Q27   case fails (mutant KILLED)             | PASS overlap: slots 1 and 2 were held at the same time
+A-first  Q28   case passes (mutant would SURVIVE)     | FAIL overlap: the parallel runs never held slots 1 and 2 at 
+B-first  head  case passes (head correct)             | FAIL overlap: the parallel runs never held slots 1 and 2 at 
+B-first  Q26   case fails (mutant KILLED)             | PASS overlap: slots 1 and 2 were held at the same time
+B-first  Q27   case passes (mutant would SURVIVE)     | FAIL overlap: the parallel runs never held slots 1 and 2 at 
+B-first  Q28   case fails (mutant KILLED)             | PASS overlap: slots 1 and 2 were held at the same time
