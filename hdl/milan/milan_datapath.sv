@@ -1722,6 +1722,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [7:0]  avtprx_b3;
   wire [63:0] avtprx_sid_frame, avtprx_fsh2;
   wire signed [31:0] crf_delta_w, crf_rate_w;
+  wire crf_rate_valid_w;
   //! public_flat_rd: [31:16] is the servo's signed 1/16 ppm trim, and it is
   //! the INPUT to the NCO conversion below. A harness that cannot see it
   //! cannot tell "the gate held the trim at zero" from "the servo was idle
@@ -5484,6 +5485,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .stop_i      (crf_snk_stopped_w),
     .delta_o     (crf_delta_w),
     .rate_o      (crf_rate_w),
+    .rate_valid_o (crf_rate_valid_w),
     .pdu_count_o (crf_pducnt_w),
     .fmt_err_o   (crf_fmterr_w),
     .seq_err_o   (crf_seqerr_w),
@@ -5542,6 +5544,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .crf_src_idx_i (AEM_CRF_CLKSRC_C),
     .crf_locked_i  (crf_locked_w),
     .crf_rate_i    (crf_rate_w),
+    .crf_rate_valid_i (crf_rate_valid_w),
     .auto_repair_i (mcsrv_auto_repair_w),
     .ps_invert_i   (mcsrv_ps_invert_w),
     .drp_addr_o    (o_mmcm_drp_addr),

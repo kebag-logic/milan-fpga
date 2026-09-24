@@ -14,5 +14,5 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
 | ✅ `KL_crf_tx` | `KL_crf_tx.sv` | `crf_tx` · `milan_dp` · ➰milan_dp_render | -- |
 | ✅ `KL_media_grid_align` | `KL_media_grid_align.sv` | `media_grid_align` · `milan_dp` · ➰milan_dp_render | -- |
 | ✅ `KL_media_nco` | `KL_media_nco.sv` | `media_grid_align` · `media_nco` · `milan_dp` · ➰milan_dp_render | -- |
-| ✅ `KL_mmcm_drp_servo` | `KL_mmcm_drp_servo.sv` | `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰milan_dp_render | -- |
+| ✅ `KL_mmcm_drp_servo` | `KL_mmcm_drp_servo.sv` | `crf_rx` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰milan_dp_render | -- |
 

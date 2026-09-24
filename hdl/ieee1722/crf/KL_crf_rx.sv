@@ -29,6 +29,8 @@
                             in a single-port READ_FIRST BRAM ring; the read
                             lands the cycle after the accept - a fixed +1
                             clk skew, invisible to the ms-scale CSR poll).
+                            Holds the last clean value while rate_valid_o
+                            is low after tu edges, timestamp jumps or gaps.
                   locked_o: PDUs arriving AND |delta jitter| within window
                             for 8 consecutive PDUs; drops after 100 ms
                             without an accepted PDU (mirrors the AAF
@@ -206,6 +208,9 @@ module KL_crf_rx #(
   //! measurement outputs (CSR)
   output logic signed [31:0] delta_o,     //! crf_ts - ptp_now @ last PDU
   output logic signed [31:0] rate_o,      //! ns error per 256-PDU window
+  //! Valid level for rate_o. A discontinuity invalidates the whole ring;
+  //! only a fresh 256-interval sample restores validity. Lock is independent.
+  output wire         rate_valid_o,
   //! the seven Table 5.6 tallies below are 32-bit WRAPPING counters
   //! (gh #61 G1). The old backing had TWO deviations from Milan 5.3.8.10's
   //! "wraps back to zero": fmt_err/seq_err SATURATED at 255 (a saturating
@@ -266,6 +271,20 @@ module KL_crf_rx #(
   localparam int unsigned RATE_LOG2_C   = 8;   // 256-PDU rate window
   localparam logic [63:0] NOM_WIN_NS_C  = 64'(NOM_PDU_NS_C) << RATE_LOG2_C;
 
+  //! Adjacent timestamps, unlike the 512 ms rate, expose a phase step.
+  //! Bound legitimate spacing using Milan Annex B.1.1's 100 ppm media
+  //! clock and the talker's 200 ppm PHC trim envelope (TIME_SYNC).
+  //! 2 ms * (200 + 100) / (1e6 - 100), rounded up, is 601 ns.
+  //! Add two PHC quantisation errors, each below 384 ns (incr + adj,
+  //! the #539 rationale), then round 1369 ns up to 2048 ns. This is
+  //! below the plane's smallest step (>20 us), without copying #539's
+  //! per-cycle 4096 ns threshold. Arrival/network jitter is absent here.
+  localparam int unsigned RATE_DRIFT_NS_C =
+    (NOM_PDU_NS_C * (200 + 100) + (1_000_000 - 100) - 1)
+      / (1_000_000 - 100);
+  localparam logic [63:0] TS_JUMP_NS_C =
+    64'd1 << $clog2(RATE_DRIFT_NS_C + 2 * 384);
+
   //! lock: 8 clean consecutive PDUs in, 100 ms silence out (AAF contract)
   localparam int unsigned SETTLE_C   = 8;
   localparam int unsigned TOUT_CYC_C = CLK_FREQ_HZ_P / 10;
@@ -304,6 +323,10 @@ module KL_crf_rx #(
   logic [31:0] ts_hist_r [0:(1<<RATE_LOG2_C)-1];
   logic [31:0] hist_old_r;   //! sync read data: ts[31:0] from 256 PDUs ago
   logic [31:0] ts_new_r;     //! accepted ts[31:0], aligned with hist_old_r
+  logic [63:0] prev_ts_ns_r; //! full width prevents 2^32 ns step aliasing
+  logic        prev_tu_r;
+  logic        rate_seeded_r;
+  logic        rate_valid_r;
   logic        rate_pend_r;  //! rate math scheduled (ring full on accept)
   logic [RATE_LOG2_C-1:0] hidx_r;
   logic [8:0]  hfill_r;                           //! saturates at 256
@@ -356,6 +379,21 @@ module KL_crf_rx #(
   //! not-bound -> bound: the mr level belongs to the PREVIOUS era
   wire w_bind_rise_w = en_i && !en_q;
 
+  //! IEEE 1722-2016 4.4.4.3/4.4.4.7, CRF mapping 10.4.5: tu is
+  //! uncertainty, not a rate. Either edge separates timestamp eras. A
+  //! constant high level does not block recovery. Sequence gaps cannot
+  //! represent 256 consecutive intervals either, so they restart the ring.
+  wire [63:0] ts_spacing_ns_w = w_crf_ts - prev_ts_ns_r;
+  wire ts_jump_w = (ts_spacing_ns_w < (64'(NOM_PDU_NS_C) - TS_JUMP_NS_C))
+                || (ts_spacing_ns_w > (64'(NOM_PDU_NS_C) + TS_JUMP_NS_C));
+  wire tu_change_w = tu_i != prev_tu_r;
+  wire rate_break_w = w_acc && rate_seeded_r &&
+    (tu_change_w || ts_jump_w || (have_seq_r && (seq_i != exp_seq_r)));
+  //! Include the accept-edge verdict: a simultaneous servo boundary must
+  //! not snapshot stale validity before the registered invalidation lands.
+  assign rate_valid_o = rate_valid_r && en_i && !stop_i &&
+                        !w_bind_rise_w && !rate_break_w;
+
   // ==========================================================================
   //  Table 5.6 observation-interval tick (free-running; the clause fixes
   //  only an upper bound on the interval, not its phase)
@@ -402,6 +440,8 @@ module KL_crf_rx #(
       exp_seq_r <= '0; have_seq_r <= 1'b0;
       settle_r <= '0; tout_r <= '0;
       ts_new_r <= '0; rate_pend_r <= 1'b0;
+      prev_ts_ns_r <= '0; prev_tu_r <= 1'b0;
+      rate_seeded_r <= 1'b0; rate_valid_r <= 1'b0;
       prev_mr_r <= 1'b0; mr_seeded_r <= 1'b0; en_q <= 1'b0;
       iv_frx_r <= 1'b0; iv_uf_r <= 1'b0; iv_sm_r <= 1'b0;
       iv_mr_r <= 1'b0; iv_tu_r <= 1'b0; iv_lt_r <= 1'b0; iv_et_r <= 1'b0;
@@ -471,10 +511,11 @@ module KL_crf_rx #(
       //! read (hist_old_r) is valid. ts_new_r - hist_old_r is congruent
       //! mod 2^32 with the 64-bit timestamp difference. Placed before the
       //! hit block so a same-cycle new accept re-arms rate_pend_r.
-      if (rate_pend_r) begin
+      if (rate_pend_r && !rate_break_w) begin
         rate_o      <= 32'(signed'(ts_new_r - hist_old_r
                                    - NOM_WIN_NS_C[31:0]));
         rate_pend_r <= 1'b0;
+        rate_valid_r <= 1'b1;
       end
 
       //! lock timeout: 100 ms without a CONSUMED accepted PDU - a stopped
@@ -499,6 +540,9 @@ module KL_crf_rx #(
         if (!stop_i) begin
           have_seq_r <= 1'b0;
           hfill_r  <= '0;
+          rate_seeded_r <= 1'b0;
+          rate_valid_r <= 1'b0;
+          rate_pend_r <= 1'b0;
           mr_seeded_r <= 1'b0;
         end
       end else begin
@@ -540,8 +584,16 @@ module KL_crf_rx #(
           //! port (ts_hist_port) reads old + writes new this cycle; the
           //! subtraction is retimed to next cycle via rate_pend_r
           ts_new_r    <= w_crf_ts[31:0];
-          rate_pend_r <= (hfill_r == 9'(1 << RATE_LOG2_C));
-          if (hfill_r != 9'(1 << RATE_LOG2_C)) begin
+          prev_ts_ns_r <= w_crf_ts;
+          prev_tu_r <= tu_i;
+          rate_seeded_r <= 1'b1;
+          rate_pend_r <= (hfill_r == 9'(1 << RATE_LOG2_C)) && !rate_break_w;
+          if (rate_break_w) begin
+            //! This PDU is the first timestamp of the new era. Do not
+            //! reset BRAM: all old entries age out before another read.
+            hfill_r <= 9'd1;
+            rate_valid_r <= 1'b0;
+          end else if (hfill_r != 9'(1 << RATE_LOG2_C)) begin
             hfill_r <= hfill_r + 9'd1;
           end
           hidx_r <= hidx_r + 1'b1;
@@ -557,6 +609,10 @@ module KL_crf_rx #(
       //! a PDU cannot land in the same cycle in practice, but the ordering
       //! is stated, not left to luck
       if (w_bind_rise_w) begin
+        hfill_r <= '0;
+        rate_pend_r <= 1'b0;
+        rate_seeded_r <= 1'b0;
+        rate_valid_r <= 1'b0;
         mr_seeded_r <= 1'b0;
         have_seq_r  <= 1'b0;
         settle_r    <= '0;

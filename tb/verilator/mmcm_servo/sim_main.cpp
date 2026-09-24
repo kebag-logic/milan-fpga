@@ -65,6 +65,7 @@ class MmcmServoUnitHarness {
         prove_implausible_windows_meet_the_guard();
         prove_step_restarts_the_guard_streak();
         prove_step_with_no_window_open_is_not_counted();
+        prove_invalid_remote_sample_holds_the_loop();
         prove_tally_saturates_and_idle_clears_it();
         return report();
     }
@@ -187,6 +188,7 @@ class MmcmServoUnitHarness {
         mm.regs[0x09] = 0x0080;
 
         dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
+        dut->crf_rate_valid_i = 1; // synthetic rate input is valid
         //! this suite selects CRF at CLOCK_SOURCE index 2, a suite-local
         //! value and NOT the shipping index (AEM_CRF_CLKSRC_C = 1 on every
         //! shipping shape since #389: INTERNAL 0, the CRF sink 1). The DUT
@@ -575,6 +577,23 @@ class MmcmServoUnitHarness {
         run_ms(3);
         ck("[U12] back to IDLE", state(), 0);
         ck("[U12] IDLE clears the tally", disc_cnt(), 0);
+    }
+
+    //! The value on an invalid sample bus is deliberately plausible but
+    //! wrong: below the guard, large enough to kick PI if valid is ignored.
+    void prove_invalid_remote_sample_holds_the_loop() {
+        ck("[U13] LOCKED before invalid remote sample", state(), 4);
+        const int16_t before = trim();
+        const auto clean = dut->crf_rate_i;
+        dut->crf_rate_valid_i = 0;
+        dut->crf_rate_i = clean + 150000;
+        run_ms(24);
+        ck("[U13] invalid remote sample holds trim", trim(), before);
+        ck("[U13] invalid remote sample holds LOCKED", state(), 4);
+        dut->crf_rate_i = clean;
+        dut->crf_rate_valid_i = 1;
+        run_ms(24);
+        ck("[U13] clean remote sample resumes locked", state(), 4);
     }
 
     int report() const {

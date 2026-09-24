@@ -594,6 +594,9 @@ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\
                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
 DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
 DUT_READER_DISPOSITIONS = {
+    "tb/verilator/crf_rx/mutants.py":
+        "mutation campaign; copies the receiver and requires named failures for "
+        "tu, jump, refill and accept-edge defects; no expectations read from RTL",
     "gptp-processor/tb/check_phc_contract.py":
         "structural boundary check; it asserts required/forbidden tokens, not behavior",
     "gptp-processor/tb/tsngen/mutants.py":

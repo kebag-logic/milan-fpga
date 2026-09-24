@@ -5,7 +5,8 @@
 # Pins the ts-history-dependent outputs (delta/rate/lock trajectory) against
 # an independent C++ ring replica — the regression that guards the
 # ts_hist flop-file -> BRAM conversion.
-#   make        - build and run the self-checking harness
+#   make        - run counters, discontinuity and connected servo harnesses
+#   make mutants - isolated detector/refill mutants, each requiring a named failure
 #   make clean  - remove build artifacts
 #
 # CLK_FREQ_HZ_P is scaled to 200 kHz so the 100 ms lock timeout is
@@ -43,16 +44,39 @@ VFLAGS = --cc --exe --build -j 0 \
          -CFLAGS "-std=c++17 -O2 -DIVAL_CYC_C=$(IVAL_CYC)u \
                   -DMAXTT_NS_C=$(MAXTT_NS)u -DEARLY_M_NS_C=$(EARLY_M_NS)u -Wall -Wextra"
 
-SRCS = $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
+RX_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
+SRCS = $(RX_RTL)
+DISC_MDIR ?= obj_discontinuity
 CPP  = sim_main.cpp
 
-.PHONY: all run clean
+.PHONY: all run unit discontinuity discontinuity-build talker_step mutants clean
 all: run
 
-run:
+run: unit discontinuity talker_step
+
+unit:
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vcrf_rx_sim
 	@echo "======================================================================"
 	./obj_dir/Vcrf_rx_sim
 
+discontinuity: discontinuity-build
+	./$(DISC_MDIR)/Vdiscontinuity
+
+discontinuity-build:
+	$(VERILATOR) $(VFLAGS) -Mdir $(DISC_MDIR) $(SRCS) sim_discontinuity.cpp -o Vdiscontinuity
+
+talker_step:
+	$(VERILATOR) --cc --exe --build -j 4 --public-flat-rw \
+	  --top-module crf_talker_wrap -Mdir obj_talker \
+	  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
+	  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
+	  $(SRCS) $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/common/cdc_handshake.sv \
+	  $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv crf_talker_wrap.sv \
+	  sim_talker_step.cpp -o Vtalker_step
+	./obj_talker/Vtalker_step
+
+mutants:
+	python3 mutants.py
+
 clean:
-	rm -rf obj_dir
+	rm -rf obj_dir obj_discontinuity obj_talker

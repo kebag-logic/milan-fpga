@@ -246,6 +246,7 @@ module KL_mmcm_drp_servo #(
   //! wrong source, silently.
   input  wire [15:0]  crf_src_idx_i,
   input  wire         crf_locked_i,   //! KL_crf_rx locked_o
+  input  wire         crf_rate_valid_i, //! RX ring spans one timestamp era
   input  wire signed [31:0] crf_rate_i, //! KL_crf_rx rate_o (ns / 512 ms)
 
   input  wire         auto_repair_i,  //! 1 = DRP REPAIR allowed on mismatch
@@ -561,7 +562,10 @@ module KL_mmcm_drp_servo #(
             win_start_r <= ptp_q_r;
             pp_d_r      <= $signed(ptp_q_r - win_start_r);
             pp_rate_r   <= crf_rate_i;
-            pp_run_r    <= (win_skip_r == '0) && (state_r != HOLDOVER_S);
+            //! Invalid remote history holds PI and lock; local step/slew
+            //! guards retain their own independent window policy.
+            pp_run_r    <= (win_skip_r == '0) && (state_r != HOLDOVER_S)
+                           && crf_rate_valid_i;
             pp_seq_r    <= 3'd1;
             if (win_skip_r != '0)
               win_skip_r <= win_skip_r - 2'd1;
