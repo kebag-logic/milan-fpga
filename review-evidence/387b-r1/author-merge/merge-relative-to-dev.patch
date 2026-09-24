@@ -1,0 +1,1333 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index b898f8611..ffcfb1bfc 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
++- **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
+ - **[Unreleased - licence and LeaveAll scope](#unreleased---licence-and-leaveall-scope)** -- No Listener Ready, no stream.
+ - **[Unreleased - CRF input counters served](#unreleased---crf-input-counters-served)** -- The CRF input answers GET_COUNTERS.
+ - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
+@@ -26,6 +27,27 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
++## Unreleased - one media event per PHC step
++
++- Issue #387 decided a PHC step's media reaction.
++- Every step now toggles `mr` once, on every running stream.
++- That holds whatever the media clock source.
++- Each talker's MEDIA_RESET counts the toggle it sends.
++- The render stage re-centres once, on the step.
++- A grandmaster identity change no longer re-centres it.
++- So a change that steps counts one re-base, not two.
++- Software settime and plane-off adjtime are steps too.
++- A step on a pending `mr` restart merges with it.
++- Exactly one toggle follows; nothing is cancelled.
++- Before, a second request flipped the target back.
++- Neither restart then reached the wire.
++- The restart target is therefore per stream.
++- The `milan_dp` gmstep leg joins the default sweep: 48/48.
++- Three negative controls run with it.
++- `make gmstep-mutants` plants all nine.
++- `tkdiag` T17 grades the merge; two mutants must fail it.
++- No CSR moves.
++
+ ## Unreleased - licence and LeaveAll scope
+ 
+ - Silicon streamed the CRF output before any Listener Ready (#530).
+diff --git a/docs/design/GM_LOSS_RECOVERY.md b/docs/design/GM_LOSS_RECOVERY.md
+index f8424c7c8..fd1089737 100644
+--- a/docs/design/GM_LOSS_RECOVERY.md
++++ b/docs/design/GM_LOSS_RECOVERY.md
+@@ -148,22 +148,26 @@ Issue #387 decided its media reaction.
+ | Element | Decided reaction to one step | This tree |
+ |---|---|---|
+ | `tu` | Rises on the step; clears after at least 0.25 s of holdover | Yes: `KL_ptp_clock_validity` takes the plane's step pulse |
+-| Render setpoint stage (#386) | Re-centres in "one bounded, counted event" (decision part b) | Yes, at the next PDU end, counted in its recentre tally; a grandmaster identity change also re-centres it |
++| Render setpoint stage (#386) | Re-centres in "one bounded, counted event" (decision part b) | Yes: `render_recentre_p_w` takes the step (`media_rebase_p_w`), and the stage re-centres at the next PDU end, counted in its recentre tally. A grandmaster identity change is no longer a trigger of its own. The gmstep leg counts one re-base, 132 cycles after the plane's step pulse at each of its 42 feed delays |
+ | Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); what still reaches that grid is a policy-legal slew (#545) and the talker's own step (#546). By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
+ | Packet NCO | Not named by the decision | No PHC or step input |
+ | CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. A policy-legal 100 us slew still moves its integrator (#545), and so does the talker's own step (#546) |
+-| Outgoing `mr` (IEEE 1722-2016 4.4.4.3) | Toggles once | Not yet: `mcr_restart_p_w` ignores the step |
+-| Talker MEDIA_RESET (Milan Table 5.4) | Counts that one toggle | Not yet: no toggle to count |
+-| A step while an `mr` restart is pending | Merges with it: exactly one restart, never a cancellation, and the step's MEDIA_RESET is still counted (ruling 5802264260 item 2) | Not yet: `KL_media_clock_restart` flips its target once per request, so a second request before the first reaches the wire cancels it |
++| Outgoing `mr` (IEEE 1722-2016 4.4.4.3) | Toggles once | Yes: `mcr_restart_p_w` takes the step whatever the media clock source. The gmstep leg sees one toggle, first sent 75 to 116 cycles after the step pulse over its 42 feed delays |
++| Talker MEDIA_RESET (Milan Table 5.4) | Counts that one toggle | Yes: `KL_talker_diag_ctx` counts the `mr` bit each PDU carried. The gmstep leg reads one, and none between the commit and the step |
++| A step while an `mr` restart is pending | Merges with it: exactly one restart, never a cancellation, and the step's MEDIA_RESET is still counted (ruling 5802264260 item 2) | Yes: `KL_media_clock_restart` sets each stream's target to the complement of the level that stream stamps, so a second request while one is pending changes nothing. A request after the stream stamped the first is a new restart, sent once the first has held eight PDUs. `tkdiag` T17 grades both: one toggle and one MEDIA_RESET on the stream where the step merged, two on the stream that had already stamped the first request |
+ | Licensed streams | Keep streaming (REQ-PTP-08) | Yes: `tu` gates no emission |
+ 
+ The render stage is timed from accept, not presentation time.
+ 
+ So a step leaves its fill where it was.
+ 
+-Today a grandmaster change that steps counts two re-bases.
++A grandmaster change that steps counts one re-base.
+ 
+-The decided count for that change is one.
++It is the step's; the identity change adds none.
++
++Whether a restart is pending depends on one stream's hold.
++
++So the restart target is per stream since #387.
+ 
+ The `milan_dp` gmstep leg drives one 1.5 s grandmaster step.
+ 
+@@ -180,10 +184,18 @@ It does not grade these:
+ - The grid aligner: the leg holds the TDM clocks.
+ - The CRF servo: its DRP answers zero. `Vphc_step` grades its step discard (#539).
+ - An lwSRP licence: the escape bit opens the talker.
+-- A step during a pending restart: tested with the edit.
++- A step during a pending restart: `tkdiag` T17 grades it.
+ - The physical re-base: the #117 bench measures it.
+ 
+-The remaining datapath edit stays open on #387.
++Three negative controls join it in the default sweep:
++
++- no `mr` toggle on the step;
++- a second re-base on the identity change;
++- no re-base on the step.
++
++Each fails a named check of the leg.
++
++`make gmstep-mutants` plants the whole inventory.
+ 
+ ## Option-off behavior
+ 
+@@ -209,7 +221,8 @@ Legacy writes remain acknowledged and ineffective.
+ | `gptp_shadow` | Atomic state and immediate discontinuity |
+ | `clkvalid` | Holdover, steps, and option-off values |
+ | `milan_dp` | Public CSR and protocol consumers |
+-| `milan_dp` gmstep | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, `mr`, MEDIA_RESET, stream continuity (not yet in the sweep) |
++| `milan_dp` gmstep | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, `mr`, MEDIA_RESET, stream continuity; three negative controls in the sweep |
++| `tkdiag` | A restart request on a pending one merges: one toggle, never a cancellation (T17) |
+ | `media_grid_align` | Alignment, watchdog, and recovery |
+ | `tsn_fuzz` | Storms, malformed pairs, drought recovery |
+ 
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 964c5013e..cf6b8975f 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -194,7 +194,7 @@ The constant is independent of the audio interface.
+ | Convergence band | +/-3 events at PDU ends, 100 ms | half a PDU |
+ | Reset rail | +/-6 events at PDU ends | one PDU: a PDU one interval late never trips it; later than that trips the low rail |
+ | Prefill | snap to setpoint + 6 at a PDU end | one bounded gap, no repeat storm |
+-| Recentre | GM identity change, PHC adjtime or settime, a settled clock-source change | once, at the next PDU end |
++| Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a step is also one `mr` toggle ([media re-base](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step)) |
+ | Clock-source settle | under CRF: the aligner engaged with its error inside 1/64 sample for 2048 ticks (43 ms), or engaged for 32768 ticks; at INTERNAL: 2048 ticks after the change | `milan_datapath` arms one recentre per change; repeated selections re-arm, never queue |
+ | Pop | one event per stream per tick, decided at the stream's first beat | a rail, a recentre or a flush inside the pop window lands between events, never inside one |
+ | Crossbar channel view | 2 x ceil(N_CH_P / 2) lanes per stream (8 on every in-tree shape) | the pad lane of an odd count is a virtual channel, never a wrap onto channel 0 |
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 2c9b7764f..df924db3f 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -124,8 +124,11 @@ they are not discovered by surprise:
+    and `milan_datapath`'s `media_clk_resolve` compares it against the
+    shape's generated `AEM_CRF_CLKSRC_C` into one registered verdict gating
+    `KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain and the
+-   4.4.4.3 `mr` machinery. At the INTERNAL power-on state `A_MCSRV_STAT`
+-   `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
++   CRF triggers of the 4.4.4.3 `mr` machinery (the disruption and the
++   received toggle). A PHC step toggles `mr` on every running Stream
++   Output whatever the selection, and that output's Table 5.4 MEDIA_RESET
++   counts the toggle it transmits (#387). At the INTERNAL power-on state
++   `A_MCSRV_STAT` `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
+    by tie-off. Since `0x0058` the accepted slips are counted where software can
+    read them, `SLIP_LB`/`SLIP_TDM` at `0x8D4`/`0x8D8`.
+ 2. **Every Stream Output's presentation-time offset is pinned at the Milan 2 ms
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index ce12dd40a..7af738fdf 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -264,6 +264,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ |---|---|---|
+ | #447 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
+ | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
++| #387 GM step re-base, the gmstep leg's nine controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv` or `sim_gmstep.cpp`. The default sweep runs the three controls #387's acceptance names |
+ 
+ The default sweep still runs both render legs, and their assertions are unchanged.
+ It also runs that campaign's leg-side defect arms, which need no elaboration.
+@@ -497,7 +498,7 @@ verdicts and for check counts.
+ | [`tb/verilator/tcam_csr`](../../tb/verilator/tcam_csr) | — |
+ | [`tb/verilator/tdm`](../../tb/verilator/tdm) | — |
+ | [`tb/verilator/tdm_render`](../../tb/verilator/tdm_render) | — |
+-| [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) | `KL_talker_diag_ctx` grades the Milan Table 5.4 per-STREAM_OUTPUT counter arithmetic, including the nonvacuous MEDIA_RESET reset-on-start path. `milan_datapath` instantiates one context for every AAF output and the CRF output; `milan_dp` grades that integration and its AECP response path |
++| [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) | `KL_talker_diag_ctx` grades the Milan Table 5.4 per-STREAM_OUTPUT counter arithmetic, including the nonvacuous MEDIA_RESET reset-on-start path. `KL_media_clock_restart` feeds it the `mr` bit: its per-stream hold and, since #387, a request that lands on a pending restart merging with it (T17), whose two failing engines `mcr_mutants.py` plants in the default target. `milan_datapath` instantiates one context for every AAF output and the CRF output; `milan_dp` grades that integration and its AECP response path |
+ | [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) | the field-validation campaign -- **AAF only** since 2026-08-13 (Section 1.0); standalone `make` skips without tsn-gen, CI installs the pinned generator, and the full sweep rejects an uncounted skip |
+ 
+ The standing rule is that every round grows this table. 2026-08-13 is the one
+diff --git a/hdl/ieee1722/avtp/KL_media_clock_restart.sv b/hdl/ieee1722/avtp/KL_media_clock_restart.sv
+index 4a6ea874a..66ff9ca69 100644
+--- a/hdl/ieee1722/avtp/KL_media_clock_restart.sv
++++ b/hdl/ieee1722/avtp/KL_media_clock_restart.sv
+@@ -52,6 +52,36 @@
+                 current media-clock truth on its first PDU rather than
+                 starting life with a stale bit.
+ 
++                A PENDING RESTART ABSORBS A SECOND REQUEST (#387, ruling
++                5802264260 item 2). A request is pending on a stream from
++                the cycle it arrives until that stream stamps the new level,
++                which waits for the >= 8 PDU hold of its previous toggle. A
++                second request landing in that window (a PHC step on top of
++                a CRF disruption, say) asks for what the first already
++                asked for, so the two merge: the stream puts exactly ONE
++                toggle on the wire, and its MEDIA_RESET counts it. A request
++                therefore does not flip a target; it sets the stream's
++                target to the complement of the level the stream stamps now,
++                which a second request cannot undo. Until #387 every request
++                flipped one shared target, so a second request inside the
++                hold flipped it back and NEITHER restart reached the wire. A
++                request that lands after the stream has stamped the previous
++                toggle is a new restart, not a merge: that stream's
++                listeners have already seen the earlier toggle, so the new
++                one follows once the earlier has held its eight PDUs.
++
++                So the target is PER STREAM. Every request still reaches
++                every stream, but whether it is pending is a property of one
++                stream's hold: the CRF output's eight PDUs at 500/s outlast
++                an AAF talker's at 8000/s, so one request can be pending on
++                one stream and already stamped on the other, and a shared
++                target could not both merge the first and restart the
++                second. Two streams can end on opposite levels after such a
++                sequence. That carries no meaning: a listener reads a
++                stream's toggles, never its level against another stream's
++                (10.4.3: only the mr bit of the stream a Listener recovers
++                its media clock from is valid).
++
+                 THE SOURCE-CHANGE TRIGGER. 4.4.4.3's PRIMARY case is a change
+                 of the media clock SOURCE (its S/PDIF A->B example), and PICS
+                 Table F.7 AAF-5 makes it AAF:M MANDATORY. clk_src_i carries the
+@@ -82,7 +112,7 @@
+                 everywhere else; its PDU strobe is the CRF PDU strobe and its
+                 frame_mr_i the bit that PDU stamped, so the hold below counts
+                 CRF AVTPDUs at 500/s while an AAF talker's counts its own at
+-                8000/s - independently, from one shared target.
++                8000/s - independently, each against its own target.
+ 
+   Spec refs   : IEEE 1722-2016 4.4.4.3 (+ 10.4.3 for the CRF talker side,
+                 PICS Table F.16 CRF-3/CRF-4/CRF-5),
+@@ -91,9 +121,11 @@
+ ------------------------------------------------------------------------------
+ */
+ 
+-//! Per-talker AVTP mr level: a restart request flips an engine-wide target,
+-//! each talker adopts it once its own last change has been on the wire for
+-//! HOLD_PDU_P transmitted PDUs (1722-2016 4.4.4.3).
++//! Per-talker AVTP mr level: a restart request sets each talker's target to
++//! the complement of the level it stamps, so a request landing on a pending
++//! one merges with it, and each talker adopts its target once its own last
++//! change has been on the wire for HOLD_PDU_P transmitted PDUs (1722-2016
++//! 4.4.4.3).
+ 
+ `default_nettype none
+ 
+@@ -106,9 +138,11 @@ module KL_media_clock_restart #(
+   input  wire                    clk_i,
+   input  wire                    rst_n,
+ 
+-  //! media-clock restart request: one cycle per restart event. This is the
+-  //! disruption of the CRF stream our media clock is slaved to; the
+-  //! source-change trigger has its own clk_src_i below.
++  //! media-clock restart request: one cycle per restart event. The
++  //! integration ORs every trigger but the source change here: a disruption
++  //! of the CRF stream our media clock is slaved to, that stream's own mr
++  //! toggle, and a PHC step (#387); the source-change trigger has its own
++  //! clk_src_i below.
+   input  wire                    restart_p_i,
+   //! the live media clock SOURCE (SET_CLOCK_SOURCE / clock_source_index). A
+   //! CHANGE of this value is 4.4.4.3's PRIMARY restart trigger (the clause's
+@@ -140,8 +174,9 @@ module KL_media_clock_restart #(
+   localparam int unsigned IXW_C   = $clog2(N_TALKERS_P == 1 ? 2 : N_TALKERS_P);
+   localparam int unsigned HOLDW_C = $clog2(HOLD_PDU_P + 1);
+ 
+-  //! engine-wide target: one media clock, so one restart history
+-  logic                     tgt_r /* verilator public_flat_rw */;
++  //! per-talker target: the level each talker stamps once its hold allows.
++  //! It differs from mr_o exactly while a restart is pending on that talker.
++  logic [N_TALKERS_P-1:0]   tgt_r /* verilator public_flat_rw */;
+   //! shadow of the media clock source; a difference is a source-change edge
+   logic [15:0]              clk_src_q_r;
+   wire                      src_change_w = (clk_src_q_r != clk_src_i);
+@@ -153,7 +188,7 @@ module KL_media_clock_restart #(
+ 
+   always_ff @(posedge clk_i) begin : mcr_track
+     if (!rst_n) begin
+-      tgt_r <= 1'b0;
++      tgt_r <= '0;
+       mr_o  <= '0;
+       clk_src_q_r <= 16'd0;
+       for (int t = 0; t < N_TALKERS_P; t++)
+@@ -162,9 +197,12 @@ module KL_media_clock_restart #(
+         hold_r[t] <= HOLDW_C'(HOLD_PDU_P);
+     end else begin
+       clk_src_q_r <= clk_src_i;
+-      //! toggle on EITHER 4.4.4.3 trigger: a CRF disruption pulse OR a
+-      //! media-clock source change. A no-op SET (same source) does not fire.
+-      if (restart_p_i | src_change_w) tgt_r <= ~tgt_r;
++      //! request on EITHER input: restart_p_i OR a media-clock source change.
++      //! A no-op SET (same source) does not fire. Every talker's target
++      //! becomes the complement of the level it stamps: a talker with a
++      //! restart pending (tgt_r != mr_o) keeps its target, so the second
++      //! request merges instead of cancelling the first (#387).
++      if (restart_p_i | src_change_w) tgt_r <= ~mr_o;
+ 
+       //! a completed PDU that carried this talker's CURRENT level counts
+       //! toward its hold (saturating - only the >= comparison matters)
+@@ -176,11 +214,11 @@ module KL_media_clock_restart #(
+         if (!streaming_i[t]) begin
+           //! no continuous stream to protect: stay adoptable and track the
+           //! target directly, so nothing starts up with a stale bit
+-          mr_o[t]   <= tgt_r;
++          mr_o[t]   <= tgt_r[t];
+           hold_r[t] <= HOLDW_C'(HOLD_PDU_P);
+         end
+-        else if ((mr_o[t] != tgt_r) && (hold_r[t] == HOLDW_C'(HOLD_PDU_P))) begin : g_adopt
+-          mr_o[t]   <= tgt_r;
++        else if ((mr_o[t] != tgt_r[t]) && (hold_r[t] == HOLDW_C'(HOLD_PDU_P))) begin : g_adopt
++          mr_o[t]   <= tgt_r[t];
+           hold_r[t] <= '0;
+         end
+       end
+diff --git a/hdl/ieee1722/crf/KL_crf_tx.sv b/hdl/ieee1722/crf/KL_crf_tx.sv
+index c038842c3..612ee2a54 100644
+--- a/hdl/ieee1722/crf/KL_crf_tx.sv
++++ b/hdl/ieee1722/crf/KL_crf_tx.sv
+@@ -53,11 +53,11 @@
+                 stream". Neither the toggle policy nor the hold lives here:
+                 one engine (KL_media_clock_restart) owns the whole 4.4.4.3 /
+                 10.4.3 family for every Stream Output this device has, CRF
+-                included, because the hold is per stream but the TARGET is
+-                per media clock - two talkers on one clock must never end up
+-                on opposite levels. This module's contract is only the two
+-                halves that are wire facts: mr_i is stamped into the
+-                alternative header, latched at launch so a level change
++                included, because every restart of the media clock must
++                reach every stream while the hold, and whether a restart is
++                still pending, is per stream (#387). This module's contract
++                is only the two halves that are wire facts: mr_i is stamped
++                into the alternative header, latched at launch so a level change
+                 cannot splice a frame, and mr_last_o reports the level the
+                 last COMPLETED PDU carried, which is the only thing the
+                 eight-PDU hold may count (2026-08-08, gh #62 H2b).
+@@ -148,8 +148,8 @@ module KL_crf_tx (
+   //! the LEVEL to stamp: "toggled by the Talker each time a media clock
+   //! restart is needed, and it stays at its new value until a new media
+   //! clock restart is needed". The toggle policy AND the >= 8 PDU hold live
+-  //! in KL_media_clock_restart (one engine for every Stream Output, so two
+-  //! talkers on one media clock can never sit on opposite levels); this port
++  //! in KL_media_clock_restart (one engine for every Stream Output, so every
++  //! restart of the media clock reaches this stream too); this port
+   //! is the level that engine currently grants THIS stream. Latched at frame
+   //! launch beside ts_r/tu_r/vln_r - a flip mid-frame would emit a header
+   //! byte the rest of the PDU does not belong to.
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index dffa78501..d91eaf616 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3068,9 +3068,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //  100 ms of CRF silence (and needs 8 clean PDUs to re-lock), so the edge
+   //  is the debounced verdict, not a per-PDU twitch.
+   //
+-  //  Restart requests are IGNORED unless the CRF clock is the one in use: on
++  //  The CRF requests are IGNORED unless the CRF clock is the one in use: on
+   //  an internal media clock there is no CRF stream to be disrupted, so
+-  //  toggling mr would be a false alarm to every listener.
++  //  toggling mr would be a false alarm to every listener. A PHC step is not
++  //  a CRF request and is not gated (#387, below).
+   // --------------------------------------------------------------------------
+   //! IEEE 1722-2016 4.4.4.3 disruption pulse: crf_locked_w falls while CRF is
+   //! the selected media clock source. The clause's OTHER mandatory trigger, a
+@@ -3096,16 +3097,29 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! 4.4.4.3's "disruption of the CRF stream" is not a disruption of OUR
+   //! clock and must not toggle mr on our streams; with the CRF source
+   //! selected, it is exactly the mandatory trigger, now reachable.
+-  wire mcr_restart_p_w = crf_clk_selected_r
+-                       & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++  //! #387: a PHC step is ONE counted media event (decision 5606198212 part
++  //! b, restated by the owner in 5794731090): the plane's phase write (CLKV
++  //! software's adjtime when the plane is off) or a software settime moves
++  //! every presentation time this talker stamps, so it restarts the media
++  //! clock on the wire once (4.4.4.3) - whichever clock source is selected -
++  //! and Milan Table 5.4 MEDIA_RESET counts that toggle. A step that lands
++  //! while another restart is still pending (a CRF disruption, say) merges
++  //! with it inside KL_media_clock_restart: one toggle, never a cancellation
++  //! (ruling 5802264260 item 2). The same pulse re-centres the render stage
++  //! below.
++  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
++  wire mcr_restart_p_w = (crf_clk_selected_r
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
++                       | media_rebase_p_w;
+ 
+   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
+   //! the AAF talkers AND the CRF Media Clock Output, which is a Talker in
+   //! its own right (PICS Table F.16 CRF-3/CRF-5) and whose stream is exactly
+-  //! the one 10.4.3 writes the clause for. One engine, because the TARGET is
+-  //! a property of the media clock and not of a stream: two outputs on one
+-  //! clock must never end up on opposite levels. The per-stream half - the
+-  //! ">= 8 AVTPDUs for a given continuous stream" hold - stays per context,
++  //! the one 10.4.3 writes the clause for. One engine, because the REQUESTS
++  //! are a property of the media clock: every restart reaches every output.
++  //! The per-stream half - the ">= 8 AVTPDUs for a given continuous stream"
++  //! hold, and with it whether a request is still pending on that stream
++  //! (#387: a request landing on a pending one merges) - stays per context,
+   //! so the CRF output's 500 PDU/s hold and an AAF talker's 8 kPDU/s hold
+   //! run independently and neither can rush the other.
+   //!
+@@ -5920,9 +5934,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! walked back into its convergence band at the residual rate error.
+   //! One pulse per GM-identity change re-centers it instead; the first
+   //! fabric GM publication out of reset (0 -> id) is exempt
+-  //! (prefill owns boot). ONE detector for both elastic stages (#386):
+-  //! it lives outside the I2SPB generate so the shipping shape, which
+-  //! prunes the DAC, still derives the render stage's pulse from it.
++  //! (prefill owns boot). Since #387 only the I2S playback FIFO below reads
++  //! it: the render stage re-centres on the PHC step itself
++  //! (render_recentre_p_w), and a shape that prunes the DAC leaves this
++  //! detector without a reader.
+   logic [63:0] gm_recentre_q_r;
+   logic        gm_recentre_p_r;
+   always_ff @(posedge axis_clk) begin : g_gm_recentre
+@@ -5999,15 +6014,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+       end
+     end
+   end : g_src_recentre
+-  //! #386: the render stage re-centres on a GM identity change, a PHC
+-  //! adjtime (the plane's step, or CLKV software's when the plane is off),
+-  //! a PHC settime and a settled clock-source change. The first three are
+-  //! the PHC discontinuities KL_ptp_clock_validity also raises tu on; that
+-  //! module additionally takes the plane's pre-commit publication events
+-  //! and counts the first 0-to-id publication, which this set leaves out
+-  //! (prefill owns boot). public: the milan_dp render-law leg counts it.
++  //! #386: the render stage re-centres on a PHC step (the #387 media
++  //! re-base above: the plane's step or CLKV software's adjtime when the
++  //! plane is off, and a software settime) and on a settled clock-source
++  //! change. A GM identity change is no longer a trigger of its own (#387):
++  //! a change that steps the PHC re-centres through that step, once, and a
++  //! change that only slews is no PHC discontinuity. KL_ptp_clock_validity
++  //! still raises tu on the identity change and the plane's pre-commit
++  //! publication events. public: the milan_dp render-law and gmstep legs
++  //! count it.
+   wire render_recentre_p_w /* verilator public_flat_rd */ =
+-       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load
++       media_rebase_p_w
+        | src_recentre_p_r;
+ 
+   generate if (I2SPB_P != 0) begin : g_i2s_player
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index 89816adf3..8da9dbbc9 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -607,6 +607,10 @@ DUT_READER_DISPOSITIONS = {
+     "tb/verilator/milan_dp/crflic_mutants.py":
+         "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
+         "named failure. It is the explicit crflic-mutants target, outside the default sweep",
++    "tb/verilator/milan_dp/gmstep_mutants.py":
++        "mutation campaign; it plants one of nine #387 re-base defects into a copy and requires a "
++        "named failure. The default sweep plants the three the acceptance names; the explicit "
++        "gmstep-mutants target plants all nine",
+     "tb/verilator/milan_dp/render_mutants.py":
+         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
+     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
+@@ -634,6 +638,9 @@ DUT_READER_DISPOSITIONS = {
+         "mutation campaign; it ties a real named binding low and requires failure",
+     "tb/verilator/tcam/mutants.py":
+         "mutation campaign; it injects three RTL defects and requires failure",
++    "tb/verilator/tkdiag/mcr_mutants.py":
++        "mutation campaign; it plants one of two restart-engine defects against the #387 "
++        "pending-restart merge into a copy and requires a named failure",
+ }
+ 
+ 
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index b6809ee0d..d4c47774f 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -11,6 +11,10 @@
+ #   make crflic - run only the #530 CRF talker licence leg (compressed time)
+ #   make crflic-mutants - that leg's explicit mutation campaign
+ #                 (crflic_mutants.py), outside the sweep's deadline
++#   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
++#                 the acceptance's controls of it (gmstep_mutants.py)
++#   make gmstep-mutants - that leg's whole control inventory, outside the
++#                 sweep's deadline
+ #   make clean  - remove build artifacts
+ 
+ VERILATOR ?= verilator
+@@ -190,7 +194,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
+        $(DP_SRC)
+ CPP  = sim_main.cpp
+ 
+-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
++.PHONY: all run gptp gmstep gmstep-build gmstep-mutants option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+ all: run
+ 
+ # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
+@@ -306,11 +310,13 @@ gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+ # issue #387 acceptance 3: the `gptp` leg's elaboration, driven through a
+ # grandmaster change that steps the PHC by 1.5 s while the AAF listener is
+ # bound and locked under CRF selection (sim_gmstep.cpp's banner has the
+-# model). GMSTEP_MDIR is overridable so the leg's negative controls build
+-# through this same recipe (their runner joins with the #387 datapath edit);
+-# the AEM image is the shipping config's. GMSTEP_FEED_DELAY idles that many
+-# fabric cycles before the peer's media feed starts, which moves the accept
+-# phase against the media tick; the leg must pass at every delay.
++# model). `run` runs it and then its negative controls, gmstep_mutants.py,
++# which build mutated copies through this same recipe (GMSTEP_MDIR and
++# DP_SRC, CLKV_SRC or RSP_SRC overridden); the sweep plants the three
++# controls the acceptance names, and gmstep-mutants below the whole
++# inventory. The AEM image is the shipping config's. GMSTEP_FEED_DELAY idles
++# that many fabric cycles before the peer's media feed starts, which moves
++# the accept phase against the media tick; the leg must pass at every delay.
+ GMSTEP_MDIR ?= obj_gmstep
+ GMSTEP_FEED_DELAY ?= 0
+ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+@@ -323,6 +329,11 @@ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+ gmstep: gmstep-build
+ 	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)
+ 
++# An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md): the
++# gmstep leg's whole control inventory, one datapath elaboration per control.
++gmstep-mutants: gmstep
++	python3 gmstep_mutants.py --all
++
+ # issue #358: THE SAME LEG WITH THE BOARD LATENCY CORRECTIONS ON. The `gptp`
+ # target above leaves both constants at their zero defaults and therefore
+ # grades the UNCORRECTED stamps bit for bit; this one elaborates non-zero,
+@@ -415,7 +426,7 @@ ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR)
+ ax1x1gptp-extended: AX_GPTP_ARGS = --extended
+ ax1x1gptp-extended: ax1x1gptp
+ 
+-run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
++run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat gmstep
+ 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
+ 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
+ # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
+@@ -511,6 +522,8 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
+ 	./obj_aclk/Vmilan_dp_aclk
+ 	@echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
+ 	python3 render_mutants.py
++	@echo "---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----"
++	python3 gmstep_mutants.py
+ # The physical-rate leg has its own milan_dp_gptp suite deadline. Its focused
+ # target stays here so there is only one source/parameter/build recipe.
+ 
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index a016e7c1b..9690f44ed 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -1,7 +1,7 @@
+ <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+ # milan_dp — the `milan_datapath` integration suite
+ 
+-`make` builds **twelve elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
++`make` builds **thirteen elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
+ Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
+ against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
+ never on grepping the log — a compile error prints no `FAIL` line at all.
+@@ -26,6 +26,7 @@ log in the failure so the artifact can be inspected.
+ | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification |
+ | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates follow the processor's ACTIVE on every cycle, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
+ | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
++| `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387: a grandmaster change that steps the PHC by 1.5 s under CRF selection is one counted media event (`tu`, one render re-base, one `mr` toggle, one MEDIA_RESET) and stops no stream; `gmstep_mutants.py` plants the acceptance's three controls in the sweep and `make gmstep-mutants` the whole inventory |
+ 
+ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
+ 
+@@ -38,7 +39,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
+ - **[First AX7101 1x1 eight-channel run](#first-ax7101-1x1-eight-channel-run)** -- Run the focused datapath baseline and identify its coverage limits.
+ - **[AX7101 1x1 eight-channel gPTP physical-rate run](#ax7101-1x1-eight-channel-gptp-physical-rate-run)** -- Run combined clocks, peer exchange, and diagnostic audio checks.
+ - **[The #530 CRF talker licence leg (obj_crflic)](#the-530-crf-talker-licence-leg-obj_crflic)** -- The compressed-time leg that reproduces the Run B CRF bursts and early emission, what each phase proves, the failing arms, and why FRAMES_TX is an interval count
+-- **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 decision; not in the default sweep until the datapath edit lands
++- **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 decision, and its negative controls
+ - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
+ - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
+ - **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
+@@ -466,21 +467,41 @@ through `make`, idles that many fabric cycles before the peer's media feed
+ starts. One media tick is 41.67 cycles at 2 MHz, so delays 0 to 41 cover every
+ accept phase. With the #387 datapath edit the leg passes at all 42.
+ 
+-**It is not in the default sweep yet.** At this revision the leg passes 44 of
+-its 48 checks. The four it fails are decided behaviour the datapath does not
+-implement yet: the render stage counts two re-bases, one on the grandmaster
+-identity (outside the step's window) and one on the step, and the step neither
+-toggles `mr` nor counts MEDIA_RESET. The datapath edit that closes them waits
+-behind the lane holding `milan_datapath.sv`, and issue #387 records it. The
+-leg joins `run` in the change that makes it pass, together with its
+-negative-control runner.
++**It runs in the default sweep, with its negative controls.** Before the
++#387 datapath edit the leg passed 44 of its 48 checks: the render stage
++counted two re-bases, one on the grandmaster identity (outside the step's
++window) and one on the step, and the step neither toggled `mr` nor counted
++MEDIA_RESET. With the edit it passes 48 of 48. `run` then runs
++`gmstep_mutants.py`, which rebuilds the leg against a mutated copy through the
++`gmstep-build` recipe (`GMSTEP_MDIR` and `DP_SRC`, `CLKV_SRC` or `RSP_SRC`
++overridden), and each control must fail its named check by the leg's own
++verdict:
++
++| Control | Planted in | Named check it fails | Runs in |
++|---|---|---|---|
++| the step does not toggle `mr` | datapath | restart: the outgoing mr toggles exactly once | the sweep |
++| the grandmaster identity re-bases the render stage as well as the step | datapath | render: the GM change is one counted re-base event | the sweep |
++| the step does not re-centre the render stage (ruling 5802264260 item 1) | datapath | render: the GM change is one counted re-base event | the sweep |
++| the render re-base is keyed to the identity, not the step | datapath | render: every counted re-base lands at a PDU end right after the step | `gmstep-mutants` |
++| `tu` reaches the talkers four cycles late | clock validity | tu: set in the first cycle the bank names GM B | `gmstep-mutants` |
++| the plane's step does not re-arm the holdover | datapath | tu: held at least the 0.25 s holdover after the step | `gmstep-mutants` |
++| `tu` stops the talker | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
++| the grandmaster change stops the talker for good | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
++| the step's re-centre snaps one event off the setpoint | render stage | render: every PDU push leaves the target fill across the event | `gmstep-mutants` |
++
++Each control costs one elaboration of the datapath, so the sweep carries the
++three the acceptance names and the explicit `make gmstep-mutants` target runs
++all nine (the explicit-campaign rule of
++[TESTING.md](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression)).
++The runner prints
++every check each control broke, not only the named one.
+ 
+ What the leg does not grade:
+ 
+ - The grid aligner. The TDM clocks are held, so it stays disengaged. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) it gets no re-centre of its own: #539 keeps the step out of its reference at the CRF servo, and #545 and #546 close the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path.
+ - The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades its step discard (#539).
+ - An lwSRP licence. The talker is opened by `AAF_CTRL[1]`; no SRP peer exists here.
+-- A step that lands while an `mr` restart is pending. Ruling 5802264260 item 2 merges the two; its arm joins the datapath edit.
++- A step that lands while an `mr` restart is pending. Ruling 5802264260 item 2 merges the two. `tb/verilator/tkdiag` T17 grades the restart engine PDU by PDU, and its `mcr_mutants.py` plants the engine that cancels.
+ - The step policy's thresholds. The donor's engine suite proves them; this leg only relies on them.
+ - The physical re-base. The #117 bench measures it.
+ 
+@@ -489,6 +510,7 @@ stream is graded against its own baseline rate.
+ 
+ `CLKV_SRC`, like `RSP_SRC` and `DP_SRC`, rebuilds this leg against a mutated copy.
+ Measured on 2026-09-24 with Verilator 5.050: 8.04 M cycles, about 40 s including the build.
++On the same eight-job host the sweep's three controls took 146 s, and all nine 386 s.
+ 
+ ## 2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it
+ 
+@@ -717,16 +739,17 @@ No row projects unexecuted checks.
+ | leg | before (measured) | after (measured; date noted below) | note |
+ |---|---|---|---|
+ | `obj_gptp` (`sim_gptp`) | not available | **164 / 0** | product-default fabric-owner run; inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, the three drop-counter routes at 0x7E8/0x7EC |
+-| `obj_dir` (`sim_main`) | 273 checks / 75 fail | **230 / 0** | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU |
++| `obj_dir` (`sim_main`) | 273 checks / 75 fail | **231 / 0** (2026-09-24 UTC) | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU; #387 adds the `mr` level against the PHC steps the leg issued |
+ | `obj_notify` (`sim_nxn`, timed) | not in the old table | **117 / 0** | the compressed-timebase 5.4.5 notify leg |
+ | `obj_crflic` (`sim_crf_licence`) | not in the old table | **85 / 0** (2026-09-24 UTC) | #530; its three mutants are caught by `make crflic-mutants` |
++| `obj_gmstep` (`sim_gmstep`) | not in the old table | **48 / 0** (2026-09-24 UTC) | #387; `gmstep_mutants.py` catches the acceptance's three controls in the sweep, and `make gmstep-mutants` all nine |
+ | `obj_nxn` (`sim_nxn`) | 378 / — (did not compile) | **1679 / 0** | the old 145 was already stale at #294's merge (issue #314 measured 1673 there); the suite has kept growing since |
+ | `obj_nxndv` (`sim_nxn`) | not in the old table | **1682 / 0** | the divergent-shape leg |
+ | `obj_nxn8` (`sim_nxn`) | 512 / not available | **3179 / 0** | `[T66]` grades atomic audio-map mutation (the old row's "current run summary below" pointer named a section that never existed — this cell is the measurement) |
+ | `obj_nxn4c` (`sim_nxn`) | 378 / — | **1679 / 0** | |
+-| `obj_nolpf` (`sim_main`) | 273 / 75 | **230 / 0** | re-run current (the old "not rerun after the `tu` assertion" caveat is retired) |
++| `obj_nolpf` (`sim_main`) | 273 / 75 | **231 / 0** (2026-09-24 UTC) | re-run current (the old "not rerun after the `tu` assertion" caveat is retired); #387 adds the `mr` check |
+ | `obj_prune` (`sim_prune`) | 31 / 0 | **33 / 0** | the old 31 was already stale at #294's merge (issue #314 measured 28 there); #390 adds the `SLIP_LB` structural zero, read behind listener 0 bound, fed and then starved, plus the `CHMAP_LOOP` lane-establishment read that makes the zero a measurement, whole word against the `0xDEADDEAD` poison and `CHMAP_SNAP[1]` valid before the projection (5 checks) |
+-| `obj_ax1x1` (`sim_main`) | 273 / 73 | **227 / 0** | 5 sections guarded out on this shape |
++| `obj_ax1x1` (`sim_main`) | 273 / 73 | **228 / 0** (2026-09-24 UTC) | 5 sections guarded out on this shape; #387 adds the `mr` check |
+ | `obj_aclk` (`sim_aclk`) | 5 / 0 | **139 / 0** | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added; #390 adds the loopback-ring beat at INTERNAL, the zero-slip window under CRF, the SLIP CSR pair and the `CHMAP_LOOP` lane-establishment read behind its whole-word poison and `CHMAP_SNAP[1]` grades, and the priming PDU's loop-tap transit, which is what grades the drain that separates this phase's own priming PDU from one the render-law phases left in flight (25 checks); the balance is the #386 render law, which landed in this same leg with PR #435 |
+ | `obj_ax1x1gptp` (`sim_ax1x1gptp`) | **126 / 0** before round two | **127 / 0** (2026-09-07 UTC) | Separate `milan_dp_gptp` suite; trimmed waits; additional four-interval assertion; original spans remain opt-in |
+ 
+diff --git a/tb/verilator/milan_dp/gmstep_mutants.py b/tb/verilator/milan_dp/gmstep_mutants.py
+new file mode 100755
+index 000000000..596637f2b
+--- /dev/null
++++ b/tb/verilator/milan_dp/gmstep_mutants.py
+@@ -0,0 +1,250 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Negative controls for the #387 gmstep leg: prove its checks can fail.
++
++sim_gmstep.cpp grades a grandmaster change that steps the PHC by 1.5 s while
++an AAF stream is bound and locked under CRF selection, against the #387
++decision: tu on the commit edge and a holdover after the step, the stream kept
++streaming, one counted render re-base, one mr toggle and one MEDIA_RESET, all
++of them the step's. Each control plants one defect into a private copy of the
++source that carries the property - the datapath, the clock-validity block or
++the render setpoint stage - and rebuilds the SAME leg through the Makefile's
++own recipe (`make gmstep-build` with DP_SRC, CLKV_SRC or RSP_SRC, and
++GMSTEP_MDIR, overridden) and runs it. Each control must make the leg FAIL by
++its OWN verdict (a `[FAIL]` line or a tally with failures, read by
++scripts/suite_tally.py), and the named check must be among the failures; a
++crash or an abort is not a catch. The positive control is the clean leg the
++sweep just built (obj_gmstep), re-run here.
++
++Two inventories. The default run, which `make run` ends with, plants the
++three controls issue #387's acceptance names: the step not toggling mr, the
++render stage re-basing twice (the grandmaster identity as well as the step),
++and the step not re-centring the render stage at all (ruling 5802264260
++item 1: disabling the re-centre must fail the one-counted-event check). Each
++costs one elaboration of the datapath, which is why the rest of the inventory
++is the explicit `make gmstep-mutants` target (`--all`), per
++docs/testing/TESTING.md's explicit-campaign rule. The third arm the
++acceptance names, a pending restart that a step cancels, is in
++tb/verilator/tkdiag (T17 and mcr_mutants.py), where the restart engine's
++holds can be driven PDU by PDU.
++
++What bounds a run. This driver sets no host-time deadline (rule 8's
++wall-clock ratchet, scripts/test_evidence.budget item 4). The leg is
++cycle-bounded by construction: every phase runs a fixed cycle count, every
++AXI4-Lite and AECP wait gives up after a fixed cycle count, and no loop waits
++on a DUT output without a cycle bound, so a control ends at the same cycle as
++the clean leg. The host-time bound of the default run is the sweep's
++per-suite guard in scripts/run_all_suites.sh; the SIGTERM handler turns that
++kill into an exit that removes the temporary directory.
++
++Usage: python3 gmstep_mutants.py [--all]   (run from tb/verilator/milan_dp)
++Exit 0 = every control was caught and the clean leg still passes.
++"""
++
++import argparse
++import signal
++import subprocess
++import sys
++import tempfile
++from pathlib import Path
++from typing import NamedTuple
++
++HERE = Path(__file__).resolve().parent
++SOURCES = {
++    "datapath": HERE / "../../../hdl/milan/milan_datapath.sv",
++    "clkv": HERE / "../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
++    "stage": HERE / "../../../hdl/ieee1722/aaf/KL_render_setpoint.sv",
++}
++#: the make variable that points the recipe at each source
++MAKE_VAR = {"datapath": "DP_SRC", "clkv": "CLKV_SRC", "stage": "RSP_SRC"}
++CLEAN_MDIR = HERE / "obj_gmstep"
++EXE_NAME = "Vmilan_dp_gmstep"
++sys.path.insert(0, str(HERE / "../../../scripts"))
++from suite_tally import log_reports_failure  # noqa: E402
++
++#: the render stage's re-base trigger; its second line is also the anchor the
++#: #386 and #447 render runners plant their clock-source control on
++RENDER_TRIGGER = "       media_rebase_p_w\n       | src_recentre_p_r;"
++TALKER_GATE = "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;"
++
++
++class Control(NamedTuple):
++    """One planted defect and the check it must break."""
++
++    name: str
++    source: str                 #: a key of SOURCES
++    anchor: str                 #: the text it replaces, exactly once
++    replacement: str
++    breaks: str                 #: the named check that must fail
++    acceptance: bool            #: named by #387's acceptance: runs by default
++
++
++CONTROLS = [
++    Control("the step does not toggle mr", "datapath",
++            "                       | media_rebase_p_w;",
++            "                       ;",
++            "restart: the outgoing mr toggles exactly once", True),
++    Control("the grandmaster identity re-bases the render stage as well as the step",
++            "datapath", RENDER_TRIGGER,
++            "       gm_recentre_p_r | media_rebase_p_w\n       | src_recentre_p_r;",
++            "render: the GM change is one counted re-base event", True),
++    Control("the step does not re-centre the render stage", "datapath",
++            RENDER_TRIGGER,
++            "       1'b0\n       | src_recentre_p_r;",
++            "render: the GM change is one counted re-base event", True),
++    Control("the render re-base is keyed to the identity, not the step", "datapath",
++            RENDER_TRIGGER,
++            "       gm_recentre_p_r\n       | src_recentre_p_r;",
++            "render: every counted re-base lands at a PDU end right after the step", False),
++    Control("tu reaches the talkers four cycles late", "clkv",
++            "  assign ts_uncertain_o = (~sync_ok_w) | hold_w | disc_p_w;",
++            "  logic [3:0] tu_late_r;\n"
++            "  always_ff @(posedge clk_i) begin : p_tu_late\n"
++            "    tu_late_r <= {tu_late_r[2:0], (~sync_ok_w) | hold_w | disc_p_w};\n"
++            "  end : p_tu_late\n"
++            "  assign ts_uncertain_o = tu_late_r[3];",
++            "tu: set in the first cycle the bank names GM B", False),
++    Control("the plane's step does not re-arm the holdover", "datapath",
++            "                   ? gptp_step_we_w : cfg_ptp_cmd_adjust),",
++            "                   ? 1'b0 : cfg_ptp_cmd_adjust),",
++            "tu: held at least the 0.25 s holdover after the step", False),
++    Control("tu stops the talker", "datapath", TALKER_GATE,
++            "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r"
++            " & ~clkv_tu_w;",
++            "licence: the talker never pauses beyond four of its intervals", False),
++    Control("the grandmaster change stops the talker for good", "datapath", TALKER_GATE,
++            "  logic gm_stop_r;\n"
++            "  always_ff @(posedge axis_clk) begin : p_gm_stop\n"
++            "    if (!axis_resetn) gm_stop_r <= 1'b0;\n"
++            "    else if (gm_recentre_p_r) gm_stop_r <= 1'b1;\n"
++            "  end : p_gm_stop\n"
++            "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r"
++            " & ~gm_stop_r;",
++            "licence: the talker never pauses beyond four of its intervals", False),
++    Control("the step's re-centre snaps one event off the setpoint", "stage",
++            "                rptr_r[s]    <= snap_rptr_w;\n"
++            "                prefill_r[s] <= 1'b0;",
++            "                rptr_r[s]    <= prefill_r[s] ? snap_rptr_w : snap_rptr_w - 1'b1;\n"
++            "                prefill_r[s] <= 1'b0;",
++            "render: every PDU push leaves the target fill across the event", False),
++]
++
++
++def build(sources: dict[str, Path], mdir: Path) -> Path | None:
++    """Build the leg against `sources` through the suite's own recipe; the
++    executable, or None when the recipe failed or left none."""
++    command = ["make", "-s", "-C", str(HERE), "gmstep-build", f"GMSTEP_MDIR={mdir}"]
++    command += [f"{MAKE_VAR[key]}={path}" for key, path in sources.items()]
++    out = subprocess.run(command, capture_output=True, text=True, check=False)
++    exe = mdir / EXE_NAME
++    if out.returncode != 0 or not exe.is_file():
++        sys.stdout.write(out.stdout[-2000:])
++        sys.stdout.write(out.stderr[-2000:])
++        return None
++    return exe
++
++
++def run_leg(exe: Path) -> tuple[int, str]:
++    """(rc, stdout) of one run of the leg, with no host deadline: it is
++    cycle-bounded (module docstring). The AEM image sits beside the binary."""
++    out = subprocess.run([str(exe), str(exe.parent / "aemi.bin")], cwd=str(HERE),
++                         capture_output=True, text=True, check=False)
++    return out.returncode, out.stdout + out.stderr
++
++
++def failed_checks(out: str) -> list[str]:
++    """The names of the checks the leg printed as failed, in order."""
++    return [line.strip()[len("[FAIL]"):].split(" got=")[0].strip()
++            for line in out.splitlines() if line.strip().startswith("[FAIL]")]
++
++
++def verdict(rc: int, out: str, must_fail: str | None) -> str:
++    """'pass', 'caught', or why the run is not evidence."""
++    reason, failed = log_reports_failure(out)
++    if rc == 0 and not failed:
++        return "pass"
++    if rc == 0 and failed:
++        return f"exited 0 but {reason} - a masked verdict is not evidence"
++    if failed:
++        if must_fail and not any(line.strip().startswith("[FAIL]") and must_fail in line
++                                 for line in out.splitlines()):
++            return f"failed, but not the named check ({must_fail!r})"
++        return "caught"
++    if rc < 0:
++        return f"died by signal {-rc} with no harness verdict - a crash is not a catch"
++    return f"exited {rc} with no harness verdict - a DUT abort is not a catch"
++
++
++def run_control(control: Control, work: Path, tag: int) -> bool:
++    """Plant one control, build and run the leg; True when it was caught."""
++    base = SOURCES[control.source].resolve()
++    text = base.read_text()
++    if text.count(control.anchor) != 1:
++        print(f"[FAIL] control {control.name!r}: its anchor appears "
++              f"{text.count(control.anchor)} time(s) in {base.name}, expected exactly 1. "
++              f"The RTL moved and this control no longer plants anything - fix the "
++              f"anchor, do not delete the arm.")
++        return False
++    planted = work / f"c{tag}_{base.name}"
++    planted.write_text(text.replace(control.anchor, control.replacement))
++    sources = {key: path.resolve() for key, path in SOURCES.items()}
++    sources[control.source] = planted
++    exe = build(sources, work / f"obj_c{tag}")
++    if exe is None:
++        print(f"[FAIL] control {control.name!r} did not compile; a control that cannot "
++              f"build proves nothing about the leg")
++        return False
++    rc, out = run_leg(exe)
++    answer = verdict(rc, out, control.breaks)
++    if answer == "caught":
++        broke = failed_checks(out)
++        print(f"[PASS] control caught: {control.name} - breaks \"{control.breaks}\"")
++        print(f"    it broke {len(broke)} check(s): {'; '.join(broke)}")
++        return True
++    if answer == "pass":
++        print(f"[FAIL] control SURVIVED: {control.name}. The leg does not prove "
++              f"\"{control.breaks}\".")
++    else:
++        print(f"[FAIL] control {control.name!r} {answer}")
++    return False
++
++
++def main() -> int:
++    """Run the positive control and the selected controls; 1 if any survived."""
++    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
++    parser.add_argument("--all", action="store_true",
++                        help="plant the whole inventory, not only the acceptance's controls")
++    args = parser.parse_args()
++
++    def on_sigterm(*_: object) -> None:
++        """Exit on a kill so the temporary directory is removed."""
++        sys.exit(143)
++
++    signal.signal(signal.SIGTERM, on_sigterm)
++    selected = [c for c in CONTROLS if args.all or c.acceptance]
++    passes = 0
++    fails = 0
++    with tempfile.TemporaryDirectory(prefix="gmstep-mutants-") as td:
++        work = Path(td)
++        clean = CLEAN_MDIR / EXE_NAME
++        exe = clean if clean.is_file() else build({}, work / "obj_clean")
++        answer = verdict(*run_leg(exe), None) if exe else "did not compile"
++        if answer == "pass":
++            passes += 1
++            print("[PASS] the unmutated gateware still passes the gmstep leg")
++        else:
++            fails += 1
++            print(f"[FAIL] the unmutated gateware does NOT pass ({answer}) - every "
++                  f"control result is meaningless")
++        for tag, control in enumerate(selected):
++            if run_control(control, work, tag):
++                passes += 1
++            else:
++                fails += 1
++    print(f"\n{passes + fails} checks: {passes} PASS, {fails} FAIL")
++    return 1 if fails else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tb/verilator/milan_dp/sim_gmstep.cpp b/tb/verilator/milan_dp/sim_gmstep.cpp
+index c7c61dc5d..9ea5f4578 100644
+--- a/tb/verilator/milan_dp/sim_gmstep.cpp
++++ b/tb/verilator/milan_dp/sim_gmstep.cpp
+@@ -15,8 +15,9 @@
+ // What this leg does NOT grade: the grid aligner (the TDM clocks are held),
+ // the CRF servo (the DRP answers zero; #539), an lwSRP licence (the talker is
+ // opened by the escape bit), a step that lands inside a pending mr restart
+-// (the ruling 5802264260 item 2 arm joins with the datapath edit), and the
+-// physical re-base (#117).
++// (ruling 5802264260 item 2: tb/verilator/tkdiag T17 grades the restart
++// engine PDU by PDU), and the physical re-base (#117). Its negative controls
++// are gmstep_mutants.py.
+ //
+ // Elaboration: the `gptp` leg's (AX7101 1x1 TDM8 entity, fabric gPTP ON, the
+ // fabric clock compressed to 2 MHz so the plane's real timers fit a runnable
+diff --git a/tb/verilator/milan_dp/sim_main.cpp b/tb/verilator/milan_dp/sim_main.cpp
+index 35f178c56..d359b1e93 100644
+--- a/tb/verilator/milan_dp/sim_main.cpp
++++ b/tb/verilator/milan_dp/sim_main.cpp
+@@ -106,6 +106,11 @@ class MilanDatapathHarness {
+     long checks = 0;
+     long fails = 0;
+     long skipped = 0;
++    //! PHC steps this harness itself commanded (PTP_CMD settime or adjtime).
++    //! #387 makes each one an mr toggle, so the parity is the wire's mr level
++    //! while no talker streams: the expectation is what the harness did, not
++    //! a DUT read.
++    long phc_steps_issued = 0;
+ 
+     void ck(const char* what, unsigned long got, unsigned long exp) {
+         bool ok = (got == exp);
+@@ -552,6 +557,7 @@ class MilanDatapathHarness {
+             axi_write(A_PTP_OFLO, 100000);
+             axi_write(A_PTP_OFHI, 0);
+             axi_write(A_PTP_CMD2, 0x2);
++            phc_steps_issued++;
+             uint64_t t5 = snap();
+             ck("PHC adjtime hops the counter",
+                (t5 - t4 > 100000) && (t5 - t4 < 103000), 1);
+@@ -964,8 +970,13 @@ class MilanDatapathHarness {
+         ck("CLKV: ownerless frame is still emitted", next_aaf(f), 1);
+         ck("CLKV: ownerless frame carries tu=1",
+            f.size() ? f[21] & 1 : 0xEE, 1);
++        //! every header bit of that byte but mr, which carries the restart
++        //! history below
+         ck("CLKV: ownerless frame keeps tv=1",
+-           f.size() ? f[19] : 0, 0x81);
++           f.size() ? f[19] & 0xF7 : 0, 0x81);
++        ck("CLKV: its mr toggled once per PHC step issued so far (#387)",
++           f.size() ? (f[19] >> 3) & 1 : 0xEE,
++           static_cast<unsigned long>(phc_steps_issued & 1));
+         ck("CLKV: frame remains the full AAF PDU",
+            static_cast<long>(f.size()), static_cast<long>(AAF_BYTES));
+     }
+@@ -1020,6 +1031,7 @@ class MilanDatapathHarness {
+         constexpr uint16_t A_CLKV_TUCNT = 0x780;
+         constexpr uint16_t A_PTP_CMD = 0x520;
+         axi_write(A_PTP_CMD, 0x1);
++        phc_steps_issued++;
+         ck("CLKV: PHC step arms holdover",
+            (axi_read(A_CLKV_STAT) >> 3) & 1, 1);
+         ck("CLKV: PHC step keeps tu asserted",
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index d81d8aa3b..65a502698 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -3102,9 +3102,11 @@ class NxnDatapathHarness {
+            tkd_dirty_seen & all_dirty, all_dirty);
+ 
+         //! Inject the media-clock target change at the actual restart
+-        //! engine. The next packetizer and CRF PDUs carry the new mr bit,
+-        //! then each diagnostic context and processor row must expose it.
+-        dut->rootp->milan_datapath__DOT__media_clock_restart__DOT__tgt_r ^= 1;
++        //! engine, on every AAF and CRF context (the target is per stream
++        //! since #387). The next packetizer and CRF PDUs carry the new mr
++        //! bit, then each diagnostic context and processor row must expose it.
++        dut->rootp->milan_datapath__DOT__media_clock_restart__DOT__tgt_r ^=
++            (1u << (kNstreamsTb + 1)) - 1u;
+         step();
+         for (int i = 0; i < RealPduWait; i++) step();
+         long all_real_mr = 1;
+diff --git a/tb/verilator/tkdiag/Makefile b/tb/verilator/tkdiag/Makefile
+index ec9d4b9c5..ac9b9e3ce 100644
+--- a/tb/verilator/tkdiag/Makefile
++++ b/tb/verilator/tkdiag/Makefile
+@@ -3,7 +3,8 @@
+ #
+ # Verilator verification of KL_talker_diag_ctx (Milan v1.2 Table 5.4 - the
+ # per-Stream-Output diagnostic counters, interval + reset-on-start semantics).
+-#   make        - build and run the self-checking harness
++#   make        - build and run the self-checking harness, then its mutation
++#                 arm (mcr_mutants.py: the #387 pending-restart merge)
+ #   make clean  - remove build artifacts
+ 
+ VERILATOR ?= verilator
+@@ -16,18 +17,26 @@ VFLAGS = --cc --exe --build -j 0 \
+          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-GENUNNAMED \
+          -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
+ 
++# #387: the restart engine and the build directory, overridable so
++# mcr_mutants.py elaborates a MUTATED copy through this same recipe
++MCR_SRC     ?= $(RTL_DIR)/ieee1722/avtp/KL_media_clock_restart.sv
++TKDIAG_MDIR ?= obj_dir
++
+ SRCS = $(RTL_DIR)/ieee1722/avtp/KL_talker_diag_ctx.sv \
+-       $(RTL_DIR)/ieee1722/avtp/KL_media_clock_restart.sv \
++       $(MCR_SRC) \
+        tkdiag_tb_top.sv
+ CPP  = sim_main.cpp
+ 
+-.PHONY: all run clean
++.PHONY: all run build clean
+ all: run
+ 
+-run:
+-	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vtkdiag_sim
++build:
++	$(VERILATOR) $(VFLAGS) --Mdir $(TKDIAG_MDIR) $(SRCS) $(CPP) -o Vtkdiag_sim
++
++run: build
+ 	@echo "======================================================================"
+-	./obj_dir/Vtkdiag_sim
++	./$(TKDIAG_MDIR)/Vtkdiag_sim
++	python3 mcr_mutants.py
+ 
+ clean:
+ 	rm -rf obj_dir
+diff --git a/tb/verilator/tkdiag/mcr_mutants.py b/tb/verilator/tkdiag/mcr_mutants.py
+new file mode 100755
+index 000000000..d1ff8cb90
+--- /dev/null
++++ b/tb/verilator/tkdiag/mcr_mutants.py
+@@ -0,0 +1,168 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Mutation arm for the #387 pending-restart merge in tkdiag: prove T17 can fail.
++
++sim_main.cpp's T17 asserts that a restart request landing on a PENDING one
++merges with it (#387, ruling 5802264260 item 2): the stream puts exactly one
++toggle on the wire, never none, and its MEDIA_RESET counts it, while a stream
++that already stamped the earlier request gets a toggle of its own. So the real
++KL_media_clock_restart is mutated, one defect at a time, and the SAME harness
++is rebuilt through the Makefile's own recipe (`make build` with MCR_SRC and
++TKDIAG_MDIR overridden) and run. Each mutant must make the harness FAIL by its
++OWN verdict (a `[FAIL]` line or a tally with failures, read by
++scripts/suite_tally.py), and the named check must be among the failures; a
++crash or an abort is not a catch. The positive control is the clean harness
++that `make` just built (obj_dir), re-run here.
++
++What bounds a run. This driver sets no host-time deadline (rule 8's
++wall-clock ratchet, scripts/test_evidence.budget item 4). The harness is
++cycle-bounded by construction: every case steps a fixed number of cycles and
++no loop waits on a DUT output, so a mutant ends at the same cycle as the clean
++harness. The host-time bound is the sweep's per-suite guard in
++scripts/run_all_suites.sh; the SIGTERM handler turns that kill into an exit
++that removes the temporary directory.
++
++Usage: make -C tb/verilator/tkdiag   (or python3 mcr_mutants.py from there)
++Exit 0 = every mutant was caught and the clean harness still passes.
++"""
++
++import signal
++import subprocess
++import sys
++import tempfile
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++MCR_RTL = HERE / "../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv"
++CLEAN_MDIR = HERE / "obj_dir"
++EXE_NAME = "Vtkdiag_sim"
++sys.path.insert(0, str(HERE / "../../../scripts"))
++from suite_tally import log_reports_failure  # noqa: E402
++
++#: the one line the merge lives on
++MERGE_LINE = "      if (restart_p_i | src_change_w) tgt_r <= ~mr_o;"
++
++# (name, the ONE line it replaces, its replacement, the check it must fail)
++MUTATIONS = [
++    ("a request flips the target, cancelling a pending restart",
++     MERGE_LINE,
++     "      if (restart_p_i | src_change_w) tgt_r <= ~tgt_r;",
++     "T17 talker 1 puts exactly ONE toggle on the wire, never none"),
++    ("one shared target that merges while any stream is pending",
++     MERGE_LINE,
++     "      if ((restart_p_i | src_change_w) && !(|((tgt_r ^ mr_o) & streaming_i)))\n"
++     "        tgt_r <= ~tgt_r;",
++     "T17 talker 0 had stamped the disruption: the step is its 2nd toggle"),
++]
++
++
++def build(rtl_path: Path, mdir: Path) -> Path | None:
++    """Build the harness against `rtl_path` through the suite's own recipe;
++    the executable, or None when the recipe failed or left none."""
++    out = subprocess.run(
++        ["make", "-s", "-C", str(HERE), "build", f"MCR_SRC={rtl_path}",
++         f"TKDIAG_MDIR={mdir}"],
++        capture_output=True, text=True, check=False)
++    exe = mdir / EXE_NAME
++    if out.returncode != 0 or not exe.is_file():
++        sys.stdout.write(out.stdout[-2000:])
++        sys.stdout.write(out.stderr[-2000:])
++        return None
++    return exe
++
++
++def run_harness(exe: Path) -> tuple[int, str]:
++    """(rc, stdout) of one run of the harness, with no host deadline: it is
++    cycle-bounded (module docstring)."""
++    out = subprocess.run([str(exe)], cwd=str(HERE), capture_output=True,
++                         text=True, check=False)
++    return out.returncode, out.stdout + out.stderr
++
++
++def failed_checks(out: str) -> list[str]:
++    """The names of the checks the harness printed as failed, in order."""
++    return [line.strip()[len("[FAIL]"):].split(" got=")[0].strip()
++            for line in out.splitlines() if line.strip().startswith("[FAIL]")]
++
++
++def verdict(rc: int, out: str, must_fail: str | None) -> str:
++    """'pass', 'caught', or why the run is not evidence."""
++    reason, failed = log_reports_failure(out)
++    if rc == 0 and not failed:
++        return "pass"
++    if rc == 0 and failed:
++        return f"exited 0 but {reason} - a masked verdict is not evidence"
++    if failed:
++        if must_fail and not any(line.strip().startswith("[FAIL]") and must_fail in line
++                                 for line in out.splitlines()):
++            return f"failed, but not the named check ({must_fail!r})"
++        return "caught"
++    if rc < 0:
++        return f"died by signal {-rc} with no harness verdict - a crash is not a catch"
++    return f"exited {rc} with no harness verdict - a DUT abort is not a catch"
++
++
++def run_mutant(src: str, mutation: tuple[str, str, str, str], work: Path) -> bool:
++    """Plant one mutation, build and run the harness; True when it was caught."""
++    name, pattern, replacement, breaks = mutation
++    if src.count(pattern) != 1:
++        print(f"[FAIL] mutation {name!r}: its pattern appears {src.count(pattern)} "
++              f"time(s) in {MCR_RTL.name}, expected exactly 1. The RTL moved and this "
++              f"mutant is no longer mutating anything - fix the pattern, do not delete the arm.")
++        return False
++    tag = name.replace(" ", "_").replace(",", "")
++    mpath = work / f"KL_media_clock_restart_{tag}.sv"
++    mpath.write_text(src.replace(pattern, replacement))
++    exe = build(mpath, work / f"obj_{tag}")
++    if exe is None:
++        print(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
++              f"proves nothing about the harness")
++        return False
++    rc, out = run_harness(exe)
++    answer = verdict(rc, out, breaks)
++    if answer == "caught":
++        broke = failed_checks(out)
++        print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\"")
++        print(f"    it broke {len(broke)} check(s): {'; '.join(broke)}")
++        return True
++    if answer == "pass":
++        print(f"[FAIL] mutant SURVIVED: {name}. The harness does not prove \"{breaks}\".")
++    else:
++        print(f"[FAIL] mutant {name!r} {answer}")
++    return False
++
++
++def main() -> int:
++    """Run the positive control and every mutant; 1 if any mutant survived."""
++    def on_sigterm(*_: object) -> None:
++        """Exit on a kill so the temporary directory is removed."""
++        sys.exit(143)
++
++    signal.signal(signal.SIGTERM, on_sigterm)
++    src = MCR_RTL.read_text()
++    passes = 0
++    fails = 0
++    with tempfile.TemporaryDirectory(prefix="mcr-mutants-") as td:
++        work = Path(td)
++        clean = CLEAN_MDIR / EXE_NAME
++        exe = clean if clean.is_file() else build(MCR_RTL, work / "obj_clean")
++        answer = verdict(*run_harness(exe), None) if exe else "did not compile"
++        if answer == "pass":
++            passes += 1
++            print("[PASS] the unmutated restart engine still passes the tkdiag harness")
++        else:
++            fails += 1
++            print(f"[FAIL] the unmutated restart engine does NOT pass ({answer}) - every "
++                  f"mutant result is meaningless")
++        for mutation in MUTATIONS:
++            if run_mutant(src, mutation, work):
++                passes += 1
++            else:
++                fails += 1
++    print(f"\n{passes + fails} checks: {passes} PASS, {fails} FAIL")
++    return 1 if fails else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tb/verilator/tkdiag/sim_main.cpp b/tb/verilator/tkdiag/sim_main.cpp
+index 368c3ae76..a165217ec 100644
+--- a/tb/verilator/tkdiag/sim_main.cpp
++++ b/tb/verilator/tkdiag/sim_main.cpp
+@@ -68,6 +68,8 @@ class TkdiagHarness {
+     void count_dirty(int cycles);
+     void frame_mr(int idx, int tu, int mr);
+     void frame(int idx, int tu);
++    void restart_request();
++    void send_at_level(int idx, int n);
+     void rd(int idx);
+     Ctrs snap(int idx);
+ 
+@@ -85,6 +87,7 @@ class TkdiagHarness {
+     void the_mr_level_toggles_then_holds_eight_pdus();
+     void a_media_clock_source_change_toggles_mr();
+     void the_crf_context_carries_its_own_hold();
++    void a_request_on_a_pending_restart_merges();
+     void dirty_pulses_whenever_any_counter_updates();
+     void all_five_counters_wrap_on_their_normal_events();
+ 
+@@ -94,6 +97,10 @@ class TkdiagHarness {
+     // step `cycles` clocks counting dirty_p_o pulses per context (Milan 5.4.5:
+     // each pulse is "a Table 5.4 counter was updated" for that Stream Output)
+     int dpulses[kContexts] = {};
++    // what send_at_level() put on each context's wire: the mr bit of its
++    // last PDU, and how many times that bit changed between two PDUs
++    int wire_mr[kContexts] = {};
++    int wire_toggles[kContexts] = {};
+ };
+ 
+ void TkdiagHarness::ck(const char* what, uint64_t got, uint64_t exp) {
+@@ -135,6 +142,23 @@ void TkdiagHarness::frame_mr(int idx, int tu, int mr) {
+     dut->frame_p_i = 0;
+ }
+ void TkdiagHarness::frame(int idx, int tu) { frame_mr(idx, tu, 0); }
++
++// one cycle of the restart request into the 4.4.4.3 generator
++void TkdiagHarness::restart_request() {
++    dut->mcr_restart_p_i = 1; step(); dut->mcr_restart_p_i = 0; cyc(2);
++}
++
++// the packetizer's side of the loop: `n` PDUs on context `idx`, each carrying
++// the level the generator grants that context at its launch
++void TkdiagHarness::send_at_level(int idx, int n) {
++    for (int k = 0; k < n; k++) {
++        const int mr = (dut->mcr_mr_o >> idx) & 1;
++        if (mr != wire_mr[idx]) wire_toggles[idx]++;
++        wire_mr[idx] = mr;
++        frame_mr(idx, 0, mr);
++        cyc(2);
++    }
++}
+ void TkdiagHarness::rd(int idx) { dut->rd_idx_i = idx; dut->eval(); }
+ 
+ // read every counter of one context in a single eval
+@@ -477,8 +501,9 @@ void TkdiagHarness::a_media_clock_source_change_toggles_mr() {
+ //  at 500 PDU/s against an AAF talker's 8000, so a shared hold would let
+ //  the audio talkers satisfy the CRF stream's clause on its behalf and
+ //  put the new state on the CRF wire for a sixteenth of eight PDUs. The
+-//  TARGET stays shared - one media clock, one restart history - which is
+-//  the other half of the same clause.
++//  REQUESTS stay shared - one media clock, every restart reaches every
++//  stream - which is the other half of the same clause; whether a request
++//  is still pending is per stream since #387 (T17).
+ //
+ //  BITES the pre-round engine, which was N_TALKERS_P = N_STREAMS: with
+ //  no context 2 there is no level for the CRF talker to stamp and no
+@@ -611,6 +636,73 @@ void TkdiagHarness::all_five_counters_wrap_on_their_normal_events() {
+     ck("T16 TIMESTAMP_UNCERTAIN wraps", snap(0).tu, 0);
+     ck("T16 FRAMES_TX wraps", snap(0).ftx, 0);
+ }
++
++
++// ---------------------------------------------------------------------
++//  T17: a request that lands on a PENDING restart merges with it (#387,
++//  ruling 5802264260 item 2): the stream puts exactly one toggle on the
++//  wire, never none, and its MEDIA_RESET counts that toggle. The ruling's
++//  example is a CRF disruption plus a PHC step; milan_datapath ORs both
++//  onto restart_p_i, so here they are two restart_p_i pulses.
++//
++//  Pending is per stream: a request waits for the >= 8 PDU hold of the
++//  stream's previous toggle. So the case runs two talkers whose holds
++//  disagree when the disruption arrives. Talker 1 has sent 3 of its 8
++//  PDUs, so the disruption is pending on it; talker 0 has sent all 8, so
++//  it stamps the disruption at once. Then the step:
++//   - on talker 1 it merges: one toggle once the hold completes;
++//   - on talker 0 the disruption is already stamped, so the step is a new
++//     restart: a second toggle once the first has held eight PDUs.
++//  The harness plays both packetizers (send_at_level), and MEDIA_RESET
++//  reads the wire those PDUs made.
++//
++//  BITES the pre-#387 engine, one shared target flipped per request: the
++//  step flips it back, talker 1's pending restart is cancelled, and
++//  talker 1 sends no toggle at all. BITES a shared target that merges
++//  whenever ANY stream is pending: talker 0 then gets no toggle for the
++//  step. mcr_mutants.py plants both.
++// ---------------------------------------------------------------------
++void TkdiagHarness::a_request_on_a_pending_restart_merges() {
++    printf("[T17] a request on a PENDING restart merges: one toggle, never none\n");
++    dut->rst_n = 0; dut->frame_p_i = 0; dut->tu_i = 0; dut->frame_mr_i = 0;
++    dut->mcr_restart_p_i = 0; dut->mcr_clk_src_i = 0;
++    dut->streaming_i = 0; dut->mcr_streaming_i = 0;
++    cyc(4); dut->rst_n = 1;
++    dut->streaming_i = 0b011; dut->mcr_streaming_i = 0b011; cyc(4);
++    for (int t = 0; t < kContexts; t++) wire_mr[t] = 0;   // the reset level
++    restart_request();                       // an earlier restart: both adopt 1
++    send_at_level(0, kMrHoldPdus);           // talker 0 completes its hold
++    send_at_level(1, 3);                     // talker 1 is 3 PDUs into its own
++    interval(); interval();
++    const Ctrs c0 = snap(0);
++    const Ctrs c1 = snap(1);
++    for (int t = 0; t < kContexts; t++) wire_toggles[t] = 0;
++
++    restart_request();                       // the CRF disruption
++    ck("T17 the disruption is stamped at once on talker 0 (hold complete)",
++       dut->mcr_mr_o & 1, 0);
++    ck("T17 ... and is pending on talker 1 (3 of its 8 PDUs sent)",
++       (dut->mcr_mr_o >> 1) & 1, 1);
++    restart_request();                       // the PHC step, on top of it
++    send_at_level(1, 4);
++    ck("T17 the merged restart still waits for talker 1's eighth PDU",
++       (dut->mcr_mr_o >> 1) & 1, 1);
++    send_at_level(1, 1 + kMrHoldPdus);       // the eighth, then the new level
++    interval(); interval();
++    ck("T17 talker 1 puts exactly ONE toggle on the wire, never none",
++       wire_toggles[1], 1);
++    ck("T17 ... and talker 1's MEDIA_RESET counts that one",
++       snap(1).mreset - c1.mreset, 1);
++
++    send_at_level(0, kMrHoldPdus);           // the disruption's level holds
++    interval(); interval();
++    send_at_level(0, kMrHoldPdus);           // then the step's toggle goes out
++    interval(); interval();
++    ck("T17 talker 0 had stamped the disruption: the step is its 2nd toggle",
++       wire_toggles[0], 2);
++    ck("T17 ... and talker 0's MEDIA_RESET counts both",
++       snap(0).mreset - c0.mreset, 2);
++}
+ int TkdiagHarness::run() {
+     const milan::tb::Model<Vtkdiag_tb_top> model;
+     dut = model.get();
+@@ -637,6 +729,7 @@ int TkdiagHarness::run() {
+     printf("--------------------------------------------------------------\n");
+     dirty_pulses_whenever_any_counter_updates();
+     all_five_counters_wrap_on_their_normal_events();
++    a_request_on_a_pending_restart_merges();
+ 
+     printf("checks: %ld   failures: %ld\n", checks, fails);
+     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");

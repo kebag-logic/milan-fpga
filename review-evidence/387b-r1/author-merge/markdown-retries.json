@@ -1,0 +1,31 @@
+[
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "57456af96b3127b9d309a995bbbd35a6113ce52d"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 3.22,
+    "started_utc": "2026-09-24T15:26:03.378266+00:00",
+    "log": "em-dash-retry.log"
+  },
+  {
+    "name": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 2.47,
+    "started_utc": "2026-09-24T15:26:06.603231+00:00",
+    "log": "toc-retry.log"
+  }
+]

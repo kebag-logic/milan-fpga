@@ -1,0 +1,209 @@
+[
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 4.12,
+    "started_utc": "2026-09-24T15:24:32.916111+00:00",
+    "log": "docs-check.log"
+  },
+  {
+    "name": "docs-check-no-git",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$MANAGEMENT/2026-09-23/387-a268/no-git-export",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 4.02,
+    "started_utc": "2026-09-24T15:24:37.037942+00:00",
+    "log": "docs-check-no-git.log"
+  },
+  {
+    "name": "feature-status-no-git",
+    "command": [
+      "python3",
+      "scripts/check_feature_status.py"
+    ],
+    "cwd": "$MANAGEMENT/2026-09-23/387-a268/no-git-export",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 0.72,
+    "started_utc": "2026-09-24T15:24:41.060055+00:00",
+    "log": "feature-status-no-git.log"
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "57456af96b3127b9d309a995bbbd35a6113ce52d"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 3.22,
+    "started_utc": "2026-09-24T15:26:03.378266+00:00",
+    "log": "em-dash-retry.log"
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 0.11,
+    "started_utc": "2026-09-24T15:24:42.643803+00:00",
+    "log": "doc-style.log"
+  },
+  {
+    "name": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 2.47,
+    "started_utc": "2026-09-24T15:26:06.603231+00:00",
+    "log": "toc-retry.log"
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 0.11,
+    "started_utc": "2026-09-24T15:24:42.872897+00:00",
+    "log": "doc-paths.log"
+  },
+  {
+    "name": "module-matrix",
+    "command": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 1.02,
+    "started_utc": "2026-09-24T15:24:42.987546+00:00",
+    "log": "module-matrix.log"
+  },
+  {
+    "name": "xvlog",
+    "command": [
+      "python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 135.31,
+    "started_utc": "2026-09-24T15:24:44.004120+00:00",
+    "log": "xvlog.log"
+  },
+  {
+    "name": "rtl-source-lists",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 1.52,
+    "started_utc": "2026-09-24T15:26:59.317044+00:00",
+    "log": "rtl-source-lists.log"
+  },
+  {
+    "name": "behave",
+    "command": [
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "$LANES/387-media-rebase/tests",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 1.17,
+    "started_utc": "2026-09-24T15:27:00.836432+00:00",
+    "log": "behave.log"
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 0.03,
+    "started_utc": "2026-09-24T15:27:02.003449+00:00",
+    "log": "diff-check.log"
+  },
+  {
+    "name": "gmstep",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/milan_dp",
+      "gmstep"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 42.09,
+    "started_utc": "2026-09-24T15:27:02.036045+00:00",
+    "log": "gmstep.log"
+  },
+  {
+    "name": "tkdiag",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/tkdiag"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 11.44,
+    "started_utc": "2026-09-24T15:27:44.129900+00:00",
+    "log": "tkdiag.log"
+  },
+  {
+    "name": "mmcm-servo",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/mmcm_servo"
+    ],
+    "cwd": "$LANES/387-media-rebase",
+    "head": "e68c1b1ac08c8b1e12a28e281b266d06f881e402",
+    "rc": 0,
+    "elapsed_seconds": 473.06,
+    "started_utc": "2026-09-24T15:27:55.567277+00:00",
+    "log": "mmcm-servo.log"
+  }
+]
