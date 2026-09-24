@@ -1,0 +1,15 @@
+{
+ "name": "credit gate removed from the Sync leg",
+ "file": "ucode/gen_gptp_ucode.py",
+ "breaks": "a Sync beat is postponed while the transmit path has no credit",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL D4 Sync beats are withheld   got 000000000000000a exp 0000000000000000"
+ ],
+ "tally": [
+  "1613 checks: 1612 PASS, 1 FAIL"
+ ],
+ "index": 18
+}

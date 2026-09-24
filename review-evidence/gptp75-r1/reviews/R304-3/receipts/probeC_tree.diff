@@ -1,0 +1,16 @@
+diff -r -x obj_dir -x seedrun -x syncseedrun $REVIEWS/gptp75-r304-3-packet/scratch/head/tb/verilator/engine/sim_main.cpp $REVIEWS/gptp75-r304-3-packet/scratch/probeC/tb/verilator/engine/sim_main.cpp
+4741a4742,4755
+>     // R304-2 probe C: lose asCapable while inactive, recover, track.
+>     {
+>       const size_t c_edges = slew_edges.size();
+>       pd_mode = PD_FAR;
+>       expect("probeC: bad delay drops asCapable while inactive", wait_flags(FL_ASCAP, 0, 2500000), 1);
+>       run_svc(200000);
+>       expect("probeC: incapable and inactive", dut->phc_slew_active_o, 0);
+>       pd_mode = PD_NORMAL;
+>       expect("probeC: capability recovers", wait_flags(FL_ASCAP, FL_ASCAP, 5000000), 1);
+>       expect("probeC: recovery has no level edge", slew_edges.size(), c_edges);
+>       announce(0x75C0, 100, GMID, 0, PEER_CID);
+>       slew_probe("probeC: in-band pair after asCapable recovery stays inactive", 0, false, false, true);
+>       slew_probe("probeC: second in-band pair after recovery stays inactive", 0, false);
+>     }

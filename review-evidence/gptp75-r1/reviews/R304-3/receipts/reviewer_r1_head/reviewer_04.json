@@ -1,0 +1,20 @@
+{
+ "name": "R05 mastership keeps the level",
+ "file": "top/KL_gptp_engine.sv",
+ "breaks": "return to GM clears",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL slew: mastership retires the phase correction got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: mastership has one falling edge got 0000000000000025 exp 0000000000000026",
+  "FAIL slew: GM duty remains inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: return from GM starts inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001"
+ ],
+ "tally": [
+  "1613 checks: 1607 PASS, 6 FAIL"
+ ],
+ "index": 4
+}
