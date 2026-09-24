@@ -1414,7 +1414,7 @@ the real port in C1r, C2r, C2e and C1g) or for the alarm (already exported).
 | A content rule (an erased span means "in progress") | Contradicts the ratified KLJ2 [6.1](SAVED_STATE_FASTCONNECT.md#61-the-container) erased-record rule: first-boot erased records are legitimate, and an erased span validates | EXECUTED: B7 passes only because erased records are accepted; C2e under M08 promotes an erased span that validates |
 | Device idle as the record boundary; the tracked device-busy gate | Device idle occurs inside a logical record, and a gate on it lets one wedged record stop every other record | EXECUTED: C1g (idle between ERASE done and WRITE grant); F05 is killed by B9 |
 | A completion counter, generation or sticky identity alone, without a per-record open bit | A counter of completions cannot see a record that is not completing, which is exactly the ERASE-error counterexample; the per-record open bit is the smallest sticky identity that names the record | EXECUTED proxies: M01 (open at completion) killed by B1, M02 (close on any completion) killed by C1g |
-| Freezing the producer for the whole flash transaction | [Section 9.4](SAVED_STATE_FASTCONNECT.md#94-the-deadlines)'s worst case is 3.06 s at 1x1 and 3.18 s at 8x8, one erase dominating; the control plane would stall for seconds | EXECUTED: M07 (hold never expires) killed by C2 : hold_bounded; F3 keeps the producer's longest request-to-grant wait at 1 cycle with no flash at all; A9 keeps nvm_backed and a 250 ms heartbeat gap through a 3 s erase |
+| Freezing the producer for the whole flash transaction | [Section 9.4](SAVED_STATE_FASTCONNECT.md#94-the-deadlines)'s worst case is 3.07 s at 1x1 and 3.26 s at 8x8, one erase dominating; the control plane would stall for seconds | EXECUTED: M07 (hold never expires) killed by C2 : hold_bounded; F3 keeps the producer's longest request-to-grant wait at 1 cycle with no flash at all; A9 keeps nvm_backed and a 250 ms heartbeat gap through a 3 s erase |
 | An edge-detected producer change (the tracked parent glue) | A second change while the level is high is lost | EXECUTED: G01 killed by E1 |
 | An acknowledgement without identity | A stale or duplicate ACK retires a newer capture; with the identity checked but not sent, nothing converges | EXECUTED: M04 killed by A6; F04 killed by A1 : stable_no_churn |
 | Dirty from accepted bytes instead of a record close | A record whose bytes all moved before the arm but whose completion lands after it is retired unwritten | EXECUTED: M11 killed by A12 |
@@ -1453,7 +1453,8 @@ that no rule consumes and that races the producer by construction.
 ## 17. Consequences
 
 - The writer needs a second image-sized buffer in DDR, the private stage
-  (MILAN_NVM_STAGE_BASE): 3264 bytes at 1x1 and 8648 at 8x8.
+  (MILAN_NVM_STAGE_BASE): 3264 bytes at 1x1 and 12680 at 8x8,
+  derived in [section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged).
 - A mutating producer request may be deferred up to 50 ms by ONE capture, and
   never by a second: an ARM is refused while a deferred request waits, so the
   bound is per request. Reads are never deferred. The deferral is a withheld
@@ -1549,34 +1550,65 @@ the device face, its restart rule and their messages for 360 more in each
 (bss +4: one flag), and revision d's two-bit restart split, its stop on a
 live window and their messages for 300 more in each, with no new static.
 
-Memory shape: the stage is one container, 3264 bytes at 1x1 and 8648 at 8x8.
+Memory shape: the stage holds one container.
+[Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
+derives 3264 bytes at 1x1 and 12680 at 8x8.
 
-Timing. The per-byte count is MEASURED from the RV32I -Os build of the
-prototype writer; the times are DERIVED; nothing ran on hardware. The hold
-covers the CPU's copy of the closed records; the stage prefill, which reads
-the flash, happens before the ARM. The copy loop is six instructions per
-byte: one uncached load from the live window, one uncached store to the
-stage. The record walk adds about 50 instructions per record. A full record
-area is 3,220 bytes over 53 records at 1x1 and 8,604 bytes over 156 records at
-8x8. A full copy is therefore about 22,000 instructions and 6,440 DDR accesses
-at 1x1, and 59,400 instructions and 17,208 DDR accesses at 8x8, or about
-1.11 million cycles at 8x8 if an instruction averages 10 cycles and a DDR
-access 30.
+Timing. The prototype's RV32I -Os build measured per-byte instruction counts.
+The following times are DERIVED, without hardware measurements.
+The hold covers copying closed records after ARM.
+Flash prefill happens before ARM, outside the hold.
+The model uses six instructions and two DDR accesses per byte.
+Walking each record adds about 50 instructions.
+Each instruction costs 10 cycles; each DDR access costs 30.
+The pessimistic case doubles both cycle costs.
 
-**The clock is the shipping one, not the default.** The product CPU is a
-cacheless VexiiRiscv, and whenever a Milan clock is configured
-`sw/litex/milan_soc.py` selects a separate CPU clock and drives it from the
-Milan domain, which [the clock-domain page](../litex/CLOCK_DOMAINS.md) gives as 50 MHz and calls
-the shipping choice; the CPU's memory master additionally crosses into the
-system domain. At 50 MHz the 8x8 copy takes about 22 ms (8 ms at 1x1), and
-44 ms at twice both costs. **The margin to the 50 ms hold at 8x8 is therefore
-about 1.1 to 2.3 times**, not 2 to 4.5; at the SoC's 100 MHz default it would
-be 11 and 22 ms. An implementation sizing T_HOLD_MS_P must use the clock it
-actually runs the writer on. A copy that overran the hold would still not lose
-safety: a grant after the lapse voids the capture, which is released and
-retried (C2, C2e, C2r). The 50 ms bound is well under the 500 ms heartbeat
-period and the 8000 ms commit deadline, and the parameter refuses a hold at or
-above the commit deadline. The hardware measurement stays UNRESOLVED 6.
+The current gate supplies section 4.2's raw areas and counts.
+These exclude container headers, alignment padding, and trailers.
+For raw area `A` and record count `N`:
+
+```text
+instructions = 6 * A + 50 * N
+DDR accesses = 2 * A
+cycles = 10 * instructions + 30 * DDR accesses
+time_ms = cycles * 1000 / 50000000
+hold_margin = 50 / time_ms
+```
+
+| Quantity | 1x1 | 8x8 |
+|---|---|---|
+| Raw bytes / records | 3,218 / 53 | 12,634 / 156 |
+| Instructions | 21,958 | 83,604 |
+| DDR accesses | 6,436 | 25,268 |
+| Nominal cycles | 412,660 | 1,594,080 |
+| Nominal copy / 50 ms hold margin | 8.3 ms / 6.06x | 31.9 ms / 1.57x |
+| Twice both costs / hold margin | 16.5 ms / 3.03x | 63.8 ms / 0.78x |
+
+The shipping CPU clock is 50 MHz.
+`sw/litex/milan_soc.py` selects it from the Milan domain.
+The [clock-domain page](../litex/CLOCK_DOMAINS.md) records this shipping choice.
+The CPU memory master also crosses into the system domain.
+Hold sizing must use the writer's actual clock and measured latency.
+
+**The grown 8x8 copy exceeds 50 ms under doubled costs.**
+A grant after hold expiry voids capture; release and retry preserve safety.
+Sustained producer activity risks liveness through repeated void-and-retry cycles.
+The shipping 1x1 shape and its margins are unchanged.
+
+[The #501 decision](https://github.com/kebag-logic/milan-fpga/issues/501#issuecomment-5823589125)
+retains the hold without an RTL change here.
+Today only BINDING is materialized; maps are not copied yet.
+No materialized map copy can overrun the hold today.
+Donor writer adoption through processor #61/#83 must measure the copy.
+It must size the hold with a stated margin.
+Alternatively, measurements must prove the existing 50 ms adequate.
+The [donor acceptance obligation](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/61#issuecomment-5823590638)
+requires recording those measurements in UNRESOLVED 6.
+
+The hold remains below the 500 ms heartbeat period.
+It also remains below the 8000 ms commit deadline.
+The parameter refuses a hold at or above that deadline.
+Hardware timing and memory ordering remain UNRESOLVED 6.
 
 ## 19. The executable model and its omissions
 
@@ -1657,14 +1689,22 @@ above the commit deadline. The hardware measurement stays UNRESOLVED 6.
 5. The JEDEC identity-mismatch revocation cause of
    [section 9.2](SAVED_STATE_FASTCONNECT.md#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven)
    has no reporter at the current source.
-6. Physical timing: the 50 ms hold against the real copy time, and the
-   debounce value
-   ([section 14](SAVED_STATE_FASTCONNECT.md#14-what-this-page-does-not-decide)
-   of the saved-state page, still open), are not measured on hardware.
-   Section 18 gives the measured instruction count of the copy and a derived
-   22 to 44 ms at 8x8 on the shipping 50 MHz CPU clock, a margin of about 1.1
-   to 2.3 times. The ordering between the controller's two memory ports
-   (section 19) belongs to the same measurement.
+6. Physical timing remains unmeasured: capture hold, debounce, and memory ordering.
+   Section 18 derives the current full-copy budget at 50 MHz.
+   At 8x8, 12,634 bytes over 156 records take 31.9 ms nominally.
+   Doubled cycle costs give 63.8 ms against the 50 ms hold.
+   The corresponding margins are 1.57x and 0.78x.
+   Void and retry preserve safety; sustained activity risks liveness.
+   Shipping 1x1 stays unchanged: 8.3/16.5 ms, margins 6.06x/3.03x.
+   Only BINDING is materialized today; maps are not copied yet.
+   Processor #61/#83 adoption must measure the actual 8x8 copy.
+   Size the hold with a stated margin from that measurement.
+   Alternatively, prove the existing 50 ms sufficient with measurements.
+   Record the result here, as the
+   [donor obligation](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/61#issuecomment-5823590638)
+   requires. The section 19 memory-port ordering also needs measurement.
+   The debounce measurement remains open under
+   [section 14](SAVED_STATE_FASTCONNECT.md#14-what-this-page-does-not-decide).
 7. Alarm forgiveness. The donor alarm is sticky until reset, so one retry
    exhaustion holds nvm_backed at 0 and nvm_stale at 1 until reset, even
    after the same sink is later rewritten and committed (section 12). That

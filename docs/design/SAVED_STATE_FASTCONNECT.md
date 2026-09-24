@@ -185,9 +185,9 @@ Three things make that the answer rather than a fabric-side flash master:
 
 1. **The whole set fits in one erase block, measured at both shapes.** With the
    allocation of section 4, the donor's own F07.8 rule unchanged,
-   `scripts/check_nvm_record_space.py` measures **2,624 bytes** at the shipping
-   `endstation_ax7101_1x1_tdm8` shape and **8,648 bytes** at
-   `endstation_ax7101_8x8`, which is 13 percent of one 64 KiB slot. Both fit
+   `scripts/check_nvm_record_space.py` measures **3,264 bytes** at the shipping
+   `endstation_ax7101_1x1_tdm8` shape and **12,680 bytes** at
+   `endstation_ax7101_8x8`, which is 19 percent of one 64 KiB slot. Both fit
    one block with margin, so whole-image promotion is not
    a compromise forced by geometry; it is comfortably affordable, and it
    upgrades the durability guarantee from the port's per-record one to "at every
@@ -361,6 +361,9 @@ Each grown port is tested separately, including atomic over-capacity refusal.
 The backend suite checks whole-span reads, writes, erases and boundaries.
 
 Firmware loads the grown per-port lengths through existing backend tables.
+`tb/verilator/nvm_cosim` checks those writes with firmware executing.
+A wrong output-length table fails that integration suite.
+The host test alone does not detect that defect.
 The backend RTL and its storage widths need no change.
 The processor writer remains donor work:
 [processor #61](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/61)
@@ -506,8 +509,9 @@ cardinality, and a duplicate key with distinct ids), a namespace shrunk below
 the conformant floor, and two arms that restore a round-3 DECODER rule -- the
 content-based name presence rule and "an absent allocated id is not a
 failure". `--self-test` runs every registered control.
-Each must return a finding, never a crash.
-The #501 controls also require their named refusal.
+Each must exit 1 with its registered, named `FINDING:` line.
+Missing or unrelated findings fail the self-test.
+A traceback fails even alongside the expected finding.
 
 `--emit-record-table` writes the byte offsets of that same image for
 `tb/verilator/nvm_backend`, and the gate rebuilds and compares the committed
@@ -781,12 +785,14 @@ reserved main-memory window, not in block RAM.
   (the AX7101 shapes place it at `0x7F700000`);
   `sw/litex/milan_soc.py` reads it and only checks it. It holds the descriptor
   image, measured at 40,000 bytes at 8x8, plus the 4,096-byte response buffer.
-  Adding the measured 8,648-byte record image brings the window to 52,744 of
+  Adding section 4.2's 12,680-byte image gives 56,776 bytes total.
+  That is `40,000 + 4,096 + 12,680` of
   1,048,576 bytes, about 5 percent. **No new reservation and no change to the
   published memory map.**
 - The BRAM alternative is what is being declined, and its cost is the number
-  that decides it: 8,648 bytes byte-wide is 3 BRAM36 at the 8x8 shape, on a
-  device whose area campaign is fought in single-digit percentages.
+  that decides it: section 4.2 derives 12,680 bytes at 8x8.
+  Byte-wide storage needs `ceil(12,680 / 4,096) = 4` BRAM36.
+  The chosen DRAM placement adds no BRAM.
 
 ### 8.2 The transfer: ordinary loads and stores, no CSR data window
 
@@ -1222,13 +1228,15 @@ T_commit_worst = tSE(max) + ceil(IMG_LEN/256) x tPP(max) + IMG_LEN x 8 / 12.5e6
 
 | shape | image | pages | erase | program | read-back | **worst case** |
 |---|---|---|---|---|---|---|
-| `endstation_ax7101_1x1_tdm8` | 2,624 B | 11 | 3,000 ms | 55 ms | 1.7 ms | **3.06 s** |
-| `endstation_ax7101_8x8` | 8,648 B | 34 | 3,000 ms | 170 ms | 5.5 ms | **3.18 s** |
+| `endstation_ax7101_1x1_tdm8` | 3,264 B | 13 | 3,000 ms | 65 ms | 2.1 ms | **3.07 s** |
+| `endstation_ax7101_8x8` | 12,680 B | 50 | 3,000 ms | 250 ms | 8.1 ms | **3.26 s** |
 
-The erase dominates: 94 percent of the worst case at 8x8 is one `tSE`.
+Section 4.2 derives both image lengths from the gate.
+Its commit calculation gives 3,067.08896 ms and 3,258.1152 ms respectively.
+One erase contributes about 92 percent at 8x8.
 
 **`T-NVM-COMMIT-TIMEOUT` = 8,000 ms**, required to be at least **2x** the
-worst-case transaction at EVERY shipped shape. That is 2.52x at 8x8 and 2.62x
+worst-case transaction at EVERY shipped shape. That is 2.46x at 8x8 and 2.61x
 at 1x1. The margin covers the byte pump, the CPU's polling loop and a second
 erase if the first slot verify fails. Below 2x the deadline starts declaring
 legal flash operations dead, which is the failure mode the review named.
@@ -1302,8 +1310,8 @@ checks the map's internal consistency, including that every image still fits und
 the reserved slots. It passes today.
 
 **G0b -- the record set is complete and fits the namespace (workstation only, no
-board).** `scripts/check_nvm_record_space.py`, and `--self-test` for its eleven
-negative controls. Both pass today. The gate also publishes the F07.8
+board).** `scripts/check_nvm_record_space.py`, and `--self-test` for every
+registered negative control. Both pass today. The gate also publishes the F07.8
 conformance floor of section 4.3 and the worst-case commit time of section 9.4
 per shape, so those two figures are re-derived on every run rather than quoted
 from this page.

@@ -85,8 +85,6 @@ def _round_trip_map(shape: Shape, recs: list[Record], donor: Donor,
     blob, _ = klj2_assemble(frames, donor, EMIT_IDENT)
     live = dict(wanted)
     live.clear()
-    if live:
-        return [f"{shape.cfg.stem}: map store was not cleared before restore"]
     verdict, applied = klj2_decode(blob, donor, EMIT_IDENT, expect)
     if verdict != VD_OK or set(applied) != {(group, port)}:
         return [f"{shape.cfg.stem}: output-record capacity: {group}[{port}] "
