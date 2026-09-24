@@ -76,6 +76,11 @@
                           ns (4.29 s) aliases in the detector's 32 bits
                           and meets the 1024 ppm guard instead.
 
+                  remote history (#546): crf_rate_valid_i qualifies each
+                          window's PI run. Invalid receiver history skips
+                          PI, trim and lock-count updates without changing
+                          lock state; sampling resumes with clean history.
+
                   actuator (fine, glitch-free): MMCME2 dynamic fine
                           phase shift, UG472 "Interpolated Fine Phase
                           Shift in Fixed or Dynamic Mode in the MMCM":

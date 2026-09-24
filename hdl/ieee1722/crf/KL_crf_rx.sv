@@ -272,11 +272,13 @@ module KL_crf_rx #(
   localparam logic [63:0] NOM_WIN_NS_C  = 64'(NOM_PDU_NS_C) << RATE_LOG2_C;
 
   //! Adjacent timestamps, unlike the 512 ms rate, expose a phase step.
-  //! Bound legitimate spacing using Milan Annex B.1.1's 100 ppm media
-  //! clock and the talker's 200 ppm PHC trim envelope (TIME_SYNC).
+  //! The media oscillator inherits the +/-100 ppm LocalClock bound
+  //! (Milan Annex B.1.1), rather than an independent media-clock clause.
+  //! Assume the remote talker shares our PHC envelope: +/-200 ppm trim
+  //! (TIME_SYNC) and <384 ns timestamp quantisation (incr + adj).
   //! 2 ms * (200 + 100) / (1e6 - 100), rounded up, is 601 ns.
-  //! Add two PHC quantisation errors, each below 384 ns (incr + adj,
-  //! the #539 rationale), then round 1369 ns up to 2048 ns. This is
+  //! Add two such quantisation errors (the local #539 rationale assumed
+  //! for the remote talker), then round 1369 ns up to 2048 ns. This is
   //! below the plane's smallest step (>20 us), without copying #539's
   //! per-cycle 4096 ns threshold. Arrival/network jitter is absent here.
   localparam int unsigned RATE_DRIFT_NS_C =

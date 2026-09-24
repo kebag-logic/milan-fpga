@@ -24,8 +24,11 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wno-PINCONNECTEMPTY \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 
+SERVO_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv
+UNIT_MDIR ?= obj_dir
+
 COMMON = $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/common/cdc_handshake.sv \
-         $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv
+         $(SERVO_RTL)
 
 # sim-compressed unit params: 125 us tick, 4 ms window renormalized to the
 # fixed ns/512ms CSR scale; GAIN 7 = the 125 us tick at the silicon VCO
@@ -36,7 +39,7 @@ UNIT_G = -GTICK_CYC_P=3072 -GWIN_LOG2_P=5 "-GNOM_WIN_NS_P=64'd4000000" \
          -GNORM_SHIFT_P=7 -GGAIN_NUM_P=7 -GRELOCK_TOUT_P=20000 \
          -GLOCK_THR_P=8192
 
-.PHONY: all run trace phc_step_build clean
+.PHONY: all run unit-build trace phc_step_build clean
 all: run
 
 # the step harness reads integ_r / u_cmd_r / ew_r / pp_seq_r / pp_run_r, so it
@@ -49,11 +52,13 @@ phc_step_build:
 trace: phc_step_build
 	./obj_phc/Vphc_step +trace_step_ns=$(STEP_NS)
 
-run:
+unit-build:
 	$(VERILATOR) $(VFLAGS) --top-module KL_mmcm_drp_servo $(UNIT_G) \
-	  $(COMMON) sim_main.cpp -o Vservo_sim
+	  -Mdir $(UNIT_MDIR) $(COMMON) sim_main.cpp -o Vservo_sim
+
+run: unit-build
 	@echo "======================================================================"
-	./obj_dir/Vservo_sim
+	./$(UNIT_MDIR)/Vservo_sim
 	$(VERILATOR) $(VFLAGS) --top-module rails_wrap -Mdir obj_rails \
 	  $(COMMON) $(RTL_DIR)/common/cdc_pair_fifo.sv \
 	  $(RTL_DIR)/ieee1722/aaf/KL_i2s_playback.sv rails_wrap.sv \

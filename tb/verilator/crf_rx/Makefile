@@ -5,8 +5,8 @@
 # Pins the ts-history-dependent outputs (delta/rate/lock trajectory) against
 # an independent C++ ring replica — the regression that guards the
 # ts_hist flop-file -> BRAM conversion.
-#   make        - run counters, discontinuity and connected servo harnesses
-#   make mutants - isolated detector/refill mutants, each requiring a named failure
+#   make        - run counters, discontinuity, connected servo and mutation gates
+#   make mutants - detector/refill/servo-validity mutants with named failures
 #   make clean  - remove build artifacts
 #
 # CLK_FREQ_HZ_P is scaled to 200 kHz so the 100 ms lock timeout is
@@ -50,7 +50,7 @@ DISC_MDIR ?= obj_discontinuity
 CPP  = sim_main.cpp
 
 .PHONY: all run unit discontinuity discontinuity-build talker_step mutants clean
-all: run
+all: run mutants
 
 run: unit discontinuity talker_step
 

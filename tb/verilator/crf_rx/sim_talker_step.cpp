@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
-// GM-change integration: independent PHC timelines step at both ends.
+// GM-change integration: talker-only and independently stepped PHC timelines.
 // Real CRF timestamps enter the receiver; its rate and valid outputs feed
 // the production servo. Audio frequency responds through the MMCM model.
 #include "Vcrf_talker_wrap.h"
@@ -28,8 +28,16 @@ class TalkerStepHarness {
         check.that("steady rate matches the source interval sum",
                    static_cast<int32_t>(dut->rate_o) == -40 * 256);
         std::printf("steady integrator %.3f ppm\n", integ() / 512.0);
-        gm_change(150000, true);
-        gm_change(-150000, false); // same tu: the timestamp backstop alone
+        quiet();
+        // No local guard can mask the two talker-only events.
+        gm_change("talker_only_pos", 150000, true, 0);
+        gm_change("talker_only_neg", -150000, false, 0);
+        // Preserve the original short-lag ordering as guard interaction evidence.
+        gm_change("both_short_pos", 150000, true, 100);
+        gm_change("both_short_neg", -150000, false, 100);
+        // The listener steps after a full window; receiver isolation is required.
+        gm_change("both_long_pos", 150000, true, 600);
+        gm_change("both_long_neg", -150000, false, 600);
         return check.report();
     }
  private:
@@ -51,32 +59,49 @@ class TalkerStepHarness {
     int min_integ = 0;
     int max_integ = 0;
     int held_updates = 0;
-    int previous_integ = 0;
-    bool previous_valid = true;
+    bool invalid_window = false;
+    bool step_pending = false;
+    unsigned crossing_intervals = 0;
+    unsigned exposed_boundaries = 0;
+    unsigned invalid_boundaries = 0;
+    unsigned post_edge_artifacts = 0;
 
     int state() const { return dut->status_o & 7; }
     int integ() const {
         return static_cast<int32_t>(
             dut->rootp->crf_talker_wrap__DOT__servo__DOT__integ_r << 8) >> 8;
     }
-    void observe() {
+    void observe(bool sampled_valid, bool boundary, bool writeback, int old_integ) {
         if (!monitor) return;
         const int value = integ();
         stayed_locked &= state() == 4;
-        saw_invalid |= !dut->rate_valid_o;
+        saw_invalid |= !sampled_valid;
         min_integ = std::min(min_integ, value);
         max_integ = std::max(max_integ, value);
-        // Allow a clean pre-event PI sequence to finish (eight cycles).
-        if (!previous_valid && !dut->rate_valid_o &&
-            dut->rootp->crf_talker_wrap__DOT__servo__DOT__pp_seq_r == 0 &&
-            value != previous_integ) ++held_updates;
-        previous_integ = value;
-        previous_valid = dut->rate_valid_o;
+        // The same observer serves quiet and step cases. Post-edge validity
+        // is deliberately counted separately: it is not the servo's input.
+        if (sampled_valid && !dut->rate_valid_o) ++post_edge_artifacts;
+        if (writeback && invalid_window && value != old_integ) ++held_updates;
+        if (boundary) {
+            invalid_window = !sampled_valid;
+            if (crossing_intervals > 0) ++exposed_boundaries;
+            if (!sampled_valid) {
+                ++invalid_boundaries;
+                // Reject even a numerically idle PI run on invalid history.
+                if (dut->rootp->crf_talker_wrap__DOT__servo__DOT__pp_run_r)
+                    ++held_updates;
+            }
+        }
     }
     void event() {
         if (next_i <= next_p && next_i <= next_a) {
-            now_fs = next_i; next_i += 10e6; dut->clk_i ^= 1;
-            if (dut->clk_i) {
+            now_fs = next_i; next_i += 10e6;
+            const bool rising = !dut->clk_i;
+            bool sampled_valid = true;
+            bool boundary = false;
+            bool writeback = false;
+            const int old_integ = integ();
+            if (rising) {
                 dut->ptp_now_i = static_cast<uint64_t>(
                     10'000'000'000LL + std::llround(now_fs / 1e6) + local_step_ns);
                 dut->frame_p_i = 0;
@@ -86,15 +111,34 @@ class TalkerStepHarness {
                     dut->ts_ns_i = remote_ts_ns + static_cast<uint64_t>(remote_step_ns);
                     dut->seq_i = static_cast<uint8_t>(dut->seq_i + 1);
                     dut->frame_p_i = 1;
+                    // Count source intervals independently of receiver state.
+                    if (step_pending) {
+                        crossing_intervals = 256;
+                        step_pending = false;
+                    } else if (crossing_intervals > 0) {
+                        --crossing_intervals;
+                    }
                 }
+                // Settle inputs with clk_i LOW, then capture exactly what
+                // the servo samples on this edge, including accept-edge vetoes.
+                dut->eval();
+                sampled_valid = dut->rate_valid_o;
+                const auto* root = dut->rootp;
+                boundary = root->crf_talker_wrap__DOT__servo__DOT__tick_p_w &&
+                    root->crf_talker_wrap__DOT__servo__DOT__win_valid_r &&
+                    root->crf_talker_wrap__DOT__servo__DOT__tick_cnt_r == 511;
+                writeback = root->crf_talker_wrap__DOT__servo__DOT__pp_seq_r == 7;
             }
+            dut->clk_i = rising;
             dut->eval();
             if (dut->clk_i) {
                 mm.dclk_edge(dut->drp_addr_o, dut->drp_en_o, dut->drp_we_o,
                              dut->drp_di_o, dut->mmcm_rst_o);
                 dut->drp_do_i = mm.dout; dut->drp_rdy_i = mm.drdy;
                 dut->mmcm_locked_i = mm.locked;
-                observe();
+                // A coincident local PHC step squashes the closing boundary.
+                boundary &= dut->rootp->crf_talker_wrap__DOT__servo__DOT__pp_seq_r == 1;
+                observe(sampled_valid, boundary, writeback, old_integ);
             }
         } else if (next_p <= next_a) {
             now_fs = next_p; next_p += 10e6; dut->ps_clk_i ^= 1;
@@ -114,21 +158,59 @@ class TalkerStepHarness {
         const auto until = now_fs + ms * 1e12;
         while (now_fs < until) event();
     }
-    void gm_change(int64_t step_ns, bool marker) {
+    void align_event() {
+        // Land 100 ms after a real boundary: the next one must close about
+        // 412 ms later, strictly inside the 256 * 1.999960 ms crossing span.
+        const auto deadline = now_fs + 600e12;
+        do { event(); } while (
+            dut->rootp->crf_talker_wrap__DOT__servo__DOT__pp_seq_r != 1 &&
+            now_fs < deadline);
+        check.that("event alignment reaches a servo boundary", now_fs < deadline);
+        run_ms(100);
+    }
+    void begin() {
+        stayed_locked = true; saw_invalid = false; held_updates = 0;
+        exposed_boundaries = 0; invalid_boundaries = 0; post_edge_artifacts = 0;
+        invalid_window = false;
+        min_integ = integ(); max_integ = integ(); monitor = true;
+    }
+    void quiet() {
+        begin(); run_ms(1100); monitor = false;
+        check.that("quiet: post-edge artifact was exercised", post_edge_artifacts > 0);
+        check.that("quiet: sampled validity never satisfies withhold check", !saw_invalid);
+        check.dec("quiet: no invalid servo boundaries", invalid_boundaries, 0);
+        check.that("quiet: servo stays LOCKED", stayed_locked);
+        std::printf("quiet: post-edge artifacts %u, sampled invalid %d\n",
+                    post_edge_artifacts, saw_invalid);
+    }
+    void gm_change(const char* name, int64_t step_ns, bool marker, double lag_ms) {
+        align_event();
         const int before = integ();
         const int disc_before = (dut->status_o >> 10) & 63;
         const auto unlocks_before = dut->rx_unlocks_o;
-        stayed_locked = true; saw_invalid = false; held_updates = 0;
-        min_integ = before; max_integ = before;
-        previous_integ = before; previous_valid = true; monitor = true;
-        remote_step_ns += step_ns;
+        begin();
+        std::printf("scenario %s: step %lld ns, listener lag %.0f ms\n",
+                    name, static_cast<long long>(step_ns), lag_ms);
+        remote_step_ns += step_ns; step_pending = true;
         if (marker) dut->tu_i = 1;
-        run_ms(100); // talker changes first; local guard cannot hide it
-        local_step_ns += step_ns;
-        run_ms(150);
+        // A marked event holds tu for 250 ms in every ordering. An unmarked
+        // negative event has no tu edge: it specifically needs the backstop.
+        if (lag_ms > 0 && lag_ms < 250) {
+            run_ms(lag_ms); local_step_ns += step_ns;
+            run_ms(250 - lag_ms);
+        } else {
+            run_ms(250);
+        }
         if (marker) dut->tu_i = 0;
-        run_ms(1100); // includes refill and a clean servo window
+        if (lag_ms >= 250) {
+            run_ms(lag_ms - 250); local_step_ns += step_ns;
+        }
+        run_ms(1100); // complete refill and at least one clean servo window
         monitor = false;
+        if (lag_ms == 0 || lag_ms >= 512) {
+            check.that("crossing history reaches a servo boundary", exposed_boundaries > 0);
+            check.that("servo samples invalid history at a boundary", invalid_boundaries > 0);
+        }
         check.that("GM change: receiver withholds crossing rate samples", saw_invalid);
         check.that("GM change: servo stays LOCKED on every clock", stayed_locked);
         check.dec("GM change: no counted receiver re-lock", dut->rx_unlocks_o, unlocks_before);
@@ -138,11 +220,12 @@ class TalkerStepHarness {
         check.that("GM change: receiver returns to clean valid rate", dut->rate_valid_o);
         check.that("GM change: recovered rate excludes talker step",
                    static_cast<int32_t>(dut->rate_o) == -40 * 256);
-        check.dec("GM change: local PHC step counted exactly once",
-                  ((dut->status_o >> 10) & 63) - disc_before, 1);
-        std::printf("step %lld ns: integrator range %.3f..%.3f ppm, state %d\n",
-                    static_cast<long long>(step_ns), min_integ / 512.0,
-                    max_integ / 512.0, state());
+        check.dec("GM change: local PHC steps counted",
+                  ((dut->status_o >> 10) & 63) - disc_before, lag_ms > 0 ? 1 : 0);
+        std::printf("%s: integrator range %.3f..%.3f ppm, state %d, "
+                    "crossing boundaries %u, invalid boundaries %u\n",
+                    name, min_integ / 512.0, max_integ / 512.0, state(),
+                    exposed_boundaries, invalid_boundaries);
     }
 };
 } // namespace

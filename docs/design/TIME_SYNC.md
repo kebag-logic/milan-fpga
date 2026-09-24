@@ -188,9 +188,23 @@ Its threshold derives from the 2 ms CRF interval.
 
 Combined media and PHC drift permits 601 ns deviation.
 
-That combines +/-100 ppm media with +/-200 ppm PHC.
+The media oscillator inherits the +/-100 ppm LocalClock bound.
 
-Two PHC quantization bounds add less than 768 ns.
+See Milan v1.2 Annex B.1.1.
+
+This assumes that LocalClock also bounds the media oscillator.
+
+The remote PHC is assumed to share our envelope.
+
+That includes +/-200 ppm trim and timestamp quantization.
+
+Our `timestamp_counter` increment plus adjustment stays below 384 ns.
+
+Two such timestamp quantization bounds add less than 768 ns.
+
+The drift calculation is `ceil(2,000,000 * 300 / 999,900)`.
+
+Adding quantization gives `601 + 768 = 1369 ns`.
 
 Rounding upward gives 2,048 ns.
 
