@@ -117,7 +117,8 @@
 
 //! Render setpoint stage: per-stream elastic queue of media events whose
 //! fill is the constant accept-to-render latency (SETPOINT_EVT_P), prefilled
-//! to it, band-observed at every PDU end, re-centred once on a GM/PHC step;
+//! to it, band-observed at every PDU end, re-centred once on a PHC step or
+//! a settled clock-source change;
 //! pops one event per stream per media tick into the render crossbar as
 //! clone-format beats and hands the crossbar a delayed render tick.
 

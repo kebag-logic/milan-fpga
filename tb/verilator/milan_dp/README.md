@@ -241,7 +241,7 @@ The unchanged acquisition deadline expires before the acquired-publication check
 First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
 Its separate deadline is 5400 seconds, including compilation.
 The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
-Every other default suite retains its 1800-second deadline; `milan_dp` has 2700 seconds (#444).
+Every other default suite retains its 1800-second deadline; `milan_dp` has 3600 seconds ([#387 decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308)).
 The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
 Physical regressions are therefore caught nightly, outside the PR aggregate.
 Expiry still reports TIMEOUT/UNKNOWN and exits nonzero.
@@ -432,6 +432,10 @@ lives; it does not define FRAMES_TX. After #530 a continuously bound output
 should read STREAM_START 1 and FRAMES_TX equal to the seconds it has streamed.
 
 ## GM step re-base leg (#387)
+
+The true-ratio leg also commands an absolute software settime.
+`RENDER-SETTIME` requires one pulse and one counted render re-base.
+A further 100 PDUs must produce no second event.
 
 `make gmstep` builds `obj_gmstep` from `sim_gmstep.cpp` on the `gptp` leg's
 elaboration: the AX7101 1x1 TDM8 entity, fabric gPTP on, a 2 MHz fabric clock
@@ -857,7 +861,7 @@ The limits, so a reader does not over-read a record:
 * **A case whose pattern check fails builds and runs nothing**, so it
   contributes no phase record at all; its existing `[FAIL]` line is the report.
 * **The clock is the host's.** A duration includes whatever else that machine
-  was doing, and the per-suite guard (2700 s for this suite since #444) is
+  was doing, and the per-suite guard (3600 s for this suite under #387) is
   still owned by `scripts/run_all_suites.sh`.
 
 `test_render_phase_observation.py` holds this contract with pure fixtures: a

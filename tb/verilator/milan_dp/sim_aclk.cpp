@@ -1391,6 +1391,25 @@ class MediaGridAlignmentHarness {
         displace_then_step(tag, -3, rc0, pulses0, rails0, 1);
     }
 
+    //! A software settime is also one PHC re-base, through the live CSR path.
+    void prove_settime_recentres_once() {
+        constexpr uint16_t A_PTP_CMD = 0x520;
+        const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
+        const long pulses0 = recentre_pulses;
+        // The reset load value is zero: command one absolute PHC settime.
+        axi_write(A_PTP_CMD, 0x1);
+        run_fed(25 * kAafPduPeriodCycles);
+        ck("RENDER-SETTIME: the settime reaches the stage as one pulse",
+           recentre_pulses - pulses0, 1);
+        ck("RENDER-SETTIME: the settime executes one render re-base",
+           dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, 1);
+        run_fed(100 * kAafPduPeriodCycles);
+        ck("RENDER-SETTIME: no later re-base pulse",
+           recentre_pulses - pulses0, 1);
+        ck("RENDER-SETTIME: the render re-base remains counted once",
+           dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, 1);
+    }
+
     // =================================================================== //
     //  [RENDER-LIVE] the running feed is moved past a tick: the grid-moved  //
     //  equivalent the review probed. `later` = the grid later (fill one     //
@@ -1530,6 +1549,7 @@ int MediaGridAlignmentHarness::run() {
     bind_listener_zero_over_acmp();
     measure_the_render_law_at_internal();
     prove_the_recentre_is_one_shot("RENDER-RC-INT");
+    prove_settime_recentres_once();
     //! --render-only: the mutation arm's leg - the law and the recentre at
     //! INTERNAL are what the stage's mutants must break, and the grid phases
     //! below are the expensive half of this binary

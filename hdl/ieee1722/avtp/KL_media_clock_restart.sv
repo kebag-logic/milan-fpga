@@ -233,6 +233,8 @@ module KL_media_clock_restart #(
       //! has seen that toggle, so the request merges into it and the target
       //! stays the level just adopted (#387, ruling 5818091077). The first
       //! PDU at that level moves hold_r off 0 and ends the window.
+      //! streaming_i keeps a stop on hold_r == 0 tracking the new target,
+      //! like every non-streaming talker, instead of merging that request.
       for (int t = 0; t < N_TALKERS_P; t++)
         if ((restart_p_i | src_change_w) && streaming_i[t] && (hold_r[t] == '0))
           tgt_r[t] <= mr_o[t];

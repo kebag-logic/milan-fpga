@@ -186,7 +186,9 @@ def is_fresh(leg: Leg, exe: Path) -> bool:
     """True when `exe` exists and is no older than any input of its recipe:
     the Makefile's SRCS (`make print-srcs`), the leg's harness and the
     Makefile itself. A list that cannot be read counts as stale."""
-    out = subprocess.run(["make", "-s", "-C", str(HERE), "print-srcs"],
+    # GNU make 4.3 can inherit directory printing from a parent recipe even
+    # with -s. Keep that chatter out of the source-path inventory for both legs.
+    out = subprocess.run(["make", "--no-print-directory", "-s", "-C", str(HERE), "print-srcs"],
                          capture_output=True, text=True, check=False)
     if out.returncode != 0 or not exe.is_file():
         return False

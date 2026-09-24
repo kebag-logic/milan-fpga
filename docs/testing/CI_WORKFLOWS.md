@@ -156,23 +156,40 @@ margin sets each named entry:
 | Suite | Budget | Basis |
 |---|---|---|
 | every other default suite | 1800 s | longest default suite besides `milan_dp` measured at most 548 s hosted |
-| `milan_dp` | 2700 s | hosted worst case about 1815 s, plus 885 s (49%) |
+| `milan_dp` | 3600 s | hosted window 2459.9 s; 1140.1 s remains (31.7% of budget) |
 | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
 
-The `milan_dp` figures come from the 37 hosted runs of the current suite,
-from 2026-09-15, when #447 split out `milan_dp_render`, to 2026-09-19.
-Passing runs took 1055-1773 s, and the slowest runner class, 19 of them,
-took 1726-1773 s. Two runs of that class were killed at 1800 s, 1 s and 13 s
-short of the end. A timeout stays a red context: the driver exits 92 and the
-worker fails. `scripts/measure_test_evidence.py` pins the table.
+The previous `milan_dp` budget used 37 hosted runs.
+Those ran between 2026-09-15 and 2026-09-19, after #447's split.
+Passing runs took 1055-1773 s.
+The slowest runner class took 1726-1773 s across 19 runs.
+Two runs timed out 1 s and 13 s early.
+That 1800 s deadline became 2700 s under #444.
+A timeout still fails the worker with exit 92.
+`scripts/measure_test_evidence.py` pins the budgets.
 
-The `milan_dp` basis has since grown. Measured on 2026-09-24 from the
-`shard: 4/5` line to `PASS milan_dp` of hosted shard 4/5: 2099.5 s on dev
-`59b81670` and 2133.3 s on dev `57456af9`, then 2264.9 s (9775 checks) for
-the #387 candidate merge of PR #555 head `a9636e0f` onto `57456af9`, which
-adds the gmstep leg and three of its controls to the suite. That leaves
-435 s (16%) of the 2700 s budget, not the 885 s the table's basis states.
-The budget is unchanged; raising it is a maintainer decision.
+The 2026-09-24 samples prompted [decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308).
+It raises `milan_dp` to 3600 s and retains its controls.
+Windows run from `shard: 4/5` through `PASS milan_dp`.
+Each row represents one hosted sample.
+
+| Revision | Window | Checks | Hosted job |
+|---|---|---|---|
+| dev `9d3288107e` | 1296.1 s | 9635 | [107573353073](https://github.com/kebag-logic/milan-fpga/actions/runs/35981190398/job/107573353073) |
+| dev `57456af9` | 2133.3 s | 9720 | [107688389193](https://github.com/kebag-logic/milan-fpga/actions/runs/36015896775/job/107688389193) |
+| PR #555 head `a9636e0f` | 2264.9 s | 9775 | [107720800104](https://github.com/kebag-logic/milan-fpga/actions/runs/36025349467/job/107720800104) |
+| PR #555 head `a21cd358` | 2459.9 s | 9781 | [107763352706](https://github.com/kebag-logic/milan-fpga/actions/runs/36038109516/job/107763352706) |
+
+The PR samples build candidate merges onto dev `57456af9`.
+The day's observed spread was 1296-2460 s.
+The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
+That crossed [decision 5819379503](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5819379503)'s 10% trigger.
+The new budget leaves 1140.1 s: 31.7%, approximately 32%.
+These historical samples do not measure the corrected candidate.
+The three default gmstep controls remain in `run`.
+The additional controls stay in the explicit `gmstep-mutants` campaign.
+The hosted shards allow 120 minutes, accommodating this one-hour deadline.
+If later exact-head margin falls below 10%, split further.
 
 The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.
