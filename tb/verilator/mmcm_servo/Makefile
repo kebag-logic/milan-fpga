@@ -9,9 +9,10 @@
 #     (the drift-lottery rails cease with the servo engaged)
 #   sim_phc_step.cpp -> Vphc_step       : the servo at its SILICON defaults
 #     (1 ms tick, 512 ms window, NORM_SHIFT_P = 0) against a PHC step (#539)
-#   make        - build and run both
+#   make        - build and run all three
 #   make trace STEP_NS=<n> - the #539 reproduction record: one n ns step at
 #                 mid-window, integrator and written rate traced per window
+#                 (sim_phc_step.cpp names the slew and talker-step traces)
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -59,6 +60,9 @@ run:
 	  sim_rails.cpp -o Vrails_sim
 	@echo "======================================================================"
 	./obj_rails/Vrails_sim
+	$(MAKE) --no-print-directory phc_step_build
+	@echo "======================================================================"
+	./obj_phc/Vphc_step
 
 clean:
 	rm -rf obj_dir obj_rails obj_phc

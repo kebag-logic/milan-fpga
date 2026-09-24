@@ -17,8 +17,10 @@
 //   U8  auto_repair ON     -> XAPP888 sequence: PS quiesced, RST held around
 //       power+RMW writes, reserved bits preserved, relock waited
 //   U9  ps_invert knob     -> locks vs inverted-polarity MMCM; control never locks
-//   U10 local ptp step     -> stepped/slewed ptp_now windows DISCARDED (trim
-//       held, stays LOCKED); sustained slew resyncs the window baseline
+//   U10 local ptp step     -> stepped ptp_now windows DISCARDED (trim held,
+//       stays LOCKED), one step or a sustained storm of them (#539: the
+//       PHC step guard's)
+//   U11 implausible rate   -> the 1024 ppm guard discards, resyncs, holds
 //
 // Sim-compressed servo params (-G): 125 us tick, 4 ms window; the ns/512ms
 // CSR unit scale is preserved by NORM_SHIFT so crf_rate_i uses REAL units.
@@ -53,6 +55,7 @@ class MmcmServoUnitHarness {
         prove_auto_repair_runs_the_safe_sequence();
         prove_ps_invert_knob_matches_an_inverted_mmcm();
         prove_local_ptp_step_windows_are_discarded();
+        prove_implausible_windows_meet_the_guard();
         return report();
     }
 
@@ -70,6 +73,7 @@ class MmcmServoUnitHarness {
 
     int state() const  { return static_cast<int>(dut->status_o & 7); }
     int16_t trim() const { return static_cast<int16_t>(dut->status_o >> 16); }
+    int disc_cnt() const { return static_cast<int>((dut->status_o >> 10) & 0x3F); }
 
     void tick_one() {
         if (next_i <= next_p && next_i <= next_a) {
@@ -311,7 +315,29 @@ class MmcmServoUnitHarness {
     //      railed trim 1539 -> 3200 = the 200 ppm output clamp (the
     //      silicon signature, sign per step direction) in state 3.
     //      3 checks failed; all green with the guard.
+    //      Since #539 every one of these JUMPS is the PHC step guard's: the
+    //      window is abandoned on the cycle the stepped sample is staged,
+    //      before the 1024 ppm guard sees it, so this leg now proves the
+    //      step guard rides out a sustained storm (every window abandoned).
+    //      U11 is the 1024 ppm guard's own arm; sim_phc_step.cpp proves the
+    //      step guard at the silicon window scale.
+    //      The step check reads an ENVELOPE, not one sample: locked at +80
+    //      ppm this bench's trim already cycles 1499..1579 window to window
+    //      (the +-2-clk tick sampling jitter x128 NORM_SHIFT), so one sample
+    //      three windows on lands wherever that cycle's phase puts it, and
+    //      the re-base a step causes moves the phase. Every window after the
+    //      step must sit inside the pre-step envelope +-48.
     // ---------------------------------------------------------------- //
+    //! the locked trim's range over `ms`, sampled every 1 ms (a window is 4)
+    void trim_range(double ms, int& lo, int& hi) {
+        lo = hi = trim();
+        for (double t = 0; t < ms; t += 1.0) {
+            run_ms(1);
+            if (trim() < lo) lo = trim();
+            if (trim() > hi) hi = trim();
+        }
+    }
+
     void prove_local_ptp_step_windows_are_discarded() {
         printf("[U10] local ptp step: bad window discarded, no rail-out\n");
         dut->clk_src_i = 0; run_ms(3);
@@ -321,19 +347,24 @@ class MmcmServoUnitHarness {
         long guard = 0;
         while (state() != 4 && guard < 300) { run_ms(1); guard++; }
         ck("[U10] locked before the step", state(), 4);
-        run_ms(20);                          // settle well inside LOCKED
-        int16_t t0 = trim();
+        run_ms(4);                           // settle well inside LOCKED
+        int env_lo = 0;
+        int env_hi = 0;
+        trim_range(16.0, env_lo, env_hi);    // 4 windows: the locked envelope
+        const int disc0 = disc_cnt();
         ptp_step_ns += 50e6;                 // gPTP-owner STEP: +50 ms, once
-        run_ms(12);                          // 3 windows on the new timeline
-        printf("  info: trim pre-step=%d post-3-win=%d state=%d\n",
-               t0, trim(), state());
-        ck("[U10] trim held across the step (3 win, |d|<=48)",
-           labs(static_cast<long>(trim()) - static_cast<long>(t0)) <= 48, 1);
+        int lo = 0;
+        int hi = 0;
+        trim_range(12.0, lo, hi);            // 3 windows on the new timeline
+        printf("  info: locked trim envelope [%d, %d], after the step [%d, %d] state=%d\n",
+               env_lo, env_hi, lo, hi, state());
+        ck("[U10] trim held across the step (3 win inside envelope +-48)",
+           lo >= env_lo - 48 && hi <= env_hi + 48, 1);
+        ck("[U10] the step counted once", disc_cnt() - disc0, 1);
         run_ms(28);                          // 10 windows total since step
         ck("[U10] still LOCKED 10 windows after the step", state(), 4);
         // sustained slew storm: every window implausible for 6 windows
-        // (>= 4 consecutive discards = the baseline-resync path; the
-        // servo must ride it out - silicon railed to trim -3200 in
+        // (the servo must ride it out - silicon railed to trim -3200 in
         // state ACQUIRE here and never came back)
         int16_t t1 = trim();
         for (int i = 0; i < 6; i++) { ptp_step_ns += 8e6; run_ms(4); }
@@ -353,6 +384,41 @@ class MmcmServoUnitHarness {
            labs(static_cast<long>(trim()) - static_cast<long>(t1)) <= 160, 1);
         double eff = eff_ppm_meas(20.0);
         ckr("[U10] effective clock still ~ talker (+80)", eff, 77.0, 83.0);
+    }
+
+    // ---------------------------------------------------------------- //
+    // U11: the 1024 ppm guard's own arm (#539 moved every ptp_now JUMP to
+    //      the step guard, so U10 no longer reaches it). A broken rate
+    //      measurement - crf_rate_i 2 ms off for six windows - makes every
+    //      window's |ew| implausible with no jump anywhere; it is
+    //      snapshotted whole at each boundary, so no window sees part of it.
+    //      Every window is discarded, the 4th consecutive one resyncs the
+    //      baseline, trim and LOCKED hold, and the loop resumes after.
+    // ---------------------------------------------------------------- //
+    void prove_implausible_windows_meet_the_guard() {
+        printf("[U11] implausible CRF rate: the 1024 ppm guard and its resync\n");
+        ck("[U11] LOCKED before", state(), 4);
+        int env_lo = 0;
+        int env_hi = 0;
+        trim_range(16.0, env_lo, env_hi);
+        const int disc0 = disc_cnt();
+        dut->crf_rate_i = rate_for_ppm(+80.0) + 2'000'000;
+        int lo = 0;
+        int hi = 0;
+        trim_range(24.0, lo, hi);
+        dut->crf_rate_i = rate_for_ppm(+80.0);
+        printf("  info: locked trim envelope [%d, %d], through it [%d, %d] "
+               "discards=%d state=%d\n", env_lo, env_hi, lo, hi,
+               disc_cnt() - disc0, state());
+        ck("[U11] >= 5 windows discarded (the resync path included)",
+           disc_cnt() - disc0 >= 5, 1);
+        ck("[U11] still LOCKED through it", state(), 4);
+        ck("[U11] trim held (inside envelope +-48)",
+           lo >= env_lo - 48 && hi <= env_hi + 48, 1);
+        run_ms(40);
+        ck("[U11] LOCKED after the measurement recovers", state(), 4);
+        double eff = eff_ppm_meas(20.0);
+        ckr("[U11] effective clock still ~ talker (+80)", eff, 77.0, 83.0);
     }
 
     int report() const {
