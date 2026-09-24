@@ -1,0 +1,12 @@
+{
+  "base": "991d59653ff82ccf73ef4df9477de1df8c8c5964",
+  "only_executable_change": [
+    "a /*/ opener does not close its own block comment",
+    "int a;\n/*/\n#define FOO\n*/\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+    [
+      "a",
+      "z"
+    ]
+  ],
+  "ast_equal_after_removing_added_corpus_row": true
+}

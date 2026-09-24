@@ -1,0 +1,146 @@
+[
+  {
+    "label": "full-builder-sdk",
+    "argv": [
+      "python3",
+      "-u",
+      "$MANAGEMENT/2026-09-23/408-a276/full-builder-sdk.py"
+    ],
+    "head": "062e89ad098806ae5def8341fcb8c2815583ca00",
+    "returncode": 0,
+    "elapsed_seconds": 510.71,
+    "log": "full-builder-sdk.log"
+  },
+  {
+    "label": "full-builder-absent",
+    "argv": [
+      "python3",
+      "-u",
+      "$MANAGEMENT/2026-09-23/408-a276/full-builder-absent.py"
+    ],
+    "head": "062e89ad098806ae5def8341fcb8c2815583ca00",
+    "returncode": 0,
+    "elapsed_seconds": 404.0,
+    "log": "full-builder-absent.log"
+  },
+  {
+    "label": "docs-git",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "head": "062e89ad098806ae5def8341fcb8c2815583ca00",
+    "returncode": 0,
+    "elapsed_seconds": 3.97,
+    "log": "docs-git.log"
+  },
+  {
+    "label": "docs-no-git",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "head": "062e89ad098806ae5def8341fcb8c2815583ca00",
+    "returncode": 0,
+    "elapsed_seconds": 3.87,
+    "log": "docs-no-git.log"
+  },
+  {
+    "label": "baremetal-only",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "head": "062e89ad098806ae5def8341fcb8c2815583ca00",
+    "returncode": 0,
+    "elapsed_seconds": 13.49,
+    "log": "baremetal-only.log"
+  },
+  {
+    "label": "em-dash",
+    "argv": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "759da623072358afdb0e9d570a7b4b6a788492c9"
+    ],
+    "head": "062e89ad098806ae5def8341fcb8c2815583ca00",
+    "returncode": 0,
+    "elapsed_seconds": 1.02,
+    "log": "em-dash.log"
+  },
+  {
+    "label": "doc-style",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "head": "062e89ad098806ae5def8341fcb8c2815583ca00",
+    "returncode": 0,
+    "elapsed_seconds": 0.06,
+    "log": "doc-style.log"
+  },
+  {
+    "label": "toc",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "head": "062e89ad098806ae5def8341fcb8c2815583ca00",
+    "returncode": 0,
+    "elapsed_seconds": 0.41,
+    "log": "toc.log"
+  },
+  {
+    "label": "doc-paths",
+    "argv": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "head": "062e89ad098806ae5def8341fcb8c2815583ca00",
+    "returncode": 0,
+    "elapsed_seconds": 0.06,
+    "log": "doc-paths.log"
+  },
+  {
+    "label": "python-idiom",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "head": "062e89ad098806ae5def8341fcb8c2815583ca00",
+    "returncode": 0,
+    "elapsed_seconds": 3.02,
+    "log": "python-idiom.log"
+  },
+  {
+    "label": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "head": "062e89ad098806ae5def8341fcb8c2815583ca00",
+    "returncode": 0,
+    "elapsed_seconds": 0.03,
+    "log": "diff-check.log"
+  },
+  {
+    "label": "committed-diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "991d59653ff82ccf73ef4df9477de1df8c8c5964",
+      "HEAD"
+    ],
+    "head": "062e89ad098806ae5def8341fcb8c2815583ca00",
+    "returncode": 0,
+    "elapsed_seconds": 0.02,
+    "log": "committed-diff-check.log"
+  }
+]
