@@ -1,0 +1,22 @@
+== R10-mutated model vs the pinned RTL probe frames
+OK   ct_0001_fig5.3_shape           rtl status 1 cdl 20
+OK   ct_0003_fig5.3_shape           rtl status 1 cdl 20
+OK   ct_0004_fig5.3_shape           rtl status 1 cdl 20
+OK   gmi_7_octets_cdl19             rtl status 1 cdl 19
+OK   gmi_16_octets_cdl28_served     rtl status 0 cdl 32
+OK   gmi_junk_reserved_served       rtl status 0 cdl 32
+FAIL set_suid_fig5.5_cdl28          rtl status 1 cdl 28
+     rtl   0202deadbeef0a0b0c0d0e0f22f0fb07081c123456789abcdef07777000000000042e013001bc50ac100000100000123456789abcdef000000000000
+     model 0202deadbeef0a0b0c0d0e0f22f0fb070814123456789abcdef07777000000000042e013001bc50ac100000100000000000000000000000000000000
+FAIL set_mcri_fig5.6_cdl92          rtl status 1 cdl 92
+     rtl   0202deadbeef0a0b0c0d0e0f22f0fb07085c123456789abcdef07777000000000042e014001bc50ac10000030000010080700000000044454641554c54000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+     model 0202deadbeef0a0b0c0d0e0f22f0fb070814123456789abcdef07777000000000042e014001bc50ac100000300000000000000000000000000000000
+OK   get_mcri_fig5.7_cdl20          rtl status 1 cdl 20
+OK   mt2_with_milan_pid             rtl status 1 cdl 20
+OK   mt4_with_milan_pid             rtl status 1 cdl 20
+OK   mt8_with_milan_pid             rtl status 1 cdl 20
+OK   mt10_with_milan_pid            rtl status 1 cdl 20
+OK   mt12_with_milan_pid            rtl status 1 cdl 20
+OK   mt14_with_milan_pid            rtl status 1 cdl 20
+15 cases, 2 model/RTL mismatches
+exit=1

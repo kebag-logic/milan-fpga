@@ -1,0 +1,32 @@
+OK   M1 GET_MILAN_INFO byte-exact
+OK   M3 foreign 12-bit protocol id
+OK   M4 GET_SYSTEM_UNIQUE_ID 0x0002
+OK   M5 r = 1
+OK   M5b junk reserved still served, reserved 0
+OK   M6 truncated (6 payload octets)
+OK   M8 foreign @22
+OK   M8 foreign @23
+OK   M8 foreign @24
+OK   M8 foreign @25
+OK   M8 foreign @26
+OK   M8 foreign @27
+OK   M8 one bit in the last octet
+OK   M8b OUI bit 7 set (0xFC)
+OK   M8b OUI bit 7 only (0x80)
+OK   MVU 0x0001 in the Figure 5.3 shape (feature row)
+OK   MVU 0x0003 in the Figure 5.3 shape (feature row)
+OK   MVU 0x0004 in the Figure 5.3 shape (feature row)
+OK   7-octet GET_MILAN_INFO (feature row, cdl 19)
+OK   GET_MILAN_INFO carrying 8 extra octets (cdl 28) still served
+OK   message_type 2 carrying the Milan protocol_id is echoed
+OK   message_type 4 carrying the Milan protocol_id is echoed
+OK   message_type 8 carrying the Milan protocol_id is echoed
+OK   message_type 10 carrying the Milan protocol_id is echoed
+OK   message_type 12 carrying the Milan protocol_id is echoed
+OK   message_type 14 carrying the Milan protocol_id is echoed
+OK   SET_SYSTEM_UNIQUE_ID, Figure 5.5 (cdl 28)
+OK   SET_MEDIA_CLOCK_REFERENCE_INFO, Figure 5.6 (cdl 92)
+OK   GET_MEDIA_CLOCK_REFERENCE_INFO, Figure 5.7 (cdl 20)
+M1 want frame: 0202deadbeef0a0b0c0d0e0f22f0fb070020123456789abcdef07777000000000042c001001bc50ac100000000000000000100000000000000000000
+29 cases, 0 mismatches
+exit=0

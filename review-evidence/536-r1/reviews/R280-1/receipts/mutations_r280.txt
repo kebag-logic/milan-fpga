@@ -1,0 +1,26 @@
+CONTROL (no mutation): exit 0, 42 scenarios passed, 0 failed, 0 skipped
+[SURVIVED] R1 protocol_id head @22..@23 not compared: exit 0, 42 scenarios passed, 0 failed, 0 skipped
+[SURVIVED] R2 only @27 compared: exit 0, 42 scenarios passed, 0 failed, 0 skipped
+[SURVIVED] R3 @24..@26 not compared: exit 0, 42 scenarios passed, 0 failed, 0 skipped
+[SURVIVED] R4 message_type guard dropped: exit 0, 42 scenarios passed, 0 failed, 0 skipped
+[SURVIVED] R5 ADDRESS_ACCESS also decoded as MVU: exit 0, 42 scenarios passed, 0 failed, 0 skipped
+[RED] R6 length guard at pp_top M6's 6 octets: exit 1, 41 scenarios passed, 1 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:167  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.3 each compared field, one at a time
+[RED] R7 served MVU answered with status NOT_IMPLEMENTED: exit 1, 40 scenarios passed, 2 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:124  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @1.1 SHALL, served
+    fails: features/aecp_response_contract.feature:172  only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.1 the one field the receiver ignores
+[RED] R8 served MVU emitted as an echo: exit 1, 39 scenarios passed, 3 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:124  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @1.1 SHALL, served
+    fails: features/aecp_response_contract.feature:142  GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
+    fails: features/aecp_response_contract.feature:172  only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.1 the one field the receiver ignores
+[SURVIVED] R9 MVU arm ahead of the AEM arms: exit 0, 42 scenarios passed, 0 failed, 0 skipped
+[SURVIVED] R10 an MVU command walked and echoed only to the Figure 5.3 8 octets: exit 0, 42 scenarios passed, 0 failed, 0 skipped
+[RED] R11 command_type not read: every whole Milan MVU command served: exit 1, 37 scenarios passed, 5 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:129  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.1 RECOMMENDED by the #510 decision, not implemented, echoed
+    fails: features/aecp_response_contract.feature:130  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.2 RECOMMENDED by the #510 decision, not implemented, echoed
+    fails: features/aecp_response_contract.feature:131  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.3 RECOMMENDED by the #510 decision, not implemented, echoed
+    fails: features/aecp_response_contract.feature:132  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.4 RECOMMENDED by the #510 decision, not implemented, echoed
+    fails: features/aecp_response_contract.feature:166  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.2 each compared field, one at a time
+CONTROL after restore: exit 0, 42 scenarios passed, 0 failed, 0 skipped
+11 arms, 7 survived
+exit=0
