@@ -1,0 +1,31 @@
+docs_check	0	python scripts/docs_check.py
+docs_check_selftest	0	python scripts/docs_check.py --selftest
+gen_toc_check	0	python scripts/gen_toc.py --check
+gen_toc_anchors	0	python scripts/gen_toc.py --verify-anchors
+gen_toc_selftest	0	python scripts/gen_toc.py --selftest
+em_dash_first_parent	0	python scripts/check_em_dash.py --base 4487359031b52b0b92e526839473f2e9c956c967
+em_dash_source_base	0	python scripts/check_em_dash.py --base 57456af96b3127b9d309a995bbbd35a6113ce52d
+em_dash_selftest	0	python scripts/check_em_dash.py --selftest
+ci_scope_selftest	0	python scripts/ci_scope.py --selftest
+measure_evidence_check	0	python scripts/measure_test_evidence.py --check
+measure_evidence_selftest	0	python scripts/measure_test_evidence.py --selftest
+suite_shards_selftest	0	python scripts/suite_shards.py --selftest
+doc_style	0	python scripts/check_doc_style.py
+doc_paths	0	python scripts/check_doc_paths.py
+py_idiom	0	python scripts/check_py_idiom.py
+feature_status	0	python scripts/check_feature_status.py
+gptp_docs	0	python scripts/check_gptp_docs.py
+module_matrix_check	0	python docs/traceability/gen_module_matrix.py --check
+rtl_source_lists	0	python scripts/check_rtl_source_lists.py
+diff_check_parent	0	git diff --check 4487359031b52b0b92e526839473f2e9c956c967 HEAD
+diff_check_source_base	0	git diff --check 57456af96b3127b9d309a995bbbd35a6113ce52d HEAD
+ci_events_check	0	python scripts/ci_events.py --check
+ci_events_selftest	0	python scripts/ci_events.py --selftest
+baremetal_only_check	0	python scripts/check_baremetal_only.py --check
+baremetal_only_selftest	0	python scripts/check_baremetal_only.py --selftest
+docs_check_nogit	0	git archive e1333a14 | python scripts/docs_check.py
+feature_status_nogit	0	git archive e1333a14 | python scripts/check_feature_status.py
+test_suite_cancellation	0	python scripts/test_suite_cancellation.py
+suite_tally_selftest	0	python scripts/suite_tally.py --selftest
+merge_containment_selftest	0	python scripts/check_merge_containment.py --selftest
+runner_list_default	0	scripts/run_all_suites.sh --shard 0/5 --list

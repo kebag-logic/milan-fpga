@@ -1,0 +1,37 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+Traceback (most recent call last):
+  File "$REVIEWS/387b-r276-8-packet/scratch/fp1/sw/builder/test_builder.py", line 11497, in assert_rejected
+    assert_boot_contract(firmware, docs, csr, files.makefile,
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         files.listing, files.datapath)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/387b-r276-8-packet/scratch/fp1/sw/builder/test_builder.py", line 10424, in assert_boot_contract
+    direct_port(csr_ports, port, value, phc_binding_reason)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/387b-r276-8-packet/scratch/fp1/sw/builder/test_builder.py", line 10309, in direct_port
+    assert actual == expected, \
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: milan_csr PHC output must drive cfg_ptp_enable directly: expected .o_ptp_enable(cfg_ptp_enable)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/387b-r276-8-packet/scripts/run_gate1b.py", line 17, in <module>
+    mod["test_baremetal_profile_contract"]()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/387b-r276-8-packet/scratch/fp1/sw/builder/test_builder.py", line 15560, in test_baremetal_profile_contract
+    assert_rejected(*mutation)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "$REVIEWS/387b-r276-8-packet/scratch/fp1/sw/builder/test_builder.py", line 11504, in assert_rejected
+    assert_rtl_mutant_elaborates(label, csr, files.datapath)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/387b-r276-8-packet/scratch/fp1/sw/builder/test_builder.py", line 11460, in assert_rtl_mutant_elaborates
+    for source in _datapath_lint_sources():
+                  ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/387b-r276-8-packet/scratch/fp1/sw/builder/test_builder.py", line 11394, in _datapath_lint_sources
+    assert planned.returncode == 0, \
+           ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RTL-mutant elaboration could not derive milan_dp sources: git ls-files failed in $REVIEWS/387b-r276-8-packet/scratch/fp1/protocol-processor/hdl: fatal: not a git repository (or any parent up to mount point /)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+Makefile:129: *** scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived.  Stop.
