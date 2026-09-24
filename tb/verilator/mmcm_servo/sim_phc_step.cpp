@@ -303,9 +303,12 @@ class PhcStepHarness {
     }
 
     //! The shared verdict: the step was counted once, the loop state held, the
-    //! servo never left LOCKED, and the close that followed was clean.
+    //! servo never left LOCKED, and the close that followed was clean. A close
+    //! that zeroes lock_cnt drops LOCKED two edges after its writeback, so the
+    //! LOCKED verdict is read four edges past the close.
     void expect_untouched(const char* tag, const Snapshot& s0, const WindowClose& next,
                           int disc_delta) {
+        for (int e = 0; e < 4; e++) clk_edge();
         char what[96];
         std::snprintf(what, sizeof what, "%s discards counted", tag);
         within(what, disc_cnt() - s0.disc, disc_delta, disc_delta);
