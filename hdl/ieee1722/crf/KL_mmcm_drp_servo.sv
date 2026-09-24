@@ -299,7 +299,7 @@ module KL_mmcm_drp_servo #(
   //! 24): the unsigned increment stays below 256 ns and the signed adjfine
   //! addend below 128 ns, so a legitimate advance stays below 384 ns on any
   //! clock; the smallest step the plane makes is the 20 us link-up step
-  //! (#387 owner step policy). 4096 ns sits over 10x above the one and 5x
+  //! (#387 owner step policy). 4096 ns sits 10.7x above the one and 4.9x
   //! below the other.
   localparam logic [31:0] STEP_DET_NS_C = 32'd4096;
 
