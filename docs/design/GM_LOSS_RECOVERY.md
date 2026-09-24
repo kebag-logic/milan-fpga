@@ -149,9 +149,9 @@ Issue #387 decided its media reaction.
 |---|---|---|
 | `tu` | Rises on the step; clears after at least 0.25 s of holdover | Yes: `KL_ptp_clock_validity` takes the plane's step pulse |
 | Render setpoint stage (#386) | Re-centres in "one bounded, counted event" (decision part b) | Yes: `render_recentre_p_w` takes the step (`media_rebase_p_w`), and the stage re-centres at the next PDU end, counted in its recentre tally. A grandmaster identity change is no longer a trigger of its own. The gmstep leg counts one re-base, 132 cycles after the plane's step pulse at each of its 42 feed delays |
-| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid (#539). Whether the aligner needs its own re-centre is a question with the owner on #387 |
+| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); what still reaches that grid is a policy-legal slew (#545) and the talker's own step (#546). By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
 | Packet NCO | Not named by the decision | No PHC or step input |
-| CRF servo | Keeps its window guard | `KL_mmcm_drp_servo` discards a window above 1024 ppm; a locked step of about 108 to 524 us passes that guard (#539) |
+| CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. A policy-legal 100 us slew still moves its integrator (#545), and so does the talker's own step (#546) |
 | Outgoing `mr` (IEEE 1722-2016 4.4.4.3) | Toggles once | Yes: `mcr_restart_p_w` takes the step whatever the media clock source. The gmstep leg sees one toggle, first sent 75 to 116 cycles after the step pulse over its 42 feed delays |
 | Talker MEDIA_RESET (Milan Table 5.4) | Counts that one toggle | Yes: `KL_talker_diag_ctx` counts the `mr` bit each PDU carried. The gmstep leg reads one, and none between the commit and the step |
 | A step while an `mr` restart is pending | Merges with it: exactly one restart, never a cancellation, and the step's MEDIA_RESET is still counted (ruling 5802264260 item 2) | Yes: `KL_media_clock_restart` sets each stream's target to the complement of the level that stream stamps, so a second request while one is pending changes nothing. A request after the stream stamped the first is a new restart, sent once the first has held eight PDUs. `tkdiag` T17 grades both: one toggle and one MEDIA_RESET on the stream where the step merged, two on the stream that had already stamped the first request |
@@ -182,7 +182,7 @@ It grades these rows:
 It does not grade these:
 
 - The grid aligner: the leg holds the TDM clocks.
-- The CRF servo: its DRP answers zero; see #539.
+- The CRF servo: its DRP answers zero. `Vphc_step` grades its step discard (#539).
 - An lwSRP licence: the escape bit opens the talker.
 - A step during a pending restart: `tkdiag` T17 grades it.
 - The physical re-base: the #117 bench measures it.

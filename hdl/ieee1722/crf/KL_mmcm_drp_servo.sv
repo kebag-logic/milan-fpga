@@ -51,6 +51,31 @@
                           (PI state kept), so a sustained slew can
                           never wedge the servo.
 
+                  PHC step guard (#539): that threshold alone let a
+                          locked step of 100 us to 524 us through - the
+                          gPTP plane steps above 100 us once locked
+                          (#387 owner step policy), 100 us is already
+                          195 ppm of one window, and a legitimate error
+                          reaches ~211 ppm, so NO threshold separates
+                          the two. The step is recognised by what it
+                          is instead: ptp_now_i advancing by more than
+                          STEP_DET_NS_C in ONE clk_i cycle (the PHC
+                          adjtime/settime lands in one cycle; a rate
+                          change, a slew included, moves one cycle's
+                          advance by 200 ppm of it at most). The open
+                          window is ABANDONED on the cycle the stepped
+                          sample is staged (no PI, no trim, no lock_cnt
+                          change; counted in status_o[15:10]) and the
+                          next tick re-bases it on post-step time. A
+                          boundary closing on the stepped sample itself
+                          is squashed with it; a micro-sequence already
+                          in flight closed on a pre-step sample and
+                          commits. Every step from 4.1 us up is caught,
+                          either sign; the plane's smallest is 20 us. A
+                          step within 4 us of a whole multiple of 2^32
+                          ns (4.29 s) aliases in the detector's 32 bits
+                          and meets the 1024 ppm guard instead.
+
                   actuator (fine, glitch-free): MMCME2 dynamic fine
                           phase shift, UG472 "Interpolated Fine Phase
                           Shift in Fixed or Dynamic Mode in the MMCM":
@@ -268,6 +293,15 @@ module KL_mmcm_drp_servo #(
   //! plant error, it is a broken measurement (local PHC step) - discard
   localparam int signed   GUARD_THR_C = 32'sd1 << 19;
   localparam int unsigned DISC_MAX_C  = 4;  //! consecutive discards -> resync
+  //! PHC step detector (#539): one clk_i cycle's ptp_now_i advance above
+  //! this is a step, not time. The PHC advances incr_i + adj_i per cycle,
+  //! both Q8.24 ns in 32 bits (timestamp_counter INCR_WIDTH 32, FRAC_WIDTH
+  //! 24): the unsigned increment stays below 256 ns and the signed adjfine
+  //! addend below 128 ns, so a legitimate advance stays below 384 ns on any
+  //! clock; the smallest step the plane makes is the 20 us link-up step
+  //! (#387 owner step policy). 4096 ns sits 10.7x above the one and 4.9x
+  //! below the other.
+  localparam logic [31:0] STEP_DET_NS_C = 32'd4096;
 
   // ------------------------------------------------------------------ //
   //  Audio-domain tick divider (TICK_CYC_P cycles -> 1 pulse)           //
@@ -409,6 +443,24 @@ module KL_mmcm_drp_servo #(
     ptp_q_r <= ptp_now_i;
   end
 
+  //! PHC step detector (#539), aligned with ptp_q_r: set on the edge that
+  //! stages a sample which jumped from the one staged before it, so the
+  //! logic that reads ptp_q_r reads its verdict in the same cycle. The low
+  //! 32 bits are enough: the difference is exact for any step below 2^31 ns,
+  //! and a backward step wraps to a large unsigned advance.
+  logic ptp_jump_r;
+  always_ff @(posedge clk_i) begin : ptp_jump_S
+    if (!rst_n) ptp_jump_r <= 1'b0;
+    else        ptp_jump_r <= (ptp_now_i[31:0] - ptp_q_r[31:0]) > STEP_DET_NS_C;
+  end : ptp_jump_S
+
+  //! the two discard causes, as wires so the status tally below counts both
+  //! when they land on one cycle: the 1024 ppm guard's verdict on a window
+  //! in its S4 stage, and a PHC step inside the open window
+  wire guard_hit_w = (pp_seq_r == 3'd4) && pp_run_r &&
+                     ((ew_r > GUARD_THR_C) || (ew_r < -GUARD_THR_C));
+  wire step_hit_w  = ptp_jump_r && win_valid_r;
+
   function automatic logic signed [23:0] clamp_u(input logic signed [31:0] v);
     if (v > 32'(U_MAX_P))       return 24'(U_MAX_P);
     else if (v < -32'(U_MAX_P)) return 24'(-U_MAX_P);
@@ -548,12 +600,10 @@ module KL_mmcm_drp_servo #(
             //! like a win_skip window: pp_run_r cleared before the S7
             //! writeback, so u_cmd/integ/lock_cnt all hold. DISC_MAX_C
             //! consecutive discards resync the window baseline (CRF-
-            //! relock pattern: win_valid_r drops, PI state kept)
-            if (pp_run_r &&
-                ((ew_r > GUARD_THR_C) || (ew_r < -GUARD_THR_C))) begin
+            //! relock pattern: win_valid_r drops, PI state kept). The
+            //! status tally is counted below, beside the step guard's
+            if (guard_hit_w) begin
               pp_run_r <= 1'b0;
-              if (disc_cnt_r != 6'h3F)
-                disc_cnt_r <= disc_cnt_r + 6'd1;
               if (disc_run_r == 2'(DISC_MAX_C - 1)) begin
                 win_valid_r <= 1'b0;
                 disc_run_r  <= '0;
@@ -596,6 +646,28 @@ module KL_mmcm_drp_servo #(
           end : pi_wb_S
           default: pp_seq_r <= '0;
         endcase
+
+        //! PHC step guard (#539, see header): the open window straddles
+        //! the step, so it is abandoned and the next tick re-bases it on
+        //! post-step time (win_valid_r low). Placed after the tick branch
+        //! and the micro-sequence so its writes win. With no sequence in
+        //! flight, a boundary this cycle snapshotted the stepped sample and
+        //! is squashed like a win_skip window; a sequence already in flight
+        //! closed a cycle or more before the step and commits. The discard
+        //! streak restarts with the new baseline.
+        if (step_hit_w) begin
+          win_valid_r <= 1'b0;
+          disc_run_r  <= '0;
+          if (pp_seq_r == '0) pp_run_r <= 1'b0;
+        end
+
+        //! discard tally (status_o[15:10], saturating): a guard-discarded
+        //! window and a step-abandoned one may land on the same cycle
+        begin : disc_tally
+          automatic logic [6:0] n_v;
+          n_v = 7'(disc_cnt_r) + 7'(guard_hit_w) + 7'(step_hit_w);
+          disc_cnt_r <= (n_v > 7'h3F) ? 6'h3F : n_v[5:0];
+        end : disc_tally
 
         //! PS batch accumulation + dispatch (single acc_r update: the
         //! tick add and the batch subtract may land on the same cycle)
@@ -832,7 +904,7 @@ module KL_mmcm_drp_servo #(
   // ------------------------------------------------------------------ //
   wire signed [15:0] trim_w = 16'(u_cmd_r >>> 5);  //! 1/16 ppm units
   assign status_o = {trim_w,                       //! [31:16] signed trim
-                     disc_cnt_r,                   //! [15:10] guard discards
+                     disc_cnt_r,                   //! [15:10] guard + step discards
                      1'b0,                         //! [9]     reserved
                      drp_fault_r,                  //! [8]
                      ps_fault_s_w,                 //! [7]
