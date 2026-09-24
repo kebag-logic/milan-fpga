@@ -6578,18 +6578,43 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! the Listener had left. So:
   //!
   //!   OPENING EDGE - ACTIVE takes the admission term through the
-  //!   processor's optimistic window (sr_adm_fsm = opt | admitted, three
-  //!   admission rounds after a fresh declaration, a round walking one
-  //!   source per cycle, so N_SOURCES cycles), so it can rise before the
-  //!   round that sets sr_admitted_o and puts the slope into sum_r. It can
-  //!   do so only when a Listener Ready is registered within those rounds,
-  //!   which in practice means already registered at the declaration (a
-  //!   re-declaration the bridge's Listener outlived); a first Listener
-  //!   Ready arrives by MRPDU long after those rounds. In that corner the
-  //!   gates and LWSRP_STATUS[8] rise up to three rounds before
-  //!   LWSRP_STATUS[9] and 0x698 include the stream. If the round then
-  //!   refuses it, ACTIVE falls inside the window and the declaration swaps
-  //!   to Talker Failed. That status skew is the corner's whole effect here.
+  //!   processor's optimistic window (sr_adm_fsm = opt | admitted): a fresh
+  //!   declaration counts as admitted until the end of the third admission
+  //!   round after it, a round walking one source per cycle, so N_SOURCES
+  //!   cycles each (protocol-processor hdl/srp/KL_srp_top.sv:445,772-779,
+  //!   855-858).
+  //!   The same declaration clears that source's talker-side Listener
+  //!   registrar (KL_srp_talker_fsm.sv:705-710), so no Listener Ready is
+  //!   ever registered at a declaration and ACTIVE is 0 after it. ACTIVE
+  //!   rises inside the window only if a registering Listener event for the
+  //!   stream (New, JoinIn or JoinMt with Ready or Ready Failed) is decoded
+  //!   within those few cycles; the Listener Ready that answers the Talker
+  //!   Advertise arrives by MRPDU long after them. That corner has two
+  //!   branches, and status skew is the whole effect of the first only:
+  //!
+  //!   ADMITTED - the round admits the stream. ACTIVE and the gates lead
+  //!   LWSRP_STATUS[9] and 0x698 by up to three rounds, and no shaper reads
+  //!   either word. The lead shows on the licensed source's own bits:
+  //!   LWSRP_STATUS[8] is source 0's gate only, so the CRF output (the top
+  //!   ACTIVE slot, source 1 on the AX7101 1x1 shape) shows it on
+  //!   CRFT_CTRL[6]/[7] and LWSRP_STATUS[6] (|ACTIVE), never on [8].
+  //!
+  //!   REFUSED - the round refuses the stream: over_limit (LWSRP_STATUS[7])
+  //!   rises and sr_admitted_o stays 0 (KL_srp_admission.sv:152-154,
+  //!   207-214). ACTIVE does not fall inside the window: it holds on opt
+  //!   and falls at the window's end, and the declaration then swaps to
+  //!   Talker Failed. So a declaration the 75 % ceiling refuses holds, for
+  //!   up to three rounds, the emission licence (crft_emit_en_w into
+  //!   KL_crf_tx.enable_i, the AAF gates) and the Milan v1.2 5.3.7.7 Table
+  //!   5.4 streaming level (tkd_streaming_w). KL_talker_diag_ctx counts a
+  //!   STREAM_START and a STREAM_STOP a controller reads, the start zeroes
+  //!   MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX, and at most one PDU
+  //!   per source can leave, if its media event falls in the window.
+  //!   CRFT_CTRL[6]/[7], LWSRP_STATUS[6], [8] for source 0 and the 0x82C
+  //!   talker lobs pulse with it. ACTIVE still needs a registered Listener
+  //!   Ready or Ready Failed, so nothing leaves before one (#530). Whether
+  //!   the licence should also need the real grant is issue #551.
+  //!
   //!   The processor takes the window so that a declaration is never Talker
   //!   Failed first.
   //!
@@ -6601,8 +6626,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //!
   //! A LATER LANE that credit-shapes these sources must not pair this gate
   //! with sum_r and inherit the bw-gate's ordering: at the opening edge
-  //! above the gate can lead the Sigma by three rounds. That lane derives
-  //! its own ordering and its own test for it.
+  //! above the gate can lead the Sigma by three rounds, or open for three
+  //! rounds on a stream the Sigma never includes. That lane derives its
+  //! own ordering and its own test for it.
   assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
   //! STATUS ONLY (no shaper, above): LWSRP_STATUS[9] reads the RAW verdict
   //! of any source and LWSRP_SLOPE 0x698 the processor's Sigma across
