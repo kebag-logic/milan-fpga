@@ -1,0 +1,63 @@
+gmstep: feed delay 31 cycles
+gmstep: 2 MHz fabric, 8 ns PHC, quarter tick 131072 cycles
+  [ ok ] acquisition: CLKV healthy (asCapable, sync, tu clear) got=0x10002 exp=0x10002
+  [ ok ] acquisition: the link-up pair stepped the PHC once got=1 exp=1
+  [ ok ] acquisition: the counter saw exactly that step got=1 exp=1
+  [ ok ] acquisition: that step exceeds the 20 us link-up threshold
+  [ ok ] acquisition: the published grandmaster is GM A got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] media: SET_CLOCK_SOURCE to the CRF answers SUCCESS got=0 exp=0
+  [ ok ] media: the root resolves the CRF selection got=1 exp=1
+  [ ok ] media: the CRF sink is locked            got=1 exp=1
+  [ ok ] media: the talker gate is open           got=0x8 exp=0x8
+  [ ok ] baseline: the listener accepted PDUs
+RENDER: fill after each push 14..14 events (target 14 = setpoint 8 + 6); fill at accept 9..9 (the accept phase, not graded)
+  [ ok ] baseline: every PDU push leaves the #386 target fill got=0 exp=0
+  [ ok ] baseline: the talker streams
+TALKER: baseline interval 642.0 cycles
+  [ ok ] baseline: no talker PDU carries tu       got=0 exp=0
+  [ ok ] baseline: no render recentre             got=0 exp=0
+  [ ok ] event: tu is clear before the change     got=0 exp=0
+EVENT: GM B announced at cycle 7216742
+EVENT: identity 7217198, counters read 7222581, step pulse 7377327, step 7377332 (1500000020 ns), tu rise 7217197 fall 7602192
+  [ ok ] event: the published grandmaster became GM B
+  [ ok ] event: the plane stepped the PHC exactly once got=1 exp=1
+  [ ok ] event: the counter saw exactly that step got=1 exp=1
+  [ ok ] event: the step is the 1.5 s between the grandmasters, within 1 us
+  [ ok ] event: the step follows the commit
+  [ ok ] event: the counters were read between the commit and the step
+  [ ok ] tu: set in the first cycle the bank names GM B got=1 exp=1
+  [ ok ] tu: cleared after the step
+TU: held 224860 cycles after the step (quarter tick 131072)
+  [ ok ] tu: held at least the 0.25 s holdover after the step
+  [ ok ] tu: cleared within the holdover's bound
+  [ ok ] tu: clear at the end of the window       got=0 exp=0
+  [ ok ] tu: talker PDUs graded inside the hold
+  [ ok ] tu: talker PDUs graded after tu clears
+  [ ok ] tu: every talker PDU carries the verdict of its instant got=0 exp=0
+  [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+  [ ok ] licence: no talker sequence gap across the event got=0 exp=0
+TALKER: 1286 PDUs over 825957 cycles to the window end (baseline rate: 1287), longest pause 739, last PDU 345 cycles before the end
+  [ ok ] licence: the talker never pauses beyond four of its intervals
+  [ ok ] licence: the talker keeps its baseline rate within 1%
+LISTENER: counters valid 0xfff / 0xfff, EARLY_TIMESTAMP +2, LATE_TIMESTAMP +0, FRAMES_RX +3305 (accepts seen 3283..3325)
+  [ ok ] licence: both Stream Input answers carry MEDIA_UNLOCKED and FRAMES_RX got=0x802 exp=0x802
+  [ ok ] licence: FRAMES_RX advances by the PDUs the listener accepted
+  [ ok ] licence: the listener stays locked (MEDIA_UNLOCKED unchanged) got=0 exp=0
+RENDER: counted recentre at cycle 7377459 (step pulse +132)
+RENDER: 1 counted recentres from 1 trigger pulses
+  [ ok ] render: the GM change is one counted re-base event got=1 exp=1
+  [ ok ] render: every counted re-base lands at a PDU end right after the step got=0 exp=0
+  [ ok ] render: no reset rail across the event   got=0 exp=0
+  [ ok ] render: PDUs accepted across the event
+  [ ok ] render: every PDU push leaves the target fill across the event got=0 exp=0
+RESTART: mr toggle first sent at cycle 7377412 (step pulse +85)
+  [ ok ] restart: the outgoing mr toggles exactly once got=1 exp=1
+  [ ok ] restart: every mr toggle is first sent right after the step got=0 exp=0
+  [ ok ] restart: the Stream Output counters are valid before the change got=0x1f exp=0x1f
+  [ ok ] restart: the Stream Output counters are valid between commit and step got=0x1f exp=0x1f
+  [ ok ] restart: the Stream Output counters are valid after the event got=0x1f exp=0x1f
+  [ ok ] restart: MEDIA_RESET does not move between the commit and the step got=0 exp=0
+  [ ok ] restart: the talker's MEDIA_RESET counts exactly one got=1 exp=1
+simulated_cycles=8042869
+== gmstep: checks: 48   failures: 0 ==
+RESULT: PASS
