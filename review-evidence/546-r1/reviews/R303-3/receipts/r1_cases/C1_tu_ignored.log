@@ -1,0 +1,88 @@
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.309 MB sources in 6 modules, into 0.296 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 5.485 s (elab=0.004, cvt=0.022, bld=5.447); cpu 0.042 s on 4 threads; allocated 349.410 MB
+  [ ok ] receiver-to-servo loop locks at production scale
+  [ ok ] steady receiver rate is valid
+  [ ok ] steady rate matches the source interval sum
+steady integrator 30.723 ppm
+  [ ok ] quiet: post-edge artifact was exercised
+  [ ok ] quiet: sampled validity never satisfies withhold check
+  [ ok ] quiet: no invalid servo boundaries       got=0 exp=0
+  [ ok ] quiet: servo stays LOCKED
+quiet: post-edge artifacts 550, sampled invalid 0
+  [ ok ] event alignment reaches a servo boundary
+scenario talker_only_pos: step 150000 ns, listener lag 0 ms
+  [ ok ] crossing history reaches a servo boundary
+  [ ok ] servo samples invalid history at a boundary
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=0 exp=0
+talker_only_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+  [ ok ] event alignment reaches a servo boundary
+scenario talker_only_neg: step -150000 ns, listener lag 0 ms
+  [ ok ] crossing history reaches a servo boundary
+  [ ok ] servo samples invalid history at a boundary
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=0 exp=0
+talker_only_neg: integrator range 30.703..30.723 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+  [ ok ] event alignment reaches a servo boundary
+scenario both_short_pos: step 150000 ns, listener lag 100 ms
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=1 exp=1
+both_short_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 0, invalid boundaries 0
+  [ ok ] event alignment reaches a servo boundary
+scenario both_short_neg: step -150000 ns, listener lag 100 ms
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=1 exp=1
+both_short_neg: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 0, invalid boundaries 0
+  [ ok ] event alignment reaches a servo boundary
+scenario both_long_pos: step 150000 ns, listener lag 600 ms
+  [ ok ] crossing history reaches a servo boundary
+  [ ok ] servo samples invalid history at a boundary
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=1 exp=1
+both_long_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+  [ ok ] event alignment reaches a servo boundary
+scenario both_long_neg: step -150000 ns, listener lag 600 ms
+  [ ok ] crossing history reaches a servo boundary
+  [ ok ] servo samples invalid history at a boundary
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=1 exp=1
+both_long_neg: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+== crf_rx talker_step: checks: 69   failures: 0 ==
+RESULT: PASS

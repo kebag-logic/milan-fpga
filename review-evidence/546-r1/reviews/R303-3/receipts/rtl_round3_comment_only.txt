@@ -1,0 +1,31 @@
+hdl paths changed d04a61678..0c61d4589:
+hdl/ieee1722/crf/KL_crf_rx.sv
+gitlinks at head:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+gitlink diff d04a..head:
+none
+KL_crf_rx preprocessed+whitespace-normalised: d04a61678=1d8c893073a7767dec6e74e2d9757ef69f8f5afdd4c51ae08ef999b9228be4f1 head=1d8c893073a7767dec6e74e2d9757ef69f8f5afdd4c51ae08ef999b9228be4f1
+KL_crf_rx IDENTICAL
+KL_mmcm_drp_servo preprocessed+whitespace-normalised: d04a61678=2ed1d11596eaaeb5118881ba20e65026e14639422e77153be4dd3c8ee86754c3 head=2ed1d11596eaaeb5118881ba20e65026e14639422e77153be4dd3c8ee86754c3
+KL_mmcm_drp_servo IDENTICAL
+servo blob d04a/head: 12eaa99c47e6cc46d8fa2cd8e9710373cfad1ff8 12eaa99c47e6cc46d8fa2cd8e9710373cfad1ff8
+raw KL_crf_rx.sv diff d04a..head:
+diff --git a/hdl/ieee1722/crf/KL_crf_rx.sv b/hdl/ieee1722/crf/KL_crf_rx.sv
+index 8222bb326..2429b4f51 100644
+--- a/hdl/ieee1722/crf/KL_crf_rx.sv
++++ b/hdl/ieee1722/crf/KL_crf_rx.sv
+@@ -272,8 +272,9 @@ module KL_crf_rx #(
+   localparam logic [63:0] NOM_WIN_NS_C  = 64'(NOM_PDU_NS_C) << RATE_LOG2_C;
+ 
+   //! Adjacent timestamps, unlike the 512 ms rate, expose a phase step.
+-  //! The media oscillator inherits the +/-100 ppm LocalClock bound
+-  //! (Milan Annex B.1.1), rather than an independent media-clock clause.
++  //! Assume the media oscillator meets IEEE 802.1AS Annex B.1.1's
++  //! +/-100 ppm LocalClock bound. Milan v1.2 section 7.4 requires media
++  //! sources better than +/-50 ppm; 100 ppm is a conservative margin.
+   //! Assume the remote talker shares our PHC envelope: +/-200 ppm trim
+   //! (TIME_SYNC) and <384 ns timestamp quantisation (incr + adj).
+   //! 2 ms * (200 + 100) / (1e6 - 100), rounded up, is 601 ns.

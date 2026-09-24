@@ -1,0 +1,57 @@
+R303-3 reviewer commands (exact head 0c61d458941088f3847513b7c6fe6589c75b4270, tree 88a5ce9545a23561beae21d3e0323a9d1fb0d051)
+
+All builds and runs used exported copies of the exact head (git archive <head>) under the
+private scratch area: <packet>/scratch/pristine (probe campaigns; each case copies it again)
+and <packet>/scratch/tree (default receiver and servo gates). The review clone itself was
+never built in or edited. Read-only gates (evidence and documentation) ran in the clone with
+PYTHONDONTWRITEBYTECODE=1 and python3 -B; clone_integrity.txt shows it unchanged afterwards.
+
+Simulator: Verilator 5.050 rev v5.050 through the pinned wrapper
+(<pinned-tool-bin>/verilator, sha256 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f).
+Build parallelism: in the scratch copies only, the Makefiles' "--build -j 0" was rewritten to
+"--build -j 4" (crf_rx and mmcm_servo); no other change. At most two cases ran at once
+(2 x -j 4 = 8 jobs). Every command ran in the foreground.
+
+1. Default receiver gate (crf_rx `all` = run + mutants):
+   make -C tb/verilator/crf_rx VERILATOR=<pinned>           -> crf_rx_default.log
+   python3 scripts/suite_tally.py --verdict <that log>       -> crf_rx_default.rc
+2. Servo gate (unit incl. U13, rails, PHC step):
+   make -C tb/verilator/mmcm_servo VERILATOR=<pinned>        -> mmcm_servo_default.log
+   python3 scripts/suite_tally.py --verdict <that log>       -> mmcm_servo_default.rc
+3. Round-1 reviewer campaign, unchanged (probes/*.py and *.cpp byte-equal to the R303-2 manifest):
+   python3 probes/mutant_probe.py scratch/pristine scratch/r1probe <pinned> <cases>
+                                                             -> r1_campaign_batch1..7.txt, r1_cases/
+4. Round-2 addendum campaign, unchanged:
+   python3 probes/run_probes_r2.py scratch/pristine scratch/r2probe <pinned> <cases>
+                                                             -> r2_probe_batch1..4.txt, r2_cases/
+   python3 scripts/suite_tally.py --verdict <M0/M1 logs>     -> r2_campaign_sweep_reader.txt
+   verdict lines compared with the R303-2 receipts           -> r2_probe_rerun_compare.txt
+5. Artifact probe (round-1 source, unchanged):
+   verilator --cc --exe --build -j 4 --public-flat-rw --top-module KL_crf_rx
+     -GCLK_FREQ_HZ_P=200000 -GIVAL_CYC_P=200 -Wno-fatal -Wno-lint -Wno-style
+     hdl/ieee1722/crf/KL_crf_rx.sv probes/probe_artifact.cpp -CFLAGS '-std=c++17 -O2' -o Vart
+                                                             -> probe_artifact.log
+6. Round-3 addendum (U13 PI-resume check):
+   python3 probes/run_probes_r3.py scratch/pristine scratch/r3probe <pinned> <cases>
+                                                             -> r3_probe_batch1..2.txt, r3_cases/
+7. Round-3 RTL delta is comment-only, and constants elaborate:
+   verilator -E -P on KL_crf_rx.sv and KL_mmcm_drp_servo.sv at d04a61678 and head,
+   whitespace-normalised, compared byte for byte           -> rtl_round3_comment_only.txt
+   sh probes/elab_params.sh <clone> <pinned> <work> d04a61678... 0c61d4589...
+   (verilator --json-only; reads RATE_DRIFT_NS_C / TS_JUMP_NS_C)  -> elab_params.txt
+8. Authority text: pdftotext -layout of local Milan v1.2 (Final Approved 2023-11-30),
+   IEEE 802.1AS-2011 and IEEE 802.1AS-2020 copies          -> authority_excerpts.txt
+   Threshold under 100 and 50 ppm media bounds (python3)    -> threshold_sensitivity.txt
+9. Evidence and documentation gates, read-only in the clone:
+   python3 -B scripts/measure_test_evidence.py --check      -> measure_test_evidence_check.log
+   check_em_dash --base 57456af9, check_doc_style, gen_toc --check, check_doc_paths,
+   gen_module_matrix --check, docs_check                    -> doc_gates.log
+   (check_em_dash and gen_toc could not judge: pinned renderer not installed; an em-dash
+   count over added diff lines is recorded instead)
+10. Hosted check runs at the exact head, read-only (gh api .../commits/<head>/check-runs)
+                                                             -> hosted_check_runs.tsv
+11. Clone integrity after all runs                           -> clone_integrity.txt
+
+Publication redaction: in crf_rx_default.log and mmcm_servo_default.log the pinned simulator
+root directory (a local container-store path) is replaced by <pinned-verilator-root>; no
+other byte is changed. The unredacted originals stay in the private scratch area.

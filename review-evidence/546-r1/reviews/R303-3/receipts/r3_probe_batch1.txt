@@ -1,0 +1,44 @@
+S0_unit_clean_margin: target=unit expect=clean rc=0 -> PASS
+    [ ok ] [U13] LOCKED before invalid remote sample            = 4
+    [ ok ] [U13] invalid remote sample holds trim               = 1576
+    [ ok ] [U13] invalid remote sample holds LOCKED             = 4
+    [ ok ] [U13] clean remote sample resumes locked             = 4
+    probe: U13 trim resumed=1495 after=1735 delta=240 (need > 80)
+    [ ok ] [U13] valid offset resumes PI trim                   = 1
+    [ ok ] [U13] valid offset stays LOCKED                      = 4
+    [ ok ] [U13] original rate recovers LOCKED                  = 4
+    KL_mmcm_drp_servo: 85 checks, 0 failures
+S1_latched_off: target=unit expect=kill rc=1 -> KILLED
+    [FAIL] [U13] valid offset resumes PI trim                   got=0 exp=1
+    [ ok ] [U13] LOCKED before invalid remote sample            = 4
+    [ ok ] [U13] invalid remote sample holds trim               = 1576
+    [ ok ] [U13] invalid remote sample holds LOCKED             = 4
+    [ ok ] [U13] clean remote sample resumes locked             = 4
+    [ ok ] [U13] valid offset stays LOCKED                      = 4
+    [ ok ] [U13] original rate recovers LOCKED                  = 4
+    KL_mmcm_drp_servo: 85 checks, 1 failures
+S2_slow_resume_84ms: target=unit expect=kill rc=1 -> KILLED
+    [FAIL] [U13] valid offset resumes PI trim                   got=0 exp=1
+    [ ok ] [U13] LOCKED before invalid remote sample            = 4
+    [ ok ] [U13] invalid remote sample holds trim               = 1576
+    [ ok ] [U13] invalid remote sample holds LOCKED             = 4
+    [ ok ] [U13] clean remote sample resumes locked             = 4
+    [ ok ] [U13] valid offset stays LOCKED                      = 4
+    [ ok ] [U13] original rate recovers LOCKED                  = 4
+    KL_mmcm_drp_servo: 85 checks, 1 failures
+S3_trim_frozen_lock_counts: target=unit expect=kill rc=1 -> KILLED
+    [FAIL] [U13] valid offset resumes PI trim                   got=0 exp=1
+    [ ok ] [U13] LOCKED before invalid remote sample            = 4
+    [ ok ] [U13] invalid remote sample holds trim               = 1576
+    [ ok ] [U13] invalid remote sample holds LOCKED             = 4
+    [ ok ] [U13] clean remote sample resumes locked             = 4
+    [ ok ] [U13] valid offset stays LOCKED                      = 4
+    [ ok ] [U13] original rate recovers LOCKED                  = 4
+    KL_mmcm_drp_servo: 85 checks, 1 failures
+S4_latched_off_round2_harness: target=unit expect=report rc=0 -> PASSES
+    [ ok ] [U13] LOCKED before invalid remote sample            = 4
+    [ ok ] [U13] invalid remote sample holds trim               = 1576
+    [ ok ] [U13] invalid remote sample holds LOCKED             = 4
+    [ ok ] [U13] clean remote sample resumes locked             = 4
+    KL_mmcm_drp_servo: 82 checks, 0 failures
+rc=0 elapsed=75s
