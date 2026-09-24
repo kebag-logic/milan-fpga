@@ -79,8 +79,9 @@ MVU_GET_MILAN_INFO = 0x0000
 #! Milan v1.2 Figure 5.3: protocol_id tail, r + command_type, reserved
 MVU_CMD_PLD = 8
 #! the three Figure 5.4 quadlets this device reports (Milan v1.2 5.4.4.1).
-#! protocol_version: "A PAAD shall set the value of the protocol_version field
-#! in the GET_MILAN_INFO response to 1". features_flags: neither Table 5.20
+#! protocol_version: 5.4.4.1 says "The value of this field is 1", and Section
+#! 4.2.4 says "A PAAD shall set the value of the protocol_version field in the
+#! GET_MILAN_INFO response to 1". features_flags: neither Table 5.20
 #! bit, since REDUNDANCY claims Section 8 on a single-interface PAAD
 #! (FR-MVU-03) and TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING claims map changes
 #! on a running Stream Output, which is refused. certification_version: 0

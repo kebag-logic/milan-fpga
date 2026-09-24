@@ -84,10 +84,18 @@
 #   Milan v1.2 5.4.4.2-5.4.4.5- SET/GET_SYSTEM_UNIQUE_ID and
 #                               SET/GET_MEDIA_CLOCK_REFERENCE_INFO, each a
 #                               recommendation (RECOMMENDED here by the #510
-#                               decision); not implemented, so each draws the
-#                               NOT_IMPLEMENTED echo (Table 5.19 status 1).
+#                               decision); not implemented, so each draws
+#                               status NOT_IMPLEMENTED (Table 5.19 status 1).
 #                               Each command is sent in its own figure: 5.5,
 #                               5.3, 5.6 and 5.7.
+#   IEEE 1722.1-2021 9.6      - the Vendor Unique format MVU extends: Table
+#                               9-6 gives NOT_IMPLEMENTED the value 1, and
+#                               9.6.5.3.1 fills the response with "the
+#                               appropriate details from the command and an
+#                               appropriate status code", with no size rule.
+#                               Answering at the command's own length is the
+#                               engine's echo; 9.3.5.3.3's "correctly sized
+#                               response" is the AEM rule.
 
 from __future__ import annotations
 

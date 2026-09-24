@@ -101,13 +101,18 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
   # 00-1B-C5-0A-C1-00 and names no command. GET_MILAN_INFO (5.4.4.1) is a
   # SHALL and the engine serves it: SUCCESS and the Figure 5.4 body, 20
   # octets from @24, so cdl 32. The four commands of 5.4.4.2 to 5.4.4.5 are
-  # RECOMMENDED (the #510 decision), the engine implements none of them, and
-  # each draws the NOT_IMPLEMENTED echo at the command's own length (Table
-  # 5.19 status 1, IEEE 9.3.5.3.3). Each command is sent in the figure its
-  # own clause gives it, so the echo is graded at that command's real length:
-  # Figure 5.5 is cdl 28 and Figure 5.6 is cdl 92. Until issue #536 this
-  # scenario asserted NOT_IMPLEMENTED for GET_MILAN_INFO as well: the model had
-  # no MVU dispatch while the processor's tb/pp_top M1 graded the served answer.
+  # RECOMMENDED (the #510 decision), and the engine implements none of them.
+  # Each answer carries status NOT_IMPLEMENTED: Milan Table 5.19 value 1, the
+  # value IEEE 1722.1-2021 Table 9-6 gives it. IEEE 9.6.5.3.1 fills a Vendor
+  # Unique response with "the appropriate details from the command and an
+  # appropriate status code" and gives it no size, and neither does Milan
+  # 5.4.3.3. Echoing the command at its own length is the engine's choice, and
+  # IEEE 9.3.5.3.3's "correctly sized response" is the rule for AEM commands.
+  # Each command is sent in the figure its own clause gives it, so the echo is
+  # graded at that command's real length: Figure 5.5 is cdl 28 and Figure 5.6
+  # is cdl 92. Until issue #536 this scenario asserted NOT_IMPLEMENTED for
+  # GET_MILAN_INFO as well: the model had no MVU dispatch while the
+  # processor's tb/pp_top M1 graded the served answer.
   Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact
     When the controller sends Milan MVU command_type <command_type> in its <form> form to the AECP engine
     Then the AECP response message_type is 7
@@ -135,10 +140,11 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
 
   # What a controller records from the answer, decoded field by field rather
   # than inferred from the layout (the processor's tb/pp_top M2).
-  # protocol_version is 1 by 5.4.4.1. features_flags claims neither Table
-  # 5.20 bit: REDUNDANCY would claim Section 8 on a single-interface PAAD
-  # (FR-MVU-03), and TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING would claim map
-  # changes on a running Stream Output, which is refused.
+  # protocol_version is 1 by 5.4.4.1 and by Section 4.2.4. features_flags
+  # claims neither Table 5.20 bit: REDUNDANCY would claim Section 8 on a
+  # single-interface PAAD (FR-MVU-03), and
+  # TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING would claim map changes on a running
+  # Stream Output, which is refused.
   # certification_version is 0 because no Milan certification has been passed.
   @class:positive
   Scenario: GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
