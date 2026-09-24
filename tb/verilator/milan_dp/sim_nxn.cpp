@@ -820,10 +820,40 @@ class NxnDatapathHarness {
     bool aecp_is_originated(const std::vector<uint8_t>& f) {
         return f.size() > 37 && (f[15] & 0xF) == 0;   // an AEM_COMMAND we sent
     }
+    // THE FORCED-REALLOCATION LEVER (#542), off unless the build passes
+    // -DNOTIFY_REALLOC_TB. await_aecp and drain_tx are the only code that
+    // pushes into uns_log, and a push that meets a full buffer moves every
+    // entry to a new one and frees the old. A frame arriving while a waiter
+    // waits can do that, so a pointer or reference into the log held across
+    // either call can dangle, but only when the arrival meets a full buffer,
+    // which no leg arranges. The lever makes it certain: each call first
+    // moves the log into a buffer allocated while the old one is still live
+    // (so it cannot land at the old address), pushes one empty entry stamped
+    // -1 there, and frees the old buffer. No reader matches an empty entry,
+    // so no verdict moves. A stale pointer reads the freed old buffer, whose
+    // entries were moved out, so the check that reads it fails, and an
+    // AddressSanitizer build reports that read as a heap-use-after-free.
+#ifdef NOTIFY_REALLOC_TB
+    static constexpr bool kForceRealloc = true;
+#else
+    static constexpr bool kForceRealloc = false;
+#endif
+    long realloc_moves = 0;   // moves of a NON-EMPTY log: a pointer could exist
+    void force_uns_log_realloc() {
+        if (!kForceRealloc) return;
+        if (!uns_log.empty()) realloc_moves++;
+        std::vector<std::vector<uint8_t> > moved;
+        moved.reserve(uns_log.size() + 1);
+        for (std::vector<uint8_t>& f : uns_log) moved.push_back(std::move(f));
+        moved.emplace_back();
+        uns_log.swap(moved);
+        uns_log_when.push_back(-1);
+    }   // `moved` owns the old buffer now, and frees it here
     std::vector<uint8_t> await_aecp(int cyc = 200000) {
         std::vector<uint8_t> cur, resp;
         cur.reserve(1514);                  // one Ethernet frame off the TX trunk
         dut->m_axis_mac_tx_tready = 1;
+        force_uns_log_realloc();
         for (int c = 0; c < cyc && resp.empty(); c++) {
             lo();
             if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
@@ -854,6 +884,7 @@ class NxnDatapathHarness {
         std::vector<uint8_t> cur;
         cur.reserve(1514);
         dut->m_axis_mac_tx_tready = 1;
+        force_uns_log_realloc();
         for (int c = 0; c < cyc; c++) {
             lo();
             if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
@@ -1173,6 +1204,7 @@ class NxnDatapathHarness {
         else
             printf("-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the "
                    "wire --\n");
+        const long realloc_moves0 = realloc_moves;
         const uint8_t teid[8] = {
             0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
         const std::vector<uint8_t> name_key(8, 0);   // ENTITY,0 / name 0 / cfg 0
@@ -1197,6 +1229,13 @@ class NxnDatapathHarness {
         prove_the_ownerless_publication_faces_stay_ownerless();
         if (timed) prove_the_departing_controller_monitor(fl0);
         deregister_both_controllers_and_restore_the_name(g0, name0);
+        //! a lever build whose lever never moved a live log proves nothing
+        if (kForceRealloc) {
+            printf("  [i]    #542 lever: %ld moves of a non-empty log in this "
+                   "section\n", realloc_moves - realloc_moves0);
+            ck("[NOTIFY] (#542 lever) the waits moved the non-empty log",
+               static_cast<long>(realloc_moves > realloc_moves0), 1);
+        }
     }
 
     // ---- (N1) two registered controllers, A and B ---------------------
