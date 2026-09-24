@@ -634,6 +634,9 @@ DUT_READER_DISPOSITIONS = {
         "mutation campaign; it ties a real named binding low and requires failure",
     "tb/verilator/tcam/mutants.py":
         "mutation campaign; it injects three RTL defects and requires failure",
+    "tb/verilator/tkdiag/mcr_mutants.py":
+        "mutation campaign; it plants one of two restart-engine defects against the #387 "
+        "pending-restart merge into a copy and requires a named failure",
 }
 
 

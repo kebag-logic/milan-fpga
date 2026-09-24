@@ -68,6 +68,8 @@ class TkdiagHarness {
     void count_dirty(int cycles);
     void frame_mr(int idx, int tu, int mr);
     void frame(int idx, int tu);
+    void restart_request();
+    void send_at_level(int idx, int n);
     void rd(int idx);
     Ctrs snap(int idx);
 
@@ -85,6 +87,7 @@ class TkdiagHarness {
     void the_mr_level_toggles_then_holds_eight_pdus();
     void a_media_clock_source_change_toggles_mr();
     void the_crf_context_carries_its_own_hold();
+    void a_request_on_a_pending_restart_merges();
     void dirty_pulses_whenever_any_counter_updates();
     void all_five_counters_wrap_on_their_normal_events();
 
@@ -94,6 +97,10 @@ class TkdiagHarness {
     // step `cycles` clocks counting dirty_p_o pulses per context (Milan 5.4.5:
     // each pulse is "a Table 5.4 counter was updated" for that Stream Output)
     int dpulses[kContexts] = {};
+    // what send_at_level() put on each context's wire: the mr bit of its
+    // last PDU, and how many times that bit changed between two PDUs
+    int wire_mr[kContexts] = {};
+    int wire_toggles[kContexts] = {};
 };
 
 void TkdiagHarness::ck(const char* what, uint64_t got, uint64_t exp) {
@@ -135,6 +142,23 @@ void TkdiagHarness::frame_mr(int idx, int tu, int mr) {
     dut->frame_p_i = 0;
 }
 void TkdiagHarness::frame(int idx, int tu) { frame_mr(idx, tu, 0); }
+
+// one cycle of the restart request into the 4.4.4.3 generator
+void TkdiagHarness::restart_request() {
+    dut->mcr_restart_p_i = 1; step(); dut->mcr_restart_p_i = 0; cyc(2);
+}
+
+// the packetizer's side of the loop: `n` PDUs on context `idx`, each carrying
+// the level the generator grants that context at its launch
+void TkdiagHarness::send_at_level(int idx, int n) {
+    for (int k = 0; k < n; k++) {
+        const int mr = (dut->mcr_mr_o >> idx) & 1;
+        if (mr != wire_mr[idx]) wire_toggles[idx]++;
+        wire_mr[idx] = mr;
+        frame_mr(idx, 0, mr);
+        cyc(2);
+    }
+}
 void TkdiagHarness::rd(int idx) { dut->rd_idx_i = idx; dut->eval(); }
 
 // read every counter of one context in a single eval
@@ -477,8 +501,9 @@ void TkdiagHarness::a_media_clock_source_change_toggles_mr() {
 //  at 500 PDU/s against an AAF talker's 8000, so a shared hold would let
 //  the audio talkers satisfy the CRF stream's clause on its behalf and
 //  put the new state on the CRF wire for a sixteenth of eight PDUs. The
-//  TARGET stays shared - one media clock, one restart history - which is
-//  the other half of the same clause.
+//  REQUESTS stay shared - one media clock, every restart reaches every
+//  stream - which is the other half of the same clause; whether a request
+//  is still pending is per stream since #387 (T17).
 //
 //  BITES the pre-round engine, which was N_TALKERS_P = N_STREAMS: with
 //  no context 2 there is no level for the CRF talker to stamp and no
@@ -611,6 +636,73 @@ void TkdiagHarness::all_five_counters_wrap_on_their_normal_events() {
     ck("T16 TIMESTAMP_UNCERTAIN wraps", snap(0).tu, 0);
     ck("T16 FRAMES_TX wraps", snap(0).ftx, 0);
 }
+
+
+// ---------------------------------------------------------------------
+//  T17: a request that lands on a PENDING restart merges with it (#387,
+//  ruling 5802264260 item 2): the stream puts exactly one toggle on the
+//  wire, never none, and its MEDIA_RESET counts that toggle. The ruling's
+//  example is a CRF disruption plus a PHC step; milan_datapath ORs both
+//  onto restart_p_i, so here they are two restart_p_i pulses.
+//
+//  Pending is per stream: a request waits for the >= 8 PDU hold of the
+//  stream's previous toggle. So the case runs two talkers whose holds
+//  disagree when the disruption arrives. Talker 1 has sent 3 of its 8
+//  PDUs, so the disruption is pending on it; talker 0 has sent all 8, so
+//  it stamps the disruption at once. Then the step:
+//   - on talker 1 it merges: one toggle once the hold completes;
+//   - on talker 0 the disruption is already stamped, so the step is a new
+//     restart: a second toggle once the first has held eight PDUs.
+//  The harness plays both packetizers (send_at_level), and MEDIA_RESET
+//  reads the wire those PDUs made.
+//
+//  BITES the pre-#387 engine, one shared target flipped per request: the
+//  step flips it back, talker 1's pending restart is cancelled, and
+//  talker 1 sends no toggle at all. BITES a shared target that merges
+//  whenever ANY stream is pending: talker 0 then gets no toggle for the
+//  step. mcr_mutants.py plants both.
+// ---------------------------------------------------------------------
+void TkdiagHarness::a_request_on_a_pending_restart_merges() {
+    printf("[T17] a request on a PENDING restart merges: one toggle, never none\n");
+    dut->rst_n = 0; dut->frame_p_i = 0; dut->tu_i = 0; dut->frame_mr_i = 0;
+    dut->mcr_restart_p_i = 0; dut->mcr_clk_src_i = 0;
+    dut->streaming_i = 0; dut->mcr_streaming_i = 0;
+    cyc(4); dut->rst_n = 1;
+    dut->streaming_i = 0b011; dut->mcr_streaming_i = 0b011; cyc(4);
+    for (int t = 0; t < kContexts; t++) wire_mr[t] = 0;   // the reset level
+    restart_request();                       // an earlier restart: both adopt 1
+    send_at_level(0, kMrHoldPdus);           // talker 0 completes its hold
+    send_at_level(1, 3);                     // talker 1 is 3 PDUs into its own
+    interval(); interval();
+    const Ctrs c0 = snap(0);
+    const Ctrs c1 = snap(1);
+    for (int t = 0; t < kContexts; t++) wire_toggles[t] = 0;
+
+    restart_request();                       // the CRF disruption
+    ck("T17 the disruption is stamped at once on talker 0 (hold complete)",
+       dut->mcr_mr_o & 1, 0);
+    ck("T17 ... and is pending on talker 1 (3 of its 8 PDUs sent)",
+       (dut->mcr_mr_o >> 1) & 1, 1);
+    restart_request();                       // the PHC step, on top of it
+    send_at_level(1, 4);
+    ck("T17 the merged restart still waits for talker 1's eighth PDU",
+       (dut->mcr_mr_o >> 1) & 1, 1);
+    send_at_level(1, 1 + kMrHoldPdus);       // the eighth, then the new level
+    interval(); interval();
+    ck("T17 talker 1 puts exactly ONE toggle on the wire, never none",
+       wire_toggles[1], 1);
+    ck("T17 ... and talker 1's MEDIA_RESET counts that one",
+       snap(1).mreset - c1.mreset, 1);
+
+    send_at_level(0, kMrHoldPdus);           // the disruption's level holds
+    interval(); interval();
+    send_at_level(0, kMrHoldPdus);           // then the step's toggle goes out
+    interval(); interval();
+    ck("T17 talker 0 had stamped the disruption: the step is its 2nd toggle",
+       wire_toggles[0], 2);
+    ck("T17 ... and talker 0's MEDIA_RESET counts both",
+       snap(0).mreset - c0.mreset, 2);
+}
 int TkdiagHarness::run() {
     const milan::tb::Model<Vtkdiag_tb_top> model;
     dut = model.get();
@@ -637,6 +729,7 @@ int TkdiagHarness::run() {
     printf("--------------------------------------------------------------\n");
     dirty_pulses_whenever_any_counter_updates();
     all_five_counters_wrap_on_their_normal_events();
+    a_request_on_a_pending_restart_merges();
 
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
