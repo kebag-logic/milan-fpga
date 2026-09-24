@@ -1,0 +1,23 @@
+candidate      4487359031b52b0b92e526839473f2e9c956c967 tree 5b0645c82cf9930675c87c14340800dd7aaabf82
+parents        573f0052a0e4412e81f0845438fcec2086ce5d55 062e89ad098806ae5def8341fcb8c2815583ca00
+merge-base     759da623072358afdb0e9d570a7b4b6a788492c9
+merge-tree     5b0645c82cf9930675c87c14340800dd7aaabf82   (clean recomputed merge of dev and PR head)
+patch-id PR    mb..pr     5ececc7e8739160acad0f60f37bb633462c1af8a
+patch-id PR    dev..cand  5ececc7e8739160acad0f60f37bb633462c1af8a
+patch-id dev   mb..dev    0ec9b18e909904c8504ca57ea6b363d40f946b15
+patch-id dev   pr..cand   0ec9b18e909904c8504ca57ea6b363d40f946b15
+commits dev side: 87  PR side: 11
+--- files changed by the PR (mb..pr)
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/testing/CI_WORKFLOWS.md
+sw/builder/test_builder.py
+--- of those, also changed on the dev side (mb..dev), with dev commits
+  docs/integration/BAREMETAL_FIRMWARE.md: dev side unchanged
+  docs/testing/CI_WORKFLOWS.md: ALSO CHANGED on dev by 20b7bdaa,3f2fe73d
+  sw/builder/test_builder.py: dev side unchanged
+--- hunks of the shared file on each side
+  PR : @@ -1129 +1129,2 @@ Firmware compilation through a host compiler is refused.
+  dev: @@ -1753,0 +1754,8 @@ and the keyword never fired.
+--- live remote refs
+573f0052a0e4412e81f0845438fcec2086ce5d55	refs/heads/dev
+062e89ad098806ae5def8341fcb8c2815583ca00	refs/pull/535/head

@@ -1,0 +1,15 @@
+# gate 1b RTL-mutant closure (tb/verilator/milan_dp make print-srcs) intersected with dev-side changes 759da623072358afdb0e9d570a7b4b6a788492c9..573f0052a0e4412e81f0845438fcec2086ce5d55
+dev-changed, read by gate 1b: hdl/ieee1722/aaf/KL_chan_map_capture.sv
+dev-changed, read by gate 1b: hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
+dev-changed, read by gate 1b: hdl/ieee1722/crf/KL_crf_rx.sv
+dev-changed, read by gate 1b: hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+dev-changed, read by gate 1b: hdl/ieee1722/crf/KL_media_grid_align.sv
+dev-changed, read by gate 1b: hdl/milan/milan_datapath.sv
+total closure files: 109
+gate-1b input hdl/milan/milan_datapath.sv dev delta:  1 file changed, 212 insertions(+), 88 deletions(-)
+gate-1b input tb/verilator/milan_dp/Makefile dev delta:  1 file changed, 77 insertions(+), 5 deletions(-)
+gate-1b input configs/endstation_arty_4x4.yaml dev delta:  1 file changed, 1 insertion(+), 1 deletion(-)
+gate-1b input configs/endstation_arty_8ch.yaml dev delta:  1 file changed, 1 insertion(+), 1 deletion(-)
+gate-1b input configs/endstation_ax7101_8x8.yaml dev delta:  1 file changed, 1 insertion(+), 1 deletion(-)
+sw/firmware/milan_baremetal dev delta: ''
+sw/builder (other than test_builder.py) dev delta: ''

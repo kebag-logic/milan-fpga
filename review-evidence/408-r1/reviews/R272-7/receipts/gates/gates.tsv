@@ -1,0 +1,25 @@
+docs_check	0	4s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/docs_check.py
+em_dash_parent	0	3s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_em_dash.py --base 573f0052a0e4412e81f0845438fcec2086ce5d55
+em_dash_mergebase	0	3s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+em_dash_selftest	0	3s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_em_dash.py --selftest
+doc_style	0	0s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_doc_style.py
+doc_style_selftest	0	0s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_doc_style.py --selftest
+gen_toc_selftest	0	1s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/gen_toc.py --selftest
+gen_toc_anchors	0	1s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/gen_toc.py --verify-anchors
+gen_toc_check	0	3s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/gen_toc.py --check
+doc_paths	0	0s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_doc_paths.py
+doc_map_check	0	0s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python docs/DOC_MAP.gen.py --check
+module_matrix_check	0	1s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python docs/traceability/gen_module_matrix.py --check
+feature_status	0	1s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_feature_status.py
+ci_events_check	0	0s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/ci_events.py --check
+ci_events_selftest	0	15s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/ci_events.py --selftest
+baremetal_only_check	0	14s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_baremetal_only.py --check
+baremetal_only_self	0	3s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_baremetal_only.py --selftest
+py_idiom	0	3s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_py_idiom.py
+hygiene_check	0	0s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_hygiene.py --check
+fail_fast_check	0	2s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/measure_fail_fast.py --check
+test_evidence_check	0	5s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/measure_test_evidence.py --check
+todo_ownership	0	1s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_todo_ownership.py
+archive_check	0	0s	$REVIEWS/408-r272-7-packet/scratch/venv/bin/python scripts/check_archive.py
+diff_check_parent	0	0s	git diff --check 573f0052a0e4412e81f0845438fcec2086ce5d55 HEAD
+diff_check_mergebase	0	0s	git diff --check 759da623072358afdb0e9d570a7b4b6a788492c9 HEAD
