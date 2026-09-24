@@ -1,0 +1,111 @@
+FAIL: GI BIND-ACTIVE unsolicited: complete Milan response
+FAIL: GI BIND-ACTIVE solicited: acmpsta sink 0 = 0, got 7
+FAIL: GI BIND-ACTIVE solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 04 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 04 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI BIND-ACTIVE: solicited and unsolicited bodies agree for sink 0
+FAIL: GI BIND-TIMEOUT unsolicited: complete Milan response
+FAIL: GI BIND-TIMEOUT: solicited and unsolicited bodies agree for sink 0
+FAIL: GI PASSIVE unsolicited: complete Milan response
+FAIL: GI PASSIVE: solicited and unsolicited bodies agree for sink 0
+FAIL: GI BIND-ACTIVE unsolicited: complete Milan response
+FAIL: GI BIND-ACTIVE solicited: acmpsta sink 1 = 0, got 7
+FAIL: GI BIND-ACTIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 08 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 08 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 40 00 00 00
+FAIL: GI BIND-ACTIVE: solicited and unsolicited bodies agree for sink 1
+FAIL: GI BIND-TIMEOUT unsolicited: complete Milan response
+FAIL: GI BIND-TIMEOUT: solicited and unsolicited bodies agree for sink 1
+FAIL: GI PASSIVE unsolicited: complete Milan response
+FAIL: GI PASSIVE: solicited and unsolicited bodies agree for sink 1
+FAIL: GI ACTIVE unsolicited: complete Milan response
+FAIL: GI ACTIVE: solicited and unsolicited bodies agree for sink 0
+FAIL: GI TIMEOUT unsolicited: complete Milan response
+FAIL: GI TIMEOUT: solicited and unsolicited bodies agree for sink 0
+FAIL: GI MISSING unsolicited: complete Milan response
+FAIL: GI MISSING: solicited and unsolicited bodies agree for sink 2
+FAIL: GI MISSING-UNBIND unsolicited: complete Milan response
+FAIL: GI MISSING-UNBIND: solicited and unsolicited bodies agree for sink 2
+FAIL: GI RETRY-CLEAR unsolicited: complete Milan response
+FAIL: GI RETRY-CLEAR solicited: acmpsta sink 0 = 0, got 7
+FAIL: GI RETRY-CLEAR solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 14 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 14 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI RETRY-CLEAR: solicited and unsolicited bodies agree for sink 0
+FAIL: GI COMPLETED unsolicited: complete Milan response
+FAIL: GI COMPLETED solicited: pbsta sink 0 = 3, got 2
+FAIL: GI COMPLETED solicited: acmpsta sink 0 = 0, got 7
+FAIL: GI COMPLETED solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 15 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 15 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI COMPLETED: solicited and unsolicited bodies agree for sink 0
+FAIL: GI ACTIVE unsolicited: complete Milan response
+FAIL: GI ACTIVE: solicited and unsolicited bodies agree for sink 1
+FAIL: GI COMPLETED unsolicited: complete Milan response
+FAIL: GI COMPLETED: solicited and unsolicited bodies agree for sink 1
+FAIL: GI FAILED-0 unsolicited: complete Milan response
+FAIL: GI FAILED-0 solicited: pbsta sink 0 = 3, got 2
+FAIL: GI FAILED-0 solicited: acmpsta sink 0 = 0, got 7
+FAIL: GI FAILED-0 solicited: failure code sink 0 = 7, got 0
+FAIL: GI FAILED-0 solicited: full failure bridge sink 0
+FAIL: GI FAILED-0 solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 18 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 18 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI FAILED-0: solicited and unsolicited bodies agree for sink 0
+FAIL: GI DISTINCT-0 solicited: pbsta sink 0 = 3, got 2
+FAIL: GI DISTINCT-0 solicited: acmpsta sink 0 = 0, got 7
+FAIL: GI DISTINCT-0 solicited: failure code sink 0 = 7, got 0
+FAIL: GI DISTINCT-0 solicited: full failure bridge sink 0
+FAIL: GI DISTINCT-0 solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1a 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1a 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI FAILED-REFRESH unsolicited: complete Milan response
+FAIL: GI FAILED-REFRESH solicited: pbsta sink 0 = 3, got 2
+FAIL: GI FAILED-REFRESH solicited: failure code sink 0 = 9, got 0
+FAIL: GI FAILED-REFRESH solicited: full failure bridge sink 0
+FAIL: GI FAILED-REFRESH solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1b 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1b 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 09 00 4e 82 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI FAILED-REFRESH: solicited and unsolicited bodies agree for sink 0
+FAIL: GI ADVERTISE unsolicited: complete Milan response
+FAIL: GI ADVERTISE solicited: pbsta sink 0 = 3, got 2
+FAIL: GI ADVERTISE solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1c 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1c 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI ADVERTISE: solicited and unsolicited bodies agree for sink 0
+FAIL: GI FAILED-AGAIN unsolicited: complete Milan response
+FAIL: GI FAILED-AGAIN solicited: pbsta sink 0 = 3, got 2
+FAIL: GI FAILED-AGAIN solicited: acmpsta sink 0 = 0, got 7
+FAIL: GI FAILED-AGAIN solicited: failure code sink 0 = 7, got 0
+FAIL: GI FAILED-AGAIN solicited: full failure bridge sink 0
+FAIL: GI FAILED-AGAIN solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1d 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1d 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI FAILED-AGAIN: solicited and unsolicited bodies agree for sink 0
+FAIL: GI WITHDRAWAL unsolicited: complete Milan response
+FAIL: GI WITHDRAWAL solicited: acmpsta sink 0 = 0, got 7
+FAIL: GI WITHDRAWAL solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1e 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1e 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI WITHDRAWAL: solicited and unsolicited bodies agree for sink 0
+FAIL: GI WITHDRAWAL-PROBING unsolicited: complete Milan response
+FAIL: GI WITHDRAWAL-PROBING solicited: acmpsta sink 0 = 0, got 7
+FAIL: GI WITHDRAWAL-PROBING solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1f 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1f 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI WITHDRAWAL-PROBING: solicited and unsolicited bodies agree for sink 0
+FAIL: GI DISABLED unsolicited: complete Milan response
+FAIL: GI DISABLED: solicited and unsolicited bodies agree for sink 0
+FAIL: GI BIND-ACTIVE unsolicited: complete Milan response
+FAIL: GI BIND-ACTIVE solicited: acmpsta sink 1 = 0, got 7
+FAIL: GI BIND-ACTIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 27 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 27 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 40 00 00 00
+FAIL: GI BIND-ACTIVE: solicited and unsolicited bodies agree for sink 1
+FAIL: GI BIND-TIMEOUT unsolicited: complete Milan response
+FAIL: GI BIND-TIMEOUT: solicited and unsolicited bodies agree for sink 1
+FAIL: GI PASSIVE unsolicited: complete Milan response
+FAIL: GI PASSIVE: solicited and unsolicited bodies agree for sink 1
+FAIL: GI DISABLED unsolicited: complete Milan response
+FAIL: GI DISABLED: solicited and unsolicited bodies agree for sink 1
+[build default, SRP_DOM_DEF_VID_P 0x0002] 291 checks, 86 failures
