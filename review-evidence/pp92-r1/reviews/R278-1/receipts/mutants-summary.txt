@@ -1,0 +1,39 @@
+BASELINE               pp_top    exit 0 1407 checks, 0 failures             0 FAIL  SURVIVED  
+LG01                   acmp_nvm  exit 2 332 checks: 236 PASS, 96 FAIL      96 FAIL  KILLED  FAIL: L00 control, no traffic in the window: walk, preloads, release and ownership: the release precedes a preload's record write or discovery arm; re
+LG02                   acmp_nvm  exit 2 332 checks: 277 PASS, 55 FAIL      55 FAIL  KILLED  FAIL: L05a first sink's GET between its store and its preload: walk, preloads, release and ownership: the walk is not done, or failed; 0 preloads take
+LG03                   acmp_nvm  exit 2 332 checks: 292 PASS, 40 FAIL      40 FAIL  KILLED  FAIL: L05a first sink's GET between its store and its preload: each of 1 requests popped exactly when the listener took it, at or after the release (p
+LG02t                  acmp_nvm  exit 2 332 checks: 313 PASS, 19 FAIL      19 FAIL  KILLED  FAIL: L01 a talker-event level held from reset, for ever: walk, preloads, release and ownership: the walk is not done, or failed; 0 preloads taken, 2 
+LG03t                  acmp_nvm  exit 2 332 checks: 325 PASS, 7 FAIL        7 FAIL  KILLED  FAIL: L01 a talker-event level held from reset, for ever: every talker event acknowledged exactly when the listener took it, at or after the release (
+LG04                   acmp_nvm  exit 2 332 checks: 327 PASS, 5 FAIL        5 FAIL  KILLED  FAIL: L07 an expiry of the first sink's owner every cycle from reset: walk, preloads, release and ownership: 1 preloads taken, 2 saved; 1 preload reco
+LG05                   acmp_nvm  exit 2 332 checks: 320 PASS, 12 FAIL      12 FAIL  KILLED  FAIL: L06 STOP of the first sink held from reset: walk, preloads, release and ownership: listener states 0x60007 while owned; 1 side effects, 5 takes 
+LRdone                 acmp_nvm  exit 2 332 checks: 235 PASS, 97 FAIL      97 FAIL  KILLED  FAIL: L00 control, no traffic in the window: walk, preloads, release and ownership: the release precedes a preload's record write or discovery arm; re
+B01                    acmp_nvm  exit 2 332 checks: 316 PASS, 16 FAIL      16 FAIL  KILLED  FAIL: N3 a record read the device never answers: the walk fails whole at its deadline with cause 3: done 0 fail 0 cause 0, want 1 1 3; a preload was o
+B02                    acmp_nvm  exit 2 332 checks: 328 PASS, 4 FAIL        4 FAIL  KILLED  FAIL: N1a a device error at the first record's header read: the WHOLE walk fails with cause 2: done 1 fail 1 cause 3, want 1 1 2
+B03                    acmp_nvm  exit 2 332 checks: 323 PASS, 9 FAIL        9 FAIL  KILLED  FAIL: N3 a record read the device never answers: the port stays quarantined and a later change stays pending, never written
+BA1                    acmp_nvm  exit 2 332 checks: 319 PASS, 13 FAIL      13 FAIL  KILLED  FAIL: N3 a record read the device never answers: within the deadline of the silence (3079 cycles), the read abandoned once (0)
+BC1                    acmp_nvm  exit 2 332 checks: 323 PASS, 9 FAIL        9 FAIL  KILLED  FAIL: N1a a device error at the first record's header read: the WHOLE walk fails with cause 2: done 1 fail 1 cause 1, want 1 1 2
+A01                    acmp_nvm  exit 2 332 checks: 331 PASS, 1 FAIL        1 FAIL  KILLED  FAIL: N6 a second manager's read at each of 200 offsets: every walk completes as saved (92 did not, first at offset 1)
+LG01-top               pp_top    exit 2 1407 checks, 5 failures             5 FAIL  KILLED  FAIL: BW1: a GET_RX_STATE received before the walk is held
+B01-top                pp_top    exit 2 1407 checks, 2 failures             2 FAIL  KILLED  FAIL: BW3: the walk fails whole at its deadline, 80000 cycles after the silence began, the next record's read still unserved
+B03-top                pp_top    exit 2 1407 checks, 2 failures             2 FAIL  KILLED  FAIL: BW3: the drained read ends first, then the BIND is committed, a verified F07.8 record
+X-rel-busy             acmp_nvm  exit 0 332 checks: 332 PASS, 0 FAIL        0 FAIL  SURVIVED  
+X-rel-arm              acmp_nvm  exit 0 332 checks: 332 PASS, 0 FAIL        0 FAIL  SURVIVED  
+X-rel-busy-lsn         lsn_admit exit 2 18 checks: 16 PASS, 2 FAIL          2 FAIL  KILLED  FAIL: T the listener still busy: the gate keeps the faces for 50 cycles
+X-rel-pre-lsn          lsn_admit exit 2 18 checks: 16 PASS, 2 FAIL          2 FAIL  KILLED  FAIL: T a preload still presented: the gate keeps the faces for 50 cycles
+X-drain-leak           acmp_nvm  exit 2 332 checks: 330 PASS, 2 FAIL        2 FAIL  KILLED  FAIL: N5b the walk's first byte one cycle after the deadline: the late read moved 20 bytes in the drain and none reached the manager
+X-drain-done-leak      acmp_nvm  exit 2 332 checks: 330 PASS, 2 FAIL        2 FAIL  KILLED  FAIL: N5b the walk's first byte one cycle after the deadline: the late read moved 20 bytes in the drain and none reached the manager
+X-tmo-off-by-one       acmp_nvm  exit 2 332 checks: 330 PASS, 2 FAIL        2 FAIL  KILLED  FAIL: N5b the walk's first byte one cycle after the deadline: the walk fails whole at its deadline with cause 3 (0 aborts, stall count 3000): done 1 f
+X-no-req-stall         acmp_nvm  exit 2 332 checks: 331 PASS, 1 FAIL        1 FAIL  KILLED  FAIL: N4 the port never comes idle for the walk: the walk fails whole at its deadline with cause 3: done 0 fail 0 cause 0, want 1 1 3; a failed walk r
+X-top-done-no-release  pp_top    exit 0 1407 checks, 0 failures             0 FAIL  SURVIVED  
+X-top-busy-gap         pp_top    exit 0 1407 checks, 0 failures             0 FAIL  SURVIVED  
+X-rel-busy-top         pp_top    exit 0 1407 checks, 0 failures             0 FAIL  SURVIVED  
+
+real	3m46.490s
+user	30m57.271s
+sys	0m43.304s
+X-rel-arm-lsn          lsn_admit exit 2 18 checks: 16 PASS, 2 FAIL          2 FAIL  KILLED  FAIL: T the last A4 strobe still up: the gate keeps the faces for 50 cycles
+X-rel-both             acmp_nvm  exit 0 332 checks: 332 PASS, 0 FAIL        0 FAIL  SURVIVED  
+X-rel-both-top         pp_top    exit 0 1407 checks, 0 failures             0 FAIL  SURVIVED  
+B04                    acmp_nvm  exit 2 325 checks: 197 PASS, 128 FAIL    128 FAIL  KILLED  FAIL: A2 empty NVM is defaults, not a failure (cause 2)
+B04b                   acmp_nvm  exit 2 325 checks: 198 PASS, 127 FAIL    127 FAIL  KILLED  FAIL: A2 empty NVM is defaults, not a failure (cause 3)
+B02-full (both edits, from run_p1_counterfactual.sh B02 build) acmp_nvm: 332 checks: 323 PASS, 9 FAIL  KILLED

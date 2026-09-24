@@ -1,0 +1,15 @@
+patched $PACKET/scratch/p1c-B01/src/tb/acmp_nvm/sim_main.cpp
+reverted B01 in $PACKET/scratch/p1c-B01/src/hdl/acmp/KL_acmp_nvm_shadow.sv
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+  [i] P1-0 control: no fault: 1 GET replies, dirty 0x00, 0 writes, 0 device ops after the GET, sink 0 store magic 1722 valid-byte 03
+  [i] P1-1 a device error at sink 3's header read: 1 GET replies, dirty 0x00, 1 writes, 2 device ops after the GET, sink 0 store magic 1722 valid-byte 00
+FAIL: P1-1 a device error at sink 3's header read: the read-only GET wrote nothing (1 writes, 1 erases)
+FAIL: P1-1 a device error at sink 3's header read: sink 0's saved binding is still in NVM after the read-only GET
+FAIL: P1-1 a device error at sink 3's header read: a reset on a healthy device restores the saved bindings: sink 0 not restored as saved; 2 preloads, want 3
+FAIL: P1-2 sink 3's read silent, the device ends it 2000 cycles late: walk done 0 fail 0 cause 0 (want cause 3)
+  [i] P1-2 sink 3's read silent, the device ends it 2000 cycles late: 0 GET replies, dirty 0x00, 0 writes, 0 device ops after the GET, sink 0 store magic 1722 valid-byte 03
+  [i] P1-3 sink 3's payload read torn after 3 bytes: 1 GET replies, dirty 0x00, 1 writes, 2 device ops after the GET, sink 0 store magic 1722 valid-byte 00
+FAIL: P1-3 sink 3's payload read torn after 3 bytes: the read-only GET wrote nothing (1 writes, 1 erases)
+FAIL: P1-3 sink 3's payload read torn after 3 bytes: sink 0's saved binding is still in NVM after the read-only GET
+FAIL: P1-3 sink 3's payload read torn after 3 bytes: a reset on a healthy device restores the saved bindings: sink 0 not restored as saved; 2 preloads, want 3
+16 checks: 9 PASS, 7 FAIL

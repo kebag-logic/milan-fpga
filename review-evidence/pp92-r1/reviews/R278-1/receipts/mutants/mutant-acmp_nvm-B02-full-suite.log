@@ -1,0 +1,55 @@
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:462:8: Instance pin connected by name with empty reference: 'tmr_arm_slot_o'
+  462 |       .tmr_arm_slot_o       (),
+      |        ^~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:464:8: Instance pin connected by name with empty reference: 'tmr_arm_deadline_ms_o'
+  464 |       .tmr_arm_deadline_ms_o(),
+      |        ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:469:8: Instance pin connected by name with empty reference: 'draw_kind_o'
+  469 |       .draw_kind_o          (),
+      |        ^~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:480:8: Instance pin connected by name with empty reference: 'txs_oversize_o'
+  480 |       .txs_oversize_o       (),
+      |        ^~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:494:8: Instance pin connected by name with empty reference: 'act_settle_sid_o'
+  494 |       .act_settle_sid_o     (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:495:8: Instance pin connected by name with empty reference: 'act_settle_da_o'
+  495 |       .act_settle_da_o      (),
+      |        ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:496:8: Instance pin connected by name with empty reference: 'act_settle_vlan_o'
+  496 |       .act_settle_vlan_o    (),
+      |        ^~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:501:8: Instance pin connected by name with empty reference: 'act_nvm_o'
+  501 |       .act_nvm_o            (),
+      |        ^~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:502:8: Instance pin connected by name with empty reference: 'act_nvm_set_o'
+  502 |       .act_nvm_set_o        (),
+      |        ^~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:504:8: Instance pin connected by name with empty reference: 'act_sink_o'
+  504 |       .act_sink_o           (),
+      |        ^~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:506:8: Instance pin connected by name with empty reference: 'dbg_strq_drop_o'
+  506 |       .dbg_strq_drop_o      (),
+      |        ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:507:8: Instance pin connected by name with empty reference: 'act_strt_chg_o'
+  507 |       .act_strt_chg_o       (),
+      |        ^~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: acmp_nvm_wrap.sv:508:8: Instance pin connected by name with empty reference: 'act_strt_cmd_chg_o'
+  508 |       .act_strt_cmd_chg_o   (),
+      |        ^~~~~~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.768 MB sources in 9 modules, into 0.464 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.348 s (elab=0.011, cvt=0.049, bld=5.261); cpu 0.095 s on 16 threads; allocated 1144.969 MB
+FAIL: N1a a device error at the first record's header read: the WHOLE walk fails with cause 2: done 1 fail 0 cause 0, want 1 1 2; a preload was offered, or a restored binding survived; a failed walk reports records it discarded
+FAIL: N1a a device error at the first record's header read: the walk stops at the failing record
+FAIL: N1b a device error inside a middle record's header: the WHOLE walk fails with cause 2: done 1 fail 0 cause 0, want 1 1 2; a preload was offered, or a restored binding survived; a failed walk reports records it discarded
+FAIL: N1b a device error inside a middle record's header: the walk stops at the failing record
+FAIL: N1b a device error inside a middle record's header: the listener is released and answers on the vendor default
+FAIL: N1c the last record's header read ended short: the WHOLE walk fails with cause 2: done 1 fail 0 cause 0, want 1 1 2; a preload was offered, or a restored binding survived; a failed walk reports records it discarded
+FAIL: N1c the last record's header read ended short: the listener is released and answers on the vendor default
+FAIL: N1d a device error after the first header, before its done: the WHOLE walk fails with cause 2: done 1 fail 0 cause 0, want 1 1 2; a preload was offered, or a restored binding survived; a failed walk reports records it discarded
+FAIL: N1d a device error after the first header, before its done: the walk stops at the failing record
+332 checks: 323 PASS, 9 FAIL
+make: *** [Makefile:30: run] Error 1

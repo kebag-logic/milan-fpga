@@ -1,0 +1,156 @@
+patched $PACKET/scratch/p2-head/src/tb/pp_top/sim_main.cpp
+test_compiler_environment_and_arguments (test_fixture_guards.CompilerLocaleTest.test_compiler_environment_and_arguments)
+main() passes every argument through and sets LC_ALL=C for the compiler only. ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+OK
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:401:8: Instance pin connected by name with empty reference: 'aecp_cur_config_o'
+  401 |       .aecp_cur_config_o     (),
+      |        ^~~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:402:8: Instance pin connected by name with empty reference: 'aecp_identify_o'
+  402 |       .aecp_identify_o       (),
+      |        ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:403:8: Instance pin connected by name with empty reference: 'aecp_clk_src_index_o'
+  403 |       .aecp_clk_src_index_o  (),
+      |        ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:411:8: Instance pin connected by name with empty reference: 'aecp_dyn_dirty_o'
+  411 |       .aecp_dyn_dirty_o      (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_tk_decl_state_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:512:42: ... Location of port declaration
+  512 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_tk_decl_state_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_lstn_reg_state_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:513:42: ... Location of port declaration
+  513 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,     
+      |                                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_active_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:517:42: ... Location of port declaration
+  517 |     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+      |                                          ^~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_sr_admitted_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:522:42: ... Location of port declaration
+  522 |     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_granted_slope_bps_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:523:42: ... Location of port declaration
+  523 |     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o,  
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_src_fail_code_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:524:42: ... Location of port declaration
+  524 |     output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_src_fail_bridge_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:525:42: ... Location of port declaration
+  525 |     output logic [N_STREAM_OUT_P*64-1:0] srp_src_fail_bridge_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_sum_slope_bps_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:526:42: ... Location of port declaration
+  526 |     output logic [31:0]                  srp_sum_slope_bps_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_over_limit_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:527:42: ... Location of port declaration
+  527 |     output logic                         srp_over_limit_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_tk_reg_state_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:528:42: ... Location of port declaration
+  528 |     output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,       
+      |                                          ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_lstn_decl_state_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:529:42: ... Location of port declaration
+  529 |     output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_acc_latency_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:530:42: ... Location of port declaration
+  530 |     output logic [N_STREAM_IN_P*32-1:0]  srp_acc_latency_o,        
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'srp_snk_fail_code_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:531:42: ... Location of port declaration
+  531 |     output logic [N_STREAM_IN_P*8-1:0]   srp_snk_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'acmp_bound_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:543:42: ... Location of port declaration
+  543 |     output logic [N_STREAM_IN_P-1:0]     acmp_bound_o,
+      |                                          ^~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'acmp_bound_eid_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:544:42: ... Location of port declaration
+  544 |     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_eid_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'acmp_bound_sid_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:550:42: ... Location of port declaration
+  550 |     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_sid_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'acmp_bound_dmac_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:551:42: ... Location of port declaration
+  551 |     output logic [N_STREAM_IN_P*48-1:0]  acmp_bound_dmac_o,        
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'acmp_bound_vlan_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:552:42: ... Location of port declaration
+  552 |     output logic [N_STREAM_IN_P*12-1:0]  acmp_bound_vlan_o,        
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:355:5: Instance has missing pin: 'adp_next_avail_index_o'
+  355 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:560:42: ... Location of port declaration
+  560 |     output logic [31:0]                  adp_next_avail_index_o,   
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 14.986 MB sources in 47 modules, into 5.829 MB in 12 C++ files needing 0.002 MB
+- Verilator: Walltime 1.417 s (elab=0.141, cvt=1.065, bld=0.000); cpu 1.487 s on 16 threads; allocated 947.227 MB
+fixture guard default (no override): compiles
+fixture guard 5A3C: compiles
+fixture guard 0002: refused: SRP VID fixture must differ from product default 2 in the 16-bit wire value; SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+fixture guard 1002: refused: SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+fixture guards: 4 cases PASS
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 80 programs
+  [B4] command byte 0 -> response byte 0: 2364 clocks (0.024 % of the 10,000,000-clock AECP budget)
+  [B4b] at 143 clocks (~1424 ns) per access: 7524 clocks for a 316-byte payload over 40 lane writes (0.075 % of budget)
+  [i] PROBE BW3: sink-0 region writes 1 erases 1 since the boot; saved byte8 03 now byte8 00
+FAIL: PROBE BW3: the held read-only GET, served after the failed walk, left sink 0's saved record in NVM untouched
+
+real	3m0.658s
+user	3m39.533s
+sys	0m2.630s
