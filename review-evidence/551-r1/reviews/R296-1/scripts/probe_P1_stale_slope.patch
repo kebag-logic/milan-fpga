@@ -1,0 +1,35 @@
+diff --git a/tb/verilator/milan_dp/sim_crf_licence.cpp b/tb/verilator/milan_dp/sim_crf_licence.cpp
+index caa497e2b..67a49cd39 100644
+--- a/tb/verilator/milan_dp/sim_crf_licence.cpp
++++ b/tb/verilator/milan_dp/sim_crf_licence.cpp
+@@ -62,6 +62,7 @@
+ #include "../../common/verilator_harness.hpp"
+ #include <array>
+ #include <cstdint>
++#include <cstdlib>
+ #include <cstdio>
+ #include <deque>
+ #include <functional>
+@@ -1077,9 +1078,12 @@ void CrfLicenceHarness::grant_case(int uid, bool refuse, unsigned round_phase, u
+     // 20000+42 bytes at 8000 intervals/s exceeds even the 1 Gb/s ceiling.
+     // Warm the real TSpec pipeline, then withdraw until its grant clears.
+     const uint16_t max_frame = refuse ? 20000 : 224;
+-    stage_declaration(uid, max_frame, true);
++    // R296 probe P1: warm with the ADMITTED 224-byte TSpec, then re-declare oversized.
++    const uint16_t warm_frame = (getenv("R296_STALE") && refuse) ? 224 : max_frame;
++    stage_declaration(uid, warm_frame, true);
+     run_until(cyc + 128);
+-    stage_declaration(uid, max_frame, false);
++    if (getenv("R296_STALE")) printf("  [R296] warm=%u admitted=%d active=%d\n", warm_frame, (int)admitted[uid].v, (int)active[uid].v);
++    stage_declaration(uid, warm_frame, false);
+     run_until(cyc + ms(kDiagTickMs + 100)); // drain frames and close their last interval
+     ck("withdrawal cleared the real grant", admitted[uid].v, 0);
+     ck("withdrawal closed ACTIVE", active[uid].v, 0);
+@@ -1122,6 +1126,7 @@ void CrfLicenceHarness::grant_case(int uid, bool refuse, unsigned round_phase, u
+         ck("the declaration became Talker Failed",
+            (rp->milan_datapath__DOT__pp_cd_srp_tk_decl_state_w >> (2 * uid)) & 3u, 2);
+         run_until(cyc + ms(2500)); // multiple running media periods, including pipeline drain
++        if (getenv("R296_STALE")) printf("  [R296] refused uid=%d phase=%u grant_rises=%ld gate_rises=%ld active_rises=%ld starts+%u stops+%u pdus+%zu\n", uid, round_phase, admitted[uid].rises-grants, gate.rises-opens, active[uid].rises-active_opens, diag(Ctr::kStreamStart, uid)-starts, diag(Ctr::kStreamStop, uid)-stops, pdus.size()-pdu_count);
+         ck(uid == kUidCrf ? "refused CRF licence never opened" : "refused AAF gate never opened",
+            static_cast<uint64_t>(gate.rises - opens), 0);
+         ck("refused re-declaration adds no STREAM_START", diag(Ctr::kStreamStart, uid), starts);

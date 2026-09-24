@@ -1,0 +1,26 @@
+diff --git a/tb/verilator/milan_dp/sim_crf_licence.cpp b/tb/verilator/milan_dp/sim_crf_licence.cpp
+index caa497e2b..17bb56e69 100644
+--- a/tb/verilator/milan_dp/sim_crf_licence.cpp
++++ b/tb/verilator/milan_dp/sim_crf_licence.cpp
+@@ -62,6 +62,7 @@
+ #include "../../common/verilator_harness.hpp"
+ #include <array>
+ #include <cstdint>
++#include <cstdlib>
+ #include <cstdio>
+ #include <deque>
+ #include <functional>
+@@ -1077,9 +1078,11 @@ void CrfLicenceHarness::grant_case(int uid, bool refuse, unsigned round_phase, u
+     // 20000+42 bytes at 8000 intervals/s exceeds even the 1 Gb/s ceiling.
+     // Warm the real TSpec pipeline, then withdraw until its grant clears.
+     const uint16_t max_frame = refuse ? 20000 : 224;
+-    stage_declaration(uid, max_frame, true);
++    // R296 probe P2: admitted cases warm with the REFUSED 20000-byte TSpec first.
++    const uint16_t warm_frame = (getenv("R296_STALE2") && !refuse) ? 20000 : max_frame;
++    stage_declaration(uid, warm_frame, true);
+     run_until(cyc + 128);
+-    stage_declaration(uid, max_frame, false);
++    stage_declaration(uid, warm_frame, false);
+     run_until(cyc + ms(kDiagTickMs + 100)); // drain frames and close their last interval
+     ck("withdrawal cleared the real grant", admitted[uid].v, 0);
+     ck("withdrawal closed ACTIVE", active[uid].v, 0);
