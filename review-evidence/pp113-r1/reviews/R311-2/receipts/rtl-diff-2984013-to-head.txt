@@ -1,0 +1,73 @@
+hdl/aecp/KL_aecp_desc_mem_guard.sv |  2 +-
+ hdl/top/protocol_processor_top.sv  | 12 ++++++++----
+ 2 files changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/hdl/aecp/KL_aecp_desc_mem_guard.sv b/hdl/aecp/KL_aecp_desc_mem_guard.sv
+index 952fca3..88b9c79 100644
+--- a/hdl/aecp/KL_aecp_desc_mem_guard.sv
++++ b/hdl/aecp/KL_aecp_desc_mem_guard.sv
+@@ -39,3 +39,3 @@ module KL_aecp_desc_mem_guard (
+     input  wire         s_rsp_ready_i,   //! store consumes the response
+-    output logic [63:0] s_rsp_data_o,    //! response bytes, unchanged
++    output logic [63:0] s_rsp_data_o,    //! response data, unchanged
+     output logic        s_rsp_last_o,    //! terminal response beat
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 3dc0162..cb81d64 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -521,6 +521,5 @@ module protocol_processor_top
+     //! Real Σ-slope verdict for the current declaration, with no optimistic
+-    //! term. Low from acceptance until the new slope completes a full round:
+-    //! at most 3*N_STREAM_OUT_P clocks without another declaration/withdrawal
+-    //! (4 clocks at one source). While any declaration is pending, no other
+-    //! bit rises: capacity frees only by withdrawal or an evaluated shrink.
++    //! term. Low from acceptance until the new slope completes a full round.
++    //! While any declaration is pending, no other bit rises: capacity frees
++    //! only by withdrawal or an evaluated shrink.
+     //! See architecture 10 section 6.3.
+@@ -819,2 +818,4 @@ module protocol_processor_top
+   assign srp_active_o            = srp_active_w;
++  // Admission latency from acceptance is at most 3*N_STREAM_OUT_P clocks
++  // (4 clocks at one source) without another declaration/withdrawal.
+   assign srp_sr_admitted_o       = srp_sr_admitted_w;
+@@ -2529,2 +2530,4 @@ module protocol_processor_top
+       .m0_abort_i     (nvm_abort_w),
++      // The saved-state writer is not present yet; keep manager 1's request,
++      // payload and handshakes idle so only the binding manager uses the port.
+       .m1_req_i       (1'b0),
+@@ -2542,2 +2545,3 @@ module protocol_processor_top
+       .m1_err_cause_o (nm1_err_cause_nc_w),
++      // The absent manager 1 owns no read and therefore has nothing to abort.
+       .m1_abort_i     (1'b0),
+
+Changes:
+
+hdl/aecp/KL_aecp_desc_mem_guard.sv
+  @@ -39,3 +39,3 @@ module KL_aecp_desc_mem_guard (
+  -    output logic [63:0] s_rsp_data_o,    //! response bytes, unchanged
+  +    output logic [63:0] s_rsp_data_o,    //! response data, unchanged
+       output logic        s_rsp_last_o,    //! terminal response beat
+  +1 -1
+
+hdl/top/protocol_processor_top.sv
+  @@ -521,6 +521,5 @@ module protocol_processor_top
+  -    //! term. Low from acceptance until the new slope completes a full round:
+  -    //! at most 3*N_STREAM_OUT_P clocks without another declaration/withdrawal
+  -    //! (4 clocks at one source). While any declaration is pending, no other
+  -    //! bit rises: capacity frees only by withdrawal or an evaluated shrink.
+  +    //! term. Low from acceptance until the new slope completes a full round.
+  +    //! While any declaration is pending, no other bit rises: capacity frees
+  +    //! only by withdrawal or an evaluated shrink.
+       //! See architecture 10 section 6.3.
+  @@ -819,2 +818,4 @@ module protocol_processor_top
+  +  // Admission latency from acceptance is at most 3*N_STREAM_OUT_P clocks
+  +  // (4 clocks at one source) without another declaration/withdrawal.
+     assign srp_sr_admitted_o       = srp_sr_admitted_w;
+  @@ -2529,2 +2530,4 @@ module protocol_processor_top
+  +      // The saved-state writer is not present yet; keep manager 1's request,
+  +      // payload and handshakes idle so only the binding manager uses the port.
+         .m1_req_i       (1'b0),
+  @@ -2542,2 +2545,3 @@ module protocol_processor_top
+  +      // The absent manager 1 owns no read and therefore has nothing to abort.
+         .m1_abort_i     (1'b0),
+  +8 -4
