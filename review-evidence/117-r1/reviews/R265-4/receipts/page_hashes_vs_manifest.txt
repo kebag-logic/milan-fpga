@@ -1,0 +1,125 @@
+== full hashes
+77	f0725eef7a36	UNRESOLVED-IN-MANIFEST.json	`gateware/alinx_ax7101.bit`
+78	aaece32fc6c8	UNRESOLVED-IN-MANIFEST.json	bitstream payload (3,825,788 B after the 204 B header)
+79	9b077636b1d4	UNRESOLVED-IN-MANIFEST.json	`aem_desc.bin` (7,352 B)
+80	69322600bc9d	UNRESOLVED-IN-MANIFEST.json	`software/bios/bios.bin`
+81	71e798fc401e	UNRESOLVED-IN-MANIFEST.json	`flashboot_layout.json`
+82	4db0e6da9c9c	UNRESOLVED-IN-MANIFEST.json	`csr.csv`
+129	33f0e7f9e86f	UNRESOLVED-IN-MANIFEST.json	- **Peer firmware identity.** The ENTITY `firmware_version` 
+203	bc41ab03e641	UNRESOLVED-IN-MANIFEST.json	UART grader
+549	60bdd7d3f54d	bench-a200/identity/console-identity.txt	as-recorded	published-bytes-ok=True	identity console transcript
+550	0aad30446e7e	bench-a200/identity/uart-smoke-identity.log	as-recorded	published-bytes-ok=True	identity grader transcript
+551	c8916b01af28	bench-a200/identity/expected-crc.txt	as-recorded	published-bytes-ok=True	reference CRC table (three seeds and the replaced image)
+551	c8916b01af28	bench-a202/identity/expected-crc.txt	as-recorded	published-bytes-ok=True	reference CRC table (three seeds and the replaced image)
+552	26c4529a7d0d	bench-a200/bench/runA/tap-runA.pcap	REDACTED identity path	published-bytes-ok=True	Run A tap capture
+553	4118f0fb3082	bench-a200/bench/runA/console.txt	as-recorded	published-bytes-ok=True	Run A console transcript
+554	33478b3a9cfb	bench-a200/bench/runA/pw1-watch.jsonl	as-recorded	published-bytes-ok=True	Run A controller poll
+555	5082dcfadc74	bench-a200/bench/runA/pdelay-turnaround.txt	as-recorded	published-bytes-ok=True	Run A Pdelay turnaround output
+556	febe8a1643e8	bench-a200/bench/runB/tap-runB.pcap	REDACTED identity path	published-bytes-ok=True	Run B tap capture
+557	d956745df61c	bench-a200/bench/runB/console.txt	as-recorded	published-bytes-ok=True	Run B console transcript
+558	392307147da1	bench-a200/bench/runB/pw1-bind.jsonl	as-recorded	published-bytes-ok=True	Run B bind window log
+559	f07b7230a853	bench-a200/bench/runC/tap-runC.pcap	REDACTED identity path	published-bytes-ok=True	Run C tap capture
+560	f1ffd611d356	bench-a200/bench/runC/counters-probe-020000fffe000001.log	as-recorded	published-bytes-ok=True	Run C counters probe, DUT
+561	3ab650224f32	bench-a200/bench/runC/counters-probe-3cc0c60102030000.log	as-recorded	published-bytes-ok=True	Run C counters probe, reference peer
+562	bdb4e3b253e5	bench-a200/bench/runC/a200-enum.log	as-recorded	published-bytes-ok=True	Run C enumeration log
+563	be48dca9d507	bench-a200/bench/runC/entity_0x020000fffe000001.json	REDACTED identity path	published-bytes-ok=True	Run C DUT entity model dump
+564	9847b8e1d55e	bench-a200/bench/runC/dut-output-counters-raw.jsonl	as-recorded	published-bytes-ok=True	DUT stream counters, raw
+565	66ad849afd8b	bench-a200/bench/final/tap-final.pcap	REDACTED identity path	published-bytes-ok=True	final tap capture
+566	a9ba578178a7	bench-a200/bench/final/console-final.txt	as-recorded	published-bytes-ok=True	final console transcript
+567	25bc03e190d4	bench-a200/bench/final/uart-smoke-final.log	as-recorded	published-bytes-ok=True	final grader transcript
+568	fdc55f2fee85	bench-a200/bench/census-start.jsonl	as-recorded	published-bytes-ok=True	binding census, start
+569	1a0e025cc565	bench-a200/bench/final/census-final.jsonl	REDACTED identity path	published-bytes-ok=True	binding census, end
+576	caa36a384cdf	bench-a202/identity/console-identity.txt	as-recorded	published-bytes-ok=True	identity 2 console transcript
+577	7538e887a137	bench-a202/identity/uart-smoke-identity.log	as-recorded	published-bytes-ok=True	identity 2 grader transcript
+578	c8916b01af28	bench-a200/identity/expected-crc.txt	as-recorded	published-bytes-ok=True	reference CRC table, recomputed (byte-identical to the one above)
+578	c8916b01af28	bench-a202/identity/expected-crc.txt	as-recorded	published-bytes-ok=True	reference CRC table, recomputed (byte-identical to the one above)
+579	4c1d74f395c8	bench-a202/bench/powerstrip/status-start.txt	as-recorded	published-bytes-ok=True	power-strip status, start
+580	070bf31964d5	bench-a202/bench/powerstrip/status-end.txt	as-recorded	published-bytes-ok=True	power-strip status, end
+581	cb185107bd2e	bench-a202/bench/census-start.jsonl	REDACTED identity path	published-bytes-ok=True	binding and settings census, start
+582	c45572d9502d	bench-a202/bench/final/census-end.jsonl	REDACTED identity path	published-bytes-ok=True	binding and settings census, end
+583	2dfecb1baea1	bench-a202/bench/final/census-compare.txt	as-recorded	published-bytes-ok=True	census comparison
+584	dec14c0b01b9	bench-a202/bench/attempt1-aborted/powerstrip.txt	as-recorded	published-bytes-ok=True	attempt 1: power-strip log
+585	909699f5d1ae	bench-a202/bench/attempt1-aborted/lock.txt	REDACTED path	published-bytes-ok=True	attempt 1: lock log
+586	f6f0ecf0f799	bench-a202/bench/attempt1-aborted/pw1-watch.jsonl	as-recorded	published-bytes-ok=True	attempt 1: controller-host watcher
+587	7f4b2bd3cbad	bench-a202/bench/attempt1-aborted/tap-c1.pcap	REDACTED identity path	published-bytes-ok=True	attempt 1: tap capture
+588	b154802f6dbe	bench-a202/bench/cycle1/tap-c1.pcap	REDACTED identity path	published-bytes-ok=True	cycle 1: tap capture
+589	59d7dd4f0ed4	bench-a202/bench/cycle1/console.txt	as-recorded	published-bytes-ok=True	cycle 1: console transcript
+590	42e0fb537a54	bench-a202/bench/cycle1/pw1-watch.jsonl	as-recorded	published-bytes-ok=True	cycle 1: controller-host watcher
+591	3212ffc4543e	bench-a202/bench/cycle1/pw1-c1.pcap	REDACTED identity path	published-bytes-ok=True	cycle 1: controller-host port capture
+592	2e97281d5c93	bench-a202/bench/cycle1/powerstrip.txt	as-recorded	published-bytes-ok=True	cycle 1: power-strip log
+593	cdbdc542aa48	bench-a202/bench/cycle1/analysis.txt	REDACTED identity path	published-bytes-ok=True	cycle 1: analysis
+594	1e892cf350e6	bench-a202/bench/cycle2/tap-c2.pcap	REDACTED identity path	published-bytes-ok=True	cycle 2: tap capture
+595	b913fc92e0d3	bench-a202/bench/cycle2/console.txt	as-recorded	published-bytes-ok=True	cycle 2: console transcript
+596	209781f6cfd3	bench-a202/bench/cycle2/pw1-watch.jsonl	as-recorded	published-bytes-ok=True	cycle 2: controller-host watcher
+597	ff9e16f2090c	bench-a202/bench/cycle2/pw1-c2.pcap	REDACTED identity path	published-bytes-ok=True	cycle 2: controller-host port capture
+598	be0725f74636	bench-a202/bench/cycle2/powerstrip.txt	as-recorded	published-bytes-ok=True	cycle 2: power-strip log
+599	b36027bcc88b	bench-a202/bench/cycle2/analysis.txt	REDACTED identity path	published-bytes-ok=True	cycle 2: analysis
+600	12b8c263871d	bench-a202/bench/cycle3/tap-c3.pcap	REDACTED identity path	published-bytes-ok=True	cycle 3: tap capture
+601	a4dc7683b374	bench-a202/bench/cycle3/console.txt	as-recorded	published-bytes-ok=True	cycle 3: console transcript
+602	cea282b0bee6	bench-a202/bench/cycle3/pw1-watch.jsonl	as-recorded	published-bytes-ok=True	cycle 3: controller-host watcher
+603	816249e43cbb	bench-a202/bench/cycle3/pw1-c3.pcap	REDACTED identity path	published-bytes-ok=True	cycle 3: controller-host port capture
+604	06b09ca46868	bench-a202/bench/cycle3/powerstrip.txt	as-recorded	published-bytes-ok=True	cycle 3: power-strip log
+605	12448e4a7fc6	bench-a202/bench/cycle3/analysis.txt	REDACTED identity path	published-bytes-ok=True	cycle 3: analysis
+606	b4b110d0ff79	bench-a202/bench/cycle4/tap-c4.pcap	REDACTED identity path	published-bytes-ok=True	cycle 4: tap capture
+607	e66a11f68532	bench-a202/bench/cycle4/console.txt	as-recorded	published-bytes-ok=True	cycle 4: console transcript
+608	499588c787cf	bench-a202/bench/cycle4/pw1-watch.jsonl	as-recorded	published-bytes-ok=True	cycle 4: controller-host watcher
+609	71c40df9af5a	bench-a202/bench/cycle4/pw1-c4.pcap	REDACTED identity path	published-bytes-ok=True	cycle 4: controller-host port capture
+610	fa162ec8a3b6	bench-a202/bench/cycle4/powerstrip.txt	as-recorded	published-bytes-ok=True	cycle 4: power-strip log
+611	0bfdc6e8bfba	bench-a202/bench/cycle4/analysis.txt	REDACTED identity path	published-bytes-ok=True	cycle 4: analysis
+612	acebedfdf38f	bench-a202/bench/cycle5/tap-c5.pcap	REDACTED identity path	published-bytes-ok=True	cycle 5: tap capture
+613	c8167b24aff2	bench-a202/bench/cycle5/console.txt	as-recorded	published-bytes-ok=True	cycle 5: console transcript
+614	86b81a207ae6	bench-a202/bench/cycle5/pw1-watch.jsonl	as-recorded	published-bytes-ok=True	cycle 5: controller-host watcher
+615	8dadb45ccb33	bench-a202/bench/cycle5/pw1-c5.pcap	REDACTED identity path	published-bytes-ok=True	cycle 5: controller-host port capture
+616	2ab825b61ac6	bench-a202/bench/cycle5/powerstrip.txt	as-recorded	published-bytes-ok=True	cycle 5: power-strip log
+617	353d222b6764	bench-a202/bench/cycle5/analysis.txt	REDACTED identity path	published-bytes-ok=True	cycle 5: analysis
+618	6b4f090a04fe	bench-a202/bench/cycle6/tap-c6.pcap	REDACTED identity path	published-bytes-ok=True	cycle 6: tap capture
+619	5a16a9bf2d51	bench-a202/bench/cycle6/console.txt	as-recorded	published-bytes-ok=True	cycle 6: console transcript
+620	9ca7e2707322	bench-a202/bench/cycle6/pw1-watch.jsonl	as-recorded	published-bytes-ok=True	cycle 6: controller-host watcher
+621	1576b4550b66	bench-a202/bench/cycle6/pw1-c6.pcap	REDACTED identity path	published-bytes-ok=True	cycle 6: controller-host port capture
+622	66a6b6a50bdb	bench-a202/bench/cycle6/powerstrip.txt	as-recorded	published-bytes-ok=True	cycle 6: power-strip log
+623	a3256a0b130f	bench-a202/bench/cycle6/analysis.txt	REDACTED identity path	published-bytes-ok=True	cycle 6: analysis
+624	4e750d619e90	bench-a202/bench/summary.txt	as-recorded	published-bytes-ok=True	per-cycle summary
+625	f50837730932	bench-a202/bench/final/tap-final.pcap	REDACTED identity path	published-bytes-ok=True	final tap capture
+626	bbb2e801a71d	bench-a202/bench/final/console-final.txt	as-recorded	published-bytes-ok=True	final console transcript
+627	df57bad1e4c1	bench-a202/bench/final/uart-smoke-final.log	as-recorded	published-bytes-ok=True	final grader transcript
+628	c09c026880d4	bench-a202/bench/final/hosts-cleanup.txt	as-recorded	published-bytes-ok=True	host cleanup record
+full hashes: 82; unresolved: 8; manifest entries matched that are redacted: 29
+== abbreviated hashes
+89	e84e579c	MANIFEST.sha256: -	MANIFEST.json: -
+204	652d6f83	MANIFEST.sha256: ['bench-a200/./tools/console_read.py', 'bench-a202/./tools/console_read.py']	MANIFEST.json: ['bench-a200/tools/console_read.py', 'bench-a202/tools/console_read.py']
+204	3a0de7d8	MANIFEST.sha256: ['bench-a200/./tools/console_poll.py', 'bench-a202/./tools/console_poll.py']	MANIFEST.json: ['bench-a200/tools/console_poll.py', 'bench-a202/tools/console_poll.py']
+205	c5039d95	MANIFEST.sha256: ['bench-a200/./tools/wire_summary.py', 'bench-a202/./tools/wire_summary.py']	MANIFEST.json: ['bench-a200/tools/wire_summary.py', 'bench-a202/tools/wire_summary.py']
+205	6ac03a87	MANIFEST.sha256: ['bench-a200/./tools/analyze_run.py']	MANIFEST.json: ['bench-a200/tools/analyze_run.py']
+205	9d2e8629	MANIFEST.sha256: ['bench-a200/./tools/stream_timeline.py']	MANIFEST.json: ['bench-a200/tools/stream_timeline.py']
+206	790e6b7c	MANIFEST.sha256: ['bench-a200/./tools/pdelay_turnaround.py', 'bench-a202/./tools/pdelay_turnaround.py']	MANIFEST.json: ['bench-a200/tools/pdelay_turnaround.py', 'bench-a202/tools/pdelay_turnaround.py']
+207	17283696	MANIFEST.sha256: ['bench-a200/./tools/avdecc_ro.py', 'bench-a202/./tools/avdecc_ro.py']	MANIFEST.json: ['bench-a200/tools/avdecc_ro.py', 'bench-a202/tools/avdecc_ro.py']
+208	29b4ac46	MANIFEST.sha256: ['bench-a200/./tools/crf_bind_window.py']	MANIFEST.json: ['bench-a200/tools/crf_bind_window.py']
+209	95d64fd5	MANIFEST.sha256: -	MANIFEST.json: -
+209	8ef4b008	MANIFEST.sha256: -	MANIFEST.json: -
+210	ad579e18	MANIFEST.sha256: -	MANIFEST.json: -
+210	0e9faf30	MANIFEST.sha256: -	MANIFEST.json: -
+211	2d8950f5	MANIFEST.sha256: ['bench-a200/./tools/a200_enum.cpp']	MANIFEST.json: ['bench-a200/tools/a200_enum.cpp']
+211	8c9f2885	MANIFEST.sha256: ['bench-a200/./tools/a200_enum.bin']	MANIFEST.json: ['bench-a200/tools/a200_enum.bin (REDACTED published)']
+213	652d6f83	MANIFEST.sha256: ['bench-a200/./tools/console_read.py', 'bench-a202/./tools/console_read.py']	MANIFEST.json: ['bench-a200/tools/console_read.py', 'bench-a202/tools/console_read.py']
+213	3a0de7d8	MANIFEST.sha256: ['bench-a200/./tools/console_poll.py', 'bench-a202/./tools/console_poll.py']	MANIFEST.json: ['bench-a200/tools/console_poll.py', 'bench-a202/tools/console_poll.py']
+213	17283696	MANIFEST.sha256: ['bench-a200/./tools/avdecc_ro.py', 'bench-a202/./tools/avdecc_ro.py']	MANIFEST.json: ['bench-a200/tools/avdecc_ro.py', 'bench-a202/tools/avdecc_ro.py']
+213	c5039d95	MANIFEST.sha256: ['bench-a200/./tools/wire_summary.py', 'bench-a202/./tools/wire_summary.py']	MANIFEST.json: ['bench-a200/tools/wire_summary.py', 'bench-a202/tools/wire_summary.py']
+213	04d128bb	MANIFEST.sha256: ['bench-a200/./tools/expected_crc.py', 'bench-a202/./tools/expected_crc.py']	MANIFEST.json: ['bench-a200/tools/expected_crc.py', 'bench-a202/tools/expected_crc.py']
+214	45889a7d	MANIFEST.sha256: ['bench-a202/./tools/run_cycle.sh']	MANIFEST.json: ['bench-a202/tools/run_cycle.sh (REDACTED published)']
+214	c4ef8c9a	MANIFEST.sha256: ['bench-a202/./tools/cycle_locked.sh']	MANIFEST.json: ['bench-a202/tools/cycle_locked.sh (REDACTED published)']
+214	b2f1593e	MANIFEST.sha256: ['bench-a202/./tools/powerstrip_cycle.sh']	MANIFEST.json: ['bench-a202/tools/powerstrip_cycle.sh']
+214	644bcfb8	MANIFEST.sha256: ['bench-a202/./tools/console_alive.py']	MANIFEST.json: ['bench-a202/tools/console_alive.py']
+215	48c248b2	MANIFEST.sha256: ['bench-a202/./tools/a202_watch.py']	MANIFEST.json: ['bench-a202/tools/a202_watch.py']
+215	d7912881	MANIFEST.sha256: ['bench-a202/./tools/census.sh']	MANIFEST.json: ['bench-a202/tools/census.sh']
+216	950533ca	MANIFEST.sha256: ['bench-a202/./tools/clock_offset.py']	MANIFEST.json: ['bench-a202/tools/clock_offset.py']
+216	bdd228a1	MANIFEST.sha256: ['bench-a202/./tools/analyze_cycle.py']	MANIFEST.json: ['bench-a202/tools/analyze_cycle.py (REDACTED published)']
+216	d6f53575	MANIFEST.sha256: ['bench-a202/./tools/summarize.py']	MANIFEST.json: ['bench-a202/tools/summarize.py']
+216	40424c61	MANIFEST.sha256: ['bench-a202/./tools/census_compare.py']	MANIFEST.json: ['bench-a202/tools/census_compare.py']
+221	8c9f2885	MANIFEST.sha256: ['bench-a200/./tools/a200_enum.bin']	MANIFEST.json: ['bench-a200/tools/a200_enum.bin (REDACTED published)']
+222	45889a7d	MANIFEST.sha256: ['bench-a202/./tools/run_cycle.sh']	MANIFEST.json: ['bench-a202/tools/run_cycle.sh (REDACTED published)']
+222	c4ef8c9a	MANIFEST.sha256: ['bench-a202/./tools/cycle_locked.sh']	MANIFEST.json: ['bench-a202/tools/cycle_locked.sh (REDACTED published)']
+223	bdd228a1	MANIFEST.sha256: ['bench-a202/./tools/analyze_cycle.py']	MANIFEST.json: ['bench-a202/tools/analyze_cycle.py (REDACTED published)']
+228	95d64fd5	MANIFEST.sha256: -	MANIFEST.json: -
+228	ad579e18	MANIFEST.sha256: -	MANIFEST.json: -
+228	0e9faf30	MANIFEST.sha256: -	MANIFEST.json: -
+230	8ef4b008	MANIFEST.sha256: -	MANIFEST.json: -

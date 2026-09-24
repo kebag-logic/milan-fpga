@@ -1,0 +1,63 @@
+role names the archive keeps: ['pi', 'pw1', 'ubuntu-server']
+capture | record class | source MAC OUI | field | class | count
+bench-a200/bench/final/tap-final.pcap | tapped | 3cc0c6 | DHCP option 12 | MASKED | 3
+bench-a200/bench/pw1-link-all.pcap | host capture | 3cc0c6 | DHCP option 12 | MASKED | 2
+bench-a200/bench/runA/tap-runA.pcap | envelope-less | e8eb1b | DHCP option 12 | OTHER (16 octets, 1 labels) | 18
+bench-a200/bench/runA/tap-runA.pcap | envelope-less | e8eb1b | mDNS AAAA owner | OTHER (16 octets, 1 labels) | 7
+bench-a200/bench/runA/tap-runA.pcap | tapped | 3cc0c6 | DHCP option 12 | MASKED | 21
+bench-a200/bench/runA/tap-runA.pcap | tapped | 6805ca | DHCP option 12 | ROLE | 20
+bench-a200/bench/runB/tap-runB.pcap | tapped | 3cc0c6 | DHCP option 12 | MASKED | 7
+bench-a200/bench/runC/tap-runC.pcap | tapped | 3cc0c6 | DHCP option 12 | MASKED | 7
+bench-a202/bench/attempt1-aborted/pw1-c1.pcap | host capture | 3cc0c6 | DHCP option 12 | MASKED | 3
+bench-a202/bench/attempt1-aborted/pw1-c1.pcap | host capture | 6805ca | DHCP option 12 | ROLE | 4
+bench-a202/bench/attempt1-aborted/tap-c1.pcap | tapped | 3cc0c6 | DHCP option 12 | MASKED | 3
+bench-a202/bench/attempt1-aborted/tap-c1.pcap | tapped | 6805ca | DHCP option 12 | ROLE | 2
+bench-a202/bench/cycle1/pw1-c1.pcap | host capture | 3cc0c6 | DHCP option 12 | MASKED | 11
+bench-a202/bench/cycle1/pw1-c1.pcap | host capture | 3cc0c6 | mDNS A owner | MASKED | 1
+bench-a202/bench/cycle1/pw1-c1.pcap | host capture | 6805ca | DHCP option 12 | ROLE | 21
+bench-a202/bench/cycle1/tap-c1.pcap | envelope-less | e8eb1b | DHCP option 12 | OTHER (16 octets, 1 labels) | 9
+bench-a202/bench/cycle1/tap-c1.pcap | envelope-less | e8eb1b | mDNS AAAA owner | OTHER (16 octets, 1 labels) | 4
+bench-a202/bench/cycle1/tap-c1.pcap | tapped | 3cc0c6 | DHCP option 12 | MASKED | 11
+bench-a202/bench/cycle1/tap-c1.pcap | tapped | 3cc0c6 | mDNS A owner | MASKED | 1
+bench-a202/bench/cycle1/tap-c1.pcap | tapped | 6805ca | DHCP option 12 | ROLE | 19
+bench-a202/bench/cycle2/pw1-c2.pcap | host capture | 3cc0c6 | DHCP option 12 | MASKED | 8
+bench-a202/bench/cycle2/pw1-c2.pcap | host capture | 3cc0c6 | mDNS A owner | MASKED | 1
+bench-a202/bench/cycle2/pw1-c2.pcap | host capture | 6805ca | DHCP option 12 | ROLE | 11
+bench-a202/bench/cycle2/tap-c2.pcap | tapped | 3cc0c6 | DHCP option 12 | MASKED | 8
+bench-a202/bench/cycle2/tap-c2.pcap | tapped | 3cc0c6 | mDNS A owner | MASKED | 1
+bench-a202/bench/cycle2/tap-c2.pcap | tapped | 6805ca | DHCP option 12 | ROLE | 9
+bench-a202/bench/cycle3/pw1-c3.pcap | host capture | 3cc0c6 | DHCP option 12 | MASKED | 8
+bench-a202/bench/cycle3/pw1-c3.pcap | host capture | 3cc0c6 | mDNS A owner | MASKED | 1
+bench-a202/bench/cycle3/pw1-c3.pcap | host capture | 6805ca | DHCP option 12 | ROLE | 13
+bench-a202/bench/cycle3/tap-c3.pcap | envelope-less | e8eb1b | DHCP option 12 | OTHER (16 octets, 1 labels) | 9
+bench-a202/bench/cycle3/tap-c3.pcap | envelope-less | e8eb1b | mDNS AAAA owner | OTHER (16 octets, 1 labels) | 4
+bench-a202/bench/cycle3/tap-c3.pcap | tapped | 3cc0c6 | DHCP option 12 | MASKED | 8
+bench-a202/bench/cycle3/tap-c3.pcap | tapped | 3cc0c6 | mDNS A owner | MASKED | 1
+bench-a202/bench/cycle3/tap-c3.pcap | tapped | 6805ca | DHCP option 12 | ROLE | 11
+bench-a202/bench/cycle4/pw1-c4.pcap | host capture | 3cc0c6 | DHCP option 12 | MASKED | 8
+bench-a202/bench/cycle4/pw1-c4.pcap | host capture | 3cc0c6 | mDNS A owner | MASKED | 1
+bench-a202/bench/cycle4/pw1-c4.pcap | host capture | 6805ca | DHCP option 12 | ROLE | 15
+bench-a202/bench/cycle4/tap-c4.pcap | envelope-less | e8eb1b | DHCP option 12 | OTHER (16 octets, 1 labels) | 10
+bench-a202/bench/cycle4/tap-c4.pcap | envelope-less | e8eb1b | mDNS AAAA owner | OTHER (16 octets, 1 labels) | 4
+bench-a202/bench/cycle4/tap-c4.pcap | tapped | 3cc0c6 | DHCP option 12 | MASKED | 8
+bench-a202/bench/cycle4/tap-c4.pcap | tapped | 3cc0c6 | mDNS A owner | MASKED | 1
+bench-a202/bench/cycle4/tap-c4.pcap | tapped | 6805ca | DHCP option 12 | ROLE | 12
+bench-a202/bench/cycle5/pw1-c5.pcap | host capture | 3cc0c6 | DHCP option 12 | MASKED | 8
+bench-a202/bench/cycle5/pw1-c5.pcap | host capture | 3cc0c6 | mDNS A owner | MASKED | 1
+bench-a202/bench/cycle5/pw1-c5.pcap | host capture | 6805ca | DHCP option 12 | ROLE | 16
+bench-a202/bench/cycle5/tap-c5.pcap | tapped | 3cc0c6 | DHCP option 12 | MASKED | 8
+bench-a202/bench/cycle5/tap-c5.pcap | tapped | 3cc0c6 | mDNS A owner | MASKED | 1
+bench-a202/bench/cycle5/tap-c5.pcap | tapped | 6805ca | DHCP option 12 | ROLE | 14
+bench-a202/bench/cycle6/pw1-c6.pcap | host capture | 3cc0c6 | DHCP option 12 | MASKED | 8
+bench-a202/bench/cycle6/pw1-c6.pcap | host capture | 3cc0c6 | mDNS A owner | MASKED | 1
+bench-a202/bench/cycle6/pw1-c6.pcap | host capture | 6805ca | DHCP option 12 | ROLE | 15
+bench-a202/bench/cycle6/tap-c6.pcap | envelope-less | e8eb1b | DHCP option 12 | OTHER (16 octets, 1 labels) | 9
+bench-a202/bench/cycle6/tap-c6.pcap | envelope-less | e8eb1b | mDNS AAAA owner | OTHER (16 octets, 1 labels) | 3
+bench-a202/bench/cycle6/tap-c6.pcap | tapped | 3cc0c6 | DHCP option 12 | MASKED | 8
+bench-a202/bench/cycle6/tap-c6.pcap | tapped | 3cc0c6 | mDNS A owner | MASKED | 1
+bench-a202/bench/cycle6/tap-c6.pcap | tapped | 6805ca | DHCP option 12 | ROLE | 13
+bench-a202/bench/final/tap-final.pcap | envelope-less | e8eb1b | DHCP option 12 | OTHER (16 octets, 1 labels) | 4
+bench-a202/bench/final/tap-final.pcap | envelope-less | e8eb1b | mDNS AAAA owner | OTHER (16 octets, 1 labels) | 2
+bench-a202/bench/final/tap-final.pcap | tapped | 3cc0c6 | DHCP option 12 | MASKED | 2
+bench-a202/bench/final/tap-final.pcap | tapped | 6805ca | DHCP option 12 | ROLE | 3
+totals by class: {'MASKED': 162, 'OTHER': 83, 'ROLE': 198}

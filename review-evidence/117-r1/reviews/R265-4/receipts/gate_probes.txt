@@ -1,0 +1,35 @@
+P1 bench-host-prefix line: gate rc=1 FIRES (expected fail: as expected); matching lines 1; restored-bytes-equal-HEAD-blob=True
+    | docs/findings/117_GPTP_SILICON_EVIDENCE.md:630: bench host prefix at column 24 — name the role, not the host
+P2 peer product name: gate rc=1 FIRES (expected fail: as expected); matching lines 1; restored-bytes-equal-HEAD-blob=True
+    | docs/findings/117_GPTP_SILICON_EVIDENCE.md:630: peer product name at column 25 — the public tree says 'the peer' or 'a test device'
+P3 retired bare-metal phrase restored: gate rc=1 FIRES (expected fail: as expected); matching lines 1; restored-bytes-equal-HEAD-blob=True
+    | - docs/findings/117_GPTP_SILICON_EVIDENCE.md:134: [R] prohibited target runtime/service surface 'kernel': '- **Capture point.** One inline tap on the DUT link, 
+P5 broken in-page anchor via scripts/gen_toc.py --verify-anchors: gate rc=0 SILENT (expected pass: as expected); matching lines 0; restored-bytes-equal-HEAD-blob=True
+    | anchor check: 148 existing cross-page fragment links reproduced
+P6 broken cross-page anchor via scripts/gen_toc.py --verify-anchors: gate rc=1 FIRES (expected fail: as expected); matching lines 1; restored-bytes-equal-HEAD-blob=True
+    | MISS docs/findings/117_GPTP_SILICON_EVIDENCE.md -> ../design/GM_LOSS_RECOVERY.md#recovery-bounds
+P6b broken relative link target via scripts/gen_toc.py --verify-anchors: gate rc=0 SILENT (expected pass: as expected); matching lines 0; restored-bytes-equal-HEAD-blob=True
+    | anchor check: 147 existing cross-page fragment links reproduced
+P5 broken in-page anchor via scripts/check_doc_paths.py : gate rc=0 SILENT (expected pass: as expected); matching lines 0; restored-bytes-equal-HEAD-blob=True
+    | doc path gate: OK (836 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+P6 broken cross-page anchor via scripts/check_doc_paths.py : gate rc=0 SILENT (expected pass: as expected); matching lines 0; restored-bytes-equal-HEAD-blob=True
+    | doc path gate: OK (836 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+P6b broken relative link target via scripts/check_doc_paths.py : gate rc=0 SILENT (expected pass: as expected); matching lines 0; restored-bytes-equal-HEAD-blob=True
+    | doc path gate: OK (836 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+P5 broken in-page anchor via scripts/gen_toc.py --check: gate rc=0 SILENT (expected pass: as expected); matching lines 0; restored-bytes-equal-HEAD-blob=True
+    | TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+P6 broken cross-page anchor via scripts/gen_toc.py --check: gate rc=0 SILENT (expected pass: as expected); matching lines 0; restored-bytes-equal-HEAD-blob=True
+    | TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+P6b broken relative link target via scripts/gen_toc.py --check: gate rc=0 SILENT (expected pass: as expected); matching lines 0; restored-bytes-equal-HEAD-blob=True
+    | TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+P5 broken in-page anchor via scripts/docs_check.py : gate rc=0 SILENT (expected pass: as expected); matching lines 0; restored-bytes-equal-HEAD-blob=True
+    | docs_check: 0 finding(s) across 165 md files + 841 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+P6 broken cross-page anchor via scripts/docs_check.py : gate rc=0 SILENT (expected pass: as expected); matching lines 0; restored-bytes-equal-HEAD-blob=True
+    | docs_check: 0 finding(s) across 165 md files + 841 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+P6b broken relative link target via scripts/docs_check.py : gate rc=1 FIRES (expected fail: as expected); matching lines 1; restored-bytes-equal-HEAD-blob=True
+    | docs/findings/117_GPTP_SILICON_EVIDENCE.md:46: broken link -> ../design/GM_LOSS_RECOVERYX.md
+P7 home path: gate rc=1 FIRES (expected fail: as expected); matching lines 1; restored-bytes-equal-HEAD-blob=True
+    | docs/findings/117_GPTP_SILICON_EVIDENCE.md:630: home path at column 18 — write ~ or $HOME
+P8 private token class "capture server machine host name" (the redaction residual class): gate rc=0 SILENT (expected pass: as expected); matching lines 0; restored-bytes-equal-HEAD-blob=True
+    | docs_check: 0 finding(s) across 165 md files + 841 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+probes as expected and restored: 17 of 17

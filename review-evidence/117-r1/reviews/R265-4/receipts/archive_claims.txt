@@ -1,0 +1,61 @@
+== MANIFEST.json
+entries 236 files on disk 237 unlisted ['MANIFEST.json']
+published bytes match 236 of 236
+redacted 77 identity 71 path-only 6 per packet {'bench-a200': 20, 'bench-a202': 57}
+== sha256sum -c equivalent (packet MANIFEST.sha256 lines whose file bytes differ)
+bench-a200 OK 61 FAILED 20
+bench-a202 OK 96 FAILED 57
+== tcpdump logs
+logs 19 dropped values [0] logs without a drop line 0
+== console transcripts
+transcripts 14 commands 38954 {'crc': 6, 'mem_list': 2, 'mem_read': 31154, 'milan_status': 7792}
+== envelope-less records per tap capture
+bench-a200/bench/final/tap-final.pcap 0
+bench-a200/bench/probe-tap-0.pcap 0
+bench-a200/bench/runA/tap-runA.pcap 76
+bench-a200/bench/runB/tap-runB.pcap 0
+bench-a200/bench/runC/tap-runC.pcap 0
+bench-a202/bench/attempt1-aborted/tap-c1.pcap 0
+bench-a202/bench/cycle1/tap-c1.pcap 38
+bench-a202/bench/cycle2/tap-c2.pcap 0
+bench-a202/bench/cycle3/tap-c3.pcap 38
+bench-a202/bench/cycle4/tap-c4.pcap 45
+bench-a202/bench/cycle5/tap-c5.pcap 0
+bench-a202/bench/cycle6/tap-c6.pcap 37
+bench-a202/bench/final/tap-final.pcap 18
+== A200 binding census (ACMP states)
+states 18 18 same set True connection counts [0]
+field differs ('get_tx_state', '020000fffe000001', 1) {'dmac': ('000000000000', '91e0f0008d6f')}
+== daemon check file
+<bench-host-prefix>ubuntu-server remote-minus-local_s=1.2747 rtt_s=0.4140
+<bench-host-prefix>pw1 remote-minus-local_s=1.2111 rtt_s=0.2802
+NTPSynchronized=no
+== <bench-host-prefix>ubuntu-server
+NTPSynchronized=yes
+no gPTP/AVB daemon process
+== <bench-host-prefix>pw1
+NTPSynchronized=yes
+no gPTP/AVB daemon process
+== cycles 4-6 bind and unbind (s after the off command, build-box clock)
+cycle 4 [(-28.22, 'bind', None), (109.82, 'unbind', 0)]
+cycle 5 [(-28.37, 'bind', None), (109.77, 'unbind', 0)]
+cycle 6 [(-28.38, 'bind', None), (109.75, 'unbind', 0)]
+== attempt 1
+scheduled off-for 20.29 ; guard "on" after 5.95 s; PROOF_ABORT line present True
+carrier (s after off, NTP clocks) [(-23.27, 1), (1.14, 0), (19.64, 1)] ; up minus guard "on" [13.69]
+first successful DUT GET_AVB_INFO polls after the outage [(23.75, '020000fffe000001', 0), (24.75, '020000fffe000001', 0)]
+== PHC step vs interval between the switch's power-on commands
+cycle 1 interval 128.532 PHC step -128.496 sum 0.036
+cycle 2 interval 355.932 PHC step -355.943 sum -0.011
+cycle 3 interval 163.283 PHC step -163.286 sum -0.003
+cycle 4 interval 154.506 PHC step -154.51 sum -0.004
+cycle 5 interval 180.289 PHC step -180.29 sum -0.001
+cycle 6 interval 154.079 PHC step -154.072 sum 0.007
+== build hashes in identity/expected-crc.txt (both packets identical: True )
+f0725eef in CRC table
+aaece32f in CRC table
+9b077636 in CRC table
+69322600 not in CRC table
+71e798fc not in CRC table
+4db0e6da not in CRC table
+grader at ede8d48e sha256 bc41ab03e64198b10a517124f960b9b59b77d7143661f728fe5666314e433886

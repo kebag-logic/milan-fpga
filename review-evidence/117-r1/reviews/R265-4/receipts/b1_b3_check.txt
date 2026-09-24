@@ -1,0 +1,242 @@
+== bench-a200/bench/final/tap-final.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {'0.0.0.0': 3}
+   arp_from_switch {}
+   igmp_sources_from_switch {}
+   dhcp_from_switch 3
+   dhcp_intervals_s (15.0, 15.0, 15.0)
+   mdns_from_switch {}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 0 published 0
+== bench-a200/bench/probe-tap-0.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {}
+   arp_from_switch {}
+   igmp_sources_from_switch {}
+   dhcp_from_switch 0
+   dhcp_intervals_s []
+   mdns_from_switch {}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 0 published 0
+== bench-a200/bench/pw1-link-all.pcap
+   switch_gptp_macs []
+   ipv4_sources_from_switch_macs {'0.0.0.0': 2}
+   arp_from_switch {}
+   igmp_sources_from_switch {}
+   dhcp_from_switch 2
+   dhcp_intervals_s (15.0, 15.0, 15.0)
+   mdns_from_switch {}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 0 published 0
+== bench-a200/bench/pw1-link-probe.pcap
+   switch_gptp_macs []
+   ipv4_sources_from_switch_macs {}
+   arp_from_switch {}
+   igmp_sources_from_switch {}
+   dhcp_from_switch 0
+   dhcp_intervals_s []
+   mdns_from_switch {}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 0 published 0
+== bench-a200/bench/runA/tap-runA.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {'0.0.0.0': 21, 'second IPv4 address (value withheld)': 2}
+   arp_from_switch {}
+   igmp_sources_from_switch {'second IPv4 address (value withheld)': 2}
+   dhcp_from_switch 21
+   dhcp_intervals_s (15.0, 15.0, 15.0)
+   mdns_from_switch {}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 0 published 0
+== bench-a200/bench/runB/tap-runB.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {'0.0.0.0': 7, 'second IPv4 address (value withheld)': 1}
+   arp_from_switch {}
+   igmp_sources_from_switch {'second IPv4 address (value withheld)': 1}
+   dhcp_from_switch 7
+   dhcp_intervals_s (15.0, 15.0, 15.0)
+   mdns_from_switch {}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 0 published 0
+== bench-a200/bench/runC/tap-runC.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {'0.0.0.0': 7}
+   arp_from_switch {}
+   igmp_sources_from_switch {}
+   dhcp_from_switch 7
+   dhcp_intervals_s (15.0, 15.0, 15.0)
+   mdns_from_switch {}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 0 published 0
+== bench-a202/bench/attempt1-aborted/pw1-c1.pcap
+   switch_gptp_macs []
+   ipv4_sources_from_switch_macs {'0.0.0.0': 3}
+   arp_from_switch {}
+   igmp_sources_from_switch {}
+   dhcp_from_switch 3
+   dhcp_intervals_s (0.01, 38.87, 19.44)
+   mdns_from_switch {}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 0 published 0
+== bench-a202/bench/attempt1-aborted/tap-c1.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {'0.0.0.0': 4}
+   arp_from_switch {}
+   igmp_sources_from_switch {'0.0.0.0': 1}
+   dhcp_from_switch 3
+   dhcp_intervals_s (0.0, 38.9, 19.45)
+   mdns_from_switch {}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 0 published 0
+== bench-a202/bench/cycle1/pw1-c1.pcap
+   switch_gptp_macs []
+   ipv4_sources_from_switch_macs {'second IPv4 address (value withheld)': 5, '0.0.0.0': 12, '169.254.x.x (link-local)': 3}
+   arp_from_switch {('probe', '0.0.0.0'): 3, ('announce', '169.254.x.x'): 2}
+   igmp_sources_from_switch {'second IPv4 address (value withheld)': 5, '0.0.0.0': 1, '169.254.x.x (link-local)': 2}
+   dhcp_from_switch 11
+   dhcp_intervals_s (0.01, 40.5, 15.85)
+   mdns_from_switch {('response', 'SRV _tcp', 'TXT x1'): 1}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 1 published 0
+== bench-a202/bench/cycle1/tap-c1.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {'second IPv4 address (value withheld)': 5, '0.0.0.0': 13, '169.254.x.x (link-local)': 3}
+   arp_from_switch {('probe', '0.0.0.0'): 3, ('announce', '169.254.x.x'): 2}
+   igmp_sources_from_switch {'second IPv4 address (value withheld)': 5, '0.0.0.0': 2, '169.254.x.x (link-local)': 2}
+   dhcp_from_switch 11
+   dhcp_intervals_s (0.0, 40.5, 15.85)
+   mdns_from_switch {('response', 'SRV _tcp', 'TXT x1'): 1}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 1 published 0
+== bench-a202/bench/cycle2/pw1-c2.pcap
+   switch_gptp_macs []
+   ipv4_sources_from_switch_macs {'0.0.0.0': 9, '169.254.x.x (link-local)': 3, 'second IPv4 address (value withheld)': 3}
+   arp_from_switch {('probe', '0.0.0.0'): 3, ('announce', '169.254.x.x'): 2}
+   igmp_sources_from_switch {'0.0.0.0': 1, '169.254.x.x (link-local)': 2, 'second IPv4 address (value withheld)': 3}
+   dhcp_from_switch 8
+   dhcp_intervals_s (0.01, 42.95, 16.56)
+   mdns_from_switch {('response', 'SRV _tcp', 'TXT x1'): 1}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 1 published 0
+== bench-a202/bench/cycle2/tap-c2.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {'0.0.0.0': 10, '169.254.x.x (link-local)': 3, 'second IPv4 address (value withheld)': 3}
+   arp_from_switch {('probe', '0.0.0.0'): 3, ('announce', '169.254.x.x'): 2}
+   igmp_sources_from_switch {'0.0.0.0': 2, '169.254.x.x (link-local)': 2, 'second IPv4 address (value withheld)': 3}
+   dhcp_from_switch 8
+   dhcp_intervals_s (0.0, 42.9, 16.56)
+   mdns_from_switch {('response', 'SRV _tcp', 'TXT x1'): 1}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 1 published 0
+== bench-a202/bench/cycle3/pw1-c3.pcap
+   switch_gptp_macs []
+   ipv4_sources_from_switch_macs {'0.0.0.0': 9, '169.254.x.x (link-local)': 3, 'second IPv4 address (value withheld)': 3}
+   arp_from_switch {('probe', '0.0.0.0'): 3, ('announce', '169.254.x.x'): 2}
+   igmp_sources_from_switch {'0.0.0.0': 1, '169.254.x.x (link-local)': 2, 'second IPv4 address (value withheld)': 3}
+   dhcp_from_switch 8
+   dhcp_intervals_s (0.01, 45.3, 16.9)
+   mdns_from_switch {('response', 'SRV _tcp', 'TXT x1'): 1}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 1 published 0
+== bench-a202/bench/cycle3/tap-c3.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {'0.0.0.0': 10, '169.254.x.x (link-local)': 3, 'second IPv4 address (value withheld)': 3}
+   arp_from_switch {('probe', '0.0.0.0'): 3, ('announce', '169.254.x.x'): 2}
+   igmp_sources_from_switch {'0.0.0.0': 2, '169.254.x.x (link-local)': 2, 'second IPv4 address (value withheld)': 3}
+   dhcp_from_switch 8
+   dhcp_intervals_s (0.0, 45.3, 16.9)
+   mdns_from_switch {('response', 'SRV _tcp', 'TXT x1'): 1}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 1 published 0
+== bench-a202/bench/cycle4/pw1-c4.pcap
+   switch_gptp_macs []
+   ipv4_sources_from_switch_macs {'0.0.0.0': 9, '169.254.x.x (link-local)': 3, 'second IPv4 address (value withheld)': 3}
+   arp_from_switch {('probe', '0.0.0.0'): 3, ('announce', '169.254.x.x'): 2}
+   igmp_sources_from_switch {'0.0.0.0': 1, '169.254.x.x (link-local)': 2, 'second IPv4 address (value withheld)': 3}
+   dhcp_from_switch 8
+   dhcp_intervals_s (0.01, 51.52, 17.79)
+   mdns_from_switch {('response', 'SRV _tcp', 'TXT x1'): 1}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 1 published 0
+== bench-a202/bench/cycle4/tap-c4.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {'0.0.0.0': 9, '169.254.x.x (link-local)': 3, 'second IPv4 address (value withheld)': 3}
+   arp_from_switch {('probe', '0.0.0.0'): 3, ('announce', '169.254.x.x'): 2}
+   igmp_sources_from_switch {'0.0.0.0': 1, '169.254.x.x (link-local)': 2, 'second IPv4 address (value withheld)': 3}
+   dhcp_from_switch 8
+   dhcp_intervals_s (0.0, 51.5, 17.79)
+   mdns_from_switch {('response', 'SRV _tcp', 'TXT x1'): 1}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 1 published 0
+== bench-a202/bench/cycle5/pw1-c5.pcap
+   switch_gptp_macs []
+   ipv4_sources_from_switch_macs {'0.0.0.0': 9, '169.254.x.x (link-local)': 3, 'second IPv4 address (value withheld)': 3}
+   arp_from_switch {('probe', '0.0.0.0'): 3, ('announce', '169.254.x.x'): 2}
+   igmp_sources_from_switch {'0.0.0.0': 1, '169.254.x.x (link-local)': 2, 'second IPv4 address (value withheld)': 3}
+   dhcp_from_switch 8
+   dhcp_intervals_s (0.01, 47.3, 17.18)
+   mdns_from_switch {('response', 'SRV _tcp', 'TXT x1'): 1}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 1 published 0
+== bench-a202/bench/cycle5/tap-c5.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {'0.0.0.0': 10, '169.254.x.x (link-local)': 3, 'second IPv4 address (value withheld)': 3}
+   arp_from_switch {('probe', '0.0.0.0'): 3, ('announce', '169.254.x.x'): 2}
+   igmp_sources_from_switch {'0.0.0.0': 2, '169.254.x.x (link-local)': 2, 'second IPv4 address (value withheld)': 3}
+   dhcp_from_switch 8
+   dhcp_intervals_s (0.0, 47.3, 17.19)
+   mdns_from_switch {('response', 'SRV _tcp', 'TXT x1'): 1}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 1 published 0
+== bench-a202/bench/cycle6/pw1-c6.pcap
+   switch_gptp_macs []
+   ipv4_sources_from_switch_macs {'0.0.0.0': 9, '169.254.x.x (link-local)': 3, 'second IPv4 address (value withheld)': 3}
+   arp_from_switch {('probe', '0.0.0.0'): 3, ('announce', '169.254.x.x'): 2}
+   igmp_sources_from_switch {'0.0.0.0': 1, '169.254.x.x (link-local)': 2, 'second IPv4 address (value withheld)': 3}
+   dhcp_from_switch 8
+   dhcp_intervals_s (0.01, 51.08, 17.72)
+   mdns_from_switch {('response', 'SRV _tcp', 'TXT x1'): 1}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 1 published 0
+== bench-a202/bench/cycle6/tap-c6.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {'0.0.0.0': 10, '169.254.x.x (link-local)': 3, 'second IPv4 address (value withheld)': 3}
+   arp_from_switch {('probe', '0.0.0.0'): 3, ('announce', '169.254.x.x'): 2}
+   igmp_sources_from_switch {'0.0.0.0': 2, '169.254.x.x (link-local)': 2, 'second IPv4 address (value withheld)': 3}
+   dhcp_from_switch 8
+   dhcp_intervals_s (0.0, 51.1, 17.73)
+   mdns_from_switch {('response', 'SRV _tcp', 'TXT x1'): 1}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 1 published 0
+== bench-a202/bench/final/tap-final.pcap
+   switch_gptp_macs ['3cc0c6fe0211']
+   ipv4_sources_from_switch_macs {'0.0.0.0': 2}
+   arp_from_switch {}
+   igmp_sources_from_switch {}
+   dhcp_from_switch 2
+   dhcp_intervals_s (15.0, 15.0, 15.0)
+   mdns_from_switch {}
+   tcp_flows_any 0
+   tcp_to_or_from_link_local 0
+   firmware-key TXT strings: original 0 published 0

@@ -1,0 +1,14 @@
+Page docs/findings/117_GPTP_SILICON_EVIDENCE.md:129 at dfe6a587 (peer ENTITY firmware_version digest)
+- The original (pre-redaction) peer ENTITY descriptor dump of the first public archive publication
+  (superseded, still served by full SHA pending the owner's purge) holds exactly one distinct
+  firmware_version string, 7 octets long. Value withheld; the decode step is withheld while the purge
+  is pending.
+- SHA-256 of the 64-octet field (the 7 octets followed by 57 zero octets) equals the page value
+  33f0e7f9e86fe4829a2de6f6d04d1edf1463b7d6653c2865ad985f183b0ddfbc: TRUE.
+- SHA-256 of the 7 octets alone equals the page value: FALSE (so "the SHA-256 of the 64-octet field"
+  is the exact definition).
+- First 8 octets of the digest equal the 2026-09-14 record's sha256_8 "33f0e7f9e86fe482"
+  (issue comment 5670665596): TRUE.
+- At the pin db842315 the raw string is absent in raw, hex, base64 and UTF-16 forms
+  (receipts/identity_sweep_targets.txt, class "peer firmware string"): 0 hits; the positive control
+  on the original publication finds it (receipts/identity_sweep_controls.txt).
