@@ -1,0 +1,31 @@
+{"name": "behave", "cwd": "tests", "command": ["behave", "--no-capture", "-f", "plain"], "rc": 0, "seconds": 1.32}
+{"name": "module_matrix", "cwd": ".", "command": ["python3", "docs/traceability/gen_module_matrix.py", "--check"], "rc": 0, "seconds": 0.97}
+{"name": "gen_toc", "cwd": ".", "command": ["/tmp/551-a260-docs-venv/bin/python3", "scripts/gen_toc.py", "--check"], "rc": 0, "seconds": 2.42}
+{"name": "docs_git", "cwd": ".", "command": ["python3", "scripts/docs_check.py"], "rc": 0, "seconds": 4.07}
+{"name": "docs_no_git", "cwd": ".", "command": ["env", "GIT_DIR=/tmp/551-a260-absent-git", "python3", "scripts/docs_check.py"], "rc": 0, "seconds": 4.07}
+{"name": "doc_style", "cwd": ".", "command": ["python3", "scripts/check_doc_style.py"], "rc": 0, "seconds": 0.06}
+{"name": "doc_paths", "cwd": ".", "command": ["python3", "scripts/check_doc_paths.py"], "rc": 0, "seconds": 0.12}
+{"name": "cpp_idiom", "cwd": ".", "command": ["python3", "scripts/check_cpp_idiom.py"], "rc": 0, "seconds": 1.17}
+{"name": "rtl_source_lists", "cwd": ".", "command": ["python3", "scripts/check_rtl_source_lists.py"], "rc": 0, "seconds": 1.37}
+{"name": "py_idiom", "cwd": ".", "command": ["python3", "scripts/check_py_idiom.py"], "rc": 0, "seconds": 2.97}
+{"name": "crflic", "cwd": ".", "command": ["make", "-C", "tb/verilator/milan_dp", "crflic", "VERILATOR_JOBS=8"], "rc": 0, "seconds": 48.38}
+{"name": "unwarmed_expected_fail", "cwd": "tb/verilator/milan_dp", "command": ["./obj_crflic/Vmilan_dp_crflic", "--unwarmed-refusal"], "rc": 1, "seconds": 41.19}
+{"name": "pp_srcs", "cwd": ".", "command": ["python3", "scripts/pp_srcs.py", "--check", "--selftest"], "rc": 0, "seconds": 0.22}
+{"name": "ci_scope", "cwd": ".", "command": ["python3", "scripts/ci_scope.py", "--selftest"], "rc": 0, "seconds": 5.29}
+{"name": "lint", "cwd": ".", "command": ["python3", "scripts/lint_rtl.py", "--check", "--self-test"], "rc": 0, "seconds": 5.73}
+{"name": "yosys_elaboration", "cwd": ".", "command": ["syn/yosys/run.sh", "--mode", "elaborate", "--no-structural", "--top", "milan_datapath", "--top", "KL_pp_shadow", "--top", "KL_gptp_shadow"], "rc": 0, "seconds": 34.88}
+{"name": "xvlog", "cwd": ".", "command": ["python3", "scripts/xvlog_gate.py", "--check"], "rc": 0, "seconds": 138.69}
+{"name": "bdd_mutants", "cwd": ".", "command": ["python3", "$MANAGEMENT/2026-09-23/551-a260/bdd_mutants.py", ".", "$MANAGEMENT/2026-09-23/551-a260"], "rc": 0, "seconds": 1.02}
+{"name": "em_dash", "cwd": ".", "command": ["/tmp/551-a260-docs-venv/bin/python3", "scripts/check_em_dash.py", "--base", "59b816708852472da6ed4576386c30ebd5f8f839"], "rc": 0, "seconds": 3.07}
+{"name": "diff_check", "cwd": ".", "command": ["git", "diff", "--check", "0bf22c93546fcc70fffdb8428bde331fa2fc8f05", "HEAD"], "rc": 0, "seconds": 0.02}
+{"name": "sv_idiom", "cwd": ".", "command": ["python3", "scripts/check_sv_idiom.py"], "rc": 0, "seconds": 0.41}
+{"name": "working_diff_check", "cwd": ".", "command": ["git", "diff", "--check"], "rc": 0, "seconds": 0.02}
+{"name": "crflic_mutants", "cwd": ".", "command": ["make", "-C", "tb/verilator/milan_dp", "crflic-mutants", "VERILATOR_JOBS=8"], "rc": 0, "seconds": 371.67}
+{"name": "module_matrix", "cwd": ".", "command": ["python3", "docs/traceability/gen_module_matrix.py", "--check"], "rc": 0, "seconds": 0.97}
+{"name": "gen_toc", "cwd": ".", "command": ["/tmp/551-a260-docs-venv/bin/python3", "scripts/gen_toc.py", "--check"], "rc": 0, "seconds": 2.47}
+{"name": "em_dash", "cwd": ".", "command": ["/tmp/551-a260-docs-venv/bin/python3", "scripts/check_em_dash.py", "--base", "59b816708852472da6ed4576386c30ebd5f8f839"], "rc": 0, "seconds": 3.13}
+{"name": "docs_git", "cwd": ".", "command": ["python3", "scripts/docs_check.py"], "rc": 0, "seconds": 3.97}
+{"name": "docs_no_git", "cwd": ".", "command": ["env", "GIT_DIR=/tmp/551-a260-absent-git", "python3", "scripts/docs_check.py"], "rc": 0, "seconds": 3.97}
+{"name": "diff_check", "cwd": ".", "command": ["git", "diff", "--check", "0bf22c93546fcc70fffdb8428bde331fa2fc8f05", "HEAD"], "rc": 0, "seconds": 0.02}
+{"name": "milan_dp_default", "cwd": ".", "command": ["make", "-C", "tb/verilator/milan_dp", "VERILATOR_JOBS=8"], "rc": 0, "seconds": 1186.18}
+{"name": "working_diff_check", "cwd": ".", "command": ["git", "diff", "--check"], "rc": 0, "seconds": 0.03}
