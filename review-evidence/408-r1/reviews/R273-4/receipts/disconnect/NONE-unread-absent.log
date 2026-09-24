@@ -1,0 +1,5 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+REFUSED: U1 a `<%:` pair (punctuators `<%` and `:`) in a UART command handler
+    firmware must not spell a token with a digraph or a trigraph (%:, line 1499): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+ACCEPTED: U0 control: shipping firmware
+PROBE DONE: 2 result(s), 0 compiles, 2.6 s

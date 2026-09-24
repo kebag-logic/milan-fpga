@@ -1,0 +1,27 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+ACCEPTED: C0 shipping firmware unchanged (must be ACCEPTED)
+ACCEPTED: C1 struct-overlay store to ADP_CTRL, unconditional
+REFUSED: C2 same store in a plain `#ifdef CSR_UART_BASE` arm (product-only)
+    firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other
+ACCEPTED: C3 same store, `#ifdef CSR_UART_BASE` behind a form feed (R272 F1 shape)
+REFUSED: C4 same store, plain `%:ifdef` digraph (kept ban)
+    firmware must not paste tokens, and must not spell one with a digraph or a trigraph: a pasted call name builds a CSR store this gate cannot read, and an alternate spelling of `#` builds a directive it cannot read either
+REFUSED: H1 same store, `%:` digraph SPLIT BY A SPLICE, #ifdef CSR_UART_BASE
+    firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name
+REFUSED: H2 same store, split digraph, #ifndef MILAN_CENSUS_SOC
+    firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name
+REFUSED: H3 same store, split digraph with a blank before the newline
+    firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name
+REFUSED: C5 `0 &&` in the verdict test under a plain #ifdef CSR_UART_BASE
+    firmware must not select boot code with the preprocessor (a conditional group reaching the entity-advertise choke point): this gate would read one arm while the compiler takes the other
+REFUSED: H4 `0 &&` in the verdict test under a split-digraph #ifdef CSR_UART_BASE
+    firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name
+REFUSED: C6 second #define of MILAN_ID_MAGIC as a fresh read (plain `#`)
+    #define MILAN_ID_MAGIC hides milan_read() inside a macro body: every call to a CSR primitive must be spelled out so the operand census can read which register it names. A read-only accessor macro contains no store and is refused for this reason, not for storing
+REFUSED: H5 same second definition spelled with a split `%:` digraph
+    firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name
+REFUSED: H6 split-digraph #undef + #define retargeting MILAN_ADP_EID_LO to ADP_CTRL
+    firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name
+ACCEPTED: B1 a byte order mark before the first line, nothing else
+ACCEPTED: B2 a byte order mark, then `#include <string.h>` on line 1
+PROBE DONE: 15 result(s), 0 compiles, 17.5 s

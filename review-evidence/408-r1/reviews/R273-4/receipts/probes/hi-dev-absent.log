@@ -1,0 +1,17 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+REFUSED: HI1 identity sample forged in milan_init() behind `#if !__has_include(<r273/*none>)`, `*/` behind a //
+    firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other
+REFUSED: HI1q control: the same with the QUOTED header name "r273/*none" (a string to the gate)
+    firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other
+REFUSED: HI1p control: the same forgery under a plain `#if 1`
+    firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other
+ACCEPTED: HI2 ADP enable in a UART command handler behind the header name
+REFUSED: HI2p control: the same enable in the handler, plain
+    ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+ACCEPTED: HI3 literal-address cast store into the CSR window in a UART command handler behind the header name
+REFUSED: HI3p control: the same store, plain
+    the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsi
+REFUSED: HI4 AEM verdict overwritten after the verifier behind the header name
+    firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other
+ACCEPTED: HI5 benign control: a printf in a UART command handler behind the header name
+PROBE DONE: 9 result(s), 0 compiles, 11.6 s

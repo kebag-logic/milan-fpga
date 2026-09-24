@@ -1,0 +1,29 @@
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<sdk>", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "<sdk>/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<sdk>/bin/toolchain-wrapper", "sysroot": "<sdk>/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=<shared-selector>/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+    -E: rec.id = first; | cap.id = nvm_word_read(5u); | milan_write(0x600u, milan_read(0x600u) & ~1u); | milan_write(0x600u, milan_read(0x600u) | 1u); | uint32_t id = milan_read(0x000u); | id = 0x4d494c4eu; | (unsigned long)milan_read(0x600u),
+ACCEPTED: HI1 identity sample forged in milan_init() behind `#if !__has_include(<r273/*none>)`, `*/` behind a //
+    -E: rec.id = first; | cap.id = nvm_word_read(5u); | milan_write(0x600u, milan_read(0x600u) & ~1u); | milan_write(0x600u, milan_read(0x600u) | 1u); | uint32_t id = milan_read(0x000u); | id = 0x4d494c4eu; | (unsigned long)milan_read(0x600u),
+ACCEPTED: HI1q control: the same with the QUOTED header name "r273/*none" (a string to the gate)
+    -E: rec.id = first; | cap.id = nvm_word_read(5u); | milan_write(0x600u, milan_read(0x600u) & ~1u); | milan_write(0x600u, milan_read(0x600u) | 1u); | uint32_t id = milan_read(0x000u); | id = 0x4d494c4eu; | (unsigned long)milan_read(0x600u),
+ACCEPTED: HI1p control: the same forgery under a plain `#if 1`
+    -E: rec.id = first; | cap.id = nvm_word_read(5u); | milan_write(0x600u, milan_read(0x600u) & ~1u); | milan_write(0x600u, milan_read(0x600u) | 1u); | uint32_t id = milan_read(0x000u); | (unsigned long)milan_read(0x600u), | milan_write(0x600u, milan_read(0x600u) | 1u);
+ACCEPTED: HI2 ADP enable in a UART command handler behind the header name
+    -E: rec.id = first; | cap.id = nvm_word_read(5u); | milan_write(0x600u, milan_read(0x600u) & ~1u); | milan_write(0x600u, milan_read(0x600u) | 1u); | uint32_t id = milan_read(0x000u); | (unsigned long)milan_read(0x600u), | milan_write(0x600u, milan_read(0x600u) | 1u);
+ACCEPTED: HI2p control: the same enable in the handler, plain
+    -E: rec.id = first; | cap.id = nvm_word_read(5u); | milan_write(0x600u, milan_read(0x600u) & ~1u); | milan_write(0x600u, milan_read(0x600u) | 1u); | uint32_t id = milan_read(0x000u); | (unsigned long)milan_read(0x600u), | *(volatile unsigned int *)0x90000600u = 1u;
+REFUSED: HI3 literal-address cast store into the CSR window in a UART command handler behind the header name
+    only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]
+    -E: rec.id = first; | cap.id = nvm_word_read(5u); | milan_write(0x600u, milan_read(0x600u) & ~1u); | milan_write(0x600u, milan_read(0x600u) | 1u); | uint32_t id = milan_read(0x000u); | (unsigned long)milan_read(0x600u), | *(volatile unsigned int *)0x90000600u = 1u;
+REFUSED: HI3p control: the same store, plain
+    only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]
+    -E: rec.id = first; | cap.id = nvm_word_read(5u); | milan_write(0x600u, milan_read(0x600u) & ~1u); | milan_write(0x600u, milan_read(0x600u) | 1u); | uint32_t id = milan_read(0x000u); | aem_loaded = 1; | (unsigned long)milan_read(0x600u),
+ACCEPTED: HI4 AEM verdict overwritten after the verifier behind the header name
+    -E: rec.id = first; | cap.id = nvm_word_read(5u); | milan_write(0x600u, milan_read(0x600u) & ~1u); | milan_write(0x600u, milan_read(0x600u) | 1u); | uint32_t id = milan_read(0x000u); | (unsigned long)milan_read(0x600u), | printf("r273\n");
+ACCEPTED: HI5 benign control: a printf in a UART command handler behind the header name
+PROBE DONE: 9 result(s), 99 compiles, 6.4 s

@@ -1,0 +1,85 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 0,
+ "seconds": 11.1,
+ "results": [
+  {
+   "label": "C0 shipping firmware unchanged (must be ACCEPTED)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "C1 struct-overlay store to ADP_CTRL, unconditional",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "C2 same store in a plain `#ifdef CSR_UART_BASE` arm (product-only)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "C3 same store, `#ifdef CSR_UART_BASE` behind a form feed (R272 F1 shape)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "C4 same store, plain `%:ifdef` digraph (kept ban)",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "H1 same store, `%:` digraph SPLIT BY A SPLICE, #ifdef CSR_UART_BASE",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "H2 same store, split digraph, #ifndef MILAN_CENSUS_SOC",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "H3 same store, split digraph with a blank before the newline",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "C5 `0 &&` in the verdict test under a plain #ifdef CSR_UART_BASE",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "H4 `0 &&` in the verdict test under a split-digraph #ifdef CSR_UART_BASE",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 1396): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "C6 second #define of MILAN_ID_MAGIC as a fresh read (plain `#`)",
+   "verdict": "REFUSED",
+   "reason": "#define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition"
+  },
+  {
+   "label": "H5 same second definition spelled with a split `%:` digraph",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "H6 split-digraph #undef + #define retargeting MILAN_ADP_EID_LO to ADP_CTRL",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "B1 a byte order mark before the first line, nothing else",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "B2 a byte order mark, then `#include <string.h>` on line 1",
+   "verdict": "REFUSED",
+   "reason": "the firmware's include set is pinned, and <string.h> is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file"
+  }
+ ]
+}

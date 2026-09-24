@@ -1,0 +1,145 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 99,
+ "seconds": 6.4,
+ "results": [
+  {
+   "label": "HI1 identity sample forged in milan_init() behind `#if !__has_include(<r273/*none>)`, `*/` behind a //",
+   "E_rc": 0,
+   "E_hits": [
+    "rec.id = first;",
+    "cap.id = nvm_word_read(5u);",
+    "milan_write(0x600u, milan_read(0x600u) & ~1u);",
+    "milan_write(0x600u, milan_read(0x600u) | 1u);",
+    "uint32_t id = milan_read(0x000u);",
+    "id = 0x4d494c4eu;",
+    "(unsigned long)milan_read(0x600u),"
+   ],
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "HI1q control: the same with the QUOTED header name \"r273/*none\" (a string to the gate)",
+   "E_rc": 0,
+   "E_hits": [
+    "rec.id = first;",
+    "cap.id = nvm_word_read(5u);",
+    "milan_write(0x600u, milan_read(0x600u) & ~1u);",
+    "milan_write(0x600u, milan_read(0x600u) | 1u);",
+    "uint32_t id = milan_read(0x000u);",
+    "id = 0x4d494c4eu;",
+    "(unsigned long)milan_read(0x600u),"
+   ],
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "HI1p control: the same forgery under a plain `#if 1`",
+   "E_rc": 0,
+   "E_hits": [
+    "rec.id = first;",
+    "cap.id = nvm_word_read(5u);",
+    "milan_write(0x600u, milan_read(0x600u) & ~1u);",
+    "milan_write(0x600u, milan_read(0x600u) | 1u);",
+    "uint32_t id = milan_read(0x000u);",
+    "id = 0x4d494c4eu;",
+    "(unsigned long)milan_read(0x600u),"
+   ],
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "HI2 ADP enable in a UART command handler behind the header name",
+   "E_rc": 0,
+   "E_hits": [
+    "rec.id = first;",
+    "cap.id = nvm_word_read(5u);",
+    "milan_write(0x600u, milan_read(0x600u) & ~1u);",
+    "milan_write(0x600u, milan_read(0x600u) | 1u);",
+    "uint32_t id = milan_read(0x000u);",
+    "(unsigned long)milan_read(0x600u),",
+    "milan_write(0x600u, milan_read(0x600u) | 1u);"
+   ],
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "HI2p control: the same enable in the handler, plain",
+   "E_rc": 0,
+   "E_hits": [
+    "rec.id = first;",
+    "cap.id = nvm_word_read(5u);",
+    "milan_write(0x600u, milan_read(0x600u) & ~1u);",
+    "milan_write(0x600u, milan_read(0x600u) | 1u);",
+    "uint32_t id = milan_read(0x000u);",
+    "(unsigned long)milan_read(0x600u),",
+    "milan_write(0x600u, milan_read(0x600u) | 1u);"
+   ],
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "HI3 literal-address cast store into the CSR window in a UART command handler behind the header name",
+   "E_rc": 0,
+   "E_hits": [
+    "rec.id = first;",
+    "cap.id = nvm_word_read(5u);",
+    "milan_write(0x600u, milan_read(0x600u) & ~1u);",
+    "milan_write(0x600u, milan_read(0x600u) | 1u);",
+    "uint32_t id = milan_read(0x000u);",
+    "(unsigned long)milan_read(0x600u),",
+    "*(volatile unsigned int *)0x90000600u = 1u;"
+   ],
+   "verdict": "REFUSED",
+   "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]"
+  },
+  {
+   "label": "HI3p control: the same store, plain",
+   "E_rc": 0,
+   "E_hits": [
+    "rec.id = first;",
+    "cap.id = nvm_word_read(5u);",
+    "milan_write(0x600u, milan_read(0x600u) & ~1u);",
+    "milan_write(0x600u, milan_read(0x600u) | 1u);",
+    "uint32_t id = milan_read(0x000u);",
+    "(unsigned long)milan_read(0x600u),",
+    "*(volatile unsigned int *)0x90000600u = 1u;"
+   ],
+   "verdict": "REFUSED",
+   "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]"
+  },
+  {
+   "label": "HI4 AEM verdict overwritten after the verifier behind the header name",
+   "E_rc": 0,
+   "E_hits": [
+    "rec.id = first;",
+    "cap.id = nvm_word_read(5u);",
+    "milan_write(0x600u, milan_read(0x600u) & ~1u);",
+    "milan_write(0x600u, milan_read(0x600u) | 1u);",
+    "uint32_t id = milan_read(0x000u);",
+    "aem_loaded = 1;",
+    "(unsigned long)milan_read(0x600u),"
+   ],
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "HI5 benign control: a printf in a UART command handler behind the header name",
+   "E_rc": 0,
+   "E_hits": [
+    "rec.id = first;",
+    "cap.id = nvm_word_read(5u);",
+    "milan_write(0x600u, milan_read(0x600u) & ~1u);",
+    "milan_write(0x600u, milan_read(0x600u) | 1u);",
+    "uint32_t id = milan_read(0x000u);",
+    "(unsigned long)milan_read(0x600u),",
+    "printf(\"r273\\n\");"
+   ],
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  }
+ ]
+}

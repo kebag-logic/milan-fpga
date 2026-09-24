@@ -1,0 +1,135 @@
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<sdk>", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "<sdk>/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<sdk>/bin/toolchain-wrapper", "sysroot": "<sdk>/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=<shared-selector>/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+REFUSED: R272 r1 plain #: product-only `0 &&` in the choke point verdict test
+    under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware never compares entity_advertise()'s verdict argument against zero, so no edge in it can dominate the enable writes and the entity is advertised unconditionally
+REFUSED: R272 r1 form feed: product-only `0 &&` in the choke point verdict test
+    under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware never compares entity_advertise()'s verdict argument against zero, so no edge in it can dominate the enable writes and the entity is advertised unconditionally
+REFUSED: R272 r1 vertical tab: product-only `0 &&` in the choke point verdict test
+    under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware never compares entity_advertise()'s verdict argument against zero, so no edge in it can dominate the enable writes and the entity is advertised unconditionally
+REFUSED: R272 r1 plain #: product-only paged-base cast store to ADP_CTRL in a UART handler
+    under the arm selection line 1501 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from milan_status_handler(), at 0x90000600. Every control-register store must go through the address helper s
+REFUSED: R272 r1 plain #: product-only literal-address cast store to ADP_CTRL in a UART handler
+    under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+REFUSED: R272 r1 plain #: product-only lui asm store to ADP_CTRL in a UART handler
+    under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from milan_status_handler(), at 0x90000600. Every control-register store must go through the address helper s
+REFUSED: R272 r1 plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)
+    under the arm selection line 31 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+REFUSED: R272 r1 plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)
+    under the arm selection line 31 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, arm 2 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+REFUSED: R272 r1 form feed: product-only paged-base cast store to ADP_CTRL in a UART handler
+    under the arm selection line 1501 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from milan_status_handler(), at 0x90000600. Every control-register store must go through the address helper s
+REFUSED: R272 r1 form feed: product-only literal-address cast store to ADP_CTRL in a UART handler
+    under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+REFUSED: R272 r1 form feed: product-only lui asm store to ADP_CTRL in a UART handler
+    under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from milan_status_handler(), at 0x90000600. Every control-register store must go through the address helper s
+REFUSED: R272 r1 form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)
+    under the arm selection line 31 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+REFUSED: R272 r1 form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)
+    under the arm selection line 31 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, arm 2 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+REFUSED: R272 r2 control: form feed arm around a SPELLED milan_write enable in a UART handler
+    under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+REFUSED: R272 r2 NUL byte before #: product-only literal-address cast store in a UART handler
+    under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+REFUSED: R272 r2 unterminated-quote defines around a product-only literal-address cast store in a UART handler
+    the firmware opens a literal that no quote closes on its line (line 1499): GCC ends it at the end of that line with only a warning, which is not what a quote there is written to mean
+REFUSED: R272 r2 unterminated-quote defines around a product-only `0 &&` in the choke point verdict test
+    the firmware opens a literal that no quote closes on its line (line 1395): GCC ends it at the end of that line with only a warning, which is not what a quote there is written to mean
+REFUSED: R272 r2 form feed: product-only literal-address cast store inside configure_fabric() (a boot-path body)
+    under the arm selection line 1384 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+ACCEPTED: R272 r3 identity forged through a plain function-like macro
+REFUSED: R272 r3 identity forged through a token-joining splice of the local's name
+    a backslash-newline JOINS two tokens inside the boot entry point (line 1442): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two
+REFUSED: R272 r3 identity forged through a ## paste of the local's name
+    a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments
+REFUSED: R272 r3 plain #: product-only struct-overlay store to ADP_CTRL in a UART handler
+    under the arm selection line 1501 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+REFUSED: R272 r3 form feed: product-only struct-overlay store to ADP_CTRL in a UART handler
+    under the arm selection line 1501 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+REFUSED: R273 H1 function pointer to milan_write built by a SPLICE, called from a UART handler
+    the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must read as an ENTRANCE into the choke point this gate cannot tie to the AEM verdict: milan_status_handler() at .L307 through a5. An instrument that cannot place a call edge must REFUSE it rather than assume where it goes, because entity_advertise() is precisely what it cannot rule out
+REFUSED: R273 H2 function pointer to milan_write built by a PASTE, called from a UART handler
+    the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must read as an ENTRANCE into the choke point this gate cannot tie to the AEM verdict: milan_status_handler() at .L307 through a5. An instrument that cannot place a call edge must REFUSE it rather than assume where it goes, because entity_advertise() is precisely what it cannot rule out
+REFUSED: R273 H3 second choke-point call built by a SPLICE, in a UART handler
+    the compiled firmware enters entity_advertise() from ['milan_init', 'milan_status_handler'], not from milan_init() exactly once: a second call site is an ENTRANCE into the choke point this gate cannot tie to the AEM verdict, and one edge from the boot path is what makes the argument resolved next the only argument this function is ever handed
+REFUSED: R273 H4 verdict overwritten by a PASTE between the verifier and the choke point
+    a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments
+REFUSED: R273 H5 verdict overwritten by a SPLICE between the verifier and the choke point
+    a backslash-newline JOINS two tokens inside the boot entry point (line 1453): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two
+REFUSED: R273 H11 store through milan_reg() built by a PASTE, in a UART handler
+    the compiled firmware stores through milan_reg()'s return from ['milan_status_handler', 'milan_write'] (2 store(s)): that return is the ONE address this firmware may reach a control register through, so exactly one function may store through it and it must be the milan_write() whose operands the bit-0 census below reads. A second consumer of the helper's return is a control-register write outside 
+REFUSED: R273 H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_ID)
+    #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition
+REFUSED: R273 H7 second #define of MILAN_ID_MAGIC as the sample itself
+    #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition
+ACCEPTED: R273 H8 verifier QSPI-slot group with its #else arm deleted
+REFUSED: R273 H9 verifier #else behind a lone CR, its hidden arm returning 1
+    AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary
+REFUSED: R273 H10 product-only 0 && in the choke point's verdict test
+    under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware never compares entity_advertise()'s verdict argument against zero, so no edge in it can dominate the enable writes and the entity is advertised unconditionally
+REFUSED: R273 H12 the same product-only 0 && with its directives behind lone CRs
+    under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware never compares entity_advertise()'s verdict argument against zero, so no edge in it can dominate the enable writes and the entity is advertised unconditionally
+REFUSED: R273 H13 the same product-only 0 && with its directives behind form feeds
+    under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware never compares entity_advertise()'s verdict argument against zero, so no edge in it can dominate the enable writes and the entity is advertised unconditionally
+REFUSED: R273 H14 pre-AEM ADP clear behind a lone-CR #ifndef (census keeps it, product drops it)
+    under the arm selection line 1367 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, no arm taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image is verified
+REFUSED: R273 H15 a LINK named init.h beside the firmware to a file outside
+    a pinned include resolved to a file this repository supplies beside the firmware: ['/tmp/milan-beside-7xirw22f/init.h']. A quoted include resolves against the including file's directory FIRST, so a file or a link there answers to a pinned name and puts text this gate never read behind it with no name changing anywhere -- measured by the PATH the preprocessor opened and the file it reached, in the 
+REFUSED: R273 V1a form feed before #: product-only literal-address cast store in a UART handler
+    under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+REFUSED: R273 V1b vertical tab before #: the same store
+    under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+REFUSED: R273 V1c NUL before #: the same store
+    under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+REFUSED: R273 V1d lone CR before #: the same store
+    under the arm selection line 1500 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+REFUSED: R273 V1e form feed before #: product-only lui/sw asm store
+    under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from milan_status_handler(), at 0x90000600. Every control-register store must go through the address helper s
+REFUSED: R273 V1f control: plain # product-only literal cast store
+    under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+REFUSED: R273 V2a identity local forged by a SPLICE between the read and the guard
+    a backslash-newline JOINS two tokens inside the boot entry point (line 1442): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two
+REFUSED: R273 V2b identity local forged by a PASTE between the read and the guard
+    a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments
+ACCEPTED: R273 V2c identity local forged by a plain function-like macro
+REFUSED: R273 V4 unterminated character literals in two #defines bracketing a product-only literal-address store
+    the firmware opens a literal that no quote closes on its line (line 1499): GCC ends it at the end of that line with only a warning, which is not what a quote there is written to mean
+REFUSED: R273 E2 an #elif arm only the product takes enabling ADP before AEM
+    under the arm selection line 1384 `#if defined(MILAN_A)`: arm 2 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+REFUSED: R273 E3 nested groups, the inner arm enabling ADP before AEM
+    under the arm selection line 1384 `#ifdef MILAN_A`: MILAN_A defined, arm 1 of 1 taken; line 1385 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+REFUSED: R273 E5 #if 0 around an enable before AEM
+    under the arm selection line 1384 `#if 0`: arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+ACCEPTED: R272 r4 a debug helper defined under #ifdef MILAN_DEBUG_TOD and called under a second #ifdef MILAN_DEBUG_TOD in a UART handler
+ACCEPTED: R272 r4 control: the same debug printf in ONE #ifdef in a UART handler
+ACCEPTED: R272 r4 a debug-only static counter declared under #ifdef and incremented under a second #ifdef of the same macro
+ACCEPTED: R273 V3a correlated conditionals: debug helper defined and called under two #ifdef MILAN_DEBUG_TOD
+ACCEPTED: R273 V3b correlated conditionals: debug counter declared and incremented under two #ifdef MILAN_DEBUG_TOD
+ACCEPTED: R273 ACC1 an #ifdef around a debug printf INSIDE milan_init()
+ACCEPTED: R273 ACC2 a benign statement in an arm the census tree drops, inside configure_fabric()
+ACCEPTED: R273 ACC3 an #ifdef/#else choosing a #define, read in a UART command handler
+ACCEPTED: R273 ACC4 a ## token paste building a call outside the boot path
+ACCEPTED: R273 ACC5 a token-joining backslash-newline inside a macro body
+ACCEPTED: R273 ACC6 a read-only #define accessor over milan_read()
+ACCEPTED: R273 ACC7 a fifth cast to a pointer, resolving outside the window
+ACCEPTED: R273 ACC8 a fifth store through a pointer, resolving outside the window
+ACCEPTED: R273 ACC9 parse_u64() and seconds_to_ns() exchanged
+ACCEPTED: R273 ACC10 a fifth inline-asm statement, a fence in a UART handler
+ACCEPTED: R273 ACC11 a README and a notes.txt beside the firmware
+ACCEPTED: R273 E1 #if/#elif/#else debug printfs after the choke-point call
+ACCEPTED: R273 E4 #if 0 around a benign statement
+ACCEPTED: R273 E6 four independent groups (16 selections, at the bound)
+REFUSED: R272-limit form feed #undef of ADP_CTRL, redefined onto EID_LO
+    the firmware's preprocessing directives are pinned, and '#undef' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R272-limit form feed #pragma
+    the firmware's preprocessing directives are pinned, and '#pragma' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads
+REFUSED: R272-limit form feed #include of a second source
+    the firmware's include set is pinned, and "milan_bringup.c" is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file
+REFUSED: R272-limit _Pragma push_macro / #define / pop_macro around ADP_CTRL
+    #define MILAN_ADP_CTRL is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition
+PROBE DONE: 74 result(s), 253 compiles, 114.3 s

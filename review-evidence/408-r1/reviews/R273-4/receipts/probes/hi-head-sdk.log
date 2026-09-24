@@ -1,0 +1,22 @@
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<sdk>", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "<sdk>/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<sdk>/bin/toolchain-wrapper", "sysroot": "<sdk>/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=<shared-selector>/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+ACCEPTED: HI1 identity sample forged in milan_init() behind `#if !__has_include(<r273/*none>)`, `*/` behind a //
+REFUSED: HI1q control: the same with the QUOTED header name "r273/*none" (a string to the gate)
+    under the arm selection line 1439 `#if !__has_include(" ")`: arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): CSR identity guard must consume the unmodified MILAN_ID sample: no assignment, increment or pointer write may replace the value between its CSR read and mismatch comparison
+REFUSED: HI1p control: the same forgery under a plain `#if 1`
+    under the arm selection line 1439 `#if 1`: arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): CSR identity guard must consume the unmodified MILAN_ID sample: no assignment, increment or pointer write may replace the value between its CSR read and mismatch comparison
+ACCEPTED: HI2 ADP enable in a UART command handler behind the header name
+REFUSED: HI2p control: the same enable in the handler, plain
+    ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+ACCEPTED: HI3 literal-address cast store into the CSR window in a UART command handler behind the header name
+REFUSED: HI3p control: the same store, plain
+    only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]
+ACCEPTED: HI4 AEM verdict overwritten after the verifier behind the header name
+ACCEPTED: HI5 benign control: a printf in a UART command handler behind the header name
+PROBE DONE: 9 result(s), 105 compiles, 27.4 s
