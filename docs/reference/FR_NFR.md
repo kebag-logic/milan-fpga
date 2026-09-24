@@ -418,8 +418,10 @@ the completed PS-to-fabric migration plan (#259, in git history).
 >   remain the only timestamp corrections, and the live UART tuner stays
 >   donor-bench-only. Excluded for v1.2 by the
 >   [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257)
->   (2026-09-23); revisit before a second cabled port (the Section 2.6 scope
->   note and the [gPTP plane record](../design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled)).
+>   (2026-09-23); revisit before a second cabled port or a claim of IEEE
+>   802.1AS management, whose Table 14-6 requires a read-write
+>   `delayAsymmetry` object (the Section 2.6 scope note and the
+>   [gPTP plane record](../design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled)).
 > - Sample rates beyond 48/96/192 kHz, and AEM authentication.
 
 ---

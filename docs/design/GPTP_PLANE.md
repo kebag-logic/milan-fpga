@@ -356,8 +356,8 @@ It cites REQ-PTP-06's constants and the single cabled port.
 | Question | v1.2 answer | Authority |
 |---|---|---|
 | Is delayAsymmetry modelled? | No. Its value is zero. | IEEE 802.1AS-2011 8.3 does not require measuring it; 10.2.4.8 makes an unmodelled value zero |
-| Where would it enter? | ClockSlaveSync `syncReceiptTime` and `setMDSyncReceive()` `upstreamTxTime`. At zero both terms vanish. It never enters the Pdelay mean. | IEEE 802.1AS-2011 10.2.12, 11.2.13.2.1 and 11.2.15.2.4 |
-| Is it managed? | No managed object, CSR or configuration key carries it. | IEEE 802.1AS-2011 14.6.9 lists it read-write and recommended |
+| Where would it enter? | In three terms, listed under [Where the term enters](#where-the-term-enters). At zero all three vanish. It never enters the Pdelay mean. | IEEE 802.1AS-2011 10.2.12 (Figure 10-9, two assignments), 11.2.13.2.1 f) and 11.2.15.2.4 |
+| Is it managed? | No. The product claims no 802.1AS management, so no managed object exists. No CSR or configuration key carries the value either. | IEEE 802.1AS-2011 Table 14-6 (14.6.25; Cor1's replacement table keeps the row): read-write, conformance `Tdot3FD`, "Required for time-aware IEEE 802.3 full-duplex port". So such a port must carry it wherever 802.1AS management is implemented. Its "(recommended)" qualifies the `scaledNs` data type, as 14.3.2 states for `offsetFromMaster`. 14.6.9 defines the object without grading it. Management is optional: PICS item `MGT` (A.5) is `O` |
 | Can a configuration set it? | No. The builder refuses every `gptp` key it does not know (`_known_gp`). | [`endstation_builder.py`](../../sw/builder/endstation_builder.py) |
 | Does the engine take it? | No. The pinned gPTP processor has no asymmetry input. | Outside its historic prototype pages the pinned tree never names it ([donor issue 58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58)) |
 | What corrects timestamps? | The two per-board elaboration constants, applied once in `KL_gptp_shadow`. | REQ-PTP-06; IEEE 802.1AS-2011 8.4.3 `ingressLatency` and `egressLatency` |
@@ -375,13 +375,39 @@ The clauses above were checked against that text.
 | Issue 58: 11.2.15 | The MDPdelayReq machine; `computePropTime()` has no asymmetry term |
 | Prototype pages: 10.2.4.5 | That clause is `syncInterval`; delayAsymmetry is 10.2.4.8 |
 
+#### Where the term enters
+
+The 2011 text (Cor1, Cor2 included) applies it only here.
+The last row compares the 2020 edition.
+
+| Clause | Arithmetic | Effect |
+|---|---|---|
+| 11.2.13.2.1 f) `setMDSyncReceive()`; 11.1.3 d) describes it | `upstreamTxTime = <syncEventIngressTimestamp> - neighborPropDelay/neighborRateRatio - delayAsymmetry/rateRatio` | Subtracts the asymmetry, in local time, from the Sync ingress timestamp |
+| 10.2.12, Figure 10-9 (ClockSlaveSync) | `syncReceiptTime = preciseOriginTimestamp + followUpCorrectionField + neighborPropDelay*(rateRatio/neighborRateRatio) + delayAsymmetry` | Synchronized time at receipt gains `delayAsymmetry`, in the grandmaster time base |
+| 10.2.12, Figure 10-9 (ClockSlaveSync) | `syncReceiptLocalTime = upstreamTxTime + neighborPropDelay/neighborRateRatio + delayAsymmetry/rateRatio` | Adds back what 11.2.13.2.1 f) subtracted, so the local receipt time stays the ingress timestamp. The two `rateRatio` values differ only by the Figure 10-4 `neighborRateRatio` update, which NOTE 2 of 11.2.13.2.1 calls usually negligible |
+| 11.2.14.2.3 a) `setFollowUp()`; 11.1.3 e) and Table 11-5 describe it | `rateRatio*(<syncEventEgressTimestamp> - upstreamTxTime)` joins the relayed `correctionField` | Carries the first term downstream. Only a port relaying another port's Sync does this (10.2.11), so a one-port end station never does |
+| Annex E.5.2.2 (CSN) | A CSN egress port takes the 10.2.12 inputs, `delayAsymmetry` included, from the CSN TLV | Not applicable: the product has no CSN port (AS-11) |
+| 802.1AS-2020, not the edition of record | The same `delayAsymmetry` terms for instance-specific peer delay, at 10.2.13, 11.2.14.2.1 and 11.2.15.2.3 | With CMLDS, 11.2.17.2 a) folds it into the mean link delay instead of `upstreamTxTime` |
+
+Net effect: `syncReceiptTime` gains `delayAsymmetry`; its paired local time does not move.
+
+An adoption omitting the `syncReceiptLocalTime` term roughly doubles the shift.
+
 #### Revisit trigger
 
 Revisit when a profile adds a second cabled port.
 
 Section 8 redundancy under #394 is one such profile.
 
+Revisit also before the product claims 802.1AS management.
+
+Table 14-6 then requires a read-write `delayAsymmetry` object.
+
+Check this before the P4 802.1AS conformance run.
+
 A runtime correction first needs a REQ-PTP-06 amendment.
+
+A write to that managed object is one such correction.
 
 #### What an adoption must define
 
@@ -389,11 +415,11 @@ A runtime correction first needs a REQ-PTP-06 amendment.
 |---|---|
 | Requirement | A public REQ-PTP amendment naming one owner, before any RTL lane |
 | Sign | Positive when responder-to-initiator is longer (8.3) |
-| Units | `scaledNs` in the grandmaster time base (10.2.4.8, 14.6.9) |
+| Units | `scaledNs`, Table 14-6's recommended data type, in the grandmaster time base (10.2.4.8, which names no data type) |
 | Default and reset | Zero, which is today's behavior |
 | Range | Declared in the configuration schema; the builder refuses values outside it |
 | Configuration owner | One key per port, carried to one engine input |
-| Application point | 10.2.12 and 11.2.13.2.1 only; never `computePropTime()` |
+| Application point | All three terms under [Where the term enters](#where-the-term-enters): 11.2.13.2.1 f) and both 10.2.12 assignments. A relaying port inherits the first through 11.2.14.2.3. Never `computePropTime()` |
 | Update | An elaboration constant, unless REQ-PTP-06 is amended first |
 | Double compensation | Never folded into `INGRESS_LAT_NS_P` or `EGRESS_LAT_NS_P` |
 

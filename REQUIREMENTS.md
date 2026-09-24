@@ -139,8 +139,11 @@ constants, never by a second asymmetry term. This is a directed limitation
 recorded by the
 [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257)
 (2026-09-23). Revisit it before a profile adds a second cabled port, such as
-Section 8 redundancy under #394; a runtime correction first needs an amendment
-of REQ-PTP-06. The
+Section 8 redundancy under #394, and before the product claims IEEE 802.1AS
+management: 802.1AS-2011 Table 14-6 then requires a read-write
+`delayAsymmetry` object on each time-aware IEEE 802.3 full-duplex port
+(conformance `Tdot3FD`). A runtime correction, including a write to that
+object, first needs an amendment of REQ-PTP-06. The
 [gPTP plane record](docs/design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled)
 lists what an adoption must define and prove.
 
