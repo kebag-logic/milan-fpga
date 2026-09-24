@@ -1,0 +1,474 @@
+HEAD ae51a17f0435e3933a581f34e7f3629f91fb29c5  tree a86cd47f8c783a78d360ad6e972191f08ca5d7ac  dirty=0
+=== python3 scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+=== rc=0  python3 scripts/check_submodule_docs.py
+=== python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (4 exact gitlinks, decoded PNG)
+=== rc=0  python3 docs/diagrams/submodule_boundaries.gen.py --check
+=== python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+=== rc=0  python3 scripts/check_diagram_pngs.py
+=== python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 850 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+=== rc=0  python3 scripts/docs_check.py
+=== python3 scripts/check_em_dash.py --base 50e78097564244c124e1ec30dd8821f83951ab06
+check_em_dash: 0 finding(s) over 138 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [50e78097..HEAD]
+=== rc=0  python3 scripts/check_em_dash.py --base 50e78097564244c124e1ec30dd8821f83951ab06
+=== python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+=== rc=0  python3 scripts/check_doc_style.py
+=== python3 scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+=== rc=0  python3 scripts/gen_toc.py --check
+=== python3 scripts/gen_toc.py --verify-anchors
+anchor check: 148 existing cross-page fragment links reproduced
+=== rc=0  python3 scripts/gen_toc.py --verify-anchors
+=== python3 scripts/check_doc_paths.py
+doc path gate: OK (837 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+=== rc=0  python3 scripts/check_doc_paths.py
+=== python3 scripts/check_feature_status.py
+feature_status: 0 finding(s)
+=== rc=0  python3 scripts/check_feature_status.py
+=== python3 docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+=== rc=0  python3 docs/traceability/gen_module_matrix.py --check
+=== python3 docs/DOC_MAP.gen.py --check
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+=== rc=0  python3 docs/DOC_MAP.gen.py --check
+=== python3 scripts/check_hygiene.py --check
+
+730 first-party file(s) scanned: superproject 554, protocol-processor 133, gptp-processor 43
+14 generated file(s) skipped, their fix is in their generator:
+  configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+  configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+  configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+  configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  configs/generated/sweep_opts_arty.sh
+  configs/generated/sweep_opts_ax7101.sh
+  hdl/common/csr/gen/lwsrp_csr_defaults.svh
+  hdl/common/gen/adp_shape_defaults.svh
+  tb/avtp_packet_gen_sv/examples/top.tcl
+  tb/itests/ptp_timestamp/tb_ptp_ts_top.tcl
+  tb/utests/1722/kl-avtp-common-parser/tb_top.tcl
+  tb/utests/ptp_timestamp/tb_ptp_ts_core.tcl
+  tb/utests/ptp_timestamp/tb_timestamp_counter.tcl
+
+                                superproject  protocol-processor      gptp-processor
+  trailing whitespace                      0                   0                   0
+  missing EOF newline                      0                   0                   0
+  CRLF line ending                         0                   0                   0
+  UTF-8 BOM                                0                   0                   0
+  tab in SystemVerilog                     0                   0                   0
+
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 730 file(s))
+=== rc=0  python3 scripts/check_hygiene.py --check
+=== python3 scripts/pp_srcs.py --check
+pp source list: 42 tracked source(s) derived; no build input carries a literal copy
+  prose    hdl/milan/KL_pp_shadow.sv: an RTL comment citing the submodule module it wraps
+  prose    scripts/pp_srcs.py: this generator: the table above quotes every literal it permits, and the docstring and self-test quote a source path
+  prose    sw/builder/test_builder.py: a gate citing submodule paths in its findings
+  prose    sw/litex/milan_soc.py: a comment citing a submodule line number, not a source entry
+  prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+=== rc=0  python3 scripts/pp_srcs.py --check
+=== python3 scripts/check_rtl_source_lists.py
+protocol-processor native tops list (syn/yosys/run.sh): 32 top(s) for 38 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_processor_top
+RTL source-list gate: OK (103 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 32/38 tops, 6 recorded)
+=== rc=0  python3 scripts/check_rtl_source_lists.py
+=== python3 scripts/measure_naming.py --check
+gptp-processor/hdl/top/KL_gptp_engine.sv:KL_gptp_engine: pub_offset_o — documented in ns, not named for it: last sync offset, ns (signed)
+hdl/common/csr/milan_csr.sv:milan_csr: VERSION — documented in bytes, not named for it: Value returned by the read-only 32-bit VERSION register. [31:16] is the major redesign number; [15:0] is the flat, continuously increasing compliance revision. The ENTITY firmware_version renders this as major.minor.rev. 0x005C corrects what three RO status fields MEAN (#471, #472). LWSRP_STATUS 0x694 [3:0] describes ONE subject again - the Listener attribute registered on talker source 0 - so [1:0] is its four-packed value, [2] "registered" counts Asking Failed IN, and [3] "ready" is the Ready/Ready Failed pair; the substituted plane had [2] reading bit 1 of that value and [1:0]/[3] describing sink 0's own declaration instead. ACMPL_STATE 0x6A4 [6] "TalkerAdvertise registered" compares sink 0's registered Talker code against ADVERTISE, where it had taken bit 1, the FAILED bit. No CSR address, width or access moves: 0x005B's SET_SAMPLING_RATE list check is unchanged and this is a value change in four bits of two existing read-only words. The register occupies four bytes and no CSR addresses move.  0x005E (issue #358) ADDS ONE ADDRESS: `A_GPTP_LAT` at 0x7F0, RO live, writes inert, option OFF zero - the timestamp latency corrections the fabric gPTP plane is applying, {ingress_ns[31:16], egress_ns[15:0]}. Nothing else moves, and the ONLY live consumer of a latency correction remains the plane: 0x540 and 0x544 stay inert scratch. 0x005D was never released: a parallel lane held it and landed as 0x005F.  0x005F lands the saved-state SNAPSHOT OWNERSHIP contract (#484, docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md). PP_STAT 0x924 gains [11] nvm_pend: accepted work that no verified slot holds and nvm_dirty does not report - a change the producer still holds, or a record whose logical write has not completed - so the durable reading of the saved-state page's 9.3 becomes (backed 1, dirty 0, stale 0) AND pend 0. PP_STAT[11] read 0 before and was reserved. The backend's own status word behind PP_NVM_STAT 0x93C gains a constant contract tag 0xC3 in [31:24] and the capture face the contract defines - [23] unres, [22] nvm_pend, [21] arm refused, [20] ack refused, [19] attested, [18] valid, [17] hold, [16] open, [11] reload refused, [3] load pending, [2] load accepted - and PP_NVM_SEL 0x934 gains word 5, the capture identity, and words 8 to 15, the per-record ownership vector; [8] nvm_dirty there now means the COMMITTABLE image work that drives a commit. The strobe word gains [3] ARM, [4] ATTEST, [5] RELEASE and [6] RELOAD, and [1]'s acknowledgement must quote the capture identity in [31:16]. 0x005C's SRP status words are unchanged. No CSR ADDRESS, width or access moves: this is one new PP_STAT bit and new meaning inside the backend's existing indexed window. The register occupies four bytes.  0x0060 WIDENS what PP_STAT 0x924 [11] nvm_pend REPORTS (#496, and protocol-processor issue 90, merged). 0x005F defined the bit but could only raise it for a dynamic-state field held by the AECP store, because the pinned processor exported nothing else; two of its terms read a constant zero. The pinned processor now exports the binding manager's unflushed sinks and the AECP commit marks, so [11] also reads 1 while a binding accepted INSIDE the manager's debounce has not yet committed, and after a committed channel-map (ADD/REMOVE_AUDIO_MAPPINGS) or user name (SET_NAME) change, which no record writer materializes and which therefore clears only at reset. For a controller host this makes the saved-state page's 9.3 durable reading - (backed 1, dirty 0, stale 0) AND pend 0 - honest for those three cases: a host that polled it over one of them was told durable while the change was not. Nothing here loosens the bit: 0 still means no accepted work is outstanding. No CSR address, width, access or OTHER field moves, and PP_NVM_STAT 0x93C, PP_NVM_SEL 0x934 and 0x005C's SRP status words are unchanged. The register occupies four bytes.
+hdl/common/csr/milan_csr.sv:milan_csr: o_mac_ifg — documented in bytes, not named for it: Inter-frame gap, bytes (MAC_IFG)
+hdl/common/csr/milan_csr.sv:milan_csr: o_ptp_incr — documented in ns, not named for it: Nominal per-tick increment, ns.frac (PTP_INCR)
+hdl/common/csr/milan_csr.sv:milan_csr: o_lwsrp_latency — documented in ns, not named for it: LWSRP_LATENCY AccumulatedLatency (ns)
+hdl/common/csr/milan_csr.sv:milan_csr: i_lwsrp_slope — documented in bps, not named for it: granted idleSlope bps (RO 0x698)
+hdl/common/csr/milan_csr.sv:milan_csr: o_tone_att — documented in kHz, not named for it: pilot-tone -6dB steps (TONE_CTRL[3:1])         //! 1 kHz 0 dBFS pilot tone
+hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv:KL_aaf_latency_tap_bank: TIMEOUT_C — documented in cycles, not named for it: per-stage re-arm guard, in clk_i cycles; the caller derives it from the datapath clock rather than restating a cycle count here.
+hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv:KL_aaf_latency_tap_bank: now_i — documented in nanoseconds, not named for it: gPTP nanoseconds, low word
+hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_chain: TIMEOUT_C — documented in cycles, not named for it: per-stage re-arm guard (cycles)
+hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_chain: now_i — documented in ns, not named for it: gPTP ns epoch source (ptp_now[31:0])
+hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_chain: epoch_o — documented in ns, not named for it: gPTP ns at last completed frame's stage 0
+hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_taps: TIMEOUT_C — documented in cycles, not named for it: per-stage re-arm guard (cycles)
+hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_taps: now_i — documented in ns, not named for it: gPTP ns (ptp_now[31:0]) epoch source
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:KL_aaf_packetizer: mr_i — documented in bytes, not named for it: AVTP "mr" (media clock restart) level per talker, IEEE 1722-2016 4.4.4.3: the Talker toggles it when the SOURCE of the media clock changes, and it "stays at its new value until a new media clock restart is needed" - so this is a LEVEL, not a pulse, and the >= 8-AVTPDU hold the clause requires is enforced by its producer (KL_media_clock_restart), which is what owns the per-stream PDU count. Latched per epoch beside tu so it cannot change part-way through a frame. Drive 0 and the wire bytes are byte-identical to the pre-2026-07-30 shape.
+hdl/ieee1722/aaf/KL_aes3_rx.sv:KL_aes3_rx: RUN_W_P — documented in cycles, not named for it: edge-interval counter width (clk_audio_i cycles)
+hdl/ieee1722/aaf/KL_aes3_tx.sv:KL_aes3_tx: OVERSAMPLE_P — documented in cycles, not named for it: clk_audio_i cycles per unit interval
+hdl/ieee1722/aaf/KL_chan_map_capture.sv:KL_chan_map_capture: lb_tdata_i — documented in samples, not named for it: 2 consecutive S32BE samples,
+hdl/ieee1722/aaf/KL_chan_map_capture.sv:KL_chan_map_capture: lb_flush_i — documented in samples, not named for it: bind wipe / stream-table eviction pulse per RX stream: empties the stream's pair queues, un-primes them and zeroes its holds, so no stale samples replay on a rebind. Defaulted off: an integration without a bind plane keeps the free-running behaviour.
+hdl/ieee1722/aaf/KL_chan_map_render.sv:KL_chan_map_render: map_flat_o — documented in bytes, not named for it: --- whole-map export (combinational; entry p = [p*8 +: 8]) ------------ The AEM GET_AUDIO_MAP answer walks a PAGE of entries in one query window, and the single readback port above is owned by the CSR CHMAP_SNAP path; the map is N_PHYS_P bytes of flops, so exporting it whole is wires, not logic, and keeps the two readers independent - which is exactly what lets a testbench compare them against each other.
+hdl/ieee1722/aaf/KL_i2s_feed_mux.sv:KL_i2s_feed_mux: tap_tdata_i — documented in samples, not named for it: S32BE payload beat (2 samples)
+hdl/ieee1722/aaf/KL_lat_history_ring.sv:KL_lat_history_ring: ring_base_i — documented in bytes, not named for it: BASE_HI:BASE_LO ring base (bytes)
+hdl/ieee1722/aaf/KL_lat_history_ring.sv:KL_lat_history_ring: ring_len_i — documented in bytes, not named for it: LENGTH: ring size (bytes, multiple of RECORD_BYTES_P)
+hdl/ieee1722/aaf/KL_tdm_capture_master.sv:KL_tdm_capture_master: BCLK_HALF_P — documented in cycles, not named for it: clk_audio_i cycles per bclk HALF period. bclk = clk_audio_i/(2*this). 24.576 MHz / 2 = 12.288 MHz = TDM8 x 32 bits x 48 kHz, so 1 is the shipping value. Never 0 - that would ask for a clock, not a divider.
+hdl/ieee1722/aaf/aaf_talker_i2s.sv:aaf_talker_i2s: MCLK_DIV_LOG2 — documented in MHz, not named for it: clk -> MCLK divide (log2): 50 MHz/4
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor: CLK_FREQ_HZ_P — named for a different unit (frequency) than documented (ms, time): for the 100 ms unlock timeout
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor: fsh_i — documented in bytes, not named for it: bytes O+16..O+23 of the PDU
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor: ptp_now_i — documented in nanoseconds, not named for it: PHC nanoseconds [31:0] (gPTP)
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor: pres_ofs_i — documented in ns, not named for it: presentation offset ns (MTT/acc-lat)
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx: CLK_FREQ_HZ_P — named for a different unit (frequency) than documented (ms, time): for the 1 ms tick
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx: fsh_i — documented in bytes, not named for it: bytes O+16..O+23 of the PDU
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx: ptp_now_i — documented in nanoseconds, not named for it: PHC nanoseconds [31:0]
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx: pres_ofs_i — documented in ns, not named for it: presentation offset ns
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx: dirty_p_o — documented in second, not named for it: per-context counter-change pulses (Milan 5.4.5 Table 5.22): bit s = context s committed an EVENT its GET_COUNTERS push law cares about. FRAMES_RX alone stays excluded (task #21: a healthy stream closes an interval every second forever), and so does a healthy TV tally (gh #60 F4 option (c) - see the M_PDEC_S site). Was the stream-0 scalar; sinks 1..N-1 could never arm their own Table 5.22 push (gh #60 F2).
+hdl/ieee1722/avtp/avtp_stream_parser.sv:avtp_stream_parser: fsh2_o — documented in bytes, not named for it: bytes o+24..31 (CRF ts low)
+hdl/ieee1722/crf/KL_crf_rx.sv:KL_crf_rx: ptp_now_i — documented in ns, not named for it: gPTP-synced time (ns)
+hdl/ieee1722/crf/KL_crf_rx.sv:KL_crf_rx: rate_o — documented in ns, not named for it: ns error per 256-PDU window
+hdl/ieee1722/crf/KL_media_nco.sv:KL_media_nco: TRIM_MAX_P — documented in MHz, not named for it: |trim| clamp, in LSB. DERIVED, not mirrored: the largest trim whose accumulator still re-normalises in one step is FS_HZ_P - (CLK % FS), and that bound moves with the datapath clock (100 MHz: 32000 LSB, 50 MHz: 16000 LSB - both +/-319.9 ppm, because the LSB moves with the clock too). Overriding this with a literal is how a 50 MHz build would silently drop a sample, so the default is the maximum legal value and the guards below refuse anything larger.
+hdl/ieee1722/crf/KL_media_nco.sv:KL_media_nco: trim_i — documented in ppm, not named for it: signed remainder trim, 0 = nominal. LSB = -1/CLK_FREQ_HZ_P relative (0.01 ppm at 100 MHz); POSITIVE SLOWS THE GRID. Clamped internally to +/-TRIM_MAX_P, so a wild input degrades to the clamp, never to a dropped sample.
+hdl/ieee1722/crf/KL_media_nco.sv:KL_media_nco: servo_trim_i — documented in ppm, not named for it: --- the servo path ----------------------------------------------------- KL_mmcm_drp_servo's u, signed, in 1/16 ppm units (its A_MCSRV_STAT [31:16] field). Lives HERE rather than in the datapath so the sign and the rescale are covered by this module's suite: a sign error between the two conventions is a runaway servo, not a wrong number, and four naked lines in a 5000-line wrapper had no way to be exercised.
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo: WIN_LOG2_P — documented in cycles, not named for it: local media-rate window: TICK_CYC_P audio cycles per tick (24576 @ 24.576 MHz = 1 ms), 2^WIN_LOG2_P ticks per window (512 => 512 ms, matching the KL_crf_rx 256-PDU rate window 1:1)
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo: NORM_SHIFT_P — documented in ms, not named for it: log2(512 ms / window)
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo: U_MAX_P — documented in ppm, not named for it: +-200 ppm (x512)
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo: SLEW_MAX_P — documented in ppm, not named for it: +-100 ppm / window
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo: LOCK_THR_P — documented in ppm, not named for it: 2 ppm
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo: GAIN_NUM_P — documented in ms, not named for it: u -> PS steps per tick: batch = (u * GAIN_NUM_P) >> 9. GAIN_NUM_P = round( (56 * F_VCO / 1e9) * tick_ns * 512 / 512 ) = round( 56 * 1.0567568 * 1.0 )  = 59  (1 ms tick)
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo: ptp_now_i — documented in ns, not named for it: gPTP-synced time (ns, clk_i)
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo: crf_rate_i — documented in ns, not named for it: KL_crf_rx rate_o (ns / 512 ms)
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo: drp_addr_o — documented in MHz, not named for it: MMCME2_ADV DRP port (DCLK = clk_i; DS181 FDCK <= 200 MHz)
+hdl/ieee1722/maap/KL_maap.sv:KL_maap: CLK_FREQ_HZ_P — named for a different unit (frequency) than documented (ms, time): ms tick divider base
+hdl/ieee17221/adp/adp_tx_arbiter.sv:adp_tx_arbiter: TO_LOG2_P — documented in cycles, not named for it: lock watchdog: 2^N cycles without
+hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:ptp_ts_core: lat_corr_i — documented in ns, not named for it: lat_corr_i Per-port latency correction, ns, UNSIGNED magnitude (PTP_INGRESS_LAT on an RX tap, PTP_EGRESS_LAT on a TX tap). The DIRECTION is fixed by IS_TX so software never has to negate: RX capture - lat_corr, TX capture + lat_corr (REQ-PTP-06). 0 = disabled = today's behaviour.
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top: i_ptp_incr — documented in ns, not named for it: Nominal per-tick increment, Q(INT).FRAC ns
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top: i_ptp_adj — documented in ns, not named for it: Signed adjfine addend, Q(INT).FRAC ns
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top: i_ptp_tod_wr — documented in ns, not named for it: settime target time-of-day, ns
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top: i_ptp_offset — documented in ns, not named for it: adjtime signed delta, ns
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top: i_ptp_ingress_lat — documented in ns, not named for it: PTP_INGRESS_LAT: ns subtracted from RX captures (REQ-PTP-06)
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top: i_ptp_egress_lat — documented in ns, not named for it: PTP_EGRESS_LAT: ns added to TX captures (REQ-PTP-06)
+hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top: o_ptp_tod_rd — documented in ns, not named for it: gettime result, ns (axis_clk)
+hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter: FRAC_WIDTH — documented in ns, not named for it: Fractional-nanosecond bits: PTP_INCR is Q8.24 (8 int ns + 24 frac)
+hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter: incr_i — documented in ns, not named for it: Nominal per-tick increment, Q(INT).FRAC ns
+hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter: adj_i — documented in ns, not named for it: Signed adjfine addend, Q(INT).FRAC ns
+hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter: tod_wr_i — documented in ns, not named for it: settime target time-of-day, ns
+hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter: offset_i — documented in ns, not named for it: adjtime signed delta, ns
+hdl/milan/KL_pp_shadow.sv:KL_pp_shadow: RESP_BASE_P — documented in bytes, not named for it: ---- AECP response buffer, also in the integrator's main memory ------ The response an AECP command builds (up to 16 + DESC_LINE_BYTES_P = 592 bytes at the shipping geometry) is not fabric state either: held as flops it measured 5,079 FF / 3,495 LUT inside KL_aecp_engine and it was those flops the placer could not pack on a die whose 135 block-RAM tiles were 100% spoken for. Same rule as DESC_BASE_P - a COMPILE-TIME base, never a register - with ONE difference that the integrator owns: this region is WRITTEN by the processor, so it must be reserved for the processor ALONE and it must not overlap the descriptor image. Passed straight through; this wrapper adds no policy.
+hdl/milan/KL_pp_shadow.sv:KL_pp_shadow: srp_acc_latency_o — documented in ns, not named for it: per-sink registered accumulated_latency, ns, RAW
+hdl/milan/milan_datapath.sv:milan_datapath: MCSERVO_P — documented in clock cycles, not named for it: Milan Table 5.6 observation interval (every server of the Stream Input clause: KL_avtp_rx_monitor_ctx for the AAF listeners AND KL_crf_rx for the CRF Media Clock Input), in datapath clock cycles; <= 1 s. TBs shrink it so counter checks see interval boundaries.
+hdl/milan/milan_datapath.sv:milan_datapath: PP_RESP_BASE_P — documented in bytes, not named for it: ---- AECP response buffer (protocol-processor 03 §7) ------------------- Base of the response buffer's own main-memory region - a SECOND window, 16 + PP_DESC_LINE_BYTES_P bytes wide, that the processor WRITES as well as reads. Compile-time for the same reason PP_DESC_BASE_P is, and the integration overrides it to a region reserved for the processor alone: unlike the read-only descriptor image, an overlap here is silent corruption of whatever it lands on. The SoC derives BOTH bases from its own main_ram map and states why they cannot collide.
+hdl/milan/milan_datapath.sv:milan_datapath: o_resp_mem_req_addr — documented in bytes, not named for it: ---- AECP response-buffer READ+WRITE master (to the SoC's main memory) - The SECOND main-memory master, and the reason it exists is area: the response an AECP command builds is up to 16 + PP_DESC_LINE_BYTES_P bytes and, held as fabric flops, it was the state that failed placement on a die whose block RAM was already 100% used. It is a separate face from the descriptor image above BY CONTRACT, not by convenience - both are watchdog-bounded one-transaction clients and the SoC's memory system is the arbiter.  READ: same shape as the descriptor face - ONE outstanding request, responses IN ORDER, `rsp_last` ends the burst, a beat carries its LOWEST byte address in bits [63:56] - EXCEPT that o_resp_mem_rsp_ready is REAL BACKPRESSURE and is NOT tied 1. A bridge SHALL hold a beat until it is taken. WRITE: ONE outstanding SINGLE-BEAT write. o_resp_mem_wr_addr is 8-byte aligned, o_resp_mem_wr_data is the same big-endian lane as a read beat (byte addr+n = bits [63-8n -: 8]), o_resp_mem_wr_strb bit n enables byte n and A ZERO-STROBE BYTE SHALL NOT BE MODIFIED. i_resp_mem_wr_done is a ONE-CYCLE COMMIT PULSE - same cycle as i_resp_mem_wr_ready for a posted bridge, any later cycle for an acknowledged one - and no further write is issued until it arrives. ORDERING: a read accepted after a write reported done SHALL observe that write. An integration with no memory to offer may tie i_resp_mem_req_ready and i_resp_mem_wr_ready to 0: the buffer's watchdog then voids the response and the AECP engine answers a well-formed ENTITY_MISBEHAVING instead of hanging. Legal, but it must be DELIBERATE and stated - every AECP response the entity builds is lost that way.
+hdl/milan/milan_datapath.sv:milan_datapath: o_resp_mem_req_beats — documented in bytes, not named for it: ---- AECP response-buffer READ+WRITE master (to the SoC's main memory) - The SECOND main-memory master, and the reason it exists is area: the response an AECP command builds is up to 16 + PP_DESC_LINE_BYTES_P bytes and, held as fabric flops, it was the state that failed placement on a die whose block RAM was already 100% used. It is a separate face from the descriptor image above BY CONTRACT, not by convenience - both are watchdog-bounded one-transaction clients and the SoC's memory system is the arbiter.  READ: same shape as the descriptor face - ONE outstanding request, responses IN ORDER, `rsp_last` ends the burst, a beat carries its LOWEST byte address in bits [63:56] - EXCEPT that o_resp_mem_rsp_ready is REAL BACKPRESSURE and is NOT tied 1. A bridge SHALL hold a beat until it is taken. WRITE: ONE outstanding SINGLE-BEAT write. o_resp_mem_wr_addr is 8-byte aligned, o_resp_mem_wr_data is the same big-endian lane as a read beat (byte addr+n = bits [63-8n -: 8]), o_resp_mem_wr_strb bit n enables byte n and A ZERO-STROBE BYTE SHALL NOT BE MODIFIED. i_resp_mem_wr_done is a ONE-CYCLE COMMIT PULSE - same cycle as i_resp_mem_wr_ready for a posted bridge, any later cycle for an acknowledged one - and no further write is issued until it arrives. ORDERING: a read accepted after a write reported done SHALL observe that write. An integration with no memory to offer may tie i_resp_mem_req_ready and i_resp_mem_wr_ready to 0: the buffer's watchdog then voids the response and the AECP engine answers a well-formed ENTITY_MISBEHAVING instead of hanging. Legal, but it must be DELIBERATE and stated - every AECP response the entity builds is lost that way.
+hdl/milan/milan_datapath.sv:milan_datapath: i_resp_mem_rsp_data — documented in bytes, not named for it: ---- AECP response-buffer READ+WRITE master (to the SoC's main memory) - The SECOND main-memory master, and the reason it exists is area: the response an AECP command builds is up to 16 + PP_DESC_LINE_BYTES_P bytes and, held as fabric flops, it was the state that failed placement on a die whose block RAM was already 100% used. It is a separate face from the descriptor image above BY CONTRACT, not by convenience - both are watchdog-bounded one-transaction clients and the SoC's memory system is the arbiter.  READ: same shape as the descriptor face - ONE outstanding request, responses IN ORDER, `rsp_last` ends the burst, a beat carries its LOWEST byte address in bits [63:56] - EXCEPT that o_resp_mem_rsp_ready is REAL BACKPRESSURE and is NOT tied 1. A bridge SHALL hold a beat until it is taken. WRITE: ONE outstanding SINGLE-BEAT write. o_resp_mem_wr_addr is 8-byte aligned, o_resp_mem_wr_data is the same big-endian lane as a read beat (byte addr+n = bits [63-8n -: 8]), o_resp_mem_wr_strb bit n enables byte n and A ZERO-STROBE BYTE SHALL NOT BE MODIFIED. i_resp_mem_wr_done is a ONE-CYCLE COMMIT PULSE - same cycle as i_resp_mem_wr_ready for a posted bridge, any later cycle for an acknowledged one - and no further write is issued until it arrives. ORDERING: a read accepted after a write reported done SHALL observe that write. An integration with no memory to offer may tie i_resp_mem_req_ready and i_resp_mem_wr_ready to 0: the buffer's watchdog then voids the response and the AECP engine answers a well-formed ENTITY_MISBEHAVING instead of hanging. Legal, but it must be DELIBERATE and stated - every AECP response the entity builds is lost that way.
+hdl/milan/milan_datapath.sv:milan_datapath: o_resp_mem_wr_addr — documented in bytes, not named for it: ---- AECP response-buffer READ+WRITE master (to the SoC's main memory) - The SECOND main-memory master, and the reason it exists is area: the response an AECP command builds is up to 16 + PP_DESC_LINE_BYTES_P bytes and, held as fabric flops, it was the state that failed placement on a die whose block RAM was already 100% used. It is a separate face from the descriptor image above BY CONTRACT, not by convenience - both are watchdog-bounded one-transaction clients and the SoC's memory system is the arbiter.  READ: same shape as the descriptor face - ONE outstanding request, responses IN ORDER, `rsp_last` ends the burst, a beat carries its LOWEST byte address in bits [63:56] - EXCEPT that o_resp_mem_rsp_ready is REAL BACKPRESSURE and is NOT tied 1. A bridge SHALL hold a beat until it is taken. WRITE: ONE outstanding SINGLE-BEAT write. o_resp_mem_wr_addr is 8-byte aligned, o_resp_mem_wr_data is the same big-endian lane as a read beat (byte addr+n = bits [63-8n -: 8]), o_resp_mem_wr_strb bit n enables byte n and A ZERO-STROBE BYTE SHALL NOT BE MODIFIED. i_resp_mem_wr_done is a ONE-CYCLE COMMIT PULSE - same cycle as i_resp_mem_wr_ready for a posted bridge, any later cycle for an acknowledged one - and no further write is issued until it arrives. ORDERING: a read accepted after a write reported done SHALL observe that write. An integration with no memory to offer may tie i_resp_mem_req_ready and i_resp_mem_wr_ready to 0: the buffer's watchdog then voids the response and the AECP engine answers a well-formed ENTITY_MISBEHAVING instead of hanging. Legal, but it must be DELIBERATE and stated - every AECP response the entity builds is lost that way.
+hdl/milan/milan_datapath.sv:milan_datapath: o_resp_mem_wr_data — documented in bytes, not named for it: ---- AECP response-buffer READ+WRITE master (to the SoC's main memory) - The SECOND main-memory master, and the reason it exists is area: the response an AECP command builds is up to 16 + PP_DESC_LINE_BYTES_P bytes and, held as fabric flops, it was the state that failed placement on a die whose block RAM was already 100% used. It is a separate face from the descriptor image above BY CONTRACT, not by convenience - both are watchdog-bounded one-transaction clients and the SoC's memory system is the arbiter.  READ: same shape as the descriptor face - ONE outstanding request, responses IN ORDER, `rsp_last` ends the burst, a beat carries its LOWEST byte address in bits [63:56] - EXCEPT that o_resp_mem_rsp_ready is REAL BACKPRESSURE and is NOT tied 1. A bridge SHALL hold a beat until it is taken. WRITE: ONE outstanding SINGLE-BEAT write. o_resp_mem_wr_addr is 8-byte aligned, o_resp_mem_wr_data is the same big-endian lane as a read beat (byte addr+n = bits [63-8n -: 8]), o_resp_mem_wr_strb bit n enables byte n and A ZERO-STROBE BYTE SHALL NOT BE MODIFIED. i_resp_mem_wr_done is a ONE-CYCLE COMMIT PULSE - same cycle as i_resp_mem_wr_ready for a posted bridge, any later cycle for an acknowledged one - and no further write is issued until it arrives. ORDERING: a read accepted after a write reported done SHALL observe that write. An integration with no memory to offer may tie i_resp_mem_req_ready and i_resp_mem_wr_ready to 0: the buffer's watchdog then voids the response and the AECP engine answers a well-formed ENTITY_MISBEHAVING instead of hanging. Legal, but it must be DELIBERATE and stated - every AECP response the entity builds is lost that way.
+hdl/milan/milan_datapath.sv:milan_datapath: o_resp_mem_wr_strb — documented in bytes, not named for it: ---- AECP response-buffer READ+WRITE master (to the SoC's main memory) - The SECOND main-memory master, and the reason it exists is area: the response an AECP command builds is up to 16 + PP_DESC_LINE_BYTES_P bytes and, held as fabric flops, it was the state that failed placement on a die whose block RAM was already 100% used. It is a separate face from the descriptor image above BY CONTRACT, not by convenience - both are watchdog-bounded one-transaction clients and the SoC's memory system is the arbiter.  READ: same shape as the descriptor face - ONE outstanding request, responses IN ORDER, `rsp_last` ends the burst, a beat carries its LOWEST byte address in bits [63:56] - EXCEPT that o_resp_mem_rsp_ready is REAL BACKPRESSURE and is NOT tied 1. A bridge SHALL hold a beat until it is taken. WRITE: ONE outstanding SINGLE-BEAT write. o_resp_mem_wr_addr is 8-byte aligned, o_resp_mem_wr_data is the same big-endian lane as a read beat (byte addr+n = bits [63-8n -: 8]), o_resp_mem_wr_strb bit n enables byte n and A ZERO-STROBE BYTE SHALL NOT BE MODIFIED. i_resp_mem_wr_done is a ONE-CYCLE COMMIT PULSE - same cycle as i_resp_mem_wr_ready for a posted bridge, any later cycle for an acknowledged one - and no further write is issued until it arrives. ORDERING: a read accepted after a write reported done SHALL observe that write. An integration with no memory to offer may tie i_resp_mem_req_ready and i_resp_mem_wr_ready to 0: the buffer's watchdog then voids the response and the AECP engine answers a well-formed ENTITY_MISBEHAVING instead of hanging. Legal, but it must be DELIBERATE and stated - every AECP response the entity builds is lost that way.
+protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow: LAYOUT_VER_P — documented in BYTES, not named for it: F07.8 layout_version this shadow writes and accepts 0x02 (issue #78): the record's BYTES did not change, but the meaning of `started` did. Until #78 nothing ever set it, so every record any shipped firmware persisted carries started = 0 - and started = 0 now gates the media path. Accepting those records on upgrade would fast- connect a binding that reports bound, reserves bandwidth, answers GET_STREAM_INFO with STREAMING_WAIT set, and plays nothing until a controller happens to send START_STREAMING. Refusing them costs one re-bind and cannot be silent.
+protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow: DEB_TICKS_P — documented in ms, not named for it: T-NVM-DEBOUNCE in tick_i units (F08.1: ≈500 ms at a 1 ms tick)
+protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv:KL_aecp_resp_buf: seal_len_i — documented in bytes, not named for it: payload bytes to stream, counted
+protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv:KL_aecp_resp_buf: dbg_drop_o — documented in bytes, not named for it: bytes dropped (below 12 / past end)
+protocol-processor/hdl/common/KL_pp_timer_service.sv:KL_pp_timer_service: DIV_US_P — named for a different unit (time) than documented (cycles, cycles): clk cycles per 1 µs tick; override to compress time (09 §3 TIM)
+protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch: adp_stall_count_o — documented in cycles, not named for it: cycles a record stalled on full ADP (saturates)
+protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch: acmp_stall_count_o — documented in cycles, not named for it: cycles a record stalled on full ACMP (saturates)
+protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch: aecp_stall_count_o — documented in cycles, not named for it: cycles a record stalled on full AECP (saturates)
+protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch: maap_stall_count_o — documented in cycles, not named for it: cycles a record stalled on full MAAP (saturates)
+protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:KL_pp_nvm_port: MAX_PAYLOAD_P — documented in bytes, not named for it: largest accepted payload_length in bytes; must be ≤ 65527 so that dev_len_o = 8 + payload_length always fits 16 bits
+protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv:KL_pp_tx_slots: wr_len_i — documented in bytes, not named for it: committed frame length in bytes
+protocol-processor/hdl/srp/KL_srp_decoder.sv:KL_srp_decoder: TP_DEPTH_P — documented in bytes, not named for it: listener three-packed buffer depth in bytes: ceil(NumberOfValues/3) for the largest Listener vector a legal frame can carry
+protocol-processor/hdl/srp/KL_srp_decoder.sv:KL_srp_decoder: dbg_listlen_cnt_o — documented in octets, not named for it: counted AttributeList octets at the last list close
+protocol-processor/hdl/srp/KL_srp_encoder.sv:KL_srp_encoder: ev_value_i — documented in bytes, not named for it: FirstValue, wire byte 0 at [271:264]; unused low bytes zero
+protocol-processor/hdl/srp/KL_srp_encoder.sv:KL_srp_encoder: wr_len_o — documented in bytes, not named for it: committed frame length in bytes
+protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top: TP_DEPTH_P — documented in bytes, not named for it: decoder Listener three-packed buffer depth in bytes
+protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top: wr_len_o — documented in bytes, not named for it: committed frame length in bytes
+protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top: draw_kind_o — documented in ms, not named for it: constant 3 = 10000..15000 ms (F08.2)
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: DESC_BASE_P — documented in bytes, not named for it: ---- descriptor image in the integrator's MAIN MEMORY (07 §3.3) ------ The entity model does NOT live on chip: the reference consumer's is 22,561 bytes at the 8x8 shape and the reference part measured 131 of 135 block-RAM tiles used. It lives in DDR3 on the reference board, reached through the vendor-neutral read-only master below.  Every address is a COMPILE-TIME parameter — the DRAM map is fixed when the bitstream is built, so a runtime base would only buy a 32-bit port and the flops behind it. Software loads the image at DESC_BASE_P before entity_enable; if it has not (or loaded a truncated one), the store's magic + version + checksum header check fails and reports zero configurations. READ_DESCRIPTOR then answers BAD_ARGUMENTS before locate, never a garbage descriptor on the wire.
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: RESP_BASE_P — documented in bytes, not named for it: ---- AECP response buffer in the integrator's MAIN MEMORY (03 §7) --- The response an AECP command builds is up to 592 bytes and it does not live on chip either. Held as fabric state it measured 5,079 flip-flops on the reference part and was the state the placer could not pack on a die whose block RAM was already 100 % used. Same rule as the image above: a COMPILE-TIME base, never a register. UNLIKE the image this region is WRITTEN by the processor, so the integrator must reserve `16 + DESC_LINE_BYTES_P` bytes there that nothing else writes, and it must not overlap `DESC_BASE_P`.
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: nvm_unflushed_o — documented in cycles, not named for it: per-sink UNFLUSHED binding state, the manager's own dirty vector (KL_acmp_nvm_shadow dirty_r, a clk_i register read combinationally). Bit k rises on the cycle the manager ACCEPTS a changed persisted set for sink k — two clk_i cycles after cap_wr_i, because the capture is pipelined one stage and the accept is the compare against the shadow, so a write-back that changes no persisted field never raises it — and falls on the cycle its commit reports done, or, on retry exhaustion, on the same cycle nvm_alarm_o rises. A tainted commit (a capture that hit the sink mid-flush) holds it: the burst re-serializes fresh data. An integrator publishing a "saved state pending" bit ORs this vector with aecp_dyn_dirty_o; without it a binding taken inside the manager's debounce window reads durable.
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: srp_acc_latency_o — documented in ns, not named for it: per-sink registered accumulated_latency, ns, RAW — the consumer adds its own ingress delay
+
+tree                 files  ports params documented undocumented unit-named matches excluded mismatched candidates
+gptp-processor           6    124      6        106           24          7      26       25          0          1
+protocol-processor      42   1550    266       1696          120         99     184      162          1         22
+superproject            72   1902    316       1978          240        142     292      219          3         73
+total                  120   3576    588       3780          384        248     502      406          4         96
+
+96 candidate(s): 92 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3576 ports and 588 parameters scanned, 384 with no //! and so not judged here, 406 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+=== rc=0  python3 scripts/measure_naming.py --check
+=== python3 scripts/check_port_contracts.py
+port contract gate: OK (3576 first-party port(s): hdl 1902, gptp-processor 124, protocol-processor 1550; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 93 open and 51 literal-bound named connection(s), 62 without a local rationale (all recorded; none may be added); 99 test-only hierarchical observation(s)
+=== rc=0  python3 scripts/check_port_contracts.py
+=== python3 scripts/measure_fail_fast.py --check
+parameterised modules with no elaboration contract (82 of 106):
+   gptp-processor/hdl/common/KL_gptp_timer.sv:KL_gptp_timer
+   gptp-processor/hdl/top/KL_gptp_engine.sv:KL_gptp_engine
+   gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv:KL_gptp_ucpu
+   gptp-processor/hdl/wire/KL_gptp_tx_slot.sv:KL_gptp_tx_slot
+   hdl/common/KL_link_guard.sv:KL_link_guard
+   hdl/common/axis_mux_rr_2in_1out.sv:axis_mux_rr_2in_1out
+   hdl/common/cdc_handshake.sv:cdc_handshake
+   hdl/common/cdc_pair_fifo.sv:cdc_pair_fifo
+   hdl/common/cdc_pulse.sv:cdc_pulse
+   hdl/common/csr/milan_csr.sv:milan_csr
+   hdl/common/eth_event_counter/KL_mac_rmon_events.sv:KL_mac_rmon_events
+   hdl/common/eth_event_counter/ethernet_events.sv:ethernet_events
+   hdl/common/eth_event_counter/event_counter.sv:event_counter
+   hdl/common/tx_ifg_gasket.sv:tx_ifg_gasket
+   hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv:KL_aaf_latency_tap_bank
+   hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_chain
+   hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_taps
+   hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:KL_aaf_rx_depacketizer
+   hdl/ieee1722/aaf/KL_aes3_rx.sv:KL_aes3_rx
+   hdl/ieee1722/aaf/KL_aes3_tx.sv:KL_aes3_tx
+   hdl/ieee1722/aaf/KL_chan_map_capture.sv:KL_chan_map_capture
+   hdl/ieee1722/aaf/KL_chan_map_render.sv:KL_chan_map_render
+   hdl/ieee1722/aaf/KL_i2s_playback.sv:KL_i2s_playback
+   hdl/ieee1722/aaf/KL_lat_history_ring.sv:KL_lat_history_ring
+   hdl/ieee1722/aaf/KL_media_adv.sv:KL_media_adv
+   hdl/ieee1722/aaf/KL_pcm_route.sv:KL_pcm_route
+   hdl/ieee1722/aaf/KL_tdm_capture.sv:KL_tdm_capture
+   hdl/ieee1722/aaf/KL_tdm_render.sv:KL_tdm_render
+   hdl/ieee1722/aaf/KL_tone_gen.sv:KL_tone_gen
+   hdl/ieee1722/aaf/aaf_talker_i2s.sv:aaf_talker_i2s
+   hdl/ieee1722/avtp/KL_avtp_common_parser.sv:KL_avtp_common_parser
+   hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor
+   hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx
+   hdl/ieee1722/avtp/KL_stream_table.sv:KL_stream_table
+   hdl/ieee1722/avtp/avtp_stream_parser.sv:avtp_stream_parser
+   hdl/ieee1722/crf/KL_crf_rx.sv:KL_crf_rx
+   hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo
+   hdl/ieee1722/maap/KL_maap.sv:KL_maap
+   hdl/ieee17221/adp/adp_tx_arbiter.sv:adp_tx_arbiter
+   hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv:KL_ptp_clock_validity
+   hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv:ptp_csr_sync
+   hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:ptp_ts_core
+   hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top
+   hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter
+   hdl/ieee8021q/filtering/tcam.sv:tcam
+   hdl/ieee8021q/ts/credit_based_shaper.sv:credit_based_shaper
+   hdl/ieee8021q/ts/traffic_class_map.sv:traffic_class_map
+   hdl/ieee8021q/ts/traffic_classifier.sv:traffic_classifier
+   hdl/ieee8021q/ts/traffic_controller_802_1q.sv:traffic_controller_802_1q
+   hdl/ieee8021q/ts/traffic_queues.sv:traffic_queues
+   hdl/ieee8021q/ts/traffic_shaping_core.sv:traffic_shaping_core
+   hdl/milan/KL_pp_maap_shim.sv:KL_pp_maap_shim
+   hdl/milan/KL_pp_shadow.sv:KL_pp_shadow
+   protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow
+   protocol-processor/hdl/acmp/KL_acmp_talker.sv:KL_acmp_talker
+   protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:KL_pp_acmp_listener
+   protocol-processor/hdl/adp/KL_adp_engine.sv:KL_adp_engine
+   protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv:KL_aecp_ca_originator
+   protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:KL_aecp_dyn_state
+   protocol-processor/hdl/aecp/KL_aecp_notify.sv:KL_aecp_notify
+   protocol-processor/hdl/aecp/KL_aecp_ucpu.sv:KL_aecp_ucpu
+   protocol-processor/hdl/common/KL_pp_timer_service.sv:KL_pp_timer_service
+   protocol-processor/hdl/maap/KL_pp_maap.sv:KL_pp_maap
+   protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch
+   protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch_fifo
+   protocol-processor/hdl/packet_engine/KL_pp_event_router.sv:KL_pp_event_router
+   protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:KL_pp_nvm_port
+   protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv:KL_pp_rx_slots
+   protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv:KL_pp_rx_validator
+   protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv:KL_pp_scoreboard
+   protocol-processor/hdl/packet_engine/KL_pp_side_port.sv:KL_pp_side_port
+   protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv:KL_pp_trace_ring
+   protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv:KL_pp_tx_arbiter
+   protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv:KL_pp_tx_slots
+   protocol-processor/hdl/srp/KL_srp_admission.sv:KL_srp_admission
+   protocol-processor/hdl/srp/KL_srp_decoder.sv:KL_srp_decoder
+   protocol-processor/hdl/srp/KL_srp_domain.sv:KL_srp_domain
+   protocol-processor/hdl/srp/KL_srp_listener_fsm.sv:KL_srp_listener_fsm
+   protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:KL_srp_talker_fsm
+   protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top
+   protocol-processor/hdl/srp/KL_srp_vlan.sv:KL_srp_vlan
+   protocol-processor/hdl/top/KL_mrp_strip.sv:KL_mrp_strip
+
+measured shell population: 24 shell scripts, 5 workflow files, 96 Makefiles (recipe lines); Python and Tcl are not measured
+
+pipelines that discard their producer's exit code (4):
+   gptp-processor/syn/ooc/run.sh:34  grep -A2 "Slice LUTs\|Block RAM Tile\|DSPs" ucpu_util.rpt | head -20
+   gptp-processor/syn/ooc/run.sh:36  grep -A2 "Slice LUTs\|Block RAM Tile\|DSPs" engine_util.rpt | head -20
+   tb/verilator/avtp_rxmon/Makefile:56  verilator_coverage --annotate cov_annotated --annotate-min 1 coverage.dat | tail -2
+   tb/verilator/maap/Makefile:27  verilator_coverage --annotate cov_annotated --annotate-min 1 coverage.dat | tail -2
+
+captured verdicts whose exit status is discarded (0):
+
+waived by site, with a reason (2):
+   .github/workflows/rtl-fast.yml:104  the grep IS the version assertion; its status is the verdict
+   .github/workflows/rtl.yml:206  the grep IS the version assertion; its status is the verdict
+
+FAIL-FAST RATCHET: PASS (82 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+  the ratchets can be lowered to 82, 4 and 0
+=== rc=0  python3 scripts/measure_fail_fast.py --check
+=== python3 scripts/measure_test_evidence.py --check
+RTL suites with an executable mutation or negative arm: 17 of 91
+    56 under tb/verilator  (entry: scripts/run_all_suites.sh)
+    30 under protocol-processor/tb  (entry: protocol-processor/scripts/run_suites.sh, protocol-processor/.github/workflows/hdl.yml)
+     4 under gptp-processor/tb/verilator  (entry: gptp-processor/Makefile)
+
+armed suites, and the executed target that arms them (17):
+   gptp-processor/tb/tsngen: `mutants` driver mutants.py
+   gptp-processor/tb/verilator/engine: `mutants` driver mutants.py
+   gptp-processor/tb/verilator/gaskets: `mutants` driver mutants.py
+   protocol-processor/tb/nvm_port: `figures` driver measure_figures.py
+   tb/verilator/gptp_shadow: `lifecycle` driver test_mutant_lifecycle.py
+   tb/verilator/gptp_txts: `mutants` driver mutants.py
+   tb/verilator/media_grid_align: `run` define +define+MGA_MUT_U_SIGN
+   tb/verilator/milan_dp: `run` driver render_mutants.py
+   tb/verilator/milan_dp_gptp: `all` driver verify_abort.py
+   tb/verilator/milan_dp_render: `run` driver tdm8_render_mutants.py
+   tb/verilator/nvm_backend: `run` table $(MUTANTS)
+   tb/verilator/nvm_cosim: `run` driver run_cases.py
+   tb/verilator/ptp_ts: `sva-campaign` driver sva_campaign.py
+   tb/verilator/render_setpoint: `mutants` driver mutants.py
+   tb/verilator/rx_filter: `binding-negative` driver binding_mutant.py
+   tb/verilator/tcam: `mutants` driver mutants.py
+   tb/verilator/tsn_fuzz: `graderself` driver test_grade_tx.py
+
+suites with none (74):
+   gptp-processor/tb/verilator/parser
+   gptp-processor/tb/verilator/ucpu
+   protocol-processor/tb/acmp_listener
+   protocol-processor/tb/acmp_nvm
+   protocol-processor/tb/acmp_talker
+   protocol-processor/tb/adp_engine
+   protocol-processor/tb/aecp_notify
+   protocol-processor/tb/ca_originator
+   protocol-processor/tb/desc_store
+   protocol-processor/tb/dispatch
+   protocol-processor/tb/dyn_state
+   protocol-processor/tb/event_router
+   protocol-processor/tb/maap
+   protocol-processor/tb/originator
+   protocol-processor/tb/pp_top
+   protocol-processor/tb/prng
+   protocol-processor/tb/release_merge
+   protocol-processor/tb/resp_buf
+   protocol-processor/tb/rx_slots
+   protocol-processor/tb/rx_validator
+   protocol-processor/tb/scoreboard
+   protocol-processor/tb/side_port
+   protocol-processor/tb/srp_decoder
+   protocol-processor/tb/srp_encoder
+   protocol-processor/tb/srp_stream_fsms
+   protocol-processor/tb/srp_top
+   protocol-processor/tb/timer_map
+   protocol-processor/tb/timer_service
+   protocol-processor/tb/tx_arbiter
+   protocol-processor/tb/tx_slots
+   protocol-processor/tb/ucpu
+   tb/verilator/aaf
+   tb/verilator/aaf_audio_loop
+   tb/verilator/aaf_latency_tap_bank
+   tb/verilator/aaf_latency_taps
+   tb/verilator/adp_tx
+   tb/verilator/aes3
+   tb/verilator/avtp_parser
+   tb/verilator/avtp_rxmon
+   tb/verilator/avtp_stream
+   tb/verilator/cbs
+   tb/verilator/cdc
+   tb/verilator/chmap_capture
+   tb/verilator/chmap_render
+   tb/verilator/classifier
+   tb/verilator/clkvalid
+   tb/verilator/cls
+   tb/verilator/controller_rate
+   tb/verilator/crf_rx
+   tb/verilator/crf_tx
+   tb/verilator/csr
+   tb/verilator/datapath
+   tb/verilator/eth_tx_reset
+   tb/verilator/gptp_plane
+   tb/verilator/i2spb
+   tb/verilator/ifg
+   tb/verilator/lat_history_ring
+   tb/verilator/link_guard
+   tb/verilator/maap
+   tb/verilator/mac_rmon
+   tb/verilator/media_nco
+   tb/verilator/mmcm_servo
+   tb/verilator/mmcm_servo_autorepair
+   tb/verilator/pair_fill
+   tb/verilator/pcmlpf
+   tb/verilator/pp_shadow
+   tb/verilator/ptp
+   tb/verilator/ptp_sync
+   tb/verilator/queues
+   tb/verilator/shaper_core
+   tb/verilator/tcam_csr
+   tb/verilator/tdm
+   tb/verilator/tdm_render
+   tb/verilator/tkdiag
+
+files that draw random values without recording a seed (10):
+   tb/avtp_packet_gen_sv/tb_classes/avtp_adp_packet_gen.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_alter_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_control_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_random_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_stream_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/itests/802_1q_traffic_shaper/tb_traffic_controller_802_1q.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/1722/kl-avtp-common-parser/tb_top.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/802_1q_traffic_shaper/tb_traffic_classifier.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/ethernet_events/tb_ethernet_events.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/ptp_timestamp/tb_ptp_ts_core.sv: $urandom/$random/randomize without srandom or a seed
+
+test programs that read production HDL (13):
+   gptp-processor/tb/check_phc_contract.py: structural boundary check; it asserts required/forbidden tokens, not behavior
+   gptp-processor/tb/tsngen/mutants.py: mutation campaign; it stages three engine defects and requires failure
+   protocol-processor/tb/nvm_port/measure_figures.py: mutation campaign; it rewrites one RTL arm and requires the suite to fail
+   tb/verilator/gptp_shadow/test_mutant_lifecycle.py: orchestration lifecycle fixture; it identifies the planted mutation and compares caller bytes/modes/index across interruption. Synthetic commands grade isolation and cleanup only; RTL behavior still requires the real suite
+   tb/verilator/milan_dp/crflic_mutants.py: UNEXPLAINED
+   tb/verilator/milan_dp/render_mutants.py: mutation campaign; it plants one of four render-law defects into a copy and requires a named failure
+   tb/verilator/milan_dp_render/tdm8_render_mutants.py: mutation campaign; it plants one render-lane defect from its own table into a copy or runs a leg-side defect arm, and requires the named check to fail. The suite's default target runs its --leg-defects arms; the gateware and shape mutants are the explicit tdm8render-mutants target
+   tb/verilator/nvm_backend/mutate.py: mutation campaign; it plants one of four backend defects into a copy and requires failure
+   tb/verilator/nvm_cosim/run_cases.py: co-simulation driver; it reads the SHIPPING backend and the SHIPPING writer because they ARE the pair under test -- it compiles that writer for the host and Verilates that backend behind it, planting a named defect through mutate.py or taking a pre-contract copy for the non-vacuity control. It grades nothing from the text: every verdict is a named check in cosim_checks.py over a dumped journal
+   tb/verilator/ptp_ts/sva_campaign.py: mutation campaign; it plants one of fifteen axis_mux_rr_2in_1out defects into a scratch copy and requires the named SVA property, or for one row the scoreboard, to fail; no expected value is read from the text
+   tb/verilator/render_setpoint/mutants.py: mutation campaign; it plants one of thirteen setpoint-stage defects into a copy and requires failure
+   tb/verilator/rx_filter/binding_mutant.py: mutation campaign; it ties a real named binding low and requires failure
+   tb/verilator/tcam/mutants.py: mutation campaign; it injects three RTL defects and requires failure
+
+suite files using host wall-clock/process deadlines (3):
+   tb/verilator/tcam/mutants.py
+   tb/verilator/tsn_fuzz/cosim.py
+   tb/verilator/tsn_fuzz/tsn_model.py
+
+Verilator scheduling: 55 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: OK
+
+FAIL: 1 unexplained DUT-source reader(s) > ratchet 0; stale dispositions: []
+=== rc=1  python3 scripts/measure_test_evidence.py --check
+=== python3 scripts/check_todo_ownership.py
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 780 first-party file(s) read)
+=== rc=0  python3 scripts/check_todo_ownership.py
+=== python3 scripts/check_sv_idiom.py
+SystemVerilog idiom gate: OK (124 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+=== rc=0  python3 scripts/check_sv_idiom.py
+=== python3 scripts/check_cpp_idiom.py
+FAIL: multi-declarator declaration 10 > ratchet 0. New C++ uses the named construct; see Rule 11 in docs/development/CODE_QUALITY.md.
+=== rc=1  python3 scripts/check_cpp_idiom.py
+=== python3 scripts/check_py_idiom.py
+FAIL: undocumented public function 1 > ratchet 0. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+=== rc=1  python3 scripts/check_py_idiom.py
+=== python3 scripts/check_sh_idiom.py
+sh idiom: 22 first-party scripts
+  backtick substitution: 0
+  cd without a failure path: 0
+  branch on $?: 0
+  shebang without the executable bit: 0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+=== rc=0  python3 scripts/check_sh_idiom.py
+=== python3 scripts/xvlog_gate.py --check
+xvlog gate: 4 finding(s) across 4 module(s)
+  analysed: 72 tracked .sv/.v file(s) under hdl/ and 48 under the pinned processors (protocol-processor/hdl, gptp-processor/hdl)
+  pinned at: protocol-processor@09f9bf38; gptp-processor@c1b61743 - the superproject gitlink, which each checkout was required to BE before anything was enumerated
+  NOT analysed: third_party/ and external/ (leaf IP this repo neither owns nor edits), and
+                any defect only ELABORATION rejects - xvlog analyses; the split-initialiser
+                class needs xelab, which nothing in this repo runs (#224)
+  hdl/: 0 finding(s)
+  pinned processors: 4 finding(s)
+    protocol-processor:hdl/aecp/KL_aecp_notify.sv:502  [VRFC 10-3380] 'pd_ix_w'  identifier 'pd_ix_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_originator.sv:194  [VRFC 10-3380] 'cancel_hit_w'  identifier 'cancel_hit_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv:364  [VRFC 10-3380] 'vd_push_w'  identifier 'vd_push_w' is used before its declaration
+    protocol-processor:hdl/top/protocol_processor_top.sv:792  [VRFC 10-3380] 'srp_class_a_prio_w'  identifier 'srp_class_a_prio_w' is used before its declaration
+xvlog gate: PASS (4 finding(s) == ratchet; 0 hdl/, 4 pinned processors)
+=== rc=0  python3 scripts/xvlog_gate.py --check
+=== git diff --check 50e78097564244c124e1ec30dd8821f83951ab06
+=== rc=0  git diff --check 50e78097564244c124e1ec30dd8821f83951ab06
