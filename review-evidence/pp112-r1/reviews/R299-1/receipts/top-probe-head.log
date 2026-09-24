@@ -1,0 +1,89 @@
+verilator --cc --exe --build -j 0 --top-module srp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv srp_top_wrap.sv sim_main.cpp -o Vsrp_top_sim
+make[1]: Entering directory '<packet>/scratch/topprobe-head/tb/srp_top/obj_dir'
+g++  -I.  -MMD -I<pinned-tool-root>/usr/share/verilator/include -I<pinned-tool-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<pinned-tool-root>/usr/share/verilator/include -I<pinned-tool-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra   -c -o verilated.o <pinned-tool-root>/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<pinned-tool-root>/usr/share/verilator/include -I<pinned-tool-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra   -c -o verilated_threads.o <pinned-tool-root>/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I<pinned-tool-root>/usr/share/verilator/include -I<pinned-tool-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra   -x c++-header Vsrp_top_wrap__pch.h -o Vsrp_top_wrap__pch.h.fast.gch
+g++   -I.  -MMD -I<pinned-tool-root>/usr/share/verilator/include -I<pinned-tool-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra   -x c++-header Vsrp_top_wrap__pch.h -o Vsrp_top_wrap__pch.h.slow.gch
+g++   -I.  -MMD -I<pinned-tool-root>/usr/share/verilator/include -I<pinned-tool-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -I<pinned-tool-root>/usr/share/verilator/include -I<pinned-tool-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap___024root__Slow.cpp
+g++   -I.  -MMD -I<pinned-tool-root>/usr/share/verilator/include -I<pinned-tool-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap___024root__0__Slow.cpp
+g++   -I.  -MMD -I<pinned-tool-root>/usr/share/verilator/include -I<pinned-tool-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap__Syms__Slow.cpp
+g++ -Os  -I.  -MMD -I<pinned-tool-root>/usr/share/verilator/include -I<pinned-tool-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.fast -c Vsrp_top_wrap.cpp
+g++ -Os  -I.  -MMD -I<pinned-tool-root>/usr/share/verilator/include -I<pinned-tool-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.fast -c Vsrp_top_wrap___024root__0.cpp
+g++ -Os  -I.  -MMD -I<pinned-tool-root>/usr/share/verilator/include -I<pinned-tool-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/topprobe-head/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.fast -c Vsrp_top_wrap___024root__1.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vsrp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_top_sim
+rm Vsrp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<packet>/scratch/topprobe-head/tb/srp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.392 MB sources in 15 modules, into 1.861 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 5.271 s (elab=0.020, cvt=0.174, bld=5.018); cpu 0.276 s on 16 threads; allocated 1158.371 MB
+./obj_dir/Vsrp_top_sim
+PROBE mode=identical phase=0 src7_grant_cycles=16 src7_active_and_grant_cycles=15 src7_declared_advertise_cycles=16 longest_grant=16 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 0 phase 0)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 0 phase 0)
+FAIL: PROBE refused source 7 never declares Advertise (mode 0 phase 0)
+PROBE mode=identical phase=1 src7_grant_cycles=8 src7_active_and_grant_cycles=7 src7_declared_advertise_cycles=8 longest_grant=8 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 0 phase 1)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 0 phase 1)
+FAIL: PROBE refused source 7 never declares Advertise (mode 0 phase 1)
+PROBE mode=identical phase=2 src7_grant_cycles=8 src7_active_and_grant_cycles=7 src7_declared_advertise_cycles=8 longest_grant=8 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 0 phase 2)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 0 phase 2)
+FAIL: PROBE refused source 7 never declares Advertise (mode 0 phase 2)
+PROBE mode=identical phase=3 src7_grant_cycles=8 src7_active_and_grant_cycles=7 src7_declared_advertise_cycles=8 longest_grant=8 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 0 phase 3)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 0 phase 3)
+FAIL: PROBE refused source 7 never declares Advertise (mode 0 phase 3)
+PROBE mode=identical phase=4 src7_grant_cycles=8 src7_active_and_grant_cycles=7 src7_declared_advertise_cycles=8 longest_grant=8 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 0 phase 4)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 0 phase 4)
+FAIL: PROBE refused source 7 never declares Advertise (mode 0 phase 4)
+PROBE mode=identical phase=5 src7_grant_cycles=8 src7_active_and_grant_cycles=7 src7_declared_advertise_cycles=8 longest_grant=8 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 0 phase 5)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 0 phase 5)
+FAIL: PROBE refused source 7 never declares Advertise (mode 0 phase 5)
+PROBE mode=identical phase=6 src7_grant_cycles=8 src7_active_and_grant_cycles=7 src7_declared_advertise_cycles=8 longest_grant=8 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 0 phase 6)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 0 phase 6)
+FAIL: PROBE refused source 7 never declares Advertise (mode 0 phase 6)
+PROBE mode=identical phase=7 src7_grant_cycles=16 src7_active_and_grant_cycles=15 src7_declared_advertise_cycles=16 longest_grant=16 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 0 phase 7)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 0 phase 7)
+FAIL: PROBE refused source 7 never declares Advertise (mode 0 phase 7)
+PROBE mode=shrink phase=0 src7_grant_cycles=16 src7_active_and_grant_cycles=15 src7_declared_advertise_cycles=16 longest_grant=16 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 1 phase 0)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 1 phase 0)
+FAIL: PROBE refused source 7 never declares Advertise (mode 1 phase 0)
+PROBE mode=shrink phase=1 src7_grant_cycles=8 src7_active_and_grant_cycles=7 src7_declared_advertise_cycles=8 longest_grant=8 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 1 phase 1)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 1 phase 1)
+FAIL: PROBE refused source 7 never declares Advertise (mode 1 phase 1)
+PROBE mode=shrink phase=2 src7_grant_cycles=8 src7_active_and_grant_cycles=7 src7_declared_advertise_cycles=8 longest_grant=8 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 1 phase 2)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 1 phase 2)
+FAIL: PROBE refused source 7 never declares Advertise (mode 1 phase 2)
+PROBE mode=shrink phase=3 src7_grant_cycles=8 src7_active_and_grant_cycles=7 src7_declared_advertise_cycles=8 longest_grant=8 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 1 phase 3)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 1 phase 3)
+FAIL: PROBE refused source 7 never declares Advertise (mode 1 phase 3)
+PROBE mode=shrink phase=4 src7_grant_cycles=8 src7_active_and_grant_cycles=7 src7_declared_advertise_cycles=8 longest_grant=8 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 1 phase 4)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 1 phase 4)
+FAIL: PROBE refused source 7 never declares Advertise (mode 1 phase 4)
+PROBE mode=shrink phase=5 src7_grant_cycles=8 src7_active_and_grant_cycles=7 src7_declared_advertise_cycles=8 longest_grant=8 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 1 phase 5)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 1 phase 5)
+FAIL: PROBE refused source 7 never declares Advertise (mode 1 phase 5)
+PROBE mode=shrink phase=6 src7_grant_cycles=8 src7_active_and_grant_cycles=7 src7_declared_advertise_cycles=8 longest_grant=8 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 1 phase 6)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 1 phase 6)
+FAIL: PROBE refused source 7 never declares Advertise (mode 1 phase 6)
+PROBE mode=shrink phase=7 src7_grant_cycles=16 src7_active_and_grant_cycles=15 src7_declared_advertise_cycles=16 longest_grant=16 wire_talker_advertise_frames=0 settled_src7_grant=0 settled_src7_decl=2
+FAIL: PROBE refused source 7 never grants (mode 1 phase 7)
+FAIL: PROBE refused source 7 never ACTIVE AND granted (mode 1 phase 7)
+FAIL: PROBE refused source 7 never declares Advertise (mode 1 phase 7)
+PROBE SUMMARY runs=16 with_grant=16 with_active_and_grant=16 with_declared_advertise=16 with_wire_advertise=0 longest_grant_cycles=16
+80 checks: 32 PASS, 48 FAIL
+make: *** [Makefile:25: run] Error 1
+rc=2
