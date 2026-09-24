@@ -1,0 +1,64 @@
+== lane head fb84de54ee9c1e3a2b51d2a239efbc04e4a22bad tree 24a2b1c9bd657d2d14b5e814f18ec349108ffc1f base 26d855a9176d63625e6635a029a0c44e3d57ce9a
+== protocol-processor 424c688fa2205b934a7689a58f2aa766420f2326, gptp-processor c1b617435824929a790739ea8585c3fe1a328cc0
+
+== cd tests && behave --no-capture -f plain (full suite)
+exit 0
+14 features passed, 0 failed, 0 skipped
+343 scenarios passed, 0 failed, 0 skipped
+1736 steps passed, 0 failed, 0 skipped
+Took 0min 0.704s
+
+== cd tests && behave --no-capture -f plain features/aecp_response_contract.feature
+exit 0
+1 feature passed, 0 failed, 0 skipped
+59 scenarios passed, 0 failed, 0 skipped
+435 steps passed, 0 failed, 0 skipped
+Took 0min 0.025s
+
+== python3 -B scripts/check_py_idiom.py
+exit 0
+py idiom: 226 first-party modules, 163493 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+
+== python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 848 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+exit 0
+
+== python3 -B scripts/check_feature_status.py
+feature_status: 0 finding(s)
+exit 0
+
+== python3 -B scripts/check_em_dash.py --base 26d855a9
+check_em_dash: 0 finding(s) over 2 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [26d855a9..HEAD]
+exit 0
+
+== git diff --check 26d855a9 HEAD
+exit 0
+
+== git diff --stat 612db13c2 HEAD (this round)
+ tests/README.md                               |   2 +-
+ tests/features/aecp_response_contract.feature | 113 +++++++++++++++++++-------
+ tests/steps/aecp_engine_model.py              |  32 +++++++-
+ tests/steps/aecp_engine_steps.py              |  61 ++++++++++++--
+ 4 files changed, 164 insertions(+), 44 deletions(-)
+
+== git diff --stat 26d855a9 HEAD -- protocol-processor gptp-processor hdl firmware (must be empty)
+(end)
+
+== git status --porcelain
+(end)

@@ -1,0 +1,53 @@
+CONTROL (no mutation): exit 0, 59 scenarios passed, 0 failed, 0 skipped
+[RED] R1 protocol_id head @22..@23 not compared: exit 1, 57 scenarios passed, 2 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:181  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.1 each compared field, one at a time
+    fails: features/aecp_response_contract.feature:182  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.2 each compared field, one at a time
+[RED] R2 only @27 compared: exit 1, 52 scenarios passed, 7 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:181  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.1 each compared field, one at a time
+    fails: features/aecp_response_contract.feature:182  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.2 each compared field, one at a time
+    fails: features/aecp_response_contract.feature:183  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.3 each compared field, one at a time
+    fails: features/aecp_response_contract.feature:184  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.4 each compared field, one at a time
+    fails: features/aecp_response_contract.feature:185  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.5 each compared field, one at a time
+    fails: features/aecp_response_contract.feature:186  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.6 each compared field, one at a time
+    fails: features/aecp_response_contract.feature:187  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.7 each compared field, one at a time
+[RED] R3 @24..@26 not compared: exit 1, 54 scenarios passed, 5 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:183  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.3 each compared field, one at a time
+    fails: features/aecp_response_contract.feature:184  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.4 each compared field, one at a time
+    fails: features/aecp_response_contract.feature:185  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.5 each compared field, one at a time
+    fails: features/aecp_response_contract.feature:186  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.6 each compared field, one at a time
+    fails: features/aecp_response_contract.feature:187  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.7 each compared field, one at a time
+[RED] R4 message_type guard dropped: exit 1, 52 scenarios passed, 7 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:219  the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.1 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    fails: features/aecp_response_contract.feature:220  the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.2 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    fails: features/aecp_response_contract.feature:221  the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.3 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    fails: features/aecp_response_contract.feature:222  the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.4 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    fails: features/aecp_response_contract.feature:223  the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.5 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    fails: features/aecp_response_contract.feature:224  the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.6 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    fails: features/aecp_response_contract.feature:225  the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.7 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+[RED] R5 ADDRESS_ACCESS also decoded as MVU: exit 1, 58 scenarios passed, 1 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:220  the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.2 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+[RED] R6 length guard at pp_top M6's 6 octets: exit 1, 58 scenarios passed, 1 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:191  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.11 each compared field, one at a time
+[RED] R7 served MVU answered with status NOT_IMPLEMENTED: exit 1, 55 scenarios passed, 4 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:131  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @1.1 SHALL, served
+    fails: features/aecp_response_contract.feature:196  only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.1 the two things the sub-decode does not compare
+    fails: features/aecp_response_contract.feature:197  only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.2 the two things the sub-decode does not compare
+    fails: features/aecp_response_contract.feature:198  only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.3 the two things the sub-decode does not compare
+[RED] R8 served MVU emitted as an echo: exit 1, 54 scenarios passed, 5 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:131  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @1.1 SHALL, served
+    fails: features/aecp_response_contract.feature:150  GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
+    fails: features/aecp_response_contract.feature:196  only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.1 the two things the sub-decode does not compare
+    fails: features/aecp_response_contract.feature:197  only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.2 the two things the sub-decode does not compare
+    fails: features/aecp_response_contract.feature:198  only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.3 the two things the sub-decode does not compare
+[SURVIVED] R9 MVU arm ahead of the AEM arms: exit 0, 59 scenarios passed, 0 failed, 0 skipped
+[RED] R10 an MVU command walked and echoed only to the Figure 5.3 8 octets: exit 1, 57 scenarios passed, 2 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:136  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.1 RECOMMENDED by the #510 decision, not implemented, echoed at the command's own length
+    fails: features/aecp_response_contract.feature:138  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.3 RECOMMENDED by the #510 decision, not implemented, echoed at the command's own length
+[RED] R11 command_type not read: every whole Milan MVU command served: exit 1, 54 scenarios passed, 5 failed, 0 skipped
+    fails: features/aecp_response_contract.feature:136  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.1 RECOMMENDED by the #510 decision, not implemented, echoed at the command's own length
+    fails: features/aecp_response_contract.feature:137  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.2 RECOMMENDED by the #510 decision, not implemented, echoed at the command's own length
+    fails: features/aecp_response_contract.feature:138  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.3 RECOMMENDED by the #510 decision, not implemented, echoed at the command's own length
+    fails: features/aecp_response_contract.feature:139  a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.4 RECOMMENDED by the #510 decision, not implemented, echoed at the command's own length
+    fails: features/aecp_response_contract.feature:190  only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.10 each compared field, one at a time
+CONTROL after restore: exit 0, 59 scenarios passed, 0 failed, 0 skipped
+11 arms, 1 survived

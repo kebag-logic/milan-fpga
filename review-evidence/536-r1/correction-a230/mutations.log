@@ -1,0 +1,124 @@
+lane head fb84de54ee9c1e3a2b51d2a239efbc04e4a22bad
+CONTROL before: exit 0, 59 scenarios passed, 0 failed, 0 skipped
+[RED-EXACT] F2 R280 R10: an MVU command walked and echoed only to Figure 5.3's 8 octets
+    file tests/steps/aecp_engine_model.py; 57 scenarios passed, 2 failed, 0 skipped
+    failing lines [136, 138]; expected [136, 138]
+[RED-EXACT] F2 R281: the MVU NOT_IMPLEMENTED echo capped at 8 payload octets
+    file tests/steps/aecp_engine_model.py; 57 scenarios passed, 2 failed, 0 skipped
+    failing lines [136, 138]; expected [136, 138]
+[RED-EXACT] F2: SET_SYSTEM_UNIQUE_ID sent without Figure 5.5's system_unique_id
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [136]; expected [136]
+[RED-EXACT] F2: SET_MEDIA_CLOCK_REFERENCE_INFO sent without Figure 5.6's @32..@103
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [138]; expected [138]
+[RED-EXACT] F2: row 0x0001 cdl cell back to 20
+    file tests/features/aecp_response_contract.feature; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [136]; expected [136]
+[RED-EXACT] F2: row 0x0003 cdl cell back to 20
+    file tests/features/aecp_response_contract.feature; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [138]; expected [138]
+[RED-EXACT] F2: row 0x0001 names Figure 5.3 (the form guard)
+    file tests/features/aecp_response_contract.feature; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [136]; expected [136]
+[RED-EXACT] F2: row 0x0004 names Figure 5.3 (the form guard)
+    file tests/features/aecp_response_contract.feature; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [139]; expected [139]
+[RED-EXACT] F2: row 0x0000 status 0 -> 1
+    file tests/features/aecp_response_contract.feature; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [131]; expected [131]
+[RED-EXACT] F2: row 0x0001 status 1 -> 0
+    file tests/features/aecp_response_contract.feature; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [136]; expected [136]
+[RED-EXACT] F2: row 0x0002 status 1 -> 0
+    file tests/features/aecp_response_contract.feature; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [137]; expected [137]
+[RED-EXACT] F2: row 0x0003 status 1 -> 0
+    file tests/features/aecp_response_contract.feature; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [138]; expected [138]
+[RED-EXACT] F2: row 0x0004 status 1 -> 0
+    file tests/features/aecp_response_contract.feature; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [139]; expected [139]
+[RED-EXACT] F2: SERVED_MVU declares 0x0001
+    file tests/steps/aecp_engine_steps.py; 57 scenarios passed, 2 failed, 0 skipped
+    failing lines [136, 233]; expected [136, 233]
+[RED-EXACT] F2: SERVED_MVU declares 0x0002
+    file tests/steps/aecp_engine_steps.py; 57 scenarios passed, 2 failed, 0 skipped
+    failing lines [137, 233]; expected [137, 233]
+[RED-EXACT] F2: SERVED_MVU declares 0x0003
+    file tests/steps/aecp_engine_steps.py; 57 scenarios passed, 2 failed, 0 skipped
+    failing lines [138, 233]; expected [138, 233]
+[RED-EXACT] F2: SERVED_MVU declares 0x0004
+    file tests/steps/aecp_engine_steps.py; 57 scenarios passed, 2 failed, 0 skipped
+    failing lines [139, 233]; expected [139, 233]
+[RED-EXACT] F2 R280 R11: command_type not read
+    file tests/steps/aecp_engine_model.py; 54 scenarios passed, 5 failed, 0 skipped
+    failing lines [136, 137, 138, 139, 190]; expected [136, 137, 138, 139, 190]
+[RED-EXACT] F2: the model reverted, MVU dispatch arm never taken
+    file tests/steps/aecp_engine_model.py; 54 scenarios passed, 5 failed, 0 skipped
+    failing lines [131, 150, 196, 197, 198]; expected [131, 150, 196, 197, 198]
+[RED-EXACT] F1: @22 not compared
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [181]; expected [181]
+[RED-EXACT] F1: @23 not compared
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [182]; expected [182]
+[RED-EXACT] F1: @24 not compared
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [183]; expected [183]
+[RED-EXACT] F1: @25 not compared
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [184]; expected [184]
+[RED-EXACT] F1: @26 not compared
+    file tests/steps/aecp_engine_model.py; 56 scenarios passed, 3 failed, 0 skipped
+    failing lines [185, 186, 187]; expected [185, 186, 187]
+[RED-EXACT] F1: @27 not compared
+    file tests/steps/aecp_engine_model.py; 57 scenarios passed, 2 failed, 0 skipped
+    failing lines [188, 189]; expected [188, 189]
+[RED-EXACT] F1: @26 cut down to its high nibble (the OUI-36's last)
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [187]; expected [187]
+[RED-EXACT] F1: @26 cut down to its low nibble (the protocol id's top)
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [186]; expected [186]
+[RED-EXACT] F1 R280 R2 / R281 pid_only_27: only @27 compared
+    file tests/steps/aecp_engine_model.py; 52 scenarios passed, 7 failed, 0 skipped
+    failing lines [181, 182, 183, 184, 185, 186, 187]; expected [181, 182, 183, 184, 185, 186, 187]
+[RED-EXACT] F1 R281 mt_guard_dropped: message_type not compared
+    file tests/steps/aecp_engine_model.py; 52 scenarios passed, 7 failed, 0 skipped
+    failing lines [219, 220, 221, 222, 223, 224, 225]; expected [219, 220, 221, 222, 223, 224, 225]
+[RED-EXACT] F1: message_type 0 also decoded as MVU
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [219]; expected [219]
+[RED-EXACT] F1: message_type 2 also decoded as MVU
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [220]; expected [220]
+[RED-EXACT] F1: message_type 4 also decoded as MVU
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [221]; expected [221]
+[RED-EXACT] F1: message_type 8 also decoded as MVU
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [222]; expected [222]
+[RED-EXACT] F1: message_type 10 also decoded as MVU
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [223]; expected [223]
+[RED-EXACT] F1: message_type 12 also decoded as MVU
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [224]; expected [224]
+[RED-EXACT] F1: message_type 14 also decoded as MVU
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [225]; expected [225]
+[RED-EXACT] F1: the step leaves the frame at message_type 6
+    file tests/steps/aecp_engine_steps.py; 52 scenarios passed, 7 failed, 0 skipped
+    failing lines [219, 220, 221, 222, 223, 224, 225]; expected [219, 220, 221, 222, 223, 224, 225]
+[RED-EXACT] F1 R281 len_exact_20: the length guard made exact
+    file tests/steps/aecp_engine_model.py; 57 scenarios passed, 2 failed, 0 skipped
+    failing lines [197, 198]; expected [197, 198]
+[RED-EXACT] F1: the length capped at Figure 5.3 plus a quadlet
+    file tests/steps/aecp_engine_model.py; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [198]; expected [198]
+[RED-EXACT] F1: row cdl 24 status 0 -> 1
+    file tests/features/aecp_response_contract.feature; 58 scenarios passed, 1 failed, 0 skipped
+    failing lines [197]; expected [197]
+CONTROL after: exit 0, 59 scenarios passed, 0 failed, 0 skipped
+40 arms, 40 RED-EXACT; lane worktree clean
