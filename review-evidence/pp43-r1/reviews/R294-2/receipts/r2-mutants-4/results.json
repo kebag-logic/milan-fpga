@@ -1,0 +1,21 @@
+[
+  {
+    "part": "B",
+    "mutant": "r2-desc-type-ignored",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "STREAM_OUTPUT selectors 4/5/7 intercepted as if they were inputs",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "full",
+        "build_rc": 0,
+        "run_rc": 2,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: G2: STREAM_OUTPUT[1] Milan response byte-exact"
+        ]
+      }
+    ],
+    "verdict": "KILLED"
+  }
+]

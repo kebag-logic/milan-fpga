@@ -1,0 +1,63 @@
+[
+  {
+    "variant": "golden",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true
+  },
+  {
+    "variant": "failure-code-zero",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI FAILED-0 solicited: failure code sink 0 = 7, got 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "failure-bridge-zero",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI FAILED-0 solicited: full failure bridge sink 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "pbsta-zero",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI PASSIVE solicited: pbsta sink 0 = 1, got 0",
+      "FAIL: GI PASSIVE solicited: pbsta sink 1 = 1, got 0",
+      "FAIL: GI PASSIVE solicited: pbsta sink 1 = 1, got 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "acmpsta-zero",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI TIMEOUT solicited: acmpsta sink 0 = 7, got 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "wrong-sink",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI DISTINCT-0 solicited: full failure bridge sink 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "restored",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true
+  }
+]

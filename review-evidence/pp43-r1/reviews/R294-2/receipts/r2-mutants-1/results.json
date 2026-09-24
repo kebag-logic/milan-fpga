@@ -1,0 +1,155 @@
+[
+  {
+    "part": "A",
+    "mutant": "srp-failure-strobe-removed",
+    "file": "hdl/srp/KL_srp_listener_fsm.sv",
+    "intent": "changed FailureInformation no longer strobes registration",
+    "sites_found": 0,
+    "verdict": "SITE-GONE"
+  },
+  {
+    "part": "A",
+    "mutant": "sel4-integrator-byte",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "selector-4 failure-code byte back on the integrator path",
+    "sites_found": 0,
+    "verdict": "SITE-GONE"
+  },
+  {
+    "part": "A",
+    "mutant": "notify-every-write",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "status notification without the committed-change compare",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 1,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: GI BIND-TIMEOUT unsolicited: acmpsta sink 0 = 7, got 0",
+          "FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 0 response",
+          "FAIL: GI BIND-TIMEOUT solicited: acmpsta sink 0 = 7, got 0",
+          "FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 0 response"
+        ]
+      }
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "part": "A",
+    "mutant": "live-unsampled-fields",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "bridge read live at the selector-5 beat instead of the selector-0 sample",
+    "sites_found": 0,
+    "verdict": "SITE-GONE"
+  },
+  {
+    "part": "A",
+    "mutant": "index-guard-removed",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "descriptor index no longer range-checked before narrowing",
+    "sites_found": 0,
+    "verdict": "SITE-GONE"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-srp-failure-notify-dropped-at-top",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "re-expression of srp-failure-strobe-removed: the changed FailureInformation no longer reaches the notification OR",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 1,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: GI FAILED-REFRESH unsolicited: complete Milan response",
+          "FAIL: GI FAILED-REFRESH: solicited and unsolicited bodies agree for sink 0"
+        ]
+      }
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-sel4-integrator-byte",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "re-expression of sel4-integrator-byte on the live code",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 1,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: GI RESET solicited: failure code sink 1 = 0, got 1",
+          "FAIL: GI RESET solicited: byte-exact sink 1 response",
+          "FAIL: GI BIND-ACTIVE unsolicited: failure code sink 1 = 0, got 1",
+          "FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 1 response"
+        ]
+      }
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-index-guard-removed",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "re-expression of index-guard-removed on the live reads",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 1,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: GI INDEX-GUARD solicited: pbsta sink 9 = 0, got 1",
+          "FAIL: GI INDEX-GUARD solicited: byte-exact sink 9 response"
+        ]
+      }
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-index-guard-after-narrowing",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "guard compares the NARROWED sink index (aliasing survives it)",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 1,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: GI INDEX-GUARD solicited: pbsta sink 9 = 0, got 1",
+          "FAIL: GI INDEX-GUARD solicited: byte-exact sink 9 response"
+        ]
+      }
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-index-guard-off-by-one",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "boundary: index N_STREAM_IN_P admitted and aliased onto sink 0",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 0,
+        "verdict": "SURVIVED",
+        "first_failures": []
+      }
+    ],
+    "verdict": "SURVIVED"
+  }
+]

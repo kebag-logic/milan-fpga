@@ -1,0 +1,125 @@
+[
+  {
+    "part": "B",
+    "mutant": "r2-bridge-gate-other-sink",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "bridge gated on sink 0's registration instead of the addressed sink's",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 1,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: GI DISTINCT-1 solicited: full failure bridge sink 1",
+          "FAIL: GI DISTINCT-1 solicited: byte-exact sink 1 response"
+        ]
+      }
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-internal-honours-external-wait",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "internal selectors 5/7 honour the integrator's HOLD",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 0,
+        "verdict": "SURVIVED",
+        "first_failures": []
+      }
+    ],
+    "verdict": "SURVIVED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-internal-req-leaks",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "internal selectors still raise the external request",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 1,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: GI internal seam: selectors 5/7 never requested from integrator"
+        ]
+      }
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-status-view-stale-on-write",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "status view keeps its first non-zero value",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 1,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: GI BIND-TIMEOUT unsolicited: acmpsta sink 0 = 7, got 0",
+          "FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 0 response",
+          "FAIL: GI BIND-TIMEOUT solicited: acmpsta sink 0 = 7, got 0",
+          "FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 0 response"
+        ]
+      }
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-strt-chg-bound-before-removed",
+    "file": "hdl/acmp/KL_pp_acmp_listener.sv",
+    "intent": "undefined->started on a fresh bind raises the trigger",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 0,
+        "verdict": "SURVIVED",
+        "first_failures": []
+      },
+      {
+        "bench": "lstn",
+        "build_rc": 0,
+        "run_rc": 0,
+        "verdict": "SURVIVED",
+        "first_failures": []
+      }
+    ],
+    "verdict": "SURVIVED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-strt-chg-trigger-dropped-at-top",
+    "file": "hdl/top/protocol_processor_top.sv",
+    "intent": "the listener's started/stopped pulse no longer reaches the OR",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 1,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: GI REBIND-SW: exactly one unsolicited response for sink 0, got 0",
+          "FAIL: GI REBIND-SW unsolicited: complete Milan response",
+          "FAIL: GI REBIND-SW: solicited and unsolicited bodies agree"
+        ]
+      }
+    ],
+    "verdict": "KILLED"
+  }
+]

@@ -1,0 +1,5 @@
+FAIL: GI DISTINCT-1 solicited: full failure bridge sink 1
+FAIL: GI DISTINCT-1 solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 20 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 20 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+[build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 2 failures

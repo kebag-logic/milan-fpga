@@ -1,0 +1,3 @@
+#!/bin/sh
+# Pinned Verilator 5.050 with parallelism capped at 8 jobs (appended -j 8 overrides earlier -j 0).
+exec "${PINNED_VERILATOR:-$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator}" "$@" -j 8

@@ -1,0 +1,8 @@
+retained list: 13 mutations; slice [5:9]
+{"variant": "golden", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+{"variant": "integrator-path", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI internal seam: selectors 5/7 never requested from integrator"], "passed": true}
+{"variant": "missing-descriptor-leak", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI MISSING solicited: pbsta sink 2 = 0, got 2"], "passed": true}
+{"variant": "status-notification-zero", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI PASSIVE unsolicited: complete Milan response", "FAIL: GI PASSIVE unsolicited: complete Milan response", "FAIL: GI PASSIVE unsolicited: complete Milan response"], "passed": true}
+{"variant": "rebind-started-trigger-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI REBIND-SW: exactly one unsolicited response for sink 0, got 0"], "passed": true}
+{"variant": "restored", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+GSI mutations: 4 detected by named checks; golden and restored PASS
