@@ -1,0 +1,33 @@
+# per-file: 387 source blob (S) vs composed blob (H); for merged files, 387 hunk bodies B..S vs P..H
+MERGED docs/design/GM_LOSS_RECOVERY.md srcHunks=25c8be87dd050bb8 composedHunks=25c8be87dd050bb8 SAME-HUNKS
+IDENTICAL docs/design/GPTP_PLANE.md f558a233b9de6222a07cb401cbc5ca57d15562e7
+MERGED docs/design/TIME_SYNC.md srcHunks=c347f1606bcf9ff2 composedHunks=c347f1606bcf9ff2 SAME-HUNKS
+IDENTICAL docs/diagrams/PNG_MANIFEST.json f1a52a9821fc5a886764622a33d26b884471d7a5
+IDENTICAL docs/diagrams/submodule_boundaries.drawio 126adfbff1d2dc6bd558c1432fbe662a77bc5089
+IDENTICAL docs/diagrams/submodule_boundaries.png a8cc612482dc2c4bd42caa25a1b77cdcbabcaf35
+IDENTICAL docs/diagrams/submodule_boundaries.svg 9619512dcd788a67699d67e12d6947ae6cbd4c0f
+IDENTICAL docs/diagrams/timesync_chain.drawio 176a668e5029f7b8d61041efb48fe42d55425394
+IDENTICAL docs/diagrams/timesync_chain.png 3a288604d6088e728e8111496228c0d423716629
+IDENTICAL docs/diagrams/timesync_chain.svg baf037beec17e7bcf17c92a5c277ff00c3ad5a4a
+IDENTICAL docs/guides/gptp/HDL_DEVELOPER.md 7428870282b93c7c3d074d71dd541ff3d3e9e435
+IDENTICAL docs/guides/gptp/MANAGER.md ef17d0dc127bd37e36b85654b69a1d4abdadfd3a
+IDENTICAL docs/guides/gptp/SYSTEM_INTEGRATOR.md fffa613a50ac15d53cacc2d32bfd09e0034b0da5
+IDENTICAL docs/guides/gptp/TEST_DEVELOPER.md fe980764b5cd9c5b7242bfeafb65b8e7d19c95c5
+IDENTICAL docs/reference/SUBMODULES.md 6d9494fedc3cb14e91819a17ca1b375dfb5d84fc
+IDENTICAL docs/traceability/ieee8021as.md e87c7fe3baeedee844a94922e9c31a0eea80887b
+IDENTICAL gptp-processor e5dcea6e351abff18a27a00f8e345f3251bdbd8f
+IDENTICAL syn/yosys/rom_digests.tsv 28267341ddb51a766109b8c17fac8e03c9b0bdf1
+IDENTICAL tb/verilator/milan_dp/Makefile a9504cb507aa48af12121c707e8f4483238652f1
+MERGED tb/verilator/milan_dp/README.md srcHunks=362512c271790fb6 composedHunks=362512c271790fb6 SAME-HUNKS
+IDENTICAL tb/verilator/milan_dp/sim_gmstep.cpp c7c61dc5de34c336f412874797f01928843b449c
+# other sides' hunks preserved in H (dev B..D and 117 D..P):
+dev-side docs/design/TIME_SYNC.md dev=f635bb9551c24030 inH=f635bb9551c24030 SAME-HUNKS
+dev-side tb/verilator/milan_dp/README.md dev=2259b12da56d4808 inH=2259b12da56d4808 SAME-HUNKS
+117-side docs/design/GM_LOSS_RECOVERY.md 117=0966497bf5a84a62 inH=0966497bf5a84a62 SAME-HUNKS
+# dev..H files vs union(117 files, 387 files)
+dev..H file set == union: yes (23 files)
+# merge recomputation
+merge-tree(P,S)=914e656656594789e48c8ab7cfde34abb79ec032 H^{tree}=914e656656594789e48c8ab7cfde34abb79ec032
+merge-tree(D,117src)=ad69eb9f74f02a8350b9d1962de4715bab6321d6 P^{tree}=ad69eb9f74f02a8350b9d1962de4715bab6321d6
+H parents: 5c51569bd269b73a82ab767290fea92c134e5d02 021b2e07b009158bcb0ce19529126eb1d330bba5
+H subject: Validate issue 387 merge-train candidate ; body lines: 0

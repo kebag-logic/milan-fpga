@@ -1,0 +1,8 @@
+print-srcs dev=4727268b6cf35ca22ce2665a80e86fb0a40dcb6ac5ab493f9b77a90983f7f3cd head=4727268b6cf35ca22ce2665a80e86fb0a40dcb6ac5ab493f9b77a90983f7f3cd SAME
+print-pp-srcs dev=7f73f94c7932fb7ebeb2ffc48eaa33c61e181cafb3be87c09d3eb1d4aa08bdcd head=7f73f94c7932fb7ebeb2ffc48eaa33c61e181cafb3be87c09d3eb1d4aa08bdcd SAME
+print-dp-vflags dev=02b72cc3c23eeb8dae7a4379db365d3c93f559e26d998c248b131390285671bd head=02b72cc3c23eeb8dae7a4379db365d3c93f559e26d998c248b131390285671bd SAME
+# 'make -n run' (dry run) at H versus dev's Makefile: the only differing lines are the obj_gptp and obj_gptplat verilator commands, which at H carry -DCLKV_QTICK_CYC_TB=131072 in their CFLAGS (a #387 source-side Makefile change; dev did not change this Makefile). Both legs were run at H: see milan_dp-gptp-composed.log and milan_dp-gptp-lat-composed.log (181/181 each).
+47d46
+< -DCLKV_QTICK_CYC_TB=131072
+217d215
+< -DCLKV_QTICK_CYC_TB=131072

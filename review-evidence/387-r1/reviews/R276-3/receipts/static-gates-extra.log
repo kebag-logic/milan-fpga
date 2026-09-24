@@ -1,0 +1,382 @@
+### python3 scripts/check_sweep_shape.py
+  [sweep-shape] arty: num-streams 4, l2 0, render-lpf True == endstation_arty_4x4.yaml
+  [sweep-shape] ax7101: num-streams 1, l2 0, render-lpf False == endstation_ax7101_1x1_tdm8.yaml
+  [sweep-shape] build.sh cfg_arty: 15 design flags on the dry-run launch line agree with endstation_arty_current.yaml flag for flag, --entity-gen-dir names it, and sw/builder/out/endstation_arty_current/soc_params.json is its current emission
+  [sweep-shape] build.sh cfg_ax7101: 26 design flags on the dry-run launch line agree with endstation_ax7101_1x1_tdm8.yaml flag for flag, --entity-gen-dir names it, and sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json is its current emission
+  [sweep-shape] build.sh cfg_ax8x8: 26 design flags on the dry-run launch line agree with endstation_ax7101_8x8.yaml flag for flag, --entity-gen-dir names it, and sw/builder/out/endstation_ax7101_8x8/soc_params.json is its current emission
+  [sweep-shape] build.sh: `export PYTHONHASHSEED=0` on line 498 precedes the milan_soc.py launch on line 499
+  [sweep-shape] sweep.sh: `export PYTHONHASHSEED=0` on line 26 precedes the milan_soc.py launch on line 116
+sweep shape gate: OK
+### exit=0 :: python3 scripts/check_sweep_shape.py
+### python3 scripts/check_sv_idiom.py
+SystemVerilog idiom gate: OK (124 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+### exit=0 :: python3 scripts/check_sv_idiom.py
+### python3 scripts/check_sh_idiom.py
+sh idiom: 22 first-party scripts
+  backtick substitution: 0
+  cd without a failure path: 0
+  branch on $?: 0
+  shebang without the executable bit: 0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+### exit=0 :: python3 scripts/check_sh_idiom.py
+### python3 scripts/lint_rtl.py --check
+== lint pragma gate (well-formed · balanced · justified) ==
+PRAGMA GATE: PASS (0 justified lint_off, 0 excluded file(s))
+== hdl/ Verilator lint census (70 module elaborations) ==
+  hdl/common                      1  <= ratchet 1
+  hdl/ieee1722/aaf               17  <= ratchet 17
+  hdl/ieee1722/avtp              49  <= ratchet 49
+  hdl/ieee1722/crf                4  <= ratchet 4
+  hdl/ieee1722/maap               1  <= ratchet 1
+  hdl/ieee8021as/ptp_timestamp    8  <= ratchet 8
+  hdl/ieee8021q/ts                8  <= ratchet 8
+  hdl/milan                       2  <= ratchet 2
+  hdl/ieee17221/adp               0  (was 0)
+  TOTAL                          90
+  by rule: WIDTHEXPAND 61, WIDTHTRUNC 20, SYNCASYNCNET 6, ALWCOMBORDER 1, CASEINCOMPLETE 1, DECLFILENAME 1
+  waived (RULE_WAIVERS, reasons in scripts/lint_rtl.py): PINMISSING 15, TIMESCALEMOD 2
+  third_party (upstream verilog-axis - resolved, never linted, not ours to fix): WIDTHTRUNC 10, WIDTHEXPAND 4, SELRANGE 3
+-- outstanding backlog: 90 violation(s) --
+  hdl/common/axis_mux_rr_2in_1out.sv:109:5: CASEINCOMPLETE  Case values incompletely covered (example pattern 0x0)
+  hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:42:25: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:65:8: DECLFILENAME  Filename 'KL_aaf_latency_taps' does not match MODULE name: 'KL_aaf_latency_chain'
+  hdl/ieee1722/aaf/KL_chan_map_render.sv:207:39: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+  hdl/ieee1722/aaf/KL_chan_map_render.sv:208:39: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+  hdl/ieee1722/aaf/KL_chan_map_render.sv:256:23: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+  hdl/ieee1722/aaf/KL_i2s_playback.sv:317:29: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'ms_div_r' generates 16 bits.
+  hdl/ieee1722/aaf/KL_i2s_playback.sv:318:20: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'ms_div_r' generates 16 bits.
+  hdl/ieee1722/aaf/KL_lat_history_ring.sv:210:54: WIDTHEXPAND  Operator SHIFTL expects 32 bits on the LHS, but LHS's REPLICATE generates 30 bits.
+  hdl/ieee1722/aaf/KL_pcm_lpf.sv:172:36: WIDTHEXPAND  Operator NEGATE expects 44 bits on the LHS, but LHS's VARREF 'prod_w' generates 41 bits.
+  hdl/ieee1722/aaf/KL_pcm_lpf.sv:186:41: WIDTHEXPAND  Operator NEGATE expects 44 bits on the LHS, but LHS's VARREF 'prod_w' generates 41 bits.
+  hdl/ieee1722/aaf/KL_pcm_route.sv:73:14: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+  hdl/ieee1722/aaf/KL_tdm_capture.sv:82:23: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/ieee1722/aaf/aaf_talker_i2s.sv:41:25: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/ieee1722/aaf/aaf_talker_i2s.sv:239:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+  hdl/ieee1722/aaf/aaf_talker_i2s.sv:240:34: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+  hdl/ieee1722/aaf/aaf_talker_i2s.sv:257:21: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'nsamp_r' generates 3 bits.
+  hdl/ieee1722/aaf/aaf_talker_i2s.sv:272:22: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+  hdl/ieee1722/avtp/KL_avtp_common_parser.sv:93:39: WIDTHEXPAND  Operator NEQ expects 32 or 2 bits on the LHS, but LHS's VARXREF 'tdest' generates 1 bits.
+  hdl/ieee1722/avtp/KL_avtp_common_parser.sv:95:41: WIDTHEXPAND  Operator NEQ expects 32 or 2 bits on the LHS, but LHS's VARXREF 'tdest' generates 1 bits.
+  hdl/ieee1722/avtp/KL_avtp_common_parser.sv:96:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARREF 'rcvd_subtype_r' generates 8 bits.
+  hdl/ieee1722/avtp/KL_avtp_common_parser.sv:152:7: ALWCOMBORDER  always_comb reads 'tready_pipe' before assigning it later in the same block; behavior may imply latch/state-like behavior and is not purely combinational
+  hdl/ieee1722/avtp/KL_avtp_common_parser.sv:165:26: WIDTHTRUNC  Operator ASSIGN expects 1 bits on the Assign RHS, but Assign RHS's CONST '?32?h2' generates 32 or 2 bits.
+  hdl/ieee1722/avtp/KL_avtp_common_parser.sv:166:30: WIDTHTRUNC  Operator ASSIGN expects 1 bits on the Assign RHS, but Assign RHS's CONST '?32?h3' generates 32 or 2 bits.
+  hdl/ieee1722/avtp/KL_stream_table.sv:109:16: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+  hdl/ieee1722/avtp/KL_stream_table.sv:110:15: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+  hdl/ieee1722/avtp/KL_stream_table.sv:119:18: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:150:35: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'bytes_in' generates 7 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:162:27: WIDTHEXPAND  Operator FUNCREF 'hbyte' expects 32 bits on the Function Argument, but Function Argument's VARREF 'et_off' generates 5 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:163:39: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'et_off' generates 5 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:165:26: WIDTHEXPAND  Operator FUNCREF 'hbyte' expects 32 bits on the Function Argument, but Function Argument's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:166:33: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:171:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:171:46: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:171:58: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:171:71: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:172:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:172:46: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:172:58: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:172:71: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:173:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:173:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:173:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:173:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:174:33: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:175:33: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:175:45: WIDTHTRUNC  Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's AND generates 8 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:176:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:176:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:176:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:176:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:177:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:177:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:177:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:177:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:180:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:180:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:180:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:180:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:181:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:181:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:181:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:181:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:206:30: WIDTHEXPAND  Operator GTE expects 32 bits on the LHS, but LHS's VARREF 'bytes_in' generates 7 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:239:32: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'bytes_in' generates 7 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:239:20: WIDTHTRUNC  Operator ASSIGNDLY expects 7 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:255:38: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/crf/KL_crf_tx.sv:125:23: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/ieee1722/crf/KL_crf_tx.sv:481:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+  hdl/ieee1722/crf/KL_crf_tx.sv:482:34: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+  hdl/ieee1722/crf/KL_crf_tx.sv:515:22: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+  hdl/ieee1722/maap/KL_maap.sv:278:21: WIDTHTRUNC  Operator ASSIGNDLY expects 4 bits on the Assign RHS, but Assign RHS's AND generates 8 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:204:42: WIDTHTRUNC  Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's VARREF 'IS_TX' generates 32 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:224:24: WIDTHEXPAND  Operator LTE expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:225:38: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:225:22: WIDTHTRUNC  Operator ASSIGNDLY expects 7 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:261:39: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:271:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:276:55: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:280:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:170:21: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:200:37: WIDTHEXPAND  Operator GTE expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:211:22: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's SEL generates 3 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:254:36: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:254:20: WIDTHTRUNC  Operator ASSIGNDLY expects 6 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+  hdl/ieee8021q/ts/traffic_queues.sv:150:24: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARREF 'gsel' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:103:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARXREF 'tdest' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.
+  hdl/milan/KL_pp_shadow.sv:244:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+### exit=0 :: python3 scripts/lint_rtl.py --check
+### python3 scripts/pp_srcs.py --check
+pp source list: 42 tracked source(s) derived; no build input carries a literal copy
+  prose    hdl/milan/KL_pp_shadow.sv: an RTL comment citing the submodule module it wraps
+  prose    scripts/pp_srcs.py: this generator: the table above quotes every literal it permits, and the docstring and self-test quote a source path
+  prose    sw/builder/test_builder.py: a gate citing submodule paths in its findings
+  prose    sw/litex/milan_soc.py: a comment citing a submodule line number, not a source entry
+  prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+### exit=0 :: python3 scripts/pp_srcs.py --check
+### python3 scripts/suite_shards.py --selftest
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True hashed owners unchanged=True
+  ok    4 shard(s): dedicated alone=True hashed owners unchanged=True
+  ok    5 shard(s): dedicated alone=True hashed owners unchanged=True
+  ok    7 shard(s): dedicated alone=True hashed owners unchanged=True
+  ok   23 shard(s): dedicated alone=True hashed owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   five-worker runtime landmarks: {'milan_dp': 4, 'pp_shadow': 1, 'mmcm_servo': 2, 'tsn_fuzz': 1, 'chmap_capture': 3}
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+### exit=0 :: python3 scripts/suite_shards.py --selftest
+### python3 scripts/check_wire_accountability.py
+
+== endstation_arty_4x4 ==
+  [ok]   endstation_arty_4x4: audio_interface 'tdm8' is backed = 5 pair slot(s) supplied
+  [ok]   endstation_arty_4x4: talker 0 format 0x0205022001006000 declares 4ch, fabric emits 4ch
+  [ok]   endstation_arty_4x4: talker 1 format 0x0205022001006000 declares 4ch, fabric emits 4ch
+  [ok]   endstation_arty_4x4: talker 2 format 0x0205022001006000 declares 4ch, fabric emits 4ch
+  [ok]   endstation_arty_4x4: talker 3 format 0x0205022001006000 declares 4ch, fabric emits 4ch
+  [note] endstation_arty_4x4: source coverage 2 of 4 talkers - the front-end supplies 5 physical pair slot(s), each 4-channel talker consumes 2; talker(s) 2..3 frame SILENCE via KL_pair_zero_fill when bound (Milan v1.2 5.3.7.3). Physical backing for them is roadmap item 5.
+  [ok]   endstation_arty_4x4: generated TALKER_WIRE_CHANS_C matches the framer = 4
+
+== endstation_arty_8ch ==
+  [ok]   endstation_arty_8ch: audio_interface 'tdm8' is backed = 5 pair slot(s) supplied
+  [ok]   endstation_arty_8ch: talker 0 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_arty_8ch: talker 1 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_arty_8ch: talker 2 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_arty_8ch: talker 3 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [note] endstation_arty_8ch: source coverage 1 of 4 talkers - the front-end supplies 5 physical pair slot(s), each 8-channel talker consumes 4; talker(s) 1..3 frame SILENCE via KL_pair_zero_fill when bound (Milan v1.2 5.3.7.3). Physical backing for them is roadmap item 5.
+  [ok]   endstation_arty_8ch: generated TALKER_WIRE_CHANS_C matches the framer = 8
+
+== endstation_arty_current ==
+  [ok]   endstation_arty_current: audio_interface 'i2s_philips' is backed = 1 pair slot(s) supplied
+  [ok]   endstation_arty_current: talker 0 format 0x0205022000806000 declares 2ch, fabric emits 2ch
+  [ok]   endstation_arty_current: all 1 advertised talker(s) have a physical source
+  [ok]   endstation_arty_current: generated TALKER_WIRE_CHANS_C matches the framer = 2
+
+== endstation_ax7101_1x1_tdm8 ==
+  [ok]   endstation_ax7101_1x1_tdm8: audio_interface 'tdm8' is backed = 4 pair slot(s) supplied
+  [ok]   endstation_ax7101_1x1_tdm8: talker 0 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_1x1_tdm8: all 1 advertised talker(s) have a physical source
+  [ok]   endstation_ax7101_1x1_tdm8: generated TALKER_WIRE_CHANS_C matches the framer = 8
+
+== endstation_ax7101_8x8 ==
+  [ok]   endstation_ax7101_8x8: audio_interface 'tdm32' is backed = 16 pair slot(s) supplied
+  [ok]   endstation_ax7101_8x8: talker 0 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 1 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 2 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 3 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 4 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 5 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 6 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 7 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [note] endstation_ax7101_8x8: source coverage 4 of 8 talkers - the front-end supplies 16 physical pair slot(s), each 8-channel talker consumes 4; talker(s) 4..7 frame SILENCE via KL_pair_zero_fill when bound (Milan v1.2 5.3.7.3). Physical backing for them is roadmap item 5.
+  [ok]   endstation_ax7101_8x8: generated TALKER_WIRE_CHANS_C matches the framer = 8
+
+== the constant reaches the wire ==
+  [ok]   milan_datapath declares TALKER_WIRE_CHANS_P (default 2)
+  [ok]   milan_datapath passes it to KL_aaf_packetizer
+  [ok]   KL_aaf_packetizer resets every talker's chans from the constant
+  [ok]   milan_datapath guards the constant against the front-end supply
+  [ok]   W5: fill covers N_STREAMS x WIRE_CHANS/2 pair slots (ZF_TOTAL_C)
+  [ok]   W5: KL_pair_zero_fill instantiated over that span
+  [ok]   W5: the fill grid is the AUDIO clock /512 (48.000 kHz exactly), CDC'd
+  [ok]   W5: the packetizer bypass leg consumes the FILLED stream
+  [ok]   W5: the 8.3b blend arm exists (KL_pair_blend, I2S = pair slot 0)
+
+----------------------------------------------------------------------
+checks: 42   findings: 0
+RESULT: PASS
+### exit=0 :: python3 scripts/check_wire_accountability.py
+### python3 scripts/check_entity_shape.py
+  [ok]   I every shape-header consumer resolves = []
+  [ok]   H include resolution is unambiguous = []
+== RTL: the shape is included from the config, and is read-only ==
+  [ok]   milan_datapath includes the generated shape = True
+  [ok]   ACMP talker contexts sized by ADP_TALKER_SRC_C = True
+  [ok]   ACMP sink contexts sized by ADP_LISTENER_SINK_C = True
+  [ok]   no ADP shape threaded through the milan_csr port map = False
+  [ok]   milan_csr includes the generated shape = True
+  [ok]   0x618 word is built from ADP_TALKER_SRC_C = True
+  [ok]   0x61C word is built from ADP_LISTENER_SINK_C = True
+  [ok]   0x618 has a defaults-ROM arm = True
+  [ok]   0x61C has a defaults-ROM arm = True
+  [ok]   0x618 has NO write arm = False
+  [ok]   0x61C has NO write arm = False
+  [ok]   0x618 is NOT plain-RW = False
+  [ok]   0x61C is NOT plain-RW = False
+
+== endstation_arty_4x4  (4x4) ==
+  [ok]   endstation_arty_4x4: svh talker_stream_sources = 5
+  [ok]   endstation_arty_4x4: svh listener_stream_sinks = 5
+  [ok]   endstation_arty_4x4: svh talker_capabilities = '0x4801'
+  [ok]   endstation_arty_4x4: svh listener_capabilities = '0x4801'
+  [ok]   endstation_arty_4x4: svh names its source config = 'configs/endstation_arty_4x4.yaml'
+  [ok]   endstation_arty_4x4: overlay entity_counts.talker == STREAM_OUTPUT = 5
+  [ok]   endstation_arty_4x4: overlay entity_counts.listener == STREAM_INPUT = 5
+  [ok]   endstation_arty_4x4: advertised talker sources == STREAM_OUTPUT count = 5
+  [ok]   endstation_arty_4x4: advertised listener sinks == STREAM_INPUT count = 5
+  [ok]   endstation_arty_4x4: generated ROM STREAM_OUTPUT descriptors = 5
+  [ok]   endstation_arty_4x4: generated ROM STREAM_INPUT descriptors = 5
+  [ok]   endstation_arty_4x4: CRF talker uid 4 is inside the advertised range = True
+  [ok]   endstation_arty_4x4: talker_capabilities claims MEDIA_CLOCK_SOURCE = True
+  [ok]   endstation_arty_4x4: CRF sink uid 4 is inside the advertised range = True
+  [ok]   endstation_arty_4x4: configs/generated copy is current = True
+  [ok]   endstation_arty_4x4: no deleted-plane artifact left in its gen/ include dir = []
+
+== endstation_arty_8ch  (4x4) ==
+  [ok]   endstation_arty_8ch: svh talker_stream_sources = 5
+  [ok]   endstation_arty_8ch: svh listener_stream_sinks = 5
+  [ok]   endstation_arty_8ch: svh talker_capabilities = '0x4801'
+  [ok]   endstation_arty_8ch: svh listener_capabilities = '0x4801'
+  [ok]   endstation_arty_8ch: svh names its source config = 'configs/endstation_arty_8ch.yaml'
+  [ok]   endstation_arty_8ch: overlay entity_counts.talker == STREAM_OUTPUT = 5
+  [ok]   endstation_arty_8ch: overlay entity_counts.listener == STREAM_INPUT = 5
+  [ok]   endstation_arty_8ch: advertised talker sources == STREAM_OUTPUT count = 5
+  [ok]   endstation_arty_8ch: advertised listener sinks == STREAM_INPUT count = 5
+  [ok]   endstation_arty_8ch: generated ROM STREAM_OUTPUT descriptors = 5
+  [ok]   endstation_arty_8ch: generated ROM STREAM_INPUT descriptors = 5
+  [ok]   endstation_arty_8ch: CRF talker uid 4 is inside the advertised range = True
+  [ok]   endstation_arty_8ch: talker_capabilities claims MEDIA_CLOCK_SOURCE = True
+  [ok]   endstation_arty_8ch: CRF sink uid 4 is inside the advertised range = True
+  [ok]   endstation_arty_8ch: configs/generated copy is current = True
+  [ok]   endstation_arty_8ch: no deleted-plane artifact left in its gen/ include dir = []
+
+== endstation_arty_current  (1x1) ==
+  [ok]   endstation_arty_current: svh talker_stream_sources = 1
+  [ok]   endstation_arty_current: svh listener_stream_sinks = 2
+  [ok]   endstation_arty_current: svh talker_capabilities = '0x4001'
+  [ok]   endstation_arty_current: svh listener_capabilities = '0x4801'
+  [ok]   endstation_arty_current: svh names its source config = 'configs/endstation_arty_current.yaml'
+  [ok]   endstation_arty_current: overlay entity_counts.talker == STREAM_OUTPUT = 1
+  [ok]   endstation_arty_current: overlay entity_counts.listener == STREAM_INPUT = 2
+  [ok]   endstation_arty_current: advertised talker sources == STREAM_OUTPUT count = 1
+  [ok]   endstation_arty_current: advertised listener sinks == STREAM_INPUT count = 2
+  [ok]   endstation_arty_current: generated ROM STREAM_OUTPUT descriptors = 1
+  [ok]   endstation_arty_current: generated ROM STREAM_INPUT descriptors = 2
+  [ok]   endstation_arty_current: no CRF output -> no MEDIA_CLOCK_SOURCE claim = False
+  [ok]   endstation_arty_current: CRF sink uid 1 is inside the advertised range = True
+  [ok]   endstation_arty_current: configs/generated copy is current = True
+  [ok]   endstation_arty_current: no deleted-plane artifact left in its gen/ include dir = []
+
+== endstation_ax7101_1x1_tdm8  (1x1) ==
+  [ok]   endstation_ax7101_1x1_tdm8: svh talker_stream_sources = 2
+  [ok]   endstation_ax7101_1x1_tdm8: svh listener_stream_sinks = 2
+  [ok]   endstation_ax7101_1x1_tdm8: svh talker_capabilities = '0x4801'
+  [ok]   endstation_ax7101_1x1_tdm8: svh listener_capabilities = '0x4801'
+  [ok]   endstation_ax7101_1x1_tdm8: svh names its source config = 'configs/endstation_ax7101_1x1_tdm8.yaml'
+  [ok]   endstation_ax7101_1x1_tdm8: overlay entity_counts.talker == STREAM_OUTPUT = 2
+  [ok]   endstation_ax7101_1x1_tdm8: overlay entity_counts.listener == STREAM_INPUT = 2
+  [ok]   endstation_ax7101_1x1_tdm8: advertised talker sources == STREAM_OUTPUT count = 2
+  [ok]   endstation_ax7101_1x1_tdm8: advertised listener sinks == STREAM_INPUT count = 2
+  [ok]   endstation_ax7101_1x1_tdm8: generated ROM STREAM_OUTPUT descriptors = 2
+  [ok]   endstation_ax7101_1x1_tdm8: generated ROM STREAM_INPUT descriptors = 2
+  [ok]   endstation_ax7101_1x1_tdm8: CRF talker uid 1 is inside the advertised range = True
+  [ok]   endstation_ax7101_1x1_tdm8: talker_capabilities claims MEDIA_CLOCK_SOURCE = True
+  [ok]   endstation_ax7101_1x1_tdm8: CRF sink uid 1 is inside the advertised range = True
+  [ok]   endstation_ax7101_1x1_tdm8: configs/generated copy is current = True
+  [ok]   endstation_ax7101_1x1_tdm8: no deleted-plane artifact left in its gen/ include dir = []
+
+== endstation_ax7101_8x8  (8x8) ==
+  [ok]   endstation_ax7101_8x8: svh talker_stream_sources = 9
+  [ok]   endstation_ax7101_8x8: svh listener_stream_sinks = 9
+  [ok]   endstation_ax7101_8x8: svh talker_capabilities = '0x4801'
+  [ok]   endstation_ax7101_8x8: svh listener_capabilities = '0x4801'
+  [ok]   endstation_ax7101_8x8: svh names its source config = 'configs/endstation_ax7101_8x8.yaml'
+  [ok]   endstation_ax7101_8x8: overlay entity_counts.talker == STREAM_OUTPUT = 9
+  [ok]   endstation_ax7101_8x8: overlay entity_counts.listener == STREAM_INPUT = 9
+  [ok]   endstation_ax7101_8x8: advertised talker sources == STREAM_OUTPUT count = 9
+  [ok]   endstation_ax7101_8x8: advertised listener sinks == STREAM_INPUT count = 9
+  [ok]   endstation_ax7101_8x8: generated ROM STREAM_OUTPUT descriptors = 9
+  [ok]   endstation_ax7101_8x8: generated ROM STREAM_INPUT descriptors = 9
+  [ok]   endstation_ax7101_8x8: CRF talker uid 8 is inside the advertised range = True
+  [ok]   endstation_ax7101_8x8: talker_capabilities claims MEDIA_CLOCK_SOURCE = True
+  [ok]   endstation_ax7101_8x8: CRF sink uid 8 is inside the advertised range = True
+  [ok]   endstation_ax7101_8x8: configs/generated copy is current = True
+  [ok]   endstation_ax7101_8x8: no deleted-plane artifact left in its gen/ include dir = []
+
+== tracked entity definition (what a build includes) ==
+  tracked shape source: configs/endstation_ax7101_1x1_tdm8.yaml
+  [ok]   tracked ADP shape names a source config = True
+  [ok]   tracked shape's source config exists (configs/endstation_ax7101_1x1_tdm8.yaml) = True
+  [ok]   tracked ADP shape == what that config generates = True
+  [ok]   owner's STREAM_OUTPUT descriptors == tracked advertised sources = 2
+  [ok]   owner's STREAM_INPUT descriptors == tracked advertised sinks = 2
+
+== firmware version (1722.1-2021 7.2.1, ENTITY + 116) ==
+  milan_csr VERSION: 0x0002_0060 -> major 2, minor 96
+  [ok]   endstation_arty_4x4: config declares no firmware_version = False
+  [ok]   endstation_arty_4x4: emitted firmware_version = '2.96.0'
+  [ok]   endstation_arty_8ch: config declares no firmware_version = False
+  [ok]   endstation_arty_8ch: emitted firmware_version = '2.96.0'
+  [ok]   endstation_arty_current: config declares no firmware_version = False
+  [ok]   endstation_arty_current: emitted firmware_version = '2.96.0'
+  [ok]   endstation_ax7101_1x1_tdm8: config declares no firmware_version = False
+  [ok]   endstation_ax7101_1x1_tdm8: emitted firmware_version = '2.96.0'
+  [ok]   endstation_ax7101_8x8: config declares no firmware_version = False
+  [ok]   endstation_ax7101_8x8: emitted firmware_version = '2.96.0'
+  [ok]   generated ROM (endstation_ax7101_1x1_tdm8): firmware_version field is 64 octets = 64
+  [ok]   generated ROM (endstation_ax7101_1x1_tdm8): firmware_version is zero padded past the string (7.2) = True
+  [ok]   generated ROM (endstation_ax7101_1x1_tdm8): firmware_version decodes as UTF-8 (7.2.1) = True
+  [ok]   generated ROM (endstation_ax7101_1x1_tdm8): firmware_version == the gateware's VERSION = '2.96.0'
+----------------------------------------------------------------------
+checks: 113   failures: 0
+RESULT: PASS
+### exit=0 :: python3 scripts/check_entity_shape.py
+### python3 scripts/xvlog_gate.py --check
+xvlog gate: 4 finding(s) across 4 module(s)
+  analysed: 72 tracked .sv/.v file(s) under hdl/ and 48 under the pinned processors (protocol-processor/hdl, gptp-processor/hdl)
+  pinned at: protocol-processor@424c688f; gptp-processor@e5dcea6e - the superproject gitlink, which each checkout was required to BE before anything was enumerated
+  NOT analysed: third_party/ and external/ (leaf IP this repo neither owns nor edits), and
+                any defect only ELABORATION rejects - xvlog analyses; the split-initialiser
+                class needs xelab, which nothing in this repo runs (#224)
+  hdl/: 0 finding(s)
+  pinned processors: 4 finding(s)
+    protocol-processor:hdl/aecp/KL_aecp_notify.sv:502  [VRFC 10-3380] 'pd_ix_w'  identifier 'pd_ix_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_originator.sv:194  [VRFC 10-3380] 'cancel_hit_w'  identifier 'cancel_hit_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv:364  [VRFC 10-3380] 'vd_push_w'  identifier 'vd_push_w' is used before its declaration
+    protocol-processor:hdl/top/protocol_processor_top.sv:784  [VRFC 10-3380] 'srp_class_a_prio_w'  identifier 'srp_class_a_prio_w' is used before its declaration
+xvlog gate: PASS (4 finding(s) == ratchet; 0 hdl/, 4 pinned processors)
+### exit=0 :: python3 scripts/xvlog_gate.py --check
+true
+### python3 docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+### exit=0 :: docs/traceability/gen_module_matrix.py --check

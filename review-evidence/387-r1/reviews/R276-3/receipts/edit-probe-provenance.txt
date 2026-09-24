@@ -1,0 +1,9 @@
+# Edit probe provenance (scratch copy only; never in the clone)
+published patch: review-evidence/387-r1/author/work/proposed-milan_datapath.patch @ 37d9108312e3fb876c7946d954b13994cd5c030b sha256 44878be68cd2a110d5edff2d91f4a090f2a86615f3d96088e267ed98fa47d84c (equals the published MANIFEST.json entry)
+base: composed hdl/milan/milan_datapath.sv blob 2bfbb3e729e25f3b3fbde7e7f8f22843c1629946
+applied with patch -p3: hunk 1 at 3093 (offset +5), hunk 2 at 6003 (offset +39), no fuzz
+result sha256 b1a96cb175f20d273f4df40fddb4a0b458afffceb6d1d03d2f80ff25cbd9cb5e
+source-head published logs compared (sim section from 'gmstep: feed delay' to RESULT, sha256):
+  edit delay 0: source sweep-0.log d1740ed03e21fffb39a319e495fee978297ce2719eaba3e06e3fab31d3b9711b composed d1740ed03e21fffb39a319e495fee978297ce2719eaba3e06e3fab31d3b9711b
+  edit delay 12: source sweep-12.log 8b8df43bf03a57d263ce65830c78e6b3fd58a4f0bb3b22ad9e62b8224945efd3 composed 8b8df43bf03a57d263ce65830c78e6b3fd58a4f0bb3b22ad9e62b8224945efd3
+  tree delay 0: source gmstep-head-final.log 62da16737c09025ce30794d16b2bedce0fd359add5183f1bd8e8d2851ae7fefc composed 62da16737c09025ce30794d16b2bedce0fd359add5183f1bd8e8d2851ae7fefc
