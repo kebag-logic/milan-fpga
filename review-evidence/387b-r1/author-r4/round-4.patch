@@ -1,0 +1,56 @@
+diff --git a/docs/testing/RUNNING_TESTS.md b/docs/testing/RUNNING_TESTS.md
+index c91d1a006..8d77e746b 100644
+--- a/docs/testing/RUNNING_TESTS.md
++++ b/docs/testing/RUNNING_TESTS.md
+@@ -76,7 +76,8 @@ other failure still aborts the sweep.
+ The runner discovers suites from the filesystem, serializes whole-tree sweeps,
+ enforces a per-suite wall clock, and refuses to quote a total when a suite's
+ check count cannot be read. The default selection contains 54 suites, each
+-with an 1800-second deadline except `milan_dp`, which has 2700 seconds (#444).
++with an 1800-second deadline except `milan_dp`, which has 3600 seconds
++under [decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308).
+ The separate `milan_dp_gptp` selection uses
+ 5400 seconds, including compilation, and preserves physical clock and timer
+ rates. CI shards the default selection; the physical job runs nightly and on
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index ffe910fb3..22d237868 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -163,8 +163,8 @@ VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/suite-logs
+ Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
+ `ls tb/verilator/` is authoritative (one dir per suite).
+ 
+-The default driver permits 1800 seconds per suite, and 2700 seconds for `milan_dp`.
+-That figure is the suite's measured hosted worst case plus a stated margin (#444).
++The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
++[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets this deadline from recorded hosted samples.
+ The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
+ It excludes only the scheduled `milan_dp_gptp` directory.
+ The separate physical job permits 5400 seconds, including compilation.
+diff --git a/tb/verilator/milan_dp/render_mutants.py b/tb/verilator/milan_dp/render_mutants.py
+index dbdcefc20..d80bf6c40 100644
+--- a/tb/verilator/milan_dp/render_mutants.py
++++ b/tb/verilator/milan_dp/render_mutants.py
+@@ -34,7 +34,7 @@ no loop on either path waits on a DUT output without a cycle bound, so a
+ leg ends at the same cycle whatever the mutated gateware does. The
+ host-time bound is the sweep's: scripts/run_all_suites.sh runs this suite's
+ `make` (whose `run` recipe ends with `python3 render_mutants.py`) under its
+-per-suite guard, suite_timeout = 2700 s (#444), and reports a kill as TIMEOUT, an
++per-suite guard, suite_timeout = 3600 s (decision 5820240308), and reports a kill as TIMEOUT, an
+ UNKNOWN result (exit 92), never a pass or a fail. The SIGTERM handler in
+ main() turns that kill into an exit that removes the temporary directory
+ and the leg's own process group. Run by hand, outside the sweep, nothing
+diff --git a/tb/verilator/milan_dp_gptp/README.md b/tb/verilator/milan_dp_gptp/README.md
+index 3678b60c3..c15b5f188 100644
+--- a/tb/verilator/milan_dp_gptp/README.md
++++ b/tb/verilator/milan_dp_gptp/README.md
+@@ -28,7 +28,8 @@ The separate four-core `ubuntu-latest` workflow job permits 120 minutes.
+ The reference machine uses an EPYC 9554P with 128 logical CPUs.
+ Measurements restrict each job to four cores under background load.
+ Completed hosted physical evidence remains required to validate that deadline.
+-The historical `milan_dp` suite has its own 2700-second budget (#444).
++The historical `milan_dp` suite has its own 3600-second budget.
++[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets that deadline.
+ 
+ The accounting verifier retains each failing DUT control transcript.
+ They reside under `../milan_dp/obj_ax1x1gptp/`, outside passing suite logs.
