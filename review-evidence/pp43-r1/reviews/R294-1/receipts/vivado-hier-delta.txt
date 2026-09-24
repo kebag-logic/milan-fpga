@@ -1,0 +1,45 @@
+inputs (published evidence, sha256 verified against its MANIFEST.json):
+817de3d102567e4cb5547256c232d7dc8d14449e61c378d3de4239d627b17abf  area-base_util_hier.rpt
+325331a1f1f1f399d4e898defb5d171f85c56128c6fd47d09292ad15d174a981  area-candidate_util_hier.rpt
+ protocol_processor_top                       (top)                                    dLUT= +640 dFF= +784 dRAMB36=+0 dRAMB18=+0
+   (protocol_processor_top)                   (top)                                    dLUT=  -24 dFF= +153 dRAMB36=+0 dRAMB18=+0
+   g_rx_pool[2].u_rx_slots                    KL_pp_rx_slots_1                         dLUT=   +2 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   g_rx_pool[3].u_rx_slots                    KL_pp_rx_slots_2                         dLUT=   +5 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   g_rx_pool[5].u_rx_slots                    KL_pp_rx_slots_4                         dLUT=   +9 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_adp                                      KL_adp_engine                            dLUT=  +43 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_aecp                                     KL_aecp_engine                           dLUT=  +69 dFF=   -2 dRAMB36=+0 dRAMB18=+0
+     (u_aecp)                                 KL_aecp_engine                           dLUT=  +19 dFF=   -2 dRAMB36=+0 dRAMB18=+0
+     u_resp                                   KL_aecp_resp_buf                         dLUT=  -24 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+     u_ucpu                                   KL_aecp_ucpu                             dLUT=  +74 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_ca_builder                               KL_aecp_ca_originator                    dLUT=  +28 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_dispatch                                 KL_pp_dispatch                           dLUT=   -3 dFF=   +1 dRAMB36=+0 dRAMB18=+0
+     u_maap_q                                 KL_pp_dispatch_fifo__parameterized0      dLUT=   +1 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+     u_acmp_q                                 KL_pp_dispatch_fifo                      dLUT=  +44 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+     u_adp_q                                  KL_pp_dispatch_fifo_5                    dLUT=   +2 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+     u_aecp_q                                 KL_pp_dispatch_fifo_6                    dLUT=  -50 dFF=   +1 dRAMB36=+0 dRAMB18=+0
+   u_event_router                             KL_pp_event_router                       dLUT=   +3 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_listener                                 KL_pp_acmp_listener                      dLUT=  +22 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_maap                                     KL_pp_maap                               dLUT=  +55 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_mrp_strip                                KL_mrp_strip                             dLUT=   +6 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_normalizer                               KL_pp_normalizer                         dLUT=   -1 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_notify                                   KL_aecp_notify                           dLUT=   +1 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_nvm_port                                 KL_pp_nvm_port                           dLUT=   +1 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_nvm_shadow                               KL_acmp_nvm_shadow                       dLUT=  -10 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_originator                               KL_pp_originator                         dLUT=  -79 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_prng                                     KL_pp_prng                               dLUT=   -4 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_rx_validator                             KL_pp_rx_validator                       dLUT=  -55 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_scoreboard                               KL_pp_scoreboard                         dLUT=   -1 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_side_port                                KL_pp_side_port                          dLUT=  +21 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_srp                                      KL_srp_top                               dLUT= +657 dFF= +631 dRAMB36=+0 dRAMB18=+0
+     (u_srp)                                  KL_srp_top                               dLUT=   +4 dFF=   +1 dRAMB36=+0 dRAMB18=+0
+     u_admission                              KL_srp_admission                         dLUT= -291 dFF=  -32 dRAMB36=+0 dRAMB18=+0
+     u_decoder                                KL_srp_decoder                           dLUT=  +96 dFF= +128 dRAMB36=+0 dRAMB18=+0
+     u_domain                                 KL_srp_domain                            dLUT=  +37 dFF=   +2 dRAMB36=+0 dRAMB18=+0
+     u_encoder                                KL_srp_encoder                           dLUT=  +36 dFF=  +19 dRAMB36=+0 dRAMB18=+0
+     u_listener                               KL_srp_listener_fsm                      dLUT= +808 dFF= +512 dRAMB36=+0 dRAMB18=+0
+     u_talker                                 KL_srp_talker_fsm                        dLUT=  -39 dFF=   +1 dRAMB36=+0 dRAMB18=+0
+     u_vlan                                   KL_srp_vlan                              dLUT=   +6 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_talker                                   KL_acmp_talker                           dLUT=  -24 dFF=   +1 dRAMB36=+0 dRAMB18=+0
+   u_timer                                    KL_pp_timer_service                      dLUT=  +19 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_tx_arbiter                               KL_pp_tx_arbiter                         dLUT=  -39 dFF=   +0 dRAMB36=+0 dRAMB18=+0
+   u_tx_slots                                 KL_pp_tx_slots                           dLUT=  -24 dFF=   +0 dRAMB36=+0 dRAMB18=+0
