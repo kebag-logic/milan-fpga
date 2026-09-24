@@ -1,0 +1,16 @@
+--- a/hdl/aecp/KL_aecp_desc_mem_guard.sv
++++ b/hdl/aecp/KL_aecp_desc_mem_guard.sv
+@@ -69,11 +69,11 @@
+   always_ff @(posedge clk_i) begin : owed_ff
+     if (!rst_n) begin
+       owed_r <= 1'b0;
+-    end else if (m_req_valid_o && m_req_ready_i) begin
+-      owed_r <= 1'b1;
+     end else if (m_rsp_valid_i && m_rsp_ready_o
+                  && (m_rsp_last_i || m_rsp_err_i)) begin
+       owed_r <= 1'b0;
++    end else if (m_req_valid_o && m_req_ready_i) begin
++      owed_r <= 1'b1;
+     end
+   end
+ 
