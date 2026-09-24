@@ -1,0 +1,15 @@
+{
+ "name": "R20 mastership retires with the wrong sign",
+ "file": "ucode/gen_gptp_ucode.py",
+ "breaks": "mastership keeps the integral-only rate",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL slew: mastership keeps the integral-only rate got 0000000000199999 exp 00000000ffe66667"
+ ],
+ "tally": [
+  "1532 checks: 1531 PASS, 1 FAIL"
+ ],
+ "index": 19
+}

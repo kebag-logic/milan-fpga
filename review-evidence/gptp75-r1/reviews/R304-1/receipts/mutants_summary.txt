@@ -1,0 +1,63 @@
+control (unmodified head): ['1532 checks: 1532 PASS, 0 FAIL']
+
+== author: 30 run, 30 caught, 0 not caught
+[00] caught  slew level tied low named=True :: FAIL slew: real jump starts the level got 0000000000000000 exp 0000000000000001
+[01] caught  slew clears at the first in-band pair named=True :: FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+[02] caught  slew clears before the replacement rate named=True :: FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001
+[03] caught  result face always ready :: FAIL reset holds the result face closed got 0000000000000001 exp 0000000000000000
+[04] caught  result value taken without an accepted beat :: FAIL D1 response keeps its own t3 got 0000000002627558 exp 0000000002625a00
+[05] caught  result tag taken without an accepted beat :: FAIL D1 response Follow_Up sent   got 0000000000000000 exp 0000000000000001
+[06] caught  recorded t1 survives reset :: FAIL D3c a pre-reset t1 cannot pair after reset got 0000000000000259 exp 0000000000000000
+[07] caught  byte face advances without ready :: FAIL raw-empty overload: only frozen A commits got 000000000000001e exp 000000000000001f
+[08] caught  lost t1 fabricates a time and a companion :: FAIL D2c lost t1 publishes no delay got 0000000002fb09b8 exp 00000000000002bc
+[09] caught  lost Sync cancels the requester exchange :: FAIL D2b lost Sync left the recorded t1 alone value got 000000000000012d exp 00000000000002bc
+[10] caught  lost response cancels the requester exchange :: FAIL D2a lost response left the frozen pair alone value got 0000000000000259 exp 000000000000012d
+[11] caught  a later response re-arms the frozen pair :: FAIL D3a the pair computes from its own operands value got 00000000000312f3 exp 0000000000000191
+[12] caught  the tail runs before its own t1 :: FAIL D2a the pair publishes nothing without its t1 got 00000000f7c4c144 exp 0000000000000259
+[13] caught  a new request leaves the old pair live :: FAIL D2a the pair publishes nothing without its t1 got 00000000f7c4bf5b exp 0000000000000259
+[14] caught  credit gate removed from the Pdelay_Req leg :: FAIL D4 Pdelay_Req beats are withheld got 0000000000000001 exp 0000000000000000
+[15] caught  credit gate removed from the Sync leg :: FAIL D4 Sync beats are withheld   got 000000000000000a exp 0000000000000000
+[16] caught  credit gate removed from the Announce leg :: FAIL D4 Announce beats are withheld got 0000000000000001 exp 0000000000000000
+[17] caught  every pair uses the locked threshold :: FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+[18] caught  every pair uses the link-up threshold :: FAIL receipt timeout, same GM, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+[19] caught  exactly the threshold steps :: FAIL link-up +20 us: step pulses  got 0000000000000001 exp 0000000000000000
+[20] caught  the step arm is unreachable :: FAIL big offset re-bases the phc  got 0000000000000000 exp 0000000000000001
+[21] caught  a grandmaster change unlocks the servo :: FAIL GM change, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+[22] caught  a receipt timeout unlocks the servo :: FAIL receipt timeout, same GM, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+[23] caught  becoming grandmaster unlocks the servo :: FAIL return from mastership, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+[24] caught  the locked threshold is 200 us :: FAIL receipt timeout, same GM, +150 us: step pulses got 0000000000000000 exp 0000000000000001
+[25] caught  asCapable's rise keeps the lock :: FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+[26] caught  becoming grandmaster keeps sync-ok :: FAIL becoming grandmaster clears sync-ok got 0000000000000008 exp 0000000000000000
+[27] caught  the whole trim is not clamped :: FAIL receipt timeout, same GM, +50 us: addend matches the mirror got 00000000ffccccb4 exp 00000000ffe66666
+[28] caught  the trim clamp is one unit wider than the envelope :: FAIL receipt timeout, same GM, +50 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+[29] caught  the integrator is not clamped :: FAIL locked +110 us: addend matches the mirror got 00000000fff33330 exp 00000000fffd70af
+
+== reviewer: 22 run, 19 caught, 3 not caught
+[00] caught  R01 lapse hook disabled :: FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+[01] pass    R02 lapse hook ignores asCapable :: -
+[02] caught  R03 lapse hook ignores sync-ok :: FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+[03] caught  R04 lapse restarts with one pair :: FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+[04] caught  R05 mastership keeps the level :: FAIL slew: mastership retires the phase correction got 0000000000000001 exp 0000000000000000
+[05] caught  R06 mastership always writes a rate :: FAIL late FU never steers         got 0000000000000007 exp 0000000000000002
+[06] pass    R07 mastership keeps qualification :: -
+[07] caught  R08 step clears at the step pulse :: FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001
+[08] caught  R09 step keeps qualification :: FAIL slew: replacement step clears at its rate got 0000000000000001 exp 0000000000000000
+[09] caught  R10 reset keeps the level :: FAIL slew: warm reset clears on its first clock got 0000000000000001 exp 0000000000000000
+[10] caught  R11 zero verdict asserts :: FAIL slew: real correction has one uninterrupted interval got 0000000000000030 exp 0000000000000002
+[11] caught  R12 level rises only with the rate :: FAIL slew: decision asserts before its affected rate got 0000000000000000 exp 0000000000000001
+[12] caught  R13 rate write never clears :: FAIL slew: ordinary frequency tracking stays inactive got 0000000000000001 exp 0000000000000000
+[13] pass    R14 lapse hook arms while inactive :: -
+[14] caught  R15 band excludes +100 ns :: FAIL slew: tracking band never asserts got 0000000000000001 exp 0000000000000000
+[15] caught  R16 band admits +101 ns :: FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001
+[16] caught  R17 band biased by 1 ns :: FAIL slew: tracking band never asserts got 0000000000000001 exp 0000000000000000
+[17] caught  R18 in-band pair never settles :: FAIL slew: ordinary frequency tracking stays inactive got 0000000000000001 exp 0000000000000000
+[18] caught  R19 mastership skips retirement :: FAIL slew: mastership retires the phase correction got 0000000000000001 exp 0000000000000000
+[19] caught  R20 mastership retires with the wrong sign :: FAIL slew: mastership keeps the integral-only rate got 0000000000199999 exp 00000000ffe66667
+[20] caught  R21 verdict forgets retained count :: FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+[21] caught  R22 verdict never published :: FAIL slew: real jump starts the level got 0000000000000000 exp 0000000000000001
+
+== gap probe (reviewer harness adds 2 negative lifecycle cases)
+control: ['1555 checks: 1555 PASS, 0 FAIL']
+[01] pass    R02 lapse hook ignores asCapable :: []
+[06] caught  R07 mastership keeps qualification :: ['FAIL probeB: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000']
+[13] caught  R14 lapse hook arms while inactive :: ['FAIL probeA: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000', 'FAIL probeB: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000']

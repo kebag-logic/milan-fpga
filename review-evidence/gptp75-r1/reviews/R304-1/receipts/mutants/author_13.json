@@ -1,0 +1,31 @@
+{
+ "name": "a new request leaves the old pair live",
+ "file": "ucode/gen_gptp_ucode.py",
+ "breaks": "a superseded exchange cannot pair with the new request's t1",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL D2a the pair publishes nothing without its t1 got 00000000f7c4bf5b exp 0000000000000259",
+  "FAIL D2a lost response left the frozen pair alone value got 00000000f7c4bf5b exp 000000000000012d",
+  "FAIL D2c the pair publishes nothing without its t1 got 0000000000989d6c exp 00000000000002bd",
+  "FAIL D2c lost t1 publishes no delay got 0000000000989d6c exp 00000000000002bd",
+  "FAIL D2c cancelled pair stays cancelled got 0000000000989d6c exp 00000000000002bd",
+  "FAIL D3a the pair publishes nothing without its t1 got 00000000298e05c2 exp 0000000000000259",
+  "FAIL D3a successor traffic publishes nothing either got 00000000298e05c2 exp 0000000000000259",
+  "FAIL D3a the pair computes from its own operands value got 00000000298e05c2 exp 0000000000000191",
+  "FAIL D3b the pair publishes nothing without its zero t1 got 00000000fbd3bca4 exp 00000000298e05c2",
+  "FAIL D3b a zero t1 completes its exchange value got 00000000fbd3bca4 exp 0000000000000259",
+  "FAIL D3c the pair publishes nothing before the reset got 0000000004eb026f exp 00000000fbd3bca4",
+  "FAIL D3c a real exchange after reset still computes value got 000000000000015f exp 0000000000000285",
+  "FAIL D3d interval 0 keeps its frozen operands value got 0000000002fb09e0 exp 0000000000000259",
+  "FAIL D3d interval 1 waits for its own t1 got 000000000007a3e6 exp 0000000002fb09e0",
+  "FAIL D3d interval 1 keeps its frozen operands value got 000000000007a3e6 exp 000000000000028a",
+  "FAIL D3d interval 2 waits for its own t1 got 000000000007a3e7 exp 000000000007a3e6",
+  "FAIL D3d interval 2 keeps its frozen operands value got 000000000007a3e7 exp 00000000000002bc"
+ ],
+ "tally": [
+  "1532 checks: 1515 PASS, 17 FAIL"
+ ],
+ "index": 13
+}

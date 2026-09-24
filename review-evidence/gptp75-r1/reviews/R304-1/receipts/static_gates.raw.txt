@@ -1,0 +1,35 @@
+++ make contract
+python3 tb/check_phc_contract.py
+PHC interface contract: PASS
+++ echo rc=0
+rc=0
+++ make lint
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+  -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+  --top-module KL_gptp_engine \
+  hdl/ucpu/gptp_ucpu_pkg.sv hdl/ucpu/KL_gptp_ucpu.sv \
+  hdl/wire/KL_gptp_rx_parser.sv hdl/wire/KL_gptp_tx_slot.sv \
+  hdl/common/KL_gptp_timer.sv hdl/top/KL_gptp_engine.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.405 MB sources in 7 modules, into 0.292 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.060 s (elab=0.007, cvt=0.036, bld=0.000); cpu 0.060 s on 1 threads; allocated 23.609 MB
+make -C bench/arty lint
+make[1]: Entering directory '$REVIEWS/gptp75-r304-1-packet/scratch/head/bench/arty'
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-PINCONNECTEMPTY --top-module bench_arty_top ../../hdl/ucpu/gptp_ucpu_pkg.sv ../../hdl/ucpu/KL_gptp_ucpu.sv ../../hdl/wire/KL_gptp_rx_parser.sv ../../hdl/wire/KL_gptp_tx_slot.sv ../../hdl/common/KL_gptp_timer.sv ../../hdl/top/KL_gptp_engine.sv bench_afifo.sv bench_mii_rx.sv bench_mii_tx.sv bench_phc.sv bench_uart_report.sv bench_arty_top.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.100 MB sources in 13 modules, into 0.408 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.095 s (elab=0.014, cvt=0.053, bld=0.000); cpu 0.094 s on 1 threads; allocated 25.562 MB
+make[1]: Leaving directory '$REVIEWS/gptp75-r304-1-packet/scratch/head/bench/arty'
+++ echo rc=0
+rc=0
+++ make docs
+python3 scripts/generate_diagrams.py --check
+diagram check: PASS (9 pinned assets, 3 source-bound PNGs)
+python3 scripts/generate_diagrams.py --selftest
+diagram selftest: PASS (10 arms)
+python3 scripts/check_docs.py
+docs check: PASS (11 current pages, 17 historical pages)
+python3 scripts/check_docs.py --selftest
+docs selftest: PASS (10 arms)
+++ echo rc=0
+rc=0

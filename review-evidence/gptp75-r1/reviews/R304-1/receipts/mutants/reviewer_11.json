@@ -1,0 +1,21 @@
+{
+ "name": "R12 level rises only with the rate",
+ "file": "top/KL_gptp_engine.sv",
+ "breaks": "level asserts on the decision, before the affected rate",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL slew: decision asserts before its affected rate got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: decision asserts before its affected rate got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: decision asserts before its affected rate got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: decision asserts before its affected rate got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: decision asserts before its affected rate got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: decision asserts before its affected rate got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: decision asserts before its affected rate got 0000000000000000 exp 0000000000000001"
+ ],
+ "tally": [
+  "1532 checks: 1525 PASS, 7 FAIL"
+ ],
+ "index": 11
+}

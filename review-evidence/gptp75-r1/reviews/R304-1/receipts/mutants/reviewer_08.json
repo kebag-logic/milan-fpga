@@ -1,0 +1,18 @@
+{
+ "name": "R09 step keeps qualification",
+ "file": "top/KL_gptp_engine.sv",
+ "breaks": "replacement step clears",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL slew: replacement step clears at its rate got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: locked step never starts an interval got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001"
+ ],
+ "tally": [
+  "1530 checks: 1526 PASS, 4 FAIL"
+ ],
+ "index": 8
+}
