@@ -1,0 +1,319 @@
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] INDEPENDENT REVIEW STARTED: R296-1
+
+R296 (internal reviewer) reconstructs issue #551 / PR #553 at exact head `4eca4540d6a278aeb56687029d752bade6e714e3`, tree `ee1aaf3ef483bae1622c3d4528c4d958cee45781`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] INDEPENDENT REVIEW STARTED: R297-1
+
+R297 (external reviewer) reconstructs issue #551 / PR #553 at exact head `4eca4540d6a278aeb56687029d752bade6e714e3`, tree `ee1aaf3ef483bae1622c3d4528c4d958cee45781`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] Manager note on head `0bf22c935`: generator output only.
+
+At `4eca4540` the builder bank failed one gate, 08: `docs/traceability/gen_module_matrix.py --check` reported `MODULE_MATRIX.md` and `hdl/milan/README-tests.md` stale. I ran the generator unchanged and committed its output as `0bf22c93`, two generated lines. The subject says "for the refused re-declaration leg"; more precisely, the regeneration follows this PR's `docs/traceability/ieee8021q.md` rewrite.
+
+The effect deserves review: `KL_pp_shadow`'s clause column changes from "34.3, 34.4" to "--". `KL_pp_shadow.sv` is unchanged, so the rewritten `ieee8021q.md` no longer names `KL_pp_shadow` against 802.1Q 34.3/34.4. Reviewers: please judge whether that citation was correctly retired or lost.
+
+R296-1 and R297-1 review `4eca4540`. A delta review covers `0bf22c93` afterwards.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[R296] NEGATIVE - exact head 4eca4540d6a278aeb56687029d752bade6e714e3
+
+# R296-1 internal independent review: issue #551 / PR #553
+
+- Reviewed head: `4eca4540d6a278aeb56687029d752bade6e714e3`, tree `ee1aaf3ef483bae1622c3d4528c4d958cee45781`, source base `59b816708852472da6ed4576386c30ebd5f8f839`.
+- Scope reconstructed from AGENTS.md and CONTRIBUTING.md, the #551 issue body (acceptance 1-3), the manager decision and the [A257] assignment (acceptance: refused re-declaration shows no licence, pair, reset or PDU; real-grant mutants fail; admitted case streams with latency stated; the six named doc surfaces updated). Also read: the processor admission RTL (`KL_srp_top.sv`, `KL_srp_admission.sv` at pin `09f9bf38`), the diff `59b81670..4eca4540`, and the public evidence tree `review-evidence/551-r1` at `eda1772a`.
+- The PR's current head moved during this round to the child commit `0bf22c93` (two generated lines). This verdict covers `4eca4540` only. It does not cover `0bf22c93`.
+- Prior public review findings on this PR: none existed. The only PR comments are two review-start notices and the manager note on `0bf22c93`. That note asks whether the `KL_pp_shadow` 34.3/34.4 citation was correctly retired or lost. It was lost; see F4.
+
+## Findings
+
+### F1 - MAJOR - Conformance, RTL, Robustness, Tests, Docs - the "real grant" is stale in the first admission round, so a refused re-declaration whose TSpec grew still gets a licence pulse
+
+- **Where:** `hdl/milan/milan_datapath.sv:6594-6595` (the gate), `hdl/milan/milan_datapath.sv:6570-6589` and `:5278-5279` (claims). Fixture: `tb/verilator/milan_dp/sim_crf_licence.cpp:1078-1082`; `tb/verilator/milan_dp/README.md:409`. Absolute doc claims:
+  - `docs/reference/FR_NFR.md:220-222`
+  - `docs/reference/REGISTER_MAP.md:1112-1114`
+  - `docs/reference/EGRESS_QUEUE_MAP.md:87-89`
+  - `docs/traceability/ieee8021q.md:90`
+  - `CHANGELOG.md:45,51`
+- **Authority/evidence:**
+  - The manager decision says "a refused re-declaration no longer opens the licence", and the docs now state that refused re-declarations "cannot open CRF or AAF licences".
+  - `sr_admitted_o[s] = grant_r[s] && req_i[s]` (`protocol-processor/hdl/srp/KL_srp_admission.sv:208`). `grant_r` latches, at round end, a `fit_w` computed from `slope_q_r[s]` (`:153`).
+  - `slope_q_r[s]` is refreshed by a free-running 3-stage walk that runs in lockstep with the admission walk (`:128`). The first evaluation after a declaration therefore uses the slope of the TSpec the source held before.
+  - The processor's own aging comment says that "one full round with the request visible must complete before the verdict is trusted" (`KL_srp_top.sv:772`). During that round, `sr_admitted_o` is not a trusted verdict.
+  - The fixture hides this: it "warms the real TSpec pipeline" with the same refused 20000-byte TSpec before withdrawing, so the stale slope already equals the refused one.
+- **Probe P1** (`scripts/run_stale_grant_probes.sh`, `scripts/probe_P1_stale_slope.patch`, `receipts/probe_P1_stale_slope.log`):
+  - The probe keeps the author's exact staging: the same withdrawal, the same wire Listener Ready decoded one cycle after the re-declaration, and the same both sources and both phases. The only change is that the refused cases warm with the previously admitted 224-byte TSpec instead of 20000.
+  - Result, in all 4 source/phase cases: the real grant rises once, and the licence rises once (CRF licence and AAF gate). STREAM_START and STREAM_STOP each go up by 1, and MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX are reset (17/29/43 become 0). The run had 28 check failures and emitted 0 PDUs.
+  - "Withdrawal cleared the real grant" passed first, so the grant is not left over from the earlier declaration.
+- **Probe P2** (reverse case, `receipts/probe_P2_stale_admit.log`): an admitted 224-byte re-declaration after a refused 20000-byte one still opens the licence exactly once. But the added latency is 4 cycles for CRF at phase 0, against the stated "0--2 admission cycles" (`CHANGELOG.md:51`, `README.md:419-427`). It is still within the 3-round bound.
+- **Reachability:** the shipping declaration TSpec is `cfg_tspec_max_frame_i = tctx_maxf_w[0]` (`milan_datapath.sv:7479`). That value follows the software-written TCTX channel count (`:5211-5244`), so the TSpec can change between declarations.
+  - By the same RTL reading (not simulated), a first declaration after reset evaluates the reset-value TSpec slope.
+  - The corner needs the same early registering Listener event the issue itself targets. Before this PR the pulse lasted up to three rounds. At this head it lasts about one round, but it is not eliminated.
+- **Impact:** the controller-visible STREAM_START/STREAM_STOP pair and the Table 5.4 counter reset that #551 set out to remove remain reachable for a refused declaration. Five documents and the RTL comments state the opposite.
+- **Required outcome:** one of the following, decided publicly because it may need a processor-side or parent-side design choice:
+  - (a) No licence can open on a first-round grant that the trusted verdict later refuses. A fixture case where the refused TSpec differs from the source's previous TSpec (unwarmed pipeline) must fail before the change and pass after it. The stated latency must then be re-measured, including a TSpec change.
+  - (b) A recorded decision accepts the residual, and every listed doc and comment states it exactly, including the latency range.
+- **Verification:** rerun `run_stale_grant_probes.sh` (or its committed equivalent). P1 should show 0 grant/licence rises, no counter pair and no reset. The latency statement should cover P2.
+
+### F2 - BLOCKER - Conformance, Tests, Docs - the BDD licence scenario fails at this head (hosted `bdd-conformance` red)
+
+- **Where:** `tests/steps/milan_streaming_licence_steps.py:174-183`, `tests/features/milan_streaming_licence.feature:86-97`. Stale pointers in the same family: `docs/reference/MILAN_COMPLIANCE_MATRIX.md:179`, `tb/verilator/milan_dp/README.md:27`.
+- **Evidence:**
+  - The step asserts that `lwsrp_stream_gate` is `pp_cd_srp_active_w` alone and that it does not contain `sr_admitted`. At this head the expression is `pp_cd_srp_active_w[...] & pp_cd_srp_sr_admitted_w[...]`.
+  - Full-suite run at `4eca4540`: `receipts/bdd_full.log` shows 343 scenarios passed and 1 failed (this one), rc 1. The focused run is in `receipts/bdd_streaming_licence.log`.
+  - The same scenario passes at base `59b81670`: `receipts/bdd_streaming_licence_base59b81670.log`, 5/5.
+  - Hosted `bdd-conformance` reports `fail` on the PR (`receipts/hosted_checks.txt`, run 36011213750, head `0bf22c93`, whose only changes are two generated doc lines).
+  - The #551 issue acceptance item 3 requires gates to be green. The author's validation list did not run behave.
+- **Impact:** a required gate is red. The executable contract pin and its scenario text still describe the pre-#551 gate.
+- **Required outcome:** the scenario and step pin the decided gate, ACTIVE AND the per-source real grant, and nothing else. They keep rejecting the raw verdict alone. The two stale doc rows are updated to match.
+- **Verification:** `cd tests && behave --no-capture -f plain` exits 0. A mutant that restores the ACTIVE-only gate, or the raw-verdict-only gate, fails the scenario.
+
+### F3 - MAJOR - Conformance, Docs - generated traceability is stale at this head
+
+- **Where:** `docs/traceability/MODULE_MATRIX.md`, `hdl/milan/README-tests.md`.
+- **Evidence:** `python3 docs/traceability/gen_module_matrix.py --check` returns rc 1 and reports both files STALE (`receipts/gen_module_matrix_check_4eca4540.log`). The regenerated diff is in `receipts/gen_module_matrix_regen_at_4eca4540.diff`. The manager's PR note reports the same result for gate 08.
+- **Impact:** the docs workflow gate fails at the reviewed head.
+- **Required outcome:** the generated files match the generator at a reviewed head. The child `0bf22c93` appears to do this, but its content change is the loss described in F4.
+- **Verification:** `gen_module_matrix.py --check` returns rc 0 at the next reviewed head.
+
+### F4 - MINOR - Docs, Conformance - the 802.1Q traceability rewrite drops more than the refused branch and over-claims verification
+
+- **Where:** `docs/traceability/ieee8021q.md:90-91` (rows Q-9, Q-10) and `:35`, and `hdl/milan/milan_datapath.sv:6552-6555`.
+- **Evidence:**
+  - Q-9 and Q-10 lost several things:
+    - their module mapping (`KL_srp_admission` behind `KL_pp_shadow`), so `KL_pp_shadow`'s clause cell becomes "--" in the regenerated matrix;
+    - their status mark (the PROCESSOR status used by every sibling row);
+    - the caveat that the 75 % TSpec-refusal scenario went with the deleted suite;
+    - the 34.3 and 34.4 rationale (for example, the 42-byte per-frame overhead).
+  - Q-9 now cites `crflic` as the verification of "SR bandwidth limited to 75%". That leg uses a 20000-byte TSpec that "exceeds even the 1 Gb/s ceiling" and never tests the 75 % boundary.
+  - `ieee8021q.md:35` still names `srp_active_o` as the per-source stream gate.
+  - `milan_datapath.sv:6554` still says no other logic reads the raw verdict, but the licence now reads it per source.
+  - `KL_pp_shadow.sv` is unchanged and still carries that admission face. The citation was lost, not correctly retired.
+- **Impact:** clause traceability for 34.3/34.4 is weaker, and a clause-verification claim is not supported by its evidence.
+- **Required outcome:** Q-9 and Q-10 describe only the #551 change. The module mapping, status mark, caveat and rationale are kept. Q-9 claims only what `crflic` shows. The two stale sentences are corrected.
+- **Verification:** reread against `59b81670`. `gen_module_matrix.py` keeps `KL_pp_shadow` against 34.3 and 34.4, unless a recorded decision retires it.
+
+## Clean evidence examined (not sufficient to clear a lens that has an open finding)
+
+- **RTL:** the gate change `milan_datapath.sv:6594-6595` has matching widths (`[SRP_TALKERS_C-1:0]` on both vectors). There is no CDC issue: `pp_shadow` is on `axis_clk` (`:7363`), and `KL_crf_tx.enable_i` is sampled in `clk_i = axis_clk` (`KL_crf_tx.sv:484,497`).
+  - The bypass, lwSRP-off and talker-off escapes are unchanged (`:1913-1916`, `:5305-5307`). `LWSRP_STATUS[6] = |ACTIVE` is unchanged (`:6611`).
+  - Every `lwsrp_stream_gate` reader has been enumerated: AAF source 0 (`:1916`), AAF sources 1 and up (`:2026`), lobs above index 0 (`:1886`), `LWSRP_STATUS[8]` (`:2505`), and the CRF licence and status (`:5281`, `:5318-5319`). All change by the decision's wording, and no other ACTIVE consumer changed.
+- **Tests:**
+  - The clean leg passes 253/253 (`receipts/crflic_clean.log`, latencies 2/1/0/1).
+  - The mutant campaign is 7/7: all six mutants are caught on their named checks and the clean control passes (`receipts/crflic_mutants.log`).
+- **Docs:** `docs_check`, `check_doc_style` and `check_doc_paths` return rc 0. `check_em_dash --base 59b81670` (0 findings) and `gen_toc --check` also return rc 0, run in a disposable venv with the pinned `tools/markdown/requirements.txt`. Receipts are `receipts/static_*.log`.
+
+## Reviewer-owned ledger
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN (F1, F2, F3, F4) | issue #551 acceptance and the manager decision; `KL_srp_admission.sv:128,153,208`; `KL_srp_top.sv:772-779,852-861`; `milan_datapath.sv:5211-5244,6594-6595,7479`; probes P1/P2 | R296-1 | 4eca4540d6a278aeb56687029d752bade6e714e3 |
+| RTL | UNCLEAN (F1) | `milan_datapath.sv:1886,1913-1916,2026,2505,5278-5319,6545-6611,7362-7363`; `KL_crf_tx.sv:484-508`; processor admission walk and aging | R296-1 | 4eca4540d6a278aeb56687029d752bade6e714e3 |
+| Robustness | UNCLEAN (F1) | TSpec-change ordering (P1 refused after admitted, P2 admitted after refused), both sources and both round phases, withdrawal/re-declaration, feature-disabled escapes | R296-1 | 4eca4540d6a278aeb56687029d752bade6e714e3 |
+| Tests | UNCLEAN (F1, F2) | `sim_crf_licence.cpp` phases G/H and invariants; `crflic_mutants.py`; `crflic_probes.vlt`; Makefile `crflic*`; behave full suite; `receipts/crflic_clean.log`, `crflic_mutants.log`, `bdd_*.log` | R296-1 | 4eca4540d6a278aeb56687029d752bade6e714e3 |
+| Docs | UNCLEAN (F1, F2, F3, F4) | FR_NFR 2.5 note; REGISTER_MAP `0x750`, `0x694`, `0x698`, and 1102-1140; EGRESS_QUEUE_MAP 74-102; `ieee8021q.md` 35, 50-56, 90-91; CHANGELOG 30-55; `milan_datapath.sv` comments; milan_dp README 357-445; MILAN_COMPLIANCE_MATRIX 179; generator and static doc gates | R296-1 | 4eca4540d6a278aeb56687029d752bade6e714e3 |
+
+## Real limits
+
+- I did not rerun the default `milan_dp` sweep, the style, lint and source-list gates, or `xvlog_gate`. For those I relied on the author's logs in `review-evidence/551-r1`.
+- I did not run full banks, Yosys, hardware, act or Docker. Physical calibration was NOT RUN, and field skips are not hardware proof.
+- F1 was simulated on the AX 1x1 TDM8 shape only (N_SOURCES 2). The first-declaration-after-reset variant and other geometries are RTL reading only. The shipping reachability rests on the TCTX channel-count path.
+- In P2, ACTIVE rose twice in 3 of 4 admitted cases (a raw-ACTIVE pulse visible on `LWSRP_STATUS[6]` only). The licence opened exactly once. I observed this but did not investigate it, and it is not a finding.
+- The hosted results were read at observation time for run 36011213750 on head `0bf22c93`, not the reviewed head. `bdd-conformance` had failed, and most Verilator and Yosys contexts were still pending. Physical gPTP was a skipped context.
+- The manager brief says the builder and native banks passed at this head. The manager's own PR note says builder gate 08 failed at `4eca4540`, and I reproduced that failure (F3).
+
+## Pending manager duties
+
+- Route F1 for a public decision (option a or b), and route F2, F3 and F4 to the executor.
+- Run a delta review of `0bf22c93` and of any fix head. Coverage of all five lenses must be re-banked at the new head.
+- Own hosted and act acceptance at the exact final head: `bdd-conformance` is currently red, and the Verilator, Yosys and docs contexts were pending.
+- Build and validate the current-dev candidate at the merge turn. No merge without explicit maintainer authorization.
+
+## Restoration
+
+The disposable probes patched `tb/verilator/milan_dp/sim_crf_licence.cpp` only for their builds. The generator run rewrote two generated files in place. Every change was restored.
+
+`receipts/restore_verification.txt` records the checks: HEAD is `4eca4540`, `write-tree` equals `ee1aaf3e`, there are no tracked changes, the index and HEAD tree hashes (mode, blob, path) are equal, and the gitlinks are unchanged (`e5dcea6e`, `09f9bf38`, `48ff7a7e`, `efeb541a` uninitialised as at start). All builds and scratch trees are under `scratch/`, which is not published.
+
+R296-1 FINISHED
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[R297] NEGATIVE - exact head 4eca4540d6a278aeb56687029d752bade6e714e3
+
+# R297-1 external independent review: issue #551 / PR #553
+
+- Role: [R297], cleared-context external independent reviewer, round R297-1.
+- Exact head: `4eca4540d6a278aeb56687029d752bade6e714e3`, tree `ee1aaf3ef483bae1622c3d4528c4d958cee45781`.
+- Base: `59b816708852472da6ed4576386c30ebd5f8f839`. Live `dev` at review start was the same commit.
+- Submodule gitlinks at head: `protocol-processor` `09f9bf3846511f8388d995126502ed92eaa65213`, `gptp-processor` `e5dcea6e351abff18a27a00f8e345f3251bdbd8f`, `third_party/verilog-axis` `48ff7a7e2ef782cf778d47910cf85835c64b1bce`. `external` is not initialised and not needed.
+- Scope reviewed: the issue body; the manager decision (issue comment 5813147847) and the [A257] assignment; the TAKEN and REVIEW READY comments; PR #553's body; AGENTS.md and CONTRIBUTING.md; the full diff `59b81670..4eca4540`; the processor interface it consumes (`KL_srp_top.sv`, `KL_srp_admission.sv`, `protocol_processor_top.sv`, `KL_acmp_talker.sv`); the public evidence tree `review-evidence/551-r1` at `eda1772a`; and hosted check runs at the exact head.
+
+## Verdict summary
+
+The gate change is small and matches the manager decision literally. `lwsrp_stream_gate = ACTIVE & sr_admitted_o` is correctly sized, and both terms come from the same processor clock domain. Every enumerated consumer (the CRF licence, the AAF gates, `LWSRP_STATUS[8]`, `CRFT_CTRL[6]/[7]`, the `0x800`/`0x82C` window gate and lobs bits above index 0, and the Table 5.4 `tkd_streaming_w`) inherits the new gate as intended. `LWSRP_STATUS[6]` stays raw |ACTIVE, as documented. The shipped `crflic` leg (253/0) and all six mutants (7/7) reproduce exactly.
+
+The verdict is nevertheless NEGATIVE, for four reasons:
+
+1. **F1 (MAJOR).** A refused declaration can still open the licence. It is enough that the TSpec differs from what the processor's slope pipeline last computed for that source. The shipped fixture passes only because it pre-warms the pipeline with the refused TSpec. The docs claim the refused case is closed unconditionally.
+2. **F2 (MAJOR).** A spec-facing BDD scenario still pins the superseded #530 gate. It fails at this head, both locally and hosted, and makes the required `rtl-fast` context red.
+3. **F3 (MINOR).** Generated traceability is stale at this head. The Q-9/Q-10 rewrite also drops the implementing-module citation.
+4. **F4 (MINOR).** Several remaining authoritative comments and docs still describe the licence as ACTIVE alone. One of them is the parent-side interface contract for `srp_active_o`.
+
+## Findings
+
+### F1 - MAJOR - Conformance, RTL, Robustness, Tests, Docs: a refused declaration still opens the licence when the TSpec slope pipeline is cold
+
+- **Where:**
+  - Gate: `hdl/milan/milan_datapath.sv:6594-6595`.
+  - Fixture: `tb/verilator/milan_dp/sim_crf_licence.cpp:1078-1082`, which warms and withdraws with the same `max_frame` it later refuses. Its README says so at `tb/verilator/milan_dp/README.md:409`.
+  - Processor: `protocol-processor/hdl/srp/KL_srp_admission.sv:96-128` (the continuous 3-stage slope walk into `slope_q_r`), `:180-209` (round-latched `grant_r`, `sr_admitted_o = grant_r && req_i`), and `KL_srp_top.sv:444,772-779,855-858` (the window exists because "one full round with the request visible must complete before the verdict is trusted").
+  - Docs claiming closure: `docs/reference/FR_NFR.md:216-222`, `docs/traceability/ieee8021q.md:53-58,90`, `docs/reference/REGISTER_MAP.md:1105-1117`, `docs/reference/EGRESS_QUEUE_MAP.md:77-90`, `CHANGELOG.md:44-51`, and the RTL banner at `milan_datapath.sv:6577-6587`.
+- **Authority:** the manager decision on #551 ("A refused re-declaration no longer opens the licence ... matches FR-SRP-03's 'on failure the stream MUST NOT transmit' without the window exception"). Also assignment acceptance item 1 (no licence, no STREAM_START/STREAM_STOP pair, no counter reset, no PDU), FR-SRP-03, and Milan v1.2 5.3.7.7 Table 5.4.
+- **Evidence (RTL reading):**
+  - `adm_mfs_r`/`adm_mif_r` change only at a DECLARE (`KL_srp_top.sv:855-858`).
+  - `slope_q_r[s]` reflects them only after the per-source walk plus three register stages.
+  - Admission rounds meanwhile evaluate the declaring source with the previous slope. At reset that slope is 0: `adm_mif_r = 0` makes `iv_bytes = 0`, and `fit_w` is then true.
+  - So `grant_r`, and with it `sr_admitted_o`, can be 1 for a declaration that the next coherent round refuses. That is exactly the period the processor's optimistic window covers.
+- **Evidence (executed, disposable probes, hdl untouched):** `scripts/probe_cold_slope.py` changes only the fixture's warm-up TSpec, and rebuilds and runs the same `crflic` leg.
+  - `cold-refuse` warms with 224 B, then does the graded refused re-declaration with 20000 B. Result: `receipts/probe_cold_refuse.log`, 253 checks, 28 failures. In all four source × phase cases: `the ceiling refused the re-declaration throughout` got=1, `refused CRF licence never opened` / `refused AAF gate never opened` got=1, one extra STREAM_START and one extra STREAM_STOP, and MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX reset from 17/29/43 to 0. Timeline: `CRF licence RISES, uid 1` at 117547.58 ms and `FALLS` at 117547.62 ms. No PDU left in this schedule; the at-most-one-PDU exposure is unchanged in kind.
+  - `no-warm` removes the warm-up entirely, so the pipeline keeps the source's previous declaration's TSpec. Result: `receipts/probe_no_warm.log`, 245 checks, 34 failures, with the same refused-case failures at every source and phase.
+- **Impact:**
+  - The #551 symptom set remains for any refused declaration whose TSpec differs from the one last computed for that source. That covers a stream-format or TSpec change and, by RTL reading, the first declaration of a source after reset. The symptoms are a licence pulse, a controller-visible STREAM_START/STREAM_STOP pair, a Table 5.4 counter reset, and a possible PDU.
+  - Like the original corner, it needs a registering Listener event decoded inside the window.
+  - FR_NFR ("Refused re-declarations therefore cannot open CRF or AAF licences") and ieee8021q Q-9 ("Refusal cannot license optimistic transmission") state the closure unconditionally. They are false for this subset.
+  - The stated added start latency (0-2 cycles; `README.md:419-428`, `CHANGELOG.md:51`) was measured only with a warm pipeline. `cold-admit` (`receipts/probe_cold_admit.log`) measured `added_cycles=4` for source 1, phase 0. That is still within three rounds.
+  - The 6 other failures in that run are the fixture's `ACTIVE rose once` bookkeeping under a changed schedule, not RTL findings.
+- **Required outcome:**
+  - Either a refused declaration never opens any CRF/AAF licence, whatever the source's TSpec history, or a public manager decision accepts the residual and every listed doc states it exactly. The mechanism is not prescribed here; it may sit in the parent or the processor.
+  - The simulation must include a refused case with a cold pipeline (a TSpec different from the source's previous one, and preferably the first declaration after reset), with a failing arm.
+  - The latency statement must cover cold starts or state its warm-only scope.
+- **Verification:** at the fixed head, `probe_cold_slope.py <tree> cold-refuse` and `no-warm` show zero `[G]` failures (or the new fixture's equivalent cases pass), the corresponding mutant fails them, and the latency figures are re-measured.
+
+### F2 - MAJOR - Tests, Conformance, Docs: the spec-facing licence scenario pins the superseded gate and makes `rtl-fast` red
+
+- **Where:** `tests/features/milan_streaming_licence.feature:87-97` ("the stream gate is the processor's ACTIVE, never its raw admission verdict") and `tests/steps/milan_streaming_licence_steps.py:174-183`. The step requires the identifiers in the gate expression to equal `{pp_cd_srp_active_w, SRP_TALKERS_C}` and requires no `sr_admitted`.
+- **Evidence:**
+  - Reproduced locally at the exact head: `receipts/bdd_streaming_licence_gate.log`, rc=1, `ASSERT FAILED: lwsrp_stream_gate must be the processor's ACTIVE vector alone; expression is pp_cd_srp_active_w[SRP_TALKERS_C-1:0] & pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0]`.
+  - Hosted: `bdd-conformance` reports 343 passed and 1 failed (`features/milan_streaming_licence.feature:87`), and `rtl-fast` fails with `bdd-conformance failure` (`receipts/hosted_failure_excerpts.txt`).
+  - The author's evidence set (`review-evidence/551-r1/author`) contains no BDD run.
+- **Authority:** AGENTS.md section 7 requires a successful exact-head `rtl-fast`, and says to "never weaken a test ... solely to obtain a pass". The scenario carries `@clause:5.3.7.3 @matrix:M-DEV-13c`.
+- **Impact:** a required context is red at this head. The spec-facing contract text still describes the #530 gate and cites the processor's "never rebuild" instruction as its justification.
+- **Required outcome:** the scenario pins the decided contract. Both ACTIVE and the real grant must be present, and reverting to ACTIVE-only or to raw-grant-only must each fail it. `rtl-fast` must be green at the new exact head.
+- **Verification:** `behave -n "stream gate" features/milan_streaming_licence.feature` passes at the new head. It fails with either term removed (two planted mutants). Hosted `bdd-conformance` and `rtl-fast` succeed.
+
+### F3 - MINOR - Docs, Tests: generated traceability stale at this head; Q-9/Q-10 lose their implementing-module citation
+
+- **Where:** `docs/traceability/ieee8021q.md:90-91`, and the generated `docs/traceability/MODULE_MATRIX.md` and `hdl/milan/README-tests.md`.
+- **Evidence:**
+  - `python3 docs/traceability/gen_module_matrix.py --check` gives rc=1 with `STALE ... MODULE_MATRIX.md, hdl/milan/README-tests.md` (`receipts/gen_module_matrix_check.log`). Hosted `docs-check` fails at the same step (`receipts/hosted_failure_excerpts.txt`).
+  - At base, Q-9/Q-10 named "protocol processor `KL_srp_admission` (behind `KL_pp_shadow`)" and carried the `🔵 PROCESSOR` status. The rewrite names only "Processor admission", and the regenerated matrix drops `KL_pp_shadow`'s 34.3/34.4 clauses.
+- **Answer to the manager's question on `0bf22c93`:** the citation was lost, not correctly retired. `KL_pp_shadow.sv` is unchanged, and it still carries `srp_sr_admitted_o`/`srp_sum_slope_bps_o`. After this PR the first of those feeds every talker licence directly, so its tie to 34.3 is stronger, not weaker. Regenerating the output fixes the gate but ratifies the loss.
+- **Impact:** a required docs gate is red at this head, and 802.1Q 34.3/34.4 lose their module mapping in the traceability matrix.
+- **Required outcome:** Q-9/Q-10 again name the implementing modules and status (or a public decision retires them), and the generated artefacts are current.
+- **Verification:** `gen_module_matrix.py --check` gives rc 0, and the `KL_pp_shadow` row lists 34.3 and 34.4 again (or the retirement decision is linked). A delta review of `0bf22c93` or its successor confirms.
+
+### F4 - MINOR - Docs, RTL: remaining descriptions of the licence as ACTIVE alone, including the parent-side interface contract
+
+- **Where:**
+  - `hdl/milan/milan_datapath.sv:1642-1645`: the `lwsrp_stream_gate` declaration says "per-source streaming licence: the processor's ACTIVE vector".
+  - `docs/traceability/ieee8021q.md:35`: "`srp_active_o` as the per-source stream gate since #530". This contradicts line 53 of the same file.
+  - `tb/verilator/milan_dp/README.md:27`: the `obj_crflic` row says "the CRF and AAF gates follow the processor's ACTIVE on every cycle".
+  - `docs/reference/MILAN_COMPLIANCE_MATRIX.md:179`: "every gate reads the processor's ACTIVE, which `milan_dp` `obj_crflic` grades on every cycle".
+  - `hdl/milan/KL_pp_shadow.sv:627-629`: "THE AVTP transmit gate - never rebuild it from the terms below". The datapath now deliberately ANDs one of those terms, by decision, and neither interface side records that deviation.
+  - Also `milan_datapath.sv:5318`: the `crft_stat_c[6]` comment "reservation ACTIVE".
+- **Authority:** assignment acceptance item 4 names the `milan_datapath.sv` comments. AGENTS.md section 5 says to "preserve documented module and interface contracts", and section 2 says to publish a conflict rather than hide it.
+- **Impact:** a cold reader of the declaration, the interface port, the leg index or the compliance matrix gets the pre-#551 contract. That is the same contract F2's stale scenario enforces.
+- **Required outcome:** each site states ACTIVE AND the real per-source grant, and the interface comment records the decided deviation (issue #551 decision).
+- **Verification:** a text search for these sites at the new head. The docs gates stay green.
+
+### Prior public review findings
+
+None were published on PR #553 before this round. The PR thread holds only the two review-start notices and the manager's `0bf22c93` note, whose question is answered in F3. There is nothing to resolve or retain beyond F1-F4.
+
+## Checked clean within the lenses (evidence, not coverage)
+
+These items were examined and found correct. They do not make any lens clean, because every lens carries an open finding above.
+
+- **RTL:**
+  - `milan_datapath.sv:2272-2273,6594-6595,7593-7594`: both vectors are `ACMP_SRC_C` wide, sliced `[SRP_TALKERS_C-1:0]`, and are combinational reads of processor `clk_i` registers (`protocol_processor_top.sv:488-491`). No CDC is introduced.
+  - Every consumer of `lwsrp_stream_gate` was enumerated: `:1886` (lobs above index 0), `:1916` (AAF 0), `:2026` (AAF >0), `:2505` (`LWSRP_STATUS[8]`), and `:5280-5281` (CRF, then `crft_emit_en_w`, `CRFT_CTRL[6]/[7]`, `KL_crf_tx.enable_i`, `tkd_streaming_w`). `pp_cd_srp_active_w` is otherwise read only at `:6611` (`LWSRP_STATUS[6]`, unchanged).
+  - Because ACTIVE's admission term is `opt_r | adm_admitted` (`KL_srp_top.sv:445`), the new gate differs from the old only while `opt_r & ~sr_admitted`. No other ACTIVE consumer changed.
+  - `0x82C` gate bit [3] is `aaf_stream_en_w` (`:2478`), consistent with the REGISTER_MAP text.
+- **Tests:**
+  - `receipts/crflic_head.log`: 253 checks, 0 failures, including the `[INV]` every-cycle equalities. `receipts/crflic_mutants_head.log`: clean control plus six mutants, 7/7, each caught on its named check.
+  - The fixture forces no admission result, registrar, ACTIVE or licence. It stages only the S_GATE service tuple (`crflic_probes.vlt`) and seeds counters.
+  - The admitted cases stream, measuring `added_cycles` 2/1 (AAF) and 0/1 (CRF), which matches the README under warm conditions.
+- **Robustness:**
+  - Withdrawal closes the gate at once, because `sr_admitted_o` ANDs the live request (`KL_srp_admission.sv:208`).
+  - The ACMP talker re-declares only after a withdraw and a T-SRP-LEAVEALL2 backoff (`KL_acmp_talker.sv:33-41`), so a withdraw-then-redeclare inside one admission round is not a normal path. Across it `sr_admitted_o` could carry the previous round's `grant_r`. This is analysis only, and any fix for F1 should cover it.
+- **Docs:**
+  - `LWSRP_STATUS[6]/[8]/[9]`, `LWSRP_SLOPE`, `CRFT_CTRL[6]/[7]`, and the `0x82C` bits [3], [2], [27], [25] as written at `REGISTER_MAP.md:1120-1127,1167-1168,933` match the RTL.
+  - `docs_check.py`, `check_doc_style.py` and `check_doc_paths.py` give rc 0, and `git diff --check` is clean (`receipts/static_doc_gates.log`).
+- **Conformance:**
+  - With a warm pipeline the refused re-declaration produces no licence, no counter pair, no reset and no PDU, at both sources and both phases. That is the shipped `[G]`.
+
+## Reviewer-owned completion ledger
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN (F1, F2) | #551 decision and assignment; FR-SRP-03 (`FR_NFR.md:216-224`); Table 5.4 counters via `tkd_streaming_w`; `KL_srp_admission.sv`/`KL_srp_top.sv` verdict semantics; `receipts/probe_cold_refuse.log`, `probe_no_warm.log`, `bdd_streaming_licence_gate.log` | R297-1 | 4eca4540d6a278aeb56687029d752bade6e714e3 |
+| RTL | UNCLEAN (F1, F4) | `milan_datapath.sv:1642-1646,1861-1916,2019-2027,2272-2273,2505,5275-5320,6567-6611,7593-7594`; `KL_pp_shadow.sv:627-630`; processor `protocol_processor_top.sv:488-506`, `KL_srp_admission.sv:96-209`, `KL_srp_top.sv:420-445,764-862`, `KL_srp_talker_fsm.sv:690-710` | R297-1 | 4eca4540d6a278aeb56687029d752bade6e714e3 |
+| Robustness | UNCLEAN (F1) | cold, no-warm and cold-admit probes (TSpec history, reset-state slope); withdraw/re-declare ordering (`KL_acmp_talker.sv:33-41`); both admission phases and both sources | R297-1 | 4eca4540d6a278aeb56687029d752bade6e714e3 |
+| Tests | UNCLEAN (F1, F2, F3) | `sim_crf_licence.cpp` `[G]/[H]/[INV]`, `crflic_probes.vlt`, `crflic_mutants.py`, Makefile; `receipts/crflic_head.log`, `crflic_mutants_head.log`; BDD `milan_streaming_licence.feature:87`; `gen_module_matrix.py --check`; hosted check runs at head | R297-1 | 4eca4540d6a278aeb56687029d752bade6e714e3 |
+| Docs | UNCLEAN (F1, F2, F3, F4) | FR_NFR, REGISTER_MAP, EGRESS_QUEUE_MAP, ieee8021q, CHANGELOG, `tb/verilator/milan_dp/README.md`, MILAN_COMPLIANCE_MATRIX, `milan_datapath.sv`/`KL_pp_shadow.sv` comments; `receipts/static_doc_gates.log`, `gen_module_matrix_check.log` | R297-1 | 4eca4540d6a278aeb56687029d752bade6e714e3 |
+
+## Real limits
+
+- All executed evidence is simulation of the AX 1x1 TDM8 two-source shape with the leg's compressed millisecond grid. No other geometry was run.
+- The reset-state (first declaration after reset) instance of F1 is RTL reading and was not executed. The executed probes cover a TSpec differing from the source's previous one.
+- The probes change fixture TSpec values only. Whether a production controller flow can deliver a Listener event inside the few-cycle window is the same improbability class the original #551 corner had, and was not measured.
+- `check_em_dash.py` and `gen_toc.py --check` could not run here: the pinned Markdown renderer is not installed, and no install was made. The author's public logs report rc 0 for both.
+- Full parent, PP, gPTP, Yosys and builder banks, `xvlog`, `lint_rtl`, act and Docker were not run, per the round's rules.
+- Physical calibration was not run. Field skips and simulation are not hardware proof.
+- Hosted `verilator-suites` at this head failed on cancelled shards 1/5 and 4/5 (an accounting failure), not on a test verdict. The exact-head long gates are therefore incomplete, and the manager owns them.
+- The later head `0bf22c93` was not reviewed.
+
+## Pending manager duties
+
+- Answer F1: fix the gate, or record a public decision on the cold-pipeline residual. Then F2, F3 and F4. Re-review is needed at the new exact head.
+- Hosted/act acceptance at the new head: `rtl-fast` (currently red via `bdd-conformance`), `docs-check` (currently red via `gen_module_matrix`), and exact-head `verilator-suites` with every shard executed.
+- Delta review of `0bf22c93`. It regenerates the matrix but, per F3, does not restore the citation.
+- A second independent positive review, final current-dev candidate validation, and explicit maintainer merge authorisation.
+
+## Receipts
+
+Listed with hashes in `MANIFEST.sha256`:
+
+- `scripts/probe_cold_slope.py`: the disposable, portable probe. It restores the harness bytes afterwards.
+- `receipts/*.log` and `receipts/*.txt`: the raw logs. Local paths are redacted to placeholders.
+- `receipts/restore_verification.txt`: the review clone's index, tree, tracked blobs and modes, and submodule gitlinks match the exact head after probing. All probes ran in a disposable scratch clone.
+
+R297-1 FINISHED
+
+--

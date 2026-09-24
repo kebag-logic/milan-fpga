@@ -1,0 +1,196 @@
+
+-- Running command `read_verilog /tmp/pp112-portability.C4cOfK/srp.v; hierarchy -check -top KL_srp_admission; proc; opt_clean; check' --
+
+1. Executing Verilog-2005 frontend: /tmp/pp112-portability.C4cOfK/srp.v
+Parsing Verilog input from `/tmp/pp112-portability.C4cOfK/srp.v' to AST representation.
+Generating RTLIL representation for module `\KL_srp_admission'.
+Generating RTLIL representation for module `\KL_srp_decoder'.
+Generating RTLIL representation for module `\KL_srp_domain'.
+Generating RTLIL representation for module `\KL_srp_encoder'.
+Note: Assuming pure combinatorial block at /tmp/pp112-portability.C4cOfK/srp.v:1265.2-1329.5 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Generating RTLIL representation for module `\KL_srp_listener_fsm'.
+Generating RTLIL representation for module `\KL_srp_talker_fsm'.
+Generating RTLIL representation for module `\KL_srp_top'.
+Warning: Replacing memory \tf_cnt_r with list of registers. See /tmp/pp112-portability.C4cOfK/srp.v:3881
+Warning: Replacing memory \tf_q_r with list of registers. See /tmp/pp112-portability.C4cOfK/srp.v:3819
+Warning: Replacing memory \tf_wptr_r with list of registers. See /tmp/pp112-portability.C4cOfK/srp.v:3877, /tmp/pp112-portability.C4cOfK/srp.v:3814
+Generating RTLIL representation for module `\KL_srp_vlan'.
+Successfully finished Verilog frontend.
+
+2. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1. Analyzing design hierarchy..
+Top module:  \KL_srp_admission
+
+2.2. Analyzing design hierarchy..
+Top module:  \KL_srp_admission
+Removing unused module `\KL_srp_vlan'.
+Removing unused module `\KL_srp_top'.
+Removing unused module `\KL_srp_talker_fsm'.
+Removing unused module `\KL_srp_listener_fsm'.
+Removing unused module `\KL_srp_encoder'.
+Removing unused module `\KL_srp_domain'.
+Removing unused module `\KL_srp_decoder'.
+Removed 7 unused modules.
+
+3. Executing PROC pass (convert processes to netlists).
+
+3.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:167$152'.
+Found and cleaned up 1 empty switch in `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:115$119'.
+Cleaned up 2 empty switches.
+
+3.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 3 switch rules as full_case in process $proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142 in module KL_srp_admission.
+Marked 9 switch rules as full_case in process $proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47 in module KL_srp_admission.
+Removed a total of 0 dead cases.
+
+3.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 13 redundant assignments.
+Promoted 34 assignments to connections.
+
+3.4. Executing PROC_INIT pass (extract init attributes).
+
+3.5. Executing PROC_ARST pass (detect async resets in processes).
+
+3.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~12 debug messages>
+
+3.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:181$181'.
+Creating decoders for process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:112$177'.
+Creating decoders for process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:167$152'.
+Creating decoders for process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+     1/10: $0\round_done_o[0:0]
+     2/10: $0\wgslope_r[255:0]
+     3/10: $0\wgrant_r[7:0]
+     4/10: $0\over_acc_r[0:0]
+     5/10: $0\acc_r[31:0]
+     6/10: $0\aidx_r[2:0]
+     7/10: $0\over_r[0:0]
+     8/10: $0\sum_r[31:0]
+     9/10: $0\gslope_r[255:0]
+    10/10: $0\grant_r[7:0]
+Creating decoders for process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:115$119'.
+Creating decoders for process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+     1/29: $9$lookahead\slope_valid_r$45[7:7]$83
+     2/29: $8$lookahead\slope_valid_r$45[6:6]$82
+     3/29: $7$lookahead\slope_valid_r$45[5:5]$81
+     4/29: $6$lookahead\slope_valid_r$45[4:4]$80
+     5/29: $5$lookahead\slope_valid_r$45[3:3]$79
+     6/29: $4$lookahead\slope_valid_r$45[2:2]$78
+     7/29: $3$lookahead\slope_valid_r$45[1:1]$77
+     8/29: $2$lookahead\slope_valid_r$45[0:0]$76
+     9/29: $1$lookahead\slope_valid_r$45[7:0]$59 [7]
+    10/29: $1$lookahead\slope_valid_r$45[7:0]$59 [6]
+    11/29: $1$lookahead\slope_valid_r$45[7:0]$59 [5]
+    12/29: $1$lookahead\slope_valid_r$45[7:0]$59 [4]
+    13/29: $1$lookahead\slope_valid_r$45[7:0]$59 [3]
+    14/29: $1$lookahead\slope_valid_r$45[7:0]$59 [2]
+    15/29: $1$lookahead\slope_valid_r$45[7:0]$59 [1]
+    16/29: $1$lookahead\slope_valid_r$45[7:0]$59 [0]
+    17/29: $0\valid_q2_r[0:0]
+    18/29: $0\valid_q1_r[0:0]
+    19/29: $1$lookahead\slope_q_r$46[255:0]$60
+    20/29: $0\iv_bytes_r[32:0]
+    21/29: $0\frame_bytes_r[16:0]
+    22/29: $0\cidx_q2_r[2:0]
+    23/29: $0\cidx_q1_r[2:0]
+    24/29: $0\cidx_r[2:0]
+    25/29: $1$bitselwrite$pos$/tmp/pp112-portability.C4cOfK/srp.v:93$29[31:0]$58
+    26/29: $1\slope_walk.sv2v_autoblock_1.s[31:0]
+    27/29: $1$bitselwrite$pos$/tmp/pp112-portability.C4cOfK/srp.v:84$28[2:0]$57
+    28/29: $1\sv2v_cast_32$func$/tmp/pp112-portability.C4cOfK/srp.v:79$26.inp[31:0]$56
+    29/29: $1\sv2v_cast_32$func$/tmp/pp112-portability.C4cOfK/srp.v:79$26.$result[31:0]$55
+
+3.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\KL_srp_admission.\_sv2v_0' from process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:181$181'.
+No latch inferred for signal `\KL_srp_admission.\sv2v_cast_32$func$/tmp/pp112-portability.C4cOfK/srp.v:112$30.$result' from process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:112$177'.
+No latch inferred for signal `\KL_srp_admission.\sr_admitted_o' from process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:167$152'.
+No latch inferred for signal `\KL_srp_admission.\granted_slope_bps_o' from process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:167$152'.
+No latch inferred for signal `\KL_srp_admission.\publish.sv2v_autoblock_2.s' from process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:167$152'.
+No latch inferred for signal `\KL_srp_admission.\wgrant_now_w' from process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:115$119'.
+No latch inferred for signal `\KL_srp_admission.\wgslope_now_w' from process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:115$119'.
+
+3.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\KL_srp_admission.\round_done_o' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+  created $dff cell `$procdff$5417' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\aidx_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+  created $dff cell `$procdff$5418' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\acc_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+  created $dff cell `$procdff$5419' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\over_acc_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+  created $dff cell `$procdff$5420' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\wgrant_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+  created $dff cell `$procdff$5421' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\wgslope_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+  created $dff cell `$procdff$5422' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\grant_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+  created $dff cell `$procdff$5423' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\gslope_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+  created $dff cell `$procdff$5424' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\sum_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+  created $dff cell `$procdff$5425' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\over_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+  created $dff cell `$procdff$5426' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\cidx_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5427' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\cidx_q1_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5428' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\cidx_q2_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5429' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\frame_bytes_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5430' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\iv_bytes_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5431' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\slope_q_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5432' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\valid_q1_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5433' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\valid_q2_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5434' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\slope_valid_r' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5435' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\sv2v_cast_32$func$/tmp/pp112-portability.C4cOfK/srp.v:79$26.$result' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5436' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\sv2v_cast_32$func$/tmp/pp112-portability.C4cOfK/srp.v:79$26.inp' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5437' with positive edge clock.
+Creating register for signal `\KL_srp_admission.$bitselwrite$pos$/tmp/pp112-portability.C4cOfK/srp.v:84$28' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5438' with positive edge clock.
+Creating register for signal `\KL_srp_admission.\slope_walk.sv2v_autoblock_1.s' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5439' with positive edge clock.
+Creating register for signal `\KL_srp_admission.$bitselwrite$pos$/tmp/pp112-portability.C4cOfK/srp.v:93$29' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5440' with positive edge clock.
+Creating register for signal `\KL_srp_admission.$lookahead\slope_valid_r$45' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5441' with positive edge clock.
+Creating register for signal `\KL_srp_admission.$lookahead\slope_q_r$46' using process `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+  created $dff cell `$procdff$5442' with positive edge clock.
+
+3.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+3.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:181$181'.
+Removing empty process `KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:112$177'.
+Removing empty process `KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:167$152'.
+Found and cleaned up 3 empty switches in `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+Removing empty process `KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:123$142'.
+Removing empty process `KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:115$119'.
+Found and cleaned up 9 empty switches in `\KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+Removing empty process `KL_srp_admission.$proc$/tmp/pp112-portability.C4cOfK/srp.v:66$47'.
+Cleaned up 12 empty switches.
+
+3.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_srp_admission.
+<suppressed ~41 debug messages>
+
+4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_srp_admission..
+Removed 14 unused cells and 172 unused wires.
+<suppressed ~17 debug messages>
+
+5. Executing CHECK pass (checking for obvious problems).
+Checking module KL_srp_admission...
+Found and reported 0 problems.
