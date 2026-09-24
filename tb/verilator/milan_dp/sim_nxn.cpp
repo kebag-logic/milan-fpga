@@ -838,10 +838,14 @@ class NxnDatapathHarness {
 #else
     static constexpr bool kForceRealloc = false;
 #endif
-    long realloc_moves = 0;   // moves of a NON-EMPTY log: a pointer could exist
+    //! moves of a log holding a REAL frame, one a pointer could name: the
+    //! lever's own empty entries do not count, or it would bank its own moves
+    long realloc_moves = 0;
     void force_uns_log_realloc() {
         if (!kForceRealloc) return;
-        if (!uns_log.empty()) realloc_moves++;
+        if (std::any_of(uns_log.begin(), uns_log.end(),
+                        [](const std::vector<uint8_t>& f) { return !f.empty(); }))
+            realloc_moves++;
         std::vector<std::vector<uint8_t> > moved;
         moved.reserve(uns_log.size() + 1);
         for (std::vector<uint8_t>& f : uns_log) moved.push_back(std::move(f));
@@ -1235,11 +1239,11 @@ class NxnDatapathHarness {
         prove_the_ownerless_publication_faces_stay_ownerless();
         if (timed) prove_the_departing_controller_monitor(fl0);
         deregister_both_controllers_and_restore_the_name(g0, name0);
-        //! a lever build whose lever never moved a live log proves nothing
+        //! a lever build whose lever never moved a real frame proves nothing
         if (kForceRealloc) {
-            printf("  [i]    #542 lever: %ld moves of a non-empty log in this "
-                   "section\n", realloc_moves - realloc_moves0);
-            ck("[NOTIFY] (#542 lever) the waits moved the non-empty log",
+            printf("  [i]    #542 lever: %ld moves of a log holding a real "
+                   "frame in this section\n", realloc_moves - realloc_moves0);
+            ck("[NOTIFY] (#542 lever) the waits moved logs holding real frames",
                static_cast<long>(realloc_moves > realloc_moves0), 1);
         }
     }
