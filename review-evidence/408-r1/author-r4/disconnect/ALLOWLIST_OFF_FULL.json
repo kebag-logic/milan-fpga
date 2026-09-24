@@ -1,0 +1,14 @@
+[
+ [
+  "        # FIRST, the CHARACTER ALLOWLIST (round four): nothing below reads\n        # a character outside S. A byte that is not UTF-8, kept by the\n        # firmware read as its surrogate escape, is refused wherever it\n        # sits; every other character is judged outside a comment and a\n        # literal only.\n        undecoded = _C_S_UNDECODED_RE.search(source)\n        assert not undecoded, \\\n            f\"the firmware {SUBSET_CHARACTER_PIN} (the byte \" \\\n            f\"0x{ord(undecoded.group(0)) - 0xDC00:02x}, line \" \\\n            f\"{c_line(source, undecoded.start())}): it is not UTF-8, which \" \\\n            \"is how GCC reads the file as well, so S refuses it wherever it \" \\\n            \"sits, a comment or a literal included\"\n        # phase 1 drops a mark at offset 0, as GCC does, so the code text\n        # holds a blank there; S refuses the character all the same\n        code = _c_phases(source).code\n        at = 0 if source.startswith(\"\\ufeff\") else -1\n        outside = _C_S_OUTSIDE_RE.search(code) if at < 0 else None\n        at = outside.start() if outside else at\n        assert at < 0, \\\n            f\"the firmware {SUBSET_CHARACTER_PIN} (U+{ord(source[at]):04X}, \" \\\n            f\"line {c_line(source, at)}): outside a comment or a literal S \" \\\n            \"admits printable ASCII, U+0020 to U+007E, and the six \" \\\n            \"characters the readers model as whitespace or a line end (tab, \" \\\n            \"line feed, vertical tab, form feed, carriage return and NUL), \" \\\n            \"and nothing else. GCC reads a non-ASCII character in an \" \\\n            \"identifier or a directive name where the readers do not: \" \\\n            \"`#if`, U+00B7, `x` is one unknown directive to it and `#if` to \" \\\n            \"them. The shipping firmware spells none\"\n",
+  "        # DISCONNECTED (A254 probe): the character allowlist is not run\n"
+ ],
+ [
+  "    subset_note = assert_subset_refuses()\n",
+  "    subset_note = 'BYPASSED (A254 probe)'\n"
+ ],
+ [
+  "    closure_note = assert_character_closure()\n",
+  "    closure_note = 'BYPASSED (A254 probe)'\n"
+ ]
+]

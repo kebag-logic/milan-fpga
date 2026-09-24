@@ -1,0 +1,33 @@
+{
+ "tree": "$LANES/408-409-boot-gate-retire",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "accepted",
+ "compiles": 139,
+ "results": [
+  {
+   "label": "identity forged through a plain function-like macro",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "identity forged through a token-joining splice of the local's name",
+   "verdict": "REFUSED",
+   "reason": "a backslash-newline JOINS two tokens inside the boot entry point (line 1442): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two"
+  },
+  {
+   "label": "identity forged through a ## paste of the local's name",
+   "verdict": "REFUSED",
+   "reason": "a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+  },
+  {
+   "label": "plain #: product-only struct-overlay store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1501 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]"
+  },
+  {
+   "label": "form feed: product-only struct-overlay store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1501 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]"
+  }
+ ]
+}

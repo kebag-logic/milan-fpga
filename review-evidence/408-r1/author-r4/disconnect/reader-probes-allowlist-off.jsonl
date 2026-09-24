@@ -1,0 +1,89 @@
+{"review": "R272-1", "label": "cpp/elifdef.c", "S": "admitted", "readers": ["a", "d"], "gcc": ["a", "d"], "outcome": "AGREE"}
+{"review": "R272-1", "label": "cpp/ff-after-hash.c", "S": "admitted", "readers": ["a", "c"], "gcc": ["a", "c"], "outcome": "AGREE"}
+{"review": "R272-1", "label": "cpp/ff-undef.c", "S": "admitted", "readers": [], "gcc": [], "outcome": "AGREE"}
+{"review": "R272-1", "label": "cpp/ff-vt.c", "S": "admitted", "readers": ["a", "d"], "gcc": ["a", "d"], "outcome": "AGREE"}
+{"review": "R272-1", "label": "cpp/lone-cr.c", "S": "admitted", "readers": ["a", "c", "d"], "gcc": ["a", "c", "d"], "outcome": "AGREE"}
+{"review": "R272-1", "label": "cpp/nul.c", "S": "admitted", "readers": ["a", "c"], "gcc": ["a", "c"], "outcome": "AGREE"}
+{"review": "R272-1", "label": "cpp/pragma-pop.c", "S": "SUBSET_PRAGMA_PIN", "readers": [], "gcc": [], "outcome": "REFUSED SUBSET_PRAGMA_PIN"}
+{"review": "R272-2", "label": "control: plain #ifdef", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R272-2", "label": "control: the %: digraph", "S": "DIGRAPH_PIN", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R272-2", "label": "a splice inside the %: digraph", "S": "DIGRAPH_PIN", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R272-2", "label": "a splice with a space inside the %: digraph", "S": "DIGRAPH_PIN", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R272-2", "label": "a form feed before the %: digraph", "S": "DIGRAPH_PIN", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R272-2", "label": "a UTF-8 BOM before # at file start", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R272-3", "label": "dollar_skipped.c", "S": "SUBSET_DOLLAR_PIN", "readers": ["z"], "gcc": ["evil", "z"], "outcome": "REFUSED SUBSET_DOLLAR_PIN"}
+{"review": "R272-4", "label": "mid.c", "S": "admitted", "readers": ["z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R272-4", "label": "comb.c", "S": "admitted", "readers": ["z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R272-4", "label": "sup2.c", "S": "admitted", "readers": ["z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R272-4", "label": "eacute.c", "S": "admitted", "readers": ["z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R273-2", "label": "S1.c", "S": "DIGRAPH_PIN", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R273-2", "label": "S2.c", "S": "DIGRAPH_PIN", "readers": ["a", "b", "z"], "gcc": ["a", "b", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R273-2", "label": "S3.c", "S": "DIGRAPH_PIN", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R273-2", "label": "S4.c", "S": "admitted", "readers": ["z"], "gcc": ["z"], "outcome": "AGREE"}
+{"review": "R273-2", "label": "S5.c", "S": "DIGRAPH_PIN", "readers": ["b", "z"], "gcc": ["b", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R273-2", "label": "S6.c", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-2", "label": "S1 `%:` split by a splice (ifdef FOO)", "S": "DIGRAPH_PIN", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R273-2", "label": "S2 `%:` split by a splice (ifndef FOO)", "S": "DIGRAPH_PIN", "readers": ["a", "b", "z"], "gcc": ["a", "b", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R273-2", "label": "S3 `%:` split by a splice with a blank", "S": "DIGRAPH_PIN", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R273-2", "label": "S4 byte order mark then #ifdef FOO on line 1", "S": "admitted", "readers": ["z"], "gcc": ["z"], "outcome": "AGREE"}
+{"review": "R273-2", "label": "S5 `%:` split by a splice, #define FOO", "S": "DIGRAPH_PIN", "readers": ["b", "z"], "gcc": ["b", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R273-2", "label": "S6 corpus control: a form feed before #", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "BOM then #ifdef at file start", "S": "admitted", "readers": ["z"], "gcc": ["z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "BOM then #define at file start", "S": "admitted", "readers": ["b", "z"], "gcc": ["b", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a multi-line comment between # and the name", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a lone CR inside a block comment before #", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "CRLF splice inside #else", "S": "admitted", "readers": ["b", "z"], "gcc": ["b", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a splice with trailing blanks and CRLF inside #endif", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a NUL between / and *", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a string whose escaped backslash is a splice", "S": "admitted", "readers": ["b", "z"], "gcc": ["b", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a form feed and a comment after #", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a directive after a line of only form feeds", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a comment then a NUL then #", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a splice then a form feed before #", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a NEL (U+0085) before #", "S": "admitted", "readers": ["a", "b", "z"], "gcc": ["a", "b", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a ZWNBSP (U+FEFF) mid-file before #", "S": "admitted", "readers": ["a", "b", "z"], "gcc": ["a", "b", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a Ctrl-Z before #", "S": "admitted", "readers": ["a", "b", "z"], "gcc": ["a", "b", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "#elifdef behind a vertical tab", "S": "admitted", "readers": ["c", "z"], "gcc": ["c", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "#ifndef behind a CRLF and a form feed", "S": "admitted", "readers": ["a", "b", "z"], "gcc": ["a", "b", "z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "an apostrophe in a #define then a directive", "S": "admitted", "readers": ["z"], "gcc": ["z"], "outcome": "AGREE"}
+{"review": "R273-3", "label": "a // comment continued by a splice after CRLF", "S": "admitted", "readers": null, "gcc": null, "outcome": "AGREE"}
+{"review": "R273-3", "label": "a splice inside the #define name with CR", "S": "admitted", "readers": ["b", "z"], "gcc": ["b", "z"], "outcome": "AGREE"}
+{"review": "R273-4", "label": "__has_include with an angled header name holding /* (if !)", "S": "SUBSET_HAS_INCLUDE_PIN", "readers": ["#if , which no corpus entry spells"], "gcc": ["a", "b", "z"], "outcome": "REFUSED SUBSET_HAS_INCLUDE_PIN"}
+{"review": "R273-4", "label": "__has_include with an angled header name holding /* (else)", "S": "SUBSET_HAS_INCLUDE_PIN", "readers": ["#if __has_include, which no corpus entry spells"], "gcc": ["a", "b", "z"], "outcome": "REFUSED SUBSET_HAS_INCLUDE_PIN"}
+{"review": "R273-4", "label": "__has_include with a quoted header name holding /* (control)", "S": "SUBSET_HAS_INCLUDE_PIN", "readers": ["#if , which no corpus entry spells"], "gcc": ["a", "b", "z"], "outcome": "REFUSED SUBSET_HAS_INCLUDE_PIN"}
+{"review": "R273-4", "label": "__has_include with an angled header name holding // (control)", "S": "SUBSET_HAS_INCLUDE_PIN", "readers": ["#if , which no corpus entry spells"], "gcc": ["a", "b", "z"], "outcome": "REFUSED SUBSET_HAS_INCLUDE_PIN"}
+{"review": "R273-4", "label": "hi-spellings/t1.c", "S": "SUBSET_HAS_INCLUDE_PIN", "readers": ["#if , which no corpus entry spells"], "gcc": ["a", "hidden", "z"], "outcome": "REFUSED SUBSET_HAS_INCLUDE_PIN"}
+{"review": "R273-4", "label": "hi-spellings/t2.c", "S": "SUBSET_HAS_INCLUDE_PIN", "readers": ["#if __has_include, which no corpus entry spells"], "gcc": ["a", "hidden", "z"], "outcome": "REFUSED SUBSET_HAS_INCLUDE_PIN"}
+{"review": "R273-4", "label": "hi-spellings/t3.c", "S": "SUBSET_HAS_INCLUDE_PIN", "readers": ["#if __has_include, which no corpus entry spells"], "gcc": ["a", "hidden", "z"], "outcome": "REFUSED SUBSET_HAS_INCLUDE_PIN"}
+{"review": "R273-5", "label": "misnest U+0024 dollar (control, refused by S)", "S": "SUBSET_DOLLAR_PIN", "readers": ["a", "z"], "gcc": ["a", "b", "z"], "outcome": "REFUSED SUBSET_DOLLAR_PIN"}
+{"review": "R273-5", "label": "nest U+0024 dollar (control, refused by S)", "S": "SUBSET_DOLLAR_PIN", "readers": ["a", "z"], "gcc": null, "outcome": "REFUSED SUBSET_DOLLAR_PIN"}
+{"review": "R273-5", "label": "misnest U+00B7 middle dot", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "b", "z"], "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "nest U+00B7 middle dot", "S": "admitted", "readers": ["a", "z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "misnest U+0387 greek ano teleia", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "b", "z"], "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "nest U+0387 greek ano teleia", "S": "admitted", "readers": ["a", "z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "misnest U+203F undertie", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "b", "z"], "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "nest U+203F undertie", "S": "admitted", "readers": ["a", "z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "misnest U+00B5 micro sign", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "b", "z"], "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "nest U+00B5 micro sign", "S": "admitted", "readers": ["a", "z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "misnest U+00E9 e acute", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "b", "z"], "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "nest U+00E9 e acute", "S": "admitted", "readers": ["a", "z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "misnest U+00B2 superscript two", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "b", "z"], "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "nest U+00B2 superscript two", "S": "admitted", "readers": ["a", "z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "misnest U+2460 circled one", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "b", "z"], "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "nest U+2460 circled one", "S": "admitted", "readers": ["a", "z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "misnest U+00A0 no-break space", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-5", "label": "nest U+00A0 no-break space", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-5", "label": "misnest U+0661 arabic-indic one", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "b", "z"], "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "nest U+0661 arabic-indic one", "S": "admitted", "readers": ["a", "z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "misnest U+FF21 fullwidth A", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "b", "z"], "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "nest U+FF21 fullwidth A", "S": "admitted", "readers": ["a", "z"], "gcc": null, "outcome": "DISAGREE"}
+{"review": "R273-5", "label": "control: plain misnest with nothing extra", "S": "admitted", "readers": ["a", "b", "z"], "gcc": ["a", "b", "z"], "outcome": "AGREE"}
+{"review": "R273-5", "label": "control: the S corpus's own within-S firmware", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-5", "label": "r2 S1 `%:` split by a splice (ifdef FOO)", "S": "DIGRAPH_PIN", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R273-5", "label": "r2 S2 `%:` split by a splice (ifndef FOO)", "S": "DIGRAPH_PIN", "readers": ["a", "b", "z"], "gcc": ["a", "b", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R273-5", "label": "r2 S3 `%:` split by a splice with a blank", "S": "DIGRAPH_PIN", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R273-5", "label": "r2 S4 byte order mark then #ifdef FOO on line 1", "S": "admitted", "readers": ["z"], "gcc": ["z"], "outcome": "AGREE"}
+{"review": "R273-5", "label": "r2 S5 `%:` split by a splice, #define FOO", "S": "DIGRAPH_PIN", "readers": ["b", "z"], "gcc": ["b", "z"], "outcome": "REFUSED DIGRAPH_PIN"}
+{"review": "R273-5", "label": "r2 S6 corpus control: a form feed before #", "S": "admitted", "readers": ["a", "z"], "gcc": ["a", "z"], "outcome": "AGREE"}
+{"review": "R273-5", "label": "ident.c", "S": "admitted", "readers": [], "gcc": [], "outcome": "AGREE"}
+{"review": "R273-5", "label": "nest.c", "S": "admitted", "readers": [], "gcc": [], "outcome": "AGREE"}

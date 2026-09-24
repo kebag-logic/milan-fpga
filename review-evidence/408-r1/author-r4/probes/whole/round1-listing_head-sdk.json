@@ -1,0 +1,20 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 76,
+ "seconds": 13.2,
+ "results": [
+  {
+   "label": "ACC11 a README and a notes.txt beside the firmware",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "H15 a LINK named init.h beside the firmware to a file outside",
+   "verdict": "REFUSED",
+   "reason": "a pinned include resolved to a file this repository supplies beside the firmware: ['/tmp/milan-beside-f2z6bs0x/init.h']. A quoted include resolves against the including file's directory FIRST, so a file or a link there answers to a pinned name and puts text this gate never read behind it with no name changing anywhere -- measured by the PATH the preprocessor opened and the file it reached, in the tree it was handed"
+  }
+ ]
+}

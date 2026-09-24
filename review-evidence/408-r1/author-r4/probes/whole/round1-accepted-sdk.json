@@ -1,0 +1,60 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 98,
+ "seconds": 33.8,
+ "results": [
+  {
+   "label": "ACC1 an #ifdef around a debug printf INSIDE milan_init()",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC2 a benign statement in an arm the census tree drops, inside configure_fabric()",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC3 an #ifdef/#else choosing a #define, read in a UART command handler",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC4 a ## token paste building a call outside the boot path",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC5 a token-joining backslash-newline inside a macro body",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC6 a read-only #define accessor over milan_read()",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC7 a fifth cast to a pointer, resolving outside the window",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC8 a fifth store through a pointer, resolving outside the window",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC9 parse_u64() and seconds_to_ns() exchanged, with nothing added or removed",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "ACC10 a fifth inline-asm statement, a fence in a UART command handler",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  }
+ ]
+}

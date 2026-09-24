@@ -1,0 +1,90 @@
+AGREE                            R272-1  cpp/elifdef.c
+AGREE                            R272-1  cpp/ff-after-hash.c
+AGREE                            R272-1  cpp/ff-undef.c
+AGREE                            R272-1  cpp/ff-vt.c
+AGREE                            R272-1  cpp/lone-cr.c
+AGREE                            R272-1  cpp/nul.c
+REFUSED SUBSET_PRAGMA_PIN        R272-1  cpp/pragma-pop.c
+AGREE                            R272-2  control: plain #ifdef
+REFUSED DIGRAPH_PIN              R272-2  control: the %: digraph
+REFUSED DIGRAPH_PIN              R272-2  a splice inside the %: digraph
+REFUSED DIGRAPH_PIN              R272-2  a splice with a space inside the %: digraph
+REFUSED DIGRAPH_PIN              R272-2  a form feed before the %: digraph
+REFUSED SUBSET_CHARACTER_PIN     R272-2  a UTF-8 BOM before # at file start
+REFUSED SUBSET_DOLLAR_PIN        R272-3  dollar_skipped.c
+REFUSED SUBSET_CHARACTER_PIN     R272-4  mid.c
+REFUSED SUBSET_CHARACTER_PIN     R272-4  comb.c
+REFUSED SUBSET_CHARACTER_PIN     R272-4  sup2.c
+REFUSED SUBSET_CHARACTER_PIN     R272-4  eacute.c
+REFUSED DIGRAPH_PIN              R273-2  S1.c
+REFUSED DIGRAPH_PIN              R273-2  S2.c
+REFUSED DIGRAPH_PIN              R273-2  S3.c
+REFUSED SUBSET_CHARACTER_PIN     R273-2  S4.c
+REFUSED DIGRAPH_PIN              R273-2  S5.c
+AGREE                            R273-2  S6.c
+REFUSED DIGRAPH_PIN              R273-2  S1 `%:` split by a splice (ifdef FOO)
+REFUSED DIGRAPH_PIN              R273-2  S2 `%:` split by a splice (ifndef FOO)
+REFUSED DIGRAPH_PIN              R273-2  S3 `%:` split by a splice with a blank
+REFUSED SUBSET_CHARACTER_PIN     R273-2  S4 byte order mark then #ifdef FOO on line 1
+REFUSED DIGRAPH_PIN              R273-2  S5 `%:` split by a splice, #define FOO
+AGREE                            R273-2  S6 corpus control: a form feed before #
+REFUSED SUBSET_CHARACTER_PIN     R273-3  BOM then #ifdef at file start
+REFUSED SUBSET_CHARACTER_PIN     R273-3  BOM then #define at file start
+AGREE                            R273-3  a multi-line comment between # and the name
+AGREE                            R273-3  a lone CR inside a block comment before #
+AGREE                            R273-3  CRLF splice inside #else
+AGREE                            R273-3  a splice with trailing blanks and CRLF inside #endif
+AGREE                            R273-3  a NUL between / and *
+AGREE                            R273-3  a string whose escaped backslash is a splice
+AGREE                            R273-3  a form feed and a comment after #
+AGREE                            R273-3  a directive after a line of only form feeds
+AGREE                            R273-3  a comment then a NUL then #
+AGREE                            R273-3  a splice then a form feed before #
+REFUSED SUBSET_CHARACTER_PIN     R273-3  a NEL (U+0085) before #
+REFUSED SUBSET_CHARACTER_PIN     R273-3  a ZWNBSP (U+FEFF) mid-file before #
+REFUSED SUBSET_CHARACTER_PIN     R273-3  a Ctrl-Z before #
+AGREE                            R273-3  #elifdef behind a vertical tab
+AGREE                            R273-3  #ifndef behind a CRLF and a form feed
+AGREE                            R273-3  an apostrophe in a #define then a directive
+AGREE                            R273-3  a // comment continued by a splice after CRLF
+AGREE                            R273-3  a splice inside the #define name with CR
+REFUSED SUBSET_HAS_INCLUDE_PIN   R273-4  __has_include with an angled header name holding /* (if !)
+REFUSED SUBSET_HAS_INCLUDE_PIN   R273-4  __has_include with an angled header name holding /* (else)
+REFUSED SUBSET_HAS_INCLUDE_PIN   R273-4  __has_include with a quoted header name holding /* (control)
+REFUSED SUBSET_HAS_INCLUDE_PIN   R273-4  __has_include with an angled header name holding // (control)
+REFUSED SUBSET_HAS_INCLUDE_PIN   R273-4  hi-spellings/t1.c
+REFUSED SUBSET_HAS_INCLUDE_PIN   R273-4  hi-spellings/t2.c
+REFUSED SUBSET_HAS_INCLUDE_PIN   R273-4  hi-spellings/t3.c
+REFUSED SUBSET_DOLLAR_PIN        R273-5  misnest U+0024 dollar (control, refused by S)
+REFUSED SUBSET_DOLLAR_PIN        R273-5  nest U+0024 dollar (control, refused by S)
+REFUSED SUBSET_CHARACTER_PIN     R273-5  misnest U+00B7 middle dot
+REFUSED SUBSET_CHARACTER_PIN     R273-5  nest U+00B7 middle dot
+REFUSED SUBSET_CHARACTER_PIN     R273-5  misnest U+0387 greek ano teleia
+REFUSED SUBSET_CHARACTER_PIN     R273-5  nest U+0387 greek ano teleia
+REFUSED SUBSET_CHARACTER_PIN     R273-5  misnest U+203F undertie
+REFUSED SUBSET_CHARACTER_PIN     R273-5  nest U+203F undertie
+REFUSED SUBSET_CHARACTER_PIN     R273-5  misnest U+00B5 micro sign
+REFUSED SUBSET_CHARACTER_PIN     R273-5  nest U+00B5 micro sign
+REFUSED SUBSET_CHARACTER_PIN     R273-5  misnest U+00E9 e acute
+REFUSED SUBSET_CHARACTER_PIN     R273-5  nest U+00E9 e acute
+REFUSED SUBSET_CHARACTER_PIN     R273-5  misnest U+00B2 superscript two
+REFUSED SUBSET_CHARACTER_PIN     R273-5  nest U+00B2 superscript two
+REFUSED SUBSET_CHARACTER_PIN     R273-5  misnest U+2460 circled one
+REFUSED SUBSET_CHARACTER_PIN     R273-5  nest U+2460 circled one
+REFUSED SUBSET_CHARACTER_PIN     R273-5  misnest U+00A0 no-break space
+REFUSED SUBSET_CHARACTER_PIN     R273-5  nest U+00A0 no-break space
+REFUSED SUBSET_CHARACTER_PIN     R273-5  misnest U+0661 arabic-indic one
+REFUSED SUBSET_CHARACTER_PIN     R273-5  nest U+0661 arabic-indic one
+REFUSED SUBSET_CHARACTER_PIN     R273-5  misnest U+FF21 fullwidth A
+REFUSED SUBSET_CHARACTER_PIN     R273-5  nest U+FF21 fullwidth A
+AGREE                            R273-5  control: plain misnest with nothing extra
+AGREE                            R273-5  control: the S corpus's own within-S firmware
+REFUSED DIGRAPH_PIN              R273-5  r2 S1 `%:` split by a splice (ifdef FOO)
+REFUSED DIGRAPH_PIN              R273-5  r2 S2 `%:` split by a splice (ifndef FOO)
+REFUSED DIGRAPH_PIN              R273-5  r2 S3 `%:` split by a splice with a blank
+REFUSED SUBSET_CHARACTER_PIN     R273-5  r2 S4 byte order mark then #ifdef FOO on line 1
+REFUSED DIGRAPH_PIN              R273-5  r2 S5 `%:` split by a splice, #define FOO
+AGREE                            R273-5  r2 S6 corpus control: a form feed before #
+REFUSED SUBSET_CHARACTER_PIN     R273-5  ident.c
+REFUSED SUBSET_CHARACTER_PIN     R273-5  nest.c
+89 spellings: {'AGREE': 27, 'REFUSED': 62}

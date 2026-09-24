@@ -1,0 +1,17 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "/tmp/a254/review-evidence/408-r1/reviews/R273-5/probes/probe.py", line 191, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/tmp/a254/review-evidence/408-r1/reviews/R273-5/probes/probe.py", line 176, in main
+    module.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py", line 11109, in test_baremetal_profile_contract
+    "after" not in words, \
+       ^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py", line 5274, in assert_subset_refuses
+    ("a // comment opened inside a #include header name",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     "#include <a//b.h>\nint z;\n", SUBSET_HEADER_NAME_PIN),
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: S accepted 'U+00B7 after `#if`, which GCC reads as one unknown directive', which is outside the subset

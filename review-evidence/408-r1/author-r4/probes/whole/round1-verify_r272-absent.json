@@ -1,0 +1,70 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 0,
+ "seconds": 23.6,
+ "results": [
+  {
+   "label": "V1a form feed before #: product-only arm with a literal-address cast store in a UART handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "V1b vertical tab before #: the same store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "V1c NUL before #: the same store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "V1d lone CR before #: the same store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "V1e form feed before #: product-only arm with a lui/sw asm store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "V1f control: plain # product-only arm with the literal cast store",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "V2a identity local forged by a SPLICE between the read and the guard",
+   "verdict": "REFUSED",
+   "reason": "a backslash-newline JOINS two tokens inside the boot entry point (line 1442): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two"
+  },
+  {
+   "label": "V2b identity local forged by a PASTE between the read and the guard",
+   "verdict": "REFUSED",
+   "reason": "a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+  },
+  {
+   "label": "V2c identity local forged by a plain function-like macro (pre-existing control)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "V3a correlated conditionals: debug helper defined and called under two #ifdef MILAN_DEBUG_TOD",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "V3b correlated conditionals: debug counter declared and incremented under two #ifdef MILAN_DEBUG_TOD",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "V4 unterminated character literals in two #defines bracketing a product-only literal-address store",
+   "verdict": "REFUSED",
+   "reason": "the firmware opens a literal that no quote closes on its line (line 1499): GCC ends it at the end of that line with only a warning, which is not what a quote there is written to mean"
+  }
+ ]
+}

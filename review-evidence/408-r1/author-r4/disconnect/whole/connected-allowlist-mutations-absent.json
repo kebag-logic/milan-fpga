@@ -1,0 +1,94 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "mutations",
+ "compiles": 0,
+ "seconds": 63.9,
+ "results": [
+  {
+   "label": "the CSR identity sample forged by a paste whose #define sits behind a byte-order mark",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a second source #included behind a byte-order mark",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a #line behind a byte-order mark",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a store in the CSR window hidden between two directive names GCC reads with U+00B7, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a store in the CSR window hidden between two directive names GCC reads with U+0387, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a store in the CSR window hidden between two directive names GCC reads with U+203F, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a store in the CSR window hidden between two directive names GCC reads with U+0301, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "the identity sample forged between two directive names GCC reads with U+00B7, in milan_init()",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a window store between two directive lines a no-break space leads",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a window store between two directive lines a control the readers do not model (FS) leads",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a byte that is not UTF-8, in a comment",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  },
+  {
+   "label": "a UTF-8 byte-order mark at the start of the file, which round two accepted",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": true
+  }
+ ]
+}

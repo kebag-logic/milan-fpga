@@ -1,0 +1,159 @@
+  2342 <module>                     compile      r"\\[ \t\f\v\0]*(?:\r\n|\r|\n)|\r\n?"  |
+  2343 <module>                     compile      r"[/\"'\f\v\0]"  |
+  2347 <module>                     compile      r"[<%]"  |
+  2468 _c_phases                    finditer     r"[\f\v\0\r]"  |source
+  2730 <module>                     compile      r"[^\t\n\v\f\r\x00\x20-\x7e]"  |
+  2731 <module>                     compile      r"[\udc80-\udcff]"  |
+  2971 test_baremetal_profile_contr compile      r"\\[ \t\f\v\0]*(?:\r\n|\r|\n)"  |
+  2972 test_baremetal_profile_contr compile      r"\r\n|\r|\n"  |
+  2975 test_baremetal_profile_contr compile   UA r"[A-Za-z_$][\w$]*"  |re.ASCII
+  3054 assert_direct_scope          finditer  U  r"\b(?:begin|end|generate|endgenerate|case|casex|casez|"                |source[:stop]
+  3074 assert_direct_scope          sub       U  r"\b(?:end|endgenerate|endcase|join|join_any|join_none)\b"              |"" prefix
+  3081 assert_direct_scope          sub          r"`[^\r\n]*"  |"" prefix
+  3110 test_baremetal_profile_contr compile   UA cpp_hash + r"(if|ifdef|ifndef|elif|elifdef|elifndef|else|endif)\b"  |
+  3194 test_baremetal_profile_contr compile   UA cpp_hash + r"error\b[^\n]*"  |
+  3245 verifier_group               search    UA r"\bstatic\s+int\s+load_aem_image\s*\(\s*void\s*\)\s*\{"  |code re.ASCII
+  3304 test_baremetal_profile_contr compile   UA r"[ \t]*#[ \t]*(?:(ifdef|ifndef)[ \t]+([A-Za-z_]\w*)|if[ \t]+(!?)"      |re.ASCII
+  3367 arm_selections               findall   UA cpp_hash + r"undef[ \t]+([A-Za-z_]\w*)"  |view
+  3436 assert_conditionals_define_n search    UA cpp_hash + r"(define|undef|include)\b"  |text[at:stop]
+  3452 constant_value               sub       UA r"\b(0[xX][0-9A-Fa-f]+|[0-9]+)[uUlL]+"  |r"\1" text.strip() flags=re.ASCII
+  3454 constant_value               fullmatch UA r"[0-9A-Fa-fxX()~|&^<>+\-\s]*"  |expr re.ASCII
+  3457 constant_value               search       r"[A-Za-z_]"  |re.sub(r"0[xX][0-9A-Fa-f]+", "", expr)
+  3457 constant_value               sub          r"0[xX][0-9A-Fa-f]+"  |"" expr
+  3467 test_baremetal_profile_contr compile   U  r"\b(A_[A-Z0-9_]+)\s*=\s*(?:[0-9]+)?'[hH]([0-9A-Fa-f_]+)"  |
+  3472 test_baremetal_profile_contr compile   U  r"\bcase[xz]?\b|\bendcase\b"  |
+  3473 test_baremetal_profile_contr compile      r"(?m)^[ \t]*((?:A_[A-Z0-9_]+)(?:[ \t]*,[ \t]*A_[A-Z0-9_]+)*)[ \t]*:"  |
+  3475 test_baremetal_profile_contr compile   U  r"\A\s*(?:[0-9]+[ \t]*)?'[sS]?[hdboHDBO][0-9A-Fa-f_xzXZ?]+\s*\Z|"       |
+  3480 test_baremetal_profile_contr compile      r"\A(?P<head>(?:[0-9]+)?'[sS]?(?P<base>[hdboHDBO]))"         r"(?P<dig  |
+  3490 sv_literal_value             sub       U  r"[\s_]"  |"" text.strip()
+  3523 csr_write_decode             compile   U  rf"\b{re.escape(signal)}\b\s*(?:\[[^\]]*\])?\s*"             rf"(?:<=|  |
+  3538 csr_write_decode             finditer  U  r"\bcase\b\s*\(\s*wr_addr\s*\)"  |csr
+  3586 assert_decode_is_one_to_one  search    U  r"\bwire\s*\[\s*ADDR_WIDTH\s*-\s*1\s*:\s*0\s*\]\s*wr_addr\s*=\s*"       |csr
+  3591 assert_decode_is_one_to_one  finditer  U  r"\bcase[xz]\b\s*\(\s*wr_addr\s*\)"  |csr
+  3624 assert_decode_is_one_to_one  finditer  U  rf"\bassign\s+{port}\s*=\s*{re.escape(signal)}\s*"                 rf"  |csr
+  3633 test_baremetal_profile_contr compile   UA r"\bmilan_write\s*\("  |re.ASCII
+  3634 test_baremetal_profile_contr compile   UA r"\bstatic\s+inline\s+void\s+milan_write\s*\(\s*unsigned\s+int\s+"      |re.ASCII
+  3649 csr_literal_default          finditer  U  r"\bfunction\s+automatic\s+\[\s*31\s*:\s*0\s*\]\s+"             r"csr_  |csr re.DOTALL
+  3656 csr_literal_default          finditer  U  r"\bunique\s+case\s*\(\s*a\s*\)"  |body
+  3661 csr_literal_default          fullmatch U  r"\s*csr_default\s*=\s*32\s*'\s*[hH]0\s*;\s*"  |body[:case.start()]
+  3685 csr_literal_default          finditer  U  rf"\b{re.escape(rtl_name)}\s*{low_eleven}\s*:\s*"             r"csr_de  |case_body
+  3824 effect                       match     UA r"\A\s*\bmilan_read\s*\(\s*([^()]*?)\s*\)\s*([|&])\s*"                  |text re.S | re.ASCII
+  3866 test_baremetal_profile_contr compile   U  r"\bptp_ctrl\s*<=\s*"         r"(?P<literal>(?:(?:[0-9]+)\s*)?'[hHdDbB  |
+  3883 ptp_enable_assignment        finditer  U  r"\bassign\s+o_ptp_enable\s*=\s*(?P<value>[^;]+);"  |csr
+  3889 ptp_enable_assignment        fullmatch U  r"\s*ptp_ctrl\s*\[\s*0\s*\]\s*"  |value
+  3898 crc_mismatch_guard           search    UA r"\bif\s*\(\s*(?:(?P<lhs>\w+)\s*!=\s*MILAN_AEM_IMAGE_CRC32|"            |load_source re.ASCII
+  3906 test_baremetal_profile_contr compile   UA r"\s*(?:printf\s*\(\s*\"[^\"]*\"\s*\)\s*;\s*)*"         r"return\s+0[u  |re.ASCII
+  3964 assert_csr_store_closure     search    UA r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*\(\s*"     |code re.ASCII
+  3970 assert_csr_store_closure     search    UA r"\bstatic\s+inline\s+uint32_t\s+milan_read\s*\(\s*unsigned\s+int"      |code re.ASCII
+  3985 assert_csr_store_closure     match     UA rf"\A\s*\*\s*milan_reg\s*\(\s*{write_def.group('offset')}\s*\)"         |write_body re.ASCII
+  3989 assert_csr_store_closure     findall      r"(?<![=!<>+\-*/%&|^])=(?!=)"  |write_body
+  4004 assert_csr_store_closure     finditer  UA pattern  |code re.ASCII
+  4011 assert_csr_store_closure     finditer  UA r"\bmilan_reg\s*\("  |code re.ASCII
+  4098 test_baremetal_profile_contr compile   U  r"^(\.+)\s+(\S.*?)\s*$"  |
+  4218 test_baremetal_profile_contr compile   UA cpp_hash + r"([A-Za-z_]\w*)?"  |
+  4219 test_baremetal_profile_contr compile      r"\A[ \t]*(<[^>\n]*>|\"[^\"\n]*\")[ \t]*\Z"  |
+  4227 line_spliced                 sub          r"\\\n"  |"  " text
+  4325 test_baremetal_profile_contr search    U  r"(?m)^MILAN_CSR_BASE\s*=\s*(0x[0-9A-Fa-f_]+)"  |soc_source
+  4327 test_baremetal_profile_contr search    U  r"(?m)^MILAN_CSR_SIZE\s*=\s*(0x[0-9A-Fa-f_]+)"  |soc_source
+  4336 test_baremetal_profile_contr compile   U  r"^\s*\.(?:cfi|file|loc|size|ident|align|globl)"  |
+  4492 test_baremetal_profile_contr compile   U  r'^\s*\.attribute\s+arch\s*,\s*"([^"]*)"'  |re.M
+  4606 test_baremetal_profile_contr search    UA r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)\s*\("  |firmware_source re.ASCII
+  4910 test_baremetal_profile_contr compile   UA r'^#\s+\d+\s+"([^"]*)"'  |re.ASCII
+  4917 test_baremetal_profile_contr compile   UA r"\b(?:" + "|".join(boot_path_tokens) + r")\b"  |re.ASCII
+  4978 test_baremetal_profile_contr compile   UA cpp_hash + r"define[ \t]+([A-Za-z_$][\w$]*)(\([^)\n]*\))?(.*)$"  |
+  5016 assert_lexes_as_compiled     search       r"\?\?[=/'()!<>-]"  |source
+  5075 test_baremetal_profile_contr compile   UA cpp_hash + r"include\b"  |
+  5197 assert_within_lexical_subset search       r"__has_include(_next)?"  |view
+  5210 assert_within_lexical_subset search       r"/\*|//|\\"  |operand
+  5217 assert_within_lexical_subset search       r"_Pragma"  |view
+  5371 assert_boot_path_is_spelled  search    UA header  |code re.ASCII
+  5704 lexer_keeps                  findall   UA cpp_hash + r"undef[ \t]+([A-Za-z_]\w*)"  |view
+  5715 lexer_keeps                  match     UA r"[ \t]*(\w*)"  |view[directive.end():] re.ASCII
+  5726 lexer_keeps                  findall   UA r"\bint\s+(\w+)\s*;"  |_c_phases(blank_spans(text, dropped)).vi
+  5751 lexer_names                  sub       UA cpp_hash + r"[^\n]*"  |"" _c_phases(text).view
+  5754 lexer_names                  findall   UA r"\bint\s+(\w+)\s*;"  |expanded re.ASCII
+  5799 lexer_measured               findall   U  r"(?m)(lex\d{5}\.c):\d+(?::\d+)?: (?:fatal )?error:"  |build.stderr.decode("utf-8", errors="rep
+  5814 lexer_measured               findall   UA r"\bint\s+(\w+)\s*;"  |"\n".join(lines.get(file.name, [])) re.A
+  5951 boot_path_shape              search    UA header  |code re.ASCII
+  5983 assert_preprocessed_boot_pat search    UA cpp_hash + r"([A-Za-z_]\w*)"  |compiled
+  6022 assert_compiled_census_is_cl search    UA r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)\s*\("  |blanked(firmware) re.ASCII
+  6038 assert_compiled_census_is_cl match     U  r"^([A-Za-z_][\w.]*):"  |line
+  6079 entity_advertise_span        search    UA r"\bstatic\s+void\s+entity_advertise\s*\(\s*int\s+"             r"(?P<  |code re.ASCII
+  6185 assert_resolved_boot_flow    compile   U  rf"^{re.escape(choke)}:$"             rf"|^\.type\s+{re.escape(choke)}  |
+  6190 assert_resolved_boot_flow    compile   U  rf"(?<![\w.$]){re.escape(choke)}(?![\w.$])"  |
+  7162 test_baremetal_profile_contr compile      r"(?m)^" + make_lead + assign_prefix + r"OBJECTS" + make_name_gap +     |
+  7165 test_baremetal_profile_contr compile      r"[A-Za-z0-9_.+/-]+"  |
+  7178 makefile_objects             sub          r"\\\n"  |" " makefile
+  7179 makefile_objects             sub          r"(?m)#[^\n]*"  |"" text
+  7182 makefile_objects             finditer  U  r"\bOBJECTS\b"  |text
+  7185 makefile_objects             search       r"[$][({][ \t]*\Z"  |text[:use.start()]
+  7280 test_baremetal_profile_contr compile      r"\A" + make_lead + r"(?:-|s)?include" + make_token_end +         r"|\  |
+  7286 test_baremetal_profile_contr compile      r"(?m)^" + make_lead + r"((?:-|s)?include" + make_space +         r"+[  |
+  7302 test_baremetal_profile_contr compile      r"(?m)^" + make_lead + assign_prefix + assign_body + r"(.*)$"  |
+  7306 test_baremetal_profile_contr compile      r"\A" + make_lead + assign_prefix +                                     |
+  7330 test_baremetal_profile_contr compile      r"\A" + make_lead + assign_prefix + make_outer_name + make_name_gap +   |
+  7346 test_baremetal_profile_contr compile      r"\A" + make_lead + assign_prefix +         r"define" + make_space + r  |
+  7367 test_baremetal_profile_contr compile      r"\A" + make_lead + r"endef" +                                make_bod  |
+  7380 test_baremetal_profile_contr compile      r"\A" + make_lead + assign_prefix + r"define" + make_space +         r  |
+  7399 test_baremetal_profile_contr compile      r"\A" + make_lead + r"define" +                                         |
+  7408 test_baremetal_profile_contr compile      r"\A" + make_lead + r"(?:ifeq|ifneq|ifdef|ifndef|else|endif)" +         |
+  7496 test_baremetal_profile_contr compile      r"#[^\n]*"  |
+  7519 make_line_roles              sub          r"\\\n"  |" " makefile
+  7543 make_line_roles              search       r"::?(?!=)"  |head
+  7564 test_baremetal_profile_contr compile      r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[)}]"  |
+  7605 test_baremetal_profile_contr compile      r"eval(?:" + make_fn_space + r"|[)}])"  |
+  7672 make_evals                   sub       U  r"\s+"  |" " text[at:close]
+  7744 make_rules                   search       r"::?(?!=)"  |head
+  7876 test_baremetal_profile_contr compile      r"[$][({][ \t]*call" + make_fn_space +         r"+([A-Za-z][A-Za-z0-9_  |
+  7942 test_baremetal_profile_contr compile      r"[A-Za-z_][A-Za-z0-9_]*"  |
+  7944 test_baremetal_profile_contr compile      r"[A-Za-z0-9._-]+"  |
+  7965 test_baremetal_profile_contr compile      r"[0-9]+|[@%<?^+|*][DF]?"  |
+  8190 name_reads                   sub       U  r"\s+"  |" " text[at:expansion_end(text, at)]
+  8267 builtin_function_calls       sub       U  r"\s+"  |" " text[hit.start():expansion_end(text,
+  8370 eval_scoped_assignments      sub       U  r"\s+"  |" " text[at:close]
+  8428 value_unbindable             sub       U  r"\s+"  |" " value[at:expansion_end(value, at)]
+  9877 make_plan                    findall   U  r"\b([\w.-]+)\.o\b"  |makefile
+  9924 make_plan                    search       r"(?m)^PROBE_COMPILE=\[(.*)\]$"  |plan.stdout + plan.stderr
+  9933 make_plan                    findall   U  r"(?m)^PROBE_ORIGIN_(\w+)=\[(.*)\]$"  |origins_run.stdout + origins_run.stderr
+  9937 make_plan                    findall   U  r"(?m)^PROBE_(\w+)=\[(.*)\]$"  |plan.stdout + plan.stderr
+ 10093 assert_sv_directive_set      finditer  U  r"`[ \t]*(?P<name>[A-Za-z_][A-Za-z0-9_$]*)\b"  |code
+ 10108 assert_sv_directive_set      fullmatch    r"[ \t]*`[ \t]*include[ \t]+"                     r"\"(?P<path>[^\"\r\  |raw[match.start():line_end]
+ 10139 direct_port                  finditer  U  rf"\.{re.escape(port)}\s*\(\s*(?P<value>[^)]*?)\s*\)"  |ports
+ 10144 direct_port                  sub       U  r"\s+"  |"" matches[0].group("value")
+ 10145 direct_port                  sub       U  r"\s+"  |"" value
+ 10161 reference_census             findall   U  rf"\b{re.escape(name)}\b"  |source
+ 10169 direct_initializer           finditer     rf"(?m)^[ \t]*{declaration}[ \t]*=[ \t]*"                 r"(?P<value>  |source
+ 10175 direct_initializer           sub       U  r"\s+"  |"" matches[0].group("value")
+ 10176 direct_initializer           sub       U  r"\s+"  |"" value
+ 10187 direct_assignment            finditer     rf"(?m)^[ \t]*assign[ \t]+{re.escape(lhs)}[ \t]*="                 r"(  |source
+ 10192 direct_assignment            fullmatch U  rf"\s*{re.escape(rhs)}\s*"  |matches[0].group("value")
+ 10201 instance_ports               finditer  U  rf"\b{re.escape(module)}\b\s*#\s*\([^;]*?\)\s*"                 rf"{re  |source re.DOTALL
+ 10219 assert_boot_contract         finditer  U  r"\binitial\s+begin\b(?P<body>.*?)\bend\b"  |csr_code re.DOTALL
+ 10222 assert_boot_contract         search    U  r"\bdflt_rom\b"  |match.group("body")
+ 10225 assert_boot_contract         fullmatch U  r"\s*for\s*\(\s*int\s+k\s*=\s*0\s*;\s*k\s*<\s*512\s*;"             r"\  |rom_initializers[0].group("body")
+ 10436 assert_boot_contract         search    U  r"\bgenerate\s+if\s*\(\s*RXFILT_P\s*!=\s*0\s*\)\s*"             r"begi  |datapath re.DOTALL
+ 10518 assert_boot_contract         search    U  r"\bgenerate\s+if\s*\(\s*GPTP_PLANE_EN_P\s*\)\s*"             r"begin\  |datapath re.DOTALL
+ 10622 assert_boot_contract         finditer  U  r"\bKL_link_guard\s+link_guard\s*\((?P<ports>.*?)\)\s*;"  |datapath re.DOTALL
+ 10769 assert_boot_contract         search    UA r"\buint32_t\s+(?P<name>\w+)\s*=\s*"             r"milan_read\s*\(\s*M  |init_source re.ASCII
+ 10772 assert_boot_contract         search    UA rf"\bif\s*\(\s*{re.escape(identity_read.group('name')) if identity_rea  |init_source re.ASCII
+ 10775 assert_boot_contract         search    UA r"\bconfigure_fabric\s*\(\s*\)\s*;"  |init_source re.ASCII
+ 10777 assert_boot_contract         search    UA r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;"  |init_source re.ASCII
+ 10780 assert_boot_contract         search    UA r"\bentity_advertise\s*\(\s*aem_loaded\s*\)\s*;"  |init_source re.ASCII
+ 10789 assert_boot_contract         search    UA rf"(?:\+\+|--)\s*\b{identity_name}\b|"             rf"\b{identity_name  |identity_between re.ASCII
+ 10794 assert_boot_contract         search    UA rf"(?<!&)&(?!&)\s*\b{identity_name}\b"  |identity_between re.ASCII
+ 10803 assert_boot_contract         finditer  UA r"\breturn\s*;"  |identity_block re.ASCII
+ 10842 assert_boot_contract         search    UA rf"\b{keyword}\b"  |init_source re.ASCII
+ 10846 assert_boot_contract         search    UA r"(?m)^[ \t]*([A-Za-z_]\w*)[ \t]*:(?!:)"  |init_source re.ASCII
+ 10883 assert_boot_contract         compile   UA r"(?:\+\+|--)\s*aem_loaded\b|"             r"\baem_loaded\b\s*(?:\+\+|  |re.ASCII
+ 10888 assert_boot_contract         fullmatch UA r"\s*load_aem_image\s*\(\s*\)\s*"  |assignments[0].group(1) or "" re.ASCII
+ 10897 assert_boot_contract         finditer  UA r"(?<!&)&(?!&)\s*aem_loaded\b"  |firmware re.ASCII
+ 10961 assert_boot_contract         search    UA rf"\b{keyword}\b"  |advertise_source re.ASCII
+ 10966 assert_boot_contract         search    UA r"(?m)^[ \t]*([A-Za-z_]\w*)[ \t]*:(?!:)"  |advertise_source re.ASCII
+ 10974 assert_boot_contract         search    UA rf"\bif\s*\([^)]*\b{re.escape(advertise.group('verdict'))}\b"  |enable_block re.ASCII
+ 10997 assert_boot_contract         finditer  UA r"\bentity_advertise\s*\(([^)]*)\)\s*;"  |firmware re.ASCII
+ 11007 assert_boot_contract         search    UA r"static\s+void\s+configure_fabric\s*\(\s*void\s*\)\s*\{"  |firmware re.ASCII
+ 11013 assert_boot_contract         search    UA r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;"  |boot_path re.ASCII
+ 11049 assert_boot_contract         search    UA rf"\b{re.escape(computed)}\s*=\s*crc32\s*\("  |load_source re.ASCII
+ 11062 assert_boot_contract         finditer  UA r"\breturn\b([^;]*);"  |load_source re.ASCII
+ 11063 assert_boot_contract         sub       UA r"\s+"  |" " ret.group(1) flags=re.ASCII
+ 11126 assert_boot_contract         search    UA r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)"                 |firmware re.ASCII

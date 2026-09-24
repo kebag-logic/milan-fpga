@@ -1,0 +1,21 @@
+{
+ "tree": "$LANES/408-409-boot-gate-retire",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "accepted",
+ "compiles": 145,
+ "results": [
+  {
+   "label": "a debug helper defined under #ifdef MILAN_DEBUG_TOD and called under a second #ifdef MILAN_DEBUG_TOD in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "control: the same debug printf in ONE #ifdef in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "a debug-only static counter declared under #ifdef and incremented under a second #ifdef of the same macro",
+   "verdict": "ACCEPTED"
+  }
+ ]
+}

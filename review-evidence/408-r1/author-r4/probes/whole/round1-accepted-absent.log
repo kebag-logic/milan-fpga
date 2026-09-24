@@ -1,0 +1,12 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+ACCEPTED: ACC1 an #ifdef around a debug printf INSIDE milan_init()
+ACCEPTED: ACC2 a benign statement in an arm the census tree drops, inside configure_fabric()
+ACCEPTED: ACC3 an #ifdef/#else choosing a #define, read in a UART command handler
+ACCEPTED: ACC4 a ## token paste building a call outside the boot path
+ACCEPTED: ACC5 a token-joining backslash-newline inside a macro body
+ACCEPTED: ACC6 a read-only #define accessor over milan_read()
+ACCEPTED: ACC7 a fifth cast to a pointer, resolving outside the window
+ACCEPTED: ACC8 a fifth store through a pointer, resolving outside the window
+ACCEPTED: ACC9 parse_u64() and seconds_to_ns() exchanged, with nothing added or removed
+ACCEPTED: ACC10 a fifth inline-asm statement, a fence in a UART command handler
+PROBE DONE: 10 result(s), 0 compiles, 18.8 s

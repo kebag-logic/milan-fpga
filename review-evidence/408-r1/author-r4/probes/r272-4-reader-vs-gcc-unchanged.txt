@@ -1,0 +1,20 @@
+/tmp/a254/review-evidence/408-r1/reviews/R272-3/probes/dollar_skipped.c
+  readers, conditionals: ['ifdef', 'if', 'endif', 'if', 'endif', 'endif']
+  readers, directive set: ['ifdef', 'error', 'if', 'endif', 'if', 'endif', 'endif']
+  gcc rc: 0 keeps: ['evil', 'z'] stderr lines: 0
+mid.c
+  readers, conditionals: ['ifdef', 'if', 'endif', 'endif']
+  readers, directive set: ['ifdef', 'if', 'endif', 'endif']
+  gcc rc: 1 keeps: ['evil', 'z'] stderr lines: 3
+comb.c
+  readers, conditionals: ['ifdef', 'if', 'endif', 'endif']
+  readers, directive set: ['ifdef', 'if', 'endif', 'endif']
+  gcc rc: 1 keeps: ['evil', 'z'] stderr lines: 3
+sup2.c
+  readers, conditionals: ['ifdef', 'endif', 'endif']
+  readers, directive set: ['ifdef', 'if²', 'endif', 'endif']
+  gcc rc: 1 keeps: ['evil', 'z'] stderr lines: 3
+eacute.c
+  readers, conditionals: ['ifdef', 'endif', 'endif']
+  readers, directive set: ['ifdef', 'ifé', 'endif', 'endif']
+  gcc rc: 1 keeps: ['evil', 'z'] stderr lines: 3
