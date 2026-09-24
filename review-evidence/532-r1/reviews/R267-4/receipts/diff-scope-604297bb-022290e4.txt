@@ -1,0 +1,37 @@
+# diff scope 604297bb..022290e4
+ docs/testing/CI_WORKFLOWS.md | 55 ++++++++++++++++++++---------
+ scripts/act_ci.py            |  5 +++
+ scripts/act_slot_proof.sh    | 82 +++++++++++++++++++++++++++++++++-----------
+ 3 files changed, 105 insertions(+), 37 deletions(-)
+# act_ci.py hunks (function context)
+@@ -12188,69 +12188,74 @@ def selftest_slot_wiring(tally: SelftestTally) -> None:
+# act_slot_proof.sh: first changed line vs cut of live section (line 366 '# fake_runner_source:')
+@@ -371 +371 @@ fake_runner_source() {
+@@ -374,0 +375 @@ faults = os.environ.get("FAKE_FAULTS", "").split(",")
+@@ -376,0 +378,14 @@ def value(flag, default):
+@@ -403 +418 @@ if pr == "23" and slot == "1" and "late-refusal" in faults:
+@@ -407,5 +422,7 @@ time.sleep(0.2)
+@@ -429,4 +446,8 @@ try:
+@@ -433,0 +455,11 @@ try:
+@@ -442 +474,2 @@ try:
+@@ -467 +500 @@ live = state / "target"
+@@ -472,0 +506 @@ def answers(specs, inside):
+@@ -476 +510 @@ def answers(specs, inside):
+@@ -502 +536 @@ if args[0] == "docker":
+@@ -505,0 +540,2 @@ if args[0] == "docker":
+@@ -512 +548 @@ if args[0] == "nsenter":
+@@ -591 +627,2 @@ the interrupt gate passes and is then refused|interrupt-refused|23|1|FAIL interr
+@@ -593,2 +630,5 @@ the parallel runs never overlap|serialize|23|1|FAIL overlap
+@@ -596,0 +637 @@ a slot reaches the default daemon's container|slot-reaches-container|23|1|FAIL i
+@@ -604 +645,2 @@ the isolation network survives removal|network-survives|23|1|FAIL isolation targ
+# live section (lines 1-365) sha256 at both heads
+604297bb 571c2d96485215909205c38cc6e20d7f61f2afe79aa71067341c8d519280ba3e  -
+022290e4 571c2d96485215909205c38cc6e20d7f61f2afe79aa71067341c8d519280ba3e  -
+# lane-owned diff 759da623..022290e4 files
+ docs/testing/CI_WORKFLOWS.md    |  365 ++-
+ scripts/act_ci.py               | 6343 ++++++++++++++++++++++++++++-----------
+ scripts/act_slot_proof.sh       |  677 +++++
+ scripts/check_baremetal_only.py |  115 +-
+ 4 files changed, 5658 insertions(+), 1842 deletions(-)
+# workflow files changed in the lane
+0

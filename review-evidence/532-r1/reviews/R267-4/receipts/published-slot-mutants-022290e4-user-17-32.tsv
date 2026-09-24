@@ -1,0 +1,18 @@
+# head act_ci.py sha256 f27af88bc8849d24609f6d9a8dfac71b1d12180d56ef1dda3ffaa6a4d4bff005 mode user mutants 57
+# range 17:32
+R266 lock-follows-symlink	KILLED	rc=1	FAIL a slot lock path that is a symlink is not followed
+R266 firewall-reject-loopback-only	KILLED	rc=1	FAIL the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses and out of any interface but the uplinks, created whole or not at all
+R266 uplink-maps-gateway	KILLED	rc=1	FAIL the uplink is socket-level NAT in the slot namespace: no inbound or outbound port forward and no gateway mapped to host loopback
+R266 slot-endpoint-range-unchecked	KILLED	rc=1	FAIL the endpoint parser itself refuses unix:///run/milan-act-slot-64/docker.sock
+R266 teardown-daemon-after-slice	KILLED	rc=1	FAIL teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+R267 R01 live interrupt self-test silently runs in slot 0	KILLED	rc=1	FAIL --interrupt-selftest --slot 2 runs the live gate in slot 2 on its slot root, never silently in slot 0
+R267 R02 interrupt self-test never enters its slot	KILLED	rc=1	FAIL the live gate enters its slot, with that slot's own endpoint, before it resolves act
+R267 R03 daemon runtime directory absence not proved	KILLED	rc=1	FAIL a surviving runtime directory makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+R267 R04 uplink pidfile absence not proved	KILLED	rc=1	FAIL a surviving uplink PID file makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+R267 R05 uplink unload not proved	KILLED	rc=1	FAIL a surviving uplink unit makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+R267 R06 slice inactivity not proved	KILLED	rc=1	FAIL teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+R267 R07 slice cgroup absence not proved	KILLED	rc=1	FAIL a surviving slice cgroup makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+R267 R08 an unanswerable nft query is read as table absent	KILLED	rc=1	FAIL a residue query that cannot answer (firewall-query) refuses the slot before any mutation instead of reading as absent
+R267 R09 slot root never validated on acquisition	KILLED	rc=1	FAIL acquiring a slot whose root has a user-owned parent refuses before the lock or any host command
+R267 R10 production lock accepts the invoking user's file	KILLED	rc=1	FAIL the production slot lock accepts only a root-owned file: its owner default is the literal 0, never the invoking user
+# head act_ci.py after run sha256 f27af88bc8849d24609f6d9a8dfac71b1d12180d56ef1dda3ffaa6a4d4bff005 EXACT

@@ -1,0 +1,31 @@
+# r266-3-part-0.py: 29 entries; head proof sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd; mode user
+X00 control: a comment-only edit	SURVIVED	rc=0	-
+A02 numeric check skips the serial slot	SURVIVED	rc=0	-
+A04 slot A == slot B accepted	KILLED	rc=1	slots A and B are the same slot
+A06 slot B == 0 accepted	KILLED	rc=1	slot B is slot 0
+B02 write-bit test removed	KILLED	rc=1	the runner install is group-writable
+B04 non-empty log directory accepted	KILLED	rc=1	the log directory is not empty
+C01 complete always true	KILLED	rc=1	every run refuses after taking its slot; a run stops before its last workflow; a run passes every workflow and is then refused; a run fails a workflow and is then refused; a parallel run refuses like its serial reference; a collision holder refuses like its serial reference
+C03 completion ignores exit status on failure	KILLED	rc=1	a run fails a workflow and is then refused
+C05 reference records PASS without completion	KILLED	rc=1	every run refuses after taking its slot; a run stops before its last workflow; a run passes every workflow and is then refused; a run fails a workflow and is then refused
+C07 compare skips the verdict comparison	KILLED	rc=1	slot A changes a verdict; slot B changes a verdict
+D01 replay never passes the slot	KILLED	rc=1	honest, where PR B fails its second workflow; slot A changes a verdict; slot B changes a verdict; a slot reaches the default daemon's container; only slot B reaches the default daemon's container; a slot reaches the container's published port; a slot cannot reach the probe name; the isolation target is dead; the host cannot reach the container; the host cannot reach the published port while the container answers; the slot-0 rival is refused for neither the tool cache nor a job volume
+D03 ended ignores refusals	KILLED	rc=1	run A is refused after taking slot A, before run B takes slot B; run B is refused after taking slot B, before run A takes slot A
+D05 overlap does not wait for slot A's holder	KILLED	rc=1	run A dies before taking slot A while run B holds slot B
+D07 overlap ignores run A's verdict	KILLED	rc=1	the parallel runs never overlap; run A is refused after taking slot A, before run B takes slot B
+E01 interrupt gate ignores the runner's exit status	KILLED	rc=1	the interrupt gate passes and is then refused
+E03 interrupt gate ignores the slot teardown line	KILLED	rc=1	the interrupt gate ignores its slot
+F01 listener start failure ignored	KILLED	rc=1	the isolation target cannot be started
+F03 container presence after removal not checked	KILLED	rc=1	the isolation container survives removal; the isolation container cannot be queried after removal
+F05 failed container query read as absent	KILLED	rc=1	the isolation container cannot be queried after removal
+F07 target not removed before the collisions	KILLED	rc=1	the isolation container survives removal; the isolation network survives removal; the isolation container cannot be queried after removal; the isolation network cannot be queried after removal
+G02 slot may reach the published port	KILLED	rc=1	a slot reaches the container's published port
+G04 host reach not required	KILLED	rc=1	the isolation target is dead; the host cannot reach the container; the host cannot reach the published port while the container answers
+G06 host need not reach the published port	KILLED	rc=1	the host cannot reach the published port while the container answers
+G08 slot B's control is recorded from slot A's probe	KILLED	rc=1	only slot B reaches the default daemon's container
+H02 rival exit status not checked	KILLED	rc=1	the rival names the slot lock but exits 1
+H04 collision holder completion not checked	KILLED	rc=1	a collision holder refuses like its serial reference
+H06 slot-A collision accepts any refusal	KILLED	rc=1	the rival is refused for another reason
+H08 rival lateness judged from the rival	KILLED	rc=1	the rival is refused only after the holder left
+I02 ten-PASS backstop removed (documented: no case)	SURVIVED	rc=0	-
+# head proof after run sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd EXACT

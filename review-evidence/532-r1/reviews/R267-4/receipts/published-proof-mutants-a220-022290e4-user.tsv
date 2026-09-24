@@ -1,0 +1,13 @@
+# a220-proof-mutants.py: 11 entries; head proof sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd; mode user
+A00 control: comment only	SURVIVED	rc=0	-
+A01 parallel comparison: completion not required	KILLED	rc=1	a parallel run refuses like its serial reference
+A02 collision holder: completion not required	KILLED	rc=1	a collision holder refuses like its serial reference
+A03 interrupt gate: exit status ignored	KILLED	rc=1	the interrupt gate passes and is then refused
+A04 PROVED despite a FAIL record when ten checks passed	KILLED	rc=1	the isolation container survives removal; the isolation network survives removal; the isolation container cannot be queried after removal; the isolation network cannot be queried after removal
+A05 isolation target: a failed start goes unrecorded	KILLED	rc=1	the isolation target cannot be started
+A06 isolation target: an unanswerable container query reads as absent	KILLED	rc=1	the isolation container cannot be queried after removal
+A07 slots: a non-number is accepted	KILLED	rc=1	slot A is not a number
+A08 interrupt gate: its slot line not required	KILLED	rc=1	the interrupt gate ignores its slot
+A09 isolation: slot-side refusal of the published port not required	KILLED	rc=1	a slot reaches the container's published port
+A10 isolation: slot-side refusal of the container not required	KILLED	rc=1	a slot reaches the default daemon's container; only slot B reaches the default daemon's container
+# head proof after run sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd EXACT

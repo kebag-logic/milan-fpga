@@ -1,0 +1,14 @@
+# r266-2-proof-mutants.py: 12 entries; head proof sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd; mode user
+control: comment only	SURVIVED	rc=0	-
+M1 isolation: slot-side internet reachability not required	KILLED	rc=1	a slot cannot reach the probe name
+M2 slot-0 collision: refusal reason unchecked	KILLED	rc=1	the slot-0 rival is refused for neither the tool cache nor a job volume
+M3 runner digest unchecked	KILLED	rc=1	the runner is not the recorded digest
+M4 runner write bits unchecked	KILLED	rc=1	the runner install is group-writable
+M5 non-empty log directory accepted	KILLED	rc=1	the log directory is not empty
+M6 ended ignores a refusal	KILLED	rc=1	run A is refused after taking slot A, before run B takes slot B; run B is refused after taking slot B, before run A takes slot A
+M7 collision: rival exit status unchecked	KILLED	rc=1	the rival names the slot lock but exits 1
+M8 isolated holder marker is the workflow start, not the slot	KILLED	rc=1	neither run reports its own slot daemon
+M9 PASS-count guard dropped	SURVIVED	rc=0	-
+M10 slot-A collision: refusal reason unchecked	KILLED	rc=1	the rival is refused for another reason
+M11 isolation: host-side reach of the published port not required	KILLED	rc=1	the host cannot reach the published port while the container answers
+# head proof after run sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd EXACT

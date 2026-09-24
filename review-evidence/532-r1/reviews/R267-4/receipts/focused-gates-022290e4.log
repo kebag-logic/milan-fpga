@@ -1,0 +1,32 @@
+== bash -n act_slot_proof.sh rc=0
+
+== py_compile act_ci.py rc=0
+
+== git diff --check 759da623..HEAD rc=0
+warning: unable to find all commit-graph files
+== git diff --check 604297bb..HEAD rc=0
+warning: unable to find all commit-graph files
+== check_py_idiom rc=0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+== check_sh_idiom rc=0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+== docs_check rc=0
+docs_check: 0 finding(s) across 164 md files + 849 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== check_em_dash --base 759da623 rc=0
+check_em_dash: 0 finding(s) over 359 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [759da623..HEAD]
+== gen_toc --check rc=0
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+== gen_toc --verify-anchors rc=0
+anchor check: 147 existing cross-page fragment links reproduced
+== check_doc_paths rc=0
+doc path gate: OK (835 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+== check_doc_style rc=0
+documentation style: OK (22 current documents)
+== check_baremetal_only --check rc=0
+baremetal-only: OK (0 findings across 847 tracked first-party file(s))
+== check_baremetal_only --selftest rc=0
+baremetal-only selftest: PASS (441 arm(s))

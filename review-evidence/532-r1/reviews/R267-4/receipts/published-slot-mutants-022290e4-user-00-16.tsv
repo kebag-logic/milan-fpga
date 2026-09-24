@@ -1,0 +1,19 @@
+# head act_ci.py sha256 f27af88bc8849d24609f6d9a8dfac71b1d12180d56ef1dda3ffaa6a4d4bff005 mode user mutants 57
+# range 0:16
+control trailing comment	SURVIVED	rc=0	-
+R266 slot-root-validation-unwired	KILLED	rc=1	FAIL acquiring a slot whose root has a user-owned parent refuses before the lock or any host command
+R266 cpu-range-boundary	KILLED	rc=1	FAIL slot 2 needs CPU 11: an 11-CPU host (CPUs 0-10) refuses it, a 12-CPU host gives it exactly 8-11
+R266 nft-query-error-reads-absent	KILLED	rc=1	FAIL a residue query that cannot answer (firewall-query) refuses the slot before any mutation instead of reading as absent
+R266 runtime-dir-absence-dropped	KILLED	rc=1	FAIL a surviving runtime directory makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+R266 uplink-pidfile-absence-dropped	KILLED	rc=1	FAIL a surviving uplink PID file makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+R266 slice-cgroup-absence-dropped	KILLED	rc=1	FAIL a surviving slice cgroup makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+R266 slot-teardown-signals-unblocked	KILLED	rc=1	FAIL every slot teardown command runs with SIGINT, SIGTERM and SIGHUP blocked, so a repeated signal cannot cut it short, while acquisition ran with them unblocked
+R266 slice-residue-only-active	KILLED	rc=1	FAIL a slice unit left in any state but the absent one (failed, activating, deactivating, reloading, maintenance) is residue, not a clean slot
+R266 unit-state-query-failure-reads-absent	KILLED	rc=1	FAIL a teardown proof whose query cannot answer (show-LoadState-daemon@2) refuses the run, naming the query, while every removal and the unlock still run
+R266 dropin-query-failure-ignored	KILLED	rc=1	FAIL a teardown proof whose query cannot answer (show-DropInPaths-slice) refuses the run, naming the query, while every removal and the unlock still run
+R266 path-present-ignores-dangling-symlink	KILLED	rc=1	FAIL a dangling symlink occupies a slot path, as a file does; only nothing is absent
+R266 interrupt-selftest-outside-slot	KILLED	rc=1	FAIL the live gate enters its slot, with that slot's own endpoint, before it resolves act
+R266 identity-labels-unchecked	KILLED	rc=1	FAIL a slot daemon reporting another invocation's token refuses and the slot is torn down
+R266 live-selftest-inherited-refusal-dropped	KILLED	rc=1	FAIL an inherited DOCKER_CONFIG refuses the PR run, dry run and both live self-tests before any collaborator runs
+R266 pr-run-inherited-refusal-dropped	KILLED	rc=1	FAIL an inherited DOCKER_CONFIG refuses the PR run, dry run and both live self-tests before any collaborator runs
+# head act_ci.py after run sha256 f27af88bc8849d24609f6d9a8dfac71b1d12180d56ef1dda3ffaa6a4d4bff005 EXACT
