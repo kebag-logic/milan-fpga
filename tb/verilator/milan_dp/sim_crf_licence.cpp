@@ -248,6 +248,7 @@ class CrfLicenceHarness {
     void bridge_withdraw(int uid);
     void bridge_send_leave_all(uint64_t gen);
     void note(const char* what, int uid, long value);
+    void note_edge(const char* what, const Level& was, bool now);
 
     // ---- grading -----------------------------------------------------------
     void ck(const char* what, uint64_t got, uint64_t exp);
@@ -356,16 +357,29 @@ void CrfLicenceHarness::sample_levels() {
     const unsigned dcl = rp->milan_datapath__DOT__pp_cd_acmp_declaring_w;
     const unsigned tks = rp->milan_datapath__DOT__pp_cd_srp_tk_decl_state_w;
     for (int s = 0; s < kSources; s++) {
-        active[s].sample((act >> s) & 1u, cyc);
+        if (s != kUidCrf) active[s].sample((act >> s) & 1u, cyc);
         admitted[s].sample((adm >> s) & 1u, cyc);
         declaring[s].sample((dcl >> s) & 1u, cyc);
         ta_declared[s].sample(((tks >> (2 * s)) & 3u) == 1u, cyc);
     }
     const bool lic = rp->milan_datapath__DOT__crft_emit_en_w & 1u;
+    note_edge("CRF licence", licence, lic);
     licence.sample(lic, cyc);
+    const bool crf_active = (act >> kUidCrf) & 1u;
+    note_edge("ACTIVE", active[kUidCrf], crf_active);
+    active[kUidCrf].sample(crf_active, cyc);
     aaf_gate.sample(rp->milan_datapath__DOT__aaf_stream_en_w & 1u, cyc);
     if (lic != active[kUidCrf].v) licence_ne_active++;
     if (aaf_gate.v && !active[kUidAaf].v) aaf_without_active++;
+}
+
+//! The CRF output's edges go into the timeline, so a run reads like the Run B
+//! wire timeline it is compared against.
+void CrfLicenceHarness::note_edge(const char* what, const Level& was, bool now) {
+    if (now == was.v) return;
+    char line[64];
+    snprintf(line, sizeof line, "%s %s", what, now ? "RISES" : "FALLS");
+    note(line, kUidCrf, -1);
 }
 
 // ============================================================================
@@ -880,8 +894,9 @@ void CrfLicenceHarness::phase_b2(uint64_t t0) {
     bridge_withdraw(kUidAaf);
     const uint64_t t_lv = cyc;
     run_until(t0 + ms(13500));
-    ck_true("ACTIVE[AAF] fell after the Lv (the registrar's leave)",
-            !active[kUidAaf].v && active[kUidAaf].last_fall > t_lv);
+    ck_true("ACTIVE[AAF] fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)",
+            !active[kUidAaf].v && active[kUidAaf].last_fall > t_lv
+            && active[kUidAaf].last_fall - t_lv <= ms(50));
     ck("the AAF gate closed on that cycle", aaf_gate.last_fall, active[kUidAaf].last_fall);
     ck("...while the AAF talker still declares Talker Advertise", ta_declared[kUidAaf].v, 1);
     ck("...and its raw verdict still stands (the pre-#530 gate stayed open)", admitted[kUidAaf].v, 1);
@@ -993,8 +1008,9 @@ void CrfLicenceHarness::phase_e() {
     const uint64_t t_lv = cyc;
     run_until(t_lv + ms(7000));
     ck_true("the probe window is still open", peer[kUidCrf].last_probe + ms(15000) > cyc);
-    ck_true("ACTIVE fell at the registrar's leave, after the Lv",
-            !active[kUidCrf].v && active[kUidCrf].last_fall > t_lv);
+    ck_true("ACTIVE fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)",
+            !active[kUidCrf].v && active[kUidCrf].last_fall > t_lv
+            && active[kUidCrf].last_fall - t_lv <= ms(50));
     ck("the licence closed on that cycle", licence.last_fall, active[kUidCrf].last_fall);
     ck("...while the talker still declares Talker Advertise", ta_declared[kUidCrf].v, 1);
     ck("...and its raw verdict still stands", admitted[kUidCrf].v, 1);
