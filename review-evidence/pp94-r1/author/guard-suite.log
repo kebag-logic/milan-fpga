@@ -1,0 +1,27 @@
+make: Entering directory '$LANES/pp94-desc-mem-guard/tb/desc_mem_guard'
+verilator --cc --exe --build -j 2 --top-module desc_mem_guard_wrap \
+  --Mdir obj_dir  -Wall -Wno-DECLFILENAME \
+  -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../hdl/aecp/KL_aecp_desc_store.sv ../../hdl/aecp/KL_aecp_desc_mem_guard.sv wrap.sv sim_main.cpp -o Vguard_sim
+make[1]: Entering directory '$LANES/pp94-desc-mem-guard/tb/desc_mem_guard/obj_dir'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vdesc_mem_guard_wrap.cpp Vdesc_mem_guard_wrap___024root__0.cpp Vdesc_mem_guard_wrap___024root__Slow.cpp Vdesc_mem_guard_wrap___024root__0__Slow.cpp Vdesc_mem_guard_wrap__Syms__Slow.cpp > Vdesc_mem_guard_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vdesc_mem_guard_wrap__ALL.o Vdesc_mem_guard_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vdesc_mem_guard_wrap__ALL.a    -pthread -lpthread -latomic   -o Vguard_sim
+rm Vdesc_mem_guard_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$LANES/pp94-desc-mem-guard/tb/desc_mem_guard/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.151 MB sources in 4 modules, into 0.173 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.310 s (elab=0.003, cvt=0.019, bld=5.276); cpu 0.037 s on 2 threads; allocated 18.340 MB
+./obj_dir/Vguard_sim 
+third locate bytes: 0005000011223344 5566778899aabbcc; want 0005000011223344 5566778899aabbcc
+after drain bytes: 0005000011223344 5566778899aabbcc; want 0005000011223344 5566778899aabbcc
+late case completed: accept=80 first=6080 end=6083 third-presented=4185 held=1895 overlap-accepts=0 timeout-answer=4103 third-answer=1928
+stuck case completed: 5 later locates answered errors; max=4102 bound=4160 held=16388 accepted=3 terminal=2 debt=1
+after store reset bytes: 0005000011223344 5566778899aabbcc; want 0005000011223344 5566778899aabbcc
+after hard reset bytes: 0005000011223344 5566778899aabbcc; want 0005000011223344 5566778899aabbcc
+after terminal error bytes: 0005000011223344 5566778899aabbcc; want 0005000011223344 5566778899aabbcc
+77 checks: 77 PASS, 0 FAIL
+make: Leaving directory '$LANES/pp94-desc-mem-guard/tb/desc_mem_guard'
