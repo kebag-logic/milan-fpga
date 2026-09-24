@@ -1,0 +1,30 @@
+[
+  {
+    "mutant": "srp-failure-strobe-removed",
+    "site": "gone (0 found)",
+    "why": "the FailureInformation term left ind_reg_w for its own strobe",
+    "translated": true
+  },
+  {
+    "mutant": "sel4-integrator-byte",
+    "site": "gone (0 found)",
+    "why": "gsi_fail_code_r (the sample) became the live gsi_fail_code_w",
+    "translated": true
+  },
+  {
+    "mutant": "notify-every-write",
+    "site": "applies unchanged"
+  },
+  {
+    "mutant": "live-unsampled-fields",
+    "site": "gone (0 found)",
+    "why": "the selector-0 sample is removed; reading live IS the design",
+    "translated": false
+  },
+  {
+    "mutant": "index-guard-removed",
+    "site": "gone (0 found)",
+    "why": "the guard now precedes the live reads, not the sample registers",
+    "translated": true
+  }
+]

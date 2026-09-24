@@ -1,0 +1,59 @@
+[
+  {
+    "mutant": "golden-gi",
+    "mode": "gi",
+    "run_rc": 0,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 0 failures"
+    ],
+    "first_failures": [],
+    "n_fail_lines": 0,
+    "verdict": "SURVIVED"
+  },
+  {
+    "mutant": "srp-failure-change-strobe-removed~translated",
+    "mode": "gi",
+    "run_rc": 1,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 483 checks, 2 failures"
+    ],
+    "first_failures": [
+      "FAIL: GI FAILED-REFRESH unsolicited: complete Milan response",
+      "FAIL: GI FAILED-REFRESH: solicited and unsolicited bodies agree for sink 0"
+    ],
+    "n_fail_lines": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "mutant": "sink-index-guard-removed",
+    "mode": "gi",
+    "run_rc": 1,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 2 failures"
+    ],
+    "first_failures": [
+      "FAIL: GI INDEX-GUARD solicited: pbsta sink 9 = 0, got 1",
+      "FAIL: GI INDEX-GUARD solicited: byte-exact sink 9 response"
+    ],
+    "n_fail_lines": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "mutant": "status-compare-removed",
+    "mode": "gi",
+    "run_rc": 1,
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 94 failures"
+    ],
+    "first_failures": [
+      "FAIL: GI BIND-TIMEOUT unsolicited: acmpsta sink 0 = 7, got 0",
+      "FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-TIMEOUT solicited: acmpsta sink 0 = 7, got 0",
+      "FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 0 response",
+      "FAIL: GI PASSIVE unsolicited: pbsta sink 0 = 1, got 2",
+      "FAIL: GI PASSIVE unsolicited: acmpsta sink 0 = 0, got 7"
+    ],
+    "n_fail_lines": 94,
+    "verdict": "KILLED"
+  }
+]

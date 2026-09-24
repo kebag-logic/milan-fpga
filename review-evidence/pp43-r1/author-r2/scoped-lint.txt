@@ -1,0 +1,6 @@
+head a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72 Verilator 5.050 2026-07-01 rev v5.050
+protocol_processor_top -GN_STREAM_IN_P=1 -GN_STREAM_OUT_P=1 rc=0 findings=0
+protocol_processor_top -GN_STREAM_IN_P=8 -GN_STREAM_OUT_P=8 rc=0 findings=0
+KL_srp_listener_fsm -GN_SINKS_P=1 rc=0 findings=0
+KL_srp_top -GN_SINKS_P=1 -GN_SOURCES_P=1 rc=0 findings=0
+KL_pp_acmp_listener -GN_SINKS_P=1 rc=0 findings=0

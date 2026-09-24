@@ -1,0 +1,103 @@
+== 8x8
+LUT   base    28092 r1    28732 cand    28326 | cand-base +234 r1-base +640 cand-r1 -406
+LUTL  base    26886 r1    27526 cand    27120 | cand-base +234 r1-base +640 cand-r1 -406
+LUTM  base     1206 r1     1206 cand     1206 | cand-base +0 r1-base +0 cand-r1 +0
+FF    base    30354 r1    31138 cand    31064 | cand-base +710 r1-base +784 cand-r1 -74
+BRAM  base     24.0 r1     24.0 cand     24.0 | cand-base +0.0 r1-base +0.0 cand-r1 +0.0
+WNS {'base': '-9.524', 'r1': '-9.618', 'cand': '-10.089'}
+instance                                            dLUT c-b  dFF c-b dLUT c-r1 dFF c-r1
+ protocol_processor_top                                 +234     +710      -406      -74
+   (protocol_processor_top)                              +17      +72       +41      -81
+   g_rx_pool[0].u_rx_slots                               +51      +38       +51      +38
+   g_rx_pool[2].u_rx_slots                                +0       +0        -2       +0
+   g_rx_pool[3].u_rx_slots                                +8       +0        +3       +0
+   g_rx_pool[5].u_rx_slots                                +3       +0        -6       +0
+   u_adp                                                 +84       +0       +41       +0
+   u_aecp                                               +139       +0       +70       +2
+     (u_aecp)                                            +74       +0       +55       +2
+     u_resp                                              -28       +0        -4       +0
+     u_store                                             +13       +0       +13       +0
+     u_ucpu                                              +80       +0        +6       +0
+   u_ca_builder                                          -16       +0       -44       +0
+   u_dispatch                                             -8       +0        -5       -1
+     u_maap_q                                             +2       +0        +1       +0
+     u_acmp_q                                             +8       +0       -36       +0
+     u_adp_q                                              +3       +0        +1       +0
+     u_aecp_q                                             -1       +0       +49       -1
+   u_event_router                                         +1       +0        -2       +0
+   u_listener                                             -6       +2       -28       +2
+   u_maap                                                +24       +0       -31       +0
+   u_mrp_strip                                            +3       +0        -3       +0
+   u_normalizer                                           -1       +0        +0       +0
+   u_notify                                              +33       +0       +32       +0
+   u_nvm_port                                             +1       +0        +0       +0
+   u_nvm_shadow                                          -12       +0        -2       +0
+   u_originator                                          -23       +0       +56       +0
+   u_prng                                                -17       +0       -13       +0
+   u_rx_validator                                        -76       +0       -21       +0
+   u_scoreboard                                           -8       +0        -7       +0
+   u_side_port                                            -2       +0       -23       +0
+   u_srp                                                +116     +636      -541       +5
+     (u_srp)                                             -23       +2       -27       +1
+     u_admission                                        -353      -32       -62       +0
+     u_decoder                                            -6     +128      -102       +0
+     u_domain                                            +27       +2       -10       +0
+     u_encoder                                           +29      +16        -7       -3
+     u_listener                                         +455     +520      -353       +8
+     u_talker                                           -177       +0      -138       -1
+     u_vlan                                             +164       +0      +158       +0
+   u_talker                                              +16       -1       +40       -2
+   u_timer                                               +41       +0       +22       +0
+   u_tx_arbiter                                          -60       +0       -21       +0
+   u_tx_slots                                            -16       +0        +8       +0
+== 1x1
+LUT   base    20978 r1    21163 cand    21245 | cand-base +267 r1-base +185 cand-r1 +82
+LUTL  base    19876 r1    20061 cand    20143 | cand-base +267 r1-base +185 cand-r1 +82
+LUTM  base     1102 r1     1102 cand     1102 | cand-base +0 r1-base +0 cand-r1 +0
+FF    base    23446 r1    23745 cand    23674 | cand-base +228 r1-base +299 cand-r1 -71
+BRAM  base     16.5 r1     16.5 cand     16.5 | cand-base +0.0 r1-base +0.0 cand-r1 +0.0
+WNS {'base': '-5.564', 'r1': '-6.056', 'cand': '-6.065'}
+instance                                            dLUT c-b  dFF c-b dLUT c-r1 dFF c-r1
+ protocol_processor_top                                 +267     +228       +82      -71
+   (protocol_processor_top)                               -2       +8       +32      -78
+   g_rx_pool[2].u_rx_slots                                +8       +0        +5       +0
+   g_rx_pool[3].u_rx_slots                                +0       +0        +2       +0
+   g_rx_pool[5].u_rx_slots                                -6       +0        +1       +0
+   u_adp                                                 +25       +0       +24       +0
+   u_aecp                                                +95       +2       +24       +3
+     (u_aecp)                                            +68       +0       +21       +2
+     u_resp                                               +0       +0        +3       +0
+     u_store                                             -11       +2        +1       +1
+     u_ucpu                                              +38       +0        -1       +0
+   u_ca_builder                                          +38       +0        +5       +0
+   u_dispatch                                            -42       +0       -20       +0
+     u_maap_q                                             -1       +0        -8       +0
+     u_acmp_q                                             +2       +0        -1       +0
+     u_adp_q                                              -3       +0        +0       +0
+     u_aecp_q                                            -26       +0        -7       +0
+   u_event_router                                         -3       +0       +25       +0
+   u_listener                                             +5      +24        +6       +0
+   u_maap                                                +33       +0       -12       +0
+   u_mrp_strip                                           -11       +0        -1       +0
+   u_normalizer                                           -1       +0        +5       +0
+   u_notify                                             +133       +0       +13       +0
+   u_nvm_port                                             -9       +0        -5       +0
+   u_nvm_shadow                                           +5       +0       +22       +0
+   u_originator                                          -38       +0       -63       +0
+   u_prng                                                 -2       +0        -1       +0
+   u_rx_validator                                       -103       +0       -30       +0
+   u_scoreboard                                          +24       +0       +13       +0
+   u_side_port                                            +2       +0        -5       +0
+   u_srp                                                 +96     +194       -40       +4
+     u_admission                                         +54       +0       -13       +0
+     u_decoder                                           +33     +128        +6       +0
+     u_domain                                            -21       +0        +0       +0
+     u_encoder                                           -15       +1       +14       +3
+     u_listener                                          +54      +65       -47       +1
+     u_talker                                             -8       +0        +1       +0
+     u_vlan                                               -1       +0        -1       +0
+   u_talker                                              +26       +0       +40       +0
+   u_timer                                                +3       +0       +25       +0
+   u_tx_arbiter                                           +2       +0       +16       +0
+   u_tx_slots                                            -14       +0        -4       +0
+   g_rx_pool[0].u_rx_slots                               -51      -38       -58      -38

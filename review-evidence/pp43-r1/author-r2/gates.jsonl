@@ -1,0 +1,35 @@
+{"name": "verilator-version", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["verilator", "--version"], "rc": 0, "seconds": 0.09, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "lint", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["./scripts/lint_hdl.sh"], "rc": 0, "seconds": 8.27, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "suites", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["./scripts/run_suites.sh"], "rc": 0, "seconds": 208.1, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "gen-matrix", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["python3", "scripts/gen_matrix.py", "--check"], "rc": 0, "seconds": 0.05, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "fetch-pr13", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["git", "fetch", "--no-tags", "origin", "refs/pull/13/head"], "rc": 0, "seconds": 0.66, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "nvm-figures", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["make", "-C", "tb/nvm_port", "figures"], "rc": 0, "seconds": 242.56, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "check-links", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["python3", "scripts/check-links.py"], "rc": 0, "seconds": 0.07, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "check-matrix", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["python3", "scripts/check-matrix.py"], "rc": 0, "seconds": 0.02, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "wavedrom-check", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["python3", "scripts/render-wavedrom.py", "--check"], "rc": 0, "seconds": 0.45, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "make-stale", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["make", "stale"], "rc": 0, "seconds": 0.04, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "make-check", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["make", "check"], "rc": 2, "seconds": 0.99, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "diff-check", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["git", "diff", "--check", "939c143333d11e2378a514f1c7b6abd4c3259bfd", "HEAD"], "rc": 0, "seconds": 0.03, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "yosys", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["./syn/yosys/run.sh"], "rc": 127, "seconds": 0.01, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "make-check", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["make", "check"], "rc": 0, "seconds": 27.25, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "yosys", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["./syn/yosys/run.sh"], "rc": 0, "seconds": 72.29, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "gsi-mutants", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["python3", "tb/pp_top/gsi_mutants.py", "--output", "$MANAGEMENT/2026-09-23/pp43-a255/mutants", "--verilator", "$VALIDATION_TOOLS/verilator-v5.050/bin/verilator"], "rc": 0, "seconds": 267.17, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "srp-stream-fsms-dev", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["make", "-C", "tb/srp_stream_fsms"], "rc": 0, "seconds": 1.29, "head": "68ad935641314b4e209587c95da6de260d298f52"}
+{"name": "parent-fetch", "cwd": "$LANES/pp94-parent-consumer/protocol-processor", "command": ["git", "fetch", "$LANES/pp43-49-gsi-internal", "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"], "rc": 0, "seconds": 0.16, "head": "5771578784c77e945980c78faa52f3e54bcf5e2d"}
+{"name": "parent-checkout", "cwd": "$LANES/pp94-parent-consumer/protocol-processor", "command": ["git", "checkout", "--detach", "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"], "rc": 0, "seconds": 0.01, "head": "5771578784c77e945980c78faa52f3e54bcf5e2d"}
+{"name": "parent-source-lists", "cwd": "$LANES/pp94-parent-consumer", "command": ["python3", "scripts/check_rtl_source_lists.py"], "rc": 0, "seconds": 1.39, "head": "3eaee03f0c50522c4e4da8e12c771ec130a8c2f9"}
+{"name": "parent-shadow", "cwd": "$LANES/pp94-parent-consumer", "command": ["make", "-C", "tb/verilator/pp_shadow", "-j8"], "rc": 0, "seconds": 18.44, "head": "3eaee03f0c50522c4e4da8e12c771ec130a8c2f9"}
+{"name": "verilator-version", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["verilator", "--version"], "rc": 0, "seconds": 0.07, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "lint", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["./scripts/lint_hdl.sh"], "rc": 0, "seconds": 8.01, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "suites", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["./scripts/run_suites.sh"], "rc": 0, "seconds": 201.35, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "gen-matrix", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["python3", "scripts/gen_matrix.py", "--check"], "rc": 0, "seconds": 0.04, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "check-links", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["python3", "scripts/check-links.py"], "rc": 0, "seconds": 0.07, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "check-matrix", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["python3", "scripts/check-matrix.py"], "rc": 0, "seconds": 0.02, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "wavedrom-check", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["python3", "scripts/render-wavedrom.py", "--check"], "rc": 0, "seconds": 0.41, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "make-stale", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["make", "stale"], "rc": 0, "seconds": 0.04, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "make-check", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["make", "check"], "rc": 0, "seconds": 26.61, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "diff-check", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["git", "diff", "--check", "939c143333d11e2378a514f1c7b6abd4c3259bfd", "HEAD"], "rc": 0, "seconds": 0.02, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "yosys", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["./syn/yosys/run.sh"], "rc": 0, "seconds": 71.99, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "fetch-pr13", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["git", "fetch", "--no-tags", "origin", "refs/pull/13/head"], "rc": 0, "seconds": 0.57, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "nvm-figures", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["make", "-C", "tb/nvm_port", "figures"], "rc": 0, "seconds": 237.01, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
+{"name": "gsi-mutants", "cwd": "$LANES/pp43-49-gsi-internal", "command": ["python3", "tb/pp_top/gsi_mutants.py", "--output", "$MANAGEMENT/2026-09-23/pp43-a255/mutants", "--verilator", "$VALIDATION_TOOLS/verilator-v5.050/bin/verilator"], "rc": 0, "seconds": 258.25, "head": "a14ef8b4787b5309dd9ab472e82ae2b4a3fdbb72"}
