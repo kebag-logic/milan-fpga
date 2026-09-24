@@ -1,0 +1,11 @@
+capture first AECP t 1790220055.506082 (controller-host NTP clock); bind 1790220102.077405 unbind 1790220282.078114
+unsolicited GET_COUNTERS: 187 cdl set {148} status set {0} desc set {(6, 1)} valid set {'0x0000001f'} unclaimed nonzero 0 dst set {'68:05:ca:95:b2:ed'} controller set {'6805ca95b2ed0a20'}
+first push 1790220102.077615 = bind+0.000s  last push 1790220296.492762 = unbind+14.415s
+gap histogram (s): [(1.0, 185), (9.42, 1)] ... max 9.416 n<1.000s 57 min 0.99911
+pushes whose counters equal the previous push: 0
+STREAM_START sequence in pushes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+unsolicited GET_STREAM_INFO: 50 same-instant pairs (<10 ms): 3 first 0.0 last 13.341
+unsolicited GET_AVB_INFO: 259
+CONTROLLER_AVAILABLE: [(42.257, 'COMMAND', 0, '6805ca95b2ed0a20', '020000fffe000001'), (42.26, 'RESPONSE', 0, '6805ca95b2ed0a20', '020000fffe000001'), (82.949, 'COMMAND', 0, '6805ca95b2ed0a20', '020000fffe000001'), (82.95, 'RESPONSE', 0, '6805ca95b2ed0a20', '020000fffe000001'), (119.029, 'COMMAND', 0, '6805ca95b2ed0a20', '020000fffe000001'), (119.03, 'RESPONSE', 0, '6805ca95b2ed0a20', '020000fffe000001'), (168.768, 'COMMAND', 0, '6805ca95b2ed0a20', '020000fffe000001'), (168.77, 'RESPONSE', 0, '6805ca95b2ed0a20', '020000fffe000001'), (217.301, 'COMMAND', 0, '6805ca95b2ed0a20', '020000fffe000001'), (217.305, 'RESPONSE', 0, '6805ca95b2ed0a20', '020000fffe000001'), (265.847, 'COMMAND', 0, '6805ca95b2ed0a20', '020000fffe000001'), (265.85, 'RESPONSE', 0, '6805ca95b2ed0a20', '020000fffe000001')]
+unsolicited GET_COUNTERS STREAM_OUTPUT 1: n=187 gaps<1.5s: n=185 min=0.999110 mean=0.999996 max=1.000047 stdev=0.075 ms; below 1.000 s: 57
+unsolicited GET_AVB_INFO (reference cadence, same path): n=259 gaps<1.5s: n=227 min=0.956704 mean=0.999812 max=1.000276 stdev=2.868 ms; below 1.000 s: 90
