@@ -29,7 +29,7 @@ Audio continuity is deferred to 2026-12-31 and is not measured here.*
 - **[Observations outside the acceptance boxes](#observations-outside-the-acceptance-boxes)** -- Measured behavior no box covers: CRF talker bursts, stream counters, notification rate, the switch's Pdelay and timescale, link counters, ADP, and the reference peer.
 - **[Bench state restored](#bench-state-restored)** -- The before-and-after censuses and outlet reads proving no binding, peer setting or outlet was left changed.
 - **[Owner blockers](#owner-blockers)** -- The two decisions step 3 needed, both made on 2026-09-23, and the two blockers that remain.
-- **[Raw artifacts](#raw-artifacts)** -- SHA-256 of the primary raw captures, transcripts and logs in the two private packets.
+- **[Raw artifacts](#raw-artifacts)** -- Where the two published bench packets are, and SHA-256 of their primary raw captures, transcripts and logs.
 
 ## Result per acceptance box
 
@@ -38,24 +38,24 @@ Every row states what was measured. A row that was not measured says NOT RUN.
 | Acceptance box of #117 | Part | Result |
 |---|---|---|
 | 1. Reaches and retains asCapable against the Milan-validated reference peer, inside Milan limits, compliant intervals and turnaround, no software gPTP daemon | retains asCapable | PASS: asCapable on every console, controller and wire observation from 12:41 to 13:14 UTC |
-| | reaches asCapable | NOT RUN: the transition happened after the 12:35 UTC power cycle, before these windows opened |
+| | reaches asCapable | PASS: in each of the six step 3 cycles `CLKV_STAT[16]` went from 0 to 1 within one 0.1 s console sample of the DUT's second completed Pdelay exchange with the switch, 1.03 to 1.64 s after the switch's first frame on the DUT link, with peer delay 377 to 389 ns; see [asCapable return](#grandmaster-change-across-the-loss-and-return). The first reach after the 12:35 UTC power cycle was not observed |
 | | peer delay inside the 800 ns bound | PASS: 380 to 391 ns |
 | | message intervals | PASS: see [Step 2](#step-2-ascapable-cadence-and-turnaround) |
 | | Pdelay turnaround inside 15 ms | PASS: at most 11.009 us |
-| | no software gPTP daemon | PASS: bare-metal image; no daemon on any bench host |
+| | no software gPTP daemon | PASS: bare-metal image; no gPTP or AVB daemon on the controller host or the capture server, the two bench hosts checked |
 | 2. GM loss and return recover automatically within the documented bound | DUT recovery after the switch returns, six switch power cycles | PASS: asCapable, sync and `tu` clear 0.43 to 1.60 s after the switch's first post-boot Announce, against the [5 s bound](../design/GM_LOSS_RECOVERY.md#recovery-bound); see [Step 3](#step-3-gm-loss-and-return) |
-| | automatic | PASS: no operator action reached the DUT beyond read-only AECP queries; no CSR write, no reset, and `RST_EPOCH` read 1 throughout |
+| | automatic | PASS: no CSR write, no reset, and `RST_EPOCH` read 1 throughout. The console carried reads only, and the controller sent read-only AECP and ACMP commands. In cycles 4 to 6 the reference listener's ACMP CONNECT_TX probes also reached the DUT, none between the loss and the DUT's recovery; see [Verdict](#verdict) |
 | | resulting stream state | PASS: with a CRF binding held through cycles 4 to 6, the stream restarted once after each return with `tu` clear, and the listener locked again |
 | | reference peer's recovery against the bound | NOT RUN: the peer's own link is not tapped, so the switch's return on it has no time; the controller view is recorded |
 | 3. Publication words and `tu` are fabric-owned on the booted image | steady state against the wire | PASS: every word agrees with the wire and with the controller view |
 | | transition (GM change, sync loss) | PASS: over six losses and returns every publication word moved with the wire, inside one 0.1 s console sample; see [Step 4](#grandmaster-change-across-the-loss-and-return) |
 | 4. External conformance, latency and audio continuity pass without a stale or skipped mandatory row | la_avdecc counters probe, parity with the reference peer | PASS |
-| | la_avdecc full enumeration, Milan compatibility | FAIL: Milan downgraded to IEEE 1722.1 over the CRF Stream Input counters |
+| | la_avdecc full enumeration, Milan compatibility | FAIL: Milan downgraded to IEEE 1722.1 over the CRF Stream Input counters, tracked in [#529](https://github.com/kebag-logic/milan-fpga/issues/529) |
 | | Hive | NOT RUN: needs an interactive desktop |
 | | behave against hardware | NOT RUN: the suite has no hardware tier |
 | | latency (#64, #213) | NOT RUN: outside this assignment |
 | | audio continuity | NOT RUN: deferred to 2026-12-31 |
-| 5. Findings include topology, capture points, raw artifacts, exact hashes, tool revisions and methodology | this page | PASS for the runs recorded here |
+| 5. Findings include topology, capture points, raw artifacts, exact hashes, tool revisions and methodology | this page | PASS for the runs recorded here: both bench packets are published at a pinned commit with per-file SHA-256 manifests; [Raw artifacts](#raw-artifacts) gives the locator, and [Candidate image](#candidate-image-and-identity-proof) and [Tool revisions](#tool-revisions) say which hashes name files outside it |
 
 The asCapable link partner is port 1 of the bench AVB switch, which is the
 grandmaster. The reference peer is a time-aware end station on another port
@@ -80,6 +80,15 @@ power cycle at 12:35 UTC.
 | `software/bios/bios.bin` | `69322600bc9dc40a698ed30d125d29d2723f51cc1b26c0f1c3abc96acb39deab` |
 | `flashboot_layout.json` | `71e798fc401ed3fbaac4cd43a299f23498beafa466aaa17d6773590a62fa93e2` |
 | `csr.csv` | `4db0e6da9c9c910a5ee00e56c25908c190c380799e44c846bcfb4ffc7dc045a7` |
+
+The build directories are not published. The `.bit`, payload and
+`aem_desc.bin` hashes also appear in the reference CRC table in both packets
+(`identity/expected-crc.txt`), and the `.bit`, `aem_desc.bin` and
+`flashboot_layout.json` hashes in the
+[build record](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5794859125).
+That table's ROM row hashes `bios.bin` less its 4-byte CRC (`e84e579c...`),
+which is a different object from the whole file. The `bios.bin` and
+`csr.csv` hashes above are recorded only on this page.
 
 The identity was read back over the console under the bench lock, 12:41:19
 to 12:41:43 UTC, with read-only commands only (`milan_status`, `mem_list`,
@@ -117,12 +126,12 @@ cycle.
 
 - **Grandmaster.** The bench AVB switch, clock identity `3cc0c6fffefe0210`. It announces priority1 246, clockClass 248, clockAccuracy `0x20`, offsetScaledLogVariance `0x436A`, priority2 248 and timeSource `0xA0`, with stepsRemoved 0. The PathTrace carries itself only.
 - **Reference peer.** A Milan-validated end station with two AVB interfaces, both priority1 248. Its GET_AS_PATH on interface 0 is `[3cc0c6fffefe0210, its own clock]`, and its GET_AVB_INFO names the same grandmaster. Its GET_MILAN_INFO reports protocol version 1, `certification_version` 1.1.0.0 and specification 1.2.0.0.
-- **Peer firmware identity.** The ENTITY `firmware_version` field holds seven octets. The SHA-256 of the 64-octet field is `33f0e7f9e86fe4829a2de6f6d04d1edf1463b7d6653c2865ad985f183b0ddfbc`, the same value recorded on 2026-09-14. The string itself stays in the private packet, as it did then.
+- **Peer firmware identity.** The ENTITY `firmware_version` field holds seven octets. The SHA-256 of the 64-octet field is `33f0e7f9e86fe4829a2de6f6d04d1edf1463b7d6653c2865ad985f183b0ddfbc`, and its first 8 octets match the prefix [recorded on 2026-09-14](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5670665596). A firmware version is not bench-identifying (every unit of the product carries the same one), so this digest identifies the value by design. The published A200 packet still masks the raw string, with the peer's other ENTITY identity fields (entity name, group name, serial number).
 - **Peer state.** Configuration 0 of 2, sampling rate 96 kHz, clock source 0 (INTERNAL). Every Stream Input was unbound and every Stream Output idle, both before and after the runs.
 - **Controller host.** It sits on switch port 8. It runs no gPTP daemon, so the switch sends it Pdelay_Req only.
 - **Power.** The bench power strip feeds the switch from outlet OUT4, the DUT from OUT0 and the reference peer from OUT2, per the 2026-08-15 outlet map. Step 3 switched OUT4 only, and its first cycle proved that OUT4 is the switch; see [Step 3](#step-3-gm-loss-and-return). The strip read OUT0, OUT1, OUT2, OUT4, OUT5 and OUT6 on and OUT3 off before and after step 3.
 - **Second observation point (step 3).** The controller host's own AVB port on switch port 8. Its carrier is the switch's link edge, and a capture of that port is in the packet. It is inside the partition while the switch is off.
-- **Capture point.** One inline tap on the DUT link, the only tap attached. It stamps both directions on one clock: tap port 3 carries frames the DUT sent, tap port 2 carries frames the switch sent. Each record carries a 28-octet envelope whose nanosecond word wraps every 2^32 ns. The decoder unwraps it against the capture host time. Records without a valid envelope are the capture host's own traffic and are excluded (76 in Run A, none elsewhere). Every capture reports 0 kernel drops.
+- **Capture point.** One inline tap on the DUT link, the only tap attached. It stamps both directions on one clock: tap port 3 carries frames the DUT sent, tap port 2 carries frames the switch sent. Each record carries a 28-octet envelope whose nanosecond word wraps every 2^32 ns. The decoder unwraps it against the capture host time. Records without a valid envelope are the capture host's own traffic and are excluded: 76 in Run A; 38, 0, 38, 45, 0 and 37 in step 3 cycles 1 to 6; 18 in the step 3 final capture; none in any other tap capture. Each of the 19 tcpdump logs in the packets, for tap and controller-host port captures alike, reports 0 dropped packets; the probe-window captures have no log.
 
 ## Methodology
 
@@ -146,7 +155,7 @@ from the tap clock, and the controller-host times are NTP times.
 | Census, start | 13:50:59 | binding and settings census, both AVB_INTERFACE counter blocks | no lock (no console) |
 | Attempt 1 (aborted) | 13:51:23 to 13:52:04 | a cycle whose console poller failed to start; the guard turned OUT4 back on after 6 s; not counted, see [Step 3](#step-3-gm-loss-and-return) | lock held 41 s |
 | Poll check | 13:52:59 to 13:53:04 | 5 s console poll at 0.1 s, liveness check; no power action | lock held 5 s |
-| Cycles 1 to 6 | 13:53:17 to 14:12:05 | each: tap capture, controller-host capture and watcher, 0.1 s console poll, OUT4 off for 20 s then on; cycles 4 to 6 hold a CRF binding | lock held 160 s (cycle 1), 120 s (2, 3), 125 s (4 to 6), released between cycles |
+| Cycles 1 to 6 | 13:53:17 to 14:12:05 | each: tap capture, a capture of the controller host's own port and its watcher, 0.1 s console poll, OUT4 off for 20 s then on; cycles 4 to 6 hold a CRF binding | lock held 160 s (cycle 1), 120 s (2, 3), 125 s (4 to 6), released between cycles |
 | Outlets, end | 14:12:29 | power-strip status read | lock held 0.5 s |
 | Census, end | 14:12:30 | binding and settings census | no lock (no console) |
 | Final 2 | 14:13:19 | 22 s tap capture; console read; UART grader | lock held 0.5 s |
@@ -167,7 +176,7 @@ server, the controller host and the power-strip host measured it 1.080 to
 1.085 s behind them. The best round trips were 0.2 to 0.4 ms, and the three
 NTP-synchronized hosts agreed within 1.5 ms. Tap records are placed on the
 capture server's clock by a straight line through the per-5 s minima of pcap
-host time minus tap time; the residual of the kept minima is at most 2.0 ms.
+host time minus tap time; the residual of the kept minima is at most 2.02 ms.
 All step 3 times are seconds after that cycle's outlet-off command on the
 build-box clock. A console sample carries its command's send time; a
 transition lies between two samples about 0.10 s apart, and the tables give
@@ -206,8 +215,19 @@ the tap-observed turnaround bound checked against the Milan 15 ms limit
 | Step 3 controller host | `a202_watch.py` `48c248b2...` (carrier, ADP, AECP polls, the bounded CRF binding), `census.sh` `d7912881...` |
 | Step 3 timebase and analysis | `clock_offset.py` `950533ca...`, `analyze_cycle.py` `bdd228a1...`, `summarize.py` `d6f53575...`, `census_compare.py` `40424c61...` |
 
-Full hashes are in the packet manifests listed under
-[Raw artifacts](#raw-artifacts).
+Full hashes of every packet script and of the enumerator source and binary
+are in the packet manifests (`MANIFEST.sha256` in each packet; see
+[Raw artifacts](#raw-artifacts)). Four of the hashes quoted above name files
+published only in redacted form: the enumerator binary `8c9f2885...` (local
+paths), and `run_cycle.sh` `45889a7d...`, `cycle_locked.sh` `c4ef8c9a...`
+and `analyze_cycle.py` `bdd228a1...` (local paths and bench-identifying
+strings). Three unquoted packet scripts, `run_a.sh`, `run_b.sh` and
+`run_c.sh`, are redacted the same way. The hashes here are of the
+files as run, and the evidence `MANIFEST.json` maps each to its published
+copy. The la_avdecc libraries and the counters probe are not in the packets.
+Full values for `95d64fd5...`, `ad579e18...` and `0e9faf30...` are on the
+[2026-09-08 record](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5584039577);
+`8ef4b008...` has no published full value.
 
 ## Step 2: asCapable, cadence and turnaround
 
@@ -247,8 +267,8 @@ return. The owner authorized that on 2026-09-23 and fixed the
 [recovery bound](../design/GM_LOSS_RECOVERY.md#recovery-bound): 5 s from the
 grandmaster's return to asCapable and sync, with media recovering within one
 further stream restart. Each cycle held the outlet off for 20 s, far past the
-3 s announce receipt timeout. Nothing was written to the DUT, and no
-priority1 was touched.
+3 s announce receipt timeout. No DUT CSR was written, and no priority1 was
+touched.
 
 The baseline is the Step 2 record: Sync at 125 ms, Announce and Pdelay at
 1 s, GM `3cc0c6fffefe0210`, peer delay 380 to 391 ns. Before every cycle the
@@ -302,7 +322,7 @@ it did not.
 ### Loss declaration
 
 - **DUT**, every cycle, from the console:
-  - Sync lost and `tu` set 0.40 to 0.46 s after the switch's last Sync on the wire, with `CLKV_STAT` bit 3 (holdover) for 0.3 s. The sample before read sync, so the edge lies 0.30 to 0.46 s after that Sync, around the 375 ms sync receipt timeout.
+  - Sync lost and `tu` set 0.40 to 0.46 s after the switch's last Sync on the wire, with `CLKV_STAT` bit 3 (holdover) set in 3 to 5 consecutive 0.1 s samples, 0.30 to 0.50 s from the first set sample to the first clear one. The sample before read sync, so the edge lies 0.30 to 0.46 s after that Sync, around the 375 ms sync receipt timeout.
   - GM identity replaced by its own, `020000fffe000001`, 3.01 to 3.08 s after the switch's last Announce, the 3 s announce receipt timeout. The parent followed, the path generation advanced by one, and the path count stayed 1.
   - asCapable cleared 5.0 to 5.1 s after the last Pdelay response the DUT received.
 - **Reference peer**: not observable while the switch is off. Its link is not tapped, and the controller host is inside the partition. Its GPTP_GM_CHANGED counter advanced by 2 in every cycle. In cycles 2 and 3 it still named its own clock, `3cc0c6fffe010203`, as grandmaster after the return: in GET_AVB_INFO at 38.16 and 38.15 s, and in ADP at 39.84 and 41.65 s.
@@ -315,9 +335,10 @@ the fabric plane publishes that choice while keeping sync false and `tu` set.
 In all six cycles, from the identity change until the switch returned:
 
 - GM and parent read `020000fffe000001`, path count 1. The first reachable GET_AS_PATH read `[020000fffe000001]`.
-- `SYNC=0`, `ASCAPABLE=0` from about 5 s, `TU=1`, holdover clear, and `CLKV_TUCNT` rising by one a second.
+- `SYNC=0`, `ASCAPABLE=0` from about 5 s, `TU=1`, and `CLKV_TUCNT` rising by one a second.
+- Holdover (`CLKV_STAT` bit 3) is set again at the identity change: 3 to 5 consecutive 0.1 s samples, 0.31 to 0.52 s from the first set sample to the first clear one, starting at the sample where GM first reads `020000fffe000001`. The clock-validity block arms it on any change of the published grandmaster identity. It is clear for the rest of the interval.
 - `LINKG_STAT` went from `0x83` to `0x03` 2.73 s after the last received frame (RX activity clear, both clocks alive), and back to `0x83` within one sample of the first frame after the return. `RST_EPOCH` stayed 1.
-- The switch's last frame reached the DUT link 0.63 to 0.73 s after the off. The tap then recorded nothing in either direction from 1.03 to 1.71 s until 37.55 to 38.57 s.
+- The switch's last frame reached the DUT link 0.63 to 0.73 s after the off. The DUT's own frames continued a little longer; the last record each time was one the DUT sent, in cycle 2 a Pdelay_Req at 1.75 s. The tap then recorded nothing in either direction from 1.03 to 1.75 s until 37.55 to 38.57 s.
 - When the link returned the DUT acted as master from becoming asCapable until it adopted the switch, 0.1 to 0.6 s later. In that window it sent 1 to 4 Sync and Follow_Up pairs as master in every cycle. In cycles 3 and 5 it also sent one Announce naming itself as grandmaster, priority1 248. The switch's Announce, priority1 246, then made its port a slave.
 
 ### Return and recovery
@@ -360,7 +381,7 @@ clock source stayed INTERNAL, as in Run B.
 
 | Phase | DUT: console and wire | Reference peer: controller |
 |---|---|---|
-| Before | Licensed, `CRFT_CTRL` `0x3002E3`. CRF at 500 PDU/s with `tu=0`, in the 15 s bursts of #530. | MEDIA_LOCKED, FRAMES_RX counting |
+| Before | Licensed, `CRFT_CTRL` `0x3002E3`. CRF at 500 PDU/s with `tu=0`, in the 15 s bursts of [#530](https://github.com/kebag-logic/milan-fpga/issues/530). | MEDIA_LOCKED, FRAMES_RX counting |
 | Loss | First `tu=1` PDU at 1.08, 1.07 and 1.00 s, each inside the console interval where `CLKV_STAT[0]` rose (1.06 to 1.17, 0.99 to 1.09 and 0.96 to 1.06 s). Then 316, 293 and 243 PDUs with `tu=1` until emission ended with the link at 1.71, 1.65 and 1.49 s. The licence dropped (`CRFT_CTRL` `0x3`) at 2.21, 5.23 and 1.89 s. | unreachable |
 | Absent | Idle, no emission. | unreachable; the binding was retained |
 | Return | Relicensed at 41.25, 42.92 and 41.45 s, 0.83, 2.38 and 0.72 s after the DUT was all-good. The first PDU, at 41.28, 42.96 and 41.46 s, and every later one carried `tu=0`. STREAM_START +1. | First poll, 38.2 to 38.8 s: MEDIA_UNLOCKED and STREAM_INTERRUPTED counted once, FRAMES_RX frozen. The ACMP talker-registration failure flag (`0x0040`) was set once, at 41.6 to 41.8 s in cycles 4 and 6, and clear 3 s later. MEDIA_LOCKED again at the polls at 44.80, 43.16 and 44.64 s. |
@@ -372,7 +393,10 @@ PDU after it already carried `tu=0`, and the listener locked by the next poll.
 ### Verdict
 
 - DUT recovery: PASS in six of six cycles, 0.43 to 1.60 s against the 5 s bound.
-- Automatic: PASS. The DUT received read-only AECP queries only: no CSR write, no reset, no gPTP setting.
+- Automatic: PASS. No CSR write, no reset and no gPTP setting reached the DUT.
+  - The console carried reads only: 38,954 `milan_status`, `mem_read`, `mem_list` and `crc` commands in the 14 console transcripts of both packets, and no other command.
+  - In step 3 the controller sent the DUT read-only AECP commands (READ_DESCRIPTOR and GET commands) and ACMP GET_TX_STATE and GET_RX_STATE.
+  - In cycles 4 to 6 the operator bound the reference listener 28 s before each outage and unbound it about 110 s after the off. The listener's ACMP CONNECT_TX probes reached the DUT before the loss and after the return, none between the loss and the DUT's recovery. The first after each return came at 41.28, 42.96 and 41.46 s, after the DUT was all-good, and the first CRF PDU followed it.
 - Media: PASS, one stream restart per return.
 - Reference peer's recovery time: NOT RUN; the switch's return on the peer's link is not observable on this bench.
 
@@ -398,7 +422,7 @@ in the [register map](../reference/REGISTER_MAP.md).
 - **The `tu` bit on the wire.** The DUT emits AVTP only for a licensed stream, so Run B bound the reference peer's primary CRF input (its clock source stayed INTERNAL) to the DUT's CRF output for 60 s. The DUT sent 34,061 CRF PDUs between 13:04:49.297 and 13:05:59.198 UTC, every one with `tu=0`, while `CLKV_STAT[0]` read 0 in all 53 samples. The peer, as listener, counted MEDIA_LOCKED 1, FRAMES_RX 26,646, TIMESTAMP_VALID 26,646 and TIMESTAMP_UNCERTAIN 0.
 - **Why "fabric-owned".**
   - The firmware only reads these words. The register map declares them read-only live with inert writes.
-  - No software gPTP owner exists on the image.
+  - The firmware has no gPTP message handling or best-master selection of its own; the fabric does both.
   - Each word tracks the wire it summarizes.
 - **Timescale.** A coarse check put the DUT PHC minus grandmaster time at -0.072 s at each Run A console read. It was constant within 2 ms over 5 minutes, which is inside the 0.3 s host-clock uncertainty: the PHC runs on the grandmaster's timescale and rate.
 - **Transition.** The steady state above is one half. The grandmaster-change half, `tu` asserting on sync loss and the publication following each new grandmaster, is below.
@@ -413,9 +437,9 @@ are seconds after the outlet-off command, as in
 | Transition | Console CSR | Wire | Controller |
 |---|---|---|---|
 | Sync loss | `CLKV_STAT` sync 0, `tu` 1 and holdover (bit 3) set, 0.40 to 0.46 s after the switch's last Sync | the switch's last Sync; in cycles 4 to 6 the first CRF PDU with `tu=1` falls inside the console interval where `CLKV_STAT[0]` rose | inside the partition |
-| Grandmaster loss | `0x624`/`0x628` and `0x730`/`0x734` read `020000fffe000001` 3.01 to 3.08 s after the switch's last Announce; `ASP_CMD` generation +1, count 1 | the switch's last Announce; the DUT sent no ADPDU while its link was dark | the first reachable GET_AVB_INFO, every cycle, names `020000fffe000001` with AS_CAPABLE clear; GET_AS_PATH `[020000fffe000001]` |
+| Grandmaster loss | `0x624`/`0x628` and `0x730`/`0x734` read `020000fffe000001` 3.01 to 3.08 s after the switch's last Announce; `ASP_CMD` generation +1, count 1; holdover (bit 3) set again for 0.31 to 0.52 s from that sample | the switch's last Announce; the DUT sent no ADPDU while its link was dark | the first reachable GET_AVB_INFO, every cycle, names `020000fffe000001` with AS_CAPABLE clear; GET_AS_PATH `[020000fffe000001]` |
 | asCapable loss | `CLKV_STAT[16]` 0 at 5.0 to 5.1 s after the last Pdelay response the DUT received | that response | AS_CAPABLE clear at the first reachable poll |
-| asCapable return | `CLKV_STAT[16]` 1 at 38.78 to 39.91 s | after the DUT's first Pdelay exchanges with the switch | AS_CAPABLE set while GM is still `020000fffe000001`, seen in cycles 1, 3 and 6 |
+| asCapable return | `CLKV_STAT[16]` 1 at 38.78 to 39.91 s, with `GPTP_PDELAY` 377 to 389 ns | within one sample of the DUT's second completed Pdelay exchange with the switch, 1.03 to 1.64 s after the switch's first frame on the DUT link | AS_CAPABLE set while GM is still `020000fffe000001`, seen in cycles 1, 3 and 6 |
 | Grandmaster return | GM and parent read `3cc0c6fffefe0210` within one sample of the Announce the DUT accepted (0 to 74 ms after it); generation +1, count 1; holdover set | Announce from `3cc0c6fffefe0210`, priority1 246, PathTrace `[3cc0c6fffefe0210]` | GET_AVB_INFO names the switch at the next poll; GET_AS_PATH `[3cc0c6fffefe0210]`; GPTP_GM_CHANGED +2 per cycle, one per identity edge in the CSR; the DUT's next ADPDU names the switch, 0.54 to 2.56 s after adoption |
 | `tu` clear | `CLKV_STAT[0]` 0 at 0.41 to 0.52 s after adoption | in cycles 4 to 6 emission resumes only after that, every PDU with `tu=0` | Stream Output 1 TIMESTAMP_UNCERTAIN had counted the loss (2, 5 and 2) |
 | `tu` intervals | `CLKV_TUCNT` +40, +39, +41, +40, +40 and +41: the 1 s intervals of a 38.5 to 39.7 s span with `tu=1` | none | not served |
@@ -424,7 +448,7 @@ are seconds after the outlet-off command, as in
   - Each identity edge in the CSRs matched the wire's timeout or the accepted Announce within one console sample.
   - The controller view agreed at its next poll.
   - The `tu` bit on the wire agreed with `CLKV_STAT[0]` at the loss edge and after the return.
-  - Nothing wrote to the DUT.
+  - Nothing wrote a DUT CSR.
 - **Limit.** The wire shows `tu=1` only at the loss edge. The stream stops with the link and restarts after `tu` has cleared, so no return-edge `tu` transition reaches the wire. The loss edge is bounded by the 0.1 s console interval, not better.
 
 ## Step 5: controller discovery and enumeration
@@ -440,38 +464,45 @@ are seconds after the outlet-off command, as in
 | Hive | NOT RUN: needs an interactive desktop |
 | behave against hardware | NOT RUN: [tests/README.md](../../tests/README.md) defines the suite as offline only, with no hardware tier |
 
-- **Why Milan was downgraded.** The failing descriptor is Stream Input 1, the CRF media-clock input: its GET_COUNTERS returns `counters_valid` 0. The register map already records this CRF Stream Input counter gap with closure criteria. The DUT's GET_MILAN_INFO reports protocol version 1, `certification_version` 0.0.0.0 and specification 1.2.0.0.
+- **Why Milan was downgraded.** The failing descriptor is Stream Input 1, the CRF media-clock input: its GET_COUNTERS returns `counters_valid` 0. The register map already records this CRF Stream Input counter gap with closure criteria, and [#529](https://github.com/kebag-logic/milan-fpga/issues/529) tracks closing it. The DUT's GET_MILAN_INFO reports protocol version 1, `certification_version` 0.0.0.0 and specification 1.2.0.0.
 - **Controller registration.** la_avdecc registered for unsolicited notifications at 13:10:47.0 and deregistered at 13:11:26.5 UTC. The DUT answered both with SUCCESS, and its `CTLR_DIAG` still read 0 at 13:13 UTC, so no controller was left for it to evict.
 
 ## Observations outside the acceptance boxes
 
-These are measured facts that no acceptance box of #117 covers. Items 1 to 6
-each need their own issue; none is assigned a cause here.
+These are measured facts that no acceptance box of #117 covers, and none is
+assigned a cause here. Items 1 to 3 are tracked in
+[#530](https://github.com/kebag-logic/milan-fpga/issues/530). Items 4 to 6
+are recorded on the
+[#495](https://github.com/kebag-logic/milan-fpga/issues/495) review-leftover
+checklist, not as new issues.
 
-1. **The DUT's CRF talker ends its own bursts while the listener stays bound.** Run B has four bursts: 19.67 s, 18.45 s, 15.00 s and 15.00 s. At each end the DUT stops emitting, sends an MSRP TalkerAdvertise Leave 10 to 166 ms later, and the switch withdraws the Listener about 2 ms after that. The reference listener then re-probes (ACMP CONNECT_TX) and emission resumes 0.3 to 0.7 ms after the DUT's probe response. The pauses last 1,106 ms, 578 ms and 148 ms, with no sequence gap. Three of the four ends fall 15.00 s (plus or minus 2 ms) after the latest successful probe response. That includes the last, which came 9.95 s after the unbind had already withdrawn the Listener.
-2. **The first CRF burst started before any reservation existed.** The DUT answered the first probe with TALKER_DEST_MAC_FAIL (status 3) and began emitting 0.18 ms later. The first Listener Ready reached it 4.7 s after that.
-3. **Stream Output 1 FRAMES_TX reads 16.** The wire and `CRFT_COUNT` both show 34,061 PDUs. STREAM_START and STREAM_STOP (4 each) and TIMESTAMP_UNCERTAIN (0) do agree with the wire.
-4. **The DUT sends one unsolicited GET_AVB_INFO per second to a registered controller.** Each carries a propagation delay a few nanoseconds away from the last: 33 in 40 s, with no two consecutive values equal. This is the documented design (register map, `VERSION` `0x0055` notes), recorded here for controller-load review.
-5. **The bench AVB switch requests an IPv4 address by DHCP every 15 s on the AVB segment, and nothing answers.**
-6. **The bench AVB switch answered two of the DUT's Pdelay requests after 18.33 and 18.36 ms (Run A).** That is over the 15 ms limit on its side. Its other 568 answers took at most 0.88 ms. The DUT completed both exchanges, and its published peer delay did not move outside 380 to 391 ns.
+1. **The DUT's CRF talker ends its own bursts while the listener stays bound.** Run B has four bursts: 19.67 s, 18.45 s, 15.00 s and 15.00 s. At each end the DUT stops emitting, sends an MSRP TalkerAdvertise Leave 10 to 166 ms later, and the switch withdraws the Listener about 2 ms after that. The reference listener then re-probes (ACMP CONNECT_TX) and emission resumes 0.3 to 0.7 ms after the DUT's probe response. The pauses last 1,106 ms, 578 ms and 148 ms, with no sequence gap. Three of the four ends fall 15.00 s (plus or minus 2 ms) after the latest successful probe response. That includes the last, which came 9.95 s after the unbind had already withdrawn the Listener. Tracked in [#530](https://github.com/kebag-logic/milan-fpga/issues/530), item 1.
+2. **The first CRF burst started before any reservation existed.** The DUT answered the first probe with TALKER_DEST_MAC_FAIL (status 3) and began emitting 0.18 ms later. The first Listener Ready reached it 4.7 s after that. Tracked in [#530](https://github.com/kebag-logic/milan-fpga/issues/530), item 2.
+3. **Stream Output 1 FRAMES_TX reads 16.** The wire and `CRFT_COUNT` both show 34,061 PDUs. STREAM_START and STREAM_STOP (4 each) and TIMESTAMP_UNCERTAIN (0) do agree with the wire. Tracked in [#530](https://github.com/kebag-logic/milan-fpga/issues/530), item 3.
+4. **The DUT sends one unsolicited GET_AVB_INFO per second to a registered controller.** Each carries a propagation delay a few nanoseconds away from the last: 33 in 40 s, with no two consecutive values equal. This is the documented design (register map, `VERSION` `0x0055` notes); the rate is recorded on the [#495](https://github.com/kebag-logic/milan-fpga/issues/495) checklist for controller-load review.
+5. **The bench AVB switch requests an IPv4 address by DHCP every 15 s on the AVB segment, and nothing answers.** Recorded on the [#495](https://github.com/kebag-logic/milan-fpga/issues/495) checklist.
+6. **The bench AVB switch answered two of the DUT's Pdelay requests after 18.33 and 18.36 ms (Run A).** That is over the 15 ms limit on its side. Its other 568 answers took at most 0.88 ms. The DUT completed both exchanges, and its published peer delay did not move outside 380 to 391 ns. Recorded on the [#495](https://github.com/kebag-logic/milan-fpga/issues/495) checklist.
 
-Items 7 to 12 come from the step 3 cycles. Items 8 to 10 concern the DUT and
-each need their own issue, with no cause assigned. Items 7, 11 and 12 are
-facts about the switch or the reference peer: they bound what the evidence
-can show rather than asking for DUT work.
+Items 7 to 12 come from the step 3 cycles. Item 9 extends item 3 and is
+tracked with it in [#530](https://github.com/kebag-logic/milan-fpga/issues/530).
+Items 8 and 10 concern the DUT and have no issue. This evidence does not show
+either to be a defect: whether the DUT's PHY link dropped behind the tap is
+not recorded (item 8), and item 10 records timing without naming a rule it
+breaks. Items 7, 11 and 12 are facts about the switch or the reference peer:
+they bound what the evidence can show rather than asking for DUT work.
 
 7. **The switch's gPTP time restarts from the same origin at every power-on.** Each return stepped the DUT's PHC by minus the time since the switch's previous power-on: -128.5, -355.9, -163.3, -154.5, -180.3 and -154.1 s. Each equals the interval between the two "on" commands within 0.04 s. The holdover and `tu` covered every step.
 8. **Neither end station's AVB_INTERFACE LINK_UP or LINK_DOWN counter moved over seven switch outages.** The DUT read 1 and 0, and the peer 1 and 0, at both censuses, while GPTP_GM_CHANGED advanced by 14 on both. The tap showed the DUT link silent for 36 to 37 s each time; whether the DUT's PHY link dropped is not recorded.
-9. **The DUT's Stream Output 1 TIMESTAMP_UNCERTAIN and FRAMES_TX restart at each STREAM_START.** TIMESTAMP_UNCERTAIN read 2, 5 and 2 after the three bound losses and 0 after the next STREAM_START. FRAMES_TX rose by one per 1 s poll during emission and returned to 0 at each STREAM_START. STREAM_START and STREAM_STOP kept counting, from 4 at the start census to 25 at the end. This extends item 3.
+9. **The DUT's Stream Output 1 TIMESTAMP_UNCERTAIN and FRAMES_TX restart at each STREAM_START.** TIMESTAMP_UNCERTAIN read 2, 5 and 2 after the three bound losses and 0 after the next STREAM_START. FRAMES_TX rose by one per 1 s poll during emission and returned to 0 at each STREAM_START. STREAM_START and STREAM_STOP kept counting, from 4 at the start census to 25 at the end. This extends item 3 and is tracked with it in [#530](https://github.com/kebag-logic/milan-fpga/issues/530).
 10. **The DUT never put its own identity on the wire in an ADPDU.** While it was its own grandmaster its link was dark, except for the 1.3 to 2.1 s between the link's return and its adoption of the switch, in which it sent no ADPDU. Its first ADPDU after each return already named the switch, 0.54 to 2.56 s after the adoption. This is recorded for the re-advertise-on-change path.
 11. **In cycles 2 and 3 the reference peer named itself as grandmaster until 46.6 s, 7.6 s after the switch's first Announce reached the DUT link.** In the other four cycles it named the switch at its first reachable poll, before that Announce. The switch's Announce onto the peer's own link is not tapped, so this is not a recovery time.
 12. **The reference peer resets its Stream Input counters when bound, and MEDIA_LOCKED, MEDIA_UNLOCKED and STREAM_INTERRUPTED again at each stream restart.** Each bind started the block at 0. In every bound cycle those three counters returned to 0 at the restart after the return, while FRAMES_RX kept counting. Its stream counters therefore cannot show a peer restart; its available_index and GPTP_GM_CHANGED do.
 
-The Run B timeline with tap-clock times is in the packet (`stream-timeline.txt`).
+The Run B timeline with tap-clock times is in the A200 packet (`bench/runB/stream-timeline.txt`).
 
 ## Bench state restored
 
-- **Bindings.** The binding census after the runs matches the one before them for all 18 states read: peer Stream Inputs 0 to 9, peer Stream Outputs 0 to 3, DUT Stream Inputs 0 and 1, and DUT Stream Outputs 0 and 1. All are unbound, with connection count 0.
+- **Bindings.** The binding census after the runs agrees with the one before them on all 18 ACMP states read: peer Stream Inputs 0 to 9, peer Stream Outputs 0 to 3, DUT Stream Inputs 0 and 1, and DUT Stream Outputs 0 and 1. All are unbound, with connection count 0. One field differs: the DUT's Stream Output 1 GET_TX_STATE `stream_dest_mac` read `00:00:00:00:00:00` before and `91:e0:f0:00:8d:6f` after, the destination address of Run B's 34,061 CRF PDUs.
 - **Peer settings.** Configuration 0, sampling rate 96 kHz, clock source 0 (INTERNAL), CRF input format `041060010000bb80`, the same firmware hash and the same descriptor bytes. The only difference is the reserved half-word ahead of each descriptor, which the peer fills with varying values.
 - **Run B cleanup.** The Run B unbind succeeded on its first attempt. The DUT's `CRFT_CTRL` returned to `0x3`, and the final capture carries no AVTP stream.
 - **DUT.** 10 of 10 on the grader at 13:13 UTC, same GM, `CLKV_STAT` `0x00010002`, drop counters 0, `LINKG_STAT` `0x83`, `RST_EPOCH` 1.
@@ -493,16 +524,25 @@ The Run B timeline with tap-clock times is in the packet (`stream-timeline.txt`)
 - **B1. No permitted way to induce GM loss and return.** RESOLVED on 2026-09-23: the owner [authorized](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5795898094) power-cycling the switch's outlet under the bench lock, which is the repository's own procedure, the physical checklist entry `phys.switch-cycle.gm-partition` of [`tb/tools/torture_campaign.py`](../../tb/tools/torture_campaign.py). Step 3 ran that way. The facts that made it a blocker still hold:
   - The grandmaster is the bench AVB switch, not the reference peer. The peer is a slave in the same domain.
   - The peer's AEM exposes a single CONTROL, IDENTIFY (control type `90E0F00000000001`). AVDECC defines no command that changes gPTP priority.
-  - The switch has no AVDECC entity and no address on the AVB segment, and no management path or credentials are provisioned on any bench host.
+  - The switch has no AVDECC entity. After power-on it self-assigns an IPv4 link-local address on the AVB segment (ARP probe and announcement), sources IGMP from that and from a second IPv4 address, and advertises a TCP control service by DNS-SD. No management credentials are provisioned on any bench host, and that service was not used.
 - **B2. No numeric recovery bound is documented.** RESOLVED on 2026-09-23: the owner fixed 5 s from the grandmaster's return to asCapable and sync, with media recovering within one further stream restart. It is recorded with its derivation in [GM loss and recovery](../design/GM_LOSS_RECOVERY.md#recovery-bound).
-- **B3. The switch's firmware identity is not readable.** It has no AVDECC entity and no management path. Its Announce fields above are its only recorded identity.
+- **B3. The switch's firmware identity.** RESOLVED on 2026-09-23: it is readable from the switch's DNS-SD self-advertisement, captured in every A202 cycle. The archive masks it with the switch's other identity fields under CONTRIBUTING section 6, and the private bench packets keep the value. The Announce fields above are the identity this page quotes.
 - **B4. Hive needs an interactive desktop session on the controller host.**
 
 ## Raw artifacts
 
-Raw artifacts are kept in two private bench packets, each with a per-file
-SHA-256 manifest. The primary ones for steps 2, 4 (steady state) and 5, in
-`117-a200-packet`:
+Both bench packets are published on the branch `117-review-evidence`, pinned
+at commit `bb8c690f8487c202f2f53dbcba2b84dc4c36df73`:
+[`review-evidence/117-r1`](https://github.com/kebag-logic/milan-fpga/tree/bb8c690f8487c202f2f53dbcba2b84dc4c36df73/review-evidence/117-r1),
+with the A200 packet in `bench-a200/` and the A202 packet in `bench-a202/`.
+
+- Each packet carries its own per-file SHA-256 manifest, `MANIFEST.sha256`.
+- 77 files are published redacted under CONTRIBUTING section 6. Six carry only local paths. The other 71 also have bench-identifying strings masked: the reference peer's identity fields (entity name, group name, serial number and firmware string, in text and in hex payloads), equipment vendor and product names, the bench switch's host name, serial and DNS-SD self-advertisement (vendor-namespaced keys, unit and remote identifiers, firmware version), bench host names with the bench prefix, the capture server's own host name (in its DHCP and mDNS traffic), MAC-derived interface names and whole USB by-id names. Short host role names, generic capture interface names, the capture tap's product name and protocol identifiers (MAC addresses, EUI-64 clock identities, entity IDs and entity model IDs, whose OUI names a manufacturer) stay, as elsewhere in the repository. Captures are masked length-preserving, so they still parse.
+- `MANIFEST.json` at the same commit gives each file's original and published SHA-256. A packet's `MANIFEST.sha256` lists the files as recorded, so `sha256sum -c` reports the redacted ones (20 in the A200 packet, 57 in the A202 packet) as FAILED by design; check those against `MANIFEST.json`.
+- Every hash in the two tables below is of a file as recorded, and each one names a file at that commit. 29 of them name files published only in redacted form: all 18 captures, six cycle analyses, the three census files, the DUT's Run C entity dump and the attempt 1 lock log. `MANIFEST.json` maps each to its published copy.
+
+The primary ones for steps 2, 4 (steady state) and 5, in the A200 packet
+(`117-a200-packet`):
 
 | Artifact | SHA-256 |
 |---|---|
@@ -529,7 +569,7 @@ SHA-256 manifest. The primary ones for steps 2, 4 (steady state) and 5, in
 | binding census, end | `1a0e025cc565e48e2bc2bc47df272f406e52cf85d622fb4dfcfdf6ec07d3acbf` |
 
 The primary ones for step 3 and the grandmaster-change half of step 4, in
-`117-a202-packet`:
+the A202 packet (`117-a202-packet`):
 
 | Artifact | SHA-256 |
 |---|---|
