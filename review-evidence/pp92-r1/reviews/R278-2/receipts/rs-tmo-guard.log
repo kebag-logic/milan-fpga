@@ -1,0 +1,408 @@
+### $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator --lint-only -Wall -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM --top-module KL_acmp_nvm_shadow -GRS_TMO_CYC_P=0 $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/KL_acmp_nvm_shadow.sv
+%Warning-USERERROR: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/KL_acmp_nvm_shadow.sv:502:5: KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1
+                                                                                                             : ... note: In instance 'KL_acmp_nvm_shadow'
+  502 |     $error("KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1");
+      |     ^~~~~~
+                    ... For warning description see https://verilator.org/warn/USERERROR?v=5.050
+                    ... Use "/* verilator lint_off USERERROR */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)
+exit=1
+### $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator --lint-only -Wall -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM --top-module KL_acmp_nvm_shadow -GRS_TMO_CYC_P=1 $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/KL_acmp_nvm_shadow.sv
+%Warning-UNSIGNED: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/KL_acmp_nvm_shadow.sv:517:46: Comparison is constant due to unsigned arithmetic
+                                                                                                             : ... note: In instance 'KL_acmp_nvm_shadow'
+  517 |   assign rs_tmo_w   = rs_stall_w && (rs_wd_r >= 32'(RS_TMO_CYC_P - 1));
+      |                                              ^~
+                   ... For warning description see https://verilator.org/warn/UNSIGNED?v=5.050
+                   ... Use "/* verilator lint_off UNSIGNED */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)
+exit=1
+### $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator --lint-only -Wall -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM --top-module KL_acmp_nvm_shadow -GRS_TMO_CYC_P=3000 $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/KL_acmp_nvm_shadow.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.160 MB sources in 4 modules, into 0.124 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.028 s (elab=0.004, cvt=0.015, bld=0.000); cpu 0.028 s on 1 threads; allocated 20.410 MB
+exit=0
+501:  if (1'b0) begin : g_rs_tmo_check
+### $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator --lint-only -Wall -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM --top-module KL_acmp_nvm_shadow -GRS_TMO_CYC_P=0 $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv $REVIEWS/pp92-r278-2-packet/scratch/guard-del/KL_acmp_nvm_shadow.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.160 MB sources in 4 modules, into 0.124 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.029 s (elab=0.004, cvt=0.014, bld=0.000); cpu 0.028 s on 1 threads; allocated 20.531 MB
+exit=0
+### $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator --lint-only -Wall -Wno-fatal --top-module KL_acmp_nvm_shadow -GRS_TMO_CYC_P=0 $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/KL_acmp_nvm_shadow.sv
+%Warning-USERERROR: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/KL_acmp_nvm_shadow.sv:502:5: KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1
+                                                                                                             : ... note: In instance 'KL_acmp_nvm_shadow'
+  502 |     $error("KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1");
+      |     ^~~~~~
+                    ... For warning description see https://verilator.org/warn/USERERROR?v=5.050
+                    ... Use "/* verilator lint_off USERERROR */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/KL_acmp_nvm_shadow.sv:276:14: Bits of signal are not used: 'cap_rec_w'[383:192,127:112,31:14,10:0]
+                                                                                                                 : ... note: In instance 'KL_acmp_nvm_shadow'
+  276 |   acmp_rec_t cap_rec_w;
+      |              ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.050
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:75:26: Parameter is not used: 'PP_SLOT_NULL_C'
+                                                                                                     : ... note: In instance 'KL_acmp_nvm_shadow'
+   75 |   localparam logic [2:0] PP_SLOT_NULL_C   = 3'd7;
+      |                          ^~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/UNUSEDPARAM?v=5.050
+                      ... Use "/* verilator lint_off UNUSEDPARAM */" and lint_on around source to disable this message.
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:76:26: Parameter is not used: 'PP_TX_OVERSIZE_C'
+                                                                                                     : ... note: In instance 'KL_acmp_nvm_shadow'
+   76 |   localparam logic [2:0] PP_TX_OVERSIZE_C = 3'd4;
+      |                          ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:111:27: Parameter is not used: 'PP_TXN_W_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  111 |   localparam int unsigned PP_TXN_W_C = $bits(pp_txn_t);   
+      |                           ^~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:118:27: Parameter is not used: 'PP_TIMER_SLOT_DW_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  118 |   localparam int unsigned PP_TIMER_SLOT_DW_C = PP_TIMER_OWNER_W_C + 32;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:222:20: Bits of function variable are not used: 'm'[415:160,127:32]
+                                                                                                       : ... note: In instance 'KL_acmp_nvm_shadow'
+  222 |     pp_timer_map_t m;
+      |                    ^
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:228:27: Parameter is not used: 'PP_TIMER_SLOTS_BASE_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  228 |   localparam int unsigned PP_TIMER_SLOTS_BASE_C =
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:231:27: Parameter is not used: 'PP_TIMER_SLOTS_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  231 |   localparam int unsigned PP_TIMER_SLOTS_C =
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:243:26: Parameter is not used: 'PP_OWN_LSTN_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  243 |   localparam logic [7:0] PP_OWN_LSTN_C    = 8'h20;   
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:244:26: Parameter is not used: 'PP_OWN_SRP_TK_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  244 |   localparam logic [7:0] PP_OWN_SRP_TK_C  = 8'h40;   
+      |                          ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:245:26: Parameter is not used: 'PP_OWN_TKR_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  245 |   localparam logic [7:0] PP_OWN_TKR_C     = 8'h50;   
+      |                          ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:246:26: Parameter is not used: 'PP_OWN_SRP_LS_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  246 |   localparam logic [7:0] PP_OWN_SRP_LS_C  = 8'h60;   
+      |                          ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:247:26: Parameter is not used: 'PP_OWN_SRP_CAD_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  247 |   localparam logic [7:0] PP_OWN_SRP_CAD_C = 8'h80;   
+      |                          ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:248:26: Parameter is not used: 'PP_OWN_MAAP_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  248 |   localparam logic [7:0] PP_OWN_MAAP_C    = 8'h90;   
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:249:26: Parameter is not used: 'PP_OWN_NTFY_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  249 |   localparam logic [7:0] PP_OWN_NTFY_C    = 8'hA0;   
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:250:26: Parameter is not used: 'PP_OWN_LOCK_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  250 |   localparam logic [7:0] PP_OWN_LOCK_C    = 8'hB0;   
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:252:26: Parameter is not used: 'PP_OWN_CMON_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  252 |   localparam logic [7:0] PP_OWN_CMON_C    = 8'hD0;   
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:259:26: Parameter is not used: 'PP_UNS_DEREG_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  259 |   localparam logic [3:0] PP_UNS_DEREG_C = 4'd0;   
+      |                          ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:260:26: Parameter is not used: 'PP_UNS_LOCK_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  260 |   localparam logic [3:0] PP_UNS_LOCK_C  = 4'd1;   
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:261:26: Parameter is not used: 'PP_UNS_STRI_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  261 |   localparam logic [3:0] PP_UNS_STRI_C  = 4'd2;   
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:262:26: Parameter is not used: 'PP_UNS_AVB_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  262 |   localparam logic [3:0] PP_UNS_AVB_C   = 4'd3;   
+      |                          ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:263:26: Parameter is not used: 'PP_UNS_ASP_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  263 |   localparam logic [3:0] PP_UNS_ASP_C   = 4'd4;   
+      |                          ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:264:26: Parameter is not used: 'PP_UNS_AMAP_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  264 |   localparam logic [3:0] PP_UNS_AMAP_C  = 4'd5;   
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:265:26: Parameter is not used: 'PP_UNS_CTRS_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  265 |   localparam logic [3:0] PP_UNS_CTRS_C  = 4'd6;   
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:266:26: Parameter is not used: 'PP_UNS_SRATE_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  266 |   localparam logic [3:0] PP_UNS_SRATE_C = 4'd7;   
+      |                          ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:267:26: Parameter is not used: 'PP_UNS_NAME_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  267 |   localparam logic [3:0] PP_UNS_NAME_C  = 4'd8;   
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:268:26: Parameter is not used: 'PP_UNS_CFG_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  268 |   localparam logic [3:0] PP_UNS_CFG_C   = 4'd9;   
+      |                          ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:269:26: Parameter is not used: 'PP_UNS_SFMT_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  269 |   localparam logic [3:0] PP_UNS_SFMT_C  = 4'd10;  
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:270:26: Parameter is not used: 'PP_UNS_SINFO_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  270 |   localparam logic [3:0] PP_UNS_SINFO_C = 4'd11;  
+      |                          ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:271:26: Parameter is not used: 'PP_UNS_CTRL_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  271 |   localparam logic [3:0] PP_UNS_CTRL_C  = 4'd12;  
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:272:26: Parameter is not used: 'PP_UNS_CLKS_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  272 |   localparam logic [3:0] PP_UNS_CLKS_C  = 4'd13;  
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv:273:26: Parameter is not used: 'PP_UNS_STRM_C'
+                                                                                                      : ... note: In instance 'KL_acmp_nvm_shadow'
+  273 |   localparam logic [3:0] PP_UNS_STRM_C  = 4'd14;  
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:65:27: Parameter is not used: 'TROM_W_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   65 |   localparam int unsigned TROM_W_C     = 32;
+      |                           ^~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:66:27: Parameter is not used: 'TROM_AW_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   66 |   localparam int unsigned TROM_AW_C    = 7;
+      |                           ^~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:67:27: Parameter is not used: 'TROM_DEPTH_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   67 |   localparam int unsigned TROM_DEPTH_C = 128;
+      |                           ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:70:27: Parameter is not used: 'TROM_NEXT_LSB_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   70 |   localparam int unsigned TROM_NEXT_LSB_C = 0;    
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:71:27: Parameter is not used: 'TROM_ACT_LSB_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   71 |   localparam int unsigned TROM_ACT_LSB_C  = 3;    
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:72:27: Parameter is not used: 'TROM_VALID_B_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   72 |   localparam int unsigned TROM_VALID_B_C  = 20;   
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:73:27: Parameter is not used: 'TROM_IGN_B_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   73 |   localparam int unsigned TROM_IGN_B_C    = 21;   
+      |                           ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:74:27: Parameter is not used: 'TROM_COND_B_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   74 |   localparam int unsigned TROM_COND_B_C   = 22;   
+      |                           ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:79:27: Parameter is not used: 'ACT_A1_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   79 |   localparam int unsigned ACT_A1_C  = 0;    
+      |                           ^~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:80:27: Parameter is not used: 'ACT_A2_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   80 |   localparam int unsigned ACT_A2_C  = 1;    
+      |                           ^~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:81:27: Parameter is not used: 'ACT_A3_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   81 |   localparam int unsigned ACT_A3_C  = 2;    
+      |                           ^~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:82:27: Parameter is not used: 'ACT_A4_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   82 |   localparam int unsigned ACT_A4_C  = 3;    
+      |                           ^~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:83:27: Parameter is not used: 'ACT_A5_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   83 |   localparam int unsigned ACT_A5_C  = 4;    
+      |                           ^~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:84:27: Parameter is not used: 'ACT_A6_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   84 |   localparam int unsigned ACT_A6_C  = 5;    
+      |                           ^~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:85:27: Parameter is not used: 'ACT_A7_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   85 |   localparam int unsigned ACT_A7_C  = 6;    
+      |                           ^~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:86:27: Parameter is not used: 'ACT_A8_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   86 |   localparam int unsigned ACT_A8_C  = 7;    
+      |                           ^~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:87:27: Parameter is not used: 'ACT_A9_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   87 |   localparam int unsigned ACT_A9_C  = 8;    
+      |                           ^~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:88:27: Parameter is not used: 'ACT_A10_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   88 |   localparam int unsigned ACT_A10_C = 9;    
+      |                           ^~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:89:27: Parameter is not used: 'ACT_A11_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   89 |   localparam int unsigned ACT_A11_C = 10;   
+      |                           ^~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:90:27: Parameter is not used: 'ACT_A12_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   90 |   localparam int unsigned ACT_A12_C = 11;   
+      |                           ^~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:91:27: Parameter is not used: 'ACT_A13_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   91 |   localparam int unsigned ACT_A13_C = 12;   
+      |                           ^~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:92:27: Parameter is not used: 'ACT_A14_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   92 |   localparam int unsigned ACT_A14_C = 13;   
+      |                           ^~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:93:27: Parameter is not used: 'ACT_A15_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   93 |   localparam int unsigned ACT_A15_C = 14;   
+      |                           ^~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:94:27: Parameter is not used: 'ACT_A16_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   94 |   localparam int unsigned ACT_A16_C = 15;   
+      |                           ^~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:95:27: Parameter is not used: 'ACT_A17_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   95 |   localparam int unsigned ACT_A17_C = 16;   
+      |                           ^~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:98:26: Parameter is not used: 'TK_KIND_DISC_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   98 |   localparam logic [1:0] TK_KIND_DISC_C  = 2'd0;   
+      |                          ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:99:26: Parameter is not used: 'TK_KIND_DEP_C'
+                                                                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+   99 |   localparam logic [1:0] TK_KIND_DEP_C   = 2'd1;   
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:100:26: Parameter is not used: 'TK_KIND_REG_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  100 |   localparam logic [1:0] TK_KIND_REG_C   = 2'd2;   
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:101:26: Parameter is not used: 'TK_KIND_UNREG_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  101 |   localparam logic [1:0] TK_KIND_UNREG_C = 2'd3;   
+      |                          ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:104:26: Parameter is not used: 'PB_DISABLED_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  104 |   localparam logic [2:0] PB_DISABLED_C  = 3'd0;
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:105:26: Parameter is not used: 'PB_PASSIVE_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  105 |   localparam logic [2:0] PB_PASSIVE_C   = 3'd1;
+      |                          ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:106:26: Parameter is not used: 'PB_ACTIVE_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  106 |   localparam logic [2:0] PB_ACTIVE_C    = 3'd2;
+      |                          ^~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:107:26: Parameter is not used: 'PB_COMPLETED_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  107 |   localparam logic [2:0] PB_COMPLETED_C = 3'd3;
+      |                          ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:110:26: Parameter is not used: 'AMSG_PROBE_TX_CMD_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  110 |   localparam logic [3:0] AMSG_PROBE_TX_CMD_C     = 4'd0;
+      |                          ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:111:26: Parameter is not used: 'AMSG_PROBE_TX_RESP_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  111 |   localparam logic [3:0] AMSG_PROBE_TX_RESP_C    = 4'd1;
+      |                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:112:26: Parameter is not used: 'AMSG_BIND_RX_CMD_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  112 |   localparam logic [3:0] AMSG_BIND_RX_CMD_C      = 4'd6;
+      |                          ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:113:26: Parameter is not used: 'AMSG_BIND_RX_RESP_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  113 |   localparam logic [3:0] AMSG_BIND_RX_RESP_C     = 4'd7;
+      |                          ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:114:26: Parameter is not used: 'AMSG_UNBIND_RX_CMD_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  114 |   localparam logic [3:0] AMSG_UNBIND_RX_CMD_C    = 4'd8;
+      |                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:115:26: Parameter is not used: 'AMSG_UNBIND_RX_RESP_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  115 |   localparam logic [3:0] AMSG_UNBIND_RX_RESP_C   = 4'd9;
+      |                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:116:26: Parameter is not used: 'AMSG_GET_RX_STATE_CMD_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  116 |   localparam logic [3:0] AMSG_GET_RX_STATE_CMD_C = 4'd10;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:117:26: Parameter is not used: 'AMSG_GET_RX_STATE_RESP_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  117 |   localparam logic [3:0] AMSG_GET_RX_STATE_RESP_C = 4'd11;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:120:26: Parameter is not used: 'AST_SUCCESS_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  120 |   localparam logic [4:0] AST_SUCCESS_C                 = 5'd0;
+      |                          ^~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:121:26: Parameter is not used: 'AST_LISTENER_UNKNOWN_ID_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  121 |   localparam logic [4:0] AST_LISTENER_UNKNOWN_ID_C     = 5'd1;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:122:26: Parameter is not used: 'AST_LISTENER_TALKER_TIMEOUT_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  122 |   localparam logic [4:0] AST_LISTENER_TALKER_TIMEOUT_C = 5'd7;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:123:26: Parameter is not used: 'AST_CONTROLLER_NOT_AUTH_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  123 |   localparam logic [4:0] AST_CONTROLLER_NOT_AUTH_C     = 5'd13;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:126:27: Parameter is not used: 'AFLG_FAST_CONNECT_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  126 |   localparam logic [15:0] AFLG_FAST_CONNECT_C   = 16'h0002;
+      |                           ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:127:27: Parameter is not used: 'AFLG_STREAMING_WAIT_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  127 |   localparam logic [15:0] AFLG_STREAMING_WAIT_C = 16'h0008;
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:128:27: Parameter is not used: 'AFLG_REG_FAILED_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  128 |   localparam logic [15:0] AFLG_REG_FAILED_C     = 16'h0040;
+      |                           ^~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:131:27: Parameter is not used: 'ACMP_CDL_MILAN_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  131 |   localparam logic [10:0] ACMP_CDL_MILAN_C  = 11'd44;   
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:132:27: Parameter is not used: 'ACMP_PDU_BYTES_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  132 |   localparam int unsigned ACMP_PDU_BYTES_C  = 56;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:135:27: Parameter is not used: 'T_ACMP_CMD_MS_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  135 |   localparam logic [31:0] T_ACMP_CMD_MS_C   = 32'd200;     
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:136:27: Parameter is not used: 'T_ACMP_RETRY_MS_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  136 |   localparam logic [31:0] T_ACMP_RETRY_MS_C = 32'd4000;    
+      |                           ^~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:137:27: Parameter is not used: 'T_ACMP_NOTK_MS_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  137 |   localparam logic [31:0] T_ACMP_NOTK_MS_C  = 32'd10000;   
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv:138:27: Parameter is not used: 'PRNG_KIND_ACMP_DELAY_C'
+                                                                                                         : ... note: In instance 'KL_acmp_nvm_shadow'
+  138 |   localparam logic [2:0]  PRNG_KIND_ACMP_DELAY_C = 3'd0;   
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.160 MB sources in 4 modules, into 0.124 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.029 s (elab=0.004, cvt=0.015, bld=0.000); cpu 0.029 s on 1 threads; allocated 20.602 MB
+exit=0
+### $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator --lint-only --top-module KL_acmp_nvm_shadow -GRS_TMO_CYC_P=0 $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/common/pp_pkg.sv $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/pp_acmp_pkg.sv $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/KL_acmp_nvm_shadow.sv
+%Warning-USERERROR: $REVIEWS/pp92-r278-2-packet/scratch/h_nvm/hdl/acmp/KL_acmp_nvm_shadow.sv:502:5: KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1
+                                                                                                             : ... note: In instance 'KL_acmp_nvm_shadow'
+  502 |     $error("KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1");
+      |     ^~~~~~
+                    ... For warning description see https://verilator.org/warn/USERERROR?v=5.050
+                    ... Use "/* verilator lint_off USERERROR */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)
+exit=1
+### fatal-form comparison: $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator --lint-only -Wall -Wno-fatal scratch/fatal/t.sv (a generate-if $fatal at X=0)
+%Warning-USERFATAL: $REVIEWS/pp92-r278-2-packet/scratch/fatal/t.sv:3:5: t: X must be at least 1
+                                                                                 : ... note: In instance 't'
+    3 |     $fatal(1, "t: X must be at least 1");
+      |     ^~~~~~
+                    ... For warning description see https://verilator.org/warn/USERFATAL?v=5.050
+                    ... Use "/* verilator lint_off USERFATAL */" and lint_on around source to disable this message.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.046 MB sources in 2 modules, into 0.007 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.006 s (elab=0.000, cvt=0.002, bld=0.000); cpu 0.006 s on 1 threads; allocated 18.414 MB
+exit=0

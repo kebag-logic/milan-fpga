@@ -1,0 +1,16 @@
+# mutant B02both at f8d30ec: rs_dev0_w cause gate -> 1'b0, rs_empty_w cause gate -> 1'b1
+FAIL: N1a a device error at the first record's header read: the WHOLE walk fails with cause 2: done 1 fail 0 cause 0, want 1 1 2; a preload was offered, or a restored binding survived; a failed walk reports records it discarded
+FAIL: N1a a device error at the first record's header read: the walk stops at the failing record
+FAIL: N1b a device error inside a middle record's header: the WHOLE walk fails with cause 2: done 1 fail 0 cause 0, want 1 1 2; a preload was offered, or a restored binding survived; a failed walk reports records it discarded
+FAIL: N1b a device error inside a middle record's header: the walk stops at the failing record
+FAIL: N1b a device error inside a middle record's header: the listener is released and answers on the vendor default
+FAIL: N1c the last record's header read ended short: the WHOLE walk fails with cause 2: done 1 fail 0 cause 0, want 1 1 2; a preload was offered, or a restored binding survived; a failed walk reports records it discarded
+FAIL: N1c the last record's header read ended short: the listener is released and answers on the vendor default
+FAIL: N1d a device error after the first header, before its done: the WHOLE walk fails with cause 2: done 1 fail 0 cause 0, want 1 1 2; a preload was offered, or a restored binding survived; a failed walk reports records it discarded
+FAIL: N1d a device error after the first header, before its done: the walk stops at the failing record
+FAIL: N8b a device error at sink 3's header read: sink 0 stored, then the WHOLE walk fails with cause 2, and the GET held through it writes nothing: done 1 fail 0 cause 0, want 1 1 2; a preload was offered, or a restored binding survived; a failed walk reports records it discarded
+FAIL: N8b a device error at sink 3's header read: every command answered on the vendor default, in order (5 replies)
+FAIL: N9b a device face that answers every READ with err: the walk fails whole at its first read with cause 2: done 1 fail 0 cause 0, want 1 1 2
+349 checks: 337 PASS, 12 FAIL
+349 checks: 337 PASS, 12 FAIL
+exit=2

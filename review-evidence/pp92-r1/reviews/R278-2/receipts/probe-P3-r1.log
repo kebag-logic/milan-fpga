@@ -1,0 +1,13 @@
+Verilator 5.050 2026-07-01 rev v5.050
+patched $REVIEWS/pp92-r278-2-packet/scratch/probe-P3-r1/tb/acmp_nvm/sim_main.cpp
+suite (unpatched cases) 332 checks: 332 PASS, 0 FAIL
+  [i] P3-1 failed walk, then BIND sink 0: 2 frames, 1 replies, 1 writes 1 erases, dirty 0x00, sink 0 valid-byte 03
+  [i] P3-2 failed walk, then BIND and UNBIND sink 0: 3 frames, 2 replies, 2 writes 2 erases, dirty 0x00, sink 0 valid-byte 00
+  [i] P3-3 failed walk, then UNBIND sink 0 only (decision 5): 1 frames, 1 replies, 1 writes 1 erases, dirty 0x00, sink 0 valid-byte 00
+FAIL: P3-3 failed walk, then UNBIND sink 0 only (decision 5): nothing written: 1 writes, 1 erases; sink 0 holds 000000000000000000000000
+FAIL: P3-3 failed walk, then UNBIND sink 0 only (decision 5): the device holds the expected sink-0 record and the other saved records unchanged
+FAIL: P3-3 failed walk, then UNBIND sink 0 only (decision 5): a reset on a healthy device restores exactly that: sink 0 not restored as saved; 2 preloads, want 3
+  [i] P3-4 healthy walk, then UNBIND the restored sink 0: 1 frames, 1 replies, 1 writes 1 erases, dirty 0x00, sink 0 valid-byte 00
+  [i] P3-5 healthy walk, then re-BIND sink 0 to another talker: 2 frames, 1 replies, 1 writes 1 erases, dirty 0x00, sink 0 valid-byte 03
+  [i] P3-6 healthy walk, UNBIND then two GETs of sink 0: 3 frames, 3 replies, 1 writes 1 erases, dirty 0x00, sink 0 valid-byte 00
+30 checks: 27 PASS, 3 FAIL

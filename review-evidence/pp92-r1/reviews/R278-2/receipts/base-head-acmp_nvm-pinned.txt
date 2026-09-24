@@ -1,0 +1,62 @@
+FAIL: L00 control, no traffic in the window: walk, preloads, release and ownership: the release precedes a preload's record write or discovery arm; released -214 cycles after the terminal
+FAIL: L05a first sink's GET between its store and its preload: walk, preloads, release and ownership: 1 preloads taken, 2 saved; 1 preload records written; the release precedes a preload's record write or discovery arm; released -212 cycles after the terminal; touched 0x01
+FAIL: L05a first sink's GET between its store and its preload: the saved bindings are still in NVM, nothing written: 1 writes, 1 erases; sink 0 holds 000000000000000000000000
+FAIL: L05a first sink's GET between its store and its preload: every reply reports the restored binding (1 replies)
+FAIL: L05a first sink's GET between its store and its preload: a reset restores the same bindings: sink 0 not restored as saved; 1 preloads, want 2
+FAIL: L05b later sink's GET between its store and its preload: walk, preloads, release and ownership: 1 preloads taken, 2 saved; 1 preload records written; an offer waited 83 cycles untaken; the release precedes a preload's record write or discovery arm; released -295 cycles after the terminal; touched 0x80
+FAIL: L05b later sink's GET between its store and its preload: the saved bindings are still in NVM, nothing written: 1 writes, 1 erases; sink 7 holds 000000000000000000000000
+FAIL: L05b later sink's GET between its store and its preload: every reply reports the restored binding (1 replies)
+FAIL: L05b later sink's GET between its store and its preload: a reset restores the same bindings: sink 7 not restored as saved; 1 preloads, want 2
+FAIL: L05c first sink's GET at the later sink's store: walk, preloads, release and ownership: 1 preloads taken, 2 saved; 1 preload records written; an offer waited 83 cycles untaken; the release precedes a preload's record write or discovery arm; released -297 cycles after the terminal; touched 0x01
+FAIL: L05c first sink's GET at the later sink's store: the saved bindings are still in NVM, nothing written: 1 writes, 1 erases; sink 0 holds 000000000000000000000000
+FAIL: L05c first sink's GET at the later sink's store: every reply reports the restored binding (1 replies)
+FAIL: L05c first sink's GET at the later sink's store: a reset restores the same bindings: sink 0 not restored as saved; 1 preloads, want 2
+FAIL: L05d later sink's GET at the first sink's store: walk, preloads, release and ownership: the release precedes a preload's record write or discovery arm; released -214 cycles after the terminal
+FAIL: L05d later sink's GET at the first sink's store: every reply reports the restored binding (1 replies)
+FAIL: L05e consecutive GETs of both sinks: walk, preloads, release and ownership: 0 preloads taken, 2 saved; 0 preload records written; an offer waited 110 cycles untaken; the release precedes a preload's record write or discovery arm; released -322 cycles after the terminal; touched 0x81
+FAIL: L05e consecutive GETs of both sinks: the saved bindings are still in NVM, nothing written: 2 writes, 2 erases; sink 0 holds 000000000000000000000000; sink 7 holds 000000000000000000000000
+FAIL: L05e consecutive GETs of both sinks: every reply reports the restored binding (5 replies)
+FAIL: L05e consecutive GETs of both sinks: a reset restores the same bindings: sink 0 not restored as saved; sink 7 not restored as saved; 0 preloads, want 2
+FAIL: L05f later sink's GET as the first sink's preload is offered: walk, preloads, release and ownership: 1 preloads taken, 2 saved; 1 preload records written; an offer waited 86 cycles untaken; the release precedes a preload's record write or discovery arm; released -298 cycles after the terminal; touched 0x80
+FAIL: L05f later sink's GET as the first sink's preload is offered: the saved bindings are still in NVM, nothing written: 1 writes, 1 erases; sink 7 holds 000000000000000000000000
+FAIL: L05f later sink's GET as the first sink's preload is offered: every reply reports the restored binding (1 replies)
+FAIL: L05f later sink's GET as the first sink's preload is offered: a reset restores the same bindings: sink 7 not restored as saved; 1 preloads, want 2
+FAIL: L05s sink 0: 207 presentation cycles broke the walk (first at +0: 1 preloads taken, 2 saved; 1 preload records written; the release precedes a preload's record write or discovery arm; released -215 cycles after the terminal; touched 0x01)
+FAIL: L05s sink 0: 193 presentation cycles answered other than the restored binding (first at +0)
+FAIL: L05s sink 0: 193 presentation cycles changed NVM (first at +0: 1 writes, 1 erases; sink 0 holds 000000000000000000000000)
+FAIL: L05s sink 7: 207 presentation cycles broke the walk (first at +0: the release precedes a preload's record write or discovery arm; released -217 cycles after the terminal)
+FAIL: L05s sink 7: 202 presentation cycles answered other than the restored binding (first at +0)
+FAIL: L05s sink 7: 97 presentation cycles changed NVM (first at +105: 1 writes, 1 erases; sink 7 holds 000000000000000000000000)
+FAIL: L09 BIND of the first sink to another talker, held from reset: walk, preloads, release and ownership: 1 preloads taken, 2 saved; 1 preload records written; the release precedes a preload's record write or discovery arm; released -212 cycles after the terminal; touched 0x01
+FAIL: L09u UNBIND of the later sink at the first sink's store: walk, preloads, release and ownership: the release precedes a preload's record write or discovery arm; released -214 cycles after the terminal
+FAIL: L09u UNBIND of the later sink at the first sink's store: the saved unbind replaces the restored binding, sink 0 untouched
+FAIL: L09u UNBIND of the later sink at the first sink's store: a reset restores only the first sink: 2 preloads, want 1
+FAIL: L09q a queue of reads and changes at the first sink's store: walk, preloads, release and ownership: 0 preloads taken, 2 saved; 0 preload records written; an offer waited 283 cycles untaken; the release precedes a preload's record write or discovery arm; released -495 cycles after the terminal; touched 0x81
+FAIL: L09q a queue of reads and changes at the first sink's store: five replies in queue order, each on the state its predecessor left (5 replies)
+FAIL: L10m1 GET presented in the last owned cycle: walk, preloads, release and ownership: 1 preloads taken, 2 saved; 1 preload records written; the release precedes a preload's record write or discovery arm; released -212 cycles after the terminal; touched 0x01
+FAIL: L10m1 GET presented in the last owned cycle: the saved bindings are still in NVM, nothing written: 1 writes, 1 erases; sink 0 holds 000000000000000000000000
+FAIL: L10m1 GET presented in the last owned cycle: presented while owned, taken in cycle 0 (release -14)
+FAIL: L10m1 GET presented in the last owned cycle: answered with the restored binding
+FAIL: L10z GET presented in the first released cycle: walk, preloads, release and ownership: 1 preloads taken, 2 saved; 1 preload records written; the release precedes a preload's record write or discovery arm; released -212 cycles after the terminal; touched 0x01
+FAIL: L10z GET presented in the first released cycle: the saved bindings are still in NVM, nothing written: 1 writes, 1 erases; sink 0 holds 000000000000000000000000
+FAIL: L10z GET presented in the first released cycle: presented released, taken in cycle 0 (release -14)
+FAIL: L10z GET presented in the first released cycle: answered with the restored binding
+FAIL: L10p1 GET presented the cycle after the release: walk, preloads, release and ownership: 1 preloads taken, 2 saved; 1 preload records written; the release precedes a preload's record write or discovery arm; released -212 cycles after the terminal; touched 0x01
+FAIL: L10p1 GET presented the cycle after the release: the saved bindings are still in NVM, nothing written: 1 writes, 1 erases; sink 0 holds 000000000000000000000000
+FAIL: L10p1 GET presented the cycle after the release: presented released, taken in cycle 0 (release -14)
+FAIL: L10p1 GET presented the cycle after the release: answered with the restored binding
+FAIL: L20 a held GET across a reset inside the window: held, not taken, nothing written when the reset lands
+FAIL: L20 a held GET across a reset inside the window: walk, preloads, release and ownership: the release precedes a preload's record write or discovery arm; released -214 cycles after the terminal
+FAIL: L20 a held GET across a reset inside the window: each of 1 requests popped exactly when the listener took it, at or after the release (pops 0, takes 0, 0 cycles disagreed)
+FAIL: L20 a held GET across a reset inside the window: answered once, with the restored binding
+FAIL: L21 a power cut inside the preload phase: cut inside the phase with nothing written
+FAIL: L21 a power cut inside the preload phase: walk, preloads, release and ownership: the release precedes a preload's record write or discovery arm; released -214 cycles after the terminal
+FAIL: L22 a held BIND across a reset inside the window: held when the reset lands
+FAIL: L22 a held BIND across a reset inside the window: walk, preloads, release and ownership: the release precedes a preload's record write or discovery arm; released -214 cycles after the terminal
+FAIL: L22 a held BIND across a reset inside the window: each of 1 requests popped exactly when the listener took it, at or after the release (pops 0, takes 0, 0 cycles disagreed)
+FAIL: L22 a held BIND across a reset inside the window: answered once and persisted after the second walk
+FAIL: L22 a held BIND across a reset inside the window: a reset restores the new binding: sink 0 not restored as saved
+FAIL: L01 a talker-event level held from reset, for ever: walk, preloads, release and ownership: 0 preloads taken, 2 saved; 0 preload records written; an offer waited 154 cycles untaken; the release precedes a preload's record write or discovery arm; released -445 cycles after the terminal; touched 0x81
+FAIL: L01 a talker-event level held from reset, for ever: the saved bindings are still in NVM, nothing written: 2 writes, 2 erases; sink 0 holds 000000000000000000000000; sink 7 holds 000000000000000000000000
+349 checks: 242 PASS, 107 FAIL
+exit=2

@@ -1,0 +1,8 @@
+Verilator 5.050 2026-07-01 rev v5.050
+patched $REVIEWS/pp92-r278-2-packet/scratch/probe-P1-head/tb/acmp_nvm/sim_main.cpp
+suite (unpatched cases) 349 checks: 349 PASS, 0 FAIL
+  [i] P1-0 control: no fault: 1 GET replies, dirty 0x00, 0 writes, 0 device ops after the GET, sink 0 store magic 1722 valid-byte 03
+  [i] P1-1 a device error at sink 3's header read: 1 GET replies, dirty 0x00, 0 writes, 0 device ops after the GET, sink 0 store magic 1722 valid-byte 03
+  [i] P1-2 sink 3's read silent, the device ends it 2000 cycles late: 1 GET replies, dirty 0x00, 0 writes, 1 device ops after the GET, sink 0 store magic 1722 valid-byte 03
+  [i] P1-3 sink 3's payload read torn after 3 bytes: 1 GET replies, dirty 0x00, 0 writes, 0 device ops after the GET, sink 0 store magic 1722 valid-byte 03
+16 checks: 16 PASS, 0 FAIL
