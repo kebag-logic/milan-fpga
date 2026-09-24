@@ -1,0 +1,30 @@
+gptp-processor/hdl/ucode/gen_gptp_ucode.py              long module=1
+protocol-processor/hdl/aecp/ucode/gen_ucode.py          long module=1
+scripts/act_ci.py                                       long module=1
+scripts/check_baremetal_only.py                         long module=1
+scripts/ci_events.py                                    long module=1
+scripts/png_artifact.py                                 too many parameters=1
+scripts/xvlog_gate.py                                   long module=1
+sw/builder/endstation_builder.py                        long module=1
+sw/builder/test_builder.py                              long function=4  long module=1
+sw/litex/milan_soc.py                                   long function=5  long module=1  too many parameters=6
+sw/trace/trace_segment.py                               os.path use=1
+tb/tools/torture_campaign.py                            long module=1
+
+py idiom: 226 first-party modules, 163242 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0

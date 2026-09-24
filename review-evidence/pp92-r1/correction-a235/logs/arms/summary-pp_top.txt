@@ -1,0 +1,10 @@
+F1-compare-top       pp_top    exit 2 1414 checks, 2 failures           2 FAIL  KILLED  FAIL: BW3: the GET served after the failed walk left sink 0's saved record in the device, nothing written (byte 8 03 -> 00)
+F2-done-no-release   pp_top    exit 2 1414 checks, 2 failures           2 FAIL  KILLED  FAIL: BW4: restore_done_o never read 1 while the admission gate still owned the listener (8 cycles did)
+F2-busy-gap          pp_top    exit 2 1414 checks, 1 failures           1 FAIL  KILLED  FAIL: BW4: restore_busy_o or restore_done_o read 1 in every cycle from each walk's start (8 cycles read neither)
+LG01-top             pp_top    exit 2 1414 checks, 8 failures           8 FAIL  KILLED  FAIL: BW1: a GET_RX_STATE received before the walk is held
+B01-top              pp_top    exit 2 1414 checks, 2 failures           2 FAIL  KILLED  FAIL: BW3: the walk fails whole at its deadline, 80000 cycles after the silence began, the next record's read still unserved
+B03-top              pp_top    exit 2 1414 checks, 2 failures           2 FAIL  KILLED  FAIL: BW3: the drained read ends first, then the BIND is committed, a verified F07.8 record
+
+real	3m37.501s
+user	22m38.272s
+sys	0m20.082s

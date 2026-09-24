@@ -1,0 +1,8 @@
+patched scratch/p1-fix/src/tb/acmp_nvm/sim_main.cpp
+Verilator 5.050 2026-07-01 rev v5.050
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+  [i] P1-0 control: no fault: 1 GET replies, dirty 0x00, 0 writes, 0 device ops after the GET, sink 0 store magic 1722 valid-byte 03
+  [i] P1-1 a device error at sink 3's header read: 1 GET replies, dirty 0x00, 0 writes, 0 device ops after the GET, sink 0 store magic 1722 valid-byte 03
+  [i] P1-2 sink 3's read silent, the device ends it 2000 cycles late: 1 GET replies, dirty 0x00, 0 writes, 1 device ops after the GET, sink 0 store magic 1722 valid-byte 03
+  [i] P1-3 sink 3's payload read torn after 3 bytes: 1 GET replies, dirty 0x00, 0 writes, 0 device ops after the GET, sink 0 store magic 1722 valid-byte 03
+16 checks: 16 PASS, 0 FAIL

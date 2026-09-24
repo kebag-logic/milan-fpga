@@ -1,0 +1,8 @@
+lint rc=0
+make check rc=0
+gen_matrix --check rc=0
+check-links rc=0
+diff --check 09f9bf38..HEAD rc=0 (0 bytes)
+yosys rc=0
+nvm_port figures rc=0
+acmp_nvm pinned (control, expected non-zero) rc=2

@@ -1,0 +1,14 @@
+rc=0 python3 scripts/check_cpp_idiom.py
+rc=0 python3 scripts/check_cpp_idiom.py --list
+rc=0 python3 scripts/check_cpp_idiom.py --selftest
+rc=0 python3 scripts/check_py_idiom.py
+rc=0 python3 scripts/check_py_idiom.py --list
+rc=0 python3 scripts/check_py_idiom.py --selftest
+rc=0 python3 scripts/check_hygiene.py --check
+rc=0 python3 scripts/check_sh_idiom.py
+rc=0 python3 scripts/check_sv_idiom.py
+rc=0 python3 scripts/check_todo_ownership.py
+rc=0 python3 scripts/check_submodule_docs.py
+rc=0 python3 scripts/measure_naming.py --check
+rc=0 python3 scripts/measure_fail_fast.py --check
+rc=0 python3 scripts/measure_test_evidence.py --check

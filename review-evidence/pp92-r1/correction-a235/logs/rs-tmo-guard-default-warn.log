@@ -1,0 +1,23 @@
+## lint-only (default warnings, whole tree as scripts/lint_hdl.sh passes it), top KL_acmp_nvm_shadow, -GRS_TMO_CYC_P=0, head f8d30ec
+%Warning-USERERROR: hdl/acmp/KL_acmp_nvm_shadow.sv:502:5: KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1
+                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+  502 |     $error("KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1");
+      |     ^~~~~~
+                    ... For warning description see https://verilator.org/warn/USERERROR?v=5.050
+                    ... Use "/* verilator lint_off USERERROR */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)
+exit 1
+## lint-only (default warnings, whole tree as scripts/lint_hdl.sh passes it), top KL_acmp_nvm_shadow, -GRS_TMO_CYC_P=1, head f8d30ec
+%Warning-UNSIGNED: hdl/acmp/KL_acmp_nvm_shadow.sv:517:46: Comparison is constant due to unsigned arithmetic
+                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+  517 |   assign rs_tmo_w   = rs_stall_w && (rs_wd_r >= 32'(RS_TMO_CYC_P - 1));
+      |                                              ^~
+                   ... For warning description see https://verilator.org/warn/UNSIGNED?v=5.050
+                   ... Use "/* verilator lint_off UNSIGNED */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)
+exit 1
+## lint-only (default warnings, whole tree as scripts/lint_hdl.sh passes it), top KL_acmp_nvm_shadow, -GRS_TMO_CYC_P=3000, head f8d30ec
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 18.231 MB sources in 46 modules, into 0.123 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.167 s (elab=0.036, cvt=0.018, bld=0.000); cpu 0.165 s on 1 threads; allocated 51.652 MB
+exit 0

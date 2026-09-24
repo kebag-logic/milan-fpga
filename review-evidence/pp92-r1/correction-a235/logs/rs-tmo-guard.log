@@ -1,0 +1,18 @@
+## RS_TMO_CYC_P=0 (the guard's failing arm)
+%Warning-USERERROR: hdl/acmp/KL_acmp_nvm_shadow.sv:502:5: KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1
+                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+  502 |     $error("KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1");
+      |     ^~~~~~
+                    ... For warning description see https://verilator.org/warn/USERERROR?v=5.050
+                    ... Use "/* verilator lint_off USERERROR */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)
+exit 1
+## RS_TMO_CYC_P=1
+%Warning-UNSIGNED: hdl/acmp/KL_acmp_nvm_shadow.sv:517:46: Comparison is constant due to unsigned arithmetic
+                                                        : ... note: In instance 'KL_acmp_nvm_shadow'
+  517 |   assign rs_tmo_w   = rs_stall_w && (rs_wd_r >= 32'(RS_TMO_CYC_P - 1));
+      |                                              ^~
+                   ... For warning description see https://verilator.org/warn/UNSIGNED?v=5.050
+                   ... Use "/* verilator lint_off UNSIGNED */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)
+exit 1

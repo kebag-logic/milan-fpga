@@ -1,0 +1,20 @@
+F1-compare           acmp_nvm  exit 2 349 checks: 340 PASS, 9 FAIL      9 FAIL  KILLED  FAIL: N8a sink 3's payload read torn after 3 bytes: sink 0 stored, then the WHOLE walk fails with cause 1, and the GET held through it write
+LG01                 acmp_nvm  exit 2 349 checks: 242 PASS, 107 FAIL  107 FAIL  KILLED  FAIL: L00 control, no traffic in the window: walk, preloads, release and ownership: the release precedes a preload's record write or discove
+LG02                 acmp_nvm  exit 2 349 checks: 278 PASS, 71 FAIL    71 FAIL  KILLED  FAIL: L05a first sink's GET between its store and its preload: walk, preloads, release and ownership: the walk is not done, or failed; 0 pre
+LG03                 acmp_nvm  exit 2 349 checks: 304 PASS, 45 FAIL    45 FAIL  KILLED  FAIL: L05a first sink's GET between its store and its preload: each of 1 requests popped exactly when the listener took it, at or after the 
+LG02t                acmp_nvm  exit 2 349 checks: 330 PASS, 19 FAIL    19 FAIL  KILLED  FAIL: L01 a talker-event level held from reset, for ever: walk, preloads, release and ownership: the walk is not done, or failed; 0 preloads
+LG03t                acmp_nvm  exit 2 349 checks: 342 PASS, 7 FAIL      7 FAIL  KILLED  FAIL: L01 a talker-event level held from reset, for ever: every talker event acknowledged exactly when the listener took it, at or after the
+LG04                 acmp_nvm  exit 2 349 checks: 344 PASS, 5 FAIL      5 FAIL  KILLED  FAIL: L07 an expiry of the first sink's owner every cycle from reset: walk, preloads, release and ownership: 1 preloads taken, 2 saved; 1 pr
+LG05                 acmp_nvm  exit 2 349 checks: 337 PASS, 12 FAIL    12 FAIL  KILLED  FAIL: L06 STOP of the first sink held from reset: walk, preloads, release and ownership: listener states 0x60007 while owned; 1 side effects
+LRdone               acmp_nvm  exit 2 349 checks: 241 PASS, 108 FAIL  108 FAIL  KILLED  FAIL: L00 control, no traffic in the window: walk, preloads, release and ownership: the release precedes a preload's record write or discove
+B01                  acmp_nvm  exit 2 349 checks: 329 PASS, 20 FAIL    20 FAIL  KILLED  FAIL: N3 a record read the device never answers: the walk fails whole at its deadline with cause 3: done 0 fail 0 cause 0, want 1 1 3; a pre
+B02                  acmp_nvm  exit 2 349 checks: 337 PASS, 12 FAIL    12 FAIL  KILLED  FAIL: N1a a device error at the first record's header read: the WHOLE walk fails with cause 2: done 1 fail 0 cause 0, want 1 1 2; a preload 
+B03                  acmp_nvm  exit 2 349 checks: 339 PASS, 10 FAIL    10 FAIL  KILLED  FAIL: N3 a record read the device never answers: the port stays quarantined and a later change stays pending, never written
+BA1                  acmp_nvm  exit 2 349 checks: 334 PASS, 15 FAIL    15 FAIL  KILLED  FAIL: N3 a record read the device never answers: within the deadline of the silence (3079 cycles), the read abandoned once (0)
+BC1                  acmp_nvm  exit 2 349 checks: 336 PASS, 13 FAIL    13 FAIL  KILLED  FAIL: N1a a device error at the first record's header read: the WHOLE walk fails with cause 2: done 1 fail 1 cause 1, want 1 1 2
+A01                  acmp_nvm  exit 2 349 checks: 348 PASS, 1 FAIL      1 FAIL  KILLED  FAIL: N6 a second manager's read at each of 200 offsets: every walk completes as saved (92 did not, first at offset 1)
+B04                  acmp_nvm  exit 2 342 checks: 222 PASS, 120 FAIL  120 FAIL  KILLED  FAIL: A2 empty NVM is defaults, not a failure (cause 2)
+
+real	0m34.437s
+user	3m34.277s
+sys	0m15.287s
