@@ -1,0 +1,22 @@
+HEAD detached at 573f0052
+nothing to commit, working tree clean
+=== parent 573f0052a0e4412e81f0845438fcec2086ce5d55 + gptp-processor e5dcea6e351abff18a27a00f8e345f3251bdbd8f (commit 573f0052)
+--- check_cpp_idiom rc=0
+  long function: 0 <= 0
+--- check_py_idiom rc=0
+  long function: 9 <= 9
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+=== parent 573f0052a0e4412e81f0845438fcec2086ce5d55 + gptp-processor 3face0914efd9d5e71f36da7e30108cfe09c837d (commit 55fdd684)
+--- check_cpp_idiom rc=1
+FAIL: long function 1 > ratchet 0. New C++ uses the named construct; see Rule 11 in docs/development/CODE_QUALITY.md.
+--- check_py_idiom rc=1
+FAIL: unannotated public function 3 > ratchet 0. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+FAIL: undocumented public function 1 > ratchet 0. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+=== parent 573f0052a0e4412e81f0845438fcec2086ce5d55 + gptp-processor 6fd2ceb025e2a1bc7eaa6ccb09558584f0d499bf (commit d9406520)
+--- check_cpp_idiom rc=0
+  long function: 0 <= 0
+--- check_py_idiom rc=0
+  long function: 9 <= 9
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
