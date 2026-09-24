@@ -1,0 +1,66 @@
+Issue #536: Offline AECP model answers GET_MILAN_INFO as NOT_IMPLEMENTED while the pinned engine serves it | OPEN
+--- issue body (verbatim) ---
+[A10] Newly discovered by [A215] while recording #510 (PR for #394/#510/#511).
+
+## Observed
+`tests/features/aecp_response_contract.feature` scenario "a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact" sends `build_mvu_command()` with its default `MVU_GET_MILAN_INFO` (0x0000) and asserts status 1 (NOT_IMPLEMENTED). The offline model `tests/steps/aecp_engine_model.py` has no MVU dispatch, while the pinned protocol processor serves GET_MILAN_INFO (pp_top M1). The model disagrees with the RTL for a served command.
+
+## Authority
+Milan v1.2 Section 5.4.4 (Milan Vendor Unique), 5.4.4.1 GET_MILAN_INFO (SHALL, per docs/reference/MILAN_COMPLIANCE_MATRIX.md); AGENTS.md: a model must not contradict the implementation it stands for.
+
+## Acceptance
+1. The offline model dispatches the MVU commands the pinned engine serves, with the engine's status codes; the scenario asserts the served behaviour for 0x0000, and adds rows for 0x0001, 0x0002, 0x0003 and 0x0004 per the #510 decision (RECOMMENDED rows answer as the engine does).
+2. Each row has a failing arm (the model reverted fails the scenario).
+3. The behave/offline suites and the docs gates pass.
+
+--- end ---
+PR #543 head fb84de54ee9c1e3a2b51d2a239efbc04e4a22bad base dev draft False state OPEN
+PR reviews objects: 0
+PR comments (id, first line):
+  5805906331 2026-09-24T01:38:49Z [A10] INDEPENDENT REVIEW STARTED: R280-1
+  5806086835 2026-09-24T01:56:54Z [R280] NEGATIVE - exact head 612db13c244335b0fa3467d02ebab1c350b01990
+  5806089772 2026-09-24T01:57:14Z [A10] INDEPENDENT REVIEW STARTED: R281-1
+  5806267441 2026-09-24T02:16:17Z [R281] NEGATIVE - exact head 612db13c244335b0fa3467d02ebab1c350b01990
+  5807708249 2026-09-24T04:29:26Z [A10] INDEPENDENT REVIEW STARTED: R280-2
+Issue comments (id, first line):
+  5804831883 2026-09-23T23:46:26Z [A10] ASSIGNMENT: A223 author. Branch 536-aecp-model-mvu from dev 26d855a9. The offline AECP model gets the MV
+  5804893299 2026-09-23T23:53:14Z [A223] TAKEN
+  5804968393 2026-09-24T00:01:17Z [A223] REVIEW READY
+  5806269661 2026-09-24T02:16:33Z [A10] ASSIGNMENT: A230 author, correction round 1 of PR #543 for R280-1 (F1-F3 MINOR, https://github.com/kebag
+  5806421639 2026-09-24T02:33:51Z [A230] REVIEW READY
+Public evidence tree 765cb95817d4faf0784937066350a88305c79eb7 review-evidence/536-r1: files fetched and checked against MANIFEST.json published_sha256
+  reviews/R280-1/REPORT.md OK path_redacted=False
+  reviews/R280-1/scripts/r280_mutations.py OK path_redacted=False
+  reviews/R281-1/REPORT.md OK path_redacted=False
+  reviews/R281-1/receipts/spec_citation_check.txt OK path_redacted=False
+  reviews/R281-1/scripts/mutate_model.py OK path_redacted=False
+  correction-a230/HANDOFF.md OK path_redacted=True
+  correction-a230/MANIFEST.sha256 OK path_redacted=False
+  correction-a230/gates.log OK path_redacted=False
+  correction-a230/mutations.log OK path_redacted=False
+  correction-a230/mutations.py OK path_redacted=False
+  correction-a230/r280_arms_rerun.log OK path_redacted=False
+  correction-a230/r281_arms_rerun.log OK path_redacted=False
+  correction-a230/xcheck_rows_vs_rtl.log OK path_redacted=False
+  correction-a230/xcheck_rows_vs_rtl.py OK path_redacted=False
+--- diff scope 26d855a9..fb84de54 ---
+ docs/MILAN_V12_ROADMAP.md                     |   2 +-
+ tests/README.md                               |   2 +-
+ tests/features/aecp_response_contract.feature | 138 +++++++++++++++++++-
+ tests/steps/aecp_engine_model.py              | 115 +++++++++++++++--
+ tests/steps/aecp_engine_steps.py              | 174 ++++++++++++++++++++++++--
+ 5 files changed, 405 insertions(+), 26 deletions(-)
+--- this round 612db13c..fb84de54 ---
+ tests/README.md                               |   2 +-
+ tests/features/aecp_response_contract.feature | 113 +++++++++++++++++++-------
+ tests/steps/aecp_engine_model.py              |  32 +++++++-
+ tests/steps/aecp_engine_steps.py              |  61 ++++++++++++--
+ 4 files changed, 164 insertions(+), 44 deletions(-)
+fb84de54ee9c1e3a2b51d2a239efbc04e4a22bad bfe2e5c797b6abcf3900aee5585650cb47977729 Move protocol_id octet @26 one nibble at a time, where Milan 5.4.3.2.1 ends the OUI-36 and starts the MVU protocol id (#536)
+bfe2e5c797b6abcf3900aee5585650cb47977729 3753b57494e8aec8bcc47c8bc8cfd2093456fe2e Cite IEEE 1722.1-2021 9.6 and Table 9-6 for the MVU NOT_IMPLEMENTED status, and Section 4.2.4 for the protocol_version quotation (#536)
+3753b57494e8aec8bcc47c8bc8cfd2093456fe2e 8179587eea475cc1d994589c31d9ad4447a15571 Grade each protocol_id octet, an over-length GET_MILAN_INFO and every other command message_type against the MVU sub-decode (#536)
+8179587eea475cc1d994589c31d9ad4447a15571 612db13c244335b0fa3467d02ebab1c350b01990 Send each Milan MVU command row in its own figure, so SET_SYSTEM_UNIQUE_ID is echoed at cdl 28 and SET_MEDIA_CLOCK_REFERENCE_INFO at cdl 92 (#536)
+612db13c244335b0fa3467d02ebab1c350b01990 92011f6aefd2067fed6a5bed4b124aa21dea27c7 Record the MVU rows and their RTL gate in the T1 table and the roadmap proof ladder (#536)
+92011f6aefd2067fed6a5bed4b124aa21dea27c7 26d855a9176d63625e6635a029a0c44e3d57ce9a The offline AECP model serves Milan GET_MILAN_INFO with its Figure 5.4 body and echoes MVU 0x0001-0x0004 NOT_IMPLEMENTED, as the pinned engine does (#536)
+verilator: Verilator 5.050 2026-07-01 rev v5.050
+python: Python 3.14.7 behave: 1.3.3
