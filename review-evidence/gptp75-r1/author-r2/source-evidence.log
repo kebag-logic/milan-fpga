@@ -1,0 +1,21 @@
+EXACT hdl/top/KL_gptp_engine.sv#L58 (Single clock domain): module KL_gptp_engine
+EXACT hdl/top/KL_gptp_engine.sv#L160 (Four instantiated blocks): KL_gptp_rx_parser u_parser (
+EXACT hdl/wire/KL_gptp_rx_parser.sv#L374 (Deferred receive event): if (fin_r) begin
+EXACT hdl/top/KL_gptp_engine.sv#L405 (Four-entry event queue): logic [39:0] evq_r [0:3];
+EXACT hdl/top/KL_gptp_engine.sv#L432 (Parser arbitration priority): always_comb begin : push_arb
+EXACT hdl/top/KL_gptp_engine.sv#L343 (Priority timestamp return): logic        txts_pend_r;
+EXACT hdl/top/KL_gptp_engine.sv#L349 (Accepted-beat result face): assign txts_ready_o  = !txts_pend_r && rst_n;
+EXACT hdl/top/KL_gptp_engine.sv#L240 (Reset-backed pairing validity): logic t1v_valid_r, pdwait_valid_r;
+EXACT hdl/top/KL_gptp_engine.sv#L100 (Transmit admission credit): input  wire         tx_credit_i,
+EXACT hdl/top/KL_gptp_engine.sv#L385 (Eight timer slots): KL_gptp_timer #(
+EXACT hdl/top/KL_gptp_engine.sv#L20 (Six state regions): //                  0  message bank      RO  (parser-written, PING-PONG
+EXACT hdl/wire/KL_gptp_tx_slot.sv#L117 (Stable stalled transmission): assign tx_valid_o = ser_run_r;
+EXACT hdl/top/KL_gptp_engine.sv#L124 (Committed publication): output logic        pub_commit_o,
+EXACT hdl/ucpu/KL_gptp_ucpu.sv#L105 (1,024-word microcode ROM): // ------------------------------------------------------------------ ROM
+EXACT hdl/ucpu/KL_gptp_ucpu.sv#L113 (Sixteen registers): // 16 x 64 distributed RAM, 1W3R (SET_MASKED reads rd as well).
+EXACT hdl/top/KL_gptp_engine.sv#L109 (Registered policy slew level): output logic        phc_slew_active_o,
+EXACT hdl/top/KL_gptp_engine.sv#L929 (Registered policy slew level): 2'd2: begin
+EXACT hdl/top/KL_gptp_engine.sv#L934 (Registered policy slew level): 2'd3: begin
+EXACT hdl/ucode/gen_gptp_ucode.py#L837 (Registered policy slew level): def prog_leg_slew(base: int) -> Prog:
+EXACT hdl/wire/KL_gptp_rx_parser.sv#L456 (Ignored receive flag bits): 11'(OFF_FLAGS0_C + 1): flags_r <= acc_nxt_w[15:0];
+source evidence: 20 exact, 0 findings
