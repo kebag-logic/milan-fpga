@@ -1,0 +1,14 @@
+docs/diagrams/20-rtl-dataflow.svg base=68f60d0e30689214fc611a07146b72d3ca8c2155 head=8791e7152f16a2f682174697c92707d4dcd24858
+docs/diagrams/20-rtl-dataflow.png base=cd2525f5d9d2178e7d506495b1d6c7e56de3e61c head=cd2525f5d9d2178e7d506495b1d6c7e56de3e61c
+docs/diagrams/22-aecp-descriptor-fetch.svg base=d71e87b4da8c9cf0735910bac7a4ac9b2a8137ec head=2f25086d6f4c1876083f2086220e44b2105eed5f
+docs/diagrams/22-aecp-descriptor-fetch.png base=abe76f523c0ac3f6ad4dcdace2ac9e36bde322cd head=abe76f523c0ac3f6ad4dcdace2ac9e36bde322cd
+
+commit that introduced PNG renders:
+2ca216e Keep the PNG renders beside the SVG sources so a wiki can show them without a renderer
+most recent PNG re-render on base branch:
+f8d30ec Render the dataflow diagram's PNG again now that it shows the admission gate and the manager arbiter (#92, #93)
+
+PR changes to docs/diagrams:
+ docs/diagrams/20-rtl-dataflow.svg          |  2 +-
+ docs/diagrams/22-aecp-descriptor-fetch.svg | 21 ++++++++++++++-------
+ 2 files changed, 15 insertions(+), 8 deletions(-)

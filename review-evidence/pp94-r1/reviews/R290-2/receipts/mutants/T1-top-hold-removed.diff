@@ -1,0 +1,14 @@
+diff -ru $PACKET/scratch/head/hdl/aecp/KL_aecp_desc_mem_guard.sv $PACKET/scratch/mut/T1-top-hold-removed/hdl/aecp/KL_aecp_desc_mem_guard.sv
+--- $PACKET/scratch/head/hdl/aecp/KL_aecp_desc_mem_guard.sv	2026-09-24 11:55:35.000000000 +0200
++++ $PACKET/scratch/mut/T1-top-hold-removed/hdl/aecp/KL_aecp_desc_mem_guard.sv	2026-09-24 12:17:17.063401192 +0200
+@@ -55,8 +55,8 @@
+ );
+   logic owed_r;
+ 
+-  assign m_req_valid_o = s_req_valid_i && !owed_r;
+-  assign s_req_ready_o = m_req_ready_i && !owed_r;
++  assign m_req_valid_o = s_req_valid_i;
++  assign s_req_ready_o = m_req_ready_i;
+   assign m_req_addr_o  = s_req_addr_i;
+   assign m_req_beats_o = s_req_beats_i;
+ 

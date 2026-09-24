@@ -1,0 +1,11 @@
+diff -ru $PACKET/scratch/head/hdl/aecp/KL_aecp_desc_mem_guard.sv $PACKET/scratch/mut/T2-top-debt-port-tied-0/hdl/aecp/KL_aecp_desc_mem_guard.sv
+--- $PACKET/scratch/head/hdl/aecp/KL_aecp_desc_mem_guard.sv	2026-09-24 11:55:35.000000000 +0200
++++ $PACKET/scratch/mut/T2-top-debt-port-tied-0/hdl/aecp/KL_aecp_desc_mem_guard.sv	2026-09-24 12:20:27.403936744 +0200
+@@ -77,6 +77,6 @@
+     end
+   end
+ 
+-  assign debt_o = owed_r;
++  assign debt_o = 1'b0;
+ endmodule : KL_aecp_desc_mem_guard
+ `default_nettype wire
