@@ -1,0 +1,11 @@
+clean_probe: target=probe expect=clean rc=0 -> PASS
+    [probe] B tu pulse no step   state=4 locked_all=1 invalid_clk=40599189/90000000 valid_falls=1 integ=30.703..30.723 ppm now_valid=1 disc_delta=0
+    [probe] D jitter 1200        state=4 locked_all=1 invalid_clk=299005820/300000000 valid_falls=1 integ=30.703..30.703 ppm now_valid=0 disc_delta=0
+    [probe] E clean recovery     state=4 locked_all=1 invalid_clk=23287735/200000000 valid_falls=0 integ=30.703..30.723 ppm now_valid=1 disc_delta=0
+    [probe] C jitter 500         state=4 locked_all=1 invalid_clk=0/200000000 valid_falls=0 integ=30.154..31.328 ppm now_valid=1 disc_delta=0
+    == reviewer probe talker: checks: 7   failures: 0 ==
+O1_tu_ignored: target=order expect=report rc=0 -> PASSES
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.703..30.723 ppm, state 4
+    step -150000 ns: integrator range 30.703..30.723 ppm, state 4
+    == reviewer probe gm_order: checks: 19   failures: 0 ==

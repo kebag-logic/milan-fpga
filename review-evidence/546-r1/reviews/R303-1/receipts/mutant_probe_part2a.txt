@@ -1,0 +1,10 @@
+clean_talker: target=talker expect=clean rc=0 -> PASS
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.723..30.723 ppm, state 4
+    step -150000 ns: integrator range 30.703..30.723 ppm, state 4
+    == crf_rx talker_step: checks: 19   failures: 0 ==
+C1_tu_ignored: target=talker expect=report rc=0 -> PASSES
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.723..30.723 ppm, state 4
+    step -150000 ns: integrator range 30.703..30.723 ppm, state 4
+    == crf_rx talker_step: checks: 19   failures: 0 ==

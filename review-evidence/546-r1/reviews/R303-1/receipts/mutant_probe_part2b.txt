@@ -1,0 +1,10 @@
+C2_jump_removed: target=talker expect=kill rc=0 -> SURVIVED
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.723..30.723 ppm, state 4
+    step -150000 ns: integrator range 30.703..30.723 ppm, state 4
+    == crf_rx talker_step: checks: 19   failures: 0 ==
+C3_tu_and_jump_removed: target=talker expect=kill rc=0 -> SURVIVED
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.723..30.723 ppm, state 4
+    step -150000 ns: integrator range 30.703..30.723 ppm, state 4
+    == crf_rx talker_step: checks: 19   failures: 0 ==
