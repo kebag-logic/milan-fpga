@@ -1,0 +1,8 @@
+XVLOG SETUP: REFUSED - a source tree this gate analyses is not the revision this commit pins, so the finding set would not be the pinned population:
+  protocol-processor  (the ATDECC/SRP control plane milan_datapath elaborates via KL_pp_shadow)
+      state:    checked out at the WRONG revision (`git submodule status` prints `+`)
+      expected: 2e1675d2d20bbc0bb549b36b9d485b2f9b747d5f   <- the superproject gitlink for this path
+      actual:   5771578784c77e945980c78faa52f3e54bcf5e2d
+      fix:      git submodule update --init --checkout protocol-processor
+  A fresh clone or `git worktree add` inherits no submodules, and a standalone clone dropped at the path is NOT one.
+  Refused rather than counted: over a tree that is not the pinned one the gate would print a finding set the pin does not stand behind - smaller (#186's trap) or simply different - and a default run would then rewrite the ratchet from it (#236).

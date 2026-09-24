@@ -1,0 +1,159 @@
+------------------------------------------------------------
+help2man --no-info --no-discard-stderr --version-string=- \
+	-n "Create Gantt chart of Verilator multi-threaded execution" bin/verilator_gantt -o verilator_gantt.1
+making verilator in src
+make -C src 
+help2man --no-info --no-discard-stderr --version-string=- \
+	-n "Read gprof report created with Verilator --prof-cfuncs" bin/verilator_profcfunc -o verilator_profcfunc.1
+make[1]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src'
+make -C obj_dbg -j 1  TGT=../../bin/verilator_bin_dbg VL_DEBUG=1 -f ../Makefile_obj serial
+make -C obj_dbg       TGT=../../bin/verilator_coverage_bin_dbg VL_DEBUG=1 VL_VLCOV=1 -f ../Makefile_obj serial_vlcov
+make -C obj_opt -j 1  TGT=../../bin/verilator_bin -f ../Makefile_obj serial
+make[2]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make[2]: warning: -j1 forced in submake: resetting jobserver mode.
+make[2]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_opt'
+make[2]: warning: -j1 forced in submake: resetting jobserver mode.
+make[2]: Nothing to be done for 'serial'.
+make[2]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_opt'
+make[2]: Nothing to be done for 'serial'.
+make[2]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make -C obj_dbg       TGT=../../bin/verilator_bin_dbg VL_DEBUG=1 -f ../Makefile_obj
+make -C obj_opt       TGT=../../bin/verilator_bin -f ../Makefile_obj
+make[2]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make[2]: Nothing to be done for 'serial_vlcov'.
+make[2]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make -C obj_dbg       TGT=../../bin/verilator_coverage_bin_dbg VL_DEBUG=1 VL_VLCOV=1 -f ../Makefile_obj
+make[2]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+      Compile flags:  g++ -Og -ggdb -gz -DVL_DEBUG -D_GLIBCXX_DEBUG -DVERILATOR_INTERNAL_ -MMD -I. -I.. -I.. -I../../include -I../../include -MP -Wno-shadow -Wno-unused-parameter -faligned-new -fno-exceptions -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free -DDEFENV_SYSTEMC="" -DDEFENV_SYSTEMC_ARCH="" -DDEFENV_SYSTEMC_INCLUDE="" -DDEFENV_SYSTEMC_LIBDIR="" -DDEFENV_VERILATOR_ROOT="$VALIDATION_TOOLS/verilator-v5.050/share/verilator"
+make[2]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make[2]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make[2]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_opt'
+      Compile flags:  g++ -Og -ggdb -gz -DVL_DEBUG -D_GLIBCXX_DEBUG -DVERILATOR_INTERNAL_ -MMD -I. -I.. -I.. -I../../include -I../../include -MP -Wno-shadow -Wno-unused-parameter -faligned-new -fno-exceptions -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free -DDEFENV_SYSTEMC="" -DDEFENV_SYSTEMC_ARCH="" -DDEFENV_SYSTEMC_INCLUDE="" -DDEFENV_SYSTEMC_LIBDIR="" -DDEFENV_VERILATOR_ROOT="$VALIDATION_TOOLS/verilator-v5.050/share/verilator"
+      Compile flags:  g++ -O3 -DVERILATOR_INTERNAL_ -MMD -I. -I.. -I.. -I../../include -I../../include -MP -Wno-shadow -Wno-unused-parameter -faligned-new -fno-exceptions -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free -DDEFENV_SYSTEMC="" -DDEFENV_SYSTEMC_ARCH="" -DDEFENV_SYSTEMC_INCLUDE="" -DDEFENV_SYSTEMC_LIBDIR="" -DDEFENV_VERILATOR_ROOT="$VALIDATION_TOOLS/verilator-v5.050/share/verilator"
+make[2]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make[2]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_opt'
+make[1]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src'
+Build complete!
+
+Now type 'make test' to test.
+
+------------------------------------------------------------
+making verilator in src
+make -C src 
+make[1]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src'
+make -C obj_dbg -j 1  TGT=../../bin/verilator_bin_dbg VL_DEBUG=1 -f ../Makefile_obj serial
+make[2]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make[2]: Nothing to be done for 'serial'.
+make[2]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make -C obj_dbg       TGT=../../bin/verilator_bin_dbg VL_DEBUG=1 -f ../Makefile_obj
+make[2]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+      Compile flags:  g++ -Og -ggdb -gz -DVL_DEBUG -D_GLIBCXX_DEBUG -DVERILATOR_INTERNAL_ -MMD -I. -I.. -I.. -I../../include -I../../include -MP -Wno-shadow -Wno-unused-parameter -faligned-new -fno-exceptions -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free -DDEFENV_SYSTEMC="" -DDEFENV_SYSTEMC_ARCH="" -DDEFENV_SYSTEMC_INCLUDE="" -DDEFENV_SYSTEMC_LIBDIR="" -DDEFENV_VERILATOR_ROOT="$VALIDATION_TOOLS/verilator-v5.050/share/verilator"
+make[2]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make -C obj_dbg       TGT=../../bin/verilator_coverage_bin_dbg VL_DEBUG=1 VL_VLCOV=1 -f ../Makefile_obj serial_vlcov
+make[2]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make[2]: Nothing to be done for 'serial_vlcov'.
+make[2]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make -C obj_dbg       TGT=../../bin/verilator_coverage_bin_dbg VL_DEBUG=1 VL_VLCOV=1 -f ../Makefile_obj
+make[2]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+      Compile flags:  g++ -Og -ggdb -gz -DVL_DEBUG -D_GLIBCXX_DEBUG -DVERILATOR_INTERNAL_ -MMD -I. -I.. -I.. -I../../include -I../../include -MP -Wno-shadow -Wno-unused-parameter -faligned-new -fno-exceptions -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free -DDEFENV_SYSTEMC="" -DDEFENV_SYSTEMC_ARCH="" -DDEFENV_SYSTEMC_INCLUDE="" -DDEFENV_SYSTEMC_LIBDIR="" -DDEFENV_VERILATOR_ROOT="$VALIDATION_TOOLS/verilator-v5.050/share/verilator"
+make[2]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_dbg'
+make -C obj_opt -j 1  TGT=../../bin/verilator_bin -f ../Makefile_obj serial
+make[2]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_opt'
+make[2]: Nothing to be done for 'serial'.
+make[2]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_opt'
+make -C obj_opt       TGT=../../bin/verilator_bin -f ../Makefile_obj
+make[2]: Entering directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_opt'
+      Compile flags:  g++ -O3 -DVERILATOR_INTERNAL_ -MMD -I. -I.. -I.. -I../../include -I../../include -MP -Wno-shadow -Wno-unused-parameter -faligned-new -fno-exceptions -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free -DDEFENV_SYSTEMC="" -DDEFENV_SYSTEMC_ARCH="" -DDEFENV_SYSTEMC_INCLUDE="" -DDEFENV_SYSTEMC_LIBDIR="" -DDEFENV_VERILATOR_ROOT="$VALIDATION_TOOLS/verilator-v5.050/share/verilator"
+make[2]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src/obj_opt'
+make[1]: Leaving directory '$VALIDATION_TOOLS/verilator-v5.050-src/src'
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/bin
+mkdir $VALIDATION_TOOLS/verilator-v5.050
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/bin
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/bin
+mkdir $VALIDATION_TOOLS/verilator-v5.050/bin
+cd ./bin; \
+for p in verilator verilator_coverage verilator_gantt verilator_profcfunc  ; do \
+	/usr/bin/install -c $p $VALIDATION_TOOLS/verilator-v5.050/bin/$p; \
+done
+perl -p -i -e 'use File::Spec;' \
+           -e' $path = File::Spec->abs2rel("$VALIDATION_TOOLS/verilator-v5.050/share/verilator", "$VALIDATION_TOOLS/verilator-v5.050/bin");' \
+           -e 's/my \$verilator_pkgdatadir_relpath = .*/my \$verilator_pkgdatadir_relpath = "$path";/g' \
+           -- "/$VALIDATION_TOOLS/verilator-v5.050/bin/verilator"
+cd bin; \
+for p in verilator_bin verilator_bin_dbg verilator_coverage_bin_dbg  ; do \
+	/usr/bin/install -c $p $VALIDATION_TOOLS/verilator-v5.050/bin/$p; \
+done
+cd ./bin; \
+for p in verilator_ccache_report verilator_includer  ; do \
+	/usr/bin/install -c $p $VALIDATION_TOOLS/verilator-v5.050/share/verilator/bin/$p; \
+done
+REDIR_SCRATCH=$(mktemp redir_XXXXXX); \
+perl -p -e 'use File::Spec;' \
+        -e' $path = File::Spec->abs2rel("$VALIDATION_TOOLS/verilator-v5.050/bin", "$VALIDATION_TOOLS/verilator-v5.050/share/verilator/bin");' \
+        -e 's/RELPATH.*/"$path";/g' -- "./bin/redirect" > $REDIR_SCRATCH; \
+for p in verilator verilator_coverage verilator_gantt verilator_profcfunc  verilator_bin verilator_bin_dbg verilator_coverage_bin_dbg  ; do \
+	/usr/bin/install -c $REDIR_SCRATCH $VALIDATION_TOOLS/verilator-v5.050/share/verilator/bin/$p; \
+done; \
+rm $REDIR_SCRATCH
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/man/man1
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/man
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/man/man1
+for p in verilator.1 verilator_coverage.1 verilator_gantt.1 verilator_profcfunc.1 ; do \
+	/usr/bin/install -c -m 644 $p $VALIDATION_TOOLS/verilator-v5.050/share/man/man1/$p; \
+done
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/fstcpp
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/fstcpp
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd
+for p in include/verilated_config.h include/verilated.mk  ; do \
+	/usr/bin/install -c -m 644 $p $VALIDATION_TOOLS/verilator-v5.050/share/verilator/$p; \
+done
+cd . \
+; for p in include/*.[chv]* include/*.vlt include/*.sv include/fstcpp/*.[chv]* include/vltstd/*.[chv]*  ; do \
+  /usr/bin/install -c -m 644 $p $VALIDATION_TOOLS/verilator-v5.050/share/verilator/$p; \
+done
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/make_hello_binary
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/make_hello_binary
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/make_hello_c
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/make_hello_c
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/make_hello_sc
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/make_hello_sc
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/make_tracing_c
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/make_tracing_c
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/make_tracing_sc
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/make_tracing_sc
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/make_protect_lib
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/make_protect_lib
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/cmake_hello_c
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/cmake_hello_c
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/cmake_hello_sc
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/cmake_hello_sc
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/cmake_tracing_c
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/cmake_tracing_c
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/cmake_tracing_sc
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/cmake_tracing_sc
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/cmake_protect_lib
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/cmake_protect_lib
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/json_py
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples/json_py
+cd . \
+; for p in examples/*/*.[chv]* examples/*/CMakeLists.txt examples/*/Makefile* examples/*/vl_*  ; do \
+  /usr/bin/install -c -m 644 $p $VALIDATION_TOOLS/verilator-v5.050/share/verilator/$p; \
+done
+/bin/sh ./src/mkinstalldirs $VALIDATION_TOOLS/verilator-v5.050/share/pkgconfig
+mkdir $VALIDATION_TOOLS/verilator-v5.050/share/pkgconfig
+/usr/bin/install -c -m 644 verilator.pc $VALIDATION_TOOLS/verilator-v5.050/share/pkgconfig
+/usr/bin/install -c -m 644 verilator-config.cmake $VALIDATION_TOOLS/verilator-v5.050/share/verilator
+/usr/bin/install -c -m 644 verilator-config-version.cmake $VALIDATION_TOOLS/verilator-v5.050/share/verilator
+
+Installed binaries to $VALIDATION_TOOLS/verilator-v5.050/bin/verilator
+Installed man to $VALIDATION_TOOLS/verilator-v5.050/share/man/man1
+Installed examples to $VALIDATION_TOOLS/verilator-v5.050/share/verilator/examples
+
+For documentation see 'man verilator' or 'verilator --help'
+For forums and to report bugs see https://verilator.org
+
