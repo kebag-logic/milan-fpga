@@ -1,0 +1,54 @@
+USING RUNNER: behave.runner:Runner
+@milan @clause:5.3.7.3 @clause:5.3.7.2 @matrix:M-DEV-13c @srp
+Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL # features/milan_streaming_licence.feature:5
+  Verbatim, Milan Specification Consolidated v1.2 (2023-11-30) Section 5.3.7.3:
+  "As long as a PAAD is declaring a Talker Advertise attribute and receiving a
+  Listener Ready or Listener Ready Failed attribute for a Stream Output, it
+  shall be streaming AVTP packets. This specification excludes the possibility
+  for a Stream Output to be stopped (STREAMING_WAIT state shall not be
+  implemented)."
+  Two obligations, not one. The "shall be streaming" is gated on BOTH terms; the
+  second sentence only forbids implementing STREAMING_WAIT. Section 5.3.7.2 keeps
+  the Talker attribute unconditional - "a PAAD shall always declare an MSRP Talker
+  attribute as soon as it has valid SRP parameters for this stream" - and lists the
+  three registration states, of which only Ready / Ready Failed license streaming.
+  This repo read 5.3.7.3 as an unconditional "never stop streaming" until
+  2026-07-28 (traceability row M-DEV-13a said exactly that), and on that reading
+  both boards shipped with the AAF admission gate BYPASSED: measured on the
+  ProfiShark inline tap, 18,488 SR-class-A-tagged AAF frames in 6 s from a talker
+  whose LWSRP_STATUS reported no Listener registration and a shut stream gate.
+  These scenarios pin the clause against the RTL that implements it, so a future
+  edit cannot quietly re-widen the condition. The wire evidence is a byte-exact
+  MSRPDU captured from the certified bench bridge on 2026-07-28.
+  WHAT LEFT WITH THE lwSRP RTL. The applicant/registrar/bw-gate engine under
+  hdl/ieee8021q/srp/** has been deleted; the protocol-processor submodule
+  declares now, and milan_datapath drives lwsrp_stream_gate from the
+  processor's ACTIVE vector (its admitted vector until #530, which let a
+  declaration alone open the gate). Three @class:clause scenarios (listener_ready_o,
+  the bw-gate req_w, the unconditional TalkerAdvertise inclusion) resolved out
+  of that RTL's own expressions and went with it. So did @matrix:M-DEV-13d:
+  its subject was the fabric provisioner srp_fab_want_v_w / srp_fab_launch_w,
+  which no longer exists - there is no row for the fabric to provision. The
+  remaining scenarios read only what still ships: the AAF admission
+  composition in milan_datapath, the t>0 identity in KL_aaf_packetizer, and
+  the bench capture.
+  @milan @clause:5.3.7.3 @clause:5.3.7.2 @matrix:M-DEV-13c @srp
+  Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL  # features/milan_streaming_licence.feature:5
+
+  @class:structure
+  Scenario: the stream gate is the processor's ACTIVE, never its raw admission verdict  # features/milan_streaming_licence.feature:87
+    Given the Milan datapath and AAF talker RTL sources                                 # steps/milan_streaming_licence_steps.py:101
+    When I read the lwSRP stream gate assignment from milan_datapath                    # steps/milan_streaming_licence_steps.py:167
+    Then the stream gate takes the processor's ACTIVE vector and nothing else           # steps/milan_streaming_licence_steps.py:174
+      ASSERT FAILED: lwsrp_stream_gate must be the processor's ACTIVE vector alone; expression is pp_cd_srp_active_w[SRP_TALKERS_C-1:0] & pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0]
+
+
+
+Failing scenarios:
+  features/milan_streaming_licence.feature:87  the stream gate is the processor's ACTIVE, never its raw admission verdict
+
+0 features passed, 1 failed, 0 skipped
+0 scenarios passed, 1 failed, 4 skipped
+2 steps passed, 1 failed, 23 skipped
+Took 0min 0.005s
+rc=1
