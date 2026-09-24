@@ -38,8 +38,17 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Only `LWSRP_STATUS[9]` and `LWSRP_SLOPE` keep the raw verdict.
 - No shaper reads either: none is instantiated.
 - ACTIVE can lead them by up to three admission rounds.
-- That needs a Listener Ready registered at the declaration.
-- That status skew is the corner's only effect.
+- That needs a Listener Ready decoded within those rounds.
+- Each declaration clears its registered Listener first.
+- For an admitted stream the lead is status skew only.
+- A refused stream keeps ACTIVE until that window ends.
+- It stays licensed for up to three rounds.
+- A controller reads a `STREAM_START` and `STREAM_STOP` pair.
+- The start resets the Table 5.4 interval counters.
+- At most one PDU per source can leave.
+- The CRF output shows this on `CRFT_CTRL[6]`/`[7]` and `LWSRP_STATUS[6]`.
+- `LWSRP_STATUS[8]` shows source 0 only.
+- Issue #551 asks whether the licence should need the grant.
 - A bound CRF talker also ended its own bursts.
 - The processor pin moves to `09f9bf38` (processor issue 106).
 - Its LeaveAll now flags every MSRP attribute type.
