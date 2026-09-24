@@ -1,0 +1,997 @@
+verilator --cc --exe --build -j 0 --top-module srp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv srp_top_wrap.sv sim_main.cpp -o Vsrp_top_sim
+make[1]: Entering directory '$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra   -x c++-header Vsrp_top_wrap__pch.h -o Vsrp_top_wrap__pch.h.fast.gch
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra   -x c++-header Vsrp_top_wrap__pch.h -o Vsrp_top_wrap__pch.h.slow.gch
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap___024root__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap___024root__0__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap__Syms__Slow.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.fast -c Vsrp_top_wrap.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.fast -c Vsrp_top_wrap___024root__0.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.fast -c Vsrp_top_wrap___024root__1.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vsrp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_top_sim
+rm Vsrp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$REVIEWS/pp116-r314-1-packet/scratch/probe-srp-adm-never-publish-stall-top/tb/srp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.399 MB sources in 15 modules, into 1.834 MB in 7 C++ files needing 0.002 MB
+- Verilator: Walltime 7.444 s (elab=0.020, cvt=0.181, bld=7.190); cpu 0.273 s on 8 threads; allocated 374.512 MB
+./obj_dir/Vsrp_top_sim
+FAIL: B: src 0 admitted
+FAIL: B: granted slope 0 vs model 68224000
+FAIL: B: sum slope vs model
+FAIL: C: over_limit view
+FAIL: C: sum excludes the refused
+FAIL: C: tk_decl_state FAILED
+FAIL: C: msrp_fail_code 1
+FAIL: C: system id = own MAC
+FAIL: C: Talker Failed code 1 byte-exact
+FAIL: C2: src 1 admitted
+FAIL: C2: granted slope vs model
+FAIL: C2: Advertise New replaces the Failed in place
+FAIL: G0: admitted vector 0x00 vs model 0x02
+FAIL: G0: granted slopes match the model
+FAIL: G0: over_limit
+FAIL: G0: sum 0 vs model 9088000
+FAIL: G1: over_limit
+FAIL: G2: over_limit
+FAIL: G3: admitted vector 0x00 vs model 0x20
+FAIL: G3: granted slopes match the model
+FAIL: G3: over_limit
+FAIL: G3: sum 0 vs model 24000000
+FAIL: G4: admitted vector 0x00 vs model 0x20
+FAIL: G4: granted slopes match the model
+FAIL: G4: over_limit
+FAIL: G4: sum 0 vs model 24000000
+FAIL: G5: admitted vector 0x00 vs model 0x22
+FAIL: G5: granted slopes match the model
+FAIL: G5: over_limit
+FAIL: G5: sum 0 vs model 46144000
+FAIL: G6: admitted vector 0x00 vs model 0x22
+FAIL: G6: granted slopes match the model
+FAIL: G6: over_limit
+FAIL: G6: sum 0 vs model 56128000
+FAIL: G7: admitted vector 0x00 vs model 0x22
+FAIL: G7: granted slopes match the model
+FAIL: G7: over_limit
+FAIL: G7: sum 0 vs model 56128000
+FAIL: G8: admitted vector 0x00 vs model 0x22
+FAIL: G8: granted slopes match the model
+FAIL: G8: over_limit
+FAIL: G8: sum 0 vs model 56128000
+FAIL: G9: admitted vector 0x00 vs model 0x22
+FAIL: G9: granted slopes match the model
+FAIL: G9: over_limit
+FAIL: G9: sum 0 vs model 56128000
+FAIL: G10: admitted vector 0x00 vs model 0x22
+FAIL: G10: granted slopes match the model
+FAIL: G10: over_limit
+FAIL: G10: sum 0 vs model 56128000
+FAIL: G11: admitted vector 0x00 vs model 0x20
+FAIL: G11: granted slopes match the model
+FAIL: G11: over_limit
+FAIL: G11: sum 0 vs model 24000000
+FAIL: G12: admitted vector 0x00 vs model 0x20
+FAIL: G12: granted slopes match the model
+FAIL: G12: over_limit
+FAIL: G12: sum 0 vs model 24000000
+FAIL: G13: admitted vector 0x00 vs model 0xa0
+FAIL: G13: granted slopes match the model
+FAIL: G13: over_limit
+FAIL: G13: sum 0 vs model 50560000
+FAIL: G14: admitted vector 0x00 vs model 0x20
+FAIL: G14: granted slopes match the model
+FAIL: G14: over_limit
+FAIL: G14: sum 0 vs model 24000000
+FAIL: G15: admitted vector 0x00 vs model 0x20
+FAIL: G15: granted slopes match the model
+FAIL: G15: over_limit
+FAIL: G15: sum 0 vs model 24000000
+FAIL: G16: admitted vector 0x00 vs model 0x20
+FAIL: G16: granted slopes match the model
+FAIL: G16: over_limit
+FAIL: G16: sum 0 vs model 24000000
+FAIL: G17: admitted vector 0x00 vs model 0x22
+FAIL: G17: granted slopes match the model
+FAIL: G17: over_limit
+FAIL: G17: sum 0 vs model 73920000
+FAIL: G18: admitted vector 0x00 vs model 0x22
+FAIL: G18: granted slopes match the model
+FAIL: G18: over_limit
+FAIL: G18: sum 0 vs model 73920000
+FAIL: G19: admitted vector 0x00 vs model 0x02
+FAIL: G19: granted slopes match the model
+FAIL: G19: over_limit
+FAIL: G19: sum 0 vs model 49920000
+FAIL: G20: admitted vector 0x00 vs model 0x12
+FAIL: G20: granted slopes match the model
+FAIL: G20: over_limit
+FAIL: G20: sum 0 vs model 56256000
+FAIL: G21: admitted vector 0x00 vs model 0x12
+FAIL: G21: granted slopes match the model
+FAIL: G21: over_limit
+FAIL: G21: sum 0 vs model 56256000
+FAIL: G22: admitted vector 0x00 vs model 0x11
+FAIL: G22: granted slopes match the model
+FAIL: G22: over_limit
+FAIL: G22: sum 0 vs model 54720000
+FAIL: G23: admitted vector 0x00 vs model 0x11
+FAIL: G23: granted slopes match the model
+FAIL: G23: over_limit
+FAIL: G23: sum 0 vs model 54720000
+FAIL: G24: admitted vector 0x00 vs model 0x11
+FAIL: G24: granted slopes match the model
+FAIL: G24: over_limit
+FAIL: G24: sum 0 vs model 54720000
+FAIL: G25: admitted vector 0x00 vs model 0x11
+FAIL: G25: granted slopes match the model
+FAIL: G25: over_limit
+FAIL: G25: sum 0 vs model 54720000
+FAIL: G26: admitted vector 0x00 vs model 0x11
+FAIL: G26: granted slopes match the model
+FAIL: G26: over_limit
+FAIL: G26: sum 0 vs model 54720000
+FAIL: G27: admitted vector 0x00 vs model 0x11
+FAIL: G27: granted slopes match the model
+FAIL: G27: over_limit
+FAIL: G27: sum 0 vs model 54720000
+FAIL: G28: admitted vector 0x00 vs model 0x31
+FAIL: G28: granted slopes match the model
+FAIL: G28: over_limit
+FAIL: G28: sum 0 vs model 70272000
+FAIL: G29: admitted vector 0x00 vs model 0x31
+FAIL: G29: granted slopes match the model
+FAIL: G29: over_limit
+FAIL: G29: sum 0 vs model 70272000
+FAIL: H: previous small declaration is active source 0
+FAIL: H: settled sum and refusal source 0 frame 20000
+LATENCY source=0 request_phase=0 accepted_phase=1 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=0 accepted_phase=1 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=0 accepted_phase=1 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 0
+FAIL: H: settled sum and refusal source 0 frame 20000
+LATENCY source=0 request_phase=1 accepted_phase=2 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=1 accepted_phase=2 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=1 accepted_phase=2 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 0
+FAIL: H: settled sum and refusal source 0 frame 20000
+LATENCY source=0 request_phase=2 accepted_phase=3 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=2 accepted_phase=3 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=2 accepted_phase=3 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 0
+FAIL: H: settled sum and refusal source 0 frame 20000
+LATENCY source=0 request_phase=3 accepted_phase=4 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=3 accepted_phase=4 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=3 accepted_phase=4 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 0
+FAIL: H: settled sum and refusal source 0 frame 20000
+LATENCY source=0 request_phase=4 accepted_phase=5 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=4 accepted_phase=5 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=4 accepted_phase=5 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 0
+FAIL: H: settled sum and refusal source 0 frame 20000
+LATENCY source=0 request_phase=5 accepted_phase=6 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=5 accepted_phase=6 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=5 accepted_phase=6 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 0
+FAIL: H: settled sum and refusal source 0 frame 20000
+LATENCY source=0 request_phase=6 accepted_phase=7 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=6 accepted_phase=7 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=6 accepted_phase=7 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 0
+FAIL: H: settled sum and refusal source 0 frame 20000
+LATENCY source=0 request_phase=7 accepted_phase=0 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=7 accepted_phase=0 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 0 frame 224 latency -1
+FAIL: H: settled sum and refusal source 0 frame 224
+LATENCY source=0 request_phase=7 accepted_phase=0 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 1
+FAIL: H: settled sum and refusal source 1 frame 20000
+LATENCY source=1 request_phase=0 accepted_phase=1 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=0 accepted_phase=1 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=0 accepted_phase=1 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 1
+FAIL: H: settled sum and refusal source 1 frame 20000
+LATENCY source=1 request_phase=1 accepted_phase=2 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=1 accepted_phase=2 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=1 accepted_phase=2 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 1
+FAIL: H: settled sum and refusal source 1 frame 20000
+LATENCY source=1 request_phase=2 accepted_phase=3 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=2 accepted_phase=3 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=2 accepted_phase=3 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 1
+FAIL: H: settled sum and refusal source 1 frame 20000
+LATENCY source=1 request_phase=3 accepted_phase=4 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=3 accepted_phase=4 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=3 accepted_phase=4 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 1
+FAIL: H: settled sum and refusal source 1 frame 20000
+LATENCY source=1 request_phase=4 accepted_phase=5 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=4 accepted_phase=5 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=4 accepted_phase=5 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 1
+FAIL: H: settled sum and refusal source 1 frame 20000
+LATENCY source=1 request_phase=5 accepted_phase=6 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=5 accepted_phase=6 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=5 accepted_phase=6 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 1
+FAIL: H: settled sum and refusal source 1 frame 20000
+LATENCY source=1 request_phase=6 accepted_phase=7 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=6 accepted_phase=7 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=6 accepted_phase=7 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 1
+FAIL: H: settled sum and refusal source 1 frame 20000
+LATENCY source=1 request_phase=7 accepted_phase=0 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=7 accepted_phase=0 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 1 frame 224 latency -1
+FAIL: H: settled sum and refusal source 1 frame 224
+LATENCY source=1 request_phase=7 accepted_phase=0 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 7
+FAIL: H: settled sum and refusal source 7 frame 20000
+LATENCY source=7 request_phase=0 accepted_phase=1 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=0 accepted_phase=1 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=0 accepted_phase=1 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 7
+FAIL: H: settled sum and refusal source 7 frame 20000
+LATENCY source=7 request_phase=1 accepted_phase=2 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=1 accepted_phase=2 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=1 accepted_phase=2 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 7
+FAIL: H: settled sum and refusal source 7 frame 20000
+LATENCY source=7 request_phase=2 accepted_phase=3 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=2 accepted_phase=3 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=2 accepted_phase=3 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 7
+FAIL: H: settled sum and refusal source 7 frame 20000
+LATENCY source=7 request_phase=3 accepted_phase=4 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=3 accepted_phase=4 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=3 accepted_phase=4 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 7
+FAIL: H: settled sum and refusal source 7 frame 20000
+LATENCY source=7 request_phase=4 accepted_phase=5 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=4 accepted_phase=5 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=4 accepted_phase=5 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 7
+FAIL: H: settled sum and refusal source 7 frame 20000
+LATENCY source=7 request_phase=5 accepted_phase=6 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=5 accepted_phase=6 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=5 accepted_phase=6 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 7
+FAIL: H: settled sum and refusal source 7 frame 20000
+LATENCY source=7 request_phase=6 accepted_phase=7 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=6 accepted_phase=7 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=6 accepted_phase=7 frame=224 cycles=-1 window=-1
+FAIL: H: previous small declaration is active source 7
+FAIL: H: settled sum and refusal source 7 frame 20000
+LATENCY source=7 request_phase=7 accepted_phase=0 frame=20000 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=7 accepted_phase=0 frame=224 cycles=-1 window=-1
+FAIL: H: grow has no grant pulse, shrink has bounded grant source 7 frame 224 latency -1
+FAIL: H: settled sum and refusal source 7 frame 224
+LATENCY source=7 request_phase=7 accepted_phase=0 frame=224 cycles=-1 window=-1
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=0 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=0 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=0)
+CROSS source=1 phase=0 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=0: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=1 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=1 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=1)
+CROSS source=1 phase=1 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=1: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=2 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=2 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=2)
+CROSS source=1 phase=2 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=2: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=3 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=3 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=3)
+CROSS source=1 phase=3 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=3: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=4 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=4 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=4)
+CROSS source=1 phase=4 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=4: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=5 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=5 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=5)
+CROSS source=1 phase=5 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=5: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=6 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=6 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=6)
+CROSS source=1 phase=6 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=6: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=7 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=7 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=7)
+CROSS source=1 phase=7 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=7: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=0 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=0 frame 900)
+FAIL: I: settled grants and sum match the model (phase=0)
+CROSS source=1 phase=0 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=0: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=1 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=1 frame 900)
+FAIL: I: settled grants and sum match the model (phase=1)
+CROSS source=1 phase=1 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=1: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=2 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=2 frame 900)
+FAIL: I: settled grants and sum match the model (phase=2)
+CROSS source=1 phase=2 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=2: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=3 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=3 frame 900)
+FAIL: I: settled grants and sum match the model (phase=3)
+CROSS source=1 phase=3 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=3: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=4 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=4 frame 900)
+FAIL: I: settled grants and sum match the model (phase=4)
+CROSS source=1 phase=4 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=4: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=5 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=5 frame 900)
+FAIL: I: settled grants and sum match the model (phase=5)
+CROSS source=1 phase=5 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=5: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=6 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=6 frame 900)
+FAIL: I: settled grants and sum match the model (phase=6)
+CROSS source=1 phase=6 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=6: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=7 latency -2)
+FAIL: I: refused source 1 never grants, is never ACTIVE, never declares Advertise (phase=7 frame 900)
+FAIL: I: settled grants and sum match the model (phase=7)
+CROSS source=1 phase=7 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 1 only once freed (phase=7: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=0 latency -2)
+FAIL: I: settled grants and sum match the model (phase=0)
+CROSS source=1 phase=0 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=1 latency -2)
+FAIL: I: settled grants and sum match the model (phase=1)
+CROSS source=1 phase=1 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=2 latency -2)
+FAIL: I: settled grants and sum match the model (phase=2)
+CROSS source=1 phase=2 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=3 latency -2)
+FAIL: I: settled grants and sum match the model (phase=3)
+CROSS source=1 phase=3 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=4 latency -2)
+FAIL: I: settled grants and sum match the model (phase=4)
+CROSS source=1 phase=4 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=5 latency -2)
+FAIL: I: settled grants and sum match the model (phase=5)
+CROSS source=1 phase=5 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=6 latency -2)
+FAIL: I: settled grants and sum match the model (phase=6)
+CROSS source=1 phase=6 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 1 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=7 latency -2)
+FAIL: I: settled grants and sum match the model (phase=7)
+CROSS source=1 phase=7 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=0 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=0 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=0)
+CROSS source=7 phase=0 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=0: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=1 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=1 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=1)
+CROSS source=7 phase=1 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=1: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=2 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=2 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=2)
+CROSS source=7 phase=2 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=2: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=3 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=3 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=3)
+CROSS source=7 phase=3 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=3: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=4 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=4 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=4)
+CROSS source=7 phase=4 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=4: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=5 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=5 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=5)
+CROSS source=7 phase=5 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=5: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=6 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=6 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=6)
+CROSS source=7 phase=6 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=6: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=7 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=7 frame 1051)
+FAIL: I: settled grants and sum match the model (phase=7)
+CROSS source=7 phase=7 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=7: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=0 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=0 frame 900)
+FAIL: I: settled grants and sum match the model (phase=0)
+CROSS source=7 phase=0 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=0: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=1 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=1 frame 900)
+FAIL: I: settled grants and sum match the model (phase=1)
+CROSS source=7 phase=1 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=1: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=2 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=2 frame 900)
+FAIL: I: settled grants and sum match the model (phase=2)
+CROSS source=7 phase=2 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=2: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=3 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=3 frame 900)
+FAIL: I: settled grants and sum match the model (phase=3)
+CROSS source=7 phase=3 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=3: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=4 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=4 frame 900)
+FAIL: I: settled grants and sum match the model (phase=4)
+CROSS source=7 phase=4 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=4: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=5 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=5 frame 900)
+FAIL: I: settled grants and sum match the model (phase=5)
+CROSS source=7 phase=5 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=5: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=6 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=6 frame 900)
+FAIL: I: settled grants and sum match the model (phase=6)
+CROSS source=7 phase=6 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=6: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=7 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (phase=7 frame 900)
+FAIL: I: settled grants and sum match the model (phase=7)
+CROSS source=7 phase=7 frame=900 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (phase=7: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=0 latency -2)
+FAIL: I: settled grants and sum match the model (phase=0)
+CROSS source=7 phase=0 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=1 latency -2)
+FAIL: I: settled grants and sum match the model (phase=1)
+CROSS source=7 phase=1 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=2 latency -2)
+FAIL: I: settled grants and sum match the model (phase=2)
+CROSS source=7 phase=2 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=3 latency -2)
+FAIL: I: settled grants and sum match the model (phase=3)
+CROSS source=7 phase=3 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=4 latency -2)
+FAIL: I: settled grants and sum match the model (phase=4)
+CROSS source=7 phase=4 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=5 latency -2)
+FAIL: I: settled grants and sum match the model (phase=5)
+CROSS source=7 phase=5 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=6 latency -2)
+FAIL: I: settled grants and sum match the model (phase=6)
+CROSS source=7 phase=6 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+FAIL: I: source 0 re-granted at a published round (phase=7 latency -2)
+FAIL: I: settled grants and sum match the model (phase=7)
+CROSS source=7 phase=7 frame=224 lo_latency=-2 hi_first=-1 refused_levels=0
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=1 accepted_to_join=2
+FAIL: I: source 0 re-granted at a published round (k=1 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=1 frame 1051)
+FAIL: I: settled grants and sum match the model (k=1)
+CROSS source=7 k=1 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=1: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=2 accepted_to_join=3
+FAIL: I: source 0 re-granted at a published round (k=2 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=2 frame 1051)
+FAIL: I: settled grants and sum match the model (k=2)
+CROSS source=7 k=2 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=2: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=3 accepted_to_join=4
+FAIL: I: source 0 re-granted at a published round (k=3 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=3 frame 1051)
+FAIL: I: settled grants and sum match the model (k=3)
+CROSS source=7 k=3 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=3: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=4 accepted_to_join=5
+FAIL: I: source 0 re-granted at a published round (k=4 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=4 frame 1051)
+FAIL: I: settled grants and sum match the model (k=4)
+CROSS source=7 k=4 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=4: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=5 accepted_to_join=6
+FAIL: I: source 0 re-granted at a published round (k=5 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=5 frame 1051)
+FAIL: I: settled grants and sum match the model (k=5)
+CROSS source=7 k=5 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=5: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=6 accepted_to_join=7
+FAIL: I: source 0 re-granted at a published round (k=6 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=6 frame 1051)
+FAIL: I: settled grants and sum match the model (k=6)
+CROSS source=7 k=6 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=6: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=7 accepted_to_join=8
+FAIL: I: source 0 re-granted at a published round (k=7 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=7 frame 1051)
+FAIL: I: settled grants and sum match the model (k=7)
+CROSS source=7 k=7 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=7: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=8 accepted_to_join=9
+FAIL: I: source 0 re-granted at a published round (k=8 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=8 frame 1051)
+FAIL: I: settled grants and sum match the model (k=8)
+CROSS source=7 k=8 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=8: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=9 accepted_to_join=10
+FAIL: I: source 0 re-granted at a published round (k=9 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=9 frame 1051)
+FAIL: I: settled grants and sum match the model (k=9)
+CROSS source=7 k=9 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=9: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=10 accepted_to_join=11
+FAIL: I: source 0 re-granted at a published round (k=10 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=10 frame 1051)
+FAIL: I: settled grants and sum match the model (k=10)
+CROSS source=7 k=10 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=10: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=11 accepted_to_join=12
+FAIL: I: source 0 re-granted at a published round (k=11 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=11 frame 1051)
+FAIL: I: settled grants and sum match the model (k=11)
+CROSS source=7 k=11 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=11: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=12 accepted_to_join=13
+FAIL: I: source 0 re-granted at a published round (k=12 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=12 frame 1051)
+FAIL: I: settled grants and sum match the model (k=12)
+CROSS source=7 k=12 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=12: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=13 accepted_to_join=14
+FAIL: I: source 0 re-granted at a published round (k=13 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=13 frame 1051)
+FAIL: I: settled grants and sum match the model (k=13)
+CROSS source=7 k=13 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=13: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=14 accepted_to_join=15
+FAIL: I: source 0 re-granted at a published round (k=14 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=14 frame 1051)
+FAIL: I: settled grants and sum match the model (k=14)
+CROSS source=7 k=14 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=14: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=15 accepted_to_join=16
+FAIL: I: source 0 re-granted at a published round (k=15 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=15 frame 1051)
+FAIL: I: settled grants and sum match the model (k=15)
+CROSS source=7 k=15 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=15: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=16 accepted_to_join=17
+FAIL: I: source 0 re-granted at a published round (k=16 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=16 frame 1051)
+FAIL: I: settled grants and sum match the model (k=16)
+CROSS source=7 k=16 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=16: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=17 accepted_to_join=18
+FAIL: I: source 0 re-granted at a published round (k=17 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=17 frame 1051)
+FAIL: I: settled grants and sum match the model (k=17)
+CROSS source=7 k=17 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=17: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=18 accepted_to_join=19
+FAIL: I: source 0 re-granted at a published round (k=18 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=18 frame 1051)
+FAIL: I: settled grants and sum match the model (k=18)
+CROSS source=7 k=18 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=18: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=19 accepted_to_join=20
+FAIL: I: source 0 re-granted at a published round (k=19 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=19 frame 1051)
+FAIL: I: settled grants and sum match the model (k=19)
+CROSS source=7 k=19 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=19: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=20 accepted_to_join=21
+FAIL: I: source 0 re-granted at a published round (k=20 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=20 frame 1051)
+FAIL: I: settled grants and sum match the model (k=20)
+CROSS source=7 k=20 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=20: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=21 accepted_to_join=22
+FAIL: I: source 0 re-granted at a published round (k=21 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=21 frame 1051)
+FAIL: I: settled grants and sum match the model (k=21)
+CROSS source=7 k=21 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=21: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=22 accepted_to_join=23
+FAIL: I: source 0 re-granted at a published round (k=22 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=22 frame 1051)
+FAIL: I: settled grants and sum match the model (k=22)
+CROSS source=7 k=22 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=22: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=23 accepted_to_join=24
+FAIL: I: source 0 re-granted at a published round (k=23 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=23 frame 1051)
+FAIL: I: settled grants and sum match the model (k=23)
+CROSS source=7 k=23 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=23: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=24 accepted_to_join=25
+FAIL: I: source 0 re-granted at a published round (k=24 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=24 frame 1051)
+FAIL: I: settled grants and sum match the model (k=24)
+CROSS source=7 k=24 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=24: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=25 accepted_to_join=26
+FAIL: I: source 0 re-granted at a published round (k=25 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=25 frame 1051)
+FAIL: I: settled grants and sum match the model (k=25)
+CROSS source=7 k=25 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=25: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=26 accepted_to_join=27
+FAIL: I: source 0 re-granted at a published round (k=26 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=26 frame 1051)
+FAIL: I: settled grants and sum match the model (k=26)
+CROSS source=7 k=26 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=26: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=27 accepted_to_join=28
+FAIL: I: source 0 re-granted at a published round (k=27 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=27 frame 1051)
+FAIL: I: settled grants and sum match the model (k=27)
+CROSS source=7 k=27 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=27: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=28 accepted_to_join=29
+FAIL: I: source 0 re-granted at a published round (k=28 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=28 frame 1051)
+FAIL: I: settled grants and sum match the model (k=28)
+CROSS source=7 k=28 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=28: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=29 accepted_to_join=30
+FAIL: I: source 0 re-granted at a published round (k=29 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=29 frame 1051)
+FAIL: I: settled grants and sum match the model (k=29)
+CROSS source=7 k=29 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=29: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=30 accepted_to_join=31
+FAIL: I: source 0 re-granted at a published round (k=30 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=30 frame 1051)
+FAIL: I: settled grants and sum match the model (k=30)
+CROSS source=7 k=30 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=30: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=31 accepted_to_join=32
+FAIL: I: source 0 re-granted at a published round (k=31 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=31 frame 1051)
+FAIL: I: settled grants and sum match the model (k=31)
+CROSS source=7 k=31 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=31: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=32 accepted_to_join=33
+FAIL: I: source 0 re-granted at a published round (k=32 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=32 frame 1051)
+FAIL: I: settled grants and sum match the model (k=32)
+CROSS source=7 k=32 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=32: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=33 accepted_to_join=34
+FAIL: I: source 0 re-granted at a published round (k=33 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=33 frame 1051)
+FAIL: I: settled grants and sum match the model (k=33)
+CROSS source=7 k=33 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=33: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=34 accepted_to_join=35
+FAIL: I: source 0 re-granted at a published round (k=34 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=34 frame 1051)
+FAIL: I: settled grants and sum match the model (k=34)
+CROSS source=7 k=34 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=34: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=35 accepted_to_join=36
+FAIL: I: source 0 re-granted at a published round (k=35 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=35 frame 1051)
+FAIL: I: settled grants and sum match the model (k=35)
+CROSS source=7 k=35 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=35: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=36 accepted_to_join=37
+FAIL: I: source 0 re-granted at a published round (k=36 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=36 frame 1051)
+FAIL: I: settled grants and sum match the model (k=36)
+CROSS source=7 k=36 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=36: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=37 accepted_to_join=38
+FAIL: I: source 0 re-granted at a published round (k=37 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=37 frame 1051)
+FAIL: I: settled grants and sum match the model (k=37)
+CROSS source=7 k=37 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=37: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=38 accepted_to_join=39
+FAIL: I: source 0 re-granted at a published round (k=38 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=38 frame 1051)
+FAIL: I: settled grants and sum match the model (k=38)
+CROSS source=7 k=38 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=38: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=39 accepted_to_join=40
+FAIL: I: source 0 re-granted at a published round (k=39 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=39 frame 1051)
+FAIL: I: settled grants and sum match the model (k=39)
+CROSS source=7 k=39 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=39: 1 vectors)
+FAIL: I: source 0 ACTIVE and granted, source 7 refused and Failed with Listener Ready
+CROSS join_offset k=40 accepted_to_join=41
+FAIL: I: source 0 re-granted at a published round (k=40 latency -2)
+FAIL: I: refused source 7 never grants, is never ACTIVE, never declares Advertise (k=40 frame 1051)
+FAIL: I: settled grants and sum match the model (k=40)
+CROSS source=7 k=40 frame=1051 lo_latency=-2 hi_first=-1 refused_levels=200
+FAIL: I: wire Talker Advertise for source 7 only once freed (k=40: 1 vectors)
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 0 gap 0: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=0 gap=0 held=1 source7=-6 source0=-6 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 0 gap 4: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=0 gap=4 held=1 source7=-10 source0=-10 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 0 gap 8: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=0 gap=8 held=1 source7=-14 source0=-14 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 0 gap 12: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=0 gap=12 held=1 source7=-18 source0=-18 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 0 gap 16: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=0 gap=16 held=1 source7=-22 source0=-22 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 0 gap 20: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=0 gap=20 held=1 source7=-26 source0=-26 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 1 gap 0: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=1 gap=0 held=1 source7=-6 source0=-6 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 1 gap 4: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=1 gap=4 held=1 source7=-10 source0=-10 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 1 gap 8: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=1 gap=8 held=1 source7=-14 source0=-14 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 1 gap 12: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=1 gap=12 held=1 source7=-18 source0=-18 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 1 gap 16: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=1 gap=16 held=1 source7=-22 source0=-22 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 1 gap 20: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=1 gap=20 held=1 source7=-26 source0=-26 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 2 gap 0: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=2 gap=0 held=1 source7=-6 source0=-6 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 2 gap 4: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=2 gap=4 held=1 source7=-10 source0=-10 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 2 gap 8: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=2 gap=8 held=1 source7=-14 source0=-14 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 2 gap 12: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=2 gap=12 held=1 source7=-18 source0=-18 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 2 gap 16: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=2 gap=16 held=1 source7=-22 source0=-22 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 2 gap 20: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=2 gap=20 held=1 source7=-26 source0=-26 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 3 gap 0: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=3 gap=0 held=1 source7=-6 source0=-6 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 3 gap 4: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=3 gap=4 held=1 source7=-10 source0=-10 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 3 gap 8: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=3 gap=8 held=1 source7=-14 source0=-14 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 3 gap 12: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=3 gap=12 held=1 source7=-18 source0=-18 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 3 gap 16: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=3 gap=16 held=1 source7=-22 source0=-22 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 3 gap 20: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=3 gap=20 held=1 source7=-26 source0=-26 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 4 gap 0: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=4 gap=0 held=1 source7=-6 source0=-6 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 4 gap 4: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=4 gap=4 held=1 source7=-10 source0=-10 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 4 gap 8: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=4 gap=8 held=1 source7=-14 source0=-14 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 4 gap 12: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=4 gap=12 held=1 source7=-18 source0=-18 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 4 gap 16: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=4 gap=16 held=1 source7=-22 source0=-22 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 4 gap 20: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=4 gap=20 held=1 source7=-26 source0=-26 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 5 gap 0: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=5 gap=0 held=1 source7=-6 source0=-6 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 5 gap 4: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=5 gap=4 held=1 source7=-10 source0=-10 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 5 gap 8: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=5 gap=8 held=1 source7=-14 source0=-14 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 5 gap 12: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=5 gap=12 held=1 source7=-18 source0=-18 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 5 gap 16: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=5 gap=16 held=1 source7=-22 source0=-22 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 5 gap 20: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=5 gap=20 held=1 source7=-26 source0=-26 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 6 gap 0: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=6 gap=0 held=1 source7=-6 source0=-6 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 6 gap 4: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=6 gap=4 held=1 source7=-10 source0=-10 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 6 gap 8: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=6 gap=8 held=1 source7=-14 source0=-14 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 6 gap 12: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=6 gap=12 held=1 source7=-18 source0=-18 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 6 gap 16: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=6 gap=16 held=1 source7=-22 source0=-22 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 6 gap 20: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=6 gap=20 held=1 source7=-26 source0=-26 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 7 gap 0: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=7 gap=0 held=1 source7=-6 source0=-6 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 7 gap 4: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=7 gap=4 held=1 source7=-10 source0=-10 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 7 gap 8: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=7 gap=8 held=1 source7=-14 source0=-14 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 7 gap 12: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=7 gap=12 held=1 source7=-18 source0=-18 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 7 gap 16: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=7 gap=16 held=1 source7=-22 source0=-22 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 7 gap 20: 0 Failed clocks, grants at -1/-1)
+WINDOW phase=7 gap=20 held=1 source7=-26 source0=-26 from_accept0
+1531 checks: 805 PASS, 726 FAIL
+make: *** [Makefile:25: run] Error 1

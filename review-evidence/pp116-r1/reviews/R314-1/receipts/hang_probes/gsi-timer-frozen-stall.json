@@ -1,0 +1,21 @@
+{
+  "probe": "gsi-timer-frozen-stall",
+  "file": "hdl/common/KL_pp_timer_service.sv",
+  "edit": [
+    "now_ms_r <= now_ms_r + 32'd1;",
+    "now_ms_r <= now_ms_r;"
+  ],
+  "suite": "tb/pp_top",
+  "command": [
+    "sh",
+    "-c",
+    "make gsi-build && ./obj_dir/Vpp_top_sim --gsi-internal-only"
+  ],
+  "safety_net_s": 540,
+  "exit": 1,
+  "wall_s": 27.9,
+  "hung": false,
+  "tally": [
+    "[build default, SRP_DOM_DEF_VID_P 0x0002] 372 checks, 96 failures"
+  ]
+}

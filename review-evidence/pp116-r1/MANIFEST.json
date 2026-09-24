@@ -1792,5 +1792,947 @@
     "original_sha256": "ef31dadc3c9787d271058686ed9ba61e2789e27c4d72864a54eb2435cd9873be",
     "published_sha256": "ef31dadc3c9787d271058686ed9ba61e2789e27c4d72864a54eb2435cd9873be",
     "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/execution.json",
+    "original_sha256": "3aa72dc3182462c2d60624f7573270411af2fb528b5a113cfc823da90a4f0591",
+    "published_sha256": "02522b107a1007b5030ee8c946f56ebb3b2ab84209f6fdde96281b54d1908677",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/MANIFEST.sha256",
+    "original_sha256": "e639f8a9cbab0cfbd0b6d80af70ba99aa0da6e702599b6a3dab66985fc5cc180",
+    "published_sha256": "e639f8a9cbab0cfbd0b6d80af70ba99aa0da6e702599b6a3dab66985fc5cc180",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/REPORT.md",
+    "original_sha256": "f9455c01447fdf156407db8ed4ed02b80cb760d0229108f9052057b13341cf64",
+    "published_sha256": "e89ffcff7caf57337d176dbf7eb86a2f577b91666d5bf1878442b9eb5a7c6d23",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/compare_campaigns.sh",
+    "original_sha256": "010eda6e60fd505ff4489c24a19cab006b8b0cf459a2024e97429012011c36a4",
+    "published_sha256": "010eda6e60fd505ff4489c24a19cab006b8b0cf459a2024e97429012011c36a4",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/diff.patch",
+    "original_sha256": "0171772ba8d2978e5daa8374b2b5d4d7e5b5bfede47eef192cea32c10f7f200e",
+    "published_sha256": "0171772ba8d2978e5daa8374b2b5d4d7e5b5bfede47eef192cea32c10f7f200e",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/hang_probe.py",
+    "original_sha256": "4a753e7638e63fe0ff41318789d8837b1a994c2a9c6788a04b4f7820b8db1aec",
+    "published_sha256": "4a753e7638e63fe0ff41318789d8837b1a994c2a9c6788a04b4f7820b8db1aec",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaign_comparison.txt",
+    "original_sha256": "089eef1d1f2226723d8830d2e6c0aa40c47ab7e840c4839d978804334da540cc",
+    "published_sha256": "089eef1d1f2226723d8830d2e6c0aa40c47ab7e840c4839d978804334da540cc",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-desc/logs/mutant-no-hold.log",
+    "original_sha256": "110ad16dc56a9a9fb9859ffb0ba3a53e302452c3abad6bea24b59a0787b4b566",
+    "published_sha256": "f038815a34824f5e88b42bc7a9cbec98d38656f0024a878f7c7320ee29c650e1",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-desc/status.txt",
+    "original_sha256": "5b528d49f46aef0382e2ee99eb7634f513d595025ed619708c20d39b05325597",
+    "published_sha256": "ef5a2b3286cd909fddfe013dfbc59abe4e76b5432d35de51efde061295fc042d",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-desc/stdout.txt",
+    "original_sha256": "56fe906a99bc066fedf33da089f20108c89cff68a4e1099f259d2a422aaf5431",
+    "published_sha256": "6512635231a27383b3c51ab58e5f2131e17a6b6fa892ca46a410d3c1ed336f59",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/acmpsta-zero-build.log",
+    "original_sha256": "61346979ef35b49061d786c2bdf8ddf102df77d677c43a38b1d7956bc0e59b19",
+    "published_sha256": "12b440eefe430e60c1bf1a65105fc6545094d05794a7960626af0c232746a586",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/acmpsta-zero-run.log",
+    "original_sha256": "db93821f0ce40e92bc1ad57abb664a6e0c97f5f972018357b1a24234e8cd235d",
+    "published_sha256": "db93821f0ce40e92bc1ad57abb664a6e0c97f5f972018357b1a24234e8cd235d",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/bridge-gate-removed-build.log",
+    "original_sha256": "32bd1e09de6064d44b642315b87ab44a67ae65208febbfb3254985a4f5aed4e3",
+    "published_sha256": "7939a06b1e5a0359e0a9167a5cf149b3f71b7ebf29a3912acb82c077e15c7410",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/bridge-gate-removed-run.log",
+    "original_sha256": "2bca4183594127a217ff222ee4f553786e6e8bf69814c2c1b3a735a4235fda1c",
+    "published_sha256": "2bca4183594127a217ff222ee4f553786e6e8bf69814c2c1b3a735a4235fda1c",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/failure-bridge-zero-build.log",
+    "original_sha256": "43df69650113ec6111f951533a0d4589c2e7d6be88713b92629f1ffffac33ce6",
+    "published_sha256": "d00cf728337680e73fbb663e861ec285e5c230aa8a226105cc65abb9d6e85e9e",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/failure-bridge-zero-run.log",
+    "original_sha256": "c6b8f9a1fc9c8e55829384b683701188a334f3de51cfa9dd9afd46f27d010e9b",
+    "published_sha256": "c6b8f9a1fc9c8e55829384b683701188a334f3de51cfa9dd9afd46f27d010e9b",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/failure-change-redeclares-build.log",
+    "original_sha256": "91ea8780c367be5bdf4203c07ed26aaa3b6250d4531ca8cf58d7cec85a8ff2e8",
+    "published_sha256": "fd2df7e73e2ec4372d086fd2575c4252b9f52df9c7ff18a1c1810dec41b9854e",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/failure-change-redeclares-run.log",
+    "original_sha256": "3a5291f4bd6c5edacf8c0fe612bb3391f14c608a2e91c32c825dbe7ff96ee843",
+    "published_sha256": "3a5291f4bd6c5edacf8c0fe612bb3391f14c608a2e91c32c825dbe7ff96ee843",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/failure-change-strobe-removed-build.log",
+    "original_sha256": "4e034f5f7fad9c58bca23255a5e0fb989d8af969fd6b51cddcf3f931dcca0079",
+    "published_sha256": "b3b8878631e2666dd5355a365630ea397de6895f81c1d57d998f3db03cc7d6e1",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/failure-change-strobe-removed-run.log",
+    "original_sha256": "d5a9b4afb651e6f149cf152429b4fe385675f2f912e6d0c724c769ab6a58d292",
+    "published_sha256": "d5a9b4afb651e6f149cf152429b4fe385675f2f912e6d0c724c769ab6a58d292",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/failure-code-zero-build.log",
+    "original_sha256": "274189bf45f3b463aeb33ef6ea64f4c433188d58f50a73d910c941411506e891",
+    "published_sha256": "1cf88fcde4fdcc8f3740d2b17df30d7cc16089a6a1dd042e4fb501f236731cc2",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/failure-code-zero-run.log",
+    "original_sha256": "ee234cc77ecd029ba33842845dcae876cf61e757007ee4d316e82503e191cc7a",
+    "published_sha256": "ee234cc77ecd029ba33842845dcae876cf61e757007ee4d316e82503e191cc7a",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/golden-build.log",
+    "original_sha256": "9ef8c0eba8eec68c5e9c0724e8e5b4d651401627a506f0631939c8d2d79672d1",
+    "published_sha256": "9ef8141f810a5748dd984eb50b19948331d2cabcaadc2d991b5b7cf708c8933b",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/golden-run.log",
+    "original_sha256": "176fdfc0d8c72d6985cefd5c6dbe7ace6953111a53727dfc7e55b2b8bf43d436",
+    "published_sha256": "176fdfc0d8c72d6985cefd5c6dbe7ace6953111a53727dfc7e55b2b8bf43d436",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/index-guard-removed-build.log",
+    "original_sha256": "a9ea9b31f1bd90a2a3c1906d4338b098e043bdb4685e169d1774434b0895ba54",
+    "published_sha256": "10a1c18d3d473c0b84096b6ea92d79353279c29231610024456a9f017a705dda",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/index-guard-removed-run.log",
+    "original_sha256": "379d3592b45edbffc5d0e24a1838d9be3ae98d2b1d8918bc3b50df11982b0bd4",
+    "published_sha256": "379d3592b45edbffc5d0e24a1838d9be3ae98d2b1d8918bc3b50df11982b0bd4",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/integrator-path-build.log",
+    "original_sha256": "d558d884cb072eeaa71f3b267c1cb2cd26092a8282563abbd19e3460e66437de",
+    "published_sha256": "31f0da9d7bdaa4223b4bf246a60049786afeb1eb7bfa089405b89efcc178b6fd",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/integrator-path-run.log",
+    "original_sha256": "ec82bc5aba6fd15e78c71017453a032fdc86886ca773be440352b987658a0017",
+    "published_sha256": "ec82bc5aba6fd15e78c71017453a032fdc86886ca773be440352b987658a0017",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/missing-descriptor-leak-build.log",
+    "original_sha256": "c35dc57979b5fdbaf352acc1f40c3efb450278f0a9602e82210be6d4f1afddc0",
+    "published_sha256": "71a99e067a330de0484816ca8905e0b06f9b6d68851883f12a5075fe84f3bf5c",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/missing-descriptor-leak-run.log",
+    "original_sha256": "d09a06b185f8f1574804ced55bc92919ebe9927f0ba9f2f6f2485426f2b2f3af",
+    "published_sha256": "d09a06b185f8f1574804ced55bc92919ebe9927f0ba9f2f6f2485426f2b2f3af",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/pbsta-zero-build.log",
+    "original_sha256": "636125033c21541d828a679ea1b4b229a1f23bb720285754dddf58dff03be336",
+    "published_sha256": "e86a9bf574ee17f356be875b2edf27c8a0241f374ce042d356361740cafc4154",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/pbsta-zero-run.log",
+    "original_sha256": "496c03fd8d83d653136212fad5e2d32d3923d051d2c52c1f9d147badf8084fde",
+    "published_sha256": "496c03fd8d83d653136212fad5e2d32d3923d051d2c52c1f9d147badf8084fde",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/rebind-started-trigger-removed-build.log",
+    "original_sha256": "ffd9eb434d5f9360e86da4e1707b5969171ca3ffe08dc23cd4a65fb818ac733f",
+    "published_sha256": "ab26c03f824e1aed635be32e5509fd37ec92e84065c1d88a241efd777f0aa3be",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/rebind-started-trigger-removed-run.log",
+    "original_sha256": "ca591dd1ec4e44290864ae3a11cf6c11fff341f52316ad9f43fe1b6714da9046",
+    "published_sha256": "ca591dd1ec4e44290864ae3a11cf6c11fff341f52316ad9f43fe1b6714da9046",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/restored-build.log",
+    "original_sha256": "7803e88c1956ea4ac1f034345558ef0a34e969c6aee6752d2ca7c52dbbcb4839",
+    "published_sha256": "8fcd45031e99f115019f30be3588306416f814045776417e732f907b5d362054",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/restored-run.log",
+    "original_sha256": "176fdfc0d8c72d6985cefd5c6dbe7ace6953111a53727dfc7e55b2b8bf43d436",
+    "published_sha256": "176fdfc0d8c72d6985cefd5c6dbe7ace6953111a53727dfc7e55b2b8bf43d436",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/results.json",
+    "original_sha256": "1683929c2f48035176a86fcb5703c9535f7a629adf7a43fd5821bf2c6d6e4a65",
+    "published_sha256": "1683929c2f48035176a86fcb5703c9535f7a629adf7a43fd5821bf2c6d6e4a65",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/status-notification-zero-build.log",
+    "original_sha256": "5c62a5160cd245554ca00affe3d159ceb336a80502bfa53e21cd143438aa9caf",
+    "published_sha256": "a17b2c92f3c3416af4dcef56c92872b0652ed066b0721c0516d061ad61b2541f",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/status-notification-zero-run.log",
+    "original_sha256": "917191b3d728466ce18e7c9c81f84c824c3bf79a4de8fd2c63424c0f37f06600",
+    "published_sha256": "917191b3d728466ce18e7c9c81f84c824c3bf79a4de8fd2c63424c0f37f06600",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/wrong-sink-build.log",
+    "original_sha256": "8982ced86b4ec1951280b5a089530660020c6a0d09fc4730dbb97d38e1838f8c",
+    "published_sha256": "abf9ae8b5fa3a2eeeb4a72a119c513c196b60cc87c50873e474c2704d4d0bfa6",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/logs/wrong-sink-run.log",
+    "original_sha256": "1bb03b782547f335e6c998b6ddd722a5173c9c174f36123e1ed93fce9b8dd242",
+    "published_sha256": "1bb03b782547f335e6c998b6ddd722a5173c9c174f36123e1ed93fce9b8dd242",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/status.txt",
+    "original_sha256": "ad520807ce67bae5c5bf0676f6b99aacf3c1e225c079dcc239116804bc99878e",
+    "published_sha256": "7cd1af81a6c289e1f5cf732f469c3fd8f00526d8a3186006472aa8fec5bb0936",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-gsi/stdout.txt",
+    "original_sha256": "aff9ed9c408dc3978f6e567f61f1ce8fe34c3ef3e74d3052c399054935c3bbd6",
+    "published_sha256": "aff9ed9c408dc3978f6e567f61f1ce8fe34c3ef3e74d3052c399054935c3bbd6",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/logs/control-admission-2.log",
+    "original_sha256": "34f00e7ff4ee282d964ec5f1e193918ab66b13c4e3caad379e296b8dffd86d00",
+    "published_sha256": "2932f09906a0c0e02cc8ae56569add3f774f587744d8f5d1508975300fa29eb4",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/logs/control-admission-8.log",
+    "original_sha256": "d5de6205e72ef05c3eeda39b5913c548495b8aec0140e4c921bb855672a2295e",
+    "published_sha256": "3e9786dd032b2374f049944abeee19150263be13e392a8f0d980252bab35f3a8",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/logs/control-srp-top.log",
+    "original_sha256": "dd010c159cd434f23361941a4bf12803c1cbd7f201a8019e6c435b6d156fddf6",
+    "published_sha256": "3912044a8ece585e8f4c434ef623b6705f7e236f79ee58bc34ddd7c1a2ca6a36",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/logs/discarded-round-strobes-admission-2.log",
+    "original_sha256": "d9900a59dad9798d27b5bf720a9afb2943d6bde06205c077c6ac7a4d92360bf4",
+    "published_sha256": "efc20003615f9d879ee4bec9a4f423a401106d7047d48d22852a4915d0a558b2",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/logs/discarded-round-strobes-admission-8.log",
+    "original_sha256": "8fb8a299b0adff403008dd6e4aa742c43fd84a6abc91b34a06163ca939e32c84",
+    "published_sha256": "288bd827c778b83b4ea8b2ea01ad5965d9a4087f93f074aaceabad83ba704bd0",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/logs/discarded-round-strobes-srp-top.log",
+    "original_sha256": "03ce982e8ef6bc1513465991ce7c5de29ce89b4466682dafbfadade49b9a86ad",
+    "published_sha256": "3626817a6f353600ac3774cb90408d889d35ac574eef45f75c33bfa8acabaa58",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/logs/pending-absent-admission-2.log",
+    "original_sha256": "351584c09837a5402b3c63c654365d08d11c14b9dd8035df293da23b03cb297e",
+    "published_sha256": "270d6df22a55a61696bc18dcfa4352dbb93ab91906c9310843542f45206d211a",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/logs/pending-absent-admission-8.log",
+    "original_sha256": "2212e82a67e419f93d543f0162f340386947fa9a4bc2af49c261d616485fdb01",
+    "published_sha256": "08f20c9d12da1fe96fe2fdc3d247958dab71aed68db8f7f911073483e5bba366",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/logs/pending-absent-srp-top.log",
+    "original_sha256": "1e1c8731ca6826cea44b69dda3576cf15d3643ea1125b8eac9fc47886c92dbc7",
+    "published_sha256": "2dafd11dff32950f3c46c0f833e8c98e866759f868411e41b45aece08fb56337",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/logs/stale-evaluation-admission-2.log",
+    "original_sha256": "ce7aa5dabd1250dd139c1587a4c01e8f47c2d28a8f5510b4c4ea664b01b976da",
+    "published_sha256": "82f18c2d30282db5f4247e97c46b641def89f1338846b355ba56ebba2d05c7f7",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/logs/stale-evaluation-admission-8.log",
+    "original_sha256": "8c5ebf5abfdc161aa4e99be008ab0d612d519dc24a3210c09b1970057abe07b9",
+    "published_sha256": "b497f6fa9de9cf8b0ef65f6c6abe77692e230c1a53cb579dec0290d2f5176dae",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/logs/stale-evaluation-srp-top.log",
+    "original_sha256": "bfc6fa0e9f5b3b66e34b8e8cd49f1828fdf9d1b34a3bd7eaff6f04d4a65dbec7",
+    "published_sha256": "e8f5013ea757d55fe2511b1af7ed71e9aacbb7f189a97f4af5e88d0bb0c88549",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/status.txt",
+    "original_sha256": "65393841f47c1ce54aa99c1b5937b0dfab27a233a87d988325abd7d7dc3cc5c7",
+    "published_sha256": "104d45d80d0e39c7dfc6760e7ae80a992054537eda94c23578f8c2e4e6852ef1",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/base-srp/stdout.txt",
+    "original_sha256": "6977d367d954c85cbb07f2f44ac0fb7a5ab3267f627556647a22a1bf95b798fc",
+    "published_sha256": "6977d367d954c85cbb07f2f44ac0fb7a5ab3267f627556647a22a1bf95b798fc",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-desc/logs/mutant-no-hold.log",
+    "original_sha256": "8a00e80a72a80eaee0cae22735a78ce9197c88727696ad330aa0cd2aa3690825",
+    "published_sha256": "8e3247458a37ead07bcacff8783f8b01218dcd9b17a43d790dd3d588196c70c3",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-desc/status.txt",
+    "original_sha256": "bf10266261897d4e8565273264007b533e11b7ae23327461fb363140149039cc",
+    "published_sha256": "e3540fa740dc16cffc7fcc3c574fbd20b5d1f107abcf1576a84ab95ff33487e4",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-desc/stdout.txt",
+    "original_sha256": "f9401e0e029ab5469467e4c764cb8ee35937654bb411b9c7046f5f62bc8b32cb",
+    "published_sha256": "980c56bc535ee9966a796790d88f477cabae806696f7ae07a3baa92faf714788",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/acmpsta-zero-build.log",
+    "original_sha256": "62b2c10a0a5f3b2c04e67d01135a2eff8003b2b1cd4586a19c8174baf80992d8",
+    "published_sha256": "49decfb412773c07da17f7c2c6fe1c47984d2428fda127ced2c8f0ca33e2e3b9",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/acmpsta-zero-run.log",
+    "original_sha256": "db93821f0ce40e92bc1ad57abb664a6e0c97f5f972018357b1a24234e8cd235d",
+    "published_sha256": "db93821f0ce40e92bc1ad57abb664a6e0c97f5f972018357b1a24234e8cd235d",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/bridge-gate-removed-build.log",
+    "original_sha256": "b5bcc3b2a0d4ea318c5d2ef39c34685fdf799865951042167ce80f563371047f",
+    "published_sha256": "04ca3a55d9d408823d52e1ab8430e2233db2d8a6b0206c5e511d231e22a3bd20",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/bridge-gate-removed-run.log",
+    "original_sha256": "2bca4183594127a217ff222ee4f553786e6e8bf69814c2c1b3a735a4235fda1c",
+    "published_sha256": "2bca4183594127a217ff222ee4f553786e6e8bf69814c2c1b3a735a4235fda1c",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/failure-bridge-zero-build.log",
+    "original_sha256": "25dea9c1176ad3c4b2a17ffbef639853b1ea3b28f38affa5ca6f0142cce9dcfc",
+    "published_sha256": "c6098082499ac4ab430310fa0ff521f97894779ae3bb1ed2d5a22f6b886e1792",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/failure-bridge-zero-run.log",
+    "original_sha256": "c6b8f9a1fc9c8e55829384b683701188a334f3de51cfa9dd9afd46f27d010e9b",
+    "published_sha256": "c6b8f9a1fc9c8e55829384b683701188a334f3de51cfa9dd9afd46f27d010e9b",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/failure-change-redeclares-build.log",
+    "original_sha256": "11bbbcda14c2c736ddbe95b1d5a553f7ab31e75b124e4cc9006d5e66cf2cfb80",
+    "published_sha256": "d8897ae70b49cfcd709da7255d5ae5cc871a615ca9938d9d5b5548da8684b718",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/failure-change-redeclares-run.log",
+    "original_sha256": "3a5291f4bd6c5edacf8c0fe612bb3391f14c608a2e91c32c825dbe7ff96ee843",
+    "published_sha256": "3a5291f4bd6c5edacf8c0fe612bb3391f14c608a2e91c32c825dbe7ff96ee843",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/failure-change-strobe-removed-build.log",
+    "original_sha256": "efbfaeb946ba75782b10655d4c303b56190ec22719692c9abd9a416f6394ae4e",
+    "published_sha256": "29fecfa6f5d9b5cec30e8b4ca597927c3b4ecfa1c1b06e480d81dd13a1ebc746",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/failure-change-strobe-removed-run.log",
+    "original_sha256": "d5a9b4afb651e6f149cf152429b4fe385675f2f912e6d0c724c769ab6a58d292",
+    "published_sha256": "d5a9b4afb651e6f149cf152429b4fe385675f2f912e6d0c724c769ab6a58d292",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/failure-code-zero-build.log",
+    "original_sha256": "e17f5832133197416acbbe64b8d199ea84be17980386e3f0a8999cb7191c8110",
+    "published_sha256": "49068b80d16aa031a141e97c272dd56a2a503907d575d2e53df7efe13574813d",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/failure-code-zero-run.log",
+    "original_sha256": "ee234cc77ecd029ba33842845dcae876cf61e757007ee4d316e82503e191cc7a",
+    "published_sha256": "ee234cc77ecd029ba33842845dcae876cf61e757007ee4d316e82503e191cc7a",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/golden-build.log",
+    "original_sha256": "b8a9d9b36ee12cd23eb1be9cdd63059347705dcec0bb0deaadcd924eb1f39a50",
+    "published_sha256": "880da8d4cff2d0351b5a894f4eeb5eb36f8cb44feba6cabe7f05983f4283bae4",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/golden-run.log",
+    "original_sha256": "176fdfc0d8c72d6985cefd5c6dbe7ace6953111a53727dfc7e55b2b8bf43d436",
+    "published_sha256": "176fdfc0d8c72d6985cefd5c6dbe7ace6953111a53727dfc7e55b2b8bf43d436",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/index-guard-removed-build.log",
+    "original_sha256": "2676df9fda712412983e6f4813e5dc0f0ea20eaef77bdbe346770a4dd5aa40a1",
+    "published_sha256": "f9f02a62a74b2b1424b665426de3630e1c42bcbaa5c720dcbc76c35002ffff71",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/index-guard-removed-run.log",
+    "original_sha256": "379d3592b45edbffc5d0e24a1838d9be3ae98d2b1d8918bc3b50df11982b0bd4",
+    "published_sha256": "379d3592b45edbffc5d0e24a1838d9be3ae98d2b1d8918bc3b50df11982b0bd4",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/integrator-path-build.log",
+    "original_sha256": "403c8ab94e9da8e72e98c34b5c2a1618e2a41e9c8f2e44629bd03a51d99c7573",
+    "published_sha256": "5a8cbaba3aed0f03354d17dd67ebb656387f99e2f926b8444410f95edaabf5d7",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/integrator-path-run.log",
+    "original_sha256": "ec82bc5aba6fd15e78c71017453a032fdc86886ca773be440352b987658a0017",
+    "published_sha256": "ec82bc5aba6fd15e78c71017453a032fdc86886ca773be440352b987658a0017",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/missing-descriptor-leak-build.log",
+    "original_sha256": "02cc3f4f3f518d40d3b5f923f2c09d22d42349b674baba0c851e901d6f09d174",
+    "published_sha256": "ada29c63b49355ee8a4906f515134ad04f4c90e7aac03f9a4528a9476060d931",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/missing-descriptor-leak-run.log",
+    "original_sha256": "d09a06b185f8f1574804ced55bc92919ebe9927f0ba9f2f6f2485426f2b2f3af",
+    "published_sha256": "d09a06b185f8f1574804ced55bc92919ebe9927f0ba9f2f6f2485426f2b2f3af",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/pbsta-zero-build.log",
+    "original_sha256": "a6210fe010608f4fb49cbe73f486b4ecc8b373e07ec926e1d4886e720b74addd",
+    "published_sha256": "7ee2dc78052473d2a513737b4a9b23dc5755028b8f38e687ded196449198d3cd",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/pbsta-zero-run.log",
+    "original_sha256": "496c03fd8d83d653136212fad5e2d32d3923d051d2c52c1f9d147badf8084fde",
+    "published_sha256": "496c03fd8d83d653136212fad5e2d32d3923d051d2c52c1f9d147badf8084fde",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/rebind-started-trigger-removed-build.log",
+    "original_sha256": "1b9a6b1db0709983d46561a038797273833c7bd2a1d595196868f0de64a35f34",
+    "published_sha256": "772455b35bd23db73f2e534ea3c29e81bdf320a29ab920ce400c6973dbd6766f",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/rebind-started-trigger-removed-run.log",
+    "original_sha256": "ca591dd1ec4e44290864ae3a11cf6c11fff341f52316ad9f43fe1b6714da9046",
+    "published_sha256": "ca591dd1ec4e44290864ae3a11cf6c11fff341f52316ad9f43fe1b6714da9046",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/restored-build.log",
+    "original_sha256": "4a810e53ffabe99d6ba2dedbb873f713d381438d98a7b8472cfbb08ed9289143",
+    "published_sha256": "75560917b09980634f5ac37f6226d6e8063704fb65432ce4ac1a63b205988674",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/restored-run.log",
+    "original_sha256": "176fdfc0d8c72d6985cefd5c6dbe7ace6953111a53727dfc7e55b2b8bf43d436",
+    "published_sha256": "176fdfc0d8c72d6985cefd5c6dbe7ace6953111a53727dfc7e55b2b8bf43d436",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/results.json",
+    "original_sha256": "1683929c2f48035176a86fcb5703c9535f7a629adf7a43fd5821bf2c6d6e4a65",
+    "published_sha256": "1683929c2f48035176a86fcb5703c9535f7a629adf7a43fd5821bf2c6d6e4a65",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/status-notification-zero-build.log",
+    "original_sha256": "c3d648ef1f940937c2f8c3ed4778d79719be00402eacd880f9f5bc0e14905400",
+    "published_sha256": "b9e06bf93a84b754e1984ceeba1b63d8c3b1a73c5730d1887f6e45fb0a76dee4",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/status-notification-zero-run.log",
+    "original_sha256": "917191b3d728466ce18e7c9c81f84c824c3bf79a4de8fd2c63424c0f37f06600",
+    "published_sha256": "917191b3d728466ce18e7c9c81f84c824c3bf79a4de8fd2c63424c0f37f06600",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/wrong-sink-build.log",
+    "original_sha256": "12d37f5c8935c12ae5a9805ec76a08f6a3296a30feac55fa10687321c31422c2",
+    "published_sha256": "e2468daa8f370c87c7f294297c31213dea473d86e424a60b2778edf378e2fa67",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/logs/wrong-sink-run.log",
+    "original_sha256": "1bb03b782547f335e6c998b6ddd722a5173c9c174f36123e1ed93fce9b8dd242",
+    "published_sha256": "1bb03b782547f335e6c998b6ddd722a5173c9c174f36123e1ed93fce9b8dd242",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/status.txt",
+    "original_sha256": "03aca8fd125d578c3bede992223e07758d163daf856d3f54623743be4f7cb0ae",
+    "published_sha256": "e15e5b8cc15a4d565aba78ee428475879a88b2cc822a7ce81dabf61263056834",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-gsi/stdout.txt",
+    "original_sha256": "aff9ed9c408dc3978f6e567f61f1ce8fe34c3ef3e74d3052c399054935c3bbd6",
+    "published_sha256": "aff9ed9c408dc3978f6e567f61f1ce8fe34c3ef3e74d3052c399054935c3bbd6",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/logs/control-admission-2.log",
+    "original_sha256": "0e604c4be626b3513eb1fdcd027b5aa795572693d319533e8daee9e15ae5a793",
+    "published_sha256": "77e55a054b93fa4ca92d661996db2ff9e7d77adc7a073b507cbdcb5cb9139a4f",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/logs/control-admission-8.log",
+    "original_sha256": "9a34dae83da50b67864058931748403b4e27dd0ae90490bfe5e2c6674d26be35",
+    "published_sha256": "95629d3f7e18a69df41b520a8665a26b1bdbae1cd27f6a354d3136073e988f83",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/logs/control-srp-top.log",
+    "original_sha256": "77301a959164a586021d6ea6ab866f8398267670acb00f97d4c910af7e6b1b7a",
+    "published_sha256": "174ef27d5c22db52f6baa12e99ef68492f083a7c26f9914de31c7f62669eadb9",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/logs/discarded-round-strobes-admission-2.log",
+    "original_sha256": "3ce80538d3e94e713c4ac77813ce849906afc8a3e89c005fb13658d55ea86edb",
+    "published_sha256": "11f6ce63da1174e5212584ae95069753fb25c01c0c2c15054c9a2baeede2be9f",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/logs/discarded-round-strobes-admission-8.log",
+    "original_sha256": "752d2b6227026a81148a42e1e619a12c08a125e07ad00efc98f963f1b7474a7e",
+    "published_sha256": "e721db79740666b8836b9ae1bd3cbf93b42b8c311590341cd46952a926ca381c",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/logs/discarded-round-strobes-srp-top.log",
+    "original_sha256": "c56d65cb318dbe92bff028deda85310d880f36efbcb8e007b6f82ea8e5a80b17",
+    "published_sha256": "1d04ba5c5c4b2ae4cdb3bddfb2fbfd3ec25ecce706bd9560341fd4ca6abb6d0d",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/logs/pending-absent-admission-2.log",
+    "original_sha256": "7965ab296d66182144714cf9d649cee70cecb58cf62203e9b00f50ffca8925a7",
+    "published_sha256": "94605c15a2d8096d9feb146e35c3305082ac23934f54e5e950d6934a68f908b6",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/logs/pending-absent-admission-8.log",
+    "original_sha256": "5b95bde6c8022cf0ee007abcae51d53c8f1907eea66f75d116119735462b72c2",
+    "published_sha256": "8a7741b14d723eafc7baf143c5bd798f3f7ebd0a060cb409ef139da868bccdf9",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/logs/pending-absent-srp-top.log",
+    "original_sha256": "ab8ff63bfaa465af854163988c10fb242c553ff24dd34d5d4b864f1afd9daaf7",
+    "published_sha256": "1723cfbd10a420fda56990642d75de7c7f0639b1c96229d0a36872c609f3c0d1",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/logs/stale-evaluation-admission-2.log",
+    "original_sha256": "8a81da1b066221515f032191edd4b6c5f9b97eaca4d6193022ff308b3036b0cd",
+    "published_sha256": "bbf4ba6cea5db3a29b2c9f5aac8ded7bdd5e1766045a8bd77df94248e73b3079",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/logs/stale-evaluation-admission-8.log",
+    "original_sha256": "4a82f348d44d626ce22bb04010cf5d6f8144213f1003b46cc9e4cda5ac65305d",
+    "published_sha256": "73da59b68cf6b7be7a54c1363e9def884b8e559edb7414d10f83d5ce082a0251",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/logs/stale-evaluation-srp-top.log",
+    "original_sha256": "f62f4b787dcaf2aecc3df0468380748bd72543ae4ebbf8ecc029d8a502e7edd3",
+    "published_sha256": "679b9cc54a9cdd2dbaacf0f461235d473aaf535571c62ba43bde4482a452fabb",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/status.txt",
+    "original_sha256": "b620bb4f934fbee6cc586d33df63aca4e43db8fdd62382bda7721d7ef4c1bcdf",
+    "published_sha256": "8317d677b368b1f1279367b8a6c49cc213bf6048d27260ed572811049b3e8dbf",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/campaigns/head-srp/stdout.txt",
+    "original_sha256": "6977d367d954c85cbb07f2f44ac0fb7a5ab3267f627556647a22a1bf95b798fc",
+    "published_sha256": "6977d367d954c85cbb07f2f44ac0fb7a5ab3267f627556647a22a1bf95b798fc",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/clone_integrity.txt",
+    "original_sha256": "fb646c6c0c366a270f13647e3d94ae674d4a1fc5fff0dbf4f4095f97144836b2",
+    "published_sha256": "fb646c6c0c366a270f13647e3d94ae674d4a1fc5fff0dbf4f4095f97144836b2",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/desc-guard-no-request-stall.json",
+    "original_sha256": "544b87f7a30603393f4eeeaa5a8f67867c63e289a73fa0c07f37bb73d6da595b",
+    "published_sha256": "544b87f7a30603393f4eeeaa5a8f67867c63e289a73fa0c07f37bb73d6da595b",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/desc-guard-no-request-stall.log",
+    "original_sha256": "49f2d65e3f9a86372985e1a0010d704eff4993ac79291efdd1b74fda31fbc12c",
+    "published_sha256": "5b56f65adcf0d9177570a83b5766f888e1d0272eccbcabed768fec0bcc3c7d4f",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/gsi-restore-never-done-stall.json",
+    "original_sha256": "f9cb829e4b4125f36460966cd8bab7622d51b333fe5578a21e0e588d3b1a847d",
+    "published_sha256": "f9cb829e4b4125f36460966cd8bab7622d51b333fe5578a21e0e588d3b1a847d",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/gsi-restore-never-done-stall.log",
+    "original_sha256": "d73f9ba1540d6ecbe620da3d5db0b2926e8cf0c4625b870b94ff161c3f15ad30",
+    "published_sha256": "5392737ee58a48d02203b838606211115338ec786a9c9d7420d231992acdd178",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/gsi-timer-frozen-stall.json",
+    "original_sha256": "959673837b3ae970ade7cb76cb5aa9523c8da029848d681fd033d2a9d40520db",
+    "published_sha256": "959673837b3ae970ade7cb76cb5aa9523c8da029848d681fd033d2a9d40520db",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/gsi-timer-frozen-stall.log",
+    "original_sha256": "ae037b39900ca32524ce5946d96bd26ec4fbd8379c7a93250afe0a05986cf2ec",
+    "published_sha256": "53fa88c029a0d4a7acb9dd3667fdedf5f73aeb517ffbbdc889997282cfccb1e2",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/srp-adm-grant-flap-stall-top.json",
+    "original_sha256": "5398d48deeb355b4bbc153dbe46c28e6bc77db7ccbb841e55fb96e8804ea9972",
+    "published_sha256": "5398d48deeb355b4bbc153dbe46c28e6bc77db7ccbb841e55fb96e8804ea9972",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/srp-adm-grant-flap-stall-top.log",
+    "original_sha256": "6e10b19095c3a42195e63b0df06098e13d5ef61d5263cff2095d0bcba1b02e65",
+    "published_sha256": "187e883160beced90e8f89a3c9b65235073ea9e2f3d3728c1c35046abd253adb",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/srp-adm-never-publish-stall-admission.json",
+    "original_sha256": "afc85f357843541c1235d8832abb0884a88744f541580b8bc37dc1d8a2366bec",
+    "published_sha256": "afc85f357843541c1235d8832abb0884a88744f541580b8bc37dc1d8a2366bec",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/srp-adm-never-publish-stall-admission.log",
+    "original_sha256": "7707fa819596cc8efd8ada0a33a60fb33e7a08a38a56c65539eaf96a62b5fbbe",
+    "published_sha256": "1ad6d94ed03b6dab071e84ff3e570e30dc1fa883eb8c86d353f2c9179fb8943d",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/srp-adm-never-publish-stall-top.json",
+    "original_sha256": "e69dce545b5ed2252dd393524c1548de3a512c6658b4d1e56c2b6e6a74c5a45f",
+    "published_sha256": "e69dce545b5ed2252dd393524c1548de3a512c6658b4d1e56c2b6e6a74c5a45f",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/srp-adm-never-publish-stall-top.log",
+    "original_sha256": "4b247941f354eb99583d2b465837ce2271474942b498409c5291f5ac4f076935",
+    "published_sha256": "6945a385435ac44a7230a13447c9f92c6653a661b64e3fb9320853b809559031",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/srp-top-timer-scope.json",
+    "original_sha256": "c62ea4eedecab94c971b2f028dacf8cb88b2000516ae2bdb1b9c8eb18f2aa670",
+    "published_sha256": "c62ea4eedecab94c971b2f028dacf8cb88b2000516ae2bdb1b9c8eb18f2aa670",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/hang_probes/srp-top-timer-scope.log",
+    "original_sha256": "51a525f04c4dbf6faf69f593b1a42a4bcdefdba19195037d68e259f48368510e",
+    "published_sha256": "8ffbf21ed3c81030b9e775071b9427b04e4f9328436ef78a1992209598e9d6d0",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/parent_gates/cand.check_port_contracts.log",
+    "original_sha256": "9ba89a0d5ad1229a6c4e92e7cc3c1dabe34aa52467afc9330c4fb746c5e34469",
+    "published_sha256": "9ba89a0d5ad1229a6c4e92e7cc3c1dabe34aa52467afc9330c4fb746c5e34469",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/parent_gates/cand.exits",
+    "original_sha256": "9f587dcdbacee15ca03b7a9d2ee6733148b329e81e74bf88826df9dbf315bb9c",
+    "published_sha256": "9f587dcdbacee15ca03b7a9d2ee6733148b329e81e74bf88826df9dbf315bb9c",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/parent_gates/cand.identity",
+    "original_sha256": "34b12380a670fadd74996cf808181d61487568f5a0be98cc7c7d38473449802d",
+    "published_sha256": "34b12380a670fadd74996cf808181d61487568f5a0be98cc7c7d38473449802d",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/parent_gates/cand.measure_naming_check.log",
+    "original_sha256": "00f8f810a9ea7e657073dd202ffc7299350e0ced708b218f2987bfddd2b4e492",
+    "published_sha256": "00f8f810a9ea7e657073dd202ffc7299350e0ced708b218f2987bfddd2b4e492",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/parent_gates/cand.measure_test_evidence_check.log",
+    "original_sha256": "a97fcfbd7c41c5132f5c12589b84fc6bda03794877e587c4893cb6096ccaa286",
+    "published_sha256": "a97fcfbd7c41c5132f5c12589b84fc6bda03794877e587c4893cb6096ccaa286",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/parent_gates/consumer_identity.txt",
+    "original_sha256": "c7e9cbf335bad64ac88fa5c588a39df21d1eea1c7be4373e1507b18dd60c0990",
+    "published_sha256": "c7e9cbf335bad64ac88fa5c588a39df21d1eea1c7be4373e1507b18dd60c0990",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/parent_gates/ctrl.check_port_contracts.log",
+    "original_sha256": "b0da85161a8cb696e0e986b296dda7e1f5fbee3a67eb7e3d4217291e0b63d18a",
+    "published_sha256": "b0da85161a8cb696e0e986b296dda7e1f5fbee3a67eb7e3d4217291e0b63d18a",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/parent_gates/ctrl.exits",
+    "original_sha256": "9bc1d3596f275dbd3885b67951945f03816d3f480c0ba6c90feeade007c9be54",
+    "published_sha256": "9bc1d3596f275dbd3885b67951945f03816d3f480c0ba6c90feeade007c9be54",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/parent_gates/ctrl.identity",
+    "original_sha256": "e7e2b9bc837fd9534f40b2a21f1809687a856385a44bd5ea2729122a82cedd07",
+    "published_sha256": "e7e2b9bc837fd9534f40b2a21f1809687a856385a44bd5ea2729122a82cedd07",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/parent_gates/ctrl.measure_naming_check.log",
+    "original_sha256": "78164b2f0217d6b5e346fb2eb0250355818d129d616c8d299ead13a3e16078b0",
+    "published_sha256": "78164b2f0217d6b5e346fb2eb0250355818d129d616c8d299ead13a3e16078b0",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/parent_gates/ctrl.measure_test_evidence_check.log",
+    "original_sha256": "7156d669165879057a7926ac340cf0001b5a7e696667e1437a99d0dbb4480590",
+    "published_sha256": "7156d669165879057a7926ac340cf0001b5a7e696667e1437a99d0dbb4480590",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/processor_make_check.log",
+    "original_sha256": "ffb47908c3f3e4ca414d4394d34b87efe5485c25dc82d2a5aa19961379b97915",
+    "published_sha256": "ffb47908c3f3e4ca414d4394d34b87efe5485c25dc82d2a5aa19961379b97915",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/structural_equivalence.txt",
+    "original_sha256": "d06f1b7c2db7cf4ba189cc640341568f959f99548b9b4ef914f2dec937024c08",
+    "published_sha256": "d06f1b7c2db7cf4ba189cc640341568f959f99548b9b4ef914f2dec937024c08",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/structural_equivalence_controls.txt",
+    "original_sha256": "d58378a870c913ab7c1fe5c9743af93871c9167bdd0df152f63fca080354e3df",
+    "published_sha256": "d58378a870c913ab7c1fe5c9743af93871c9167bdd0df152f63fca080354e3df",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/base-desc_mem_guard.log",
+    "original_sha256": "25c5c16a513bf3746ee46346a24e08420cf752fd40652b608a921bf3d5a1758f",
+    "published_sha256": "8fb64dbdffaeabd70090a5831830ce69fc27b4ddf3f04eaba1618e7a01f0fc02",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/base-desc_mem_guard.tally",
+    "original_sha256": "16c6715d3f1cf89b94e80e0861ff697069fc834836b4049539b4bef11d56b696",
+    "published_sha256": "16c6715d3f1cf89b94e80e0861ff697069fc834836b4049539b4bef11d56b696",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/base-pp_top.log",
+    "original_sha256": "82397b1bcc7f71ed642d72714e66fa4a27ba993158dc66fd1e4bc24a2f618e74",
+    "published_sha256": "75c337d81e08b72001e9c3cddfe5e233ec5c06ead23ee57f85d967dc3029f9c9",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/base-pp_top.tally",
+    "original_sha256": "d92ea4c97545f116f91512c582c5fdfb4bc85fb5fa1abc328d512c5434f5ce86",
+    "published_sha256": "d92ea4c97545f116f91512c582c5fdfb4bc85fb5fa1abc328d512c5434f5ce86",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/base-srp_admission.log",
+    "original_sha256": "138429c64d205698e8e249a41144f3e8fc73d127de0dab68cf8bcd3b8b07d07e",
+    "published_sha256": "48b2dedb498e7706de1fb4bd223035e9041759a84a11fcd0afad956df2fb04ef",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/base-srp_admission.tally",
+    "original_sha256": "56eee7b374f70b35501806998b3112ceedb38fe9e91753f6b91c192a70f8a386",
+    "published_sha256": "56eee7b374f70b35501806998b3112ceedb38fe9e91753f6b91c192a70f8a386",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/base-srp_top.log",
+    "original_sha256": "9f12be51a245b1e3283c19c678d0d788a14443f4ae3c234005b0f360bab36c27",
+    "published_sha256": "6ca70015db1df6053c301a6143190a13661523325b1bd6359cf3c77d68058de7",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/base-srp_top.tally",
+    "original_sha256": "107e3da6be42a77649addd8e711f8e88656baca3f2be6e1e66ae4e5734ab24b1",
+    "published_sha256": "107e3da6be42a77649addd8e711f8e88656baca3f2be6e1e66ae4e5734ab24b1",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/comparison.txt",
+    "original_sha256": "a40cad0a451928493b404521e6ddae3aa41e289c72a1a3a2ba00a212f5efb83c",
+    "published_sha256": "a40cad0a451928493b404521e6ddae3aa41e289c72a1a3a2ba00a212f5efb83c",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/head-desc_mem_guard.log",
+    "original_sha256": "2cdd45b347a654097f4d705a2d7f8805af6866d25fe88274cf06344f7cd4b2cd",
+    "published_sha256": "e2a46bd14d86f8c6740c37b3f1096be3225bdbfaa1098548c558ce4e4f2b66cd",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/head-desc_mem_guard.tally",
+    "original_sha256": "3646f672b4aa27ef409b100bdc60803465609f7c8d8e96e4d05e93a802e9f18d",
+    "published_sha256": "3646f672b4aa27ef409b100bdc60803465609f7c8d8e96e4d05e93a802e9f18d",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/head-pp_top.log",
+    "original_sha256": "75390ad5b4de39a0a05fe533e39ad37c91c0e56af0406fffc9291ad71dcb547b",
+    "published_sha256": "ab50ba24a57e6dc4021c9e5d82abe0ee673c8dae9ad7a1dad4cad292cd8ce91e",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/head-pp_top.tally",
+    "original_sha256": "70ea4092470651963e46787c3178de867d79cc54c6f4bacd9f1f21ada63a66b1",
+    "published_sha256": "70ea4092470651963e46787c3178de867d79cc54c6f4bacd9f1f21ada63a66b1",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/head-srp_admission.log",
+    "original_sha256": "1910db8375cefb76060f61a115e447df46080ba970a36927a9e6164bdd2ca77c",
+    "published_sha256": "c2364faf1dbd9b37f9b530221d1b6e57a5fbf48681fc8fdfb549cd2166eac241",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/head-srp_admission.tally",
+    "original_sha256": "6e8a32cb53db9c5bba38c58a15719ebc73e5af582c55ea8812b8f11cefb3db34",
+    "published_sha256": "6e8a32cb53db9c5bba38c58a15719ebc73e5af582c55ea8812b8f11cefb3db34",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/head-srp_top.log",
+    "original_sha256": "12f12dc8c895243c8eb0036edd21e8d8bd7b337e76dc83cd25fc7299a0cbdbeb",
+    "published_sha256": "61f645f5c564db81d83e0db32b6a3277d6f72b10b13a3d22e14d1986ad362e8b",
+    "path_redacted": true
+  },
+  {
+    "file": "reviews/R314-1/receipts/suites/head-srp_top.tally",
+    "original_sha256": "5a09821800688d20564ca6f789e60074a496eab0c75934aabe0a5fd7c6e78a66",
+    "published_sha256": "5a09821800688d20564ca6f789e60074a496eab0c75934aabe0a5fd7c6e78a66",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/run_campaign.sh",
+    "original_sha256": "3e659c0aa281ec876eaaa356925c6928b0559d4a8f91231b1e9a6224e16a9e75",
+    "published_sha256": "3e659c0aa281ec876eaaa356925c6928b0559d4a8f91231b1e9a6224e16a9e75",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/run_parent_gates.sh",
+    "original_sha256": "834bd0754583e34773ac8d9d01dec556ee6111b0e5669c8a0ef6b8994e5d1b8d",
+    "published_sha256": "834bd0754583e34773ac8d9d01dec556ee6111b0e5669c8a0ef6b8994e5d1b8d",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/run_suites_focused.sh",
+    "original_sha256": "f30ab555365f9164230e9ce70f4ebab93eca4cf957c30bae9580b0446fb2a073",
+    "published_sha256": "f30ab555365f9164230e9ce70f4ebab93eca4cf957c30bae9580b0446fb2a073",
+    "path_redacted": false
+  },
+  {
+    "file": "reviews/R314-1/structural_equivalence.py",
+    "original_sha256": "062ed53ce88916818bba6055dddf379eac5aaa91f679d710dd473f9ca8451e81",
+    "published_sha256": "062ed53ce88916818bba6055dddf379eac5aaa91f679d710dd473f9ca8451e81",
+    "path_redacted": false
   }
 ]

@@ -1,0 +1,21 @@
+{
+  "probe": "gsi-restore-never-done-stall",
+  "file": "hdl/top/protocol_processor_top.sv",
+  "edit": [
+    "assign restore_done_o = nvm_walk_done_w && lsn_released_w;",
+    "assign restore_done_o = 1'b0;"
+  ],
+  "suite": "tb/pp_top",
+  "command": [
+    "sh",
+    "-c",
+    "make gsi-build && ./obj_dir/Vpp_top_sim --gsi-internal-only"
+  ],
+  "safety_net_s": 540,
+  "exit": 1,
+  "wall_s": 26.0,
+  "hung": false,
+  "tally": [
+    "[build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 2 failures"
+  ]
+}

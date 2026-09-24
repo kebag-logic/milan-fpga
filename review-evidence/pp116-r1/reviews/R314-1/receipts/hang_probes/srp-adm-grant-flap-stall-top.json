@@ -1,0 +1,20 @@
+{
+  "probe": "srp-adm-grant-flap-stall-top",
+  "file": "hdl/srp/KL_srp_admission.sv",
+  "edit": [
+    "grant_r      <= wgrant_now_w;",
+    "grant_r      <= ~grant_r;"
+  ],
+  "suite": "tb/srp_top",
+  "command": [
+    "make",
+    "run"
+  ],
+  "safety_net_s": 540,
+  "exit": 2,
+  "wall_s": 12.9,
+  "hung": false,
+  "tally": [
+    "1531 checks: 964 PASS, 567 FAIL"
+  ]
+}

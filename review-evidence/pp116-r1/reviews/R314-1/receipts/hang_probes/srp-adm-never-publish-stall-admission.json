@@ -1,0 +1,21 @@
+{
+  "probe": "srp-adm-never-publish-stall-admission",
+  "file": "hdl/srp/KL_srp_admission.sv",
+  "edit": [
+    "if (!(pend_acc_r || pend_w)) begin",
+    "if (1'b0) begin"
+  ],
+  "suite": "tb/srp_admission",
+  "command": [
+    "make",
+    "run",
+    "N=8"
+  ],
+  "safety_net_s": 540,
+  "exit": 2,
+  "wall_s": 5.5,
+  "hung": false,
+  "tally": [
+    "990919 checks: 989249 PASS, 1670 FAIL"
+  ]
+}

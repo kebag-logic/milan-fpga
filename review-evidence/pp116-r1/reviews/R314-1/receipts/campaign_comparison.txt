@@ -1,0 +1,48 @@
+desc runner stdout: IDENTICAL (2 lines)
+  mutant-no-hold.log: FAIL/tally lines IDENTICAL; 18 checks: 17 PASS, 1 FAIL 
+gsi runner stdout: IDENTICAL (16 lines)
+  acmpsta-zero-build.log: FAIL/tally lines IDENTICAL; 
+  acmpsta-zero-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 20 failures 
+  bridge-gate-removed-build.log: FAIL/tally lines IDENTICAL; 
+  bridge-gate-removed-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 4 failures 
+  failure-bridge-zero-build.log: FAIL/tally lines IDENTICAL; 
+  failure-bridge-zero-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 20 failures 
+  failure-change-redeclares-build.log: FAIL/tally lines IDENTICAL; 
+  failure-change-redeclares-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 1 failures 
+  failure-change-strobe-removed-build.log: FAIL/tally lines IDENTICAL; 
+  failure-change-strobe-removed-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 483 checks, 2 failures 
+  failure-code-zero-build.log: FAIL/tally lines IDENTICAL; 
+  failure-code-zero-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 20 failures 
+  golden-build.log: FAIL/tally lines IDENTICAL; 
+  golden-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 0 failures 
+  index-guard-removed-build.log: FAIL/tally lines IDENTICAL; 
+  index-guard-removed-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 2 failures 
+  integrator-path-build.log: FAIL/tally lines IDENTICAL; 
+  integrator-path-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 158 checks, 98 failures 
+  missing-descriptor-leak-build.log: FAIL/tally lines IDENTICAL; 
+  missing-descriptor-leak-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 4 failures 
+  pbsta-zero-build.log: FAIL/tally lines IDENTICAL; 
+  pbsta-zero-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 110 failures 
+  rebind-started-trigger-removed-build.log: FAIL/tally lines IDENTICAL; 
+  rebind-started-trigger-removed-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 483 checks, 3 failures 
+  restored-build.log: FAIL/tally lines IDENTICAL; 
+  restored-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 0 failures 
+  status-notification-zero-build.log: FAIL/tally lines IDENTICAL; 
+  status-notification-zero-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 348 checks, 97 failures 
+  wrong-sink-build.log: FAIL/tally lines IDENTICAL; 
+  wrong-sink-run.log: FAIL/tally lines IDENTICAL; [build default, SRP_DOM_DEF_VID_P 0x0002] 488 checks, 142 failures 
+srp runner stdout: IDENTICAL (13 lines)
+  control-admission-2.log: FAIL/tally lines IDENTICAL; 12615 checks: 12615 PASS, 0 FAIL 
+  control-admission-8.log: FAIL/tally lines IDENTICAL; 991231 checks: 991231 PASS, 0 FAIL 
+  control-srp-top.log: FAIL/tally lines IDENTICAL; 1531 checks: 1531 PASS, 0 FAIL 
+  discarded-round-strobes-admission-2.log: FAIL/tally lines IDENTICAL; 12615 checks: 12469 PASS, 146 FAIL 
+  discarded-round-strobes-admission-8.log: FAIL/tally lines IDENTICAL; 991231 checks: 990536 PASS, 695 FAIL 
+  discarded-round-strobes-srp-top.log: FAIL/tally lines IDENTICAL; 1531 checks: 1441 PASS, 90 FAIL 
+  pending-absent-admission-2.log: FAIL/tally lines IDENTICAL; 12615 checks: 12440 PASS, 175 FAIL 
+  pending-absent-admission-8.log: FAIL/tally lines IDENTICAL; 991231 checks: 990164 PASS, 1067 FAIL 
+  pending-absent-srp-top.log: FAIL/tally lines IDENTICAL; 1531 checks: 1326 PASS, 205 FAIL 
+  stale-evaluation-admission-2.log: FAIL/tally lines IDENTICAL; 12615 checks: 12213 PASS, 402 FAIL 
+  stale-evaluation-admission-8.log: FAIL/tally lines IDENTICAL; 991231 checks: 985758 PASS, 5473 FAIL 
+  stale-evaluation-srp-top.log: FAIL/tally lines IDENTICAL; 1531 checks: 1426 PASS, 105 FAIL 
+CAMPAIGN COMPARISON: IDENTICAL
+exit 0

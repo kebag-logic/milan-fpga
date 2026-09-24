@@ -1,0 +1,18 @@
+{
+  "probe": "srp-top-timer-scope",
+  "file": "hdl/common/KL_pp_timer_service.sv",
+  "edit": [
+    "now_ms_r <= now_ms_r + 32'd1;",
+    "now_ms_r <= now_ms_r;"
+  ],
+  "suite": "tb/srp_top",
+  "command": [
+    "make",
+    "run"
+  ],
+  "safety_net_s": 540,
+  "exit": 124,
+  "wall_s": 540.0,
+  "hung": true,
+  "tally": []
+}

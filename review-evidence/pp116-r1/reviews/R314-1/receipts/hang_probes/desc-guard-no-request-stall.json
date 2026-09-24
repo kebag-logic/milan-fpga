@@ -1,0 +1,23 @@
+{
+  "probe": "desc-guard-no-request-stall",
+  "file": "hdl/aecp/KL_aecp_desc_mem_guard.sv",
+  "edit": [
+    "assign m_req_valid_o = s_req_valid_i && !owed_r;",
+    "assign m_req_valid_o = 1'b0;"
+  ],
+  "suite": "tb/desc_mem_guard",
+  "command": [
+    "make",
+    "run",
+    "GUARD_SRC=../../hdl/aecp/KL_aecp_desc_mem_guard.sv",
+    "OBJ_DIR=obj_probe",
+    "ARGS=--late-only"
+  ],
+  "safety_net_s": 540,
+  "exit": 2,
+  "wall_s": 5.1,
+  "hung": false,
+  "tally": [
+    "18 checks: 9 PASS, 9 FAIL"
+  ]
+}
