@@ -42,13 +42,21 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - That needs a Listener Ready decoded within those rounds.
 - Each declaration clears its registered Listener first.
 - A refused stream can keep ACTIVE until optimism expires.
-- Its licence stays closed throughout that window.
-- No `STREAM_START`/`STREAM_STOP` pair or interval-counter reset follows.
-- The refused re-declaration emits no PDU.
+- With the same TSpec preloaded, its licence stays closed.
+- No `STREAM_START`/`STREAM_STOP` pair, interval-counter reset or PDU follows.
+- Residual: the refused TSpec differs from that source's previous one.
+- The first-round grant still uses the previous slope.
+- With early Listener Ready, about one round's licence remains.
+- Counter pairs, interval resets and a possible PDU remain exposed.
+- [Processor #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112) owns the pending fix.
+- That fix must be pinned before #551 can close.
 - `LWSRP_STATUS[6]` remains raw ACTIVE ORed over all sources.
-- The licence simulation covers refused and admitted re-declarations.
+- The default licence simulation covers re-declarations with identical TSpecs.
+- Its unwarmed refused-TSpec arm is opt-in and EXPECTED-FAIL (#112).
 - Grant-removal mutants must fail its refused-source checks.
-- Measured added latency: 0--2 admission cycles on two sources.
+- Warm-pipeline added latency: 0--2 admission cycles on two sources.
+- A changed-TSpec admission took 4 cycles (R296-1, CRF phase 0).
+- This remains within three rounds on the measured two-source shape.
 - Ordinary Listener Ready arrivals add no cycles.
 - A bound CRF talker also ended its own bursts.
 - The processor pin moves to `09f9bf38` (processor issue 106).

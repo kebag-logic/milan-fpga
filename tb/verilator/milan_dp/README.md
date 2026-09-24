@@ -24,7 +24,7 @@ log in the failure so the artifact can be inspected.
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
 | `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): the INTERNAL free-run drift (-10.64 ppm, the standing free-run rule), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and dups once per beat period at INTERNAL on the predicted beat, one event per fed pair. The closed form: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup comes (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts the first dup from the first beat and grades it within 25 percent over a window of 1.5 times the prediction. The same aim and window under CRF show zero, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification |
-| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates follow the processor's ACTIVE on every cycle, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
+| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal remains EXPECTED-FAIL under processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 
 The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
@@ -392,8 +392,9 @@ Advertise state are sampled on every cycle.
 | `[D]` | A registered Asking Failed closes the licence; Ready Failed reopens it. |
 | `[E]` | The unbind: the licence closes when the Listener registration ends, inside a fresh probe window, not when the window closes (Run B's last burst ran 9.95 s past its unbind). |
 | `[F]` | Item 3: FRAMES_TX counts observation intervals since STREAM_START, far fewer than the PDUs, and restarts at the next STREAM_START. |
-| `[G]` | Each source and admission phase: an oversized re-declaration raises optimistic ACTIVE but receives no real grant. No licence edge, STREAM_START/STREAM_STOP pair, interval-counter reset or PDU follows. |
+| `[G]` | Each source and admission phase, with the same TSpec preloaded: an oversized re-declaration raises optimistic ACTIVE but receives no real grant. No licence edge, STREAM_START/STREAM_STOP pair, interval-counter reset or PDU follows. |
 | `[H]` | Matching admitted re-declarations stream and reset interval counters. Logs measure ACTIVE-to-licence latency for each source and admission phase. |
+| `[I]` | Opt-in EXPECTED-FAIL: a refused 20,000-byte TSpec follows an admissible 224-byte TSpec. Both sources and both phases retain the no-licence, no-counter-pair, no-reset and no-PDU assertions. Awaiting the processor #112 pin. |
 | `[INV]` | Every cycle: CRF equals ACTIVE AND its real grant. AAF never opens without both terms. |
 
 **Refused re-declaration fixture (#551).**
@@ -406,7 +407,7 @@ Its measured decoder delay aligns it immediately after re-declaration.
 The replay must reproduce that timing and raise optimistic ACTIVE.
 
 An oversized 20,000-byte TSpec exceeds the real admission ceiling.
-The real slope pipeline is warmed before the graded re-declaration.
+The default cases preload that same TSpec before grading re-declaration.
 Withdrawal clears its grant before each case starts.
 Both source indexes run at both phases of the two-cycle round.
 Nonzero counter seeds distinguish preservation from an unnoticed reset.
@@ -416,15 +417,48 @@ The media clocks continue through several packet periods.
 Matching admitted cases use a 224-byte TSpec and must stream.
 This is boundary staging, not an end-to-end controller timing claim.
 
-Measured added start latency, in admission-clock cycles:
+**Residual: changed TSpec.** The refused TSpec differs from that source's previous one.
+The first-round grant still uses the previous slope.
+With an early Listener Ready, about one round's licence remains.
+A STREAM_START/STREAM_STOP pair and Table 5.4 resets remain possible.
+So does a PDU if its media event lands inside.
+[Processor issue #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112) owns the pending fix.
+Its fix must be pinned before #551 can close.
+
+The default run names `[I]` as skipped: EXPECTED-FAIL processor #112.
+Run the unwarmed case explicitly, after building `crflic`:
+
+```sh
+cd tb/verilator/milan_dp
+./obj_crflic/Vmilan_dp_crflic --unwarmed-refusal
+```
+
+This additionally runs `[I]` for both sources and round phases.
+It preloads 224 bytes, withdraws, then declares 20,000 bytes.
+The real pipeline must recompute the changed TSpec.
+No verdict, registrar or gate is forced.
+Failures retain exit status 1; EXPECTED-FAIL never masks them.
+After pinning processor #112, require this arm by default.
+Remove the skip and EXPECTED-FAIL label then; retain every assertion.
+The first declaration after reset is outside this arm's coverage.
+
+Measured warm-pipeline start latency, in admission-clock cycles:
 
 | Source | Round phase 0 | Round phase 1 |
 |---|---|---|
 | AAF source 0 | 2 | 1 |
 | CRF source 1 | 0 | 1 |
 
-This leg uses the 100 MHz admission clock: 0--20 ns.
-At a 50 MHz product clock, those cycles represent 0--40 ns.
+The warm cases use the 100 MHz admission clock: 0--20 ns.
+At 50 MHz, those warm cycles represent 0--40 ns.
+[R296-1](https://github.com/kebag-logic/milan-fpga/pull/553#issuecomment-5815951481)
+also measured a changed-TSpec admitted start.
+CRF phase 0 took 4 cycles after preloading 20,000 bytes.
+Its admitted re-declaration used 224 bytes.
+That is 40 ns here, or 80 ns at 50 MHz.
+The observed warm/changed-TSpec range is therefore 0--4 cycles.
+Four cycles still fit within three two-source admission rounds.
+Re-measure both histories after the processor fix is pinned.
 The ordinary Listener Ready cases add zero cycles.
 These measurements cover this two-source shape, not every supported geometry.
 The processor's optimistic window spans three rounds of `N_SOURCES` cycles.

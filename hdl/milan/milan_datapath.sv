@@ -1639,10 +1639,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam int SRP_CRFSNK_C      = (ADP_LISTENER_SINK_C > N_STREAMS) ? 1 : 0;
   localparam int SRP_CRFSNK_ROW_C  = SRP_LSN0_ROW_C + 1;
   localparam int SRP_CRFSNK_SLOT_C = SRP_LSN0_SLOT_C + 1;
-  //! per-source streaming licence: the processor's ACTIVE vector (#530, see
-  //! the SRP block below), one bit per Stream Output; the flat CSR status
-  //! keeps bit 0 only. The top slot is the CRF Media Clock Output when this
-  //! shape has one.
+  //! Per-source licence: processor ACTIVE AND the real grant (#530, #551),
+  //! one bit per Stream Output; flat CSR status keeps bit 0 only. The top
+  //! slot is CRF when present. A refused re-declaration with a changed TSpec
+  //! can still get about one round of licence: the first-round grant uses
+  //! the previous slope (processor #112; full contract in the SRP block).
   wire [SRP_TALKERS_C-1:0] lwsrp_stream_gate;
   //! the per-TALKER "registering a Listener Asking Failed attribute" vector
   //! (gh #56 A2: -> ACMP REGISTERING_FAILED) that used to be declared here
@@ -5276,7 +5277,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire crft_class_a_w = (ACMP_SRC_C > N_STREAMS) &
                         (|pp_cd_srp_tk_decl_state_w[2*CRF_DECL_SLOT_C +: 2]);
   //! The CRF source's ACTIVE AND real admission grant (top slot when
-  //! present). Optimistic admission alone cannot license this output (#551).
+  //! present). Optimism alone cannot license this output (#551). A refused
+  //! changed-TSpec re-declaration can still get about one round of licence
+  //! from a first-round grant using the previous slope (processor #112).
   wire crft_res_active_w = (SRP_CRF_TK_C != 0) &
                            lwsrp_stream_gate[SRP_TALKERS_C-1];
   //! the C-TAG's {PCP, VID}: SR class A defaults {3, LWSRP_VID} (802.1Q
@@ -5315,7 +5318,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! carry the real tagged/reserved levels, from the processor.
     crft_stat_c[4]     = 1'b0;
     crft_stat_c[5]     = crft_class_a_w;        //! frames leaving tagged
-    crft_stat_c[6]     = crft_res_active_w;     //! reservation ACTIVE
+    crft_stat_c[6]     = crft_res_active_w;     //! ACTIVE AND real grant
     crft_stat_c[7]     = crft_emit_en_w;        //! emission licensed NOW
     crft_stat_c[19:8]  = crft_class_a_w ? crft_vid_w : 12'd0;
     crft_stat_c[22:20] = crft_class_a_w ? crft_pcp_w : 3'd0;
@@ -6549,10 +6552,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! NO SHAPER READS THE SLOPE OR THE VERDICT HERE. The 802.1Qav chain is
   //! not in this wrapper (NO GENERAL-DATA TX CHAIN at the top of the file,
   //! HONEST BOUND at the CRF merge): no AAF or CRF frame is credit-shaped.
-  //! The raw verdict and the slope sum reach one status word each:
+  //! The grant OR and slope sum reach one diagnostic word each:
   //! lwsrp_slope_en -> LWSRP_STATUS[9] and lwsrp_idle_slope -> LWSRP_SLOPE
-  //! 0x698. No other logic reads either, and software sees them only
-  //! through those two words.
+  //! 0x698. Licences also read the raw grant PER SOURCE, never that OR or
+  //! sum. No shaper consumes either diagnostic.
   //!
   //! KL_lwsrp_bw_gate sequenced slope and gate with a settling HOLD between
   //! them: on activation the stream's idleSlope joined the running Sigma,
@@ -6577,14 +6580,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! OPENING EDGE - a declaration clears its Listener registrar. Normally
   //! Listener Ready arrives after the real grant and adds no start delay.
   //! A registering Listener event decoded inside the optimistic window can
-  //! raise ACTIVE earlier. The licence waits for the real grant, bounded by
-  //! the three-round window (N_SOURCES cycles per admission round).
+  //! raise ACTIVE earlier. The licence also requires the real grant.
+  //! Measured added delay on the two-source fixture: 0--2 warm-pipeline
+  //! cycles; a changed-TSpec admitted CRF start took 4 cycles (R296-1).
+  //! Both fit three rounds (N_SOURCES cycles per admission round).
+  //! Re-measure after pinning the processor #112 fix.
   //!
-  //! REFUSED - with no real grant, ACTIVE may pulse inside that window but
+  //! REFUSED, SAME TSPEC PRELOADED - no real grant; ACTIVE may pulse but
   //! the licence stays closed. No STREAM_START/STREAM_STOP pair, Table 5.4
-  //! counter reset, or PDU follows. ACTIVE then falls and the declaration
-  //! swaps to Talker Failed. LWSRP_STATUS[6] remains raw |ACTIVE; source 0's
-  //! gate bit [8] and CRFT_CTRL[6]/[7] require the real grant as well.
+  //! counter reset or PDU follows. ACTIVE falls; Talker Failed follows.
+  //! RESIDUAL - if the refused re-declaration's TSpec differs from that
+  //! source's previous one, the first-round grant uses the previous slope.
+  //! With early Listener Ready, about one round of licence remains possible,
+  //! including the counter pair, resets and a PDU if its media event lands
+  //! inside. Processor #112 owns the fix; #551 awaits its parent pin.
+  //! LWSRP_STATUS[6] remains raw |ACTIVE; source 0's gate bit [8] and
+  //! CRFT_CTRL[6]/[7] require the real grant as well.
   //!
   //! CLOSING EDGE - either ACTIVE or the real grant falling closes the gate.
   //! The raw grant does not follow Listener withdrawal; ACTIVE does.

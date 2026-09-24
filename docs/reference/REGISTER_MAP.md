@@ -1110,11 +1110,19 @@ An early Listener Ready can raise ACTIVE before admission completes.
 
 * **Admitted.** The licence opens once both terms hold.
   A later Listener Ready adds no admission delay.
-* **Refused.** `LWSRP_STATUS[7]` reports the ceiling refusal.
+* **Refused, same TSpec preloaded.** `LWSRP_STATUS[7]` reports ceiling refusal.
   ACTIVE can pulse, but the licence remains closed.
   No STREAM_START/STREAM_STOP pair or Table 5.4 counter reset follows.
   The refused re-declaration emits no PDU.
   ACTIVE falls when optimism expires; Talker Failed follows.
+
+**Residual: changed TSpec.** The refused TSpec differs from that source's previous one.
+The first-round grant still uses the previous slope.
+With an early Listener Ready, about one round's licence remains.
+A STREAM_START/STREAM_STOP pair and Table 5.4 resets remain possible.
+So does a PDU if its media event lands inside.
+[Processor issue #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112) owns the pending fix.
+Its fix must be pinned before #551 can close.
 
 `CRFT_CTRL[6]`/`[7]` require the CRF source's real grant.
 `LWSRP_STATUS[8]` requires source 0's real grant.

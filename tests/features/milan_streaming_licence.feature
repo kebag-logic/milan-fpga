@@ -30,8 +30,8 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
   WHAT LEFT WITH THE lwSRP RTL. The applicant/registrar/bw-gate engine under
   hdl/ieee8021q/srp/** has been deleted; the protocol-processor submodule
   declares now, and milan_datapath drives lwsrp_stream_gate from the
-  processor's ACTIVE vector (its admitted vector until #530, which let a
-  declaration alone open the gate). Three @class:clause scenarios (listener_ready_o,
+  processor's ACTIVE AND per-source real grant (#551). Before #530, the
+  raw admitted vector let a declaration alone open the gate. Three @class:clause scenarios (listener_ready_o,
   the bw-gate req_w, the unconditional TalkerAdvertise inclusion) resolved out
   of that RTL's own expressions and went with it. So did @matrix:M-DEV-13d:
   its subject was the fabric provisioner srp_fab_want_v_w / srp_fab_launch_w,
@@ -84,17 +84,16 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
     And software may still name each identity field explicitly
 
   @class:structure
-  Scenario: the stream gate is the processor's ACTIVE, never its raw admission verdict
-    # #530, the #117 silicon run: the gate read the processor's raw Sigma-slope
-    # verdict, which rises at DECLARE_TALKER, before any bridge has answered.
-    # The CRF output streamed 4.7 s before its first Listener Ready. The
-    # processor's srp_active_o is the 5.3.7.3 pair plus admission, and
-    # protocol_processor_top tells a consumer never to rebuild it from its
-    # terms. tb/verilator/milan_dp obj_crflic grades the behaviour on every
-    # cycle; this scenario pins the source text so the repoint cannot quietly
-    # revert.
+  Scenario: the stream gate requires ACTIVE AND the per-source real grant, nothing else
+    # #530 requires ACTIVE: raw admission alone allowed media before Listener
+    # Ready. The #551 decision also requires the per-source real grant,
+    # excluding ACTIVE's optimistic admission term. Neither term alone suffices.
+    # This pins the composition; obj_crflic grades its cycle-level behaviour.
+    # Residual: a refused re-declaration with a different previous TSpec can
+    # still see about one round of licence: the first-round grant uses the
+    # previous slope. Processor issue #112 owns that pending fix.
     When I read the lwSRP stream gate assignment from milan_datapath
-    Then the stream gate takes the processor's ACTIVE vector and nothing else
+    Then the stream gate takes ACTIVE AND the per-source real grant and nothing else
 
   @class:wire
   Scenario: the bench bridge declares Listener Ready for our StreamID

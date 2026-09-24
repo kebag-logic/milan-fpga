@@ -79,15 +79,23 @@ ACTIVE alone includes three admission rounds of optimistic admission.
 The real grant excludes that optimistic term.
 Each declaration clears its registered Listener first.
 An early Listener Ready can still raise ACTIVE inside that window.
-The licence waits for actual admission.
+The licence waits for the real grant; see its residual below.
 
 - **Admitted.** The licence opens when both terms hold.
   Normal Listener Ready arrivals follow admission, adding no delay.
   An earlier arrival waits for the real per-source grant.
-- **Refused.** ACTIVE can pulse; the licence stays closed.
+- **Refused, same TSpec preloaded.** ACTIVE can pulse; licences stay closed.
   No STREAM_START/STREAM_STOP pair or Table 5.4 counter reset follows.
   No PDU leaves from the refused re-declaration.
   ACTIVE falls when optimism expires; Talker Failed follows.
+
+**Residual: changed TSpec.** The refused TSpec differs from that source's previous one.
+The first-round grant still uses the previous slope.
+With an early Listener Ready, about one round's licence remains.
+A STREAM_START/STREAM_STOP pair and Table 5.4 resets remain possible.
+So does a PDU if its media event lands inside.
+[Processor issue #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112) owns the pending fix.
+Its fix must be pinned before #551 can close.
 
 `CRFT_CTRL[6]`/`[7]` and source 0's `LWSRP_STATUS[8]` require the grant.
 `LWSRP_STATUS[6]` remains the OR of raw ACTIVE across sources.

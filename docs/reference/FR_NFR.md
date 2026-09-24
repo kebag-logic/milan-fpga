@@ -217,11 +217,20 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 > Every talker licence requires ACTIVE and its real admission grant.
 > ACTIVE includes the registered Listener Ready or Ready Failed (#530).
 > The real grant excludes the processor's optimistic admission term (#551).
-> Refused re-declarations therefore cannot open CRF or AAF licences.
-> They cause no STREAM_START/STREAM_STOP pair or Table 5.4 reset.
-> They emit no PDU, including during the optimistic window.
+> With the same TSpec preloaded, refused re-declarations keep licences closed.
+> No STREAM_START/STREAM_STOP pair, Table 5.4 reset or PDU follows.
 > The `milan_dp` licence leg checks both sources and admission phases.
 > Its grant-removal mutants must fail the refused-case checks.
+>
+> **Residual: changed TSpec.** The refused TSpec differs from that source's previous one.
+> The first-round grant still uses the previous slope.
+> With an early Listener Ready, about one round's licence remains.
+> A STREAM_START/STREAM_STOP pair and Table 5.4 resets remain possible.
+> So does a PDU if its media event lands inside.
+> [Processor issue #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112) owns the pending fix.
+> Its fix must be pinned before #551 can close.
+> The opt-in `--unwarmed-refusal` arm retains the failing assertions.
+> The default run skips it explicitly as EXPECTED-FAIL.
 
 ### 2.6 Time & media clock  -  gPTP, CRF  *(802.1AS; 1722-2016 Section 10; Milan Section 5.7)*
 | ID | Requirement | Pri | Ver |

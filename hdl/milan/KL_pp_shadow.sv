@@ -624,9 +624,14 @@ module KL_pp_shadow #(
     //! (802.1Q 35.2.2.7.4, srp_pkg::srp_decl_e): 0 none/Ignore,
     //! 1 AskingFailed, 2 Ready, 3 ReadyFailed - a code, never a one-hot
     output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,
-    //! THE AVTP transmit gate — never rebuild it from the terms below
+    //! Processor ACTIVE: includes Listener registration and optimistic admission.
+    //! Parent decision #551 deliberately qualifies this with srp_sr_admitted_o
+    //! per source for every CRF/AAF licence; ACTIVE alone is insufficient.
     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
-    //! RAW Sigma-slope verdict; lags srp_active_o by up to three admission rounds
+    //! Raw per-source grant, excluding optimism. A refused re-declaration whose
+    //! TSpec differs from that source's previous one can still get about one
+    //! round of licence: its first-round grant uses the previous slope.
+    //! Processor #112 owns the fix; the parent must pin it to close #551.
     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o, //! per-source granted idleSlope
     output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,     //! per-source self-declared Failed code
