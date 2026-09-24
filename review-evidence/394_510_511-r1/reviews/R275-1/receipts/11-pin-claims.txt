@@ -1,0 +1,66 @@
+head=64bcf768d28b4b9763fbe5917a734bcefa2a66e0 gptp=c1b617435824929a790739ea8585c3fe1a328cc0 pp=424c688fa2205b934a7689a58f2aa766420f2326
+
+## #511: no asymmetry input or tuner in the pinned gPTP processor
+$ git -C gptp-processor grep -n -I -i asym -- . :!docs/history/**
+docs/diagrams/gptp_architecture.svg:3:<svg xmlns="http://www.w3.org/2000/svg" style="background: transparent; background-color: transparent; color-scheme: light dark;" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1884px" 
+[exit=0]
+
+$ git -C gptp-processor grep -n -I -i -E uart_tune|tuner -- . :!docs/history/**
+[exit=1]
+
+## #511: no parent asymmetry control
+$ git grep -n -I -i -E delay_?asym|asym_|cfg_asym|asymmetry_ns|delayasymmetry -- hdl sw configs avdecc scripts
+[exit=1]
+
+$ git grep -n -E parameter int unsigned (INGRESS|EGRESS)_LAT_NS_P -- hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:115:    parameter int unsigned INGRESS_LAT_NS_P = 0,
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:116:    parameter int unsigned EGRESS_LAT_NS_P  = 0
+[exit=0]
+
+$ git grep -n -A4 _known_gp =  -- sw/builder/endstation_builder.py
+sw/builder/endstation_builder.py:3940:        _known_gp = {"priority1", "priority2", "clock_class",
+sw/builder/endstation_builder.py-3941-                     "clock_accuracy", "offset_scaled_log_variance",
+sw/builder/endstation_builder.py-3942-                     "domain", "log_sync_interval", "log_announce_interval",
+sw/builder/endstation_builder.py-3943-                     "log_pdelay_interval",
+sw/builder/endstation_builder.py-3944-                     "ingress_latency_ns", "egress_latency_ns"}
+[exit=0]
+
+## #510: processor MVU decode, parameters and harness arms
+$ git -C protocol-processor grep -n -E MVU_GET_MILAN_INFO_C|desc_ty_r  == MVU -- hdl/aecp/KL_aecp_engine.sv
+hdl/aecp/KL_aecp_engine.sv:707:  localparam logic [15:0] MVU_GET_MILAN_INFO_C = 16'h0000;
+hdl/aecp/KL_aecp_engine.sv:1296:                                && (desc_ty_r  == MVU_GET_MILAN_INFO_C);
+[exit=0]
+
+$ git -C protocol-processor grep -n -I -E MVU_SUID|MVU_MCR|EN_MVU|EN-MVU -- hdl tb
+[exit=1]
+
+$ git -C protocol-processor grep -n -E P-EN-MVU-SUID -- docs/architecture/01_overview.md
+docs/architecture/01_overview.md:169:| P-EN-MVU-SUID / P-EN-MVU-MCR | 1 / 1 | Milan "recommended" MVU groups | MVU decode |
+[exit=0]
+
+$ git -C protocol-processor grep -n -E mvu\(MVU_PID_LO, 0x000[1-4] -- tb/pp_top/sim_main.cpp
+tb/pp_top/sim_main.cpp:2336:    auto got = mvu(MVU_PID_LO, 0x0002, 0xC003);
+[exit=0]
+
+## #394: one interface, one port, flags zero
+$ git -C protocol-processor grep -n -E ^MILAN_FEATURES_FLAGS -- hdl/aecp/ucode/gen_ucode.py
+hdl/aecp/ucode/gen_ucode.py:112:MILAN_FEATURES_FLAGS = 0x00000000
+[exit=0]
+
+$ git -C protocol-processor grep -n -E CHECK\(ff == 0u -- tb/pp_top/sim_main.cpp
+tb/pp_top/sim_main.cpp:2309:      CHECK(ff == 0u, "M2: features_flags is 0x%08x, want 0 — this PAAD "
+[exit=0]
+
+$ git -C protocol-processor grep -n -E \.N_IF_P +\(1\) -- hdl/top/protocol_processor_top.sv
+hdl/top/protocol_processor_top.sv:1594:      .N_IF_P                (1),
+[exit=0]
+
+$ git grep -n -E add_argument\("--eth-port" -- sw/litex/milan_soc.py
+sw/litex/milan_soc.py:3632:    ap.add_argument("--eth-port", default="e1", choices=["e1", "e2"],
+[exit=0]
+
+$ git grep -n -E number_of_redundant_streams -- avdecc/aem_descriptors.py
+avdecc/aem_descriptors.py:285:    #! number_of_redundant_streams (134) and timing (136) BEFORE the formats
+avdecc/aem_descriptors.py:303:    b += be16(0)                        # number_of_redundant_streams (R)
+[exit=0]
+

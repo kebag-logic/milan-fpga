@@ -1,0 +1,41 @@
+diff -ru pp-base/tb/pp_top/sim_main.cpp pp-arms/tb/pp_top/sim_main.cpp
+--- pp-base/tb/pp_top/sim_main.cpp	2026-09-20 21:19:02.000000000 +0200
++++ pp-arms/tb/pp_top/sim_main.cpp	2026-09-24 02:05:43.994000000 +0200
+@@ -2245,6 +2245,7 @@
+     m2_the_three_fields_a_controller_records(m1_got);
+     m3_a_foreign_protocol_id_is_still_not_implemented();
+     m4_an_mvu_command_type_this_build_does_not_implement();
++    r275_probe_the_other_three_mvu_command_types();
+     m5_the_r_field_is_compared_the_reserved_field_is_not(info_pl);
+     m6_a_truncated_mvu_command();
+     m7_the_descriptor_path_is_untouched();
+@@ -2339,6 +2340,29 @@
+     CHECK(got == want, "M4: the unimplemented-MVU echo is not byte-exact");
+   }
+ 
++  // ---- R275 disposable probe: 0x0001 / 0x0003 / 0x0004 -------------------
++  void r275_probe_the_other_three_mvu_command_types() {
++    struct Case { uint16_t ct; size_t bytes; const char* what; };
++    const Case cases[] = {
++      {0x0001,  8, "SET_SYSTEM_UNIQUE_ID minimal"},
++      {0x0001, 16, "SET_SYSTEM_UNIQUE_ID with a u64 id"},
++      {0x0003,  8, "SET_MEDIA_CLOCK_REFERENCE_INFO minimal"},
++      {0x0003, 80, "SET_MEDIA_CLOCK_REFERENCE_INFO with a 64-byte name"},
++      {0x0004,  8, "GET_MEDIA_CLOCK_REFERENCE_INFO minimal"},
++      {0x0004, 12, "GET_MEDIA_CLOCK_REFERENCE_INFO with an index"},
++    };
++    uint16_t seq = 0xC0A0;
++    for (const auto& c : cases) {
++      auto cmd = mvu_cmd_pl(MVU_PID_LO, c.ct, c.bytes);
++      auto got = mvu(MVU_PID_LO, c.ct, seq, c.bytes);
++      auto want = mvu_expect(AECP_NOT_IMPLEMENTED, seq, cmd);
++      CHECK(!got.empty(), "R275: %s got silence", c.what);
++      CHECK(got == want, "R275: %s is not the byte-exact NOT_IMPLEMENTED echo", c.what);
++      if (!got.empty() && got != want) { dump("got ", got); dump("want", want); }
++      ++seq;
++    }
++  }
++
+   // ---- M5: the r field is compared, the reserved field is not -----------
+   // Milan §5.4.3.2.2 requires r = 0 in every MVU message and gives the
+   // receiver no leave to ignore it; §5.4.4.1's reserved field, by contrast,
