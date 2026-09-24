@@ -1,0 +1,361 @@
+verilator --cc --exe --build -j 0 --top-module srp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv srp_top_wrap.sv sim_main.cpp -o Vsrp_top_sim
+make[1]: Entering directory '/tmp/pp112-mutants-tonx23aj/tb/srp_top/obj_dir'
+g++  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra   -c -o verilated.o $VERILATOR_ROOT/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra   -c -o verilated_threads.o $VERILATOR_ROOT/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra   -x c++-header Vsrp_top_wrap__pch.h -o Vsrp_top_wrap__pch.h.fast.gch
+g++   -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra   -x c++-header Vsrp_top_wrap__pch.h -o Vsrp_top_wrap__pch.h.slow.gch
+g++   -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap___024root__Slow.cpp
+g++   -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap___024root__0__Slow.cpp
+g++   -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap__Syms__Slow.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.fast -c Vsrp_top_wrap.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.fast -c Vsrp_top_wrap___024root__0.cpp
+g++ -Os  -I.  -MMD -I$VERILATOR_ROOT/include -I$VERILATOR_ROOT/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I/tmp/pp112-mutants-tonx23aj/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.fast -c Vsrp_top_wrap___024root__1.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vsrp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_top_sim
+rm Vsrp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/tmp/pp112-mutants-tonx23aj/tb/srp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.399 MB sources in 15 modules, into 1.874 MB in 7 C++ files needing 0.002 MB
+- Verilator: Walltime 5.739 s (elab=0.020, cvt=0.184, bld=5.478); cpu 0.282 s on 16 threads; allocated 838.707 MB
+./obj_dir/Vsrp_top_sim
+LATENCY source=0 request_phase=0 accepted_phase=1 frame=20000 cycles=-1 window=25
+LATENCY source=0 request_phase=0 accepted_phase=1 frame=224 cycles=24 window=25
+LATENCY source=0 request_phase=0 accepted_phase=1 frame=224 cycles=24 window=25
+LATENCY source=0 request_phase=1 accepted_phase=2 frame=20000 cycles=-1 window=25
+LATENCY source=0 request_phase=1 accepted_phase=2 frame=224 cycles=16 window=25
+LATENCY source=0 request_phase=1 accepted_phase=2 frame=224 cycles=16 window=25
+LATENCY source=0 request_phase=2 accepted_phase=3 frame=20000 cycles=-1 window=25
+LATENCY source=0 request_phase=2 accepted_phase=3 frame=224 cycles=16 window=25
+LATENCY source=0 request_phase=2 accepted_phase=3 frame=224 cycles=16 window=25
+LATENCY source=0 request_phase=3 accepted_phase=4 frame=20000 cycles=-1 window=25
+LATENCY source=0 request_phase=3 accepted_phase=4 frame=224 cycles=16 window=25
+LATENCY source=0 request_phase=3 accepted_phase=4 frame=224 cycles=16 window=25
+LATENCY source=0 request_phase=4 accepted_phase=5 frame=20000 cycles=-1 window=25
+LATENCY source=0 request_phase=4 accepted_phase=5 frame=224 cycles=16 window=25
+LATENCY source=0 request_phase=4 accepted_phase=5 frame=224 cycles=16 window=25
+LATENCY source=0 request_phase=5 accepted_phase=6 frame=20000 cycles=-1 window=25
+LATENCY source=0 request_phase=5 accepted_phase=6 frame=224 cycles=16 window=25
+LATENCY source=0 request_phase=5 accepted_phase=6 frame=224 cycles=16 window=25
+LATENCY source=0 request_phase=6 accepted_phase=7 frame=20000 cycles=-1 window=25
+LATENCY source=0 request_phase=6 accepted_phase=7 frame=224 cycles=16 window=25
+LATENCY source=0 request_phase=6 accepted_phase=7 frame=224 cycles=16 window=25
+LATENCY source=0 request_phase=7 accepted_phase=0 frame=20000 cycles=-1 window=25
+LATENCY source=0 request_phase=7 accepted_phase=0 frame=224 cycles=24 window=25
+LATENCY source=0 request_phase=7 accepted_phase=0 frame=224 cycles=24 window=25
+LATENCY source=1 request_phase=0 accepted_phase=1 frame=20000 cycles=-1 window=25
+LATENCY source=1 request_phase=0 accepted_phase=1 frame=224 cycles=24 window=25
+LATENCY source=1 request_phase=0 accepted_phase=1 frame=224 cycles=24 window=25
+LATENCY source=1 request_phase=1 accepted_phase=2 frame=20000 cycles=-1 window=25
+LATENCY source=1 request_phase=1 accepted_phase=2 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=1 accepted_phase=2 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=2 accepted_phase=3 frame=20000 cycles=-1 window=25
+LATENCY source=1 request_phase=2 accepted_phase=3 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=2 accepted_phase=3 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=3 accepted_phase=4 frame=20000 cycles=-1 window=25
+LATENCY source=1 request_phase=3 accepted_phase=4 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=3 accepted_phase=4 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=4 accepted_phase=5 frame=20000 cycles=-1 window=25
+LATENCY source=1 request_phase=4 accepted_phase=5 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=4 accepted_phase=5 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=5 accepted_phase=6 frame=20000 cycles=-1 window=25
+LATENCY source=1 request_phase=5 accepted_phase=6 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=5 accepted_phase=6 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=6 accepted_phase=7 frame=20000 cycles=-1 window=25
+LATENCY source=1 request_phase=6 accepted_phase=7 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=6 accepted_phase=7 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=7 accepted_phase=0 frame=20000 cycles=-1 window=25
+LATENCY source=1 request_phase=7 accepted_phase=0 frame=224 cycles=16 window=25
+LATENCY source=1 request_phase=7 accepted_phase=0 frame=224 cycles=16 window=25
+LATENCY source=7 request_phase=0 accepted_phase=1 frame=20000 cycles=-1 window=25
+LATENCY source=7 request_phase=0 accepted_phase=1 frame=224 cycles=16 window=25
+LATENCY source=7 request_phase=0 accepted_phase=1 frame=224 cycles=16 window=25
+LATENCY source=7 request_phase=1 accepted_phase=2 frame=20000 cycles=-1 window=25
+LATENCY source=7 request_phase=1 accepted_phase=2 frame=224 cycles=8 window=25
+LATENCY source=7 request_phase=1 accepted_phase=2 frame=224 cycles=8 window=25
+LATENCY source=7 request_phase=2 accepted_phase=3 frame=20000 cycles=-1 window=25
+LATENCY source=7 request_phase=2 accepted_phase=3 frame=224 cycles=8 window=25
+LATENCY source=7 request_phase=2 accepted_phase=3 frame=224 cycles=8 window=25
+LATENCY source=7 request_phase=3 accepted_phase=4 frame=20000 cycles=-1 window=25
+LATENCY source=7 request_phase=3 accepted_phase=4 frame=224 cycles=8 window=25
+LATENCY source=7 request_phase=3 accepted_phase=4 frame=224 cycles=8 window=25
+LATENCY source=7 request_phase=4 accepted_phase=5 frame=20000 cycles=-1 window=25
+LATENCY source=7 request_phase=4 accepted_phase=5 frame=224 cycles=8 window=25
+LATENCY source=7 request_phase=4 accepted_phase=5 frame=224 cycles=8 window=25
+LATENCY source=7 request_phase=5 accepted_phase=6 frame=20000 cycles=-1 window=25
+LATENCY source=7 request_phase=5 accepted_phase=6 frame=224 cycles=8 window=25
+LATENCY source=7 request_phase=5 accepted_phase=6 frame=224 cycles=8 window=25
+LATENCY source=7 request_phase=6 accepted_phase=7 frame=20000 cycles=-1 window=25
+LATENCY source=7 request_phase=6 accepted_phase=7 frame=224 cycles=16 window=25
+LATENCY source=7 request_phase=6 accepted_phase=7 frame=224 cycles=16 window=25
+LATENCY source=7 request_phase=7 accepted_phase=0 frame=20000 cycles=-1 window=25
+LATENCY source=7 request_phase=7 accepted_phase=0 frame=224 cycles=16 window=25
+LATENCY source=7 request_phase=7 accepted_phase=0 frame=224 cycles=16 window=25
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=0)
+CROSS source=1 phase=0 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=1)
+CROSS source=1 phase=1 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=2)
+CROSS source=1 phase=2 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=3)
+CROSS source=1 phase=3 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=4)
+CROSS source=1 phase=4 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=5)
+CROSS source=1 phase=5 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=6)
+CROSS source=1 phase=6 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=7)
+CROSS source=1 phase=7 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=0)
+CROSS source=1 phase=0 frame=900 lo_latency=24 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=1)
+CROSS source=1 phase=1 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=2)
+CROSS source=1 phase=2 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=3)
+CROSS source=1 phase=3 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=4)
+CROSS source=1 phase=4 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=5)
+CROSS source=1 phase=5 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=6)
+CROSS source=1 phase=6 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=7)
+CROSS source=1 phase=7 frame=900 lo_latency=24 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=0)
+CROSS source=1 phase=0 frame=224 lo_latency=24 hi_first=24 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=1)
+CROSS source=1 phase=1 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=2)
+CROSS source=1 phase=2 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=3)
+CROSS source=1 phase=3 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=4)
+CROSS source=1 phase=4 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=5)
+CROSS source=1 phase=5 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=6)
+CROSS source=1 phase=6 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=7)
+CROSS source=1 phase=7 frame=224 lo_latency=24 hi_first=24 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=0)
+CROSS source=7 phase=0 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=1)
+CROSS source=7 phase=1 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=2)
+CROSS source=7 phase=2 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=3)
+CROSS source=7 phase=3 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=4)
+CROSS source=7 phase=4 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=5)
+CROSS source=7 phase=5 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=6)
+CROSS source=7 phase=6 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=7)
+CROSS source=7 phase=7 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=0)
+CROSS source=7 phase=0 frame=900 lo_latency=24 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=1)
+CROSS source=7 phase=1 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=2)
+CROSS source=7 phase=2 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=3)
+CROSS source=7 phase=3 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=4)
+CROSS source=7 phase=4 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=5)
+CROSS source=7 phase=5 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=6)
+CROSS source=7 phase=6 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=7)
+CROSS source=7 phase=7 frame=900 lo_latency=24 hi_first=-1 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=0)
+CROSS source=7 phase=0 frame=224 lo_latency=24 hi_first=24 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=1)
+CROSS source=7 phase=1 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=2)
+CROSS source=7 phase=2 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=3)
+CROSS source=7 phase=3 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=4)
+CROSS source=7 phase=4 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=5)
+CROSS source=7 phase=5 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=6)
+CROSS source=7 phase=6 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+FAIL: I: rounds publish the greedy model; grants only retire between them (phase=7)
+CROSS source=7 phase=7 frame=224 lo_latency=24 hi_first=24 refused_levels=0
+CROSS join_offset k=1 accepted_to_join=2
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=1)
+CROSS source=7 k=1 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=2 accepted_to_join=3
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=2)
+CROSS source=7 k=2 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=3 accepted_to_join=4
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=3)
+CROSS source=7 k=3 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=4 accepted_to_join=5
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=4)
+CROSS source=7 k=4 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=5 accepted_to_join=6
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=5)
+CROSS source=7 k=5 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=6 accepted_to_join=7
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=6)
+CROSS source=7 k=6 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=7 accepted_to_join=8
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=7)
+CROSS source=7 k=7 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+CROSS join_offset k=8 accepted_to_join=9
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=8)
+CROSS source=7 k=8 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+CROSS join_offset k=9 accepted_to_join=10
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=9)
+CROSS source=7 k=9 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=10 accepted_to_join=11
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=10)
+CROSS source=7 k=10 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=11 accepted_to_join=12
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=11)
+CROSS source=7 k=11 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=12 accepted_to_join=13
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=12)
+CROSS source=7 k=12 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=13 accepted_to_join=14
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=13)
+CROSS source=7 k=13 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=14 accepted_to_join=15
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=14)
+CROSS source=7 k=14 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=15 accepted_to_join=16
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=15)
+CROSS source=7 k=15 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+CROSS join_offset k=16 accepted_to_join=17
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=16)
+CROSS source=7 k=16 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+CROSS join_offset k=17 accepted_to_join=18
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=17)
+CROSS source=7 k=17 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=18 accepted_to_join=19
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=18)
+CROSS source=7 k=18 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=19 accepted_to_join=20
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=19)
+CROSS source=7 k=19 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=20 accepted_to_join=21
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=20)
+CROSS source=7 k=20 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=21 accepted_to_join=22
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=21)
+CROSS source=7 k=21 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=22 accepted_to_join=23
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=22)
+CROSS source=7 k=22 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=23 accepted_to_join=24
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=23)
+CROSS source=7 k=23 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+CROSS join_offset k=24 accepted_to_join=25
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=24)
+CROSS source=7 k=24 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+CROSS join_offset k=25 accepted_to_join=26
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=25)
+CROSS source=7 k=25 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=26 accepted_to_join=27
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=26)
+CROSS source=7 k=26 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=27 accepted_to_join=28
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=27)
+CROSS source=7 k=27 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=28 accepted_to_join=29
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=28)
+CROSS source=7 k=28 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=29 accepted_to_join=30
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=29)
+CROSS source=7 k=29 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=30 accepted_to_join=31
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=30)
+CROSS source=7 k=30 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=31 accepted_to_join=32
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=31)
+CROSS source=7 k=31 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+CROSS join_offset k=32 accepted_to_join=33
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=32)
+CROSS source=7 k=32 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+CROSS join_offset k=33 accepted_to_join=34
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=33)
+CROSS source=7 k=33 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=34 accepted_to_join=35
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=34)
+CROSS source=7 k=34 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=35 accepted_to_join=36
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=35)
+CROSS source=7 k=35 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=36 accepted_to_join=37
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=36)
+CROSS source=7 k=36 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=37 accepted_to_join=38
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=37)
+CROSS source=7 k=37 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=38 accepted_to_join=39
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=38)
+CROSS source=7 k=38 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+CROSS join_offset k=39 accepted_to_join=40
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=39)
+CROSS source=7 k=39 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+CROSS join_offset k=40 accepted_to_join=41
+FAIL: I: rounds publish the greedy model; grants only retire between them (k=40)
+CROSS source=7 k=40 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+WINDOW phase=0 gap=0 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=0 gap=4 held=1 source7=24 source0=24 from_accept0
+WINDOW phase=0 gap=8 held=1 source7=16 source0=16 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 0 gap 12: 7 Failed clocks, grants at 41/41)
+WINDOW phase=0 gap=12 held=1 source7=24 source0=24 from_accept0
+WINDOW phase=0 gap=16 held=0 source7=-4 source0=16 from_accept0
+WINDOW phase=0 gap=20 held=0 source7=-8 source0=24 from_accept0
+WINDOW phase=1 gap=0 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=1 gap=4 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=1 gap=8 held=0 source7=-4 source0=16 from_accept0
+WINDOW phase=1 gap=12 held=0 source7=-8 source0=16 from_accept0
+WINDOW phase=1 gap=16 held=0 source7=-12 source0=16 from_accept0
+WINDOW phase=1 gap=20 held=0 source7=-16 source0=16 from_accept0
+WINDOW phase=2 gap=0 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=2 gap=4 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=2 gap=8 held=0 source7=-4 source0=16 from_accept0
+WINDOW phase=2 gap=12 held=0 source7=-8 source0=16 from_accept0
+WINDOW phase=2 gap=16 held=0 source7=-12 source0=16 from_accept0
+WINDOW phase=2 gap=20 held=0 source7=-16 source0=16 from_accept0
+WINDOW phase=3 gap=0 held=1 source7=24 source0=24 from_accept0
+WINDOW phase=3 gap=4 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=3 gap=8 held=0 source7=-4 source0=24 from_accept0
+WINDOW phase=3 gap=12 held=0 source7=-8 source0=16 from_accept0
+WINDOW phase=3 gap=16 held=0 source7=-12 source0=24 from_accept0
+WINDOW phase=3 gap=20 held=0 source7=-16 source0=16 from_accept0
+WINDOW phase=4 gap=0 held=1 source7=24 source0=24 from_accept0
+WINDOW phase=4 gap=4 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=4 gap=8 held=0 source7=-4 source0=24 from_accept0
+WINDOW phase=4 gap=12 held=0 source7=-8 source0=16 from_accept0
+WINDOW phase=4 gap=16 held=0 source7=-12 source0=24 from_accept0
+WINDOW phase=4 gap=20 held=0 source7=-16 source0=16 from_accept0
+WINDOW phase=5 gap=0 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=5 gap=4 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=5 gap=8 held=0 source7=-4 source0=16 from_accept0
+WINDOW phase=5 gap=12 held=0 source7=-8 source0=16 from_accept0
+WINDOW phase=5 gap=16 held=0 source7=-12 source0=16 from_accept0
+WINDOW phase=5 gap=20 held=0 source7=-16 source0=16 from_accept0
+WINDOW phase=6 gap=0 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=6 gap=4 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=6 gap=8 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=6 gap=12 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=6 gap=16 held=0 source7=-4 source0=16 from_accept0
+WINDOW phase=6 gap=20 held=0 source7=-8 source0=16 from_accept0
+WINDOW phase=7 gap=0 held=1 source7=16 source0=16 from_accept0
+WINDOW phase=7 gap=4 held=1 source7=24 source0=24 from_accept0
+WINDOW phase=7 gap=8 held=1 source7=16 source0=16 from_accept0
+FAIL: J: no Failed while source 7's verdict waits for source 0 (phase 7 gap 12: 7 Failed clocks, grants at 41/41)
+WINDOW phase=7 gap=12 held=1 source7=24 source0=24 from_accept0
+WINDOW phase=7 gap=16 held=0 source7=-4 source0=16 from_accept0
+WINDOW phase=7 gap=20 held=0 source7=-8 source0=24 from_accept0
+1531 checks: 1441 PASS, 90 FAIL
+make: *** [Makefile:25: run] Error 1
