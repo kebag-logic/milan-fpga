@@ -1,0 +1,25 @@
+=== pt-head (pp_top default build)
+[build default, SRP_DOM_DEF_VID_P 0x0002] 1414 checks, 0 failures
+exit 0
+=== pt-oldcmp (pp_top default build)
+FAIL: BW3: the GET served after the failed walk left sink 0's saved record in the device, nothing written (byte 8 03 -> 00)
+FAIL: BW3: the drained read ends first, then the BIND is committed, a verified F07.8 record
+[build default, SRP_DOM_DEF_VID_P 0x0002] 1414 checks, 2 failures
+exit 1
+=== pt-done-norel (pp_top default build)
+FAIL: BW4: restore_done_o never read 1 while the admission gate still owned the listener (8 cycles did)
+FAIL: BW4: every preload record write and discovery arm of a walk came before its restore_done_o (1 of 10 after it)
+[build default, SRP_DOM_DEF_VID_P 0x0002] 1414 checks, 2 failures
+exit 1
+=== pt-busy-nogap (pp_top default build)
+FAIL: BW4: restore_busy_o or restore_done_o read 1 in every cycle from each walk's start (8 cycles read neither)
+[build default, SRP_DOM_DEF_VID_P 0x0002] 1414 checks, 1 failures
+exit 1
+=== an-pinned (acmp_nvm pinned control)
+107
+FAIL: L05a first sink's GET between its store and its preload: walk, preloads, release and ownership: 1 preloads taken, 2 saved; 1 preload records written; the release precedes a preload's record write or discovery arm; released -212 cycles after the terminal; touched 0x01
+FAIL: L05a first sink's GET between its store and its preload: the saved bindings are still in NVM, nothing written: 1 writes, 1 erases; sink 0 holds 000000000000000000000000
+FAIL: L05a first sink's GET between its store and its preload: every reply reports the restored binding (1 replies)
+FAIL: L05a first sink's GET between its store and its preload: a reset restores the same bindings: sink 0 not restored as saved; 1 preloads, want 2
+349 checks: 242 PASS, 107 FAIL
+exit 2

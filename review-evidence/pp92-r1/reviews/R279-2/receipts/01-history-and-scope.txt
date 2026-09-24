@@ -1,0 +1,117 @@
+== PR commits (base main 09f9bf38; source base fbc1f715)
+f8d30ec Render the dataflow diagram's PNG again now that it shows the admission gate and the manager arbiter (#92, #93)
+39625c9 Refuse a zero read deadline at elaboration instead of wrapping it to 2^32 clocks (#93)
+7297a64 Say what each NVM tie-off reports and that a failed walk keeps the saved records (#92, #93)
+e88f50b Grade a device face that answers every read as erased media: done, not failed, blank (#93)
+6ac5504 Grade the failed walk's saved record and the restore level pair at the top, every cycle (#92, #93)
+d849257 Keep a failed binding walk's saved records when the listener only restates its default (#92)
+156c206 Move the nvm_port pre-fix matrix forms and their git pins into their own module (#93)
+73b070e Run pp_top's BW3 read-deadline case as its own section, one name per declaration (#93)
+4aa2679 Move the nvm_port bench's owed-traffic monitor out of sample_dev (#93)
+cd5a892 Split the lsn_admit bench's run into its five sections, one name per declaration (#92)
+ad9d156 Give each acmp_nvm bench declaration one name, drop its unused be_get and warn on the pinned build (#92)
+69a6eac Merge main 09f9bf38 into 92-93-boot-restore
+3691340 Record the gate-deleted pp_top mutant at the current check count (#92)
+d6448ab Grade the talker-event level against the binding walk's read deadline (#93)
+daab6a5 Name the NVM port's error cause, bound the binding walk's reads and drain an abandoned read (#93)
+3bde3c3 Hold the ACMP listener's work faces from reset until the binding walk ends (#92)
+== correction round 156c206c..HEAD
+ docs/architecture/05_acmp_engine.md |  15 ++--
+ docs/architecture/07_memory_maps.md |  19 +++++-
+ docs/diagrams/20-rtl-dataflow.png   | Bin 437015 -> 445743 bytes
+ docs/guides/integrator.md           |  11 ++-
+ docs/guides/operator.md             |  30 +++++---
+ hdl/acmp/KL_acmp_nvm_shadow.sv      |  26 +++++--
+ tb/acmp_nvm/README.md               |  70 +++++++++++++------
+ tb/acmp_nvm/sim_main.cpp            | 132 ++++++++++++++++++++++++++++++++++++
+ tb/pp_top/README.md                 |  35 ++++++++--
+ tb/pp_top/pp_top_wrap.sv            |  10 +++
+ tb/pp_top/sim_main.cpp              | 120 ++++++++++++++++++++++++++++++--
+ 11 files changed, 414 insertions(+), 54 deletions(-)
+== correction-round hdl diff
+diff --git a/hdl/acmp/KL_acmp_nvm_shadow.sv b/hdl/acmp/KL_acmp_nvm_shadow.sv
+index e24f771..32ece28 100644
+--- a/hdl/acmp/KL_acmp_nvm_shadow.sv
++++ b/hdl/acmp/KL_acmp_nvm_shadow.sv
+@@ -37,7 +37,9 @@
+ //                compares each record write against the stored projection
+ //                and only a DIFFERING persisted field marks dirty — so
+ //                GET_RX_STATE write-backs and probe bookkeeping cost zero
+-//                NVM wear ("write-through on change") — and boot restore
++//                NVM wear ("write-through on change"); two unbound records
++//                never differ, because an unbound record is no binding
++//                whatever its other fields hold — and boot restore
+ //                is two-phase: every record is read and validated into the
+ //                store FIRST, pre_* replay starts only after the whole
+ //                walk, so a torn stream atomically rejects the image
+@@ -52,6 +54,8 @@
+ //                walk continues. Everything else that ends a read early
+ //                aborts the WHOLE restore: restore_fail_o, no preload is
+ //                ever driven, every un-captured sink stays invalid, and
++//                the media keeps every saved record until a live change
++//                binds that sink (the capture compare's unbound rule), and
+ //                restore_cause_o says which (issue #93): 1 a read-back
+ //                torn MID-STREAM (err or short done after ≥1 byte); 2 a
+ //                DEVICE err with zero bytes forwarded (a failing device is
+@@ -128,7 +132,7 @@ module KL_acmp_nvm_shadow
+     input  wire                        restore_go_i,   //! start boot restore (07 §5.3)
+     output logic                       restore_busy_o, //! restore walk/replay running
+     output logic                       restore_done_o, //! level: restore sequencing complete
+-    output logic                       restore_fail_o, //! level: torn read-back aborted the WHOLE restore
++    output logic                       restore_fail_o, //! level: the WHOLE restore aborted, any cause
+     output logic                       restore_blank_o,//! level: the completed walk validated ZERO records (blank or invalid media)
+     //! level, with restore_fail_o: why the walk failed. 0 it did not, 1 a
+     //! read-back torn mid-record, 2 a device error with nothing forwarded,
+@@ -311,8 +315,15 @@ module KL_acmp_nvm_shadow
+ 
+   assign cmp_data_w = (byp_v_r && (byp_sink_r == c1_sink_r)) ? byp_data_r
+                                                              : shw_rdata_r;
+-  assign c1_diff_w  = (SHW_W_C'(c1_proj_r) != cmp_data_w)
+-                    || (c1_vld_r != valid_r[c1_sink_r]);
++  //! Two UNBOUND records are equal whatever their other fields hold: an
++  //! unbound record carries no binding (Milan v1.2 5.3.8.3 clears the
++  //! binding parameters on unbind) and no walk ever preloads one. The atomic
++  //! reject clears valid and leaves the rejected sinks' restored fields in
++  //! this RAM, so without this rule the listener's first write-back of its
++  //! default after a failed walk (a read-only GET_RX_STATE) compared unequal
++  //! and flushed an unbound record over the saved binding (issue #92).
++  assign c1_diff_w  = (c1_vld_r != valid_r[c1_sink_r])
++                    || (c1_vld_r && (SHW_W_C'(c1_proj_r) != cmp_data_w));
+   assign c1_wr_w    = c1_v_r && c1_diff_w;
+ 
+   // ---- restore span / sequencing helpers ---------------------------------
+@@ -484,6 +495,13 @@ module KL_acmp_nvm_shadow
+   assign wr_data_w = c1_wr_w ? SHW_W_C'(c1_proj_r) : fsm_wr_data_w;
+ 
+   // ---- the read phase's deadline (issue #93, S3) ---------------------------
++  //! zero clocks would wrap RS_TMO_CYC_P - 1 below and silently turn the
++  //! deadline into 2^32 clocks (the top's default is CLK_HZ_P / 50, 0 below
++  //! 50 Hz)
++  if (RS_TMO_CYC_P < 1) begin : g_rs_tmo_check
++    $error("KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1");
++  end
++
+   //! Consecutive cycles the read phase waits on the port without the event
+   //! it waits for: in H_RS_REQ the port idle, in H_RS_STREAM a byte, a done
+   //! or an err. Progress is that event itself, so a device that is slow but
+== diff --check 09f9bf38..HEAD
+rc=0
+== F05.3 UNBIND_RX row and A10
+PWD=PRB_W_DELAY · PWR=PRB_W_RESP · PW2=PRB_W_RESP2 · PWT=PRB_W_RETRY ·
+SNR=SETTLED_NO_RSV · SOK=SETTLED_RSV_OK.
+
+| Event \ State | UNB | PWA | PWD | PWR | PW2 | PWT | SNR | SOK |
+|---|---|---|---|---|---|---|---|---|
+| `BIND_RX` same talker+source | — | PWA / A1 A6 A3 | PWD / A1 A6 A3 | PWR / A1 A6 A3 | PW2 / A1 A6 A3 | PWT / A1 A6 A3 | SNR / A1 A6 A3 | SOK / A1 A6 A3 |
+| `BIND_RX` new/different source | PWR / A1 A2 A3 A4 A5 | PWR / A1 A11 A9 A2 A3 A4 A5 | PWR / A1 A11 A9 A2 A3 A4 A5 | PWR / A1 A11 A9 A2 A3 A4 A5 | PWR / A1 A11 A9 A2 A3 A4 A5 | PWR / A1 A11 A9 A2 A3 A4 A5 | PWR / A1 A11 A8 A9 A2 A3 A4 A5 | PWR / A1 A11 A8 A9 A2 A3 A4 A5 |
+| `UNBIND_RX` | UNB / A1 A7 | UNB / A1 A11 A9 A10 A7 | UNB / A1 A11 A9 A10 A7 | UNB / A1 A11 A9 A10 A7 | UNB / A1 A11 A9 A10 A7 | UNB / A1 A11 A9 A10 A7 | UNB / A1 A11 A8 A9 A10 A7 | UNB / A1 A11 A8 A9 A10 A7 |
+| `GET_RX_STATE` | UNB / A16 | PWA / A16 | PWD / A16 | PWR / A16 | PW2 / A16 | PWT / A16 | SNR / A16 | SOK / A16 |
+| `PROBE_RESP` status = SUCCESS | ign | ign | ign | SNR / A11 A15 | SNR / A11 A15 | ign | ign | ign |
+| `PROBE_RESP` status ≠ SUCCESS | ign | ign | ign | PWT / A11 A14(status) | PWT / A11 A14(status) | ign | ign | ign |
+  t2 -- yes --> t3["A8 withdraw SRP + disable AVTP + clear settled"]
+  t2 -- no --> t4["A9 disarm discovery"]
+  t3 --> t4
+  t4 --> t5{"cause"}
+  t5 -- "UNBIND" --> t6["A10 clear binding + NVM clear"] --> t7["A7 respond"] --> u["UNBOUND"]
+  t5 -- "re-bind" --> t8["A2 A3 A4 A5 canonical bind"] --> p["PRB_W_RESP"]
+```

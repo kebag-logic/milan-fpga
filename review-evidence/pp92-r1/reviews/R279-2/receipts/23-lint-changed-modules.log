@@ -1,0 +1,21 @@
+== KL_acmp_nvm_shadow
+exit 0
+== KL_pp_acmp_lsn_admit
+exit 0
+== KL_pp_nvm_mgr_arb
+exit 0
+== KL_pp_nvm_port
+exit 0
+  # must not end the lint at it.
+  top=$(grep -oEm1 '^\s*module\s+\w+' "$f" | awk '{print $2}') || top=""
+  [ -n "$top" ] || continue
+  if ! out=$(verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+             -Wno-UNUSEDPARAM --top-module "$top" $pkgs $all 2>&1); then  # shellcheck disable=SC2086 # deliberate: the whole tree is passed as one argument per file
+    # verilator itself failed. Not the same thing as a lint finding, and not
+    # a pass either: say which it is.
+    echo "LINT ERROR $top ($f): verilator exited non-zero"
+    echo "$out" | tail -5
+    rc=1
+  elif grep -qE '%(Warning|Error)' <<<"$out"; then
+    echo "LINT FAIL $top ($f)"
+    # The verdict is already taken; `head` closing this pipe early is expected.

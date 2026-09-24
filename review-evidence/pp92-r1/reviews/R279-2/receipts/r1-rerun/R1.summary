@@ -1,0 +1,3 @@
+R1 KILLED rc=2 secs=191 1414 checks, 2 failures | 2 FAIL lines
+    FAIL: BW4: restore_done_o never read 1 while the admission gate still owned the listener (8 cycles did)
+    FAIL: BW4: every preload record write and discovery arm of a walk came before its restore_done_o (1 of 10 after it)

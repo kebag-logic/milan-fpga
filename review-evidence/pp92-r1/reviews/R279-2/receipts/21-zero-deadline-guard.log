@@ -1,0 +1,19 @@
+== shadow RS_TMO_CYC_P=0
+%Warning-USERERROR: acmp/KL_acmp_nvm_shadow.sv:502:5: KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.148 MB sources in 4 modules, into 0.123 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.028 s (elab=0.004, cvt=0.015, bld=0.000); cpu 0.028 s on 1 threads; allocated 20.523 MB
+exit 0
+== shadow RS_TMO_CYC_P=1
+%Warning-UNSIGNED: acmp/KL_acmp_nvm_shadow.sv:517:46: Comparison is constant due to unsigned arithmetic
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.148 MB sources in 4 modules, into 0.122 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.029 s (elab=0.004, cvt=0.015, bld=0.000); cpu 0.029 s on 1 threads; allocated 20.520 MB
+exit 0
+91:    parameter int unsigned CLK_HZ_P            = 100_000_000,
+93:    parameter int unsigned TIM_DIV_US_P        = CLK_HZ_P / 32'd1_000_000,
+129:    parameter int unsigned NVM_RS_TMO_CYC_P    = CLK_HZ_P / 32'd50,
+== shadow RS_TMO_CYC_P=0 WITHOUT -Wno-fatal
+%Warning-USERERROR: acmp/KL_acmp_nvm_shadow.sv:502:5: KL_acmp_nvm_shadow: RS_TMO_CYC_P must be at least 1
+%Error: Exiting due to 1 warning(s)
+exit 1

@@ -1,0 +1,32 @@
+spliced $REVIEWS/pp92-r279-2-packet/scratch/probe-head/tb/acmp_nvm/sim_main.cpp
+spliced $REVIEWS/pp92-r279-2-packet/scratch/probe-oldcmp/tb/acmp_nvm/sim_main.cpp
+reverted compare in $REVIEWS/pp92-r279-2-packet/scratch/probe-oldcmp/hdl/acmp/KL_acmp_nvm_shadow.sv
+=== probe-head: reviewer probes only
+OBSERVE R279-FU UNBIND of saved sink 0 after a failed walk: UNBIND answered SUCCESS 1; NVM writes+erases 0; next healthy boot restores sink 0 bound to its old talker 1
+21 checks: 21 PASS, 0 FAIL
+exit 0
+=== probe-head: full acmp_nvm bench
+349 checks: 349 PASS, 0 FAIL
+exit 0
+=== probe-oldcmp: reviewer probes only
+FAIL: R279-FW1 torn at the last sink: 17 read-only GETs after the failed walk write nothing: 3 writes, 3 erases; sink 0 holds 000000000000000000000000; sink 1 holds 000000000000000000000000; sink 2 holds 000000000000000000000000
+FAIL: R279-FW1 torn at the last sink: a healthy reset restores all four: sink 0 not restored as saved; sink 1 not restored as saved; sink 2 not restored as saved; 1 preloads, want 4
+FAIL: R279-FW2 device error at the last sink's header: 17 read-only GETs after the failed walk write nothing: 3 writes, 3 erases; sink 0 holds 000000000000000000000000; sink 1 holds 000000000000000000000000; sink 2 holds 000000000000000000000000
+FAIL: R279-FW2 device error at the last sink's header: a healthy reset restores all four: sink 0 not restored as saved; sink 1 not restored as saved; sink 2 not restored as saved; 1 preloads, want 4
+FAIL: R279-FW3 last sink silent, ended 2000 cycles after the abort: 17 read-only GETs after the failed walk write nothing: 3 writes, 3 erases; sink 0 holds 000000000000000000000000; sink 1 holds 000000000000000000000000; sink 2 holds 000000000000000000000000
+FAIL: R279-FW3 last sink silent, ended 2000 cycles after the abort: a healthy reset restores all four: sink 0 not restored as saved; sink 1 not restored as saved; sink 2 not restored as saved; 1 preloads, want 4
+OBSERVE R279-FU UNBIND of saved sink 0 after a failed walk: UNBIND answered SUCCESS 1; NVM writes+erases 2; next healthy boot restores sink 0 bound to its old talker 0
+21 checks: 15 PASS, 6 FAIL
+exit 1
+=== probe-oldcmp: full acmp_nvm bench
+FAIL: N8a sink 3's payload read torn after 3 bytes: sink 0 stored, then the WHOLE walk fails with cause 1, and the GET held through it writes nothing: NVM was written
+FAIL: N8a sink 3's payload read torn after 3 bytes: every saved record is still in the device, nothing written or pending: 1 writes, 1 erases; sink 0 holds 000000000000000000000000
+FAIL: N8a sink 3's payload read torn after 3 bytes: a reset on a healthy device restores every saved binding: sink 0 not restored as saved; 2 preloads, want 3
+FAIL: N8b a device error at sink 3's header read: sink 0 stored, then the WHOLE walk fails with cause 2, and the GET held through it writes nothing: NVM was written
+FAIL: N8b a device error at sink 3's header read: every saved record is still in the device, nothing written or pending: 1 writes, 1 erases; sink 0 holds 000000000000000000000000
+FAIL: N8b a device error at sink 3's header read: a reset on a healthy device restores every saved binding: sink 0 not restored as saved; 2 preloads, want 3
+FAIL: N8c sink 3's read silent, the device ending it 2000 cycles after the abort: sink 0 stored, then the WHOLE walk fails with cause 3, and the GET held through it writes nothing: NVM was written
+FAIL: N8c sink 3's read silent, the device ending it 2000 cycles after the abort: every saved record is still in the device, nothing written or pending: 1 writes, 1 erases; sink 0 holds 000000000000000000000000
+FAIL: N8c sink 3's read silent, the device ending it 2000 cycles after the abort: a reset on a healthy device restores every saved binding: sink 0 not restored as saved; 2 preloads, want 3
+349 checks: 340 PASS, 9 FAIL
+exit 1
