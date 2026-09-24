@@ -147,11 +147,16 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
     And the GET_MILAN_INFO features_flags is 0x00000000
     And the GET_MILAN_INFO certification_version is 0x00000000
 
-  # The sub-decode compares every byte that names the command and no other
-  # (the processor's tb/pp_top M3, M5, M5b and M6): the whole 48-bit
-  # protocol_id, the whole @28 word with its r bit, and the Figure 5.3 length.
-  # Anything else keeps the echo. The reserved field is ignored on the way in
-  # and restated as zero on the way out.
+  # The sub-decode compares every octet that names the command and no other
+  # (the processor's tb/pp_top M3, M5, M5b, M6 and M8): each of the six
+  # protocol_id octets, the whole @28 word with its r bit, and the Figure 5.3
+  # length as a floor. Anything else keeps the echo. The protocol_id rows move
+  # one octet each, as M8 does. The engine compares in four terms (@22..@23,
+  # @24..@25, @26, @27), and a row that moves two octets, or only the last,
+  # lets a dropped term through. Two things are not compared. The reserved
+  # field is ignored on the way in and restated as zero on the way out. The
+  # length is bounded from below only, so a longer command is still
+  # GET_MILAN_INFO and draws the 20-octet body, not an echo of itself.
   Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served
     When the controller sends an MVU command with protocol_id <protocol_id>, word @28 <word>, reserved <reserved> and control_data_length <cdl_in>
     Then the AECP response message_type is 7
@@ -163,15 +168,50 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
 
     @class:negative
     Examples: each compared field, one at a time
-      | protocol_id       | word   | reserved | cdl_in | status | cdl | body                         | varied                                   |
-      | 00-1B-C5-0A-C1-01 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | the 12-bit protocol id, same OUI-36      |
-      | 00-1B-C5-0A-C1-00 | 0x8000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | r = 1, which 5.4.3.2.2 requires to be 0  |
-      | 00-1B-C5-0A-C1-00 | 0x0000 | 0x0000   | 19     | 1      | 19  | the command payload verbatim | one octet short of Figure 5.3            |
+      | protocol_id       | word   | reserved | cdl_in | status | cdl | body                         | varied                                            |
+      | FF-1B-C5-0A-C1-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @22, the first OUI-36 octet                       |
+      | 00-FF-C5-0A-C1-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @23, the second OUI-36 octet                      |
+      | 00-1B-FF-0A-C1-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @24, the third OUI-36 octet                       |
+      | 00-1B-C5-FF-C1-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @25, the fourth OUI-36 octet                      |
+      | 00-1B-C5-0A-FF-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @26, the last OUI-36 nibble and protocol id's top |
+      | 00-1B-C5-0A-C1-FF | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @27, the protocol id's low octet                  |
+      | 00-1B-C5-0A-C1-01 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @27 by one bit: protocol id 0x101, same OUI-36    |
+      | 00-1B-C5-0A-C1-00 | 0x8000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | r = 1, which 5.4.3.2.2 requires to be 0           |
+      | 00-1B-C5-0A-C1-00 | 0x0000 | 0x0000   | 19     | 1      | 19  | the command payload verbatim | one octet short of Figure 5.3                     |
 
     @class:positive
-    Examples: the one field the receiver ignores
-      | protocol_id       | word   | reserved | cdl_in | status | cdl | body                | varied                         |
+    Examples: the two things the sub-decode does not compare
+      | protocol_id       | word   | reserved | cdl_in | status | cdl | body                | varied                          |
       | 00-1B-C5-0A-C1-00 | 0x0000 | 0xDEAD   | 20     | 0      | 32  | the Figure 5.4 body | a junk reserved field (5.4.4.1) |
+      | 00-1B-C5-0A-C1-00 | 0x0000 | 0x0000   | 24     | 0      | 32  | the Figure 5.4 body | four octets past Figure 5.3     |
+      | 00-1B-C5-0A-C1-00 | 0x0000 | 0x0000   | 112    | 0      | 32  | the Figure 5.4 body | 92 octets past Figure 5.3       |
+
+  # The message type is the sub-decode's remaining term. The engine matches
+  # MVU only in the RX validator's VENDOR_UNIQUE bucket (message_type 6; a 7
+  # is a response and is dropped), so the served command's octets under any
+  # other command type are not GET_MILAN_INFO. Each is echoed NOT_IMPLEMENTED
+  # under its own type. Under type 0 the protocol_id head sits where an AEM
+  # command keeps its command_type, and 0x001B is DECREMENT_CONTROL, which the
+  # sweep below already holds to NOT_IMPLEMENTED.
+  @class:negative
+  Scenario Outline: the GET_MILAN_INFO octets under another message_type are not an MVU command
+    When the controller sends the GET_MILAN_INFO command as message_type <mt> to the AECP engine
+    Then the AECP response message_type is the command type plus one
+    And the AECP response status is 1
+    And the AECP response protocol_id is echoed whole
+    And the AECP response carries the command payload verbatim
+    And the AECP response control_data_length is 20
+    And the AECP response is well formed against its command
+
+    Examples: every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+      | mt | message_type           |
+      |  0 | AEM_COMMAND            |
+      |  2 | ADDRESS_ACCESS_COMMAND |
+      |  4 | AVC_COMMAND            |
+      |  8 | HDCP_APM_COMMAND       |
+      | 10 | reserved               |
+      | 12 | reserved               |
+      | 14 | EXTENDED_COMMAND       |
 
   # The anti-staleness gate the AEM sweep carries, for the MVU half: the
   # engine's MVU_GET_*/MVU_SET_* constants are parsed and compared to the

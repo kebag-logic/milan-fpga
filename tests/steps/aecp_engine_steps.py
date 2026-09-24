@@ -111,6 +111,7 @@ from aecp_engine_model import (  # noqa: E402
     AecpEngineModel,
     DescriptorImage,
     D_ENTITY,
+    ETH_HDR,
     FRAME_HDR,
     MILAN_PROTOCOL_ID,
     MVU_COMMAND_FORMS,
@@ -403,14 +404,32 @@ def step_send_mvu_shaped(context: Context, pid: str, word: str, reserved: str,
     """A Figure 5.3 frame with each field the MVU sub-decode reads made a variable.
 
     `pid` is written dash-separated, 00-1B-C5-0A-C1-00, and `word` is the
-    whole @28..@29 halfword, r bit included.  The payload is kept for the
-    protocol_id echo check, which compares against what was sent.
+    whole @28..@29 halfword, r bit included.  A cdl past Figure 5.3's 20
+    carries that many more octets, counting up from 0x00, so the frame holds
+    every octet its length claims.  The payload is kept for the protocol_id
+    echo check, which compares against what was sent.
     """
     frame = build_mvu_command(int(word, 0), bytes.fromhex(pid.replace("-", "")),
-                              int(reserved, 0), cdl=cdl)
+                              int(reserved, 0), bytes(range(max(cdl - 20, 0))),
+                              cdl=cdl)
     context.vu_oui_payload = decode_command(frame)["payload"]
     _send(context, frame)
 
+
+@when('the controller sends the GET_MILAN_INFO command as message_type {mt:d} '
+      'to the AECP engine')
+def step_send_mvu_bytes_other_type(context: Context, mt: int) -> None:
+    """The Figure 5.3 GET_MILAN_INFO frame with only its message_type changed.
+
+    Every other octet is the served command's: the whole Milan protocol_id
+    and the word 0x0000.  The engine matches MVU only on the RX validator's
+    VENDOR_UNIQUE bucket, so under any other command type these octets are
+    not an MVU command.
+    """
+    frame = bytearray(build_mvu_command())
+    frame[ETH_HDR + 1] = (frame[ETH_HDR + 1] & 0xF0) | (mt & 0x0F)
+    context.vu_oui_payload = decode_command(bytes(frame))["payload"]
+    _send(context, bytes(frame))
 
 
 @when('the controller sends a VENDOR_UNIQUE command whose protocol_id '
