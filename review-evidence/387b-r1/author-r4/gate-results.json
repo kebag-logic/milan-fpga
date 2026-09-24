@@ -1,0 +1,124 @@
+{
+  "head": "00db64eb1e6e0c9bdb9f35ec5e37ebe6e00d550b",
+  "results": [
+    {
+      "gate": "docs-check",
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "location": "candidate worktree",
+      "rc": 0,
+      "elapsed_seconds": 4.472,
+      "log": "receipts/docs-check.log"
+    },
+    {
+      "gate": "docs-check-no-git",
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "location": "tracked-tree export without Git metadata",
+      "rc": 0,
+      "elapsed_seconds": 4.122,
+      "log": "receipts/docs-check-no-git.log"
+    },
+    {
+      "gate": "em-dash",
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "57456af96b3127b9d309a995bbbd35a6113ce52d"
+      ],
+      "location": "candidate worktree",
+      "rc": 0,
+      "elapsed_seconds": 3.723,
+      "log": "receipts/em-dash.log"
+    },
+    {
+      "gate": "doc-style",
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "location": "candidate worktree",
+      "rc": 0,
+      "elapsed_seconds": 0.114,
+      "log": "receipts/doc-style.log"
+    },
+    {
+      "gate": "toc",
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "location": "candidate worktree",
+      "rc": 0,
+      "elapsed_seconds": 2.57,
+      "log": "receipts/toc.log"
+    },
+    {
+      "gate": "doc-paths",
+      "command": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "location": "candidate worktree",
+      "rc": 0,
+      "elapsed_seconds": 0.114,
+      "log": "receipts/doc-paths.log"
+    },
+    {
+      "gate": "py-idiom",
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "location": "candidate worktree",
+      "rc": 0,
+      "elapsed_seconds": 3.169,
+      "log": "receipts/py-idiom.log"
+    },
+    {
+      "gate": "py-compile",
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "tb/verilator/milan_dp/render_mutants.py"
+      ],
+      "location": "candidate worktree",
+      "rc": 0,
+      "elapsed_seconds": 0.114,
+      "log": "receipts/py-compile.log"
+    },
+    {
+      "gate": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "location": "candidate worktree",
+      "rc": 0,
+      "elapsed_seconds": 0.064,
+      "log": "receipts/diff-check.log"
+    },
+    {
+      "gate": "delta-diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "0f003fab3303858ba4db955ad3c0512e67a8018b",
+        "00db64eb1e6e0c9bdb9f35ec5e37ebe6e00d550b"
+      ],
+      "location": "candidate worktree",
+      "rc": 0,
+      "elapsed_seconds": 0.032,
+      "log": "receipts/delta-diff-check.log"
+    }
+  ]
+}
