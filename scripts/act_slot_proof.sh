@@ -383,6 +383,12 @@ def await_judgment():
                 line.startswith(("PASS isolation slot ", "FAIL isolation slot ")) for line in lines) >= 2:
             return
         time.sleep(0.05)
+def await_path(path):
+    """Wait until PATH exists."""
+    for _ in range(1200):
+        if path.exists():
+            return
+        time.sleep(0.05)
 slot = value("--slot", "0")
 if "--interrupt-selftest" in args:
     if "interrupt-no-pass" not in faults:
@@ -409,7 +415,7 @@ if pr == "23" and slot == "0" and run_number == 2 and "rival0-other-refusal" in 
     print("act-ci: REFUSED: action clone failed", file=sys.stderr)
     sys.exit(2)
 if pr == "23" and slot == "1" and "late-refusal" in faults:
-    time.sleep(hold + 1)
+    await_path(summary.parent / "collide-1-holder.status")  # the holder has exited
     print("act-ci: REFUSED: replay slot 1 is in use by another runner invocation", file=sys.stderr)
     sys.exit(2)
 time.sleep(0.2)
@@ -419,10 +425,7 @@ if (run_a and "a-never-holds" in faults) or (run_b and "b-never-holds" in faults
     os.kill(os.getpid(), signal.SIGKILL)
 for waits, first in ((run_b, "a-refused-first"), (run_a, "b-refused-first")):
     if waits and first in faults:
-        for _ in range(600):
-            if (state / first).exists():
-                break
-            time.sleep(0.05)
+        await_path(state / first)
 if "serialize" in faults:
     queue = open(state / "queue.lock", "w")
     fcntl.flock(queue, fcntl.LOCK_EX)
@@ -449,11 +452,17 @@ try:
             await_judgment()
             sys.exit(2)
     print(f"act-ci: running {workflows[0]} (stand-in)", flush=True)
-    # A run that announced its isolated slot holds it until the proof has judged
-    # the parallel runs, so no check races its end. Serialized runs cannot overlap
-    # and hold for FAKE_HOLD alone; the collisions come after the judgment.
-    if slot != "0" and "slot-unannounced" not in faults and "serialize" not in faults:
+    # A run whose holder marker the proof can see holds its slot until the proof
+    # has judged what it waits for, so no check races the run's end: a parallel
+    # run until the overlap and isolation verdicts, and a collision's holder (PR
+    # 21's second run in its slot) until the rival's run has returned, then for
+    # FAKE_HOLD, which covers only the proof's next check. Serialized runs cannot
+    # overlap, and a late rival waits for its holder, so those hold for FAKE_HOLD.
+    marked = slot == "0" or "slot-unannounced" not in faults
+    if slot != "0" and marked and "serialize" not in faults:
         await_judgment()
+    if pr == "21" and run_number == 2 and marked and not {"serialize", "late-refusal"} & set(faults):
+        await_path(summary.parent / f"collide-{slot}-rival.status")
     time.sleep(hold)
     if "refuse" in faults:
         print("act-ci: REFUSED: action clone failed", file=sys.stderr)
