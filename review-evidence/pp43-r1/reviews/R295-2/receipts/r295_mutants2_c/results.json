@@ -1,0 +1,35 @@
+[
+  {
+    "mutant": "fchg-recoupled-into-reg-srpfsm",
+    "mode": "srpfsm",
+    "run_rc": 2,
+    "tally": [
+      "1087 checks: 1079 PASS, 8 FAIL"
+    ],
+    "first_failures": [
+      "FAIL: L2: a changed FailureInformation strobes the change once and nothing else (fchg 1, reg 1, unreg 0)",
+      "FAIL: L2: no Listener New, no message at all, on the next tick (got 1)",
+      "FAIL: L3: a bridge-only change strobes the change",
+      "FAIL: L3: a code-only change strobes the change",
+      "FAIL: L4: ...and declares nothing",
+      "FAIL: L6: a changed re-join in LV strobes the change, back IN, no REGISTERED (fchg 1, reg 1)"
+    ],
+    "n_fail_lines": 8,
+    "verdict": "KILLED"
+  },
+  {
+    "mutant": "fchg-recoupled-into-reg-srptop",
+    "mode": "srptop",
+    "run_rc": 2,
+    "tally": [
+      "259 checks: 256 PASS, 3 FAIL"
+    ],
+    "first_failures": [
+      "FAIL: D: a changed FailureInformation strobes the change only (fchg +1, reg +1)",
+      "FAIL: D: no Listener New on the wire after a changed FailureInformation",
+      "FAIL: D: an unchanged Failed refresh strobes nothing"
+    ],
+    "n_fail_lines": 3,
+    "verdict": "KILLED"
+  }
+]
