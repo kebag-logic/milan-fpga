@@ -1,0 +1,12 @@
+== python3 scripts/check-links.py rc=0
+links: 856 checked, OK
+== python3 scripts/check-matrix.py rc=0
+matrix: 115 REQ rows, 17 GAP findings, OK
+== python3 scripts/gen_matrix.py --check rc=0
+matrix: OK (92 rows, 0 untested)
+== ./scripts/lint-diagrams.sh rc=0
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+== python3 scripts/render-wavedrom.py --check rc=0
+wavedrom: 18 blocks checked, OK
+fixture guard selftest rc=0
+gsi_mutants.py py_compile rc=0

@@ -1,0 +1,22 @@
+# merge-tree recomputation
+git version: git version 2.55.0
+merge-base 4f6185c 265d676: a8f8ce810ddba1816cd129d0afcd71e6e02ade1b
+recomputed tree: 6c50bc44d630e12507c298962d2fa859b9cbf3ce
+head tree:       6c50bc44d630e12507c298962d2fa859b9cbf3ce
+main 265d676 parents: a8f8ce810ddba1816cd129d0afcd71e6e02ade1b a43d07668ff03efc299fbbf2a3891f2aa90255f7
+# 4f6185c..af53f79 equals a8f8ce8..265d676 (merged-in #117 delta)?
+strict diff differs (hunk offsets) - see per-file below
+hdl/aecp/KL_aecp_desc_mem_guard.sv merge-side=1687f5127d1a7d80 main-side=1687f5127d1a7d80 SAME
+hdl/top/protocol_processor_top.sv merge-side=79b5887fc3842037 main-side=79b5887fc3842037 SAME
+tb/desc_mem_guard/mutate.py merge-side=2434ba49c1756521 main-side=2434ba49c1756521 SAME
+tb/pp_top/gsi_mutants.py merge-side=38760fc86add1a2e main-side=38760fc86add1a2e SAME
+tb/srp_admission/mutants.py merge-side=9c7b00b349287244 main-side=9c7b00b349287244 SAME
+# RTL (hdl/) 2984013..af53f79 vs a8f8ce8..265d676 per-file changed-line hash
+hdl/aecp/KL_aecp_desc_mem_guard.sv r1->head=1687f5127d1a7d80 main117=1687f5127d1a7d80 SAME
+hdl/top/protocol_processor_top.sv r1->head=79b5887fc3842037 main117=79b5887fc3842037 SAME
+# hdl/ diff 2984013..4f6185c (author round 2):
+(empty = no RTL change)
+hdl/aecp/KL_aecp_desc_mem_guard.sv comment-stripped 2984013=f7ec7961d40c702f head=f7ec7961d40c702f IDENTICAL-CODE
+hdl/top/protocol_processor_top.sv comment-stripped 2984013=35a453aa5bd07572 head=35a453aa5bd07572 IDENTICAL-CODE
+hdl tree 2984013: 83128bca76274639d42962cb5d5421f751a77500  4f6185c: 83128bca76274639d42962cb5d5421f751a77500  head: d8879608b8fae8c06a505d7d5d485a97903a5766  main265d676: 1d79b9ca908f018136f744d51db375bb2a309d6c
+desc_mem_guard head == main

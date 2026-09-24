@@ -1,0 +1,8 @@
+recorded 2026-09-24T23:15:22Z, before reading the prior public R310-1 comment body at this round
+verdict: POSITIVE - exact head af53f79854564bcca35e436758fa625d486c4993
+Conformance CLEAN (R311-1 ledger stands; RTL code identical to 29840136)
+RTL CLEAN (hdl delta since 29840136 = #117 comment edits only, comment-stripped code identical)
+Robustness CLEAN (R311-1 ledger stands; r1 behavioural probes reproduce their round-1 verdicts)
+Tests CLEAN (R311-1-F1 closed: all four round-1 truncation probes killed; six head mutants plus four extra comparator weakenings killed by named checks; pp_top 7642/0)
+Docs CLEAN (README/REQ-NOT-003 wording matches what is exercised; doc gates rc 0)
+open non-blocking: R311-1-SA retained (r-strobe-to-applicant, r-strobe-to-acmp still survive)
