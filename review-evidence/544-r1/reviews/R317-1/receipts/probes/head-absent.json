@@ -1,0 +1,157 @@
+{
+  "summary": {
+    "head": "b068763c849a18096b0f46cf9b18e0f904e4d708",
+    "rev": "head",
+    "mode": "absent",
+    "disconnect": false,
+    "compiles": 0,
+    "hidden": [
+      "$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc",
+      "riscv32-unknown-elf-gcc",
+      "riscv64-elf-gcc"
+    ]
+  },
+  "rows": [
+    {
+      "label": "CTRL unchanged firmware",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "CTRL published R272 macro x = MILAN_ID_MAGIC",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "CTRL published R273 macro ((x) = MILAN_ID_MAGIC)",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "CTRL plain source assignment",
+      "verdict": "REFUSED",
+      "reason": "CSR identity guard must consume the unmodified MILAN_ID sample: no assignment, increment or pointer write may replace the value between its CSR read and mismatch comparison"
+    },
+    {
+      "label": "HOST paste local macro MILAN_CAT(i, d) = MAGIC",
+      "verdict": "REFUSED",
+      "reason": "a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+    },
+    {
+      "label": "HOST paste header macro __CONCAT(i, d) = MAGIC",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "HOST paste builds writer name MILAN_CAT(MILAN_, W)(id)",
+      "verdict": "REFUSED",
+      "reason": "a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+    },
+    {
+      "label": "HOST macro takes address and stores",
+      "verdict": "REFUSED",
+      "reason": "only milan_reg() may form a CSR address, but a CSR pointer cast is used outside it: a raw store there reaches a control register without passing the bit-0 census"
+    },
+    {
+      "label": "HOST macro sets local pointer alias then stores",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "HOST pointer alias declared before the sample, set by macro",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "HOST file-scope pointer alias set by macro",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "HOST macro write in nested block",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "HOST macro write in if-block",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "HOST plain write in nested block",
+      "verdict": "REFUSED",
+      "reason": "CSR identity guard must consume the unmodified MILAN_ID sample: no assignment, increment or pointer write may replace the value between its CSR read and mismatch comparison"
+    },
+    {
+      "label": "HOST macro __builtin_choose_expr lvalue store",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "HOST macro _Generic lvalue store",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "HOST macro (__real__ x) store",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "HOST macro (__extension__ x) store",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "HOST macro inline asm output operand",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "HOST plain __builtin_choose_expr lvalue store",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "HOST plain inline asm output operand",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "HOST object-like alias of a function-like writer",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "HOST writer name passed through a macro argument",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "HOST #define of the sample name between read and guard",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity mismatch guard must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "HOST string argument with ) before the sample",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "LEGIT plain write after the guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "LEGIT macro write after the guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "LEGIT binary and with a constant on the left",
+      "verdict": "REFUSED",
+      "reason": "CSR identity guard must consume the unmodified MILAN_ID sample: no assignment, increment or pointer write may replace the value between its CSR read and mismatch comparison"
+    },
+    {
+      "label": "LEGIT read through a function-like macro",
+      "verdict": "REFUSED",
+      "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+    },
+    {
+      "label": "S3 verifier #else deleted",
+      "verdict": "ACCEPTED"
+    }
+  ]
+}

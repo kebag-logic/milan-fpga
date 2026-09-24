@@ -1,0 +1,8 @@
+rc=0 :: python3 -B scripts/docs_check.py :: $REVIEWS/544-r317-1-packet/receipts/static/adff78.log :: docs_check: 0 finding(s) across 165 md files + 858 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0 :: python3 -B scripts/check_doc_style.py :: $REVIEWS/544-r317-1-packet/receipts/static/06ee02.log :: documentation style: OK (22 current documents)
+rc=2 :: python3 -B scripts/gen_toc.py --check :: $REVIEWS/544-r317-1-packet/receipts/static/c811e6.log :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdow
+rc=0 :: python3 -B scripts/check_doc_paths.py :: $REVIEWS/544-r317-1-packet/receipts/static/78eb2e.log :: doc path gate: OK (841 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0 :: python3 -B scripts/check_py_idiom.py :: $REVIEWS/544-r317-1-packet/receipts/static/39dc2a.log ::   over-long line: 0 <= 0
+rc=2 :: python3 -B scripts/check_em_dash.py --base ffcbd33de70278ae34b533dcbadde0b36c8cba13 :: $REVIEWS/544-r317-1-packet/receipts/static/0693c9.log :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/
+rc=0 :: python3 -B scripts/check_baremetal_only.py --check :: $REVIEWS/544-r317-1-packet/receipts/static/c85702.log :: baremetal-only: OK (0 findings across 856 tracked first-party file(s))
+rc=0 :: git diff --check ffcbd33de70278ae34b533dcbadde0b36c8cba13 HEAD :: $REVIEWS/544-r317-1-packet/receipts/static/008e6b.log :: 

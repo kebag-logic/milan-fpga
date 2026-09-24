@@ -1,0 +1,2376 @@
+{
+ "gate_source_sha256": "fa28af048e7cbdeffb2d56578004c7a347e66f7d431c098e076d6f15915e3de1",
+ "accepted": [
+  [
+   "unrelated | 2u write to an already-decoded register",
+   "f5cb404c7a20026b"
+  ],
+  [
+   "wider pre-AEM clear (& ~3u)",
+   "8634eda79ac09a70"
+  ],
+  [
+   "comment between the two enables",
+   "96196f208afbc5d6"
+  ],
+  [
+   "braced early return on the choke point's verdict test",
+   "8edac6e29adc277e"
+  ],
+  [
+   "literal-zero pre-AEM clear",
+   "abd24423edc2aa3e"
+  ],
+  [
+   "& ~(1u << 0) pre-AEM clear",
+   "788cd1e38daa7d86"
+  ],
+  [
+   "& 0xfffffffeu pre-AEM clear",
+   "e5d9f4c411daa155"
+  ],
+  [
+   "multi-line enable in the guarded block",
+   "de391e09c107aef4"
+  ],
+  [
+   "hex 0x1u enable mask",
+   "d5c00037adeddd3c"
+  ],
+  [
+   "a printf naming milan_write",
+   "7507c43cfd25aa43"
+  ],
+  [
+   "a commented-out enable",
+   "35f46fcd7aad5d5d"
+  ],
+  [
+   "a second printf inside the guarded block",
+   "4ff177d3b9646ba0"
+  ],
+  [
+   "an extra statement between the two enables",
+   "7c28e8111f9759bf"
+  ],
+  [
+   "an #ifdef around a debug printf in a UART command handler",
+   "156d92994e8f8d60"
+  ],
+  [
+   "a multi-line #define",
+   "a1840ce067db3e8c"
+  ],
+  [
+   "the pre-AEM clears relocated into milan_init()",
+   "0b2aef53e6d89483"
+  ],
+  [
+   "an #ifdef around a debug printf INSIDE milan_init()",
+   "da6ddc836f2a8e0b"
+  ],
+  [
+   "a benign statement in an arm the census tree drops, inside configure_fabric()",
+   "562f2374efc3082c"
+  ],
+  [
+   "an #ifdef/#else choosing a #define, read in a UART command handler",
+   "176ec003276bc028"
+  ],
+  [
+   "a ## token paste building a call outside the boot path",
+   "f89cf8a33659a43a"
+  ],
+  [
+   "a token-joining backslash-newline inside a macro body",
+   "b9f8d63138fe4ddc"
+  ],
+  [
+   "a read-only #define accessor over milan_read()",
+   "8e45f87ebd615bf1"
+  ],
+  [
+   "a fifth cast to a pointer, resolving outside the window",
+   "27c85e9567be0aac"
+  ],
+  [
+   "a fifth store through a pointer, resolving outside the window",
+   "4c4d189b0d85a3d0"
+  ],
+  [
+   "parse_u64() and seconds_to_ns() exchanged, with nothing added or removed",
+   "b4c5cd69fa8e60a5"
+  ],
+  [
+   "a fifth inline-asm statement, a fence in a UART command handler",
+   "d8a6b2ac2723494f"
+  ],
+  [
+   "a debug helper defined under one #ifdef and called under a second on the same macro",
+   "1b8267e2d6fcbb81"
+  ],
+  [
+   "a debug counter declared under one #ifdef and incremented under a second on the same macro",
+   "8aaea917b8798abc"
+  ],
+  [
+   "reflowed milan_reg() return type and argument",
+   "951cc6f1c04bc349"
+  ],
+  [
+   "identity sample read without modification",
+   "901e7aba426810d0"
+  ],
+  [
+   "identity sample renamed consistently",
+   "214b20def542f548"
+  ],
+  [
+   "sample name in a macro literal and comment",
+   "43e6149846235e51"
+  ],
+  [
+   "different identifier in a macro replacement",
+   "79cb2149326826a8"
+  ],
+  [
+   "sample name only in an unused formal parameter",
+   "f2cb29fa067ec683"
+  ],
+  [
+   "sample passed to an unused macro parameter",
+   "80881342a8c31b71"
+  ],
+  [
+   "unused object-like sample macro",
+   "ccd0563b95d8d92a"
+  ],
+  [
+   "unused function-like sample macro",
+   "fd14a8dd5cc6e84c"
+  ],
+  [
+   "continued sample identifier in an unused replacement",
+   "19f5a5c91590fd99"
+  ]
+ ],
+ "mutations": [
+  [
+   "old AEM-gated PTP documentation",
+   "b9bf12aeefd07ce5",
+   "93f34d64fdaed82c",
+   "420b486687260298",
+   "2c20b3cc6f0e887a"
+  ],
+  [
+   "documentation claiming the paste ban reads a header's macro",
+   "b9bf12aeefd07ce5",
+   "347911945f4e48f2",
+   "420b486687260298",
+   "2c20b3cc6f0e887a"
+  ],
+  [
+   "CSR identity contract repointed to VERSION",
+   "86116bc0eb3abd96",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "51643ffaf15e0246"
+  ],
+  [
+   "CSR identity magic changed to the VERSION value",
+   "7ab9b05352a69b2d",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "c2b70122b55bcdb2"
+  ],
+  [
+   "CSR identity magic replaced by the sampled value",
+   "e96e85d761c53dc4",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "c2b70122b55bcdb2"
+  ],
+  [
+   "CSR identity magic replaced by a sampled expression",
+   "0850478bd93662e4",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "c2b70122b55bcdb2"
+  ],
+  [
+   "RTL A_ID address hidden behind a comment decoy",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "4d814fc804fc516e",
+   "51643ffaf15e0246"
+  ],
+  [
+   "RTL A_ID default hidden behind a comment decoy",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "1633ac0a4601a7e2",
+   "c2b70122b55bcdb2"
+  ],
+  [
+   "RTL A_ID address selected through an inactive preprocessor arm",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "58111393035af9ba",
+   "7bf8f318afc3255a"
+  ],
+  [
+   "RTL A_ID address hidden in an inactive static generate arm",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "20a1df354c858656",
+   "475dcd9ab52dbe5a"
+  ],
+  [
+   "RTL A_ID default hidden in a dead procedural case",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "4582ff861621a06a",
+   "7276aa763d35b4a5"
+  ],
+  [
+   "RTL A_ID defaults-ROM fill forged",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "65c8fa6c9884332c",
+   "ff377e9d24db60c9"
+  ],
+  [
+   "RTL A_ID read address offset",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "c636838af1a37621",
+   "ff377e9d24db60c9"
+  ],
+  [
+   "CSR identity mismatch guard removed",
+   "b0ee422a0dc96cf0",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ee5ec3c63197b733"
+  ],
+  [
+   "CSR identity mismatch guard does not return",
+   "50a7e6351ef4f967",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "efda1c60035cda66"
+  ],
+  [
+   "CSR identity mismatch guard inverted",
+   "b28aae0efaf0b721",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ee5ec3c63197b733"
+  ],
+  [
+   "CSR identity sample overwritten before the guard",
+   "68af48c2dd7e3b80",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "cefc165572272244"
+  ],
+  [
+   "milan_reg() ignores its offset",
+   "9ba79dcbf19dcd1e",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "1ced6ede0feb1a1e"
+  ],
+  [
+   "milan_read() forges the identity value",
+   "bc4cc0ebe340d35d",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "cd7f483954d71f32"
+  ],
+  [
+   "unconditional entity enable",
+   "633262f731f32761",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "78a873a4fa12587a"
+  ],
+  [
+   "inverted entity enable",
+   "f2ce176e08f29bc7",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "78a873a4fa12587a"
+  ],
+  [
+   "software PTP enable write",
+   "65cf206767ff58fc",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "445b0a1e4d1a6d6a"
+  ],
+  [
+   "PHC disabled during fabric configuration",
+   "c8334b2a137253dc",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "445b0a1e4d1a6d6a"
+  ],
+  [
+   "ADP before PP",
+   "7e42e97fd1ef0f86",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "fb72fc1767ab1a17"
+  ],
+  [
+   "PP bit 0 not asserted",
+   "2cebd512811d3c2b",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8b0e91041a359dd5"
+  ],
+  [
+   "ADP bit 0 cleared",
+   "159921a30ab92ee5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "f8282370ca11766e"
+  ],
+  [
+   "PP enabled before AEM verification",
+   "dfd729a33add980f",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "da2284f97aa7ff4f"
+  ],
+  [
+   "ADP enabled before AEM verification",
+   "aaced0b6a17d267f",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "425c3e3650e4ae69"
+  ],
+  [
+   "entity enabled through an indirect helper",
+   "416eb4cd7955d577",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "28587bef3872b3ab"
+  ],
+  [
+   "ADP enabled through an address alias",
+   "3b44f44bd4429b61",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "425c3e3650e4ae69"
+  ],
+  [
+   "PP enabled through an address alias",
+   "fc88494d205d4a1b",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "da2284f97aa7ff4f"
+  ],
+  [
+   "PHC written through an address alias",
+   "7ac3869ab37772d0",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "445b0a1e4d1a6d6a"
+  ],
+  [
+   "entity enabled through a repointed register name",
+   "0393a3f98fb7e334",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "da2284f97aa7ff4f"
+  ],
+  [
+   "milan_write() given a value constant as its register",
+   "1ba7f4ab20517f41",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "28587bef3872b3ab"
+  ],
+  [
+   "entity enabled with a space before the call paren",
+   "c7101048d66e1fb8",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "425c3e3650e4ae69"
+  ],
+  [
+   "entity enabled through a function pointer",
+   "f504fd24d3caf3c8",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "cf9b2bf99f77d9e3"
+  ],
+  [
+   "entity enabled by storing through milan_reg()",
+   "cdf80228463c12b8",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3cfb1ca4396172b2"
+  ],
+  [
+   "entity enabled through a second consumer of the address helper's return",
+   "988692c6f9a78f68",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3cfb1ca4396172b2"
+  ],
+  [
+   "entity enabled through a raw CSR pointer",
+   "07c22b818034dfc6",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "818f0b63a5048518"
+  ],
+  [
+   "entity enabled through a digraph-pasted call name",
+   "2d3210ff19a230ad",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "48de9fa45ead28ee"
+  ],
+  [
+   "entity enabled through a single-line macro hiding the store primitive, invoked from a UART handler",
+   "280a14a90de68d65",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3fc35af5c486dfc"
+  ],
+  [
+   "PP pre-AEM clear removed",
+   "cb3dac6cd4ad9a87",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "7693ae42f9457698"
+  ],
+  [
+   "ADP pre-AEM clear removed",
+   "a05e61e30846fcbe",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "86575027c64edc13"
+  ],
+  [
+   "CRC failure accepted",
+   "4703188393d58f1a",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "81d146f783b463e9"
+  ],
+  [
+   "AEM verdict overridden",
+   "719373b292b68752",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "fff02292736008a5"
+  ],
+  [
+   "AEM verdict forced by compound assignment",
+   "afa6c18e1be6ac74",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "fff02292736008a5"
+  ],
+  [
+   "AEM verdict incremented",
+   "62876f911ac36734",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "fff02292736008a5"
+  ],
+  [
+   "disabled PHC reset",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "8d2aa020e65e5f6a",
+   "fa2c8fdb68eb3720"
+  ],
+  [
+   "PHC output gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "8bb65cf9f1e86e92",
+   "f356669d0e143565"
+  ],
+  [
+   "milan_csr PHC increment output gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "a5dae9242d239ec7",
+   "f356669d0e143565"
+  ],
+  [
+   "milan_csr PHC output binding gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "13aa7cf207bd434c",
+   "repr-sha256:1ce37068efce99f0"
+  ],
+  [
+   "PHC enable hidden behind a resolved second driver",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "dcb558f238b09437",
+   "repr-sha256:1085d7a73e4eb23e"
+  ],
+  [
+   "ADP term spliced into the render recentre pulse",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "cc0d181e7b239db6",
+   "repr-sha256:10b273a9cca1be18"
+  ],
+  [
+   "PHC crossing consumer gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3d3d113716c0623e",
+   "repr-sha256:e00a12068c33bc16"
+  ],
+  [
+   "PHC crossing increment gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "94665be28ed05eab",
+   "repr-sha256:c226fa196e3abd3e"
+  ],
+  [
+   "effective PHC frequency adjustment gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "00ea642fe8764f80",
+   "repr-sha256:543a56cd4f5b8439"
+  ],
+  [
+   "effective PHC offset gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "9b7a92b9a1a08b72",
+   "repr-sha256:5df3f5f7de67bda1"
+  ],
+  [
+   "effective PHC adjustment strobe gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "b015e4cb3372f65f",
+   "repr-sha256:fdbb3f1bae109a92"
+  ],
+  [
+   "PHC counter gtx reset gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "f180bc694779607b",
+   "repr-sha256:7bc8d94b79906ede"
+  ],
+  [
+   "PHC crossing axis reset gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "f180bc694779607b",
+   "repr-sha256:1894a9c1fac20fdb"
+  ],
+  [
+   "external MAC RX ready gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3e67145c54dab65b",
+   "repr-sha256:882e30e4bffcd483"
+  ],
+  [
+   "enabled RX-filter ingress valid gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "bd18068fb9f8b607",
+   "repr-sha256:01f418469e8bba42"
+  ],
+  [
+   "enabled RX-filter clock gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "bd18068fb9f8b607",
+   "repr-sha256:f301c73022dafde2"
+  ],
+  [
+   "enabled RX-filter reset gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "bd18068fb9f8b607",
+   "repr-sha256:35c255cec0b80b16"
+  ],
+  [
+   "RX-filter default policy gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3a5cff05bb0acd8c",
+   "repr-sha256:a52b9ebcb0bd852a"
+  ],
+  [
+   "bypass RX-filter ingress valid gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "b575aaf21083f8f8",
+   "repr-sha256:61a37c5b225816f5"
+  ],
+  [
+   "fabric gPTP reset gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d5ec28afacc783d2",
+   "repr-sha256:147f93ee186a92db"
+  ],
+  [
+   "fabric gPTP ingress valid gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d5ec28afacc783d2",
+   "repr-sha256:fcd21a40c22624d0"
+  ],
+  [
+   "fabric gPTP local egress valid gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "771bb29e6882ccc8",
+   "repr-sha256:948fdbae73999e67"
+  ],
+  [
+   "fabric gPTP control-mux reset gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "771bb29e6882ccc8",
+   "repr-sha256:c1a6905b1a0d2b9b"
+  ],
+  [
+   "fabric gPTP MAC-boundary valid gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "e9dece10cb258224",
+   "repr-sha256:c81be52c41474846"
+  ],
+  [
+   "fabric gPTP boundary-mux reset gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "e9dece10cb258224",
+   "repr-sha256:a4e3981b5745a2b6"
+  ],
+  [
+   "external MAC TX valid gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "c3626eab026fc680",
+   "repr-sha256:abc866957977de82"
+  ],
+  [
+   "external MAC TX valid hidden behind a resolved second driver",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "afd5c93c60d35d5c",
+   "repr-sha256:9069a60e30f7896c"
+  ],
+  [
+   "commented direct TX decoy with live macro gate",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "f26cc1eb9dd2cb57",
+   "repr-sha256:94f06d4efd60b5e5"
+  ],
+  [
+   "direct TX connection made an inactive conditional",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "f26cc1eb9dd2cb57",
+   "repr-sha256:fd9ca29c9e2844f9"
+  ],
+  [
+   "direct TX connection put in an inactive static generate arm",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "c3626eab026fc680",
+   "repr-sha256:ab4a01bed70800f1"
+  ],
+  [
+   "direct TX decoy selected by mid-line compiler directives",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "f26cc1eb9dd2cb57",
+   "repr-sha256:16c5fa63b40e68f1"
+  ],
+  [
+   "direct TX decoy selected by an implicit conditional generate",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "c3626eab026fc680",
+   "repr-sha256:d8b7cb0f536ead2d"
+  ],
+  [
+   "external MAC RX valid gated by ADP",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3e67145c54dab65b",
+   "repr-sha256:29a3d78162e06a8e"
+  ],
+  [
+   "AEM guard selected by a build flag",
+   "265dcec2762b402e",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:f5201572b5d9081d"
+  ],
+  [
+   "pre-AEM clear behind a build flag",
+   "eaf0b3b248e2a444",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:90b765137759295e"
+  ],
+  [
+   "a dropped arm inside a CSR write's argument",
+   "4cb729a17161f01b",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:128019d1aaffbb94"
+  ],
+  [
+   "fabric configuration made dead by a compile-time constant",
+   "3d3d6f19bf30e473",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "40cfd7a3634dc2fa"
+  ],
+  [
+   "entity enabled by a goto into the AEM-success guard",
+   "0d22d160f1ff78d0",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "2a23de0708c11ae7"
+  ],
+  [
+   "entity enabled by a case falling into the AEM-success guard",
+   "206b888f92bdb2b4",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "80c822a804ad123d"
+  ],
+  [
+   "AEM verdict overwritten through a pointer",
+   "23b83a2390fb4e36",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a34680f090ec1997"
+  ],
+  [
+   "AEM verifier returning a non-boolean status before the CRC gate",
+   "bae9ddd8149c9f74",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "81d146f783b463e9"
+  ],
+  [
+   "ADP_CTRL given a second decode address",
+   "2a0160b3cf8c8c83",
+   "42b6aa057556be77",
+   "c76741f96f2f8423",
+   "0418a8b49b5daa75"
+  ],
+  [
+   "AEM verifier succeeding from the no-QSPI preprocessor arm",
+   "2f938195c01dff69",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "81d146f783b463e9"
+  ],
+  [
+   "CRC comparison itself put behind a build flag",
+   "a51fc65774888ac1",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:67da905f11e3dd45"
+  ],
+  [
+   "AEM verifier that can never succeed",
+   "9d8ced77083ac669",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "5d5cb88d747da4bd"
+  ],
+  [
+   "second translation unit listed on the OBJECTS line",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "60546049815974b2",
+   "repr-sha256:c691e46b0b0382d3"
+  ],
+  [
+   "second translation unit appended with OBJECTS +=",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "60546049815974b2",
+   "repr-sha256:919ea13556cf2211"
+  ],
+  [
+   "second translation unit on an OBJECTS continuation line",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "60546049815974b2",
+   "repr-sha256:285e1e25ae47608e"
+  ],
+  [
+   "object list this gate cannot evaluate",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "e2a17bd8bf7121a4",
+   "repr-sha256:43140461aff2ffa6"
+  ],
+  [
+   "second object archived past the OBJECTS list",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "2ba603e4d29a85bb",
+   "repr-sha256:28d495f3f13349ef"
+  ],
+  [
+   "second source pulled in by #include of a .c",
+   "78d0f4bc4d289f97",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "9d11770d8959ac05"
+  ],
+  [
+   "second source pulled in by a macro include operand",
+   "2a29d700309953af",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "191f132fe765919b"
+  ],
+  [
+   "second source pulled in by a spliced #include directive",
+   "dd6b8b915f294c59",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "9d11770d8959ac05"
+  ],
+  [
+   "second source pulled in by a %: digraph include",
+   "c223435ec86c8df4",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "48de9fa45ead28ee"
+  ],
+  [
+   "second source pulled in by a ??= trigraph include",
+   "bc9b200121554e3f",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3d33b06e40d3835d"
+  ],
+  [
+   "a preprocessing directive this gate has no rule for",
+   "41068318256462a7",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "78478e077bb228c5"
+  ],
+  [
+   "a store planted in the AEM verifier's no-QSPI arm",
+   "ad6a9cdf43aa4ab0",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "483ca12d65710404"
+  ],
+  [
+   "a #define planted in the AEM verifier's QSPI-slot group",
+   "e7a8d5def9b6dbf9",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "b288ad375aee6276"
+  ],
+  [
+   "ADP_CTRL's name moved to another register by an arm only the product compiles",
+   "9e1135fb2181e296",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:ebe31b13d2f14e05"
+  ],
+  [
+   "more preprocessor arm selections than gate 1b grades",
+   "b23ffe1e07dc9a45",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "abfee17ee903fc66"
+  ],
+  [
+   "entity enabled by a store whose whole value a read-only accessor macro builds, in a UART command handler",
+   "9b4faa1b68ce485e",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "425c3e3650e4ae69"
+  ],
+  [
+   "CSR identity sample forged through a read-only accessor macro",
+   "cc0fc3f1ee986ab4",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "387c15962ebaaff8"
+  ],
+  [
+   "pinned include shadowed by an added -I search path",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "6d5b5562ffc5e9b8",
+   "repr-sha256:cf439aaf420b75fa"
+  ],
+  [
+   "object list the environment can override",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "762ec1950b47947f",
+   "repr-sha256:2c72fa07d265d1db"
+  ],
+  [
+   "second file injected through -Wp, the preprocessor pass-through",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "6d5b5562ffc5e9b8",
+   "repr-sha256:f2ab31763c96482e"
+  ],
+  [
+   "second file injected through a response file",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "6d5b5562ffc5e9b8",
+   "repr-sha256:8645985ea94a564a"
+  ],
+  [
+   "search path added through the -iprefix chain",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "6d5b5562ffc5e9b8",
+   "repr-sha256:abd16f8b36ca8bf4"
+  ],
+  [
+   "second file injected through the CC tool variable",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "6d5b5562ffc5e9b8",
+   "repr-sha256:ffb0d2c0994b2041"
+  ],
+  [
+   "search path added through the CC tool variable",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "6d5b5562ffc5e9b8",
+   "repr-sha256:ec79ca7a009b7f7c"
+  ],
+  [
+   "compile flags deferred to an undefined environment name",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "b55f30acf1d9affe",
+   "repr-sha256:335c1eed783f71c8"
+  ],
+  [
+   "compile flags routed through a computed variable name",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "23070e77ed001884",
+   "repr-sha256:cf12e91bc8fbf52f"
+  ],
+  [
+   "compile flags deferred to the environment through a define body",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "b55f30acf1d9affe",
+   "repr-sha256:392b5495948dac8c"
+  ],
+  [
+   "compile flags deferred to the environment through a $(call) first argument",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "b55f30acf1d9affe",
+   "repr-sha256:e9debcd9e36cbcef"
+  ],
+  [
+   "compile flags deferred to the environment through a $(value) first argument",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "b55f30acf1d9affe",
+   "repr-sha256:11c78225c02e8469"
+  ],
+  [
+   "compile flags deferred to the environment through a top-level $(eval) assignment",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "b55f30acf1d9affe",
+   "repr-sha256:a68298d571807a3a"
+  ],
+  [
+   "compile flags injected through an $(eval) of a called template",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "9b7ea37aa6d60f9d",
+   "repr-sha256:eeb1f23e3cb7316b"
+  ],
+  [
+   "compile flags routed through a computed $(call) first argument",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "23070e77ed001884",
+   "repr-sha256:23855da4844722ed"
+  ],
+  [
+   "compile flags injected through a $(call eval,...) line",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "42077928fe2da611",
+   "repr-sha256:8ff4ffd9f97598f7"
+  ],
+  [
+   "compile flags injected through a ${call eval,...} line",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "42077928fe2da611",
+   "repr-sha256:040f68ab6c2952aa"
+  ],
+  [
+   "compile flags injected through a $(call eval,...) on an unwalked right-hand side",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "42077928fe2da611",
+   "repr-sha256:26a1d47fdc6bb5bf"
+  ],
+  [
+   "a Makefile fragment written at parse time by $(call file,...)",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "42077928fe2da611",
+   "repr-sha256:0e0dacf51f8cbbde"
+  ],
+  [
+   "compile flags injected through an $(eval) of a plain reference",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "9b7ea37aa6d60f9d",
+   "repr-sha256:2192d38202bb791b"
+  ],
+  [
+   "a Makefile fragment included by an $(eval) whose value expands to a second line",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "f77c28d71ddd66bf",
+   "repr-sha256:0299c47cf9466132"
+  ],
+  [
+   "compile flags injected through a define-body $(eval) of the call's own argument",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:6ed0fc17c8b3f887"
+  ],
+  [
+   "compile flags injected through a define-body $(eval) of the second call argument",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:422679cd31fe2808"
+  ],
+  [
+   "compile flags injected through a define-body $(eval) of the tenth call argument",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:fd508369170250b3"
+  ],
+  [
+   "compile flags injected through a define-body $(eval) of ${1}",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:2e36b47f810e270b"
+  ],
+  [
+   "compile flags injected through a define-body $(eval) of $1",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:939d2207bab39d4a"
+  ],
+  [
+   "compile flags injected through a define-body $(eval) of $(1) behind a function",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:0c1ac705bb0d2ff0"
+  ],
+  [
+   "compile flags injected through a define-body $(eval) reaching $(1) through a named define",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:4736785f7de701e7"
+  ],
+  [
+   "compile flags injected through a define-body $(eval) reached by a computed $(call) name",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "23070e77ed001884",
+   "repr-sha256:128e456e9c6bbff2"
+  ],
+  [
+   "compile flags injected through a define-body $(eval) wrapped onto a continuation line",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:b79a3c26e38f6578"
+  ],
+  [
+   "compile flags injected through a define-body $(eval) reached through a second define",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:64bbba6634d4abde"
+  ],
+  [
+   "compile flags injected through an $(eval) in a define whose NAME is not an identifier",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:88944d4ca040b58b"
+  ],
+  [
+   "compile flags injected by a $(foreach) rebinding the pinned name a define-body $(eval) reads",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:9424cc5502681003"
+  ],
+  [
+   "compile flags injected by a $(let) rebinding the pinned name a define-body $(eval) reads",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:83dfbaf8b4a5871a"
+  ],
+  [
+   "a literal define-body $(eval) the environment decides to run",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:a3ef2531ed63d894"
+  ],
+  [
+   "a recipe $(eval) on a rule the environment adds",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:79b9a550ca292e4e"
+  ],
+  [
+   "compile flags injected through a top-level $(eval) of $(1)",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:ce159905fcd83463"
+  ],
+  [
+   "compile flags injected through a top-level $(eval) of $M",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:ab4832353e2922ff"
+  ],
+  [
+   "compile flags injected through a top-level $(eval) reaching $(1) through a named define",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:a658b4f02afeb6d7"
+  ],
+  [
+   "compile flags injected through a top-level $(eval) whose $$ becomes a live reference",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "a5bf8004e18c6472",
+   "repr-sha256:cde2e3778d61308a"
+  ],
+  [
+   "pinned include shadowed by an -iquote search path",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "6d5b5562ffc5e9b8",
+   "repr-sha256:d4ab9caf528766ea"
+  ],
+  [
+   "one object linked from two sources by an explicit rule",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "981050e10492a468",
+   "repr-sha256:86fdf95fd831bd31"
+  ],
+  [
+   "objects added by a Makefile fragment this gate does not read",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "04caf8adf8458071",
+   "repr-sha256:d788b8468c97f8f1"
+  ],
+  [
+   "second source injected by a -include compiler flag",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "981050e10492a468",
+   "repr-sha256:07bd7ffe94cccd80"
+  ],
+  [
+   "compile recipe redefined to take a second source",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "981050e10492a468",
+   "repr-sha256:34692721d10a06c5"
+  ],
+  [
+   "second source injected by an exported assignment",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "981050e10492a468",
+   "repr-sha256:ca641f53c681cf5f"
+  ],
+  [
+   "second source injected by a target-specific assignment",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "981050e10492a468",
+   "repr-sha256:f52e444e43d9fefa"
+  ],
+  [
+   "the compiled source directory moved out from under the rule",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "b91f27b99eba50fb",
+   "repr-sha256:67d5adad2763e53c"
+  ],
+  [
+   "ADP_CTRL reset value advertising the entity",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "c98f63ffd62faf03",
+   "640a0e9d14bce2f4"
+  ],
+  [
+   "PP_CTRL reset value enabling the protocol processor",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "96df5b2a18520eee",
+   "32fdf3eb733a1753"
+  ],
+  [
+   "entity enabled through a CSR base held in a variable",
+   "02c6f44e9d2905ba",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "f5f0fa6e422df281"
+  ],
+  [
+   "one object linked from two sources by literally named tools",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "981050e10492a468",
+   "repr-sha256:0ed01103c2e991c3"
+  ],
+  [
+   "second object archived by a literally named ar",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "981050e10492a468",
+   "repr-sha256:4b24196da1790ad6"
+  ],
+  [
+   "ADP_CTRL reset written blocking with the enable bit set",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "61943fc58db01358",
+   "640a0e9d14bce2f4"
+  ],
+  [
+   "ADP_CTRL given no reset value at all",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "b04734a3454e6738",
+   "84c72071903e3cdc"
+  ],
+  [
+   "ADP_CTRL reset and readback default both advertising",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "05af75948b8e19bb",
+   "640a0e9d14bce2f4"
+  ],
+  [
+   "entity enabled through a phase-2-spliced call name",
+   "df84b63365a54bb6",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "2b170ecc00b6adf4"
+  ],
+  [
+   "entity enabled through a space phase-2 token splice",
+   "b0f3b772da77d318",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "2b170ecc00b6adf4"
+  ],
+  [
+   "entity enabled through a tab phase-2 token splice",
+   "bf2feb1a9eb00860",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "2b170ecc00b6adf4"
+  ],
+  [
+   "entity enabled through a form-feed phase-2 token splice",
+   "a8ba447c85b4fc5f",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "2b170ecc00b6adf4"
+  ],
+  [
+   "entity enabled through a vertical-tab phase-2 token splice",
+   "7ace8dac644a0181",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "2b170ecc00b6adf4"
+  ],
+  [
+   "entity enabled through a pasted call name",
+   "9fe29e14ea3aa1df",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "bca2f358c4a8ed5a"
+  ],
+  [
+   "a pasted call name in an arm the stub tree drops",
+   "a08213ab4d0c4b56",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "('graded as a firmware of its own', 'a `##` paste reaches')"
+  ],
+  [
+   "a spliced call name in an arm the stub tree drops",
+   "be2eb47f56aa2d47",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:321efc6326cf052c"
+  ],
+  [
+   "a spliced call name in an arm only the product compiles",
+   "6e9e9e18e1d63625",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:321efc6326cf052c"
+  ],
+  [
+   "a spliced call name onto a literal address in a dropped arm",
+   "734e5e5ac8623d7f",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:321efc6326cf052c"
+  ],
+  [
+   "the CSR identity sample forged by a splice of its name between its read and its mismatch guard",
+   "dacaa9d4c3a587c5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "2b170ecc00b6adf4"
+  ],
+  [
+   "the CSR identity sample forged by a paste of its name",
+   "ac318f1e301e00fd",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "bca2f358c4a8ed5a"
+  ],
+  [
+   "the CSR identity sample forged by a paste a second macro reaches",
+   "00e877bbaaaf6c10",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "bca2f358c4a8ed5a"
+  ],
+  [
+   "PP_CTRL's name redefined onto ADP_CTRL through a #define whose name a splice joins",
+   "e073fa85d84b9fe0",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "69500d67b1d08a62"
+  ],
+  [
+   "the identity magic redefined as a fresh read of the sample",
+   "a414ef51514d42f5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "69500d67b1d08a62"
+  ],
+  [
+   "the identity magic redefined as the sample itself",
+   "c5126639556e078f",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "69500d67b1d08a62"
+  ],
+  [
+   "entity enable hidden in a continuation-line macro body and invoked from a UART handler",
+   "04a4dc5423a295c3",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3fc35af5c486dfc"
+  ],
+  [
+   "entity enable hidden after form-feed macro continuation whitespace",
+   "7fcfe6af29c0c9e4",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3fc35af5c486dfc"
+  ],
+  [
+   "the store primitive hidden in a macro whose #define a splice splits",
+   "2157f6fdaa3bdf8a",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3fc35af5c486dfc"
+  ],
+  [
+   "open quotes in two #defines bracketing a product-only store",
+   "c01c58fb264ed200",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "7d5b5648d2f2dfdc"
+  ],
+  [
+   "a raw string literal in a UART command handler",
+   "3e05f787250a327d",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "18b08585fb28f863"
+  ],
+  [
+   "a ??/ trigraph ending a comment before a product-only arm",
+   "db002de00f2fc943",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3d33b06e40d3835d"
+  ],
+  [
+   "the pre-AEM clear dropped by a product-only #ifndef behind a form feed",
+   "1cf32beecedcdd06",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:90b765137759295e"
+  ],
+  [
+   "the pre-AEM clear dropped by a product-only #ifndef behind a vertical tab",
+   "8dfb5cd8b0a4ed86",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:90b765137759295e"
+  ],
+  [
+   "the pre-AEM clear dropped by a product-only #ifndef behind a NUL",
+   "86b8bacae083aeac",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:90b765137759295e"
+  ],
+  [
+   "the pre-AEM clear dropped by a product-only #ifndef behind lone CR line ends",
+   "55b742e48a57e7ed",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:90b765137759295e"
+  ],
+  [
+   "the verifier's #else behind a lone CR, its hidden arm returning 1",
+   "85e31d3a43c8bc7f",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "c11fa3dbeacaa8ae"
+  ],
+  [
+   "an #undef behind a form feed",
+   "5dd9faa92f0acee2",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "78478e077bb228c5"
+  ],
+  [
+   "a second source #included behind a form feed",
+   "eb20f30e4930ed2d",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "9d11770d8959ac05"
+  ],
+  [
+   "a second #error guard, its #error behind a vertical tab",
+   "eaeb00bd9b08f4de",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "9f6244ff968e79df"
+  ],
+  [
+   "ADP_CTRL's name defined a second time behind a NUL",
+   "dba488fdbad4f9dd",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "69500d67b1d08a62"
+  ],
+  [
+   "entity enabled through a fifth pointer cast in an arm only the product compiles, behind a `%:` digraph a splice splits, in a UART command handler",
+   "dfa15b19acd476db",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "48de9fa45ead28ee"
+  ],
+  [
+   "entity enabled through a fifth pointer cast in an arm only the product compiles, behind a `%:` digraph, in a UART command handler",
+   "85d40127b063ee55",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "48de9fa45ead28ee"
+  ],
+  [
+   "entity enabled through a store-primitive name pasted by a `%:%:` two splices split, in a UART command handler",
+   "ce59d83099f08067",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "48de9fa45ead28ee"
+  ],
+  [
+   "a `%:` pair maximal munch reads as `<%` and `:`, in a UART command handler",
+   "dcd05b67420628dd",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "48de9fa45ead28ee"
+  ],
+  [
+   "the CSR identity sample forged by a paste whose #define sits behind a byte-order mark",
+   "35d3cfb13e8a25f6",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3090bb44039182fe"
+  ],
+  [
+   "a second source #included behind a byte-order mark",
+   "f6ee8afa11871222",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3090bb44039182fe"
+  ],
+  [
+   "a #line behind a byte-order mark",
+   "3f4b45728c93f298",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3090bb44039182fe"
+  ],
+  [
+   "a store in the CSR window hidden between two directive names GCC reads with U+00B7, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "4a46ab3e0b42edc8",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3090bb44039182fe"
+  ],
+  [
+   "a store in the CSR window hidden between two directive names GCC reads with U+0387, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "12593cd3c5bee01d",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3090bb44039182fe"
+  ],
+  [
+   "a store in the CSR window hidden between two directive names GCC reads with U+203F, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "f71e5d45a229c1ac",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3090bb44039182fe"
+  ],
+  [
+   "a store in the CSR window hidden between two directive names GCC reads with U+0301, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "4032f547debf2f4c",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3090bb44039182fe"
+  ],
+  [
+   "the identity sample forged between two directive names GCC reads with U+00B7, in milan_init()",
+   "602c820e06b0f299",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3090bb44039182fe"
+  ],
+  [
+   "a window store between two directive lines a no-break space leads",
+   "801133c4efbf32bb",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3090bb44039182fe"
+  ],
+  [
+   "a window store between two directive lines a control the readers do not model (FS) leads",
+   "50a93f4130f8ab71",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3090bb44039182fe"
+  ],
+  [
+   "a byte that is not UTF-8, in a comment",
+   "c45105f2f0e91b44",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3090bb44039182fe"
+  ],
+  [
+   "a UTF-8 byte-order mark at the start of the file, which round two accepted",
+   "e5852b81b18b8d1b",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3090bb44039182fe"
+  ],
+  [
+   "a store hidden by a `$` GCC keeps in a directive name ([R272] F1)",
+   "c9dc2b1819c3ad30",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "2511974f27c39adc"
+  ],
+  [
+   "the identity local forged through a universal character name",
+   "3fd7b6e124413d62",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8c829f4d6ab0478f"
+  ],
+  [
+   "a store hidden behind a header name in __has_include (the round-two external finding)",
+   "d894cccafe2e0e79",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "721f27d3abd1a47b"
+  ],
+  [
+   "a store hidden behind a header name in __has_include_next",
+   "be975432c07e07ef",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "721f27d3abd1a47b"
+  ],
+  [
+   "a comment hidden inside a #include header name",
+   "7b7f0ddca9da9feb",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "2870531de3aeb313"
+  ],
+  [
+   "a _Pragma operator the #-directive scan cannot see",
+   "bfb40cac4550f6ac",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "0ea4250b6f92b871"
+  ],
+  [
+   "a block comment no `*/` closes, blanking the file to its end",
+   "74eaef481bbefda4",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "43749b4ae982c44e"
+  ],
+  [
+   "entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (shipping baseline)",
+   "27a3e2dc6973b600",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8014ecc4d796ec10"
+  ],
+  [
+   "entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (reflowed baseline)",
+   "337a7f450c864c0d",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8014ecc4d796ec10"
+  ],
+  [
+   "entity enabled through a spliced call name in a UART command handler",
+   "21ad07770f72d354",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "5fafc350577309ab"
+  ],
+  [
+   "entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler",
+   "e330db4b4c2dd7de",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:de5fadbf15f65a5d"
+  ],
+  [
+   "a struct-overlay store at the ADP_CTRL address in a dropped arm",
+   "0632741bf6c3e8bd",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:cd659ddea0315c01"
+  ],
+  [
+   "the verifier's QSPI-slot condition made false in the census stub tree",
+   "fe1ee32b8f648b5c",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "834e94f7118c4504"
+  ],
+  [
+   "an arm only the product compiles, short-circuiting the choke point's verdict test",
+   "2cdfb04a232abb7c",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:0d88f715a0e4105d"
+  ],
+  [
+   "entity enabled by an inline-asm store to the CSR address",
+   "444e1ee2ec61dad8",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8fa64c3ce81324b9"
+  ],
+  [
+   "entity enabled by a lui-based inline-asm store",
+   "8ea83307dc375e21",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3faef5e0de01b99"
+  ],
+  [
+   "entity enabled through a widened pointer cast",
+   "f746ced2c52c07ce",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8fa64c3ce81324b9"
+  ],
+  [
+   "entity enabled through a reordered pointer cast",
+   "fc6ccdba34f125db",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8fa64c3ce81324b9"
+  ],
+  [
+   "entity enabled through a pointer held in a local",
+   "4a050b2d82350309",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8fa64c3ce81324b9"
+  ],
+  [
+   "entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler",
+   "013f8f96c0b6a8ba",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:cd659ddea0315c01"
+  ],
+  [
+   "entity enabled by a lui-based inline-asm store in an arm only the product compiles, in a UART command handler",
+   "2b53b164636a3cbd",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:9194b57e0a9832eb"
+  ],
+  [
+   "entity enabled through a fifth pointer cast in an arm only the product compiles, behind a form feed, in a UART command handler",
+   "bec9f981982a6e52",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:cd659ddea0315c01"
+  ],
+  [
+   "entity enabled through a fifth pointer cast in an arm only the product compiles, behind a vertical tab, in a UART command handler",
+   "457fc65863fe402d",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:cd659ddea0315c01"
+  ],
+  [
+   "entity enabled through a fifth pointer cast in an arm only the product compiles, behind a NUL, in a UART command handler",
+   "6d21bfc29a5efbc9",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:cd659ddea0315c01"
+  ],
+  [
+   "entity enabled through a fifth pointer cast in an arm only the product compiles, behind lone CR line ends, in a UART command handler",
+   "19592067a436a42c",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:cd659ddea0315c01"
+  ],
+  [
+   "entity enabled through a fifth pointer cast in the product's arm of an #ifdef a split `%:` digraph spells, graded as the selection the readers find",
+   "888e6d5e5d38d016",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8fa64c3ce81324b9"
+  ],
+  [
+   "entity enabled by a lui-based inline-asm store in an arm only the product compiles, behind a form feed",
+   "8b4995abaef6e4f6",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:9194b57e0a9832eb"
+  ],
+  [
+   "an arm only the product compiles, behind a form feed, short-circuiting the choke point's verdict test",
+   "4341525a8a5aa8ce",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:0d88f715a0e4105d"
+  ],
+  [
+   "entity enabled through a cast in the product's arm, behind an #else a splice splits",
+   "94aeb49dbbd71629",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:cd659ddea0315c01"
+  ],
+  [
+   "entity enabled through a cast in the second of two groups on CSR_UART_BASE",
+   "ce56d08f1f47c50c",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "repr-sha256:cd659ddea0315c01"
+  ],
+  [
+   "a boot step erased by a function-like macro of its own name",
+   "9c211c83a03f3389",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "3bc93d3b98c09195"
+  ],
+  [
+   "pinned include shadowed by a file beside the firmware",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "1ea16e346dbe1c07",
+   "repr-sha256:1ab57bc194423c83"
+  ],
+  [
+   "the second pinned quoted include shadowed by a file beside the firmware",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "1ea16e346dbe1c07",
+   "MutantFiles(makefile=None, listing=('init.h',), datapath=None)"
+  ],
+  [
+   "pinned include shadowed by a LINK beside the firmware to a file outside this repository",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "1ea16e346dbe1c07",
+   "repr-sha256:c40b8190d70bd710"
+  ],
+  [
+   "entity enabled through a typedef'd pointer and an access macro",
+   "5a4d1f3a8805f699",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8fa64c3ce81324b9"
+  ],
+  [
+   "entity enabled through a struct overlay and an -> store",
+   "71ba84853e63a576",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8fa64c3ce81324b9"
+  ],
+  [
+   "entity enabled through a typedef'd pointer and a subscript store",
+   "9ab227f87ac5cfb2",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8fa64c3ce81324b9"
+  ],
+  [
+   "entity enabled through a qualifier-after-star cast",
+   "cca3c0e21db0a30a",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "8fa64c3ce81324b9"
+  ],
+  [
+   "entity enabled by a struct-overlay store through a paged base",
+   "4e790006faebe0f6",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3faef5e0de01b99"
+  ],
+  [
+   "entity enabled by a subscript store through a paged base",
+   "b1651f255cbd1567",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3faef5e0de01b99"
+  ],
+  [
+   "entity enabled by a store behind a brace-less if",
+   "655a9803b979512d",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3faef5e0de01b99"
+  ],
+  [
+   "entity enabled by a struct-overlay store through a base derived from a runtime CSR read",
+   "928dd520e5f81fcb",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ed0e3846100afec6"
+  ],
+  [
+   "a store the resolver cannot place, added inside the AEM verifier whose copy store is placed",
+   "2478363e9baa7bf0",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ed0e3846100afec6"
+  ],
+  [
+   "the AEM copy destination redirected onto ADP_CTRL by a runtime CSR read, keeping the retired residual's key and count",
+   "6f6d758920e33342",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ed0e3846100afec6"
+  ],
+  [
+   "the AEM copy destination made unresolvable while keeping one unplaced store in the verifier",
+   "30101a07215a64a9",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ed0e3846100afec6"
+  ],
+  [
+   "the AEM copy destination bounded but outside the buffer the CRC verdict is taken over",
+   "2a6991b44da3d0e2",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "7d0200a4838b3e57"
+  ],
+  [
+   "entity enabled through an extern symbol the linker places",
+   "ebb05747355a4c05",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ed0e3846100afec6"
+  ],
+  [
+   "AEM verifier reaching its success return by goto past the CRC comparison",
+   "aae5f085accc2d0f",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "08f85f77f12cc71d"
+  ],
+  [
+   "AEM verifier reaching its success return by a structured break past the CRC comparison",
+   "52695fe3f36713e3",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "08f85f77f12cc71d"
+  ],
+  [
+   "CRC result overwritten between the call and the comparison",
+   "029e9e90d66ff42d",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "5e9074820490c982"
+  ],
+  [
+   "CRC taken over the QSPI source instead of the descriptor buffer",
+   "1a58d5f7cd9fef07",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "0e62da32d0e42413"
+  ],
+  [
+   "choke point's address stored in a table and called through it from a UART handler",
+   "f35c6a97da2d6d59",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "4f1961b32b6e5242"
+  ],
+  [
+   "a second direct call to the choke point, spelled past the source rule's call counter",
+   "5aa222e3e3ad861b",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "4f1961b32b6e5242"
+  ],
+  [
+   "the verifier's verdict overwritten through an alias the assignment rule cannot see",
+   "197ef37d17f035f8",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "9318d490d0598ee1"
+  ],
+  [
+   "an indirect call whose target is not the choke point at all",
+   "ef6db9412860f03e",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "4f1961b32b6e5242"
+  ],
+  [
+   "a global alias of the choke point, which exports neither this name nor its address",
+   "bcac71e52ec54b6b",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "4f1961b32b6e5242"
+  ],
+  [
+   "a second CRFT_CTRL write planted in the choke point",
+   "af8c65e245c736bc",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "677a8112860d5aa4"
+  ],
+  [
+   "the retired ADP_CAPS write planted back outside configure_fabric()",
+   "8aa852cdbfbad1bc",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "677a8112860d5aa4"
+  ],
+  [
+   "entity enabled by a float struct-overlay store through a paged base",
+   "4063616847a90943",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3faef5e0de01b99"
+  ],
+  [
+   "entity enabled by a double struct-overlay store through a paged base",
+   "63fe7331ebf81927",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3faef5e0de01b99"
+  ],
+  [
+   "entity enabled by an atomic exchange through a paged base",
+   "caee1a4c658cc351",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3faef5e0de01b99"
+  ],
+  [
+   "entity enabled by an atomic fetch-or through a paged base",
+   "fa19d4a1243b02c9",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3faef5e0de01b99"
+  ],
+  [
+   "entity enabled by an atomic compare-exchange through a paged base",
+   "a1e0bda12b1f6425",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "d3faef5e0de01b99"
+  ],
+  [
+   "entity enabled through a local rewritten by a union byte store at its own offset",
+   "53c56a16ea2d040a",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "aa3109f12dc433dc"
+  ],
+  [
+   "entity enabled through a local rewritten by a union half-word store at its own offset",
+   "2ad03b11bdc93d60",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "aa3109f12dc433dc"
+  ],
+  [
+   "entity enabled through a local rewritten by an integer store through a pointer to it",
+   "da4396e49989a87c",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "aa3109f12dc433dc"
+  ],
+  [
+   "entity enabled through a local rewritten by a float store through a pointer to it",
+   "572292c027dcc41b",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "aa3109f12dc433dc"
+  ],
+  [
+   "MAKEFLAGS += -e letting the environment choose",
+   "b9bf12aeefd07ce5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "762ec1950b47947f",
+   "repr-sha256:e30c2145a1d45da4"
+  ],
+  [
+   "identity macro assignment",
+   "9be74181e14134bf",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro parenthesized assignment",
+   "a21f269d0a7b6fdd",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro compound +=",
+   "db6f97d59a527a1b",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro compound -=",
+   "8684e67d9593c27f",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro compound *=",
+   "17446c6171a9c2b5",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro compound /=",
+   "9c30e9e972c0190b",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro compound %=",
+   "36afb400c30b3aaa",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro compound <<=",
+   "40c6e7ac6e19e21d",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro compound >>=",
+   "3814e01805a27de1",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro compound &=",
+   "737ff64ac3908432",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro compound |=",
+   "751bf4520a8838cc",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro compound ^=",
+   "9327f705aa0821a3",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro prefix increment",
+   "1fa461c2f758b514",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro postfix increment",
+   "2639b0b7762f5cec",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro prefix decrement",
+   "3fe8e7bebd29bded",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro postfix decrement",
+   "cad60ba6b2b83ded",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro address taken",
+   "66013dd163192188",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro unevaluated address",
+   "60117101f2e6009a",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro conditional address",
+   "527a4b835b53a700",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro memory destination",
+   "b856691fdc36bd3c",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro string destination",
+   "103d0f580de58835",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "identity macro continued replacement",
+   "eeb24ecfdbc807fa",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "published identity macro 1",
+   "c58399829f4606e7",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ],
+  [
+   "published identity macro 2",
+   "8d14e036a41f660e",
+   "42b6aa057556be77",
+   "420b486687260298",
+   "ec5eb97c325366b6"
+  ]
+ ]
+}

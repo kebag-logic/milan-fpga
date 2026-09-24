@@ -1,0 +1,46 @@
+host: cc (GCC) 16.2.1 20260810
+sdk: riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0
+FORM 1 mismatch()=0 (csr_id=0xdeadbeef)
+O2 FORM 1 mismatch()=0 (csr_id=0xdeadbeef)
+sdk FORM 1 rc=0 mismatch() body:
+    mismatch:
+    	la	a5,csr_id
+    	lw	a5,0(a5)
+    	li	a0,0
+    	ret
+FORM 2 mismatch()=0 (csr_id=0xdeadbeef)
+O2 FORM 2 mismatch()=0 (csr_id=0xdeadbeef)
+sdk FORM 2 rc=0 mismatch() body:
+    mismatch:
+    	la	a5,csr_id
+    	lw	a5,0(a5)
+    	li	a0,0
+    	ret
+FORM 3 mismatch()=0 (csr_id=0xdeadbeef)
+O2 FORM 3 mismatch()=0 (csr_id=0xdeadbeef)
+sdk FORM 3 rc=0 mismatch() body:
+    mismatch:
+    	la	a5,csr_id
+    	lw	a5,0(a5)
+    	li	a0,0
+    	ret
+FORM 4 mismatch()=0 (csr_id=0xdeadbeef)
+O2 FORM 4 mismatch()=0 (csr_id=0xdeadbeef)
+sdk FORM 4 rc=0 mismatch() body:
+    mismatch:
+    	la	a5,csr_id
+    	lw	a5,0(a5)
+    	li	a0,0
+    	ret
+FORM 5 mismatch()=0 (csr_id=0xdeadbeef)
+O2 FORM 5 mismatch()=0 (csr_id=0xdeadbeef)
+sdk FORM 5 rc=0 mismatch() body:
+    mismatch:
+    	li	a5,1296650240
+    	addi	a5,a5,-946
+    	la	a4,csr_id
+    	mv	a0,a5
+    	lw	a4,0(a4)
+    	sub	a0,a0,a5
+    	snez	a0,a0
+    	ret

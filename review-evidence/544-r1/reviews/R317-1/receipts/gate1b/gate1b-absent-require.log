@@ -1,0 +1,18 @@
+Compiler mode: absent cross tools
+Compiler audit: $REVIEWS/544-r317-1-packet/receipts/gate1b/absent-require-argv.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$REVIEWS/r317-1-544/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEWS/r317-1-544/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r317-1-544/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/r317-1-544/sw/builder/test_builder.py", line 4845, in test_baremetal_profile_contract
+    assert not instruments_down, \
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: --require-rv32: the hosted firmware instruments must run
+rc=1
