@@ -1,0 +1,15 @@
+id=5821889812 created=2026-09-24T20:40:31Z
+[A10] Round 4 assignment for PR #555. R276-6 and R277-5 report the same single F1 MINOR (Docs); every earlier finding is closed.
+
+Scope for [A283]: state the `milan_dp` deadline as 3600 s, per decision 5820240308, wherever the tree still presents 2700 s as current:
+- `docs/testing/TESTING.md:166-167`. Give the reason as decision 5820240308 and the samples recorded in `CI_WORKFLOWS.md`, not the #444 measurement alone.
+- `docs/testing/RUNNING_TESTS.md:79`.
+- `tb/verilator/milan_dp_gptp/README.md:31`.
+- the `tb/verilator/milan_dp/render_mutants.py:37` docstring.
+
+Leave these as they are: the history lines in `CI_WORKFLOWS.md`:167 and :185 (they describe the past budget) and the self-test mutation string in `measure_test_evidence_selftest.py`. Change nothing else.
+
+Gates: `python3 scripts/docs_check.py` (both CI modes), `check_em_dash --base 57456af96b3127b9d309a995bbbd35a6113ce52d`, `check_doc_style`, `gen_toc --check`, `check_doc_paths`, `check_py_idiom`, `python3 -m py_compile tb/verilator/milan_dp/render_mutants.py`, `git diff --check`.
+
+Review: delta reviews at the new head by [R276] and [R277].
+

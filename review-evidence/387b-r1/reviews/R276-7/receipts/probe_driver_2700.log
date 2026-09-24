@@ -1,0 +1,13 @@
+$ probe: run_all_suites.sh milan_dp SUITE_TIMEOUT:-3600 -> 2700, then measure_test_evidence.py --check
+ scripts/run_all_suites.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+test programs that read production HDL (15):
+
+suite files using host wall-clock/process deadlines (3):
+
+Verilator scheduling: 55 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: FAIL
+exit=1
+restored
