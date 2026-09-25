@@ -262,6 +262,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
 
 | Explicit campaign | Command | Who runs it |
 |---|---|---|
+| #443 render CSR controls (`render_csr_controls.py`) | `make -C tb/verilator/milan_dp render-csr-controls` | Authors and reviewers changing `render_status_w`, its connections in `milan_datapath.sv`, the `RENDER_STAT` decode or selection in `milan_csr.sv`, the taps in `KL_render_setpoint.sv`, `sim_aclk.cpp` or this campaign |
 | #447 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
 | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
 | #508 GET_STREAM_INFO seam, the eight field and notification mutants | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather, the GET_STREAM_INFO answer block of `milan_datapath.sv` or the `[GSI]` section of `sim_nxn.cpp` |

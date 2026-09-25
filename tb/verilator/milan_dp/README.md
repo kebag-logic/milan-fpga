@@ -886,6 +886,30 @@ the tie-off, the measurement behind "unreachable", and where the coverage went.
   still live, the RAM is empty, `CHMAP_CTRL[0]` is 0 — and will fail the day a
   seeder returns in any form.
 
+Issue #443 adds `RENDER-CSR` checks to `obj_aclk`.
+They read `RENDER_STAT` (`0x8DC`) through AXI-Lite.
+The expected word samples independent taps at the capture edge.
+Checks cover prefill, nonzero fill, convergence, rails and backpressure.
+Talker and invalid-listener selections return zero; writes are ignored.
+
+The additional control campaign is explicit:
+
+```sh
+make -C tb/verilator/milan_dp render-csr-controls
+```
+
+| Control | Required result |
+|---|---|
+| Clean `--render-csr-only` | All checks pass, including reset after a rail |
+| Fill field tied zero | Fails `RENDER-CSR: filling mirrors taps` |
+| Bit 9 forces listener 0 | Fails `RENDER-CSR: bit 9 preserves talker rejection` |
+| Stage instance removed, outputs tied zero | `--render-csr-absent` passes despite accepted ingress |
+
+Temporary control sources leave tracked RTL unchanged.
+Three extra elaborations stay outside the default sweep's deadline.
+The default sweep still runs the positive CSR checks.
+The two-stream `milan_dp_render` leg separately checks listener selection.
+
 ## Render phase records from the mutation controls
 
 `render_mutants.py` prints one flushed `RENDER-PHASE` line around each build

@@ -190,7 +190,7 @@ module KL_render_setpoint #(
                                                  //! the pop schedule: the
                                                  //! crossbar's tick_i
 
-  //! --- observability (TB taps and the #443 debug-window follow-up) --------
+  //! --- observability (#443 RENDER_STAT mirrors fill/flags/rails) ---------
   output logic [N_STREAMS_P-1:0]   pop_p_o,      //! one-cycle per stream: its
                                                  //! event's first beat is
                                                  //! being presented (the

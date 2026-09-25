@@ -92,9 +92,12 @@ flowchart LR
   [Listener render latency](design/TIME_SYNC.md#listener-render-latency), and
   the fixed delay from the crossbar's grid to each interface (the I2S DAC on
   the Arty shapes, which now renders behind this stage; the TDM frame pin,
-  which no build clocks) is tabled there. The stage's fill, prefill,
-  convergence and rail counters are Verilator taps today; the CSR word is the
-  #443 follow-up. The silicon figure at the TDM frame pin (the inline tap's
+  clocked on the shipping TDM8 shape) is tabled there.
+  `RENDER_STAT` (`0x8DC`, #443) carries selected-listener fill, prefill and convergence.
+  Its upper half carries the global saturating rail count.
+  The [register map](reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state) defines selection and field widths.
+  An absent stage reads **STRUCTURAL ZERO**, never measured health.
+  Rail and underrun events do not raise `STREAM_INTERRUPTED`. The silicon figure at the TDM frame pin (the inline tap's
   capture record on the capture server, compared against these fabric taps)
   rides #117.
 

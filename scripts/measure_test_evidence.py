@@ -629,6 +629,11 @@ DUT_READER_DISPOSITIONS = {
         "mutation campaign; it plants one of eleven #387 re-base defects into a copy and requires a "
         "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
         "the three the acceptance names; the explicit gmstep-mutants target plants all eleven",
+    "tb/verilator/milan_dp/render_csr_controls.py":
+        "mutation campaign; the explicit render-csr-controls target plants wrong-fill "
+        "and bit-9 selector defects into copies and requires named failures. Its "
+        "absent-stage control removes the instance and requires structural zero "
+        "despite accepted ingress; no expected value is derived from source text",
     "tb/verilator/milan_dp/render_mutants.py":
         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":

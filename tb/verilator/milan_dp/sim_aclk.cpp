@@ -171,6 +171,8 @@ namespace {
 class MediaGridAlignmentHarness {
  public:
     int run();
+    bool render_csr_only = false;
+    bool render_csr_absent = false;
     bool render_only = false;   //! --render-only: the mutation arm's short leg (the stage)
     bool live_only = false;     //! --live-only: the mutation arm's short leg (the datapath trigger)
 
@@ -350,6 +352,91 @@ class MediaGridAlignmentHarness {
         }
         dut->s_axi_rready = 0;
         return d;
+    }
+
+    //! #443: sample the independent taps on the CSR live-mux capture edge,
+    //! one cycle after AR acceptance. Fill may change while R is stalled.
+    uint32_t render_tap_word() const {
+        const auto* root = dut->rootp;
+        return (uint32_t(root->milan_datapath__DOT__rsp_rails_w) << 16) |
+               (uint32_t(root->milan_datapath__DOT__rsp_converged_w & 1) << 9) |
+               (uint32_t(root->milan_datapath__DOT__rsp_prefill_w & 1) << 8) |
+               (root->milan_datapath__DOT__rsp_fill_w & 0xFF);
+    }
+
+    uint32_t check_render_csr(const char* phase) {
+        dut->s_axi_araddr = 0x8DC;
+        dut->s_axi_arvalid = 1;
+        dut->s_axi_rready = 0;
+        bool accepted = false;
+        for (int g = 0; g < kAxiGuardCycles && !accepted; ++g) {
+            lo(); accepted = dut->s_axi_arready; hi();
+        }
+        dut->s_axi_arvalid = 0;
+        ck("RENDER-CSR: AR handshake", accepted, true);
+        lo();
+        const uint32_t expected = render_tap_word();
+        hi();
+        bool responded = false;
+        uint32_t word = 0;
+        for (int g = 0; g < kAxiGuardCycles && !responded; ++g) {
+            lo(); responded = dut->s_axi_rvalid;
+            if (responded) word = dut->s_axi_rdata;
+            hi();
+        }
+        ck("RENDER-CSR: R response", responded, true);
+        ck("RENDER-CSR: OKAY response", dut->s_axi_rresp, 0);
+        char label[128];
+        snprintf(label, sizeof label, "RENDER-CSR: %s mirrors taps", phase);
+        ck(label, word, expected);
+        for (int g = 0; g < 32; ++g) step();
+        ck("RENDER-CSR: RVALID held under backpressure", dut->s_axi_rvalid, 1);
+        ck("RENDER-CSR: sampled word held under backpressure", dut->s_axi_rdata, word);
+        dut->s_axi_rready = 1;
+        step();
+        dut->s_axi_rready = 0;
+        return word;
+    }
+
+    void check_render_csr_selection() {
+        axi_write(0x800, 0x100);
+        ck("RENDER-CSR: talker selection reads zero", axi_read(0x8DC), 0);
+        axi_write(0x800, 0x300);
+        ck("RENDER-CSR: bit 9 preserves talker rejection", axi_read(0x8DC), 0);
+        axi_write(0x800, 1);
+        ck("RENDER-CSR: out-of-range listener reads zero", axi_read(0x8DC), 0);
+        axi_write(0x800, 0x200);
+        check_render_csr("bit 9 with listener 0");
+        axi_write(0x800, 0);
+        axi_write(0x8DC, 0xFFFFFFFF);
+        check_render_csr("write ignored");
+    }
+
+    void prove_render_csr_rail() {
+        //! Bunch two additional six-event PDUs while a converged stream
+        //! runs. The > TARGET+6 high rail must fire without an underrun.
+        const uint32_t before = dut->rootp->milan_datapath__DOT__rsp_rails_w;
+        run_to_a_fresh_slot();
+        send_aaf();
+        for (int g = 0; g < 256; ++g) step();
+        send_aaf();
+        for (int g = 0; g < 256; ++g) step();
+        const uint32_t word = check_render_csr("rail");
+        ck("RENDER-CSR: rail event reached the word", (word >> 16) > before, true);
+        ck("RENDER-CSR: rail cleared convergence", (word >> 9) & 1, 0);
+        check_render_csr_selection();
+    }
+
+    int prove_render_csr_absent() {
+        ck("RENDER-CSR-ABSENT: reset structural zero", check_render_csr("absent reset"), 0);
+        bind_listener_zero_over_acmp();
+        start_aaf_feed(0);
+        run_fed(100000);
+        ck("RENDER-CSR-ABSENT: ingress accepted media", accepts_seen > 3, true);
+        ck("RENDER-CSR-ABSENT: active ingress structural zero", check_render_csr("absent active"), 0);
+        check_render_csr_selection();
+        aaf_on = false;
+        return report();
     }
 
     // ---- one frame into the MAC ingress (little byte lane, as everywhere) --
@@ -1288,11 +1375,19 @@ class MediaGridAlignmentHarness {
         printf("\n[RENDER-INT] the render law at INTERNAL (cadence = the packet grid)\n");
         const uint32_t rails0 = dut->rootp->milan_datapath__DOT__rsp_rails_w;
         const uint32_t under0 = dut->rootp->milan_datapath__DOT__rsp_underruns_w;
+        ck("RENDER-CSR: reset prefill", check_render_csr("prefill"), 0x100);
         start_aaf_feed(0);
         //! ~0.12 s: 960 PDUs, and past the observer's 100-period dwell (100 ms
         //! of the 100 MHz axis clock) once the prefill's three PDUs are out
         const long RUN = 12000000;
-        run_fed(RUN);
+        run_fed(10000);
+        const uint32_t filling = check_render_csr("filling");
+        ck("RENDER-CSR: fill nonzero during prefill", (filling & 0xFF) > 0, true);
+        ck("RENDER-CSR: prefill still held", (filling >> 8) & 1, 1);
+        run_fed(RUN - 10000);
+        const uint32_t converged = check_render_csr("converged");
+        ck("RENDER-CSR: converged bit reached the word", (converged >> 9) & 1, 1);
+        ck("RENDER-CSR: prefill released", (converged >> 8) & 1, 0);
         const long n = aaf_seq;              //! the next sequence = PDUs injected
         ck("RENDER-INT: every injected PDU was accepted",
            static_cast<unsigned long>(accepts_seen), static_cast<unsigned long>(n));
@@ -1566,8 +1661,16 @@ int MediaGridAlignmentHarness::run() {
     if (live_only) return run_live_only();
 
     bring_out_of_reset();
+    if (render_csr_absent) return prove_render_csr_absent();
     bind_listener_zero_over_acmp();
     measure_the_render_law_at_internal();
+    if (render_csr_only) {
+        prove_render_csr_rail();
+        aaf_on = false;
+        bring_out_of_reset();
+        ck("RENDER-CSR: reset clears rail and convergence", check_render_csr("reset again"), 0x100);
+        return report();
+    }
     prove_the_recentre_is_one_shot("RENDER-RC-INT");
     prove_settime_recentres_once();
     //! --render-only: the mutation arm's leg - the law and the recentre at
@@ -1610,6 +1713,7 @@ int MediaGridAlignmentHarness::run() {
     //! ...and the other way for the deselect inside the mr phase
     move_the_running_feed_past_a_tick("RENDER-LIVE", false);
     prove_the_mr_toggle_echoes_only_under_crf();
+    prove_render_csr_rail();
     aaf_on = false;
 
     return report();
@@ -1621,6 +1725,8 @@ int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     MediaGridAlignmentHarness harness;
     for (int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "--render-csr-only") harness.render_csr_only = true;
+        if (std::string(argv[i]) == "--render-csr-absent") harness.render_csr_absent = true;
         if (std::string(argv[i]) == "--render-only") harness.render_only = true;
         if (std::string(argv[i]) == "--live-only") harness.live_only = true;
     }
