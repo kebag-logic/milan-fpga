@@ -1,0 +1,58 @@
+make: Entering directory '<clone>/tb/verilator/nvm_cosim'
+python3 -B run_cases.py --shapes 1x1,8x8 --jobs 8 --pool 4
+building 42 build(s)
+[contract-1x1] 62 case run(s): 315 ok, 0 bad, 0 not expressible
+[contract-8x8] 27 case run(s): 150 ok, 0 bad, 0 not expressible
+---- identity wrap: a capture whose identity is 0 is a capture -------
+  A4_write_after_ack at CAP_ID_W_P=2 (+3 committing changes): identities [1, 2, 3, 0, 1], 5 acknowledged, 0 deferred as unattested, captures refused=0 -- the same report as at 16
+  A9_updates_during_slow_erase at CAP_ID_W_P=2 (+3 committing changes): identities [1, 2, 3, 0, 1, 2], 6 acknowledged, 0 deferred as unattested, captures refused=0 -- the same report as at 16
+  B1_erase_error_full_span at CAP_ID_W_P=2 (+3 committing changes): identities [1, 2, 3, 0, 1], 5 acknowledged, 0 deferred as unattested, captures refused=0 -- the same report as at 16
+  C8_ack_refused_after_verified_slot at CAP_ID_W_P=2 (+3 committing changes): identities [1, 2, 3, 0, 1, 2], 6 acknowledged, 0 deferred as unattested, captures refused=0 -- the same report as at 16
+  C2_hold_expiry_then_erase_with_stale_mask at CAP_ID_W_P=2 (+0 committing changes): identities [1, 3, 0], 3 acknowledged, 1 deferred as unattested, captures refused=1 -- the same report as at 16
+  5 acknowledgement(s) quoted the capture identity 0
+  identity control: a 2-bit identity aliases on A8 as required
+---- mutants: each MUST be killed by its NAMED check -----------------
+  A01_composite_durable_bit: killed by pending_drives_no_commit@end -- erases 5
+  F01_attestation_not_checked: killed by last_verified_kept@after:0x21 -- record 0x21 at after: ERASED
+  F02_copies_open_records: killed by last_verified_kept@end:0x20 -- record 0x20 at end: ERASED
+  F03_prefill_from_blank: killed by last_verified_kept@end:0x20 -- record 0x20 at end: ERASED
+  F04_ack_without_identity: killed by stable_no_churn -- erases 1->3
+  F05_device_busy_gate_kept: killed by later_record_persists@abandoned:0x20 -- record 0x20 at abandoned: 172202200014539803000001112233445566778899aabbccddeeffff
+  F06_ack_after_failed_slot: killed by converged@end -- mismatched ['0x20'], committable work 0, status claims durable True
+  F07_reload_refusal_ignored: killed by converged@end -- mismatched ['0x21'], committable work 1, status claims durable False
+  F08_restart_reloads_window: killed by converged@end -- mismatched ['0x20'], committable work 1, status claims durable False
+  F10_retired_writer_keeps_heartbeating: killed by writer_absent_when_retired@end -- backed 1, pending 1, flash erases 0
+  F11_restart_reattaches_without_load: killed by restart_stays_retired_without_load@restarted -- stayed retired False, re-attached True, load accepted 0, capture identity 0, capture open 0, status claims durable False
+  F12_repeat_ignores_window_live: killed by window_live_stops_the_repeat@boot -- window went live False, RELOAD strobes 4 (want 1), load pending 0, load accepted 0
+  G01_edge_detected_change: killed by no_durable_claim_unmaterialized@end -- live format set True, record 0x30 in slot None, durable claim True
+  M01_open_at_erase_completion: killed by last_verified_kept@end:0x20 -- record 0x20 at end: ERASED
+  M02_close_on_any_completion: killed by never_torn_or_erased@after:0x21 -- record 0x21 at after: ERASED
+  M03_close_on_partial_write: killed by later_record_persists@end:0x21 -- record 0x21 at end: 172202210014efae0300000201020304050607081112131415161718
+  M04_ack_ignores_identity: killed by stale_identity_refused@stray -- ack_refused 0 capture open 1 work owned 0
+  M05_ack_retires_live_work: killed by ack_retires_only_slot@post_ack:0x20 -- newer record in slot False, still owned (dirty) 0
+  M06_hold_does_not_defer: killed by deferred_until_attestation:0x21 -- requested 5 cycles after the arm, granted 6 after it, attestation at 21
+  M07_hold_never_expires: killed by hold_bounded:0x21 -- held 60023 cycles (bound 50 ms = 50000)
+  M08_attestation_ignores_grant: killed by last_verified_kept@after:0x21 -- record 0x21 at after: ERASED
+  M09_second_arm_accepted: killed by concurrent_arm_refused@stray -- arm_refused 0 open 1 id 2->3
+  M10_release_forgets_work: killed by later_record_persists@after:0x20 -- record 0x20 at after: 172202200014539803000001112233445566778899aabbccddeeffff
+  M11_dirty_from_accepted_bytes: killed by converged@end -- mismatched ['0x21'], committable work 0, status claims durable True
+  M12_alarm_not_revoking: killed by alarm_revokes@end -- alarm 1 backed 1
+  M13_report_not_revoking: killed by failure_revokes -- reported at 3750478, first loss None cycles later
+  M14_pending_bit_misses_producer: killed by no_durable_claim_unmaterialized@end -- live format set True, record 0x30 in slot None, durable claim True
+  M15_pending_bit_misses_open_record: killed by no_durable_claim@gap -- accepted but not in the slot ['0x20']; status claims durable True
+  M17_hold_expiry_voids_capture: killed by slow_copy_attests -- refused captures 1
+  M18_pending_bit_stuck: killed by converged@end -- mismatched none, committable work 0, status claims durable False
+  M19_arm_edge_grant_not_deferred: killed by arm_edge_request_deferred:0x20 -- ERASE requested in the arm's cycle, granted 1 cycles after it, attestation at 301
+  M20_arm_accepted_while_request_deferred: killed by hold_bounded_across_captures:0x21 -- 2 arms, the second 20002 cycles after the first; request granted 69733 cycles after it was raised (bound 51000)
+  R01_reload_ignores_inflight: killed by reload_refused_inflight_at_rebase@after:0x20 -- reload refused 0, record 0x20 open 0
+  R02_reload_ignores_grant_since_rebase: killed by last_verified_kept@end:0x20 -- record 0x20 at end: ERASED
+  R03_reload_not_once_per_reset: killed by held_work_survives_post_boot_reload@reload -- committable work 0, pending 0, reload refused 0
+  R04_rebase_wins_over_same_edge_grant: killed by grant_wins_over_rebase_edge@after:0x20 -- grant registered at 14, decided on the re-base write's own edge 13 (True), reload refused 0, record 0x20 open 0
+  R05_boot_load_stays_pending_when_live: killed by boot_load_closed_when_live@boot -- load pending 1, reload refused 1
+  R06_revision_b_load_rule: killed by change_landed_or_reported@end:0x21 -- record 0x21 in the newest verified slot False, still reported False, status claims durable True
+  R07_arm_without_accepted_load: killed by arm_refused_without_accepted_load@stray -- load accepted 0, img valid 1, arm refused 0, capture open 1, capture identity 1
+39 of 39 mutant(s) killed by their named check
+nvm_cosim: 465 checks: 465 PASS, 0 FAIL (0 not expressible)
+RESULT: PASS
+make: Leaving directory '<clone>/tb/verilator/nvm_cosim'
+wall=391.19
