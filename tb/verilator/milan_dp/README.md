@@ -24,7 +24,7 @@ log in the failure so the artifact can be inspected.
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
 | `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): the INTERNAL free-run drift (-10.64 ppm, the standing free-run rule), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and dups once per beat period at INTERNAL on the predicted beat, one event per fed pair. The closed form: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup comes (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts the first dup from the first beat and grades it within 25 percent over a window of 1.5 times the prediction. The same aim and window under CRF show zero, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants` |
-| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates follow the processor's ACTIVE on every cycle, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
+| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 | `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387: a grandmaster change that steps the PHC by 1.5 s under CRF selection is one counted media event (`tu`, one render re-base, one `mr` toggle, one MEDIA_RESET) and stops no stream; `gmstep_mutants.py` plants the acceptance's three controls in the sweep and `make gmstep-mutants` the whole inventory |
 
@@ -359,7 +359,7 @@ was a counter question:
    the processor's raw admission verdict, which the declaration alone raises,
    instead of its ACTIVE: Talker Advertise declared, a Listener Ready or Ready
    Failed registered, admitted (Milan v1.2 5.3.7.3). `milan_datapath` now
-   drives `lwsrp_stream_gate` from `pp_cd_srp_active_w`.
+   requires `pp_cd_srp_active_w` AND `pp_cd_srp_sr_admitted_w` (#551).
 3. **FRAMES_TX read 16 against 34,061 PDUs.** That is the documented
    semantics, not a defect; see [FRAMES_TX is an interval count](#frames_tx-is-an-interval-count).
 
@@ -394,20 +394,84 @@ Advertise state are sampled on every cycle.
 | `[D]` | A registered Asking Failed closes the licence; Ready Failed reopens it. |
 | `[E]` | The unbind: the licence closes when the Listener registration ends, inside a fresh probe window, not when the window closes (Run B's last burst ran 9.95 s past its unbind). |
 | `[F]` | Item 3: FRAMES_TX counts observation intervals since STREAM_START, far fewer than the PDUs, and restarts at the next STREAM_START. |
-| `[INV]` | Every cycle: the CRF licence equals ACTIVE[CRF], and the AAF gate is never open without ACTIVE[AAF]. |
+| `[G]` | Each source and admission phase, with the same TSpec preloaded: an oversized re-declaration raises optimistic ACTIVE but receives no real grant. No licence edge, STREAM_START/STREAM_STOP pair, interval-counter reset or PDU follows. |
+| `[H]` | Matching admitted re-declarations stream and reset interval counters. Logs measure ACTIVE-to-licence latency for each source and admission phase. |
+| `[I]` | A refused 20,000-byte TSpec follows an admissible 224-byte TSpec. Both sources and phases require no licence, counter pair, reset or PDU. This is a required default pass with processor #112. |
+| `[J]` | The reverse TSpec change admits 224 bytes after 20,000 bytes. Both sources and phases must stream; logs re-measure ACTIVE-to-licence latency. |
+| `[INV]` | Every cycle: CRF equals ACTIVE AND its real grant. AAF never opens without both terms. |
 
-**Failing arms.** Each was run on this head (2026-09-24 UTC):
+**Refused re-declaration fixture (#551).**
+`crflic_probes.vlt` exposes captured SRP service request registers.
+The harness stages a pending DECLARE/WITHDRAW_TALKER tuple at that boundary.
+The processor executes it on the next clock.
+No admission result, registrar, optimistic flag or licence is forced.
+An actual MAC Listener Ready frame supplies the registering event.
+Its measured decoder delay aligns it immediately after re-declaration.
+The replay must reproduce that timing and raise optimistic ACTIVE.
+
+An oversized 20,000-byte TSpec exceeds the real admission ceiling.
+Cases `[G]` and `[H]` preload the graded TSpec.
+Cases `[I]` and `[J]` change it; all four run by default.
+Withdrawal clears its grant before each case starts.
+Both source indexes run at both phases of the two-cycle round.
+Nonzero counter seeds distinguish preservation from an unnoticed reset.
+Previous frames and observation intervals finish before those seeds apply.
+Each case refreshes its genuine ACMP/MAAP declaration window.
+The media clocks continue through several packet periods.
+Matching admitted cases use a 224-byte TSpec and must stream.
+This is boundary staging, not an end-to-end controller timing claim.
+
+The processor now evaluates the current TSpec before granting admission.
+Every declaration clears its source's grant until that evaluation completes.
+A round that meets any pending declaration publishes nothing.
+Other grants, the slope sum and over-limit retain their published values.
+This follows [processor #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112), adopted through #508.
+
+The former `--unwarmed-refusal` opt-in is now unconditional.
+The same command remains usable after building `crflic`:
+
+```sh
+cd tb/verilator/milan_dp
+./obj_crflic/Vmilan_dp_crflic --unwarmed-refusal
+```
+
+The default and explicit invocations run the same cases.
+Every assertion remains mandatory; any failure returns exit status 1.
+The first declaration after reset is outside this arm's coverage.
+
+Measured ACTIVE-to-licence latency at processor pin `990f9652`, in admission-clock cycles:
+
+| TSpec history | Source | Round phase 0 | Round phase 1 |
+|---|---|---|---|
+| Same (224 to 224 bytes) | AAF source 0 | 5 | 5 |
+| Same (224 to 224 bytes) | CRF source 1 | 3 | 5 |
+| Changed (20,000 to 224 bytes) | AAF source 0 | 5 | 5 |
+| Changed (20,000 to 224 bytes) | CRF source 1 | 3 | 5 |
+
+The fixture uses a 100 MHz admission clock: 30--50 ns.
+At 50 MHz, those cycles represent 60--100 ns.
+Both histories fit the asserted bound of three two-source admission rounds.
+The ordinary Listener Ready cases add zero cycles.
+These measurements cover this two-source shape, not every supported geometry.
+The optimistic window counts three published admission rounds.
+Discarded rounds do not age it while a declaration remains pending.
+
+**Failing arms.** The #530 rows retain their dated evidence.
+The #551 campaign additionally removes each real-grant term.
+
+
 
 | arm | how | result |
 |---|---|---|
-| the licence mutants | `make crflic-mutants`: `crflic_mutants.py` plants each consumer back on the raw verdict (the whole gate, the CRF slot alone, AAF source 0 alone) | all three caught, each on its named check; the clean leg passes |
+| the licence mutants | `make crflic-mutants`: each consumer reads raw admission, removing ACTIVE | Three named checks must fail; the clean leg must pass. |
+| the real-grant mutants (#551) | Same command: every gate, CRF alone, or AAF source 0 alone reads ACTIVE without its real grant | Each refused-source licence check must fail. |
+| the pre-#112 processor `7a47f578` | Local control only: temporarily repin the existing submodule, build the same leg in a fresh directory, run once, then restore `990f9652` | 34 failures total: 28 `[I]` assertions and 6 `[J]` admitted-case timing checks. In `[I]`, both sources at both phases pulse a grant/licence, add STREAM_START/STREAM_STOP and reset all three seeded counters. The same fixture passes at the restored pin. |
 | the gate reverted | the first mutant, run as the reproduction before the fix | 23 of 85 fail, the Run B item 2 signature: the licence opens at 1770.38 ms, 1.34 ms after the first probe and before its TALKER_DEST_MAC_FAIL answer at 1772.00 ms; the first CRF PDU leaves at 1966.30 ms, 3.85 s before the first Listener Ready; and the licence never closes again, through Asking Failed and the unbind |
 | the previous processor pin `424c688f` | by hand, the only arm that needs a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 17 of 85 fail, the Run B item 1 signature: every DUT LeaveAll flags only the Domain. ACTIVE and the licence fall six times by the end of `[C]`, each 5.0 s after a LeaveAll that aged the Listener registration with no re-declaration. The DUT withdraws its Talker Advertise four times: once at a registration loss 5.0 s after a switch LeaveAll, three times 15.1 s after the listener's latest probe, as Run B's bursts ended |
 
-The mutants are an explicit campaign, not a sweep step: three elaborations
-and four runs, 139 s on an eight-core host, which the stated `milan_dp`
-deadline margin was not sized for. The leg itself builds in about 14 s
-there and runs in about 20 s.
+The mutants remain an explicit campaign outside the default sweep.
+Six additional elaborations exercise both missing-term failure modes.
+The normal licence leg remains part of the default sweep.
 
 **What it cannot show.** The switch's timing is modelled from the Run B
 capture: its LeaveAll 9.99 s after each DUT LeaveAll. A switch with a fixed

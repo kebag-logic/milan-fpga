@@ -267,7 +267,7 @@ CRFLIC_FLAGS = $(filter-out -GDIAG_TICK_CYC_P=256,$(GPTP_OFF_VFLAGS)) \
   -GMAAP_CLK_HZ_P=$(CRFLIC_MS_CYC)000 \
   -GDIAG_TICK_CYC_P=$(shell echo $$(($(CRFLIC_MS_CYC) * $(CRFLIC_DIAG_MS))))
 define CRFLIC_BUILD
-$(VERILATOR) $(SHAPE_AX1x1) $(CRFLIC_FLAGS) --Mdir $(CRFLIC_MDIR) \
+$(VERILATOR) crflic_probes.vlt $(SHAPE_AX1x1) $(CRFLIC_FLAGS) --Mdir $(CRFLIC_MDIR) \
   -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
   -GAUDIO_IF_MASTER_P=1 \
   -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
@@ -443,8 +443,8 @@ crflic-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(CRFLIC_BUILD)
 
 # An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md):
-# three more elaborations and four runs of the leg, measured at 139 s on an
-# eight-core host, which the sweep's stated milan_dp margin was not sized for.
+# Six additional elaborations remove ACTIVE or the real grant at each
+# consumer. Their cost is outside the default sweep's stated margin.
 crflic-mutants: crflic
 	python3 crflic_mutants.py
 

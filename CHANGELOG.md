@@ -57,7 +57,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - It leaves the input failure-code byte of selector 4 zero.
 - Every change of those fields pushes GET_STREAM_INFO once.
 - Processor issue 112: a re-declaration drops the grant until evaluated.
-- `LWSRP_STATUS[9]` and `LWSRP_SLOPE` follow; no gate reads them.
+- `LWSRP_STATUS[9]` and `LWSRP_SLOPE` follow as diagnostics.
+- The per-source real grant also qualifies the licence (#551).
 - A round that meets a pending declaration now publishes nothing.
 - Processor issue 116: parent-gate comments and mutation deadlines corrected.
 - No behavior or external port changes; parent ratchets stay unchanged.
@@ -97,26 +98,28 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Silicon streamed the CRF output before any Listener Ready (#530).
 - Every talker gate read the processor's raw admission verdict.
 - The Talker Advertise declaration alone raises that verdict.
-- The gates now read the processor's ACTIVE.
+- The gates require ACTIVE and the real per-source grant (#551).
 - ACTIVE needs a Listener Ready or Ready Failed as well.
 - That covers the CRF licence and every AAF talker gate.
 - `CRFT_CTRL[6]` and `LWSRP_STATUS[8]` follow.
 - So do the `0x82C` talker lobs above index 0.
-- Only `LWSRP_STATUS[9]` and `LWSRP_SLOPE` keep the raw verdict.
-- No shaper reads either: none is instantiated.
-- ACTIVE can lead them by up to three admission rounds.
-- That needs a Listener Ready decoded within those rounds.
+- `LWSRP_STATUS[9]` remains the OR of real admission grants.
+- `LWSRP_SLOPE` remains their diagnostic sum; no shaper consumes it.
+- ACTIVE includes three published rounds of optimistic admission.
+- An early Listener Ready can raise ACTIVE before real admission.
 - Each declaration clears its registered Listener first.
-- For an admitted stream the lead is status skew only.
-- A refused stream keeps ACTIVE until that window ends.
-- It stays licensed for up to three rounds.
-- A controller reads a `STREAM_START` and `STREAM_STOP` pair.
-- The start resets the Table 5.4 interval counters.
-- At most one PDU per source can leave.
-- The CRF output shows this on `CRFT_CTRL[6]`/`[7]`.
-- `LWSRP_STATUS[6]` is ACTIVE ORed over all sources.
-- `LWSRP_STATUS[8]` shows source 0 only.
-- Issue #551 asks whether the licence should need the grant.
+- A refused stream can keep ACTIVE until optimism expires.
+- Refused re-declarations cannot open CRF or AAF licences.
+- No `STREAM_START`/`STREAM_STOP` pair, interval-counter reset or PDU follows.
+- The grant now waits for the current TSpec (#112, #508).
+- Pending rounds hold other grants, the slope sum and over-limit.
+- `LWSRP_STATUS[6]` remains raw ACTIVE ORed over all sources.
+- The default licence simulation covers identical and changed TSpecs.
+- Its unwarmed refusal arm is a required pass.
+- Grant-removal mutants must fail its refused-source checks.
+- Both histories add 3--5 cycles on the two-source fixture.
+- See the licence leg README for per-source, per-phase cycle counts.
+- Ordinary Listener Ready arrivals add no cycles.
 - A bound CRF talker also ended its own bursts.
 - The processor pin moves to `09f9bf38` (processor issue 106).
 - Its LeaveAll now flags every MSRP attribute type.
