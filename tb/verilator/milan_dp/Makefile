@@ -104,6 +104,8 @@ GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
 # either through this same recipe
 RSP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv
 DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
+# #443: selector controls mutate only a disposable CSR source.
+CSR_SRC ?= $(RTL_DIR)/common/csr/milan_csr.sv
 # #387: the clock-validity block, overridable the same way so the gmstep
 # leg's negative controls elaborate a MUTATED copy through its recipe (their
 # runner joins the tree with the #387 datapath edit).
@@ -191,7 +193,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/common/cdc_pair_fifo.sv \
        $(RTL_DIR)/common/eth_event_counter/ethernet_events.sv \
        $(RTL_DIR)/common/eth_event_counter/event_counter.sv \
-       $(RTL_DIR)/common/csr/milan_csr.sv \
+       $(CSR_SRC) \
        $(DP_SRC)
 CPP  = sim_main.cpp
 

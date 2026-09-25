@@ -239,6 +239,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
 | `0x8C8` | Reserved target-media compatibility words (structural zero) |
 | `0x8D4` | Media-boundary slip counters (`SLIP_LB` / `SLIP_TDM`, RO live, minor >= `0x0058`) |
+| `0x8DC` | `RENDER_STAT`: RO live selected-listener state and global rails; structural zero without the stage. VERSION minor remains `0x0060`; the release step owns the bump |
 | `0x8F8` | MMCM-DRP media-clock servo (Milan v1.2 7.3.4) |
 | `0x900` | Channel-map fabric debug window (chmap64) — write port + bypass arm, and the `0x910`/`0x914` **map-RAM readback** |
 | `0x920` | **Protocol-processor control plane** (`PP_CTRL`/`STAT`/`SPADDR`/`SPDATA`/`DIAG`) — always decoded at VERSION major 2 |
@@ -1941,6 +1942,11 @@ upstream talker runs at the physical grid's rate, the disciplined peer
 
 Issue #443 claims this previously unmapped debug-group word.
 
+VERSION remains `0x0002_0060` under [the recorded deferral](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5826779078).
+The release step owns the minor bump.
+Before that bump, VERSION alone cannot identify this addition.
+Verify the build's source revision includes #443's register decode.
+
 | Offset | Name | Acc | Reset | Description |
 |---|---|---|---|---|
 | `0x8DC` | `RENDER_STAT` | RO live | `0x00000100` | Selected listener state and the global rail count |
@@ -1948,6 +1954,11 @@ Issue #443 claims this previously unmapped debug-group word.
 `STRM_SEL[3:0]` selects the listener, with `STRM_SEL[8]=0`.
 Talker selections and indices outside `N_LISTENERS_P` read zero.
 `STRM_SEL[9]` does not change this word's selection.
+The listed reset assumes a present stage and listener 0.
+That is `STRM_SEL`'s reset selection.
+Writing this shared selector invalidates the window's ACMP/SRP snapshots.
+Another task moving it changes which listener this word reports.
+Diagnostic readers must coordinate access and restore the previous selection.
 
 | Bits | Width | Source | Meaning | Reset |
 |---|---|---|---|---|

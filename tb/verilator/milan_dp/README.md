@@ -806,10 +806,11 @@ make -C tb/verilator/milan_dp render-csr-controls
 |---|---|
 | Clean `--render-csr-only` | All checks pass, including reset after a rail |
 | Fill field tied zero | Fails `RENDER-CSR: filling mirrors taps` |
+| Bit 9 forces listener 0 | Fails `RENDER-CSR: bit 9 preserves talker rejection` |
 | Stage instance removed, outputs tied zero | `--render-csr-absent` passes despite accepted ingress |
 
 Temporary control sources leave tracked RTL unchanged.
-Two extra elaborations stay outside the default sweep's deadline.
+Three extra elaborations stay outside the default sweep's deadline.
 The default sweep still runs the positive CSR checks.
 The two-stream `milan_dp_render` leg separately checks listener selection.
 

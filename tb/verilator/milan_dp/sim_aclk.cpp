@@ -401,10 +401,12 @@ class MediaGridAlignmentHarness {
     void check_render_csr_selection() {
         axi_write(0x800, 0x100);
         ck("RENDER-CSR: talker selection reads zero", axi_read(0x8DC), 0);
+        axi_write(0x800, 0x300);
+        ck("RENDER-CSR: bit 9 preserves talker rejection", axi_read(0x8DC), 0);
         axi_write(0x800, 1);
         ck("RENDER-CSR: out-of-range listener reads zero", axi_read(0x8DC), 0);
         axi_write(0x800, 0x200);
-        check_render_csr("listener-0 row override");
+        check_render_csr("bit 9 with listener 0");
         axi_write(0x800, 0);
         axi_write(0x8DC, 0xFFFFFFFF);
         check_render_csr("write ignored");

@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Issue #443 controls through the real milan_dp AXI-Lite path.
 
-The clean leg exercises prefill, fill, convergence, a rail and reset. A
-wrong-fill connection must fail its named comparison. The absent-stage
-control removes the instance entirely and ties every output to zero; it
-still accepts AAF ingress but its CSR must remain structural zero. Neither
-control changes the working tree. Every simulation is cycle-bounded by
+The clean leg exercises prefill, fill, convergence, a rail and reset.
+Wrong-fill and bit-9 selector mutants must fail named comparisons.
+The absent-stage control removes the instance and ties every output to zero;
+it still accepts AAF ingress but its CSR must remain structural zero.
+Control sources leave the working tree unchanged. Every simulation is cycle-bounded by
 sim_aclk.cpp's loops and existing AXI/ingress guards. No host-time verdict.
 
 Run through `make render-csr-controls`, or after building `make aclk-build`.
@@ -18,6 +18,8 @@ import tempfile
 from pathlib import Path
 
 from render_mutants import CLEAN_EXE, DP_RTL, build, run_leg, verdict
+
+CSR_RTL = Path(__file__).resolve().parents[3] / "hdl/common/csr/milan_csr.sv"
 
 
 def without_stage(source: str) -> str:
@@ -35,7 +37,7 @@ def without_stage(source: str) -> str:
 
 
 def main() -> int:
-    """Require a clean pass, a named mutant failure and an absent-stage pass."""
+    """Require a clean pass, named mutant failures and an absent-stage pass."""
     if not CLEAN_EXE.is_file():
         print("[FAIL] build the clean leg with make aclk-build first")
         return 1
@@ -49,18 +51,27 @@ def main() -> int:
     if source.count(pattern) != 1:
         print("[FAIL] wrong-fill mutation anchor must occur exactly once")
         return 1
+    csr_source = CSR_RTL.read_text()
+    selector = "if (!strm_dir_r && (32'(strm_idx_r) == s))"
+    if csr_source.count(selector) != 1:
+        print("[FAIL] selector mutation anchor must occur exactly once")
+        return 1
     cases = (
-        ("wrong_fill", source.replace(pattern, "8'd0};"),
+        ("wrong_fill", "DP_SRC", source.replace(pattern, "8'd0};"),
          "--render-csr-only", "RENDER-CSR: filling mirrors taps"),
-        ("absent_stage", without_stage(source), "--render-csr-absent", None),
+        ("bit9_window_selection", "CSR_SRC", csr_source.replace(
+            selector, "if (strm_lsn0_r ? (s == 0) : "
+            "(!strm_dir_r && (32'(strm_idx_r) == s)))"),
+         "--render-csr-only", "RENDER-CSR: bit 9 preserves talker rejection"),
+        ("absent_stage", "DP_SRC", without_stage(source), "--render-csr-absent", None),
     )
     failures = 0
     with tempfile.TemporaryDirectory(prefix="render-csr-controls-") as temp:
         work = Path(temp)
-        for name, changed, mode, named_check in cases:
+        for name, override, changed, mode, named_check in cases:
             rtl = work / f"{name}.sv"
             rtl.write_text(changed)
-            exe = build("DP_SRC", rtl, work / f"obj_{name}")
+            exe = build(override, rtl, work / f"obj_{name}")
             if exe is None:
                 print(f"[FAIL] {name}: build failed; no control evidence")
                 failures += 1
@@ -78,7 +89,7 @@ def main() -> int:
             print(f"[{'PASS' if ok else 'FAIL'}] {name}: rc={rc}, {answer}; "
                   f"named check={named_check}")
             failures += not ok
-    print(f"render_csr_controls: 3 checks, {failures} failures")
+    print(f"render_csr_controls: {1 + len(cases)} checks, {failures} failures")
     return int(failures != 0)
 
 
