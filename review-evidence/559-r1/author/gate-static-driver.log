@@ -1,0 +1,20 @@
+RUN baremetal-only python3 scripts/check_baremetal_only.py --check
+RESULT baremetal-only 0
+RUN docs-git python3 -B scripts/docs_check.py
+RESULT docs-git 0
+RUN docs-no-git env GIT_DIR=/dev/null python3 -B scripts/docs_check.py
+RESULT docs-no-git 0
+RUN em-dash python3 scripts/check_em_dash.py --base a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4
+RESULT em-dash 0
+RUN doc-style python3 scripts/check_doc_style.py
+RESULT doc-style 0
+RUN toc python3 scripts/gen_toc.py --check
+RESULT toc 0
+RUN anchors python3 scripts/gen_toc.py --verify-anchors
+RESULT anchors 0
+RUN doc-paths python3 scripts/check_doc_paths.py
+RESULT doc-paths 0
+RUN diff git diff --check
+RESULT diff 0
+RUN diff-staged git diff --cached --check
+RESULT diff-staged 0

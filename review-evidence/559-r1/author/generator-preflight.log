@@ -1,0 +1,49 @@
+Board CPU setup: cacheless RV32I, one hart, DMA, CPU clock CDC, no L2
+Data tree: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog
+Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=True, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+PRODUCT_CPU_METADATA_READY
+XLEN: 32 ISA: {'', 'i', 'zifencei', 'zicsr'}
+cwd: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv
+command: sbt 'runMain vexiiriscv.soc.litex.PythonArgsGen  --with-isa=,i,zifencei,zicsr --xlen=32 --cpu-count=1 --with-cpu-clk --with-dma --l2-bytes=0 --l2-ways=4 --imsic-interrupt-number=0 --python-file=$VALIDATION_STORAGE/559-a307-cpu-preflight/product_cpu_metadata.py'
+mkdir: cannot create directory ‘/root’: Permission denied
+java.nio.file.AccessDeniedException: /root/.sbt/1.0/java9-rt-ext-arch_linux_17_0_20_1/rt.jar
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:90)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.checkAccess(UnixFileSystemProvider.java:313)
+	at jdk.zipfs/jdk.nio.zipfs.ZipFileSystem.<init>(ZipFileSystem.java:170)
+	at jdk.zipfs/jdk.nio.zipfs.ZipFileSystemProvider.getZipFileSystem(ZipFileSystemProvider.java:125)
+	at jdk.zipfs/jdk.nio.zipfs.ZipFileSystemProvider.newFileSystem(ZipFileSystemProvider.java:106)
+	at java.base/java.nio.file.FileSystems.newFileSystem(FileSystems.java:339)
+	at java.base/java.nio.file.FileSystems.newFileSystem(FileSystems.java:288)
+	at xsbt.boot.Launch$.exportRt(Launch.scala:54)
+	at xsbt.boot.Launch$.apply(Launch.scala:29)
+	at xsbt.boot.Launch$.apply(Launch.scala:24)
+	at xsbt.boot.Boot$.runImpl(Boot.scala:79)
+	at xsbt.boot.Boot$.run(Boot.scala:75)
+	at xsbt.boot.Boot$.main(Boot.scala:24)
+	at xsbt.boot.Boot.main(Boot.scala)
+[error] [launcher] error during sbt launcher: java.nio.file.AccessDeniedException: /root/.sbt/1.0/java9-rt-ext-arch_linux_17_0_20_1/rt.jar
+java.io.IOException: failed to create lock file /root/.sbt/boot/sbt.boot.lock
+	at xsbt.boot.Locks$.apply0(Locks.scala:42)
+	at xsbt.boot.Locks$.apply(Locks.scala:36)
+	at xsbt.boot.Launch.locked(Launch.scala:365)
+	at xsbt.boot.Launch.getAppProvider(Launch.scala:282)
+	at xsbt.boot.Launch.app(Launch.scala:194)
+	at xsbt.boot.Launch.app(Launch.scala:192)
+	at xsbt.boot.Launch$.run(Launch.scala:124)
+	at xsbt.boot.Launch$.apply$$anonfun$1(Launch.scala:43)
+	at xsbt.boot.Launch$.launch(Launch.scala:142)
+	at xsbt.boot.Launch$.apply(Launch.scala:43)
+	at xsbt.boot.Launch$.apply(Launch.scala:24)
+	at xsbt.boot.Boot$.runImpl(Boot.scala:79)
+	at xsbt.boot.Boot$.run(Boot.scala:75)
+	at xsbt.boot.Boot$.main(Boot.scala:24)
+	at xsbt.boot.Boot.main(Boot.scala)
+Caused by: java.io.IOException: Permission denied
+	at java.base/java.io.UnixFileSystem.createFileExclusively(Native Method)
+	at java.base/java.io.File.createNewFile(File.java:1043)
+	at xsbt.boot.Locks$.apply0(Locks.scala:41)
+	... 14 more
+[error] [launcher] error during sbt launcher: java.io.IOException: failed to create lock file /root/.sbt/boot/sbt.boot.lock
+GENERATOR_RC: 1

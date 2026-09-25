@@ -1,0 +1,37 @@
+RUN baremetal-only python3 scripts/check_baremetal_only.py --check
+RESULT baremetal-only 1
+RUN docs-git python3 -B scripts/docs_check.py
+RESULT docs-git 0
+RUN docs-no-git env GIT_DIR=/dev/null python3 -B scripts/docs_check.py
+RESULT docs-no-git 0
+RUN em-dash python3 scripts/check_em_dash.py --base a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4
+RESULT em-dash 2
+RUN doc-style python3 scripts/check_doc_style.py
+RESULT doc-style 0
+RUN toc python3 scripts/gen_toc.py --check
+RESULT toc 2
+RUN anchors python3 scripts/gen_toc.py --verify-anchors
+RESULT anchors 2
+RUN doc-paths python3 scripts/check_doc_paths.py
+RESULT doc-paths 0
+RUN matrix python3 docs/traceability/gen_module_matrix.py --check
+RESULT matrix 0
+RUN xvlog python3 scripts/xvlog_gate.py --check
+RESULT xvlog 0
+RUN sv-idiom python3 scripts/check_sv_idiom.py
+RESULT sv-idiom 0
+RUN cpp-idiom python3 scripts/check_cpp_idiom.py
+RESULT cpp-idiom 0
+RUN py-idiom python3 scripts/check_py_idiom.py
+RESULT py-idiom 0
+RUN port-contracts python3 scripts/check_port_contracts.py
+RESULT port-contracts 0
+RUN naming python3 scripts/measure_naming.py --check
+RESULT naming 0
+RUN test-evidence python3 scripts/measure_test_evidence.py --check
+RESULT test-evidence 0
+RUN diff git diff --check
+RESULT diff 0
+RUN diff-staged git diff --cached --check
+RESULT diff-staged 0
+FAILED: baremetal-only, em-dash, toc, anchors

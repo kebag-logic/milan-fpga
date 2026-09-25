@@ -1,0 +1,3 @@
+COMMAND python3 scripts/check_baremetal_only.py --check
+  - tb/verilator/nvm_capture_cpu/README.md:13: [T] retired-stack term 'linux': "selects `riscv32-linux`; put the SDK's `bin` directory first on `PATH`." (#259: the checkout is bare-metal only; history lives in git)
+baremetal-only: FAIL (1 finding(s) across 869 scanned file(s))

@@ -1,0 +1,4 @@
+RUN nvm-backend make -C tb/verilator/nvm_backend
+RESULT nvm-backend 0
+RUN nvm-hosttest python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+RESULT nvm-hosttest 0

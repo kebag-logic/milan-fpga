@@ -1,0 +1,32 @@
+Board CPU setup: cacheless RV32I, one hart, DMA, CPU clock CDC, no L2
+Data tree: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog
+Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=True, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+PRODUCT_CPU_METADATA_READY
+XLEN: 32 ISA: {'', 'i', 'zifencei', 'zicsr'}
+cwd: $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv
+command: sbt 'runMain vexiiriscv.soc.litex.PythonArgsGen  --with-isa=,i,zifencei,zicsr --xlen=32 --cpu-count=1 --with-cpu-clk --with-dma --l2-bytes=0 --l2-ways=4 --imsic-interrupt-number=0 --python-file=$VALIDATION_STORAGE/559-a307-cpu-preflight/product_cpu_metadata.py'
+[info] welcome to sbt 1.10.0 (Arch Linux Java 17.0.20.1)
+[info] loading settings for project vexiiriscv-build from plugins.sbt ...
+[info] loading project definition from $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/project
+[info] loading settings for project ret from build.sbt ...
+[info] loading settings for project spinalhdl-build from plugin.sbt ...
+[info] loading project definition from $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/project
+[info] loading settings for project all from build.sbt ...
+[info] set current project to VexiiRiscv (in build file:$WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/)
+[info] running (fork) vexiiriscv.soc.litex.PythonArgsGen --with-isa=,i,zifencei,zicsr --xlen=32 --cpu-count=1 --with-cpu-clk --with-dma --l2-bytes=0 --l2-ways=4 --imsic-interrupt-number=0 --python-file=$VALIDATION_STORAGE/559-a307-cpu-preflight/product_cpu_metadata.py
+[success] Total time: 3 s, completed Sep 25, 2026, 9:46:45 AM
+GENERATOR_RC: 0
+
+VexiiRiscv.xlen = 32
+VexiiRiscv.isa_map = {'zicsr', 'i', '', 'zifencei'}
+VexiiRiscv.with_lsu_software_prefetch = 0
+VexiiRiscv.with_lsu_hardware_prefetch = "none"
+VexiiRiscv.internal_bus_width = 32
+VexiiRiscv.pbus_address_width = 32
+VexiiRiscv.pbus_data_width = 32
+VexiiRiscv.mbus_address_width = 32
+VexiiRiscv.mbus_id_width = 8
+VexiiRiscv.dma_address_width = 32
+VexiiRiscv.dma_data_width = 32
+VexiiRiscv.dma_id_width = 4
+

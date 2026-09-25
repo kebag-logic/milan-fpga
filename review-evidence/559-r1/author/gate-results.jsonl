@@ -1,0 +1,40 @@
+{"gate": "nvm-backend", "command": ["make", "-C", "tb/verilator/nvm_backend"], "rc": 0}
+{"gate": "nvm-hosttest", "command": ["python3", "sw/firmware/nvm_hosttest/test_nvm_firmware.py", "--self-test"], "rc": 0}
+{"gate": "baremetal-only", "command": ["python3", "scripts/check_baremetal_only.py", "--check"], "rc": 1}
+{"gate": "docs-git", "command": ["python3", "-B", "scripts/docs_check.py"], "rc": 0}
+{"gate": "docs-no-git", "command": ["env", "GIT_DIR=/dev/null", "python3", "-B", "scripts/docs_check.py"], "rc": 0}
+{"gate": "em-dash", "command": ["python3", "scripts/check_em_dash.py", "--base", "a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4"], "rc": 2}
+{"gate": "doc-style", "command": ["python3", "scripts/check_doc_style.py"], "rc": 0}
+{"gate": "toc", "command": ["python3", "scripts/gen_toc.py", "--check"], "rc": 2}
+{"gate": "anchors", "command": ["python3", "scripts/gen_toc.py", "--verify-anchors"], "rc": 2}
+{"gate": "doc-paths", "command": ["python3", "scripts/check_doc_paths.py"], "rc": 0}
+{"gate": "matrix", "command": ["python3", "docs/traceability/gen_module_matrix.py", "--check"], "rc": 0}
+{"gate": "xvlog", "command": ["python3", "scripts/xvlog_gate.py", "--check"], "rc": 0}
+{"gate": "sv-idiom", "command": ["python3", "scripts/check_sv_idiom.py"], "rc": 0}
+{"gate": "cpp-idiom", "command": ["python3", "scripts/check_cpp_idiom.py"], "rc": 0}
+{"gate": "py-idiom", "command": ["python3", "scripts/check_py_idiom.py"], "rc": 0}
+{"gate": "port-contracts", "command": ["python3", "scripts/check_port_contracts.py"], "rc": 0}
+{"gate": "naming", "command": ["python3", "scripts/measure_naming.py", "--check"], "rc": 0}
+{"gate": "test-evidence", "command": ["python3", "scripts/measure_test_evidence.py", "--check"], "rc": 0}
+{"gate": "diff", "command": ["git", "diff", "--check"], "rc": 0}
+{"gate": "diff-staged", "command": ["git", "diff", "--cached", "--check"], "rc": 0}
+{"gate": "baremetal-only", "command": ["python3", "scripts/check_baremetal_only.py", "--check"], "rc": 0}
+{"gate": "docs-git", "command": ["python3", "-B", "scripts/docs_check.py"], "rc": 0}
+{"gate": "docs-no-git", "command": ["env", "GIT_DIR=/dev/null", "python3", "-B", "scripts/docs_check.py"], "rc": 0}
+{"gate": "em-dash", "command": ["python3", "scripts/check_em_dash.py", "--base", "a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4"], "rc": 0}
+{"gate": "doc-style", "command": ["python3", "scripts/check_doc_style.py"], "rc": 0}
+{"gate": "toc", "command": ["python3", "scripts/gen_toc.py", "--check"], "rc": 0}
+{"gate": "anchors", "command": ["python3", "scripts/gen_toc.py", "--verify-anchors"], "rc": 0}
+{"gate": "doc-paths", "command": ["python3", "scripts/check_doc_paths.py"], "rc": 0}
+{"gate": "diff", "command": ["git", "diff", "--check"], "rc": 0}
+{"gate": "diff-staged", "command": ["git", "diff", "--cached", "--check"], "rc": 0}
+{"gate": "baremetal-only", "command": ["python3", "scripts/check_baremetal_only.py", "--check"], "rc": 0}
+{"gate": "docs-git", "command": ["python3", "-B", "scripts/docs_check.py"], "rc": 0}
+{"gate": "docs-no-git", "command": ["env", "GIT_DIR=/dev/null", "python3", "-B", "scripts/docs_check.py"], "rc": 0}
+{"gate": "em-dash", "command": ["python3", "scripts/check_em_dash.py", "--base", "a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4"], "rc": 0}
+{"gate": "doc-style", "command": ["python3", "scripts/check_doc_style.py"], "rc": 0}
+{"gate": "toc", "command": ["python3", "scripts/gen_toc.py", "--check"], "rc": 0}
+{"gate": "anchors", "command": ["python3", "scripts/gen_toc.py", "--verify-anchors"], "rc": 0}
+{"gate": "doc-paths", "command": ["python3", "scripts/check_doc_paths.py"], "rc": 0}
+{"gate": "diff", "command": ["git", "diff", "--check"], "rc": 0}
+{"gate": "diff-staged", "command": ["git", "diff", "--cached", "--check"], "rc": 0}

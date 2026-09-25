@@ -1,0 +1,11 @@
+COMMAND python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+endstation_arty_4x4          records= 84 image= 4520 B OK
+endstation_arty_8ch          records=116 image= 7080 B OK
+endstation_arty_current      records= 41 image= 2444 B OK
+endstation_ax7101_1x1_tdm8   records= 53 image= 3264 B OK
+endstation_ax7101_8x8        records=156 image=12680 B OK
+  self-test OK: no_ascending_check     caught by 1 finding(s); first: endstation_arty_4x4: parity: duplicate record id: firmware VD_OK, klj2_decode VD_REC
+  self-test OK: no_heartbeat_in_wait   caught by 1 finding(s); first: endstation_arty_4x4: the heartbeat was not serviced through a 3 s erase: {'hb': 2, 'acks': 1, 'starts': 1, 'erases': 1, 'programs': 18, 'max_hb_gap_ms': 3016, 'pagewrap': 0, 'backed': 1, 'dirty': 0, 'stale': 0, 'valid': 1, 'verdict': 0, 'blank': 1, 'fail': 0, 'done': 1, 'seq': 1, 'base_ok': 1, 'img_len': 4476, 'losses': 1, 'arms': 1, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 1, 'now_ms': 3036}
+  self-test OK: verify_skipped         caught by 3 finding(s); first: endstation_arty_4x4: a failed verify was not published as VD_VERIFY unacknowledged: {'hb': 37, 'acks': 1, 'starts': 1, 'erases': 1, 'programs': 18, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 0, 'stale': 0, 'valid': 1, 'verdict': 0, 'blank': 1, 'fail': 0, 'done': 1, 'seq': 1, 'base_ok': 1, 'img_len': 4476, 'losses': 0, 'arms': 1, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 1, 'now_ms': 9056}
+  self-test OK: erased_header_only     caught by 1 finding(s); first: endstation_arty_4x4: parity: erased header, live payload: firmware VD_OK, klj2_decode VD_REC
+saved-state writer gate: OK across 5 shape(s), and every planted defect reddened

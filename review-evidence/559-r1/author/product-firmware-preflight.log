@@ -1,0 +1,789 @@
+Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=True, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-09-25 10:02:47)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : SIM.
+INFO:SoC:System clock: 100.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+WARNING:SoC:SoCCore: unknown argument cpu_count ignored.
+INFO:SoC:Controller ctrl added.
+INFO:SoC:CPU vexiiriscv added.
+INFO:SoC:CPU vexiiriscv adding IO Region 0 at 0x80000000 (Size: 0x80000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoC:CPU vexiiriscv overriding sram mapping from 0x01000000 to 0x10000000.
+INFO:SoC:CPU vexiiriscv setting reset address to 0x00000000.
+INFO:SoC:CPU vexiiriscv adding Bus Master(s).
+INFO:SoCBusHandler:cpu_bus0 Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:cpu_bus0 added as Bus Master.
+INFO:SoC:CPU vexiiriscv adding Interrupt(s).
+INFO:SoCIRQHandler:noirq IRQ added at Location 0.
+INFO:SoC:CPU vexiiriscv adding DMA Bus.
+INFO:SoCDMABusHandler:Creating Bus Handler...
+INFO:SoCDMABusHandler:32-bit axi Bus, 4.0GiB Address Space.
+INFO:SoCDMABusHandler:Adding reserved Bus Regions...
+INFO:SoCDMABusHandler:Bus Handler created.
+INFO:SoCDMABusHandler:dma Region added at Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False.
+INFO:SoCDMABusHandler:dma added as Bus Slave.
+INFO:SoC:CPU vexiiriscv adding SoC components.
+INFO:SoCBusHandler:plic Region added at Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:clint Region added at Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:rom Region added at Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:rom added as Bus Slave.
+INFO:SoC:RAM rom added Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram Region added at Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram added as Bus Slave.
+INFO:SoC:RAM sram added Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCIRQHandler:uart IRQ allocated at Location 1.
+INFO:SoCIRQHandler:timer0 IRQ allocated at Location 2.
+INFO:SoCBusHandler:main_ram Region added at Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:Allocating Cached Region of size 0x01000000...
+INFO:SoCBusHandler:spiflash Region allocated at Origin: 0x01000000, Size: 0x01000000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:spiflash Bus offset by 0x01000000.
+INFO:SoCBusHandler:spiflash added as Bus Slave.
+INFO:SoCBusHandler:milan_csr Region added at Origin: 0x90000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:milan_csr Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:milan_csr added as Bus Slave.
+wrote $LANES/559-capture-copy/configs/generated/ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+$LANES/559-capture-copy/configs/generated/ucode.hex: 2048 words, 80 programs
+INFO:SoCDMABusHandler:milan_desc_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_desc_mem added as Bus Master.
+INFO:SoCDMABusHandler:milan_resp_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_resp_mem added as Bus Master.
+INFO:SoCDMABusHandler:milan_nvm_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_nvm_mem added as Bus Master.
+INFO:SoCCSRHandler:ppmem CSR added at Location 31.
+[milan] no user_led pad - IDENTIFY LED not wired
+INFO:SoC:CSR Bridge csr added.
+INFO:SoCBusHandler:csr Region added at Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:csr added as Bus Slave.
+INFO:SoCCSRHandler:csr added as CSR Master.
+INFO:SoCBusHandler:Interconnect: InterconnectShared (1 <-> 5).
+INFO:SoCDMABusHandler:Interconnect: AXIInterconnectShared (3 <-> 1).
+INFO:SoCCSRHandler:ctrl CSR allocated at Location 0.
+INFO:SoCCSRHandler:identifier_mem CSR allocated at Location 1.
+INFO:SoCCSRHandler:sdram CSR allocated at Location 2.
+INFO:SoCCSRHandler:spiflash CSR allocated at Location 3.
+INFO:SoCCSRHandler:timer0 CSR allocated at Location 4.
+INFO:SoCCSRHandler:uart CSR allocated at Location 5.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Finalized SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+IO Regions: (1)
+io0                 : Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False
+Bus Regions: (8)
+rom                 : Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False
+spiflash            : Origin: 0x01000000, Size: 0x01000000, Mode:  RX, Cached:  True, Linker: False
+sram                : Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False
+main_ram            : Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False
+milan_csr           : Origin: 0x90000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+csr                 : Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+clint               : Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True
+plic                : Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True
+Bus Masters: (1)
+- cpu_bus0          : rw
+Bus Slaves: (5)
+- rom               : r
+- sram              : rw
+- spiflash          : r
+- milan_csr         : rw
+- csr               : rw
+INFO:SoC:32-bit axi Bus, 4.0GiB Address Space.
+Bus Regions: (1)
+dma                 : Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False
+Bus Masters: (3)
+- milan_desc_mem    : rw
+- milan_resp_mem    : rw
+- milan_nvm_mem     : rw
+Bus Slaves: (1)
+- dma               : rw
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+CSR Locations: (7)
+- ctrl           : 0
+- identifier_mem : 1
+- sdram          : 2
+- spiflash       : 3
+- timer0         : 4
+- uart           : 5
+- ppmem          : 31
+INFO:SoC:IRQ Handler (up to 32 Locations).
+IRQ Locations: (3)
+- noirq  : 0
+- uart   : 1
+- timer0 : 2
+INFO:SoC:--------------------------------------------------------------------------------
+VexiiRiscv netlist : VexiiRiscvLitex_076ead3749eecf96125ebb1f55f674aa
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:SoC Hierarchy:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:
+ProductSimulation
+├── bus (SoCBusHandler)
+│    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    └── fsm (FSM)
+│    ├── offset_0 (Offset) [Gen]
+│    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    └── fsm (FSM)
+│    └── _interconnect (InterconnectShared)
+│         ├── arbiter (Arbiter)
+│         │    └── rr (RoundRobin)
+│         ├── decoder (Decoder)
+│         └── timeout (Timeout)
+│              └── waittimer_0 (WaitTimer) [Gen]
+├── csr (SoCCSRHandler)
+├── irq (SoCIRQHandler)
+├── ctrl (SoCController)
+├── cpu (VexiiRiscv)
+│    ├── soc_bus (SoCBusHandler)
+│    │    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    ├── offset_0 (Offset) [Gen]
+│    │    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── _interconnect (InterconnectShared)
+│    │         ├── arbiter (Arbiter)
+│    │         │    └── rr (RoundRobin)
+│    │         ├── decoder (Decoder)
+│    │         └── timeout (Timeout)
+│    │              └── waittimer_0 (WaitTimer) [Gen]
+│    ├── memory_port_cdc0 (AXIClockDomainCrossing)
+│    │    ├── clockdomaincrossing_0 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_1 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_2 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_3 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    └── clockdomaincrossing_4 (ClockDomainCrossing) [Gen]
+│    │         └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    └── [BB:VexiiRiscvLitex_076ead3749eecf96125ebb1f55f674aa]
+├── dma_bus (SoCBusHandler)
+│    ├── converter_0 (Converter) [Gen]
+│    │    └── downconverter_0 (DownConverter) [Gen]
+│    ├── wishbone2axi_0 (Wishbone2AXI) [Gen]
+│    │    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── axilite2axi_0 (AXILite2AXI) [Gen]
+│    ├── converter_1 (Converter) [Gen]
+│    │    └── downconverter_0 (DownConverter) [Gen]
+│    ├── wishbone2axi_1 (Wishbone2AXI) [Gen]
+│    │    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── axilite2axi_0 (AXILite2AXI) [Gen]
+│    ├── converter_2 (Converter) [Gen]
+│    │    └── downconverter_0 (DownConverter) [Gen]
+│    ├── wishbone2axi_2 (Wishbone2AXI) [Gen]
+│    │    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── axilite2axi_0 (AXILite2AXI) [Gen]
+│    └── _interconnect (AXIInterconnectShared)
+│         ├── arbiter (AXIArbiter)
+│         │    ├── rr_write (RoundRobin)
+│         │    ├── rr_read (RoundRobin)
+│         │    ├── wr_lock (_AXIRequestCounter)
+│         │    └── rd_lock (_AXIRequestCounter)
+│         ├── decoder (AXIDecoder)
+│         │    ├── _axirequestcounter_0 (_AXIRequestCounter) [Gen]
+│         │    └── _axirequestcounter_1 (_AXIRequestCounter) [Gen]
+│         └── timeout (AXITimeout)
+│              ├── waittimer_0 (WaitTimer) [Gen]
+│              ├── waittimer_1 (WaitTimer) [Gen]
+│              ├── wr_fsm (FSM)
+│              └── rd_fsm (FSM)
+├── rom (SRAM)
+├── sram (SRAM)
+├── identifier (Identifier)
+├── uart (UART)
+│    ├── ev (EventManager)
+│    │    ├── eventsourcelevel_0 (EventSourceLevel) [Gen]
+│    │    └── eventsourcelevel_1 (EventSourceLevel) [Gen]
+│    ├── phy (RS232PHYModel)
+│    ├── tx_fifo (SyncFIFO)
+│    │    └── fifo (SyncFIFOBuffered)
+│    │         └── fifo (SyncFIFO)
+│    └── rx_fifo (SyncFIFO)
+│         └── fifo (SyncFIFOBuffered)
+│              └── fifo (SyncFIFO)
+├── timer0 (Timer)
+│    └── ev (EventManager)
+│         └── eventsourceprocess_0 (EventSourceProcess) [Gen]
+├── crg (SimClocks)
+├── ddrphy (SDRAMPHYModel)
+│    ├── dfiphasemodel_0 (DFIPhaseModel) [Gen]
+│    ├── dfiphasemodel_1 (DFIPhaseModel) [Gen]
+│    ├── dfiphasemodel_2 (DFIPhaseModel) [Gen]
+│    ├── dfiphasemodel_3 (DFIPhaseModel) [Gen]
+│    ├── bankmodel_0 (BankModel) [Gen]
+│    ├── bankmodel_1 (BankModel) [Gen]
+│    ├── bankmodel_2 (BankModel) [Gen]
+│    ├── bankmodel_3 (BankModel) [Gen]
+│    ├── bankmodel_4 (BankModel) [Gen]
+│    ├── bankmodel_5 (BankModel) [Gen]
+│    ├── bankmodel_6 (BankModel) [Gen]
+│    └── bankmodel_7 (BankModel) [Gen]
+├── sdram (LiteDRAMCore)
+│    ├── dfii (DFIInjector)
+│    │    ├── pi0 (PhaseInjector)
+│    │    ├── pi1 (PhaseInjector)
+│    │    ├── pi2 (PhaseInjector)
+│    │    └── pi3 (PhaseInjector)
+│    ├── controller (LiteDRAMController)
+│    │    ├── refresher (Refresher)
+│    │    │    ├── timer (RefreshTimer)
+│    │    │    ├── postponer (RefreshPostponer)
+│    │    │    ├── sequencer (RefreshSequencer)
+│    │    │    │    └── refreshexecuter_0 (RefreshExecuter) [Gen]
+│    │    │    ├── zqcs_timer (RefreshTimer)
+│    │    │    ├── zqs_executer (ZQCSExecuter)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_0 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_1 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_2 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_3 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_4 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_5 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_6 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_7 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    └── multiplexer (Multiplexer)
+│    │         ├── choose_cmd (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── choose_req (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── _steerer_0 (_Steerer) [Gen]
+│    │         ├── trrdcon (tXXDController)
+│    │         ├── tfawcon (tFAWController)
+│    │         ├── tccdcon (tXXDController)
+│    │         ├── twtrcon (tXXDController)
+│    │         └── fsm (FSM)
+│    └── crossbar (LiteDRAMCrossbar)
+│         ├── roundrobin_0 (RoundRobin) [Gen]
+│         ├── roundrobin_1 (RoundRobin) [Gen]
+│         ├── roundrobin_2 (RoundRobin) [Gen]
+│         ├── roundrobin_3 (RoundRobin) [Gen]
+│         ├── roundrobin_4 (RoundRobin) [Gen]
+│         ├── roundrobin_5 (RoundRobin) [Gen]
+│         ├── roundrobin_6 (RoundRobin) [Gen]
+│         └── roundrobin_7 (RoundRobin) [Gen]
+├── litedramaxi2native_0 (LiteDRAMAXI2Native) [Gen]
+│    ├── write (LiteDRAMAXI2NativeW)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── aw_burst2beat (AXIBurst2Beat)
+│    │    ├── w_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    └── fifo (SyncFIFO)
+│    │    └── syncfifo_1 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    ├── read (LiteDRAMAXI2NativeR)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── ar_burst2beat (AXIBurst2Beat)
+│    │    ├── r_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    └── syncfifo_0 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    └── roundrobin_0 (RoundRobin) [Gen]
+├── spiflash_phy (LiteSPIPHYModel)
+│    └── spiflash_phy (LiteSPIPHYModelCore)
+│         └── fsm (FSM)
+├── spiflash (LiteSPI)
+│    ├── crossbar (LiteSPICrossbar)
+│    │    ├── rr (RoundRobin)
+│    │    ├── tx_mux (Multiplexer)
+│    │    └── rx_demux (Demultiplexer)
+│    ├── mmap (LiteSPIMMAP)
+│    │    ├── burst_timeout (WaitTimer)
+│    │    └── fsm (FSM)
+│    ├── master (LiteSPIMaster)
+│    │    ├── tx_fifo (SyncFIFO)
+│    │    │    └── buffer_0 (Buffer) [Gen]
+│    │    │         ├── pipe_valid (PipeValid)
+│    │    │         └── pipeline (Pipeline)
+│    │    └── rx_fifo (SyncFIFO)
+│    │         └── buffer_0 (Buffer) [Gen]
+│    │              ├── pipe_valid (PipeValid)
+│    │              └── pipeline (Pipeline)
+│    └── phy (LiteSPIPHYModel)
+│         └── spiflash_phy (LiteSPIPHYModelCore)
+│              └── fsm (FSM)
+├── milan (MilanNIC)
+│    ├── milan_axil_cdc (AXILiteClockDomainCrossing)
+│    │    ├── clockdomaincrossing_0 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_1 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_2 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_3 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    └── clockdomaincrossing_4 (ClockDomainCrossing) [Gen]
+│    │         └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── descmem_req_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── descmem_rsp_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── respmem_req_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── respmem_rsp_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── respmem_wr_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── respmem_wd_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── nvmmem_req_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── nvmmem_rsp_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── nvmmem_wr_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── nvmmem_wd_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    └── [BB:milan_datapath]
+├── descmem_fsm (FSM)
+├── respmem_fsm (FSM)
+├── nvmmem_fsm (FSM)
+├── ppmem (_PPMemDiag)
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    ├── csrbank_0 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── sram_0 (SRAM) [Gen]
+│    ├── csrbank_1 (CSRBank) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    ├── csrstatus_3 (CSRStatus) [Gen]
+│    │    └── csrstatus_4 (CSRStatus) [Gen]
+│    ├── csrbank_2 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstorage_4 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstorage_5 (CSRStorage) [Gen]
+│    │    ├── csrstorage_6 (CSRStorage) [Gen]
+│    │    ├── csrstorage_7 (CSRStorage) [Gen]
+│    │    ├── csrstorage_8 (CSRStorage) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstorage_9 (CSRStorage) [Gen]
+│    │    ├── csrstorage_10 (CSRStorage) [Gen]
+│    │    ├── csrstorage_11 (CSRStorage) [Gen]
+│    │    ├── csrstorage_12 (CSRStorage) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    ├── csrstorage_13 (CSRStorage) [Gen]
+│    │    ├── csrstorage_14 (CSRStorage) [Gen]
+│    │    ├── csrstorage_15 (CSRStorage) [Gen]
+│    │    ├── csrstorage_16 (CSRStorage) [Gen]
+│    │    └── csrstatus_3 (CSRStatus) [Gen]
+│    ├── csrbank_3 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    ├── csrbank_4 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_5 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+make: Entering directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libc'
+cp $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libc/picolibc-minimal.h $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libc/picolibc.h
+rm -f -r $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/include/../picolibc_src
+printf "#define FORMAT_DEFAULT_%s\n" "INTEGER" >> $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libc/picolibc.h
+cp -a $WORKSPACE_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/include/../picolibc_src
+printf "#define __IO_DEFAULT '%s'\n" "i" >> $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libc/picolibc.h
+if [ -d "$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libc/riscv" ]; then \
+	cp $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libc/riscv/* $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/include/../picolibc_src/libc/machine/riscv/ ;\
+fi
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_errno_errno.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_ctype_ctype_.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_string_strchr.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_string_strncmp.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_string_strncpy.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_string_strnlen.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_stdio_fputc.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_stdio_fgetc.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_stdio_fputs.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_stdio_printf.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_stdio_puts.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_stdio_strtoull.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_stdio_strtoul.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_stdlib_lldiv.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_machine_riscv_memcpy-asm.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_machine_riscv_memmove.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_machine_riscv_memset.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_machine_riscv_strcmp.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_machine_riscv_strcpy.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_machine_riscv_strlen.o
+ CC       minimal__data_milan_tmp_559-a307-product-preflight_endstation_ax7101_8x8_software_include_.._picolibc_src_libc_stdio_vfiprintf.o
+ AR       __libc_minimal.a
+ CC       _libc_minimal.a
+ AR       _libc_minimal.a
+cp __libc_minimal.a _libc_minimal.a
+ CC       libc-minimal.a
+ AR       libc-minimal.a
+cp _libc_minimal.a libc-minimal.a
+cp libc-minimal.a libc.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libc'
+make: Entering directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libcompiler_rt'
+ CC       umodsi3.o
+ CC       udivsi3.o
+ CC       divsi3.o
+ CC       comparesf2.o
+ CC       modsi3.o
+ CC       comparedf2.o
+ CC       negsf2.o
+ CC       negdf2.o
+ CC       addsf3.o
+ CC       subsf3.o
+ CC       mulsf3.o
+ CC       divsf3.o
+ CC       extendsfdf2.o
+ CC       truncdfsf2.o
+ CC       lshrdi3.o
+ CC       muldi3.o
+ CC       ashldi3.o
+ CC       ashrdi3.o
+ CC       divdi3.o
+ CC       udivmoddi4.o
+ CC       floatsisf.o
+ CC       fixdfdi.o
+ CC       floatunsisf.o
+ CC       fixsfsi.o
+ CC       fixunsdfdi.o
+ CC       adddf3.o
+ CC       fixunssfsi.o
+$WORKSPACE_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/comparesf2.c:85:1: warning: function declaration isn’t a prototype [-Wstrict-prototypes]
+   85 | FNALIAS(__cmpsf2, __lesf2);
+      | ^~~~~~~
+ CC       muldf3.o
+ CC       divdf3.o
+$WORKSPACE_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/comparedf2.c:85:1: warning: function declaration isn’t a prototype [-Wstrict-prototypes]
+   85 | FNALIAS(__cmpdf2, __ledf2);
+      | ^~~~~~~
+ CC       subdf3.o
+ CC       floatsidf.o
+ CC       floatunsidf.o
+ CC       floatdidf.o
+ CC       fixdfsi.o
+ CC       fixunsdfsi.o
+ CC       clzsi2.o
+ CC       ctzsi2.o
+ CC       clzdi2.o
+ CC       udivdi3.o
+ CC       umoddi3.o
+ CC       ctzdi2.o
+ CC       moddi3.o
+ CC       ucmpdi2.o
+ CC       mulsi3.o
+ AR       libcompiler_rt.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libcompiler_rt'
+make: Entering directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libbase'
+ CC       crc16.o
+ CC       console.o
+ CC       crc32.o
+ CC       format.o
+ CC       system.o
+ CC       memtest.o
+ CC       progress.o
+ CC       uart.o
+ CC       startup.o
+ CC       spiflash.o
+ CC       i2c.o
+ CC       isr.o
+ CC       hyperram.o
+ AR       libbase.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libbase'
+make: Entering directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libfatfs'
+ CC       ffunicode.o
+ CC       ff.o
+ AR       libfatfs.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libfatfs'
+make: Entering directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/liblitespi'
+ CC       spiflash.o
+ CC       spiram.o
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c: In function ‘spiflash_erase_range’:
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c:295:48: warning: format ‘%lx’ expects argument of type ‘long unsigned int’, but argument 2 has type ‘unsigned int’ [-Wformat=]
+  295 |                 printf("Erase SPI Flash @0x%08lx", ((uint32_t)addr+i));
+      |                                            ~~~~^   ~~~~~~~~~~~~~~~~~~
+      |                                                |                  |
+      |                                                long unsigned int  unsigned int
+      |                                            %08x
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c:312:63: warning: format ‘%lx’ expects argument of type ‘long unsigned int’, but argument 2 has type ‘uint32_t’ {aka ‘unsigned int’} [-Wformat=]
+  312 |                                 printf("Error: location 0x%08lx not erased (%0x2x)\n", addr+i+j, *peek);
+      |                                                           ~~~~^                        ~~~~~~~~
+      |                                                               |                              |
+      |                                                               long unsigned int              uint32_t {aka unsigned int}
+      |                                                           %08x
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c: In function ‘spiflash_write_stream’:
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c:357:71: warning: format ‘%lx’ expects argument of type ‘long unsigned int’, but argument 2 has type ‘unsigned int’ [-Wformat=]
+  357 |                                 printf("Error: verify failed at 0x%08lx (0x%02x should be 0x%02x)\n", (uint32_t)peek, *peek, stream[offset+j]);
+      |                                                                   ~~~~^                               ~~~~~~~~~~~~~~
+      |                                                                       |                               |
+      |                                                                       long unsigned int               unsigned int
+      |                                                                   %08x
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c: At top level:
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c:118:13: warning: ‘spiflash_master_write’ defined but not used [-Wunused-function]
+  118 | static void spiflash_master_write(uint32_t val, size_t len, size_t width, uint32_t mask)
+      |             ^~~~~~~~~~~~~~~~~~~~~
+ AR       liblitespi.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/liblitespi'
+make: Entering directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/liblitedram'
+ CC       bist.o
+ CC       sdram.o
+ CC       sdram_dbg.o
+ CC       utils.o
+ CC       sdram_spd.o
+ CC       accessors.o
+ AR       liblitedram.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/liblitedram'
+make: Entering directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libliteeth'
+ CC       udp.o
+ CC       mdio.o
+ CC       tftp.o
+ CC       dhcp.o
+ AR       libliteeth.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libliteeth'
+make: Entering directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/liblitesdcard'
+ CC       sdcard.o
+ CC       spisdcard.o
+ AR       liblitesdcard.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/liblitesdcard'
+make: Entering directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/liblitesata'
+ CC       sata.o
+ AR       liblitesata.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/liblitesata'
+make: Entering directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libmilan_baremetal'
+ CC       milan_baremetal.o
+ AR       libmilan_baremetal.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/libmilan_baremetal'
+make: Entering directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/bios'
+ CC       crt0.o
+ CC       boot-helper.o
+ CC       boot.o
+ CC       cmd_bios.o
+ CC       helpers.o
+ CC       cmd_mem.o
+ CC       cmd_boot.o
+ CC       cmd_i2c.o
+ CC       cmd_spiflash.o
+ CC       cmd_litedram.o
+ CC       cmd_liteeth.o
+ CC       cmd_litesdcard.o
+ CC       cmd_litesata.o
+ CC       sim_debug.o
+ CC       main.o
+ CC       complete.o
+ CC       readline.o
+ CC       bios.elf
+$VALIDATION_STORAGE/504-manager-r1/sdk-install/bin/../lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/../../../../riscv32-buildroot-linux-gnu/bin/ld: warning: bios.elf has a LOAD segment with RWX permissions
+chmod -x bios.elf
+ OBJCOPY  bios.bin
+chmod -x bios.bin
+python3 -m litex.soc.software.crcfbigen bios.bin --little
+python3 -m litex.soc.software.memusage  bios.elf $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/bios/../include/generated/regions.ld riscv32-linux
+
+ROM usage: 47.82KiB 	(37.36%)
+SRAM usage: 2.47KiB 	(30.86%)
+  .data: 0.41KiB
+  .bss: 2.05KiB
+  stack margin: 5.53KiB
+
+make: Leaving directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/software/bios'
+INFO:SoC:Initializing ROM rom with contents (Size: 0xbf4c).
+INFO:SoC:Auto-Resizing ROM rom from 0x20000 to 0xbf4c.
+PRODUCT_LOGICAL_SOC_ELABORATED

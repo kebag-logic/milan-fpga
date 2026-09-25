@@ -1,0 +1,688 @@
+command: verilator --cc --exe --build -j 8 -Wno-fatal -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -I$LANES/559-capture-copy/tb/common' -I$VALIDATION_STORAGE/559-a307-product-preflight/generated/endstation_ax7101_8x8 -I$VALIDATION_STORAGE/559-a307-product-preflight/generated/endstation_ax7101_8x8/gen -I$LANES/559-capture-copy/hdl/common -I$LANES/559-capture-copy/hdl/ieee8021q/ts -I$LANES/559-capture-copy/hdl/ieee8021as/ptp_timestamp -I$LANES/559-capture-copy/hdl/ieee17221/adp -I$LANES/559-capture-copy/hdl/common/csr -I$LANES/559-capture-copy/hdl/common/eth_event_counter -I$LANES/559-capture-copy/hdl/ieee1722/avtp $LANES/559-capture-copy/protocol-processor/hdl/acmp/pp_acmp_pkg.sv $LANES/559-capture-copy/protocol-processor/hdl/adp/pp_adp_pkg.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/ucpu_pkg.sv $LANES/559-capture-copy/protocol-processor/hdl/common/pp_pkg.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/srp_pkg.sv $LANES/559-capture-copy/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv $LANES/559-capture-copy/protocol-processor/hdl/acmp/KL_acmp_talker.sv $LANES/559-capture-copy/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv $LANES/559-capture-copy/protocol-processor/hdl/adp/KL_adp_engine.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_engine.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_notify.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv $LANES/559-capture-copy/protocol-processor/hdl/common/KL_pp_prng.sv $LANES/559-capture-copy/protocol-processor/hdl/common/KL_pp_timer_service.sv $LANES/559-capture-copy/protocol-processor/hdl/maap/KL_pp_maap.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_originator.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_side_port.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_admission.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_decoder.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_domain.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_encoder.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_listener_fsm.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_talker_fsm.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_top.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_vlan.sv $LANES/559-capture-copy/protocol-processor/hdl/top/KL_mrp_strip.sv $LANES/559-capture-copy/protocol-processor/hdl/top/protocol_processor_top.sv $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv $LANES/559-capture-copy/hdl/milan/KL_pp_maap_shim.sv $LANES/559-capture-copy/hdl/milan/KL_nvm_backend.sv $LANES/559-capture-copy/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv $LANES/559-capture-copy/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv $LANES/559-capture-copy/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv $LANES/559-capture-copy/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv $LANES/559-capture-copy/gptp-processor/hdl/common/KL_gptp_timer.sv $LANES/559-capture-copy/gptp-processor/hdl/top/KL_gptp_engine.sv $LANES/559-capture-copy/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv $LANES/559-capture-copy/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv $LANES/559-capture-copy/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv $LANES/559-capture-copy/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv $LANES/559-capture-copy/hdl/common/ethernet_packet_pkg.sv $LANES/559-capture-copy/hdl/common/axi_stream_if.sv $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_fifo.v $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_arb_mux.v $LANES/559-capture-copy/third_party/verilog-axis/rtl/arbiter.v $LANES/559-capture-copy/third_party/verilog-axis/rtl/priority_encoder.v $LANES/559-capture-copy/hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv $LANES/559-capture-copy/hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv $LANES/559-capture-copy/hdl/common/cdc_pulse.sv $LANES/559-capture-copy/hdl/common/cdc_handshake.sv $LANES/559-capture-copy/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv $LANES/559-capture-copy/hdl/ieee8021q/filtering/tcam.sv $LANES/559-capture-copy/hdl/ieee8021q/filtering/rx_mac_filter.sv $LANES/559-capture-copy/hdl/common/tx_ifg_gasket.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_pcm_lpf.sv $LANES/559-capture-copy/hdl/common/KL_link_guard.sv $LANES/559-capture-copy/hdl/ieee17221/adp/adp_tx_arbiter.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/aaf_talker_i2s.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_i2s_playback.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_tone_gen.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_media_adv.sv $LANES/559-capture-copy/hdl/common/cdc_pair_fifo.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/avtp_stream_parser.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/KL_stream_table.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/KL_media_clock_restart.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_pcm_route.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_tdm_capture.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_pair_blend.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_tdm_render.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_tdm_render_master.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_render_setpoint.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_chan_map_render.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_chan_map_capture.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $LANES/559-capture-copy/hdl/ieee1722/crf/KL_crf_rx.sv $LANES/559-capture-copy/hdl/ieee1722/crf/KL_crf_tx.sv $LANES/559-capture-copy/hdl/ieee1722/maap/KL_maap.sv $LANES/559-capture-copy/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $LANES/559-capture-copy/hdl/ieee1722/crf/KL_media_nco.sv $LANES/559-capture-copy/hdl/ieee1722/crf/KL_media_grid_align.sv $LANES/559-capture-copy/hdl/common/eth_event_counter/ethernet_events.sv $LANES/559-capture-copy/hdl/common/eth_event_counter/event_counter.sv $LANES/559-capture-copy/hdl/common/eth_event_counter/KL_mac_rmon_events.sv $LANES/559-capture-copy/hdl/common/csr/milan_csr.sv $LANES/559-capture-copy/hdl/milan/milan_datapath.sv $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_6f686b4cfdae834011c89dd93f083fa7.v $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v $MANAGEMENT/2026-09-23/559-a307/capture_sim_main.cpp
+%Warning-PINMISSING: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:631:48: Instance has missing pin: 'clk'
+  631 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
+      |                                                ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/common/axi_stream_if.sv:28:15: ... Location of port declaration
+   28 |     input bit clk,
+      |               ^~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.052
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:631:48: Instance has missing pin: 'rst_n'
+  631 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
+      |                                                ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/common/axi_stream_if.sv:29:15: ... Location of port declaration
+   29 |     input bit rst_n
+      |               ^~~~~
+%Warning-PINMISSING: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:632:48: Instance has missing pin: 'clk'
+  632 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_from_mac();
+      |                                                ^~~~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/common/axi_stream_if.sv:28:15: ... Location of port declaration
+   28 |     input bit clk,
+      |               ^~~
+%Warning-PINMISSING: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:632:48: Instance has missing pin: 'rst_n'
+  632 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_from_mac();
+      |                                                ^~~~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/common/axi_stream_if.sv:29:15: ... Location of port declaration
+   29 |     input bit rst_n
+      |               ^~~~~
+%Warning-PINMISSING: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:633:48: Instance has missing pin: 'clk'
+  633 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_fabric();
+      |                                                ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/common/axi_stream_if.sv:28:15: ... Location of port declaration
+   28 |     input bit clk,
+      |               ^~~
+%Warning-PINMISSING: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:633:48: Instance has missing pin: 'rst_n'
+  633 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_fabric();
+      |                                                ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/common/axi_stream_if.sv:29:15: ... Location of port declaration
+   29 |     input bit rst_n
+      |               ^~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'clk_tdm_i'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:452:22: ... Location of port declaration
+  452 |   input  wire        clk_tdm_i,
+      |                      ^~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'tdm_bclk_o'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:492:35: ... Location of port declaration
+  492 |   output wire                     tdm_bclk_o,      
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'tdm_fsync_o'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:493:35: ... Location of port declaration
+  493 |   output wire                     tdm_fsync_o,     
+      |                                   ^~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'tdm_mclk_o'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:508:35: ... Location of port declaration
+  508 |   output wire                     tdm_mclk_o,      
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'm_axis_mac_tx_tdata'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:518:35: ... Location of port declaration
+  518 |   output wire [TDATA_WIDTH-1:0]   m_axis_mac_tx_tdata,
+      |                                   ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'm_axis_mac_tx_tkeep'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:519:35: ... Location of port declaration
+  519 |   output wire [TDATA_WIDTH/8-1:0] m_axis_mac_tx_tkeep,
+      |                                   ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'm_axis_mac_tx_tvalid'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:520:35: ... Location of port declaration
+  520 |   output wire                     m_axis_mac_tx_tvalid,
+      |                                   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'm_axis_mac_tx_tlast'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:521:35: ... Location of port declaration
+  521 |   output wire                     m_axis_mac_tx_tlast,
+      |                                   ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 's_axis_mac_rx_tready'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:529:35: ... Location of port declaration
+  529 |   output wire                     s_axis_mac_rx_tready,
+      |                                   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mac_tx_en'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:532:22: ... Location of port declaration
+  532 |   output wire        o_mac_tx_en,
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mac_rx_en'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:533:22: ... Location of port declaration
+  533 |   output wire        o_mac_rx_en,
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mac_promisc'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:534:22: ... Location of port declaration
+  534 |   output wire        o_mac_promisc,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mac_allmulti'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:535:22: ... Location of port declaration
+  535 |   output wire        o_mac_allmulti,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mac_is_1g'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:536:22: ... Location of port declaration
+  536 |   output wire        o_mac_is_1g,
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mac_ifg'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:537:22: ... Location of port declaration
+  537 |   output wire [7:0]  o_mac_ifg,
+      |                      ^~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mac_addr'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:538:22: ... Location of port declaration
+  538 |   output wire [47:0] o_mac_addr,
+      |                      ^~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mc_hash'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:539:22: ... Location of port declaration
+  539 |   output wire [63:0] o_mc_hash,
+      |                      ^~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_phy_reset_n'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:540:22: ... Location of port declaration
+  540 |   output wire        o_phy_reset_n,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mac_reinit'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:545:22: ... Location of port declaration
+  545 |   output wire        o_mac_reinit,      
+      |                      ^~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_eth_rst'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:546:22: ... Location of port declaration
+  546 |   output wire        o_eth_rst,         
+      |                      ^~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_eth_guard'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:547:22: ... Location of port declaration
+  547 |   output wire        o_eth_guard,       
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mmcm_drp_addr'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:610:22: ... Location of port declaration
+  610 |   output wire [6:0]  o_mmcm_drp_addr,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mmcm_drp_en'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:611:22: ... Location of port declaration
+  611 |   output wire        o_mmcm_drp_en,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mmcm_drp_we'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:612:22: ... Location of port declaration
+  612 |   output wire        o_mmcm_drp_we,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mmcm_drp_di'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:613:22: ... Location of port declaration
+  613 |   output wire [15:0] o_mmcm_drp_di,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mmcm_rst'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:616:22: ... Location of port declaration
+  616 |   output wire        o_mmcm_rst,
+      |                      ^~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mmcm_ps_en'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:618:22: ... Location of port declaration
+  618 |   output wire        o_mmcm_ps_en,
+      |                      ^~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20522:3: Instance has missing pin: 'o_mmcm_ps_incdec'
+20522 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:619:22: ... Location of port declaration
+  619 |   output wire        o_mmcm_ps_incdec,
+      |                      ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20639:50: Instance has missing pin: 'dma_bus_awregion'
+20639 | VexiiRiscvLitex_6f686b4cfdae834011c89dd93f083fa7 VexiiRiscvLitex_6f686b4cfdae834011c89dd93f083fa7(
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_6f686b4cfdae834011c89dd93f083fa7.v:14:24: ... Location of port declaration
+   14 |   input  wire [3:0]    dma_bus_awregion,
+      |                        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:20639:50: Instance has missing pin: 'dma_bus_arregion'
+20639 | VexiiRiscvLitex_6f686b4cfdae834011c89dd93f083fa7 VexiiRiscvLitex_6f686b4cfdae834011c89dd93f083fa7(
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_6f686b4cfdae834011c89dd93f083fa7.v:35:24: ... Location of port declaration
+   35 |   input  wire [3:0]    dma_bus_arregion,
+      |                        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/acmp/pp_acmp_pkg.sv:31:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | package pp_acmp_pkg;
+      |         ^~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.052
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/adp/pp_adp_pkg.sv:23:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   23 | package pp_adp_pkg;
+      |         ^~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/ucpu_pkg.sv:32:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   32 | package ucpu_pkg;
+      |         ^~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/common/pp_pkg.sv:31:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | package pp_pkg;
+      |         ^~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/srp_pkg.sv:28:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | package srp_pkg;
+      |         ^~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:84:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   84 | module KL_acmp_nvm_shadow
+      |        ^~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/acmp/KL_acmp_talker.sv:112:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  112 | module KL_acmp_talker
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:54:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   54 | module KL_pp_acmp_listener
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/adp/KL_adp_engine.sv:62:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   62 | module KL_adp_engine
+      |        ^~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv:15:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   15 | module KL_aecp_ca_originator #(
+      |        ^~~~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv:147:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  147 | module KL_aecp_desc_store #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:75:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   75 | module KL_aecp_dyn_state #(
+      |        ^~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_engine.sv:252:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  252 | module KL_aecp_engine
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_notify.sv:149:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  149 | module KL_aecp_notify
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv:96:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   96 | module KL_aecp_resp_buf #(
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv:37:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   37 | module KL_aecp_ucpu
+      |        ^~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/common/KL_pp_prng.sv:63:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   63 | module KL_pp_prng (
+      |        ^~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/common/KL_pp_timer_service.sv:43:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   43 | module KL_pp_timer_service #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/maap/KL_pp_maap.sv:132:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  132 | module KL_pp_maap
+      |        ^~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:48:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   48 | module KL_pp_dispatch
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:224:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  224 | module KL_pp_dispatch_fifo
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv:48:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   48 | module KL_pp_event_router #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv:46:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   46 | module KL_pp_normalizer
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:63:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   63 | module KL_pp_nvm_port #(
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_originator.sv:53:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   53 | module KL_pp_originator #(
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv:22:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   22 | module KL_pp_release_merge #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv:42:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   42 | module KL_pp_rx_slots #(
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv:71:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   71 | module KL_pp_rx_validator
+      |        ^~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv:66:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   66 | module KL_pp_scoreboard #(
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_side_port.sv:42:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   42 | module KL_pp_side_port #(
+      |        ^~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv:39:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   39 | module KL_pp_trace_ring #(
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv:52:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   52 | module KL_pp_tx_arbiter
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv:42:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   42 | module KL_pp_tx_slots #(
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_admission.sv:51:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   51 | module KL_srp_admission #(
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_decoder.sv:65:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   65 | module KL_srp_decoder
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_domain.sv:38:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   38 | module KL_srp_domain #(
+      |        ^~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_encoder.sv:63:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   63 | module KL_srp_encoder #(
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_listener_fsm.sv:65:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   65 | module KL_srp_listener_fsm
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:73:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   73 | module KL_srp_talker_fsm
+      |        ^~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_top.sv:79:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   79 | module KL_srp_top
+      |        ^~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_vlan.sv:38:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   38 | module KL_srp_vlan #(
+      |        ^~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/top/KL_mrp_strip.sv:38:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   38 | module KL_mrp_strip #(
+      |        ^~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/top/protocol_processor_top.sv:68:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   68 | module protocol_processor_top
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-SELRANGE: $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                     : ... note: In instance 'sim.milan_datapath.pp_shadow.ctl_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.052
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                     : ... note: In instance 'sim.milan_datapath.pp_shadow.ctl_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-SELRANGE: $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 72:0
+                                                                                                     : ... note: In instance 'sim.milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-SELRANGE: $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 72:0
+                                                                                                     : ... note: In instance 'sim.milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-SELRANGE: $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_fifo.v:240:65: Selection index out of range: 73:73 outside 72:0
+                                                                                                     : ... note: In instance 'sim.milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  240 | wire [USER_WIDTH-1:0]  m_axis_tuser_pipe  = USER_ENABLE ? m_axis[USER_OFFSET +: USER_WIDTH] : {USER_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-USERERROR: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:857:5: milan_datapath: the fabric cannot emit what this build declares. TALKER_WIRE_CHANS_P=8 needs 4 fed pair slots per talker and the capture front-end selected by AUDIO_IF_SLOTS_P=0 supplies 1 in total. Raise the framer per docs/ENDSTATION_BUILDER.md section 3. Do NOT lower the entity's declared format, which was tried on 2026-07-27 (dade536) and reverted (e103d8e): it makes an 8x8 board advertise itself as stereo forever.
+                                                                                        : ... note: In instance 'sim.milan_datapath'
+                    ... For warning description see https://verilator.org/warn/USERERROR?v=5.052
+                    ... Use "/* verilator lint_off USERERROR */" and lint_on around source to disable this message.
+%Warning-USERERROR: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:1569:5: milan_datapath: entity definition declares ADP_TALKER_SRC_C=2, which is neither N_STREAMS (8) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 1569 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+      |     ^~~~~~
+%Warning-SELRANGE: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:1874:52: Extracting 8 bits from only 2 bit number
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 1874 |                                acmp_talker_active_v[N_STREAMS-1:0];
+      |                                                    ^
+%Warning-SELRANGE: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:1874:52: Selection index out of range: 7:0 outside 1:0
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 1874 |                                acmp_talker_active_v[N_STREAMS-1:0];
+      |                                                    ^
+%Warning-SELRANGE: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:2483:49: Extracting 8 bits from only 2 bit number
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 2483 |     .i_tlk_probe_v        (8'(acmp_probe_armed_v[N_STREAMS-1:0])),
+      |                                                 ^
+%Warning-SELRANGE: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:2483:49: Selection index out of range: 7:0 outside 1:0
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 2483 |     .i_tlk_probe_v        (8'(acmp_probe_armed_v[N_STREAMS-1:0])),
+      |                                                 ^
+%Warning-SELRANGE: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:2484:44: Extracting 8 bits from only 2 bit number
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 2484 |     .i_tlk_lobs_v         (8'(acmp_lobs_v_w[N_STREAMS-1:0])),
+      |                                            ^
+%Warning-SELRANGE: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:2484:44: Selection index out of range: 7:0 outside 1:0
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 2484 |     .i_tlk_lobs_v         (8'(acmp_lobs_v_w[N_STREAMS-1:0])),
+      |                                            ^
+%Warning-SELRANGE: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:5361:32: Extracting 8 bits from only 2 bit number
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 5361 |     .bound_v_i (acmpl_bound_v_w[N_STREAMS-1:0]),
+      |                                ^
+%Warning-SELRANGE: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:5361:32: Selection index out of range: 7:0 outside 1:0
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 5361 |     .bound_v_i (acmpl_bound_v_w[N_STREAMS-1:0]),
+      |                                ^
+%Warning-SELRANGE: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:5362:30: Extracting 512 bits from only 128 bit number
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 5362 |     .sid_v_i   (acmpl_sid_v_w[64*N_STREAMS-1:0]),
+      |                              ^
+%Warning-SELRANGE: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:5362:30: Selection index out of range: 511:0 outside 127:0
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 5362 |     .sid_v_i   (acmpl_sid_v_w[64*N_STREAMS-1:0]),
+      |                              ^
+%Warning-SELRANGE: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:6662:48: Extracting 8 bits from only 2 bit number
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 6662 |   assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
+      |                                                ^
+%Warning-SELRANGE: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:6662:48: Selection index out of range: 7:0 outside 1:0
+                                                                                         : ... note: In instance 'sim.milan_datapath'
+ 6662 |   assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
+      |                                                ^
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1902:15: Signal unoptimizable: Circular combinational logic: 'sim.productsimulation_interface1_adapted_interface_ack'
+                                                                                                           : ... note: In instance 'sim'
+ 1902 | reg           productsimulation_interface1_adapted_interface_ack = 1'd0;
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/UNOPTFLAT?v=5.052
+                    ... Use "/* verilator lint_off UNOPTFLAT */" and lint_on around source to disable this message.
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1902:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6765:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1895:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6811:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1902:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1924:15: Signal unoptimizable: Circular combinational logic: 'sim.productsimulation_interface3_adapted_interface_ack'
+                                                                                                           : ... note: In instance 'sim'
+ 1924 | reg           productsimulation_interface3_adapted_interface_ack = 1'd0;
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1924:15:      Example path: sim.productsimulation_interface3_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6966:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1917:15:      Example path: sim.productsimulation_interface2_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7012:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1924:15:      Example path: sim.productsimulation_interface3_adapted_interface_ack
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1946:15: Signal unoptimizable: Circular combinational logic: 'sim.productsimulation_interface5_adapted_interface_ack'
+                                                                                                           : ... note: In instance 'sim'
+ 1946 | reg           productsimulation_interface5_adapted_interface_ack = 1'd0;
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1946:15:      Example path: sim.productsimulation_interface5_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7167:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1939:15:      Example path: sim.productsimulation_interface4_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7213:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1946:15:      Example path: sim.productsimulation_interface5_adapted_interface_ack
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5636:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self22'
+                                                                                                           : ... note: In instance 'sim'
+ 5636 | reg           rhs_self22 = 1'd0;
+      |               ^~~~~~~~~~
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5636:15:      Example path: sim.rhs_self22
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7585:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5820:15:      Example path: sim.socbushandler1_aw_ready
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7439:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1347:15:      Example path: sim.productsimulation_axiinterface0_aw_ready
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6811:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1902:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6765:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1895:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6811:1:      Example path: ALWAYS
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5650:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self35'
+                                                                                                           : ... note: In instance 'sim'
+ 5650 | reg           rhs_self35 = 1'd0;
+      |               ^~~~~~~~~~
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5650:15:      Example path: sim.rhs_self35
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7585:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5820:15:      Example path: sim.socbushandler1_aw_ready
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7439:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1347:15:      Example path: sim.productsimulation_axiinterface0_aw_ready
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6811:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1902:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6765:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1895:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6811:1:      Example path: ALWAYS
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5658:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self42'
+                                                                                                           : ... note: In instance 'sim'
+ 5658 | reg           rhs_self42 = 1'd0;
+      |               ^~~~~~~~~~
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5658:15:      Example path: sim.rhs_self42
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7585:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5820:15:      Example path: sim.socbushandler1_aw_ready
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7439:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1347:15:      Example path: sim.productsimulation_axiinterface0_aw_ready
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6811:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1902:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6765:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1895:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6811:1:      Example path: ALWAYS
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5698:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self8'
+                                                                                                           : ... note: In instance 'sim'
+ 5698 | reg           rhs_self8 = 1'd0;
+      |               ^~~~~~~~~
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5698:15:      Example path: sim.rhs_self8
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7617:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5806:15:      Example path: sim.socbushandler1_ar_ready
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7385:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1333:15:      Example path: sim.productsimulation_axiinterface0_ar_ready
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6811:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1902:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6765:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1895:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6811:1:      Example path: ALWAYS
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5635:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self21'
+                                                                                                           : ... note: In instance 'sim'
+ 5635 | reg           rhs_self21 = 1'd0;
+      |               ^~~~~~~~~~
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5635:15:      Example path: sim.rhs_self21
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7617:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:5806:15:      Example path: sim.socbushandler1_ar_ready
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:7385:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1333:15:      Example path: sim.productsimulation_axiinterface0_ar_ready
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6811:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1902:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6765:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:1895:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/gateware/sim.v:6811:1:      Example path: ALWAYS
+make: Entering directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/native'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -Os  -c -o capture_sim_main.o $MANAGEMENT/2026-09-23/559-a307/capture_sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -c -o verilated_dpi.o /usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -c -x c++-header Vsim__pch.h -o Vsim__pch.h.fast.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -c -x c++-header Vsim__pch.h -o Vsim__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.fast -c Vsim_vm_classes_0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.fast -c Vsim_vm_classes_1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.fast -c Vsim_vm_classes_2.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.fast -c Vsim_vm_classes_3.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.fast -c Vsim_vm_classes_4.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.fast -c Vsim_vm_classes_5.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.fast -c Vsim_sim__38.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.fast -c Vsim_vm_classes_6.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.fast -c Vsim__Dpi.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_0.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.slow -c Vsim_sim__1__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_1.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_2.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_3.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.slow -c Vsim_sim__13__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_4.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_5.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_6.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -I$LANES/559-capture-copy/tb/common   -include Vsim__pch.h.slow -c Vsim__Syms__Slow.cpp
+g++    capture_sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vsim__ALL.a    -pthread -lpthread -latomic   -o Vsim
+rm Vsim__ALL.verilator_deplist.tmp
+make: Leaving directory '$VALIDATION_STORAGE/559-a307-product-preflight/endstation_ax7101_8x8/native'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 136.725 MB sources in 171 modules, into 15.269 MB in 91 C++ files needing 0.011 MB
+- Verilator: Walltime 15.982 s (elab=1.214, cvt=5.839, bld=8.216); cpu 7.907 s on 8 threads; allocated 410.465 MB

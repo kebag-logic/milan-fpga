@@ -1,0 +1,57 @@
+[warn] Epoll ADD(1) on fd 0 failed. Old events were 0; read change was 1 (add); write change was 0 (none); close change was 0 (none): Operation not permitted
+[clocker] loaded
+[ethernet] loaded (0x5580d01cb060)
+[serial2tcp] loaded (0x5580d01cb060)
+[spdeeprom] loaded (addr = 0x0)
+[gmii_ethernet] loaded (0x5580d01cb060)
+[jtagremote] loaded (0x5580d01cb060)
+[serial2console] loaded (0x5580d01cb060)
+[xgmii_ethernet] loaded (0x5580d01cb060)
+[qemu_axi] loaded (0x5580d01cb060)
+MDEBUG: Save time: -1, load_time: 0
+[clocker] sys_clk: freq_hz=100000000, phase_deg=0
+
+[1m        __   _ __      _  __[0m
+[1m       / /  (_) /____ | |/_/[0m
+[1m      / /__/ / __/ -_)>  <[0m
+[1m     /____/_/\__/\__/_/|_|[0m
+[1m   Build your hardware, easily![0m
+
+ (c) Copyright 2012-2026 Enjoy-Digital
+ (c) Copyright 2007-2015 M-Labs
+
+ BIOS CRC passed (0bd1702b)
+
+ LiteX git sha1: a1e1c36
+
+--================ [1mSoC[0m =================--
+[1mCPU[0m:		VexiiRiscv (rv32i2p0__zicsr_zifencei) @ 1MHz
+[1mBUS[0m:		axi-lite 32-bit data/32-bit addr
+[1mCSR[0m:		32-bit data big ordering
+[1mROM[0m:		128.0KiB
+[1mSRAM[0m:		8.0KiB
+[1mSDRAM[0m:		1.0GiB 32-bit @ 8MT/s (CL-6 CWL-5)
+[1mMAIN RAM[0m:	1.0GiB
+
+--=========== [1mInitialization[0m ===========--
+Initializing SDRAM @0x40000000...
+Switching SDRAM to software control.
+Switching SDRAM to hardware control.
+Memtest at 0x40000000 (8.0KiB)...
+  Write: 0x40000000-0x40000000 0B     Write: 0x40000000-0x40002000 8.0KiB   
+   Read: 0x40000000-0x40000000 0B      Read: 0x40000000-0x40002000 8.0KiB   
+Memtest OK
+Memspeed at 0x40000000 (Sequential, 8.0KiB)...
+  Write speed: 199.5KiB/s
+   Read speed: 150.8KiB/s
+--================ [1mBoot[0m ================--
+Booting from serial...
+Press Q or ESC to abort boot completely.
+sL5DdSMmkekro
+Timeout
+No boot medium found
+
+--============== [1mConsole[0m ===============--
+
+[92;1mlitex[0m> 
+PRODUCT_CPU_BOOT: FAILED

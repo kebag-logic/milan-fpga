@@ -1,0 +1,18 @@
+[clocker] loaded
+[ethernet] loaded (0x564d92eb3060)
+[serial2tcp] loaded (0x564d92eb3060)
+[spdeeprom] loaded (addr = 0x0)
+[gmii_ethernet] loaded (0x564d92eb3060)
+[jtagremote] loaded (0x564d92eb3060)
+[serial2console] loaded (0x564d92eb3060)
+[xgmii_ethernet] loaded (0x564d92eb3060)
+[qemu_axi] loaded (0x564d92eb3060)
+MDEBUG: Save time: -1, load_time: 0
+[clocker] sys_clk: freq_hz=100000000, phase_deg=0
+[clocker] milan_clk: freq_hz=100000000, phase_deg=0
+[clocker] audio_clk: freq_hz=24576000, phase_deg=0
+[10000] %Error: KL_gptp_txret.sv:464: Assertion failed in TOP.sim.milan_datapath.g_gptp_plane.u_gptp_shadow.u_txret.phc_history: KL_gptp_txret: the PHC history guard did not reload while ineligible
+%Error: $LANES/559-capture-copy/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv:464: Verilog $stop
+Aborting...
+
+PRODUCT_CAPTURE_PREFLIGHT: FAILED
