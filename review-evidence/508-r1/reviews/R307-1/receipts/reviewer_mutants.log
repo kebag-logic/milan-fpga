@@ -1,0 +1,19 @@
+[PASS] R1 status read from the other sink only: expected caught, verdict caught; checks: 345   failures: 14
+      [FAIL] [GSI] G1 sink 0 bound: probing_status          got=0x0 exp=0x2
+      [FAIL] [GSI] G1 sink 1 untouched by sink 0's bind: probing_status got=0x2 exp=0x0
+      [FAIL] [GSI] G2 sink 0 two probes unanswered: probing_status got=0x0 exp=0x2
+      [FAIL] [GSI] G2 sink 0 two probes unanswered: acmp_status got=0x0 exp=0x7
+      [FAIL] [GSI] G2 sink 1 probe refused: acmp_status     got=0x7 exp=0x3
+      [FAIL] [GSI] G2 sink 0 beside sink 1's refusal: acmp_status got=0x3 exp=0x7
+[PASS] R2 listener-status notification raised on the other sink: expected caught, verdict caught; checks: 345   failures: 37
+      [FAIL] [GSI] G1 sink 0 bound: unsolicited GET_STREAM_INFO(sink 0) to A got=0x0 exp=0x1
+      [FAIL] [GSI] G1 sink 0 bound: unsolicited GET_STREAM_INFO(sink 0) to B got=0x0 exp=0x1
+      [FAIL] [GSI] G1 sink 0 bound: the push equals the solicited answer from the body on got=0x0 exp=0x1
+      [FAIL] [GSI] G2 sink 0 two probes unanswered: unsolicited GET_STREAM_INFO(sink 0) to A got=0x0 exp=0x1
+      [FAIL] [GSI] G2 sink 0 two probes unanswered: unsolicited GET_STREAM_INFO(sink 0) to B got=0x0 exp=0x1
+      [FAIL] [GSI] G2 sink 0 two probes unanswered: the push equals the solicited answer from the body on got=0x0 exp=0x1
+[PASS] R3 latency-only notification term dropped (processor #113): expected survives, verdict pass; checks: 345   failures: 0
+
+real	1m27.454s
+user	3m32.818s
+sys	0m14.714s
