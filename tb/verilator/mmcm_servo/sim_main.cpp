@@ -65,9 +65,11 @@ class MmcmServoUnitHarness {
         prove_local_ptp_step_windows_are_discarded();
         prove_implausible_windows_meet_the_guard();
         prove_step_restarts_the_guard_streak();
+        prove_slew_restarts_the_guard_streak();
         prove_step_with_no_window_open_is_not_counted();
         prove_invalid_remote_sample_holds_the_loop();
         prove_tally_saturates_and_idle_clears_it();
+        prove_slew_reset_and_saturation();
         return report();
     }
 
@@ -190,6 +192,7 @@ class MmcmServoUnitHarness {
 
         dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
         dut->crf_rate_valid_i = 1; // synthetic rate input is valid
+        dut->phc_slew_active_i = 0;
         //! this suite selects CRF at CLOCK_SOURCE index 2, a suite-local
         //! value and NOT the shipping index (AEM_CRF_CLKSRC_C = 1 on every
         //! shipping shape since #389: INTERNAL 0, the CRF sink 1). The DUT
@@ -547,6 +550,36 @@ class MmcmServoUnitHarness {
         ck("[U12] LOCKED after the streak", state(), 4);
     }
 
+    //! A slew window is not an offset measurement. Four new guard trips
+    //! must follow it before another re-base, observed as U11's 33-tick gap.
+    void prove_slew_restarts_the_guard_streak() {
+        ck("[U15] LOCKED before", state(), 4);
+        std::vector<double> before;
+        dut->crf_rate_i = rate_for_ppm(+80.0) + 2'000'000;
+        // One guard trip plus two tainted windows cannot wrap a four-trip
+        // streak to zero and hide a regression that counts slew discards.
+        run_noting_discards(12.0, 1, before);
+        ck("[U15] arm: one guard discard opens a streak", before.size(), 1);
+        dut->phc_slew_active_i = 1;
+        std::vector<double> during;
+        run_noting_discards(8.0, 1, during);
+        ck("[U15] arm: slew window discarded", during.size(), 1);
+        dut->phc_slew_active_i = 0;
+        // The shared endpoint also taints the following partial window.
+        std::vector<double> tail;
+        run_noting_discards(8.0, 1, tail);
+        ck("[U15] arm: partial tail discarded", tail.size(), 1);
+        std::vector<double> after;
+        run_noting_discards(40.0, 5, after);
+        dut->crf_rate_i = rate_for_ppm(+80.0);
+        print_gaps(after);
+        ck("[U15] four fresh guard trips precede re-base",
+           ticks_after(after, 0) == 32 && ticks_after(after, 1) == 32 &&
+           ticks_after(after, 2) == 32 && ticks_after(after, 3) == 33, 1);
+        run_ms(24);
+        ck("[U15] LOCKED after the streak", state(), 4);
+    }
+
     //! Two steps one clk_i edge apart: the first abandons its window, so the
     //! second lands with no window open, and the tally counts one.
     void prove_step_with_no_window_open_is_not_counted() {
@@ -606,6 +639,37 @@ class MmcmServoUnitHarness {
         dut->crf_rate_i = clean;
         run_ms(24);
         ck("[U13] original rate recovers LOCKED", state(), 4);
+    }
+
+    //! Short windows exercise tally saturation, reset during a correction,
+    //! and a step replacing that correction without waiting minutes.
+    void prove_slew_reset_and_saturation() {
+        dut->clk_src_i = 2;
+        run_ms(60);
+        ck("[U14] slew starts LOCKED", state(), 4);
+        dut->phc_slew_active_i = 1;
+        const int16_t before = trim();
+        run_ms(270);
+        ck("[U14] long slew holds trim", trim(), before);
+        ck("[U14] long slew keeps LOCKED", state(), 4);
+        ck("[U14] slew tally saturates", disc_cnt(), 63);
+        dut->rst_n = 0;
+        run_ms(0.01);
+        ck("[U14] reset clears tally during slew", disc_cnt(), 0);
+        ck("[U14] reset clears trim during slew", trim(), 0);
+        dut->phc_slew_active_i = 0;
+        dut->rst_n = 1;
+        run_ms(100);
+        ck("[U14] reset permits fresh acquisition", state(), 4);
+        dut->phc_slew_active_i = 1;
+        run_ms(0.5);
+        const int d0 = disc_cnt();
+        ptp_step_ns += 150000;
+        run_ms(0.01);
+        ck("[U14] mid-window step abandons one slew window", disc_cnt() - d0, 1);
+        dut->phc_slew_active_i = 0;
+        run_ms(12);
+        ck("[U14] step after slew retains LOCKED", state(), 4);
     }
 
     int report() const {

@@ -276,6 +276,16 @@ class GmStepHarness {
     uint64_t phc_prev_ = 0;
     uint64_t gm_epoch_ = kEpochANs;
     uint64_t media_epoch_ = kEpochANs;         //! the peer talker's own PHC
+    bool slew_probe_ = false;
+    bool slew_origin_override_ = false;
+    int64_t slew_offset_ns_ = 0;
+    uint64_t phc_fraction_prev_ = 0;
+    uint64_t slew_increment_ = 0;
+    unsigned slew_tail_samples_ = 0;
+    unsigned slew_alignment_errors_ = 0;
+    unsigned slew_high_samples_ = 0;
+    unsigned slew_falls_ = 0;
+    bool slew_previous_ = false;
     bool media_follows_sync_ = false;          //! steps with the next Sync
     double talker_interval_ = 0;               //! baseline cycles per PDU
     uint64_t gm_id_ = kGmA;
@@ -361,6 +371,8 @@ class GmStepHarness {
     void provision_media();
     void baseline();
     void change_grandmaster();
+    void check_slew_connection();
+    void observe_slew_alignment(bool raw, uint64_t increment);
     void grade_the_event(const std::vector<uint8_t>& sout0, const std::vector<uint8_t>& sout_mid,
                          uint64_t mid_cyc, const std::vector<uint8_t>& sin0,
                          uint64_t recentres0, uint64_t rails0, size_t talker0);
@@ -406,11 +418,35 @@ void GmStepHarness::tick() {
     observer_.edge(dut_, cyc_, phc);
     drp_edge();
     memory_edge();
+    const bool raw_slew = dut_->rootp->milan_datapath__DOT__gptp_slew_active_w;
+    // The servo samples the current PHC on the next edge. Measure the
+    // advance into that sample, including fractional ns, before the edge.
+    const auto& acc = dut_->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
+    const uint64_t fraction = (static_cast<uint64_t>(acc[1]) << 32) | acc[0];
+    const uint64_t increment = fraction - phc_fraction_prev_;
+    phc_fraction_prev_ = fraction;
     dut_->axis_clk = 1; dut_->gtx_clk = 1;
     dut_->eval();
+    observe_slew_alignment(raw_slew, increment);
     if (rx_fire) rx_accepted();
     ++cyc_;
     observe();
+}
+
+//! Observe the servo's staged input, not a parallel harness connection.
+//! After release, the last measured slew increment identifies samples still
+//! carrying the correction. No assumed pipeline depth enters this oracle.
+void GmStepHarness::observe_slew_alignment(bool raw, uint64_t increment) {
+    const bool sampled = dut_->rootp->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__phc_slew_q_r;
+    if (slew_probe_) {
+        if (raw) slew_increment_ = increment;
+        const bool tail = !raw && increment == slew_increment_;
+        slew_alignment_errors_ += (raw || tail) && !sampled;
+        slew_tail_samples_ += tail;
+        slew_high_samples_ += sampled;
+        slew_falls_ += slew_previous_ && !raw;
+    }
+    slew_previous_ = raw;
 }
 
 void GmStepHarness::observe() {
@@ -614,8 +650,10 @@ void GmStepHarness::rx_accepted() {
     const bool first = rx_off_ == 0;
     rx_off_ += 8;
     if (first && rx_what_.kind == Kind::Sync) {
-        control_.push_back({Kind::FollowUp, rx_what_.seq,
-                            gm_ns(cyc_) - static_cast<uint64_t>(kLinkNs), {}, 0, cyc_ + 200});
+        const uint64_t origin = slew_origin_override_
+            ? static_cast<uint64_t>(static_cast<int64_t>(phc_ns()) - kLinkNs - slew_offset_ns_)
+            : gm_ns(cyc_) - static_cast<uint64_t>(kLinkNs);
+        control_.push_back({Kind::FollowUp, rx_what_.seq, origin, {}, 0, cyc_ + 200});
     }
     if (rx_off_ < rx_.size()) return;
     rx_busy_ = false;
@@ -1024,6 +1062,38 @@ void GmStepHarness::grade_the_restart(size_t talker0, const std::vector<uint8_t>
                counter_word(sout1, 2) - counter_word(sout0, 2), 1);
 }
 
+//! Wire-driven policy verdict from the real engine through the actual
+//! shadow/datapath/servo port. Unit tests grade lock and rate integration;
+//! this compressed-clock leg grades transport and every release-tail edge.
+void GmStepHarness::check_slew_connection() {
+    slew_origin_override_ = true;
+    slew_offset_ns_ = 0;
+    run_cycles(3 * kSyncPeriodCyc);
+    check_.dec("slew path: in-band pairs clear the plane level",
+               dut_->rootp->milan_datapath__DOT__gptp_slew_active_w, 0);
+    const unsigned steps0 = trace_.steps;
+    slew_probe_ = true;
+    slew_offset_ns_ = 90000;
+    run_cycles(kSyncPeriodCyc + 10000);
+    const int32_t offset = static_cast<int32_t>(dut_->rootp->milan_datapath__DOT__gptp_pub_offset_w);
+    check_.that("slew path: consumed offset is between 80 and 100 us",
+                offset > 80000 && offset < 100000);
+    check_.dec("slew path: the plane raises its level",
+               dut_->rootp->milan_datapath__DOT__gptp_slew_active_w, 1);
+    check_.that("slew path: the actual servo receives the level", slew_high_samples_ > 100);
+    slew_offset_ns_ = 0;
+    run_cycles(3 * kSyncPeriodCyc);
+    check_.dec("slew path: measured completion lowers the level",
+               dut_->rootp->milan_datapath__DOT__gptp_slew_active_w, 0);
+    check_.dec("slew path: completion happened once", slew_falls_, 1);
+    check_.that("slew path: PHC advances witness the release tail", slew_tail_samples_ > 0);
+    check_.dec("slew path: every staged sample covers the PHC tail", slew_alignment_errors_, 0);
+    check_.dec("slew path: servo clears after the PHC tail",
+               dut_->rootp->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__phc_slew_q_r, 0);
+    check_.dec("slew path: a policy slew never steps the PHC", trace_.steps - steps0, 0);
+    slew_probe_ = false;
+}
+
 int GmStepHarness::run() {
     printf("gmstep: 2 MHz fabric, 8 ns PHC, quarter tick %llu cycles\n",
            static_cast<unsigned long long>(kQtickCyc));
@@ -1033,6 +1103,7 @@ int GmStepHarness::run() {
         provision_media();
         baseline();
         change_grandmaster();
+        check_slew_connection();
     } catch (const std::exception& e) {
         check_.fail(e.what());
         printf("NOT RUN: the remaining phases after a bounded transport failure\n");

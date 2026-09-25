@@ -68,6 +68,7 @@ module crf_talker_wrap (
     .cnt_locked_o(), .cnt_intr_o(), .dirty_p_o(), .mr_toggle_p_o()
   );
   KL_mmcm_drp_servo servo (
+    .phc_slew_active_i(1'b0), // This fixture changes remote timestamps only.
     .crf_locked_i(rx_locked_o), .crf_rate_i(rate_o),
     .crf_rate_valid_i(rate_valid_o), .*
   );

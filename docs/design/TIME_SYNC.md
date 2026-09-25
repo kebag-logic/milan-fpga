@@ -97,6 +97,12 @@ The offset is local time minus grandmaster time.
 - `KL_gptp_txret` computes the same bound as `PHC_ADJ_MAX_C`.
 - It refuses egress timestamps while the trim exceeds it.
 - A 100 us slew takes 0.5 s or more.
+- `phc_slew_active_o` identifies transient offset correction.
+- Outside +/-100 ns, a non-stepping pair starts correction.
+- Two consecutive in-band pairs complete it.
+- Missing measurements retain the level and applied correction.
+- Completion has no elapsed-time limit.
+- The CRF servo holds through the entire indicated correction.
 - One step is one `phc_step_we_o` pulse.
 - That pulse carries the measured offset, negated.
 - Each step is one counted [media event](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
@@ -105,7 +111,25 @@ The offset is local time minus grandmaster time.
 |---|---|
 | Owner decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
 | Link-up ruling | [FPGA-gPTP #68](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68#issuecomment-5798089412) |
-| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/INTEGRATION.md#step-versus-slew-policy) |
+| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md#step-versus-slew-policy) |
+
+The [coupling decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5816509317) requires discarding slew-overlapped windows.
+
+The historical decision calls 0.5 s a maximum.
+
+The explicitly adopted engine contract instead permits longer corrections.
+
+No timeout overrides its measured completion verdict.
+
+The [resumed assignment](https://github.com/kebag-logic/milan-fpga/issues/545#issuecomment-5827358783) corrects the frequency citations.
+
+IEEE 802.1AS Annex B.1.1 specifies LocalClock accuracy.
+
+Its bound is +/-100 ppm.
+
+Milan v1.2 section 7.4 constrains media-source accuracy.
+
+It requires better than +/-50 ppm.
 
 ## Media boundary
 
@@ -146,11 +170,20 @@ Each link has exactly one master.
 | MMCM servo bounds | +/-100 ppm per window slew; +/-200 ppm authority | `KL_mmcm_drp_servo` |
 | CRF talker discontinuity | Discard crossing rate history; preserve servo lock and integrator (#546) | `KL_crf_rx.rate_valid_o`, `KL_mmcm_drp_servo.crf_rate_valid_i` |
 | CRF unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
-| MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A [step-policy](#step-policy) slew is not a step and still reaches the integrator (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
+| MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A policy slew uses its separate overlap guard (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
+| MMCM servo on a policy slew | Every overlapping window discarded and counted; integrator, trim and LOCKED held. Clean windows resume directly (#545) | `KL_mmcm_drp_servo.phc_slew_active_i`, `MCSRV_STAT[15:10]` |
 | MMCM servo on an implausible window | Error above 1024 ppm discarded; four in a row re-base the window | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
 | Grid-aligner error | Frame-marker phase at one-clock resolution | `KL_media_grid_align` |
 | Grid-aligner command | PI in servo units; +/-200 ppm authority | `KL_media_grid_align` |
 | Grid-aligner lock target | Engagement phase, kept 1/128 sample off the tick | `KL_media_grid_align` |
+
+A slew discard restarts the four-trip guard streak.
+
+A slew window is not a valid offset sample.
+
+Re-basing therefore requires four fresh guard trips after the slew.
+
+The #539 step discard also restarts this streak.
 
 | Function | Implemented | Product effect |
 |---|---|---|
@@ -163,6 +196,52 @@ Each link has exactly one master.
 | Stream-derived recovery | No | Not advertised: no INPUT_STREAM source on an AAF listener (#389) |
 | MMCM servo activation | Conditional | Steers audio clocks under CRF selection |
 | Packet-grid alignment | Conditional | Follows the physical sample grid |
+
+The policy level follows the effective PHC rate.
+
+Engine, shadow and servo use `axis_clk`.
+
+The existing PHC contract requires `gtx_clk == axis_clk`.
+
+There is no new asynchronous crossing.
+
+The datapath asserts immediately and delays release four cycles.
+
+Those cover the shadow latch, two synchronizers and counter update.
+
+The servo stages the level beside its PHC sample.
+
+An overlap flag persists until the affected window closes.
+
+A shared boundary sample taints both adjacent windows.
+
+A pre-slew window already closed may finish its PI sequence.
+
+A coincident step counts that same window only once.
+
+No port count or redundant-network selection is assumed.
+
+`mmcm_servo` grades +/-100 us slews at 200 ppm.
+
+Each lasts 0.5 s and overlaps two measurement windows.
+
+Their integrator and trim remain exactly held.
+
+The first clean window changes the integrator within 1 ppm.
+
+It completes within 1.536 s of the disturbance's start.
+
+LOCKED holds on every observed edge.
+
+Additional cases cover short pulses, shared boundaries and prolonged levels.
+
+The connected `milan_dp` gmstep phase drives real Sync pairs.
+
+It measures fractional PHC advances to grade release-tail coverage.
+
+An extra addend stage must fail this check.
+
+Its compressed clocks do not grade media-loop settling.
 
 CRF rate history restarts on either received `tu` edge.
 

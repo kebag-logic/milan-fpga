@@ -294,6 +294,7 @@ module gptp_shadow_wrap #(
       .phc_adj_o       (adj_w),
       .phc_step_we_o   (step_we_w),
       .phc_step_o      (step_w),
+      .phc_slew_active_o (), //! These timestamp tests do not consume media rate.
       .tx_tdata_o      (tx_tdata_o),
       .tx_tkeep_o      (tx_tkeep_o),
       .tx_tvalid_o     (tx_tvalid_o),

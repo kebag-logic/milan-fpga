@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - CRF servo holds through PHC slew](#unreleased---crf-servo-holds-through-phc-slew)** -- Holds lock.
 - **[Unreleased - render setpoint state](#unreleased---render-setpoint-state)** -- Publishes the selected listener's state.
 - **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
 - **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
@@ -28,6 +29,20 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - CRF servo holds through PHC slew
+
+- Issue #545 isolates the media loop from policy correction.
+- Overlapped windows hold the integrator, trim and lock.
+- The partial window after completion is also discarded.
+- Clean windows resume without acquisition.
+- `MCSRV_STAT[15:10]` counts these discarded windows too.
+- The gPTP processor pin advances to `5dce647a`.
+- Its registered level follows measured completion, without a timeout.
+- The repository recipe regenerates the ROM digest ledger.
+- Silicon-scale tests cover +/-100 us at 200 ppm.
+- Connected tests drive the level from real Sync pairs.
+- Removal, tie-off, tail and tally controls must fail.
 
 ## Unreleased - render setpoint state
 

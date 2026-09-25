@@ -651,11 +651,17 @@ verdict:
 | a software settime does not toggle `mr` | datapath | CLKV: the settime toggled mr once more (#387) | `gmstep-mutants`, option-off leg |
 | the step's `mr` toggle is gated by the CRF clock-source selection | datapath | CLKV: its mr toggled once per PHC step issued so far (#387) | `gmstep-mutants`, option-off leg |
 
-Each control costs one elaboration of the datapath, so the sweep carries the
-three the acceptance names and the explicit `make gmstep-mutants` target runs
-all eleven (the explicit-campaign rule of
-[TESTING.md](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression)).
-The last two grade the option-off leg (`sim_main.cpp`, rebuilt through
+Each control costs one datapath elaboration.
+The sweep carries the three controls named by acceptance.
+
+The explicit `make gmstep-mutants` target runs all fourteen controls.
+The `CONTROLS` list in [`gmstep_mutants.py`](gmstep_mutants.py) defines that inventory.
+
+It includes the eleven tabulated above, plus three #545 controls.
+The additions cover the policy level and applied-rate tail.
+
+See the [explicit-campaign rule](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression).
+The table's last two grade the option-off leg (`sim_main.cpp`, rebuilt through
 `option-off-build` with `OPTOFF_MDIR` and `DP_SRC` overridden) on an INTERNAL
 media clock, where the harness issues a CLKV adjtime and then a software
 settime: each is one `mr` toggle, and the settime one MEDIA_RESET. The runner
@@ -665,7 +671,7 @@ older than its recipe's inputs is rebuilt, not graded.
 What the leg does not grade:
 
 - The grid aligner. The TDM clocks are held, so it stays disengaged. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) it gets no re-centre of its own: #539 keeps the step out of its reference at the CRF servo, and #545 and #546 close the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path.
-- The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades its step discard (#539).
+- The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades step and slew discard (#539, #545).
 - An lwSRP licence. The talker is opened by `AAF_CTRL[1]`; no SRP peer exists here.
 - A step that lands while an `mr` restart is pending. Ruling 5802264260 item 2 merges the two, and pending lasts until a PDU at the new level has gone out (ruling 5818091077). `tb/verilator/tkdiag` T17 and T18 grade the restart engine PDU by PDU, and its `mcr_mutants.py` plants the engine that cancels, a shared target, and a pending window that ends at the adoption or runs to the end of the hold.
 - The step policy's thresholds. The donor's engine suite proves them; this leg only relies on them.
@@ -1073,3 +1079,12 @@ python3 tb/verilator/milan_dp/test_render_phase_observation.py
 * **Name the shape.** Every leg puts its config's generated directory *first* on
   the include path. Without it the build falls through to
   `hdl/common/gen/`, which is whichever config last ran `--write-rtl`.
+
+The gmstep leg also drives a policy-legal 90 us offset.
+Real Sync pairs raise and clear the exported slew level.
+It measures fractional PHC advances into each staged servo sample.
+The last measured slew increment identifies the release tail.
+The phase checks wiring; it does not grade media-loop settling.
+Run `python3 gmstep_mutants.py --slew` for the connection controls.
+Tied-low input, missing tail and added addend delay must fail.
+These controls also belong to `make gmstep-mutants`.

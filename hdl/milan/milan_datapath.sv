@@ -1454,12 +1454,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! consumers rather than the late generate block so clock validity, CSR,
   //! and protocol answers all select the same compile-time owner.
   wire [63:0] gptp_pub_gm_w, gptp_pub_parent_w, gptp_pub_annq_w;
-  wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w, gptp_pub_offset_w;
+  wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w;
+  wire [31:0] gptp_pub_offset_w /* verilator public_flat_rd */;
   wire [7*64-1:0] gptp_pub_path_w;
   wire [3:0] gptp_pub_path_count_w, gptp_pub_path_gen_w;
   wire        gptp_pub_disc_w;
   wire signed [31:0] gptp_adj_w;
   wire               gptp_step_we_w;
+  wire               gptp_slew_active_w /* verilator public_flat_rd */;
   wire        [63:0] gptp_step_w;
   //! One owner for every consumer and the CSR live-read face. With the gPTP
   //! engine absent every publication output is zero; no alternate publisher
@@ -2753,6 +2755,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                                ? gptp_step_w             : cfg_ptp_offset;
   wire        eff_ptp_adjust_w = (GPTP_PLANE_EN_P != 1'b0)
                                ? gptp_step_we_w          : cfg_ptp_cmd_adjust;
+
+  //! #545: engine, shadow and servo run on axis_clk. As required by the
+  //! live PHC contract below, gtx_clk == axis_clk; this is pipeline
+  //! alignment, not an asynchronous crossing. Assert immediately, release
+  //! after the shadow addend latch, two ptp_sync flops and counter edge.
+  //! The servo stages this level beside ptp_now_w. A future independent
+  //! PHC clock needs a coherent time/control crossing for both signals.
+  logic [3:0] gptp_slew_tail_r;
+  wire gptp_slew_eff_w = gptp_slew_active_w || (|gptp_slew_tail_r);
+  always_ff @(posedge axis_clk) begin : slew_rate_alignment
+    if (!axis_resetn) gptp_slew_tail_r <= '0;
+    else gptp_slew_tail_r <= {gptp_slew_tail_r[2:0], gptp_slew_active_w};
+  end : slew_rate_alignment
 
   //! The PHC is the counter and its CSR crossing, nothing else. ptp_ts_top's
   //! TX/RX record stampers, their record FIFOs and the tx_ts_ready pulse left
@@ -5552,6 +5567,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .clk_audio_i   (clk_audio_i),
     .ps_clk_i      (i_ps_clk),
     .ptp_now_i     (ptp_now_w),
+    .phc_slew_active_i (gptp_slew_eff_w),
     //! servo_sel_w is (clk_src_i == crf_src_idx_i) INSIDE the servo, and
     //! both sides are LIVE now (#74): the stored selection against this
     //! shape's generated CRF index. On a shape with no CRF source the
@@ -6899,6 +6915,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .phc_adj_o       (gptp_adj_w),
         .phc_step_we_o   (gptp_step_we_w),
         .phc_step_o      (gptp_step_w),
+        .phc_slew_active_o (gptp_slew_active_w),
         .tx_tdata_o      (gtx_tdata_w),
         .tx_tkeep_o      (gtx_tkeep_w),
         .tx_tvalid_o     (gtx_tvalid_w),
@@ -6990,6 +7007,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign ctlg2_tready = ctlg3_tready;
     assign gptp_adj_w = '0;
     assign gptp_step_we_w = 1'b0;
+    assign gptp_slew_active_w = 1'b0;
     assign gptp_step_w = '0;
     assign gptp_pub_gm_w = '0;
     assign gptp_pub_parent_w = '0;
