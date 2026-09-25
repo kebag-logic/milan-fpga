@@ -1,0 +1,67 @@
+[
+  {
+    "command": [
+      "make",
+      "check"
+    ],
+    "rc": 0,
+    "log": "make-check.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check-links.py"
+    ],
+    "rc": 0,
+    "log": "links.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check-matrix.py"
+    ],
+    "rc": 0,
+    "log": "matrix.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check-integrator-params.py"
+    ],
+    "rc": 0,
+    "log": "params.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/render-wavedrom.py",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "wavedrom-check.log"
+  },
+  {
+    "command": [
+      "make",
+      "stale"
+    ],
+    "rc": 0,
+    "log": "stale.log"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "diff-check.log"
+  },
+  {
+    "check": "reviewer anchor check with unpublished-anchor rendering",
+    "rc": 0,
+    "checked": 59,
+    "dead": 0,
+    "log": "github-anchors.log"
+  }
+]

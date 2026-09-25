@@ -1,0 +1,49 @@
+diff --git a/docs/architecture/07_memory_maps.md b/docs/architecture/07_memory_maps.md
+index 7db4e1c..b34bb05 100644
+--- a/docs/architecture/07_memory_maps.md
++++ b/docs/architecture/07_memory_maps.md
+@@ -212,6 +212,7 @@ exceeds it is refused. The reference root derives that capacity from the same
+ generated entity shape that produces the image, including models whose table is
+ larger than one request.
+ 
++<a id="sec-resp-memory"></a>
+ #### 3.3.2 The other main-memory region — the AECP response buffer
+ 
+ The image is read-only and the store never writes it, but it is not the only region
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 54a3fbb..3ed336b 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -117,6 +117,7 @@ against at least two independent controller implementations.
+ | `wavedrom-check` | `scripts/render-wavedrom.py --check` | every committed WaveDrom SVG matches the fenced source it was rendered from |
+ | `matrix` | `scripts/check-matrix.py` | REQ-IDs unique and fully populated; `Ver` values ∈ the §3 vocabulary; every GAP defined ↔ dispositioned |
+ | `modmatrix` | `scripts/gen_matrix.py --check` | `docs/traceability/MODULE_MATRIX.md` is not stale, and no module is without a suite (budget zero) |
++| `params` | `scripts/check-integrator-params.py` | the guide section 2 table and diagram 21's `integration-parameters` group each equal the overridable parameter set of `protocol_processor_top`, with no missing, extra or duplicate names; empty or unparseable inputs fail |
+ | `stale` | `Makefile` | each committed `.svg` is newer than its `.drawio` source |
+ 
+ ## 8. The suites that exist today
+diff --git a/docs/guides/integrator.md b/docs/guides/integrator.md
+index aee9821..ea76ec9 100644
+--- a/docs/guides/integrator.md
++++ b/docs/guides/integrator.md
+@@ -77,15 +77,15 @@ stream counts in F01.5 are product choices; the top supplies implementation defa
+ | `TIM_DIV_MS_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [F08.2 timebase](../architecture/08_timing.md#fig-08-timerhw) | Microsecond-tick divider for the millisecond tick. **Simulation time compression only** when overriding. |
+ | `TROM_HEX_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [listener ROM generator](../../hdl/acmp/rom/gen_ltn_rom.py) | File path to the ACMP listener transition-ROM image |
+ | `UCODE_HEX_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [AECP µcode generator](../../hdl/aecp/ucode/gen_ucode.py) | File path to the AECP µcode ROM image |
+-| `DESC_BASE_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [07 §3.3.1 memory contract](../architecture/07_memory_maps.md#331-realization-the-image-lives-in-main-memory-not-on-chip) | Base of the descriptor image in **your** memory |
+-| `DESC_LINE_BYTES_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [07 §3.3.1 descriptor store](../architecture/07_memory_maps.md#331-realization-the-image-lives-in-main-memory-not-on-chip) | On-chip line capacity for one located descriptor; also sizes the response-buffer reservation |
+-| `DESC_IDX_ENTRIES_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [07 §3.3.1 descriptor store](../architecture/07_memory_maps.md#331-realization-the-image-lives-in-main-memory-not-on-chip) | Cached index-map capacity, per (configuration, descriptor type) |
+-| `DESC_NAME_ENTRIES_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [07 §3.3.1 descriptor store](../architecture/07_memory_maps.md#331-realization-the-image-lives-in-main-memory-not-on-chip) | Name-table capacity on chip; size from the generated image's `n_names` within the store's supported limits |
++| `DESC_BASE_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [07 §3.3.1 memory contract](../architecture/07_memory_maps.md#sec-desc-memory) | Base of the descriptor image in **your** memory |
++| `DESC_LINE_BYTES_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [07 §3.3.1 descriptor store](../architecture/07_memory_maps.md#sec-desc-memory) | On-chip line capacity for one located descriptor; also sizes the response-buffer reservation |
++| `DESC_IDX_ENTRIES_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [07 §3.3.1 descriptor store](../architecture/07_memory_maps.md#sec-desc-memory) | Cached index-map capacity, per (configuration, descriptor type) |
++| `DESC_NAME_ENTRIES_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [07 §3.3.1 descriptor store](../architecture/07_memory_maps.md#sec-desc-memory) | Name-table capacity on chip; size from the generated image's `n_names` within the store's supported limits |
+ | `DESC_MEM_TMO_CYC_P` | [Top declaration and bindings](../../hdl/top/protocol_processor_top.sv); [AECP engine](../../hdl/aecp/KL_aecp_engine.sv) | Watchdog budget in core clocks for descriptor and response memory, AECP gather waits, and the listener's stream-command handshake |
+ | `NVM_RS_TMO_CYC_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-NVM-RS-TMO-CYC`; [F08.1](../architecture/08_timing.md#fig-08-constants), `T-NVM-RS-DEADLINE` | Boot restore read-phase no-progress deadline, in core clocks; size above the slowest record read on the NVM device face |
+ | `REG_TL_TIMEOUT_MS_P` | [F08.1](../architecture/08_timing.md#fig-08-constants), `T-NOTIF-TIMELIMITED`; [top declaration](../../hdl/top/protocol_processor_top.sv) | TIME_LIMITED registration expiry in the AECP notification registry, in milliseconds of the possibly compressed timebase. Shortened overrides are for verification. |
+ | `LOCK_TIMEOUT_MS_P` | [F08.1](../architecture/08_timing.md#fig-08-constants), `T-LOCK-UNLOCK`; [top declaration](../../hdl/top/protocol_processor_top.sv) | ENTITY lock auto-unlock deadline in the AECP notification block, in milliseconds of the possibly compressed timebase. Shortened overrides are for verification. |
+-| `RESP_BASE_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [07 §3.3.2 response-buffer contract](../architecture/07_memory_maps.md#332-the-other-main-memory-region-the-aecp-response-buffer) | Base of the AECP response buffer in **your** memory |
++| `RESP_BASE_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [07 §3.3.2 response-buffer contract](../architecture/07_memory_maps.md#sec-resp-memory) | Base of the AECP response buffer in **your** memory |
+ | `SRP_DOM_DEF_VID_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-SRP-DOM-DEF-VID`; [F10.2 Domain FSM](../architecture/10_srp_engine.md#fig-10-domsm) | Class A Domain VID declared at startup and link-up, and restored on link-down. A bridge's differing Class A Domain is adopted at runtime. **Keep the F01.5 Milan value in a product build**; alternatives are verification fixtures. |
+ 
+ Three traps worth stating plainly:
