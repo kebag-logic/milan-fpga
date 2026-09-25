@@ -1,0 +1,19 @@
+# hosted run 36102671321 artifact suite-logs-4, TARGET_SHA dbb41727ac440222b1bf407a7d41caefb6efa50f (tree d9f1e513, parents 5b73d3f47,fc8a719fe)
+# full milan_dp.log sha256 ba9b33882693e1584692678d83113d7ac5fb015ddcf16140e594bdc637062db4
+  [ ok ] restart: every mr toggle is first sent right after the step got=0 exp=0
+  [ ok ] restart: the Stream Output counters are valid before the change got=0x1f exp=0x1f
+  [ ok ] restart: the Stream Output counters are valid between commit and step got=0x1f exp=0x1f
+  [ ok ] restart: the Stream Output counters are valid after the event got=0x1f exp=0x1f
+  [ ok ] restart: MEDIA_RESET does not move between the commit and the step got=0 exp=0
+  [ ok ] restart: the talker's MEDIA_RESET counts exactly one got=1 exp=1
+  [ ok ] slew path: in-band pairs clear the plane level got=0 exp=0
+  [ ok ] slew path: consumed offset is between 80 and 100 us
+  [ ok ] slew path: the plane raises its level    got=1 exp=1
+  [ ok ] slew path: the actual servo receives the level
+  [ ok ] slew path: measured completion lowers the level got=0 exp=0
+  [ ok ] slew path: completion happened once      got=1 exp=1
+  [ ok ] slew path: every staged sample covers the PHC tail got=0 exp=0
+  [ ok ] slew path: a policy slew never steps the PHC got=0 exp=0
+simulated_cycles=9802838
+== gmstep: checks: 56   failures: 0 ==
+RESULT: PASS
