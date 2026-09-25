@@ -1,0 +1,49 @@
+# Hosted exact-head evidence (read-only), collected 2026-09-25T09:32:22Z
+# PR #563 head per API: b94f53cc4e5dbfd9527ba666922a55804515165c
+run 36113401650 rtl-fast completed success pull_request b94f53cc4e5dbfd9527ba666922a55804515165c
+run 36113401578 elaborate completed success pull_request b94f53cc4e5dbfd9527ba666922a55804515165c
+run 36113401580 docs completed success pull_request b94f53cc4e5dbfd9527ba666922a55804515165c
+run 36113401588 rtl-full completed success pull_request b94f53cc4e5dbfd9527ba666922a55804515165c
+# rtl-full jobs (run 36113401588)
+108001760146 full-ci-gate success 2026-09-25T08:31:38Z 2026-09-25T08:31:59Z
+108001867261 Verilator shard 1/5 success 2026-09-25T08:32:01Z 2026-09-25T08:54:22Z
+108001867269 Verilator shard 4/5 success 2026-09-25T08:32:01Z 2026-09-25T09:15:15Z
+108001867278 Yosys shard 1/4 success 2026-09-25T08:32:01Z 2026-09-25T08:32:37Z
+108001867279 Verilator shard 0/5 success 2026-09-25T08:32:01Z 2026-09-25T08:40:54Z
+108001867288 Yosys shard 0/4 success 2026-09-25T08:32:01Z 2026-09-25T08:32:31Z
+108001867294 Yosys shard 3/4 success 2026-09-25T08:32:01Z 2026-09-25T08:32:36Z
+108001867319 Verilator shard 3/5 success 2026-09-25T08:32:01Z 2026-09-25T08:41:46Z
+108001867446 Verilator shard 2/5 success 2026-09-25T08:32:01Z 2026-09-25T08:57:11Z
+108001867452 Yosys shard 2/4 success 2026-09-25T08:32:02Z 2026-09-25T08:32:31Z
+108001868252 Physical gPTP (nightly and manual) skipped 2026-09-25T08:31:59Z 2026-09-25T08:31:59Z
+108014602008 verilator-suites success 2026-09-25T09:15:17Z 2026-09-25T09:15:24Z
+108014647609 yosys-portability success 2026-09-25T09:15:27Z 2026-09-25T09:15:33Z
+# shard 2/5 (job 108001867446) suite completions
+2026-09-25T08:33:19.6600792Z shard: 2/5   selected suites: 10
+2026-09-25T08:33:35.7123668Z PASS     aaf
+2026-09-25T08:33:41.1598511Z PASS     aaf_audio_loop
+2026-09-25T08:33:46.5084798Z PASS     aes3
+2026-09-25T08:33:51.8425542Z PASS     chmap_render
+2026-09-25T08:33:57.3804853Z PASS     crf_tx
+2026-09-25T08:53:16.4428172Z PASS     mmcm_servo
+2026-09-25T08:53:26.7034836Z PASS     ptp_sync
+2026-09-25T08:55:32.1935775Z PASS     ptp_ts
+2026-09-25T08:57:03.2388798Z PASS     render_setpoint
+2026-09-25T08:57:09.1004969Z PASS     shaper_core
+2026-09-25T08:57:09.1009148Z suites: 10   passed: 10   failed: 0   timed out: 0
+2026-09-25T08:57:09.1646315Z checks: 1523077   in-suite failures: 0
+# mmcm_servo window: 08:33:57.3804853Z (crf_tx PASS) -> 08:53:16.4428172Z (mmcm_servo PASS) = 1159.06 s of 1800 s (margin 640.94 s, 35.6%)
+# same shard at base 5b73d3f4 (round-1 receipt): 06:13:12.2338821Z -> 06:22:42.8526957Z = 570.62 s; runner-speed witnesses ptp_ts 124.0 s base vs 125.5 s head, render_setpoint 90.7 s vs 91.0 s
+# suite-logs-2 artifact mmcm_servo.log summary lines
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+KL_mmcm_drp_servo: 100 checks, 0 failures
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+mmcm_servo rails: 8 checks, 0 failures
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+== mmcm_servo phc_step: checks: 113   failures: 0 ==
+RESULT: PASS
+== mmcm_servo phc_step: checks: 90   failures: 0 ==
+RESULT: PASS
+TARGET_SHA 4bb431706c820d28ef1ca077b4e3509d75ac55b3
+slew_mutants invoked in hosted default log: 0
+4bb431706c820d28ef1ca077b4e3509d75ac55b3 parents: a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4 b94f53cc4e5dbfd9527ba666922a55804515165c msg: Merge b94f53cc4e5dbfd9527ba666922a55804515165c into a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4

@@ -1,0 +1,57 @@
+== head: rc=0
+  [ ok ] slew path: in-band pairs clear the plane level got=0 exp=0
+  [ ok ] slew path: consumed offset is between 80 and 100 us
+  [ ok ] slew path: the plane raises its level    got=1 exp=1
+  [ ok ] slew path: the actual servo receives the level
+  [ ok ] slew path: measured completion lowers the level got=0 exp=0
+  [ ok ] slew path: completion happened once      got=1 exp=1
+R301PROBE tail_samples=4 servo_high_samples=500200 alignment_errors=0 falls=1
+  [ ok ] slew path: PHC advances witness the release tail
+  [ ok ] slew path: every staged sample covers the PHC tail got=0 exp=0
+  [ ok ] slew path: servo clears after the PHC tail got=0 exp=0
+  [ ok ] slew path: a policy slew never steps the PHC got=0 exp=0
+== gmstep: checks: 58   failures: 0 ==
+RESULT: PASS
+== tail3: rc=1
+  [ ok ] slew path: in-band pairs clear the plane level got=0 exp=0
+  [ ok ] slew path: consumed offset is between 80 and 100 us
+  [ ok ] slew path: the plane raises its level    got=1 exp=1
+  [ ok ] slew path: the actual servo receives the level
+  [ ok ] slew path: measured completion lowers the level got=0 exp=0
+  [ ok ] slew path: completion happened once      got=1 exp=1
+R301PROBE tail_samples=4 servo_high_samples=500199 alignment_errors=1 falls=1
+  [ ok ] slew path: PHC advances witness the release tail
+  [FAIL] slew path: every staged sample covers the PHC tail got=1 exp=0
+  [ ok ] slew path: servo clears after the PHC tail got=0 exp=0
+  [ ok ] slew path: a policy slew never steps the PHC got=0 exp=0
+== gmstep: checks: 58   failures: 1 ==
+RESULT: FAIL
+== tail12: rc=0
+  [ ok ] slew path: in-band pairs clear the plane level got=0 exp=0
+  [ ok ] slew path: consumed offset is between 80 and 100 us
+  [ ok ] slew path: the plane raises its level    got=1 exp=1
+  [ ok ] slew path: the actual servo receives the level
+  [ ok ] slew path: measured completion lowers the level got=0 exp=0
+  [ ok ] slew path: completion happened once      got=1 exp=1
+R301PROBE tail_samples=4 servo_high_samples=500208 alignment_errors=0 falls=1
+  [ ok ] slew path: PHC advances witness the release tail
+  [ ok ] slew path: every staged sample covers the PHC tail got=0 exp=0
+  [ ok ] slew path: servo clears after the PHC tail got=0 exp=0
+  [ ok ] slew path: a policy slew never steps the PHC got=0 exp=0
+== gmstep: checks: 58   failures: 0 ==
+RESULT: PASS
+== addend2: rc=1
+  [ ok ] slew path: in-band pairs clear the plane level got=0 exp=0
+  [ ok ] slew path: consumed offset is between 80 and 100 us
+  [ ok ] slew path: the plane raises its level    got=1 exp=1
+  [ ok ] slew path: the actual servo receives the level
+  [ ok ] slew path: measured completion lowers the level got=0 exp=0
+  [ ok ] slew path: completion happened once      got=1 exp=1
+R301PROBE tail_samples=6 servo_high_samples=500200 alignment_errors=2 falls=1
+  [ ok ] slew path: PHC advances witness the release tail
+  [FAIL] slew path: every staged sample covers the PHC tail got=2 exp=0
+  [ ok ] slew path: servo clears after the PHC tail got=0 exp=0
+  [ ok ] slew path: a policy slew never steps the PHC got=0 exp=0
+== gmstep: checks: 58   failures: 1 ==
+RESULT: FAIL
+rc=0 wall_s=132
