@@ -1,0 +1,38 @@
+[
+  {
+    "case": "nested function capture",
+    "flag": "-fsyntax-only",
+    "rc": 0,
+    "diagnostic": ""
+  },
+  {
+    "case": "nested function capture",
+    "flag": "-O0",
+    "rc": 0,
+    "diagnostic": ""
+  },
+  {
+    "case": "memory asm dead",
+    "flag": "-fsyntax-only",
+    "rc": 1,
+    "diagnostic": "/tmp/544-register-language-t42lupbl/p.c: In function \u2018outer\u2019:\n/tmp/544-register-language-t42lupbl/p.c:1:1: error: address of register variable \u2018x\u2019 requested\n    1 | void outer(void) { register int x=0; if(0) __asm__(\"\" : \"=m\"(x)); }\n      | ^~~~\n"
+  },
+  {
+    "case": "memory asm dead",
+    "flag": "-O0",
+    "rc": 1,
+    "diagnostic": "/tmp/544-register-language-t42lupbl/p.c: In function \u2018outer\u2019:\n/tmp/544-register-language-t42lupbl/p.c:1:1: error: address of register variable \u2018x\u2019 requested\n    1 | void outer(void) { register int x=0; if(0) __asm__(\"\" : \"=m\"(x)); }\n      | ^~~~\n"
+  },
+  {
+    "case": "array decay register",
+    "flag": "-fsyntax-only",
+    "rc": 1,
+    "diagnostic": "/tmp/544-register-language-t42lupbl/p.c: In function \u2018outer\u2019:\n/tmp/544-register-language-t42lupbl/p.c:1:1: error: address of register variable \u2018x\u2019 requested\n    1 | void outer(void) { register int x[1]; int *y=x; (void)y; }\n      | ^~~~\n"
+  },
+  {
+    "case": "array decay register",
+    "flag": "-O0",
+    "rc": 1,
+    "diagnostic": "/tmp/544-register-language-t42lupbl/p.c: In function \u2018outer\u2019:\n/tmp/544-register-language-t42lupbl/p.c:1:1: error: address of register variable \u2018x\u2019 requested\n    1 | void outer(void) { register int x[1]; int *y=x; (void)y; }\n      | ^~~~\n"
+  }
+]

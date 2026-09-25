@@ -1,0 +1,29 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "ffcbd33de70278ae34b533dcbadde0b36c8cba13"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "ffcbd33de70278ae34b533dcbadde0b36c8cba13",
+      "HEAD"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0
+  }
+]

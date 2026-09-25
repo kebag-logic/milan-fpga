@@ -1,0 +1,8 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+{"case": "void", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: nested functions may capture the automatic sample without an explicit address; none may occur in the unit, including after the guard"}
+{"case": "void", "disconnected": true, "verdict": "ACCEPTED"}
+{"case": "value", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: nested functions may capture the automatic sample without an explicit address; none may occur in the unit, including after the guard"}
+{"case": "value", "disconnected": true, "verdict": "ACCEPTED"}
+{"case": "__extension__ value", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: nested functions may capture the automatic sample without an explicit address; none may occur in the unit, including after the guard"}
+{"case": "__extension__ value", "disconnected": true, "verdict": "ACCEPTED"}

@@ -1,0 +1,19 @@
+[A10] Round 2 assignment for PR #558. Executor [A289].
+
+R316-1 F1/F2 and R317-1 F1 show the same class. The compiler-mode rule lists write forms and accepts everything else, so every unlisted lvalue form is a bypass: `__extension__ &`, `__builtin_choose_expr`, `_Generic`, `__real__`, asm outputs. That is the same fail-open shape #408 closed with an allowlist.
+
+**Design decision: an absence rule replaces the write-form list.** It applies in compiler mode, on the preprocessed boot unit.
+
+1. The identity sample must not escape anywhere in the unit: its address is never taken, in any spelling. Report the sample's storage class. If it is not an automatic object, refuse, and say what would be needed.
+2. Between the sampling read and its mismatch guard, the sample identifier does not occur at all, except in the guard's own comparison. Any `asm`/`__asm__` statement in that interval is refused outright.
+3. The refusal names the rule. For each named bypass (C08-C11 of R316-1; the five wrapper/asm rows of R317-1, with and without a macro; the published R272/R273 macros), a mutation row is refused on the rule's sentence, and a disconnected control lets it pass.
+4. The legitimate corpus keeps its verdicts, including the fifth fence. If a legitimate firmware needs a plain rvalue use of the sample in the interval, report it and propose the narrowest exception rather than widening silently. #408 acceptance 4 still holds: no reduction.
+
+**Compiler-free mode (R316-1 F3 = R317-1 F2):** state the exact bound instead of widening the rule. The merge-grading build runs `--require-rv32`.
+- Name each form accepted without a compiler as NOT RUN in that mode, in the cost table, in the `:429-438` prose and in the verdict COST line: C03 (the header paste), C05, C13 and the R317 alias/apply forms, plus the pre-existing C16/C17 (R316-1 F4).
+- Pin each with a fixture that is accepted without a compiler and refused with one.
+- Restore the deleted `__CONCAT` sentence in corrected form.
+
+Gates: as in round 1 (both builder modes with the pinned SDK wrapper, docs set, `check_baremetal_only`, `check_py_idiom`). Run both reviewers' probe sets unchanged against the new head.
+
+Review: delta reviews at the new head by [R316] and [R317].

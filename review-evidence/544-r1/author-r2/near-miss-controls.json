@@ -1,0 +1,97 @@
+[
+  {
+    "label": "cast assignment argument",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+  },
+  {
+    "label": "cast assignment argument",
+    "disconnected": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "label": "cast used as lvalue",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+  },
+  {
+    "label": "discarded compound assignment",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+  },
+  {
+    "label": "discarded compound assignment",
+    "disconnected": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "label": "discarded mask comma assignment",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+  },
+  {
+    "label": "discarded mask comma assignment",
+    "disconnected": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "label": "discarded mask used as lvalue",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+  },
+  {
+    "label": "extension cast argument",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+  },
+  {
+    "label": "extension cast argument",
+    "disconnected": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "label": "choose cast argument",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+  },
+  {
+    "label": "choose cast argument",
+    "disconnected": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "label": "extension discarded mask",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+  },
+  {
+    "label": "extension discarded mask",
+    "disconnected": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "label": "choose discarded mask",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+  },
+  {
+    "label": "choose discarded mask",
+    "disconnected": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "label": "printf macro assigns argument",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+  }
+]

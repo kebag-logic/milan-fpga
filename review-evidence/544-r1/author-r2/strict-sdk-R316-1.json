@@ -1,0 +1,159 @@
+{
+  "mode": "sdk",
+  "base": null,
+  "disable": null,
+  "compiles": 24,
+  "hidden": [],
+  "results": [
+    {
+      "id": "C01",
+      "label": "published R272 macro x = MILAN_ID_MAGIC before guard",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C02",
+      "label": "published R273 macro ((x) = MILAN_ID_MAGIC) before guard",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C03",
+      "label": "header token paste __CONCAT(i, d) = MILAN_ID_MAGIC before guard",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C04",
+      "label": "local ## paste macro MILAN_CAT(i, d) = MILAN_ID_MAGIC",
+      "verdict": "REFUSED",
+      "reason": "a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+    },
+    {
+      "id": "C05",
+      "label": "local macro builds the sample through header __CONCAT(a, d)",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C06",
+      "label": "macro takes the address and writes: *&(x) = MAGIC",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C07",
+      "label": "macro sets a pointer alias, then a write through the alias",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C08",
+      "label": "macro takes the address behind __extension__ and writes",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C09",
+      "label": "no macro: *(__extension__ &(id)) = MAGIC",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C10",
+      "label": "macro writes the sample through an asm output operand",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"
+    },
+    {
+      "id": "C11",
+      "label": "no macro: asm output operand writes the sample",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"
+    },
+    {
+      "id": "C12",
+      "label": "published R273 macro inside a nested block",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C13",
+      "label": "object-like alias of the forging function-like macro",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C14",
+      "label": "published R273 macro invoked AFTER the guard (must be accepted)",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C15",
+      "label": "plain write id = 0u AFTER the guard (must be accepted)",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C16",
+      "label": "no macro: (id) = MAGIC before guard",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C17",
+      "label": "no macro: *&(id) = MAGIC before guard",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C18",
+      "label": "alias taken in the mismatch block, goto back before the sample",
+      "verdict": "REFUSED",
+      "reason": "milan_init() must not contain 'goto': control that enters the AEM-success guard by any path other than the guard's own condition advertises an unverified entity"
+    },
+    {
+      "id": "C19",
+      "label": "R273-S3: verifier group's #else deleted",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C20",
+      "label": "read-only macro use (void)(x) of the sample before guard",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C21",
+      "label": "variadic forwarding macro to the forging macro",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C22",
+      "label": "sample passed doubly parenthesized MILAN_FORGE((id))",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C23",
+      "label": "object-like macro naming the sample used as an lvalue",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C24",
+      "label": "__builtin_memcpy into &id via macro",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    },
+    {
+      "id": "C25",
+      "label": "compound assignment through a macro, no parentheses: x |= 0x4d494c4eu",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it"
+    }
+  ]
+}

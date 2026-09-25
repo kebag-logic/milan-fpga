@@ -1,0 +1,54 @@
+[
+  {
+    "name": "docs-git",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "docs-no-git",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "diff",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0
+  }
+]

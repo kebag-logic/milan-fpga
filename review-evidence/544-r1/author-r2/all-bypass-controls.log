@@ -1,0 +1,50 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+{"label": "macro extension address", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"}
+{"label": "macro extension address", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "plain extension address", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"}
+{"label": "plain extension address", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "macro asm immediate output", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"}
+{"label": "macro asm immediate output", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "plain asm immediate output", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"}
+{"label": "plain asm immediate output", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "macro choose lvalue", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"}
+{"label": "macro choose lvalue", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "plain choose lvalue", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"}
+{"label": "plain choose lvalue", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "macro generic lvalue", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"}
+{"label": "macro generic lvalue", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "plain generic lvalue", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"}
+{"label": "plain generic lvalue", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "macro real lvalue", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"}
+{"label": "macro real lvalue", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "plain real lvalue", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"}
+{"label": "plain real lvalue", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "macro extension lvalue", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"}
+{"label": "macro extension lvalue", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "plain extension lvalue", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"}
+{"label": "plain extension lvalue", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "macro asm tied output", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"}
+{"label": "macro asm tied output", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "plain asm tied output", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"}
+{"label": "plain asm tied output", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "macro generic default lvalue", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"}
+{"label": "macro generic default lvalue", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "asm no operand", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"}
+{"label": "asm no operand", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "__asm no operand", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"}
+{"label": "__asm no operand", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "__asm__ no operand", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"}
+{"label": "__asm__ no operand", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "plain after guard", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: automatic sample id must never escape anywhere in the preprocessed unit; the register diagnostic compile refused address-taking or could not prove its absence: /tmp/milan-cpp-evh7bz_k/milan_baremetal.c: In function 'milan_init':\n/tmp/milan-cpp-evh7bz_k/milan_baremetal.c:1446:2: error: address of register variable 'id' requested"}
+{"label": "plain after guard", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "extension after guard", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: automatic sample id must never escape anywhere in the preprocessed unit; the register diagnostic compile refused address-taking or could not prove its absence: /tmp/milan-cpp-d5f2ah7s/milan_baremetal.c: In function 'milan_init':\n/tmp/milan-cpp-d5f2ah7s/milan_baremetal.c:1446:2: error: address of register variable 'id' requested"}
+{"label": "extension after guard", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "choose after guard", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: automatic sample id must never escape anywhere in the preprocessed unit; the register diagnostic compile refused address-taking or could not prove its absence: /tmp/milan-cpp-j4uizjlu/milan_baremetal.c: In function 'milan_init':\n/tmp/milan-cpp-j4uizjlu/milan_baremetal.c:1446:2: error: address of register variable 'id' requested"}
+{"label": "choose after guard", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "generic after guard", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: automatic sample id must never escape anywhere in the preprocessed unit; the register diagnostic compile refused address-taking or could not prove its absence: /tmp/milan-cpp-yd_avaz8/milan_baremetal.c: In function 'milan_init':\n/tmp/milan-cpp-yd_avaz8/milan_baremetal.c:1446:10: warning: ISO C99 does not support '_Generic' [-Wpedantic]\n/tmp/milan-cpp-yd_avaz8/milan_baremetal.c:1446:2: error: address of register variable 'id' requested"}
+{"label": "generic after guard", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "real after guard", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: automatic sample id must never escape anywhere in the preprocessed unit; the register diagnostic compile refused address-taking or could not prove its absence: /tmp/milan-cpp-h5yj661r/milan_baremetal.c: In function 'milan_init':\n/tmp/milan-cpp-h5yj661r/milan_baremetal.c:1446:2: error: address of register variable 'id' requested"}
+{"label": "real after guard", "disconnected": true, "verdict": "ACCEPTED"}
+{"label": "wrapped extension after guard", "disconnected": false, "verdict": "REFUSED", "reason": "identity-sample absence rule: automatic sample id must never escape anywhere in the preprocessed unit; the register diagnostic compile refused address-taking or could not prove its absence: /tmp/milan-cpp-7cy0d2xp/milan_baremetal.c: In function 'milan_init':\n/tmp/milan-cpp-7cy0d2xp/milan_baremetal.c:1446:2: error: address of register variable 'id' requested"}
+{"label": "wrapped extension after guard", "disconnected": true, "verdict": "ACCEPTED"}

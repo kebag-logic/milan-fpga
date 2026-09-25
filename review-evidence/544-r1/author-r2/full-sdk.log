@@ -1,0 +1,37 @@
+SDK argv: ["$VALIDATION_STORAGE/504-manager-r1/sdk-install/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$VALIDATION_STORAGE/504-manager-r1/sdk-install/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$VALIDATION_STORAGE/504-manager-r1/sdk-install/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$VALIDATION_STORAGE/504-manager-r1/sdk-install/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "$VALIDATION_STORAGE/504-manager-r1/sdk-install", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "$VALIDATION_STORAGE/504-manager-r1/sdk-install/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "$VALIDATION_STORAGE/504-manager-r1/sdk-install/bin/toolchain-wrapper", "sysroot": "$VALIDATION_STORAGE/504-manager-r1/sdk-install/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+test_all_configs_build:
+  [gate 1] arty_current: builds end-to-end (sw/builder/out/endstation_arty_current/)
+  [gate 1] arty_4x4: builds end-to-end (sw/builder/out/endstation_arty_4x4/)
+  [gate 1] arty_8ch: builds end-to-end (sw/builder/out/endstation_arty_8ch/)
+  [gate 1] ax7101_8x8: builds end-to-end (sw/builder/out/endstation_ax7101_8x8/)
+  [gate 1] ax7101_1x1_tdm8: builds end-to-end (sw/builder/out/endstation_ax7101_1x1_tdm8/)
+test_baremetal_profile_contract:
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+Traceback (most recent call last):
+  File "$HOME/milan-fpga-management/2026-09-23/544-a289/run-builder.py", line 33, in <module>
+    runpy.run_path("sw/builder/test_builder.py", run_name="__main__")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "sw/builder/test_builder.py", line 27181, in <module>
+    fn()
+    ~~^^
+  File "sw/builder/test_builder.py", line 11428, in test_baremetal_profile_contract
+    baseline_census_verdict = assert_boot_contract(
+        firmware_source, docs_source, csr_source)
+  File "sw/builder/test_builder.py", line 11207, in assert_boot_contract
+    assert_preprocessed_identity_sample(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        preprocessed, identity_read.group("name"), model)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "sw/builder/test_builder.py", line 5214, in assert_preprocessed_identity_sample
+    assert sample not in identifiers, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: identity-sample absence rule: id occurs between its CSR read and mismatch guard; only the guard comparison may name it

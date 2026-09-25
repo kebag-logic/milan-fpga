@@ -1,0 +1,35 @@
+[
+  {
+    "case": "void",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: nested functions may capture the automatic sample without an explicit address; none may occur in the unit, including after the guard"
+  },
+  {
+    "case": "void",
+    "disconnected": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "case": "value",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: nested functions may capture the automatic sample without an explicit address; none may occur in the unit, including after the guard"
+  },
+  {
+    "case": "value",
+    "disconnected": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "case": "__extension__ value",
+    "disconnected": false,
+    "verdict": "REFUSED",
+    "reason": "identity-sample absence rule: nested functions may capture the automatic sample without an explicit address; none may occur in the unit, including after the guard"
+  },
+  {
+    "case": "__extension__ value",
+    "disconnected": true,
+    "verdict": "ACCEPTED"
+  }
+]

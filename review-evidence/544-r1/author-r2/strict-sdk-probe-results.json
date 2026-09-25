@@ -1,0 +1,75 @@
+[
+  {
+    "tag": "strict-sdk-R316-1",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/544-a289-evidence-h6ve__ch/R316-1/scripts/probe.py",
+      "sdk",
+      "--out",
+      "$HOME/milan-fpga-management/2026-09-23/544-a289/strict-sdk-R316-1.json",
+      "--scratch",
+      "/tmp/544-a289-evidence-h6ve__ch/runs",
+      "--sdk",
+      "$VALIDATION_STORAGE/504-manager-r1/sdk-install"
+    ],
+    "rc": 0
+  },
+  {
+    "tag": "strict-sdk-R316-1-disconnected",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/544-a289-evidence-h6ve__ch/R316-1/scripts/probe.py",
+      "sdk",
+      "--out",
+      "$HOME/milan-fpga-management/2026-09-23/544-a289/strict-sdk-R316-1-disconnected.json",
+      "--scratch",
+      "/tmp/544-a289-evidence-h6ve__ch/runs",
+      "--sdk",
+      "$VALIDATION_STORAGE/504-manager-r1/sdk-install",
+      "--disable",
+      "assert_preprocessed_identity_sample"
+    ],
+    "rc": 0
+  },
+  {
+    "tag": "strict-sdk-R317-1",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/544-a289-evidence-h6ve__ch/R317-1/probe_gate1b.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--tag",
+      "strict-sdk-R317-1",
+      "--outdir",
+      "$HOME/milan-fpga-management/2026-09-23/544-a289",
+      "--sdk",
+      "$VALIDATION_STORAGE/504-manager-r1/sdk-install"
+    ],
+    "rc": 0
+  },
+  {
+    "tag": "strict-sdk-R317-1-disconnected",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/544-a289-evidence-h6ve__ch/R317-1/probe_gate1b.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--tag",
+      "strict-sdk-R317-1-disconnected",
+      "--outdir",
+      "$HOME/milan-fpga-management/2026-09-23/544-a289",
+      "--sdk",
+      "$VALIDATION_STORAGE/504-manager-r1/sdk-install",
+      "--disconnect"
+    ],
+    "rc": 0
+  }
+]

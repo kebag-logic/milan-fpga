@@ -1,0 +1,87 @@
+[
+  {
+    "name": "docs-git",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 4.071767713990994,
+    "mode": "normal"
+  },
+  {
+    "name": "docs-no-git",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 4.123689873027615,
+    "mode": "no git metadata visible"
+  },
+  {
+    "name": "baremetal",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 14.146115824987646,
+    "mode": "normal"
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.06408164103049785,
+    "mode": "normal"
+  },
+  {
+    "name": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2,
+    "seconds": 0.11417286598589271,
+    "mode": "normal"
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.06402125000022352,
+    "mode": "normal"
+  },
+  {
+    "name": "py-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 3.070304766006302,
+    "mode": "normal"
+  },
+  {
+    "name": "diff",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.06418183102505282,
+    "mode": "normal"
+  }
+]

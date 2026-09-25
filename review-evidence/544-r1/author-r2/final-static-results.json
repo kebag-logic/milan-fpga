@@ -1,0 +1,99 @@
+[
+  {
+    "head": "77e9ca5ea9e04a7618c577ab511baec63b39dc05",
+    "name": "docs-git",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "mode": "normal"
+  },
+  {
+    "head": "77e9ca5ea9e04a7618c577ab511baec63b39dc05",
+    "name": "docs-no-git",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "mode": "no git metadata visible"
+  },
+  {
+    "head": "77e9ca5ea9e04a7618c577ab511baec63b39dc05",
+    "name": "baremetal",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "mode": "normal"
+  },
+  {
+    "head": "77e9ca5ea9e04a7618c577ab511baec63b39dc05",
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "mode": "normal"
+  },
+  {
+    "head": "77e9ca5ea9e04a7618c577ab511baec63b39dc05",
+    "name": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "mode": "normal"
+  },
+  {
+    "head": "77e9ca5ea9e04a7618c577ab511baec63b39dc05",
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "mode": "normal"
+  },
+  {
+    "head": "77e9ca5ea9e04a7618c577ab511baec63b39dc05",
+    "name": "py-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "mode": "normal"
+  },
+  {
+    "head": "77e9ca5ea9e04a7618c577ab511baec63b39dc05",
+    "name": "diff",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "mode": "normal"
+  },
+  {
+    "head": "77e9ca5ea9e04a7618c577ab511baec63b39dc05",
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "ffcbd33de70278ae34b533dcbadde0b36c8cba13"
+    ],
+    "rc": 0,
+    "mode": "normal"
+  }
+]
