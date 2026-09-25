@@ -1,0 +1,54 @@
+arm: extra_term
+mutation: assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0] & pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0] & {SRP_TALKERS_C{cfg_lwsrp_enable}};
+rc: 1
+--- stdout
+USING RUNNER: behave.runner:Runner
+Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
+  Background: 
+
+  Scenario: every term that can open the AAF admission gate is accounted for
+    Given the Milan datapath and AAF talker RTL sources ... passed in 0.000s
+    When I read the aaf_gate expression from milan_datapath ... passed in 0.003s
+    Then the gate has exactly one escape hatch and it is named cfg_aaf_bypass ... passed in 0.000s
+    And with the escape hatch clear the gate requires the lwSRP stream gate ... passed in 0.000s
+    And the escape hatch is recorded as a Milan 5.3.7.3 conformance defect ... passed in 0.000s
+
+  Scenario: a talker above 0 egresses on the SRP licence alone, with its own identity
+    Given the Milan datapath and AAF talker RTL sources ... passed in 0.000s
+    When I read the t>0 AAF admission expression from milan_datapath ... passed in 0.002s
+    Then the t>0 admission does NOT require a per-context runtime enable ... passed in 0.000s
+    And the t>0 admission requires the lwSRP stream gate unconditionally ... passed in 0.000s
+    And the effective t>0 admission is masked by output mapping reservations ... passed in 0.002s
+    When I read the t>0 wire identity from KL_aaf_packetizer ... passed in 0.000s
+    Then the t>0 identity is derived from the same roots the declaration uses ... passed in 0.000s
+    And software may still name each identity field explicitly ... passed in 0.000s
+
+  Scenario: the stream gate requires ACTIVE AND the per-source real grant, nothing else
+    Given the Milan datapath and AAF talker RTL sources ... passed in 0.000s
+    When I read the lwSRP stream gate assignment from milan_datapath ... passed in 0.004s
+    Then the stream gate takes ACTIVE AND the per-source real grant and nothing else ... failed in 0.000s
+ASSERT FAILED: lwsrp_stream_gate must be ACTIVE AND the per-source real grant and nothing else; expression is pp_cd_srp_active_w[SRP_TALKERS_C-1:0] & pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0] & {SRP_TALKERS_C{cfg_lwsrp_enable}}
+
+  Scenario: the bench bridge declares Listener Ready for our StreamID
+    Given the Milan datapath and AAF talker RTL sources ... passed in 0.000s
+    Given the MSRPDU captured from the bench bridge on 2026-07-28 ... passed in 0.000s
+    Then it is a well-formed MRPDU whose every AttributeLength matches 802.1Q Table 35-1 ... passed in 0.000s
+    And it declares a Listener attribute for StreamID 0200000000010000 ... passed in 0.000s
+    And that Listener declaration is Ready ... passed in 0.000s
+    And the SR class A domain is present as the +1 value of a B-first packed pair ... passed in 0.000s
+
+  Scenario: the same capture is not mistaken for a licence when it withdraws
+    Given the Milan datapath and AAF talker RTL sources ... passed in 0.000s
+    Given the MSRPDU captured from the bench bridge on 2026-07-28 ... passed in 0.000s
+    When the Listener three-packed event is changed to Lv ... passed in 0.000s
+    Then the Listener declaration is a withdrawal and licenses nothing ... passed in 0.000s
+
+
+Failing scenarios:
+  features/milan_streaming_licence.feature:87  the stream gate requires ACTIVE AND the per-source real grant, nothing else
+
+0 features passed, 1 failed, 0 skipped
+4 scenarios passed, 1 failed, 0 skipped
+25 steps passed, 1 failed, 0 skipped
+Took 0min 0.013s
+--- stderr

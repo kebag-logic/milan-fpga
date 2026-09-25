@@ -1,0 +1,5 @@
+check_em_dash          rc=0  $REVIEWS/551-r297-3-packet/scratch/mdvenv/bin/python -B scripts/check_em_dash.py --base 864b36f5e9450ef64f75ca3f0d68c44330e447d7
+gen_toc_check          rc=0  $REVIEWS/551-r297-3-packet/scratch/mdvenv/bin/python -B scripts/gen_toc.py --check
+gen_toc_anchors        rc=0  $REVIEWS/551-r297-3-packet/scratch/mdvenv/bin/python -B scripts/gen_toc.py --verify-anchors
+docs_check_git         rc=0  $REVIEWS/551-r297-3-packet/scratch/mdvenv/bin/python -B scripts/docs_check.py
+docs_check_nogit       rc=0  env GIT_DIR=/nonexistent-r297-3-git $REVIEWS/551-r297-3-packet/scratch/mdvenv/bin/python -B scripts/docs_check.py
