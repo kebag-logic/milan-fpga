@@ -1,0 +1,13 @@
+head=afdd28b701e7f5849317e27ce845c31d1c87f2a6
+--- capture-hold / #559 / withdrawn-obligation references
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1607:[Issue #559](https://github.com/kebag-logic/milan-fpga/issues/559) owns measurement and resolution of this firmware copy.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1710:   [Issue #559](https://github.com/kebag-logic/milan-fpga/issues/559) owns measurement and resolution of this firmware copy.
+docs/design/SAVED_STATE_MATERIALIZATION.md:1649:  [capture-hold measurement obligation](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#20-unresolved).
+docs/design/SAVED_STATE_FASTCONNECT.md:457:The later output-capacity adoption is a separate donor obligation.
+--- withdrawn premise wording
+--- every processor #61/#83 obligation line
+docs/design/SAVED_STATE_MATERIALIZATION.md:1639:  Processor #61/#83 must adopt the capacity when implementing maps.
+docs/design/SAVED_STATE_MATERIALIZATION.md:1648:  Processor #61/#83 must also satisfy the
+docs/design/SAVED_STATE_MATERIALIZATION.md:1705:| Growing each output map record to the stream-channel key space | subsequently decided by #501; see the saved-state allocation | donor adoption: processor #61/#83 |
+docs/design/SAVED_STATE_MATERIALIZATION.md:2048:2. **Output-map writer adoption remains required** (processor #61/#83).
+docs/design/SAVED_STATE_MATERIALIZATION.md:2149:| "All eight Milan items plus the bound state, the binding parameters and started/stopped survive a reset that is proven to have cleared the rows first" | 8.2, 10 | each stage's silicon proof; maps at 8x8 after processor #61/#83 adopt the #501 allocation |
