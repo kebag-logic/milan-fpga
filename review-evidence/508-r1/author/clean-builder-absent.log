@@ -1,0 +1,2 @@
+{"name": "clean-builder-absent", "argv": ["python3", "-c", "from pathlib import Path; import subprocess,shutil; p=Path('sw/builder/out'); assert not subprocess.check_output(['git','ls-files','--',str(p)]); shutil.rmtree(p,ignore_errors=True); print('Removed generated builder output; no tracked files affected')"], "cwd": "$LANES/508-pp-pin-adopt", "head": "6a9828c172aa4d5d8ee49725e357a10bae2caa52", "start": "2026-09-25T01:16:08.502408+00:00", "log": "clean-builder-absent.log"}
+Removed generated builder output; no tracked files affected

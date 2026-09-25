@@ -1,0 +1,18 @@
+{"name": "clean-start", "argv": ["python3", "-c", "import subprocess; subprocess.run([\"git\",\"status\",\"--short\"],check=True); subprocess.run([\"git\",\"submodule\",\"status\"],check=True); [subprocess.run([\"make\",\"-C\",\"tb/verilator/\"+s,\"clean\"],check=True) for s in [\"pp_shadow\",\"milan_dp\",\"milan_dp_render\",\"nvm_cosim\"]]"], "cwd": "$LANES/508-pp-pin-adopt", "head": "e9f8ea5aa06515bbc86cfaded7f5bd24ad10c5b4", "start": "2026-09-25T00:47:57.434669+00:00", "log": "clean-start.log"}
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor (heads/main)
+ 990f96526bb89356c963a260ebbdcf2a77e6623a protocol-processor (v2.0-262-g990f965)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+make: Entering directory '$LANES/508-pp-pin-adopt/tb/verilator/pp_shadow'
+rm -rf obj_dir ltn_rom.hex ucode.hex
+make: Leaving directory '$LANES/508-pp-pin-adopt/tb/verilator/pp_shadow'
+make: Entering directory '$LANES/508-pp-pin-adopt/tb/verilator/milan_dp'
+rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+make: Leaving directory '$LANES/508-pp-pin-adopt/tb/verilator/milan_dp'
+make: Entering directory '$LANES/508-pp-pin-adopt/tb/verilator/milan_dp_render'
+rm -rf ltn_rom.hex ucode.hex tdm8r_aemi.bin obj_tdm8r_aem tdm8rm_aemi.bin \
+       obj_tdm8rm_aem gen_tdm8r_multi obj_tdm8r obj_tdm8rm __pycache__
+make: Leaving directory '$LANES/508-pp-pin-adopt/tb/verilator/milan_dp_render'
+make: Entering directory '$LANES/508-pp-pin-adopt/tb/verilator/nvm_cosim'
+rm -rf build runs
+make: Leaving directory '$LANES/508-pp-pin-adopt/tb/verilator/nvm_cosim'

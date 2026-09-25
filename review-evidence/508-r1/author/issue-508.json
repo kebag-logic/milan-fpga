@@ -1,0 +1,76 @@
+{
+  "body": "[A10] PP (protocol processor) integration tracking. Backlog until the donor interface is settled; no implementation has started.\n\n## Objective and observed evidence\n\nMake the parent product report the listener's actual probing/ACMP status and registered MSRP failure bridge ID through GET_STREAM_INFO, including unsolicited responses.\n\nAt parent dev `b17580b91deb11f3441dfc5d7f9fafe539d929b8`, [the stream-info gather](https://github.com/kebag-logic/milan-fpga/blob/b17580b91deb11f3441dfc5d7f9fafe539d929b8/hdl/milan/milan_datapath.sv#L4730) returns zero for a sink failure bridge ID. [Selector 7](https://github.com/kebag-logic/milan-fpga/blob/b17580b91deb11f3441dfc5d7f9fafe539d929b8/hdl/milan/milan_datapath.sv#L4737) derives DISABLED/PASSIVE/COMPLETED from bound/settled and fixes acmpsta to zero. PP owns the actual state but does not yet make all these values available to the parent.\n\nDonor implementation contracts:\n\n- PP failure bridge export: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/43\n- PP probing/ACMP status publication or response ownership: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/49\n\nThis is an integration gap, not an assertion that either PP correction has landed.\n\n## Authority and boundaries\n\nMilan v1.2 sections 5.3.8.6, 5.3.8.8, and 5.4.5.2/Table 5.22; PP `docs/architecture/02_interfaces.md` F02.10 and `06_aecp_engine.md` F06.13; parent `REQUIREMENTS.md` sections 1/2/8; `docs/reference/SUBMODULES.md`; the GET_STREAM_INFO gather in `hdl/milan/milan_datapath.sv` and PP wrapper in `hdl/milan/KL_pp_shadow.sv`.\n\nPP owns the listener/SRP state and its public face. This repository owns adoption of the reviewed donor revision, adaptation through the wrapper, the parent gather/event path, and product evidence. If PP resolves the status internally instead of adding outputs, record that seam and adapt the parent accordingly; do not duplicate the state owner.\n\nClosed #69 is notification integration history. Closed #472/#490 and residue #495 concern other SRP status encodings/cleanup. They do not own these missing fields. Release qualification stays in #76.\n\n## Scope and acceptance\n\n1. Record the final PP-owned interface and merged donor revision. A cold reviewer can follow each field from its PP state owner to a controller response.\n2. With real PP/root wiring, GET_STREAM_INFO reports DISABLED after unbind, PASSIVE after bind, ACTIVE with the specified ACMP failure after probe timeout, and COMPLETED after successful settle. acmpsta is zero outside the state where Milan permits it.\n3. A registered Talker Failed carries the injected code and full 64-bit bridge ID for the correct sink; withdrawal/replacement clears or changes them per the PP validity contract. Test two distinct sink values in a supported multi-sink shape, plus reset and a missing descriptor.\n4. Solicited and unsolicited responses use the same current values. The notification path detects these changes, excludes the requester where required, and does not announce a fabricated transition.\n5. Tying each new field to zero, selecting the wrong sink, and retaining the current probing approximation each fail a completed-scenario assertion. Existing output-stream status and parent SRP status-word behavior remain covered.\n6. Update the authoritative integration/status limitations only after executable evidence exists.\n\nOut of scope: implementing the donor state machines in the parent; unrelated SRP timing, NVM state, redundancy, or broad notification redesign.\n\n## Validation\n\nRun the new real-wiring cases through `make -C tb/verilator/pp_shadow` and the relevant `tb/verilator/milan_dp` response/notification path. Expected: correct byte-exact replies at every named transition; all negative controls fail their named property. Record exact commands, configuration, donor pin and results. Complete the donor gates, the parent `scripts/run_all_suites.sh <fresh-log-directory>`, `syn/yosys/run.sh`, lint/xvlog and required local/hosted gates on the candidate, as CONTRIBUTING requires. Review every applicable lens before merging.\n\n## Dependencies, readiness and roles\n\nDepends on settled PP43/49 interfaces and their reviewed donor delivery, then a separately validated parent pin/integration. Conflicts with other owners of `KL_pp_shadow.sv`, the stream-info gather and its tests; assign one lane before edits. Executor: unassigned. Independent reviewers: unassigned. Remains Backlog until the donor seam and candidate integration base are recorded. No existing issue's criteria change.\n",
+  "comments": [
+    {
+      "id": "IC_kwDOP42Xbc8AAAABWt5_sw",
+      "author": {
+        "login": "Mister-M-alt"
+      },
+      "authorAssociation": "MEMBER",
+      "body": "[A10] ASSIGNMENT [A274]: adopt processor main `a8f8ce81`, and implement #508 on the seam it provides\n\nBase: dev `573f0052`. The parent currently pins processor `09f9bf38`.\n\nThe adopted processor revision carries:\n- Mister-M-alt/protocol-processor-control-plane-avb-milan#92/#93 (boot restore);\n- #94 (descriptor-memory guard);\n- #43/#49 (GET_STREAM_INFO selectors 5 and 7 served from processor state, with no new port);\n- #112 (the admission grant is trustworthy after a re-declaration).\n\nScope:\n1. Move the `protocol-processor` gitlink to `a8f8ce81`. Re-record `syn/yosys/rom_digests.tsv` with the repository's own tool. Update `SUBMODULES.md` and the CHANGELOG with one line per adopted change.\n2. #508 on the new seam. The processor no longer asks the integrator for selectors 5 and 7, so remove the parent's now-unused gather for them in `milan_datapath.sv`: the zero bridge ID and the selector-7 approximation. Do not duplicate the state owner.\n   - Prove #508 acceptance 2-5 at the parent level, in `milan_dp` with real processor and root wiring:\n     - DISABLED, PASSIVE, ACTIVE (with `acmpsta`) and COMPLETED;\n     - the Talker Failed code and 64-bit bridge ID per sink, for two sinks in a multi-sink shape;\n     - solicited responses equal unsolicited ones;\n     - mutants that tie the fields to zero or pick the wrong sink fail.\n   - Update the integration and limitations docs (acceptance 6).\n3. Every parent suite that consumes the processor stays green: `pp_shadow`, `milan_dp` and the builder in both modes.\n\n#551's cold-pipeline case is not flipped here. #553 does that after this merges.\n",
+      "createdAt": "2026-09-24T18:07:10Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/508#issuecomment-5819498419",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOP42Xbc8AAAABWwS0Pg",
+      "author": {
+        "login": "Mister-M-alt"
+      },
+      "authorAssociation": "MEMBER",
+      "body": "[A274] REVIEW READY\nCommit: 35f0695815c202392b6b4806bb9f59dd110687ed (branch `508-pp-pin-adopt`, base dev 573f0052; local head, not pushed from this lane)\nChanged:\n- `protocol-processor` 09f9bf38 -> a8f8ce81 (processor #92/#93 PR 109, #94 PR 110, #43/#49 PR 111, #112 PR 114); ROM digests re-recorded with `syn/yosys/ooc.sh --record-rom-digests` (images unchanged); SUBMODULES.md, submodule diagram, CHANGELOG.\n- `milan_datapath.sv`: STREAM_INPUT selectors 5 and 7 and the selector 4 failure-code byte are left to the processor; the bound/settled approximation and the zero bridge id are deleted.\n- `sim_nxn.cpp` `[GSI]` in the timed `obj_notify` leg (AX 1x1: AAF sink 0, CRF sink 1) and `gsi_mutants.py` (`make gsi-mutants`).\n- New-pin adaptations: every harness that binds a sink starts the NVM walk via PP_CTRL[1] (the listener is held until it ends); `nvm_cosim`'s transcription wires the new arbiter, error cause, abort and deadline.\n- Docs: integration guide, REGISTER_MAP (PP_CTRL[1], LWSRP_STATUS[9]/LWSRP_SLOPE after #112), troubleshooting section 27, compliance matrix, TESTING, suite README.\nValidation (all foreground, rc 0 unless stated):\n- `make -C tb/verilator/pp_shadow` 371/0; milan_dp default sweep from clean, 31/31 commands rc 0 (notify 345/0, nxn 1709/0, nxn8 3137/0, aclk 140/0, render mutants 6/6, ...); `make gsi-mutants` 8/8; milan_dp_render 152/0, 60/0, 5/5; nvm_cosim 465/465, 39/39 mutants.\n- Builder with the pinned SDK: ALL GATES PASS EXCEPT 1 NOT RUN (gate 11, no board build tree). Without an RV32 compiler: ALL GATES PASS EXCEPT 2 NOT RUN (the compiled census by design, gate 11).\n- `pp_srcs.py --check --selftest`, `docs_check.py` (git and no-git), `check_em_dash --base 573f0052`, `check_doc_style`, `gen_toc --check`, `check_doc_paths`, `gen_module_matrix.py --check`, `xvlog_gate --check`, `check_rtl_source_lists`, `check_cpp_idiom`, `check_py_idiom`, behave (344 scenarios), Yosys 54/54 tops (every top reads the derived processor list), `git diff --check`.\nAcceptance criteria:\n- 1: seam and lineage recorded (suite README table: state owner -> selector -> response byte).\n- 2: DISABLED, ACTIVE with 0, 7 (LISTENER_TALKER_TIMEOUT) and 3, PASSIVE, COMPLETED graded; acmp_status 0 outside ACTIVE. Note: a bind is ACTIVE at once and PASSIVE follows the retry (processor PR 111, Milan 5.5.3.5.3/5.5.3.5.29), not \"PASSIVE after bind\".\n- 3: code and full 64-bit bridge id per sink, distinct on both sinks; change and withdrawal; reset; missing descriptor.\n- 4: every transition pushes one GET_STREAM_INFO to each registered controller, equal to the solicited answer from the body on; refresh and duplicate probe push nothing; STOP_STREAMING pushes its own response and excludes the requester.\n- 5: bridge/code/status tied to zero, wrong sink and the restored approximation each fail a named completed-scenario check (7 to 30 of 345).\n- 6: integration and limitation docs updated after the evidence.\nOpen risks/questions:\n- BLOCKER, needs a decision: three parent gates in the required `docs-check` context refuse processor content new at a8f8ce81 (docs.yml is green on dev 573f0052). `check_port_contracts.py`: 7 literal-bound `u_nvm_arb.m1_*` connections without a rationale comment above their runs (PR 109). `measure_naming.py --check`: `KL_aecp_desc_mem_guard:s_rsp_data_o` and `protocol_processor_top:srp_sr_admitted_o` document a unit their names lack (PR 110, PR 114). `measure_test_evidence.py --check`: three new processor mutation drivers pass a host `timeout=` (PR 110, 111, 114), 6 > ratchet 3. Each gate forbids adding identities or raising the ratchet. Recommended: a processor follow-up, then re-pin (gitlink, digest rows, pin text only). The parent-owned dispositions for those three drivers are added here.\n- Report only: the firmware's `nvm_boot()` returns before starting the walk when its record shape is inconsistent; the builder refuses such a build.\n- Not run locally: the scheduled `milan_dp_gptp` physical suite and the live SoC elaboration.\n",
+      "createdAt": "2026-09-24T20:48:33Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/508#issuecomment-5822002238",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOP42Xbc8AAAABWwVltg",
+      "author": {
+        "login": "Mister-M-alt"
+      },
+      "authorAssociation": "MEMBER",
+      "body": "[A10] Decision on the [A274] BLOCKER (REVIEW READY 5822002238): option 1.\n\nThe three `docs-check` findings belong to the processor. Adding the identities or raising the wall-clock ratchet here would break those gates' own rule that a ratchet only goes down. The fix is processor issue Mister-M-alt/protocol-processor-control-plane-avb-milan#116.\n\nThis lane is held at `35f06958`, pushed as `508-pp-pin-adopt`, with no PR yet. When #116 merges, the lane re-pins to the resulting processor main. Only the gitlink, the rom_digests row and the pin text move, then the lane re-runs its gates. If processor #113 (PR #115) merges first, the re-pin includes it, and the lane re-checks the `[GSI]` and notify legs against it.\n\nThe firmware `nvm_boot()` early return the handoff reports stays out of scope here. Tracking: #495.\n",
+      "createdAt": "2026-09-24T20:51:36Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/508#issuecomment-5822047670",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOP42Xbc8AAAABWy4A2w",
+      "author": {
+        "login": "Mister-M-alt"
+      },
+      "authorAssociation": "MEMBER",
+      "body": "[A10] Round 2 assignment for #508, following decision 5822047670. Processor #116 has merged as `265d6762` and #113 as `990f9652`. Executor [A295].\n\n1. Merge dev `c266432d` (#408 and #387b have landed) into `508-pp-pin-adopt`. Resolve the five conflicts with #387b: `CHANGELOG.md`, `docs/testing/TESTING.md`, `scripts/measure_test_evidence.py`, `tb/verilator/milan_dp/Makefile` and `tb/verilator/milan_dp/README.md`. Keep both sides' content; do not drop a leg, a disposition or a row.\n2. Re-pin `protocol-processor` from `a8f8ce81` to `990f96526bb89356c963a260ebbdcf2a77e6623a`. Re-record the ROM digests (`syn/yosys/ooc.sh --record-rom-digests`), and update the pin text in `SUBMODULES`, the diagram and the CHANGELOG. Extend the adopted-change table with #116 (parent-gate fixes, no port change) and #113 (a latency-only GET_STREAM_INFO notification). Say whether any `milan_dp` notify or `[GSI]` check sees the new latency notification, and adapt a check only if it does.\n3. Re-run the full gate set of round 1 at the new head, from clean: the builder in both modes; the `milan_dp` default sweep; `milan_dp_render`; `nvm_cosim`; `gsi-mutants`; `pp_shadow`; yosys shards; `behave`; the docs set; `xvlog`, source lists and idioms. Add `check_port_contracts.py`, `measure_naming.py --check` and `measure_test_evidence.py --check`, all of which must now exit 0.\n\nReviewers: [R306] internal and [R307] external, first round.\n",
+      "createdAt": "2026-09-25T00:42:24Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/508#issuecomment-5824708827",
+      "viewerDidAuthor": true
+    }
+  ],
+  "projectItems": [
+    {
+      "status": {
+        "optionId": "f75ad846",
+        "name": "Backlog"
+      },
+      "title": "Road to milan v1.2 Task"
+    }
+  ],
+  "title": "[PP integration] Serve actual listener probing status and MSRP failure bridge IDs",
+  "url": "https://github.com/kebag-logic/milan-fpga/issues/508"
+}

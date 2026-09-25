@@ -1,0 +1,10 @@
+{"name": "dp-36", "argv": ["python3", "gmstep_mutants.py"], "cwd": "$LANES/508-pp-pin-adopt/tb/verilator/milan_dp", "head": "6a9828c172aa4d5d8ee49725e357a10bae2caa52", "start": "2026-09-25T01:24:49.352224+00:00", "log": "dp-36.log"}
+[PASS] the unmutated gateware still passes the gmstep leg
+[PASS] control caught: the step does not toggle mr - breaks "restart: the outgoing mr toggles exactly once"
+    it broke 2 check(s): restart: the outgoing mr toggles exactly once; restart: the talker's MEDIA_RESET counts exactly one
+[PASS] control caught: the grandmaster identity re-bases the render stage as well as the step - breaks "render: the GM change is one counted re-base event"
+    it broke 2 check(s): render: the GM change is one counted re-base event; render: every counted re-base lands at a PDU end right after the step
+[PASS] control caught: the step does not re-centre the render stage - breaks "render: the GM change is one counted re-base event"
+    it broke 1 check(s): render: the GM change is one counted re-base event
+
+4 checks: 4 PASS, 0 FAIL
