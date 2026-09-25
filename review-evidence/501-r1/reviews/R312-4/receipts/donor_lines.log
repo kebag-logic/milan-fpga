@@ -1,0 +1,38 @@
+# donor-adoption lines the assignment keeps (content at head)
+== docs/design/SAVED_STATE_MATERIALIZATION.md:1638-1641
+  At 1x1, `max(17, 2 * 8)` preserves every byte.
+  Processor #61/#83 must adopt the capacity when implementing maps.
+  The historical K16 evidence below exercised the old allocation.
+  Permanent pending still does not satisfy persistence.
+== docs/design/SAVED_STATE_MATERIALIZATION.md:1702-1705
+| The held-request path in the arbiter | unreachable under the rule of section 6.4, so no case can fail it | the evidence's first mutant A01 survived; the path is removed |
+| Growing each output map record to the stream-channel key space | subsequently decided by #501; see the saved-state allocation | donor adoption: processor #61/#83 |
+| Counting the records each pass read whole and comparing the counts (round two) | two differences balance: one record lost in each pass leaves equal counts over a partial restore | EXECUTED: X02 is killed by V18c |
+| Comparing the record identities the two passes read | a record lost to the same device error in both passes is missing from both lists alike, so the lists agree over it | the port's cause (S1): H1, H8 |
+== docs/design/SAVED_STATE_MATERIALIZATION.md:2045-2048
+   window must be accepted and stated.
+2. **Output-map writer adoption remains required** (processor #61/#83).
+   #501 decides capacity from stream/channel keys (section 10).
+   The old nine-entry record caused K16's ten-mapping failure.
+== docs/design/SAVED_STATE_MATERIALIZATION.md:2146-2149
+|---|---|---|
+| "All eight Milan items plus the bound state, the binding parameters and started/stopped survive a reset that is proven to have cleared the rows first" | 8.2, 10 | each stage's silicon proof; maps at 8x8 after processor #61/#83 adopt the #501 allocation |
+| "The volatile set does NOT survive: after restore the lock is clear, the controller registry is empty, IDENTIFY is 0" | 9 | the implementation's suite |
+| "A user name SET to the EMPTY string survives a power cycle as the empty string" | 8.3, 10 (stage 2) | stage 2 |
+== docs/design/SAVED_STATE_FASTCONNECT.md:456-459
+slot, and every one still fits one erase block with margin. The reversal removed the name-banking dependency.
+The later output-capacity adoption is a separate donor obligation.
+
+### 4.4 The gate
+## all 'donor adoption' lines
+docs/design/SAVED_STATE_FASTCONNECT.md:255:> Output payload growth now requires the #501 donor writer adoption below. The banked names layout that sections 4.2 and 4.3 carried as
+docs/design/SAVED_STATE_FASTCONNECT.md:438:Its donor writer adoption is recorded in section 4.2.
+docs/design/SAVED_STATE_MATERIALIZATION.md:309:   Stage 3 still needs its donor writer adoption (section 10).
+docs/design/SAVED_STATE_MATERIALIZATION.md:1631:- **Stage 3 requires #501's allocation and donor adoption.**
+docs/design/SAVED_STATE_MATERIALIZATION.md:1639:  Processor #61/#83 must adopt the capacity when implementing maps.
+docs/design/SAVED_STATE_MATERIALIZATION.md:1647:  Release still requires donor adoption, #502, and silicon persistence proof.
+docs/design/SAVED_STATE_MATERIALIZATION.md:1659:| 3. channel maps | 2 at 1x1, 16 at 8x8 | Requires donor adoption of the decided #501 allocation: the edit-face trigger, the GET_AUDIO_MAP latch, the framing rule, the coupled restore, the map plane's roll-back, #501's capacity decision; the sticky class-6/7 bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T3, T4, #501 |
+docs/design/SAVED_STATE_MATERIALIZATION.md:1703:| Growing each output map record to the stream-channel key space | subsequently decided by #501; see the saved-state allocation | donor adoption: processor #61/#83 |
+docs/design/SAVED_STATE_MATERIALIZATION.md:1856:  #501 grows the allocation; stage 3 needs donor adoption.
+docs/design/SAVED_STATE_MATERIALIZATION.md:2046:2. **Output-map writer adoption remains required** (processor #61/#83).
+docs/design/SAVED_STATE_MATERIALIZATION.md:2147:| "All eight Milan items plus the bound state, the binding parameters and started/stopped survive a reset that is proven to have cleared the rows first" | 8.2, 10 | each stage's silicon proof; maps at 8x8 after processor #61/#83 adopt the #501 allocation |

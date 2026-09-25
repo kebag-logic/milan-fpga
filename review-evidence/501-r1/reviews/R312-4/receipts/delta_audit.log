@@ -1,0 +1,50 @@
+# delta audit afdd28b701e7f5849317e27ce845c31d1c87f2a6..efcabc379b1e0be1366bfc05bdcc05a759b55616
+efcabc379b1e0be1366bfc05bdcc05a759b55616 afdd28b701e7f5849317e27ce845c31d1c87f2a6
+  subject: docs: remove donor capture-hold measurement condition
+  body-lines: |
+## raw diff
+:100644 100644 8cb7e0551 421a72959 M	docs/design/SAVED_STATE_MATERIALIZATION.md
+## numstat
+0	2	docs/design/SAVED_STATE_MATERIALIZATION.md
+## full patch
+diff --git a/docs/design/SAVED_STATE_MATERIALIZATION.md b/docs/design/SAVED_STATE_MATERIALIZATION.md
+index 8cb7e0551..421a72959 100644
+--- a/docs/design/SAVED_STATE_MATERIALIZATION.md
++++ b/docs/design/SAVED_STATE_MATERIALIZATION.md
+@@ -1645,8 +1645,6 @@ descriptor store's roll-back. They add gates, and change no allocation:
+   set fits its record (16 stream channels, 17 entries).
+   The #501 allocation decision permits stage-3 implementation.
+   Release still requires donor adoption, #502, and silicon persistence proof.
+-  Processor #61/#83 must also satisfy the
+-  [capture-hold measurement obligation](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#20-unresolved).
+ - **Stated in every stage's release notes:** a persistence device that
+   never ends an operation the restore abandoned keeps the port QUARANTINED
+   until reset (section 8.8). Commands are served and the entity is enabled
+## patch lines added (expect 0):
+0
+## gitlinks at both heads
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+## PR-wide stat 573f0052a..efcabc379
+ docs/design/SAVED_STATE_FASTCONNECT.md             | 141 ++++++++++---
+ docs/design/SAVED_STATE_MATERIALIZATION.md         |  70 ++++---
+ docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md      | 126 ++++++++----
+ docs/integration/BAREMETAL_FIRMWARE.md             |   5 +-
+ scripts/check_nvm_record_space.py                  | 100 +++++++---
+ scripts/nvm_contract.py                            |   3 +
+ scripts/nvm_map_checks.py                          | 122 ++++++++++++
+ scripts/nvm_shape.py                               |  22 ++-
+ sw/builder/test_builder.py                         |   4 +-
+ sw/firmware/milan_baremetal/milan_baremetal.c      |  94 ++++-----
+ tb/verilator/nvm_backend/Makefile                  |   8 +-
+ tb/verilator/nvm_backend/README.md                 |  23 ++-
+ .../nvm_backend/records_endstation_ax7101_8x8.txt  | 218 ++++++++++-----------
+ tb/verilator/nvm_backend/sim_main.cpp              |  34 ++++
+ 14 files changed, 668 insertions(+), 302 deletions(-)

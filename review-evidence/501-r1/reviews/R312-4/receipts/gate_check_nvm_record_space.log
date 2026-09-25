@@ -1,0 +1,20 @@
+# head efcabc379b1e0be1366bfc05bdcc05a759b55616
+$ python3 scripts/check_nvm_record_space.py
+BINDING base read from the donor: REC_ID_BASE_P = 0x20, LAYOUT_VER_P = 0x02
+deadlines: T-NVM-COMMIT-TIMEOUT = 8000 ms, T-NVM-WRITER-ALIVE = 2000 ms, heartbeat = 500 ms
+endstation_arty_4x4          names= 51 records= 84 top_id=0xB2 image=  4520 B (6% of a slot) F07.8 floor= 84/256 commit<=3.09 s
+endstation_arty_8ch          names= 83 records=116 top_id=0xD2 image=  7080 B (10% of a slot) F07.8 floor=116/256 commit<=3.14 s
+endstation_arty_current      names= 28 records= 41 top_id=0x9B image=  2444 B (3% of a slot) F07.8 floor= 41/256 commit<=3.05 s
+endstation_ax7101_1x1_tdm8   names= 38 records= 53 top_id=0xA5 image=  3264 B (4% of a slot) F07.8 floor= 53/256 commit<=3.07 s
+endstation_ax7101_8x8: MAPS_OUT[0]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[1]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[2]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[3]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[4]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[5]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[6]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8        names= 99 records=156 top_id=0xE2 image= 12680 B (19% of a slot) F07.8 floor=156/256 commit<=3.26 s
+
+0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYLOAD_P, every image fits one erase block, the allocation is the donor's own F07.8 rule and its floor fits the namespace at every shipped shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with 2x margin, every record round trips through a KLJ2 image, an empty user name survives it, and a CRC-clean image missing any mandatory record is refused with zero records applied
+rc=0

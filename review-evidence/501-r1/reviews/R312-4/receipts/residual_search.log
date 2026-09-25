@@ -1,0 +1,61 @@
+# head efcabc379b1e0be1366bfc05bdcc05a759b55616
+## 1. capture-hold mentions (tracked text files)
+docs/design/SAVED_STATE_FASTCONNECT.md:1080:current capture does not hold, plus what the open capture holds -- with
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1220:| Ordinary completion | done, no err | operation ends; a whole-record WRITE closes the record | cleared | nvm_dirty 1 until a capture holding it is acknowledged | A-cases |
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1584:| Nominal copy / 50 ms hold margin | 8.3 ms / 6.06x | 31.9 ms / 1.57x |
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1585:| Twice both costs / hold margin | 16.5 ms / 3.03x | 63.8 ms / 0.78x |
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1697:6. Physical timing remains unmeasured: capture hold, debounce, and memory ordering.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:256:   deferred (never refused) for at most T_HOLD_MS_P = 50 ms; reads are never
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:267:   the open capture holds). The acknowledgement quotes the capture identity
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:432:| IDLE | ARM | a RELOAD has been accepted since reset, image configured and validated, no accepted reload or re-base on the edge, and no mutating request this backend already deferred still waiting | HELD | identity + 1; dirty_cap = dirty_live; dirty_live = 0 unless a completion lands on the same edge; hold timer = T_HOLD_MS_P; valid = 1; attested = 0; a mutating request on this edge is deferred |
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:903:deferred_wait' = mut_wait                            (one cycle: the request this capture holds back)
+docs/fpga/FPGA_DESIGN.md:254:| `KL_chan_map_capture` | per-pair-slot TX source multiplexer (NxN capture mux); since #74 its `tdm_dup_cnt_o`/`tdm_skip_cnt_o` junction detector counts the grid slips at the capture holds |
+docs/history/v1/design/TIME_SYNC.md:452:Three clocks meet at the capture holds, and #74 gives their relationship a
+docs/history/v1/design/TIME_SYNC.md:467:difference slips one sample every 1.9582 s at the capture holds; since
+docs/integration/BUILDING.md:477:suffixed with its group number. Keep both groups: a capture holding `status_1`
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv:686:          //! capture holds the write port)
+hdl/milan/KL_nvm_backend.sv:122://  handed to the next capture, and T_HOLD_MS_P bounds the wait per REQUEST
+hdl/milan/KL_nvm_backend.sv:143:    //! the capture hold bound: the longest a mutating producer request is
+hdl/milan/KL_nvm_backend.sv:145:    parameter int unsigned T_HOLD_MS_P    = 50,
+hdl/milan/KL_nvm_backend.sv:297:  end else if (T_HOLD_MS_P < 1 || T_HOLD_MS_P >= T_COMMIT_MS_P) begin : g_refuse_hold
+hdl/milan/KL_nvm_backend.sv:298:    $error("KL_nvm_backend: T_HOLD_MS_P=%0d must be at least 1 and below T_COMMIT_MS_P=%0d: the hold bounds a copy, never a flash transaction.",
+hdl/milan/KL_nvm_backend.sv:299:           T_HOLD_MS_P, T_COMMIT_MS_P);
+hdl/milan/KL_nvm_backend.sv:522:  localparam int unsigned HOLD_W_C = $clog2(T_HOLD_MS_P + 1);
+hdl/milan/KL_nvm_backend.sv:713:  //! request is deferred by AT MOST ONE capture and the T_HOLD_MS_P bound
+hdl/milan/KL_nvm_backend.sv:741:  //! capture does not hold; dirty_cap is what the open capture holds. An
+hdl/milan/KL_nvm_backend.sv:778:        hold_r <= HOLD_W_C'(T_HOLD_MS_P);
+hdl/milan/KL_nvm_backend.sv:843:  //! request) while a capture holds the image; a READ never is. The hold
+hdl/milan/KL_nvm_backend.sv:847:  //! T_HOLD_MS_P, after which the request is granted and the capture it
+hdl/milan/milan_datapath.sv:5580:  //  difference - one slipped sample every 1.96 s at the capture holds -
+sw/firmware/milan_baremetal/milan_baremetal.c:1035: * only the work that capture holds. A transaction failure publishes its
+tb/verilator/nvm_backend/Makefile:50:# T_HOLD_MS_P is scaled with them: the module REFUSES a hold at or above the
+tb/verilator/nvm_backend/Makefile:53:# here, not a silent mismatch. The capture hold itself is exercised in
+tb/verilator/nvm_backend/Makefile:71:SHAPE_8X8 = -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 -GT_HOLD_MS_P=2 \
+tb/verilator/nvm_backend/Makefile:76:SHAPE_1X1 = -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 -GT_HOLD_MS_P=2 \
+tb/verilator/nvm_cosim/cosim_cases.cpp:1040:    // request's wait past T_HOLD_MS_P.
+tb/verilator/nvm_cosim/cosim_checks.py:224:        ok = op["gnt"] >= cert and op["gnt"] - arm <= T_HOLD_MS * 1000 + 1000
+tb/verilator/nvm_cosim/cosim_checks.py:22:    ShapeInfo, TAG_C3, T_HOLD_MS, VD_OK, _bind_frame, _crc16, _erased,
+tb/verilator/nvm_cosim/cosim_checks.py:239:        lo, hi = (T_HOLD_MS - 1) * 1000, (T_HOLD_MS + 1) * 1000
+tb/verilator/nvm_cosim/cosim_checks.py:240:        return lo <= d <= hi, f"held {d} cycles (bound {T_HOLD_MS} ms = {T_HOLD_MS * 1000})"
+tb/verilator/nvm_cosim/cosim_checks.py:363:        return worst <= T_HOLD_MS * 1000 + 1000, (
+tb/verilator/nvm_cosim/cosim_checks.py:635:    T_HOLD_MS_P after it was raised, THOUGH a second arm followed the first
+tb/verilator/nvm_cosim/cosim_checks.py:643:        return d <= (T_HOLD_MS + 1) * 1000, \
+tb/verilator/nvm_cosim/cosim_checks.py:645:             f"request granted {d} cycles after it was raised (bound {(T_HOLD_MS + 1) * 1000})")
+tb/verilator/nvm_cosim/cosim_oracle.py:23:#: the capture hold bound the suite builds with, in those milliseconds
+tb/verilator/nvm_cosim/cosim_oracle.py:24:T_HOLD_MS = 50
+tb/verilator/nvm_cosim/cosim_top.sv:398:     ,.T_HOLD_MS_P    (T_HOLD_MS_P)
+tb/verilator/nvm_cosim/cosim_top.sv:55:    parameter int unsigned T_HOLD_MS_P    = 50,
+tb/verilator/nvm_cosim/Makefile:16:# one-pulse re-arm failure of issue #420, the capture hold, the window load and
+tb/verilator/nvm_cosim/Makefile:87:	  -GN_NAME_P=99 -GT_HOLD_MS_P=50 -GCAP_ID_W_P=16 $(BACKEND)
+tb/verilator/nvm_cosim/README.md:18:one-pulse re-arm failure of issue #420, the capture hold, the window load, the
+tb/verilator/nvm_cosim/run_cases.py:269:        gparams += [f"-GT_HOLD_MS_P={T_HOLD_MS}", f"-GCAP_ID_W_P={b.cap_id_w}"]
+tb/verilator/nvm_cosim/run_cases.py:70:from cosim_oracle import CLK_HZ, Run, ShapeInfo, T_HOLD_MS   # noqa: E402
+tb/verilator/README.md:71:| [`nvm_cosim/`](nvm_cosim) | `KL_nvm_backend.sv` + the shipping writer in `sw/firmware/milan_baremetal/milan_baremetal.c`, compiled for the host, against the REAL donor producer path | The same contract's ORDERINGS, which need the firmware in the loop: the acknowledgement race of #418, the ERASE-error counterexample, the one-pulse re-arm failure of #420, the capture hold, the checked window load, the identity an acknowledgement quotes and the writer's restart. 469 checks over 90 case runs at both shapes; every one of the 39 mutants the contract page names must be killed by the ONE check the page names for it, a 2-bit identity must alias, a capture whose identity wraps to 0 must be acknowledged like any other at that same 2-bit minimum, and a pre-contract backend and writer must reproduce the three historical defects. | `cd nvm_cosim && make` |
+tests/steps/wire_truth_steps.py:792:    """Runs the SRP declaration checks over whatever MRP the capture holds."""
+## 2. donor/#61/#83 x hold/measure/#559 (same or adjacent line)
+## 2b. every #559 citation (listing for grading)
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1607:[Issue #559](https://github.com/kebag-logic/milan-fpga/issues/559) owns measurement and resolution of this firmware copy.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1710:   [Issue #559](https://github.com/kebag-logic/milan-fpga/issues/559) owns measurement and resolution of this firmware copy.
+## 3. withdrawn-obligation links / removed wording
+hits=0
+rc=0

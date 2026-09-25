@@ -1,0 +1,43 @@
+# head efcabc379b1e0be1366bfc05bdcc05a759b55616
+# script sha256 94393f710e5a9432a82a4c795106a7ae3b4cc7ca35c550475acd687239c13101
+section 18 starts at line 1505; section 20 at line 1673
+PASS required: s18 CLOSED-record copy by nvm_capture
+PASS required: s18 independent of materialization
+PASS required: s18 RELOAD closes every allocated record
+PASS required: s18 counted 8x8 bytes/records
+PASS required: s18 output-map bytes
+PASS required: s18 exposure at this head
+PASS required: s18 table 8x8 nominal
+PASS required: s18 table 8x8 doubled
+PASS required: s18 table 1x1 raw
+PASS required: s18 table 1x1 margins
+PASS required: s18 safety void/retry
+PASS required: s18 1x1 unchanged
+PASS required: s18 cites #559
+PASS required: s18 cites corrected decision 5824117439
+PASS required: u6 CLOSED-record copy
+PASS required: u6 independent of materialization
+PASS required: u6 counted 8x8 bytes
+PASS required: u6 output-map bytes
+PASS required: u6 margins 8x8
+PASS required: u6 0.78x at this head
+PASS required: u6 safety
+PASS required: u6 1x1 unchanged
+PASS required: u6 cites #559
+PASS absent in section 18: 'maps are not copied'
+PASS absent in UNRESOLVED 6: 'maps are not copied'
+PASS absent in section 18: 'No materialized map copy'
+PASS absent in UNRESOLVED 6: 'No materialized map copy'
+PASS absent in section 18: 'Only BINDING is materialized today'
+PASS absent in UNRESOLVED 6: 'Only BINDING is materialized today'
+PASS absent in section 18: 'issuecomment-5823590638'
+PASS absent in UNRESOLVED 6: 'issuecomment-5823590638'
+PASS absent in section 18: 'issuecomment-5823589125'
+PASS absent in UNRESOLVED 6: 'issuecomment-5823589125'
+PASS absent in section 18: '#61/#83 adoption must measure'
+PASS absent in UNRESOLVED 6: '#61/#83 adoption must measure'
+PASS absent in section 18: 'Donor writer adoption'
+PASS absent in UNRESOLVED 6: 'Donor writer adoption'
+RESIDUE docs/design/SAVED_STATE_FASTCONNECT.md:457: slot, and every one still fits one erase block with margin. The reversal removed the name-banking dependency. The later output-capacity adoption is a separate donor obligation.
+required checks: all PASS
+rc=0
