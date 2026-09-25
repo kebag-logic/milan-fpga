@@ -1,0 +1,37 @@
+## authored delta 265d676..05fd9e1 outside docs/ and tb/pp_top/:
+## hdl/ syn/ scripts/ .github/ delta 990f965..b51bc38 (should be empty):
+## parents of b51bc38:
+05fd9e1b2390e7cb0c704c07cd3d9ec47ecd0a19
+990f96526bb89356c963a260ebbdcf2a77e6623a
+## merge-base:
+265d6762a58d9d9e545624d6d3f1a34e7006d171
+## merge-tree --write-tree result vs head tree:
+aca3aeea278c88cc1fca5495ea6e74eea6794d35
+aca3aeea278c88cc1fca5495ea6e74eea6794d35
+## 05fd9e1 vs b51bc38 on authored files differs only by main's changes:
+ docs/00_MILAN_COMPLIANCE_REVIEW.md         |  2 +-
+ docs/architecture/02_interfaces.md         |  1 +
+ docs/architecture/06_aecp_engine.md        | 11 +++-
+ docs/architecture/10_srp_engine.md         | 14 ++++-
+ hdl/srp/KL_srp_listener_fsm.sv             | 11 +++-
+ hdl/srp/KL_srp_top.sv                      |  2 +
+ hdl/top/protocol_processor_top.sv          |  7 ++-
+ syn/ooc/README.md                          | 21 +++++++
+ tb/pp_top/README.md                        | 27 +++++++++
+ tb/pp_top/gsi_internal.hpp                 | 89 +++++++++++++++++++++++++++++-
+ tb/pp_top/gsi_mutants.py                   | 18 ++++++
+ tb/pp_top/pp_top_wrap.sv                   |  2 +
+ tb/pp_top/sim_main.cpp                     |  3 +
+ tb/srp_stream_fsms/srp_stream_fsms_wrap.sv |  1 +
+ tb/srp_top/srp_top_wrap.sv                 |  1 +
+ 15 files changed, 198 insertions(+), 12 deletions(-)
+## authored diff identical before/after merge:
+DIFFERENT
+b51bc3893b06f4d39be49726c1b8f4ed6c65573d hackerman-kl <hackerman-kl@kebag-logic.com>
+Merge main into 510-mvu-waiver
+
+990f96526bb89356c963a260ebbdcf2a77e6623a Merge PR #115: notify Stream Inputs when registered accumulated latency changes
+af53f79854564bcca35e436758fa625d486c4993 Merge main into 113-latency-notify
+4f6185ce97e31f3bdacc090ec1ab7ede32456d2e Test every latency comparator bit through notification responses
+29840136bb2d21bc0fbe92c7c533368f40837ff6 Notify Stream Inputs when registered accumulated latency changes
+AUTHORED +/- LINES IDENTICAL

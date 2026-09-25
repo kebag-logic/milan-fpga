@@ -1,0 +1,19 @@
+# Milan v1.2 clause check (reviewer's own reading of the Final Approved 2023-11-30 PDF; text not redistributed)
+pdf sha256: 6bb902be1c1de8c44f4c4c583a645b0b37e0b2dac27870486ce229e68ce3bba8
+pdftotext -layout; occurrences of the recommendation note, with the clause heading that precedes each:
+  5.4.4.2 SET_SYSTEM_UNIQUE_ID -> note present
+  5.4.4.3 GET_SYSTEM_UNIQUE_ID -> note present
+  5.4.4.4 SET_MEDIA_CLOCK_REFERENCE_INFO -> note present
+  5.4.4.5 GET_MEDIA_CLOCK_REFERENCE_INFO -> note present
+  7.6 Media Clock Management -> note present
+printed-page footers after each clause (layout order): 5.4.4.2 starts on p.58, 5.4.4.3/5.4.4.4 on p.59, Figure 5.6 on p.60, 5.4.4.5 on p.61, 7.6 on p.115
+3306:5.4. Control 57
+3378:58 Chapter 5. Discovery, Connection and Control
+3438:5.4. Control 59
+3493:60 Chapter 5. Discovery, Connection and Control
+3555:5.4. Control 61
+6051:7.6. Media Clock Management 115
+6124:7.6. Media Clock Management 117
+Each note continues: 'This recomendation will become a requirement in a future revision of this specificaiton.' (spelling as printed)
+Table 5.18: 0x0005-0x7fff reserved. Table 5.19: 0 SUCCESS, 1 NOT_IMPLEMENTED, 2-31 reserved. Table 5.20: only 0x00000001 REDUNDANCY and 0x00000002 TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING.
+Command forms: Figure 5.3 (GET_MILAN_INFO / GET_SYSTEM_UNIQUE_ID command, @28 r+command_type, @30 reserved: 32 B AECPDU, cdl 20); Figure 5.5 (SET_SYSTEM_UNIQUE_ID, system_unique_id @32: 40 B, cdl 28); Figure 5.6 (SET_MCR_INFO: clock_domain_index @30, flags @32, default_mcr_prio @34, user_mcr_prio @35, name @40..@103: 104 B, cdl 92); Figure 5.7 (GET_MCR_INFO command, clock_domain_index @30: 32 B, cdl 20). cdl = AECPDU bytes - 12 (the repository rule in docs/README.md section 4).
