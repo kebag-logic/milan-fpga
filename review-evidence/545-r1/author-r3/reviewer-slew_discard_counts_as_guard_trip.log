@@ -1,0 +1,7 @@
+COMMAND: taskset -c 10,11 python3 /tmp/545-a308-review/review-evidence/545-r1/reviews/R300-2/scripts/reviewer_mutants_r2.py $LANES/545-crf-servo-slew /tmp/545-a308-review/probe-builds slew_discard_counts_as_guard_trip
+CWD: $LANES/545-crf-servo-slew
+  [FAIL] [U15] four fresh guard trips precede re-base         got=0 exp=1
+  KL_mmcm_drp_servo: 100 checks, 1 failures
+VERDICT slew_discard_counts_as_guard_trip: KILLED rc=1
+
+EXIT: 0; WALL_SECONDS: 49.320

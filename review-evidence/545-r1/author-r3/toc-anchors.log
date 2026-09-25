@@ -1,0 +1,5 @@
+COMMAND: taskset -c 14,15 python3 scripts/gen_toc.py --verify-anchors
+CWD: $LANES/545-crf-servo-slew
+anchor check: 173 existing cross-page fragment links reproduced
+
+EXIT: 0; WALL_SECONDS: 1.567

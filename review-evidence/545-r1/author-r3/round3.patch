@@ -1,0 +1,128 @@
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index c098eeb4f..5abe8bda6 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -155,7 +155,8 @@ margin sets each named entry:
+ 
+ | Suite | Budget | Basis |
+ |---|---|---|
+-| every other default suite | 1800 s | original hosted basis: at most 548 s; #545 splits its long mutant campaign into an explicit target (see below) |
++| every other default suite | 1800 s | original hosted basis: at most 548 s |
++| `mmcm_servo` | 1800 s | hosted window 1159.1 s; 640.9 s remains (35.6% of budget) |
+ | `milan_dp` | 3600 s | hosted window 2459.9 s; 1140.1 s remains (31.7% of budget) |
+ | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
+ 
+@@ -167,7 +168,12 @@ Its mutation campaign now runs explicitly under #367's rule.
+ 
+ The servo Makefile records the revised two-CPU local measurement.
+ 
+-Hosted acceptance must still pass on the fixing head.
++The hosted sample covers head `b94f53cc` in merge `4bb4317`.
++
++[Run 36113401588](https://github.com/kebag-logic/milan-fpga/actions/runs/36113401588),
++[job 108001867446](https://github.com/kebag-logic/milan-fpga/actions/runs/36113401588/job/108001867446), passed.
++
++The window ran from 08:33:57.4 to 08:53:16.4 UTC.
+ 
+ The previous `milan_dp` budget used 37 hosted runs.
+ Those ran between 2026-09-15 and 2026-09-19, after #447's split.
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 24d962712..c2107bf68 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -264,8 +264,8 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ |---|---|---|
+ | #447 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
+ | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
+-| #387 GM step re-base and #545 slew coverage: twelve gmstep controls and two option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `sim_gmstep.cpp` or the option-off leg's PHC-step `mr` checks in `sim_main.cpp`. The default sweep runs the three controls #387's acceptance names |
+-| #545 servo slew: six defects and two positive controls | `make -C tb/verilator/mmcm_servo slew-mutants` | the change's validation and reviewers whenever `KL_mmcm_drp_servo.sv`, `sim_main.cpp`, `sim_phc_step.cpp`, `slew_mutants.py` or the suite Makefile changes |
++| #387 GM step re-base and #545 slew coverage: twelve gmstep controls and two option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `sim_gmstep.cpp` or the option-off leg's PHC-step `mr` checks in `sim_main.cpp`. The default sweep runs the three controls #387's acceptance names |
++| #545 servo slew: eight defects and two positive controls | `make -C tb/verilator/mmcm_servo slew-mutants` | the change's validation and reviewers whenever `KL_mmcm_drp_servo.sv`, `sim_main.cpp`, `sim_phc_step.cpp`, `slew_mutants.py` or the suite Makefile changes |
+ 
+ The default sweep still runs both render legs, and their assertions are unchanged.
+ It also runs that campaign's leg-side defect arms, which need no elaboration.
+@@ -481,7 +481,7 @@ verdicts and for check counts.
+ | [`tb/verilator/milan_dp_render` `tdm8render`](../../tb/verilator/milan_dp_render) | **#447, the shipping TDM8 render lane end to end**: `make -C tb/verilator/milan_dp_render tdm8render`. Binds listener 0 over ACMP, programs a no-fixed-point permutation through the real dynamic `ADD_AUDIO_MAPPINGS` path, grades `GET_AUDIO_MAP` and the render RAM readback against its OWN issued route record, feeds channel-distinct AAF through the real acceptance/depacketizer/setpoint/crossbar chain, and decodes `tdm_bclk_o`/`tdm_fsync_o`/`tdm_dout_o` with a pin-only receiver that reads no DUT internal. It grades every 24-bit word and every 8-bit pad against an IMMUTABLE injection record, measures the commit-to-pin terms from registered events, and exercises the render epoch over a reset with the serial clock stopped, a reset inside the frame, a reset ON the frame wrap, a reset while a round trip is outstanding, a bind loss, a map write inside the closed epoch and a rebind. It grades the GRACEFUL FLUSH BOUNDARY from the pins as its own property: the last frame before digital silence must be a complete frame carrying one media event's identity in every routed slot, which is the whole-frame half of the flush contract that the silence checks cannot see. Every one of those states an EXACT epoch count - one counted reopening per event, two for two bind falls inside one round trip - counts the adapter's commits between a reset release and the reopening with the feed still running, and derives the first eligible media event from the preserved prefill rule instead of searching for it. Its `[CRF]` phase then selects this shape's CRF `CLOCK_SOURCE` through a real `SET_CLOCK_SOURCE` on the same AECP face, UNDER the running stream, feeds a real CRF stream into the provisioned sink and decodes the same pins again: the settled-grid recentre fires exactly once, the setpoint law holds in both states, and the commit-to-pin walk drops from the divider plan's `+10.64` ppm to zero. The deselect back to INTERNAL is the same transition the other way |
+ | [`tb/verilator/milan_dp_render` `tdm8render-multi`](../../tb/verilator/milan_dp_render) | **#447 on a TWO-STREAM shape**: `make -C tb/verilator/milan_dp_render tdm8render-multi`. `gen_tdm8r_multi_shape.py` writes a second end-station config and the real builder derives its shape header and entity image, because two properties are unobservable on the one-stream shipping image. It binds both listeners and grades the STREAM-QUALIFIED epoch mask in both directions - a bind fall on a stream the lane does not render leaves the commit gate open for every cycle of the window, and the same fall on a stream the lane DOES render closes it, flushes to digital silence and reopens on a fresh post-flush event - and grades the three cluster-key classes (projected, in-range NONPHYSICAL, out of range) on BOTH the render RAM and the AECP protocol store |
+ | `tdm8_render_mutants.py` | the mutation arm of both legs above, run through the EXPLICIT `make -C tb/verilator/milan_dp_render tdm8render-mutants` target: a per-mutant rebuild costs tens of minutes, so section 0's explicit-campaign rule applies and nothing in the inventory is trimmed for it. The suite's own default target runs the same runner with `--leg-defects`, which is the part of this inventory that needs no elaboration (the three leg-side defect arms and the two clean modes they are the negative of), so the sweep still holds an executable negative arm for these assertions. Its inventory is its own `MUTATIONS`, `CLEAN_CONTROLS` and `LEG_DEFECTS` tables, and every run prints the totals it actually ran: at this head eighteen gateware or generated-shape mutants, three leg-side defect arms, three clean controls and one positive control per elaboration and mode, 28 checks in all. Among them: an explicitly modelled bit-arrival skew that discriminates the gray counter crossing from a raw binary one; one cycle of modelled ARRIVAL SKEW on each of the render epoch's two crossed levels, which the shipping handshake must survive and a producer that rebuilds its reset condition from two reconverged levels must not; a request raised onto a still-visible acknowledgement; an epoch gate that reaches the frame CDC but not the adapter; a moved prefill target; a graceful flush that tears the frame in flight instead of zeroing the active frame at frame starts only; the unqualified bind-fall mask; a lane stream set that ignores the mapping's stream field; and a protocol-store mirror gated on the physical projection |
+-| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block, enabled through live clock-source resolution since #74. Default: unit, rails, silicon-scale PHC step and policy-slew suites. Steps range from 21 us to 1 s; `make trace STEP_NS=<n>` prints the integrator per window (#539). Slew cases cover +/-100 us at 200 ppm, short pulses, shared boundaries, prolonged levels, reset, saturation, boundary-coincident step deduplication and restarting the guard streak. All checks remain in the default; the six-defect mutation campaign runs through the explicit `slew-mutants` target above |
++| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block, enabled through live clock-source resolution since #74. Default: unit, rails, silicon-scale PHC step and policy-slew suites. Steps range from 21 us to 1 s; `make trace STEP_NS=<n>` prints the integrator per window (#539). Slew cases cover +/-100 us at 200 ppm, short pulses, shared boundaries, prolonged levels, reset, saturation, boundary-coincident step deduplication and restarting the guard streak. All checks remain in the default; the eight-defect mutation campaign runs through the explicit `slew-mutants` target above |
+ | [`tb/verilator/mmcm_servo_autorepair`](../../tb/verilator/mmcm_servo_autorepair) | — |
+ | [`tb/verilator/nvm_backend`](../../tb/verilator/nvm_backend) | the saved-state backing store on BYTES: region decode against an independently built image, the memory face, the bounds refusals, the section 9 status machine, and the parts of the [snapshot-ownership contract](../design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md) that are module properties (the reset row, the contract tag, the open vector, the checked window load, the accepted-load term, the capture identity, the pending bit). Four negative controls must each go RED, and it carries no `-Wno-*` at all |
+ | [`tb/verilator/nvm_cosim`](../../tb/verilator/nvm_cosim) | the same contract's ORDERINGS, with the FIRMWARE in the loop: the shipping `KL_nvm_backend` and the shipping writer compiled for the host, against the real donor producer path at the pinned revision. Every mutant the contract page names must be killed by the ONE check the page names for it; a 2-bit capture identity must alias where 16 bits must not; a capture whose identity wraps to 0 must be acknowledged like any other, graded at 2 identity bits, the minimum the backend's elaboration contract admits (`make wrap`); and with `LEGACY_DIR` a pre-contract backend and writer must reproduce the three historical defects |
+diff --git a/tb/verilator/mmcm_servo/Makefile b/tb/verilator/mmcm_servo/Makefile
+index 58077cb8b..82304ed08 100644
+--- a/tb/verilator/mmcm_servo/Makefile
++++ b/tb/verilator/mmcm_servo/Makefile
+@@ -18,7 +18,8 @@
+ #
+ # #545 round 2, 2026-09-25: clean default 952.797 s on two CPUs
+ # (taskset -c 10,11 make; Verilator 5.052), within the 1800 s budget.
+-# Shared-host local measurement; 847.203 s margin. Mutations are explicit.
++# Shared-host local margin: 847.203 s. Mutations are explicit.
++# Hosted budget basis: docs/testing/CI_WORKFLOWS.md, mmcm_servo row.
+ 
+ VERILATOR ?= verilator
+ RTL_DIR    = ../../../hdl
+diff --git a/tb/verilator/mmcm_servo/sim_main.cpp b/tb/verilator/mmcm_servo/sim_main.cpp
+index 237577fa7..164d9260c 100644
+--- a/tb/verilator/mmcm_servo/sim_main.cpp
++++ b/tb/verilator/mmcm_servo/sim_main.cpp
+@@ -556,8 +556,10 @@ class MmcmServoUnitHarness {
+         ck("[U15] LOCKED before", state(), 4);
+         std::vector<double> before;
+         dut->crf_rate_i = rate_for_ppm(+80.0) + 2'000'000;
+-        run_noting_discards(12.0, 2, before);
+-        ck("[U15] arm: two guard discards open a streak", before.size(), 2);
++        // One guard trip plus two tainted windows cannot wrap a four-trip
++        // streak to zero and hide a regression that counts slew discards.
++        run_noting_discards(12.0, 1, before);
++        ck("[U15] arm: one guard discard opens a streak", before.size(), 1);
+         dut->phc_slew_active_i = 1;
+         std::vector<double> during;
+         run_noting_discards(8.0, 1, during);
+diff --git a/tb/verilator/mmcm_servo/slew_mutants.py b/tb/verilator/mmcm_servo/slew_mutants.py
+index 63f59dab9..61bba54a0 100755
+--- a/tb/verilator/mmcm_servo/slew_mutants.py
++++ b/tb/verilator/mmcm_servo/slew_mutants.py
+@@ -27,8 +27,22 @@ MUTANTS = (
+     ("step_dedupe_removed", "slew_window_w && !step_hit_w;", "slew_window_w;",
+      "[S5] coincident step+slew window counted once"),
+ )
+-STREAK_MUTANT = ("slew_streak_reset_removed", "if (slew_hit_w) disc_run_r <= '0;", "",
+-                 "[U15] four fresh guard trips precede re-base")
++STREAK_MUTANTS = (
++    ("slew_streak_reset_removed", "if (slew_hit_w) disc_run_r <= '0;", "",
++     "[U15] four fresh guard trips precede re-base"),
++    ("slew_discard_extends_streak", "if (slew_hit_w) disc_run_r <= '0;",
++     "if (slew_hit_w) disc_run_r <= disc_run_r + 2'd1;",
++     "[U15] four fresh guard trips precede re-base"),
++    ("slew_discard_counts_as_guard_trip", "if (slew_hit_w) disc_run_r <= '0;",
++     "if (slew_hit_w) begin\n"
++     "          if (disc_run_r == 2'(DISC_MAX_C - 1)) begin\n"
++     "            win_valid_r <= 1'b0;\n"
++     "            disc_run_r  <= '0;\n"
++     "          end else begin\n"
++     "            disc_run_r <= disc_run_r + 2'd1;\n"
++     "          end\n"
++     "        end", "[U15] four fresh guard trips precede re-base"),
++)
+ 
+ 
+ def run_case(work: Path, name: str, source: str, failure: str | None,
+@@ -80,13 +94,13 @@ def main() -> int:
+         if not run_case(work, "clean_unit", source, None, unit=True):
+             return 1
+         results = [True, True]
+-        for name, anchor, replacement, failure in (*MUTANTS, STREAK_MUTANT):
++        for name, anchor, replacement, failure in (*MUTANTS, *STREAK_MUTANTS):
+             if source.count(anchor) != 1:
+                 print(f"FAIL {name}: expected exactly one mutation anchor")
+                 results.append(False)
+                 continue
+             results.append(run_case(work, name, source.replace(anchor, replacement), failure,
+-                                    unit=name == STREAK_MUTANT[0]))
++                                    unit=any(name == item[0] for item in STREAK_MUTANTS)))
+     failures = sum(not passed for passed in results)
+     print(f"== mmcm_servo slew mutants: checks: {len(results)}   failures: {failures} ==")
+     return 1 if failures else 0
