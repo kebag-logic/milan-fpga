@@ -1,0 +1,9 @@
+$ git archive b1b33472 | tar -x; rm -rf .git (none present); python3 scripts/docs_check.py; python3 scripts/check_feature_status.py
+submodule dirs: pp=0 gptp=0 axis=0
+no .git
+docs_check: 0 finding(s) across 165 md files + 867 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+rc=0
+feature_status: 0 finding(s)
+rc=0
+$ (archive) python3 scripts/check_feature_status.py  [re-run without a pipe for an exact rc]
+rc=0

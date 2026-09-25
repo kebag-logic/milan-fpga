@@ -1,0 +1,13 @@
+Fri Sep 25 05:06:52 AM UTC 2026
+$ taskset -c 0-7 make -C tb/verilator/nvm_cosim   (JOBS=8 POOL=8 defaults; verilator 5.050 wrapper first on PATH)
+make: Entering directory '$REVIEWS/r307-4-508/tb/verilator/nvm_cosim'
+python3 -B run_cases.py --shapes 1x1,8x8 --jobs 8 --pool 8
+building 42 build(s)
+FAILED (2): verilator --cc --exe --build -j 2 --top-module cosim_top --Mdir $REVIEWS/r307-4-508/tb/verilator/nvm_cosim/build/mut-M13_report_not_revoking/obj -Wall -Wno-fatal -Werror-USERERROR -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM --x-assign unique --x-initial unique +define+NVM_CONTRACT_3 -GN_STREAM_IN_P=2 -GN_STREAM_OUT_P=2 -GN_SPORT_IN_P=1 -GN_SPORT_OUT_P=1 -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=38 -GCLK_HZ_P=1000000 -GT_HOLD_MS_P=50 -GCAP_ID_W_P=16 -CFLAGS -std=c++17 -O2 -I$REVIEWS/r307-4-508/tb/verilator/nvm_cosim -I$REVIEWS/r307-4-508/tb/verilator/nvm_cosim/stubs -DNVM_HOST_JOURNAL_OFFSET=0xee0000u -DNVM_HOST_AEM_OFFSET=0x400000u -DNVM_HOST_IMAGE_OFF=0xef000u -LDFLAGS $REVIEWS/r307-4-508/tb/verilator/nvm_cosim/build/mut-M13_report_not_revoking/host.o $REVIEWS/r307-4-508/tb/verilator/nvm_cosim/build/mut-M13_report_not_revoking/fw.o $REVIEWS/r307-4-508/protocol-processor/hdl/acmp/pp_acmp_pkg.sv $REVIEWS/r307-4-508/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv $REVIEWS/r307-4-508/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv $REVIEWS/r307-4-508/protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv $REVIEWS/r307-4-508/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv $REVIEWS/r307-4-508/tb/verilator/nvm_cosim/build/mut-M13_report_not_revoking/KL_nvm_backend.sv $REVIEWS/r307-4-508/tb/verilator/nvm_cosim/build/mut-M13_report_not_revoking/cosim_top.sv $REVIEWS/r307-4-508/tb/verilator/nvm_cosim/cosim_bridge.cpp $REVIEWS/r307-4-508/tb/verilator/nvm_cosim/cosim_cases.cpp -o cosim
+  see $REVIEWS/r307-4-508/tb/verilator/nvm_cosim/build/logs/mut-M13_report_not_revoking-verilator.log
+make: *** [Makefile:58: run] Error 1
+make: Leaving directory '$REVIEWS/r307-4-508/tb/verilator/nvm_cosim'
+Command exited with non-zero status 2
+wall_clock_seconds=76.49 exit=2
+make_rc=2
+Fri Sep 25 05:08:09 AM UTC 2026
