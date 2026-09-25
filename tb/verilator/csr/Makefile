@@ -138,7 +138,7 @@ run: obj_dir/Vcsr_sim obj_100m/Vcsr_sim100 obj_win/Vcsr_win obj_gptp/Vcsr_gptp \
 reset-bits:
 	python3 ../../common/gen_declaration_fixture.py fixtures/reset_bits.yaml obj_reset/fixture
 	$(VERILATOR) +incdir+obj_reset/fixture $(VFLAGS) --Mdir obj_reset --top-module $(TOP) \
-	  -CFLAGS "-DCSR_SRP_RESET_BITS=3u" $(SRCS) sim_main.cpp -o Vcsr_reset
+	  -CFLAGS "-DCSR_SRP_RESET_BITS=3u -Wall -Wextra" $(SRCS) sim_main.cpp -o Vcsr_reset
 	./obj_reset/Vcsr_reset
 
 clean:

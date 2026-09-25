@@ -143,13 +143,13 @@ run-base: ltn_rom.hex ucode.hex $(GEN_ALL)
 run-vid73: ltn_rom.hex ucode.hex
 	python3 ../../common/gen_declaration_fixture.py fixtures/vid73.yaml obj_vid73/fixture
 	$(VERILATOR) +incdir+obj_vid73/fixture $(VFLAGS) --Mdir obj_vid73 \
-	  -CFLAGS "-DDECLARATION_VID=73" $(DP_SRCS) $(CPP) -o Vpp_vid73
+	  -CFLAGS "-DDECLARATION_VID=73 -Wall -Wextra" $(DP_SRCS) $(CPP) -o Vpp_vid73
 	./obj_vid73/Vpp_vid73
 
 run-crf: ltn_rom.hex ucode.hex
 	python3 ../../common/gen_declaration_fixture.py fixtures/crf_on.yaml obj_crf/fixture
 	$(VERILATOR) +incdir+obj_crf/fixture $(VFLAGS) --Mdir obj_crf \
-	  -CFLAGS "-DDECLARATION_OUTPUTS=2" $(DP_SRCS) $(CPP) -o Vpp_crf
+	  -CFLAGS "-DDECLARATION_OUTPUTS=2 -Wall -Wextra" $(DP_SRCS) $(CPP) -o Vpp_crf
 	./obj_crf/Vpp_crf
 
 clean:
