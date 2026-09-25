@@ -1,0 +1,34 @@
+ARM or-true rc=1
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_nvm_capture.py' (found 'python3 scripts/check_nvm_capture.py || true'); 1 line(s) expected, 1 found
+ci_events: 1 finding(s) over 1655 contract item(s)
+ARM mutation-flag rc=1
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_nvm_capture.py' (found 'python3 scripts/check_nvm_capture.py --mutation bytes'); 1 line(s) expected, 1 found
+ci_events: 1 finding(s) over 1655 contract item(s)
+ARM continue-on-error rc=1
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) must carry no `continue-on-error` (found True): it decides whether or how the script runs
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) keys must be exactly name, run; surplus: continue-on-error
+ci_events: 2 finding(s) over 1656 contract item(s)
+ARM if-always rc=1
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) must carry no `if` (found '${{ always() }}'): it decides whether or how the script runs
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) keys must be exactly name, run; surplus: if
+ci_events: 2 finding(s) over 1656 contract item(s)
+ARM other-script rc=1
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_nvm_capture.py' (found 'python3 scripts/check_nvm_record_space.py'); 1 line(s) expected, 1 found
+ci_events: 1 finding(s) over 1655 contract item(s)
+ARM appended-cmd rc=1
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 2 must be None (found 'true'); 1 line(s) expected, 2 found
+ci_events: 1 finding(s) over 1655 contract item(s)
+ARM set-plus-e rc=1
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_nvm_capture.py' (found 'set +e'); 1 line(s) expected, 2 found
+ci_events: 1 finding(s) over 1655 contract item(s)
+ARM shell-override rc=1
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) must carry no `shell` (found 'bash {0}'): it decides whether or how the script runs
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) keys must be exactly name, run; surplus: shell
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) may carry only the keys ['continue-on-error', 'env', 'id', 'if', 'name', 'run', 'uses', 'with'] (surplus: ['shell']): `shell` chooses the interpreter the script runs under and `working-directory` the tree it reads
+ci_events: 3 finding(s) over 1656 contract item(s)
+ARM env-bash-env rc=1
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) keys must be exactly name, run; surplus: env
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) env must be exactly empty; surplus: BASH_ENV (a GH_HOST or GH_CONFIG_DIR redirects gh away from this repository)
+  FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) `env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_REF', 'PUSH_BEFORE_SHA']: a step-level `BASH_ENV` reaches that step's shell the same way
+ci_events: 3 finding(s) over 1655 contract item(s)
+ARM unmodified: rc=0

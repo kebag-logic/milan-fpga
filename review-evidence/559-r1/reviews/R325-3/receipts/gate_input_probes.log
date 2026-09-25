@@ -1,0 +1,15 @@
+ARM baseline expect=pass rc=0 :: PASS: capture census, clocks, both timing arms and receipt agree
+ARM yaml-8x8-cpu-clock-50MHz expect=fail rc=1 :: FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_tdm8': {'raw_bytes': 3218, 'records': 53, 
+ARM yaml-8x8-sys-clock expect=fail rc=1 :: FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 100000000, 'sys_hz': 125000000}, 'endstation_ax7101_1x1_tdm8': {'raw_bytes': 3218, 'records': 53,
+ARM recipe-cpu-40MHz expect=fail rc=1 :: FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 40000000, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_tdm8': {'raw_bytes': 3218, 'records': 53,
+ARM contract-suid-payload+1 expect=fail rc=1 :: FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12635, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_tdm8': {'raw_bytes': 3219, 'records': 53,
+ARM yaml-8x8-talker7-static-map expect=fail rc=1 ::     raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '$REVIEWS/559-r325-3-packet/scratch/gatemut/sw/builder/endstation_builder.py', '$REVIEWS/559-r325-3-packet/scratch/gatemut/configs/endstation_ax7101_8x8.yaml', '-o', '/tmp/nvm-c
+ARM firmware-trailing-newline expect=fail rc=1 :: FAIL: product firmware changed; remeasure the copy
+ARM harness-soc-edit expect=fail rc=1 :: FAIL: measurement harness changed; refresh measured evidence
+ARM RESIDUAL-yaml-clock-40MHz-plus-receipt-edit expect=residual-pass rc=0 :: PASS: capture census, clocks, both timing arms and receipt agree
+ARM RESIDUAL-census-growth-plus-harness-and-receipt-edit expect=residual-pass rc=1 :: FAIL: capture failed: {'index': 0, 'ok': 1, 'sys_cycles': 2400000, 'raw': 12634, 'records': 156, 'mismatches': 0, 'open': 0, 'requests': 1, 'responses': 1, 'reads': 1}
+ARM UNGATED-rtl-pp-shadow-edit expect=pass rc=0 :: PASS: capture census, clocks, both timing arms and receipt agree
+ARM UNGATED-soc-integration-edit expect=pass rc=0 :: PASS: capture census, clocks, both timing arms and receipt agree
+ARM UNGATED-nvm_shape-edit expect=pass rc=0 :: PASS: capture census, clocks, both timing arms and receipt agree
+probe copy restored clean

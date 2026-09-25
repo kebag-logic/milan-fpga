@@ -1,0 +1,33 @@
+== [0] python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 874 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== [0] env GIT_DIR=/dev/null python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 874 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+== [0] <md-venv>/python3 scripts/check_em_dash.py --base a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4
+check_em_dash: 0 finding(s) over 319 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [a3d795ae..HEAD]
+== [0] python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+== [2] python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+== [2] python3 scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+== [0] python3 scripts/check_doc_paths.py
+doc path gate: OK (843 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+== [0] python3 scripts/check_py_idiom.py
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+== [0] python3 scripts/check_cpp_idiom.py
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+== [0] python3 scripts/measure_test_evidence.py --check
+TEST-EVIDENCE RATCHET: PASS (72 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 72
+== [0] python3 scripts/measure_naming.py --check
+
+NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+== [0] git diff --check a3d795ae b02af048
+
+== [0] <md-venv>/python3 scripts/gen_toc.py --check
+TOC gate: OK (108 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+== [0] <md-venv>/python3 scripts/gen_toc.py --verify-anchors
+anchor check: 176 existing cross-page fragment links reproduced
+md-venv requirements identical to tools/markdown/requirements.txt

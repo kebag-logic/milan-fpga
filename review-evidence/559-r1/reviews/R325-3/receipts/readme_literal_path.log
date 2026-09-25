@@ -1,0 +1,10 @@
+== README-literal: SDK bin first, then the activated LiteX venv, then system
+python3 -> $HOME/br-milan-rv32/host/bin/python3
+ModuleNotFoundError: No module named 'migen'
+rc=0
+== variant: LiteX venv first, SDK second, no meson shim
+python3 -> $HOME/litex-milan/venv/bin/python3; meson -> $HOME/br-milan-rv32/host/bin/meson
+rc=1
+ModuleNotFoundError: No module named 'mesonbuild'
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['meson', '-v']' returned non-zero exit status 1.
