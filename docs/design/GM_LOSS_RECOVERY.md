@@ -17,12 +17,13 @@ No parallel state mirror participates.
 
 ## Contents
 
-- **[Detection](#detection)** — Identify each independent health transition.
-- **[Ordering](#ordering)** — Publish state without one-frame health leaks.
-- **[Recovery timeline](#recovery-timeline)** — Follow loss through renewed synchronization.
-- **[Media behavior](#media-behavior)** — Continue transport while reporting uncertainty.
-- **[Option-off behavior](#option-off-behavior)** — Preserve honest ownerless failure values.
-- **[Verification](#verification)** — Exercise timeouts, ordering, and recovery.
+- **[Detection](#detection)** -- Identify each independent health transition.
+- **[Ordering](#ordering)** -- Publish state without one-frame health leaks.
+- **[Recovery timeline](#recovery-timeline)** -- Follow loss through renewed synchronization.
+- **[Recovery bound](#recovery-bound)** -- State the 5 s bound and derive it.
+- **[Media behavior](#media-behavior)** -- Continue transport while reporting uncertainty.
+- **[Option-off behavior](#option-off-behavior)** -- Preserve honest ownerless failure values.
+- **[Verification](#verification)** -- Exercise timeouts, ordering, and recovery.
 
 ## Detection
 
@@ -84,6 +85,38 @@ Recovery requires protocol qualification.
 
 Software writes cannot manufacture it.
 
+## Recovery bound
+
+The owner fixed this bound on 2026-09-23.
+
+The decision is on [#117](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5795898094).
+
+| Quantity | Value |
+|---|---|
+| Starts | The grandmaster's return: its first Announce or Sync on the link |
+| Ends | The port reports `asCapable` and synchronized state |
+| Bound | 5 s |
+| Media | Recovers within one further stream restart |
+
+The derivation sums three terms.
+
+| Term | Value | Derivation |
+|---|---|---|
+| Announce receipt timeout | 3 s | 3 announce intervals of 1 s |
+| Sync receipt timeout | 0.375 s | 3 sync intervals of 125 ms |
+| Margin | 1.625 s | the remainder to the stated bound |
+| **Total** | **5 s** | 3 + 0.375 + 1.625 |
+
+Both timeouts use the Milan intervals.
+
+The margin is not assigned to one mechanism.
+
+Silicon evidence waits for `tu` to clear as well.
+
+That includes the holdover of at least 0.25 s.
+
+The [#117 findings](../findings/117_GPTP_SILICON_EVIDENCE.md#step-3-gm-loss-and-return) record six measured cycles.
+
 ## Media behavior
 
 Licensed streams continue during transitions.
@@ -105,6 +138,74 @@ Deselecting CRF disengages both steering loops.
 Publication changes feed notification scheduling.
 
 Consumers receive one coherent state generation.
+
+### Media re-base on a PHC step
+
+Each step of the [step policy](TIME_SYNC.md#step-policy) is one counted event.
+
+Issue #387 decided its media reaction.
+
+| Element | Decided reaction to one step | This tree |
+|---|---|---|
+| `tu` | Rises on the step; clears after at least 0.25 s of holdover | Yes: `KL_ptp_clock_validity` takes the plane's step pulse |
+| Render setpoint stage (#386) | Re-centres in "one bounded, counted event" (decision part b) | Yes: `render_recentre_p_w` takes the step (`media_rebase_p_w`), and the stage re-centres at the next PDU end, counted in its recentre tally. A grandmaster identity change is no longer a trigger of its own. The gmstep leg counts one re-base, 132 cycles after the plane's step pulse at each of its 42 feed delays |
+| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); the receiver excludes talker-step rate samples (#546). A policy-legal local slew remains tracked by #545. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
+| Packet NCO | Not named by the decision | No PHC or step input |
+| CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. The receiver invalidates rate history on tu transitions or timestamp jumps (#546). After 256 clean intervals, sampling resumes; lock and integrator hold meanwhile. A policy-legal local 100 us slew remains tracked by #545 |
+| Outgoing `mr` (IEEE 1722-2016 4.4.4.3) | Toggles once | Yes: `mcr_restart_p_w` takes the step whatever the media clock source. The gmstep leg, under CRF selection, sees one toggle, first sent 75 to 116 cycles after the step pulse over its 42 feed delays. On an INTERNAL media clock the `milan_dp` option-off legs (`obj_dir`, `obj_nolpf`, `obj_ax1x1`) grade `mr` against every PHC step the harness issues, a CLKV adjtime and then a software settime; a control that gates the step's toggle by CRF selection fails them |
+| Talker MEDIA_RESET (Milan Table 5.4) | Counts that one toggle | Yes: `KL_talker_diag_ctx` counts the `mr` bit each PDU carried. The gmstep leg reads one, and none between the commit and the step. The option-off legs read one for the software settime, and a control whose settime does not toggle `mr` fails them |
+| A step while an `mr` restart is pending | Merges with it: exactly one restart, never a cancellation, and the step's MEDIA_RESET is still counted (ruling 5802264260 item 2). Pending lasts until a PDU at the new level has gone out ([ruling on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5818091077)) | Yes: `KL_media_clock_restart` keeps a stream pending while the request waits for the hold of the stream's previous toggle, and after the stream adopts the new level until its first PDU at that level. A second request in either part merges. A request after that first PDU is a new restart, sent once the first has held eight PDUs. The engine sees a PDU on its transmitted-PDU feed, the one the hold and MEDIA_RESET count, so a request between that first PDU's launch and its report still merges. `tkdiag` T17 grades the merge in both parts, one toggle and one MEDIA_RESET per stream; T18 grades the new restart after the first PDU, two of each |
+| Licensed streams | Keep streaming (REQ-PTP-08) | Yes: `tu` gates no emission |
+
+The render stage is timed from accept, not presentation time.
+
+So a step leaves its fill where it was.
+
+A grandmaster change that steps counts one re-base.
+
+It is the step's; the identity change adds none.
+
+Whether a restart is pending depends on one stream.
+
+It waits for that stream's hold.
+
+Then it waits for a PDU at the new level.
+
+So the restart target is per stream since #387.
+
+The `milan_dp` gmstep leg drives one 1.5 s grandmaster step.
+
+It grades these rows:
+
+- `tu`: set at the commit, held past the step's holdover.
+- Render stage: one re-base, counted right after the step.
+- Render law: every push leaves the #386 target fill.
+- `mr` and MEDIA_RESET: one each, and both belong to the step.
+- Streams: the talker keeps streaming and the listener stays locked.
+
+It does not grade these:
+
+- The grid aligner: the leg holds the TDM clocks.
+- The CRF servo: its DRP answers zero. `Vphc_step` grades its step discard (#539).
+- An lwSRP licence: the escape bit opens the talker.
+- A pending-restart step: `tkdiag` T17 and T18 grade it.
+- The physical re-base: the #117 bench measures it.
+
+Three negative controls join it in the default sweep:
+
+- no `mr` toggle on the step;
+- a second re-base on the identity change;
+- no re-base on the step.
+
+Each fails a named check of the leg.
+
+`make gmstep-mutants` plants the whole inventory.
+
+Two of its controls run on the option-off leg.
+
+One plants a settime that does not toggle `mr`.
+
+The other gates the step's toggle by CRF selection.
 
 ## Option-off behavior
 
@@ -130,10 +231,16 @@ Legacy writes remain acknowledged and ineffective.
 | `gptp_shadow` | Atomic state and immediate discontinuity |
 | `clkvalid` | Holdover, steps, and option-off values |
 | `milan_dp` | Public CSR and protocol consumers |
+| `milan_dp` gmstep | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, `mr`, MEDIA_RESET, stream continuity; three negative controls in the sweep |
+| `crf_rx` talker_step | Connected receiver and servo: +/-150 us talker-only steps and steps at both ends. The 600 ms listener lag and talker-only cases require a boundary inside crossing history; the 100 ms lag checks guard interaction. Sampled validity, continuous LOCKED state, held integrator and fresh rate recovery; quiet traffic cannot satisfy withholding |
+| `crf_rx` discontinuity | Both tu edges, unmarked steps, refill boundaries and isolated detector mutants |
+| `tkdiag` | A restart request on a pending one merges: one toggle, never a cancellation (T17). Pending ends at the first PDU at the adopted level (T18) |
 | `media_grid_align` | Alignment, watchdog, and recovery |
 | `tsn_fuzz` | Storms, malformed pairs, drought recovery |
 
 Physical acceptance against the reference peer remains issue #117.
+
+Its switch-cycle measurements are in the [findings](../findings/117_GPTP_SILICON_EVIDENCE.md).
 
 Silicon grid comparison remains issue #74.
 

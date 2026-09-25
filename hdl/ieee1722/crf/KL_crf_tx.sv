@@ -53,11 +53,11 @@
                 stream". Neither the toggle policy nor the hold lives here:
                 one engine (KL_media_clock_restart) owns the whole 4.4.4.3 /
                 10.4.3 family for every Stream Output this device has, CRF
-                included, because the hold is per stream but the TARGET is
-                per media clock - two talkers on one clock must never end up
-                on opposite levels. This module's contract is only the two
-                halves that are wire facts: mr_i is stamped into the
-                alternative header, latched at launch so a level change
+                included, because every restart of the media clock must
+                reach every stream while the hold, and whether a restart is
+                still pending, is per stream (#387). This module's contract
+                is only the two halves that are wire facts: mr_i is stamped
+                into the alternative header, latched at launch so a level change
                 cannot splice a frame, and mr_last_o reports the level the
                 last COMPLETED PDU carried, which is the only thing the
                 eight-PDU hold may count (2026-08-08, gh #62 H2b).
@@ -148,8 +148,8 @@ module KL_crf_tx (
   //! the LEVEL to stamp: "toggled by the Talker each time a media clock
   //! restart is needed, and it stays at its new value until a new media
   //! clock restart is needed". The toggle policy AND the >= 8 PDU hold live
-  //! in KL_media_clock_restart (one engine for every Stream Output, so two
-  //! talkers on one media clock can never sit on opposite levels); this port
+  //! in KL_media_clock_restart (one engine for every Stream Output, so every
+  //! restart of the media clock reaches this stream too); this port
   //! is the level that engine currently grants THIS stream. Latched at frame
   //! launch beside ts_r/tu_r/vln_r - a flip mid-frame would emit a header
   //! byte the rest of the PDU does not belong to.

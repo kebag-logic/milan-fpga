@@ -20,7 +20,7 @@ Use this page for delivery decisions.
 - Atomic publication prevents contradictory consumer state.
 - Direct health drives every AVTP uncertainty bit.
 
-Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/MANAGER.md).
+Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/MANAGER.md).
 
 ## Status
 
@@ -31,6 +31,7 @@ Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c
 | Parent transport | Implemented | `gptp_shadow` |
 | Public consumers | Implemented | `milan_dp` |
 | Physical calibration | Incomplete | Issue #64 |
+| Propagation asymmetry | Excluded for v1.2 | Issue #511 |
 | Physical acceptance against the reference peer | Incomplete | Issue #117 |
 | Media clock selection | Implemented | Feature-status ledger |
 
@@ -49,7 +50,7 @@ Simulation remains necessary but insufficient.
 
 Transition behavior is in [grandmaster recovery](../../design/GM_LOSS_RECOVERY.md).
 
-Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/MANAGER.md).
+Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/MANAGER.md).
 
 ## Release evidence
 

@@ -5,6 +5,7 @@
     python3 scripts/check_merge_containment.py --merged-prs [N]
     python3 scripts/check_merge_containment.py --selftest
     python3 scripts/check_merge_containment.py --no-fetch ...   (skip Git fetch)
+    python3 scripts/check_merge_containment.py --current-retention <branch>...
 
     Needs Git 2.39.0 or newer: whitespace-exact patch identity comes from
     ``git patch-id --verbatim``, and an older Git is refused by name.
@@ -41,19 +42,28 @@ THREE WAYS TO GET THE WRONG ANSWER, ALL OF WHICH THIS HAS DONE
    Anything this tool cannot measure is an UNKNOWN and fails, the same rule
    ``scripts/suite_tally.py`` enforces on the sweep.
 
-THE ONE CASE IT STILL GETS WRONG, AND IN WHICH DIRECTION
---------------------------------------------------------
-A branch squash-merged as **two or more** commits, whose paths were then edited
-again on the base, reads ``STRANDED`` although nothing is missing: the squash
-left no matching patch-id, and the later edit means the paths no longer agree,
-so neither equivalence test can prove the work landed.
+HISTORICAL REPLAY AND CURRENT RETENTION
+---------------------------------------
+Ancestry and the linear patch arm certify historical inclusion only (#514).
+Later reversions do not revoke those proofs. --current-retention adds a
+separate linear H + T result: retained, or UNKNOWN/nonzero. It requires a
+nonempty source-only linear range with exact replays. Ancestry alone, squash-
+only equivalence and merge histories are unsupported by this optional arm.
+Intentional supersession is not retention evidence; no intent is inferred.
+The final fallback (#423) admits exactly one source-only two-parent merge:
+P2's only parent is P1, and the merge tree equals P2's tree. Every non-merge
+commit still needs a distinct whitespace-exact replay with matching postimages.
+It additionally requires current retention: exact raw entries, or a regular-
+blob three-way merge producing precisely the tip bytes under the mode rule in
+CONTRIBUTING.md. Overlap, later reversions and unmeasurable retention are
+UNKNOWN/nonzero, with unproved paths named. No semantic intent is inferred.
+Multiple merges, distant/reversed parents and resolution work stay excluded.
+A multi-commit squash followed by edits can still read STRANDED: the checker
+cannot prove all legitimate later rewrites. Neither refusal is a waiver.
 
-That is a false **alarm**, not a false pass -- the direction that costs a
-reader a minute rather than costing them a regression -- and the verdict names
-the differing paths so it can be settled by looking.  It cannot be fixed by
-comparing harder: once the base has moved on, "these changes were applied and
-then superseded" and "these changes were never applied" are the same tree.
-Deciding it needs the merge commit, which only the sweep has.
+FILENAME BYTES
+--------------
+Filenames and patches travel as Git's own bytes; see merge_containment_git.py.
 
 WHY EXIT CODES AND BARE NUMBERS
 -------------------------------
@@ -67,6 +77,11 @@ are used rather than reading ``git log`` output.
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from merge_containment_git import (  # noqa: E402
+    git_bytes as _git_raw, git_text as _git, path_label)
+from merge_containment_replay import linear_retention_verdict, replay_verdict  # noqa: E402
 
 USAGE = __doc__.split("WHY THIS EXISTS")[0].strip()
 
@@ -83,17 +98,6 @@ RAW_DIFF_FLAGS = ("--no-ext-diff", "--no-textconv",
 #! an opaque UNKNOWN: eight scattered self-test failures and no version in
 #! sight (#351).  Refuse it once, by name, before any verdict.
 MINIMUM_GIT = "2.39.0"
-
-
-def _git(*args):
-    """Run git, returning (rc, stdout).  Never raises on a non-zero rc."""
-    #! Replacement objects rewrite the commit graph for every plumbing command.
-    #! A local refs/replace entry can otherwise make a stranded branch appear
-    #! to be an ancestor of the base.  Containment must measure stored commits,
-    #! not a caller-specific alternate history.
-    p = subprocess.run(("git", "--no-replace-objects") + args,
-                       capture_output=True, text=True)
-    return p.returncode, p.stdout.rstrip("\n")
 
 
 def verbatim_patch_id_error() -> str | None:
@@ -147,27 +151,27 @@ def exact_ref_syntax(ref: str) -> bool:
 
 def _verbatim_patch_id(commit):
     """Return a whitespace-preserving patch ID for one commit."""
-    rc, patch = _git("show", *RAW_DIFF_FLAGS, "--format=medium", "--binary",
-                     "--full-index", "--no-renames", commit)
+    rc, patch = _git_raw("show", *RAW_DIFF_FLAGS, "--format=medium",
+                         "--binary", "--full-index", "--no-renames", commit)
     if rc != 0:
         return (None, f"git show could not read {commit}")
     p = subprocess.run(("git", "--no-replace-objects", "patch-id",
-                        "--verbatim"), input=patch, capture_output=True,
-                       text=True)
-    fields = p.stdout.strip().split()
+                        "--verbatim"), input=patch.rstrip(b"\n"),
+                       capture_output=True)
+    fields = p.stdout.decode("ascii").strip().split()
     if p.returncode != 0 or len(fields) != 2:
         return (None, f"git patch-id could not measure {commit}")
     return (fields[0], None)
 
 
 def _commit_paths(commit):
-    """Return the literal paths one commit changed, with renames unfolded."""
-    rc, names = _git("diff-tree", *RAW_DIFF_FLAGS, "--root",
-                     "--no-commit-id", "--name-only", "--no-renames", "-z",
-                     "-r", commit)
+    """Return the literal path bytes one commit changed, renames unfolded."""
+    rc, names = _git_raw("diff-tree", *RAW_DIFF_FLAGS, "--root",
+                         "--no-commit-id", "--name-only", "--no-renames",
+                         "-z", "-r", commit)
     if rc != 0:
         return (None, f"diff-tree could not enumerate {commit}")
-    return ([name for name in names.split("\0") if name], None)
+    return ([name for name in names.split(b"\0") if name], None)
 
 
 def _same_patch_postimage(branch_commit, base_commit):
@@ -181,8 +185,8 @@ def _same_patch_postimage(branch_commit, base_commit):
     paths = list(dict.fromkeys(branch_paths + base_paths))
     if not paths:
         return (True, None)
-    rc, _ = _git("--literal-pathspecs", "diff", *RAW_DIFF_FLAGS, "--quiet",
-                 branch_commit, base_commit, "--", *paths)
+    rc, _ = _git_raw("--literal-pathspecs", "diff", *RAW_DIFF_FLAGS,
+                     "--quiet", branch_commit, base_commit, "--", *paths)
     if rc == 0:
         return (True, None)
     if rc == 1:
@@ -192,7 +196,7 @@ def _same_patch_postimage(branch_commit, base_commit):
 
 
 def _linear_patches_contained(branch, base):
-    """Prove linear replay equivalence without ignoring whitespace."""
+    """Prove historical inclusion by exact replay, not current retention."""
     rc, branch_out = _git("rev-list", "--no-merges", f"{base}..{branch}")
     if rc != 0:
         return (None, f"rev-list could not enumerate {branch}")
@@ -443,13 +447,13 @@ def _path_scoped_verdict(branch, base, merge_base, ahead):
     #! Disable rename folding so a move contributes both the deleted and
     #! added path.  Comparing only the destination can certify a base that
     #! copied the file but never removed the source.  NUL delimiters keep
-    #! unusual but valid path names exact.
-    rc, names = _git("diff", *RAW_DIFF_FLAGS, "--name-only",
-                     "--no-renames", "-z", merge_base, branch)
+    #! unusual but valid path names exact, and bytes keep them exact in argv.
+    rc, names = _git_raw("diff", *RAW_DIFF_FLAGS, "--name-only",
+                         "--no-renames", "-z", merge_base, branch)
     if rc != 0:
         return (None, None,
                 f"git diff could not enumerate paths changed by {branch}")
-    paths = [n for n in names.split("\0") if n]
+    paths = [n for n in names.split(b"\0") if n]
     if not paths:
         rc, _ = _git("diff", *RAW_DIFF_FLAGS, "--quiet", merge_base, branch)
         if rc == 0:
@@ -466,8 +470,8 @@ def _path_scoped_verdict(branch, base, merge_base, ahead):
     #! Names came from git, not from a pathspec language.  A real file
     #! beginning with `:(exclude)` must not turn itself into an exclude
     #! rule and make a missing change compare equal.
-    rc, _ = _git("--literal-pathspecs", "diff", *RAW_DIFF_FLAGS,
-                 "--quiet", base, branch, "--", *paths)
+    rc, _ = _git_raw("--literal-pathspecs", "diff", *RAW_DIFF_FLAGS,
+                     "--quiet", base, branch, "--", *paths)
     if rc == 0:
         return (True, ahead,
                 f"every path this branch touched is identical in "
@@ -500,30 +504,29 @@ def _patch_id_verdict(branch, base, ahead):
             return (None, None, err)
         if equivalent:
             return (True, ahead,
-                    f"every commit has a whitespace-exact equivalent in "
+                    f"historical inclusion only: every commit has a whitespace-exact equivalent in "
                     f"{base} ({ahead} not ancestors -- rebase merge)")
     return None
 
 
 def _differing_paths(branch, base):
-    """(first few paths that differ, None), or ([], error) when unmeasurable."""
-    rc, names = _git("diff", *RAW_DIFF_FLAGS, "--name-only",
-                     "--no-renames", "-z", base, branch)
+    """(labels of the first few differing paths, None), or ([], error)."""
+    rc, names = _git_raw("diff", *RAW_DIFF_FLAGS, "--name-only",
+                         "--no-renames", "-z", base, branch)
     if rc != 0:
         return ([],
                 f"git diff could not enumerate paths differing between "
                 f"{branch} and {base}")
-    return ([n for n in names.split("\0") if n][:6], None)
+    return ([path_label(n) for n in names.split(b"\0") if n][:6], None)
 
 
 def contained(branch: str,
               base: str) -> tuple[bool | None, int | None, str | None]:
     """(is_contained, commits_ahead, note_or_error).
 
-    ``is_contained`` is True when ``base`` already has this branch's work --
-    either because every commit is an ancestor, or because the content landed
-    by another route (squash, rebase).  None means the question could not be
-    answered, which is a finding, never a pass.
+    True means an existing landing proof or the bounded retained replay.
+    None includes historical replay with unproved current retention, and
+    measurement failure. Neither is a pass.
     """
     graft_error = active_graft_error()
     if graft_error:
@@ -535,7 +538,7 @@ def contained(branch: str,
 
     rc, _ = _git("merge-base", "--is-ancestor", branch, base)
     if rc == 0:
-        return (True, 0, None)
+        return (True, 0, "historical inclusion by ancestry; current retention not implied")
     if rc != 1:
         return (None, None,
                 f"merge-base could not compare {branch} with {base}")
@@ -568,14 +571,11 @@ def contained(branch: str,
     if verdict is not None:
         return verdict
 
-    #! NAME THE PATHS. "3 commits not in base" does not tell anyone whether
-    #! this is real, and there is one case that reads STRANDED without being
-    #! so: a multi-commit squash whose paths were later edited on base. No
-    #! patch-id matches (the squash collapsed them) and the paths no longer
-    #! agree (the later edit), so neither arm above can prove it landed. That
-    #! is a false ALARM rather than a false pass -- the safe direction -- and
-    #! naming the paths is what lets a reader settle it in one look instead of
-    #! learning to ignore the check.
+    verdict = replay_verdict(branch, base, ahead, _git, _linear_patches_contained)
+    if verdict is not None:
+        return verdict
+
+    #! Name differing paths when no arm can prove landing or retention.
     differing = []
     if have_merge_base:
         differing, enumeration_error = _differing_paths(branch, base)
@@ -711,17 +711,11 @@ def continuous_merged_pr_tip(head_oid: str, live_ref: str) -> str | None:
     return None
 
 
-KNOWN_FLAGS = {"--selftest", "--base", "--merged-prs", "--no-fetch"}
+KNOWN_FLAGS = {"--selftest", "--base", "--merged-prs", "--no-fetch", "--current-retention"}
 
 
 def _run_selftest():
-    """Run the self-test, which lives in two modules beside this one.
-
-    It is handed THIS module rather than importing it: the cases patch the
-    namespace ``main()`` and ``contained()`` resolve their helpers from, which
-    is this module's own, and importing by name would build a second copy of
-    it whose globals no patch here would reach.
-    """
+    """Pass this module to the self-tests so patches reach its own globals."""
     here = str(Path(__file__).resolve().parent)
     if here not in sys.path:
         sys.path.insert(0, here)
@@ -739,7 +733,7 @@ def _option_error(args):
         if a.startswith("-") and a not in KNOWN_FLAGS:
             return f"unknown option: {a}\n{USAGE}\n"
 
-    for flag in ("--selftest", "--base", "--merged-prs", "--no-fetch"):
+    for flag in ("--selftest", "--base", "--merged-prs", "--no-fetch", "--current-retention"):
         if args.count(flag) > 1:
             return f"{flag} may be specified only once\n{USAGE}\n"
     return None
@@ -882,8 +876,8 @@ def _branch_targets(args, do_fetch):
     return (targets, None)
 
 
-def _report(targets, base):
-    """Print one verdict per target and return the process exit status."""
+def _report(targets, base, current_retention=False):
+    """Report landing and optional linear retention as separate claims."""
     stranded = 0
     unknown = 0
     for label, ref, pre_error in targets:
@@ -897,6 +891,11 @@ def _report(targets, base):
             unknown += 1
         elif ok:
             print(f"  contained  {label}" + (f"  [{note}]" if note else ""))
+            if current_retention:
+                retained, detail = linear_retention_verdict(ref, base, _git, _linear_patches_contained)
+                word = "retained" if retained else "UNKNOWN"
+                print(f"  {word:<10} {label}: current retention: {detail}")
+                unknown += not retained
         else:
             print(f"  STRANDED   {label}: {ahead} commit(s) not in {base}"
                   + (f"  [{note}]" if note else ""))
@@ -911,8 +910,8 @@ def _report(targets, base):
         print("  step 7.")
     if unknown:
         print()
-        print(f"{unknown} ref(s) could not be resolved, so the question was")
-        print("  not answered. An unknown is not a pass.")
+        print(f"{unknown} tip(s) lack a requested proof; see UNKNOWN above.")
+        print("  Unresolved history or current retention is not a pass.")
     return RC_FINDING if (stranded or unknown) else RC_OK
 
 
@@ -946,6 +945,8 @@ def main(argv: list[str]) -> int:
             return RC_CANNOT_RUN
         return _run_selftest()
 
+    current_retention = "--current-retention" in args
+    args = [a for a in args if a != "--current-retention"]
     base, refusal = _take_base(args)
     if refusal:
         sys.stderr.write(refusal)
@@ -989,7 +990,7 @@ def main(argv: list[str]) -> int:
         sys.stderr.write(refusal)
         return RC_CANNOT_RUN
 
-    return _report(targets, base)
+    return _report(targets, base, current_retention)
 
 
 if __name__ == "__main__":

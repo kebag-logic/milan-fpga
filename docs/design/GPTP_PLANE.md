@@ -29,10 +29,10 @@ This page defines parent integration.
 
 | Reader | Parent guide | Engine guide |
 |---|---|---|
-| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/MANAGER.md) |
-| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/INTEGRATION.md) |
-| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/HDL_DEVELOPER.md) |
-| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/TEST_DEVELOPER.md) |
+| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/MANAGER.md) |
+| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/INTEGRATION.md) |
+| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/HDL_DEVELOPER.md) |
+| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/TEST_DEVELOPER.md) |
 
 Parent guides own integration behavior.
 
@@ -344,6 +344,115 @@ The ledger returns one result per admitted frame.
 Each result is a measurement or a counted loss.
 
 No live PHC value enters the engine.
+
+### Propagation asymmetry is not modelled
+
+This record settles the design boundary of issue #511.
+
+The [owner decision](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257) excludes delayAsymmetry for v1.2.
+
+It cites REQ-PTP-06's constants and the single cabled port.
+
+| Question | v1.2 answer | Authority |
+|---|---|---|
+| Is delayAsymmetry modelled? | No. Its value is zero. | IEEE 802.1AS-2011 8.3 does not require measuring it; 10.2.4.8 makes an unmodelled value zero |
+| Where would it enter? | In three terms, listed under [Where the term enters](#where-the-term-enters). At zero all three vanish. It never enters the Pdelay mean. | IEEE 802.1AS-2011 10.2.12 (Figure 10-9, two assignments), 11.2.13.2.1 f) and 11.2.15.2.4 |
+| Is it managed? | No. The product claims no 802.1AS management, so no managed object exists. No CSR or configuration key carries the value either. | IEEE 802.1AS-2011 Table 14-6 (14.6.25; Cor1's replacement table keeps the row): read-write, conformance `Tdot3FD`, "Required for time-aware IEEE 802.3 full-duplex port". So such a port must carry it wherever 802.1AS management is implemented. Its "(recommended)" qualifies the `scaledNs` data type, as 14.3.2 states for `offsetFromMaster`. 14.6.9 defines the object without grading it. Management is optional: PICS item `MGT` (A.5) is `O` |
+| Can a configuration set it? | No. The builder refuses every `gptp` key it does not know (`_known_gp`). | [`endstation_builder.py`](../../sw/builder/endstation_builder.py) |
+| Does the engine take it? | No. The pinned gPTP processor has no asymmetry input. | Outside its historic prototype pages the pinned tree never names it ([donor issue 58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58)) |
+| What corrects timestamps? | The two per-board elaboration constants, applied once in `KL_gptp_shadow`. | REQ-PTP-06; IEEE 802.1AS-2011 8.4.3 `ingressLatency` and `egressLatency` |
+| Is the donor's latch compensation adopted? | No. Its ingress/egress latch correction would apply the same pair a second time. | REQ-PTP-06: no correction can be applied twice |
+| What fixes a one-way split error? | Re-measured constants (#64, #488). Never a second asymmetry term. | REQ-PTP-06 names one owner |
+| Is live tuning allowed? | No. The donor's UART Y/I/E tuner stays donor-bench-only. | REQ-PTP-06 constants; REQ-PTP-09 |
+| Does Milan ask for it? | No. Milan v1.2 never mentions asymmetry. | Milan v1.2 Section 4.2.6 defers to 802.1AS |
+
+Two donor citations disagree with the 2011 text.
+
+The clauses above were checked against that text.
+
+| Donor citation | IEEE 802.1AS-2011 text |
+|---|---|
+| Issue 58: 11.2.15 | The MDPdelayReq machine; `computePropTime()` has no asymmetry term |
+| Prototype pages: 10.2.4.5 | That clause is `syncInterval`; delayAsymmetry is 10.2.4.8 |
+
+#### Where the term enters
+
+The 2011 text (Cor1, Cor2 included) applies it only here.
+The last row compares the 2020 edition.
+
+| Clause | Arithmetic | Effect |
+|---|---|---|
+| 11.2.13.2.1 f) `setMDSyncReceive()`; 11.1.3 d) describes it | `upstreamTxTime = <syncEventIngressTimestamp> - neighborPropDelay/neighborRateRatio - delayAsymmetry/rateRatio` | Subtracts the asymmetry, in local time, from the Sync ingress timestamp |
+| 10.2.12, Figure 10-9 (ClockSlaveSync) | `syncReceiptTime = preciseOriginTimestamp + followUpCorrectionField + neighborPropDelay*(rateRatio/neighborRateRatio) + delayAsymmetry` | Synchronized time at receipt gains `delayAsymmetry`, in the grandmaster time base |
+| 10.2.12, Figure 10-9 (ClockSlaveSync) | `syncReceiptLocalTime = upstreamTxTime + neighborPropDelay/neighborRateRatio + delayAsymmetry/rateRatio` | Adds back what 11.2.13.2.1 f) subtracted, so the local receipt time stays the ingress timestamp. The two `rateRatio` values differ only by the Figure 10-4 `neighborRateRatio` update, which NOTE 2 of 11.2.13.2.1 calls usually negligible |
+| 11.2.14.2.3 a) `setFollowUp()`; 11.1.3 e) and Table 11-5 describe it | `rateRatio*(<syncEventEgressTimestamp> - upstreamTxTime)` joins the relayed `correctionField` | Carries the first term downstream. Only a port relaying another port's Sync does this (10.2.11), so a one-port end station never does |
+| Annex E.5.2.2 (CSN) | A CSN egress port takes the 10.2.12 inputs, `delayAsymmetry` included, from the CSN TLV | Not applicable: the product has no CSN port (AS-11) |
+| 802.1AS-2020, not the edition of record | The same `delayAsymmetry` terms for instance-specific peer delay, at 10.2.13, 11.2.14.2.1 and 11.2.15.2.3 | With CMLDS, 11.2.17.2 a) folds it into the mean link delay instead of `upstreamTxTime` |
+
+Net effect: `syncReceiptTime` gains `delayAsymmetry`; its paired local time does not move.
+
+An adoption omitting the `syncReceiptLocalTime` term roughly doubles the shift.
+
+#### Revisit trigger
+
+Revisit when a profile adds a second cabled port.
+
+Section 8 redundancy under #394 is one such profile.
+
+Revisit also before the product claims 802.1AS management.
+
+Table 14-6 then requires a read-write `delayAsymmetry` object.
+
+Check this before the P4 802.1AS conformance run.
+
+A runtime correction first needs a REQ-PTP-06 amendment.
+
+A write to that managed object is one such correction.
+
+#### What an adoption must define
+
+| Item | Required answer |
+|---|---|
+| Requirement | A public REQ-PTP amendment naming one owner, before any RTL lane |
+| Sign | Positive when responder-to-initiator is longer (8.3) |
+| Units | `scaledNs`, Table 14-6's recommended data type, in the grandmaster time base (10.2.4.8, which names no data type) |
+| Default and reset | Zero, which is today's behavior |
+| Range | Declared in the configuration schema; the builder refuses values outside it |
+| Configuration owner | One key per port, carried to one engine input |
+| Application point | All three terms under [Where the term enters](#where-the-term-enters): 11.2.13.2.1 f) and both 10.2.12 assignments. A relaying port inherits the first through 11.2.14.2.3. Never `computePropTime()` |
+| Update | An elaboration constant, unless REQ-PTP-06 is amended first |
+| Double compensation | Never folded into `INGRESS_LAT_NS_P` or `EGRESS_LAT_NS_P` |
+
+#### What an adoption must prove
+
+No result is claimed here: nothing is implemented.
+
+| Arm | Expected evidence |
+|---|---|
+| Zero | Offset and PHC trajectory identical to today's build |
+| Positive and negative | The offset moves by the configured value, in opposite directions |
+| Sign | A sign-swapped mutation fails the suite |
+| Limits | Out-of-range values are refused by the builder |
+| Reset and update | Reset restores zero; no live change without an amendment |
+| Peer delay | `neighborPropDelay` is unchanged by every value |
+| Double correction | The I/E constants and `GPTP_LAT` are unchanged |
+| Configuration to engine | The configured value reaches the engine input exactly |
+
+An adoption is one bounded lane, tracked under issue #110.
+
+It owes a reviewed durable donor pin and regenerated ROM.
+
+It also owes donor `make`, `gptp_shadow` and root integration.
+
+Every CONTRIBUTING gate runs at that candidate.
+
+| Party | Owns |
+|---|---|
+| Parent | The product contract, REQ-PTP-06 constants, the builder refusal and this record |
+| gPTP processor | Any asymmetry input and its arithmetic, under donor issue 58 |
+| Donor bench | The UART Y/I/E tuner, never pinned into a product image |
+| Issues #64 and #488 | Physical measurement of the split |
+| Issue #110 | Integration tracking of any adopted donor pin |
 
 ### After a reset
 

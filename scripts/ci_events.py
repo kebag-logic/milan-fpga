@@ -699,12 +699,29 @@ BUILDER_IF = "${{ steps.scope.outputs.rtl == 'true' }}"
 BUILDER_RUNS = {
     DOCS: (
         "python3 -m pip install --quiet pyyaml",
-        "python3 sw/builder/test_builder.py",
+        "python3 sw/builder/test_builder.py --require-rv32",
     ),
     ELABORATE: (
-        "python3 sw/builder/test_builder.py --require-elaboration",
+        "python3 sw/builder/test_builder.py --require-elaboration --require-rv32",
     ),
 }
+#: #504: reviewed cache inputs and unconditional verification on hits and misses.
+RV32_CACHE_WITH = {
+    "path": "~/br-milan-rv32/host",
+    "key": "rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-"
+           "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-"
+           "${{ hashFiles('scripts/ci_rv32_sdk.py') }}",
+}
+RV32_INSTALL = (
+    "set -euo pipefail",
+    "python3 scripts/ci_rv32_sdk_selftest.py",
+    'python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"',
+)
+RV32_ABSENT = (
+    "set -euo pipefail",
+    "python3 sw/builder/test_firmware_compiler.py --selftest",
+    'python3 sw/builder/test_firmware_compiler.py --absent --audit "$RUNNER_TEMP/rv32-absent.jsonl"',
+)
 BUILDER_CHECKOUTS = {
     # Full history since #378: the em-dash gate derives its base by
     # merge-base against the base branch, which a depth-1 checkout cannot
@@ -889,6 +906,19 @@ CARRIER_STEP_LISTS = {
          "run": (
              'python3 -m pip install --quiet pyyaml',
          )},
+        # #437/#516: the Contents walk and the em-dash gate read Markdown
+        # through the hash-locked renderer, whose download cache is keyed
+        # by the lock file.
+        {"name": "Cache the pinned Markdown renderer downloads",
+         "uses": "actions/cache@v4",
+         "with": {"path": "~/.cache/milan-markdown-pip",
+                  "key": "markdown-renderer-pip-${{ runner.os }}-"
+                         "${{ hashFiles('tools/markdown/requirements.txt') }}"}},
+        {"name": "Install the pinned Markdown renderer",
+         "run": (
+             'python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip '
+             '--require-hashes -r tools/markdown/requirements.txt',
+         )},
         {"name": "Install diagram gate dependencies",
          "run": (
              'sudo apt-get update -qq',
@@ -966,6 +996,12 @@ CARRIER_STEP_LISTS = {
              'python3 scripts/check_baremetal_only.py --check',
              'python3 scripts/check_baremetal_only.py --selftest',
          )},
+        {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
+         "with": RV32_CACHE_WITH},
+        {"name": "Install and verify the pinned RV32 SDK",
+         "run": RV32_INSTALL},
+        {"name": "Compiler-absent firmware controls",
+         "run": RV32_ABSENT},
         {"name": "End-station builder gates",
          "run": BUILDER_RUNS[DOCS]},
         {"name": "NVM record-space gate",
@@ -1146,6 +1182,10 @@ CARRIER_STEP_LISTS = {
          "run": (
              'sw/litex/patches/apply.sh',
          )},
+        {"name": "Cache the pinned RV32 SDK", "if": BUILDER_IF,
+         "uses": "actions/cache@v4", "with": RV32_CACHE_WITH},
+        {"name": "Install and verify the pinned RV32 SDK", "if": BUILDER_IF,
+         "run": RV32_INSTALL},
         {"name": "Elaboration gates", "if": BUILDER_IF,
          "run": BUILDER_RUNS[ELABORATE]},
         # Verilator, for the aggregate's converted-versus-source MAC
@@ -1993,7 +2033,7 @@ RESULT_CACHE_POLICY_MARKS = ("`syn/yosys/result_cache.py`", "yosys-result-cache"
 #: `with` is the one #350 pins, read from its constants rather than
 #: restated. The cost is stated on the policy page: a legitimate step change
 #: in any of these jobs is refused until its entry here changes with it.
-#: Unlike the carriers, these lists do not record every script (#439).
+#: Every run entry also records its canonical normalized script (#439).
 VERILATOR_CACHE_WITH = {
     "path": "/opt/verilator",
     "key": "verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}",
@@ -2017,8 +2057,8 @@ ALWAYS_IF = VERIFY_STEP_IF
 #: shard pair to the matrix.
 TARGET_SHA_STEP_ENV = {RECORD: VERIFY_STEP_ENV["GATE_SHA"]}
 SHARD_STEP_ENV = {"SHARD": "${{ matrix.shard }}", "SHARDS": DERIVED_SHARD_TOTAL}
-#: The seven RTL jobs #406 pins use the carriers' sequence/shape fields,
-#: without their per-body script records. WHICH jobs owe an entry is decided
+#: The seven RTL jobs #406 pins use the carriers' sequence/shape fields
+#: and per-body script records (#439). WHICH jobs owe an entry is decided
 #: by neither this table nor any other constant: check_sequence_pin_coverage reads
 #: rtl.yml and rtl-fast.yml for their job lists and holds every job either
 #: declares against a RECORDED step list, so a job dropped from here is
@@ -2026,32 +2066,101 @@ SHARD_STEP_ENV = {"SHARD": "${{ matrix.shard }}", "SHARDS": DERIVED_SHARD_TOTAL}
 #: to either file arrives the same way ([R96]/[R97] rounds 2 to 4 on PR
 #: #431). The carriers get the same closure from PUBLIC_NAMES, which
 #: CARRIER_STEP_LISTS does not own.
+#: #439: shared literal scripts of the seven RTL jobs. Update these with
+#: the matching workflow bodies; never derive expected text during checking.
+RTL_FETCH_SCRIPT = (
+    'git submodule update --init third_party/verilog-axis protocol-processor gptp-processor',
+)
+RTL_VERILATOR_BUILD_SCRIPT = (
+    'set -euo pipefail',
+    'sudo apt-get update -qq',
+    'sudo apt-get install -y --no-install-recommends git make autoconf g++ flex bison '
+    'libfl2 libfl-dev help2man perl python3',
+    'git clone --depth 1 --branch "$VERILATOR_VERSION" '
+    'https://github.com/verilator/verilator.git /tmp/verilator-src',
+    'cd /tmp/verilator-src',
+    'autoconf',
+    './configure --prefix=/opt/verilator',
+    'make -j"$(nproc)"',
+    'sudo make install',
+)
+RTL_YOSYS_BUILD_SCRIPT = (
+    'set -euo pipefail',
+    'sudo apt-get update -qq',
+    'sudo apt-get install -y --no-install-recommends git make g++ bison flex libfl-dev '
+    'pkg-config zlib1g-dev python3',
+    'git clone --depth 1 --branch "$YOSYS_VERSION" https://github.com/YosysHQ/yosys.git /tmp/yosys-src',
+    'git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts',
+    'make -C /tmp/yosys-src config-gcc',
+    "printf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' >> /tmp/yosys-src/Makefile.conf",
+    'make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys',
+    'sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys',
+    'git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV',
+    "# runner-owned so the cache action's save and restore are symmetric",
+    'sudo chown -R "$(id -u):$(id -g)" /opt/yosys',
+)
+RTL_YOSYS_INSTALL_SCRIPT = (
+    'set -euo pipefail',
+    'sudo apt-get update -qq',
+    'sudo apt-get install -y --no-install-recommends libjemalloc2',
+    'sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/',
+    'test -x /opt/yosys/bin/yosys-abc',
+    'echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"',
+    'yosys -V',
+    'yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"',
+)
+
 RTL_STEP_LISTS = {
     (RTL_FULL, "verilator-shards"): (
         {"uses": "actions/checkout@v4"},
-        {"name": "Fetch RTL dependencies"},
+        {"name": "Fetch RTL dependencies",
+         "run": RTL_FETCH_SCRIPT},
         {"name": "Record the tree this worker validates",
-         "env": TARGET_SHA_STEP_ENV},
+         "env": TARGET_SHA_STEP_ENV,
+         "run": (
+             'set -euo pipefail',
+             'head="$(git rev-parse HEAD)"',
+             'if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then',
+             'echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2',
+             'exit 1',
+             'fi',
+             'mkdir -p "$RUNNER_TEMP/suite-logs"',
+             'printf \'%s\\n\' "$GITHUB_SHA" > "$RUNNER_TEMP/suite-logs/TARGET_SHA"',
+             'echo "target_sha=$GITHUB_SHA"',
+         )},
         {"name": "Cache the pinned Verilator build", "id": "cache-verilator",
          "uses": "actions/cache@v4", "with": VERILATOR_CACHE_WITH},
         {"name": "Build Verilator from source on cache miss",
-         "if": VERILATOR_CACHE_MISS_IF},
-        {"name": "Put Verilator on PATH and prove the version"},
-        {"name": "Prove specialized suite ownership", "env": SHARD_STEP_ENV},
+         "if": VERILATOR_CACHE_MISS_IF,
+         "run": RTL_VERILATOR_BUILD_SCRIPT},
+        {"name": "Put Verilator on PATH and prove the version",
+         "run": ENV_FILE_WRITERS[(RTL_FULL, 'verilator-shards',
+                                  'Put Verilator on PATH and prove the version')]},
+        {"name": "Prove specialized suite ownership", "env": SHARD_STEP_ENV,
+         "run": CANONICAL_OWNERSHIP_SCRIPT},
         {"name": "Cache the pinned Yosys build for the netlist-level suite "
                  "owner",
          "if": NETLIST_OWNER_IF, "id": "cache-yosys",
          "uses": "actions/cache@v4", "with": YOSYS_CACHE_WITH},
         {"name": "Build Yosys from source on cache miss",
          "if": "${{ matrix.shard == 3 && "
-               "steps.cache-yosys.outputs.cache-hit != 'true' }}"},
+               "steps.cache-yosys.outputs.cache-hit != 'true' }}",
+         "run": RTL_YOSYS_BUILD_SCRIPT},
         {"name": "Install the pinned Yosys and prove the version",
-         "if": NETLIST_OWNER_IF},
+         "if": NETLIST_OWNER_IF,
+         "run": RTL_YOSYS_INSTALL_SCRIPT},
         {"name": "Install sv2v for the netlist-level suite owner",
-         "if": NETLIST_OWNER_IF},
+         "if": NETLIST_OWNER_IF,
+         "run": SV2V_INSTALL},
         {"name": "Build the pinned tsn-gen field oracle on its suite owner",
-         "if": TSN_GEN_OWNER_IF},
-        {"name": "Run this exhaustive suite shard"},
+         "if": TSN_GEN_OWNER_IF,
+         "run": ENV_FILE_WRITERS[(RTL_FULL, 'verilator-shards',
+                                  'Build the pinned tsn-gen field oracle on its suite owner')]},
+        {"name": "Run this exhaustive suite shard",
+         "run": (
+             'scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" --shard "${{ matrix.shard '
+             '}}/${{ matrix.total }}"',
+         )},
         {"name": "Upload this shard's suite logs", "if": ALWAYS_IF,
          "uses": "actions/upload-artifact@v4",
          "with": {"name": "suite-logs-${{ matrix.shard }}",
@@ -2066,27 +2175,54 @@ RTL_STEP_LISTS = {
          "with": {"pattern": "suite-logs-*",
                   "path": "${{ runner.temp }}/all-suite-logs"}},
         {"name": "Require every shard to have validated this run's SHA",
-         "if": ALWAYS_IF, "env": VERIFY_STEP_ENV},
-        {"name": VERILATOR_TALLY_STEP, "if": ALWAYS_IF},
+         "if": ALWAYS_IF, "env": VERIFY_STEP_ENV,
+         "run": (
+             'shopt -s nullglob',
+             'roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)',
+             'python3 scripts/ci_events.py --require-target-sha --expect 5 --sha '
+             'gate="$GATE_SHA" --sha run="$GITHUB_SHA" --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"',
+         )},
+        {"name": VERILATOR_TALLY_STEP, "if": ALWAYS_IF,
+         "run": AGGREGATE_SCRIPTS[('verilator-suites', VERILATOR_TALLY_STEP)]},
         {"name": VERILATOR_RESULT_STEP, "if": ALWAYS_IF,
-         "env": {"SHARD_RESULT": needs_result_ref("verilator-shards")}},
+         "env": {"SHARD_RESULT": needs_result_ref("verilator-shards")},
+         "run": AGGREGATE_SCRIPTS[('verilator-suites', VERILATOR_RESULT_STEP)]},
     ),
     (RTL_FULL, YOSYS_SHARDS_JOB): (
         {"uses": "actions/checkout@v4"},
-        {"name": "Fetch RTL dependencies"},
+        {"name": "Fetch RTL dependencies",
+         "run": RTL_FETCH_SCRIPT},
         {"name": "Record the tree this worker validates",
-         "env": TARGET_SHA_STEP_ENV},
+         "env": TARGET_SHA_STEP_ENV,
+         "run": (
+             'set -euo pipefail',
+             'head="$(git rev-parse HEAD)"',
+             'if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then',
+             'echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2',
+             'exit 1',
+             'fi',
+             'mkdir -p "$RUNNER_TEMP/yosys-results"',
+             'printf \'%s\\n\' "$GITHUB_SHA" > "$RUNNER_TEMP/yosys-results/TARGET_SHA"',
+             'echo "target_sha=$GITHUB_SHA"',
+         )},
         {"name": "Cache the pinned Yosys build", "id": "cache-yosys",
          "uses": "actions/cache@v4", "with": YOSYS_CACHE_WITH},
         {"name": "Build Yosys from source on cache miss",
-         "if": YOSYS_CACHE_MISS_IF},
-        {"name": "Install the pinned Yosys and prove the version"},
-        {"name": "Install the pinned sv2v release"},
+         "if": YOSYS_CACHE_MISS_IF,
+         "run": RTL_YOSYS_BUILD_SCRIPT},
+        {"name": "Install the pinned Yosys and prove the version",
+         "run": RTL_YOSYS_INSTALL_SCRIPT},
+        {"name": "Install the pinned sv2v release",
+         "run": SV2V_INSTALL},
         {"name": "Restore the portability result cache seeded from dev",
          "uses": "actions/cache@v4",
          "with": {"path": RESULT_CACHE_PATH, "key": RESULT_CACHE_KEY,
                   "restore-keys": RESULT_CACHE_RESTORE}},
-        {"name": "Run this weighted portability shard"},
+        {"name": "Run this weighted portability shard",
+         "run": (
+             'syn/yosys/run.sh --shard "${{ matrix.shard }}/${{ matrix.total }}" --results '
+             '"$RUNNER_TEMP/yosys-results" --cache "$RUNNER_TEMP/yosys-result-cache"',
+         )},
         {"name": "Upload per-top and structural evidence", "if": ALWAYS_IF,
          "uses": "actions/upload-artifact@v4",
          "with": {"name": "yosys-results-${{ matrix.shard }}",
@@ -2101,42 +2237,96 @@ RTL_STEP_LISTS = {
          "with": {"pattern": "yosys-results-*",
                   "path": "${{ runner.temp }}/all-yosys-results"}},
         {"name": "Require every shard to have validated this run's SHA",
-         "if": ALWAYS_IF, "env": VERIFY_STEP_ENV},
-        {"name": YOSYS_TALLY_STEP, "if": ALWAYS_IF},
+         "if": ALWAYS_IF, "env": VERIFY_STEP_ENV,
+         "run": (
+             'shopt -s nullglob',
+             'roots=("$RUNNER_TEMP"/all-yosys-results/yosys-results-*)',
+             'python3 scripts/ci_events.py --require-target-sha --expect 4 --sha '
+             'gate="$GATE_SHA" --sha run="$GITHUB_SHA" --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"',
+         )},
+        {"name": YOSYS_TALLY_STEP, "if": ALWAYS_IF,
+         "run": AGGREGATE_SCRIPTS[('yosys-portability', YOSYS_TALLY_STEP)]},
         {"name": YOSYS_RESULT_STEP, "if": ALWAYS_IF,
-         "env": {"SHARD_RESULT": needs_result_ref(YOSYS_SHARDS_JOB)}},
+         "env": {"SHARD_RESULT": needs_result_ref(YOSYS_SHARDS_JOB)},
+         "run": AGGREGATE_SCRIPTS[('yosys-portability', YOSYS_RESULT_STEP)]},
     ),
     (RTL_FAST, "verilator-lint"): (
         {"uses": "actions/checkout@v4"},
-        {"name": "Fetch RTL dependencies"},
+        {"name": "Fetch RTL dependencies",
+         "run": RTL_FETCH_SCRIPT},
         {"name": "Cache the pinned Verilator build", "id": "cache-verilator",
          "uses": "actions/cache@v4", "with": VERILATOR_CACHE_WITH},
         {"name": "Build Verilator from source on cache miss",
-         "if": VERILATOR_CACHE_MISS_IF},
-        {"name": "Run the ratcheted whole-tree lint gate"},
-        {"name": "Prove protocol-processor source lists are derived"},
+         "if": VERILATOR_CACHE_MISS_IF,
+         "run": RTL_VERILATOR_BUILD_SCRIPT},
+        {"name": "Run the ratcheted whole-tree lint gate",
+         "run": ENV_FILE_WRITERS[(RTL_FAST, 'verilator-lint',
+                                  'Run the ratcheted whole-tree lint gate')]},
+        {"name": "Prove protocol-processor source lists are derived",
+         "run": (
+             'python3 scripts/pp_srcs.py --check --selftest',
+         )},
     ),
     (RTL_FAST, "bdd-conformance"): (
         {"uses": "actions/checkout@v4"},
-        {"name": "Fetch the processor model inputs"},
-        {"name": "Install behave"},
+        {"name": "Fetch the processor model inputs",
+         "run": (
+             'git submodule update --init protocol-processor gptp-processor',
+         )},
+        {"name": "Install behave",
+         "run": (
+             'python3 -m pip install --quiet behave',
+         )},
         {"name": "Run the specification-facing suite",
-         "working-directory": "tests"},
+         "working-directory": "tests",
+         "run": (
+             'behave --no-capture -f plain',
+         )},
     ),
     (RTL_FAST, OOC_SH_SELFTEST_JOB): (
         {"uses": "actions/checkout@v4"},
-        {"name": "Fetch RTL dependencies"},
+        {"name": "Fetch RTL dependencies",
+         "run": RTL_FETCH_SCRIPT},
         {"name": "Cache the pinned Yosys build", "id": "cache-yosys",
          "uses": "actions/cache@v4", "with": YOSYS_CACHE_WITH},
         {"name": "Build Yosys from source on cache miss",
-         "if": YOSYS_CACHE_MISS_IF},
-        {"name": "Install the pinned Yosys and prove the version"},
-        {"name": "Install the pinned sv2v release"},
-        {"name": "Elaborate the integration-heavy tops"},
+         "if": YOSYS_CACHE_MISS_IF,
+         "run": RTL_YOSYS_BUILD_SCRIPT},
+        {"name": "Install the pinned Yosys and prove the version",
+         "run": (
+             'set -euo pipefail',
+             'sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/',
+             'test -x /opt/yosys/bin/yosys-abc',
+             'echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"',
+             'yosys -V',
+             'yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"',
+         )},
+        {"name": "Install the pinned sv2v release",
+         "run": SV2V_INSTALL},
+        {"name": "Elaborate the integration-heavy tops",
+         "run": (
+             'syn/yosys/run.sh --mode elaborate --no-structural --top milan_datapath --top '
+             'KL_pp_shadow --top KL_gptp_shadow',
+         )},
         {"name": "Prove the OOC read sets come from run.sh and refuse a bad "
-                 "one"},
-        {"name": "Prove ooc.sh generates the ROMs and fails on a failed top"},
-        {"name": "Prove the result cache refuses a planted entry"},
+                 "one",
+         "run": (
+             'set -euo pipefail',
+             'command -v tclsh >/dev/null || {',
+             'sudo apt-get update -qq',
+             'sudo apt-get install -y --no-install-recommends tcl',
+             '}',
+             'python3 syn/ooc/dp_srcs.py --selftest',
+             'python3 syn/ooc/ooc_tcl_selftest.py',
+             'python3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null',
+             'python3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null',
+         )},
+        {"name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+         "run": (OOC_SH_SELFTEST,)},
+        {"name": "Prove the result cache refuses a planted entry",
+         "run": (
+             'python3 syn/yosys/cache_selftest.py',
+         )},
     ),
 }
 #: The other four jobs of the two RTL files, recorded in the same shape so
@@ -2149,8 +2339,8 @@ RTL_STEP_LISTS = {
 #: recorded list to hold the live job against, and a rule that merely
 #: refuses SOMETHING about a job is not evidence that the job's whole step
 #: list is pinned: round 4's observation credited exactly such a rule
-#: ([R97] round 4 on PR #431). An entry here restates no script and no key
-#: set: the licensed keys are derived from the entry, the physical leg's
+#: ([R97] round 4 on PR #431). The SHA-pin step additionally records its
+#: script (#439). The licensed keys are derived from the entry, the physical leg's
 #: list is the contract it is already held against, and a disagreement
 #: between an entry and its rule turns the pristine tree red at once.
 RTL_SIBLING_STEP_LISTS = {
@@ -2158,7 +2348,17 @@ RTL_SIBLING_STEP_LISTS = {
         {"uses": f"{CHECKOUT_ACTION}@v4",
          "with": {"fetch-depth": CHECKOUT_FETCH_DEPTH}},
         {"name": "Print the event and pin the one SHA this run validates",
-         "id": PIN_STEP_ID},
+         "id": PIN_STEP_ID,
+         "run": (
+             'set -euo pipefail',
+             'echo "event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA"',
+             'head="$(git rev-parse HEAD)"',
+             'if [ "$head" != "$GITHUB_SHA" ]; then',
+             'echo "checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA" >&2',
+             'exit 1',
+             'fi',
+             'echo "target_sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"',
+         )},
         {"name": "Assert the repository default branch is dev",
          "env": ASSERT_STEP_ENV},
         {"name": "Hold every workflow file to its contract"},
@@ -3577,7 +3777,7 @@ def step_found_label(step: Any) -> str:
 
 def check_carrier_script(c: Contract, path: str, what: str, step: YamlMap,
                          entry: YamlMap) -> None:
-    """Compare one carrier body with its recorded normalized script (#407).
+    """Compare a run body with its recorded normalized script (#407, #439).
 
     A missing record is a finding, never permission to stop checking a body.
     Sequence and key checks still own identity and execution conditions.
@@ -3602,7 +3802,8 @@ def check_carrier_steps(c: Contract, path: str, wf: YamlMap, jid: str,
     the seven RTL jobs): count, order, each step's identity, key set, env
     bindings, recorded `if`, recorded `with`, and the `id`,
     `continue-on-error` and `working-directory` a step records. The four
-    non-RTL carriers also pin every normalized run body (#407). The
+    non-RTL carriers (#407), seven RTL jobs and sibling SHA-pin step (#439)
+    also pin every normalized run body. The
     declared allowlists hold what a step says; only this holds WHICH steps
     the job runs, so an inserted `run:` step writing `BASH_ENV=...` to
     `$GITHUB_ENV`, one prepending `$GITHUB_PATH`, an inserted `uses:` of
@@ -3652,7 +3853,10 @@ def check_carrier_steps(c: Contract, path: str, wf: YamlMap, jid: str,
             continue
         pinned_step_keys(c, path, what, at,
                          StepShape(carrier_entry_keys(entry), entry.get("env", {})))
-        if path in (DOCS, ELABORATE) and "uses" not in entry:
+        if "uses" not in entry and (
+                path in (DOCS, ELABORATE) or (path, jid) in RTL_STEP_LISTS
+                or (path == RTL_FULL and jid == GATE_JOB
+                    and entry.get("id") == PIN_STEP_ID)):
             check_carrier_script(c, path, what, at, entry)
         if "id" in entry:
             c.item(at.get("id") == entry["id"], path, f"{what} `id` must be "
@@ -6872,7 +7076,7 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#295 docs-check inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
-         "job `docs-check` must carry exactly 44 steps"),
+         "job `docs-check` must carry exactly 49 steps"),
         ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check-no-git",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
@@ -6883,10 +7087,10 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `wire-accountability` must carry exactly 3 steps"),
         ("#295 elaborate inserted third-party action breaks the sequence",
          _m_insert_step(ELABORATE, "elaborate", {"uses": "attacker/action@v1"}),
-         "job `elaborate` must carry exactly 18 steps"),
+         "job `elaborate` must carry exactly 20 steps"),
         ("#295 docs-check inserted step of benign content",
          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
-         "job `docs-check` must carry exactly 44 steps"),
+         "job `docs-check` must carry exactly 49 steps"),
         ("#295 wire-accountability inserted step of benign content",
          _m_insert_step(DOCS, "wire-accountability", {"name": "tidy", "run": "true"}),
          "job `wire-accountability` must carry exactly 3 steps"),
@@ -6895,26 +7099,26 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `docs-check-no-git` must carry exactly 2 steps"),
         ("#295 elaborate inserted step of benign content",
          _m_insert_step(ELABORATE, "elaborate", {"name": "tidy", "run": "true"}),
-         "job `elaborate` must carry exactly 18 steps"),
+         "job `elaborate` must carry exactly 20 steps"),
         ("#303 docs-check imported gPTP gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check",
                                  "check_gptp_docs.py --with-submodule")),
-         "job `docs-check` must carry exactly 44 steps, in the recorded order (found 43)"),
+         "job `docs-check` must carry exactly 49 steps, in the recorded order (found 48)"),
         ("#295 docs-check recognised step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
-         "job `docs-check` must carry exactly 44 steps, in the recorded order (found 43)"),
+         "job `docs-check` must carry exactly 49 steps, in the recorded order (found 48)"),
         ("#295 elaborate patch-series step removed",
          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
-         "job `elaborate` must carry exactly 18 steps, in the recorded order (found 17)"),
+         "job `elaborate` must carry exactly 20 steps, in the recorded order (found 19)"),
         ("#295 docs-check recognised steps swapped",
-         _m_swap_steps(DOCS, "docs-check", 37, 38),
-         "job `docs-check` step 39 must be the step named `Archive integrity gate`"),
+         _m_swap_steps(DOCS, "docs-check", 42, 43),
+         "job `docs-check` step 44 must be the step named `Archive integrity gate`"),
         ("#295 elaborate scope and fetch steps swapped",
          _m_swap_steps(ELABORATE, "elaborate", 1, 2),
          "job `elaborate` step 2 must be the step named `Decide whether this head needs an elaboration`"),
         ("#295 docs-check recognised step renamed",
          _m_rename_step(DOCS, "docs-check", "Doc cited-path gate", "Cited-path gate"),
-         "job `docs-check` step 38 must be the step named `Doc cited-path gate`"),
+         "job `docs-check` step 43 must be the step named `Doc cited-path gate`"),
         ("#295 docs-check non-gate step if: false",
          _m_step_key_any(DOCS, "docs-check", "check_baremetal_only", "if", False),
          "(`Bare-metal scope gate`) must carry no `if`"),
@@ -6948,7 +7152,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          f"(`{EM_DASH_GATE_NAME}`) must carry no `if`"),
         ("#378 em-dash gate step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_em_dash.py")),
-         "job `docs-check` must carry exactly 44 steps, in the recorded order (found 43)"),
+         "job `docs-check` must carry exactly 49 steps, in the recorded order (found 48)"),
     ]
 
 
@@ -7467,6 +7671,37 @@ def _carrier_script_edits(lines: Sequence[str]) -> list[tuple[str, str, int]]:
     return edits
 
 
+def _rv32_sdk_arms() -> list[Arm]:
+    """#504: missing provenance inputs, adoption guards and provisioning refuse."""
+    arms = []
+    for path, jid, count in ((DOCS, "docs-check", 49),
+                             (ELABORATE, "elaborate", 20)):
+        for label, key, value in (
+                ("digest", "key", RV32_CACHE_WITH["key"].replace(
+                    "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "wrong")),
+                ("OS", "key", RV32_CACHE_WITH["key"].replace("${{ runner.os }}", "")),
+                ("architecture", "key", RV32_CACHE_WITH["key"].replace("${{ runner.arch }}", "")),
+                ("revision", "key", RV32_CACHE_WITH["key"].replace("sdk-v1", "sdk-v0")),
+                ("installer bytes", "key", "rv32-sdk-v1"),
+                ("fallback", "restore-keys", "rv32-sdk-"),
+                ("selector path", "path", "~/unselected-sdk")):
+            arms.append((f"RV32 {jid} wrong cache {label}",
+                         _m_with_key(path, jid, "Cache the pinned RV32 SDK", key, value),
+                         "(`Cache the pinned RV32 SDK`) `with` must be exactly"))
+        arms.append((f"RV32 {jid} installation removed",
+                     lambda w, p=path, j=jid: _strip_steps(w, p, j, "ci_rv32_sdk.py"),
+                     f"job `{jid}` must carry exactly {count} steps"))
+        arms.append((f"RV32 {jid} verification skipped on cache hit",
+                     _m_step_key_any(path, jid, "ci_rv32_sdk.py", "if", False),
+                     "(`Install and verify the pinned RV32 SDK`)"))
+        builder_name = "End-station builder gates" if path == DOCS else "Elaboration gates"
+        arms.append((f"RV32 {jid} allows a stood-down compiler",
+                     _m_step_key_any(path, jid, BUILDER_CALL, "run",
+                                     "\n".join(BUILDER_RUNS[path]).replace(" --require-rv32", "")),
+                     f"(`{builder_name}`) script is not the canonical form"))
+    return arms
+
+
 def _carrier_script_arms(pristine: World) -> list[Arm]:
     """Reason-pin every carrier body, including its name and differing line.
 
@@ -7488,6 +7723,72 @@ def _carrier_script_arms(pristine: World) -> list[Arm]:
         arms.append((f"{label} continue-on-error",
                      _m_step_key_at(path, jid, at, "continue-on-error", True),
                      f"{what} must carry no `continue-on-error`"))
+    return arms
+
+
+def _rtl_run_steps(world: World) -> Iterator[tuple[str, str, int, YamlMap]]:
+    """Read #439's live population without consulting any content records.
+
+    The physical leg, selectors and fast verdict keep their specialized pins.
+    Only the gate's SHA publisher joins the other seven jobs here.
+    """
+    for path in (RTL_FULL, RTL_FAST):
+        for jid, job in jobs(world[path]).items():
+            if jid in (PHYSICAL_GPTP_JOB, FAST_SELECTOR_JOB, FAST_AGGREGATE_JOB):
+                continue
+            for at, step in enumerate(steps(job)):
+                if jid == GATE_JOB and step.get("id") != PIN_STEP_ID:
+                    continue
+                if isinstance(step.get("run"), str):
+                    yield path, jid, at, step
+
+
+def _rtl_script_edits(lines: Sequence[str]) -> list[tuple[str, str, int]]:
+    """Keep #407's controls and delete/change every line, including syntax.
+
+    A trailing `|| true` on a comment changes no execution; deleting or
+    replacing it still proves that the record includes that normalized line.
+    The same textual comparison holds compound-shell delimiters and commands.
+    """
+    edits = _carrier_script_edits(lines)
+    for n, line in enumerate(lines):
+        for lever, edited in (
+                ("delete", [*lines[:n], *lines[n + 1:]]),
+                ("change", [*lines[:n], "true # " + line, *lines[n + 1:]])):
+            differing = next(i for i, pair in enumerate(
+                itertools.zip_longest(lines, edited), 1) if pair[0] != pair[1])
+            edits.append((f"{lever}-line-{n + 1}", "\n".join(edited), differing))
+    return edits
+
+
+def _rtl_script_arms(pristine: World) -> list[Arm]:
+    """Every #439 mutation requires its own job, step and first-line refusal.
+
+    Earlier specialized findings do not satisfy these reasons. These arms
+    also fail when the shared comparison or either RTL call condition is cut.
+    """
+    arms = []
+    for path, jid, at, step in _rtl_run_steps(pristine):
+        lines = normalize_script(step["run"])
+        edits = _rtl_script_edits(lines)
+        if jid == GATE_JOB:
+            start = lines.index('if [ "$head" != "$GITHUB_SHA" ]; then')
+            end = lines.index("fi", start)
+            exit_at = lines.index("exit 1", start)
+            edits.extend((
+                ("drop-checkout-mismatch-assertion",
+                 "\n".join((*lines[:start], *lines[end + 1:])), start + 1),
+                ("mismatch-exit-becomes-true",
+                 "\n".join((*lines[:exit_at], "true", *lines[exit_at + 1:])),
+                 exit_at + 1),
+            ))
+        what = f"job `{jid}` step {at + 1} (`{step['name']}`)"
+        for lever, run, differing in edits:
+            expected = lines[differing - 1] if differing <= len(lines) else None
+            arms.append((f"rtl-script-439 {jid} step {at + 1} {lever}",
+                         _m_step_key_at(path, jid, at, "run", run),
+                         f"{what} script is not the canonical form: "
+                         f"line {differing} must be {expected!r}"))
     return arms
 
 
@@ -7515,6 +7816,7 @@ def _mutations(pristine: World) -> list[Arm]:
             + _shard_and_fast_arms()
             + _aggregate_script_arms()
             + _docs_builder_arms()
+            + _rv32_sdk_arms()
             + _docs_carrier_arms()
             + _elaborate_arms()
             + _decoy_name_arms()
@@ -7527,6 +7829,7 @@ def _mutations(pristine: World) -> list[Arm]:
             + _elab_scope_and_presence_arms()
             + _carrier_step_list_arms()
             + _carrier_script_arms(pristine)
+            + _rtl_script_arms(pristine)
             + _sequence_pin_arms(pristine)
             + _result_cache_arms()
             + _physical_gptp_arms())
@@ -7857,6 +8160,50 @@ def _selftest_carrier_script_pins(pristine: World) -> tuple[list[str], int]:
     return problems, arms
 
 
+def _selftest_rtl_script_pins(pristine: World) -> tuple[list[str], int]:
+    """Judge record loss and maintenance through the real sequence wiring.
+
+    No specialized checker runs here, so it cannot conceal an absent content
+    check. A live step still owes its record when that record is removed.
+    Matching maintenance changes the script and record, with no bypass flag;
+    separately specialized contracts continue to apply in the full checker.
+    """
+    problems, arms = [], 0
+    for path, jid, at, step in _rtl_run_steps(pristine):
+        what = f"job `{jid}` step {at + 1} (`{step['name']}`)"
+        lines = normalize_script(step["run"])
+        for lever, record in (("missing", None), ("empty", ()),
+                              ("blank", ("",)), ("wrong-type", "true"),
+                              ("stale", ("echo stale record", *lines[1:])),
+                              ("maintained", (*lines, "echo checked"))):
+            world = copy.deepcopy(pristine)
+            spec = copy.deepcopy(RTL_SEQUENCE_PINS[(path, jid)])
+            if record is None:
+                spec[at].pop("run", None)
+            else:
+                spec[at]["run"] = record
+            if lever == "maintained":
+                _job_steps(world, path, jid)[at]["run"] += "\necho checked\n"
+            c = Contract()
+            check_sequence_pin_coverage(c, world,
+                                        {**RTL_SEQUENCE_PINS, (path, jid): spec})
+            arms += 1
+            label = f"rtl-script-439 {jid} step {at + 1} {lever} record"
+            if lever == "maintained":
+                ok = not c.findings
+            else:
+                want = (f"{what} must record a canonical normalized `run` script"
+                        if lever in ("missing", "empty", "wrong-type") else
+                        f"{what} script is not the canonical form: "
+                        f"line 1 must be {record[0]!r}")
+                ok = any(want in finding for finding in c.findings)
+            if ok:
+                print(f"  ok   {label}")
+            else:
+                problems.append(f"{label}: unexpected findings {c.findings}")
+    return problems, arms
+
+
 def _selftest_whitespace(pristine: World) -> tuple[list[str], int]:
     """The canonical pin is whitespace-invariant: re-indenting and continuing
     the same lines differently is the same script and must pass. Returns
@@ -7928,6 +8275,20 @@ def _selftest_whitespace(pristine: World) -> tuple[list[str], int]:
               "step, the four documentation gate steps and the elaborate "
               "scope step; carrier-script-407 every carrier body)")
     return problems, 1
+
+
+def _selftest_rtl_script_whitespace(pristine: World) -> tuple[list[str], int]:
+    """The newly pinned scripts retain the existing normalization semantics."""
+    world = copy.deepcopy(pristine)
+    for _, _, _, step in _rtl_run_steps(world):
+        step["run"] = "\n\n".join(" \t" + line for line in
+                                   normalize_script(step["run"])) + "\n"
+    findings = check(world).findings
+    if findings:
+        return ["rtl-script-439 whitespace reformatting refused: "
+                + "; ".join(findings)], 1
+    print("  ok   rtl-script-439 every body accepts existing whitespace normalization")
+    return [], 1
 
 
 def _selftest_default_branch() -> tuple[list[str], int]:
@@ -8009,7 +8370,9 @@ def selftest(root: pathlib.Path) -> int:
                         _selftest_records(),
                         _selftest_step_list_pins(pristine),
                         _selftest_carrier_script_pins(pristine),
+                        _selftest_rtl_script_pins(pristine),
                         _selftest_whitespace(pristine),
+                        _selftest_rtl_script_whitespace(pristine),
                         _selftest_default_branch()):
         problems.extend(found)
         checked_arms += arms

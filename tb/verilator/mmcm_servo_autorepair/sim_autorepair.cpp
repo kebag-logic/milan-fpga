@@ -164,6 +164,7 @@ void AutoRepairHarness::engage_until_active() {
 
 void AutoRepairHarness::reset_and_defaults() {
     dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
+    dut->crf_rate_valid_i = 1; // synthetic rate input is valid
     //! this suite selects CRF at CLOCK_SOURCE index 2, a suite-local
     //! value and NOT the shipping index (AEM_CRF_CLKSRC_C = 1 on every
     //! shipping shape since #389: INTERNAL 0, the CRF sink 1). The DUT

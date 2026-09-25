@@ -45,7 +45,7 @@ kept in Git history rather than the tracked product tree (#259).
 | IEEE 802.3-2022 | MAC, MDIO, autonegotiation, counters, and PAUSE |
 | IEEE 1722-2016 | AVTP/AAF/CRF transport and timestamp-validity fields |
 | IEEE 1722.1-2021 | discovery, connection management, descriptors, commands, and counters |
-| Milan v1.2 | PAAD-AE product profile and validation obligations |
+| Milan v1.2 | non-redundant PAAD-AE product profile (Section 9) and validation obligations |
 
 The fabric gPTP transmitter follows the Milan-selected 802.1AS-2011 control
 field values. Receivers ignore that deprecated field as required by the later
@@ -126,6 +126,26 @@ time. The DIGITAL bound is verified in `tb/verilator/gptp_txts` against an
 independent pad oracle over the product's own converted MAC; the remaining
 offset from that register stage to the pad, and every physical term with it,
 is #117's and #64's to measure.
+
+Scope note (propagation asymmetry, #511): the product does not model IEEE
+802.1AS-2011 `delayAsymmetry`. Section 8.3 does not require it to be measured,
+and Section 10.2.4.8 makes an unmodelled value zero, so the value is zero here.
+The product has one cabled port, and the two REQ-PTP-06 elaboration constants
+remain its only timestamp corrections. No configuration key, CSR or runtime path
+sets an asymmetry. The gPTP processor's live UART tuner stays a donor-bench
+instrument and never becomes a product control. A one-way error left by the
+assigned ingress/egress split (#64, #488) is corrected by re-measuring those
+constants, never by a second asymmetry term. This is a directed limitation
+recorded by the
+[owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257)
+(2026-09-23). Revisit it before a profile adds a second cabled port, such as
+Section 8 redundancy under #394, and before the product claims IEEE 802.1AS
+management: 802.1AS-2011 Table 14-6 then requires a read-write
+`delayAsymmetry` object on each time-aware IEEE 802.3 full-duplex port
+(conformance `Tdot3FD`). A runtime correction, including a write to that
+object, first needs an amendment of REQ-PTP-06. The
+[gPTP plane record](docs/design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled)
+lists what an adoption must define and prove.
 
 Acceptance combines the focused PHC, timestamp, gPTP-plane, publication,
 clock-validity, CSR, and full-datapath benches with #117's wire and
@@ -238,3 +258,22 @@ and physical measurements.
 802.1Qbv time-aware scheduling, Qci per-stream filtering/policing, frame
 preemption, one-step timestamping, routed PTP transport, stacked VLAN service
 tags, and unrelated HDL modernization are not part of this release.
+
+The exclusions below are directed limitations, each with its revisit trigger.
+They are recorded decisions, not omissions.
+
+- **Milan v1.2 Section 8 seamless network redundancy.** The product is a
+  declared non-redundant end station: one AVB_INTERFACE on one cabled port,
+  and `GET_MILAN_INFO` reports the `features_flags` REDUNDANCY bit as 0 (Milan
+  v1.2 Section 5.4.4.1, Table 5.20). Milan v1.2 Sections 4.2.5 and 8.1 make
+  redundancy optional. It is out of scope for the October release by the
+  [owner decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478)
+  (2026-09-23) and is revisited with the P4/P5 PCB (#416/#417). Adopting it
+  needs a second AVB_INTERFACE with its own MAC, gPTP port, MAAP and SRP
+  contexts and paired streams, and that design is approved before any RTL
+  lane opens.
+- **IEEE 802.1AS-2011 `delayAsymmetry` modelling.** Not modelled, so its value
+  is zero (Sections 8.3 and 10.2.4.8), and the gPTP processor's live UART
+  tuner stays donor-bench-only. See the Section 4 scope note and the
+  [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257)
+  (2026-09-23).

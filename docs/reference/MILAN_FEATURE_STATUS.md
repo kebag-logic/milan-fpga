@@ -117,6 +117,14 @@ Served Milan Vendor Unique operations:
 - `GET_MILAN_INFO`
 <!-- milan-feature-fact:served_mvu_operations:end -->
 
+The other Milan v1.2 Table 5.18 commands are absent from that list on
+purpose. `SET/GET_SYSTEM_UNIQUE_ID` and `SET/GET_MEDIA_CLOCK_REFERENCE_INFO`
+are RECOMMENDED (Milan v1.2 Sections 5.4.4.2 to 5.4.4.5), and the
+[owner decision on #510](https://github.com/kebag-logic/milan-fpga/issues/510#issuecomment-5789766089)
+keeps them unserved for the October release: each answers MVU
+`NOT_IMPLEMENTED`. Implementation moves to P4 (#416) if the conformance lab
+requires it, and the served list grows only when it lands.
+
 Missing mandatory AEM operations:
 
 <!-- milan-feature-fact:missing_mandatory_aem_operations:start -->

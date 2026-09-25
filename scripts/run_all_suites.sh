@@ -27,10 +27,16 @@
 #   91       REFUSED: another sweep is already running in this tree.
 #   92       some suite was KILLED BY THE WALL CLOCK. Its result is UNKNOWN -
 #            it is not a failure and it is not a pass. Re-run it uncontended.
+#   130/143  cancelled by INT/TERM; partial logs, no completed summary.
+#   other    the launched process was stopped without cleanup: KILL, or HUP
+#            or another fatal signal it does not handle, to it or its group.
+#            The caller sees that signal. The sweep shell dies with it: no
+#            later suite, no summary, no cleanup. A suite already running may
+#            finish and holds the lock until then.
 #
 # Environment:
 #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
-#                        Defaults: 1800 s; milan_dp gets 2700 s and the
+#                        Defaults: 1800 s; milan_dp gets 3600 s and the
 #                        scheduled milan_dp_gptp 5400 s (suite_timeout below).
 #                        See docs/testing/TESTING.md for the physical timer floor.
 #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
@@ -102,6 +108,30 @@ set -u
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# A separate owner adopts and reaps the entire command subtree, even children
+# that detach or ignore TERM. The launched PID becomes that owner, and it runs
+# this shell in its own session; a parent-death signal kills this shell if the
+# owner dies without cleanup, so a hard stop never leaves the loop detached.
+# Install the shell's terminal traps before any selection, lock wait or
+# preflight can start. The private argument is consumed only on re-entry from
+# that owner; it is not a supported sweep option.
+if [ "${1:-}" != "--owned-sweep" ]; then
+  exec python3 "$ROOT/scripts/owned_process.py" -- bash "$0" --owned-sweep "$@"
+fi
+shift
+LOGS_READY=0
+cancelled() {
+  echo "CANCELLED: $1; no completed sweep result" >&2
+  if [ "$LOGS_READY" = 1 ]; then
+    echo "partial logs: $OUT" >&2
+  else
+    echo "logs were not prepared for this invocation" >&2
+  fi
+  exit "$2"
+}
+trap 'cancelled INT 130' INT
+trap 'cancelled TERM 143' TERM
+
 WAIT=0
 OUT=""
 SHARD="0/1"
@@ -126,6 +156,11 @@ parse_args() {
     esac
   done
   OUT="${OUT:-$ROOT/.suite-logs}"
+  # Prerequisites may change directory. Keep every log in the caller's OUT.
+  case "$OUT" in
+    /*) ;;
+    *) OUT="$PWD/$OUT" ;;
+  esac
 }
 
 #! the suites this invocation owns, into `suites` (or --list and out)
@@ -195,39 +230,61 @@ acquire_lock() {
     done
     cleanup() { rm -rf "$LOCKDIR" "$LOCK_OWNER"; }
   fi
-  trap cleanup EXIT INT TERM
+  trap cleanup EXIT
   printf 'pid %s  host %s  started %s\n  outdir %s\n' \
          "$$" "$(uname -n)" "$(date -Is 2>/dev/null || date)" "$OUT" > "$LOCK_OWNER"
 }
 
 #! Declared per-suite defaults; an explicit caller override retains its meaning.
 #! The CI runner contract pins every budget and each named suite.
-#! milan_dp (#444): hosted worst case about 1815 s (1726-1773 s passing on the
-#! slower runner class; two runs killed at 1800 s, 1 s and 13 s short of the
-#! end), plus a stated 885 s (49%) margin.
+#! milan_dp (#387, decision 5820240308): hosted window 2459.9 s at a21cd358,
+#! with a 1296-2460 s spread on 2026-09-24. The 3600 s budget leaves
+#! 1140.1 s (31.7% of the budget); CI_WORKFLOWS.md cites the samples.
 suite_timeout() {
   case "$1" in
-    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-2700}" ;;
+    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
     milan_dp_gptp) printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
     *)             printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
   esac
+}
+
+#! Keep partial prerequisite output even if command substitution is interrupted.
+preflight() {
+  local name="$1"
+  shift
+  "$@" > "$OUT/preflight/$name.log" 2>&1
+  local status=$?
+  cat "$OUT/preflight/$name.log"
+  return "$status"
+}
+
+#! Clear stale evidence only after acquiring the sweep's existing lock.
+prepare_logs() {
+  mkdir -p "$OUT/preflight" || exit 2
+  rm -f "$OUT"/*.log "$OUT/preflight"/*.log || exit 2
+  LOGS_READY=1
 }
 
 #! every self-test that has to hold before a 40-minute sweep is worth
 #! starting. Each aborts with exit 2 and says which tool it distrusts; the
 #! containment self-test's exit 3, a leftover temporary tree, is reported only.
 run_preflight_gates() {
+  if ! selftest_out=$(preflight test_suite_cancellation python3 "$ROOT/scripts/test_suite_cancellation.py" 2>&1); then
+    echo "$selftest_out" >&2
+    echo "ABORTING: sweep cancellation controls failed." >&2
+    exit 2
+  fi
   # The tallying tool gets its own gate, run BEFORE the 40-minute sweep rather
   # than after: if the thing that turns logs into the headline number is broken,
   # the number it would print is worthless and there is no point measuring.
-  if ! selftest_out=$(python3 "$ROOT/scripts/suite_tally.py" --selftest 2>&1); then
+  if ! selftest_out=$(preflight suite_tally python3 "$ROOT/scripts/suite_tally.py" --selftest 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: scripts/suite_tally.py fails its own self-test, so any check" >&2
     echo "total this sweep printed would be unreliable." >&2
     exit 2
   fi
 
-  if ! selftest_out=$(python3 "$ROOT/scripts/suite_shards.py" --selftest 2>&1); then
+  if ! selftest_out=$(preflight suite_shards python3 "$ROOT/scripts/suite_shards.py" --selftest 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: scripts/suite_shards.py fails its own self-test, so the" >&2
     echo "selected workers cannot be trusted to cover every suite once." >&2
@@ -247,7 +304,7 @@ run_preflight_gates() {
   # stranded a required context on a change that never touched the checker.
   # Every other non-zero status still aborts.
   selftest_out=$(cd "$ROOT" && \
-          python3 "$ROOT/scripts/check_merge_containment.py" --selftest 2>&1)
+          preflight check_merge_containment python3 "$ROOT/scripts/check_merge_containment.py" --selftest 2>&1)
   selftest_rc=$?
   case "$selftest_rc" in
     0) ;;
@@ -275,7 +332,7 @@ run_preflight_gates() {
   # A reader who doubts this line can settle it in nine seconds:
   #   python3 scripts/check_results_fresh.py --self-test
   if ! selftest_out=$(cd "$ROOT" && \
-          python3 "$ROOT/scripts/check_results_fresh.py" --self-test 2>&1); then
+          preflight check_results_fresh python3 "$ROOT/scripts/check_results_fresh.py" --self-test 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: scripts/check_results_fresh.py fails its own self-test, so" >&2
     echo "its 'fresh' verdicts on generated evidence cannot be trusted." >&2
@@ -287,7 +344,7 @@ run_preflight_gates() {
   # pp_srcs.py - which is the property the yosys-portability aggregate depends on
   # and the one #190 broke. It builds a submodule-free tree and its own negative
   # control, needs no yosys or sv2v, and is the durable check #191 deferred (#192).
-  if ! selftest_out=$(cd "$ROOT" && bash "$ROOT/syn/yosys/check_list_hermetic.sh" 2>&1); then
+  if ! selftest_out=$(cd "$ROOT" && preflight check_list_hermetic bash "$ROOT/syn/yosys/check_list_hermetic.sh" 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: syn/yosys/check_list_hermetic.sh fails: run.sh --list no" >&2
     echo "longer stands alone, so the portability aggregate could redden on a" >&2
@@ -301,7 +358,7 @@ run_preflight_gates() {
   # does. --selftest exercises those arms and skips the xvlog one cleanly, so the
   # gate cannot rot into a green between the bench runs that use it (#132).
   if ! selftest_out=$(cd "$ROOT" && \
-          python3 "$ROOT/scripts/xvlog_gate.py" --selftest 2>&1); then
+          preflight xvlog_gate python3 "$ROOT/scripts/xvlog_gate.py" --selftest 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: scripts/xvlog_gate.py fails its own self-test, so its" >&2
     echo "front-end findings cannot be trusted either." >&2
@@ -315,7 +372,7 @@ run_preflight_gates() {
   # negative control and a vacuity arm - so the detector cannot rot into a green
   # that means nothing (#180), exactly as the containment self-test above.
   if ! selftest_out=$(cd "$ROOT" && \
-          python3 "$ROOT/scripts/check_merge_review_integrity.py" --selftest 2>&1); then
+          preflight check_merge_review_integrity python3 "$ROOT/scripts/check_merge_review_integrity.py" --selftest 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: scripts/check_merge_review_integrity.py fails its own" >&2
     echo "self-test, so its review-integrity findings cannot be trusted." >&2
@@ -325,9 +382,6 @@ run_preflight_gates() {
 
 #! the sweep itself: one verdict line per suite, counters for the rest
 run_suites() {
-  mkdir -p "$OUT"
-  rm -f "$OUT"/*.log            # a stale log from a previous sweep is not evidence
-
   pass=0; fail=0; tmo=0; failed=""; timedout=""
   echo "shard: $SHARD   selected suites: ${#suites[@]}"
   for suite in "${suites[@]}"; do
@@ -390,6 +444,7 @@ main() {
   parse_args "$@"
   select_suites
   acquire_lock
+  prepare_logs
   run_preflight_gates
   run_suites
   summarise

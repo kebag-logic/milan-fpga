@@ -41,8 +41,8 @@ usage: syn/yosys/run.sh [options]
   --mode full|elaborate  full synthesis or fast hierarchy/process smoke
   --results DIRECTORY    write one machine-readable result per top/gate
   --cache DIRECTORY      content-addressed result cache (#350): a top whose
-                         staged sv2v output, program, Yosys binary and sv2v
-                         version match a verified PASS entry is skipped and
+                         staged sv2v output, generated ROMs, program and
+                         tool identities match a verified PASS entry is skipped and
                          its cells= reported from the stored evidence; every
                          miss runs exactly as without the flag, and every
                          PASS is stored here. This run's WRITABLE state
@@ -434,6 +434,7 @@ cache_lookup() {
   python3 "$R/syn/yosys/result_cache.py" lookup --dir "${CACHE:-$TMP/no-cache}" \
     "${seed_args[@]}" \
     --top "$1" --mode "$MODE" --sv2v-file "$TMP/$1.v" --program "$2" \
+    --rom-sha256 "$ROM_SHA256" \
     --yosys-version "$YOSYS_ID" --yosys-bin-sha256 "$YOSYS_BIN_SHA" --sv2v-version "$SV2V_ID"
 }
 
@@ -444,6 +445,7 @@ cache_store() {
   [ -n "$CACHE" ] || return 0
   python3 "$R/syn/yosys/result_cache.py" store --dir "$CACHE" \
     --top "$1" --mode "$MODE" --sv2v-file "$TMP/$1.v" --program "$2" \
+    --rom-sha256 "$ROM_SHA256" \
     --yosys-version "$YOSYS_ID" --yosys-bin-sha256 "$YOSYS_BIN_SHA" --sv2v-version "$SV2V_ID" \
     --cells "$3" --stat-json "$TMP/$1.stat.json" >/dev/null \
     || echo "  [note] $1: result not cached (see result_cache.py)"
@@ -501,6 +503,15 @@ generate_roms() {
   for image in "$TMP/ltn_rom.hex" "$TMP/ucode.hex" "$TMP/gptp_ucode.hex"; do
     [ -s "$image" ] || { echo "Yosys: generated ROM is empty: $image" >&2; exit 2; }
   done
+  # One conservative bundle for every top and both modes (#520). Capture it
+  # only after successful generation and the existing nonempty checks; lookup
+  # and store receive this same identity, never a generator-source or Git key.
+  ROM_SHA256=""
+  if [ -n "$CACHE" ] || [ -n "$CACHE_SEED" ]; then
+    ROM_SHA256="$(python3 "$R/syn/yosys/result_cache.py" rom-digest --rom-dir "$TMP")" || {
+      echo "Yosys: generated ROM bundle could not be digested" >&2; exit 2;
+    }
+  fi
 }
 
 run_tops() {

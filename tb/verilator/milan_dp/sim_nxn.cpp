@@ -52,6 +52,8 @@
 #include <cstring>
 #include <cstdlib>
 #include <algorithm>
+#include <array>
+#include <deque>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -564,6 +566,11 @@ class NxnDatapathHarness {
     unsigned long pp_ctr_evt_sout_seen = 0;
     bool pp_ctr_evt_avb_seen = false;
     bool pp_ctr_evt_ckd_seen = false;
+    //! every delivery none of the four records above can hold: another
+    //! descriptor type, or an index they keep no bit for. With it the five
+    //! account for every tuple, so a window can be required to have
+    //! delivered one tuple and nothing else.
+    unsigned long pp_ctr_evt_other_n = 0;
     //! The width of the two sticky bitmaps above: an index at or past it has
     //! no bit to set, and shifting into one would be undefined.
     static constexpr unsigned kSeenBits = 8 * sizeof(unsigned long);
@@ -582,6 +589,8 @@ class NxnDatapathHarness {
                 pp_ctr_evt_avb_seen = true;
             else if (ty == 0x0024 && ix == 0)
                 pp_ctr_evt_ckd_seen = true;
+            else
+                pp_ctr_evt_other_n++;
         }
     }
 
@@ -813,10 +822,44 @@ class NxnDatapathHarness {
     bool aecp_is_originated(const std::vector<uint8_t>& f) {
         return f.size() > 37 && (f[15] & 0xF) == 0;   // an AEM_COMMAND we sent
     }
+    // THE FORCED-REALLOCATION LEVER (#542), off unless the build passes
+    // -DNOTIFY_REALLOC_TB. await_aecp and drain_tx are the only code that
+    // pushes into uns_log, and a push that meets a full buffer moves every
+    // entry to a new one and frees the old. A frame arriving while a waiter
+    // waits can do that, so a pointer or reference into the log held across
+    // either call can dangle, but only when the arrival meets a full buffer,
+    // which no leg arranges. The lever makes it certain: each call first
+    // moves the log into a buffer allocated while the old one is still live
+    // (so it cannot land at the old address), pushes one empty entry stamped
+    // -1 there, and frees the old buffer. No reader matches an empty entry,
+    // so no verdict moves. A stale pointer reads the freed old buffer, whose
+    // entries were moved out, so the check that reads it fails, and an
+    // AddressSanitizer build reports that read as a heap-use-after-free.
+#ifdef NOTIFY_REALLOC_TB
+    static constexpr bool kForceRealloc = true;
+#else
+    static constexpr bool kForceRealloc = false;
+#endif
+    //! moves of a log holding a REAL frame, one a pointer could name: the
+    //! lever's own empty entries do not count, or it would bank its own moves
+    long realloc_moves = 0;
+    void force_uns_log_realloc() {
+        if (!kForceRealloc) return;
+        if (std::any_of(uns_log.begin(), uns_log.end(),
+                        [](const std::vector<uint8_t>& f) { return !f.empty(); }))
+            realloc_moves++;
+        std::vector<std::vector<uint8_t> > moved;
+        moved.reserve(uns_log.size() + 1);
+        for (std::vector<uint8_t>& f : uns_log) moved.push_back(std::move(f));
+        moved.emplace_back();
+        uns_log.swap(moved);
+        uns_log_when.push_back(-1);
+    }   // `moved` owns the old buffer now, and frees it here
     std::vector<uint8_t> await_aecp(int cyc = 200000) {
         std::vector<uint8_t> cur, resp;
         cur.reserve(1514);                  // one Ethernet frame off the TX trunk
         dut->m_axis_mac_tx_tready = 1;
+        force_uns_log_realloc();
         for (int c = 0; c < cyc && resp.empty(); c++) {
             lo();
             if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
@@ -847,6 +890,7 @@ class NxnDatapathHarness {
         std::vector<uint8_t> cur;
         cur.reserve(1514);
         dut->m_axis_mac_tx_tready = 1;
+        force_uns_log_realloc();
         for (int c = 0; c < cyc; c++) {
             lo();
             if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
@@ -1059,7 +1103,8 @@ class NxnDatapathHarness {
     //  compressed through PP_TIM_DIV_US_P / PP_TIM_DIV_MS_P so one processor
     //  millisecond is MS_CYC_TB = 100 fabric cycles and a minute is runnable):
     //  the GET_COUNTERS one-per-descriptor-per-second limit measured as a
-    //  withheld push RELEASED after >= 1000 ms, and the 5.4.5.3 departing-
+    //  withheld push RELEASED about 1000 ms later and then silent while nothing
+    //  changes, and the 5.4.5.3 departing-
     //  controller monitor - CONTROLLER_AVAILABLE 30 to 60 s after the last
     //  command, exactly one retry, then a targeted DEREGISTER notification.
     //  At the other legs' real timebase a processor second is 1e8 cycles,
@@ -1081,8 +1126,9 @@ class NxnDatapathHarness {
     unsigned notify_cdl(const std::vector<uint8_t>& f) {
         return ((static_cast<unsigned>(f[16]) & 7) << 8) | f[17];
     }
-    long notify_seq(const std::vector<uint8_t>* f) {
-        return f ? static_cast<long>((static_cast<unsigned>(f->at(34)) << 8) | f->at(35)) : -1L;
+    //! the sequence_id of a notify_last() copy (-1 when it is empty: absent)
+    long notify_seq(const std::vector<uint8_t>& f) {
+        return f.size() > 35 ? static_cast<long>((static_cast<unsigned>(f[34]) << 8) | f[35]) : -1L;
     }
     //! a RESPONSE to controller c: its MAC is the destination and its entity_id
     //! is the controller_entity_id field
@@ -1113,19 +1159,23 @@ class NxnDatapathHarness {
         }
         return n;
     }
-    //! the LAST matching unsolicited frame - the one the content bar names
-    const std::vector<uint8_t>* notify_last(uint16_t cmd, const Ctlr& to,
-                                                   int ty = -1, int ix = -1) {
-        const std::vector<uint8_t>* r = nullptr;
+    //! a COPY of the LAST matching unsolicited frame - the one the content bar
+    //! names - or an empty frame when none matches (a match is always longer
+    //! than 37 bytes, so empty means absent). A copy, never a pointer into
+    //! uns_log (#542): the content bars keep it across a solicited exchange,
+    //! and every wait can push into the log and reallocate it.
+    std::vector<uint8_t> notify_last(uint16_t cmd, const Ctlr& to,
+                                     int ty = -1, int ix = -1) {
+        size_t last = uns_log.size();
         for (size_t i = 0; i < uns_log.size(); i++) {
             const std::vector<uint8_t>& f = uns_log[i];
             if (!aecp_is_unsolicited(f) || notify_cmd(f) != cmd || !notify_to(f, to)) continue;
             if (ty >= 0 && (f.size() < 42
                             || ((static_cast<unsigned>(f[38]) << 8) | f[39]) != static_cast<unsigned>(ty)
                             || ((static_cast<unsigned>(f[40]) << 8) | f[41]) != static_cast<unsigned>(ix))) continue;
-            r = &f;
+            last = i;
         }
-        return r;
+        return last < uns_log.size() ? uns_log[last] : std::vector<uint8_t>();
     }
     //! the cycle stamp of the i-th matching frame (-1 when absent)
     long notify_when(uint16_t cmd, const Ctlr& to, unsigned nth, bool originated) {
@@ -1139,11 +1189,12 @@ class NxnDatapathHarness {
         }
         return -1;
     }
-    //! byte-identical from offset `off` on (the frames are the same length)
-    bool notify_same_from(const std::vector<uint8_t>* a,
-                                 const std::vector<uint8_t>& b, size_t off) {
-        return a && a->size() == b.size() && a->size() > off
-            && std::equal(a->begin() + off, a->end(), b.begin() + off);
+    //! byte-identical from offset `off` on (the frames are the same length);
+    //! an empty `a` is an absent frame and never matches
+    bool notify_same_from(const std::vector<uint8_t>& a,
+                          const std::vector<uint8_t>& b, size_t off) {
+        return a.size() == b.size() && a.size() > off
+            && std::equal(a.begin() + off, a.end(), b.begin() + off);
     }
     //! SET_NAME(ENTITY, 0, name_index 0 = entity_name, configuration 0)
     std::vector<uint8_t> notify_set_name(const Ctlr& c, const char* name,
@@ -1165,6 +1216,7 @@ class NxnDatapathHarness {
         else
             printf("-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the "
                    "wire --\n");
+        const long realloc_moves0 = realloc_moves;
         const uint8_t teid[8] = {
             0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
         const std::vector<uint8_t> name_key(8, 0);   // ENTITY,0 / name 0 / cfg 0
@@ -1179,15 +1231,23 @@ class NxnDatapathHarness {
         register_two_controllers(timed, fl0);
         prove_the_exclusion_gate_pushes_to_b_alone(teid);
         prove_a_no_op_set_pushes_nothing();
-        const std::vector<uint8_t>* nB2 =
+        const std::vector<uint8_t> nB2 =
             prove_each_registry_entry_has_its_own_sequence();
         // ---- (N5) the content bar ---------------------------------------
         const std::vector<uint8_t> gB = aecp_xact_from(CTL_B, 0x0011, notify_sq++, name_key);
         ck("[NOTIFY] GET_NAME right after is byte-identical from the body on",
            static_cast<long>(gB.size() >= 110 && notify_same_from(nB2, gB, 38)), 1);
+        if (timed) prove_the_crf_input_counters_push_under_the_one_second_limit();
         prove_the_ownerless_publication_faces_stay_ownerless();
         if (timed) prove_the_departing_controller_monitor(fl0);
         deregister_both_controllers_and_restore_the_name(g0, name0);
+        //! a lever build whose lever never moved a real frame proves nothing
+        if (kForceRealloc) {
+            printf("  [i]    #542 lever: %ld moves of a log holding a real "
+                   "frame in this section\n", realloc_moves - realloc_moves0);
+            ck("[NOTIFY] (#542 lever) the waits moved logs holding real frames",
+               static_cast<long>(realloc_moves > realloc_moves0), 1);
+        }
     }
 
     // ---- (N1) two registered controllers, A and B ---------------------
@@ -1228,14 +1288,14 @@ class NxnDatapathHarness {
            notify_count(0x0010, &CTL_B), 1);
         ck("[NOTIFY] ...and none to A, the requester (5.4.5.2 'except')",
            notify_count(0x0010, &CTL_A), 0);
-        const std::vector<uint8_t>* nB1 = notify_last(0x0010, CTL_B);
+        const std::vector<uint8_t> nB1 = notify_last(0x0010, CTL_B);
         ck("[NOTIFY] ...B's sequence_id starts at 0 (5.4.2.21: a new entry)",
            notify_seq(nB1), 0);
         ck("[NOTIFY] ...target_entity_id is this entity",
-           static_cast<long>(nB1 && memcmp(nB1->data() + 18, teid, 8) == 0), 1);
+           static_cast<long>(!nB1.empty() && memcmp(nB1.data() + 18, teid, 8) == 0), 1);
         ck("[NOTIFY] ...status SUCCESS with the full cdl-84 SET_NAME body",
-           static_cast<long>(nB1 && nB1->size() >= 110 && aecp_status(*nB1) == 0
-                  && notify_cdl(*nB1) == 84), 1);
+           static_cast<long>(nB1.size() >= 110 && aecp_status(nB1) == 0
+                  && notify_cdl(nB1) == 84), 1);
         ck("[NOTIFY] ...carrying the NEW name: current state, not history",
            static_cast<long>(notify_same_from(nB1, sA1, 38)), 1);
     }
@@ -1252,7 +1312,9 @@ class NxnDatapathHarness {
     }
 
     // ---- (N4) one sequence_id variable per registry entry ---------------
-    const std::vector<uint8_t>* prove_each_registry_entry_has_its_own_sequence() {
+    //! returns a copy of B's last push for the (N5) content bar, which reads
+    //! it after an exchange that can reallocate the log (#542)
+    std::vector<uint8_t> prove_each_registry_entry_has_its_own_sequence() {
         notify_clear();
         const std::vector<uint8_t> sB1 = notify_set_name(CTL_B, "Notify-B1", notify_sq++);
         ck("[NOTIFY] SET_NAME from B is SUCCESS",
@@ -1268,12 +1330,91 @@ class NxnDatapathHarness {
         ck("[NOTIFY] a second change from A is SUCCESS",
            sA3.size() >= 110 ? aecp_status(sA3) : -1, 0);
         drain_tx(NOTIFY_WIN);
-        const std::vector<uint8_t>* nB2 = notify_last(0x0010, CTL_B);
+        const std::vector<uint8_t> nB2 = notify_last(0x0010, CTL_B);
         ck("[NOTIFY] ...reaches B with sequence_id 1 (its entry advanced)",
            notify_seq(nB2), 1);
         ck("[NOTIFY] ...and A's entry did not move (independent per entry)",
            notify_count(0x0010, &CTL_A), 0);
         return nB2;
+    }
+
+    // ---- (N10) the CRF Media Clock Input's counters (#529) ------------
+    //! the cycle stamp of the i-th unsolicited GET_COUNTERS for {ty, ix}
+    //! addressed to `to` (-1 when absent)
+    long notify_ctr_when(const Ctlr& to, int ty, int ix, unsigned nth) {
+        unsigned seen = 0;
+        for (size_t i = 0; i < uns_log.size(); i++) {
+            const std::vector<uint8_t>& f = uns_log[i];
+            if (!aecp_is_unsolicited(f) || notify_cmd(f) != 0x0029
+                || !notify_to(f, to) || f.size() < 42
+                || ((static_cast<unsigned>(f[38]) << 8) | f[39]) != static_cast<unsigned>(ty)
+                || ((static_cast<unsigned>(f[40]) << 8) | f[41]) != static_cast<unsigned>(ix))
+                continue;
+            if (seen++ == nth) return uns_log_when[i];
+        }
+        return -1;
+    }
+    //! KL_crf_rx raises its Table 5.22 source on the era wipe (the bind
+    //! edge) and on every event or anomaly commit. The descriptor arbiter
+    //! must hand it to the processor as {STREAM_INPUT, N_STREAMS}, and the
+    //! scheduler must push GET_COUNTERS for that row to every registered
+    //! controller at once, then at most once a second, and not again until
+    //! something changes. TIMED LEG ONLY:
+    //! at a real timebase a processor second outlasts the leg, and on the
+    //! other legs the CRF sections before this one have already spent the
+    //! row's first push. The bench lever raises the edge: no ACMP bind is
+    //! needed to change the counters, and none happens on this leg.
+    void prove_the_crf_input_counters_push_under_the_one_second_limit() {
+        const int ix = CRF_LUID;
+        notify_clear();
+        crf_lever(true);                        // not bound -> bound: the wipe
+        drain_tx(NOTIFY_WIN);
+        ck("[NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) "
+           "to A", notify_count(0x0029, &CTL_A, 0x0005, ix), 1);
+        ck("[NOTIFY-CRF] ...and to B", notify_count(0x0029, &CTL_B, 0x0005, ix), 1);
+        //! a copy: the solicited GET_COUNTERS below can reallocate the log
+        const std::vector<uint8_t> n1 = notify_last(0x0029, CTL_B, 0x0005, ix);
+        ck("[NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body",
+           static_cast<long>(n1.size() >= 174 && aecp_status(n1) == 0
+                  && notify_cdl(n1) == 148), 1);
+        ck("[NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F)",
+           n1.empty() ? 0 : ctr_word(n1, 32), CRF_CTR_MASK);
+        const std::vector<uint8_t> key = {0x00, 0x05, 0x00,
+                                          static_cast<uint8_t>(ix)};
+        const std::vector<uint8_t> g = aecp_xact_from(CTL_B, 0x0029, notify_sq++, key);
+        ck("[NOTIFY-CRF] ...byte-identical from the body on to the solicited "
+           "answer", static_cast<long>(notify_same_from(n1, g, 38)), 1);
+        ck("[NOTIFY-CRF] ...and so is A's copy", static_cast<long>(notify_same_from(
+               notify_last(0x0029, CTL_A, 0x0005, ix), g, 38)), 1);
+
+        //! a second edge inside the same processor second: withheld, then
+        //! released once, when the row's limiter opens
+        const long t1 = notify_ctr_when(CTL_B, 0x0005, ix, 0);
+        crf_lever(false);
+        crf_lever(true);
+        while (uns_log_cycle - t1 < 900L * kMsCycTb) drain_tx(10 * kMsCycTb);
+        ck("[NOTIFY-CRF] a second change inside the second is WITHHELD",
+           notify_count(0x0029, &CTL_B, 0x0005, ix), 1);
+        while (uns_log_cycle - t1 < 1100L * kMsCycTb) drain_tx(10 * kMsCycTb);
+        ck("[NOTIFY-CRF] ...and RELEASED exactly once after it",
+           notify_count(0x0029, &CTL_B, 0x0005, ix), 2);
+        const long t2 = notify_ctr_when(CTL_B, 0x0005, ix, 1);
+        printf("  [i]    CRF row pushes to B %ld ms apart\n",
+               (t1 >= 0 && t2 >= 0) ? (t2 - t1) / kMsCycTb : -1L);
+        //! the log's cycle stamp stops outside drain_tx and await_aecp, so
+        //! it skips the lever writes and the injected command between the
+        //! two pushes (about 3 ms here): the floor sits that far below 1000
+        ck("[NOTIFY-CRF] ...no earlier than one second after the first",
+           static_cast<long>(t1 >= 0 && t2 - t1 >= 990L * kMsCycTb), 1);
+        //! ...and then QUIET. The release must clear the row's pending bit:
+        //! a row whose bit never clears pushes again each time its limiter
+        //! reopens, forever, with no counter moving. Two more of the row's
+        //! seconds with no change must bring no third push to either.
+        while (uns_log_cycle - t2 < 2100L * kMsCycTb) drain_tx(10 * kMsCycTb);
+        ck("[NOTIFY-CRF] ...and no further push to B in the next two seconds "
+           "without a change", notify_count(0x0029, &CTL_B, 0x0005, ix), 2);
+        ck("[NOTIFY-CRF] ...nor to A", notify_count(0x0029, &CTL_A, 0x0005, ix), 2);
+        crf_lever(false);
     }
 
     // ---- (N6-N8c) GPTP-off is permanently ownerless (#116) -----------
@@ -1452,6 +1593,10 @@ class NxnDatapathHarness {
            notify_count(0x0025, &CTL_A), 0);
         ck("[NOTIFY-T] A, which kept talking, was never probed",
            notify_when(0x0003, CTL_A, 0, true) < 0 ? 1L : 0L, 1);
+        // The monitor just probed and evicted B, but exports no CSR count.
+        // #548 pins the retained ABI word through the real AXI-Lite path.
+        ck("[NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic",
+           axi_read(0x6F4), 0);
         //! B is gone: A's next change has nobody to tell
         notify_clear();
         const std::vector<uint8_t> sA4 = notify_set_name(CTL_A, "Notify-A4", notify_sq++);
@@ -1494,6 +1639,643 @@ class NxnDatapathHarness {
         notify_clear();
     }
 
+    // ======================================================================
+    //  [GSI] #508: the Stream Input fields the processor owns, end to end
+    // ======================================================================
+    //  At processor pin a8f8ce81 (its issues 43 and 49) the processor serves
+    //  a Stream Input's probing_status and acmp_status (Milan 5.3.8.6) from
+    //  its ACMP listener's committed record, and its msrp_failure_code and
+    //  msrp_failure_bridge_id (Milan 5.3.8.8) from its SRP registrar. It never
+    //  asks this fabric for those words, and milan_datapath no longer answers
+    //  them. This section drives the real transitions through the real
+    //  wiring - ACMP and MSRP frames on the MAC RX port, AECP from two
+    //  registered controllers, every answer taken off the MAC TX trunk - on
+    //  this leg's shipping AX 1x1 shape, whose two sinks are the AAF input (0)
+    //  and the CRF input (1):
+    //    G0  DISABLED before any bind; a missing descriptor answers
+    //        NO_SUCH_DESCRIPTOR with the zero body;
+    //    G1  a bind is ACTIVE at once with acmp_status 0: the bind sends its
+    //        probe (Milan 5.5.3.5.3). The duplicate probe announces nothing;
+    //    G2  the second unanswered probe is ACTIVE, LISTENER_TALKER_TIMEOUT;
+    //        an error answer on the other sink is ACTIVE with that status;
+    //    G3  the retry with no discovered talker is PASSIVE (5.5.3.5.29);
+    //    G4  an unbind is DISABLED; a successful probe is COMPLETED;
+    //    G5  a registered Talker Failed carries its FailureCode and its full
+    //        64-bit BridgeID into the sink it names, distinct per sink;
+    //    G6  an unchanged refresh announces nothing;
+    //    G7  a changed FailureInformation changes that sink alone, once;
+    //    G8  withdrawal pushes twice per controller: registrar withdrawal,
+    //        then settlement teardown to PASSIVE, both with cleared failure;
+    //    G9  STOP_STREAMING pushes its own response, never GET_STREAM_INFO,
+    //        and never to the requester (Milan 5.4.5.2);
+    //    G10 a reset returns both sinks to DISABLED with nothing carried.
+    //  Each named change pushes once to both registered controllers; G8 has
+    //  two changes and grades both pushes to each controller. Its first push
+    //  already reads PASSIVE: the owners are read live, after teardown.
+    //  Both bodies equal the solicited answer. gsi_mutants.py requires the
+    //  named checks to fail, including an extra withdrawal push in G8.
+    //
+    //  THE SECTION OWNS THE MAC PORTS. One RX queue and one TX accumulator
+    //  carry every frame it sends and every frame the entity sends, so a
+    //  PROBE_TX or a push that leaves while a command is pending is never a
+    //  fragment some other waiter dropped. No CSR is touched between G0 and
+    //  G10: an AXI access clocks the model without watching the trunk.
+    // ======================================================================
+    //! the talker every bind names. This leg plays no ADP for it, so the
+    //! listener's discovery never sees it and a retry falls to PASSIVE.
+    static constexpr uint8_t kGsiTalkerEid[8] = {
+        0x02,0x11,0x22,0xFF,0xFE,0x33,0x44,0x55};
+    //! the AX 1x1 shape's two sinks, the AAF input and the CRF input: the
+    //! section runs on that leg alone and refuses any other shape
+    static constexpr int kGsiSinks = 2;
+    //! Milan 5.3.8.6 probing_status codes
+    static constexpr unsigned kPbDisabled = 0;
+    static constexpr unsigned kPbPassive = 1;
+    static constexpr unsigned kPbActive = 2;
+    static constexpr unsigned kPbCompleted = 3;
+    //! the IEEE 1722.1 Table 8-3 ACMP status codes the section plays or reads
+    static constexpr unsigned kAcmpDestMacFail = 3;   // TALKER_DEST_MAC_FAIL
+    static constexpr unsigned kAcmpTimeout = 7;       // LISTENER_TALKER_TIMEOUT
+    //! AEM status NO_SUCH_DESCRIPTOR (IEEE 1722.1 Table 7-126)
+    static constexpr long kAemNoSuchDescriptor = 2;
+    //! A sink's stream and the FailureInformation its Talker Failed carries.
+    //! Every value differs between the two sinks, so an answer read from the
+    //! wrong sink cannot pass a check on the right one.
+    struct GsiSink {
+        uint64_t sid;
+        uint64_t dmac;
+        uint64_t bridge;
+        unsigned code;
+    };
+    static constexpr GsiSink kGsiSink[2] = {
+        {0x0211223344550000ull, 0x91E0F000A000ull, 0x0123456789ABCDEFull, 1},
+        {0x0211223344550001ull, 0x91E0F000A001ull, 0xFEDCBA9876543210ull, 2}};
+    //! G7's replacement FailureInformation for sink 1
+    static constexpr uint64_t kGsiBridgeB = 0x0F1E2D3C4B5A6978ull;
+    static constexpr unsigned kGsiCodeB = 8;
+    //! a window a push reaches both controllers in: the measured command to
+    //! push latency is about 2,600 cycles per frame at this leg's clock
+    static constexpr long kGsiWinMs = 100;
+
+    std::deque<std::vector<uint8_t> > gsi_rx_q;
+    size_t gsi_rx_beat = 0;
+    int gsi_rx_gap = 0;
+    std::vector<uint8_t> gsi_tx_cur;
+    //! solicited AEM answers, keyed by sequence_id
+    std::map<uint16_t, std::vector<uint8_t> > gsi_resp;
+    //! ACMP answers the listener sent, keyed (message_type << 8) | sink
+    std::map<unsigned, std::vector<uint8_t> > gsi_acmp_rsp;
+    std::array<std::vector<uint8_t>, kGsiSinks> gsi_probe;
+    std::array<long, kGsiSinks> gsi_probes{};
+    //! the Talker Failed the bridge declares on each sink's stream, if any:
+    //! re-declared after every DUT LeaveAll, as a bridge port does
+    std::array<bool, kGsiSinks> gsi_tf_on{};
+    std::array<uint64_t, kGsiSinks> gsi_tf_bridge{};
+    std::array<unsigned, kGsiSinks> gsi_tf_code{};
+    long gsi_leave_alls = 0;
+    uint16_t gsi_sq = 0x5080;
+    uint16_t gsi_acmp_sq = 0x0800;
+
+    static uint64_t gsi_be(const std::vector<uint8_t>& f, size_t off, int n) {
+        uint64_t v = 0;
+        for (int i = 0; i < n; i++) v = (v << 8) | f[off + static_cast<size_t>(i)];
+        return v;
+    }
+    static void gsi_put(std::vector<uint8_t>& f, size_t off, uint64_t v, int n) {
+        for (int i = 0; i < n; i++)
+            f[off + static_cast<size_t>(i)] = static_cast<uint8_t>(v >> (8 * (n - 1 - i)));
+    }
+
+    //! Present the head of the RX queue, little lane order with a true keep.
+    void gsi_drive_rx() {
+        if (gsi_rx_q.empty() || gsi_rx_gap > 0) {
+            dut->s_axis_mac_rx_tvalid = 0;
+            dut->s_axis_mac_rx_tlast = 0;
+            return;
+        }
+        const std::vector<uint8_t>& f = gsi_rx_q.front();
+        const size_t beats = (f.size() + 7) / 8;
+        uint64_t d = 0;
+        uint8_t k = 0;
+        for (size_t i = 0; i < 8; i++) {
+            const size_t o = gsi_rx_beat * 8 + i;
+            if (o < f.size()) {
+                d |= static_cast<uint64_t>(f[o]) << (8 * i);
+                k = static_cast<uint8_t>(k | (1u << i));
+            }
+        }
+        dut->s_axis_mac_rx_tdata = d;
+        dut->s_axis_mac_rx_tkeep = k;
+        dut->s_axis_mac_rx_tvalid = 1;
+        dut->s_axis_mac_rx_tlast = (gsi_rx_beat + 1 == beats) ? 1 : 0;
+    }
+
+    //! One clock with both MAC ports owned by the section.
+    void gsi_tick() {
+        gsi_drive_rx();
+        dut->m_axis_mac_tx_tready = 1;
+        lo();
+        const bool rx_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+        if (dut->m_axis_mac_tx_tvalid) {
+            for (int l = 0; l < 8; l++)
+                if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                    gsi_tx_cur.push_back(static_cast<uint8_t>(dut->m_axis_mac_tx_tdata >> (8 * l)));
+            if (dut->m_axis_mac_tx_tlast) {
+                gsi_tx_frame();
+                gsi_tx_cur.clear();
+            }
+        }
+        hi();
+        uns_log_cycle++;
+        if (rx_acc) {
+            if (++gsi_rx_beat * 8 >= gsi_rx_q.front().size()) {
+                gsi_rx_q.pop_front();
+                gsi_rx_beat = 0;
+                gsi_rx_gap = 16;
+            }
+        } else if (gsi_rx_gap > 0) {
+            gsi_rx_gap--;
+        }
+    }
+    void gsi_ms(long ms) {
+        for (long n = 0; n < ms * kMsCycTb; n++) gsi_tick();
+    }
+
+    //! Every frame the entity sends, filed where the section reads it.
+    void gsi_tx_frame() {
+        const std::vector<uint8_t>& f = gsi_tx_cur;
+        if (f.size() >= 18 && gsi_be(f, 12, 2) == 0x22EA) {
+            gsi_on_mrpdu(f);
+            return;
+        }
+        if (f.size() < 38 || gsi_be(f, 12, 2) != 0x22F0) return;
+        if (f[14] == 0xFC && f.size() >= 70) {
+            const unsigned msg = f[15] & 0x0Fu;
+            const unsigned luid = static_cast<unsigned>(gsi_be(f, 52, 2));
+            if (luid >= static_cast<unsigned>(kGsiSinks)) return;
+            if (msg == 0x0) {                        // CONNECT_TX_COMMAND = PROBE_TX
+                gsi_probe[luid] = f;
+                gsi_probes[luid]++;
+            } else {
+                gsi_acmp_rsp[(msg << 8) | luid] = f;
+            }
+        } else if (f[14] == 0xFB) {
+            if (aecp_is_unsolicited(f) || aecp_is_originated(f)) {
+                uns_log.push_back(f);
+                uns_log_when.push_back(uns_log_cycle);
+            } else {
+                gsi_resp[static_cast<uint16_t>(gsi_be(f, 34, 2))] = f;
+            }
+        }
+    }
+
+    //! A DUT LeaveAll (802.1Q 10.7.5.20) ages the bridge's registrations in
+    //! the DUT; the bridge port re-declares what it declares, as any bridge
+    //! does, so a G-phase never meets an expiry it did not stage.
+    void gsi_on_mrpdu(const std::vector<uint8_t>& f) {
+        bool leave_all = false;
+        size_t off = 15;                             // after ProtocolVersion
+        while (off + 6 <= f.size() && !(f[off] == 0 && f[off + 1] == 0)) {
+            if ((gsi_be(f, off + 4, 2) >> 13) != 0) leave_all = true;
+            off += 4 + gsi_be(f, off + 2, 2);
+        }
+        if (!leave_all) return;
+        gsi_leave_alls++;
+        for (int s = 0; s < kGsiSinks; s++)
+            if (gsi_tf_on[static_cast<size_t>(s)])
+                gsi_rx_q.push_back(gsi_talker_failed(s, 1));
+    }
+
+    //! One AEM command from controller `c`, answered through the section's
+    //! ports; empty when no answer came.
+    std::vector<uint8_t> gsi_xact(const Ctlr& c, uint16_t cmd,
+                                  const std::vector<uint8_t>& pl) {
+        const uint16_t sq = gsi_sq++;
+        gsi_resp.erase(sq);
+        gsi_rx_q.push_back(aecp_request(cmd, sq, pl, c));
+        for (long n = 0; n < 200000 && gsi_resp.count(sq) == 0; n++) gsi_tick();
+        const auto it = gsi_resp.find(sq);
+        if (it == gsi_resp.end()) return std::vector<uint8_t>();
+        std::vector<uint8_t> r = std::move(it->second);
+        gsi_resp.erase(it);
+        return r;
+    }
+    std::vector<uint8_t> gsi_get(const Ctlr& c, int ix) {
+        const std::vector<uint8_t> key = {0x00, 0x05, 0x00, static_cast<uint8_t>(ix)};
+        return gsi_xact(c, 0x000F, key);
+    }
+
+    //! One ACMPDU (IEEE 1722.1 8.2.1) from controller A: `msg` for this
+    //! entity's sink `luid`, naming the talker's source `tuid`.
+    std::vector<uint8_t> gsi_acmp(uint8_t msg, int luid, uint16_t tuid) {
+        std::vector<uint8_t> f(70, 0);
+        gsi_put(f, 0, 0x91E0F0010000ull, 6);
+        memcpy(f.data() + 6, CTL_A.mac, 6);
+        f[12] = 0x22; f[13] = 0xF0; f[14] = 0xFC; f[15] = msg;
+        f[17] = 44;                                  // control_data_length
+        memcpy(f.data() + 26, CTL_A.eid, 8);         // @12 controller_entity_id
+        memcpy(f.data() + 34, kGsiTalkerEid, 8);     // @20 talker_entity_id
+        memcpy(f.data() + 42, NOTIFY_OWN_EID, 8);    // @28 listener = this entity
+        gsi_put(f, 50, tuid, 2);                     // @36 talker_unique_id
+        gsi_put(f, 52, static_cast<uint64_t>(luid), 2);  // @38 listener_unique_id
+        gsi_put(f, 62, gsi_acmp_sq++, 2);            // @48 sequence_id
+        return f;
+    }
+    void gsi_bind(int luid, uint16_t tuid) { gsi_rx_q.push_back(gsi_acmp(0x06, luid, tuid)); }
+    void gsi_unbind(int luid, uint16_t tuid) { gsi_rx_q.push_back(gsi_acmp(0x08, luid, tuid)); }
+
+    //! The talker's CONNECT_TX_RESPONSE to sink `luid`'s last PROBE_TX: the
+    //! probe echoed, since the listener matches its controller, talker,
+    //! unique ids and sequence_id (Milan 5.5.3.5.18), with `status` and, on
+    //! SUCCESS, the stream the sink settles on at VLAN 2.
+    void gsi_answer_probe(int luid, unsigned status) {
+        std::vector<uint8_t> f = gsi_probe[static_cast<size_t>(luid)];
+        if (f.size() < 70) return;                   // no probe: its check fails
+        f.resize(70);
+        gsi_put(f, 0, 0x91E0F0010000ull, 6);
+        gsi_put(f, 6, 0x021122334455ull, 6);
+        f[15] = 0x01;                                // CONNECT_TX_RESPONSE
+        f[16] = static_cast<uint8_t>(status << 3);
+        f[17] = 44;
+        if (status == 0) {
+            gsi_put(f, 18, kGsiSink[luid].sid, 8);   // @4  stream_id
+            gsi_put(f, 54, kGsiSink[luid].dmac, 6);  // @40 stream_dest_mac
+            gsi_put(f, 66, 2, 2);                    // @52 stream_vlan_id
+        }
+        gsi_rx_q.push_back(f);
+    }
+
+    //! A Talker Failed MRPDU from the bridge port (802.1Q 35.2.2.8): one
+    //! value for sink `s`'s stream at {its DA, VID 2}, class A TSpec, with
+    //! the FailureInformation the section holds for that sink, and event
+    //! `ev` (0 New, 1 JoinIn, 5 Lv).
+    std::vector<uint8_t> gsi_talker_failed(int s, int ev) {
+        const size_t z = static_cast<size_t>(s);
+        std::vector<uint8_t> f(15 + 43 + 2, 0);
+        gsi_put(f, 0, 0x0180C200000Eull, 6);
+        gsi_put(f, 6, 0x020B2100000Eull, 6);
+        gsi_put(f, 12, 0x22EA, 2);                   // [14] ProtocolVersion 0
+        f[15] = 2;                                   // AttributeType Talker Failed
+        f[16] = 34;                                  // AttributeLength
+        gsi_put(f, 17, 2 + 34 + 1 + 2, 2);           // AttributeListLength
+        gsi_put(f, 19, 1, 2);                        // one value, no LeaveAll
+        gsi_put(f, 21, kGsiSink[s].sid, 8);
+        gsi_put(f, 29, kGsiSink[s].dmac, 6);
+        gsi_put(f, 35, 2, 2);                        // VLAN identifier
+        gsi_put(f, 37, 224, 2);                      // MaxFrameSize
+        gsi_put(f, 39, 1, 2);                        // MaxIntervalFrames
+        f[41] = 0x70;                                // priority 3, rank 1
+        gsi_put(f, 42, 500000, 4);                   // AccumulatedLatency
+        gsi_put(f, 46, gsi_tf_bridge[z], 8);         // FailureInformation BridgeID
+        f[54] = static_cast<uint8_t>(gsi_tf_code[z]);    // ...FailureCode
+        f[55] = static_cast<uint8_t>(ev * 36);       // ThreePackedEvents
+        return f;                                    // [56..59] the two EndMarks
+    }
+    void gsi_declare(int s, uint64_t bridge, unsigned code, int ev) {
+        const size_t z = static_cast<size_t>(s);
+        gsi_tf_on[z] = true;
+        gsi_tf_bridge[z] = bridge;
+        gsi_tf_code[z] = code;
+        gsi_rx_q.push_back(gsi_talker_failed(s, ev));
+    }
+    void gsi_withdraw(int s) {
+        gsi_rx_q.push_back(gsi_talker_failed(s, 5));
+        gsi_tf_on[static_cast<size_t>(s)] = false;
+    }
+
+    // ---- the readers: the GET_STREAM_INFO offsets the microcode lays ------
+    //! probing_status/acmp_status at @76 (frame 90); an absent answer reads
+    //! a value no state has, so a check on it fails rather than passes.
+    static unsigned gsi_pb(const std::vector<uint8_t>& g) {
+        return g.size() > 90 ? static_cast<unsigned>(g[90] >> 5) : 0xFFu;
+    }
+    static unsigned gsi_as(const std::vector<uint8_t>& g) {
+        return g.size() > 90 ? static_cast<unsigned>(g[90] & 0x1F) : 0xFFu;
+    }
+    static unsigned gsi_code(const std::vector<uint8_t>& g) {   // @58, frame 72
+        return g.size() > 72 ? g[72] : 0xFFFFu;
+    }
+    static uint64_t gsi_bridge(const std::vector<uint8_t>& g) { // @60, frame 74
+        return g.size() > 81 ? gsi_be(g, 74, 8) : ~0ull;
+    }
+    //! a Milan Table 5.9 flag: `byte` of the big-endian dword at frame 42
+    static unsigned gsi_flag(const std::vector<uint8_t>& g, size_t byte, unsigned mask) {
+        return (g.size() > byte && (g[byte] & mask) != 0) ? 1u : 0u;
+    }
+
+    //! One sink's answer against the state it must be in.
+    void gsi_ck_state(const char* tag, const std::vector<uint8_t>& g,
+                      unsigned pb, unsigned as) {
+        char w[200];
+        snprintf(w, sizeof w, "%s: GET_STREAM_INFO SUCCESS at cdl 68", tag);
+        ck(w, static_cast<long>(aecp_status(g) == 0 && g.size() >= 94
+                                && notify_cdl(g) == 68), 1);
+        snprintf(w, sizeof w, "%s: probing_status", tag);
+        ck(w, gsi_pb(g), pb);
+        snprintf(w, sizeof w, "%s: acmp_status", tag);
+        ck(w, gsi_as(g), as);
+    }
+    //! ...and against the failure it must (or must not) carry.
+    void gsi_ck_failure(const char* tag, const std::vector<uint8_t>& g,
+                        bool failed, uint64_t bridge, unsigned code) {
+        char w[200];
+        snprintf(w, sizeof w, "%s: MSRP_FAILURE_VALID", tag);
+        ck(w, gsi_flag(g, 42, 0x08), failed ? 1 : 0);
+        snprintf(w, sizeof w, "%s: REGISTERING_FAILED", tag);
+        ck(w, gsi_flag(g, 45, 0x40), failed ? 1 : 0);
+        snprintf(w, sizeof w, "%s: msrp_failure_code", tag);
+        ck(w, gsi_code(g), code);
+        snprintf(w, sizeof w, "%s: msrp_failure_bridge_id", tag);
+        ck(w, gsi_bridge(g), bridge);
+    }
+    //! The pushes a transition owes sink `ix`: exactly `n` unsolicited
+    //! GET_STREAM_INFO to EACH registered controller since the last clear,
+    //! and, when there is one, B's last byte-identical from the body on to
+    //! the solicited answer B reads now. Returns that answer.
+    std::vector<uint8_t> gsi_ck_pushes(const char* tag, int ix, long n) {
+        char w[200];
+        snprintf(w, sizeof w, "%s: unsolicited GET_STREAM_INFO(sink %d) to A", tag, ix);
+        ck(w, notify_count(0x000F, &CTL_A, 0x0005, ix), n);
+        snprintf(w, sizeof w, "%s: unsolicited GET_STREAM_INFO(sink %d) to B", tag, ix);
+        ck(w, notify_count(0x000F, &CTL_B, 0x0005, ix), n);
+        const std::vector<uint8_t> last = notify_last(0x000F, CTL_B, 0x0005, ix);
+        const std::vector<uint8_t> g = gsi_get(CTL_B, ix);
+        if (n > 0) {
+            snprintf(w, sizeof w, "%s: the push equals the solicited answer from the body on", tag);
+            ck(w, static_cast<long>(notify_same_from(last, g, 38)), 1);
+        }
+        return g;
+    }
+    //! The ACMP answer the listener sent for `msg` on sink `luid` was SUCCESS.
+    void gsi_ck_acmp_ok(const char* tag, unsigned msg, int luid) {
+        const auto it = gsi_acmp_rsp.find((msg << 8) | static_cast<unsigned>(luid));
+        char w[200];
+        snprintf(w, sizeof w, "%s: the ACMP response is SUCCESS", tag);
+        ck(w, (it != gsi_acmp_rsp.end()) ? static_cast<long>(it->second[16] >> 3) : -1L, 0);
+    }
+
+    // ---- G0: nothing bound, and a descriptor that does not exist ----------
+    void gsi_g0_before_any_bind() {
+        for (int s = 0; s < kGsiSinks; s++) {
+            char tag[64];
+            snprintf(tag, sizeof tag, "[GSI] G0 sink %d unbound", s);
+            const std::vector<uint8_t> g = gsi_get(CTL_A, s);
+            gsi_ck_state(tag, g, kPbDisabled, 0);
+            gsi_ck_failure(tag, g, false, 0, 0);
+        }
+        const std::vector<uint8_t> m = gsi_get(CTL_A, kGsiSinks);
+        ck("[GSI] G0 a missing STREAM_INPUT answers NO_SUCH_DESCRIPTOR", aecp_status(m),
+           kAemNoSuchDescriptor);
+        ck("[GSI] G0 ...with the full cdl-68 body", m.size() >= 94 ? notify_cdl(m) : 0, 68);
+        ck("[GSI] G0 ...every field zero, the processor's included",
+           static_cast<long>(m.size() >= 94
+                             && std::all_of(m.begin() + 42, m.begin() + 94,
+                                            [](uint8_t b) { return b == 0; })), 1);
+    }
+
+    // ---- G1/G2: sink 0 bound to a talker that never answers ---------------
+    void gsi_g1_g2_sink0_probes_unanswered() {
+        notify_clear();
+        const long t_bind = uns_log_cycle;
+        gsi_bind(0, 0);
+        gsi_ms(kGsiWinMs);
+        gsi_ck_acmp_ok("[GSI] G1 sink 0 BIND_RX", 0x07, 0);
+        ck("[GSI] G1 sink 0 the bind sent its PROBE_TX", gsi_probes[0], 1);
+        const std::vector<uint8_t> g1 = gsi_ck_pushes("[GSI] G1 sink 0 bound", 0, 1);
+        gsi_ck_state("[GSI] G1 sink 0 bound", g1, kPbActive, 0);
+        ck("[GSI] G1 sink 0 bound: BOUND", gsi_flag(g1, 42, 0x04), 1);
+        gsi_ck_failure("[GSI] G1 sink 0 bound", g1, false, 0, 0);
+        const std::vector<uint8_t> o1 = gsi_get(CTL_A, 1);
+        gsi_ck_state("[GSI] G1 sink 1 untouched by sink 0's bind", o1, kPbDisabled, 0);
+
+        notify_clear();
+        while (uns_log_cycle - t_bind < 300L * kMsCycTb) gsi_tick();
+        ck("[GSI] G1 sink 0 the probe timeout sent the duplicate PROBE_TX", gsi_probes[0], 2);
+        gsi_ck_pushes("[GSI] G1 sink 0 duplicate probe (no status change)", 0, 0);
+
+        notify_clear();
+        while (uns_log_cycle - t_bind < 550L * kMsCycTb) gsi_tick();
+        const std::vector<uint8_t> g2 =
+            gsi_ck_pushes("[GSI] G2 sink 0 two probes unanswered", 0, 1);
+        gsi_ck_state("[GSI] G2 sink 0 two probes unanswered", g2, kPbActive, kAcmpTimeout);
+        gsi_ck_failure("[GSI] G2 sink 0 two probes unanswered", g2, false, 0, 0);
+    }
+
+    // ---- G2: sink 1's probe answered with an error, beside sink 0 ---------
+    //! Returns the cycle of sink 1's error answer (its retry timer's origin).
+    long gsi_g2_sink1_probe_refused() {
+        notify_clear();
+        gsi_bind(1, 1);
+        gsi_ms(kGsiWinMs);
+        gsi_ck_acmp_ok("[GSI] G2 sink 1 BIND_RX", 0x07, 1);
+        ck("[GSI] G2 sink 1 the bind sent its PROBE_TX", gsi_probes[1], 1);
+        gsi_ck_pushes("[GSI] G2 sink 1 bound", 1, 1);
+        gsi_ck_pushes("[GSI] G2 sink 0 untouched by sink 1's bind", 0, 0);
+
+        notify_clear();
+        const long t_err = uns_log_cycle;
+        gsi_answer_probe(1, kAcmpDestMacFail);
+        gsi_ms(kGsiWinMs);
+        const std::vector<uint8_t> g1 = gsi_ck_pushes("[GSI] G2 sink 1 probe refused", 1, 1);
+        gsi_ck_state("[GSI] G2 sink 1 probe refused", g1, kPbActive, kAcmpDestMacFail);
+        //! the two sinks now hold DIFFERENT acmp_status values: a response
+        //! built from the wrong sink's record fails one of these two
+        const std::vector<uint8_t> g0 = gsi_get(CTL_A, 0);
+        gsi_ck_state("[GSI] G2 sink 0 beside sink 1's refusal", g0, kPbActive, kAcmpTimeout);
+        return t_err;
+    }
+
+    // ---- G3: the retry with no discovered talker is PASSIVE ---------------
+    void gsi_g3_retries_fall_to_passive(long t_bind0, long t_err1) {
+        notify_clear();
+        //! sink 0's retry timer started at its second timeout (400 ms),
+        //! sink 1's at its refusal: each falls on its own T-ACMP-RETRY
+        while (uns_log_cycle - t_bind0 < 4550L * kMsCycTb) gsi_tick();
+        const std::vector<uint8_t> g0 = gsi_ck_pushes("[GSI] G3 sink 0 retry, talker never seen", 0, 1);
+        gsi_ck_state("[GSI] G3 sink 0 retry, talker never seen", g0, kPbPassive, 0);
+        ck("[GSI] G3 sink 0 no talker was discovered, so no new PROBE_TX", gsi_probes[0], 2);
+        notify_clear();
+        while (uns_log_cycle - t_err1 < 4150L * kMsCycTb) gsi_tick();
+        const std::vector<uint8_t> g1 = gsi_ck_pushes("[GSI] G3 sink 1 retry, talker never seen", 1, 1);
+        gsi_ck_state("[GSI] G3 sink 1 retry, talker never seen", g1, kPbPassive, 0);
+        gsi_ck_pushes("[GSI] G3 sink 0 quiet while sink 1 retries", 0, 0);
+    }
+
+    // ---- G4: unbind, then the probes that succeed -------------------------
+    void gsi_g4_unbind_then_settle() {
+        notify_clear();
+        gsi_unbind(0, 0);
+        gsi_ms(kGsiWinMs);
+        gsi_ck_acmp_ok("[GSI] G4 sink 0 UNBIND_RX", 0x09, 0);
+        const std::vector<uint8_t> u = gsi_ck_pushes("[GSI] G4 sink 0 unbound", 0, 1);
+        gsi_ck_state("[GSI] G4 sink 0 unbound", u, kPbDisabled, 0);
+        ck("[GSI] G4 sink 0 unbound: BOUND", gsi_flag(u, 42, 0x04), 0);
+
+        for (int s = 0; s < kGsiSinks; s++) {
+            char tag[80];
+            //! sink 0 binds afresh; sink 1 re-binds to ANOTHER source from
+            //! PASSIVE, which probes (an identical re-bind would not)
+            notify_clear();
+            gsi_bind(s, static_cast<uint16_t>(s == 0 ? 0 : 5));
+            gsi_ms(kGsiWinMs);
+            snprintf(tag, sizeof tag, "[GSI] G4 sink %d bound again", s);
+            const std::vector<uint8_t> b = gsi_ck_pushes(tag, s, 1);
+            gsi_ck_state(tag, b, kPbActive, 0);
+            notify_clear();
+            gsi_answer_probe(s, 0);
+            gsi_ms(kGsiWinMs);
+            snprintf(tag, sizeof tag, "[GSI] G4 sink %d probe answered SUCCESS", s);
+            const std::vector<uint8_t> c = gsi_ck_pushes(tag, s, 1);
+            gsi_ck_state(tag, c, kPbCompleted, 0);
+            snprintf(tag, sizeof tag, "[GSI] G4 sink %d settled: stream_id is the talker's", s);
+            ck(tag, c.size() > 61 ? gsi_be(c, 54, 8) : 0, kGsiSink[s].sid);
+        }
+    }
+
+    // ---- G5/G6: a registered Talker Failed, per sink ----------------------
+    void gsi_g5_g6_talker_failed_registered() {
+        for (int s = 0; s < kGsiSinks; s++) {
+            char tag[80];
+            notify_clear();
+            gsi_declare(s, kGsiSink[s].bridge, kGsiSink[s].code, 0);
+            gsi_ms(kGsiWinMs);
+            snprintf(tag, sizeof tag, "[GSI] G5 sink %d Talker Failed", s);
+            const std::vector<uint8_t> g = gsi_ck_pushes(tag, s, 1);
+            gsi_ck_state(tag, g, kPbCompleted, 0);
+            gsi_ck_failure(tag, g, true, kGsiSink[s].bridge, kGsiSink[s].code);
+            ck("[GSI] G5 ...REGISTERING (flags_ex)", gsi_flag(g, 89, 0x01), 1);
+        }
+        //! after both registrations: each sink still reads its own values
+        for (int s = 0; s < kGsiSinks; s++) {
+            char tag[80];
+            snprintf(tag, sizeof tag, "[GSI] G5 sink %d beside the other sink's failure", s);
+            gsi_ck_failure(tag, gsi_get(CTL_A, s), true, kGsiSink[s].bridge, kGsiSink[s].code);
+        }
+        notify_clear();
+        for (int s = 0; s < kGsiSinks; s++)
+            gsi_declare(s, kGsiSink[s].bridge, kGsiSink[s].code, 1);
+        gsi_ms(kGsiWinMs);
+        for (int s = 0; s < kGsiSinks; s++) {
+            char tag[80];
+            snprintf(tag, sizeof tag, "[GSI] G6 sink %d unchanged refresh", s);
+            gsi_ck_pushes(tag, s, 0);
+        }
+    }
+
+    // ---- G7/G8: replacement on sink 1, withdrawal on sink 0 ---------------
+    void gsi_g7_g8_replace_and_withdraw() {
+        notify_clear();
+        gsi_declare(1, kGsiBridgeB, kGsiCodeB, 1);
+        gsi_ms(kGsiWinMs);
+        const std::vector<uint8_t> r = gsi_ck_pushes("[GSI] G7 sink 1 FailureInformation changed", 1, 1);
+        gsi_ck_failure("[GSI] G7 sink 1 FailureInformation changed", r, true, kGsiBridgeB, kGsiCodeB);
+        const std::vector<uint8_t> k = gsi_ck_pushes("[GSI] G7 sink 0 untouched by sink 1's change", 0, 0);
+        gsi_ck_failure("[GSI] G7 sink 0 untouched by sink 1's change", k, true,
+                       kGsiSink[0].bridge, kGsiSink[0].code);
+
+        notify_clear();
+        gsi_withdraw(0);
+        gsi_ms(kGsiWinMs);
+        const std::vector<uint8_t> w = gsi_ck_pushes("[GSI] G8 sink 0 withdrawn", 0, 2);
+        //! protocol_processor_top.stri_events first sees srp_evt_tk_unreg_w,
+        //! then lstn_gsi_changed_r when the lost reservation tears down the
+        //! settlement (05_acmp_engine F05.5: talker gone -> PRB_W_AVAIL).
+        //! Both pushes read the owners live (06_aecp_engine F06.13), so even
+        //! the registrar's push already carries PASSIVE, not COMPLETED.
+        //! Grade BOTH ordered pushes to EACH controller against that state.
+        const Ctlr* controllers[] = {&CTL_A, &CTL_B};
+        const char* changes[] = {"registrar withdrawal", "settlement teardown"};
+        for (unsigned c = 0; c < 2; c++) {
+            unsigned seen = 0;
+            for (const std::vector<uint8_t>& f : uns_log) {
+                if (f.size() < 42 || !aecp_is_unsolicited(f)
+                    || notify_cmd(f) != 0x000F || !notify_to(f, *controllers[c])
+                    || gsi_be(f, 38, 2) != 0x0005 || gsi_be(f, 40, 2) != 0) continue;
+                char tag[128];
+                snprintf(tag, sizeof tag, "[GSI] G8 sink 0 %s to %c",
+                         seen < 2 ? changes[seen] : "unexpected extra push", 'A' + c);
+                gsi_ck_state(tag, f, kPbPassive, 0);
+                gsi_ck_failure(tag, f, false, 0, 0);
+                char check[200];
+                snprintf(check, sizeof check, "%s: body equals the solicited answer", tag);
+                ck(check, static_cast<long>(notify_same_from(f, w, 38)), 1);
+                seen++;
+            }
+        }
+        gsi_ck_pushes("[GSI] G8 sink 1 quiet on sink 0 withdrawal", 1, 0);
+        gsi_ck_failure("[GSI] G8 sink 0 withdrawn", w, false, 0, 0);
+        //! the registration was the settled sink's reservation: its loss
+        //! tears the settlement down, and no talker was ever discovered
+        gsi_ck_state("[GSI] G8 sink 0 withdrawn", w, kPbPassive, 0);
+        gsi_ck_failure("[GSI] G8 sink 1 keeps its own failure", gsi_get(CTL_A, 1), true,
+                       kGsiBridgeB, kGsiCodeB);
+    }
+
+    // ---- G9: STOP_STREAMING owns its own push ------------------------------
+    void gsi_g9_stop_streaming_excludes_the_requester() {
+        notify_clear();
+        const std::vector<uint8_t> key = {0x00, 0x05, 0x00, 0x01};
+        const std::vector<uint8_t> r = gsi_xact(CTL_A, 0x0023, key);
+        ck("[GSI] G9 STOP_STREAMING(sink 1) from A is SUCCESS", aecp_status(r), 0);
+        gsi_ms(kGsiWinMs);
+        ck("[GSI] G9 ...pushes STOP_STREAMING to B", notify_count(0x0023, &CTL_B, 0x0005, 1), 1);
+        ck("[GSI] G9 ...and not to A, the requester", notify_count(0x0023, &CTL_A, 0x0005, 1), 0);
+        const std::vector<uint8_t> g = gsi_ck_pushes("[GSI] G9 sink 1 stopped (no GET_STREAM_INFO push)", 1, 0);
+        ck("[GSI] G9 sink 1 stopped: STREAMING_WAIT", gsi_flag(g, 45, 0x08), 1);
+        gsi_ck_state("[GSI] G9 sink 1 stopped", g, kPbCompleted, 0);
+    }
+
+    // ---- G10: a reset carries nothing -------------------------------------
+    void gsi_g10_reset() {
+        bring_the_datapath_out_of_reset();
+        gsi_rx_q.clear();
+        gsi_rx_beat = 0;
+        gsi_tx_cur.clear();
+        gsi_tf_on.fill(false);
+        axi_write(A_ADP_EIDHI, 0x020000FF);
+        axi_write(A_ADP_EIDLO, 0xFE000001);
+        start_the_boot_restore_walk();
+        std::vector<uint8_t> g;
+        for (int tries = 0; tries < 40 && aecp_status(g) != 0; tries++) {
+            gsi_ms(1);
+            g = gsi_get(CTL_A, 0);
+        }
+        for (int s = 0; s < kGsiSinks; s++) {
+            char tag[64];
+            snprintf(tag, sizeof tag, "[GSI] G10 sink %d after a reset", s);
+            const std::vector<uint8_t> a = gsi_get(CTL_A, s);
+            gsi_ck_state(tag, a, kPbDisabled, 0);
+            gsi_ck_failure(tag, a, false, 0, 0);
+        }
+    }
+
+    void gsi_seam_section() {
+        printf("-- [GSI] #508: probing/ACMP status and failure info from the "
+               "processor's own state (one processor ms = %d cycles) --\n", kMsCycTb);
+        ck("[GSI] the shape has the AAF and the CRF sink the section drives",
+           kNstreamsTb + 1, kGsiSinks);
+        if (kNstreamsTb + 1 != kGsiSinks) return;
+        axi_write(A_ADP_CTRL, 0x1);                  // the entity is enabled
+        const std::vector<uint8_t> fl0(4, 0);
+        const std::vector<uint8_t> rA = aecp_xact_from(CTL_A, 0x0024, notify_sq++, fl0);
+        const std::vector<uint8_t> rB = aecp_xact_from(CTL_B, 0x0024, notify_sq++, fl0);
+        ck("[GSI] REGISTER_UNSOLICITED_NOTIFICATION from A", aecp_status(rA), 0);
+        ck("[GSI] REGISTER_UNSOLICITED_NOTIFICATION from B", aecp_status(rB), 0);
+        gsi_g0_before_any_bind();
+        const long t_bind0 = uns_log_cycle;
+        gsi_g1_g2_sink0_probes_unanswered();
+        const long t_err1 = gsi_g2_sink1_probe_refused();
+        gsi_g3_retries_fall_to_passive(t_bind0, t_err1);
+        gsi_g4_unbind_then_settle();
+        gsi_g5_g6_talker_failed_registered();
+        gsi_g7_g8_replace_and_withdraw();
+        gsi_g9_stop_streaming_excludes_the_requester();
+        printf("  [i]    %ld DUT LeaveAll MRPDU(s) re-declared against in this section\n",
+               gsi_leave_alls);
+        gsi_g10_reset();
+        notify_clear();
+    }
+
     // stream_id wire bytes {03:00:00:00:00:03, uid 0x0001} / {04:.., uid 2}
     static constexpr uint8_t sidB[8] = {
         0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
@@ -1516,6 +2298,25 @@ class NxnDatapathHarness {
             for (int i = 0; i < 8; i++) step();
             dut->axis_resetn = 1; dut->gtx_resetn = 1;
             for (int i = 0; i < 8; i++) step();
+    }
+
+    //! The boot restore walk, as the firmware's nvm_boot() starts it. Since
+    //! processor pin a8f8ce81 (its issue 92) the ACMP listener serves
+    //! nothing from reset until the binding walk ends, and PP_CTRL[1] is what
+    //! starts that walk. The firmware sets it on every boot before it enables
+    //! the entity; a harness that binds a sink over ACMP owes the same step.
+    //! No image is configured, so the backend answers blank media and the
+    //! walk sequences in a few hundred cycles.
+    void start_the_boot_restore_walk() {
+        constexpr uint16_t A_PP_CTRL = 0x920;
+        constexpr uint16_t A_PP_STAT = 0x924;
+        axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);
+        unsigned done = 0;
+        for (int r = 0; r < 400 && !done; r++) {
+            for (int c = 0; c < 64; c++) step();
+            done = (axi_read(A_PP_STAT) >> 2) & 1u;
+        }
+        ck("[BOOT] PP_STAT[2] the restore walk sequenced", done, 1);
     }
 
     void prove_the_identity_and_provision_the_entity_id() {
@@ -1673,6 +2474,7 @@ class NxnDatapathHarness {
         grade_get_clock_source_against_the_clock_domain();
         grade_the_clock_source_set_against_the_fabric();
         notify_section(true);
+        gsi_seam_section();
         printf("--------------------------------------------------------------\n");
         printf("checks: %ld   failures: %ld\n", checks, fails);
         printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
@@ -2693,6 +3495,7 @@ class NxnDatapathHarness {
     void grade_get_counters_against_the_csr_window() {
         printf("-- GET_COUNTERS: Table 7-157 block vs the CSR window --\n");
         grade_the_stream_input_counter_block();
+        grade_the_crf_media_clock_input_counter_block();
         grade_the_stream_output_counter_block();
         grade_the_interface_and_clock_domain_counters();
         prove_a_wrong_object_answers_no_such_descriptor();
@@ -2962,9 +3765,11 @@ class NxnDatapathHarness {
            tkd_dirty_seen & all_dirty, all_dirty);
 
         //! Inject the media-clock target change at the actual restart
-        //! engine. The next packetizer and CRF PDUs carry the new mr bit,
-        //! then each diagnostic context and processor row must expose it.
-        dut->rootp->milan_datapath__DOT__media_clock_restart__DOT__tgt_r ^= 1;
+        //! engine, on every AAF and CRF context (the target is per stream
+        //! since #387). The next packetizer and CRF PDUs carry the new mr
+        //! bit, then each diagnostic context and processor row must expose it.
+        dut->rootp->milan_datapath__DOT__media_clock_restart__DOT__tgt_r ^=
+            (1u << (kNstreamsTb + 1)) - 1u;
         step();
         for (int i = 0; i < RealPduWait; i++) step();
         long all_real_mr = 1;
@@ -3196,6 +4001,365 @@ class NxnDatapathHarness {
             ck("[CTRS] ...and the block is all zeros, not a neighbour's",
                dirty, 0);
         }
+    }
+
+    //! ------------------------------------------------------------------
+    //! [CTRS-CRF] The CRF Media Clock Input is the Stream Input the shape
+    //! appends at index N_STREAMS (#529). Milan 5.3.8.10 owes it the Table
+    //! 5.6 counters with no CRF exemption, and 5.4.2.25 Table 5.16 makes the
+    //! ten mandatory at the IEEE Table 7-157 offsets: mask 0xF3F, with the
+    //! two tv tallies unclaimed because KL_crf_rx keeps none. The crf_rx
+    //! suite proves the engine's own laws; this section proves the ROOT
+    //! serves them through the processor and the response path: from reset,
+    //! per quadlet at full width, across the era reset, through a real wrap
+    //! of each update law, onto the Table 5.22 arbiter, and without any
+    //! neighbouring row answering for the bank or the bank for a neighbour.
+    //! The last arm moves each of the ten through its own engine event, so
+    //! the KL_crf_rx port map is graded as well as the gather mux.
+    //! Runs before the CRF bind of the 5.3.8.7 section, so every edge here
+    //! is driven through the bench lever (0x738), and it leaves the lever
+    //! down so that later ACMP bind is still a not-bound -> bound edge.
+    void grade_the_crf_media_clock_input_counter_block() {
+        prove_the_crf_input_descriptor_image_matches_the_shape();
+        grade_the_crf_input_counters_from_reset();
+        grade_the_crf_input_quadlet_positions();
+        prove_no_neighbour_row_answers_for_the_crf_bank();
+        prove_the_bind_edge_wipes_the_crf_row_and_raises_its_dirty_bit();
+        grade_the_crf_input_counter_wrap_through_real_pdus();
+        grade_each_crf_input_counter_through_its_own_engine_event();
+        crf_lever(false);
+    }
+
+    //! Milan Table 5.16's ten, at their Table 7-157 quadlets and in the
+    //! standard's order: the second statement of the correspondence the
+    //! gather mux makes, so the mux is not graded against itself.
+    struct CrfCtr { int q; const char* sym; };
+    static constexpr CrfCtr CRF_CTRS[10] = {
+        { 0, "MEDIA_LOCKED"        },   // @0
+        { 1, "MEDIA_UNLOCKED"      },   // @4
+        { 2, "STREAM_INTERRUPTED"  },   // @8
+        { 3, "SEQ_NUM_MISMATCH"    },   // @12
+        { 4, "MEDIA_RESET"         },   // @16
+        { 5, "TIMESTAMP_UNCERTAIN" },   // @20
+        // @24 TIMESTAMP_VALID and @28 TIMESTAMP_NOT_VALID: unclaimed
+        { 8, "UNSUPPORTED_FORMAT"  },   // @32
+        { 9, "LATE_TIMESTAMP"      },   // @36
+        {10, "EARLY_TIMESTAMP"     },   // @40
+        {11, "FRAMES_RX"           },   // @44
+    };
+    static constexpr uint32_t CRF_CTR_MASK = 0x0F3F;
+
+    //! the root wire holding quadlet q's KL_crf_rx tally - the flop the
+    //! signature arm seeds, named by the datapath rather than by the mux
+    IData& crf_tally(int q) {
+        auto* rp = dut->rootp;
+        switch (q) {
+            case 0:  return rp->milan_datapath__DOT__crf_lockcnt_w;
+            case 1:  return rp->milan_datapath__DOT__crf_unlockcnt_w;
+            case 2:  return rp->milan_datapath__DOT__crf_intrcnt_w;
+            case 3:  return rp->milan_datapath__DOT__crf_seqerr_w;
+            case 4:  return rp->milan_datapath__DOT__crf_mrcnt_w;
+            case 5:  return rp->milan_datapath__DOT__crf_tucnt_w;
+            case 8:  return rp->milan_datapath__DOT__crf_fmterr_w;
+            case 9:  return rp->milan_datapath__DOT__crf_latecnt_w;
+            case 10: return rp->milan_datapath__DOT__crf_earlycnt_w;
+            default: return rp->milan_datapath__DOT__crf_pducnt_w;
+        }
+    }
+
+    //! a distinct full-width signature per quadlet: bit 31 set, so a row
+    //! served through a 16-bit slice cannot match, and no two alike
+    static uint32_t crf_sig(int q) {
+        return 0xA5000000u | (static_cast<uint32_t>(q + 1) << 16)
+             | static_cast<uint32_t>(0x0101 * (q + 1));
+    }
+
+    //! one GET_COUNTERS on the CRF Media Clock Input, through the whole
+    //! processor and response path
+    std::vector<uint8_t> crf_ctrs(uint16_t seq) {
+        return sin_ctrs(seq, static_cast<uint16_t>(CRF_LUID));
+    }
+    std::vector<uint8_t> sin_ctrs(uint16_t seq, uint16_t index) {
+        const std::vector<uint8_t> p = {0x00, 0x05,
+                                        static_cast<uint8_t>(index >> 8),
+                                        static_cast<uint8_t>(index)};
+        return aecp_xact(0x0029, seq, p);
+    }
+
+    //! the bench lever (0x738..0x740) on the CRF sink, following the same
+    //! sid the 5.3.8.7 section binds. Raising [0] is KL_crf_rx's
+    //! not-bound -> bound edge; lowering it is not an edge the clause resets
+    //! on, and nothing here relies on it being one.
+    void crf_lever(bool on) {
+        uint64_t sid = 0;
+        for (int i = 0; i < 8; i++) sid = (sid << 8) | csid[i];
+        if (!on) axi_write(A_CRF_CTRL_L, 0);
+        axi_write(A_CRF_SIDLO_L, on ? static_cast<uint32_t>(sid) : 0u);
+        axi_write(A_CRF_SIDHI_L, on ? static_cast<uint32_t>(sid >> 32) : 0u);
+        if (on) axi_write(A_CRF_CTRL_L, 1);
+        for (int i = 0; i < 64; i++) step();
+    }
+
+    //! every claimed quadlet of `r` against `want(q)`, and the unclaimed
+    //! quadlets against zero; the name carries the phase being graded
+    void grade_the_crf_row(const std::vector<uint8_t>& r, const char* phase,
+                           uint32_t (*want)(int)) {
+        char w[160];
+        for (const CrfCtr& c : CRF_CTRS) {
+            snprintf(w, sizeof w, "[CTRS-CRF] %s: @%d %s", phase, c.q * 4, c.sym);
+            ck(w, ctr_word(r, c.q), want(c.q));
+        }
+        long unclaimed = 0;
+        for (int q = 0; q < 32; q++)
+            if (!((CRF_CTR_MASK >> q) & 1u) && ctr_word(r, q) != 0) unclaimed++;
+        snprintf(w, sizeof w, "[CTRS-CRF] %s: unclaimed @24/@28/@48.. zero", phase);
+        ck(w, unclaimed, 0);
+    }
+    static uint32_t crf_zero(int) { return 0; }
+
+    //! the image must declare the CRF input at N and nothing at N + 1, or
+    //! every per-index claim below is about the wrong entity
+    void prove_the_crf_input_descriptor_image_matches_the_shape() {
+        const uint32_t in = 0x0005u << 16;
+        ck("[CTRS-CRF] descriptor image declares STREAM_INPUT N, not N + 1",
+           desc_want.count(in | static_cast<uint32_t>(CRF_LUID)) == 1 &&
+           desc_want.count(in | static_cast<uint32_t>(CRF_LUID + 1)) == 0, 1);
+    }
+
+    //! Nothing has bound or enabled the CRF sink since reset, so the full
+    //! controller-visible response must carry the claimed ten as zeros.
+    void grade_the_crf_input_counters_from_reset() {
+        const std::vector<uint8_t> r = crf_ctrs(0x4400);
+        ck("[CTRS-CRF] GET_COUNTERS(STREAM_INPUT, N) status SUCCESS",
+           static_cast<unsigned long>(aecp_status(r)), 0);
+        ck("[CTRS-CRF] cdl = 12 + 136", r.size() > 17
+               ? ((static_cast<unsigned>(r[16]) & 7) << 8) | r[17] : 0, 148);
+        ck("[CTRS-CRF] the frame is as long as it claims", r.size(), 174);
+        ck("[CTRS-CRF] descriptor_type echoed",
+           r.size() > 39 ? (static_cast<unsigned>(r[38]) << 8) | r[39] : 0, 5);
+        ck("[CTRS-CRF] descriptor_index echoed",
+           r.size() > 41 ? (static_cast<unsigned>(r[40]) << 8) | r[41] : 0,
+           static_cast<unsigned long>(CRF_LUID));
+        ck("[CTRS-CRF] counters_valid = 0xF3F (the Table 5.16 ten)",
+           ctr_word(r, 32), CRF_CTR_MASK);
+        grade_the_crf_row(r, "from reset", crf_zero);
+    }
+
+    //! Seed a distinct full-width signature into each root tally wire while
+    //! the sink is idle, then read the row: a gather mux that permutes,
+    //! truncates, drops or constant-fills a quadlet fails here. The seed goes
+    //! in by the root wire's name, so this arm grades wire -> quadlet only.
+    //! Which KL_crf_rx output drives each wire is graded by the real-event
+    //! arm at the end of the section. CRF_STATUS (0x74C) is the second
+    //! reader of three of those flops, through its documented slices.
+    void grade_the_crf_input_quadlet_positions() {
+        for (const CrfCtr& c : CRF_CTRS) crf_tally(c.q) = crf_sig(c.q);
+        const std::vector<uint8_t> r = crf_ctrs(0x4401);
+        ck("[CTRS-CRF] signatures: counters_valid still 0xF3F",
+           ctr_word(r, 32), CRF_CTR_MASK);
+        grade_the_crf_row(r, "signatures", crf_sig);
+        ck("[CTRS-CRF] CRF_STATUS reads the same pdu/fmt/seq flops",
+           axi_read(A_CRF_STATUS_L),
+           (crf_sig(11) << 16) | ((crf_sig(8) & 0xFFu) << 8) | (crf_sig(3) & 0xFFu));
+    }
+
+    //! Descriptor isolation, both ways, with the signatures still held. No
+    //! AAF input may carry a CRF quadlet or lose its own 0xFFF mask, and the
+    //! first undeclared index stays the refusal with the empty body.
+    void prove_no_neighbour_row_answers_for_the_crf_bank() {
+        long aaf_clean = 1;
+        for (int k = 0; k < kNstreamsTb; k++) {
+            const std::vector<uint8_t> r = sin_ctrs(static_cast<uint16_t>(0x4410 + k),
+                                                    static_cast<uint16_t>(k));
+            if (aecp_status(r) != 0 || ctr_word(r, 32) != 0x0FFF) aaf_clean = 0;
+            for (int q = 0; q < 32; q++)
+                for (const CrfCtr& c : CRF_CTRS)
+                    if (ctr_word(r, q) == crf_sig(c.q)) aaf_clean = 0;
+        }
+        ck("[CTRS-CRF] every AAF input keeps 0xFFF and none carries a CRF quadlet",
+           aaf_clean, 1);
+        const std::vector<uint8_t> miss = sin_ctrs(0x4420, static_cast<uint16_t>(CRF_LUID + 1));
+        long empty = (miss.size() == 174 && ctr_word(miss, 32) == 0) ? 1 : 0;
+        for (int q = 0; q < 32; q++) if (ctr_word(miss, q) != 0) empty = 0;
+        ck("[CTRS-CRF] index N + 1 refuses NO_SUCH_DESCRIPTOR",
+           static_cast<unsigned long>(aecp_status(miss)), 2);
+        ck("[CTRS-CRF] ...with the empty mask and a zero block, not the CRF bank",
+           empty, 1);
+    }
+
+    //! Milan 5.3.8.10: "reset all of these counters to zero each time the
+    //! Stream Input changes its state from not bound to bound". The edge
+    //! wipes the seeded row, which is a wire-visible change, so it must also
+    //! reach the Table 5.22 arbiter as {STREAM_INPUT, N} and as nothing else.
+    //! All five of step()'s delivery records are cleared first, and between
+    //! them they hold every {type, index} the arbiter can hand over. So the
+    //! CRF output's STREAM_OUTPUT row at the same N, AVB_INTERFACE 0,
+    //! CLOCK_DOMAIN 0, another STREAM_INPUT, or any other tuple fails here.
+    void prove_the_bind_edge_wipes_the_crf_row_and_raises_its_dirty_bit() {
+        pp_ctr_evt_sin_seen = 0;
+        pp_ctr_evt_sout_seen = 0;
+        pp_ctr_evt_avb_seen = false;
+        pp_ctr_evt_ckd_seen = false;
+        pp_ctr_evt_other_n = 0;
+        crf_lever(true);
+        ck("[CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only",
+           pp_ctr_evt_sin_seen, 1ul << CRF_LUID);
+        ck("[CTRS-CRF] ...and as no STREAM_OUTPUT row", pp_ctr_evt_sout_seen, 0);
+        ck("[CTRS-CRF] ...nor AVB_INTERFACE 0 or CLOCK_DOMAIN 0",
+           static_cast<unsigned long>(pp_ctr_evt_avb_seen) + pp_ctr_evt_ckd_seen, 0);
+        ck("[CTRS-CRF] ...nor any tuple of another type or index",
+           pp_ctr_evt_other_n, 0);
+        const std::vector<uint8_t> r = crf_ctrs(0x4402);
+        ck("[CTRS-CRF] after the bind edge: counters_valid still 0xF3F",
+           ctr_word(r, 32), CRF_CTR_MASK);
+        grade_the_crf_row(r, "after the bind edge", crf_zero);
+    }
+
+    //! The wrap law (Milan 5.3.8.10, gh #61) of each update law, through
+    //! real PDUs of the followed stream at the root. FRAMES_RX is an
+    //! observation-interval counter and STREAM_INTERRUPTED a per-event one;
+    //! both sit one short of 2^32, both are read back whole first (the CSR
+    //! slice would read 0xFFFF), and one real event each must land on zero.
+    void grade_the_crf_input_counter_wrap_through_real_pdus() {
+        crf_tally(11) = 0xFFFFFFFFu;
+        crf_tally(2) = 0xFFFFFFFFu;
+        const std::vector<uint8_t> r0 = crf_ctrs(0x4403);
+        ck("[CTRS-CRF] wrap: FRAMES_RX served whole at 0xFFFFFFFF",
+           ctr_word(r0, 11), 0xFFFFFFFFu);
+        ck("[CTRS-CRF] wrap: STREAM_INTERRUPTED served whole at 0xFFFFFFFF",
+           ctr_word(r0, 2), 0xFFFFFFFFu);
+        send_crf();                       // first PDU of the era: no seq check
+        const std::vector<uint8_t> r1 = crf_ctrs(0x4404);
+        ck("[CTRS-CRF] wrap: one accepted PDU's interval takes FRAMES_RX to 0",
+           ctr_word(r1, 11), 0);
+        ck("[CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move",
+           ctr_word(r1, 2), 0xFFFFFFFFu);
+        cseq = static_cast<uint8_t>(cseq + 2);   // two PDUs lost on the wire
+        send_crf();
+        const std::vector<uint8_t> r2 = crf_ctrs(0x4405);
+        ck("[CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0",
+           ctr_word(r2, 2), 0);
+        ck("[CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once",
+           ctr_word(r2, 3), 1);
+        ck("[CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero",
+           ctr_word(r2, 11), 1);
+    }
+
+    //! The count each of the ten reaches in the event arm below, in
+    //! CRF_CTRS order. No two are equal, so no exchange of two tallies can
+    //! read back as the plan.
+    static constexpr uint32_t CRF_EVT_N[10] = {
+         2,   // MEDIA_LOCKED         two locks
+         1,   // MEDIA_UNLOCKED       one unlock
+         3,   // STREAM_INTERRUPTED   three gaps of >= 2 lost
+         4,   // SEQ_NUM_MISMATCH     ...and one gap of 1
+         5,   // MEDIA_RESET          five mr toggles
+         6,   // TIMESTAMP_UNCERTAIN  six tu PDUs
+         7,   // UNSUPPORTED_FORMAT   seven rejects
+         8,   // LATE_TIMESTAMP       eight past
+         9,   // EARLY_TIMESTAMP      nine too far ahead
+        21,   // FRAMES_RX            21 accepted
+    };
+    static constexpr bool crf_evt_counts_distinct() {
+        for (int i = 0; i < 10; i++)
+            for (int j = i + 1; j < 10; j++)
+                if (CRF_EVT_N[i] == CRF_EVT_N[j]) return false;
+        return true;
+    }
+    static uint32_t crf_by_event(int q) {
+        for (int i = 0; i < 10; i++)
+            if (CRF_CTRS[i].q == q) return CRF_EVT_N[i];
+        return 0;
+    }
+
+    //! the PHC's integer-ns time: the ptp_now_i KL_crf_rx holds each
+    //! reference timestamp against (timestamp_counter acc[87:24])
+    uint64_t phc_now_ns() {
+        const auto& a = dut->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
+        return (static_cast<uint64_t>(a[2]) << 40) | (static_cast<uint64_t>(a[1]) << 8)
+             | (static_cast<uint64_t>(a[0]) >> 24);
+    }
+
+    //! accepted PDU n of the event arm, in sequence: its reference timestamp
+    //! 1 ms in the past for P1..P8 (LATE), 100 ms ahead for P9..P17 (EARLY:
+    //! past MaxTT 2 ms + the 10 ms margin), 1 ms ahead after that (neither)
+    void send_crf_event_pdu(int n, bool mr, bool tu) {
+        const int64_t ofs = n <= 8 ? -1000000 : n <= 17 ? 100000000 : 1000000;
+        const uint8_t hdr = static_cast<uint8_t>(0x80 | (mr ? 0x08 : 0) | (tu ? 0x01 : 0));
+        send_crf_pdu(phc_now_ns() + static_cast<uint64_t>(ofs), cseq, hdr, 0x01);
+        cseq++;
+    }
+
+    //! Each of the ten through its OWN engine event, to a count no other
+    //! tally shares. No tally is seeded. The signature arm writes the root
+    //! wires by name, so a KL_crf_rx port map that bound two outputs to each
+    //! other's wires would read back exactly what was seeded there. Here real
+    //! PDUs of the followed stream, and the engine's own 100 ms silence
+    //! timeout, move each tally through the engine's own law. A quadlet
+    //! reads its count only when the engine output behind it is the counter
+    //! Table 7-157 puts at that offset, so exchanging any two bindings turns
+    //! two checks red.
+    //!
+    //! One PDU per observation interval (inject() holds each for 400 cycles
+    //! against the leg's 256-cycle LDIAG_IVAL_CYC_P), in a fresh era:
+    //!   P1         accepted: seeds the sequence cursor and the mr level
+    //!   7 rejects  type 2 at the followed sid     UNSUPPORTED_FORMAT   7
+    //!   P2..P4     2, 3 and 2 PDUs lost           STREAM_INTERRUPTED   3
+    //!   P5         1 PDU lost, below the >= 2     SEQ_NUM_MISMATCH     4
+    //!   P6..P13    eight clean in order: a lock   MEDIA_LOCKED         1
+    //!   P6..P10    each toggles the received mr   MEDIA_RESET          5
+    //!   silence    the 100 ms timeout: an unlock  MEDIA_UNLOCKED       1
+    //!   P14..P21   eight clean in order: a lock   MEDIA_LOCKED         2
+    //!   P14..P19   carry tu                       TIMESTAMP_UNCERTAIN  6
+    //!   P1..P8     timestamp already past         LATE_TIMESTAMP       8
+    //!   P9..P17    beyond MaxTT and the margin    EARLY_TIMESTAMP      9
+    //!   P1..P21    one accepted PDU per interval  FRAMES_RX           21
+    void grade_each_crf_input_counter_through_its_own_engine_event() {
+        static_assert(crf_evt_counts_distinct(),
+                      "two equal counts would hide an exchange of their bindings");
+        crf_lever(false);
+        crf_lever(true);                        // a fresh era: the ten wiped
+        send_crf_event_pdu(1, false, false);
+        for (int k = 0; k < 7; k++)             // rejected: the cursor holds
+            send_crf_pdu(phc_now_ns() + 1000000u, cseq, 0x80, 0x02);
+        cseq = static_cast<uint8_t>(cseq + 2); send_crf_event_pdu(2, false, false);
+        cseq = static_cast<uint8_t>(cseq + 3); send_crf_event_pdu(3, false, false);
+        cseq = static_cast<uint8_t>(cseq + 2); send_crf_event_pdu(4, false, false);
+        cseq = static_cast<uint8_t>(cseq + 1); send_crf_event_pdu(5, false, false);
+        for (int n = 6; n <= 13; n++)           // mr 1,0,1,0,1 then held at 1
+            send_crf_event_pdu(n, n > 10 || n % 2 == 0, false);
+        const std::vector<uint8_t> r1 = crf_ctrs(0x4406);
+        ck("[CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0",
+           ctr_word(r1, 0), 1);
+        ck("[CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form)",
+           ctr_word(r1, 1), 0);
+        ck("[CTRS-CRF] events: ...and CRF_CTRL[31] reads the sink locked",
+           axi_read(A_CRF_CTRL_L) >> 31, 1);
+
+        //! The 100 ms silence is KL_crf_rx's own counter reaching
+        //! CLK_FREQ_HZ_P / 10 cycles of this leg's 100 MHz fabric clock. Run
+        //! whole it costs about 30 s on each broad leg of a suite that runs
+        //! against a hosted deadline, so that counter is advanced, through
+        //! the engine's own hierarchy, to 1 ms short of its limit, and the
+        //! last millisecond runs for real. Only idle time is skipped: the
+        //! unlock, its tally and every wire after it are the engine's.
+        static constexpr uint32_t kCrfSilenceCyc = 10000000;  // CLK_FREQ_HZ_P / 10
+        static constexpr uint32_t kFabricMsCyc = 100000;      // MILAN_CLK_FREQ_HZ / 1000
+        dut->rootp->milan_datapath__DOT__crf_rx__DOT__tout_r = kCrfSilenceCyc - kFabricMsCyc;
+        for (uint32_t c = 0; c < kFabricMsCyc + kFabricMsCyc / 10; c++) step();
+        ck("[CTRS-CRF] events: the silence's last millisecond unlocks the sink",
+           axi_read(A_CRF_CTRL_L) >> 31, 0);
+        const std::vector<uint8_t> r2 = crf_ctrs(0x4407);
+        ck("[CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4",
+           ctr_word(r2, 1), 1);
+        ck("[CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized)",
+           ctr_word(r2, 0), 1);
+
+        for (int n = 14; n <= 21; n++) send_crf_event_pdu(n, true, n <= 19);
+        const std::vector<uint8_t> r3 = crf_ctrs(0x4408);
+        ck("[CTRS-CRF] events: counters_valid still 0xF3F",
+           ctr_word(r3, 32), CRF_CTR_MASK);
+        grade_the_crf_row(r3, "events, all ten", crf_by_event);
     }
 
     // ======================================================================
@@ -4185,6 +5349,8 @@ class NxnDatapathHarness {
     //! The CRF sink's own faces and wire identity: it has no
     //! classification-table entry, so every step below keys on these.
     static constexpr uint16_t A_CRF_CTRL_L = 0x738;
+    static constexpr uint16_t A_CRF_SIDLO_L = 0x73C;
+    static constexpr uint16_t A_CRF_SIDHI_L = 0x740;
     static constexpr uint16_t A_CRF_STATUS_L = 0x74C;
     static constexpr int CRF_LUID = kNstreamsTb;    // ACMP sink N = CRF input
     static constexpr uint8_t csid[8] = {
@@ -4202,6 +5368,13 @@ class NxnDatapathHarness {
 
     //! one valid CRF PDU at the bound sid, with the cursor advanced
     void send_crf() {
+        send_crf_pdu(cts, cseq, 0x80, 0x01);
+        cseq++; cts += 2001000ULL;
+    }
+
+    //! one CRF PDU at the bound sid: `hdr` is frame byte o+1 (sv, mr at bit
+    //! 3, tu at bit 0) and `type` byte o+3 (1 is CRF_AUDIO_SAMPLE)
+    void send_crf_pdu(uint64_t ts, uint8_t seq, uint8_t hdr, uint8_t type) {
         uint8_t cf[64];
         memset(cf, 0, sizeof cf);
         memcpy(cf, cdm, 6);
@@ -4209,15 +5382,14 @@ class NxnDatapathHarness {
             0x02,0x00,0x00,0x00,0x00,0x02};
         memcpy(cf+6, src, 6);
         cf[12]=0x22; cf[13]=0xF0;
-        cf[14]=0x04; cf[15]=0x80; cf[16]=cseq; cf[17]=0x01;
+        cf[14]=0x04; cf[15]=hdr; cf[16]=seq; cf[17]=type;
         memcpy(cf+18, csid, 8);
         cf[28]=0xBB; cf[29]=0x80;               // pull0 | 48000
         cf[31]=0x08;                            // crf_data_length 8
         cf[32]=0x00; cf[33]=0x60;               // interval 96
         for (int i = 0; i < 8; i++)
-            cf[34+i] = static_cast<uint8_t>(cts >> (8*(7-i)));
+            cf[34+i] = static_cast<uint8_t>(ts >> (8*(7-i)));
         inject(cf, 64, 400);
-        cseq++; cts += 2001000ULL;
     }
 
     // BIND_RX carrying STREAMING_WAIT (0x0008): the bind itself
@@ -6847,6 +8019,7 @@ int NxnDatapathHarness::run() {
            kNstreamsTb);
     bring_the_datapath_out_of_reset();
     prove_the_identity_and_provision_the_entity_id();
+    start_the_boot_restore_walk();
     prove_read_descriptor_degrades_with_no_descriptor_memory();
     prove_a_wedged_response_memory_reports_and_heals();
     if (prove_the_shipped_descriptor_image_enumerates()) return fails ? 1 : 0;

@@ -207,7 +207,7 @@ media plane has not adopted.
 This blocks the media-clock behavior required by Milan sections 5.3.5, 5.3.11,
 and 7.2.2.
 
-### B4. CRF Stream Input counter coverage remains incomplete
+### B4. CRF Stream Input counter coverage (closed by #529)
 
 Solicited `GET_COUNTERS` now serves every declared Stream Output with the five
 mandatory Milan Table 5.17 counters in the compact quadlet layout. Counter
@@ -218,15 +218,16 @@ processor's counter-change face, whose scheduler pushes `GET_COUNTERS` at most
 once per descriptor per second. The Table 5.22 asynchronous behavior is closed
 for every descriptor the solicited face serves.
 
-The declared CRF Media Clock Input is a separate mandatory gap. The root gather
-face serves AAF Stream Input indices below `N_STREAMS`, but the appended CRF
-Stream Input at index `N_STREAMS` returns an empty mask. Its Table 5.16 counter
-outputs and dirty source are unconnected. This leaves the CRF Stream Input
-requirements in Milan sections 5.3.8.10 and 5.4.2.25 open.
-
-Solicited reads serve AAF Stream Input, Stream Output, AVB Interface, and
-Clock Domain counters, and each of those pushes its Table 5.22 notification.
-The CRF Stream Input has neither, and remains open under section 5.4.2.25.
+The declared CRF Media Clock Input was a separate mandatory gap at this audit:
+the appended CRF Stream Input at index `N_STREAMS` returned an empty mask, and
+its Table 5.16 counter outputs and dirty source were unconnected. Issue #529
+closed it. The root now serves all ten `KL_crf_rx` tallies for that index at
+their Table 7-157 offsets under mask `0xF3F`, and the round-robin delivers the
+engine's dirty pulse as {STREAM_INPUT, `N_STREAMS`}. The closure criteria and
+their evidence (`tb/verilator/milan_dp` `[CTRS-CRF]` and the timed leg's
+`[NOTIFY-CRF]`) are recorded in the
+[`0x738` group of the register map](../reference/REGISTER_MAP.md#closure-criteria-for-the-crf-stream-input-counter-gap).
+Confirmation by a Milan controller on silicon follows the merge (#117).
 
 ### B5. Registered-controller liveness monitoring (closed at 0x0002_0055)
 
@@ -380,7 +381,7 @@ media gate in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
 7. Every served Stream Output counter update, including a healthy `FRAMES_TX`
    interval, asserts the raw per-descriptor dirty source, which the root now
    delivers to the processor's rate-limited scheduler (B4). The CRF Stream
-   Input counter and dirty connections remain open.
+   Input counter and dirty connections, open at this audit, closed with #529.
 8. The integration proof now boots each simulation with its matching entity
    image, checks every declared output, rejects the first undeclared output
    with a full empty response body, and exercises real AAF and CRF enable

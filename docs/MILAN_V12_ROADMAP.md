@@ -356,7 +356,10 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 > and wrapper output landed first, and #74 landed the consumer: the root's
 > `media_clk_resolve` turns the stored index into the one registered verdict
 > that arms `KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain
-> and the 4.4.4.3 `mr` machinery. The INTERNAL selection constant is gone.
+> and the CRF triggers of the 4.4.4.3 `mr` machinery.
+> A PHC step toggles `mr` whatever the clock-source selection.
+> Every running Stream Output counts that toggle in MEDIA_RESET.
+> The INTERNAL selection constant is gone.
 
 ### P2.4 — dynamic audio mappings
 
@@ -434,8 +437,9 @@ second**), the LOCK auto-unlock, and auto-DEREGISTER. The parent proof is
 leg (`obj_notify`, the processor timebase compressed to 100 cycles per
 millisecond) measuring the one-second limit.
 
-What stays open: the declared CRF Stream Input has no served counters, so it
-has no counter push either (audit B4).
+The declared CRF Stream Input, the last descriptor without served counters,
+has served and pushed its Table 5.16 ten since #529 (audit B4, closed); the
+timed leg's `[NOTIFY-CRF]` measures its push under the same limit.
 
 For AS_PATH, COMMIT is deliberately not a publish operation: it changes a
 staging slot that neither solicited reads nor notifications observe. PUBLISH
@@ -467,11 +471,12 @@ Do not schedule these as SHALLs and do not let a grader count them.
 
 | Item | Clause | Level |
 |---|---|---|
-| MVU `0x0001`/`0x0002` SET/GET_SYSTEM_UNIQUE_ID | 5.4.4.2/.3 | **RECOMMENDED** — *"Support for this feature is a recommendation … will become a requirement in a future revision"* |
-| MVU `0x0003`/`0x0004` SET/GET_MEDIA_CLOCK_REFERENCE_INFO | 5.4.4.4/.5 | **RECOMMENDED**, same construction |
+| MVU `0x0001`/`0x0002` SET/GET_SYSTEM_UNIQUE_ID | 5.4.4.2/.3 | **RECOMMENDED**: *"Support for this feature is a recommendation … will become a requirement in a future revision"*. Not served for the October release by the [owner decision on #510](https://github.com/kebag-logic/milan-fpga/issues/510#issuecomment-5789766089); answered `NOT_IMPLEMENTED`; P4 (#416) if the conformance lab requires it |
+| MVU `0x0003`/`0x0004` SET/GET_MEDIA_CLOCK_REFERENCE_INFO | 5.4.4.4/.5 | **RECOMMENDED**, same construction, same decision and fallback |
 | IDENTIFY_NOTIFICATION as a transmitted unsolicited response | 5.4.5.4 | **SHOULD** — *"it should implement the Identification Notification"* |
 | `ACQUIRE_ENTITY` answering specifically `NOT_SUPPORTED` | 5.4.2.1 | the SHALL is only *"shall not reply SUCCESS"*; the code choice is a SHOULD (we do answer `NOT_SUPPORTED`) |
-| Redundancy (Section 8, R-PAAD) | 8.x | out of scope: this is a single-AVB_INTERFACE PAAD, so item 11.x is Not Applicable |
+| Redundancy (Section 8, R-PAAD) | 8.x | out of scope: this is a single-AVB_INTERFACE PAAD, so item 11.x is Not Applicable. **OPTIONAL** by Sections 4.2.5 and 8.1; out of scope for the October release by the [owner decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478) (2026-09-23), revisited with the P4/P5 PCB (#416/#417) |
+| IEEE 802.1AS-2011 delayAsymmetry | 802.1AS 8.3 / 10.2.4.8 | **OPTIONAL** to model, zero when not modelled; excluded for v1.2 by the [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257), [gPTP plane record](design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled) |
 
 ---
 
@@ -536,7 +541,7 @@ The ladder, cheapest first. A row is not done until it has all four.
 | microprogram | `protocol-processor/tb/ucpu` | the program runs, branches and sets status |
 | wire truth | `protocol-processor/tb/pp_top` Section W and siblings | the response is byte-exact against a payload the bench builds from the IEEE figure |
 | against the model | `tb/verilator/milan_dp` `sim_nxn.cpp` `[AECP-MODEL]` | the answer matches the **generated entity model**, for every descriptor the generator emitted, with a negative oracle for every absent one |
-| the inventory | `tests/features/aecp_response_contract.feature` | the opcode partition, gated against the engine RTL's own `OP_*_C` constants so the suite cannot go stale |
+| the inventory | `tests/features/aecp_response_contract.feature` | the opcode partition and the served MVU command types, gated against the engine RTL's own `OP_*_C` and `MVU_GET_*`/`MVU_SET_*` constants so the suite cannot go stale |
 
 The `[AECP-MODEL]` block is the one that answers "do all the commands respond
 correctly to the entity model": it runs `endstation_builder.py` and

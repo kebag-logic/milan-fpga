@@ -31,7 +31,7 @@ from a later edition:
 
 | Standard | Edition | Scope here |
 |---|---|---|
-| Milan Specification, Consolidated | **v1.2** (Final, 2023-11-30) | the profile: non-redundant PAAD-AE, talker + listener |
+| Milan Specification, Consolidated | **v1.2** (Final, 2023-11-30) | the profile: non-redundant PAAD-AE, talker + listener (Section 8 out of scope for v1.2, [decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478)) |
 | IEEE Std 1722.1 | **-2021** | ATDECC: ADP, ACMP, AECP/AEM |
 | IEEE Std 1722 | **-2016** | AVTP: common header, AAF audio, CRF |
 | IEEE Std 802.1AS | **-2011** (+Cor1-2013, +Cor2-2015) | gPTP as Milan Section 4.2.6 profiles it — the fabric plane's edition of record (decision #139; [`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) keeps the 802.1AS-2020 hardware-assist cross-trace) |
@@ -114,16 +114,16 @@ input, are silently refused.
 | 5.4.2.4 | READ_DESCRIPTOR | implemented | RTL milan_dp — walks every generated descriptor + absent-descriptor oracle |
 | 5.4.2.5 / .6 | SET/GET_CONFIGURATION | implemented | lock-guarded; `STREAM_IS_RUNNING` reduction — PP dyn_state + pp_top |
 | 5.4.2.7 / .8 | SET/GET_STREAM_FORMAT | implemented | landed 0x0053 with the bound/streaming interlocks |
-| 5.4.2.9 / .10 | SET/GET_STREAM_INFO (Milan 80-byte form) | implemented | `MSRP_ACC_LAT` presentation-offset leg included — PP pp_top byte-exact |
+| 5.4.2.9 / .10 | SET/GET_STREAM_INFO (Milan 80-byte form) | implemented | `MSRP_ACC_LAT` presentation-offset leg included: PP pp_top byte-exact. Since #508 a Stream Input's probing/ACMP status (5.3.8.6) and failure code and bridge id (5.3.8.8) come from processor state; `milan_dp` `obj_notify` `[GSI]` grades every transition on both sinks, solicited and unsolicited |
 | 5.4.2.11 / .12 | SET/GET_NAME | implemented | landed 0x0054; nonvolatile restore stays with persistence (Section 1.7) |
 | 5.4.2.13 / .14 | SET/GET_SAMPLING_RATE | implemented | stored + served; media-plane adoption open (Section 1.8, audit B3) |
-| 5.4.2.15 / .16 | SET/GET_CLOCK_SOURCE | implemented | stored + served + consumed: #74's `media_clk_resolve` arms the servo, the grid-align chain and `mr` from the stored index (milan_dp `[CRF-SEL]` grades the chain). The advertised set is truthful since #389: only INTERNAL (free run) and the CRF sink's INPUT_STREAM source drive the media clock, so those are the only CLOCK_SOURCE descriptors the builder emits and the CLOCK_DOMAIN lists (no per-AAF-listener source; milan_dp `[AECP-MODEL]` walks the set); an index the domain does not list answers `BAD_ARGUMENTS` with the current index and moves nothing (processor `E_SCLKS` range check; milan_dp `[CLKSRC-RANGE]`, pp_top W10e-h for the verdict, the carried index and the readback, W10i for the same on a row no controller has set, and W10j for the "moves nothing" half: no store write, no NVM mark, no notification enqueued and no unsolicited frame at a second registered controller) |
+| 5.4.2.15 / .16 | SET/GET_CLOCK_SOURCE | implemented | stored + served + consumed: #74's `media_clk_resolve` arms the servo, the grid-align chain and the CRF triggers of `mr` from the stored index (milan_dp `[CRF-SEL]` grades the chain). A PHC step toggles `mr` whatever the clock-source selection. Every running Stream Output counts that toggle in MEDIA_RESET (milan_dp option-off legs). The advertised set is truthful since #389: only INTERNAL (free run) and the CRF sink's INPUT_STREAM source drive the media clock, so those are the only CLOCK_SOURCE descriptors the builder emits and the CLOCK_DOMAIN lists (no per-AAF-listener source; milan_dp `[AECP-MODEL]` walks the set); an index the domain does not list answers `BAD_ARGUMENTS` with the current index and moves nothing (processor `E_SCLKS` range check; milan_dp `[CLKSRC-RANGE]`, pp_top W10e-h for the verdict, the carried index and the readback, W10i for the same on a row no controller has set, and W10j for the "moves nothing" half: no store write, no NVM mark, no notification enqueued and no unsolicited frame at a second registered controller) |
 | 5.4.2.17 / .18 | SET/GET_CONTROL (Identify, 0/255, volatile) | implemented | PP dyn_state; no public indication output yet (audit B7) |
 | 5.4.2.19 / .20 | START/STOP_STREAMING (inputs; `NOT_SUPPORTED` on outputs) | implemented | binding-record interlock (issue #78); started-state persistence open (audit B12) |
 | 5.4.2.21 / .22 | REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | implemented | PP aecp_notify |
 | 5.4.2.23 | GET_AVB_INFO | implemented | propagation delay served from the measured word since 0x0055 (audit B8 closed) |
 | 5.4.2.24 | GET_AS_PATH | implemented | staged publish/cutover contract; option-off aliasing recorded in audit B6 |
-| 5.4.2.25 | GET_COUNTERS — AAF Stream Input, Stream Output (Table 5.17), AVB Interface, Clock Domain | partial | served + pushed for those four; **the declared CRF Stream Input returns an empty mask** — its Table 5.16 counters are unconnected (audit B4) |
+| 5.4.2.25 | GET_COUNTERS: AAF and CRF Stream Input, Stream Output (Table 5.17), AVB Interface, Clock Domain | implemented | served + pushed for all five; the declared CRF Stream Input serves its Table 5.16 ten at the Table 7-157 offsets (mask `0xF3F`) since #529: RTL milan_dp `[CTRS-CRF]` (reset, per-quadlet signatures through the gather mux, each counter moved by its own `KL_crf_rx` event to a distinct count, 32-bit wrap, the bind-edge wipe, descriptor isolation) and `[NOTIFY-CRF]` on the timed leg |
 | 5.4.2.26 | GET_AUDIO_MAP (both directions) | implemented | PP pp_top |
 | 5.4.2.27 / .28 | ADD/REMOVE_AUDIO_MAPPINGS | implemented | atomic validation, live datapath projection, lock checks, unsolicited updates (2026-08-17) |
 | 5.4.2.29 | GET_DYNAMIC_INFO (IEEE Section 7.4.76) | implemented | completed 2026-08-17; never answers `IN_PROGRESS`, satisfying Section 7.4.76's support rule |
@@ -133,14 +133,14 @@ input, are silently refused.
 | Clause | Command | Level | Status |
 |---|---|---|---|
 | 5.4.4.1 | GET_MILAN_INFO | SHALL | implemented |
-| 5.4.4.2 / .3 | SET/GET_SYSTEM_UNIQUE_ID | RECOMMENDED | n/a — tracked, not a gap |
-| 5.4.4.4 / .5 | SET/GET_MEDIA_CLOCK_REFERENCE_INFO | RECOMMENDED | n/a — tracked, not a gap |
+| 5.4.4.2 / .3 | SET/GET_SYSTEM_UNIQUE_ID | RECOMMENDED | n/a: tracked, not a gap. Not served for the October release by the [owner decision on #510](https://github.com/kebag-logic/milan-fpga/issues/510#issuecomment-5789766089) (2026-09-23; FR-MVU-02 is SHOULD). MVU `0x0001`/`0x0002` answer `NOT_IMPLEMENTED` (Table 5.19) with the command echoed: PP pp_top M4 grades `0x0002` byte-exact, and the engine's one non-echo MVU arm is `GET_MILAN_INFO`. Implementation moves to P4 (#416) if the conformance lab requires it |
+| 5.4.4.4 / .5 | SET/GET_MEDIA_CLOCK_REFERENCE_INFO | RECOMMENDED | n/a: tracked, not a gap. Same decision and fallback: MVU `0x0003`/`0x0004` reach the same `NOT_IMPLEMENTED` echo (no per-command PP arm yet). Section 7.6 media-clock management, which these commands serve, is RECOMMENDED too. P4 (#416) if the conformance lab requires it |
 
 ### 1.5 Unsolicited notifications and controller liveness (Section 5.4.5)
 
 | Clause | Requirement | Status |
 |---|---|---|
-| 5.4.5.1 / .2 | registry, fan-out, per-controller sequencing, the full Table 5.22 trigger set, GET_COUNTERS push ≤ 1/descriptor/second | implemented at 0x0055 (issue #69) — every state-changing command pushes to every registered controller except the requester; the timed `milan_dp` leg (`obj_notify`) measures the one-second limit. Open corner: the CRF Stream Input has no served counters, so no counter push (audit B4) |
+| 5.4.5.1 / .2 | registry, fan-out, per-controller sequencing, the full Table 5.22 trigger set, GET_COUNTERS push ≤ 1/descriptor/second | implemented at 0x0055 (issue #69): every state-changing command pushes to every registered controller except the requester; the timed `milan_dp` leg (`obj_notify`) measures the one-second limit. The CRF Stream Input's row pushes under the same limit since #529 (`[NOTIFY-CRF]`) |
 | 5.4.5.3 | departing-controller monitor: random 30–60 s timer, CONTROLLER_AVAILABLE probe + one retry, targeted auto-deregister | implemented at 0x0055 — `KL_aecp_ca_originator` on the processor's shared originator; PP ca_originator; timed leg measures probe, 250 ms retry, deregistration |
 | 5.4.5.4 | identification notification | SHOULD — n/a as a gap; the Identify *indication* output is the open half (audit B7) |
 
@@ -176,11 +176,11 @@ connect and the started-state restore (audit B12).
 |---|---|---|
 | 6.2–6.5 | Base Formats: AAF/PCM 32-bit, {48/96/192 kHz} × {1,2,4,6,8} ch, SR class A | partial — full family declared per configuration (gate: `check_wire_accountability.py`); fabric proven at 48 kHz (RTL aaf; SILICON audio E2E); 96/192 kHz unproven on silicon |
 | 5.3.7.6 / 4.4.2.1 | 2 ms default presentation-time offset, settable via SET_STREAM_INFO | implemented |
-| 5.3.7.3 | talker transmit licence (bound listener + reservation) | partial — the admission composition is graded (BDD `milan_streaming_licence.feature`), but the writable debug bypass `AAF_CTRL[1]` can defeat it (audit B9) |
+| 5.3.7.3 | talker transmit licence (bound listener + reservation) | partial: the admission composition is graded (BDD `milan_streaming_licence.feature`), and since #530 every gate reads the processor's ACTIVE, which `milan_dp` `obj_crflic` grades on every cycle for the AAF and CRF outputs; the writable debug bypass `AAF_CTRL[1]` can still defeat it (audit B9) |
 | 7.2.2 | media clock inputs — the CRF sink can drive the media clock | implemented — #74: the stored selection arms `KL_mmcm_drp_servo` (rate half) and `KL_media_grid_align` holds the packet grid on the physical fsync grid (sim proof at the true 391/1591 ratio, milan_dp obj_aclk `[CRF]`); the silicon probe (J11.8 vs J11.9) stays open on issue #74 |
 | 7.2.3 / 7.3.2–7.3.4 | CRF Media Clock Output, Pro Audio CRF format (48 kHz base, SR class A) | implemented — RTL crf_tx; format fields byte-verified |
 | 7.4 | media clock source quality ± 50 ppm | partial — board-oscillator property; the 10.6 ppm internal divider offset is closed under CRF selection by #74's align chain (sim), while the ± 50 ppm oscillator bound itself remains a bench measurement |
-| 8.x | seamless redundancy | n/a — single-AVB_INTERFACE PAAD |
+| 8.x | seamless redundancy | n/a: a declared non-redundant PAAD-AE with one AVB_INTERFACE on one cabled port. Sections 4.2.5 and 8.1 make redundancy optional; `GET_MILAN_INFO` reports `features_flags` REDUNDANCY as 0 (Table 5.20; PP pp_top M2). A directed limitation, not an omission: out of scope for the October release by the [owner decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478) (2026-09-23), revisited with the P4/P5 PCB (#416/#417) |
 
 ## 2. IEEE 1722.1-2021 — ATDECC base
 
@@ -223,6 +223,7 @@ clause numbers below differ from 802.1AS-2020's in places (MDPdelayReq is
 | Clause | Requirement | Owner | Status / evidence |
 |---|---|---|---|
 | 8.2 | PTP timescale: monotonic, settable, frequency-adjustable | fabric (`timestamp_counter`) | implemented — RTL ptp (201 k checks vs a 128-bit model) |
+| 8.3 / 10.2.4.8 / 14.6.9 | delayAsymmetry: optional to model, zero when not modelled. Its managed object is read-write and `Tdot3FD` in Table 14-6, so required only where 802.1AS management is implemented; management is optional (PICS `MGT`) | gPTP plane | n/a: not modelled, so zero, and no 802.1AS management is claimed; the REQ-PTP-06 elaboration constants stay the only timestamp corrections and the live UART tuner stays donor-bench-only. A directed limitation for v1.2 by the [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257); revisit trigger and adoption plan in the [gPTP plane record](../design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled) |
 | 8.4.2.2 / 8.4.3 | event messages timestamped at the reference plane; general messages never | fabric (`ptp_ts_core/top`) | implemented — RTL ptp_ts interference suite |
 | Annex B.1.1 | LocalClock within ± 100 ppm, finely adjustable | fabric + board oscillator | implemented — RTL ptp adjfine granularity |
 | 10.2 / 10.3 | time-sync state machines + BTCA | gPTP plane | implemented — RTL gptp_shadow, milan_dp `obj_gptp`; SILICON elections both ways |

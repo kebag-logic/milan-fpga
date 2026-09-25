@@ -92,6 +92,7 @@ flowchart LR
 - Add malformed inputs.
 - Add backpressure when applicable.
 - Add timeout and recovery cases.
+- Bind interface laws as [SVA assertions](../testing/ASSERTIONS.md).
 - Plant one deliberate mutation.
 - Confirm the mutation fails.
 - Remove the mutation.

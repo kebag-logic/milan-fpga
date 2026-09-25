@@ -92,6 +92,9 @@ struct Model {
     uint32_t cnt_i = 0;                  // STREAM_INTERRUPTED (per-event)
     int32_t  delta = 0;
     int32_t  rate = 0;
+    uint64_t last_ts = 0;
+    bool last_tu = false;
+    bool rate_seeded = false;
     // gh #61 G1: all seven interval tallies are 32-bit WRAPPING - the old
     // 8-bit fmt/seq SATURATION violated 5.3.8.10's "wraps back to zero"
     // (a pegged instrument is frozen), and 16 bits wrapped at the
@@ -145,7 +148,16 @@ struct Model {
         else                        { iv_div++;   iv_tick = false; }
     }
 
-    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp, bool mr) {
+    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp, bool mr, bool tu) {
+        // Rate windows require contiguous timestamps from one era. The
+        // directed discontinuity suite independently pins this boundary.
+        const auto spacing = ts - last_ts;
+        if (rate_seeded && (tu != last_tu || seq != exp_seq ||
+                           spacing < 1'997'952 || spacing > 2'002'048))
+            hfill = 0;
+        last_ts = ts;
+        last_tu = tu;
+        rate_seeded = true;
         if (have_seq && seq != exp_seq) {
             settle = 0;                  // discontinuity breaks the settle run
             // STREAM_INTERRUPTED: "the loss of several AVTPDUs", per-event
@@ -181,7 +193,7 @@ struct Model {
         // sequence cursor, ring fill and mr reference stay live (a reset
         // here would fake SEQ_NUM_MISMATCH and MEDIA_RESET on restart)
         if (!stop) {
-            have_seq = false; hfill = 0;
+            have_seq = false; hfill = 0; rate_seeded = false;
             mr_seeded = false;           // the mr level died with the stream
         }
     }
@@ -199,6 +211,7 @@ struct Model {
         f_frx = f_uf = f_sm = false;
         f_mr = f_tu = f_lt = f_et = false;
         settle = 0; have_seq = false; mr_seeded = false;
+        hfill = 0; rate_seeded = false;
     }
 };
 
@@ -375,7 +388,7 @@ class CrfRxHarness {
         g_ev_et  = ts_early(ts, ptp);
         pulse();
         for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        m.good_pdu(ts, seq, ptp, g_mr);
+        m.good_pdu(ts, seq, ptp, g_mr, g_tu);
     }
     void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp) {
         feed_good(ts, seq, ptp);
@@ -518,7 +531,7 @@ class CrfRxHarness {
                 lat++;
             }
             for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-            m.good_pdu(ts, seq, ptp, g_mr); seq++;
+            m.good_pdu(ts, seq, ptp, g_mr, g_tu); seq++;
             compare(++g_pdu_no);
             printf("  [info] rate_o update skew after pulse edge: %d cycle(s)\n", lat);
             ck("rate update skew <= 2 cycles", lat <= 2, 1);

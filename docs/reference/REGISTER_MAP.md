@@ -30,8 +30,9 @@ silently refused as required. The inventory is synchronized between
 
 The command-change notifications, root-observed Milan Table 5.22 triggers, and
 departing-controller monitor are live since 0x0055. Remaining gaps include the
-root-level IDENTIFY indication, saved-state persistence, the declared CRF
-Stream Input's counter bank, and commands outside the served inventory. Milan
+root-level IDENTIFY indication, saved-state persistence, and commands outside
+the served inventory. The declared CRF Stream Input's counter bank is served
+and pushed since #529 (see the `0x738` group). Milan
 Delta 7 `ACQUIRE_ENTITY` receives the command-specific `NOT_SUPPORTED`
 response with a zero owner.
 
@@ -123,8 +124,11 @@ they are not discovered by surprise:
    and `milan_datapath`'s `media_clk_resolve` compares it against the
    shape's generated `AEM_CRF_CLKSRC_C` into one registered verdict gating
    `KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain and the
-   4.4.4.3 `mr` machinery. At the INTERNAL power-on state `A_MCSRV_STAT`
-   `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
+   CRF triggers of the 4.4.4.3 `mr` machinery (the disruption and the
+   received toggle). A PHC step toggles `mr` on every running Stream
+   Output whatever the selection, and that output's Table 5.4 MEDIA_RESET
+   counts the toggle it transmits (#387). At the INTERNAL power-on state
+   `A_MCSRV_STAT` `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
    by tie-off. Since `0x0058` the accepted slips are counted where software can
    read them, `SLIP_LB`/`SLIP_TDM` at `0x8D4`/`0x8D8`.
 2. **Every Stream Output's presentation-time offset is pinned at the Milan 2 ms
@@ -135,11 +139,10 @@ they are not discovered by surprise:
    solicited reads and notifications.** `KL_talker_diag_ctx` is instantiated
    per declared output, GET_COUNTERS serves the compact five-counter layout,
    and each dirty pulse reaches the rate-limited Table 5.22 scheduler through
-   the root's lossless descriptor arbiter. Supported regular STREAM_INPUT
-   banks remain live; the CRF Media Clock Input's complete Table 5.16 bank is
-   not connected to the current solicited gather face. Issue #97 also tracks
-   the stopped-state gate that currently hides CRF receives from observation
-   before the media-consumption boundary.
+   the root's lossless descriptor arbiter. Every declared STREAM_INPUT bank
+   is live the same way, the CRF Media Clock Input's complete Table 5.16 bank
+   included since #529 (see the `0x738` group), and a stopped CRF sink keeps
+   observing and counting (#97).
 
 Memory-mapped control/status registers for the Milan TSN NIC. This is the
 **stable ABI** shared by the HDL ([`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv)), the bare-metal
@@ -179,13 +182,13 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [Link guard / MAC recovery (VERSION minor ≥ 0x0006)](#link-guard--mac-recovery-version-minor--0x0006) -- The link-bounce supervisor, added here after `0x774` was misread as a TCAM register. The chronogram is the payload: the two resets do **not** release together -- `eth_rst` drops half-way through SETTLE so both CDC pointer sets restart matched, which means reading the guard bit alone mid-episode gives you the wrong answer.
   - [0x778  -  Clock validity: the AVTP tu verdict  (VERSION minor >= 0x0016)](#0x778-----clock-validity-the-avtp-tu-verdict--version-minor--0x0016) -- The register that stops this device claiming timestamps it cannot prove. The product owner supplies sync/asCapable directly from the engine; option OFF is ownerless and keeps `tu` asserted.
   - [0x724  -  identity / playback / 802.1AS overlay](#0x724-----identity--playback--8021as-overlay) -- Board name and playback controls plus the fabric-owned parent identity. Option OFF reads zero and ignores writes.
-  - [0x738  -  CRF media-clock sink  (Milan v1.2 7.3, KL_crf_rx)](#0x738-----crf-media-clock-sink--milan-v12-73-kl_crf_rx) -- The measurement half of clock recovery: lock takes 8 clean PDUs and drops after 100 ms of silence. The local CSR exposes only PDU, format-error, and sequence-error counts. The declared CRF Stream Input returns an empty AECP counter mask because the complete bank and dirty source are not connected at the root.
+  - [0x738  -  CRF media-clock sink  (Milan v1.2 7.3, KL_crf_rx)](#0x738-----crf-media-clock-sink--milan-v12-73-kl_crf_rx) -- The measurement half of clock recovery: lock takes 8 clean PDUs and drops after 100 ms of silence. The local CSR exposes only PDU, format-error, and sequence-error counts. Since #529 the declared CRF Stream Input serves all ten Table 5.16 counters over GET_COUNTERS (mask `0xF3F`) and pushes them through Table 5.22.
   - [0x750  -  CRF media-clock talker  (Milan v1.2 7.3.1, KL_crf_tx)](#0x750-----crf-media-clock-talker--milan-v12-731-kl_crf_tx) -- Emits 500 PDU/s timestamped off the real audio-MMCM sample grid. All four identity words treat **reset 0 as AUTO**, deriving stream id and dest MAC from the MAAP block -- which is why the claimed MAAP count has to be `N_STREAMS+1`.
   - [0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO](#0x768-----aecp-get_dynamic_info-scan-forensics-bdbg-----structural-zero) -- All three legacy words read a structural zero. The processor implements `GET_DYNAMIC_INFO` internally, but its batch scanner has no connection to this deleted fabric engine's BDBG ABI.
   - [0x600  -  ADP advertiser  (IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)](#0x600-----adp-advertiser--ieee-17221-2021--milan-v12-fr-disc-0104) -- Entity identity in, advertise timing and `available_index` owned by hardware -- the protocol processor's now. Two things to know before writing anything here: `ADP_CTRL[0]` is ORed with `PP_CTRL[0]` at `0x920`, so either bit enables the entity; and five ADPDU fields (entity_capabilities, valid_time, association_id, controller_capabilities, interface_index) are **write-only scratch** -- the processor holds them as internal constants and the wire carries those, whatever you write. `ADP_STATUS` available_index is still the liveness read, and now the only one: the dormancy counters at `0x668`/`0x674` are structural zeros.
   - [0x648  -  AECP/ACMP status + AAF talker  (IEEE 1722.1 / Milan v1.2)](#0x648-----aecpacmp-status--aaf-talker--ieee-17221--milan-v12) -- AECP counters remain structural zeros, while `AECP_STAT0[16]` is the processor's live entity-lock level. Diagnostics live in the side-port snapshot window. ACMP PDU counters are structural zeros too, but `ACMP_TALKER[1]` talker_active remains the processor's live declaring level.
   - [0x680  -  lwSRP engine  (802.1Q MSRP/MVRP, Milan v1.2 Section 5.6, FR-SRP-\*)](#0x680-----lwsrp-engine--8021q-msrpmvrp-milan-v12-section-56-fr-srp-) -- The SRP endpoint, now the protocol processor's. The state words (domain, granted slope, over-limit, declaration and registration levels) are live and repointed; the MRPDU counts and the row-shortfall bit are structural zeros; the provisioning words the deleted applicant read (DMAC, TSpec, declare bypass) are write-only scratch. Read the honest note on the CBS slope ordering change -- the slope now arrives with the gate rather than one cycle ahead of it, which is equal at worst and conservative on the closing edge.
-  - [0x6A4  -  ACMP listener SM  (Milan v1.2 Section 5.5 listener, FR-CONN-01)](#0x6a4-----acmp-listener-sm--milan-v12-section-55-listener-fr-conn-01) -- **`ACMPL_STATE` no longer tracks PROBING/SETTLED -- take `bound` as the truth.** The processor publishes a bind record, not a state machine, so the ladder fields, the bound talker id, the counters and the walker forensics are structural zeros; bound, active and the CRF-sink bit are real. The Milan Table 7-156 stream counters, MAAP status, pilot tone, playback rails and ts_delta in this group are untouched and still live.
+  - [0x6A4  -  ACMP listener SM  (Milan v1.2 Section 5.5 listener, FR-CONN-01)](#0x6a4-----acmp-listener-sm--milan-v12-section-55-listener-fr-conn-01) -- **`ACMPL_STATE` no longer tracks PROBING/SETTLED -- take `bound` as the truth.** The processor publishes a bind record, not a state machine, so the ladder fields, the bound talker id, the counters and the walker forensics are structural zeros; bound, active and the CRF-sink bit are real. The Milan Table 7-156 stream counters, MAAP status, pilot tone, playback rails and ts_delta in this group are untouched and still live. **CTLR_DIAG (0x6F4) is STRUCTURAL ZERO; never read it as a measurement.** The departing-controller monitor lives in the protocol processor.
   - [0x7A0  -  ACMP bind-restore  (saved-state fast-connect E1, Milan 5.5.3.5.2)](#0x7a0-----acmp-bind-restore--saved-state-fast-connect-e1-milan-55352) -- **Dead port.** Writes are accepted, the ack never asserts, and nothing is restored -- the ACMP context table it injected into is deleted. The `0xA5C35A3C` feature probe still passes, which is precisely why software must gate on `VERSION` major and not on the probe.
   - [0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) -- **Unwired again at VERSION major 2: writes are accepted and DISCARDED, `JNL_STAT` and `JNL_SEQ` read structural zeros.** Milan v1.2 5.3.8.2 makes the saved bound state a *shall*; this build does not meet it, and nothing in this device restores a binding across a power cycle. The record format and verdict table are kept as the specification a replacement must satisfy.
   - [0x7C8  -  AEM dynamic-state patch port  (saved-state fast-connect E4)](#0x7c8-----aem-dynamic-state-patch-port--saved-state-fast-connect-e4) -- **Unwired: writes accepted and discarded.** The patch engine and the AEM store it wrote are both deleted, so there is no descriptor RAM to patch and no setter whose acceptance it could re-run. Kept as ABI and as specification.
@@ -835,30 +838,88 @@ bind-restore group notes that this sink re-arms via `0x738`.
 | `0x73C` | `CRF_SIDLO` | RW | `0` | followed CRF stream_id `[31:0]` |
 | `0x740` | `CRF_SIDHI` | RW | `0` | stream_id `[63:32]` |
 | `0x744` | `CRF_DELTA` | RO | `0` | signed `crf_ts - ptp_now` (ns) at each accepted PDU — phase, same signed-delta contract as `AVTPRX_TSD` (0x6EC); carries the talker+transit constant, deliberately NOT a servo input |
-| `0x748` | `CRF_RATE` | RO | `0` | signed ns error per 512 ms window (256-PDU ring): the talker's media clock measured against gPTP — the servo frequency input (1 ppm = 512 units) |
+| `0x748` | `CRF_RATE` | RO | `0` | The talker's media clock measured against gPTP, the servo frequency input. Signed ns error per 512 ms window (256-PDU ring); 1 ppm = 512 units. Holds the last clean value during discontinuity refill. Internal validity gates servo sampling; this CSR does not expose validity |
 | `0x74C` | `CRF_STATUS` | RO | `0` | `[31:16]` PDUs accepted, `[15:8]` format errors (7.3.2 pull/base/dlen/interval/type check), `[7:0]` sequence errors |
 
-Those three are the only CRF input counters exported into the local CSR plane.
-The other Table 5.16 outputs from `KL_crf_rx`, including lock transitions,
-interruptions, media reset, timestamp uncertainty, and early or late arrival,
-are currently left open in `milan_datapath.sv`.
+Those three are the only CRF input counters exported into the local CSR plane,
+and only as the documented truncated slices. AECP carries all ten Table 5.16
+counters `KL_crf_rx` keeps. `milan_datapath.sv` serves them full width, each
+wrapping at 32 bits, on the solicited GET_COUNTERS gather face for the declared
+CRF Media Clock Input at STREAM_INPUT index `N_STREAMS`. It also delivers the
+engine's dirty pulse to the rate-limited Table 5.22 scheduler as that same
+descriptor (#529).
 
-The same root integration gap affects AECP. The solicited gather face accepts
-AAF Stream Input indices below `N_STREAMS`; the declared CRF Media Clock Input
-at index `N_STREAMS` returns an empty `counters_valid` mask. The CRF dirty pulse
-is also unconnected, so it cannot feed the Table 5.22 notification path. Do not
-use a successful standalone `tb/verilator/crf_rx` run as evidence that the root
-serves these counters.
+| Quadlet (block offset) | Counter | `KL_crf_rx` output |
+|---|---|---|
+| 0 (`@0`) | MEDIA_LOCKED | `cnt_locked_o` |
+| 1 (`@4`) | MEDIA_UNLOCKED | `cnt_unlocked_o` |
+| 2 (`@8`) | STREAM_INTERRUPTED | `cnt_intr_o` |
+| 3 (`@12`) | SEQ_NUM_MISMATCH | `seq_err_o` |
+| 4 (`@16`) | MEDIA_RESET | `mr_cnt_o` |
+| 5 (`@20`) | TIMESTAMP_UNCERTAIN | `tu_cnt_o` |
+| 8 (`@32`) | UNSUPPORTED_FORMAT | `fmt_err_o` |
+| 9 (`@36`) | LATE_TIMESTAMP | `late_cnt_o` |
+| 10 (`@40`) | EARLY_TIMESTAMP | `early_cnt_o` |
+| 11 (`@44`) | FRAMES_RX | `pdu_count_o` |
+
+`counters_valid` is `0x00000F3F`: the ten at their IEEE 1722.1-2021 Table
+7-157 offsets. Milan keeps the IEEE Stream Input layout; only the Stream
+Output layout (Table 5.17) is compacted. TIMESTAMP_VALID and
+TIMESTAMP_NOT_VALID (quadlets 6 and 7) stay unclaimed because `KL_crf_rx`
+keeps no tally for them, while the AAF inputs claim all twelve
+(`0x00000FFF`). A shape that declares no CRF sink serves no such row, and an
+undeclared index still answers NO_SUCH_DESCRIPTOR with the empty body.
 
 #### Closure criteria for the CRF Stream Input counter gap
 
-1. Connect the complete `KL_crf_rx` Table 5.16 bank to the root solicited
-   gather face for STREAM_INPUT index `N_STREAMS`.
-2. Return the correct compact valid mask and counter words for that declared
-   descriptor while preserving the empty response for undeclared indices.
-3. Connect the CRF dirty source to the rate-limited Table 5.22 scheduler.
-4. Add root-wire tests for reset, wrap, descriptor isolation, and controller
-   decoding before treating the CRF input counter duty as closed.
+Closed by #529. Each criterion is quoted as it was frozen, followed by the
+evidence that closes it. Every `[CTRS-CRF]` check named here runs on the
+4x4, divergent 4x4, 8x8 and shipping Arty 4x4 `tb/verilator/milan_dp` legs.
+
+1. *"Connect the complete `KL_crf_rx` Table 5.16 bank to the root solicited
+   gather face for STREAM_INPUT index `N_STREAMS`."* All ten outputs are
+   connected, and two `[CTRS-CRF]` arms grade the two halves of each path.
+   The signature arm writes a distinct full-width value into each root tally
+   wire by name and reads every quadlet back through the processor's
+   response. It grades the gather mux, wire to quadlet, and cannot see which
+   engine output drives a wire. The event arm seeds no tally. It moves each
+   of the ten through its own `KL_crf_rx` event to a count no other tally
+   shares: real PDUs of the followed stream, and for MEDIA_UNLOCKED the
+   engine's own 100 ms silence timeout (the harness advances that timeout
+   counter to its last millisecond, which runs for real). So each quadlet in
+   the table above is shown to carry the output it names.
+2. *"Return the correct compact valid mask and counter words for that
+   declared descriptor while preserving the empty response for undeclared
+   indices."* The compact mask is Milan Table 5.16 at the IEEE Table 7-157
+   offsets, `0xF3F` (above). `[CTRS-CRF]` grades the SUCCESS response (cdl
+   148) from reset, and the mask `0xF3F` with every unclaimed quadlet zero
+   from reset, after the not-bound to bound wipe and after the event arm. It
+   drives the 32-bit wrap of FRAMES_RX (interval law) and STREAM_INTERRUPTED
+   (per-event law) with real PDUs, and requires NO_SUCH_DESCRIPTOR with an
+   empty body at `N_STREAMS + 1`.
+3. *"Connect the CRF dirty source to the rate-limited Table 5.22
+   scheduler."* `[CTRS-CRF]` sees the bind edge reach the descriptor arbiter
+   as {STREAM_INPUT, `N_STREAMS`} and as nothing else. The harness records
+   every tuple the arbiter hands over in that window, of any type and at any
+   index. No other STREAM_INPUT row, no STREAM_OUTPUT row (the CRF Media
+   Clock Output's at the same index included), neither AVB_INTERFACE 0 nor
+   CLOCK_DOMAIN 0, and no tuple of any other type or index may appear. On the
+   timed `obj_notify` leg, `[NOTIFY-CRF]` sees the push reach both registered
+   controllers, each copy byte-identical from the body on to the solicited
+   answer. A second change is withheld until the one-second limit releases
+   it, and the next two seconds without a change bring no further push.
+4. *"Add root-wire tests for reset, wrap, descriptor isolation, and
+   controller decoding before treating the CRF input counter duty as
+   closed."* The checks above cover each. Each of these wiring mutations
+   turns at least one of them red: the row removed, two quadlets permuted, a
+   16-bit slice, a claimed tv pair, the dirty source removed, the CRF row
+   answering for the AAF inputs, the AAF guard answering for the CRF input,
+   one tally unwired, the row's pending bit never cleared, and the CRF pulse
+   also raising the AAF inputs, STREAM_OUTPUT `N_STREAMS`, AVB_INTERFACE 0,
+   CLOCK_DOMAIN 0 or a tuple at an undeclared index. Each of the 45
+   pairwise exchanges of the ten `KL_crf_rx` output bindings at the instance
+   turns both of its quadlets red on the 4x4 and 8x8 legs. Confirmation by a
+   Milan controller on silicon follows the merge (#117).
 
 ### 0x750  -  CRF media-clock talker  `(Milan v1.2 7.3.1, KL_crf_tx)`
 
@@ -872,12 +933,12 @@ truthful, only the cadence stretches
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x750` | `CRFT_CTRL` | RW | `0` | `[0]` CRF talker enable; `[1]` **class-A declare + tag** (Milan v1.2 7.3.3: "An AVB Class A Stream Reservation *shall* be used to transmit [the] CRF Media Clock Stream"): the fabric provisions its own lwSRP talker row and derives the C-TAG (PCP 3, VID = `LWSRP_VID`, or the **operational adopted pair** whenever `LWSRP_DOM[24]` is set, Milan 4.2.7.2.1) from that row's *validity*, so tagged-but-undeclared is unreachable; with `[1]` clear the stream falls back to the untagged control-lane shape (flooded by the bridge, but alive). Since the substitution the reservation is the protocol processor's, not a fabric-provisioned lwSRP row. Live read: `[4]` 🔴 **STRUCTURAL ZERO** (was "the fabric provisioned this stream's TA row valid"; there is no row to provision), `[5]` frames leaving tagged, `[6]` reservation active, `[7]` emission licensed now, `[19:8]` VID, `[22:20]` PCP (both = the pair on the frames, one wire with the declaration). **Boot value**: the bare-metal firmware writes `MILAN_CRF_TX_CTRL_BOOT`, generated from `clocking.crf_output.enabled`: `0x3` when the config declares the CRF Media Clock Output, `0x0` when it does not, so an undeclared output is neither transmitted nor declared (#398) |
+| `0x750` | `CRFT_CTRL` | RW | `0` | `[0]` CRF talker enable; `[1]` **class-A declare + tag** (Milan v1.2 7.3.3: "An AVB Class A Stream Reservation *shall* be used to transmit [the] CRF Media Clock Stream"): the fabric provisions its own lwSRP talker row and derives the C-TAG (PCP 3, VID = `LWSRP_VID`, or the **operational adopted pair** whenever `LWSRP_DOM[24]` is set, Milan 4.2.7.2.1) from that row's *validity*, so tagged-but-undeclared is unreachable; with `[1]` clear the stream falls back to the untagged control-lane shape (flooded by the bridge, but alive). Since the substitution the reservation is the protocol processor's, not a fabric-provisioned lwSRP row. Live read: `[4]` 🔴 **STRUCTURAL ZERO** (was "the fabric provisioned this stream's TA row valid"; there is no row to provision), `[5]` frames leaving tagged, `[6]` reservation active: the processor's ACTIVE for this output (Talker Advertise declared, a Listener Ready or Ready Failed registered, admitted; Milan v1.2 5.3.7.3), `[7]` emission licensed now (`[0]` and `[6]` while SRP policing is on). Until #530 `[6]` read the processor's raw admission verdict, which the declaration alone raises, so a declared output with no Listener read `[6]` = `[7]` = 1 and streamed. `[19:8]` VID, `[22:20]` PCP (both = the pair on the frames, one wire with the declaration). **Boot value**: the bare-metal firmware writes `MILAN_CRF_TX_CTRL_BOOT`, generated from `clocking.crf_output.enabled`: `0x3` when the config declares the CRF Media Clock Output, `0x0` when it does not, so an undeclared output is neither transmitted nor declared (#398) |
 | `0x754` | `CRFT_SIDLO` | RW | `0` | CRF talker stream_id `[31:0]`. Reset 0 selects AUTO in multi-stream builds: the fabric uses `{station MAC, N_STREAMS}`, matching the CRF Media Clock Output context described by the [end-station builder](../ENDSTATION_BUILDER.md). A non-zero pair wins outright |
 | `0x758` | `CRFT_SIDHI` | RW | `0` | stream_id `[63:32]`, same AUTO rule (the pair is tested together) |
 | `0x75C` | `CRFT_DMLO` | RW | `0` | CRF stream dest MAC `[31:0]` (same packing as `AAF_DM*`). **Reset 0 = AUTO:** the MAAP block slot `base + N_STREAMS`, one past the audio talkers -- when CRF output is declared, `MAAP_CTRL` claims `N_STREAMS+1`; otherwise it claims exactly `N_STREAMS`. A non-zero pair wins outright |
 | `0x760` | `CRFT_DMHI` | RW | `0` | dest MAC `[47:32]` in `[15:0]`, same AUTO rule |
-| `0x764` | `CRFT_COUNT` | RO | `0` | CRF PDUs emitted |
+| `0x764` | `CRFT_COUNT` | RO | `0` | CRF PDUs emitted: the PDU total. It is not the output's FRAMES_TX. That Milan v1.2 5.3.7.7 Table 5.4 counter, served by GET_COUNTERS, advances once per observation interval (1 s) in which at least one PDU was transmitted, and restarts at each STREAM_START, so a 15 s burst reads 16 there and about 7,500 here (#530 item 3) |
 
 ### 0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO
 
@@ -1030,7 +1091,7 @@ not:
 
 * 🟢 **LIVE, REPOINTED** — the Domain word (`LWSRP_DOM` adopted / priority /
   VID), the granted idleSlope (`LWSRP_SLOPE`), the over-limit bit, the stream
-  gate, the slope-mux-engaged bit, the listener/talker declaration and
+  gate, the raw admission-verdict bit, the listener/talker declaration and
   registration levels, and the MSRP failure code.
 * 🔴 **STRUCTURAL ZERO** — MRPDU transmit and receive counts and ingress FIFO
   drops (`LWSRP_CNT`, `LWSRP_STATUS[31:24]`). That accounting lived in the
@@ -1044,24 +1105,48 @@ not:
   and its own destination address from MAAP. Writing these changes nothing
   observable.
 
-**The CBS slope ordering changed, and it is recorded honestly.** The deleted
-bandwidth gate joined a stream's idleSlope into the running sum *before* opening
-that stream's gate, and closed the gate *before* removing the slope, so the
-shaper was never asked to carry a stream whose bandwidth was not yet budgeted,
-in either direction. The processor asserts its active level and its granted
-slope in the SAME cycle. On the opening edge that is at worst equal, never worse
-— the slope arrives with the gate rather than one cycle ahead of it. On the
-closing edge the stream stops and its slope leaves together, so the sum is
-briefly high for zero traffic: conservative, not permissive. Neither edge lets a
-stream transmit against an un-budgeted slope, which is the property the old
-ordering existed to guarantee.
+**The slope/gate ordering has no object on this wire, and it is recorded
+honestly.** The deleted bandwidth gate joined a stream's idleSlope into the
+running sum *before* opening that stream's gate, and closed the gate *before*
+removing the slope, so the shaper was never asked to carry a stream whose
+bandwidth was not yet budgeted, in either direction. No shaper is instantiated
+now ([EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md#credit-based-shaping)): the
+processor's raw admission verdict and slope sum reach only `LWSRP_STATUS[9]` and
+`LWSRP_SLOPE`. The stream gate is the processor's ACTIVE since #530. Its
+optimistic admission window counts a fresh declaration as admitted until the end
+of the third published admission round after it. The declaration also clears the source's
+registered Listener, so ACTIVE rises inside the window only if a Listener Ready
+or Ready Failed for the stream is decoded within those few cycles. That corner
+has two branches:
+
+* **Admitted.** ACTIVE can lead `LWSRP_STATUS[9]` and `LWSRP_SLOPE` by up to
+  three admission rounds. That status skew is this branch's whole effect.
+* **Refused.** `LWSRP_STATUS[7]` rises, but ACTIVE does not fall inside the
+  window: it falls at the window's end, and the declaration then swaps to Talker
+  Failed. For up to three rounds a declaration the 75 % ceiling refuses holds the
+  emission licence and the Milan v1.2 5.3.7.7 Table 5.4 streaming level. A
+  controller reads a STREAM_START and STREAM_STOP pair, the start resets
+  MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX, and at most one PDU per source
+  can leave, if its media event falls in the window. Whether the licence should
+  also need the real grant is issue #551.
+
+Both show on the licensed source's bits. For the CRF output they are
+`CRFT_CTRL[6]`/`[7]` (`0x750`). `LWSRP_STATUS[8]` is source 0's licence only,
+so it never shows the CRF output's corner. `LWSRP_STATUS[6]` is ACTIVE ORed
+over sources, not one source's own bit, so it shows the corner only while no
+other source is ACTIVE.
+After a withdrawal `LWSRP_SLOPE` keeps the stream's slope until the next published round.
+Since processor pin `a8f8ce81` (its issue 112) two rules hold.
+An accepted re-declaration clears that source's `LWSRP_STATUS[9]` term.
+The term returns once the new TSpec has been evaluated.
+A round that meets any pending declaration publishes nothing.
+So `[9]`, `LWSRP_SLOPE` and `[7]` hold until every declaration is evaluated.
 
 While enabled the plane declares MSRP Domain (+ TalkerAdvertise) and the MVRP
 VID, registers the bridge's Listener attribute for our StreamID, and resolves
-the reservation into the AAF admission gate + the class-A CBS idleSlope
-(hardware mux over the 0x400 value of the queue selected in `LWSRP_CTRL[4:2]` —
-no CSR write-back). A qidx that names a queue ≥ `N` leaves the 0x400 values
-untouched (`milan_datapath` gates the mux on the index being real).
+the reservation into the talker gates (the processor's ACTIVE) and the status
+words above. No slope mux exists, so `LWSRP_CTRL[4:2]` selects nothing and the
+`0x400` CBS window stays write-only scratch.
 
 While enabled it also:
 
@@ -1074,7 +1159,9 @@ While enabled it also:
   [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md)).
 
 `LWSRP_STATUS[8]` is the licence Milan v1.2 5.3.7.3 defines, and it is
-honest: it reads 0 when no Listener Ready / Ready Failed is registered.
+honest: it reads 0 when no Listener Ready / Ready Failed is registered. That
+is true since #530: until then it read the processor's raw admission verdict,
+which the Talker Advertise declaration alone raises.
 `ACMP_TALKER 0x66C[3]` is the *resolved* admission gate that actually
 admits frames. **When those two disagree, the bypass is engaged** — on
 2026-07-28 both boards read `0x66C = 0x08` (admission 1) beside
@@ -1087,8 +1174,8 @@ admits frames. **When those two disagree, the bypass is engaged** — on
 | `0x688` | `LWSRP_DMAC_LO` | RW | `0xF000_FE01` | 🟡 **WRITE-ONLY SCRATCH** — stream dest MAC `[31:0]` (same packing as `AAF_DM*`). The applicant that read it is deleted; the processor takes its destination address from MAAP |
 | `0x68C` | `LWSRP_DMAC_HI` | RW | `0x91E0` | 🟡 **WRITE-ONLY SCRATCH** — stream dest MAC `[47:32]` |
 | `0x690` | `LWSRP_TSPEC` | RW | `0x0001_00E0` | 🟡 **WRITE-ONLY SCRATCH** — `[15:0]` MaxFrameSize, `[31:16]` MaxIntervalFrames. The applicant that read them is deleted. The processor DERIVES its Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize from the wire width the framer was elaborated with, so the declaration and the frame cannot disagree, and it derives its interval from the SR class. Writing this changes nothing observable |
-| `0x694` | `LWSRP_STATUS` | RO | `0` | Mixed. 🟢 **LIVE, REPOINTED** from the processor's class-D face. **`[3:0]` describes ONE subject: the Listener attribute REGISTERED on talker SOURCE 0** (the processor's `lstn_reg_state[0]`), which is the subject it had before the control plane was substituted and the subject it has again since VERSION `0x005C`. `[1:0]` is that attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value (0 none/ignore, 1 asking-failed, 2 ready, 3 ready-failed); `[2]` listener registered = the value is not 0, **asking-failed INCLUDED** (the field answers "does anyone want this stream", and an asking-failed Listener does: it must still see our TalkerAdvertise or it can never become Ready); `[3]` listener ready = the value is ready or ready-failed, the Milan v1.2 5.3.7.3 pair. From the substitution to VERSION `0x005B` this nibble mixed two subjects and misread both: `[1:0]` carried sink 0's OWN Listener declaration, `[2]` read bit 1 of the registered value (so a registered asking-failed Listener reported 0) and `[3]` compared the sink's declaration against the asking-failed code (so it read 1 while this station declared asking-failed and 0 while it declared ready). `[4]` talker declared, `[5]` domain ok, `[6]` reservation ACTIVE, `[7]` **over the 75 % gate**, `[8]` stream gate open, `[9]` slope mux engaged, `[10]` TalkerFailed seen, `[23:16]` MSRP failure code. 🔴 **STRUCTURAL ZERO**: `[11]` attribute-row shortfall (there is no attribute-row table in this fabric any more) and `[31:24]` ingress FIFO frame drops (that ingress path is deleted; the protocol processor's own control-frame FIFO drop counter lives at `PP_DIAG` `0x930[15:8]`). `[15:12]` reserved 0 |
-| `0x698` | `LWSRP_SLOPE` | RO | `0` | 🟢 **LIVE, REPOINTED** — the granted idleSlope in bits/s, now the processor's **sum across admitted sources** (which is what a single shaped queue's idleSlope must be), not a single stream's `MaxIntervalFrames × (MaxFrameSize+42) × 8 × 8000` |
+| `0x694` | `LWSRP_STATUS` | RO | `0` | Mixed. 🟢 **LIVE, REPOINTED** from the processor's class-D face. **`[3:0]` describes ONE subject: the Listener attribute REGISTERED on talker SOURCE 0** (the processor's `lstn_reg_state[0]`), which is the subject it had before the control plane was substituted and the subject it has again since VERSION `0x005C`. `[1:0]` is that attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value (0 none/ignore, 1 asking-failed, 2 ready, 3 ready-failed); `[2]` listener registered = the value is not 0, **asking-failed INCLUDED** (the field answers "does anyone want this stream", and an asking-failed Listener does: it must still see our TalkerAdvertise or it can never become Ready); `[3]` listener ready = the value is ready or ready-failed, the Milan v1.2 5.3.7.3 pair. From the substitution to VERSION `0x005B` this nibble mixed two subjects and misread both: `[1:0]` carried sink 0's OWN Listener declaration, `[2]` read bit 1 of the registered value (so a registered asking-failed Listener reported 0) and `[3]` compared the sink's declaration against the asking-failed code (so it read 1 while this station declared asking-failed and 0 while it declared ready). `[4]` talker declared, `[5]` domain ok, `[6]` reservation ACTIVE ORed over sources, the CRF output included, `[7]` **over the 75 % gate**, `[8]` stream gate open: source 0's licence, the processor's ACTIVE (since #530; its raw admission verdict before), `[9]` the processor's raw admission verdict, ORed over sources: status only, since no shaper is instantiated to read it; it can trail the licensed source's ACTIVE (`[6]` ORed over sources, `[8]` for source 0, `CRFT_CTRL[6]` for the CRF output) by up to three admission rounds at a fresh declaration (#530), `[10]` TalkerFailed seen, `[23:16]` MSRP failure code. 🔴 **STRUCTURAL ZERO**: `[11]` attribute-row shortfall (there is no attribute-row table in this fabric any more) and `[31:24]` ingress FIFO frame drops (that ingress path is deleted; the protocol processor's own control-frame FIFO drop counter lives at `PP_DIAG` `0x930[15:8]`). `[15:12]` reserved 0 |
+| `0x698` | `LWSRP_SLOPE` | RO | `0` | 🟢 **LIVE, REPOINTED**: the granted idleSlope in bits/s, now the processor's **sum across admitted sources** (which is what a single shaped queue's idleSlope must be), not a single stream's `MaxIntervalFrames × (MaxFrameSize+42) × 8 × 8000`. Status only: no shaper is instantiated to consume it, and it can trail the licensed source's ACTIVE (`LWSRP_STATUS[6]` ORed over sources, `[8]` for source 0, `CRFT_CTRL[6]` for the CRF output) by up to three admission rounds at a fresh declaration (#530) |
 | `0x69C` | `LWSRP_CNT` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was `[31:16]` MRPDUs received / `[15:0]` MRPDUs sent. The serialiser and ingress path that counted them are deleted; the processor exchanges MRPDUs and publishes no PDU counters. Reservations still form — read `LWSRP_STATUS` and `LWSRP_DOM`, not this |
 | `0x6A0` | `LWSRP_LATENCY` | RW | `0` | TalkerAdvertise AccumulatedLatency, ns — still LIVE: `milan_datapath` passes it to the processor as `cfg_acc_lat_ns_i` |
 
@@ -1162,18 +1249,20 @@ live** — they are the AVTP RX monitor's, not the control plane's.
 | `0x6E8` | `ACMPL_DBG` | RO | 🔴 **STRUCTURAL ZERO**. Was the listener walker forensics — CLASSIFY entries, ACMP-subtype classifies, the flag bundle at the last ACMP classify, ACMP-base + listener-command hits. The walker is deleted. The protocol processor's own RX accounting (control frames in, FIFO drops, frames out) is at `PP_DIAG` `0x930` |
 | `0x6EC` | `AVTPRX_TSD` | RO | signed ts_delta = `avtp_timestamp - ptp_now` (ns) at the last accepted STREAM_INPUT[0] PDU -- the stream-sync error signal (LATE counts when delta < 0, EARLY beyond offset + margin; [presentation validity](../design/TIME_SYNC.md#presentation-validity)) |
 | `0x6F0` | `I2SPB_DBG` | RO | DAC-serial forensics: the exact 32 serial bits of the last LEFT half-frame as sent at the DAC pin (CDC-latched) |
-| `0x6F4` | `CTLR_DIAG` | RO | departing-controller detection (Milan v1.2 Section 5.4.5.3): `[31:24]` controllers deregistered because they went silent, `[23:12]` CONTROLLER_AVAILABLE replies seen, `[11:0]` CONTROLLER_AVAILABLE probes sent (retries included). All three wrap; the 8-bit eviction field wraps at 256, the two 12-bit fields at 4096 |
+| `0x6F4` | `CTLR_DIAG` | RO | 🔴 **STRUCTURAL ZERO**. Reads `0`; never read it as a measurement. The deleted local monitor's probe, reply and eviction counters have no replacement source for this word. The departing-controller monitor lives in the protocol processor |
 | `0x6F8` | — | — | **reserved**, free. Claim it here before wiring it |
 | `0x6FC` | — | — | **reserved**, free — the last word of this group. The next group starts at `0x700` (`TCAM_CTRL`) |
 
-`CTLR_DIAG` (0x6F4) is the standing sweep's window onto the one place the
-entity speaks first. On a healthy bench every probe is answered, so probes
-and replies climb together (about one probe per registered controller per
-45 seconds) and evictions stay flat. Probes climbing *ahead* of replies by
-exactly two per eviction is the signature the clause is about: a controller
-that vanished without deregistering was asked twice, 250 ms apart, and shed.
-Replies climbing with no probes cannot happen — the reply tally counts only
-answers matched to a registered controller.
+`CTLR_DIAG` (0x6F4) is **STRUCTURAL ZERO**. Its source was deleted;
+this word has no replacement source. It reads `0` because nothing backs
+it, not because nothing happened. Never read it as a measurement.
+
+The departing-controller monitor (Milan v1.2 Section 5.4.5.3) lives in the
+protocol processor's `KL_aecp_notify` and `KL_aecp_ca_originator`.
+The processor exports no probe, reply or eviction count.
+The parent ties `aecp_ctlr_diag` to `32'd0`, preserving the address.
+Zero cannot establish controller presence, silence or eviction.
+The `milan_dp` timed notification leg checks this after controller traffic.
 
 Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
 10 s, random pre-probe delay 0..1023 ms (LFSR).
@@ -1442,7 +1531,7 @@ selection reads 0, which is indistinguishable from a real zero at a glance.
 | `0x820` | `A_STRMW_DMAC_HI` | RW/RO | — | DMAC `[47:32]` in `[15:0]`; talker idx 0 = **hard alias of `AAF_DMHI`**; talker idx>0: TCTX w2 |
 | `0x824` | `A_STRMW_FMT_LO` | RW | — | current stream format `[31:0]` (LCTX w2, engine-backed; talker side is AECP-owned — reads `0xDEADDEAD`, writes ignored) |
 | `0x828` | `A_STRMW_FMT_HI` | RW | — | format `[63:32]` (LCTX w3; talker side reads `0xDEADDEAD`) |
-| `0x82C` | `A_STRMW_STATE` | RO snap | `0` | Snap-latched pack. listener: `[2:0]` ACMP lsm state, `[4:3]` probing, `[9:5]` acmp_status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` SRP bits (= low 9 bits of `A_STRMW_SRP`). talker (LIVE per-stream since 0x000C — bits `[3:0]` at idx>0 were hardwired 0 before, the 2026-07-26 window-honesty fix): `[0]` probe_armed, `[1]` talker_active, `[2]` lobs, `[3]` composed admission (`aaf_stream_en[idx]`; idx 0 = `aaf_gate`), `[27:19]` SRP bits |
+| `0x82C` | `A_STRMW_STATE` | RO snap | `0` | Snap-latched pack. listener: `[2:0]` ACMP lsm state, `[4:3]` probing, `[9:5]` acmp_status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` SRP bits (= low 9 bits of `A_STRMW_SRP`). talker (LIVE per-stream since 0x000C: bits `[3:0]` at idx>0 were hardwired 0 before, the 2026-07-26 window-honesty fix): `[0]` probe_armed, `[1]` talker_active, `[2]` lobs (`A_ACMP_LOBS`, or with `LWSRP_CTRL[0]` set: at idx 0 source 0's registered Listener Ready or Ready Failed, at idx > 0 that source's ACTIVE since #530), `[3]` composed admission (`aaf_stream_en[idx]`; idx 0 = `aaf_gate`), `[27:19]` SRP bits |
 | `0x830`-`0x854` | `A_STRMW_CNT0..9` | RO snap | `0` | The 10 Milan Table 5.6 / 1722.1-2021 Table 7-157 STREAM_INPUT counters at the Table 7-157 word offsets 0..36: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP, FRAMES_RX. **Full 32-bit** — this is the authoritative width; the flat `AVTPRX_STAT`/`AVTPRX_ERR` words are saturating 8/16-bit summaries of these. Until VERSION `0x0013` the index-0 words were re-derived from those packed views and inherited their truncation (and MEDIA_RESET / LATE / EARLY_TIMESTAMP read a hard 0 while the monitor was counting them), so there was **no** full-width path anywhere. Talker contexts read `0xDEADDEAD` (the not-backed rule below). **The two Milan 1.3 5.3.8.10 additions — TIMESTAMP_VALID / TIMESTAMP_NOT_VALID (per-frame tv-bit tallies, LCTX words 26/27, `TV + TNV == FRAMES_RX`) — are NOT window-exposed** (the `0x858+` words were already claimed); they are served by AECP GET_COUNTERS at the 1722.1-2021 block offsets 24/28 under valid mask `0xFFF` (was `0xF3F`), and a bench read can fetch LCTX w26/w27 through the raw `lctx` read port if ever needed |
 | `0x858` | `A_STRMW_PDUS` | RO snap | `0` | listener: `{drops[31:16], pdus[15:0]}` (= `PCMRX_CNT` at idx 0); talker: per-stream frames_sent (idx 0 = `AAF_FRAMES`; idx>0 = the packetizer ctx FRAMES word, snap-fetched through the TCTX port) |
 | `0x85C` | `A_STRMW_SRP` | RO | — | 🔴 **STRUCTURAL ZERO at every index.** There is no lwSRP attribute-row table in this fabric any more, so the window's SRP port is never granted and this word reads 0 — including at idx 0, whose live hard alias of `LWSRP_STATUS` (`0x694`) went with the port. Read `LWSRP_STATUS` `0x694` directly instead: it carries the processor's class-D declaration/registration levels for the whole plane. Was: `{valid, dir, declared, registered, ready, failed, decl[1:0], fail_code[7:0]}` from the selected context row, with `0xDEAD` for a row above `N_CTX_P` |
@@ -1777,7 +1866,7 @@ least 65535, spent", never a rate. Time to the ceiling:
 | upstream paused, four fed pairs (the shipping 1x1x8 lane) | 65535 / 192000 per second = 0.34 s | - |
 | upstream paused, 32 fed pairs (an 8x8 elaboration with the lane) | 65535 / 1536000 per second = 43 ms | - |
 | TDM front-end clock stopped | - | 65535 / 48000 per second = 1.4 s |
-| the INTERNAL beat against a disciplined peer (one slip per 1.958 s) | 8.9 h on four pairs, 1.1 h on 32 | 35.6 h |
+| the INTERNAL beat against a disciplined peer (one slip per 1.958 s) | 8.9 h on four pairs, 1.1 h on 32 | 35.6 h at one dup per slip; sooner when a wider marker dither adds dup/skip pairs |
 
 Live RO, no arm, no snapshot (the same `>= 0x800` carve-out as `0x8F8`);
 writes land nowhere. Read twice and difference for a rate while both halves are
@@ -1813,10 +1902,31 @@ un-armed fails `obj_prune` instead of passing it.
 `SLIP_TDM` counts on every shape with a physical capture front end, but only
 once the first frame has been seen: a front end that never frames (a TDM slave
 with no codec clock) reads 0 like an aligned one, so a `SLIP_TDM` zero is
-evidence only beside proof that the front end frames. A non-zero `SLIP_TDM`
-dup count beside a healthy align-loop phase error can be the detector's known
-coincidence chatter (the `KL_chan_map_capture` banner): false-alarm direction
-only, never a hidden slip.
+evidence only beside proof that the front end frames. A frame marker and a
+media tick in the same cycle count nothing: the tick takes the marker already
+pending, if there is one, and the coincident marker pends in its place. From
+the first frame on and below the ceiling, dups minus skips therefore follows
+ticks minus frame markers to within the one pending marker, so the NET count
+is the slip count: +1 per slow free-running passage across the tick, -1 per
+fast one. Each half alone counts once per passage while the marker dithers
+between two adjacent cycles on its way across, which is what
+`tb/verilator/media_grid_align` [G9] grades (one dup slow, one skip fast, no
+delivery jitter). A wider dither on the way through, such as the one edge of
+marker delivery jitter that suite models for the root's capture FIFO, adds
+balanced dup/skip pairs: both halves climb, and only their difference is the
+slip. Before #74 item 2 that coincidence dropped the pending marker: a marker
+dithering across the tick counted about a dozen dups per slip, read a
+skip-direction slip as dups, and a CRF lock parked with the marker on the tick
+chattered thousands of dups per 0.2 s. Under a CRF selection the align loop
+now also clamps the engagement capture that becomes its lock target into
+[`LOCK_KEEPOFF_CYC_P`, `DIV_C - LOCK_KEEPOFF_CYC_P`] cycles after the tick
+(`KL_media_grid_align`; the default keep-off is `DIV_C/128`, 16 cycles at
+100 MHz, just under 1/128 sample). The marker then dithers around that target,
+so its clearance from every tick at lock is the keep-off less the lock's own
+dither and the delivery jitter: [G7] and [G8], engaged on the tick and just
+before it with one edge of delivery jitter, grade that clearance at 12 cycles
+or more and count no dup and no skip over their lock windows, and at the [G7]
+lock a held frame is exactly one dup and a surplus frame exactly one skip.
 
 **Reading them** (the lane established, a loopback pair fed and mapped, the
 listener bound, both halves below `0xFFFF`; the INTERNAL rates assume the
@@ -1826,7 +1936,7 @@ upstream talker runs at the physical grid's rate, the disciplined peer
 | `SLIP_LB` | `SLIP_TDM` | verdict |
 |---|---|---|
 | static | static | one grid: the packet grid follows the selected source and the upstream talker rides the same media clock |
-| dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups climbing 0.51/s | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
+| dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups minus skips climbing 0.51/s (dups alone at 0.51/s while the marker dithers over two adjacent cycles; a wider dither adds skips and as many extra dups) | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
 | climbing | static | our own front end is aligned but the upstream talker's clock is not this media clock: look at the peer's clock source |
 | `0xFFFF` in either half | any | the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the present rate; a saturated word is not evidence of one grid. Reset to re-arm, then read again; a bind wipe un-primes the pair but does not clear the word |
 
@@ -1860,7 +1970,7 @@ on merge; `0x8FC` next to it holds the servo control knobs.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[15:9]` reserved 0, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only when the stored `clock_source` selects this shape's CRF descriptor (the generated `AEM_CRF_CLKSRC_C`); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
+| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[9]` reserved 0, `[15:10]` discarded rate windows, saturating at 63: a window whose error exceeds 1024 ppm, or one a PHC step landed in (#539; cleared in IDLE), `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only when the stored `clock_source` selects this shape's CRF descriptor (the generated `AEM_CRF_CLKSRC_C`); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
 | `0x8FC` | `MCSRV_CTRL` | RW | `0` | `[0]` ps_invert: flips the servo fine-PS direction mapping (bench sign knob - 2026-07-23 mf51 silicon stepped opposite the UG472 reading and rails went 25x worse under the servo; settle the polarity on silicon via this bit, then bake the winner as the RTL default); `[1]` auto_repair: 1 = allow the DRP divider repair path (a `[4]` mismatch triggers the full reset-sequenced read-modify-write reprogram), default 0 = verify-only (bench-gated). NOTE both 0x8F8/0x8FC needed the rd_in_window >=0x800 carve-out - 0x8F8 read 0 on every build before 2026-07-23 |
 
 ### 0x900  -  channel-map fabric  `([Section 6 of docs/CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md#6-csr-window-0x900-0x97f-debug-and-override), KL_chan_map_render / KL_chan_map_capture)`
@@ -2071,7 +2181,7 @@ another.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x920` | `PP_CTRL` | RW | `0` | `[0]` **entity enable**, ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane. `[1]` `restore_go`: start the NVM boot-restore walk against the saved-state backing store (`KL_nvm_backend` behind the processor's NVM device face, [design page](../design/SAVED_STATE_FASTCONNECT.md) sections 4, 8 and 9). Until firmware has configured AND validated a record image through `PP_NVM_SEL`/`PP_NVM_DATA` the face answers blank flash (reads `0xFF`, writes accepted and discarded, erase completes), so the walk completes with **zero records** and `restore_fail` set. **Validate the image first, then set this bit**: the verdict is latched per walk, and validating afterwards restores nothing |
+| `0x920` | `PP_CTRL` | RW | `0` | `[0]` **entity enable**, ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane. `[1]` `restore_go`: start the NVM boot-restore walk against the saved-state backing store (`KL_nvm_backend` behind the processor's NVM device face, [design page](../design/SAVED_STATE_FASTCONNECT.md) sections 4, 8 and 9). Until firmware has configured AND validated a record image through `PP_NVM_SEL`/`PP_NVM_DATA` the face answers blank flash (reads `0xFF`, writes accepted and discarded, erase completes), so the walk completes with **zero records** and `restore_fail` set. **Validate the image first, then set this bit**: the verdict is latched per walk, and validating afterwards restores nothing. **Set it on every boot** (processor pin `a8f8ce81`, its issue 92): the processor holds its ACMP listener from reset until the walk ends, so a boot that never sets it never answers an ACMP listener command. A device face that never answers ends the walk at `NVM_RS_TMO_CYC_P`, 20 ms at the default clock, with `restore_fail` set |
 | `0x924` | `PP_STAT` | RO | `0x5B00_0000` | `[0]` `sp_busy`, a side-port access is outstanding, `[1]` `restore_busy`, `[2]` `restore_done`, the boot walk **sequenced**, which is not the same as succeeded, `[3]` `restore_fail`, `[4]` `nvm_alarm`, `[5]` `sp_err`, the last side-port access returned an error, `[6]` `nvm_backed`, **live fabric evidence, never a knob**: a writer heartbeat or completed transaction answered within `T-NVM-WRITER-ALIVE` (2000 ms) and no unrevoked failure is outstanding (design page 9.2), `[7]` `nvm_blank`, the completed walk validated **zero** records, `[8]` `nvm_dirty`, the image holds committed changes no flash slot yet holds, `[9]` `nvm_stale`, `nvm_backed` was true since reset and is now false and the loss has not been made good, `[10]` `nvm_img_valid`, firmware validated the image in the window, `[11]` `nvm_pend`, **accepted work that no verified slot holds and `nvm_dirty` does not report**: a change the producer still holds, a record whose logical write has not completed, or -- from reset until the boot window load is accepted -- every record, because none is known yet. The durable reading of design page 9.3 is therefore `(backed 1, dirty 0, stale 0)` **and this bit `0`** (snapshot-ownership page 6.1), `[15:12]` `nvm_verdict`, the section 6.2 verdict code of the last image offered, `[31:24]` **constant presence tag `0x5B`**. A read of `0` here means the gateware predates the group |
 | `0x928` | `PP_SPADDR` | RW | `0` | `[19:0]` side-port **word** address. **A write here POSTS A READ** at that address (ignored while `sp_busy`); the answer lands in `PP_SPDATA`. Readback = the armed address |
 | `0x92C` | `PP_SPDATA` | RW | `0` | **Read**: the data of the last posted read. **Write**: posts a side-port WRITE of this value to the address already in `PP_SPADDR` (ignored while `sp_busy`) |

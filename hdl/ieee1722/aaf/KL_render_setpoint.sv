@@ -79,12 +79,14 @@
                 drift does (INTERNAL free-run: slips accepted, at a band).
 
                 RECENTRE (task #22 applied to this path): recentre_p_i (the
-                integration's set: a GM identity change, a PHC step, a
-                clock-source change once its grid settled) arms a pending
-                flag; the NEXT PDU end consumes it as the prefill snap (or a
-                prefill entry when the queue is short) and counts it ONCE in
-                recentres_o. Nothing walks the fill back at a residual rate.
-                A stream in prefill ignores the pulse (nothing to recentre).
+                integration's set since #387: a PHC step, and a clock-source
+                change once its grid settled; a GM identity change is no
+                trigger of its own - a change that steps the PHC arrives
+                here as that step, once) arms a pending flag; the NEXT PDU
+                end consumes it as the prefill snap (or a prefill entry when
+                the queue is short) and counts it ONCE in recentres_o.
+                Nothing walks the fill back at a residual rate. A stream in
+                prefill ignores the pulse (nothing to recentre).
 
                 UNDERRUN (a tick finds the queue empty): counted once, the
                 stream re-enters prefill; the crossbar holds its last event.
@@ -115,7 +117,8 @@
 
 //! Render setpoint stage: per-stream elastic queue of media events whose
 //! fill is the constant accept-to-render latency (SETPOINT_EVT_P), prefilled
-//! to it, band-observed at every PDU end, re-centred once on a GM/PHC step;
+//! to it, band-observed at every PDU end, re-centred once on a PHC step or
+//! a settled clock-source change;
 //! pops one event per stream per media tick into the render crossbar as
 //! clone-format beats and hands the crossbar a delayed render tick.
 
@@ -164,10 +167,11 @@ module KL_render_setpoint #(
                                                  //! (a tick on the edge a
                                                  //! queued tick starts is
                                                  //! not queued again)
-  input  wire                      recentre_p_i, //! one-cycle: GM identity
-                                                 //! change, PHC step or a
-                                                 //! settled clock-source
-                                                 //! change
+  input  wire                      recentre_p_i, //! one-cycle: a PHC step or
+                                                 //! a settled clock-source
+                                                 //! change (#387: a GM
+                                                 //! identity change is no
+                                                 //! trigger of its own)
   input  wire [N_STREAMS_P-1:0]    flush_i,      //! one-cycle per stream:
                                                  //! bind loss, empty it
 

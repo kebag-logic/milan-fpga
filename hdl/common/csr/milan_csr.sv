@@ -306,10 +306,10 @@ module milan_csr #(
   input  wire [31:0]             i_acmpl_dbg,         //! listener walker forensics (RO 0x6E8)
   input  wire [31:0]             i_avtprx_tsd,        //! last accepted ts_delta (RO 0x6EC)
   input  wire [31:0]             i_i2spb_dbg,         //! DAC serial forensics (RO 0x6F0)
-  //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3), RO 0x6F4:
-  //! {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
-  //!  CONTROLLER_AVAILABLE probes sent[11:0]} — three free-running wrapping
-  //! tallies, no state field (the two that climb fastest get 12 bits each)
+  //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO in milan_datapath (#548).
+  //! The deleted local monitor's counters have no replacement CSR source.
+  //! The processor owns departing-controller detection (Milan 5.4.5.3),
+  //! but exports no probe, reply or eviction count. Zero is no measurement.
   input  wire [31:0]             i_ctlr_diag,
   output wire [7:0]              o_adp_gptp_domain,   //! gptp_domain_number (ADP_DOMAIN[7:0])
   output wire [15:0]             o_adp_current_config,//! current_configuration_index (ADP_IDX0[15:0])
@@ -758,9 +758,11 @@ module milan_csr #(
     A_ACMPL_DBG   = 'h6E8,   //! RO live: listener walker forensics {classify_cnt, fc_cnt, fc_flags, base_hits}
     A_AVTPRX_TSD  = 'h6EC,   //! RO live: signed ts_delta at last accepted PDU (stream-sync error signal)
     A_I2SPB_DBG   = 'h6F0,   //! RO live: exact 32 serial bits of the last LEFT half-frame at the DAC pin
-    //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3). RO live,
-    //! one word: {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
-    //! CONTROLLER_AVAILABLE probes sent[11:0]}. All three wrap.
+    //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO (#548).
+    //! Reads 0 because the local counter source was deleted.
+    //! The processor owns the departing-controller monitor (Milan 5.4.5.3)
+    //! but exports no replacement count. The address is kept for the ABI.
+    //! Zero is no measurement.
     //! 0x6F8 and 0x6FC are the LAST free words of this group — reserved, do
     //! not guess at them without checking here first.
     A_CTLR_DIAG   = 'h6F4,
@@ -2395,11 +2397,11 @@ module milan_csr #(
       A_CHMAP_SNAP: live_mux = chmap_snap_rd_w;
       A_CHMAP_LOOP: live_mux = chmap_loop_rd_w;
       A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
-      //! gh #59: probes sent / replies seen / controllers shed. All three
-      //! climb together on a healthy bench (each probe is answered); a
-      //! climbing eviction count with a static reply count is a controller
-      //! that died without deregistering, which is the whole point of
-      //! Milan 5.4.5.3.
+      //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO (#548).
+      //! Reads 0 because the local counter source was deleted.
+      //! The processor owns the departing-controller monitor (Milan 5.4.5.3)
+      //! but exports no replacement count. The address is kept for the ABI.
+      //! Zero is no measurement.
       A_CTLR_DIAG:  live_mux = i_ctlr_diag;
       //! E1 commit readback: {busy, done, 20'0, status, 4'0, idx}
       A_REST_CMD:   live_mux = {rest_pend_r, rest_done_r, 20'd0,

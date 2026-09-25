@@ -7,7 +7,7 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 ## Contents
 
 - **[1. HDL house style (Cemal Dogan / Oguz Kahraman school)](#1-hdl-house-style-cemal-dogan--oguz-kahraman-school)** -- The naming, reset and banner conventions a new `.sv` file must follow, ending in the CDC rule that cost us the 07-24 link-guard deadlock: clock-liveness observers must be `reset_less`.
-- **[2. Workflow](#2-workflow)** -- The issue-to-merge lane: an issue moves to *In progress*, a branch is cut **from the issue**, the work lands on it, a PR opens, review runs as **multiple agents with cleared context**, and only then does it merge back to `dev`. Plus one lane = one worktree, one-line commits, and two traps with history: `cp -r` (never symlink) `third_party/` into a worktree, and rebuild `LAYOUTS` merges semantically rather than by marker-union.
+- **[2. Workflow](#2-workflow)** -- The issue-to-merge lane: an issue moves to *In progress*, a branch is cut **from the issue**, the work lands on it, a PR opens, review runs as **multiple agents with cleared context**, and only then does it merge back to `dev`. Plus one lane = one worktree, one-line commits, and two traps with history: never symlink or copy a submodule into a worktree (initialise it at its pin), and rebuild `LAYOUTS` merges semantically rather than by marker-union.
 - **[3. Verification bar](#3-verification-bar)** -- What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a ratcheted `scripts/lint_rtl.py --check` that fails on any new lint violation, a justification for every `lint_off`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
 - **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** -- Three rules paid for on hardware: ≥ 8 min AX boot probes, dump a QSPI slot before overwriting it, and regenerate every window map from `csr.csv` on any gateware block-set change.
 - **[5. Code quality](#5-code-quality)** -- The numbered cross-language maintainability contract: the Boy Scout rule that keeps cleanup out of functional changes, and the rules that give each cleanup wording, examples, exceptions and a measurement instead of a taste argument.
@@ -205,6 +205,96 @@ flowchart LR
    the release that added `git patch-id --verbatim`; an older Git is refused
    by name before any verdict, and so is the script's self-test.
 
+   Ancestry and linear replay prove historical landing.
+   Later reversions do not revoke those existing proofs.
+   Their `contained` diagnostics explicitly identify that historical claim.
+   Exact path equality instead proves the current net-changed entries.
+   A net-zero verdict proves only an empty source delta.
+
+   [Issue #514's decision](https://github.com/kebag-logic/milan-fpga/issues/514#issuecomment-5789750055)
+   adds an optional, separate linear retention check:
+
+   ```bash
+   python3 scripts/check_merge_containment.py --current-retention origin/<branch>
+   python3 scripts/check_merge_containment.py --current-retention --merged-prs
+   ```
+
+   Each successful landing verdict keeps its own `contained` line.
+   The option adds `retained` or `UNKNOWN` for current retention.
+   It requires a nonempty, source-only linear range with exact replays.
+   H and T below supply the replay and retention criteria.
+   This optional arm excludes ancestry-only, squash-only and merge-shaped proofs.
+   Empty net deltas also remain unmeasurable by this arm.
+   These exclusions never revoke the separate default landing verdict.
+   Unsupported or unmeasurable retention reports `UNKNOWN`, exit 1.
+   Any unresolved target makes the optional command exit 1.
+   Without the option, existing verdicts and exits remain unchanged.
+
+   | Later change after exact linear replay | Historical inclusion | Optional current retention |
+   |---|---|---|
+   | Exact or partial reversion | Still proved | `UNKNOWN` for lost source changes |
+   | Non-overlapping extension | Still proved | `retained` when T succeeds |
+   | Intentional supersession or overlapping extension | Still proved | `UNKNOWN` when T fails |
+   | Mode change | Still proved | Apply T's mode rule |
+   | File-kind change | Still proved | Require exact entry identity |
+   | Binary change or failed object measurement | Still proved | `UNKNOWN` when T is unmeasurable |
+
+   Intentional supersession needs a separate public disposition.
+   Commit messages and declared intent never prove retained bytes.
+   A retention refusal does not itself establish an accidental regression.
+   The default self-test exercises these examples and killing mutations.
+
+   [Issue #423's decision](https://github.com/kebag-logic/milan-fpga/issues/423#issuecomment-5777210218)
+   adds one final fallback after every existing arm declines:
+
+   - **G1, exact shape:** exactly one source-only merge, two ordered parents.
+     The second parent's sole parent must be the first.
+     The merge tree must equal the second parent's tree.
+     Additional merges, distant parents, octopus and resolution work remain excluded.
+   - **H, historical replay:** every non-merge source commit needs a distinct replay.
+     Existing whitespace-exact patch identities and touched-path postimages must match.
+   - **T, current retention:** require exactly one merge base.
+     Examine raw entries on the source's net-changed paths, unfolding renames.
+     Identity requires matching mode, kind and object ID, including absence.
+     Otherwise, tip and source must both be regular blobs.
+     The ancestor must be absent or a regular blob.
+     Regular modes are `100644` and `100755`.
+     Tip mode must equal source mode.
+     Alternatively, source mode must equal ancestor mode.
+     Raw three-way merge must finish without conflicts.
+     Its output must equal tip bytes exactly.
+     Attributes, drivers, textconv and normalization provide no proof.
+     Symlinks, gitlinks and other types require exact tip/source identity.
+
+   G1/H rejection preserves the existing verdict.
+   In that fallback, historical replay without T reports `UNKNOWN`.
+   It names unproved current paths.
+   Measurement failures also remain `UNKNOWN`; neither result clears containment.
+   Exit codes remain 0/1/2, plus self-test cleanup status 3.
+   Actual gPTP processor PR62 and published adjacent extension remain unresolved.
+   This arm cannot prove arbitrary later semantic rewrites preserve work.
+   Repeated-block controls provide bounded evidence, without a general alignment proof.
+   The default self-test owns these controls and guard mutations.
+   Git filenames and patches reach Git again as their original bytes.
+   Other Git output that does not re-encode exactly counts as a failed command.
+   Diagnostics quote filenames as ASCII byte literals in every locale.
+   An in-process Big5 codec exercises this transport on every host.
+   Big5 is not injective: it re-encodes `a1 fe` as `a2 41`.
+   Fresh processes repeat it under UTF-8 mode, ASCII, Latin-1 and Big5.
+   A fifth uses a strict UTF-8 locale; each prints a report through a real stdout.
+   Latin-1, Big5 and strict UTF-8 use installed data or a disposable `localedef` output.
+   Missing locale support is reported as `NOT RUN`.
+   That notice supplies no validation evidence for that encoding.
+
+   Reproduce the decision's patch hashes from exact raw diffs:
+
+   ```bash
+   git diff --no-ext-diff --no-textconv --no-renames <parent> <commit>
+   ```
+
+   Hash those output bytes with SHA-256.
+   The decision records both original/replay pairs and their hashes.
+
    It exits non-zero and names the count when commits are left behind. Replayed
    against the two merge points in step 6 it reports **3** stranded commits for
    #77 and **4** for #86 - the latter is 3 as of that merge plus the one pushed
@@ -285,9 +375,11 @@ Two board rules that go with it:
 ### 2.2 Lanes and traps
 
 - **One lane = one worktree = one branch = one PR** (`~/milan-avb-multiwork`
-  pattern). Copy (`cp -r`), never symlink, `third_party/` into a worktree —
-  a symlink escapes to the main repo and builds silently stale RTL; then
-  delete the copied submodule's `.git` file.
+  pattern). Never symlink `third_party/` or a processor into a worktree: a
+  symlink escapes to the main repo and builds silently stale RTL. Never copy
+  one in either: a copied tree without its submodule `.git` has no pin anyone
+  can verify, and the gates that prove pins refuse it. Initialise the pinned
+  submodules instead, as the next rule says.
 - **A fresh worktree inherits no submodules, and the honest local bar needs
   three of them.** `git worktree add` does not initialise submodules, so before
   any local gate run, in one command:
@@ -299,7 +391,9 @@ Two board rules that go with it:
   same way -- but against the **gitlink** and then against the pinned **bytes**,
   so a standalone clone dropped at the path, a checkout moved off the pin, and a
   local edit the index has been told to keep quiet about are all refused, not
-  counted. Lint now REFUSES (exit 2, not the
+  counted. The gPTP shadow mutation campaign proves its gPTP processor and
+  axis inputs against their gitlinks and pinned blobs too, and refuses a copied
+  or off-pin tree. Lint now REFUSES (exit 2, not the
   ratchet-tighten exit 1) rather
   than under-count when one is absent (#186): a count over an incomplete
   resolution set drops findings and would invite a tighten to a number the real
@@ -512,6 +606,61 @@ copy of a Contents block written inside a fence, an indented code block, an
 HTML comment or a raw HTML block is judged whole: nothing renders it as
 navigation, and the generator did not write it. Existing pages are not
 rewritten for this rule.
+
+Which headings a page has, and which lines are navigation, is the answer of
+the renderer GitHub uses, not of a reader this repository keeps. `gen_toc.py`
+parses the page with cmark-gfm through the `cmarkgfm` binding and parses the
+HTML it emits with html5lib, both pinned with hashes in
+[`tools/markdown/requirements.txt`](tools/markdown/requirements.txt) (#437,
+#516). A heading is listed only when it survives both stages. So a heading
+inside a fence, a raw HTML block or a comment authorises no label, and neither
+does one that a raw `<!--`, an open attribute value or a `<select>` hides. A
+setext heading and a heading inside a list item, a block quote or a referenced
+footnote are listed, and their anchors follow the same rule as every other
+heading's. An ATX heading's label is still read off its own line, so every
+existing label is unchanged. A setext heading's label is its rendered text.
+Install the lock before running the gate or the generator
+(`python3 -m pip install --require-hashes -r tools/markdown/requirements.txt`).
+Both refuse to answer without it, and both refuse any other release.
+[`scripts/gen_toc_shapes.json`](scripts/gen_toc_shapes.json) records GitHub's
+rendering of every page #437 and #516 were judged on, and the self-test
+compares the renderer with each one. Its file-view pages also carry GitHub's
+anchors, and on each the self-test requires every heading listed, label and
+anchor, to be one GitHub shows.
+
+Four limits remain, and each one withholds a heading; none can grant an
+exemption:
+
+- A heading written as raw HTML (`<h2>`) is not listed, although GitHub
+  renders it.
+- The renderer marks its own elements with a position attribute, and a page
+  could make the HTML parse read that attribute on an element of its own.
+  Raw HTML can spell it in any letter case, and text can spell it through a
+  character reference or a backslash escape. So a page is read as rendering
+  nothing when its HTML, rendered without positions as GitHub renders it,
+  spells the attribute in any letter case. A page whose own text spells it,
+  in any letter case, is also refused by name, as a page carrying a refused
+  character is: the generator leaves it alone and the gate exempts nothing
+  on it.
+- A page whose HTML nests an element more than 200 deep is read as rendering
+  nothing. Where GitHub nests an element 256 deep, that element's content and
+  everything after it are lost, and the pinned renderer loses nothing. No
+  tracked page nests an element deeper than 8.
+- GitHub opens a referenced footnote's section with a visually hidden
+  `Footnotes` heading that the pinned cmark-gfm does not emit, so no such
+  heading is listed. Of the recorded `gfm` renderings, this is the one the
+  renderer does not reproduce.
+
+The recorded renderings are the Markdown API's `gfm` mode, which #437 names.
+GitHub renders a repository file through the API's `markdown` mode, and that
+mode reads some raw HTML differently. Measured on 2026-09-23 over the 352
+pages then recorded and 700 generated ones, it differed from the renderer on 8,
+each involving a processing instruction (`<?`), a `<select>` or an `<xmp>`.
+On 2 the renderer lists headings after a processing instruction that carries
+a `<!--`, which a file view hides: an escape. On 4 it hides headings after a
+`<select>`, an `<xmp>` or an unclosed processing instruction that a file view
+shows: withholding. On 2 a heading carrying a processing instruction reads
+differently. No tracked page carries any of the three as raw HTML.
 The gate judges the lines a change ADDS, never the tree, so a page that
 carries the character keeps it until a change touches those lines.
 

@@ -1,0 +1,244 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""Disposable handshake fixtures for the two production verification drivers."""
+
+import hashlib
+import json
+import os
+import shutil
+import signal
+import subprocess
+import sys
+import time
+from collections.abc import Callable
+from pathlib import Path
+
+PROC = Path("/proc")
+ROOT = Path(__file__).resolve().parent.parent
+
+# A command publishes readiness only after its detached, stubborn child has
+# installed both handlers. The release file, never a delay, controls progress.
+WORKER = r'''
+import hashlib, json, os, signal, subprocess, sys, time
+from pathlib import Path
+control = Path(os.environ["PROBE_CONTROL"])
+if sys.argv[1:] == ["child"]:
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    (control / "child-ready").write_text(str(os.getpid()))
+    while True:
+        time.sleep(0.02)
+child = subprocess.Popen([sys.executable, __file__, "child"], start_new_session=True)
+deadline = time.monotonic() + 10
+while not (control / "child-ready").exists():
+    assert time.monotonic() < deadline, "child handshake missing"
+    time.sleep(0.01)
+data = {"pid": os.getpid(), "child": child.pid, "cwd": str(Path.cwd())}
+if (control / "mutation.json").exists():
+    catalog = json.loads((control / "mutation.json").read_text())
+    root = Path.cwd().parents[2]
+    data["mutations"] = [row["name"] for row in catalog
+                         if hashlib.sha256((root / row["path"]).read_bytes()).hexdigest() == row["hash"]]
+    data["private"] = str(root)
+    # Write copied inputs of both required dependencies, including modes. A
+    # link back to the caller would corrupt the independently measured snapshot.
+    for name in json.loads((control / "private-writes.json").read_text()):
+        target = root / name
+        target.write_text("private dependency write\n")
+        target.chmod(0o700)
+(control / "ready.tmp").write_text(json.dumps(data))
+(control / "ready.tmp").replace(control / "ready.json")
+print("PARTIAL: owned command reached handshake", flush=True)
+while not (control / "release").exists():
+    time.sleep(0.02)
+'''
+
+
+#: Loaded through PYTHONPATH by a production entry point under test. It removes
+#: one process facility, as on a host that lacks it, before that entry runs.
+FACILITY_SITE = r'''
+import ctypes, os, signal
+mode = os.environ.get("PROBE_FACILITY")
+if mode == "no-prctl":
+    class _NoPrctl:
+        """A C library without prctl, as on a host that lacks it."""
+    ctypes.CDLL = lambda *args, **kwargs: _NoPrctl()
+elif mode == "prctl-fails":
+    class _FailingPrctl:
+        """A prctl that refuses every option."""
+        @staticmethod
+        def prctl(*args):
+            return -1
+    ctypes.CDLL = lambda *args, **kwargs: _FailingPrctl()
+elif mode == "no-pidfd-open":
+    del os.pidfd_open
+elif mode == "no-pidfd-signal":
+    del signal.pidfd_send_signal
+'''
+FACILITY_MODES = ("no-prctl", "prctl-fails", "no-pidfd-open", "no-pidfd-signal")
+
+
+def git(root: Path, *args: str) -> bytes:
+    """Run fixture-only Git without caller Git redirection or index refresh.
+
+    Only standard output is returned: a Git warning is never fixture data.
+    """
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    return subprocess.run(["git", "--no-optional-locks", "-C", str(root), *args],
+                          env=env, capture_output=True, check=True).stdout
+
+
+def commit(root: Path) -> None:
+    """Commit only a disposable fixture tree."""
+    git(root, "add", "-A")
+    git(root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+        "commit", "-qm", "Disposable verification fixture")
+
+
+def install(root: Path, relative: str) -> None:
+    """Copy a production file into a disposable fixture without links."""
+    target = root / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / relative, target)
+
+
+def write(path: Path, text: str, executable: bool = False) -> None:
+    """Create one fixture input with explicit permissions."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text)
+    path.chmod(0o755 if executable else 0o644)
+
+
+def identity(pid: int) -> tuple[str, str] | None:
+    """Observe start time and state independently of the production census."""
+    try:
+        fields = (PROC / str(pid) / "stat").read_text().rsplit(")", 1)[1].split()
+        return fields[19], fields[0]
+    except (FileNotFoundError, ProcessLookupError):
+        return None
+
+
+def parent(pid: int) -> int | None:
+    """Observe the current parent of a process, or None once it is gone."""
+    try:
+        return int((PROC / str(pid) / "stat").read_text().rsplit(")", 1)[1].split()[1])
+    except (FileNotFoundError, ProcessLookupError):
+        return None
+
+
+def running(pid: int, start: str) -> bool:
+    """Is this exact identity still executing (neither gone nor a zombie)?"""
+    current = identity(pid)
+    return current is not None and current[0] == start and current[1] != "Z"
+
+
+def eventually(condition: Callable[[], bool], seconds: float, what: str) -> None:
+    """Wait for an observable condition; the deadline only bounds a failure."""
+    deadline = time.monotonic() + seconds
+    while not condition():
+        assert time.monotonic() < deadline, what
+        time.sleep(0.02)
+
+
+def snapshot(root: Path) -> dict:
+    """Record tracked bytes, kinds, full modes and index, recursively at pins."""
+    indexed = git(root, "ls-files", "--stage", "-z")
+    result = {"index": indexed.hex(), "files": {}}
+    for row in indexed.split(b"\0"):
+        if not row:
+            continue
+        metadata, raw_name = row.split(b"\t", 1)
+        name = os.fsdecode(raw_name)
+        path = root / name
+        if metadata.startswith(b"160000"):
+            # A gitlink with no checkout of its own would otherwise read the
+            # superproject again; record that state instead.
+            result["files"][name] = snapshot(path) if (path / ".git").exists() else ["no checkout"]
+            continue
+        if not path.exists() and not path.is_symlink():
+            result["files"][name] = ["absent"]
+            continue
+        info = path.lstat()
+        data = os.readlink(path).encode() if path.is_symlink() else path.read_bytes()
+        result["files"][name] = [info.st_mode, hashlib.sha256(data).hexdigest()]
+    return result
+
+
+class Probe:
+    """Run a driver in its own session and retain its original transcripts."""
+
+    def __init__(self, root: Path, label: str) -> None:
+        self.root = root
+        self.label = label
+        self.control = root.parent / (label + "-control")
+        self.control.mkdir()
+        self.env = {key: value for key, value in os.environ.items()
+                    if not key.startswith("GIT_")}
+        self.env.update(PROBE_CONTROL=str(self.control), PYTHONDONTWRITEBYTECODE="1",
+                        TMPDIR=str(self.control))
+        write(self.control / "worker.py", WORKER)
+        self.process = None
+
+    def start(self, argv: list[str], cwd: Path | None = None) -> None:
+        """Launch a production driver; keep output even if its assertion fails."""
+        with (self.control / "driver.log").open("wb") as output:
+            self.process = subprocess.Popen(argv, cwd=cwd or self.root, env=self.env,
+                                            start_new_session=True, stdout=output,
+                                            stderr=subprocess.STDOUT)
+
+    def ready(self) -> dict:
+        """Wait for a published boundary, refusing premature driver exit."""
+        deadline = time.monotonic() + 15
+        while time.monotonic() < deadline:
+            path = self.control / "ready.json"
+            if path.exists():
+                data = json.loads(path.read_text())
+                data["identities"] = {str(pid): identity(pid)
+                                      for pid in (data["pid"], data["child"])}
+                assert all(data["identities"].values()), data
+                return data
+            assert self.process.poll() is None, self.log()
+            time.sleep(0.01)
+        raise AssertionError(f"{self.label}: missing boundary: {self.log()}")
+
+    def signal(self, signum: int) -> None:
+        """Signal the unreaped driver through a stable identity handle."""
+        fd = os.pidfd_open(self.process.pid)
+        try:
+            signal.pidfd_send_signal(fd, signum)
+        finally:
+            os.close(fd)
+
+    def finish(self) -> tuple[int, str]:
+        """Read the exact exit and transcript after bounded driver completion."""
+        status = self.process.wait(timeout=12)
+        self._retain(dict(raw_exit=status))
+        return status, self.log()
+
+    def log(self) -> str:
+        """Return the unfiltered driver transcript."""
+        return (self.control / "driver.log").read_text()
+
+    def save(self, evidence: dict) -> None:
+        """Print attributable identities; optionally retain every raw fixture log."""
+        print(self.label + ": " + json.dumps(evidence, sort_keys=True), flush=True)
+        self._retain(evidence)
+
+    def _retain(self, evidence):
+        destination = self.env.get("VERIFICATION_TEST_LOGS")
+        if destination:
+            target = Path(destination) / self.label
+            target.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(self.control / "driver.log", target / "driver.log")
+            (target / "evidence.json").write_text(json.dumps(evidence, indent=2) + "\n")
+            logs = self.root / "logs"
+            if logs.exists():
+                shutil.copytree(logs, target / "suite-logs", dirs_exist_ok=True)
+
+
+def assert_reaped(data: dict) -> None:
+    """Require gone identities, rejecting both live and unreaped zombie state."""
+    for pid, previous in data["identities"].items():
+        current = identity(int(pid))
+        assert current is None or current[0] != previous[0], (pid, previous, current)

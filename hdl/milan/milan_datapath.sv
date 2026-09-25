@@ -1503,9 +1503,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! local mapping writer and the CSR status mux.
   wire                     aecp_locked;
   wire [15:0]              aecp_current_config, aecp_cmd_count, aecp_resp_count;
-  //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3), CSR 0x6F4
-  //! A_CTLR_DIAG: {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
-  //! CONTROLLER_AVAILABLE probes sent[11:0]}
+  //! CTLR_DIAG (0x6F4): STRUCTURAL ZERO, retained for the CSR ABI (#548).
+  //! Departing-controller detection lives in the processor's KL_aecp_notify
+  //! and KL_aecp_ca_originator; no probe, reply or eviction count is exported.
   wire [31:0]              aecp_ctlr_diag;
   //! ACMP stateless responder (KL_acmp_responder) — response AXIS + counters.
   wire [15:0]              acmp_cmd_count, acmp_resp_count;
@@ -1623,8 +1623,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  t -> row (L-1)+t, so the CRF talker at t = N_STREAMS lands on row
   //  (N_STREAMS-1) + N_STREAMS = 2*N_STREAMS-1, one past the AAF talkers,
   //  and the table needs L+T-1 = 2*N_STREAMS rows. Widening N_TALKERS_P by
-  //  one is what puts the CRF stream's slope into the bw-gate's Sigma - the
-  //  class A queue must budget for the media clock like any other stream.
+  //  one put the CRF stream's slope into the deleted bw-gate's Sigma. Today
+  //  the processor's Sigma (LWSRP_SLOPE 0x698) counts it once admitted, and no
+  //  shaper reads that Sigma (the SRP block below).
   //
   //  Only when this shape HAS a CRF Media Clock Output (ACMP_SRC_C >
   //  N_STREAMS, the same condition as g_acmp_crf_src). Configs without one
@@ -1644,10 +1645,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam int SRP_CRFSNK_C      = (ADP_LISTENER_SINK_C > N_STREAMS) ? 1 : 0;
   localparam int SRP_CRFSNK_ROW_C  = SRP_LSN0_ROW_C + 1;
   localparam int SRP_CRFSNK_SLOT_C = SRP_LSN0_SLOT_C + 1;
-  //! per-stream admission gates from the bw-gate ([0] = legacy CSR row,
-  //! [t] = ctx-table talker rows - the P5 vector, plumbed in the P12
-  //! follow-up); the flat CSR status keeps bit 0 only. The top slot is the
-  //! CRF Media Clock Output when this shape has one.
+  //! per-source streaming licence: the processor's ACTIVE vector (#530, see
+  //! the SRP block below), one bit per Stream Output; the flat CSR status
+  //! keeps bit 0 only. The top slot is the CRF Media Clock Output when this
+  //! shape has one.
   wire [SRP_TALKERS_C-1:0] lwsrp_stream_gate;
   //! the per-TALKER "registering a Listener Asking Failed attribute" vector
   //! (gh #56 A2: -> ACMP REGISTERING_FAILED) that used to be declared here
@@ -1727,6 +1728,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [7:0]  avtprx_b3;
   wire [63:0] avtprx_sid_frame, avtprx_fsh2;
   wire signed [31:0] crf_delta_w, crf_rate_w;
+  wire crf_rate_valid_w;
   //! public_flat_rd: [31:16] is the servo's signed 1/16 ppm trim, and it is
   //! the INPUT to the NCO conversion below. A harness that cannot see it
   //! cannot tell "the gate held the trim at zero" from "the servo was idle
@@ -1793,11 +1795,16 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] crf_pducnt_w;
   wire [31:0] crf_fmterr_w, crf_seqerr_w;
   wire        crf_locked_w;
+  //! ...and the seven with no CSR slice. Their one reader is the
+  //! GET_COUNTERS row for STREAM_INPUT N_STREAMS (#529), which serves all ten
+  wire [31:0] crf_lockcnt_w, crf_unlockcnt_w, crf_intrcnt_w;
+  wire [31:0] crf_mrcnt_w, crf_tucnt_w, crf_latecnt_w, crf_earlycnt_w;
+  //! the CRF Media Clock Input's Table 5.22 counter-change pulse (gh #60 F2),
+  //! consumed by the descriptor arbiter in front of KL_pp_shadow
+  wire        crf_dirty_p_w;
   //! IEEE 1722-2016 10.4.3 restart echo: the received mr bit TOGGLED on an
   //! accepted PDU of the followed CRF stream (gh #62 H2a)
   wire        crf_mr_toggle_p_w;
-  //! the four Table 5.6 interval tallies the CRF sink used to advertise as
-  //! valid and never move (traceability AVTP-5t)
   //! CRF talker (KL_crf_tx): CSR control + PDU stream into the control merge
   wire        cfg_crft_en;
   wire [63:0] cfg_crft_sid;
@@ -1906,9 +1913,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! live only while the processor declares it (acmp_talker_active is the
   //! processor's acmp_declaring_o, which is itself only reachable through an
   //! ALLOC_DA success) and, when a reservation is required, only while the
-  //! processor's SRP admission has granted this stream (FR-SRP-03: no
-  //! reservation -> no stream tx). The bypass bit stays the legacy
-  //! stream-whenever-enabled escape hatch.
+  //! processor reports this stream ACTIVE: Talker Advertise declared, a
+  //! Listener Ready or Ready Failed registered, admitted (Milan v1.2 5.3.7.3;
+  //! FR-SRP-03: no reservation -> no stream tx; #530). The bypass bit stays
+  //! the legacy stream-whenever-enabled escape hatch.
   wire aaf_gate = cfg_aaf_enable & (~cfg_maap_enable | maap_addr_valid) &
                   (cfg_aaf_bypass |
                   (acmp_talker_active &
@@ -1991,10 +1999,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //!   * ACMP term     : per-stream talker-active state from the processor's
   //!                     class-D face, with t0's cfg_aaf_bypass escape hatch
   //!                     mirrored.
-  //!   * SRP term      : the processor's per-stream bandwidth gate, REQUIRED.
+  //!   * SRP term      : the processor's per-stream ACTIVE (#530), REQUIRED.
   //!                     Allowing an engine-off escape would make every talker
   //!                     admissible out of reset on a bare PROBE_TX with no
-  //!                     reservation and therefore no CBS pacing. It could
+  //!                     reservation (and no source here is credit-paced
+  //!                     either: HONEST BOUND at the CRF merge). It could
   //!                     transmit about 56 k frames/s without reservation,
   //!                     which can overwhelm the peer softcore. The historical
   //!                     mitigation used to be "never arm a t>0 context
@@ -2250,12 +2259,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   //! ---- the control plane's CLASS-D FABRIC FACE (02 §6, F02.10) ----
   //! Landed as datapath nets rather than as new module ports: the consumers -
-  //! the AAF talker gate, the CBS slope MUX, the RX stream filter, the ACMP
+  //! the talker gates, the SRP status words, the RX stream filter, the ACMP
   //! bind record every listener path reads - all live INSIDE this file, so
   //! publishing them at the LiteX boundary would be a detour through the SoC
   //! for signals that never leave. Marked public_flat_rd (the media_tick_p /
-  //! aaf_stream_en_w precedent in this file) so the pp_shadow harness can
-  //! grade them without a CSR window.
+  //! aaf_stream_en_w precedent in this file) so the pp_shadow harness and
+  //! milan_dp's obj_crflic leg can grade them without a CSR window.
   //!
   //! Flat packing, index s at [W*s +: W] — the processor's own convention,
   //! carried through unchanged. WIDTHS ARE THE ENTITY'S DESCRIPTOR COUNTS
@@ -2265,10 +2274,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [11:0]                pp_cd_srp_class_a_vid_w;
   wire                       pp_cd_srp_domain_adopted_w;
   wire                       pp_cd_srp_domain_change_w;
-  wire [ACMP_SRC_C*2-1:0]    pp_cd_srp_tk_decl_state_w;
-  wire [ACMP_SRC_C*2-1:0]    pp_cd_srp_lstn_reg_state_w;
-  wire [ACMP_SRC_C-1:0]      pp_cd_srp_active_w;
-  wire [ACMP_SRC_C-1:0]      pp_cd_srp_sr_admitted_w;
+  wire [ACMP_SRC_C*2-1:0]    pp_cd_srp_tk_decl_state_w /* verilator public_flat_rd */;
+  wire [ACMP_SRC_C*2-1:0]    pp_cd_srp_lstn_reg_state_w /* verilator public_flat_rd */;
+  wire [ACMP_SRC_C-1:0]      pp_cd_srp_active_w /* verilator public_flat_rd */;
+  wire [ACMP_SRC_C-1:0]      pp_cd_srp_sr_admitted_w /* verilator public_flat_rd */;
   wire [ACMP_SRC_C*32-1:0]   pp_cd_srp_granted_slope_bps_w;
   wire [ACMP_SRC_C*8-1:0]    pp_cd_srp_src_fail_code_w;
   wire [ACMP_SRC_C*64-1:0]   pp_cd_srp_src_fail_bridge_w;
@@ -3066,9 +3075,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  100 ms of CRF silence (and needs 8 clean PDUs to re-lock), so the edge
   //  is the debounced verdict, not a per-PDU twitch.
   //
-  //  Restart requests are IGNORED unless the CRF clock is the one in use: on
+  //  The CRF requests are IGNORED unless the CRF clock is the one in use: on
   //  an internal media clock there is no CRF stream to be disrupted, so
-  //  toggling mr would be a false alarm to every listener.
+  //  toggling mr would be a false alarm to every listener. A PHC step is not
+  //  a CRF request and is not gated (#387, below).
   // --------------------------------------------------------------------------
   //! IEEE 1722-2016 4.4.4.3 disruption pulse: crf_locked_w falls while CRF is
   //! the selected media clock source. The clause's OTHER mandatory trigger, a
@@ -3094,16 +3104,29 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! 4.4.4.3's "disruption of the CRF stream" is not a disruption of OUR
   //! clock and must not toggle mr on our streams; with the CRF source
   //! selected, it is exactly the mandatory trigger, now reachable.
-  wire mcr_restart_p_w = crf_clk_selected_r
-                       & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
+  //! #387: a PHC step is ONE counted media event (decision 5606198212 part
+  //! b, restated by the owner in 5794731090): the plane's phase write (CLKV
+  //! software's adjtime when the plane is off) or a software settime moves
+  //! every presentation time this talker stamps, so it restarts the media
+  //! clock on the wire once (4.4.4.3) - whichever clock source is selected -
+  //! and Milan Table 5.4 MEDIA_RESET counts that toggle. A step that lands
+  //! while another restart is still pending (a CRF disruption, say) merges
+  //! with it inside KL_media_clock_restart: one toggle, never a cancellation
+  //! (ruling 5802264260 item 2). The same pulse re-centres the render stage
+  //! below.
+  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
+  wire mcr_restart_p_w = (crf_clk_selected_r
+                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+                       | media_rebase_p_w;
 
   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
   //! the AAF talkers AND the CRF Media Clock Output, which is a Talker in
   //! its own right (PICS Table F.16 CRF-3/CRF-5) and whose stream is exactly
-  //! the one 10.4.3 writes the clause for. One engine, because the TARGET is
-  //! a property of the media clock and not of a stream: two outputs on one
-  //! clock must never end up on opposite levels. The per-stream half - the
-  //! ">= 8 AVTPDUs for a given continuous stream" hold - stays per context,
+  //! the one 10.4.3 writes the clause for. One engine, because the REQUESTS
+  //! are a property of the media clock: every restart reaches every output.
+  //! The per-stream half - the ">= 8 AVTPDUs for a given continuous stream"
+  //! hold, and with it whether a request is still pending on that stream
+  //! (#387: a request landing on a pending one merges) - stays per context,
   //! so the CRF output's 500 PDU/s hold and an AAF talker's 8 kPDU/s hold
   //! run independently and neither can rush the other.
   //!
@@ -3199,6 +3222,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   assign aecp_current_config = 16'd0;  //! exported config state is not wired into this legacy CSR
   assign aecp_cmd_count = 16'd0;
   assign aecp_resp_count = 16'd0;
+  //! STRUCTURAL ZERO: the deleted local monitor's counters have no source.
+  //! The processor monitor is live; this word cannot measure its activity.
   assign aecp_ctlr_diag = 32'd0;
   assign aemp_stat_w = 32'd0;  //! no AEM patch ingest
   //! pp_aecp_pt_offset_*/pp_aecp_fmt_in_*/pp_aecp_fmt_out_*: the
@@ -3308,9 +3333,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! answer, which is the same class of lie as an advertised zero. The guard
   //! is the reason the index is qualified before it is narrowed.
   //!
-  //! N_STREAMS is the monitor's N_LISTENERS_P. A CRF sink appended after the
-  //! AAF inputs has no monitor context and so reports an empty mask, which is
-  //! true: this build keeps no Table 5.6 counters for it.
+  //! N_STREAMS is the monitor's N_LISTENERS_P. The CRF sink appended after the
+  //! AAF inputs has no monitor context, so this guard stops below it; its row
+  //! is KL_crf_rx's and is served by ctr_crf_w further down.
   //! -------------------------------------------------------------------
   //! REGISTERED ANSWER SERVER (USER 2026-08-15: pipeline the failing
   //! endpoints). The v48 route failed at WNS -1.7 on ONE cone: the engine's
@@ -3507,9 +3532,44 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     endcase
   end
 
+  //! THE CRF MEDIA CLOCK INPUT (#529). The shape appends it as the Stream
+  //! Input at CRF_SNK_IDX_C = N_STREAMS, and Milan 5.3.8.10 owes it the
+  //! Table 5.6 counters "for each Stream Input" with no CRF exemption, so
+  //! Table 5.16 applies to it as to any AAF input. Its ten tallies are
+  //! KL_crf_rx's, 32-bit and wrapping (gh #61). Milan keeps the IEEE Table
+  //! 7-157 offsets for a Stream Input (only Table 5.17 compacts, and only for
+  //! Stream Outputs), so the quadlets below are the AAF rows' and only the
+  //! mask differs. 0xF3F claims the ten and leaves TIMESTAMP_VALID and
+  //! TIMESTAMP_NOT_VALID (quadlets 6 and 7) unclaimed: the CRF engine keeps
+  //! no tally for them, and claiming a counter nothing moves is the lie this
+  //! face exists to prevent. A shape that declares no CRF sink has no such
+  //! row, and the guard keeps the neighbouring index from answering for it.
+  localparam logic [31:0] CTR_VALID_CRF_C = 32'h0000_0F3F;
+  wire ctr_crf_w = (ACMP_SINKS_C > N_STREAMS)
+                && (ctrq_type_r == DESC_STREAM_INPUT_C)
+                && (32'(ctrq_index_r) == CRF_SNK_IDX_C);
+  logic [31:0] ctr_crf_blk_w;
+  always_comb begin : ctr_crf_block
+    unique case (ctrq_word_r)
+      6'd0    : ctr_crf_blk_w = crf_lockcnt_w;   // @0   MEDIA_LOCKED
+      6'd1    : ctr_crf_blk_w = crf_unlockcnt_w; // @4   MEDIA_UNLOCKED
+      6'd2    : ctr_crf_blk_w = crf_intrcnt_w;   // @8   STREAM_INTERRUPTED
+      6'd3    : ctr_crf_blk_w = crf_seqerr_w;    // @12  SEQ_NUM_MISMATCH
+      6'd4    : ctr_crf_blk_w = crf_mrcnt_w;     // @16  MEDIA_RESET
+      6'd5    : ctr_crf_blk_w = crf_tucnt_w;     // @20  TIMESTAMP_UNCERTAIN
+      6'd8    : ctr_crf_blk_w = crf_fmterr_w;    // @32  UNSUPPORTED_FORMAT
+      6'd9    : ctr_crf_blk_w = crf_latecnt_w;   // @36  LATE_TIMESTAMP
+      6'd10   : ctr_crf_blk_w = crf_earlycnt_w;  // @40  EARLY_TIMESTAMP
+      6'd11   : ctr_crf_blk_w = crf_pducnt_w;    // @44  FRAMES_RX
+      6'd32   : ctr_crf_blk_w = CTR_VALID_CRF_C; //      counters_valid
+      default : ctr_crf_blk_w = 32'd0;  // @24/@28 unclaimed, @48.. reserved
+    endcase
+  end : ctr_crf_block
+
   //! Everything else, including ENTITY and out-of-range indices, answers zero data
   //! AND an empty mask on the same term, so the two can never disagree.
   assign ctr_ans_raw_w = ctr_sin_w ? ctr_blk_w
+                       : ctr_crf_w ? ctr_crf_blk_w
                        : ctr_sout_w ? ctr_sout_blk_w
                        : ctr_avb_w ? ctr_avb_blk_w
                        : ctr_ckd_w ? ctr_ckd_blk_w
@@ -4338,23 +4398,26 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! ==== the Milan-info answer block (06 SS6.2/SS6.10) ====================
   //! GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH, one word at a time; the
   //! processor lays the responses out and THIS fabric owns every value and
-  //! every validity flag, because the truth lives here: the pp's own
-  //! class-D binding view and SRP registrars (read back on the same nets
-  //! every other consumer reads), the declared stream identities, the gPTP
-  //! CSR pair and the clock-validator's asCapable.
+  //! every validity flag it is asked for, because the truth lives here: the
+  //! pp's own class-D binding view and SRP registrars (read back on the same
+  //! nets every other consumer reads), the declared stream identities, the
+  //! gPTP CSR pair and the clock-validator's asCapable.
+  //!
+  //! THREE STREAM_INPUT FIELDS ARE THE PROCESSOR'S, NOT THIS FACE'S (#508,
+  //! processor issues 43 and 49). It never asks for a STREAM_INPUT's
+  //! selector 5 (msrp_failure_bridge_id, from its SRP registrar) or
+  //! selector 7 (probing_status and acmp_status, from its listener's
+  //! committed record), and it replaces selector 4's failure-code byte
+  //! [15:8] from the same registrar. This face therefore answers neither
+  //! selector for an input and leaves that byte zero: a second copy here
+  //! would be a second state owner, and it was one - a bound/settled
+  //! approximation of pbsta that never said ACTIVE, and a zero bridge id.
+  //! The MSRP_FAILURE_VALID and REGISTERING_FAILED flags stay this face's.
   //!
   //! HONESTY LEDGER (what this face says and why):
   //!  - a sink is SETTLED when it is bound and its settled stream_id is
   //!    nonzero (the binding view latches identity at settle and zeroes it
-  //!    at unbind) - while actively probing, pbsta reports PASSIVE (1),
-  //!    never ACTIVE, and acmpsta is therefore 0 by Milan 5.3.8.6's own
-  //!    "otherwise" arm: the listener's probe-retry detail never leaves the
-  //!    processor, and claiming ACTIVE without the matching acmpsta would
-  //!    be the invented half of a truth.
-  //!  - msrp_failure_bridge_id for a SINK reads 0: the processor exports
-  //!    the registered failure CODE but not the bridge id; MSRP_FAILURE_
-  //!    VALID still follows the FAILED registration so a controller sees
-  //!    the failure, with the code carried and the bridge honestly zero.
+  //!    at unbind); that gates the stream_id, DA and VLAN fields and flags.
   //!  - stream_format at reset is the addressed ROW's generated declared
   //!    format (ADP_STRIN_FMT_C / ADP_STROUT_FMT_C - the config accepts
   //!    independent per-row format lists, so row 0's fact must never
@@ -4715,37 +4778,32 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                               : {32'd0, gsi_out_w
                                  ? aecp_pres_offset[32*gsi_oix_w +: 32]
                                  : 32'd0};
+          //! an input's failure-code byte [15:8] is left zero: the
+          //! processor replaces it from its SRP registrar (#508)
           4'd4: gsi_ans_raw_w = gsi_setl_w
                               ? {pp_cd_acmp_bound_dmac_w[48*gsi_six_w +: 48],
-                                 gsi_tkfail_w
-                                 ? pp_cd_srp_snk_fail_code_w[8*gsi_six_w +: 8]
-                                 : 8'd0, 8'd0}
+                                 16'd0}
                               : gsi_decl_w
                               ? {(maap_addr_valid ? gsi_odmac_w : 48'd0),
                                  gsi_ofail_w
                                  ? pp_cd_srp_src_fail_code_w[8*gsi_oix_w +: 8]
                                  : 8'd0, 8'd0}
-                              : {48'd0,
-                                 gsi_tkfail_w
-                                 ? pp_cd_srp_snk_fail_code_w[8*gsi_six_w +: 8]
-                                 : 8'd0, 8'd0};
+                              : 64'd0;
+          //! a STREAM_OUTPUT's own FailureInformation; an input's selector 5
+          //! is never asked of this face (#508)
           4'd5: gsi_ans_raw_w = gsi_ofail_w
                               ? pp_cd_srp_src_fail_bridge_w[64*gsi_oix_w +: 64]
-                              : 64'd0;       // sink bridge id: honest zero
+                              : 64'd0;
           4'd6: gsi_ans_raw_w = {gsi_setl_w
                                  ? {4'd0, pp_cd_acmp_bound_vlan_w[12*gsi_six_w +: 12]}
                                  : gsi_decl_w
                                  ? {4'd0, pp_cd_srp_class_a_vid_w}
                                  : 16'd0,
                                  16'd0, gsi_flags_ex_w};
-          4'd7: gsi_ans_raw_w = {32'd0,
-                                 gsi_in_w
-                                 ? {(!gsi_bnd_w ? 3'd0
-                                     : gsi_setl_w ? 3'd3 : 3'd1), 5'd0}
-                                 : 8'd0,
-                                 24'd0};
           //! SET_STREAM_FORMAT's verdict on the proposed format (issue #67)
           4'd15: gsi_ans_raw_w = sfv_verdict_w;
+          //! selector 7 lands here: an input's probing_status and acmp_status
+          //! are the processor's (#508), and an output's are zero
           default: gsi_ans_raw_w = 64'd0;
         endcase
       end
@@ -5236,7 +5294,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam int CRF_DECL_SLOT_C = (ACMP_SRC_C > N_STREAMS) ? CRF_TUID_C : 0;
   wire crft_class_a_w = (ACMP_SRC_C > N_STREAMS) &
                         (|pp_cd_srp_tk_decl_state_w[2*CRF_DECL_SLOT_C +: 2]);
-  //! the CRF talker's own bw-gate slot (top of the vector when it exists)
+  //! the CRF talker's own slot of the processor's ACTIVE vector (top of the
+  //! vector when it exists): a reservation EXISTS, Milan v1.2 5.3.7.3
   wire crft_res_active_w = (SRP_CRF_TK_C != 0) &
                            lwsrp_stream_gate[SRP_TALKERS_C-1];
   //! the C-TAG's {PCP, VID}: SR class A defaults {3, LWSRP_VID} (802.1Q
@@ -5260,8 +5319,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! mirror the AAF term: AAF bypass, or an lwSRP that is not policing
   //! (engine or talker declarations off - no TA can form, so silence would
   //! deadlock the media clock during bring-up, same doctrine as the
-  //! untagged-but-alive fallback above).
-  wire crft_emit_en_w = cfg_crft_en &
+  //! untagged-but-alive fallback above). Until #530 the slot read the raw
+  //! admission verdict, so a declared output with no Listener streamed.
+  wire crft_emit_en_w /* verilator public_flat_rd */ = cfg_crft_en &
                         (cfg_aaf_bypass | ~cfg_lwsrp_enable |
                          ~cfg_lwsrp_talker_en | crft_res_active_w);
 
@@ -5395,10 +5455,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ==========================================================================
   //  CRF Media Clock Input engine (Milan 7.3.2) - measurement half: parses
   //  and validates the Avnu Pro Audio CRF stream selected by the CRF CSRs,
-  //  produces the phase/frequency error the media-clock servo consumes and
-  //  the CLOCK_DOMAIN lock events for clock_source = CRF. The ACMP sink-1
-  //  remaining CRF integration gaps are recorded in
-  //  docs/testing/MILAN_V12_AUDIT_2026-08-16.md B3 and B4.
+  //  produces the phase/frequency error the media-clock servo consumes, and
+  //  keeps the Table 5.16 counters this Stream Input serves over
+  //  GET_COUNTERS and pushes through Table 5.22 (#529).
   // ==========================================================================
   KL_crf_rx #(
     .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
@@ -5444,25 +5503,26 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .stop_i      (crf_snk_stopped_w),
     .delta_o     (crf_delta_w),
     .rate_o      (crf_rate_w),
+    .rate_valid_o (crf_rate_valid_w),
     .pdu_count_o (crf_pducnt_w),
     .fmt_err_o   (crf_fmterr_w),
     .seq_err_o   (crf_seqerr_w),
-    //! Milan Table 5.16's CRF Media Clock Input counters are not connected to
-    //! the current solicited gather face. Leave the unserved outputs open rather
-    //! than create a shadow with no reader. The three values that do reach local
-    //! software keep their CSR window below (0x738: pdu, fmt_err, seq_err).
-    .mr_cnt_o    (),
-    .tu_cnt_o    (),
-    .late_cnt_o  (),
-    .early_cnt_o (),
+    //! Milan Table 5.16's CRF Media Clock Input bank, whole: these seven and
+    //! the three above are the GET_COUNTERS row for STREAM_INPUT N_STREAMS
+    //! (ctr_crf_block). Only pdu, fmt_err and seq_err also have a CSR slice
+    //! (CRF_STATUS 0x74C), truncated there and full-width on the wire.
+    .mr_cnt_o    (crf_mrcnt_w),
+    .tu_cnt_o    (crf_tucnt_w),
+    .late_cnt_o  (crf_latecnt_w),
+    .early_cnt_o (crf_earlycnt_w),
     .locked_o    (crf_locked_w),
-    .cnt_locked_o   (),
-    .cnt_unlocked_o (),
-    .cnt_intr_o     (),
-    //! The CRF sink's Table 5.22 dirty source is also unconnected. The
-    //! processor has registration support, but the rate-limited counter-change
-    //! scheduler does not yet consume this source.
-    .dirty_p_o      ()
+    .cnt_locked_o   (crf_lockcnt_w),
+    .cnt_unlocked_o (crf_unlockcnt_w),
+    .cnt_intr_o     (crf_intrcnt_w),
+    //! ...and that row's Table 5.22 source: the descriptor arbiter in front
+    //! of KL_pp_shadow delivers it as {STREAM_INPUT, N_STREAMS} to the
+    //! processor's rate-limited counter-change scheduler
+    .dirty_p_o      (crf_dirty_p_w)
   );
 
   // ==========================================================================
@@ -5502,6 +5562,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .crf_src_idx_i (AEM_CRF_CLKSRC_C),
     .crf_locked_i  (crf_locked_w),
     .crf_rate_i    (crf_rate_w),
+    .crf_rate_valid_i (crf_rate_valid_w),
     .auto_repair_i (mcsrv_auto_repair_w),
     .ps_invert_i   (mcsrv_ps_invert_w),
     .drp_addr_o    (o_mmcm_drp_addr),
@@ -5875,9 +5936,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! walked back into its convergence band at the residual rate error.
   //! One pulse per GM-identity change re-centers it instead; the first
   //! fabric GM publication out of reset (0 -> id) is exempt
-  //! (prefill owns boot). ONE detector for both elastic stages (#386):
-  //! it lives outside the I2SPB generate so the shipping shape, which
-  //! prunes the DAC, still derives the render stage's pulse from it.
+  //! (prefill owns boot). Since #387 only the I2S playback FIFO below reads
+  //! it: the render stage re-centres on the PHC step itself
+  //! (render_recentre_p_w), and a shape that prunes the DAC leaves this
+  //! detector without a reader.
   logic [63:0] gm_recentre_q_r;
   logic        gm_recentre_p_r;
   always_ff @(posedge axis_clk) begin : g_gm_recentre
@@ -5954,15 +6016,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       end
     end
   end : g_src_recentre
-  //! #386: the render stage re-centres on a GM identity change, a PHC
-  //! adjtime (the plane's step, or CLKV software's when the plane is off),
-  //! a PHC settime and a settled clock-source change. The first three are
-  //! the PHC discontinuities KL_ptp_clock_validity also raises tu on; that
-  //! module additionally takes the plane's pre-commit publication events
-  //! and counts the first 0-to-id publication, which this set leaves out
-  //! (prefill owns boot). public: the milan_dp render-law leg counts it.
+  //! #386: the render stage re-centres on a PHC step (the #387 media
+  //! re-base above: the plane's step or CLKV software's adjtime when the
+  //! plane is off, and a software settime) and on a settled clock-source
+  //! change. A GM identity change is no longer a trigger of its own (#387):
+  //! a change that steps the PHC re-centres through that step, once, and a
+  //! change that only slews is no PHC discontinuity. KL_ptp_clock_validity
+  //! still raises tu on the identity change and the plane's pre-commit
+  //! publication events. public: the milan_dp render-law and gmstep legs
+  //! count it.
   wire render_recentre_p_w /* verilator public_flat_rd */ =
-       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load
+       media_rebase_p_w
        | src_recentre_p_r;
 
   generate if (I2SPB_P != 0) begin : g_i2s_player
@@ -6501,39 +6565,108 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! bridge's answers, adopts the Domain and publishes the result through the
   //! class-D face.
   //!
-  //! THE CBS SLOPE ORDERING CHANGED. RECORDED HONESTLY, WITH THE ANSWER.
+  //! NO SHAPER READS THE SLOPE OR THE VERDICT HERE. The 802.1Qav chain is
+  //! not in this wrapper (NO GENERAL-DATA TX CHAIN at the top of the file,
+  //! HONEST BOUND at the CRF merge): no AAF or CRF frame is credit-shaped.
+  //! The raw verdict and the slope sum reach one status word each:
+  //! lwsrp_slope_en -> LWSRP_STATUS[9] and lwsrp_idle_slope -> LWSRP_SLOPE
+  //! 0x698. No other logic reads either, and software sees them only
+  //! through those two words.
   //!
-  //! KL_lwsrp_bw_gate sequenced the two edges explicitly, with a settling
-  //! HOLD between them: on activation the stream's idleSlope joined the
-  //! running Sigma, then HOLD_CYCLES_C elapsed, then the gate opened; on
-  //! teardown the gate closed, then HOLD_CYCLES_C, then the slope left the
-  //! Sigma. The invariant it bought is "no stream ever transmits against a
-  //! slope the shaper has not budgeted".
+  //! KL_lwsrp_bw_gate sequenced slope and gate with a settling HOLD between
+  //! them: on activation the stream's idleSlope joined the running Sigma,
+  //! then HOLD_CYCLES_C elapsed, then the gate opened; on teardown the gate
+  //! closed, then HOLD_CYCLES_C, then the slope left the Sigma. Its
+  //! invariant, "no stream ever transmits against a slope the shaper has
+  //! not budgeted", needs a shaper, and the only one is the retained,
+  //! uninstantiated chain. It has no object on this wire, and this wrapper
+  //! claims no slope/gate ordering.
   //!
   //! The processor has no hold. KL_srp_admission walks its sources and
-  //! latches grant_r, gslope_r and sum_r TOGETHER at round end; the published
-  //! sr_admitted_o is grant_r AND the live request. So:
+  //! latches grant_r, gslope_r and sum_r TOGETHER at the end of a PUBLISHED
+  //! round, one that saw every requesting source's current slope (processor
+  //! issue 112); the published sr_admitted_o is grant_r AND the live
+  //! request, and an accepted (re)declaration retires its source's grant
+  //! until its new slope is evaluated.
   //!
-  //!   OPENING EDGE - a source's gate can only rise once a round has granted
-  //!   it, and that same round is what put its slope into sum_r. Gate and
-  //!   Sigma therefore change on the SAME edge, never gate-first. The hold
-  //!   existed to let the slope settle through the CSR mux; that mux is
-  //!   combinational and in this clock domain, so there is nothing to settle.
-  //!   EQUAL, not worse.
+  //! THE GATE IS NOT THAT VERDICT (#530). It is the processor's ACTIVE,
+  //! srp_active_o: declaring Talker Advertise AND not failed AND a Listener
+  //! Ready or Ready Failed registered AND admitted - the Milan v1.2 5.3.7.3
+  //! licence, which protocol_processor_top names "THE AVTP transmit gate"
+  //! and tells a consumer never to rebuild from its terms. The raw verdict
+  //! is only the last term. It rises within a few admission rounds of the
+  //! DECLARE_TALKER, before any bridge has answered, so gating on it put
+  //! the #117 Run B CRF output on
+  //! the wire 4.7 s before its first Listener Ready and kept it there after
+  //! the Listener had left. So:
   //!
-  //!   CLOSING EDGE - sr_admitted_o drops the cycle the request drops (the
-  //!   live AND), but sum_r is ROUND-LATCHED and keeps the stopped stream's
-  //!   slope until the next round completes. The shaper goes on budgeting
-  //!   bandwidth for a stream that has already stopped: MORE conservative
-  //!   than the bw-gate, not less.
+  //!   OPENING EDGE - ACTIVE takes the admission term through the
+  //!   processor's optimistic window (sr_adm_fsm = opt | admitted): a fresh
+  //!   declaration counts as admitted until the end of the third PUBLISHED
+  //!   admission round after it, a round walking one source per cycle, so
+  //!   N_SOURCES cycles each (protocol-processor hdl/srp/KL_srp_top.sv:
+  //!   sr_adm_fsm_w at 451, opt_r aging at 787-798, reload at 873-876).
+  //!   The same declaration clears that source's talker-side Listener
+  //!   registrar (KL_srp_talker_fsm.sv:705-710), so no Listener Ready is
+  //!   ever registered at a declaration and ACTIVE is 0 after it. ACTIVE
+  //!   rises inside the window only if a registering Listener event for the
+  //!   stream (New, JoinIn or JoinMt with Ready or Ready Failed) is decoded
+  //!   within those few cycles; the Listener Ready that answers the Talker
+  //!   Advertise arrives by MRPDU long after them. That corner has two
+  //!   branches, and status skew is the whole effect of the first only:
   //!
-  //! ANSWER: the invariant HOLDS on both edges. What is genuinely lost is the
-  //! bw-gate's explicit hold as a named, testable behaviour - the ordering is
-  //! now a consequence of the admission round's structure rather than a
-  //! sequencer anyone can point at.
-  assign lwsrp_stream_gate = pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];
-  //! the class-A idleSlope the CBS mux takes: the SUM across admitted
-  //! sources, which is what a single shaped queue's idleSlope must be
+  //!   ADMITTED - the round admits the stream. ACTIVE and the gates lead
+  //!   LWSRP_STATUS[9] and 0x698 by up to three rounds, and no shaper reads
+  //!   either word. The lead shows on the licensed source's own bits:
+  //!   LWSRP_STATUS[8] is source 0's gate only, so the CRF output (the top
+  //!   ACTIVE slot, source 1 on the AX7101 1x1 shape) shows it on
+  //!   CRFT_CTRL[6]/[7] and LWSRP_STATUS[6] (ACTIVE ORed over sources),
+  //!   never on [8].
+  //!
+  //!   REFUSED - the round refuses the stream: over_limit (LWSRP_STATUS[7])
+  //!   rises and sr_admitted_o stays 0 (KL_srp_admission.sv:187-190,
+  //!   261-266). ACTIVE does not fall inside the window: it holds on opt
+  //!   and falls at the window's end, and the declaration then swaps to
+  //!   Talker Failed. So a declaration the 75 % ceiling refuses holds, for
+  //!   up to three rounds, the emission licence (crft_emit_en_w into
+  //!   KL_crf_tx.enable_i, the AAF gates) and the Milan v1.2 5.3.7.7 Table
+  //!   5.4 streaming level (tkd_streaming_w). KL_talker_diag_ctx counts a
+  //!   STREAM_START and a STREAM_STOP a controller reads, the start zeroes
+  //!   MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX, and at most one PDU
+  //!   per source can leave, if its media event falls in the window.
+  //!   CRFT_CTRL[6]/[7] pulse with it for the CRF output and LWSRP_STATUS[8]
+  //!   for source 0; LWSRP_STATUS[6] is |ACTIVE, so it pulses only while no
+  //!   other source is ACTIVE. The snap-latched 0x82C talker window's
+  //!   per-index bits hold the AAF sources only, never the CRF output: its
+  //!   gate bit [3] pulses at every index, its lobs bit [2] only above
+  //!   index 0, because index 0's lobs is source 0's registered Listener
+  //!   level, not ACTIVE. At index 0 its [27:19] mirrors LWSRP_STATUS[8:0],
+  //!   so [27] pulses as LWSRP_STATUS[8] does and [25] as the OR
+  //!   LWSRP_STATUS[6] does. ACTIVE still needs a registered Listener Ready
+  //!   or Ready Failed, so nothing leaves before one (#530). Whether the
+  //!   licence should also need the real grant is issue #551.
+  //!
+  //!   The processor takes the window so that a declaration is never Talker
+  //!   Failed first.
+  //!
+  //!   CLOSING EDGE - ACTIVE drops the cycle any of its terms drops.
+  //!   sr_admitted_o, whose OR is LWSRP_STATUS[9], does not follow the
+  //!   Listener: it drops with the request (the declaration), with a
+  //!   re-declaration until that is evaluated, or with a refusing round.
+  //!   sum_r is latched by PUBLISHED rounds, so 0x698 keeps a withdrawn
+  //!   declaration's slope until the next one completes.
+  //!
+  //! A LATER LANE that credit-shapes these sources must not pair this gate
+  //! with sum_r and inherit the bw-gate's ordering: at the opening edge
+  //! above the gate can lead the Sigma by three rounds, or open for three
+  //! rounds on a stream the Sigma never includes. That lane derives its
+  //! own ordering and its own test for it.
+  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
+  //! STATUS ONLY (no shaper, above): LWSRP_STATUS[9] reads the RAW verdict
+  //! of any source and LWSRP_SLOPE 0x698 the processor's Sigma across
+  //! admitted sources. Both report admitted DECLARATIONS, licensed or not,
+  //! so a declared, admitted output with no Listener Ready reads [9] set
+  //! while its gate is closed. The gate never reads either.
   assign lwsrp_slope_en    = |pp_cd_srp_sr_admitted_w;
   assign lwsrp_idle_slope  = pp_cd_srp_sum_slope_bps_w;
   //! Milan 4.2.7.2.1 Domain adoption surface: the OPERATIONAL {priority, VID}
@@ -6551,15 +6684,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! scalars and always described sink 0, and [2*k +: 2] is the per-sink
   //! slice. tk_reg_state is a CODE, not a one-hot: the processor publishes
   //! 0 NONE / 1 ADVERTISE / 2 FAILED (protocol-processor
-  //! hdl/srp/KL_srp_top.sv:193, driven at hdl/srp/KL_srp_listener_fsm.sv:
-  //! 783-784), so bit 1 of the slice is set for a registered Talker FAILED
+  //! hdl/srp/KL_srp_top.sv:211 tk_reg_state_o, driven by status_map at
+  //! hdl/srp/KL_srp_listener_fsm.sv:851-853), so bit 1 of the slice is set
+  //! for a registered Talker FAILED
   //! and clear for the registered Talker ADVERTISE this field is named for -
   //! the inversion #472 measured. The compare is against the ADVERTISE code,
   //! named below because the processor spells this word's codes in a port
   //! comment and not in srp_pkg (the Listener four-pack below IS in the
   //! package, and is taken from it). 802.1Q 35.2.4.4.1 is the registrar.
   //! The per-sink Failure BridgeID and registered VLAN are NOT on the
-  //! class-D face (it carries the per-SOURCE bridge id only), so the CSR
+  //! class-D face (it carries the per-SOURCE bridge id only; the processor
+  //! serves a sink's bridge id itself, in GET_STREAM_INFO, #508), so the CSR
   //! fields that carried them are gone from this file rather than wearing a
   //! source's value under a sink's name.
   localparam logic [1:0] SRP_TK_REG_ADVERTISE_C = 2'd1;
@@ -7147,18 +7282,34 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! only has to hand over every changed tuple at least once. The sources
   //! are the per-descriptor pulses of the blocks whose counters the
   //! GET_COUNTERS face above serves: one bit per STREAM_INPUT (the rx
-  //! monitor), one per STREAM_OUTPUT (the talker diag, CRF output
-  //! included), AVB_INTERFACE 0 and CLOCK_DOMAIN 0 (the edge terms named
-  //! beside their counters). Each source bit stays PENDING until the
-  //! round-robin selects it, so simultaneous changes are all delivered and
-  //! a continuously changing low index cannot starve a higher one; a
+  //! monitor, KL_crf_rx for the CRF input), one per STREAM_OUTPUT (the
+  //! talker diag, CRF output included), AVB_INTERFACE 0 and CLOCK_DOMAIN 0
+  //! (the edge terms named beside their counters). Each source bit stays
+  //! PENDING until the round-robin selects it, so simultaneous changes are
+  //! all delivered and a continuously changing low index cannot starve a
+  //! higher one; a
   //! re-pulse while pending is absorbed (the processor re-reads current
   //! state, never history). Reviewed on PR 121 (its R1 mutation checks:
   //! dropped accumulation and a lossy clear-all picker both red).
-  localparam int unsigned PP_CTR_EVT_N_C = N_STREAMS + ACMP_SRC_C + 2;
+  //!
+  //! THE STREAM_INPUT ROWS ARE THE SERVED ONES: the AAF inputs, then the CRF
+  //! Media Clock Input at N_STREAMS when the shape declares it (#529), whose
+  //! source is KL_crf_rx's dirty pulse. The processor keeps one dirty bit per
+  //! declared sink (N_STREAM_IN_P = ACMP_SINKS_C), so that row is already
+  //! there to receive it. A shape without the CRF sink drops the pulse here:
+  //! it has no descriptor to notify about.
+  localparam int unsigned PP_CTR_SIN_N_C = N_STREAMS
+                                         + ((ACMP_SINKS_C > N_STREAMS) ? 1 : 0);
+  localparam int unsigned PP_CTR_EVT_N_C = PP_CTR_SIN_N_C + ACMP_SRC_C + 2;
   localparam int unsigned PP_CTR_RR_W_C = (PP_CTR_EVT_N_C > 1)
                                          ? $clog2(PP_CTR_EVT_N_C) : 1;
-  logic [N_STREAMS-1:0]  pp_ctr_sin_pend_r,  pp_ctr_sin_pend_n;
+  wire  [PP_CTR_SIN_N_C-1:0] pp_ctr_sin_dirty_w;
+  if (PP_CTR_SIN_N_C > N_STREAMS) begin : g_ctr_crf_dirty
+    assign pp_ctr_sin_dirty_w = {crf_dirty_p_w, avtprx_dirty_p_w};
+  end else begin : g_ctr_no_crf_dirty
+    assign pp_ctr_sin_dirty_w = avtprx_dirty_p_w;
+  end
+  logic [PP_CTR_SIN_N_C-1:0] pp_ctr_sin_pend_r, pp_ctr_sin_pend_n;
   logic [ACMP_SRC_C-1:0] pp_ctr_sout_pend_r, pp_ctr_sout_pend_n;
   logic pp_ctr_avb_pend_r, pp_ctr_avb_pend_n;
   logic pp_ctr_ckd_pend_r, pp_ctr_ckd_pend_n;
@@ -7181,13 +7332,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       if (pick >= PP_CTR_EVT_N_C) pick = pick - PP_CTR_EVT_N_C;
       if (!pp_ctr_evt_valid_w && pp_ctr_all_pend_w[pick]) begin
         pp_ctr_evt_valid_w = 1'b1;
-        if (pick < N_STREAMS) begin
+        if (pick < PP_CTR_SIN_N_C) begin
           pp_ctr_evt_type_w  = DESC_STREAM_INPUT_C;
           pp_ctr_evt_index_w = 16'(pick);
-        end else if (pick < (N_STREAMS + ACMP_SRC_C)) begin
+        end else if (pick < (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
           pp_ctr_evt_type_w  = DESC_STREAM_OUTPUT_C;
-          pp_ctr_evt_index_w = 16'(pick - N_STREAMS);
-        end else if (pick == (N_STREAMS + ACMP_SRC_C)) begin
+          pp_ctr_evt_index_w = 16'(pick - PP_CTR_SIN_N_C);
+        end else if (pick == (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
           pp_ctr_evt_type_w  = DESC_AVB_INTERFACE_C;
         end else begin
           pp_ctr_evt_type_w  = DESC_CLOCK_DOMAIN_C;
@@ -7197,11 +7348,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   end : pp_ctr_event_pick
 
   always_comb begin : pp_ctr_event_next
-    pp_ctr_sin_pend_n  = pp_ctr_sin_pend_r  | avtprx_dirty_p_w;
+    pp_ctr_sin_pend_n  = pp_ctr_sin_pend_r  | pp_ctr_sin_dirty_w;
     pp_ctr_sout_pend_n = pp_ctr_sout_pend_r | tkd_dirty_p_w;
     pp_ctr_avb_pend_n  = pp_ctr_avb_pend_r  | ctr_avb_dirty_w;
     pp_ctr_ckd_pend_n  = pp_ctr_ckd_pend_r  | ctr_ckd_dirty_w;
-    for (int unsigned s = 0; s < N_STREAMS; s++) begin
+    for (int unsigned s = 0; s < PP_CTR_SIN_N_C; s++) begin
       if (pp_ctr_evt_valid_w
           && (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
           && (pp_ctr_evt_index_w == 16'(s))) pp_ctr_sin_pend_n[s] = 1'b0;
@@ -7236,10 +7387,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         else if (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
           pp_ctr_rr_r <= PP_CTR_RR_W_C'(32'(pp_ctr_evt_index_w) + 1);
         else if (pp_ctr_evt_type_w == DESC_STREAM_OUTPUT_C)
-          pp_ctr_rr_r <= PP_CTR_RR_W_C'(N_STREAMS
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(PP_CTR_SIN_N_C
                                         + 32'(pp_ctr_evt_index_w) + 1);
         else
-          pp_ctr_rr_r <= PP_CTR_RR_W_C'(N_STREAMS + ACMP_SRC_C + 1);
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(PP_CTR_SIN_N_C + ACMP_SRC_C + 1);
       end
     end
   end : pp_ctr_event_queue

@@ -305,8 +305,8 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    and never forgotten: it stays pending, and the flush skips it until its
    port changes again (section 7.2, K16). This is FAILURE CONTAINMENT, not
    persistence: Milan 5.3.10.1 requires the accepted set to persist, and
-   stage 3 does not open until #501 decides a conforming allocation or
-   limit (section 10).
+   #501 now specifies the larger allocation in the saved-state page.
+   Stage 3 still needs its donor writer adoption (section 10).
 10. **Three firmware changes** (section 5.3): the AEM image loads before
     `nvm_boot` (without it the restore cannot prove its image and ends
     CLOSED); the restore walk starts on every boot path; the restore wait's
@@ -441,7 +441,7 @@ renamed so they cannot pass for the pinned RTL.
 | Roll-back | `rb_rst`, one strobe to every restorable owner, held at least two cycles and while `desc_debt` is 1 | NEW soft-reset inputs: `KL_aecp_dyn_state` and `KL_aecp_desc_store`, BOTH stage 1's (T1; for the store, its reset or a re-walk request that also returns its fetch watchdog to zero: the store walks the image again, its watchdog re-armed and its names the image's), and the parent's map plane (T4, stage 3). Each owner returns to its reset state. The guard (S2) takes the hard reset only |
 | Entity enable | `entity_enable_i`, `restore_done_o` | the ADP engine's enable becomes `entity_enable_i AND restore_done_o`, `restore_done_o` being the binding walk's drained terminal (S4's release) AND the D3 walk's done: the restore releases `entity_enable`, as F07.9 draws it. It gates ADP advertising only: the side port's image-window lock keeps the top's `entity_enable_i`, as it ships, and ACMP and AECP traffic have their own releases (section 8.1) |
 | Exports | `nvm_unflushed_o` stays the binding manager's; new `d3_unflushed_o`, the OR of the writer's dirty bits; `nvm_alarm_o` becomes both managers' alarm; `restore_done_o`, `restore_fail_o` and `restore_blank_o` become both walks; new `restore_rb_o`, `restore_closed_o`, `rs_cause_o[2:0]` and the binding walk's `restore_cause_o[1:0]` | section 8.7 |
-| Parameters | the shape (`N_STREAM_IN_P` ... `N_NAME_P`, the per-port cluster counts), `LAYOUT_VER_P` shared with the binding manager, `DEB_TICKS_P` (T-NVM-DEBOUNCE), `RETRY_MAX_P`, `RS_TMO_CYC_P` (the restore deadline, section 8.8) | the record lengths follow section 4.2 of the saved-state page |
+| Parameters | the shape (`N_STREAM_IN_P` ... `N_NAME_P`, the per-port input cluster counts and output entry capacities from [section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)), `LAYOUT_VER_P` shared with the binding manager, `DEB_TICKS_P` (T-NVM-DEBOUNCE), `RETRY_MAX_P`, `RS_TMO_CYC_P` (the restore deadline, section 8.8) | the record lengths follow section 4.2 of the saved-state page |
 
 The processor's `07_memory_maps.md` section 5.3 draws the runtime commit as
 "committed state change (COMMIT + NVM_MARK)" setting the record's dirty bit.
@@ -937,10 +937,14 @@ A refusal needs the rule. A descriptor read the rule needs that ends in
 error, the store's fetch error or its own watchdog's answer, is not a
 refused value: nothing was judged, and the restore aborts (section 8.6).
 
-**The map record's framing.** A map record holds the port's set packed at
-its head, then UNUSED entries up to the port's cluster count. An unused
-entry is EXACTLY eight 0xFF bytes, which is what the flush writes; nothing
-else is. The saved set is the entries before the first unused one, and
+**The map record's framing.** Pack the port's set first.
+Then pad with UNUSED entries through its derived capacity.
+Input capacity remains the port's cluster count.
+Output capacity follows the per-port entry count in
+[section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged).
+An unused entry is EXACTLY eight 0xFF bytes.
+The flush writes that value; nothing else denotes UNUSED.
+The saved set is the entries before the first unused one, and
 every one of them goes to the judge as a mapping, whatever its stream
 index. An entry that is not unused, AFTER an unused one, makes the record
 malformed: it is refused before the port's set is touched, and the reset set
@@ -1624,18 +1628,23 @@ descriptor store's roll-back. They add gates, and change no allocation:
   (section 2). The correction is #502's standalone one: the live-write
   trigger feeding the parent's pending bit from the first accepted write,
   for both classes. Filing #502 does not close it; the correction must land.
-- **Stage 3 is BLOCKED on #501.** At 8x8 a legal accepted output set can
-  outgrow its record, and the pending-and-skip rule of section 3 (rule 9)
-  keeps the status honest about it without persisting it. Stage 3's
-  implementation lane does not open until #501 records a conforming
-  allocation or accepted-mapping limit with its protocol consequence. This
-  page does not change the decided allocation and does not accept permanent
-  pending as conformance.
+- **Stage 3 requires #501's allocation and donor adoption.**
+  The manager decided output-record growth on 2026-09-23.
+  The [saved-state allocation](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
+  derives dynamic capacity from stream/channel keys per port.
+  At 8x8, `max(9, 9 * 8)` gives 72 entries.
+  Payload length is `72 * 8 = 576` bytes.
+  The framed record adds its eight-byte header: 584 bytes.
+  At 1x1, `max(17, 2 * 8)` preserves every byte.
+  Processor #61/#83 must adopt the capacity when implementing maps.
+  The historical K16 evidence below exercised the old allocation.
+  Permanent pending still does not satisfy persistence.
 - **Work that may proceed while those are open:** stages 1 and 2 may be
   implemented and merged, and released only after #502; #502's correction
   itself; design-level evidence for maps at 1x1, where every legal output
-  set fits its record (16 stream channels, 17 entries). Not before #501: a
-  stage-3 lane, a stage-3 release, or any claim of 8x8 map persistence.
+  set fits its record (16 stream channels, 17 entries).
+  The #501 allocation decision permits stage-3 implementation.
+  Release still requires donor adoption, #502, and silicon persistence proof.
 - **Stated in every stage's release notes:** a persistence device that
   never ends an operation the restore abandoned keeps the port QUARANTINED
   until reset (section 8.8). Commands are served and the entity is enabled
@@ -1647,7 +1656,7 @@ descriptor store's roll-back. They add gates, and change no allocation:
 |---|---|---|---|---|
 | 1. the dynamic-state selectors | configuration index, sampling rate, clock source, stream formats, presentation offset: 9 records at 1x1, 30 at 8x8 | on the seams S1 to S4: the writer with the state-bus trigger, `own` from reset, the flush, the restore transaction from the binding walk's drained terminal with its deadline, its cause classification, its descriptor-fault aborts and the roll-back of BOTH stores (the dynamic-state store, and the descriptor store, whose reset re-arms its fetch watchdog and re-walks the image), held while the descriptor memory owes a burst (S2); the format rule on "supported"; the arbiter and its drain of either manager; the enable released by the restore; the exports; `pend_i` loses the dynamic-state level; the three firmware changes | SET_CLOCK_SOURCE 1, SET_STREAM_INFO, SET_STREAM_FORMAT on an unbound input; power cycle; GET_CLOCK_SOURCE, GET_STREAM_INFO, GET_STREAM_FORMAT, and the ADPDU's configuration index | T8, T9 (processor, prerequisites), T1 (processor), T4 (this repository); released after #502 |
 | 2. names | 38 at 1x1, 99 at 8x8 | the name trigger, the eight-lane latch, the restore after the image walk; the names' roll-back rides stage 1's descriptor-store reset; `pend_i` stops taking class 7 | SET_NAME on the entity name, the group name and a stream name, one of them to the EMPTY name; power cycle; GET_NAME | T2, T4; released after #502 |
-| 3. channel maps | 2 at 1x1, 16 at 8x8 | BLOCKED on #501. Once unblocked: the edit-face trigger, the GET_AUDIO_MAP latch, the framing rule, the coupled restore, the map plane's roll-back, #501's capacity decision; the sticky class-6/7 bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T3, T4, #501 |
+| 3. channel maps | 2 at 1x1, 16 at 8x8 | Requires donor adoption of the decided #501 allocation: the edit-face trigger, the GET_AUDIO_MAP latch, the framing rule, the coupled restore, the map plane's roll-back, #501's capacity decision; the sticky class-6/7 bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T3, T4, #501 |
 
 Stage 1's descriptor recovery is shown alone: section 8.6's S1 cases run
 on the stage-1 build, which rolls back the two stores and not the map
@@ -1691,7 +1700,7 @@ to a burst the descriptor store abandoned (section 8.6, V23).
 | Forgetting or truncating an oversized set | a durable reading over a set no slot holds | EXECUTED: M15 is killed by K16 |
 | Restoring by replaying SET commands through the µCPU | it would reuse the programs' own rules, but needs a command path into the dispatch queue with its responses suppressed; not costed | UNRESOLVED 7 |
 | The held-request path in the arbiter | unreachable under the rule of section 6.4, so no case can fail it | the evidence's first mutant A01 survived; the path is removed |
-| Growing each output map record to the stream-channel key space | it changes the decided allocation, which is not this page's to change | #501 (section 10) |
+| Growing each output map record to the stream-channel key space | subsequently decided by #501; see the saved-state allocation | donor adoption: processor #61/#83 |
 | Counting the records each pass read whole and comparing the counts (round two) | two differences balance: one record lost in each pass leaves equal counts over a partial restore | EXECUTED: X02 is killed by V18c |
 | Comparing the record identities the two passes read | a record lost to the same device error in both passes is missing from both lists alike, so the lists agree over it | the port's cause (S1): H1, H8 |
 | Telling an erased record from a device error in the manager alone, by the bytes or by err against done | the pinned port folds both into one err with nothing forwarded, and eight 0xFF bytes do not prove an erased span; processor issue 20's manager-only split would fail every first boot | the port's cause (S1); V10, C03 |
@@ -1785,10 +1794,11 @@ product's in about 1.4 µs, so every figure grows on the board (UNRESOLVED 8).
 Latency, DERIVED: the pending bit rises the cycle after the accepted write.
 The record reaches the window within `DEB_TICKS_P` (500 ms at the binding
 manager's value) plus the latch and the write. The firmware commits after
-its provisional 1,000 ms debounce, and a commit takes at most 3.06 s at 1x1
-and 3.18 s at 8x8 by the datasheet
+its provisional 1,000 ms debounce, and a commit takes at most 3.07 s at 1x1
+and 3.26 s at 8x8 by the datasheet
 ([section 9.4](SAVED_STATE_FASTCONNECT.md#94-the-deadlines)). A SET is
-therefore durable at most about 4.6 s after it at 1x1 and 4.7 s at 8x8.
+therefore durable at most about 4.6 s after it at 1x1 and 4.8 s at 8x8.
+These totals add both debounces to section 9.4's commit bound.
 The board's own figure is a measurement each stage owes.
 
 ## 13. Consequences
@@ -1842,8 +1852,8 @@ The board's own figure is a measurement each stage owes.
   [`BAREMETAL_FIRMWARE.md`](../integration/BAREMETAL_FIRMWARE.md); `nvm_boot`
   starts the walk on every path. The new order is mandatory: under the old
   one the restore cannot prove its image and ends CLOSED.
-- An output map set larger than its record stays pending until it shrinks,
-  which is containment, not persistence; stage 3 waits for #501.
+- The old output capacity left accepted sets pending indefinitely.
+  #501 grows the allocation; stage 3 needs donor adoption.
 - The value rules exist twice, in the programs and in the writer
   (UNRESOLVED 7).
 - The writer's alarm is sticky like the binding manager's, and joins its
@@ -2033,12 +2043,12 @@ The board's own figure is a measurement each stage owes.
    mark cannot name its record. If the reviews keep the mark, the mark must
    carry the opcode and the descriptor so it can name a record, and the tail
    window must be accepted and stated.
-2. **An output map set can outgrow its record at 8x8** (#501, open). The
-   allocation gives a map record 8 bytes a cluster; an output mapping is
-   keyed by stream channel, so at 8x8 a port has 9 entries against 72
-   stream channels. This design keeps such a set pending and never writes it
-   in part (K16), which is containment only. Stage 3 is blocked on #501's
-   decision (section 10).
+2. **Output-map writer adoption remains required** (processor #61/#83).
+   #501 decides capacity from stream/channel keys (section 10).
+   The old nine-entry record caused K16's ten-mapping failure.
+   Its pending-and-skip result remains historical containment evidence.
+   The new record reserves `9 * 8 = 72` entries.
+   Product save/replay still needs the donor implementation.
 3. **The mark-tail window of today's glue** (#502, open): the status reads
    durable over an applied name or map for a program's tail. Every stage
    declared shippable waits for its correction (section 10).
@@ -2134,7 +2144,7 @@ the items this design answers:
 
 | Item | Here | Stays with |
 |---|---|---|
-| "All eight Milan items plus the bound state, the binding parameters and started/stopped survive a reset that is proven to have cleared the rows first" | 8.2, 10 | each stage's silicon proof; maps at 8x8 after #501 |
+| "All eight Milan items plus the bound state, the binding parameters and started/stopped survive a reset that is proven to have cleared the rows first" | 8.2, 10 | each stage's silicon proof; maps at 8x8 after processor #61/#83 adopt the #501 allocation |
 | "The volatile set does NOT survive: after restore the lock is clear, the controller registry is empty, IDENTIFY is 0" | 9 | the implementation's suite |
 | "A user name SET to the EMPTY string survives a power cycle as the empty string" | 8.3, 10 (stage 2) | stage 2 |
 | "Each of the eight marks in section 12.1 is graded end to end: deleting it alone must redden a save/restore test" | 3 (rule 3), 7.2, 15 (item 1) | AMENDMENT REQUESTED. Under this design deleting a mark reddens nothing, because the trigger is the write; the item would be restated as deleting each group's TRIGGER, nine groups, each EXECUTED. The IDENTIFY half, adding a mark to SET_CONTROL, is kept in spirit: M06 adds IDENTIFY to the trigger and is killed |

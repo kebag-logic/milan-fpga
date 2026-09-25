@@ -1127,6 +1127,25 @@ class MediaGridAlignmentHarness {
            dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, 1);
     }
 
+    //! The boot restore walk, as the firmware's nvm_boot() starts it. Since
+    //! processor pin a8f8ce81 (its issue 92) the ACMP listener serves
+    //! nothing from reset until the binding walk ends, and PP_CTRL[1] is what
+    //! starts that walk. The firmware sets it on every boot before it enables
+    //! the entity; a harness that binds a sink over ACMP owes the same step.
+    //! No image is configured, so the backend answers blank media and the
+    //! walk sequences in a few hundred cycles.
+    void start_the_boot_restore_walk() {
+        constexpr uint16_t A_PP_CTRL = 0x920;
+        constexpr uint16_t A_PP_STAT = 0x924;
+        axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);
+        unsigned done = 0;
+        for (int r = 0; r < 400 && !done; r++) {
+            for (int c = 0; c < 64; c++) step();
+            done = (axi_read(A_PP_STAT) >> 2) & 1u;
+        }
+        ck("[RENDER-BIND] PP_STAT[2] the restore walk sequenced", done, 1);
+    }
+
     // =================================================================== //
     //  [RENDER-BIND] listener 0 over ACMP, the sim_main ladder             //
     // =================================================================== //
@@ -1143,6 +1162,7 @@ class MediaGridAlignmentHarness {
         axi_write(A_MAC_AHI, 0x00000100);
         axi_write(A_ADP_EIDHI, 0x020000FF);
         axi_write(A_ADP_EIDLO, 0xFE000001);
+        start_the_boot_restore_walk();
         axi_write(A_ADP_CTRL, 0x00001F01);
         for (int c = 0; c < 2000; c++) step();
         {   // BIND_RX (CONNECT_RX_COMMAND, msg 6): listener = us, talker = :02
@@ -1391,6 +1411,25 @@ class MediaGridAlignmentHarness {
         displace_then_step(tag, -3, rc0, pulses0, rails0, 1);
     }
 
+    //! A software settime is also one PHC re-base, through the live CSR path.
+    void prove_settime_recentres_once() {
+        constexpr uint16_t A_PTP_CMD = 0x520;
+        const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
+        const long pulses0 = recentre_pulses;
+        // The reset load value is zero: command one absolute PHC settime.
+        axi_write(A_PTP_CMD, 0x1);
+        run_fed(25 * kAafPduPeriodCycles);
+        ck("RENDER-SETTIME: the settime reaches the stage as one pulse",
+           recentre_pulses - pulses0, 1);
+        ck("RENDER-SETTIME: the settime executes one render re-base",
+           dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, 1);
+        run_fed(100 * kAafPduPeriodCycles);
+        ck("RENDER-SETTIME: no later re-base pulse",
+           recentre_pulses - pulses0, 1);
+        ck("RENDER-SETTIME: the render re-base remains counted once",
+           dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, 1);
+    }
+
     // =================================================================== //
     //  [RENDER-LIVE] the running feed is moved past a tick: the grid-moved  //
     //  equivalent the review probed. `later` = the grid later (fill one     //
@@ -1530,6 +1569,7 @@ int MediaGridAlignmentHarness::run() {
     bind_listener_zero_over_acmp();
     measure_the_render_law_at_internal();
     prove_the_recentre_is_one_shot("RENDER-RC-INT");
+    prove_settime_recentres_once();
     //! --render-only: the mutation arm's leg - the law and the recentre at
     //! INTERNAL are what the stage's mutants must break, and the grid phases
     //! below are the expensive half of this binary

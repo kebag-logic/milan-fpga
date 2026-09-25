@@ -80,7 +80,7 @@
                 Clock Output - same Table 5.4, same machinery; its frame
                 pulse is the CRF PDU strobe.
 
-  Spec refs   : Milan v1.2 5.3.7.10 Table 5.4, 5.4.2.25 Table 5.17
+  Spec refs   : Milan v1.2 5.3.7.7 Table 5.4, 5.4.2.25 Table 5.17
   Company     : Kebag Logic
 ------------------------------------------------------------------------------
 */

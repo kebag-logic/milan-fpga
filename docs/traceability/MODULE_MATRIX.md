@@ -68,7 +68,7 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_aaf_rx_depacketizer` | `ieee1722/aaf/KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_aes3_rx` | `ieee1722/aaf/KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
 | ✅ `KL_aes3_tx` | `ieee1722/aaf/KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
-| ✅ `KL_chan_map_capture` | `ieee1722/aaf/KL_chan_map_capture.sv` | `chmap_capture` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+| ✅ `KL_chan_map_capture` | `ieee1722/aaf/KL_chan_map_capture.sv` | `chmap_capture` · `media_grid_align` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_chan_map_render` | `ieee1722/aaf/KL_chan_map_render.sv` | `chmap_render` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_i2s_feed_mux` | `ieee1722/aaf/KL_i2s_feed_mux.sv` | `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_i2s_playback` | `ieee1722/aaf/KL_i2s_playback.sv` | `i2spb` · `milan_dp` · `mmcm_servo` · ➰milan_dp_render · 🔬`make aaf` | -- |
@@ -97,7 +97,7 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `milan_dp` · ➰milan_dp_render | -- |
 | ✅ `KL_media_grid_align` | `ieee1722/crf/KL_media_grid_align.sv` | `media_grid_align` · `milan_dp` · ➰milan_dp_render | -- |
 | ✅ `KL_media_nco` | `ieee1722/crf/KL_media_nco.sv` | `media_grid_align` · `media_nco` · `milan_dp` · ➰milan_dp_render | -- |
-| ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰milan_dp_render | -- |
+| ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `crf_rx` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰milan_dp_render | -- |
 | ✅ `KL_maap` | `ieee1722/maap/KL_maap.sv` | `maap` · `milan_dp` · ➰milan_dp_render | -- |
 
 ## IEEE 802.1Q
@@ -139,9 +139,9 @@ _CSR, CDC, RMON, utilities_
 |---|---|---|---|
 | ✅ `KL_link_guard` | `common/KL_link_guard.sv` | `gptp_shadow` · `gptp_txts` · `link_guard` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render | -- |
 | ✅ `axis_mux_rr_2in_1out` | `common/axis_mux_rr_2in_1out.sv` | `ptp_ts` | -- |
-| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `cdc` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
+| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `cdc` · `crf_rx` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
 | ✅ `cdc_pair_fifo` | `common/cdc_pair_fifo.sv` | `aaf` · `aes3` · `i2spb` · `milan_dp` · `mmcm_servo` · `tdm` · `tdm_render` · ➰milan_dp_render | -- |
-| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aes3` · `cdc` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
+| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aes3` · `cdc` · `crf_rx` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
 | 📦 `ethernet_packet_pkg` | `common/ethernet_packet_pkg.sv` | -- | -- |
 | ✅ `tx_ifg_gasket` | `common/tx_ifg_gasket.sv` | `ifg` · `milan_dp` · ➰milan_dp_render | -- |
 | ✅ `milan_csr` | `common/csr/milan_csr.sv` | `csr` · `milan_dp` · ➰milan_dp_render | -- |

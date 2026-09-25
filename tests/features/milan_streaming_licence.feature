@@ -30,7 +30,8 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
   WHAT LEFT WITH THE lwSRP RTL. The applicant/registrar/bw-gate engine under
   hdl/ieee8021q/srp/** has been deleted; the protocol-processor submodule
   declares now, and milan_datapath drives lwsrp_stream_gate from the
-  processor's admitted vector. Three @class:clause scenarios (listener_ready_o,
+  processor's ACTIVE vector (its admitted vector until #530, which let a
+  declaration alone open the gate). Three @class:clause scenarios (listener_ready_o,
   the bw-gate req_w, the unconditional TalkerAdvertise inclusion) resolved out
   of that RTL's own expressions and went with it. So did @matrix:M-DEV-13d:
   its subject was the fabric provisioner srp_fab_want_v_w / srp_fab_launch_w,
@@ -81,6 +82,19 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
     When I read the t>0 wire identity from KL_aaf_packetizer
     Then the t>0 identity is derived from the same roots the declaration uses
     And software may still name each identity field explicitly
+
+  @class:structure
+  Scenario: the stream gate is the processor's ACTIVE, never its raw admission verdict
+    # #530, the #117 silicon run: the gate read the processor's raw Sigma-slope
+    # verdict, which rises at DECLARE_TALKER, before any bridge has answered.
+    # The CRF output streamed 4.7 s before its first Listener Ready. The
+    # processor's srp_active_o is the 5.3.7.3 pair plus admission, and
+    # protocol_processor_top tells a consumer never to rebuild it from its
+    # terms. tb/verilator/milan_dp obj_crflic grades the behaviour on every
+    # cycle; this scenario pins the source text so the repoint cannot quietly
+    # revert.
+    When I read the lwSRP stream gate assignment from milan_datapath
+    Then the stream gate takes the processor's ACTIVE vector and nothing else
 
   @class:wire
   Scenario: the bench bridge declares Listener Ready for our StreamID

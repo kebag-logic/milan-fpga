@@ -52,9 +52,11 @@ RUNS = HERE / "runs"
 
 PP = "protocol-processor/hdl"
 #: the donor sources the model compiles: the binding record manager, the
-#: device-face initiator, the AECP dynamic-state store and their package
+#: manager arbiter in front of the port, the device-face initiator, the AECP
+#: dynamic-state store and their package
 DONOR_SV = [f"{PP}/acmp/pp_acmp_pkg.sv", f"{PP}/aecp/KL_aecp_dyn_state.sv",
-            f"{PP}/acmp/KL_acmp_nvm_shadow.sv", f"{PP}/packet_engine/KL_pp_nvm_port.sv"]
+            f"{PP}/acmp/KL_acmp_nvm_shadow.sv", f"{PP}/packet_engine/KL_pp_nvm_mgr_arb.sv",
+            f"{PP}/packet_engine/KL_pp_nvm_port.sv"]
 BACKEND = "hdl/milan/KL_nvm_backend.sv"
 WRITER = "sw/firmware/milan_baremetal/milan_baremetal.c"
 SHAPES = {"1x1": "configs/endstation_ax7101_1x1_tdm8.yaml",

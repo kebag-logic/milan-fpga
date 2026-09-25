@@ -106,6 +106,11 @@ class MilanDatapathHarness {
     long checks = 0;
     long fails = 0;
     long skipped = 0;
+    //! PHC steps this harness itself commanded (PTP_CMD settime or adjtime).
+    //! #387 makes each one an mr toggle, so the parity is the wire's mr level
+    //! while no talker streams: the expectation is what the harness did, not
+    //! a DUT read.
+    long phc_steps_issued = 0;
 
     void ck(const char* what, unsigned long got, unsigned long exp) {
         bool ok = (got == exp);
@@ -239,6 +244,26 @@ class MilanDatapathHarness {
         for (int i = 0; i < 8; i++) step();
         dut->axis_resetn = 1; dut->gtx_resetn = 1;
         for (int i = 0; i < 8; i++) step();
+    }
+
+    // --- the boot restore walk, as the firmware's nvm_boot() starts it ---
+    //! Since processor pin a8f8ce81 (its issue 92) the ACMP listener serves
+    //! nothing from reset until the binding walk ends, and PP_CTRL[1] is
+    //! what starts that walk. The firmware sets it on every boot before it
+    //! enables the entity; a harness that binds a sink over ACMP owes the
+    //! same step. No image is configured, so the backend answers blank
+    //! media and the walk sequences in a few hundred cycles.
+    void start_the_boot_restore_walk() {
+        printf("[BOOT] PP_CTRL[1] starts the restore walk the listener waits for\n");
+        constexpr uint16_t A_PP_CTRL = 0x920;
+        constexpr uint16_t A_PP_STAT = 0x924;
+        axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);
+        unsigned done = 0;
+        for (int r = 0; r < 400 && !done; r++) {
+            for (int c = 0; c < 64; c++) step();
+            done = (axi_read(A_PP_STAT) >> 2) & 1u;
+        }
+        ck("PP_STAT[2] the restore walk sequenced", done, 1);
     }
 
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
@@ -552,6 +577,7 @@ class MilanDatapathHarness {
             axi_write(A_PTP_OFLO, 100000);
             axi_write(A_PTP_OFHI, 0);
             axi_write(A_PTP_CMD2, 0x2);
+            phc_steps_issued++;
             uint64_t t5 = snap();
             ck("PHC adjtime hops the counter",
                (t5 - t4 > 100000) && (t5 - t4 < 103000), 1);
@@ -964,8 +990,13 @@ class MilanDatapathHarness {
         ck("CLKV: ownerless frame is still emitted", next_aaf(f), 1);
         ck("CLKV: ownerless frame carries tu=1",
            f.size() ? f[21] & 1 : 0xEE, 1);
+        //! every header bit of that byte but mr, which carries the restart
+        //! history below
         ck("CLKV: ownerless frame keeps tv=1",
-           f.size() ? f[19] : 0, 0x81);
+           f.size() ? f[19] & 0xF7 : 0, 0x81);
+        ck("CLKV: its mr toggled once per PHC step issued so far (#387)",
+           f.size() ? (f[19] >> 3) & 1 : 0xEE,
+           static_cast<unsigned long>(phc_steps_issued & 1));
         ck("CLKV: frame remains the full AAF PDU",
            static_cast<long>(f.size()), static_cast<long>(AAF_BYTES));
     }
@@ -1014,12 +1045,27 @@ class MilanDatapathHarness {
            axi_read(A_CLKV_STAT) & 1, 1);
     }
 
+    //! Talker 0's Milan Table 5.4 MEDIA_RESET, read at the counter itself:
+    //! this leg has no controller to ask for GET_COUNTERS.
+    uint32_t talker0_media_resets() const {
+        return dut->rootp->milan_datapath__DOT__talker_diag__DOT__mreset_r[0];
+    }
+
     // A fabric-observed PHC step still arms the diagnostic holdover,
     // but ownerless tu is one before, during, and after that hold.
+    // The step is a software settime, which #387 makes one mr toggle
+    // and one MEDIA_RESET like any other PHC step.
     void prove_the_phc_step_holdover_never_clears_tu() {
         constexpr uint16_t A_CLKV_TUCNT = 0x780;
         constexpr uint16_t A_PTP_CMD = 0x520;
+        //! longer than two observation intervals of every leg that runs
+        //! this harness (-GDIAG_TICK_CYC_P=256), so an interval holding a
+        //! toggle has closed before the counter is read
+        constexpr int kCountSettleCyc = 4096;
+        for (int c = 0; c < kCountSettleCyc; ++c) step();
+        const uint32_t media_resets0 = talker0_media_resets();
         axi_write(A_PTP_CMD, 0x1);
+        phc_steps_issued++;
         ck("CLKV: PHC step arms holdover",
            (axi_read(A_CLKV_STAT) >> 3) & 1, 1);
         ck("CLKV: PHC step keeps tu asserted",
@@ -1038,6 +1084,12 @@ class MilanDatapathHarness {
         ck("CLKV: post-holdover frame is emitted", next_aaf(f), 1);
         ck("CLKV: post-holdover frame still carries tu=1",
            f.size() ? f[21] & 1 : 0xEE, 1);
+        ck("CLKV: the settime toggled mr once more (#387)",
+           f.size() ? (f[19] >> 3) & 1 : 0xEE,
+           static_cast<unsigned long>(phc_steps_issued & 1));
+        for (int c = 0; c < kCountSettleCyc; ++c) step();
+        ck("CLKV: ... and MEDIA_RESET counted that toggle once (#387)",
+           talker0_media_resets() - media_resets0, 1);
     }
 
     // ------------------------------------------------------------------
@@ -2596,6 +2648,7 @@ int MilanDatapathHarness::run() {
 
     prove_the_csr_identity_and_the_eth_guard();
     program_the_classifier_over_the_csr();
+    start_the_boot_restore_walk();
     prove_the_adp_diag_words_are_structural_zeros();
     prove_the_advertised_shape_matches_the_elaboration();
     answer_acmp_get_tx_state_through_the_datapath();

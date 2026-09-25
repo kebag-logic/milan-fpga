@@ -1,0 +1,23 @@
+# Locked Markdown renderer for the documentation gates (#437, #516):
+# cmark-gfm, the renderer GitHub uses, through the cmarkgfm binding, and the
+# HTML5 parser that reads its output. scripts/gen_toc_renderer.py refuses any
+# other cmarkgfm or html5lib release, and any other bundled cmark-gfm.
+# Install with: python3 -m pip install --require-hashes -r this-file.
+# One hash per wheel the hosted documentation runner (CPython 3.12, x86_64)
+# and the recording author host (CPython 3.14, x86_64) install. No source
+# distribution is listed, so a source build is refused. Another interpreter
+# or platform needs its own wheel's sha256 from the same release added here.
+cmarkgfm==2025.10.22 \
+    --hash=sha256:115fd0feaf93806b3a7c980615649b3c76a49c9dd89d5ea0c6240e10c6c71cee \
+    --hash=sha256:54070905b888d0d4590e03f60c5153dd456f2297ff5ff9fc43ba6d561f2eff72
+cffi==2.1.1 \
+    --hash=sha256:c1453022f490d2459a11819d83ad1d586e9ff65a12ac3e705ffebd46d3685dcf \
+    --hash=sha256:b0431303acaea1089ad4b3e9ce4e6518193def1118d4073ca848635ee4ea2e96
+pycparser==3.0 \
+    --hash=sha256:b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992
+html5lib==1.1 \
+    --hash=sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d
+six==1.17.0 \
+    --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274
+webencodings==0.6.1 \
+    --hash=sha256:7fab6269c8bf237c657876b52058ccb182e861518d1c695c1a9aaa8c1c105d5b

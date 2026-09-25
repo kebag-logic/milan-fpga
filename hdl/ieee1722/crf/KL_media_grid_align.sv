@@ -69,6 +69,25 @@
                 actuators' shared authority class) so windup cannot outrun
                 the NCO's own clamp.
 
+                LOCK TARGET (#74 item 2). The integrator walks the error to
+                the reference, so the reference IS the lock phase. The raw
+                engagement capture would lock anywhere, including with the
+                frame marker ON the tick, where KL_chan_map_capture's
+                junction counters cannot tell a jittered marker from a
+                slipped one (PR #323 [R1]: sustained phantom dups at a
+                slip-free lock). So the capture is clamped into
+                [LOCK_KEEPOFF_CYC_P, DIV_C - LOCK_KEEPOFF_CYC_P] cycles after
+                the tick. A capture already that far from both ticks keeps
+                its phase bit for bit; a raced one is pulled at most the keep-off,
+                1/128 sample by default - half the root's 1/64-sample settle
+                band, so a raced engagement starts inside it. Only the
+                engagement is steered: under the lock the marker dithers
+                around that target, so its clearance from every tick is the
+                keep-off less the lock's own dither and the marker delivery
+                jitter. tb/verilator/media_grid_align [G7]/[G8] grade it at
+                12 or more of the default 16 cycles at 100 MHz, with one
+                cycle of delivery jitter.
+
                 FEED WATCHDOG. No frame marker for TIMEOUT_C cycles (a dead
                 TDM plane, a bench without the audio clock) = disengage:
                 u -> 0, the NCO free-runs at nominal, and the next frame
@@ -92,7 +111,10 @@ module KL_media_grid_align #(
   parameter int unsigned KP_LOG2_P     = 2,   //! u_p = err << KP_LOG2_P
   parameter int unsigned KI_LOG2_P     = 12,  //! acc >> KI_LOG2_P per frame
   //! |u| clamp in 1/16 ppm LSB: 3200 = 200 ppm, the MMCM/NCO authority class
-  parameter int unsigned U_LIM_PPM16_P       = 3200
+  parameter int unsigned U_LIM_PPM16_P       = 3200,
+  //! lock-phase keep-off, clk_i cycles: the lock target stays this far from
+  //! either tick (default 1/128 sample; 0 = the raw capture, negative control)
+  parameter int unsigned LOCK_KEEPOFF_CYC_P  = (CLK_FREQ_HZ_P / FS_HZ_P) / 128
 )(
   input  wire                 clk_i,     //! datapath clock
   input  wire                 rst_n,     //! active-low synchronous reset
@@ -122,6 +144,8 @@ module KL_media_grid_align #(
     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
   if (U_LIM_PPM16_P > 32767 - (2 * DIV_C << KP_LOG2_P))
     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+  if (2 * LOCK_KEEPOFF_CYC_P >= DIV_C)
+    $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
 
   // ---------------------------------------------------------------------- //
   // Detector: time-since-tick capture + a TRACKING UNWRAPPER               //
@@ -142,7 +166,7 @@ module KL_media_grid_align #(
   // +/-0.42 cycles per frame, jitter adds one), so the nearest candidate is
   // always the true one, and no pulse alignment can fool it.
   logic [TSTW_C-1:0]        tst_r;       //! clk cycles since the last tick
-  logic [TSTW_C-1:0]        ref_r;       //! capture at engagement
+  logic [TSTW_C-1:0]        ref_r;       //! lock target: kept-off capture
   logic signed [4:0]        slip_r;      //! whole-sample fold (+ = ticks lead)
   logic [TOW_C-1:0]         quiet_r;     //! cycles since the last frame
   logic                     engaged_r;
@@ -152,6 +176,14 @@ module KL_media_grid_align #(
   wire [TSTW_C-1:0] tst_next_w = tick_i ? '0
                                : (tst_r == TSTW_C'(2 * DIV_C - 1))
                                  ? tst_r : tst_r + 1'b1;
+
+  //! the lock target an engaging frame captures: its own phase, clamped the
+  //! keep-off clear of both ticks (the LOCK TARGET banner paragraph)
+  localparam logic [TSTW_C-1:0] KEEP_LO_C = TSTW_C'(LOCK_KEEPOFF_CYC_P);
+  localparam logic [TSTW_C-1:0] KEEP_HI_C = TSTW_C'(DIV_C - LOCK_KEEPOFF_CYC_P);
+  wire [TSTW_C-1:0] ref_keep_w = (tst_next_w < KEEP_LO_C) ? KEEP_LO_C
+                               : (tst_next_w > KEEP_HI_C) ? KEEP_HI_C
+                                                          : tst_next_w;
 
   logic signed [15:0] err_r;
   assign err_cyc_o = err_r;
@@ -232,7 +264,7 @@ module KL_media_grid_align #(
       err_r     <= '0;
       acc_r     <= '0;
       u_o       <= '0;
-      if (frame_ev_i) ref_r <= tst_next_w;
+      if (frame_ev_i) ref_r <= ref_keep_w;
     end
     else begin
       tst_r   <= tst_next_w;

@@ -43,6 +43,21 @@ jobs:
       # rather than in the middle of the job.
       - name: Install the python gate dependencies
         run: python3 -m pip install --quiet pyyaml
+      # The Contents walk and the em-dash gate read Markdown through the
+      # renderer GitHub uses (#437, #516): cmark-gfm through the cmarkgfm
+      # binding, and html5lib for the HTML it emits. Every installed byte is
+      # hash-locked and source builds are refused (--require-hashes); both
+      # gates refuse another release by name. The download cache is keyed by
+      # the lock itself, so a changed lock never restores a stale wheel.
+      - name: Cache the pinned Markdown renderer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/milan-markdown-pip
+          key: markdown-renderer-pip-${{ runner.os }}-${{ hashFiles('tools/markdown/requirements.txt') }}
+      - name: Install the pinned Markdown renderer
+        run: |
+          python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip \
+            --require-hashes -r tools/markdown/requirements.txt
       - name: Install diagram gate dependencies
         run: |
           sudo apt-get update -qq
@@ -169,10 +184,25 @@ jobs:
         run: |
           python3 scripts/check_baremetal_only.py --check
           python3 scripts/check_baremetal_only.py --selftest
+      - name: Cache the pinned RV32 SDK
+        uses: actions/cache@v4
+        with:
+          path: ~/br-milan-rv32/host
+          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+      - name: Install and verify the pinned RV32 SDK
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_rv32_sdk_selftest.py
+          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+      - name: Compiler-absent firmware controls
+        run: |
+          set -euo pipefail
+          python3 sw/builder/test_firmware_compiler.py --selftest
+          python3 sw/builder/test_firmware_compiler.py --absent --audit "$RUNNER_TEMP/rv32-absent.jsonl"
       - name: End-station builder gates
         run: |
           python3 -m pip install --quiet pyyaml
-          python3 sw/builder/test_builder.py
+          python3 sw/builder/test_builder.py --require-rv32
       # NVM record-space gate (#70): the persisted set has TWO capacities, the
       # erase block and the port's record_id[7:0]. Only the first was ever
       # checked, and the second overflowed at the 2026-08 8x8 shape (292

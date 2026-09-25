@@ -38,9 +38,12 @@ T. retired-stack TERM, anywhere, any context: the appearance itself is the
 P. protected product documentation: even an embedded ``linux`` substring is
    forbidden. Host-tooling masks never apply there. Deleting the protected
    document is also a failure, preventing removal from bypassing this class.
-   A file-pinned mask (``TERM_MASKS``) covers the one generic
-   container-image name in dev's CI-contract fixture; like the class-R
-   masks it is bound to its single file and cannot launder the same term on
+   File-pinned masks (``TERM_MASKS``) cover the one generic
+   container-image name in dev's CI-contract fixture, #504's selected
+   host SDK identity/relocation literals and, in their exact code contexts,
+   the act runner's replay-slot unit executable and cgroup-driver value
+   (#532); like the class-R
+   masks each is bound to its file and cannot launder the same term on
    another line or in another file.
 R. retired target RUNTIME/service surface: the former helper services and
    target-OS interfaces are forbidden even when a line avoids the broader
@@ -49,7 +52,8 @@ R. retired target RUNTIME/service surface: the former helper services and
    read-only workstation PHC probe and the yosys loader test's ``/etc/hosts``
    example are masked only in their exact host-tool files. The act runner's
    host process inventory and its policy paragraph have literal, file-pinned
-   masks under #376's recorded host-tooling decision.
+   masks under #376's recorded host-tooling decision, and so does the
+   runner's one build-host cgroup-mount root (#532).
 P. retired PRODUCT PATH: a tracked first-party path itself cannot retain an
    OS tree, target service, host-audio plane or retired target-driver-tree
    name while carrying clean (or binary) contents. Path scanning uses the
@@ -256,8 +260,42 @@ TARGET_OS_DEVICE_RE = re.compile(
 # not a retired userland: mask the exact fixture spelling in its one file so
 # the term stays banned everywhere else, including a bare `busybox` elsewhere
 # in that same file. Renaming the fixture image on dev retires this entry.
+# #504 selects this SDK as a verification tool under #259's host-tooling
+# non-goal. These literals identify that tool and its relocation receipt.
+# Only the two installer files may carry them; no global triplet expansion,
+# whole-line exemption or product-document allowance follows from this mask.
+SDK_IDENTITY_MASK = (
+    r"(?<![A-Za-z0-9_./-])(?:riscv32-buildroot-linux-gnu|"
+    r"share/buildroot/sdk-location)(?![A-Za-z0-9_./-])"
+)
+# #532, under #376's host-tooling decision: the act runner's isolated replay
+# slots run their dockerd and NAT uplink as transient units of the BUILD
+# HOST's service manager and place containers through its cgroup driver. The
+# runner must name that host executable and dockerd option value, and its
+# self-test pins both argvs. Mask each literal only on its exact source line
+# in the runner (text before, literal, text after); its prose, any other
+# context or file and the product documents still refuse the term.
+ACT_SLOT_TERM_CONTEXTS = (
+    ('    "dockerd", "ip", "nft", "nsenter", "pasta", "systemctl", "',
+     "systemd-run", '", "touch",'),
+    ('        require_tool("', "systemd-run", '"),'),
+    ('        if tool == "', "systemd-run", '":'),
+    ('            "/usr/bin/', "systemd-run",
+     '", "--unit=milan-act-slot-2-net.service", "--collect",'),
+    ('            "/usr/bin/', "systemd-run",
+     '", "--unit=milan-act-slot-2-dockerd.service", "--collect",'),
+    ('        "native.cgroupdriver=', "systemd", '",'),
+    ('            "--exec-opt", "native.cgroupdriver=', "systemd", '",'),
+)
+ACT_SLOT_TERM_MASK = re.compile("|".join(
+    f"(?<=^{re.escape(before)}){re.escape(literal)}(?={re.escape(after)}$)"
+    for before, literal, after in ACT_SLOT_TERM_CONTEXTS))
 TERM_MASKS = {
+    "scripts/act_ci.py": ACT_SLOT_TERM_MASK,
     "scripts/ci_events.py": re.compile(r'"image":\s*"busybox"'),
+    "scripts/ci_rv32_sdk.py": re.compile(
+        SDK_IDENTITY_MASK + r'|\("Linux", "x86_64"\)'),
+    "scripts/ci_rv32_sdk_selftest.py": re.compile(SDK_IDENTITY_MASK),
 }
 
 HOST_RUNTIME_MASKS = {
@@ -267,7 +305,15 @@ HOST_RUNTIME_MASKS = {
     # #376 decision 1: the runner inspects build-host processes, never the
     # product target. Allow only its inventory root and the stat-state
     # spelling in the runner policy paragraph, not other target paths.
-    "scripts/act_ci.py": re.compile(r'(?<=Path\(")/proc(?="\))'),
+    # #532: slot teardown proves the slice left the build host's cgroup
+    # mount; only that one root declaration is masked, not other /sys paths.
+    "scripts/act_ci.py": re.compile(
+        r'(?<=Path\(")/proc(?="\))'
+        r'|(?<=^CGROUP_ROOT = pathlib\.Path\(")/sys(?=/fs/cgroup"\)$)'),
+    # #523: exact workstation process-inventory declarations only. The
+    # cancellation owner and independent fixture oracle need stable identities.
+    "scripts/owned_process.py": re.compile(r'(?<=^PROC = Path\(")/proc(?="\)$)'),
+    "scripts/process_test_support.py": re.compile(r'(?<=^PROC = Path\(")/proc(?="\)$)'),
     "docs/testing/CI_WORKFLOWS.md": re.compile(
         r"(?<=`)/proc(?=/<pid>/stat` state is `Z`)"),
 }
@@ -838,6 +884,7 @@ def _arms_target_runtime(arm):
     arm("runtime-proc-child-caught",
         lambda r: (r / "page.md").write_text(
             "the target reads /proc/mtd\n"), True, "[R]")
+
     for label, punctuation in (("dot", "."), ("bang", "!"),
                                ("question", "?"), ("equals", "="),
                                ("hash", "#"), ("pipe", "|")):
@@ -892,6 +939,102 @@ def _arms_target_runtime(arm):
     arm("runtime-remote-shell-near-miss-clean",
         lambda r: (r / "page.md").write_text(
             "ssh build-host make lint\n"), False)
+
+
+def _arms_cancellation_process_masks(arm):
+    """#523's two exact workstation inventory lines cannot excuse product code."""
+    for filename in ("scripts/owned_process.py", "scripts/process_test_support.py"):
+        def _plant(root, text='PROC = Path("/proc")\n', name=filename):
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text)
+        label = pathlib.Path(filename).stem
+        arm(label + "-exact-context", _plant, False)
+        arm(label + "-wrong-context",
+            lambda r, p=_plant: p(r, 'OTHER = Path("/proc")\n'), True, "[R]")
+        arm(label + "-second-path",
+            lambda r, p=_plant: p(r, 'PROC = Path("/proc")\nOTHER = Path("/sys")\n'), True, "[R]")
+        arm(label + "-same-line-path",
+            lambda r, p=_plant: p(r, 'PROC = Path("/proc")  # /sys\n'), True, "[R]")
+        arm(label + "-wrong-file",
+            lambda r, p=_plant: p(r, name="scripts/other.py"), True, "[R]")
+        arm(label + "-product-file",
+            lambda r, p=_plant: p(r, name=PRODUCT_DOCS[0]), True, "[R]")
+
+
+def _arms_act_slot_masks(arm):
+    """#532's slot literals are masked only in their exact act-runner contexts."""
+    runner = "scripts/act_ci.py"
+
+    def plant(root: pathlib.Path, text: str, name: str = runner) -> None:
+        """Write `text` at `name`, by default the one runner file the masks cover."""
+        path = root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+
+    # label, the exact runner line, the same literal in another runner
+    # context, the literal glued to a suffix in its own context, and the class
+    literals = (
+        ("tool-inventory",
+         '    "dockerd", "ip", "nft", "nsenter", "pasta", "systemctl", "systemd-run", "touch",\n',
+         'TOOLS = ("systemd-run", "touch",\n',
+         '    "dockerd", "ip", "nft", "nsenter", "pasta", "systemctl", "systemd-runner", "touch",\n',
+         "[T]"),
+        ("require-tool",
+         '        require_tool("systemd-run"),\n',
+         '        run_tool("systemd-run"),\n',
+         '        require_tool("systemd-run-helper"),\n',
+         "[T]"),
+        ("fake-classify",
+         '        if tool == "systemd-run":\n',
+         '        if name == "systemd-run":\n',
+         '        if tool == "systemd-runner":\n',
+         "[T]"),
+        ("uplink-argv",
+         '            "/usr/bin/systemd-run", "--unit=milan-act-slot-2-net.service", "--collect",\n',
+         '            "/usr/bin/systemd-run", "--unit=other.service", "--collect",\n',
+         '            "/usr/bin/systemd-runner", "--unit=milan-act-slot-2-net.service", "--collect",\n',
+         "[T]"),
+        ("daemon-argv",
+         '            "/usr/bin/systemd-run", "--unit=milan-act-slot-2-dockerd.service", "--collect",\n',
+         '            "/usr/sbin/systemd-run", "--unit=milan-act-slot-2-dockerd.service", "--collect",\n',
+         '            "/usr/bin/systemd-run", "--unit=milan-act-slot-2-dockerd.service-x", "--collect",\n',
+         "[T]"),
+        ("cgroup-driver",
+         '        "native.cgroupdriver=systemd",\n',
+         '        "native.cgroupdriver=systemd"),\n',
+         '        "native.cgroupdriver=systemd-x",\n',
+         "[T]"),
+        ("golden-cgroup-driver",
+         '            "--exec-opt", "native.cgroupdriver=systemd",\n',
+         '            "--exec-opt", "cgroupdriver=systemd",\n',
+         '            "--exec-opt", "native.cgroupdriver=systemd.x",\n',
+         "[T]"),
+        ("cgroup-root",
+         'CGROUP_ROOT = pathlib.Path("/sys/fs/cgroup")\n',
+         'OTHER_ROOT = pathlib.Path("/sys/fs/cgroup")\n',
+         'CGROUP_ROOT = pathlib.Path("/sys/fs/cgroupfs")\n',
+         "[R]"),
+    )
+    for label, line, wrong_context, glued, needle in literals:
+        second = "/sys/class/net" if needle == "[R]" else "systemd"
+        arm(f"act-slot-{label}-exact-context", lambda r, t=line: plant(r, t), False)
+        arm(f"act-slot-{label}-wrong-context",
+            lambda r, t=wrong_context: plant(r, t), True, needle)
+        arm(f"act-slot-{label}-glued",
+            lambda r, t=glued: plant(r, t), True, needle)
+        # the line is the context: clean text before or after it unmasks it
+        arm(f"act-slot-{label}-prefixed",
+            lambda r, t=line: plant(r, "# " + t), True, needle)
+        arm(f"act-slot-{label}-trailing",
+            lambda r, t=line: plant(r, t.rstrip("\n") + "  # note\n"), True, needle)
+        arm(f"act-slot-{label}-same-line-term",
+            lambda r, t=line, s=second: plant(r, t.rstrip("\n") + f"  # {s}\n"),
+            True, needle)
+        arm(f"act-slot-{label}-wrong-file",
+            lambda r, t=line: plant(r, t, "scripts/other.py"), True, needle)
+        arm(f"act-slot-{label}-product-file",
+            lambda r, t=line: plant(r, t, PRODUCT_DOCS[0]), True, needle)
 
 
 def _arms_retired_surfaces(arm):
@@ -957,6 +1100,33 @@ def _arms_host_tooling_masks(arm):
         arm(f"runner-host-inventory-does-not-launder-{path}",
             lambda r, p=path, t=payload: plant_runner_path(
                 r, p, t.rstrip() + " /proc/mtd\n"), True, "[R]")
+
+    sdk_literals = (
+        ("host", "scripts/ci_rv32_sdk.py", '("Linux", "x86_64")'),
+        ("target", "scripts/ci_rv32_sdk.py", '"riscv32-buildroot-linux-gnu"'),
+        ("location", "scripts/ci_rv32_sdk.py", '"share/buildroot/sdk-location"'),
+        ("fixture-target", "scripts/ci_rv32_sdk_selftest.py",
+         "echo riscv32-buildroot-linux-gnu ;;"),
+        ("fixture-location", "scripts/ci_rv32_sdk_selftest.py",
+         "pwd > share/buildroot/sdk-location\\n"),
+    )
+    for label, path, payload in sdk_literals:
+        arm(f"sdk-identity-allowed-{label}",
+            lambda r, p=path, t=payload: plant_runner_path(r, p, t), False)
+        for destination in ("other.txt", PRODUCT_DOCS[0]):
+            expected = "[P]" if destination in PRODUCT_DOCS and "linux" in payload.lower() else "[T]"
+            arm(f"sdk-identity-wrong-file-{label}-{destination}",
+                lambda r, p=destination, t=payload: plant_runner_path(r, p, t),
+                True, expected)
+        arm(f"sdk-identity-second-term-{label}",
+            lambda r, p=path, t=payload: plant_runner_path(r, p, t + " rootfs"),
+            True, "[T]")
+    for payload in ('"share/buildroot/sdk-location/other"',
+                    '"riscv32-buildroot-linux-gnu-other"',
+                    '("Linux", "aarch64")'):
+        arm(f"sdk-identity-boundary-{payload}",
+            lambda r, t=payload: plant_runner_path(r, "scripts/ci_rv32_sdk.py", t),
+            True, "[T]")
 
     # generated outputs are scanned: a term planted in an .svg text node
     arm("term-in-generated-svg",
@@ -1304,9 +1474,9 @@ def selftest() -> tuple[list[str], int]:
     """Run every fixture arm: the arms whose verdict was not the one they
     were written for, and how many ran."""
     bench = _Bench()
-    for group in (_arms_control_and_terms, _arms_target_runtime,
+    for group in (_arms_control_and_terms, _arms_target_runtime, _arms_cancellation_process_masks,
                   _arms_retired_surfaces, _arms_host_tooling_masks,
-                  _arms_product_and_paths, _arms_build_configuration,
+                  _arms_act_slot_masks, _arms_product_and_paths, _arms_build_configuration,
                   _arms_image_mask_and_options, _arms_parsed_configs):
         group(bench.arm)
     _arms_symlinks_and_inventory(bench)

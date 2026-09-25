@@ -163,8 +163,8 @@ VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/suite-logs
 Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
 `ls tb/verilator/` is authoritative (one dir per suite).
 
-The default driver permits 1800 seconds per suite, and 2700 seconds for `milan_dp`.
-That figure is the suite's measured hosted worst case plus a stated margin (#444).
+The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
+[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets this deadline from recorded hosted samples.
 The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
 It excludes only the scheduled `milan_dp_gptp` directory.
 The separate physical job permits 5400 seconds, including compilation.
@@ -207,6 +207,53 @@ An explicit `SUITE_TIMEOUT` still overrides selected suite deadlines locally.
 CI unsets that override for the physical job.
 Expired runs remain TIMEOUT/UNKNOWN and return exit 92.
 
+INT/TERM cancellation instead returns 130/143 without a completed summary.
+The first signal stops later suite launches permanently.
+Selection, lock waits, preflight and suite transitions are covered.
+The driver stops and reaps its owned command subtree.
+Detached or stubborn descendants receive bounded escalation.
+Stable process handles prevent signalling reused numeric identities.
+Workstation process ownership requires pidfds and child adoption.
+Unsupported process facilities are refused before commands start.
+That refusal prints `REFUSED:` and exits 2, never a traceback.
+Cleanup allows two seconds before escalating stubborn descendants.
+Another two seconds bound reaping and terminal trap cleanup.
+These cleanup intervals do not change suite deadlines.
+Ordinary red suites still continue through the selected population.
+Masked verdicts still fail; deadline results remain unknown.
+
+A hard stop is not a cancellation.
+The launched process owns the sweep shell.
+That shell runs in its own session.
+A parent-death signal kills it when its owner dies.
+KILL or HUP to the owner or its group are controlled cases.
+The caller then sees that signal as the exit status.
+No later suite starts and no summary is printed.
+No cleanup runs, so the lock record may remain.
+A suite already running may finish, holding the lock until then.
+
+Partial suite logs remain under the requested output directory.
+Prerequisite logs remain within its `preflight/` directory.
+Old logs are cleared after locking, before preflight starts.
+Relative output paths retain their caller's location.
+Cancellation before log preparation reports that boundary explicitly.
+The sweep's normal preflight owns these deterministic cancellation controls:
+
+```sh
+python3 scripts/test_suite_cancellation.py
+```
+
+Fixtures retain the production sweep, selector and tally.
+Command handshakes establish signal boundaries without timing guesses.
+Assertions distinguish reaped identities from surviving zombies.
+A foreign sibling must remain untouched throughout cancellation.
+Restoring the original continuation behavior must execute the forbidden sentinel.
+Hard KILL and HUP stops must leave no output after the caller sees them.
+Letting owned commands outlive their owner must run the forbidden sentinel.
+Removed process facilities must produce the refusal, not a traceback.
+The [shadow lifecycle controls](../../tb/verilator/gptp_shadow/README.md#mutation-isolation-and-cancellation)
+also exercise cancellation with both production drivers nested.
+
 A long mutation campaign is an explicit target, never a raised deadline.
 #367 settled that rule and this page keeps the list of such targets.
 The `milan_dp` budget is no exception to it: it covers the unchanged suite on the slower hosted runner.
@@ -216,6 +263,9 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
 | Explicit campaign | Command | Who runs it |
 |---|---|---|
 | #447 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
+| #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
+| #508 GET_STREAM_INFO seam, the eight field and notification mutants | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather, the GET_STREAM_INFO answer block of `milan_datapath.sv` or the `[GSI]` section of `sim_nxn.cpp` |
+| #387 GM step re-base, the gmstep leg's nine controls and the option-off leg's two | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `sim_gmstep.cpp` or the option-off leg's PHC-step `mr` checks in `sim_main.cpp`. The default sweep runs the three controls #387's acceptance names |
 
 The default sweep still runs both render legs, and their assertions are unchanged.
 It also runs that campaign's leg-side defect arms, which need no elaboration.
@@ -411,7 +461,7 @@ verdicts and for check counts.
 | [`tb/verilator/clkvalid`](../../tb/verilator/clkvalid) | `KL_ptp_clock_validity` — the AVTP `tu` verdict, two shapes |
 | [`tb/verilator/cls`](../../tb/verilator/cls) | classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
 | [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) | the gating regression born from the CBS datapath bug |
-| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | the CRF Media Clock Input engine. It parses, counts and reports; since #74 the root's `media_clk_resolve` verdict decides whether its measurements steer the servo chain, so a CRF selection makes them actuate |
+| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. The default gate includes tu, jump, refill, sample-edge and servo-validity mutants |
 | [`tb/verilator/crf_tx`](../../tb/verilator/crf_tx) | — |
 | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** - that leg drove the old control-plane windows live. The `obj_pps` leg re-runs the same harness with `PPS_P=1` (#260): the 0x548 block decodes in every build, but `PTP_PPS_CTRL[0]`, its RO built bit `[16]` and `PTP_PPS_WIDTH` are gated, so the default leg grades the **UNSUPPORTED** arm (a structural zero at `o_pps_enable` whatever software writes) and this one grades the supported arm, from one set of expectations rather than two that drift |
 | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
@@ -425,13 +475,13 @@ verdicts and for check counts.
 | [`tb/verilator/link_guard`](../../tb/verilator/link_guard) | — |
 | [`tb/verilator/maap`](../../tb/verilator/maap) | `KL_maap`, which remains the shipping allocator while the processor's internal MAAP engine is disabled |
 | [`tb/verilator/mac_rmon`](../../tb/verilator/mac_rmon) | the revived RMON event derivation + STATS_CAP |
-| [`tb/verilator/media_grid_align`](../../tb/verilator/media_grid_align) | `KL_media_grid_align`, the #74 packet-grid alignment loop, closed-loop over the real `KL_media_nco` at the true 391/1591 divider ratio: both rate directions, zero junction slips, the watchdog disengage, and the beyond-authority clamp and recovery |
+| [`tb/verilator/media_grid_align`](../../tb/verilator/media_grid_align) | `KL_media_grid_align`, the #74 packet-grid alignment loop, closed-loop over the real `KL_media_nco` at the true 391/1591 divider ratio: both rate directions, zero junction slips, the watchdog disengage, and the beyond-authority clamp and recovery. Since #74 item 2 the real `KL_chan_map_capture` counters grade a lock raced onto the tick from either side, a held and a surplus frame there, and one free-running passage each way, with two mutants that must fail |
 | [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. Since #74 `KL_media_grid_align` steers it under a CRF selection; at INTERNAL it free-runs |
 | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule, and every leg parses the `gptp-processor` sources |
 | [`tb/verilator/milan_dp_render` `tdm8render`](../../tb/verilator/milan_dp_render) | **#447, the shipping TDM8 render lane end to end**: `make -C tb/verilator/milan_dp_render tdm8render`. Binds listener 0 over ACMP, programs a no-fixed-point permutation through the real dynamic `ADD_AUDIO_MAPPINGS` path, grades `GET_AUDIO_MAP` and the render RAM readback against its OWN issued route record, feeds channel-distinct AAF through the real acceptance/depacketizer/setpoint/crossbar chain, and decodes `tdm_bclk_o`/`tdm_fsync_o`/`tdm_dout_o` with a pin-only receiver that reads no DUT internal. It grades every 24-bit word and every 8-bit pad against an IMMUTABLE injection record, measures the commit-to-pin terms from registered events, and exercises the render epoch over a reset with the serial clock stopped, a reset inside the frame, a reset ON the frame wrap, a reset while a round trip is outstanding, a bind loss, a map write inside the closed epoch and a rebind. It grades the GRACEFUL FLUSH BOUNDARY from the pins as its own property: the last frame before digital silence must be a complete frame carrying one media event's identity in every routed slot, which is the whole-frame half of the flush contract that the silence checks cannot see. Every one of those states an EXACT epoch count - one counted reopening per event, two for two bind falls inside one round trip - counts the adapter's commits between a reset release and the reopening with the feed still running, and derives the first eligible media event from the preserved prefill rule instead of searching for it. Its `[CRF]` phase then selects this shape's CRF `CLOCK_SOURCE` through a real `SET_CLOCK_SOURCE` on the same AECP face, UNDER the running stream, feeds a real CRF stream into the provisioned sink and decodes the same pins again: the settled-grid recentre fires exactly once, the setpoint law holds in both states, and the commit-to-pin walk drops from the divider plan's `+10.64` ppm to zero. The deselect back to INTERNAL is the same transition the other way |
 | [`tb/verilator/milan_dp_render` `tdm8render-multi`](../../tb/verilator/milan_dp_render) | **#447 on a TWO-STREAM shape**: `make -C tb/verilator/milan_dp_render tdm8render-multi`. `gen_tdm8r_multi_shape.py` writes a second end-station config and the real builder derives its shape header and entity image, because two properties are unobservable on the one-stream shipping image. It binds both listeners and grades the STREAM-QUALIFIED epoch mask in both directions - a bind fall on a stream the lane does not render leaves the commit gate open for every cycle of the window, and the same fall on a stream the lane DOES render closes it, flushes to digital silence and reopens on a fresh post-flush event - and grades the three cluster-key classes (projected, in-range NONPHYSICAL, out of range) on BOTH the render RAM and the AECP protocol store |
 | `tdm8_render_mutants.py` | the mutation arm of both legs above, run through the EXPLICIT `make -C tb/verilator/milan_dp_render tdm8render-mutants` target: a per-mutant rebuild costs tens of minutes, so section 0's explicit-campaign rule applies and nothing in the inventory is trimmed for it. The suite's own default target runs the same runner with `--leg-defects`, which is the part of this inventory that needs no elaboration (the three leg-side defect arms and the two clean modes they are the negative of), so the sweep still holds an executable negative arm for these assertions. Its inventory is its own `MUTATIONS`, `CLEAN_CONTROLS` and `LEG_DEFECTS` tables, and every run prints the totals it actually ran: at this head eighteen gateware or generated-shape mutants, three leg-side defect arms, three clean controls and one positive control per elaboration and mode, 28 checks in all. Among them: an explicitly modelled bit-arrival skew that discriminates the gray counter crossing from a raw binary one; one cycle of modelled ARRIVAL SKEW on each of the render epoch's two crossed levels, which the shipping handshake must survive and a producer that rebuilds its reset condition from two reconverged levels must not; a request raised onto a still-visible acknowledgement; an epoch gate that reaches the frame CDC but not the adapter; a moved prefill target; a graceful flush that tears the frame in flight instead of zeroing the active frame at frame starts only; the unqualified bind-fall mask; a lane stream set that ignores the mapping's stream field; and a protocol-store mirror gated on the physical projection |
-| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Since #74 the build enables it through the live clock-source resolve (Section 7) |
+| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Since #74 the build enables it through the live clock-source resolve (Section 7). `sim_phc_step.cpp` runs it at the silicon window scale against a PHC step from 21 us to 1 s, and `make trace STEP_NS=<n>` prints the integrator window by window (#539) |
 | [`tb/verilator/mmcm_servo_autorepair`](../../tb/verilator/mmcm_servo_autorepair) | — |
 | [`tb/verilator/nvm_backend`](../../tb/verilator/nvm_backend) | the saved-state backing store on BYTES: region decode against an independently built image, the memory face, the bounds refusals, the section 9 status machine, and the parts of the [snapshot-ownership contract](../design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md) that are module properties (the reset row, the contract tag, the open vector, the checked window load, the accepted-load term, the capture identity, the pending bit). Four negative controls must each go RED, and it carries no `-Wno-*` at all |
 | [`tb/verilator/nvm_cosim`](../../tb/verilator/nvm_cosim) | the same contract's ORDERINGS, with the FIRMWARE in the loop: the shipping `KL_nvm_backend` and the shipping writer compiled for the host, against the real donor producer path at the pinned revision. Every mutant the contract page names must be killed by the ONE check the page names for it; a 2-bit capture identity must alias where 16 bits must not; a capture whose identity wraps to 0 must be acknowledged like any other, graded at 2 identity bits, the minimum the backend's elaboration contract admits (`make wrap`); and with `LEGACY_DIR` a pre-contract backend and writer must reproduce the three historical defects |
@@ -440,7 +490,7 @@ verdicts and for check counts.
 | [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) | **the control plane.** `milan_datapath` with the protocol processor elaborated in: presence + the `PP_STAT` `0x5B` tag, RX classify → FIFO → serializer → validator on a real ADP `ENTITY_DISCOVER`, the classifier rejecting non-control traffic, the side port answering with the processor's own `KLPP` magic, the class-D fabric face moving (`adp_next_avail_index_o` advances), the MAAP adapter refusing safely and granting, and a global `accepted == answered` anti-wedge invariant. It carries **no** `-Wno-*` at all, so every warning is fatal. Needs the public HTTPS `protocol-processor` and `gptp-processor` submodules, the second one through `milan_dp`'s source list |
 | [`tb/verilator/ptp`](../../tb/verilator/ptp) | PHC arithmetic vs an independent reference model, in **two elaborations**. The default `PPS_P=0` shape adds the option-off proof that `pps_o` is a structural zero while the PPS inputs are driven. The `PPS_P=1` shape (`pps_main.cpp`) grades the #260 output: twelve pulses on an ABSOLUTE `base + k*1e9` grid rather than pulse-to-pulse spacing, each within one counter increment of its boundary, the stretcher exactly `PPS_WIDTH_CYC_P` wide, and three negative controls  -  a fine fractional addend must move the edge in ticks and not in ns, the runtime enable alone must gate the pin, and enable arriving before the arm (the CDC order the one-word `PTP_PPS_CTRL` write produces) must emit no pulse and leave the target unadvanced |
 | [`tb/verilator/ptp_sync`](../../tb/verilator/ptp_sync) | the CSR↔PHC crossing, in **two elaborations**. Both grade the settime/adjtime payload alignment and the snapshot return; the `PPS_P=1` `obj_pps` leg adds the #260 alarm crossing: the enable reaches `ts_clk`, the arm lands as exactly one pulse with its 64-bit target already captured, and the live target publishes back to `aclk` on the free-running beat. A target that does not land with its arm pulse arms the comparator at a **stale boundary**, which is a pulse at the wrong time rather than a dead pin, so the default leg proves the parked arm holds a structural zero under the same stimulus |
-| [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) | — |
+| [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) | `ptp_ts_top`'s record pipeline (its interference harness, unchanged), then **#372's representative bound-assertion target**: `axis_mux_rr_2in_1out` alone at TDATA_WIDTH 8 and 64, with the checker in `tb/common/sva/` bound by module name. An independent scoreboard grades every beat and round-robin order, 21 non-vacuous witness pairs are graded against the harness's port counts (15 equality checks, 2 floors, 4 presence checks), and `sva_campaign.py` makes every property fail on a defect written against it, with assertions-disabled, mistyped-bind, swapped-port and unused-path controls that the harness must refuse and the detection check must fail ([assertion guide](ASSERTIONS.md)) |
 | [`tb/verilator/queues`](../../tb/verilator/queues) | — |
 | [`tb/verilator/render_setpoint`](../../tb/verilator/render_setpoint) | `KL_render_setpoint`, the #386 listener render setpoint stage: the fill law per PDU (prefill to the setpoint, the sawtooth, the first-event delay), byte-exact beats for 8, 3, 1 and 12 wire channels, the pop schedule, both rails, the observer, the one-shot recentre, a flush, an overrun, the event-atomic pop (a recentre or a flush inside the pop window leaves the crossbar whole events), a PDU end on a pop's own edge, an event judged full past a pop inside it, a wire channel count change, and a model of the crossbar's walker on every beat, run on an 8-lane and a 7-lane build -- and a thirteen-mutant arm that proves every one of those checks can fail. The datapath-level law rides `milan_dp`'s true-ratio leg (a live clock-source change under the running stream included) with its own four-mutant arm |
 | [`tb/verilator/rx_filter`](../../tb/verilator/rx_filter) | — |
@@ -449,7 +499,7 @@ verdicts and for check counts.
 | [`tb/verilator/tcam_csr`](../../tb/verilator/tcam_csr) | — |
 | [`tb/verilator/tdm`](../../tb/verilator/tdm) | — |
 | [`tb/verilator/tdm_render`](../../tb/verilator/tdm_render) | — |
-| [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) | `KL_talker_diag_ctx` grades the Milan Table 5.4 per-STREAM_OUTPUT counter arithmetic, including the nonvacuous MEDIA_RESET reset-on-start path. `milan_datapath` instantiates one context for every AAF output and the CRF output; `milan_dp` grades that integration and its AECP response path |
+| [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) | `KL_talker_diag_ctx` grades the Milan Table 5.4 per-STREAM_OUTPUT counter arithmetic, including the nonvacuous MEDIA_RESET reset-on-start path. `KL_media_clock_restart` feeds it the `mr` bit: its per-stream hold and, since #387, a request that lands on a pending restart merging with it (T17) until a PDU at the new level has gone out (T18), whose four failing engines `mcr_mutants.py` plants in the default target. `milan_datapath` instantiates one context for every AAF output and the CRF output; `milan_dp` grades that integration and its AECP response path |
 | [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) | the field-validation campaign -- **AAF only** since 2026-08-13 (Section 1.0); standalone `make` skips without tsn-gen, CI installs the pinned generator, and the full sweep rejects an uncounted skip |
 
 The standing rule is that every round grows this table. 2026-08-13 is the one

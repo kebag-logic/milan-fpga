@@ -351,9 +351,10 @@ void ChanMapCaptureHarness::pin_tdm_junction_slip_detector() {
   // virgin: the unfed gate needs a lane that has never seen a TDM write.   //
   // Rate accounting on lane A (frame marker = slot-0 write, vs tick_i):    //
   // dup = tick with no fresh frame (grid fast), skip = frame over an       //
-  // unread frame (grid slow), a same-cycle coincidence consumes silently,  //
-  // and a non-zero slot is not a frame marker. Later arms interleave       //
-  // frames and ticks freely, so nothing below re-reads these counters.     //
+  // unread frame (grid slow), a same-cycle coincidence counts nothing and  //
+  // carries a pending frame over (#74 item 2), and a non-zero slot is not  //
+  // a frame marker. Later arms interleave frames and ticks freely, so      //
+  // nothing below re-reads these counters.                                 //
   // ====================================================================== //
   printf("\n[T0] TDM junction slip detector (frame marker vs tick)\n");
   ck("T0: virgin dup",  dut->a_tdm_dup_cnt_o,  0);
@@ -374,17 +375,34 @@ void ChanMapCaptureHarness::pin_tdm_junction_slip_detector() {
   a_tick();                               // consumes the slot-0 pend
   ck("T0: non-zero slots are not frame markers (dup)",
      dut->a_tdm_dup_cnt_o, 3);
-  for (int i = 0; i < 3; i++) {           // same-cycle frame + tick
+  const auto coincide = [this] {          // same-cycle frame + tick
     dut->tdm_pair_valid_i = 1; dut->tdm_pair_slot_i = 0;
     dut->tdm_l_i = 0x171717; dut->tdm_r_i = 0x181818;
     dut->a_tick_i = 1; cyc();
     dut->tdm_pair_valid_i = 0; dut->a_tick_i = 0; cyc(WALK_C + 60);
-  }
+  };
+  for (int i = 0; i < 3; i++) coincide();
   ck("T0: coincidence counts nothing (dup)",  dut->a_tdm_dup_cnt_o,  3);
   ck("T0: coincidence counts nothing (skip)", dut->a_tdm_skip_cnt_o, 2);
   a_tick();                               // fed, nothing pending -> one dup
   ck("T0: still fed and consumed after coincidence",
      dut->a_tdm_dup_cnt_o, 4);
+  // #74 item 2: a coincidence OVER a pending frame. The tick takes the
+  // pending frame and the coincident one pends in its place; the law before
+  // dropped it uncounted, so the next tick cried a dup and the next frame
+  // hid its skip - the free-running miscount and the raced-lock chatter.
+  drv_tdm(0, 0x1B1B1B, 0x1C1C1C);         // pending
+  coincide();                             // carried over, not dropped
+  a_tick();                               // takes the carried frame
+  ck("T0: a coincidence carries a pending frame (no dup after)",
+     dut->a_tdm_dup_cnt_o, 4);
+  drv_tdm(0, 0x1B1B1B, 0x1C1C1C);         // pending
+  coincide();                             // carried over
+  drv_tdm(0, 0x1D1D1D, 0x1E1E1E);         // lands on the carried frame
+  ck("T0: a frame over a carried frame is a skip",
+     dut->a_tdm_skip_cnt_o, 3);
+  a_tick();                               // takes it, nothing left pending
+  ck("T0: the carried frames leave no dup behind", dut->a_tdm_dup_cnt_o, 4);
 }
 
 void ChanMapCaptureHarness::pin_capability_mask_says_mapped_but_unfed() {

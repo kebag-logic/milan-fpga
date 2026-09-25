@@ -60,9 +60,11 @@ flowchart LR
 - The fabric plane is their only consumer.
 - `PTP_INGRESS_LAT` and `PTP_EGRESS_LAT` stay inert scratch.
 - `GPTP_LAT` (`0x7F0`) publishes what is applied.
+- Link delay asymmetry is not modelled; it is zero (#511).
 - The engine runs peer delay and synchronization.
 - Rate updates steer PHC frequency.
 - Phase updates step PHC time.
+- The [step policy](#step-policy) chooses between them.
 - Publication commits expose synchronized state atomically.
 
 A correction's SUM is measured per board. Its split is assigned.
@@ -70,6 +72,40 @@ A correction's SUM is measured per board. Its split is assigned.
 The split moves the synchronized offset, never the peer delay.
 
 Read the [fabric-plane contract](GPTP_PLANE.md).
+
+### Step policy
+
+The fabric plane either steps or slews the PHC.
+
+This page is the parent's one record of that rule.
+
+The offset is local time minus grandmaster time.
+
+| Servo state | Which Sync pair | Slews up to | Steps above |
+|---|---|---|---|
+| Link-up | The first pair after asCapable rises | 20 us | 20 us |
+| Locked | Every later pair | 100 us | 100 us |
+
+- Every reset clears asCapable, so it re-arms link-up.
+- Nothing else re-arms link-up.
+- A grandmaster change keeps the servo locked.
+- So does a 375 ms Sync receipt timeout.
+- So does a return from grandmaster duty.
+- The written rate trim never exceeds 200 ppm.
+- That trim is proportional plus integral; both share the bound.
+- The plane's microcode clamps the trim to that bound.
+- `KL_gptp_txret` computes the same bound as `PHC_ADJ_MAX_C`.
+- It refuses egress timestamps while the trim exceeds it.
+- A 100 us slew takes 0.5 s or more.
+- One step is one `phc_step_we_o` pulse.
+- That pulse carries the measured offset, negated.
+- Each step is one counted [media event](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
+
+| Source | Record |
+|---|---|
+| Owner decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
+| Link-up ruling | [FPGA-gPTP #68](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68#issuecomment-5798089412) |
+| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/INTEGRATION.md#step-versus-slew-policy) |
 
 ## Media boundary
 
@@ -108,9 +144,13 @@ Each link has exactly one master.
 | MMCM servo error | Differential rate, ns per 512 ms window | `KL_mmcm_drp_servo` |
 | MMCM servo command | PI; 1/16 ppm per LSB; positive speeds up | `KL_mmcm_drp_servo`, `MCSRV_STAT[31:16]` |
 | MMCM servo bounds | +/-100 ppm per window slew; +/-200 ppm authority | `KL_mmcm_drp_servo` |
+| CRF talker discontinuity | Discard crossing rate history; preserve servo lock and integrator (#546) | `KL_crf_rx.rate_valid_o`, `KL_mmcm_drp_servo.crf_rate_valid_i` |
 | CRF unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
+| MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A [step-policy](#step-policy) slew is not a step and still reaches the integrator (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
+| MMCM servo on an implausible window | Error above 1024 ppm discarded; four in a row re-base the window | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
 | Grid-aligner error | Frame-marker phase at one-clock resolution | `KL_media_grid_align` |
 | Grid-aligner command | PI in servo units; +/-200 ppm authority | `KL_media_grid_align` |
+| Grid-aligner lock target | Engagement phase, kept 1/128 sample off the tick | `KL_media_grid_align` |
 
 | Function | Implemented | Product effect |
 |---|---|---|
@@ -123,6 +163,74 @@ Each link has exactly one master.
 | Stream-derived recovery | No | Not advertised: no INPUT_STREAM source on an AAF listener (#389) |
 | MMCM servo activation | Conditional | Steers audio clocks under CRF selection |
 | Packet-grid alignment | Conditional | Follows the physical sample grid |
+
+CRF rate history restarts on either received `tu` edge.
+
+IEEE 1722-2016 `4.4.4.7` defines uncertainty.
+
+Clause `10.4.5` maps CRF's bit.
+
+The separate `mr` restart follows `4.4.4.3` and `10.4.3`.
+
+Held `tu` permits recovery after 256 clean timestamp intervals.
+
+Sequence gaps also restart that history.
+
+Invalid or foreign PDUs never seed its reference.
+
+Silence, reset and binding changes invalidate old history.
+
+STOP suppresses sample validity while counters continue observing.
+
+An adjacent-timestamp jump provides the unmarked-step backstop.
+
+Its threshold derives from the 2 ms CRF interval.
+
+Combined media and PHC drift permits 601 ns deviation.
+
+LocalClock frequency must stay within +/-100 ppm.
+
+See IEEE 802.1AS Annex B.1.1.
+
+We assume that bound also applies to the media oscillator.
+
+Milan v1.2 section 7.4 constrains media clock sources.
+
+Their frequency tolerance must be better than +/-50 ppm.
+
+Using 100 ppm therefore adds conservative margin.
+
+The remote PHC is assumed to share our envelope.
+
+That includes +/-200 ppm trim and timestamp quantization.
+
+Our `timestamp_counter` increment plus adjustment stays below 384 ns.
+
+Two such timestamp quantization bounds add less than 768 ns.
+
+The drift calculation is `ceil(2,000,000 * 300 / 999,900)`.
+
+Adding quantization gives `601 + 768 = 1369 ns`.
+
+Rounding upward gives 2,048 ns.
+
+Both signed jumps are detected using full-width timestamps.
+
+This excludes network arrival jitter from the decision.
+
+The event's PDU seeds the new timestamp history.
+
+After 256 further intervals, the rate becomes valid again.
+
+Until then, `CRF_RATE` holds its last clean value.
+
+The servo skips invalid samples without changing its lock state.
+
+Local PHC guards remain independent of this validity signal.
+
+No additional CSR bit or discard tally is introduced.
+
+The [receiver suite](../../tb/verilator/crf_rx) exercises this connected path.
 
 A dead TDM feed disengages grid alignment.
 
@@ -155,7 +263,7 @@ The constant is independent of the audio interface.
 | Convergence band | +/-3 events at PDU ends, 100 ms | half a PDU |
 | Reset rail | +/-6 events at PDU ends | one PDU: a PDU one interval late never trips it; later than that trips the low rail |
 | Prefill | snap to setpoint + 6 at a PDU end | one bounded gap, no repeat storm |
-| Recentre | GM identity change, PHC adjtime or settime, a settled clock-source change | once, at the next PDU end |
+| Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a step is also one `mr` toggle ([media re-base](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step)) |
 | Clock-source settle | under CRF: the aligner engaged with its error inside 1/64 sample for 2048 ticks (43 ms), or engaged for 32768 ticks; at INTERNAL: 2048 ticks after the change | `milan_datapath` arms one recentre per change; repeated selections re-arm, never queue |
 | Pop | one event per stream per tick, decided at the stream's first beat | a rail, a recentre or a flush inside the pop window lands between events, never inside one |
 | Crossbar channel view | 2 x ceil(N_CH_P / 2) lanes per stream (8 on every in-tree shape) | the pad lane of an odd count is a virtual channel, never a wrap onto channel 0 |

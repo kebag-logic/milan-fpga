@@ -3,11 +3,12 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """I440 controls: literal HTML closers, fence trailers, and copied labels.
 
-Only fixtures and expected answers live here; gen_toc owns every Markdown
-decision. Character rows reconstruct the population in PR #428 R85-8 and
-R86-9: Python whitespace outside space/tab/LF, plus valid blank controls,
-inner blanks, ASCII capitals, Unicode folds and cross-name closers. The
-raw walk keeps CR inside a line; shipped text readers normalize it first.
+Only fixtures and expected answers live here; the pinned renderer decides
+every Markdown question and gen_toc reads its answer. Character rows
+reconstruct the population in PR #428 R85-8 and R86-9: Python whitespace
+outside space/tab/LF, plus valid blank controls, inner blanks, ASCII
+capitals, Unicode folds and cross-name closers. The renderer ends a line at
+a carriage return as GitHub does; shipped text readers normalize it first.
 These controls preserve that boundary and the existing refusal policy.
 """
 import tempfile
@@ -17,7 +18,7 @@ from types import ModuleType
 from gen_toc import FENCE, HTML, TEXT
 
 
-# Independent of REFUSED and RAW_HTML_TAGS to hold both name-set boundaries.
+# Independent of REFUSED and of the renderer's type-1 names, to hold both name-set boundaries.
 _CHARACTERS = ("\v\f\r\x1c\x1d\x1e\x1f\x85\xa0\u1680\u2000\u2001\u2002"
                "\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u2028"
                "\u2029\u202f\u205f\u3000")
@@ -38,9 +39,14 @@ def closer_arms() -> list[tuple[str, str, object]]:
         for trailer in ("", " ", "\t", " \t "):
             arms.append((f"I440-F-valid {fence!r} {trailer!r}",
                          f"{fence}\n{fence}{trailer}\n## Probe\n", _probe_kind(TEXT)))
-        for trailer in _CHARACTERS + "x":
+        for trailer in _CHARACTERS.replace("\r", "") + "x":
             arms.append((f"I440-F-invalid {fence!r} U+{ord(trailer):04X}",
                          f"{fence}\n{fence}{trailer}\n## Probe\n", _probe_kind(FENCE)))
+        # (renderer, #437) A carriage return before the line feed ends the
+        # closer's line for the renderer, so the fence closes: the raw walk
+        # this arm was written for kept the CR inside the line and withheld.
+        arms.append((f"I440-F-cr {fence!r} (renderer) a carriage return ends the closer's line",
+                     f"{fence}\n{fence}\r\n## Probe\n", _probe_kind(TEXT)))
     for opener in _NAMES:
         for joiner in ("\n", "x"):
             for closer in _NAMES:

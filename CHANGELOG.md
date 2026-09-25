@@ -8,6 +8,10 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
+- **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
+- **[Unreleased - licence and LeaveAll scope](#unreleased---licence-and-leaveall-scope)** -- No Listener Ready, no stream.
+- **[Unreleased - CRF input counters served](#unreleased---crf-input-counters-served)** -- The CRF input answers GET_COUNTERS.
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
 - **[At 0x0002_0060 - two descriptor fields name the device](#at-0x0002_0060---two-descriptor-fields-name-the-device)** -- Image only.
 - **[Release 0x0002_0060 - saved-state pending bit widened](#release-0x0002_0060---saved-state-pending-bit-widened)** -- Pending covers more cases.
@@ -23,6 +27,112 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin 990f9652
+
+- The processor pin moves from `09f9bf38` to `990f9652` (#508).
+- Processor issues 92 and 93: saved bindings survive the walk.
+- The walk now has a deadline: 20 ms by default.
+- The ACMP listener waits from reset for the walk.
+- So `PP_CTRL[1]` must start the walk on every boot.
+- The firmware's `nvm_boot()` already does; the harnesses now do too.
+- Processor issue 94: a descriptor-memory guard holds a late burst.
+- No port changes; the guard's debt output stays internal.
+- Processor issues 43 and 49: GET_STREAM_INFO reads processor state.
+- Input probing and ACMP status come from the listener record.
+- Input failure code and bridge id come from SRP.
+- Input selectors 5 and 7 never reach the datapath.
+- Its bound/settled approximation and zero bridge id are gone.
+- It leaves the input failure-code byte of selector 4 zero.
+- Every change of those fields pushes GET_STREAM_INFO once.
+- Processor issue 112: a re-declaration drops the grant until evaluated.
+- `LWSRP_STATUS[9]` and `LWSRP_SLOPE` follow; no gate reads them.
+- A round that meets a pending declaration now publishes nothing.
+- Processor issue 116: parent-gate comments and mutation deadlines corrected.
+- No behavior or external port changes; parent ratchets stay unchanged.
+- Processor issue 113: latency-only input changes now push GET_STREAM_INFO.
+- Unchanged refreshes stay silent; simultaneous field changes coalesce.
+- Its ROM digests are re-recorded; the images are unchanged.
+- `tb/verilator/milan_dp` `obj_notify` grades the seam in `[GSI]`.
+- `make gsi-mutants` holds its eight failing arms.
+- VERSION is unchanged; the release step owns the bump.
+
+## Unreleased - one media event per PHC step
+
+- Issue #387 decided a PHC step's media reaction.
+- Every step now toggles `mr` once, on every running stream.
+- That holds whatever the media clock source.
+- Each talker's MEDIA_RESET counts the toggle it sends.
+- The render stage re-centres once, on the step.
+- A grandmaster identity change no longer re-centres it.
+- So a change that steps counts one re-base, not two.
+- Software settime and plane-off adjtime are steps too.
+- A step on a pending `mr` restart merges with it.
+- A restart stays pending until its level is sent.
+- Exactly one toggle follows; nothing is cancelled.
+- Before, a second request flipped the target back.
+- Neither restart then reached the wire.
+- The restart target is therefore per stream.
+- The `milan_dp` gmstep leg joins the default sweep: 48/48.
+- Three negative controls run with it.
+- `make gmstep-mutants` plants all eleven.
+- Two of them grade the option-off leg's settime and INTERNAL-source `mr`.
+- `tkdiag` T17 grades the merge; T18 grades its end.
+- Four mutants must fail them.
+- No CSR moves.
+
+## Unreleased - licence and LeaveAll scope
+
+- Silicon streamed the CRF output before any Listener Ready (#530).
+- Every talker gate read the processor's raw admission verdict.
+- The Talker Advertise declaration alone raises that verdict.
+- The gates now read the processor's ACTIVE.
+- ACTIVE needs a Listener Ready or Ready Failed as well.
+- That covers the CRF licence and every AAF talker gate.
+- `CRFT_CTRL[6]` and `LWSRP_STATUS[8]` follow.
+- So do the `0x82C` talker lobs above index 0.
+- Only `LWSRP_STATUS[9]` and `LWSRP_SLOPE` keep the raw verdict.
+- No shaper reads either: none is instantiated.
+- ACTIVE can lead them by up to three admission rounds.
+- That needs a Listener Ready decoded within those rounds.
+- Each declaration clears its registered Listener first.
+- For an admitted stream the lead is status skew only.
+- A refused stream keeps ACTIVE until that window ends.
+- It stays licensed for up to three rounds.
+- A controller reads a `STREAM_START` and `STREAM_STOP` pair.
+- The start resets the Table 5.4 interval counters.
+- At most one PDU per source can leave.
+- The CRF output shows this on `CRFT_CTRL[6]`/`[7]`.
+- `LWSRP_STATUS[6]` is ACTIVE ORed over all sources.
+- `LWSRP_STATUS[8]` shows source 0 only.
+- Issue #551 asks whether the licence should need the grant.
+- A bound CRF talker also ended its own bursts.
+- The processor pin moves to `09f9bf38` (processor issue 106).
+- Its LeaveAll now flags every MSRP attribute type.
+- It applies a received LeaveAll per attribute type.
+- Its ROM digests are re-recorded; the images are unchanged.
+- FRAMES_TX read 16: Table 5.4 counts intervals, not PDUs.
+- `CRFT_COUNT` is the PDU total; its row now says so.
+- VERSION is unchanged; the release step owns the bump.
+- No descriptor changes.
+- `tb/verilator/milan_dp` `obj_crflic` proves it at compressed time.
+- `make crflic-mutants` holds its failing arms.
+
+## Unreleased - CRF input counters served
+
+- The CRF Media Clock Input's counters mask was empty.
+- Controllers therefore rated the entity IEEE 1722.1 only (#529).
+- `KL_crf_rx` already kept all ten Table 5.16 counters.
+- The root now serves them for STREAM_INPUT `N_STREAMS`.
+- Each is 32 bits wide, at its Table 7-157 quadlet.
+- `counters_valid` is `0xF3F`; the two tv tallies stay unclaimed.
+- The AAF inputs keep `0xFFF`.
+- An undeclared index still answers NO_SUCH_DESCRIPTOR.
+- Its dirty pulse now reaches the Table 5.22 arbiter.
+- That row pushes at most once a second.
+- Generic synthesis of `milan_datapath` grows by 1,134 cells (0.07%).
+- VERSION is unchanged; the release step owns the bump.
+- `tb/verilator/milan_dp` proves it in `[CTRS-CRF]` and `[NOTIFY-CRF]`.
 
 ## Unreleased - gPTP egress launch time
 
