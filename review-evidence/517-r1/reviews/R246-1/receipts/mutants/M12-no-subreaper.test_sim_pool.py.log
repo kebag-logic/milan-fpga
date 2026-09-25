@@ -1,0 +1,21 @@
+$ timeout -k 5 90 /usr/bin/python3 test_sim_pool.py
+rc=1
+[PASS] arm_both_worker_counts_run_each_leg_once_as_the_recipe_did
+[PASS] arm_every_byte_is_replayed_in_recipe_order
+[PASS] arm_a_leg_that_finishes_first_still_prints_second
+[PASS] arm_never_more_than_two_legs_alive
+[PASS] arm_shared_group_is_exclusive_ordered_and_allows_independent_overlap
+[PASS] arm_skipped_group_members_do_not_hide_later_logs
+[PASS] arm_worker_counts_other_than_one_or_two_are_refused
+[PASS] arm_a_failing_leg_fails_the_run_and_stops_later_starts
+[PASS] arm_a_leg_killed_by_a_signal_fails_the_run
+[PASS] arm_a_leg_that_cannot_start_fails_the_run
+[PASS] arm_a_leg_that_prints_fail_and_exits_0_is_not_masked
+[FAIL] arm_an_interrupt_kills_every_leg_and_what_it_spawned: AssertionError: owned PID 3097513 survived or was not reaped
+[FAIL] arm_a_leg_that_exits_leaves_nothing_it_spawned: AssertionError: owned PID 3097521 survived or was not reaped
+[PASS] arm_an_interrupt_inherited_as_ignored_stays_ignored
+[PASS] arm_the_frame_dump_variable_runs_one_leg_at_a_time
+[PASS] arm_the_runner_adds_no_check_and_no_failure
+[PASS] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs
+
+17 checks: 15 PASS, 2 FAIL

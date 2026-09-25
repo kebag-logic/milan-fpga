@@ -1,0 +1,31 @@
+$ timeout -k 5 90 /usr/bin/python3 test_sim_pool_backpressure.py
+rc=1
+[PASS] direct-copy-SIGINT-active
+[PASS] direct-copy-SIGINT-repeated
+[PASS] direct-copy-SIGINT-child-exit
+[PASS] direct-copy-SIGTERM-active
+[PASS] direct-copy-SIGTERM-repeated
+[PASS] direct-copy-SIGTERM-child-exit
+[PASS] direct-copy-normal-drain
+[PASS] direct-flush-SIGINT-active
+[PASS] direct-flush-SIGINT-repeated
+[PASS] direct-flush-SIGINT-child-exit
+[PASS] direct-flush-SIGTERM-active
+[PASS] direct-flush-SIGTERM-repeated
+[PASS] direct-flush-SIGTERM-child-exit
+[PASS] direct-flush-normal-drain
+[FAIL] make-copy-SIGINT-active: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/tmp/sim-pool-backpressure-gdbzyg7w/make-copy-SIGINT-active/obj_legs/02-Vmilan_dp_notify.log'
+[FAIL] make-copy-SIGINT-repeated: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/tmp/sim-pool-backpressure-gdbzyg7w/make-copy-SIGINT-repeated/obj_legs/02-Vmilan_dp_notify.log'
+[FAIL] make-copy-SIGINT-child-exit: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/tmp/sim-pool-backpressure-gdbzyg7w/make-copy-SIGINT-child-exit/obj_legs/02-Vmilan_dp_notify.log'
+[FAIL] make-copy-SIGTERM-active: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/tmp/sim-pool-backpressure-gdbzyg7w/make-copy-SIGTERM-active/obj_legs/02-Vmilan_dp_notify.log'
+[FAIL] make-copy-SIGTERM-repeated: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/tmp/sim-pool-backpressure-gdbzyg7w/make-copy-SIGTERM-repeated/obj_legs/02-Vmilan_dp_notify.log'
+[FAIL] make-copy-SIGTERM-child-exit: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/tmp/sim-pool-backpressure-gdbzyg7w/make-copy-SIGTERM-child-exit/obj_legs/02-Vmilan_dp_notify.log'
+[PASS] make-copy-normal-drain
+[FAIL] make-flush-SIGINT-active: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/tmp/sim-pool-backpressure-gdbzyg7w/make-flush-SIGINT-active/obj_legs/02-Vmilan_dp_notify.log'
+[FAIL] make-flush-SIGINT-repeated: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/tmp/sim-pool-backpressure-gdbzyg7w/make-flush-SIGINT-repeated/obj_legs/02-Vmilan_dp_notify.log'
+[FAIL] make-flush-SIGINT-child-exit: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/tmp/sim-pool-backpressure-gdbzyg7w/make-flush-SIGINT-child-exit/obj_legs/02-Vmilan_dp_notify.log'
+[FAIL] make-flush-SIGTERM-active: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/tmp/sim-pool-backpressure-gdbzyg7w/make-flush-SIGTERM-active/obj_legs/02-Vmilan_dp_notify.log'
+[FAIL] make-flush-SIGTERM-repeated: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/tmp/sim-pool-backpressure-gdbzyg7w/make-flush-SIGTERM-repeated/obj_legs/02-Vmilan_dp_notify.log'
+[FAIL] make-flush-SIGTERM-child-exit: FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/tmp/sim-pool-backpressure-gdbzyg7w/make-flush-SIGTERM-child-exit/obj_legs/02-Vmilan_dp_notify.log'
+[PASS] make-flush-normal-drain
+28 backpressure controls: 16 PASS, 12 FAIL

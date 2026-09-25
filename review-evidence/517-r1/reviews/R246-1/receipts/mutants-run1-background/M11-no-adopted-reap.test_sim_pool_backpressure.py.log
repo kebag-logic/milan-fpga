@@ -1,0 +1,31 @@
+$ timeout -k 5 90 /usr/bin/python3 test_sim_pool_backpressure.py
+rc=1
+[FAIL] direct-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-copy-SIGINT-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-copy-SIGINT-child-exit: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-copy-SIGTERM-active: AssertionError: owned processes not reaped
+[FAIL] direct-copy-SIGTERM-repeated: AssertionError: owned processes not reaped
+[FAIL] direct-copy-SIGTERM-child-exit: AssertionError: owned processes not reaped
+[FAIL] direct-copy-normal-drain: AssertionError: owned PID 2974066 survived or was not reaped
+[FAIL] direct-flush-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-flush-SIGINT-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-flush-SIGINT-child-exit: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-flush-SIGTERM-active: AssertionError: owned processes not reaped
+[FAIL] direct-flush-SIGTERM-repeated: AssertionError: owned processes not reaped
+[FAIL] direct-flush-SIGTERM-child-exit: AssertionError: owned processes not reaped
+[FAIL] direct-flush-normal-drain: AssertionError: owned PID 2976264 survived or was not reaped
+[FAIL] make-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-copy-SIGINT-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-copy-SIGINT-child-exit: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-copy-SIGTERM-active: AssertionError: owned processes not reaped
+[FAIL] make-copy-SIGTERM-repeated: AssertionError: owned processes not reaped
+[FAIL] make-copy-SIGTERM-child-exit: AssertionError: owned processes not reaped
+[FAIL] make-copy-normal-drain: AssertionError: owned PID 2980239 survived or was not reaped
+[FAIL] make-flush-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-flush-SIGINT-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-flush-SIGINT-child-exit: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-flush-SIGTERM-active: AssertionError: owned processes not reaped
+[FAIL] make-flush-SIGTERM-repeated: AssertionError: owned processes not reaped
+[FAIL] make-flush-SIGTERM-child-exit: AssertionError: owned processes not reaped
+[FAIL] make-flush-normal-drain: AssertionError: owned PID 2986401 survived or was not reaped
+28 backpressure controls: 0 PASS, 28 FAIL

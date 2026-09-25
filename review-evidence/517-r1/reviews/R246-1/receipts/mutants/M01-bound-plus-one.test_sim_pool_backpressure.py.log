@@ -1,0 +1,31 @@
+$ timeout -k 5 90 /usr/bin/python3 test_sim_pool_backpressure.py
+rc=1
+[PASS] direct-copy-SIGINT-active
+[PASS] direct-copy-SIGINT-repeated
+[PASS] direct-copy-SIGINT-child-exit
+[PASS] direct-copy-SIGTERM-active
+[PASS] direct-copy-SIGTERM-repeated
+[PASS] direct-copy-SIGTERM-child-exit
+[PASS] direct-copy-normal-drain
+[PASS] direct-flush-SIGINT-active
+[PASS] direct-flush-SIGINT-repeated
+[PASS] direct-flush-SIGINT-child-exit
+[PASS] direct-flush-SIGTERM-active
+[PASS] direct-flush-SIGTERM-repeated
+[PASS] direct-flush-SIGTERM-child-exit
+[PASS] direct-flush-normal-drain
+[FAIL] make-copy-SIGINT-active: AssertionError: 
+[FAIL] make-copy-SIGINT-repeated: AssertionError: 
+[FAIL] make-copy-SIGINT-child-exit: AssertionError: 
+[FAIL] make-copy-SIGTERM-active: AssertionError: 
+[FAIL] make-copy-SIGTERM-repeated: AssertionError: 
+[FAIL] make-copy-SIGTERM-child-exit: AssertionError: 
+[PASS] make-copy-normal-drain
+[FAIL] make-flush-SIGINT-active: AssertionError: 
+[FAIL] make-flush-SIGINT-repeated: AssertionError: 
+[FAIL] make-flush-SIGINT-child-exit: AssertionError: 
+[FAIL] make-flush-SIGTERM-active: AssertionError: 
+[PASS] make-flush-SIGTERM-repeated
+[FAIL] make-flush-SIGTERM-child-exit: AssertionError: 
+[PASS] make-flush-normal-drain
+28 backpressure controls: 17 PASS, 11 FAIL

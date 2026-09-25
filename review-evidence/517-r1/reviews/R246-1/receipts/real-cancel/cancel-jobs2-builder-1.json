@@ -1,0 +1,32 @@
+{
+ "delay_s": -1.0,
+ "runner_status": -15,
+ "runner_exit_within_s": 0.05,
+ "snapshot": {
+  "3428098": "python3 sim_pool.py --jobs=2 ./obj_dir/Vmilan_dp_sim --banner ---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processo",
+  "3428099": "./obj_dir/Vmilan_dp_sim ",
+  "3428100": "./obj_notify/Vmilan_dp_notify ",
+  "3428115": "sh -c -- python3 ../../../sw/builder/endstation_builder.py '../../../configs/endstation_ax7101_1x1_tdm8.yaml' -o '$PACKET/scratch/",
+  "3428116": "python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o $PACKET/scratch/tmp/milan_nx"
+ },
+ "survivors": {},
+ "live_after": {},
+ "killed_lines": [
+  "sim_pool: ./obj_dir/Vmilan_dp_sim was killed by this runner on SIGTERM; its output above is incomplete",
+  "sim_pool: ./obj_notify/Vmilan_dp_notify was killed by this runner on SIGTERM; its output above is incomplete"
+ ],
+ "unstarted_lines": [
+  "sim_pool: ./obj_crflic/Vmilan_dp_crflic was not started before SIGTERM",
+  "sim_pool: ./obj_nxn/Vmilan_dp_nxn was not started before SIGTERM",
+  "sim_pool: ./obj_nxndv/Vmilan_dp_nxndv was not started before SIGTERM",
+  "sim_pool: ./obj_nxn8/Vmilan_dp_nxn8 was not started before SIGTERM",
+  "sim_pool: ./obj_nxn4c/Vmilan_dp_nxn4c was not started before SIGTERM",
+  "sim_pool: ./obj_nolpf/Vmilan_dp_nolpf was not started before SIGTERM",
+  "sim_pool: ./obj_prune/Vmilan_dp_prune was not started before SIGTERM",
+  "sim_pool: ./obj_ax1x1/Vmilan_dp_ax1x1 was not started before SIGTERM",
+  "sim_pool: ./obj_aclk/Vmilan_dp_aclk was not started before SIGTERM"
+ ],
+ "delivered_bytes": 4096,
+ "transcript_bytes": 5092,
+ "delivered_is_prefix": true
+}
