@@ -1,0 +1,104 @@
+[P0] lock at the silicon window scale (talker +20 ppm)
+  [ ok ] [P0] state LOCKED                        got=4 exp=4
+  [ ok ] [P0] windows to LOCKED = 11 in [1, 39]
+  [ ok ] [P0] the last window committed
+  [ ok ] [P0] last window error (x512 ppm) = 60 in [-1023, 1023]
+  [ ok ] [P0] integrator ~ talker - base (x512 ppm) = 15680 in [14664, 16712]
+[S1] policy slew +100000 ns at 200 ppm
+  slew      ew=  +51239 ( +100.08 ppm) integ= +15680 ( +30.62 ppm) u_cmd= +15695 ( +30.65 ppm) trim= +490 discard state=4
+  [ ok ] [S1] overlapped window is discarded
+  [ ok ] [S1] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S1] written rate held exactly = 0 in [0, 0]
+  slew      ew=  +48861 (  +95.43 ppm) integ= +15680 ( +30.62 ppm) u_cmd= +15695 ( +30.65 ppm) trim= +490 discard state=4
+  [ ok ] [S1] overlapped window is discarded
+  [ ok ] [S1] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S1] written rate held exactly = 0 in [0, 0]
+  [ ok ] [S1] tail window closes after deassertion
+  [ ok ] [S1] discards counted = 2 in [2, 2]
+  [ ok ] [S1] next window committed
+  [ ok ] [S1] next window error = 40 in [-1023, 1023]
+  [ ok ] [S1] integrator moved = 20 in [-512, 512]
+  [ ok ] [S1] written rate moved = 15 in [-1024, 1024]
+  [ ok ] [S1] LOCKED on every edge
+  [ ok ] [S1] first clean close within 1.536 seconds of start
+[S1] policy slew -100000 ns at 200 ppm
+  slew      ew=  -51159 (  -99.92 ppm) integ= +15700 ( +30.66 ppm) u_cmd= +15710 ( +30.68 ppm) trim= +490 discard state=4
+  [ ok ] [S1] overlapped window is discarded
+  [ ok ] [S1] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S1] written rate held exactly = 0 in [0, 0]
+  slew      ew=  -48781 (  -95.28 ppm) integ= +15700 ( +30.66 ppm) u_cmd= +15710 ( +30.68 ppm) trim= +490 discard state=4
+  [ ok ] [S1] overlapped window is discarded
+  [ ok ] [S1] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S1] written rate held exactly = 0 in [0, 0]
+  [ ok ] [S1] tail window closes after deassertion
+  [ ok ] [S1] discards counted = 2 in [2, 2]
+  [ ok ] [S1] next window committed
+  [ ok ] [S1] next window error = 20 in [-1023, 1023]
+  [ ok ] [S1] integrator moved = 10 in [-512, 512]
+  [ ok ] [S1] written rate moved = 5 in [-1024, 1024]
+  [ ok ] [S1] LOCKED on every edge
+  [ ok ] [S1] first clean close within 1.536 seconds of start
+[S1] policy slew +100 ns at 200 ppm
+  slew      ew=    +100 (   +0.20 ppm) integ= +15710 ( +30.68 ppm) u_cmd= +15715 ( +30.69 ppm) trim= +491 discard state=4
+  [ ok ] [S1] overlapped window is discarded
+  [ ok ] [S1] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S1] written rate held exactly = 0 in [0, 0]
+  [ ok ] [S1] tail window closes after deassertion
+  [ ok ] [S1] discards counted = 1 in [1, 1]
+  [ ok ] [S1] next window committed
+  [ ok ] [S1] next window error = 20 in [-1023, 1023]
+  [ ok ] [S1] integrator moved = 10 in [-512, 512]
+  [ ok ] [S1] written rate moved = 10 in [-1024, 1024]
+  [ ok ] [S1] LOCKED on every edge
+  [ ok ] [S1] first clean close within 1.536 seconds of start
+  [ ok ] [S2] arm: boundary next edge
+  [ ok ] [S2] boundary sample is discarded
+  [ ok ] [S2] shared endpoint taints next window
+  [ ok ] [S2] discards counted = 2 in [2, 2]
+  [ ok ] [S2] next window committed
+  [ ok ] [S2] next window error = 0 in [-1023, 1023]
+  [ ok ] [S2] integrator moved = 0 in [-512, 512]
+  [ ok ] [S2] written rate moved = -5 in [-1024, 1024]
+  [ ok ] [S2] LOCKED on every edge
+  [ ok ] [S3] clean pre-slew window commits
+  [ ok ] [S3] partial window is discarded
+  [ ok ] [S3] discards counted = 1 in [1, 1]
+  [ ok ] [S3] next window committed
+  [ ok ] [S3] next window error = 0 in [-1023, 1023]
+  [ ok ] [S3] integrator moved = 0 in [-512, 512]
+  [ ok ] [S3] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [S3] LOCKED on every edge
+  [ ok ] [S4] held level discards every window
+  [ ok ] [S4] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S4] held level discards every window
+  [ ok ] [S4] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S4] held level discards every window
+  [ ok ] [S4] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S4] held level discards every window
+  [ ok ] [S4] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S4] held level discards every window
+  [ ok ] [S4] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S4] held level discards every window
+  [ ok ] [S4] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S4] held level discards every window
+  [ ok ] [S4] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S4] final partial window discarded
+  [ ok ] [S4] discards counted = 8 in [8, 8]
+  [ ok ] [S4] next window committed
+  [ ok ] [S4] next window error = 0 in [-1023, 1023]
+  [ ok ] [S4] integrator moved = 0 in [-512, 512]
+  [ ok ] [S4] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [S4] LOCKED on every edge
+  [ ok ] [S5] arm: stepped sample staged, T0 next edge
+  [ ok ] [S5] arm: boundary fired on the stepped sample
+  [ ok ] [S5] coincident step+slew window counted once = 1 in [1, 1]
+[P4] rate path: talker +20 -> -20 ppm, no step
+  [ ok ] [P4] the first window after the change commits
+  [ ok ] [P4] its error carries the rate change (x512 ppm) = -20480 in [-23040, -2560]
+  [ ok ] [P4] re-LOCKED on the new rate           got=4 exp=4
+  [ ok ] [P4] integrator ~ new talker - base (x512 ppm) = -4690 in [-5816, -3768]
+  [ ok ] [P4] nothing discarded = 0 in [0, 0]
+== mmcm_servo phc_step: checks: 90   failures: 0 ==
+RESULT: PASS
+344.36 s
+EXIT 0

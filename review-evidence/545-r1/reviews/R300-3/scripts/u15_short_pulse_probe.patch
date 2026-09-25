@@ -1,0 +1,24 @@
+--- a/tb/verilator/mmcm_servo/sim_main.cpp	2026-09-25 11:55:07.000000000 +0200
++++ b/tb/verilator/mmcm_servo/sim_main.cpp	2026-09-25 12:53:28.560926084 +0200
+@@ -560,15 +560,16 @@
+         // streak to zero and hide a regression that counts slew discards.
+         run_noting_discards(12.0, 1, before);
+         ck("[U15] arm: one guard discard opens a streak", before.size(), 1);
++        // PROBE: a 1 ms pulse inside one window; its boundary sample is clean.
++        run_ms(1.0);
+         dut->phc_slew_active_i = 1;
++        run_ms(1.0);
++        dut->phc_slew_active_i = 0;
+         std::vector<double> during;
+         run_noting_discards(8.0, 1, during);
+         ck("[U15] arm: slew window discarded", during.size(), 1);
+-        dut->phc_slew_active_i = 0;
+-        // The shared endpoint also taints the following partial window.
+-        std::vector<double> tail;
+-        run_noting_discards(8.0, 1, tail);
+-        ck("[U15] arm: partial tail discarded", tail.size(), 1);
++        printf("  info: probe pulse window discarded at %.0f ticks after arming trip\n",
++               (during[0] - before[0]) / TICK_FS);
+         std::vector<double> after;
+         run_noting_discards(40.0, 5, after);
+         dut->crf_rate_i = rate_for_ppm(+80.0);
