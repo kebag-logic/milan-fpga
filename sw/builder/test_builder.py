@@ -4462,15 +4462,16 @@ def test_baremetal_profile_contract() -> None:
     census_defines = {
         "SPIFLASH_BASE": 0x2000_0000,
         "MILAN_AEM_DESC_BASE": 0x7F70_0000,
-        "MILAN_ENTITY_ID_LO": 0x1122_3344, "MILAN_ENTITY_ID_HI": 0x5566_7788,
-        "MILAN_MODEL_ID_LO": 0x0A0B_0C0D, "MILAN_MODEL_ID_HI": 0x0102_0304,
-        "MILAN_STATION_MAC_LO": 0x3, "MILAN_STATION_MAC_HI": 0x200,
-        "MILAN_SR_VID": 2, "MILAN_LWSRP_CTRL_RESET": 0x10,
-        # This census fixture declares one AAF and one CRF output.
-        "MILAN_AAF_CTRL_BOOT": 0x0002_0001,
-        "MILAN_MAAP_CTRL_BOOT": 0x0000_0201,
-        "MILAN_MAC_CTRL_SET": 8, "MILAN_TCAM_CTRL_BOOT": 1,
-        "MILAN_N_TALKERS": 1, "MILAN_AEM_FLASH_OFFSET": 0x00E0_0000,
+        # Synthetic identity sentinels, with boot words derived exactly as
+        # the generated header for one AAF and one CRF output.
+        **boot_policy.fabric_constants(
+            {"adp": {"entity_id": "5566778811223344",
+                     "mac_address": "03:00:00:00:00:02"},
+             "entity": {"entity_model_id": "010203040a0b0c0d"},
+             "stream_outputs": [{"kind": "aaf"}, {"kind": "crf"}]},
+            {"reset_words": {"LWSRP_VID": "0x0002",
+                             "LWSRP_CTRL": "0x0010"}}),
+        "MILAN_AEM_FLASH_OFFSET": 0x00E0_0000,
         "MILAN_AEM_IMAGE_BYTES": 4096, "MILAN_AEM_IMAGE_CRC32": 0xDEAD_BEEF,
         # the saved-state writer's constants (#70): the two journal slots,
         # the staged container's band inside the reserved processor window
@@ -4489,11 +4490,8 @@ def test_baremetal_profile_contract() -> None:
         **{f"MILAN_NVM_MAPIN_ENTRIES_{k}": 0 for k in range(16)},
         **{f"MILAN_NVM_MAPOUT_ENTRIES_{k}": (17 if k == 0 else 0)
            for k in range(16)},
-        # #398: the writer's five waits as milan_soc.py publishes them, and
-        # the CRF talker's boot word a declared CRF output gets
+        # #398: the writer's five waits as milan_soc.py publishes them.
         **nvm_shape.WRITER_TIMING_MS,
-        "MILAN_CRF_TX_CTRL_BOOT": (boot_policy.CRFT_TALKER_ENABLE |
-                                   boot_policy.CRFT_CLASS_A_DECLARE),
     }
     #: The RV32 cross compiler is the real target and the only one that can
     #: assemble the firmware's RISC-V asm; a host compiler answers every
@@ -27548,6 +27546,13 @@ def test_boot_policy_follows_the_declaration() -> None:
           f"for the rule each breaks: {'; '.join(caught)}")
 
 
+def test_nvm_firmware_shapes() -> None:
+    """Compile and grade the saved-state writer for every generated shape."""
+    subprocess.run(
+        [sys.executable, str(ROOT / "sw/firmware/nvm_hosttest/test_nvm_firmware.py"),
+         "--self-test"], check=True, cwd=ROOT, timeout=600)
+
+
 if __name__ == "__main__":
     from test_declarations import test_declaration_contracts
 
@@ -27622,6 +27627,7 @@ if __name__ == "__main__":
                test_per_row_format_facts_are_per_row,
                test_builder_doc_key_map,
                test_boot_policy_follows_the_declaration,
+               test_nvm_firmware_shapes,
                test_gptp_latency_corrections_are_declared_and_carried,
                test_audio_unit_rates_loader_contract,
                test_audio_unit_shipping_rates,

@@ -82,6 +82,7 @@ from nvm_shape import (binding_base, build, firmware_constants,  # noqa: E402
                        inventory, layout_version)
 from check_nvm_record_space import expected_payloads          # noqa: E402
 from flash_map import literal                                  # noqa: E402
+from boot_policy import fabric_constants                       # noqa: E402
 
 FIRMWARE = ROOT / "sw/firmware/milan_baremetal/milan_baremetal.c"
 HARNESS = HERE / "nvm_host.c"
@@ -162,19 +163,14 @@ class Bench:
                 for rid, fr in self.frames.items()}
 
 
-def constants_header(shape: Shape, donor: Donor, ident: Ident) -> str:
+def constants_header(shape: Shape, donor: Donor,
+                     boot_constants: dict[str, int]) -> str:
     """The stub `generated/soc.h`: the constants milan_soc.py publishes, from
     the SAME derivation, plus the host addresses the bases resolve to."""
     lines = ["#pragma once", "#include <nvm_host.h>",
              "#define CONFIG_CLOCK_FREQUENCY 100000000"]
     values = {
-        "MILAN_ENTITY_ID_LO": ident.entity_id & 0xFFFF_FFFF,
-        "MILAN_ENTITY_ID_HI": ident.entity_id >> 32,
-        "MILAN_MODEL_ID_LO": ident.model_id & 0xFFFF_FFFF,
-        "MILAN_MODEL_ID_HI": ident.model_id >> 32,
-        "MILAN_STATION_MAC_LO": 0x0403_0201, "MILAN_STATION_MAC_HI": 0x0605,
-        "MILAN_N_TALKERS": 1, "MILAN_SR_VID": 2, "MILAN_LWSRP_CTRL_RESET": 0,
-        "MILAN_CRF_TX_CTRL_BOOT": 3,
+        **boot_constants,
         "MILAN_AEM_FLASH_OFFSET": AEM_OFFSET,
         "MILAN_AEM_IMAGE_BYTES": len(AEM_STUB),
         "MILAN_AEM_IMAGE_CRC32": zlib.crc32(AEM_STUB) & 0xFFFF_FFFF,
@@ -222,12 +218,15 @@ def make_bench(cfg: Path, work: Path, firmware_text: str) -> Bench:
     names, dc, spi, spo = build(cfg, work / "builder")
     shape = Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo)
     donor = Donor(base=binding_base(), layout=layout_version())
-    overlay = json.loads((work / "builder" / cfg.stem / "aem_overlay.json").read_text())
+    generated = work / "builder" / cfg.stem
+    overlay = json.loads((generated / "aem_overlay.json").read_text())
+    lwsrp = json.loads((generated / "lwsrp_table.json").read_text())
     ident = Ident(seq=0, entity_id=int(overlay["adp"]["entity_id"], 16),
                   model_id=int(overlay["entity"]["entity_model_id"], 16))
     frames = {r: frame_record(r, payload_bytes(g, i, r, p), donor.layout)
               for g, i, r, p, _b in inventory(shape, donor.base) if r is not None}
-    binary = compile_bench(work, firmware_text, constants_header(shape, donor, ident))
+    header = constants_header(shape, donor, fabric_constants(overlay, lwsrp))
+    binary = compile_bench(work, firmware_text, header)
     return Bench(cfg=cfg, shape=shape, donor=donor, ident=ident, binary=binary,
                  work=work, frames=frames, expect=expected_payloads(shape))
 
