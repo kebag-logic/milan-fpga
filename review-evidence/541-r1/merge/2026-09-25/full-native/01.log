@@ -1,0 +1,66 @@
+shard: 0/1   selected suites: 55
+PASS     aaf
+PASS     aaf_audio_loop
+PASS     aaf_latency_tap_bank
+PASS     aaf_latency_taps
+PASS     adp_tx
+PASS     aes3
+PASS     avtp_parser
+PASS     avtp_rxmon
+PASS     avtp_stream
+PASS     cbs
+PASS     cdc
+PASS     chmap_capture
+PASS     chmap_render
+PASS     classifier
+PASS     clkvalid
+PASS     cls
+PASS     controller_rate
+PASS     crf_rx
+PASS     crf_tx
+PASS     csr
+PASS     datapath
+PASS     eth_tx_reset
+PASS     gptp_plane
+PASS     gptp_shadow
+PASS     gptp_txts
+PASS     i2spb
+PASS     ifg
+PASS     lat_history_ring
+PASS     link_guard
+PASS     maap
+PASS     mac_rmon
+PASS     media_grid_align
+PASS     media_nco
+PASS     milan_dp
+PASS     milan_dp_render
+PASS     mmcm_servo
+PASS     mmcm_servo_autorepair
+PASS     nvm_backend
+PASS     nvm_cosim
+PASS     pair_fill
+PASS     pcmlpf
+PASS     pp_shadow
+PASS     ptp
+PASS     ptp_sync
+PASS     ptp_ts
+PASS     queues
+PASS     render_setpoint
+PASS     rx_filter
+PASS     shaper_core
+PASS     tcam
+PASS     tcam_csr
+PASS     tdm
+PASS     tdm_render
+PASS     tkdiag
+PASS     tsn_fuzz
+----------------------------------------------------------------
+suites: 55   passed: 55   failed: 0   timed out: 0
+checks: 2121904   in-suite failures: 0
+
+declared skips (4) -- these ran NOTHING and contribute 0 to the total above:
+  SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+logs: $VALIDATION_STORAGE/541-candidate-0923/full-suite-logs
