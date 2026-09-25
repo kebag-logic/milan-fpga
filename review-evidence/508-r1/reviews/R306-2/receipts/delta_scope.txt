@@ -1,0 +1,28 @@
+# git diff -U0 6a9828c17..224ec0e9a -- hdl/ tb/verilator/pp_shadow/ : changed lines that are not comments
+# (end; empty = comment-only)
+# delta stat
+ CHANGELOG.md                         |  4 ----
+ hdl/milan/milan_datapath.sv          |  9 ++++----
+ tb/verilator/milan_dp/README.md      | 41 +++++++++++++++++++++-----------
+ tb/verilator/milan_dp/gsi_mutants.py | 25 ++++++++++++++++++++
+ tb/verilator/milan_dp/sim_nxn.cpp    | 45 +++++++++++++++++++++++++++---------
+ tb/verilator/pp_shadow/sim_main.cpp  |  2 +-
+ 6 files changed, 92 insertions(+), 34 deletions(-)
+# processor stri_events at 990f9652
+  always_comb begin : stri_events
+    ntfy_stri_in_w  = '0;
+    ntfy_stri_out_w = '0;
+    for (int unsigned k = 0; k < N_STREAM_IN_P; k++) begin
+      ntfy_stri_in_w[k] =
+          (32'(lstn_act_sink_w) == k
+           && lstn_act_strt_chg_w && !lstn_act_strt_cmd_chg_w)
+          || lstn_gsi_changed_r[k]
+          || srp_evt_tk_reg_w[k] || srp_evt_tk_unreg_w[k]
+          || srp_evt_tk_fail_chg_w[k] || srp_evt_tk_latency_chg_w[k];
+    end
+    for (int unsigned k = 0; k < N_STREAM_OUT_P; k++) begin
+      ntfy_stri_out_w[k] =
+          (32'(tkr_gate_src_w) == k && (tkr_gate_open_w || tkr_gate_close_w))
+          || srp_lstn_reg_change_w[k];
+    end
+  end

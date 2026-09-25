@@ -1,0 +1,15 @@
+[PASS] the unmutated gateware still passes the obj_notify leg
+[PASS] mutant caught: the processor ties a sink's failure bridge id to zero - breaks "[GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id" (its tallies report 7 failure(s) across 380 checks)
+[PASS] mutant caught: selector 5 goes back to the parent, whose input answer is zero - breaks "[GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id" (its tallies report 7 failure(s) across 380 checks)
+[PASS] mutant caught: the processor ties a sink's failure code to zero - breaks "[GSI] G5 sink 0 Talker Failed: msrp_failure_code" (its tallies report 7 failure(s) across 380 checks)
+[PASS] mutant caught: the failure-code byte is left to the parent, which no longer supplies it - breaks "[GSI] G5 sink 1 Talker Failed: msrp_failure_code" (its tallies report 7 failure(s) across 380 checks)
+[PASS] mutant caught: the processor ties probing/ACMP status to zero - breaks "[GSI] G2 sink 0 two probes unanswered: acmp_status" (its tallies report 21 failure(s) across 380 checks)
+[PASS] mutant caught: the processor reads the other sink's owners - breaks "[GSI] G5 sink 0 beside the other sink's failure: msrp_failure_bridge_id" (its tallies report 42 failure(s) across 380 checks)
+[PASS] mutant caught: the parent's bound/settled approximation answers selector 7 again - breaks "[GSI] G1 sink 0 bound: probing_status" (its tallies report 14 failure(s) across 380 checks)
+[PASS] mutant caught: the processor duplicates the withdrawal push after 4096 cycles - breaks "[GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A" (its tallies report 2 failure(s) across 396 checks)
+
+9 checks: 9 PASS, 0 FAIL
+
+real	4m1.724s
+user	9m25.060s
+sys	0m23.522s

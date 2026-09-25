@@ -1,0 +1,39 @@
+## Unreleased - licence and LeaveAll scope | head f546c55a472865b41e286e5120fb6a36291886988b4bcb9aec38ad653e26c9d5 | dev-c266432d f546c55a472865b41e286e5120fb6a36291886988b4bcb9aec38ad653e26c9d5 | IDENTICAL
+## Unreleased - one media event per PHC step | head e156918cf41c6f0867a3fbc26fdba0a14d3f92248245b13ab30c83ad48ff0cd6 | dev-c266432d e156918cf41c6f0867a3fbc26fdba0a14d3f92248245b13ab30c83ad48ff0cd6 | IDENTICAL
+## Unreleased - CRF input counters served | head 85451caae5a55f5929e8beb7ec8a66662b9bb460c2e8811bb794555de229bb7b | dev-c266432d 85451caae5a55f5929e8beb7ec8a66662b9bb460c2e8811bb794555de229bb7b | IDENTICAL
+count 'Processor issue 116': 1 at line 51
+count 'Processor issue 113': 1 at line 53
+990f9652 section spans lines 31-59
+# full diff dev c266432d -> head:
+10a11
+> - **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
+28a30,58
+> 
+> ## Unreleased - processor pin 990f9652
+> 
+> - The processor pin moves from `09f9bf38` to `990f9652` (#508).
+> - Processor issues 92 and 93: saved bindings survive the walk.
+> - The walk now has a deadline: 20 ms by default.
+> - The ACMP listener waits from reset for the walk.
+> - So `PP_CTRL[1]` must start the walk on every boot.
+> - The firmware's `nvm_boot()` already does; the harnesses now do too.
+> - Processor issue 94: a descriptor-memory guard holds a late burst.
+> - No port changes; the guard's debt output stays internal.
+> - Processor issues 43 and 49: GET_STREAM_INFO reads processor state.
+> - Input probing and ACMP status come from the listener record.
+> - Input failure code and bridge id come from SRP.
+> - Input selectors 5 and 7 never reach the datapath.
+> - Its bound/settled approximation and zero bridge id are gone.
+> - It leaves the input failure-code byte of selector 4 zero.
+> - Every change of those fields pushes GET_STREAM_INFO once.
+> - Processor issue 112: a re-declaration drops the grant until evaluated.
+> - `LWSRP_STATUS[9]` and `LWSRP_SLOPE` follow; no gate reads them.
+> - A round that meets a pending declaration now publishes nothing.
+> - Processor issue 116: parent-gate comments and mutation deadlines corrected.
+> - No behavior or external port changes; parent ratchets stay unchanged.
+> - Processor issue 113: latency-only input changes now push GET_STREAM_INFO.
+> - Unchanged refreshes stay silent; simultaneous field changes coalesce.
+> - Its ROM digests are re-recorded; the images are unchanged.
+> - `tb/verilator/milan_dp` `obj_notify` grades the seam in `[GSI]`.
+> - `make gsi-mutants` holds its seven failing arms.
+> - VERSION is unchanged; the release step owns the bump.

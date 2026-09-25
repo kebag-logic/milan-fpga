@@ -1,0 +1,70 @@
+DRIFT AGENTS.md:352: hdl/packet_engine/KL_pp_nvm_port.sv:153  (ambiguous: 1)
+   cite: merged. At the merged head `5121dce`, `hdl/packet_engine/KL_pp_nvm_port.sv:153`
+   L153 old: // is the four *REQ states, so a grant that carries its own done is owned)
+   L153 new: 
+CONTINUED avdecc/aem_maps.py:97: #: AUDIO_MAP is generated from the port's CLUSTER count (endstation_builder.py: || #: one mapping per cluster) with nothing consulting channels_per_frame.
+CONTINUED docs/diagrams/diag_ts_modular_ring.py:23: hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv: || 
+CONTINUED hdl/common/csr/milan_csr.sv:40: docs/reference/REGISTER_MAP.md: || 
+CONTINUED hdl/ieee1722/maap/KL_maap.sv:15: in docs/design/MAAP_FABRIC.md: || 
+CONTINUED hdl/ieee8021q/ts/traffic_class_map.sv:219: // DROPS a frame whose `select >= M_COUNT` (verilog-axis axis_demux.v: || // `drop_ctl = drop || select >= M_COUNT`). A single mis-programmed
+CONTINUED hdl/milan/milan_datapath.sv:6603: //!   N_SOURCES cycles each (protocol-processor hdl/srp/KL_srp_top.sv: || //!   sr_adm_fsm_w at 451, opt_r aging at 787-798, reload at 873-876).
+DRIFT hdl/milan/milan_datapath.sv:6623: KL_srp_admission.sv:187-190  (ambiguous: 1)
+   cite: //!   rises and sr_admitted_o stays 0 (KL_srp_admission.sv:187-190,
+   L187 old: round_done_o <= 1'b1;
+   L187 new: assign cand_w   = {1'b0, acc_r} + {1'b0, slope_q_r[aidx_r]};
+   L188 old: aidx_r       <= '0;
+   L188 new: assign fit_w    = !invalid_w[aidx_r] && slope_valid_r[aidx_r]
+   L189 old: acc_r        <= 32'd0;
+   L189 new: && (cand_w <= {1'b0, limit_w});
+   L190 old: over_acc_r   <= 1'b0;
+   L190 new: assign refuse_w = !invalid_w[aidx_r] && slope_valid_r[aidx_r] && !fit_w;
+DRIFT hdl/milan/milan_datapath.sv:6683: hdl/srp/KL_srp_top.sv:211  (ambiguous: 1)
+   cite: //! hdl/srp/KL_srp_top.sv:211 tk_reg_state_o, driven by status_map at
+   L211 old: output logic [N_SINKS_P-1:0][63:0]    snk_fail_bridge_o,   //! msrp_fail_bridge[sink] (FailureInformation syst
+   L211 new: output logic [N_SINKS_P-1:0][1:0]     tk_reg_state_o,      //! 0 NONE / 1 ADVERTISE / 2 FAILED for the settled
+DRIFT hdl/milan/milan_datapath.sv:6684: hdl/srp/KL_srp_listener_fsm.sv:851-853  (ambiguous: 1)
+   cite: //! hdl/srp/KL_srp_listener_fsm.sv:851-853), so bit 1 of the slice is set
+   L851 old: <absent>
+   L851 new: tk_reg_state_o[s] = (armed_r[s] && (reg_r[s] != R_MT_C))
+   L852 old: <absent>
+   L852 new: ? (rtype_r[s] ? 2'd2 : 2'd1)
+   L853 old: <absent>
+   L853 new: : 2'd0;
+DRIFT sw/litex/milan_soc.py:2123: protocol-processor/hdl/top/protocol_processor_top.sv:113  (ambiguous: 1)
+   cite: #: (protocol-processor/hdl/top/protocol_processor_top.sv:113), consumed as
+   L113 old: //! on-chip line buffer for ONE located descriptor (07 §3.2 worst case)
+   L113 new: //! configurations. READ_DESCRIPTOR then answers BAD_ARGUMENTS before
+DRIFT sw/litex/milan_soc.py:2124: KL_aecp_desc_store.sv:304  (ambiguous: 1)
+   cite: #: `MEM_TIMEOUT_CYC_P` by KL_aecp_desc_store.sv:304 and KL_aecp_resp_buf.sv:243.
+   L304 old: // =======================================================================
+   L304 new: end
+DRIFT sw/litex/milan_soc.py:2180: KL_aecp_desc_store.sv:500  (ambiguous: 1)
+   cite: (KL_aecp_desc_store.sv:500), before the request has crossed the CDC into the
+   L500 old: 
+   L500 new: if (patch_name_byte_w == 3'(b))
+DRIFT sw/litex/test_pp_boot_bus_freeze.py:602: KL_aecp_desc_store.sv:794  (ambiguous: 1)
+   cite: # next locate, KL_aecp_desc_store.sv:794), and it is stated here rather
+   L794 old: end
+   L794 new: fault_r    <= FAULT_TIMEOUT_C;
+DRIFT sw/litex/test_pp_mem_bridge.py:13: KL_aecp_desc_store.sv:198  (ambiguous: 1)
+   cite: fault 8 = FAULT_TIMEOUT_C (KL_aecp_desc_store.sv:198)
+   L198 old: 
+   L198 new: output logic        mem_rsp_ready_o,   //! store consumes the beat
+DRIFT sw/litex/test_pp_mem_bridge.py:400: KL_aecp_desc_store.sv:500  (ambiguous: 1)
+   cite: milan_soc.py: KL_aecp_desc_store.sv:500 adds one every milan_clk cycle in
+   L500 old: 
+   L500 new: if (patch_name_byte_w == 3'(b))
+DRIFT sw/litex/test_pp_mem_bridge.py:412: KL_aecp_desc_store.sv:500  (ambiguous: 1)
+   cite: (KL_aecp_desc_store.sv:500), before the request has crossed the CDC into the
+   L500 old: 
+   L500 new: if (patch_name_byte_w == 3'(b))
+CONTINUED syn/yosys/ooc_harness.py:574: if a.py: || _stub(bindir, "python3",
+DRIFT tb/verilator/milan_dp/sim_main.cpp:2297: KL_pp_acmp_listener.sv:331  (ambiguous: 1)
+   cite: //! `unique_id < N_SINKS_P` (KL_pp_acmp_listener.sv:331) and the
+   L331 old: //! bind - which is not just noise: it shifted every later response in the
+   L331 new: //! STREAMING_WAIT flipped (A6), and a BIND_NEW onto an already bound sink
+DRIFT tb/verilator/pp_shadow/sim_main.cpp:2849: hdl/srp/KL_srp_top.sv:211  (ambiguous: 1)
+   cite: // (protocol-processor hdl/srp/KL_srp_top.sv:211 tk_reg_state_o). It is a CODE, not a
+   L211 old: output logic [N_SINKS_P-1:0][63:0]    snk_fail_bridge_o,   //! msrp_fail_bridge[sink] (FailureInformation syst
+   L211 new: output logic [N_SINKS_P-1:0][1:0]     tk_reg_state_o,      //! 0 NONE / 1 ADVERTISE / 2 FAILED for the settled
+TOTAL processor citations 20; drifted across 09f9bf3846->990f96526b: 13
