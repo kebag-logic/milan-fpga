@@ -108,6 +108,8 @@ GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
 # either through this same recipe
 RSP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv
 DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
+# #443: selector controls mutate only a disposable CSR source.
+CSR_SRC ?= $(RTL_DIR)/common/csr/milan_csr.sv
 # #387: the clock-validity block, overridable the same way so the gmstep
 # leg's negative controls elaborate a MUTATED copy through its recipe (their
 # runner joins the tree with the #387 datapath edit).
@@ -195,7 +197,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/common/cdc_pair_fifo.sv \
        $(RTL_DIR)/common/eth_event_counter/ethernet_events.sv \
        $(RTL_DIR)/common/eth_event_counter/event_counter.sv \
-       $(RTL_DIR)/common/csr/milan_csr.sv \
+       $(CSR_SRC) \
        $(DP_SRC)
 CPP  = sim_main.cpp
 
@@ -265,7 +267,7 @@ CRFLIC_FLAGS = $(filter-out -GDIAG_TICK_CYC_P=256,$(GPTP_OFF_VFLAGS)) \
   -GMAAP_CLK_HZ_P=$(CRFLIC_MS_CYC)000 \
   -GDIAG_TICK_CYC_P=$(shell echo $$(($(CRFLIC_MS_CYC) * $(CRFLIC_DIAG_MS))))
 define CRFLIC_BUILD
-$(VERILATOR) $(SHAPE_AX1x1) $(CRFLIC_FLAGS) --Mdir $(CRFLIC_MDIR) \
+$(VERILATOR) crflic_probes.vlt $(SHAPE_AX1x1) $(CRFLIC_FLAGS) --Mdir $(CRFLIC_MDIR) \
   -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
   -GAUDIO_IF_MASTER_P=1 \
   -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
@@ -429,6 +431,10 @@ aclk: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 aclk-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(ACLK_BUILD)
 
+.PHONY: render-csr-controls
+render-csr-controls: aclk-build
+	python3 render_csr_controls.py
+
 crflic: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(CRFLIC_BUILD)
 	./$(CRFLIC_MDIR)/Vmilan_dp_crflic
@@ -437,8 +443,8 @@ crflic-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(CRFLIC_BUILD)
 
 # An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md):
-# three more elaborations and four runs of the leg, measured at 139 s on an
-# eight-core host, which the sweep's stated milan_dp margin was not sized for.
+# Six additional elaborations remove ACTIVE or the real grant at each
+# consumer. Their cost is outside the default sweep's stated margin.
 crflic-mutants: crflic
 	python3 crflic_mutants.py
 

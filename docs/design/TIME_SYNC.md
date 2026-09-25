@@ -338,7 +338,16 @@ The deselect back to INTERNAL is the same.
 Software reads no delay register: the constants are this table.
 
 `I2SPB_TRIM[15:0]` (0x6E0) shows the I2S element's live fill.
-The render stage's fill waits for the #443 CSR word.
+
+`RENDER_STAT` (`0x8DC`, #443) exposes the selected listener's fill.
+
+It also carries prefill, convergence and the global rail count.
+
+The [register map](../reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state) defines selection and field widths.
+
+An absent stage reads **STRUCTURAL ZERO**, never measured health.
+
+Rail and underrun events do not raise `STREAM_INTERRUPTED`.
 
 On the Arty shapes the DAC is crossbar-fed.
 The I2S path therefore renders behind this stage.

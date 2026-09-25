@@ -154,6 +154,7 @@ constexpr uint32_t A_SW_STATE   = 0x82C;
 constexpr uint32_t A_SW_CNT0    = 0x830;
 constexpr uint32_t A_SW_PDUS    = 0x858;
 constexpr uint32_t A_SW_SRP     = 0x85C;
+constexpr uint32_t A_RENDER_STAT = 0x8DC;
 
 namespace {
 
@@ -206,6 +207,7 @@ class MilanCsrHarness {
   void rx_parser_probe_group();
   void reserved_inert_csr_gap();
   void junction_slip_counter_words();
+  void render_status_word();
   void is_1g_follows_the_mac_reported_speed();
   void chmap_readback_negative_control();
   void retired_as_path_publication_abi_is_inert();
@@ -336,6 +338,7 @@ void MilanCsrHarness::reset_and_idle_the_bus() {
   dut->i_lctx_wr_rdy = 1;   dut->i_tctx_wr_rdy = 1;
   for (int k = 0; k < 9; ++k) dut->i_stats[k] = 0;
   dut->i_stats_cap = 0;
+  dut->i_render_status = 0;  // Explicit absent-source tie until driven below.
   for (int k = 0; k < 10; ++k) dut->i_avtprx_cnt10[k] = 0;
   for (int i = 0; i < 5; ++i) posedge();
   dut->aresetn = 1; posedge();
@@ -1265,9 +1268,8 @@ void MilanCsrHarness::reserved_inert_csr_gap() {
   ck("reserved gap 0x8C8 reads 0", axi_read(0x8C8), 0);
   ck("reserved gap 0x8CC reads 0", axi_read(0x8CC), 0);
   ck("reserved gap 0x8D0 reads 0", axi_read(0x8D0), 0);
-  // the word above the SLIP pair (0x8D4/0x8D8, #390) is unmapped: reads 0,
-  // never a shadow alias
-  ck("0x8DC above the slip pair is unmapped, reads 0", axi_read(0x8DC), 0);
+  ck("0x8E0 above RENDER_STAT is unmapped, reads 0", axi_read(0x8E0), 0);
+  ck("0x8F4 below the servo is unmapped, reads 0", axi_read(0x8F4), 0);
   axi_write(0x8C8, 0x5A5A0000u);
   axi_write(0x8CC, 0x5A5A0001u);
   axi_write(0x8D0, 0x5A5A0002u);
@@ -1470,6 +1472,29 @@ void MilanCsrHarness::gptp_drop_words_are_zero_with_the_plane_off() {
   ck("0x7F0 write is inert", axi_read(0x7F0), 0);
 }
 
+// Drive the live input independently of the datapath's field packing.
+void MilanCsrHarness::render_status_word() {
+  printf("-- RENDER_STAT (0x8DC) --\n");
+  axi_write(A_STRM_SEL, 0);
+  ck("RENDER_STAT explicit absent-source tie reads zero", axi_read(A_RENDER_STAT), 0);
+  dut->i_render_status = 0x100u;
+  ck("RENDER_STAT driven prefill reset word", axi_read(A_RENDER_STAT), 0x100u);
+  constexpr uint32_t status = 0xA5C30216u;
+  dut->i_render_status = status;
+  ck("RENDER_STAT selected listener preserves all fields", axi_read(A_RENDER_STAT), status);
+  axi_write(A_RENDER_STAT, 0xFFFFFFFFu);
+  ck("RENDER_STAT ignores writes", axi_read(A_RENDER_STAT), status);
+  axi_write(A_STRM_SEL, 0x100);
+  ck("RENDER_STAT talker selection reads zero", axi_read(A_RENDER_STAT), 0);
+  axi_write(A_STRM_SEL, 1);
+  ck("RENDER_STAT out-of-range listener reads zero", axi_read(A_RENDER_STAT), 0);
+  axi_write(A_STRM_SEL, 0);
+  dut->i_render_status = 0xFFFF0100u;
+  ck("RENDER_STAT full-width saturated rails stay live", axi_read(A_RENDER_STAT), 0xFFFF0100u);
+  dut->i_render_status = 0;
+  ck("RENDER_STAT restored absent-source tie reads zero", axi_read(A_RENDER_STAT), 0);
+}
+
 // =====================================================================
 // P11 indexed per-stream window, N=1 silicon shape (defaults):
 // SEL/SNAP decode, index-0 hard aliases onto the flat registers, and the
@@ -1519,6 +1544,7 @@ int MilanCsrHarness::run() {
   rx_parser_probe_group();
   reserved_inert_csr_gap();
   junction_slip_counter_words();
+  render_status_word();
   is_1g_follows_the_mac_reported_speed();
   chmap_readback_negative_control();
   retired_as_path_publication_abi_is_inert();

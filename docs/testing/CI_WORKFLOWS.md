@@ -1181,6 +1181,19 @@ For offline reproduction, add `--archive <verified-download.tar.xz>` when instal
 The installer still checks the pinned digest.
 An absent run with `--require-rv32` must fail explicitly.
 
+`Capture measurement census and clock gate` runs in `docs-check` (#559).
+It follows `NVM record-space gate`, before `Saved-state writer gate`.
+Its command is `python3 scripts/check_nvm_capture.py`.
+It regenerates each measured shape's closed-record census.
+It checks receipt clocks, source hashes, rows, and maxima.
+Embedded controls reject input drift and omitted OFF timing.
+No target compiler, simulator, or LiteX installation is required.
+`CARRIER_STEP_LISTS` pins its name, position, keys, and canonical script.
+The job's recorded step count includes this gate.
+Removal, reordering, renaming, and conditional execution are refused.
+Script replacement, appended commands, and swallowed failures are refused.
+`continue-on-error` and missing script records are refused too.
+
 The `docs-check` job ends with three shape gates, in this order:
 `Sweep/build shape gate` (`scripts/check_sweep_shape.py --self-test`),
 `Deploy shape gate` (`scripts/check_deploy_shape.py --self-test`, wired by

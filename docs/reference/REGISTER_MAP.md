@@ -200,6 +200,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
   - [0x8C8  -  reserved target-media compatibility words](#0x8c8-----reserved-target-media-compatibility-words) -- Three retired addresses that now read structural zero and ignore writes. They expose no media owner or liveness evidence.
   - [0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)](#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture) -- Two live RO words, `SLIP_LB`/`SLIP_TDM`: the loopback ring's and the TDM junction's dup/skip counters from `KL_chan_map_capture`, one dup per fed pair per beat period at INTERNAL by the standing free-run rule (about 2 per second on the shipping four-pair lane), stopping under a CRF selection; they are never cleared, so a pair that counted before the selection reads a static non-zero word, not a zero. Saturating at `0xFFFF`: a starved fed pair counts every tick, so a pegged half is spent, not static. Read twice for a rate below the ceiling; `SLIP_LB` is a structural zero without the loopback lane, so establish the lane from the build before reading it.
+  - [0x8DC  -  render setpoint state](#0x8dc-----render-setpoint-state) -- Selected listener fill, prefill and convergence with global saturating rails.
   - [0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo)](#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo) -- **Engaged by the live selection since #74.** The processor stores `SET_CLOCK_SOURCE`, the wrapper exports it, and the root's `media_clk_resolve` verdict gates this servo. The CRF sink at `0x738` measures, and a CRF selection steers from it; INTERNAL reads IDLE honestly.
   - [0x900  -  channel-map fabric  (Section 6 of docs/CHANNEL_MAP_64.md, KL_chan_map_render / KL_chan_map_capture)](#0x900-----channel-map-fabric--section-6-of-docschannel_map_64md-kl_chan_map_render--kl_chan_map_capture) -- Diagnostic write port into the 64×64 render/capture map stores, disarmed at reset. It also holds the `0x910`/`0x914` **map-store readback**: what the fabric actually contains, not `0x908`'s shadow of the last diagnostic write, with `LOOP_SUSPECT` separating a working quiet loop source from one that was never fed. Its unarmed state is `0xDEADDEAD`, never `0`.
   - [0x920  -  protocol-processor control plane  (KL_pp_shadow, VERSION major 2)](#0x920-----protocol-processor-control-plane--kl_pp_shadow-version-major-2) -- The control plane's own window, now unconditionally decoded: `milan_csr`'s `PP_PLANE_P` parameter is gone. `PP_STAT`'s constant `0x5B` tag is the register to read first -- a `0` there means the gateware predates the group and can never mean "present and idle". The side port is POSTED and one access is outstanding at a time: a request offered while busy is refused, not queued, so software can never read one address's answer believing it asked for another. `PP_DIAG` carries the only frame accounting the control plane still publishes, including the ingress FIFO drop count.
@@ -238,6 +239,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
 | `0x8C8` | Reserved target-media compatibility words (structural zero) |
 | `0x8D4` | Media-boundary slip counters (`SLIP_LB` / `SLIP_TDM`, RO live, minor >= `0x0058`) |
+| `0x8DC` | `RENDER_STAT`: RO live selected-listener state and global rails; structural zero without the stage. VERSION minor remains `0x0060`; the release step owns the bump |
 | `0x8F8` | MMCM-DRP media-clock servo (Milan v1.2 7.3.4) |
 | `0x900` | Channel-map fabric debug window (chmap64) — write port + bypass arm, and the `0x910`/`0x914` **map-RAM readback** |
 | `0x920` | **Protocol-processor control plane** (`PP_CTRL`/`STAT`/`SPADDR`/`SPDATA`/`DIAG`) — always decoded at VERSION major 2 |
@@ -834,7 +836,7 @@ bind-restore group notes that this sink re-arms via `0x738`.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x738` | `CRF_CTRL` | RW/RO | `0` | `[0]` CRF sink enable (RW); `[31]` locked (RO live: 8 clean consecutive PDUs to lock, 100 ms silence or a validation error to unlock) |
+| `0x738` | `CRF_CTRL` | RW/RO | `0` | `[0]` CRF sink enable (RW); `[31]` locked (RO live). Eight clean consecutive PDUs establish lock. No consumed accepted PDU for 100 ms clears lock. A profile validation error retains lock and breaks settling. It does not refresh the timeout. Each observation interval containing errors increments `UNSUPPORTED_FORMAT` (`fmt_err_o`) once. `CRF_STATUS[15:8]` (`0x74C`) exposes its low eight bits. GET_COUNTERS exposes all 32 bits. |
 | `0x73C` | `CRF_SIDLO` | RW | `0` | followed CRF stream_id `[31:0]` |
 | `0x740` | `CRF_SIDHI` | RW | `0` | stream_id `[63:32]` |
 | `0x744` | `CRF_DELTA` | RO | `0` | signed `crf_ts - ptp_now` (ns) at each accepted PDU — phase, same signed-delta contract as `AVTPRX_TSD` (0x6EC); carries the talker+transit constant, deliberately NOT a servo input |
@@ -933,7 +935,7 @@ truthful, only the cadence stretches
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x750` | `CRFT_CTRL` | RW | `0` | `[0]` CRF talker enable; `[1]` **class-A declare + tag** (Milan v1.2 7.3.3: "An AVB Class A Stream Reservation *shall* be used to transmit [the] CRF Media Clock Stream"): the fabric provisions its own lwSRP talker row and derives the C-TAG (PCP 3, VID = `LWSRP_VID`, or the **operational adopted pair** whenever `LWSRP_DOM[24]` is set, Milan 4.2.7.2.1) from that row's *validity*, so tagged-but-undeclared is unreachable; with `[1]` clear the stream falls back to the untagged control-lane shape (flooded by the bridge, but alive). Since the substitution the reservation is the protocol processor's, not a fabric-provisioned lwSRP row. Live read: `[4]` 🔴 **STRUCTURAL ZERO** (was "the fabric provisioned this stream's TA row valid"; there is no row to provision), `[5]` frames leaving tagged, `[6]` reservation active: the processor's ACTIVE for this output (Talker Advertise declared, a Listener Ready or Ready Failed registered, admitted; Milan v1.2 5.3.7.3), `[7]` emission licensed now (`[0]` and `[6]` while SRP policing is on). Until #530 `[6]` read the processor's raw admission verdict, which the declaration alone raises, so a declared output with no Listener read `[6]` = `[7]` = 1 and streamed. `[19:8]` VID, `[22:20]` PCP (both = the pair on the frames, one wire with the declaration). **Boot value**: the bare-metal firmware writes `MILAN_CRF_TX_CTRL_BOOT`, generated from `clocking.crf_output.enabled`: `0x3` when the config declares the CRF Media Clock Output, `0x0` when it does not, so an undeclared output is neither transmitted nor declared (#398) |
+| `0x750` | `CRFT_CTRL` | RW | `0` | `[0]` CRF talker enable; `[1]` **class-A declare + tag** (Milan v1.2 7.3.3: "An AVB Class A Stream Reservation *shall* be used to transmit [the] CRF Media Clock Stream"): the fabric provisions its own lwSRP talker row and derives the C-TAG (PCP 3, VID = `LWSRP_VID`, or the **operational adopted pair** whenever `LWSRP_DOM[24]` is set, Milan 4.2.7.2.1) from that row's *validity*, so tagged-but-undeclared is unreachable; with `[1]` clear the stream falls back to the untagged control-lane shape (flooded by the bridge, but alive). Since the substitution the reservation is the protocol processor's, not a fabric-provisioned lwSRP row. Live read: `[4]` 🔴 **STRUCTURAL ZERO** (was "the fabric provisioned this stream's TA row valid"; there is no row to provision), `[5]` frames leaving tagged, `[6]` reservation active: this output's ACTIVE AND real admission grant (#551; Milan v1.2 5.3.7.3), `[7]` emission licensed now (`[0]` and `[6]` while SRP policing is on). Until #530 `[6]` read the processor's raw admission verdict, which the declaration alone raises, so a declared output with no Listener read `[6]` = `[7]` = 1 and streamed. `[19:8]` VID, `[22:20]` PCP (both = the pair on the frames, one wire with the declaration). **Boot value**: the bare-metal firmware writes `MILAN_CRF_TX_CTRL_BOOT`, generated from `clocking.crf_output.enabled`: `0x3` when the config declares the CRF Media Clock Output, `0x0` when it does not, so an undeclared output is neither transmitted nor declared (#398) |
 | `0x754` | `CRFT_SIDLO` | RW | `0` | CRF talker stream_id `[31:0]`. Reset 0 selects AUTO in multi-stream builds: the fabric uses `{station MAC, N_STREAMS}`, matching the CRF Media Clock Output context described by the [end-station builder](../ENDSTATION_BUILDER.md). A non-zero pair wins outright |
 | `0x758` | `CRFT_SIDHI` | RW | `0` | stream_id `[63:32]`, same AUTO rule (the pair is tested together) |
 | `0x75C` | `CRFT_DMLO` | RW | `0` | CRF stream dest MAC `[31:0]` (same packing as `AAF_DM*`). **Reset 0 = AUTO:** the MAAP block slot `base + N_STREAMS`, one past the audio talkers -- when CRF output is declared, `MAAP_CTRL` claims `N_STREAMS+1`; otherwise it claims exactly `N_STREAMS`. A non-zero pair wins outright |
@@ -1105,46 +1107,45 @@ not:
   and its own destination address from MAAP. Writing these changes nothing
   observable.
 
-**The slope/gate ordering has no object on this wire, and it is recorded
-honestly.** The deleted bandwidth gate joined a stream's idleSlope into the
-running sum *before* opening that stream's gate, and closed the gate *before*
-removing the slope, so the shaper was never asked to carry a stream whose
-bandwidth was not yet budgeted, in either direction. No shaper is instantiated
-now ([EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md#credit-based-shaping)): the
-processor's raw admission verdict and slope sum reach only `LWSRP_STATUS[9]` and
-`LWSRP_SLOPE`. The stream gate is the processor's ACTIVE since #530. Its
-optimistic admission window counts a fresh declaration as admitted until the end
-of the third published admission round after it. The declaration also clears the source's
-registered Listener, so ACTIVE rises inside the window only if a Listener Ready
-or Ready Failed for the stream is decoded within those few cycles. That corner
-has two branches:
+**The licence requires ACTIVE and the real per-source grant (#551).**
+ACTIVE includes the processor's three-published-round optimistic admission term.
+The real grant excludes that optimistic term.
+Every declaration clears its registered Listener first.
+An early Listener Ready can raise ACTIVE before admission completes.
 
-* **Admitted.** ACTIVE can lead `LWSRP_STATUS[9]` and `LWSRP_SLOPE` by up to
-  three admission rounds. That status skew is this branch's whole effect.
-* **Refused.** `LWSRP_STATUS[7]` rises, but ACTIVE does not fall inside the
-  window: it falls at the window's end, and the declaration then swaps to Talker
-  Failed. For up to three rounds a declaration the 75 % ceiling refuses holds the
-  emission licence and the Milan v1.2 5.3.7.7 Table 5.4 streaming level. A
-  controller reads a STREAM_START and STREAM_STOP pair, the start resets
-  MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX, and at most one PDU per source
-  can leave, if its media event falls in the window. Whether the licence should
-  also need the real grant is issue #551.
+* **Admitted.** The licence opens once both terms hold.
+  A later Listener Ready adds no admission delay.
+* **Refused, including changed TSpecs.** `LWSRP_STATUS[7]` reports ceiling refusal.
+  ACTIVE can pulse, but the licence remains closed.
+  No STREAM_START/STREAM_STOP pair or Table 5.4 counter reset follows.
+  The refused re-declaration emits no PDU.
+  ACTIVE falls when optimism expires; Talker Failed follows.
 
-Both show on the licensed source's bits. For the CRF output they are
-`CRFT_CTRL[6]`/`[7]` (`0x750`). `LWSRP_STATUS[8]` is source 0's licence only,
-so it never shows the CRF output's corner. `LWSRP_STATUS[6]` is ACTIVE ORed
-over sources, not one source's own bit, so it shows the corner only while no
-other source is ACTIVE.
-After a withdrawal `LWSRP_SLOPE` keeps the stream's slope until the next published round.
-Since processor pin `a8f8ce81` (its issue 112) two rules hold.
-An accepted re-declaration clears that source's `LWSRP_STATUS[9]` term.
-The term returns once the new TSpec has been evaluated.
+The processor now evaluates the current TSpec before granting admission.
+Every declaration clears its source's grant until that evaluation completes.
 A round that meets any pending declaration publishes nothing.
-So `[9]`, `LWSRP_SLOPE` and `[7]` hold until every declaration is evaluated.
+Other grants, the slope sum and over-limit retain their published values.
+This follows [processor #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112), adopted through #508.
+
+`CRFT_CTRL[6]`/`[7]` require the CRF source's real grant.
+`LWSRP_STATUS[8]` requires source 0's real grant.
+`LWSRP_STATUS[6]` remains raw ACTIVE ORed across sources.
+That raw bit can rise while every licence stays closed.
+The `0x82C` snapshot gate bit [3] follows the selected licence.
+Its lobs bit [2] follows that licence above index 0.
+Index 0's lobs still reports its registered Listener instead.
+At index 0, [27:19] mirrors `LWSRP_STATUS[8:0]`.
+Thus [27] requires the grant; [25] remains raw |ACTIVE.
+
+`LWSRP_STATUS[9]` remains the OR of real admission grants.
+`LWSRP_SLOPE` reports their sum from the last published round.
+After withdrawal, the sum updates at the next published round.
+Neither diagnostic programs a shaper; none is instantiated.
+See [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md#credit-based-shaping).
 
 While enabled the plane declares MSRP Domain (+ TalkerAdvertise) and the MVRP
 VID, registers the bridge's Listener attribute for our StreamID, and resolves
-the reservation into the talker gates (the processor's ACTIVE) and the status
+the reservation into the talker gates (ACTIVE AND the real grant) and the status
 words above. No slope mux exists, so `LWSRP_CTRL[4:2]` selects nothing and the
 `0x400` CBS window stays write-only scratch.
 
@@ -1174,8 +1175,8 @@ admits frames. **When those two disagree, the bypass is engaged** — on
 | `0x688` | `LWSRP_DMAC_LO` | RW | `0xF000_FE01` | 🟡 **WRITE-ONLY SCRATCH** — stream dest MAC `[31:0]` (same packing as `AAF_DM*`). The applicant that read it is deleted; the processor takes its destination address from MAAP |
 | `0x68C` | `LWSRP_DMAC_HI` | RW | `0x91E0` | 🟡 **WRITE-ONLY SCRATCH** — stream dest MAC `[47:32]` |
 | `0x690` | `LWSRP_TSPEC` | RW | `0x0001_00E0` | 🟡 **WRITE-ONLY SCRATCH** — `[15:0]` MaxFrameSize, `[31:16]` MaxIntervalFrames. The applicant that read them is deleted. The processor DERIVES its Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize from the wire width the framer was elaborated with, so the declaration and the frame cannot disagree, and it derives its interval from the SR class. Writing this changes nothing observable |
-| `0x694` | `LWSRP_STATUS` | RO | `0` | Mixed. 🟢 **LIVE, REPOINTED** from the processor's class-D face. **`[3:0]` describes ONE subject: the Listener attribute REGISTERED on talker SOURCE 0** (the processor's `lstn_reg_state[0]`), which is the subject it had before the control plane was substituted and the subject it has again since VERSION `0x005C`. `[1:0]` is that attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value (0 none/ignore, 1 asking-failed, 2 ready, 3 ready-failed); `[2]` listener registered = the value is not 0, **asking-failed INCLUDED** (the field answers "does anyone want this stream", and an asking-failed Listener does: it must still see our TalkerAdvertise or it can never become Ready); `[3]` listener ready = the value is ready or ready-failed, the Milan v1.2 5.3.7.3 pair. From the substitution to VERSION `0x005B` this nibble mixed two subjects and misread both: `[1:0]` carried sink 0's OWN Listener declaration, `[2]` read bit 1 of the registered value (so a registered asking-failed Listener reported 0) and `[3]` compared the sink's declaration against the asking-failed code (so it read 1 while this station declared asking-failed and 0 while it declared ready). `[4]` talker declared, `[5]` domain ok, `[6]` reservation ACTIVE ORed over sources, the CRF output included, `[7]` **over the 75 % gate**, `[8]` stream gate open: source 0's licence, the processor's ACTIVE (since #530; its raw admission verdict before), `[9]` the processor's raw admission verdict, ORed over sources: status only, since no shaper is instantiated to read it; it can trail the licensed source's ACTIVE (`[6]` ORed over sources, `[8]` for source 0, `CRFT_CTRL[6]` for the CRF output) by up to three admission rounds at a fresh declaration (#530), `[10]` TalkerFailed seen, `[23:16]` MSRP failure code. 🔴 **STRUCTURAL ZERO**: `[11]` attribute-row shortfall (there is no attribute-row table in this fabric any more) and `[31:24]` ingress FIFO frame drops (that ingress path is deleted; the protocol processor's own control-frame FIFO drop counter lives at `PP_DIAG` `0x930[15:8]`). `[15:12]` reserved 0 |
-| `0x698` | `LWSRP_SLOPE` | RO | `0` | 🟢 **LIVE, REPOINTED**: the granted idleSlope in bits/s, now the processor's **sum across admitted sources** (which is what a single shaped queue's idleSlope must be), not a single stream's `MaxIntervalFrames × (MaxFrameSize+42) × 8 × 8000`. Status only: no shaper is instantiated to consume it, and it can trail the licensed source's ACTIVE (`LWSRP_STATUS[6]` ORed over sources, `[8]` for source 0, `CRFT_CTRL[6]` for the CRF output) by up to three admission rounds at a fresh declaration (#530) |
+| `0x694` | `LWSRP_STATUS` | RO | `0` | Mixed. 🟢 **LIVE, REPOINTED** from the processor's class-D face. **`[3:0]` describes ONE subject: the Listener attribute REGISTERED on talker SOURCE 0** (the processor's `lstn_reg_state[0]`), which is the subject it had before the control plane was substituted and the subject it has again since VERSION `0x005C`. `[1:0]` is that attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value (0 none/ignore, 1 asking-failed, 2 ready, 3 ready-failed); `[2]` listener registered = the value is not 0, **asking-failed INCLUDED** (the field answers "does anyone want this stream", and an asking-failed Listener does: it must still see our TalkerAdvertise or it can never become Ready); `[3]` listener ready = the value is ready or ready-failed, the Milan v1.2 5.3.7.3 pair. From the substitution to VERSION `0x005B` this nibble mixed two subjects and misread both: `[1:0]` carried sink 0's OWN Listener declaration, `[2]` read bit 1 of the registered value (so a registered asking-failed Listener reported 0) and `[3]` compared the sink's declaration against the asking-failed code (so it read 1 while this station declared asking-failed and 0 while it declared ready). `[4]` talker declared, `[5]` domain ok, `[6]` reservation ACTIVE ORed over sources, the CRF output included, `[7]` **over the 75 % gate**, `[8]` stream gate open: source 0's ACTIVE AND real grant (#551), `[9]` the processor's raw admission verdict, ORed over sources: status only, since no shaper is instantiated to read it; raw ACTIVE can lead it during optimism, but licences require the real grant (#551), `[10]` TalkerFailed seen, `[23:16]` MSRP failure code. 🔴 **STRUCTURAL ZERO**: `[11]` attribute-row shortfall (there is no attribute-row table in this fabric any more) and `[31:24]` ingress FIFO frame drops (that ingress path is deleted; the protocol processor's own control-frame FIFO drop counter lives at `PP_DIAG` `0x930[15:8]`). `[15:12]` reserved 0 |
+| `0x698` | `LWSRP_SLOPE` | RO | `0` | 🟢 **LIVE, REPOINTED**: the granted idleSlope in bits/s, now the processor's **sum across admitted sources** (which is what a single shaped queue's idleSlope must be), not a single stream's `MaxIntervalFrames × (MaxFrameSize+42) × 8 × 8000`. Status only: no shaper is instantiated to consume it, licences require ACTIVE AND the real grant (#551) |
 | `0x69C` | `LWSRP_CNT` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was `[31:16]` MRPDUs received / `[15:0]` MRPDUs sent. The serialiser and ingress path that counted them are deleted; the processor exchanges MRPDUs and publishes no PDU counters. Reservations still form — read `LWSRP_STATUS` and `LWSRP_DOM`, not this |
 | `0x6A0` | `LWSRP_LATENCY` | RW | `0` | TalkerAdvertise AccumulatedLatency, ns — still LIVE: `milan_datapath` passes it to the processor as `cfg_acc_lat_ns_i` |
 
@@ -1820,7 +1821,8 @@ get a rate.
 The former `0x8C8`, `0x8CC`, and `0x8D0` telemetry words are retired. They
 read structural zero, ignore writes, and cannot be used as liveness evidence.
 `0x8D4` and `0x8D8` carry the media-boundary slip counters since `0x0058`
-(next section); `0x8DC` to `0x8F4` remain unmapped and read zero.
+(next section); `0x8DC` carries `RENDER_STAT` (#443).
+`0x8E0` to `0x8F4` remain unmapped and read zero.
 Physical-render diagnostics use the retained channel-map readback,
 Listener/depacketizer counters, I2S status, and pin-level evidence instead.
 
@@ -1939,6 +1941,58 @@ upstream talker runs at the physical grid's rate, the disciplined peer
 | dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups minus skips climbing 0.51/s (dups alone at 0.51/s while the marker dithers over two adjacent cycles; a wider dither adds skips and as many extra dups) | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
 | climbing | static | our own front end is aligned but the upstream talker's clock is not this media clock: look at the peer's clock source |
 | `0xFFFF` in either half | any | the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the present rate; a saturated word is not evidence of one grid. Reset to re-arm, then read again; a bind wipe un-primes the pair but does not clear the word |
+
+### 0x8DC  -  render setpoint state
+
+Issue #443 claims this previously unmapped debug-group word.
+
+VERSION remains `0x0002_0060` under [the recorded deferral](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5826779078).
+The release step owns the minor bump.
+Before that bump, VERSION alone cannot identify this addition.
+Verify the build's source revision includes #443's register decode.
+
+| Offset | Name | Acc | Reset | Description |
+|---|---|---|---|---|
+| `0x8DC` | `RENDER_STAT` | RO live | `0x00000100` | Selected listener state and the global rail count |
+
+`STRM_SEL[3:0]` selects the listener, with `STRM_SEL[8]=0`.
+Talker selections and indices outside `N_LISTENERS_P` read zero.
+`STRM_SEL[9]` does not change this word's selection.
+The listed reset assumes a present stage and listener 0.
+That is `STRM_SEL`'s reset selection.
+Writing this shared selector invalidates the window's ACMP/SRP snapshots.
+Another task moving it changes which listener this word reports.
+Diagnostic readers must coordinate access and restore the previous selection.
+
+| Bits | Width | Source | Meaning | Reset |
+|---|---|---|---|---|
+| `[7:0]` | 8 | selected `fill_o` byte | Queue occupancy in media events; bounded, never wraps | 0 |
+| `[8]` | 1 | selected `prefill_o` bit | Pops held while the queue prefills; level, no counter | 1 |
+| `[9]` | 1 | selected `converged_o` bit | Convergence dwell satisfied; level, no counter | 0 |
+| `[15:10]` | 6 | constant | Reserved zero | 0 |
+| `[31:16]` | 16 | `rails_o` | Global reset-band actions; saturates at `0xFFFF`, never wraps | 0 |
+
+The widths preserve the stage's taps without truncation.
+The current queue holds at most 32 events per listener.
+The rail counter aggregates every listener, including unselected streams.
+Reset clears that counter; bind flushes do not.
+Neither reading nor writing clears it; writes are ignored.
+All fields are sampled together by the live CSR read.
+No snapshot arm or cross-clock transfer is involved.
+
+**STRUCTURAL ZERO** applies when the stage is absent.
+Such integrations must tie `i_render_status` to zero.
+That zero means no source, never a measured healthy stage.
+The current datapath instantiates the stage unconditionally.
+Neither parked TDM pins nor disabled I2S imply its absence.
+Check the elaborated build before interpreting any zero.
+
+Rail and underrun events do not raise `STREAM_INTERRUPTED`.
+That is [#443's manager decision](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5789749713).
+Underrun, overrun and recentre counters remain separate verification taps.
+
+Proof: `make -C tb/verilator/milan_dp aclk` reads the taps.
+`make -C tb/verilator/milan_dp render-csr-controls` checks absence and mutation.
 
 ### 0x8F8  -  MMCM-DRP media-clock servo  `(Milan v1.2 7.3.4, KL_mmcm_drp_servo)`
 

@@ -161,12 +161,15 @@ VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/suite-logs
 ```
 
 Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
-`ls tb/verilator/` is authoritative (one dir per suite).
+The directory inventory includes one environment-dependent measurement exception.
+[`nvm_capture_cpu`](../../tb/verilator/nvm_capture_cpu/README.md) runs outside local and hosted sweeps.
+It requires the product LiteX tree, CPU netlist and pinned RV32 SDK.
+Its README provides measurement commands and the complete receipt.
 
 The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
 [Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets this deadline from recorded hosted samples.
 The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
-It excludes only the scheduled `milan_dp_gptp` directory.
+It excludes scheduled `milan_dp_gptp` and manual `nvm_capture_cpu` measurements.
 The separate physical job permits 5400 seconds, including compilation.
 Its workflow job permits 120 minutes, including toolchain setup.
 Both target a four-core `ubuntu-latest` hosted worker.
@@ -262,6 +265,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
 
 | Explicit campaign | Command | Who runs it |
 |---|---|---|
+| #443 render CSR controls (`render_csr_controls.py`) | `make -C tb/verilator/milan_dp render-csr-controls` | Authors and reviewers changing `render_status_w`, its connections in `milan_datapath.sv`, the `RENDER_STAT` decode or selection in `milan_csr.sv`, the taps in `KL_render_setpoint.sv`, `sim_aclk.cpp` or this campaign |
 | #447 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
 | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
 | #508 GET_STREAM_INFO seam, the eight field and notification mutants | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather, the GET_STREAM_INFO answer block of `milan_datapath.sv` or the `[GSI]` section of `sim_nxn.cpp` |
@@ -371,7 +375,12 @@ and the tracked gaps: [`tb/verilator/tsn_fuzz/README.md`](../../tb/verilator/tsn
 ### 1.1 Suite index — reconciled against the tree 2026-08-13
 
 [`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh) runs the default inventory under [`tb/verilator/`](../../tb/verilator).
-Every directory needs a `Makefile`; only `milan_dp_gptp` runs separately. **Run it for the verdicts; this page does not carry them.** The last
+Regression directories require a `Makefile`; `milan_dp_gptp` runs separately.
+The manual `nvm_capture_cpu` measurement is the Makefile exception.
+Its LiteX tree, CPU netlist and pinned RV32 SDK are prerequisites.
+The separate `scripts/check_nvm_capture.py` gate needs neither compiler nor simulation.
+It regenerates capture counts and checks clocks against measured inputs.
+**Run the suites for verdicts; this page omits them.** The last
 whole-tree sweep recorded here (2026-07-26, Verilator v5.050, 55/55 green)
 described a tree that no longer exists — twelve of the suites it graded have
 since been deleted — so quoting it would be quoting a measurement of a
@@ -461,7 +470,7 @@ verdicts and for check counts.
 | [`tb/verilator/clkvalid`](../../tb/verilator/clkvalid) | `KL_ptp_clock_validity` — the AVTP `tu` verdict, two shapes |
 | [`tb/verilator/cls`](../../tb/verilator/cls) | classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
 | [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) | the gating regression born from the CBS datapath bug |
-| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. The default gate includes tu, jump, refill, sample-edge and servo-validity mutants |
+| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. Locked-sink validation errors retain lock but cannot extend the 100 ms timeout. The default gate includes `validation_error_unlocks`, `validation_error_refreshes_timeout`, tu, jump, refill, sample-edge and servo-validity mutants |
 | [`tb/verilator/crf_tx`](../../tb/verilator/crf_tx) | — |
 | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** - that leg drove the old control-plane windows live. The `obj_pps` leg re-runs the same harness with `PPS_P=1` (#260): the 0x548 block decodes in every build, but `PTP_PPS_CTRL[0]`, its RO built bit `[16]` and `PTP_PPS_WIDTH` are gated, so the default leg grades the **UNSUPPORTED** arm (a structural zero at `o_pps_enable` whatever software writes) and this one grades the supported arm, from one set of expectations rather than two that drift |
 | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |

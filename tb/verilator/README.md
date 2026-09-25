@@ -1,8 +1,8 @@
 # Verilator verification harnesses
 
 Runnable, self-checking [Verilator](https://verilator.org) harnesses for the
-Milan TSN NIC — one suite per subdirectory (the directory listing is
-the authoritative count; prose numbers go stale).
+Milan TSN NIC, with one manual measurement exception described below.
+The directory listing defines the inventory; prose counts become stale.
 
 The basic harnesses require `verilator >= 5.050` (the CI pin), a C++17
 compiler and the three submodules the suites read, initialised in one
@@ -76,10 +76,18 @@ scripts/run_all_suites.sh /tmp/default-suite-logs
 scripts/run_all_suites.sh /tmp/physical-suite-logs --physical-gptp
 ```
 
+The [`nvm_capture_cpu`](nvm_capture_cpu/README.md) directory is outside local and hosted sweeps.
+It is an environment-dependent measurement without a suite Makefile.
+It requires the product LiteX tree and matching CPU netlist.
+The pinned RV32 SDK is also required.
+Its README contains commands, substitutions and the measurement receipt.
+The compiler-free `scripts/check_nvm_capture.py` gate runs in hosted CI.
+It checks generated capture counts and clocks against measured inputs.
+
 ### Suites without a row above (yet)
 
-The table above is not complete — **`ls` is**. Run `ls tb/verilator/` for the
-authoritative suite list; these have no prose row here:
+The directory listing includes the manual measurement exception described above.
+These regression suites have no prose row here:
 
 [`aaf/`](aaf) · [`aaf_audio_loop/`](aaf_audio_loop) · [`aaf_latency_taps/`](aaf_latency_taps) · [`avtp_rxmon/`](avtp_rxmon) · [`chmap_capture/`](chmap_capture) · [`chmap_render/`](chmap_render) · [`crf_rx/`](crf_rx) · [`crf_tx/`](crf_tx) · [`eth_tx_reset/`](eth_tx_reset) · [`i2spb/`](i2spb) · [`ifg/`](ifg) · [`lat_history_ring/`](lat_history_ring) · [`link_guard/`](link_guard) · [`maap/`](maap) · [`mmcm_servo/`](mmcm_servo) · [`mmcm_servo_autorepair/`](mmcm_servo_autorepair) · [`pcmlpf/`](pcmlpf) · [`tcam_csr/`](tcam_csr) · [`tdm_render/`](tdm_render) · [`tsn_fuzz/`](tsn_fuzz)
 
