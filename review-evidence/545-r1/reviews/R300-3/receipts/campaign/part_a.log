@@ -1,0 +1,15 @@
+[PASS] clean: rc=0
+CASE clean: PASS
+[PASS] clean_unit: rc=0
+CASE clean_unit: PASS
+[PASS] slew_streak_reset_removed: rc=1
+  named rejection: [U15] four fresh guard trips precede re-base
+CASE slew_streak_reset_removed: PASS
+[PASS] slew_discard_extends_streak: rc=1
+  named rejection: [U15] four fresh guard trips precede re-base
+CASE slew_discard_extends_streak: PASS
+[PASS] slew_discard_counts_as_guard_trip: rc=1
+  named rejection: [U15] four fresh guard trips precede re-base
+CASE slew_discard_counts_as_guard_trip: PASS
+PART: 5 cases, 0 failures
+EXIT 0

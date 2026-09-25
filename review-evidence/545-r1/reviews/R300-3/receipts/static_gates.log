@@ -1,0 +1,20 @@
+## python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+EXIT 0
+## python3 scripts/check_doc_paths.py
+doc path gate: OK (843 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+EXIT 0
+## python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 866 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+EXIT 0
+## python3 scripts/check_em_dash.py --base 5b73d3f47dfed519eb988c13d6beb1db664ef1e0
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+EXIT 2
+## git diff --check 5b73d3f47dfed519eb988c13d6beb1db664ef1e0 92ad1687d84ff077f872719b4f1df601f82064d2
+EXIT 0
+## python3 scripts/lint_rtl.py --check
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.
+  hdl/milan/KL_pp_shadow.sv:244:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+EXIT 0

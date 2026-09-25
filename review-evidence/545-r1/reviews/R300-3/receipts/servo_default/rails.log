@@ -1,0 +1,16 @@
+[R0] control run: free-running clock, talker +1000 ppm
+  control window: +8 overruns, +0 underruns
+  [ ok ] [R0] drift-lottery rail events occur (>= 2)          = 1
+  [ ok ] [R0] servo inert: zero PS ops                        = 0
+  [ ok ] [R0] servo inert: zero DRP accesses                  = 0
+[R1] servo run: clock_source = 2 (CRF), same stimulus
+  [ ok ] [R1] servo LOCKED                                    = 4
+  [ ok ] [R1] trim tracks the +1010.6 ppm correction (model gain) = 1
+  servo window: +0 overruns, +0 underruns
+  [ ok ] [R1] rail events CEASE (zero overruns)               = 0
+  [ ok ] [R1] rail events CEASE (zero underruns)              = 0
+  [ ok ] [R1] still LOCKED at end                             = 4
+======================================================================
+mmcm_servo rails: 8 checks, 0 failures
+20.11 s
+EXIT 0
