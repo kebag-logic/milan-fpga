@@ -34,6 +34,9 @@ REAL, at the pinned revision:
 
 - `KL_acmp_nvm_shadow`, the binding record manager -- the only record writer
   the donor has -- with its own debounce and its bounded retries;
+- `KL_pp_nvm_mgr_arb`, in front of the port since pin `a8f8ce81`, wired as
+  the processor top wires it: it drains a read the manager abandons at its
+  walk deadline, and it carries the port's error cause back to the manager;
 - `KL_pp_nvm_port`, the device-face initiator, including its rule that
   `dev_req_o` is held until `dev_gnt_i`, which is what makes a deferral a
   withheld grant rather than a refusal;

@@ -246,6 +246,26 @@ class MilanDatapathHarness {
         for (int i = 0; i < 8; i++) step();
     }
 
+    // --- the boot restore walk, as the firmware's nvm_boot() starts it ---
+    //! Since processor pin a8f8ce81 (its issue 92) the ACMP listener serves
+    //! nothing from reset until the binding walk ends, and PP_CTRL[1] is
+    //! what starts that walk. The firmware sets it on every boot before it
+    //! enables the entity; a harness that binds a sink over ACMP owes the
+    //! same step. No image is configured, so the backend answers blank
+    //! media and the walk sequences in a few hundred cycles.
+    void start_the_boot_restore_walk() {
+        printf("[BOOT] PP_CTRL[1] starts the restore walk the listener waits for\n");
+        constexpr uint16_t A_PP_CTRL = 0x920;
+        constexpr uint16_t A_PP_STAT = 0x924;
+        axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);
+        unsigned done = 0;
+        for (int r = 0; r < 400 && !done; r++) {
+            for (int c = 0; c < 64; c++) step();
+            done = (axi_read(A_PP_STAT) >> 2) & 1u;
+        }
+        ck("PP_STAT[2] the restore walk sequenced", done, 1);
+    }
+
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     void prove_the_csr_identity_and_the_eth_guard() {
         printf("[CSR] identity + reset values\n");
@@ -2628,6 +2648,7 @@ int MilanDatapathHarness::run() {
 
     prove_the_csr_identity_and_the_eth_guard();
     program_the_classifier_over_the_csr();
+    start_the_boot_restore_walk();
     prove_the_adp_diag_words_are_structural_zeros();
     prove_the_advertised_shape_matches_the_elaboration();
     answer_acmp_get_tx_state_through_the_datapath();

@@ -23,7 +23,7 @@ log in the failure so the artifact can be inspected.
 | `obj_prune` | `sim_prune.cpp` | all six tier-1 blocks pruned | the inert values are STRUCTURAL zeros, not not-armed-yet zeros; `SLIP_LB` (#390) is read behind listener 0 bound, fed well-formed AAF PDUs and then starved, so a built ring would count. The same section then establishes the lane the way the [register map](../../../docs/reference/REGISTER_MAP.md) instructs, and in that order: the whole `0x914` word is graded against the `0xDEADDEAD` not-a-measurement poison, and `CHMAP_SNAP[1]` valid with it, before any projection of it, because that poison projects to the same `{mask_valid, valid, fed}` = 1, 1, 0 this leg expects; behind those two grades the readback answers 1, 1, 0, so the zero is a measured absent lane, and a readback left un-armed fails this leg instead of passing it |
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
 | `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): the INTERNAL free-run drift (-10.64 ppm, the standing free-run rule), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and dups once per beat period at INTERNAL on the predicted beat, one event per fed pair. The closed form: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup comes (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts the first dup from the first beat and grades it within 25 percent over a window of 1.5 times the prediction. The same aim and window under CRF show zero, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
-| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification |
+| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants` |
 | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates follow the processor's ACTIVE on every cycle, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 | `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387: a grandmaster change that steps the PHC by 1.5 s under CRF selection is one counted media event (`tu`, one render re-base, one `mr` toggle, one MEDIA_RESET) and stops no stream; `gmstep_mutants.py` plants the acceptance's three controls in the sweep and `make gmstep-mutants` the whole inventory |
@@ -39,6 +39,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[First AX7101 1x1 eight-channel run](#first-ax7101-1x1-eight-channel-run)** -- Run the focused datapath baseline and identify its coverage limits.
 - **[AX7101 1x1 eight-channel gPTP physical-rate run](#ax7101-1x1-eight-channel-gptp-physical-rate-run)** -- Run combined clocks, peer exchange, and diagnostic audio checks.
 - **[The #530 CRF talker licence leg (obj_crflic)](#the-530-crf-talker-licence-leg-obj_crflic)** -- The compressed-time leg that reproduces the Run B CRF bursts and early emission, what each phase proves, the failing arms, and why FRAMES_TX is an interval count
+- **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 decision, and its negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
@@ -431,6 +432,97 @@ each of the four STREAM_STARTs. The PDU total is `CRFT_COUNT` (`0x764`):
 lives; it does not define FRAMES_TX. After #530 a continuously bound output
 should read STREAM_START 1 and FRAMES_TX equal to the seconds it has streamed.
 
+## The #508 GET_STREAM_INFO seam (the GSI section of `obj_notify`)
+
+Since processor pin `a8f8ce81` the processor owns four Stream Input fields.
+Its top answers them from its own state:
+
+| Field | Milan clause | State owner | Selector | Response bytes |
+|---|---|---|---|---|
+| `probing_status`, `acmp_status` | 5.3.8.6 | listener record, committed | 7, internal | `@76` (frame 90) |
+| `msrp_failure_code` | 5.3.8.8 | SRP registrar | 4, byte `[15:8]` replaced | `@58` (frame 72) |
+| `msrp_failure_bridge_id` | 5.3.8.8 | SRP registrar, gated on FAILED | 5, internal | `@60..@67` (frame 74..81) |
+
+The processor never asks `milan_datapath` for selectors 5 and 7 of a Stream Input.
+So the datapath answers neither, and leaves the selector 4 byte zero.
+Its old bound/settled approximation and its zero bridge id are deleted.
+The validity flags stay the datapath's: `MSRP_FAILURE_VALID`, `REGISTERING_FAILED`, `BOUND`.
+
+`[GSI]` runs at the end of the timed leg, on the AX 1x1 shape.
+Its two sinks are the AAF input (0) and the CRF input (1).
+The section owns both MAC ports, so no frame is lost between waits.
+Controllers A and B register for notifications first.
+
+The adopted pin `990f9652` also includes processor issue 113 (PR 115).
+It adds a notification for a latency-only Talker refresh.
+No existing notify or `[GSI]` check drives that isolated transition.
+`gsi_talker_failed()` always sends accumulated latency 500000 ns.
+G5 changes latency alongside initial registration and FailureInformation.
+Those events coalesce into the single notification G5 already checks.
+G6 repeats that latency unchanged; G7 changes FailureInformation alone.
+The earlier notify phases inject no registering Talker attribute.
+Their notification expectations therefore need no adaptation.
+The processor's response tests own isolated latency-change coverage.
+
+| Phase | What happens on the wire | Graded |
+|---|---|---|
+| G0 | nothing bound | both sinks DISABLED; STREAM_INPUT 2 answers NO_SUCH_DESCRIPTOR with the zero cdl-68 body |
+| G1 | BIND_RX sink 0; the talker never answers | ACTIVE with `acmp_status` 0 at once; the duplicate probe pushes nothing |
+| G2 | the second probe times out; sink 1's probe is refused | sink 0 ACTIVE/7 (LISTENER_TALKER_TIMEOUT), sink 1 ACTIVE/3 (TALKER_DEST_MAC_FAIL) |
+| G3 | each retry expires; no talker was discovered | both PASSIVE, `acmp_status` 0, no new probe |
+| G4 | UNBIND_RX sink 0, then fresh binds with answered probes | DISABLED, ACTIVE, then COMPLETED with the talker's stream_id |
+| G5 | the bridge declares Talker Failed on each stream | code and 64-bit bridge id per sink, distinct values, flags set |
+| G6 | the same Talker Failed, refreshed | no push |
+| G7 | sink 1's FailureInformation changes | one push for sink 1, new values; sink 0 untouched |
+| G8 | sink 0's Talker Failed is withdrawn | exactly two pushes per controller: registrar withdrawal, then settlement teardown; both PASSIVE with cleared failure fields; sink 1 quiet |
+| G9 | STOP_STREAMING(sink 1) from A | B gets STOP_STREAMING, A gets nothing, nobody gets GET_STREAM_INFO |
+| G10 | a reset | both sinks DISABLED with nothing carried |
+
+Each named change pushes one GET_STREAM_INFO to each controller.
+G8 has two changes, producing exactly two pushes per controller.
+The first follows `srp_evt_tk_unreg_w`: the registrar withdraws its attribute.
+The second follows `lstn_gsi_changed_r`: settlement tears down to PASSIVE.
+Both trigger `protocol_processor_top.stri_events` at the adopted pin.
+Both responses carry PASSIVE, zero ACMP status, and cleared failures.
+The first already sees teardown because response gathers read live.
+See [F06.13, field lineage](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/990f96526bb89356c963a260ebbdcf2a77e6623a/docs/architecture/06_aecp_engine.md#fig-06-lineage) and [F05.5, settlement detail](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/990f96526bb89356c963a260ebbdcf2a77e6623a/docs/architecture/05_acmp_engine.md#fig-05-settled).
+G8 grades both ordered responses to each controller against that state.
+Both bodies equal the subsequent solicited answer; sink 1 stays quiet.
+Acceptance 2 names PASSIVE after a bind.
+The processor reads Milan 5.5.3.5.3 and 5.5.3.5.29 as ACTIVE first.
+A bind probes at once, and PASSIVE follows an unanswered probe's retry.
+G1 and G3 grade that order (processor issue 43, PR 111).
+
+**Failing arms.** `make gsi-mutants` runs `gsi_mutants.py`.
+It plants each defect in a copy of the processor tree or the datapath.
+The submodule checkout is never edited.
+Measured on 2026-09-25 UTC: the clean leg passes 380/380 checks.
+
+| Mutant | Named check that fails | Failures |
+|---|---|---|
+| the processor ties the bridge id to zero | G5 sink 0 `msrp_failure_bridge_id` | 7 of 380 |
+| selector 5 goes back to the datapath, which answers zero | G5 sink 0 `msrp_failure_bridge_id` | 7 of 380 |
+| the processor ties the failure code to zero | G5 sink 0 `msrp_failure_code` | 7 of 380 |
+| the failure-code byte is left to the datapath | G5 sink 1 `msrp_failure_code` | 7 of 380 |
+| the processor ties probing/ACMP status to zero | G2 sink 0 `acmp_status` | 21 of 380 |
+| the processor reads the other sink's owners | G5 sink 0 beside the other sink, bridge id | 42 of 380 |
+| the datapath's bound/settled approximation returns | G1 sink 0 `probing_status` | 14 of 380 |
+| the processor duplicates withdrawal after 4096 cycles | G8 sink 0 unsolicited GET_STREAM_INFO count to A | 2 of 396 |
+
+The duplicate also fails the exact count to B.
+It replays `srp_evt_tk_unreg_w` after the legitimate pushes drain.
+A simultaneous duplicate would coalesce, providing no extra push.
+The mutant's two extra responses receive the same content checks.
+That adds sixteen checks to its run.
+The campaign runs explicitly: eight mutant elaborations and nine runs.
+
+**Every harness that binds a sink starts the restore walk.**
+Since the same pin, the processor holds its ACMP listener from reset.
+It releases it when the NVM binding walk ends.
+`PP_CTRL[1]` starts that walk, as the firmware's `nvm_boot()` does.
+`sim_main`, `sim_nxn`, `sim_aclk` and `milan_dp_render` now set it at boot.
+Without it the 1x1 leg fails 24 checks: no sink ever probes.
+
 ## GM step re-base leg (#387)
 
 The true-ratio leg also commands an absolute software settime.
@@ -745,23 +837,27 @@ on 2026-09-06 UTC for Issue #367, except the separate physical suite.
 The eleven existing legs retain their 2026-09-02 counts.
 Round two separates the physical leg's driver deadline.
 No row projects unexecuted checks.
+These are pre-merge measurements from the two implementation branches.
+No count is inferred for their merged tree.
 
-| leg | before (measured) | after (measured; date noted below) | note |
-|---|---|---|---|
-| `obj_gptp` (`sim_gptp`) | not available | **164 / 0** | product-default fabric-owner run; inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, the three drop-counter routes at 0x7E8/0x7EC |
-| `obj_dir` (`sim_main`) | 273 checks / 75 fail | **233 / 0** (2026-09-24 UTC) | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU; #387 adds the `mr` level against the PHC steps the leg issued, and the settime's one toggle and one MEDIA_RESET |
-| `obj_notify` (`sim_nxn`, timed) | not in the old table | **117 / 0** | the compressed-timebase 5.4.5 notify leg |
-| `obj_crflic` (`sim_crf_licence`) | not in the old table | **85 / 0** (2026-09-24 UTC) | #530; its three mutants are caught by `make crflic-mutants` |
-| `obj_gmstep` (`sim_gmstep`) | not in the old table | **48 / 0** (2026-09-24 UTC) | #387; `gmstep_mutants.py` catches the acceptance's three controls in the sweep, and `make gmstep-mutants` all eleven (two on the option-off leg) |
-| `obj_nxn` (`sim_nxn`) | 378 / — (did not compile) | **1679 / 0** | the old 145 was already stale at #294's merge (issue #314 measured 1673 there); the suite has kept growing since |
-| `obj_nxndv` (`sim_nxn`) | not in the old table | **1682 / 0** | the divergent-shape leg |
-| `obj_nxn8` (`sim_nxn`) | 512 / not available | **3179 / 0** | `[T66]` grades atomic audio-map mutation (the old row's "current run summary below" pointer named a section that never existed — this cell is the measurement) |
-| `obj_nxn4c` (`sim_nxn`) | 378 / — | **1679 / 0** | |
-| `obj_nolpf` (`sim_main`) | 273 / 75 | **233 / 0** (2026-09-24 UTC) | re-run current (the old "not rerun after the `tu` assertion" caveat is retired); #387 adds the `mr` checks |
-| `obj_prune` (`sim_prune`) | 31 / 0 | **33 / 0** | the old 31 was already stale at #294's merge (issue #314 measured 28 there); #390 adds the `SLIP_LB` structural zero, read behind listener 0 bound, fed and then starved, plus the `CHMAP_LOOP` lane-establishment read that makes the zero a measurement, whole word against the `0xDEADDEAD` poison and `CHMAP_SNAP[1]` valid before the projection (5 checks) |
-| `obj_ax1x1` (`sim_main`) | 273 / 73 | **230 / 0** (2026-09-24 UTC) | 5 sections guarded out on this shape; #387 adds the `mr` checks |
-| `obj_aclk` (`sim_aclk`) | 5 / 0 | **139 / 0** | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added; #390 adds the loopback-ring beat at INTERNAL, the zero-slip window under CRF, the SLIP CSR pair and the `CHMAP_LOOP` lane-establishment read behind its whole-word poison and `CHMAP_SNAP[1]` grades, and the priming PDU's loop-tap transit, which is what grades the drain that separates this phase's own priming PDU from one the render-law phases left in flight (25 checks); the balance is the #386 render law, which landed in this same leg with PR #435 |
-| `obj_ax1x1gptp` (`sim_ax1x1gptp`) | **126 / 0** before round two | **127 / 0** (2026-09-07 UTC) | Separate `milan_dp_gptp` suite; trimmed waits; additional four-interval assertion; original spans remain opt-in |
+Rows dated 2026-09-24 UTC were re-measured for #508, in one sweep at its head.
+
+| leg | before (measured) | #508 round 1 (measured; date noted below) | note | dev c266432d record |
+|---|---|---|---|---|
+| `obj_gptp` (`sim_gptp`) | not available | **181 / 0** (2026-09-24 UTC) | product-default fabric-owner run; inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, the three drop-counter routes at 0x7E8/0x7EC | **164 / 0** |
+| `obj_dir` (`sim_main`) | 273 checks / 75 fail | **231 / 0** (2026-09-24 UTC) | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU | **233 / 0** (2026-09-24 UTC); #387 adds the PHC-step `mr` checks, including settime toggle and MEDIA_RESET |
+| `obj_notify` (`sim_nxn`, timed) | not in the old table | **345 / 0** (2026-09-24 UTC) | the compressed-timebase 5.4.5 notify leg | **117 / 0** |
+| `obj_crflic` (`sim_crf_licence`) | not in the old table | **85 / 0** (2026-09-24 UTC) | #530; its three mutants are caught by `make crflic-mutants` | same |
+| `obj_nxn` (`sim_nxn`) | 378 / - (did not compile) | **1709 / 0** (2026-09-24 UTC) | the old 145 was already stale at #294's merge (issue #314 measured 1673 there); the suite has kept growing since | **1679 / 0** |
+| `obj_nxndv` (`sim_nxn`) | not in the old table | **1711 / 0** (2026-09-24 UTC) | the divergent-shape leg | **1682 / 0** |
+| `obj_nxn8` (`sim_nxn`) | 512 / not available | **3137 / 0** (2026-09-24 UTC) | `[T66]` grades atomic audio-map mutation (the old row's "current run summary below" pointer named a section that never existed - this cell is the measurement) | **3179 / 0** |
+| `obj_nxn4c` (`sim_nxn`) | 378 / - | **1709 / 0** (2026-09-24 UTC) | | **1679 / 0** |
+| `obj_nolpf` (`sim_main`) | 273 / 75 | **231 / 0** (2026-09-24 UTC) | re-run current (the old "not rerun after the `tu` assertion" caveat is retired) | **233 / 0** (2026-09-24 UTC); #387 adds the PHC-step `mr` checks, including settime toggle and MEDIA_RESET |
+| `obj_prune` (`sim_prune`) | 31 / 0 | **33 / 0** (2026-09-24 UTC) | the old 31 was already stale at #294's merge (issue #314 measured 28 there); #390 adds the `SLIP_LB` structural zero, read behind listener 0 bound, fed and then starved, plus the `CHMAP_LOOP` lane-establishment read that makes the zero a measurement, whole word against the `0xDEADDEAD` poison and `CHMAP_SNAP[1]` valid before the projection (5 checks) | **33 / 0** |
+| `obj_ax1x1` (`sim_main`) | 273 / 73 | **228 / 0** (2026-09-24 UTC) | 5 sections guarded out on this shape | **230 / 0** (2026-09-24 UTC); #387 adds the PHC-step `mr` checks, including settime toggle and MEDIA_RESET |
+| `obj_aclk` (`sim_aclk`) | 5 / 0 | **140 / 0** (2026-09-24 UTC) | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added; #390 adds the loopback-ring beat at INTERNAL, the zero-slip window under CRF, the SLIP CSR pair and the `CHMAP_LOOP` lane-establishment read behind its whole-word poison and `CHMAP_SNAP[1]` grades, and the priming PDU's loop-tap transit, which is what grades the drain that separates this phase's own priming PDU from one the render-law phases left in flight (25 checks); the balance is the #386 render law, which landed in this same leg with PR #435 | **139 / 0** |
+| `obj_gmstep` (`sim_gmstep`) | not in the old table | not in #508 round 1 | #387; `gmstep_mutants.py` catches the acceptance's three controls in the sweep, and `make gmstep-mutants` all eleven (two on the option-off leg) | **48 / 0** (2026-09-24 UTC) |
+| `obj_ax1x1gptp` (`sim_ax1x1gptp`) | **126 / 0** before round two | **127 / 0** (2026-09-07 UTC) | Separate `milan_dp_gptp` suite; trimmed waits; additional four-interval assertion; original spans remain opt-in | same |
 
 Earlier re-measurement had stopped because the `protocol-processor` submodule
 working tree went out from under the build — `protocol_processor_top.sv` had an

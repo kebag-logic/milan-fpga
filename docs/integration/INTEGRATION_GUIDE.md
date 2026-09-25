@@ -50,6 +50,15 @@ These claims mirror the canonical feature ledger.
 
 Read the [feature ledger](../reference/MILAN_FEATURE_STATUS.md).
 
+GET_STREAM_INFO has two owners (#508).
+
+- The processor answers four Stream Input fields itself.
+- They are probing status and ACMP status.
+- They are also the failure code and bridge id.
+- It reads its listener record and SRP registrar live.
+- `milan_datapath` answers every other word and every validity flag.
+- Never add a second source for the processor's four fields.
+
 ## Wire every group
 
 <!-- solution-interface-groups:start -->
@@ -133,6 +142,8 @@ sequenceDiagram
     Host->>Memory: Load descriptor image
     Host->>Memory: Verify image checksum
     Host->>CSR: Configure live interfaces
+    Host->>CSR: Start the restore walk, PP_CTRL[1]
+    CSR-->>Host: PP_STAT[2] walk done
     Host->>Entity: Enable verified entity
 ```
 
@@ -142,6 +153,10 @@ sequenceDiagram
 - Exercise one writable CSR afterward.
 - Load and verify descriptor memory.
 - Connect response memory before entity enablement.
+- Start the restore walk with `PP_CTRL[1]` on every boot.
+- The ACMP listener answers nothing until that walk ends.
+- `PP_STAT[2]` reports the end.
+- A silent device ends the walk at 20 ms.
 - Enable only fully wired protocol features.
 
 ## Include required sources
