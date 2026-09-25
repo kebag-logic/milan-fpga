@@ -1,0 +1,15 @@
+# scripts/rom_mutant.sh on the built default binary of 490e4309749c83f92d794a8ff10d3043e0f5f080; generated-ROM word 741 replaced in a disposable copy only
+word 741: 230000000000 -> 230000000003
+differing bytes: 1
+FAIL: M1: GET_MILAN_INFO response is not byte-exact
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 20 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 01 00 1b c5 0a c1 00 00 00 00 00 00 00 00 01 00 00 00 03 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 20 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 01 00 1b c5 0a c1 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00
+FAIL: M2: features_flags is 0x00000003, want 0 — this PAAD implements neither Table 5.20 feature
+FAIL: M5b: a junk reserved field changed the answer (it must be ignored on the command and zero in the response)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 20 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 05 00 1b c5 0a c1 00 00 00 00 00 00 00 00 01 00 00 00 03 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 20 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 05 00 1b c5 0a c1 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00
+  [B4] command byte 0 -> response byte 0: 2363 clocks (0.024 % of the 10,000,000-clock AECP budget)
+  [B4b] at 143 clocks (~1424 ns) per access: 7523 clocks for a 316-byte payload over 40 lane writes (0.075 % of budget)
+GI latency walks added: 5568 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 7646 checks, 3 failures
+exit=1

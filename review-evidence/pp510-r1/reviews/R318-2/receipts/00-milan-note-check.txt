@@ -1,0 +1,19 @@
+# Milan v1.2 recommendation-note and Table 5.19 check (reviewer's own reading; only the note and table rows already quoted by the repository are reproduced)
+pdf sha256: 6bb902be1c1de8c44f4c4c583a645b0b37e0b2dac27870486ce229e68ce3bba8
+extraction: pdftotext -layout; checked against the review clone at 490e4309749c83f92d794a8ff10d3043e0f5f080
+5.4.4.2 SET_SYSTEM_UNIQUE_ID                     | Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become a requirement in a future revision of this specificaiton.
+5.4.4.3 GET_SYSTEM_UNIQUE_ID                     | Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become a requirement in a future revision of this specificaiton.
+5.4.4.4 SET_MEDIA_CLOCK_REFERENCE_INFO           | Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become a requirement in a future revision of this specificaiton.
+5.4.4.5 GET_MEDIA_CLOCK_REFERENCE_INFO           | Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become a requirement in a future revision of this specificaiton.
+7.6 Media Clock Management                       | Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become a requirement in a future revision of this specificaiton.
+distinct printed notes: 1
+normalized: Note: Support for this feature is a recommendation for Milan compliant PAADs. This recommendation will become a requirement in a future revision of this specification.
+docs/00_MILAN_COMPLIANCE_REVIEW.md: full normalized note quoted = True; "(Spelling normalized.)" follows = True
+docs/architecture/06_aecp_engine.md: full normalized note quoted = True; "(Spelling normalized.)" follows = True
+--- Table 5.19 ---
+Table 5.19: MVU status codes.
+Value Status code Meaning
+0 SUCCESS The PAAD-AE successfully performed the command and has
+valid results.
+1 NOT_IMPLEMENTED The PAAD-AE does not support the command type.
+2 to 31 - Reserved for future use.

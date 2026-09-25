@@ -1,0 +1,23 @@
+# public manager evidence kebag-logic/milan-fpga@6d48f9cfb6cde4733c69df0eadd306077472a775 review-evidence/pp510-r1/author-r2 (selected files fetched read-only; reviews/ and author-r2/R31*-1.md not read before this verdict)
+processor-head.txt: sha256 6e4837bd2ced5799034446088e8ba1e26fcd08ef9e6313bd7edf7b0c2ef14fc4 vs MANIFEST.json published_sha256 -> match
+round2-mutation-results.json: sha256 fb9de48e1434e13a3caa5300037c664732890750176e5faccc83237cc3f4685c vs MANIFEST.json published_sha256 -> match
+merged-mutation-results.json: sha256 b8bea5aa9a2e2423ff8b0062ebb0cdb76cb705788ffb795adac1d6785a070e2a vs MANIFEST.json published_sha256 -> match
+source-scope.json: sha256 1db38fedc714d2d2d34c0501454cad8e570a63cf5454828bff367b044a44e2b4 vs MANIFEST.json published_sha256 -> match
+validation-context.json: sha256 28059e81c4f651ed77d8833380c93d8aa67d3e4ed537fb5cea31c933149c3918 vs MANIFEST.json published_sha256 -> match
+merged-built-source.json: sha256 796557d15574cd8ffec9ba73e5f3c1ecd95e055899a4ba8ad6d452a958ae2ea9 vs MANIFEST.json published_sha256 -> match
+MANIFEST.sha256: sha256 c7b79cfa4e289ff46b4ccaea937e368c517f25a24c9294cc736f1ecd7bd09a8e vs MANIFEST.json published_sha256 -> match
+merged-mutation-results.json: head=b51bc3893b06f4d39be49726c1b8f4ed6c65573d harness_blob=a22c5996a985e94c90218440ccdc04f346322ac0 rom_sha256=23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144
+  merged/success word 560 c00000000001->c00000000000 rc=1 197 of 7640
+  merged/features word 741 230000000000->230000000003 rc=1 3 of 7640
+round2-mutation-results.json: head=b51bc3893b06f4d39be49726c1b8f4ed6c65573d harness_blob=6f97ab99a5778ec0b7a91229c1c071154c38ac05 rom_sha256=23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144
+  round2/success word 560 c00000000001->c00000000000 rc=1 199 of 7646
+  round2/features word 741 230000000000->230000000003 rc=1 3 of 7646
+processor-head.txt: 490e4309749c83f92d794a8ff10d3043e0f5f080
+## reviewer cross-check
+sim_main.cpp blob at 490e430: 6f97ab99a5778ec0b7a91229c1c071154c38ac05
+sim_main.cpp blob at b51bc38: a22c5996a985e94c90218440ccdc04f346322ac0
+generated ucode.hex sha256 (reviewer extracts): head 23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144, b51bc38 23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144
+hdl/ identical between b51bc38 and 490e430
+live refs:
+990f96526bb89356c963a260ebbdcf2a77e6623a	refs/heads/main
+490e4309749c83f92d794a8ff10d3043e0f5f080	refs/pull/118/head

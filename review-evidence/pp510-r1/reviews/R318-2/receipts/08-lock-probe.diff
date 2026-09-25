@@ -1,0 +1,50 @@
+--- head/tb/pp_top/sim_main.cpp	2026-09-25 02:44:11.000000000 +0200
++++ lk08/tb/pp_top/sim_main.cpp	2026-09-25 03:22:58.044000000 +0200
+@@ -2388,6 +2388,7 @@
+     m2_the_three_fields_a_controller_records(m1_got);
+     m3_a_foreign_protocol_id_is_still_not_implemented();
+     m4_the_waived_pairs_and_a_reserved_command_type();
++    r318_m4l_waived_sets_under_a_foreign_lock();
+     m4l_the_waived_sets_under_another_controllers_lock();
+     m5_the_r_field_is_compared_the_reserved_field_is_not(info_pl);
+     m6_a_truncated_mvu_command();
+@@ -2573,6 +2574,39 @@
+           "M4L: UNLOCK_ENTITY must clear the holder byte-exact");
+   }
+ 
++  void r318_m4l_waived_sets_under_a_foreign_lock() {
++    const uint64_t P2_MAC = 0x0202C2C2C2C2ull;
++    std::vector<uint8_t> lock(16, 0);            // flags 0 = LOCK, ENTITY 0
++    h.q_aecp.clear();
++    h.feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, 0xD001, 0x0001, lock));
++    auto got = h.wait_any(h.q_aecp, 200);
++    CHECK(got.size() > 17 && (got[16] >> 3) == 0, "M4L: controller 1 could not lock");
++    for (uint16_t ct : {uint16_t(0x0001), uint16_t(0x0003)}) {
++      auto payload = mvu_cmd_pl(MVU_PID_LO, ct, ct == 1 ? 16 : 80);
++      if (ct == 1) putbe(&payload[8], 0x0123456789ABCDEFull, 8);
++      else { payload[8] = 3; payload[11] = 0x5A; }
++      const uint16_t seq = uint16_t(0xD010 + ct);
++      h.q_aecp.clear();
++      h.feed(aecp_frame(OWN_MAC, P2_MAC, VU_COMMAND, 0, EID, CTLR2_EID, seq,
++                        MVU_PID_HI, payload));
++      got = h.wait_any(h.q_aecp, 200);
++      const auto want = aecp_frame(P2_MAC, OWN_MAC, VU_RESPONSE,
++                                   AECP_NOT_IMPLEMENTED, EID, CTLR2_EID, seq,
++                                   MVU_PID_HI, payload);
++      CHECK(got == want, "M4L: MVU 0x%04x from a foreign controller under lock "
++            "is not the NOT_IMPLEMENTED echo (status %u)", ct,
++            got.size() > 16 ? unsigned(got[16] >> 3) : 99u);
++      h.run_ms(20);
++      CHECK(h.q_aecp.empty(), "M4L: MVU 0x%04x produced an extra AECP frame", ct);
++    }
++    lock[3] = 1;                                 // UNLOCK
++    h.q_aecp.clear();
++    h.feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, 0xD002, 0x0001, lock));
++    got = h.wait_any(h.q_aecp, 200);
++    CHECK(got.size() > 17 && (got[16] >> 3) == 0, "M4L: controller 1 could not unlock");
++    std::printf("R318 M4L probe ran: lock, 2 foreign waived SETs, unlock\n");
++  }
++
+   // ---- M5: the r field is compared, the reserved field is not -----------
+   // Milan §5.4.3.2.2 requires r = 0 in every MVU message and gives the
+   // receiver no leave to ignore it; §5.4.4.1's reserved field, by contrast,

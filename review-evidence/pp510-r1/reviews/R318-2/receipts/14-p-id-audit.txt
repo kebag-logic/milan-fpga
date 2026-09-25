@@ -1,0 +1,33 @@
+# P-ID registry audit at exact head 490e4309 (scripts/p_id_audit.py). 'P-ID' in 01 is the F01.5 column header. P-MAAP-* in 02/05/11 predate this PR (present at base 265d676).
+F01.5 P-IDs: 38
+docs/00_MILAN_COMPLIANCE_REVIEW.md: 3 P-IDs, not in F01.5: none
+docs/10_RESOURCE_AND_EFFORT.md: 5 P-IDs, not in F01.5: none
+docs/README.md: 1 P-IDs, not in F01.5: none
+docs/architecture/01_overview.md: 39 P-IDs, not in F01.5: ['P-ID']
+docs/architecture/02_interfaces.md: 10 P-IDs, not in F01.5: ['P-MAAP-ACCEPT-CYC', 'P-MAAP-RSP-MS']
+docs/architecture/03_packet_engine.md: 9 P-IDs, not in F01.5: none
+docs/architecture/04_adp_engine.md: 2 P-IDs, not in F01.5: none
+docs/architecture/05_acmp_engine.md: 6 P-IDs, not in F01.5: ['P-MAAP-ACCEPT-CYC', 'P-MAAP-RSP-MS']
+docs/architecture/06_aecp_engine.md: 12 P-IDs, not in F01.5: none
+docs/architecture/07_memory_maps.md: 6 P-IDs, not in F01.5: none
+docs/architecture/08_timing.md: 5 P-IDs, not in F01.5: none
+docs/architecture/09_verification.md: 0 P-IDs, not in F01.5: none
+docs/architecture/10_srp_engine.md: 7 P-IDs, not in F01.5: none
+docs/architecture/11_maap_engine.md: 4 P-IDs, not in F01.5: ['P-MAAP-ACCEPT-CYC', 'P-MAAP-RSP-MS']
+docs/diagrams/README.md: 0 P-IDs, not in F01.5: none
+docs/guides/README.md: 0 P-IDs, not in F01.5: none
+docs/guides/hdl-engineer.md: 1 P-IDs, not in F01.5: none
+docs/guides/integrator.md: 0 P-IDs, not in F01.5: none
+docs/guides/operator.md: 0 P-IDs, not in F01.5: none
+docs/traceability/MODULE_MATRIX.md: 0 P-IDs, not in F01.5: none
+--- 06 section 11 ---
+## 11. Parameterization
+
+`P-N-CONTROLLERS`, `P-CA-POOL`, `P-NOTIF-QUEUE-DEPTH`, `P-UCODE-ROM-DEPTH`,
+`P-EN-IDENTIFY-NOTIFICATION`, `P-MAP-SUBSET-CH-MAX`, `P-INTERNAL-INGRESS-DELAY-NS`.
+
+`MILAN_FEATURES_FLAGS.TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING` is the F01.5
+microcode constant (§8.1).
+
+`P-EN-MVU-SUID` and `P-EN-MVU-MCR` are reserved names only in F01.5;
+neither is an RTL parameter (§6.9).

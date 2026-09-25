@@ -1,0 +1,14 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -2828,6 +2828,11 @@
+               upc_r  <= UPC_MVUINFO_C;
+               echo_r <= 1'b0;
+             end
++            if ((cmd_r.protocol == PP_PROTO_MVU) && (pld_cmd_r >= MVU_CMD_PLD_C)
++                && (raw_ct_r == MVU_PID_HI_C) && (cfg_ix_r == MVU_PID_MD_C)
++                && (pid_lo_r == 2'b11) && (desc_ty_r >= 16'h0001)
++                && (desc_ty_r <= 16'h0004))
++              upc_r <= 11'd135;  // R318 probe
+             //! READ_DESCRIPTOR(ENTITY) overlays current_configuration from
+             //! the same dynamic state GET_CONFIGURATION reads. IEEE
+             //! §7.4.8.2 calls the two values equivalent, so the static image
