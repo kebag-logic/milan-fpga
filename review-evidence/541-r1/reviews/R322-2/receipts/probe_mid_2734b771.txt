@@ -1,0 +1,20 @@
+clean: rc=0 SURVIVED == crf_rx discontinuity: checks: 1932   failures: 0 ==
+uf_refreshes: rc=0 SURVIVED == crf_rx discontinuity: checks: 1932   failures: 0 ==
+hit_refreshes: rc=0 SURVIVED == crf_rx discontinuity: checks: 1932   failures: 0 ==
+uf_halves: rc=0 SURVIVED == crf_rx discontinuity: checks: 1932   failures: 0 ==
+uf_pauses: rc=0 SURVIVED == crf_rx discontinuity: checks: 1932   failures: 0 ==
+uf_relocks: rc=0 SURVIVED == crf_rx discontinuity: checks: 1932   failures: 0 ==
+tout_late20: rc=1 KILLED == crf_rx discontinuity: checks: 1932   failures: 3 ==
+    [FAIL] 100 ms silence counts one unlock
+    [FAIL] 100 ms silence still unlocks after validation error
+    [FAIL] silence invalidates the old rate
+tout_early20: rc=1 KILLED == crf_rx discontinuity: checks: 1932   failures: 2 ==
+    [FAIL] silence before timeout adds no unlock
+    [FAIL] silence shorter than 100 ms retains lock
+uf_unlocks: rc=1 KILLED == crf_rx discontinuity: checks: 1932   failures: 6 ==
+    [FAIL] 100 ms silence counts one unlock
+    [FAIL] continued silence never recounts the unlock
+    [FAIL] silence shorter than 100 ms retains lock
+    [FAIL] valid resume keeps the established lock
+    [FAIL] validation error preserves established lock
+    [FAIL] validation error retains lock through interval commit

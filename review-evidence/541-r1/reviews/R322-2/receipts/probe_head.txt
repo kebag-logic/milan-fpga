@@ -1,0 +1,45 @@
+clean: rc=0 SURVIVED == crf_rx discontinuity: checks: 2201   failures: 0 ==
+uf_refreshes: rc=1 KILLED == crf_rx discontinuity: checks: 2201   failures: 4 ==
+    [FAIL] continued reject stream never recounts the unlock
+    [FAIL] continued reject stream stays unlocked
+    [FAIL] reject stream cannot refresh the 100 ms timeout
+    [FAIL] reject stream timeout counts one unlock
+hit_refreshes: rc=1 KILLED == crf_rx discontinuity: checks: 2201   failures: 4 ==
+    [FAIL] continued reject stream never recounts the unlock
+    [FAIL] continued reject stream stays unlocked
+    [FAIL] reject stream cannot refresh the 100 ms timeout
+    [FAIL] reject stream timeout counts one unlock
+uf_halves: rc=1 KILLED == crf_rx discontinuity: checks: 2201   failures: 4 ==
+    [FAIL] continued reject stream never recounts the unlock
+    [FAIL] continued reject stream stays unlocked
+    [FAIL] reject stream cannot refresh the 100 ms timeout
+    [FAIL] reject stream timeout counts one unlock
+uf_pauses: rc=1 KILLED == crf_rx discontinuity: checks: 2201   failures: 3 ==
+    [FAIL] continued reject stream stays unlocked
+    [FAIL] reject stream cannot refresh the 100 ms timeout
+    [FAIL] reject stream timeout counts one unlock
+uf_relocks: rc=1 KILLED == crf_rx discontinuity: checks: 2201   failures: 2 ==
+    [FAIL] continued reject stream never recounts the unlock
+    [FAIL] continued reject stream stays unlocked
+tout_late20: rc=1 KILLED == crf_rx discontinuity: checks: 2201   failures: 6 ==
+    [FAIL] 100 ms silence counts one unlock
+    [FAIL] 100 ms silence still unlocks after validation error
+    [FAIL] continued reject stream stays unlocked
+    [FAIL] reject stream cannot refresh the 100 ms timeout
+    [FAIL] reject stream timeout counts one unlock
+    [FAIL] silence invalidates the old rate
+tout_early20: rc=1 KILLED == crf_rx discontinuity: checks: 2201   failures: 4 ==
+    [FAIL] reject stream before timeout adds no unlock
+    [FAIL] reject stream retains lock before 100 ms
+    [FAIL] silence before timeout adds no unlock
+    [FAIL] silence shorter than 100 ms retains lock
+uf_unlocks: rc=1 KILLED == crf_rx discontinuity: checks: 2201   failures: 9 ==
+    [FAIL] 100 ms silence counts one unlock
+    [FAIL] continued reject stream never recounts the unlock
+    [FAIL] continued silence never recounts the unlock
+    [FAIL] reject stream retains lock before 100 ms
+    [FAIL] reject stream timeout counts one unlock
+    [FAIL] silence shorter than 100 ms retains lock
+    [FAIL] valid resume keeps the established lock
+    [FAIL] validation error preserves established lock
+    [FAIL] validation error retains lock through interval commit

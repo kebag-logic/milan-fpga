@@ -1,0 +1,27 @@
+Verilator 5.050 2026-07-01 rev v5.050
+== discontinuity at fa1b5c364b39842d0f3d8e09acd7ca58a9532f0c ==
+== crf_rx discontinuity: checks: 2201   failures: 0 ==
+RESULT: PASS
+pass lines: 0
+discontinuity rc=0
+== mutants.py at fa1b5c364b39842d0f3d8e09acd7ca58a9532f0c ==
+[PASS] clean: rc=0
+[PASS] validation_error_unlocks: rc=1
+  named rejection: validation error preserves established lock
+[PASS] validation_error_refreshes_timeout: rc=1
+  named rejection: reject stream cannot refresh the 100 ms timeout
+[PASS] tu_ignored: rc=1
+  named rejection: tu edge invalidates before the sampling edge
+[PASS] jump_removed: rc=1
+  named rejection: unmarked timestamp jump invalidates the rate
+[PASS] refill_short: rc=1
+  named rejection: all 255 crossing intervals are withheld
+[PASS] accept_edge_late: rc=1
+  named rejection: tu edge invalidates before the sampling edge
+[PASS] servo_clean: rc=0
+[PASS] servo_ignores_valid: rc=1
+  named rejection: [U13] invalid remote sample holds trim
+[PASS] servo_never_resumes: rc=1
+  named rejection: [U13] valid offset resumes PI trim
+== crf_rx mutants: checks: 10   failures: 0 ==
+mutants rc=0

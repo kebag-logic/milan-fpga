@@ -1,0 +1,21 @@
+added lines 5b73d3f47..fa1b5c364 containing U+2014:
+0
+heading lines changed in docs (TOC relevance):
+0
+mutant names in mutants.py MUTANTS + servo arms:
+validation_error_unlocks
+validation_error_refreshes_timeout
+tu_ignored
+jump_removed
+refill_short
+accept_edge_late
+"servo_clean"
+"servo_ignores_valid"
+"servo_never_resumes"
+TESTING.md crf_rx row:
+463:| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. Locked-sink validation errors retain lock but cannot extend the 100 ms timeout. The default gate includes `validation_error_unlocks`, `validation_error_refreshes_timeout`, tu, jump, refill, sample-edge and servo-validity mutants |
+other docs mentioning crf_rx mutants:
+docs/testing/TESTING.md:463:| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, inclu
+scripts/measure_test_evidence.py:599:        "for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, "
+tb/verilator/crf_rx/mutants.py:20:    ("validation_error_unlocks", "if (!w_fmt_ok) begin",
+tb/verilator/crf_rx/mutants.py:23:    ("validation_error_refreshes_timeout", "      if (w_acc_run_w) begin",
