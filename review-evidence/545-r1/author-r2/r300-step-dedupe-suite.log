@@ -1,0 +1,6 @@
+COMMAND: ['taskset', '-c', '12-15', 'python3', '/tmp/a305-evidence/review-evidence/545-r1/reviews/R300-1/scripts/reviewer_mutants.py', '$LANES/545-crf-servo-slew', '/tmp/a305-probes/r300-mutants', 'step_dedupe_removed_suite', '/usr/bin/verilator']
+  [FAIL] [S5] coincident step+slew window counted once = 2 in [1, 1]
+  == mmcm_servo phc_step: checks: 90   failures: 1 ==
+VERDICT step_dedupe_removed_suite: KILLED rc=1
+
+EXIT: 0; WALL_SECONDS: 686.706

@@ -1,0 +1,7 @@
+COMMAND: ['env', 'OOC_TMP=/tmp/a305-ooc-alignment-final', 'taskset', '-c', '12-15', 'bash', '/tmp/a305-area/alignment-ooc.sh', 'KL_slew_alignment']
+== OOC area (synth_xilinx -family xc7 -flatten) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4
+KL_slew_alignment                   1        0        1        4        0        0        0        0
+
+EXIT: 0; WALL_SECONDS: 2.674

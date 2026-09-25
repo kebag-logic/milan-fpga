@@ -1,0 +1,7 @@
+COMMAND: ['env', 'OOC_TMP=/tmp/a305-ooc-head', 'taskset', '-c', '12-15', 'bash', 'syn/yosys/ooc.sh', 'KL_mmcm_drp_servo']
+== OOC area (synth_xilinx -family xc7 -flatten) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4
+KL_mmcm_drp_servo                 871        0      871      792        0        0        1      150
+
+EXIT: 0; WALL_SECONDS: 5.477
