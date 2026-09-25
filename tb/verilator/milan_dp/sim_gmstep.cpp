@@ -279,7 +279,9 @@ class GmStepHarness {
     bool slew_probe_ = false;
     bool slew_origin_override_ = false;
     int64_t slew_offset_ns_ = 0;
-    std::array<bool, 4> slew_history_{};
+    uint64_t phc_fraction_prev_ = 0;
+    uint64_t slew_increment_ = 0;
+    unsigned slew_tail_samples_ = 0;
     unsigned slew_alignment_errors_ = 0;
     unsigned slew_high_samples_ = 0;
     unsigned slew_falls_ = 0;
@@ -370,7 +372,7 @@ class GmStepHarness {
     void baseline();
     void change_grandmaster();
     void check_slew_connection();
-    void observe_slew_alignment(bool raw, bool expected);
+    void observe_slew_alignment(bool raw, uint64_t increment);
     void grade_the_event(const std::vector<uint8_t>& sout0, const std::vector<uint8_t>& sout_mid,
                          uint64_t mid_cyc, const std::vector<uint8_t>& sin0,
                          uint64_t recentres0, uint64_t rails0, size_t talker0);
@@ -417,29 +419,34 @@ void GmStepHarness::tick() {
     drp_edge();
     memory_edge();
     const bool raw_slew = dut_->rootp->milan_datapath__DOT__gptp_slew_active_w;
-    const bool expected_slew = raw_slew ||
-        std::any_of(slew_history_.begin(), slew_history_.end(), [](bool v) { return v; });
+    // The servo samples the current PHC on the next edge. Measure the
+    // advance into that sample, including fractional ns, before the edge.
+    const auto& acc = dut_->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
+    const uint64_t fraction = (static_cast<uint64_t>(acc[1]) << 32) | acc[0];
+    const uint64_t increment = fraction - phc_fraction_prev_;
+    phc_fraction_prev_ = fraction;
     dut_->axis_clk = 1; dut_->gtx_clk = 1;
     dut_->eval();
-    observe_slew_alignment(raw_slew, expected_slew);
+    observe_slew_alignment(raw_slew, increment);
     if (rx_fire) rx_accepted();
     ++cyc_;
     observe();
 }
 
 //! Observe the servo's staged input, not a parallel harness connection.
-//! Four historical source samples cover latch + sync + PHC application.
-void GmStepHarness::observe_slew_alignment(bool raw, bool expected) {
+//! After release, the last measured slew increment identifies samples still
+//! carrying the correction. No assumed pipeline depth enters this oracle.
+void GmStepHarness::observe_slew_alignment(bool raw, uint64_t increment) {
     const bool sampled = dut_->rootp->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__phc_slew_q_r;
     if (slew_probe_) {
-        slew_alignment_errors_ += sampled != expected;
+        if (raw) slew_increment_ = increment;
+        const bool tail = !raw && increment == slew_increment_;
+        slew_alignment_errors_ += (raw || tail) && !sampled;
+        slew_tail_samples_ += tail;
         slew_high_samples_ += sampled;
         slew_falls_ += slew_previous_ && !raw;
     }
     slew_previous_ = raw;
-    for (size_t i = slew_history_.size() - 1; i > 0; --i)
-        slew_history_[i] = slew_history_[i - 1];
-    slew_history_[0] = raw;
 }
 
 void GmStepHarness::observe() {
@@ -1079,7 +1086,10 @@ void GmStepHarness::check_slew_connection() {
     check_.dec("slew path: measured completion lowers the level",
                dut_->rootp->milan_datapath__DOT__gptp_slew_active_w, 0);
     check_.dec("slew path: completion happened once", slew_falls_, 1);
+    check_.that("slew path: PHC advances witness the release tail", slew_tail_samples_ > 0);
     check_.dec("slew path: every staged sample covers the PHC tail", slew_alignment_errors_, 0);
+    check_.dec("slew path: servo clears after the PHC tail",
+               dut_->rootp->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__phc_slew_q_r, 0);
     check_.dec("slew path: a policy slew never steps the PHC", trace_.steps - steps0, 0);
     slew_probe_ = false;
 }

@@ -9,11 +9,16 @@
 #     (the drift-lottery rails cease with the servo engaged)
 #   sim_phc_step.cpp -> Vphc_step       : the servo at its SILICON defaults
 #     (1 ms tick, 512 ms window, NORM_SHIFT_P = 0) against a PHC step (#539)
-#   make        - run all harnesses, policy-slew cases and mutants
+#   make        - run unit, rails, step and policy-slew harnesses
+#   make slew-mutants - run the explicit policy-slew mutation campaign
 #   make trace STEP_NS=<n> - the #539 reproduction record: one n ns step at
 #                 mid-window, integrator and written rate traced per window
 #                 (sim_phc_step.cpp names the slew and talker-step traces)
 #   make clean  - remove build artifacts
+#
+# #545 round 2, 2026-09-25: clean default 952.797 s on two CPUs
+# (taskset -c 10,11 make; Verilator 5.052), within the 1800 s budget.
+# Shared-host local measurement; 847.203 s margin. Mutations are explicit.
 
 VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
@@ -40,8 +45,8 @@ UNIT_G = -GTICK_CYC_P=3072 -GWIN_LOG2_P=5 "-GNOM_WIN_NS_P=64'd4000000" \
          -GNORM_SHIFT_P=7 -GGAIN_NUM_P=7 -GRELOCK_TOUT_P=20000 \
          -GLOCK_THR_P=8192
 
-.PHONY: all run unit-build trace phc_step_build slew mutants clean
-all: run mutants
+.PHONY: all run unit-build trace phc_step_build slew slew-mutants mutants clean
+all: run
 
 # the step harness reads integ_r / u_cmd_r / ew_r / pp_seq_r / pp_run_r, so it
 # is built with --public-flat-rw at the servo's DEFAULT (silicon) parameters
@@ -76,7 +81,9 @@ run: unit-build
 slew: phc_step_build
 	./$(PHC_MDIR)/Vphc_step +slew_suite
 
-mutants:
+mutants: slew-mutants
+
+slew-mutants:
 	python3 slew_mutants.py
 
 clean:

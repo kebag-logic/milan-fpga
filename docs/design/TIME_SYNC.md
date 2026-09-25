@@ -177,6 +177,14 @@ Each link has exactly one master.
 | Grid-aligner command | PI in servo units; +/-200 ppm authority | `KL_media_grid_align` |
 | Grid-aligner lock target | Engagement phase, kept 1/128 sample off the tick | `KL_media_grid_align` |
 
+A slew discard restarts the four-trip guard streak.
+
+A slew window is not a valid offset sample.
+
+Re-basing therefore requires four fresh guard trips after the slew.
+
+The #539 step discard also restarts this streak.
+
 | Function | Implemented | Product effect |
 |---|---|---|
 | CRF transmit | Yes | Publishes internal media events |
@@ -229,7 +237,9 @@ Additional cases cover short pulses, shared boundaries and prolonged levels.
 
 The connected `milan_dp` gmstep phase drives real Sync pairs.
 
-It checks the plane-to-servo level and every release-tail edge.
+It measures fractional PHC advances to grade release-tail coverage.
+
+An extra addend stage must fail this check.
 
 Its compressed clocks do not grade media-loop settling.
 

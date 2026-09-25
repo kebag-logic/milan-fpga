@@ -155,9 +155,19 @@ margin sets each named entry:
 
 | Suite | Budget | Basis |
 |---|---|---|
-| every other default suite | 1800 s | longest default suite besides `milan_dp` measured at most 548 s hosted |
+| every other default suite | 1800 s | original hosted basis: at most 548 s; #545 splits its long mutant campaign into an explicit target (see below) |
 | `milan_dp` | 3600 s | hosted window 2459.9 s; 1140.1 s remains (31.7% of budget) |
 | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
+
+PR #563's first head timed out during servo mutations.
+
+The #545 decision keeps all clean checks under 1800 seconds.
+
+Its mutation campaign now runs explicitly under #367's rule.
+
+The servo Makefile records the revised two-CPU local measurement.
+
+Hosted acceptance must still pass on the fixing head.
 
 The previous `milan_dp` budget used 37 hosted runs.
 Those ran between 2026-09-15 and 2026-09-19, after #447's split.

@@ -65,6 +65,7 @@ class MmcmServoUnitHarness {
         prove_local_ptp_step_windows_are_discarded();
         prove_implausible_windows_meet_the_guard();
         prove_step_restarts_the_guard_streak();
+        prove_slew_restarts_the_guard_streak();
         prove_step_with_no_window_open_is_not_counted();
         prove_invalid_remote_sample_holds_the_loop();
         prove_tally_saturates_and_idle_clears_it();
@@ -549,6 +550,34 @@ class MmcmServoUnitHarness {
         ck("[U12] LOCKED after the streak", state(), 4);
     }
 
+    //! A slew window is not an offset measurement. Four new guard trips
+    //! must follow it before another re-base, observed as U11's 33-tick gap.
+    void prove_slew_restarts_the_guard_streak() {
+        ck("[U15] LOCKED before", state(), 4);
+        std::vector<double> before;
+        dut->crf_rate_i = rate_for_ppm(+80.0) + 2'000'000;
+        run_noting_discards(12.0, 2, before);
+        ck("[U15] arm: two guard discards open a streak", before.size(), 2);
+        dut->phc_slew_active_i = 1;
+        std::vector<double> during;
+        run_noting_discards(8.0, 1, during);
+        ck("[U15] arm: slew window discarded", during.size(), 1);
+        dut->phc_slew_active_i = 0;
+        // The shared endpoint also taints the following partial window.
+        std::vector<double> tail;
+        run_noting_discards(8.0, 1, tail);
+        ck("[U15] arm: partial tail discarded", tail.size(), 1);
+        std::vector<double> after;
+        run_noting_discards(40.0, 5, after);
+        dut->crf_rate_i = rate_for_ppm(+80.0);
+        print_gaps(after);
+        ck("[U15] four fresh guard trips precede re-base",
+           ticks_after(after, 0) == 32 && ticks_after(after, 1) == 32 &&
+           ticks_after(after, 2) == 32 && ticks_after(after, 3) == 33, 1);
+        run_ms(24);
+        ck("[U15] LOCKED after the streak", state(), 4);
+    }
+
     //! Two steps one clk_i edge apart: the first abandons its window, so the
     //! second lands with no window open, and the tally counts one.
     void prove_step_with_no_window_open_is_not_counted() {
@@ -635,7 +664,7 @@ class MmcmServoUnitHarness {
         const int d0 = disc_cnt();
         ptp_step_ns += 150000;
         run_ms(0.01);
-        ck("[U14] replacing step counts its open window once", disc_cnt() - d0, 1);
+        ck("[U14] mid-window step abandons one slew window", disc_cnt() - d0, 1);
         dut->phc_slew_active_i = 0;
         run_ms(12);
         ck("[U14] step after slew retains LOCKED", state(), 4);

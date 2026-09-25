@@ -25,7 +25,7 @@
 // +slew_suite grades the #545 level and the 100 us / 200 ppm trajectory,
 // both signs, a short within-window correction, a shared boundary sample,
 // a clean pre-slew close, an indefinitely held correction, and PI resumption.
-// +slew_control selects P0 and the +100 us case for the named mutants.
+// +slew_control selects P0, the +100 us slew and boundary-coincident step.
 //
 // Trace modes (the #539 records; lock, then one disturbance at mid-window,
 // printed window by window):
@@ -107,6 +107,7 @@ class PhcStepHarness {
     int slew_control() {
         prove_lock_at_the_silicon_scale();
         prove_slew_holds(100'000);
+        prove_step_on_slew_boundary_counts_once();
         return check_.report();
     }
 
@@ -118,6 +119,7 @@ class PhcStepHarness {
         prove_slew_boundary();
         prove_clean_close_before_slew();
         prove_slew_stays_active();
+        prove_step_on_slew_boundary_counts_once();
         prove_rate_path_still_integrates();
         return check_.report();
     }
@@ -510,6 +512,25 @@ class PhcStepHarness {
         held_slew_ = false;
         check_.that("[S4] final partial window discarded", !run_to_window_close().committed);
         expect_untouched("[S4]", s0, run_to_window_close(), 8);
+    }
+
+    //! Both guards meet on the same boundary sample, describing one window.
+    void prove_step_on_slew_boundary_counts_once() {
+        held_slew_ = true;
+        run_to_tick(kWinTicks / 2);
+        run_to_edges_before_t0(2);
+        const int before = disc_cnt();
+        ptp_step_ns += 150'000.0;
+        clk_edge();
+        check_.that("[S5] arm: stepped sample staged, T0 next edge",
+                    ptp_jump() && edges_to_t0() == 1 && dut->phc_slew_active_i);
+        clk_edge();
+        check_.that("[S5] arm: boundary fired on the stepped sample", pp_seq() == 1);
+        for (int e = 0; e < 4; ++e) clk_edge();
+        within("[S5] coincident step+slew window counted once", disc_cnt() - before, 1, 1);
+        held_slew_ = false;
+        run_to_window_close();
+        run_to_window_close();
     }
 
     //! A real talker rate change is not a step: it is integrated and the servo

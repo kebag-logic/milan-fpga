@@ -892,8 +892,9 @@ python3 tb/verilator/milan_dp/test_render_phase_observation.py
 
 The gmstep leg also drives a policy-legal 90 us offset.
 Real Sync pairs raise and clear the exported slew level.
-It grades every staged servo sample, including the release tail.
+It measures fractional PHC advances into each staged servo sample.
+The last measured slew increment identifies the release tail.
 The phase checks wiring; it does not grade media-loop settling.
 Run `python3 gmstep_mutants.py --slew` for the connection controls.
-Both the tied-low input and missing tail must fail.
+Tied-low input, missing tail and added addend delay must fail.
 These controls also belong to `make gmstep-mutants`.

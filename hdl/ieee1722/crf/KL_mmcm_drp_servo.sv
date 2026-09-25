@@ -85,6 +85,10 @@
                           Clean windows resume without ACQUIRE. A step
                           abandons and counts its open window once, even
                           when that window also overlaps a slew.
+                          Slew discards reset the guard-discard streak,
+                          as #539 step discards do: re-basing needs four
+                          fresh guard trips after the slew. A slew window
+                          is not a valid offset sample.
 
                   remote history (#546): crf_rate_valid_i qualifies each
                           window's PI run. Invalid receiver history skips

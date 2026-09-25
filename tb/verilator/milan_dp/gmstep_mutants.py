@@ -108,6 +108,20 @@ class Control(NamedTuple):
     leg: str = "gmstep"         #: a key of LEGS
 
 
+# The counter input is delayed independently of the slew-level release.
+COUNTER_ADDEND_PORT = """  timestamp_counter #(
+    .COUNTER_WIDTH (64),
+    .INCR_WIDTH    (32),
+    .FRAC_WIDTH    (24),
+    .PPS_P             (PPS_P),
+    .PPS_WIDTH_CYC_P (PPS_WIDTH_CYC_P)
+  ) ts_counter (
+    .clk                  (gtx_clk),
+    .resetn               (gtx_resetn),
+    .enable_i             (phc_enable_ts_w),
+    .incr_i               (phc_incr_ts_w),
+    .adj_i                (phc_adj_ts_w),"""
+
 CONTROLS = [
     Control("the policy level is tied low at the servo", "datapath",
             ".phc_slew_active_i (gptp_slew_eff_w)",
@@ -116,6 +130,15 @@ CONTROLS = [
     Control("the policy level omits the applied-rate tail", "datapath",
             "gptp_slew_active_w || (|gptp_slew_tail_r)",
             "gptp_slew_active_w",
+            "slew path: every staged sample covers the PHC tail", False),
+    Control("the policy level misses an extra addend stage", "datapath",
+            COUNTER_ADDEND_PORT,
+            "  logic [31:0] probe_adj_r;\n"
+            "  always_ff @(posedge gtx_clk) begin : probe_addend_delay\n"
+            "    if (!gtx_resetn) probe_adj_r <= '0;\n"
+            "    else probe_adj_r <= phc_adj_ts_w;\n"
+            "  end : probe_addend_delay\n" +
+            COUNTER_ADDEND_PORT.replace("(phc_adj_ts_w)", "(probe_adj_r)"),
             "slew path: every staged sample covers the PHC tail", False),
     Control("the step does not toggle mr", "datapath",
             "                       | media_rebase_p_w;",
