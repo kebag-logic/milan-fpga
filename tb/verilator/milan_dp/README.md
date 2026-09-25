@@ -485,7 +485,7 @@ The second follows `lstn_gsi_changed_r`: settlement tears down to PASSIVE.
 Both trigger `protocol_processor_top.stri_events` at the adopted pin.
 Both responses carry PASSIVE, zero ACMP status, and cleared failures.
 The first already sees teardown because response gathers read live.
-See [field lineage](../../../protocol-processor/docs/architecture/06_aecp_engine.md#fig-06-lineage) and [settlement states](../../../protocol-processor/docs/architecture/05_acmp_engine.md#fig-05-settled).
+See [F06.13, field lineage](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/990f96526bb89356c963a260ebbdcf2a77e6623a/docs/architecture/06_aecp_engine.md#fig-06-lineage) and [F05.5, settlement detail](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/990f96526bb89356c963a260ebbdcf2a77e6623a/docs/architecture/05_acmp_engine.md#fig-05-settled).
 G8 grades both ordered responses to each controller against that state.
 Both bodies equal the subsequent solicited answer; sink 1 stays quiet.
 Acceptance 2 names PASSIVE after a bind.

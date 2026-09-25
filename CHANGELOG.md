@@ -54,7 +54,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Unchanged refreshes stay silent; simultaneous field changes coalesce.
 - Its ROM digests are re-recorded; the images are unchanged.
 - `tb/verilator/milan_dp` `obj_notify` grades the seam in `[GSI]`.
-- `make gsi-mutants` holds its seven failing arms.
+- `make gsi-mutants` holds its eight failing arms.
 - VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - one media event per PHC step

@@ -448,8 +448,8 @@ notify-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 notify: notify-build
 	./$(NOTIFY_MDIR)/Vmilan_dp_notify
 
-# An EXPLICIT campaign like crflic-mutants: seven more elaborations and
-# eight runs of the timed leg, outside the sweep's deadline.
+# An EXPLICIT campaign like crflic-mutants: eight more elaborations and
+# nine runs of the timed leg, outside the sweep's deadline.
 gsi-mutants: notify
 	python3 gsi_mutants.py
 
