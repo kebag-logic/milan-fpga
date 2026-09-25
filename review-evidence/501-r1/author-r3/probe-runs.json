@@ -1,0 +1,49 @@
+[
+  {
+    "name": "tree_figures",
+    "command": [
+      "python3",
+      "/tmp/501-a291-f18yjsbs/R313-2/scripts/tree_figures.py",
+      "$LANES/501-outmap-record",
+      "/tmp/501-a291-f18yjsbs/figures_current.json"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "R312-2-capture_copy_probe",
+    "command": [
+      "python3",
+      "/tmp/501-a291-f18yjsbs/R312-2/scripts/capture_copy_probe.py",
+      "$LANES/501-outmap-record",
+      "/tmp/501-a291-f18yjsbs/capture-r312"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "R312-2-hold_margin",
+    "command": [
+      "python3",
+      "/tmp/501-a291-f18yjsbs/R312-2/scripts/hold_margin.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "R313-2-capture_copy_probe",
+    "command": [
+      "python3",
+      "/tmp/501-a291-f18yjsbs/R313-2/scripts/capture_copy_probe.py",
+      "$LANES/501-outmap-record"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "R313-2-hold_margin",
+    "command": [
+      "python3",
+      "/tmp/501-a291-f18yjsbs/R313-2/scripts/hold_margin.py",
+      "/tmp/501-a291-f18yjsbs/R313-2/receipts/figures_base.json",
+      "/tmp/501-a291-f18yjsbs/figures_current.json"
+    ],
+    "rc": 0
+  }
+]

@@ -1,0 +1,120 @@
+[
+  {
+    "name": "record-space",
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py"
+    ],
+    "mode": "candidate worktree",
+    "head": "afdd28b701e7f5849317e27ce845c31d1c87f2a6",
+    "rc": 0,
+    "elapsed_seconds": 1.97
+  },
+  {
+    "name": "record-space-self-test",
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ],
+    "mode": "candidate worktree",
+    "head": "afdd28b701e7f5849317e27ce845c31d1c87f2a6",
+    "rc": 0,
+    "elapsed_seconds": 31.08
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "mode": "candidate worktree",
+    "head": "afdd28b701e7f5849317e27ce845c31d1c87f2a6",
+    "rc": 0,
+    "elapsed_seconds": 4.02
+  },
+  {
+    "name": "docs-check-no-git",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "mode": "no git metadata",
+    "head": "afdd28b701e7f5849317e27ce845c31d1c87f2a6",
+    "rc": 0,
+    "elapsed_seconds": 4.02
+  },
+  {
+    "name": "check-em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "573f0052a0e4412e81f0845438fcec2086ce5d55"
+    ],
+    "mode": "candidate worktree",
+    "head": "afdd28b701e7f5849317e27ce845c31d1c87f2a6",
+    "rc": 0,
+    "elapsed_seconds": 3.02
+  },
+  {
+    "name": "check-doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "mode": "candidate worktree",
+    "head": "afdd28b701e7f5849317e27ce845c31d1c87f2a6",
+    "rc": 0,
+    "elapsed_seconds": 0.06
+  },
+  {
+    "name": "gen-toc-check",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "mode": "candidate worktree",
+    "head": "afdd28b701e7f5849317e27ce845c31d1c87f2a6",
+    "rc": 0,
+    "elapsed_seconds": 2.37
+  },
+  {
+    "name": "check-doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "mode": "candidate worktree",
+    "head": "afdd28b701e7f5849317e27ce845c31d1c87f2a6",
+    "rc": 0,
+    "elapsed_seconds": 0.06
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "mode": "candidate worktree",
+    "head": "afdd28b701e7f5849317e27ce845c31d1c87f2a6",
+    "rc": 0,
+    "elapsed_seconds": 0.03
+  },
+  {
+    "name": "committed-diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+      "HEAD"
+    ],
+    "mode": "candidate worktree",
+    "head": "afdd28b701e7f5849317e27ce845c31d1c87f2a6",
+    "rc": 0,
+    "elapsed_seconds": 0.01
+  }
+]
