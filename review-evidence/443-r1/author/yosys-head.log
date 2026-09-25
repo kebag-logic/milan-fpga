@@ -1,0 +1,9 @@
+COMMAND: syn/yosys/run.sh --top milan_csr --top milan_datapath --results $MANAGEMENT/2026-09-23/443-a298/yosys-head --no-structural
+== Yosys open-synthesis check (synth, via sv2v; shard 0/1) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] milan_csr              cells=70466
+  [PASS] milan_datapath         cells=1631783
+--------------------------------------------------------------
+tops: 2   pass: 2   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker
