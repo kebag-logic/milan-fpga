@@ -1,0 +1,15 @@
+test_declarations rc=0 seconds=0 cmd=python3 -B sw/builder/test_declarations.py
+py_idiom rc=0 seconds=3 cmd=python3 -B scripts/check_py_idiom.py
+docs_check_git rc=0 seconds=4 cmd=python3 -B scripts/docs_check.py
+docs_check_nogit rc=0 seconds=4 cmd=python3 -B scripts/docs_check.py
+doc_style rc=0 seconds=0 cmd=python3 -B scripts/check_doc_style.py
+toc_check rc=2 seconds=0 cmd=python3 -B scripts/gen_toc.py --check
+toc_anchors rc=2 seconds=1 cmd=python3 -B scripts/gen_toc.py --verify-anchors
+doc_paths rc=0 seconds=0 cmd=python3 -B scripts/check_doc_paths.py
+em_dash_pr_base rc=2 seconds=0 cmd=python3 -B scripts/check_em_dash.py --base 864b36f5e9450ef64f75ca3f0d68c44330e447d7
+test_evidence rc=0 seconds=5 cmd=python3 -B scripts/measure_test_evidence.py --check
+diff_check_delta rc=0 seconds=0 cmd=git diff --check e122f3302cf8a8e89de960233a8638b9dd1387dc c6c65e803f9eb270a11dfd65fda5814fb0b0ea55
+stale_text rc=0 seconds=1 cmd=sh -c ! git grep -n "let it be pruned\|what both boards ship\|RX_ADDRESS_FILTERS\|stream_dmac_alloc" c6c65e803f9eb270a11dfd65fda5814fb0b0ea55
+toc_check-pinned rc=0 seconds=3 cmd=$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/gen_toc.py --check
+toc_anchors-pinned rc=0 seconds=1 cmd=$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/gen_toc.py --verify-anchors
+em_dash_pr_base-pinned rc=0 seconds=3 cmd=$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/check_em_dash.py --base 864b36f5e9450ef64f75ca3f0d68c44330e447d7
