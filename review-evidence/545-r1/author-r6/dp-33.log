@@ -1,0 +1,11 @@
+cwd: $LANES/545-crf-servo-slew/tb/verilator/milan_dp
+command: taskset -c 10-15 python3 gmstep_mutants.py
+[PASS] the unmutated gateware still passes the gmstep leg
+[PASS] control caught: the step does not toggle mr - breaks "restart: the outgoing mr toggles exactly once"
+    it broke 2 check(s): restart: the outgoing mr toggles exactly once; restart: the talker's MEDIA_RESET counts exactly one
+[PASS] control caught: the grandmaster identity re-bases the render stage as well as the step - breaks "render: the GM change is one counted re-base event"
+    it broke 2 check(s): render: the GM change is one counted re-base event; render: every counted re-base lands at a PDU end right after the step
+[PASS] control caught: the step does not re-centre the render stage - breaks "render: the GM change is one counted re-base event"
+    it broke 1 check(s): render: the GM change is one counted re-base event
+
+4 checks: 4 PASS, 0 FAIL

@@ -1,0 +1,6 @@
+cwd: $LANES/545-crf-servo-slew
+command: taskset -c 10-15 env OOC_TMP=/tmp/milan-a320-area-y4e3qvq2/current syn/yosys/ooc.sh KL_mmcm_drp_servo
+== OOC area (synth_xilinx -family xc7 -flatten) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4
+KL_mmcm_drp_servo                 871        0      871      792        0        0        1      150
