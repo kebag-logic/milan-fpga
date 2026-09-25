@@ -622,8 +622,8 @@ class PpShadowHarness {
     }
 
     void grade_generated_domain_binding() {
-        // Ordinary resets keep the fixture's generated default. The second
-        // build supplies a distinct generated VID, never a shipping profile.
+        // run-base uses VID 2; run-vid73 uses the builder's emitter with
+        // fixtures/vid73.yaml. Both run from the default target.
 #ifndef DECLARATION_VID
 #define DECLARATION_VID 2
 #endif

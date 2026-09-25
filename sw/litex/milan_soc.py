@@ -3463,9 +3463,9 @@ def main() -> None:
                          "=> taps PRESENT.")
     ap.add_argument("--no-maap", action="store_true",
                     help="AREA LEVER: prune KL_maap (IEEE 1722 Annex B dynamic stream "
-                         "DMAC allocation). Legal when stream destination addresses are "
-                         "STATICALLY provisioned (AAF_DMAC / the builder's "
-                         "srp.stream_dmac_base). MAAP_CTRL.en becomes effectively "
+                         "DMAC allocation). Unsupported by the builder: every declared "
+                         "talker requires MAAP; numeric srp.stream_dmac_base is "
+                         "legacy scratch. MAAP_CTRL.en becomes effectively "
                          "reserved: setting it would pin AAF admission shut, because "
                          "the claim can never complete. Default off => MAAP PRESENT.")
     ap.add_argument("--no-i2s-playback", action="store_true",

@@ -100,8 +100,8 @@ constexpr int kAxiGuard = 2048;
 //! `-CFLAGS -DCSR_MILAN_CLK_HZ=100000000ULL` for the 100 MHz leg.
 constexpr uint64_t kCsrMilanClkHz = CSR_MILAN_CLK_HZ;
 
-// Independent expected declaration words. Normal make keeps its 1x1
-// fixture; the declaration matrix supplies each YAML shape explicitly.
+// Independent expected words for the arty_current 1x1 fixture.
+// Default make also runs fixtures/reset_bits.yaml with both admission bits.
 #ifndef CSR_DECL_TALK
 #define CSR_DECL_TALK 0x40010001u
 #endif
@@ -747,7 +747,7 @@ void MilanCsrHarness::adp_advertiser_identity_and_control() {
   // 0x618/0x61C are built from gen/adp_shape_defaults.svh, which
   // sw/builder/endstation_builder.py generates from an end-station config.
   // The ordinary recipe carries arty_current (one AAF output, no CRF).
-  // Declaration matrix builds carry their own independently expected words.
+  // The reset-bits leg keeps that shape and changes only admission bits.
   // Before 0x0015 these were plain RW words resetting to ZERO and the values
   // came from a boot script, which is how the 8x8 board advertised the 1x1
   // shape on silicon (2026-07-27). A write must now change NOTHING.

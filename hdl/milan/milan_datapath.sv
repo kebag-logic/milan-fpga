@@ -271,8 +271,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! (~cfg_maap_enable | maap_addr_valid) is satisfied by its first half.
   //! CAUTION: with the engine pruned, setting MAAP_CTRL.en = 1 would pin
   //! admission SHUT (the claim can never complete), so the CSR bit is
-  //! effectively reserved - the builder gate keys on a config that asks for
-  //! dynamic (srp.stream_dmac_base: maap) rather than static addresses.
+  //! effectively reserved. The builder requires MAAP for every supported
+  //! configuration; numeric stream_dmac_base values are legacy scratch.
   parameter int MAAP_P = 1,
   //! KL_maap's millisecond base, for SIMULATION time compression only (the
   //! CLKV_QTICK_CYC_P / PP_TIM_DIV_*_P precedent). DERIVED from the real
@@ -296,10 +296,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! 1568-1570 FF measured). 0 prunes it and wires the post-PTP RX stream
   //! STRAIGHT to the fabric-observer tap - which is bit-for-bit what the shipping
   //! filter does with promisc_i = 1 (or with TCAM_CTRL[1] = 0 and
-  //! default_pass = 1). Legal when the port is promiscuous or address
-  //! filtering is deliberately disabled; the TCAM_* CSR window keeps its
-  //! addresses but nothing consumes them, so the builder gate keys on
-  //! platform.rx_address_filter being declared 'promiscuous'.
+  //! default_pass = 1). Hardware presence is independently selected by
+  //! board.features.rx_mac_filter. The supported receive policy remains
+  //! promiscuous with either setting; pruned TCAM_* words have no consumer.
   parameter int RXFILT_P = 1,
   //! Area-budget static-conversion record (2026-07-29): the APRB
   //! (0x8B4-0x8C4) and PBK (0x8C8-0x8D0) probe groups - closed-finding

@@ -1015,7 +1015,7 @@ Line numbers are those of the cited file at the time of writing.
 | 43b | `srp.tspec.max_frame_bytes` | Validated 16-bit legacy `LWSRP_TSPEC` scratch field. Under derived policy it changes neither wire TSpec nor the build budget. | [Register map](reference/REGISTER_MAP.md) | explicit legacy scratch |
 | 44 | `srp.rtl_table` | Boolean builder-publication ownership: the selected config writes `hdl/common/csr/gen/lwsrp_csr_defaults.svh`. Gate 20a checks tracked header equality and consumption. | Builder artifact ownership | live builder switch |
 
-69 rows. Three rows carry *planned* marks, and a config validates and builds
+71 rows. Three rows carry *planned* marks, and a config validates and builds
 under each rather than erroring: row 14's JACK/EXTERNAL_PORT descriptors
 (the AEM half, D5), row 25's stream count above one AAF stream per
 direction and row 27's provisioning half. The build plan's marks live in

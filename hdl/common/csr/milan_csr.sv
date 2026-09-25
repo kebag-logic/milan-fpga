@@ -1539,15 +1539,15 @@ module milan_csr #(
       ptp_tod_rd <= 64'h0;
       for (i = 0; i < NS; i = i + 1) stat_snap[i] <= 32'h0;
       adp_ctrl <= 32'h0000_0A00;   // enable=0, valid_time=10 (Milan 5.6.2 "shall be set to 10"; validity 20 s)
-      // enable=0, bypass=1 (bit1: legacy stream-whenever-enabled — the
-      // Milan probe-gated mode is opt-in until silicon-proven), VID=2
+      // Neutral disabled reset: enable=0, bypass=0, VID=0.
+      // Firmware supplies the generated active AAF policy.
       aaf_ctrl <= AAF_CTRL_RST_C;
       acmp_lobs <= 32'h0;
       aaf_dmlo <= 32'hF000_FE01;   // MAAP-range default 91:E0:F0:00:FE:01
       aaf_dmhi <= 32'h0000_91E0;
-      // lwSRP: disabled; class-A queue 4 (the reset PCP3->TC3->q4 map);
-      // VID/DMAC mirror the AAF defaults; TSpec {interval 1, max_frame 224}.
-      // All six words come from gen/lwsrp_csr_defaults.svh (the config).
+      // lwSRP admission bits and diagnostic words come from the config.
+      // Its startup VID is 2; the separate neutral AAF VID is 0.
+      // MAAP resets disabled with count 0; firmware declares its count.
       lwsrp_ctrl <= LWSRP_CTRL_RST_C;
       maap_ctrl  <= MAAP_CTRL_RST_C;
       link_ctrl  <= 32'h0000_0001;      //! link assumed UP until firmware qualifies it otherwise

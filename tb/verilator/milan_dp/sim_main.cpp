@@ -649,14 +649,14 @@ class MilanDatapathHarness {
         prove_the_crossbar_tone_holds_one_grid();
         prove_the_clkv_option_off_is_ownerless();
         prove_the_aspath_publication_is_inert();
-        // restore the reset default (bypass=1) so later sections see legacy
+        // Select the bypass fixture for the remaining datapath sections.
         axi_write(A_AAF_CTRL, 0x00020002);
     }
 
     //! Nothing has armed the framer yet, so 0x66C reads a shut gate and the
     //! MAC stays silent across more than one whole accumulation period.
     void prove_the_gate_is_shut_before_anything_arms_it() {
-        // Milan mode: enable=1, bypass=0, VID=2 (reset is bypass=1)
+        // Milan mode: enable=1, bypass=0, VID=2; neutral reset is 0.
         axi_write(A_AAF_CTRL, 0x00020001);
         ck("gate closed pre-probe (CSR)", axi_read(A_ACMP_TALKER) & 0xB, 0);
         // no AAF frames while gated: watch the MAC for > one full frame
@@ -1327,7 +1327,7 @@ class MilanDatapathHarness {
     // ADP_STRIN0_FMT_C` - the entity model's DECLARED STREAM_INPUT[0]
     // format out of the generated shape header, the same file that
     // feeds 0x618/0x61C - exactly as aecp_pres_offset carries
-    // PRES_DFLT_C rather than a zero. Only the SETTER was AECP's; the
+    // row 0 of ADP_STROUT_PRES_NS_C rather than zero. Only the SETTER was AECP's; the
     // declaration never was.
     //
     // So the acceptance mechanism is graded here again, end to end:

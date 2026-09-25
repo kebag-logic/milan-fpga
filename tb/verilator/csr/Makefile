@@ -79,7 +79,7 @@ SRCS = $(RTL_DIR)/common/csr/milan_csr.sv
 #! prove nothing, so the leg goes rather than being kept green on stubs.
 #! (csr_win_live.sv and sim_live.cpp deleted with it.)
 
-.PHONY: all run clean
+.PHONY: all run reset-bits clean
 all: run
 
 obj_dir/Vcsr_sim: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp
@@ -131,6 +131,15 @@ run: obj_dir/Vcsr_sim obj_100m/Vcsr_sim100 obj_win/Vcsr_win obj_gptp/Vcsr_gptp \
 	./obj_win/Vcsr_win
 	./obj_gptp/Vcsr_gptp
 	./obj_pps/Vcsr_pps
+	$(MAKE) reset-bits
+
+# Generated cold-reset admission bits differ from the ordinary zero fixture.
+# The expected mask is independent of the emitted header.
+reset-bits:
+	python3 ../../common/gen_declaration_fixture.py fixtures/reset_bits.yaml obj_reset/fixture
+	$(VERILATOR) +incdir+obj_reset/fixture $(VFLAGS) --Mdir obj_reset --top-module $(TOP) \
+	  -CFLAGS "-DCSR_SRP_RESET_BITS=3u" $(SRCS) sim_main.cpp -o Vcsr_reset
+	./obj_reset/Vcsr_reset
 
 clean:
-	rm -rf obj_dir obj_100m obj_win obj_gptp obj_pps
+	rm -rf obj_dir obj_100m obj_win obj_gptp obj_pps obj_reset
