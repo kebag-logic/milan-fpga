@@ -1,0 +1,46 @@
+COMMAND python3 sw/litex/iob_pack_selftest.py
+  [PASS] one -quiet read in the check's code lines
+  [PASS] no measured rebuild of a query answer in the check's code lines
+  [PASS] shipping shape, all packed
+  [PASS] pruned render lane: tdm_dout from a constant
+  [PASS] bclk pad flop left in a slice (fabric load, Place 30-722)
+  [PASS] fsync pad flop unplaced
+  [PASS] dout driven by a LUT, no register at all
+  [PASS] rx capture flop in the fabric
+  [PASS] rx capture flop in the fabric behind the ILOGIC delay
+  [PASS] rx pin read by the IOB flop and a fabric flop
+  [PASS] rx_dv as it places: ILOGIC flop plus four fabric LUTs
+  [PASS] rx pin read only by LUTs, no register
+  [PASS] bidirectional port
+  [PASS] unpacked output, and the port's net answers no pin
+  [PASS] unpacked output, and the pad buffer answers no data pin
+  [PASS] unpacked input, and the pad buffer's net answers no load
+  [PASS] unpacked input behind the ILOGIC delay, whose net answers no load
+  [PASS] unpacked output, and the pad buffer's net answers no driver
+  [PASS] unpacked input, and REF_NAME answers for no cell
+  [PASS] unpacked output whose IOB read answers nothing: it leaves the loop
+  [PASS] no port answers IOB TRUE, but the constraints carry it
+  [PASS] no port answers IOB TRUE, and no .xdc sits beside the report
+  [PASS] a query answers names, not objects: the next one raises
+  [KILL] mutant 'site test always true': 6 check(s) notice it
+  [KILL] mutant 'final error removed': 14 check(s) notice it
+  [KILL] mutant 'delay elements not looked through': 12 check(s) notice it
+  [KILL] mutant 'a port whose net reaches no cell taken for INERT': 1 check(s) notice it
+  [KILL] mutant 'a far side that answered nothing taken for INERT': 5 check(s) notice it
+  [KILL] mutant 'the two counts of constrained ports not crossed': 1 check(s) notice it
+  [KILL] mutant 'a run that selected no port taken for a clean one': 2 check(s) notice it
+  [KILL] mutant 'every input load taken for a register': 2 check(s) notice it
+  [KILL] mutant 'an input with no register taken for INERT': 1 check(s) notice it
+  [KILL] mutant 'an empty answer behind a delay element taken for reached': 1 check(s) notice it
+  [KILL] mutant 'the delay partition not made to account for every load': 1 check(s) notice it
+  [KILL] mutant 'an output pin whose net answers no driver taken for reached': 1 check(s) notice it
+  [KILL] mutant 'an output parked by a constant taken for untraversable': 1 check(s) notice it
+  [KILL] mutant 'a missing .xdc taken for a constraint-free build': 1 check(s) notice it
+  [KILL] mutant '-quiet back on the port's net query': 1 check(s) notice it
+  [KILL] mutant 'a per-pin answer taken apart and rebuilt': 1 check(s) notice it
+  [KILL] mutant 'the same rebuild spelled with eval': 1 check(s) notice it
+  [KILL] mutant 'the same rebuild spelled with lmap': 1 check(s) notice it
+  [KILL] mutant 'the same rebuild spelled with join and split': 1 check(s) notice it
+  [KILL] mutant 'a query that raised while grading a port taken for INERT': 1 check(s) notice it
+  [KILL] mutant 'the graded port not printed before the re-raise': 1 check(s) notice it
+iob_pack_selftest: 21 arms, 21 mutants, 0 failure(s)
