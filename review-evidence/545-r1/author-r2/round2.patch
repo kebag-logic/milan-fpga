@@ -1,0 +1,499 @@
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 40895807a..3ef6d6599 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -177,6 +177,14 @@ Each link has exactly one master.
+ | Grid-aligner command | PI in servo units; +/-200 ppm authority | `KL_media_grid_align` |
+ | Grid-aligner lock target | Engagement phase, kept 1/128 sample off the tick | `KL_media_grid_align` |
+ 
++A slew discard restarts the four-trip guard streak.
++
++A slew window is not a valid offset sample.
++
++Re-basing therefore requires four fresh guard trips after the slew.
++
++The #539 step discard also restarts this streak.
++
+ | Function | Implemented | Product effect |
+ |---|---|---|
+ | CRF transmit | Yes | Publishes internal media events |
+@@ -229,7 +237,9 @@ Additional cases cover short pulses, shared boundaries and prolonged levels.
+ 
+ The connected `milan_dp` gmstep phase drives real Sync pairs.
+ 
+-It checks the plane-to-servo level and every release-tail edge.
++It measures fractional PHC advances to grade release-tail coverage.
++
++An extra addend stage must fail this check.
+ 
+ Its compressed clocks do not grade media-loop settling.
+ 
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 62699d62c..c098eeb4f 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -155,10 +155,20 @@ margin sets each named entry:
+ 
+ | Suite | Budget | Basis |
+ |---|---|---|
+-| every other default suite | 1800 s | longest default suite besides `milan_dp` measured at most 548 s hosted |
++| every other default suite | 1800 s | original hosted basis: at most 548 s; #545 splits its long mutant campaign into an explicit target (see below) |
+ | `milan_dp` | 3600 s | hosted window 2459.9 s; 1140.1 s remains (31.7% of budget) |
+ | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
+ 
++PR #563's first head timed out during servo mutations.
++
++The #545 decision keeps all clean checks under 1800 seconds.
++
++Its mutation campaign now runs explicitly under #367's rule.
++
++The servo Makefile records the revised two-CPU local measurement.
++
++Hosted acceptance must still pass on the fixing head.
++
+ The previous `milan_dp` budget used 37 hosted runs.
+ Those ran between 2026-09-15 and 2026-09-19, after #447's split.
+ Passing runs took 1055-1773 s.
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index d40de063b..24d962712 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -264,7 +264,8 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ |---|---|---|
+ | #447 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
+ | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
+-| #387 GM step re-base, the gmstep leg's nine controls and the option-off leg's two | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `sim_gmstep.cpp` or the option-off leg's PHC-step `mr` checks in `sim_main.cpp`. The default sweep runs the three controls #387's acceptance names |
++| #387 GM step re-base and #545 slew coverage: twelve gmstep controls and two option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `sim_gmstep.cpp` or the option-off leg's PHC-step `mr` checks in `sim_main.cpp`. The default sweep runs the three controls #387's acceptance names |
++| #545 servo slew: six defects and two positive controls | `make -C tb/verilator/mmcm_servo slew-mutants` | the change's validation and reviewers whenever `KL_mmcm_drp_servo.sv`, `sim_main.cpp`, `sim_phc_step.cpp`, `slew_mutants.py` or the suite Makefile changes |
+ 
+ The default sweep still runs both render legs, and their assertions are unchanged.
+ It also runs that campaign's leg-side defect arms, which need no elaboration.
+@@ -480,7 +481,7 @@ verdicts and for check counts.
+ | [`tb/verilator/milan_dp_render` `tdm8render`](../../tb/verilator/milan_dp_render) | **#447, the shipping TDM8 render lane end to end**: `make -C tb/verilator/milan_dp_render tdm8render`. Binds listener 0 over ACMP, programs a no-fixed-point permutation through the real dynamic `ADD_AUDIO_MAPPINGS` path, grades `GET_AUDIO_MAP` and the render RAM readback against its OWN issued route record, feeds channel-distinct AAF through the real acceptance/depacketizer/setpoint/crossbar chain, and decodes `tdm_bclk_o`/`tdm_fsync_o`/`tdm_dout_o` with a pin-only receiver that reads no DUT internal. It grades every 24-bit word and every 8-bit pad against an IMMUTABLE injection record, measures the commit-to-pin terms from registered events, and exercises the render epoch over a reset with the serial clock stopped, a reset inside the frame, a reset ON the frame wrap, a reset while a round trip is outstanding, a bind loss, a map write inside the closed epoch and a rebind. It grades the GRACEFUL FLUSH BOUNDARY from the pins as its own property: the last frame before digital silence must be a complete frame carrying one media event's identity in every routed slot, which is the whole-frame half of the flush contract that the silence checks cannot see. Every one of those states an EXACT epoch count - one counted reopening per event, two for two bind falls inside one round trip - counts the adapter's commits between a reset release and the reopening with the feed still running, and derives the first eligible media event from the preserved prefill rule instead of searching for it. Its `[CRF]` phase then selects this shape's CRF `CLOCK_SOURCE` through a real `SET_CLOCK_SOURCE` on the same AECP face, UNDER the running stream, feeds a real CRF stream into the provisioned sink and decodes the same pins again: the settled-grid recentre fires exactly once, the setpoint law holds in both states, and the commit-to-pin walk drops from the divider plan's `+10.64` ppm to zero. The deselect back to INTERNAL is the same transition the other way |
+ | [`tb/verilator/milan_dp_render` `tdm8render-multi`](../../tb/verilator/milan_dp_render) | **#447 on a TWO-STREAM shape**: `make -C tb/verilator/milan_dp_render tdm8render-multi`. `gen_tdm8r_multi_shape.py` writes a second end-station config and the real builder derives its shape header and entity image, because two properties are unobservable on the one-stream shipping image. It binds both listeners and grades the STREAM-QUALIFIED epoch mask in both directions - a bind fall on a stream the lane does not render leaves the commit gate open for every cycle of the window, and the same fall on a stream the lane DOES render closes it, flushes to digital silence and reopens on a fresh post-flush event - and grades the three cluster-key classes (projected, in-range NONPHYSICAL, out of range) on BOTH the render RAM and the AECP protocol store |
+ | `tdm8_render_mutants.py` | the mutation arm of both legs above, run through the EXPLICIT `make -C tb/verilator/milan_dp_render tdm8render-mutants` target: a per-mutant rebuild costs tens of minutes, so section 0's explicit-campaign rule applies and nothing in the inventory is trimmed for it. The suite's own default target runs the same runner with `--leg-defects`, which is the part of this inventory that needs no elaboration (the three leg-side defect arms and the two clean modes they are the negative of), so the sweep still holds an executable negative arm for these assertions. Its inventory is its own `MUTATIONS`, `CLEAN_CONTROLS` and `LEG_DEFECTS` tables, and every run prints the totals it actually ran: at this head eighteen gateware or generated-shape mutants, three leg-side defect arms, three clean controls and one positive control per elaboration and mode, 28 checks in all. Among them: an explicitly modelled bit-arrival skew that discriminates the gray counter crossing from a raw binary one; one cycle of modelled ARRIVAL SKEW on each of the render epoch's two crossed levels, which the shipping handshake must survive and a producer that rebuilds its reset condition from two reconverged levels must not; a request raised onto a still-visible acknowledgement; an epoch gate that reaches the frame CDC but not the adapter; a moved prefill target; a graceful flush that tears the frame in flight instead of zeroing the active frame at frame starts only; the unqualified bind-fall mask; a lane stream set that ignores the mapping's stream field; and a protocol-store mirror gated on the physical projection |
+-| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Since #74 the build enables it through the live clock-source resolve (Section 7). `sim_phc_step.cpp` runs it at the silicon window scale against a PHC step from 21 us to 1 s, and `make trace STEP_NS=<n>` prints the integrator window by window (#539) |
++| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block, enabled through live clock-source resolution since #74. Default: unit, rails, silicon-scale PHC step and policy-slew suites. Steps range from 21 us to 1 s; `make trace STEP_NS=<n>` prints the integrator per window (#539). Slew cases cover +/-100 us at 200 ppm, short pulses, shared boundaries, prolonged levels, reset, saturation, boundary-coincident step deduplication and restarting the guard streak. All checks remain in the default; the six-defect mutation campaign runs through the explicit `slew-mutants` target above |
+ | [`tb/verilator/mmcm_servo_autorepair`](../../tb/verilator/mmcm_servo_autorepair) | — |
+ | [`tb/verilator/nvm_backend`](../../tb/verilator/nvm_backend) | the saved-state backing store on BYTES: region decode against an independently built image, the memory face, the bounds refusals, the section 9 status machine, and the parts of the [snapshot-ownership contract](../design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md) that are module properties (the reset row, the contract tag, the open vector, the checked window load, the accepted-load term, the capture identity, the pending bit). Four negative controls must each go RED, and it carries no `-Wno-*` at all |
+ | [`tb/verilator/nvm_cosim`](../../tb/verilator/nvm_cosim) | the same contract's ORDERINGS, with the FIRMWARE in the loop: the shipping `KL_nvm_backend` and the shipping writer compiled for the host, against the real donor producer path at the pinned revision. Every mutant the contract page names must be killed by the ONE check the page names for it; a 2-bit capture identity must alias where 16 bits must not; a capture whose identity wraps to 0 must be acknowledged like any other, graded at 2 identity bits, the minimum the backend's elaboration contract admits (`make wrap`); and with `LEGACY_DIR` a pre-contract backend and writer must reproduce the three historical defects |
+diff --git a/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv b/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+index a3138f904..8dcf9769b 100644
+--- a/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
++++ b/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+@@ -85,6 +85,10 @@
+                           Clean windows resume without ACQUIRE. A step
+                           abandons and counts its open window once, even
+                           when that window also overlaps a slew.
++                          Slew discards reset the guard-discard streak,
++                          as #539 step discards do: re-basing needs four
++                          fresh guard trips after the slew. A slew window
++                          is not a valid offset sample.
+ 
+                   remote history (#546): crf_rate_valid_i qualifies each
+                           window's PI run. Invalid receiver history skips
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index 641d209e1..d8647b577 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -596,7 +596,8 @@ DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
+ DUT_READER_DISPOSITIONS = {
+     "tb/verilator/mmcm_servo/slew_mutants.py":
+         "mutation campaign; copies the servo and requires named failures for "
+-        "discard removal, tied-low level, partial-tail trust and omitted tally; "
++        "discard removal, tied-low level, partial-tail trust, omitted tally, "
++        "boundary step double counting and a retained guard streak; "
+         "no expectations read from RTL",
+     "tb/verilator/crf_rx/mutants.py":
+         "mutation campaign; copies the receiver and servo, requiring named failures "
+@@ -618,7 +619,7 @@ DUT_READER_DISPOSITIONS = {
+     "tb/verilator/milan_dp/gmstep_mutants.py":
+         "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
+         "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
+-        "the three #387 acceptance names; gmstep-mutants plants all, and --slew selects the two #545 controls",
++        "the three #387 acceptance names; gmstep-mutants plants all, and --slew selects the three #545 controls",
+     "tb/verilator/milan_dp/render_mutants.py":
+         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
+     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index e3dd11228..392307103 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -892,8 +892,9 @@ python3 tb/verilator/milan_dp/test_render_phase_observation.py
+ 
+ The gmstep leg also drives a policy-legal 90 us offset.
+ Real Sync pairs raise and clear the exported slew level.
+-It grades every staged servo sample, including the release tail.
++It measures fractional PHC advances into each staged servo sample.
++The last measured slew increment identifies the release tail.
+ The phase checks wiring; it does not grade media-loop settling.
+ Run `python3 gmstep_mutants.py --slew` for the connection controls.
+-Both the tied-low input and missing tail must fail.
++Tied-low input, missing tail and added addend delay must fail.
+ These controls also belong to `make gmstep-mutants`.
+diff --git a/tb/verilator/milan_dp/gmstep_mutants.py b/tb/verilator/milan_dp/gmstep_mutants.py
+index 8bc393d5a..7933e5faf 100755
+--- a/tb/verilator/milan_dp/gmstep_mutants.py
++++ b/tb/verilator/milan_dp/gmstep_mutants.py
+@@ -108,6 +108,20 @@ class Control(NamedTuple):
+     leg: str = "gmstep"         #: a key of LEGS
+ 
+ 
++# The counter input is delayed independently of the slew-level release.
++COUNTER_ADDEND_PORT = """  timestamp_counter #(
++    .COUNTER_WIDTH (64),
++    .INCR_WIDTH    (32),
++    .FRAC_WIDTH    (24),
++    .PPS_P             (PPS_P),
++    .PPS_WIDTH_CYC_P (PPS_WIDTH_CYC_P)
++  ) ts_counter (
++    .clk                  (gtx_clk),
++    .resetn               (gtx_resetn),
++    .enable_i             (phc_enable_ts_w),
++    .incr_i               (phc_incr_ts_w),
++    .adj_i                (phc_adj_ts_w),"""
++
+ CONTROLS = [
+     Control("the policy level is tied low at the servo", "datapath",
+             ".phc_slew_active_i (gptp_slew_eff_w)",
+@@ -117,6 +131,15 @@ CONTROLS = [
+             "gptp_slew_active_w || (|gptp_slew_tail_r)",
+             "gptp_slew_active_w",
+             "slew path: every staged sample covers the PHC tail", False),
++    Control("the policy level misses an extra addend stage", "datapath",
++            COUNTER_ADDEND_PORT,
++            "  logic [31:0] probe_adj_r;\n"
++            "  always_ff @(posedge gtx_clk) begin : probe_addend_delay\n"
++            "    if (!gtx_resetn) probe_adj_r <= '0;\n"
++            "    else probe_adj_r <= phc_adj_ts_w;\n"
++            "  end : probe_addend_delay\n" +
++            COUNTER_ADDEND_PORT.replace("(phc_adj_ts_w)", "(probe_adj_r)"),
++            "slew path: every staged sample covers the PHC tail", False),
+     Control("the step does not toggle mr", "datapath",
+             "                       | media_rebase_p_w;",
+             "                       ;",
+diff --git a/tb/verilator/milan_dp/sim_gmstep.cpp b/tb/verilator/milan_dp/sim_gmstep.cpp
+index be81619c6..2a995b828 100644
+--- a/tb/verilator/milan_dp/sim_gmstep.cpp
++++ b/tb/verilator/milan_dp/sim_gmstep.cpp
+@@ -279,7 +279,9 @@ class GmStepHarness {
+     bool slew_probe_ = false;
+     bool slew_origin_override_ = false;
+     int64_t slew_offset_ns_ = 0;
+-    std::array<bool, 4> slew_history_{};
++    uint64_t phc_fraction_prev_ = 0;
++    uint64_t slew_increment_ = 0;
++    unsigned slew_tail_samples_ = 0;
+     unsigned slew_alignment_errors_ = 0;
+     unsigned slew_high_samples_ = 0;
+     unsigned slew_falls_ = 0;
+@@ -370,7 +372,7 @@ class GmStepHarness {
+     void baseline();
+     void change_grandmaster();
+     void check_slew_connection();
+-    void observe_slew_alignment(bool raw, bool expected);
++    void observe_slew_alignment(bool raw, uint64_t increment);
+     void grade_the_event(const std::vector<uint8_t>& sout0, const std::vector<uint8_t>& sout_mid,
+                          uint64_t mid_cyc, const std::vector<uint8_t>& sin0,
+                          uint64_t recentres0, uint64_t rails0, size_t talker0);
+@@ -417,29 +419,34 @@ void GmStepHarness::tick() {
+     drp_edge();
+     memory_edge();
+     const bool raw_slew = dut_->rootp->milan_datapath__DOT__gptp_slew_active_w;
+-    const bool expected_slew = raw_slew ||
+-        std::any_of(slew_history_.begin(), slew_history_.end(), [](bool v) { return v; });
++    // The servo samples the current PHC on the next edge. Measure the
++    // advance into that sample, including fractional ns, before the edge.
++    const auto& acc = dut_->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
++    const uint64_t fraction = (static_cast<uint64_t>(acc[1]) << 32) | acc[0];
++    const uint64_t increment = fraction - phc_fraction_prev_;
++    phc_fraction_prev_ = fraction;
+     dut_->axis_clk = 1; dut_->gtx_clk = 1;
+     dut_->eval();
+-    observe_slew_alignment(raw_slew, expected_slew);
++    observe_slew_alignment(raw_slew, increment);
+     if (rx_fire) rx_accepted();
+     ++cyc_;
+     observe();
+ }
+ 
+ //! Observe the servo's staged input, not a parallel harness connection.
+-//! Four historical source samples cover latch + sync + PHC application.
+-void GmStepHarness::observe_slew_alignment(bool raw, bool expected) {
++//! After release, the last measured slew increment identifies samples still
++//! carrying the correction. No assumed pipeline depth enters this oracle.
++void GmStepHarness::observe_slew_alignment(bool raw, uint64_t increment) {
+     const bool sampled = dut_->rootp->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__phc_slew_q_r;
+     if (slew_probe_) {
+-        slew_alignment_errors_ += sampled != expected;
++        if (raw) slew_increment_ = increment;
++        const bool tail = !raw && increment == slew_increment_;
++        slew_alignment_errors_ += (raw || tail) && !sampled;
++        slew_tail_samples_ += tail;
+         slew_high_samples_ += sampled;
+         slew_falls_ += slew_previous_ && !raw;
+     }
+     slew_previous_ = raw;
+-    for (size_t i = slew_history_.size() - 1; i > 0; --i)
+-        slew_history_[i] = slew_history_[i - 1];
+-    slew_history_[0] = raw;
+ }
+ 
+ void GmStepHarness::observe() {
+@@ -1079,7 +1086,10 @@ void GmStepHarness::check_slew_connection() {
+     check_.dec("slew path: measured completion lowers the level",
+                dut_->rootp->milan_datapath__DOT__gptp_slew_active_w, 0);
+     check_.dec("slew path: completion happened once", slew_falls_, 1);
++    check_.that("slew path: PHC advances witness the release tail", slew_tail_samples_ > 0);
+     check_.dec("slew path: every staged sample covers the PHC tail", slew_alignment_errors_, 0);
++    check_.dec("slew path: servo clears after the PHC tail",
++               dut_->rootp->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__phc_slew_q_r, 0);
+     check_.dec("slew path: a policy slew never steps the PHC", trace_.steps - steps0, 0);
+     slew_probe_ = false;
+ }
+diff --git a/tb/verilator/mmcm_servo/Makefile b/tb/verilator/mmcm_servo/Makefile
+index a1730b109..58077cb8b 100644
+--- a/tb/verilator/mmcm_servo/Makefile
++++ b/tb/verilator/mmcm_servo/Makefile
+@@ -9,11 +9,16 @@
+ #     (the drift-lottery rails cease with the servo engaged)
+ #   sim_phc_step.cpp -> Vphc_step       : the servo at its SILICON defaults
+ #     (1 ms tick, 512 ms window, NORM_SHIFT_P = 0) against a PHC step (#539)
+-#   make        - run all harnesses, policy-slew cases and mutants
++#   make        - run unit, rails, step and policy-slew harnesses
++#   make slew-mutants - run the explicit policy-slew mutation campaign
+ #   make trace STEP_NS=<n> - the #539 reproduction record: one n ns step at
+ #                 mid-window, integrator and written rate traced per window
+ #                 (sim_phc_step.cpp names the slew and talker-step traces)
+ #   make clean  - remove build artifacts
++#
++# #545 round 2, 2026-09-25: clean default 952.797 s on two CPUs
++# (taskset -c 10,11 make; Verilator 5.052), within the 1800 s budget.
++# Shared-host local measurement; 847.203 s margin. Mutations are explicit.
+ 
+ VERILATOR ?= verilator
+ RTL_DIR    = ../../../hdl
+@@ -40,8 +45,8 @@ UNIT_G = -GTICK_CYC_P=3072 -GWIN_LOG2_P=5 "-GNOM_WIN_NS_P=64'd4000000" \
+          -GNORM_SHIFT_P=7 -GGAIN_NUM_P=7 -GRELOCK_TOUT_P=20000 \
+          -GLOCK_THR_P=8192
+ 
+-.PHONY: all run unit-build trace phc_step_build slew mutants clean
+-all: run mutants
++.PHONY: all run unit-build trace phc_step_build slew slew-mutants mutants clean
++all: run
+ 
+ # the step harness reads integ_r / u_cmd_r / ew_r / pp_seq_r / pp_run_r, so it
+ # is built with --public-flat-rw at the servo's DEFAULT (silicon) parameters
+@@ -76,7 +81,9 @@ run: unit-build
+ slew: phc_step_build
+ 	./$(PHC_MDIR)/Vphc_step +slew_suite
+ 
+-mutants:
++mutants: slew-mutants
++
++slew-mutants:
+ 	python3 slew_mutants.py
+ 
+ clean:
+diff --git a/tb/verilator/mmcm_servo/sim_main.cpp b/tb/verilator/mmcm_servo/sim_main.cpp
+index 194b98d81..237577fa7 100644
+--- a/tb/verilator/mmcm_servo/sim_main.cpp
++++ b/tb/verilator/mmcm_servo/sim_main.cpp
+@@ -65,6 +65,7 @@ class MmcmServoUnitHarness {
+         prove_local_ptp_step_windows_are_discarded();
+         prove_implausible_windows_meet_the_guard();
+         prove_step_restarts_the_guard_streak();
++        prove_slew_restarts_the_guard_streak();
+         prove_step_with_no_window_open_is_not_counted();
+         prove_invalid_remote_sample_holds_the_loop();
+         prove_tally_saturates_and_idle_clears_it();
+@@ -549,6 +550,34 @@ class MmcmServoUnitHarness {
+         ck("[U12] LOCKED after the streak", state(), 4);
+     }
+ 
++    //! A slew window is not an offset measurement. Four new guard trips
++    //! must follow it before another re-base, observed as U11's 33-tick gap.
++    void prove_slew_restarts_the_guard_streak() {
++        ck("[U15] LOCKED before", state(), 4);
++        std::vector<double> before;
++        dut->crf_rate_i = rate_for_ppm(+80.0) + 2'000'000;
++        run_noting_discards(12.0, 2, before);
++        ck("[U15] arm: two guard discards open a streak", before.size(), 2);
++        dut->phc_slew_active_i = 1;
++        std::vector<double> during;
++        run_noting_discards(8.0, 1, during);
++        ck("[U15] arm: slew window discarded", during.size(), 1);
++        dut->phc_slew_active_i = 0;
++        // The shared endpoint also taints the following partial window.
++        std::vector<double> tail;
++        run_noting_discards(8.0, 1, tail);
++        ck("[U15] arm: partial tail discarded", tail.size(), 1);
++        std::vector<double> after;
++        run_noting_discards(40.0, 5, after);
++        dut->crf_rate_i = rate_for_ppm(+80.0);
++        print_gaps(after);
++        ck("[U15] four fresh guard trips precede re-base",
++           ticks_after(after, 0) == 32 && ticks_after(after, 1) == 32 &&
++           ticks_after(after, 2) == 32 && ticks_after(after, 3) == 33, 1);
++        run_ms(24);
++        ck("[U15] LOCKED after the streak", state(), 4);
++    }
++
+     //! Two steps one clk_i edge apart: the first abandons its window, so the
+     //! second lands with no window open, and the tally counts one.
+     void prove_step_with_no_window_open_is_not_counted() {
+@@ -635,7 +664,7 @@ class MmcmServoUnitHarness {
+         const int d0 = disc_cnt();
+         ptp_step_ns += 150000;
+         run_ms(0.01);
+-        ck("[U14] replacing step counts its open window once", disc_cnt() - d0, 1);
++        ck("[U14] mid-window step abandons one slew window", disc_cnt() - d0, 1);
+         dut->phc_slew_active_i = 0;
+         run_ms(12);
+         ck("[U14] step after slew retains LOCKED", state(), 4);
+diff --git a/tb/verilator/mmcm_servo/sim_phc_step.cpp b/tb/verilator/mmcm_servo/sim_phc_step.cpp
+index 432724719..4809bd8f8 100644
+--- a/tb/verilator/mmcm_servo/sim_phc_step.cpp
++++ b/tb/verilator/mmcm_servo/sim_phc_step.cpp
+@@ -25,7 +25,7 @@
+ // +slew_suite grades the #545 level and the 100 us / 200 ppm trajectory,
+ // both signs, a short within-window correction, a shared boundary sample,
+ // a clean pre-slew close, an indefinitely held correction, and PI resumption.
+-// +slew_control selects P0 and the +100 us case for the named mutants.
++// +slew_control selects P0, the +100 us slew and boundary-coincident step.
+ //
+ // Trace modes (the #539 records; lock, then one disturbance at mid-window,
+ // printed window by window):
+@@ -107,6 +107,7 @@ class PhcStepHarness {
+     int slew_control() {
+         prove_lock_at_the_silicon_scale();
+         prove_slew_holds(100'000);
++        prove_step_on_slew_boundary_counts_once();
+         return check_.report();
+     }
+ 
+@@ -118,6 +119,7 @@ class PhcStepHarness {
+         prove_slew_boundary();
+         prove_clean_close_before_slew();
+         prove_slew_stays_active();
++        prove_step_on_slew_boundary_counts_once();
+         prove_rate_path_still_integrates();
+         return check_.report();
+     }
+@@ -512,6 +514,25 @@ class PhcStepHarness {
+         expect_untouched("[S4]", s0, run_to_window_close(), 8);
+     }
+ 
++    //! Both guards meet on the same boundary sample, describing one window.
++    void prove_step_on_slew_boundary_counts_once() {
++        held_slew_ = true;
++        run_to_tick(kWinTicks / 2);
++        run_to_edges_before_t0(2);
++        const int before = disc_cnt();
++        ptp_step_ns += 150'000.0;
++        clk_edge();
++        check_.that("[S5] arm: stepped sample staged, T0 next edge",
++                    ptp_jump() && edges_to_t0() == 1 && dut->phc_slew_active_i);
++        clk_edge();
++        check_.that("[S5] arm: boundary fired on the stepped sample", pp_seq() == 1);
++        for (int e = 0; e < 4; ++e) clk_edge();
++        within("[S5] coincident step+slew window counted once", disc_cnt() - before, 1, 1);
++        held_slew_ = false;
++        run_to_window_close();
++        run_to_window_close();
++    }
++
+     //! A real talker rate change is not a step: it is integrated and the servo
+     //! re-locks on the new rate, with nothing discarded.
+     void prove_rate_path_still_integrates() {
+diff --git a/tb/verilator/mmcm_servo/slew_mutants.py b/tb/verilator/mmcm_servo/slew_mutants.py
+index 396e1f669..63f59dab9 100755
+--- a/tb/verilator/mmcm_servo/slew_mutants.py
++++ b/tb/verilator/mmcm_servo/slew_mutants.py
+@@ -1,10 +1,10 @@
+ #!/usr/bin/env python3
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""Require named failures for isolated policy-slew defects at silicon scale.
++"""Require named failures for policy-slew defects in both servo harnesses.
+ 
+ Sources and builds are temporary. Compilation failures never count as kills.
+-The default suite owns this campaign; its outer deadline bounds every run.
++Run explicitly with make slew-mutants; the default retains every clean case.
+ """
+ 
+ import os
+@@ -24,29 +24,38 @@ MUTANTS = (
+      "wire slew_window_w = phc_slew_q_r;", "[S1] overlapped window is discarded"),
+     ("discard_not_counted", " + 7'(slew_hit_w)", "",
+      "[S1] discards counted"),
++    ("step_dedupe_removed", "slew_window_w && !step_hit_w;", "slew_window_w;",
++     "[S5] coincident step+slew window counted once"),
+ )
++STREAK_MUTANT = ("slew_streak_reset_removed", "if (slew_hit_w) disc_run_r <= '0;", "",
++                 "[U15] four fresh guard trips precede re-base")
+ 
+ 
+-def run_case(work: Path, name: str, source: str, failure: str | None) -> bool:
++def run_case(work: Path, name: str, source: str, failure: str | None,
++             unit: bool = False) -> bool:
+     """Build current sources and accept only the expected harness verdict."""
+     rtl = work / f"{name}.sv"
+     rtl.write_text(source)
+     mdir = work / f"obj_{name}"
+-    build = ["make", "--no-print-directory", "-s", "-C", str(HERE), "phc_step_build",
+-             f"SERVO_RTL={rtl}", f"PHC_MDIR={mdir}",
++    target, mvar, binary = (("unit-build", "UNIT_MDIR", "Vservo_sim") if unit else
++                            ("phc_step_build", "PHC_MDIR", "Vphc_step"))
++    build = ["make", "--no-print-directory", "-s", "-C", str(HERE), target,
++             f"SERVO_RTL={rtl}", f"{mvar}={mdir}",
+              f"VERILATOR={os.environ.get('VERILATOR', 'verilator')}"]
+     result = subprocess.run(build, capture_output=True, text=True, check=False)
+     if result.returncode:
+         print(result.stdout[-2000:] + result.stderr[-2000:])
+         print(f"FAIL {name}: compilation failed")
+         return False
+-    result = subprocess.run([str(mdir / "Vphc_step"), "+slew_control"],
++    result = subprocess.run([str(mdir / binary)] + ([] if unit else ["+slew_control"]),
+                             capture_output=True, text=True, check=False)
+     output = result.stdout + result.stderr
++    clean_marker = "checks, 0 failures" if unit else "RESULT: PASS"
++    failed_marker = "failures" if unit else "RESULT: FAIL"
+     if failure is None:
+-        passed = result.returncode == 0 and "RESULT: PASS" in output
++        passed = result.returncode == 0 and clean_marker in output
+     else:
+-        passed = (result.returncode == 1 and "RESULT: FAIL" in output and
++        passed = (result.returncode == 1 and failed_marker in output and
+                   f"[FAIL] {failure}" in output)
+     print(f"[{'PASS' if passed else 'FAIL'}] {name}: rc={result.returncode}", flush=True)
+     if passed and failure:
+@@ -59,7 +68,7 @@ def run_case(work: Path, name: str, source: str, failure: str | None) -> bool:
+ def main() -> int:
+     """Every control must fail its own check after a passing clean build."""
+     def interrupted(_signum: int, _frame: object) -> None:
+-        """Unwind temporary storage when the suite deadline stops us."""
++        """Unwind temporary storage when the campaign is interrupted."""
+         raise SystemExit(143)
+ 
+     signal.signal(signal.SIGTERM, interrupted)
+@@ -68,13 +77,16 @@ def main() -> int:
+         work = Path(directory)
+         if not run_case(work, "clean", source, None):
+             return 1
+-        results = [True]
+-        for name, anchor, replacement, failure in MUTANTS:
++        if not run_case(work, "clean_unit", source, None, unit=True):
++            return 1
++        results = [True, True]
++        for name, anchor, replacement, failure in (*MUTANTS, STREAK_MUTANT):
+             if source.count(anchor) != 1:
+                 print(f"FAIL {name}: expected exactly one mutation anchor")
+                 results.append(False)
+                 continue
+-            results.append(run_case(work, name, source.replace(anchor, replacement), failure))
++            results.append(run_case(work, name, source.replace(anchor, replacement), failure,
++                                    unit=name == STREAK_MUTANT[0]))
+     failures = sum(not passed for passed in results)
+     print(f"== mmcm_servo slew mutants: checks: {len(results)}   failures: {failures} ==")
+     return 1 if failures else 0

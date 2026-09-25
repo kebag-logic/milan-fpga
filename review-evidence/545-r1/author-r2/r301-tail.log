@@ -1,0 +1,13 @@
+COMMAND: ['env', 'REPO=$LANES/545-crf-servo-slew', 'PKT=/tmp/a305-probes/r301', 'VERILATOR=/usr/bin/verilator', 'taskset', '-c', '12-15', 'bash', '/tmp/a305-probes/r301-scripts/tail_probe/run.sh']
+== tail stages = 4
+  slewed samples=96 flagged samples=115 conservative extra=19 violations=0
+  RESULT: PASS
+== tail stages = 3
+  VIOLATION cyc=103 inc=16 eff=0
+  VIOLATION cyc=203 inc=16 eff=0
+  VIOLATION cyc=266 inc=16 eff=0
+  slewed samples=96 flagged samples=112 conservative extra=19 violations=3
+  RESULT: FAIL
+probe rc=0
+
+EXIT: 0; WALL_SECONDS: 10.037

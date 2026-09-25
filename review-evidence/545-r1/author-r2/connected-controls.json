@@ -1,0 +1,58 @@
+[
+  {
+    "name": "the policy level is tied low at the servo",
+    "failure": "slew path: the actual servo receives the level"
+  },
+  {
+    "name": "the policy level omits the applied-rate tail",
+    "failure": "slew path: every staged sample covers the PHC tail"
+  },
+  {
+    "name": "the policy level misses an extra addend stage",
+    "failure": "slew path: every staged sample covers the PHC tail"
+  },
+  {
+    "name": "the step does not toggle mr",
+    "failure": "restart: the outgoing mr toggles exactly once"
+  },
+  {
+    "name": "the grandmaster identity re-bases the render stage as well as the step",
+    "failure": "render: the GM change is one counted re-base event"
+  },
+  {
+    "name": "the step does not re-centre the render stage",
+    "failure": "render: the GM change is one counted re-base event"
+  },
+  {
+    "name": "the render re-base is keyed to the identity, not the step",
+    "failure": "render: every counted re-base lands at a PDU end right after the step"
+  },
+  {
+    "name": "tu reaches the talkers four cycles late",
+    "failure": "tu: set in the first cycle the bank names GM B"
+  },
+  {
+    "name": "the plane's step does not re-arm the holdover",
+    "failure": "tu: held at least the 0.25 s holdover after the step"
+  },
+  {
+    "name": "tu stops the talker",
+    "failure": "licence: the talker never pauses beyond four of its intervals"
+  },
+  {
+    "name": "the grandmaster change stops the talker for good",
+    "failure": "licence: the talker never pauses beyond four of its intervals"
+  },
+  {
+    "name": "the step's re-centre snaps one event off the setpoint",
+    "failure": "render: every PDU push leaves the target fill across the event"
+  },
+  {
+    "name": "a software settime does not toggle mr",
+    "failure": "CLKV: the settime toggled mr once more (#387)"
+  },
+  {
+    "name": "the step's mr toggle is gated by the CRF clock-source selection",
+    "failure": "CLKV: its mr toggled once per PHC step issued so far (#387)"
+  }
+]
