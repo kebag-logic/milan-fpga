@@ -1,0 +1,28 @@
+### scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+EXIT 0 :: scripts/check_submodule_docs.py
+### scripts/check_em_dash.py --base 864b36f5e9450ef64f75ca3f0d68c44330e447d7
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+EXIT 2 :: scripts/check_em_dash.py --base 864b36f5e9450ef64f75ca3f0d68c44330e447d7
+### scripts/pp_srcs.py --check
+pp source list: 45 tracked source(s) derived; no build input carries a literal copy
+  prose    hdl/milan/KL_pp_shadow.sv: an RTL comment citing the submodule module it wraps
+  prose    scripts/pp_srcs.py: this generator: the table above quotes every literal it permits, and the docstring and self-test quote a source path
+  prose    sw/builder/test_builder.py: a gate citing submodule paths in its findings
+  prose    sw/builder/test_declarations.py: declaration gate reads the authorized donor bindings and fixed timer profile; these are assertions, not compile source entries
+  prose    sw/litex/milan_soc.py: a comment citing a submodule line number, not a source entry
+  prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+EXIT 0 :: scripts/pp_srcs.py --check
+### scripts/check_doc_paths.py
+doc path gate: OK (847 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+EXIT 0 :: scripts/check_doc_paths.py
+### scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+EXIT 0 :: scripts/check_doc_style.py
+### scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+EXIT 2 :: scripts/gen_toc.py --check
+### scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 868 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+EXIT 0 :: scripts/docs_check.py
