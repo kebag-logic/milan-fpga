@@ -17,6 +17,12 @@ HERE = Path(__file__).resolve().parent
 RTL = HERE / "../../../hdl/ieee1722/crf/KL_crf_rx.sv"
 SERVO = HERE / "../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv"
 MUTANTS = (
+    ("validation_error_unlocks", "if (!w_fmt_ok) begin",
+     "if (!w_fmt_ok) begin\n          locked_o <= 1'b0;",
+     "validation error preserves established lock"),
+    ("validation_error_refreshes_timeout", "      if (w_acc_run_w) begin",
+     "      if (w_acc_run_w || w_ev_uf_w) begin",
+     "reject stream cannot refresh the 100 ms timeout"),
     ("tu_ignored", "wire tu_change_w = tu_i != prev_tu_r;",
      "wire tu_change_w = 1'b0;", "tu edge invalidates before the sampling edge"),
     ("jump_removed", "tu_change_w || ts_jump_w ||", "tu_change_w || 1'b0 ||",

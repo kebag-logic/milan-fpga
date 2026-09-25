@@ -3301,6 +3301,24 @@ void TdmRenderHarness::prove_a_rendered_stream_loss_closes_the_epoch(int slot,
     check.that("M5 RENDERED LOSS: the lane reached digital silence", boundary);
     check.dec("M5 RENDERED LOSS: no frame after the boundary carries a "
               "pre-loss sample in any slot", static_cast<uint64_t>(carried), 0);
+    //! #443: stream 1 is flushed while stream 0 still runs. These unequal
+    //! states catch a CSR selector that silently aliases every index to 0.
+    axi_write(0x800, 1);
+    const uint32_t second = axi_read(0x8DC);
+    check.dec("RENDER-CSR-MULTI: flushed listener 1 has empty prefill",
+              second & 0xFFFF, 0x100);
+    check.dec("RENDER-CSR-MULTI: listener 1 retains the global rail count",
+              second >> 16, dut->rootp->milan_datapath__DOT__rsp_rails_w);
+    axi_write(0x800, 0);
+    const uint32_t first = axi_read(0x8DC);
+    check.that("RENDER-CSR-MULTI: listener 0 still has queued events",
+               (first & 0xFF) != 0);
+    check.dec("RENDER-CSR-MULTI: listener 0 is not in prefill",
+              (first >> 8) & 1, 0);
+    axi_write(0x800, 2);
+    check.dec("RENDER-CSR-MULTI: first absent index reads zero",
+              axi_read(0x8DC), 0);
+    axi_write(0x800, 0);
     // ...and the freshness gate: the lane reopens only once BOTH rendered
     // streams have popped a post-flush event, so the rebind alone is not
     // enough and the feed has to be back too

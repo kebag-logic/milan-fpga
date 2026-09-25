@@ -31,10 +31,15 @@
                             clk skew, invisible to the ms-scale CSR poll).
                             Holds the last clean value while rate_valid_o
                             is low after tu edges, timestamp jumps or gaps.
-                  locked_o: PDUs arriving AND |delta jitter| within window
-                            for 8 consecutive PDUs; drops after 100 ms
-                            without an accepted PDU (mirrors the AAF
-                            media-lock contract) or on a validation error.
+                  locked_o: 8 clean consecutive PDUs consumed while started
+                            establish lock; drops after 100 ms
+                            without a consumed accepted PDU (mirrors the
+                            AAF media-lock contract). A profile validation
+                            error breaks settling but retains an existing
+                            lock and does not refresh the timeout. It counts
+                            in UNSUPPORTED_FORMAT at the observation-interval
+                            commit: fmt_err_o, full-width via GET_COUNTERS,
+                            low 8 bits at CRF_STATUS[15:8] (0x74C).
                   lock/unlock event counters: this Stream Input's Table
                             5.6 MEDIA_LOCKED / MEDIA_UNLOCKED.
 

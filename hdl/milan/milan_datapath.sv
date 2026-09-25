@@ -1198,6 +1198,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! observable that makes "no sample slip" falsifiable at the root.
   wire [15:0] tdm_dup_cnt_w  /* verilator public_flat_rd */;
   wire [15:0] tdm_skip_cnt_w /* verilator public_flat_rd */;
+  //! #443: packed listener words, declared before the CSR consumer.
+  wire [N_STREAMS*32-1:0] render_status_w;
 
   wire [N_STREAMS*8*13-1:0] cmap_flat_w;   //! GET_AUDIO_MAP OUTPUT walk
   logic [N_STREAMS*8-1:0] amap_out_owner_v_r;
@@ -2586,6 +2588,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! #390: the media-boundary slip evidence, {skip16, dup16} per junction
     .i_slip_lb          ({lb_skip_cnt_w, lb_dup_cnt_w}),
     .i_slip_tdm         ({tdm_skip_cnt_w, tdm_dup_cnt_w}),
+    .i_render_status   (render_status_w),
     .o_ltap_en          (ltap_en_w),
     .o_ltap_clr         (ltap_clr_w),
     .o_chmap_enable     (cfg_chmap_enable),
@@ -6162,8 +6165,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [3:0]             rsp_tuser_w;
   wire [N_STREAMS*4-1:0] rsp_wire_chans_w;
   wire                   rsp_render_tick_p_w;
-  //! public taps (the #443 debug-window word is the CSR follow-up): the
-  //! milan_dp render-law leg reads the fill law and the four rails directly
+  //! #443: RENDER_STAT (0x8DC) mirrors fill/prefill/convergence and rails.
+  //! Public taps let milan_dp compare AXI-Lite reads with their sources.
   wire [N_STREAMS-1:0]   rsp_pop_p_w      /* verilator public_flat_rd */;
   wire [N_STREAMS*8-1:0] rsp_fill_w       /* verilator public_flat_rd */;
   wire [N_STREAMS-1:0]   rsp_prefill_w    /* verilator public_flat_rd */;
@@ -6172,6 +6175,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [15:0]            rsp_overruns_w   /* verilator public_flat_rd */;
   wire [15:0]            rsp_rails_w      /* verilator public_flat_rd */;
   wire [15:0]            rsp_recentres_w  /* verilator public_flat_rd */;
+
+  for (genvar s = 0; s < N_STREAMS; s++) begin : g_render_status
+    assign render_status_w[s*32 +: 32] =
+        {rsp_rails_w, 6'd0, rsp_converged_w[s], rsp_prefill_w[s],
+         rsp_fill_w[s*8 +: 8]};
+  end : g_render_status
 
   KL_render_setpoint #(
     .N_STREAMS_P      (N_STREAMS),

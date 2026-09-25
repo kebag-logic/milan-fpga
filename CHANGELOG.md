@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - CRF servo holds through PHC slew](#unreleased---crf-servo-holds-through-phc-slew)** -- Holds lock.
+- **[Unreleased - render setpoint state](#unreleased---render-setpoint-state)** -- Publishes the selected listener's state.
 - **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
 - **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
 - **[Unreleased - licence and LeaveAll scope](#unreleased---licence-and-leaveall-scope)** -- No Listener Ready, no stream.
@@ -42,6 +43,16 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Silicon-scale tests cover +/-100 us at 200 ppm.
 - Connected tests drive the level from real Sync pairs.
 - Removal, tie-off, tail and tally controls must fail.
+
+## Unreleased - render setpoint state
+
+- Issue #443 adds `RENDER_STAT` at `0x8DC`.
+- It exposes selected-listener fill, prefill and convergence.
+- The upper half holds the global saturating rail count.
+- Absent stages supply structural zero.
+- Rail and underrun events do not raise `STREAM_INTERRUPTED`.
+- VERSION remains `0x0002_0060`; the release step owns the minor bump.
+- [The recorded decision](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5826779078) follows the existing `GPTP_DROPE[31:16]` deferral.
 
 ## Unreleased - processor pin 990f9652
 

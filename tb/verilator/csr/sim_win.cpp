@@ -47,6 +47,7 @@ constexpr uint32_t A_SW_STATE   = 0x82C;
 constexpr uint32_t A_SW_CNT0    = 0x830;
 constexpr uint32_t A_SW_PDUS    = 0x858;
 constexpr uint32_t A_SW_SRP     = 0x85C;
+constexpr uint32_t A_RENDER_STAT = 0x8DC;
 
 constexpr uint32_t A_CH_CTRL = 0x900;
 constexpr uint32_t A_CH_SEL  = 0x904;
@@ -83,6 +84,7 @@ class CsrWindowHarness {
   void acmp_tbl_master_latches_and_extracts();
   void adp_shape_is_read_only_and_comes_from_the_config();
   void out_of_range_index_reads_zero_and_ignores_writes();
+  void render_status_selects_each_listener();
   void chmap_map_ram_readback();
   void chmap_unarmed_state_is_poison_not_zero();
   void chmap_program_capture_channel_five();
@@ -695,6 +697,26 @@ void CsrWindowHarness::chmap_map_ram_readback() {
          " and a silent port poisons\n", (fails == f0) ? "PASS" : "FAIL");
 }
 
+void CsrWindowHarness::render_status_selects_each_listener() {
+  constexpr uint32_t status[4] = {0xA5C30100u, 0xA5C30206u,
+                                   0xA5C30216u, 0xA5C30103u};
+  for (int s = 0; s < 4; ++s) dut->i_render_status[s] = status[s];
+  for (int s = 0; s < 4; ++s) {
+    axi_write(A_STRM_SEL, s);
+    ck("RENDER_STAT selected NxN listener word", axi_read(A_RENDER_STAT), status[s]);
+    axi_write(A_STRM_SEL, 0x200u | s);
+    ck("RENDER_STAT bit 9 preserves the listener index", axi_read(A_RENDER_STAT), status[s]);
+  }
+  axi_write(A_RENDER_STAT, 0xFFFFFFFFu);
+  ck("RENDER_STAT NxN write ignored", axi_read(A_RENDER_STAT), status[3]);
+  axi_write(A_STRM_SEL, 4);
+  ck("RENDER_STAT NxN out-of-range reads zero", axi_read(A_RENDER_STAT), 0);
+  axi_write(A_STRM_SEL, 0x303);
+  ck("RENDER_STAT bit 9 preserves talker rejection", axi_read(A_RENDER_STAT), 0);
+  axi_write(A_STRM_SEL, 0);
+  for (int s = 0; s < 4; ++s) dut->i_render_status[s] = 0;
+}
+
 int CsrWindowHarness::run() {
   memset(lctx, 0, sizeof lctx); memset(tctx, 0, sizeof tctx);
   // P12: CFG-word writes are held until the engine's wr_rdy; the model
@@ -718,6 +740,7 @@ int CsrWindowHarness::run() {
   adp_shape_is_read_only_and_comes_from_the_config();
   out_of_range_index_reads_zero_and_ignores_writes();
   chmap_map_ram_readback();
+  render_status_selects_each_listener();
 
   printf("--------------------------------------------------------------\n");
   printf("checks: %ld   failures: %ld\n", checks, fails);
