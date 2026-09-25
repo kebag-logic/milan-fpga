@@ -1,0 +1,9 @@
+cwd: $LANES/545-crf-servo-slew
+command: taskset -c 10-15 bash /tmp/545-a311-area/base-ooc.sh KL_mmcm_drp_servo
+started: 2026-09-25T11:58:43.581099+00:00
+== OOC area (synth_xilinx -family xc7 -flatten) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4
+KL_mmcm_drp_servo                 864        0      864      790        0        0        1      150
+
+EXIT=0 WALL_SECONDS=8.933

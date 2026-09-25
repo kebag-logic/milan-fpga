@@ -1,0 +1,49 @@
+--- syn/yosys/ooc.sh
++++ base-ooc.sh
+@@ -46,10 +46,10 @@
+ # shell's directory - every yosys run happens in a `(cd "$rundir" && ...)`
+ # subshell - so a relative YOSYS_MALLOC resolves against the caller's directory
+ # as they meant it, and the selection below can sit anywhere before the runs.
+-. "$(dirname "$0")/malloc.sh"
++. "$LANES/545-crf-servo-slew/syn/yosys/malloc.sh"
+ if [ "${1:-}" = "--selftest-alloc" ]; then selftest_alloc; exit $?; fi
+ export PATH="$HOME/.local/bin:$PATH"
+-R="$(cd "$(dirname "$0")/../.." && pwd)"
++R="$LANES/545-crf-servo-slew"
+ A="$R/third_party/verilog-axis/rtl"
+ C="$R/hdl/common"; Q="$R/hdl/ieee8021q/ts"; P="$R/hdl/ieee8021as/ptp_timestamp"
+ E="$R/hdl/common/eth_event_counter"; D="$R/hdl/ieee17221/adp"
+@@ -148,7 +148,7 @@
+   # against the milan_datapath delta. Standalone OOC is the UPPER bound for a
+   # prune: in context the block shares decode and constants with its
+   # neighbours, so the datapath delta is always the smaller (and truer) number.
+-  "KL_mmcm_drp_servo|$C/cdc_pulse.sv $C/cdc_handshake.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv"
++  "KL_mmcm_drp_servo|$C/cdc_pulse.sv $C/cdc_handshake.sv /tmp/545-a311-area/base_servo.sv"
+   "KL_aaf_latency_taps|$R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv"
+   "KL_maap|$R/hdl/ieee1722/maap/KL_maap.sv"
+   "KL_i2s_playback|$C/cdc_pulse.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv"
+
+--- syn/yosys/ooc.sh
++++ alignment-ooc.sh
+@@ -46,10 +46,10 @@
+ # shell's directory - every yosys run happens in a `(cd "$rundir" && ...)`
+ # subshell - so a relative YOSYS_MALLOC resolves against the caller's directory
+ # as they meant it, and the selection below can sit anywhere before the runs.
+-. "$(dirname "$0")/malloc.sh"
++. "$LANES/545-crf-servo-slew/syn/yosys/malloc.sh"
+ if [ "${1:-}" = "--selftest-alloc" ]; then selftest_alloc; exit $?; fi
+ export PATH="$HOME/.local/bin:$PATH"
+-R="$(cd "$(dirname "$0")/../.." && pwd)"
++R="$LANES/545-crf-servo-slew"
+ A="$R/third_party/verilog-axis/rtl"
+ C="$R/hdl/common"; Q="$R/hdl/ieee8021q/ts"; P="$R/hdl/ieee8021as/ptp_timestamp"
+ E="$R/hdl/common/eth_event_counter"; D="$R/hdl/ieee17221/adp"
+@@ -148,7 +148,7 @@
+   # against the milan_datapath delta. Standalone OOC is the UPPER bound for a
+   # prune: in context the block shares decode and constants with its
+   # neighbours, so the datapath delta is always the smaller (and truer) number.
+-  "KL_mmcm_drp_servo|$C/cdc_pulse.sv $C/cdc_handshake.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv"
++  "slew_alignment|/tmp/545-a311-area/slew_alignment.sv"
+   "KL_aaf_latency_taps|$R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv"
+   "KL_maap|$R/hdl/ieee1722/maap/KL_maap.sv"
+   "KL_i2s_playback|$C/cdc_pulse.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv"

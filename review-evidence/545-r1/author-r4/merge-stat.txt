@@ -1,0 +1,37 @@
+b376f6113 Merge dev into 545-crf-servo-slew
+
+ CHANGELOG.md                                     |   30 +
+ docs/diagrams/PNG_MANIFEST.json                  |    4 +-
+ docs/diagrams/submodule_boundaries.drawio        |    2 +-
+ docs/diagrams/submodule_boundaries.png           |  Bin 323838 -> 324654 bytes
+ docs/diagrams/submodule_boundaries.svg           |    2 +-
+ docs/integration/BAREMETAL_FIRMWARE.md           |  145 +-
+ docs/integration/INTEGRATION_GUIDE.md            |   15 +
+ docs/limitations/TROUBLESHOOTING.md              |   34 +-
+ docs/reference/MILAN_COMPLIANCE_MATRIX.md        |    2 +-
+ docs/reference/REGISTER_MAP.md                   |   11 +-
+ docs/reference/SUBMODULES.md                     |   19 +-
+ docs/testing/CI_WORKFLOWS.md                     |  365 +-
+ docs/testing/TESTING.md                          |    1 +
+ hdl/milan/KL_pp_shadow.sv                        |   10 +-
+ hdl/milan/milan_datapath.sv                      |   91 +-
+ protocol-processor                               |    2 +-
+ scripts/act_ci.py                                | 6343 +++++++++++++++-------
+ scripts/act_slot_proof.sh                        |  677 +++
+ scripts/check_baremetal_only.py                  |  115 +-
+ scripts/measure_test_evidence.py                 |   13 +
+ sw/builder/test_builder.py                       |  650 ++-
+ syn/yosys/rom_digests.tsv                        |    4 +
+ tb/verilator/milan_dp/Makefile                   |   59 +-
+ tb/verilator/milan_dp/README.md                  |  132 +-
+ tb/verilator/milan_dp/gsi_mutants.py             |  271 +
+ tb/verilator/milan_dp/sim_aclk.cpp               |   20 +
+ tb/verilator/milan_dp/sim_main.cpp               |   21 +
+ tb/verilator/milan_dp/sim_nxn.cpp                |  660 +++
+ tb/verilator/milan_dp_render/sim_tdm8_render.cpp |   47 +-
+ tb/verilator/nvm_cosim/Makefile                  |    5 +-
+ tb/verilator/nvm_cosim/README.md                 |    3 +
+ tb/verilator/nvm_cosim/cosim_top.sv              |  101 +-
+ tb/verilator/nvm_cosim/run_cases.py              |    6 +-
+ tb/verilator/pp_shadow/sim_main.cpp              |    2 +-
+ 34 files changed, 7885 insertions(+), 1977 deletions(-)

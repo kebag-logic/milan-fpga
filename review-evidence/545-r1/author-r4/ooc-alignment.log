@@ -1,0 +1,9 @@
+cwd: $LANES/545-crf-servo-slew
+command: taskset -c 10-15 bash /tmp/545-a311-area/alignment-ooc.sh slew_alignment
+started: 2026-09-25T11:58:44.749385+00:00
+== OOC area (synth_xilinx -family xc7 -flatten) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4
+slew_alignment                      1        0        1        4        0        0        0        0
+
+EXIT=0 WALL_SECONDS=4.473
