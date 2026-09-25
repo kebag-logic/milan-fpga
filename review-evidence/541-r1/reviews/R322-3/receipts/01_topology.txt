@@ -1,0 +1,73 @@
+# candidate topology
+ec9cf454bf997fab230d0216dc609e737bc47caa
+6cc8996a3b2040f14950456f9951d994e3660887
+parents b1b334725dcf12e084eaa3bb96b1e6865c052267 fa1b5c364b39842d0f3d8e09acd7ca58a9532f0c
+live dev a3d795ae ancestor of HEAD? (1=no)
+1
+a3d795ae tree == clean merge of its parents:
+a1813edb60d34073859f67b388a1e10d76cc86c3
+a1813edb60d34073859f67b388a1e10d76cc86c3
+b1b33472 tree == clean merge(a3d795ae, b1b33472):
+2719e15f7238e9c1947f9fffb9154ae8a91a2678
+2719e15f7238e9c1947f9fffb9154ae8a91a2678
+HEAD tree == clean merge(b1b33472, fa1b5c36):
+6cc8996a3b2040f14950456f9951d994e3660887
+HEAD tree == clean merge(a3d795ae, HEAD):
+6cc8996a3b2040f14950456f9951d994e3660887
+# PR own delta 5b73d3f4..fa1b5c36
+ docs/reference/REGISTER_MAP.md            |  2 +-
+ docs/testing/TESTING.md                   |  2 +-
+ hdl/ieee1722/crf/KL_crf_rx.sv             | 13 +++--
+ scripts/measure_test_evidence.py          |  3 +-
+ tb/verilator/crf_rx/mutants.py            |  6 +++
+ tb/verilator/crf_rx/sim_discontinuity.cpp | 86 +++++++++++++++++++++++++++++++
+ 6 files changed, 105 insertions(+), 7 deletions(-)
+# PR delta as composed b1b33472..HEAD
+ docs/reference/REGISTER_MAP.md            |  2 +-
+ docs/testing/TESTING.md                   |  2 +-
+ hdl/ieee1722/crf/KL_crf_rx.sv             | 13 +++--
+ scripts/measure_test_evidence.py          |  3 +-
+ tb/verilator/crf_rx/mutants.py            |  6 +++
+ tb/verilator/crf_rx/sim_discontinuity.cpp | 86 +++++++++++++++++++++++++++++++
+ 6 files changed, 105 insertions(+), 7 deletions(-)
+# patch-ids (source, composed)
+8967cdbc7e8955fb5731f95850306543fcff9b97 0000000000000000000000000000000000000000
+8967cdbc7e8955fb5731f95850306543fcff9b97 0000000000000000000000000000000000000000
+# train files a3d795ae..b1b33472
+CHANGELOG.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/integration/INTEGRATION_GUIDE.md
+docs/limitations/TROUBLESHOOTING.md
+docs/reference/MILAN_COMPLIANCE_MATRIX.md
+docs/reference/REGISTER_MAP.md
+docs/reference/SUBMODULES.md
+docs/testing/CI_WORKFLOWS.md
+docs/testing/TESTING.md
+hdl/milan/KL_pp_shadow.sv
+hdl/milan/milan_datapath.sv
+protocol-processor
+scripts/act_ci.py
+scripts/act_slot_proof.sh
+scripts/check_baremetal_only.py
+scripts/measure_test_evidence.py
+syn/yosys/rom_digests.tsv
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/gsi_mutants.py
+tb/verilator/milan_dp/sim_aclk.cpp
+tb/verilator/milan_dp/sim_main.cpp
+tb/verilator/milan_dp/sim_nxn.cpp
+tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+tb/verilator/nvm_cosim/Makefile
+tb/verilator/nvm_cosim/README.md
+tb/verilator/nvm_cosim/cosim_top.sv
+tb/verilator/nvm_cosim/run_cases.py
+tb/verilator/pp_shadow/sim_main.cpp
+# overlap (PR-own files also changed by the train)
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+scripts/measure_test_evidence.py
+# train files touched in its merge-base..train from PR side: none beyond the above

@@ -1,0 +1,22 @@
+# measure_test_evidence --check: train-only b1b334725dcf12e084eaa3bb96b1e6865c052267 (rc 0) vs candidate ec9cf454bf997fab230d0216dc609e737bc47caa (rc 0)
+# train submodules:
+ e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor (heads/main)
+ 990f96526bb89356c963a260ebbdcf2a77e6623a protocol-processor (v2.0-262-g990f965)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+train: TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+train:   the mutation ratchet can be lowered to 75
+candidate: TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+candidate:   the mutation ratchet can be lowered to 75
+# diff train -> candidate (labels only; content lines verbatim)
+--- train
++++ candidate
+@@ -120,7 +120,7 @@
+    protocol-processor/tb/nvm_port/measure_figures.py: mutation campaign; it rewrites one RTL arm and requires the suite to fail
+    protocol-processor/tb/pp_top/gsi_mutants.py: mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table into an isolated copy and requires the named response check to fail
+    protocol-processor/tb/srp_admission/mutants.py: mutation campaign; it plants one admission defect into a temporary tree, requires the named check to fail, and runs clean controls first
+-   tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for tu, jump, refill, accept-edge, ignored-validity and PI-resume defects; no expectations read from RTL
++   tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept-edge, ignored-validity and PI-resume defects; no expectations read from RTL
+    tb/verilator/gptp_shadow/test_mutant_lifecycle.py: orchestration lifecycle fixture; it identifies the planted mutation and compares caller bytes/modes/index across interruption. Synthetic commands grade isolation and cleanup only; RTL behavior still requires the real suite
+    tb/verilator/milan_dp/crflic_mutants.py: mutation campaign; it plants one of three streaming-licence defects into a copy and requires a named failure. It is the explicit crflic-mutants target, outside the default sweep
+    tb/verilator/milan_dp/gmstep_mutants.py: mutation campaign; it plants one of eleven #387 re-base defects into a copy and requires a named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants the three the acceptance names; the explicit gmstep-mutants target plants all eleven
+diff rc=1

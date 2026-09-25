@@ -1,0 +1,29 @@
+01	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/measure_test_evidence.py --check
+02	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/measure_test_evidence.py --selftest
+03	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/docs_check.py
+04	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/gen_toc.py --selftest
+05	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/gen_toc.py --verify-anchors
+06	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/gen_toc.py --check
+07	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_em_dash.py --base b1b334725dcf12e084eaa3bb96b1e6865c052267
+08	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_doc_style.py
+09	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_doc_style.py --selftest
+10	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_doc_paths.py
+11	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python docs/traceability/gen_module_matrix.py --check
+12	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python docs/DOC_MAP.gen.py --check
+13	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_solution_docs.py
+14	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_feature_status.py
+15	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_feature_status.py --self-test
+16	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_hygiene.py --check
+17	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_sv_idiom.py
+18	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_cpp_idiom.py
+19	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_py_idiom.py
+20	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_todo_ownership.py
+21	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/measure_fail_fast.py --check
+22	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/measure_naming.py --check
+23	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_port_contracts.py
+24	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_rtl_source_lists.py
+25	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/check_archive.py
+26	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/ci_events.py --check
+27	0	$REVIEWS/541-r322-3-packet/scratch/venv/bin/python scripts/ci_events.py --selftest
+28	0	git -c core.pager=cat diff --check b1b334725dcf12e084eaa3bb96b1e6865c052267 HEAD
+29	0	git -c core.pager=cat diff --check a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4 HEAD
