@@ -4482,8 +4482,8 @@ def test_baremetal_profile_contract() -> None:
         "MILAN_NVM_N_AUDIO_UNIT": 1, "MILAN_NVM_N_CLK_DOM": 1,
         "MILAN_NVM_N_NAME": 31, "MILAN_NVM_BIND_BASE": 0x20,
         "MILAN_NVM_REC_LAYOUT": 2,
-        **{f"MILAN_NVM_MAPIN_CLUSTERS_{k}": 0 for k in range(16)},
-        **{f"MILAN_NVM_MAPOUT_CLUSTERS_{k}": (17 if k == 0 else 0)
+        **{f"MILAN_NVM_MAPIN_ENTRIES_{k}": 0 for k in range(16)},
+        **{f"MILAN_NVM_MAPOUT_ENTRIES_{k}": (17 if k == 0 else 0)
            for k in range(16)},
         # #398: the writer's five waits as milan_soc.py publishes them, and
         # the CRF talker's boot word a declared CRF output gets

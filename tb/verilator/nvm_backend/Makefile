@@ -7,13 +7,13 @@
 #
 #   Vnvm8x8  the shipped max shape. Every allocated record, including every
 #            0x60..0x67 and 0x70..0x77 channel map, is read against a
-#            byte-exact KLJ2 image with DISTINCT input (72 B framed) and
-#            output (144 B framed) record lengths; writes and erases land
+#            byte-exact KLJ2 image with DISTINCT input (8 B framed) and
+#            output (584 B framed) record lengths; writes and erases land
 #            where reads found the record; the blank-flash behaviour before
 #            the firmware configures and validates an image; the bounds
 #            refusals; bus errors; the section 9 status machine.
-#   Vnvm1x1  the shipping default, where the single input port has ZERO
-#            clusters (an 8-byte framed record with no payload) against a
+#   Vnvm1x1  the shipping default, where the single input port has eight
+#            clusters (a 72-byte framed record) against a
 #            136-byte output payload -- the same asymmetry, the other way up.
 #   four NEGATIVE CONTROLS, each a copy of the shipping source with one
 #            defect planted by mutate.py (exact text match, so a moved line

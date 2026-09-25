@@ -1717,8 +1717,9 @@ journal slots. Everything it needs is generated: the slot offsets come from
 `FLASHBOOT_RESERVED`, the container's staging address `MILAN_NVM_IMAGE_BASE`
 is the erase block directly below the response buffer inside the reserved
 processor window, and the record set (`MILAN_NVM_N_*`, the per-port
-channel-map cluster counts, the donor's binding base and layout version) is
-one derivation in `scripts/nvm_shape.py` shared with the record-space gate and
+channel-map entry counts `MILAN_NVM_MAP{IN,OUT}_ENTRIES_k`, the donor's
+binding base and layout version) is one derivation in `scripts/nvm_shape.py`
+shared with the record-space gate and
 the host test, so the firmware never restates a count. Its five waits come from
 the same file (`WRITER_TIMING_MS`, published as `MILAN_NVM_*_MS`), each beside
 the design-page section it answers to (#398), and each PINNED to its value

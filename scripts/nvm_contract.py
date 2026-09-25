@@ -212,6 +212,9 @@ class Seams:
         #: with a predicate that drops a mandatory class, exactly as an
         #: external wrapper around `inventory()` would.
         self.OMIT = None
+        #: #501 controls: the old output capacity and a CRC-clean 1x1 change.
+        self.OLD_OUTPUT_LENGTH = False
+        self.CHANGE_1X1_IMAGE = False
         #: post-`inventory()` REWRITE, the seam an index-set control perturbs.
         #: `OMIT` can only delete; a shift, a replacement or a duplicate
         #: needs to rewrite tuples.
