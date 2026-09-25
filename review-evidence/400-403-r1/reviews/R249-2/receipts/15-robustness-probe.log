@@ -1,0 +1,15 @@
+REFUSE  srp.vid 2.0 (float): srp.vid 2.0 outside 1..4094 (VID 0 is the priority-tagged/no-VLAN encoding - an SR stream on VID 0 floods UNSHAPED)
+REFUSE  srp.vid True: srp.vid must be 2 at startup: Milan v1.2 4.2.7.2.1; runtime Domain adoption is independent
+REFUSE  srp.vid '2' (string): srp.vid 2 outside 1..4094 (VID 0 is the priority-tagged/no-VLAN encoding - an SR stream on VID 0 floods UNSHAPED)
+ACCEPT  srp.vid 0x002 (int 2): ["localparam logic [15:0] ADP_SRP_DOM_DEF_VID_C = 16'd2;", "localparam logic [31:0] ADP_STROUT_PRES_NS_C [0:0] = '{32'd2000000};"] ["localparam [31:0] LWSRP_VID_RST_C       = 32'h0000_0002;  //! 0x684"]
+REFUSE  srp.bandwidth_limit_pct 75.0: srp.bandwidth_limit_pct 75.0 outside 1..75 (build-time budget, not the live admission ceiling; IEEE 802.1Q 34.3.1)
+ACCEPT  srp.bandwidth_limit_pct 75: ["localparam logic [15:0] ADP_SRP_DOM_DEF_VID_C = 16'd2;", "localparam logic [31:0] ADP_STROUT_PRES_NS_C [0:0] = '{32'd2000000};"] ["localparam [31:0] LWSRP_VID_RST_C       = 32'h0000_0002;  //! 0x684"]
+REFUSE  srp.bandwidth_limit_pct 1: class-A reservation 7360000 bps over 1 talker stream(s) + the CRF media clock (0 bps) exceeds the 1% ceiling of the 100 Mb/s port (1000000 bps) - KL_l
+REFUSE  srp.timers_ms.leave 5000.0: srp.timers_ms.leave must be 5000: fixed Milan v1.2 4.2.7.1.1 Table 4.3 profile; leaveall names the 10000 ms lower bound of the randomized 10-15 s inte
+REFUSE  srp.tspec.max_frame_bytes True: srp.tspec.max_frame_bytes True outside 1..65535 (TSpec MaxFrameSize is 16 bit)
+ACCEPT  srp.class_queue True: ["localparam logic [15:0] ADP_SRP_DOM_DEF_VID_C = 16'd2;", "localparam logic [31:0] ADP_STROUT_PRES_NS_C [0:0] = '{32'd2000000};"] ["localparam [31:0] LWSRP_VID_RST_C       = 32'h0000_0002;  //! 0x684"]
+REFUSE  talker offset 2000000.0: streams.talkers[0].presentation_time_offset_ns must be 2000000: Milan v1.2 5.3.7.6 requires a 2 ms factory default for every Stream Output. Use SET_ST
+REFUSE  talker offset '2000000': streams.talkers[0].presentation_time_offset_ns must be 2000000: Milan v1.2 5.3.7.6 requires a 2 ms factory default for every Stream Output. Use SET_ST
+REFUSE  talker offset None: streams.talkers[0].presentation_time_offset_ns must be 2000000: Milan v1.2 5.3.7.6 requires a 2 ms factory default for every Stream Output. Use SET_ST
+REFUSE  crf_output offset with enabled false, 1000000: clocking.crf_output.presentation_time_offset_ns must be 2000000: Milan v1.2 5.3.7.6 requires a 2 ms factory default for every Stream Output. Use SET_S
+REFUSE  platform.rx_address_filter 'PROMISCUOUS': platform.rx_address_filter 'PROMISCUOUS' is unsupported. Migrate hardware to promiscuous: the existing TCAM reset/boot bypass accepts all destinations

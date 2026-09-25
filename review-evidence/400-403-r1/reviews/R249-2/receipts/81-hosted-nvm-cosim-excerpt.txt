@@ -1,0 +1,33 @@
+Hosted run 36142747033 at head 7463ab08 (read-only excerpt of the failed job log)
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:07:50.8140006Z FAIL     nvm_cosim
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.8125950Z suites: 21   passed: 20   failed: 1   timed out: 0
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9412678Z checks: 173465   in-suite failures: 0
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9413055Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9413400Z ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9414442Z   NOCOUNT  nvm_cosim: printed no tally line at all
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9415079Z   A suite that measured nothing is an UNKNOWN, not agreement.
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9415763Z   If it printed no tally: make it print one of the shapes in
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9416457Z   scripts/suite_tally.py. If it tallied zero: make it assert
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9417140Z   something, or say why it ran nothing with a SUITE-SKIP: line
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9417734Z   AND still report the checks it did run.
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9418058Z 
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9418307Z The check total above is INCOMPLETE and must not be quoted.
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9465182Z failing suites: nvm_cosim
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9465714Z logs: <runner-temp>/suite-logs
+Verilator shard 1/5	UNKNOWN STEP	2026-09-25T14:09:54.9829304Z ##[error]Process completed with exit code 1.
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-25T14:27:19.3299098Z checks: 2123177   in-suite failures: 0
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-25T14:27:19.3299773Z 
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-25T14:27:19.3300095Z ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-25T14:27:19.3300716Z   NOCOUNT  nvm_cosim: printed no tally line at all
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-25T14:27:19.3301288Z   A suite that measured nothing is an UNKNOWN, not agreement.
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-25T14:27:19.3301893Z   If it printed no tally: make it print one of the shapes in
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-25T14:27:19.3302482Z   scripts/suite_tally.py. If it tallied zero: make it assert
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-25T14:27:19.3303066Z   something, or say why it ran nothing with a SUITE-SKIP: line
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-25T14:27:19.3303580Z   AND still report the checks it did run.
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-25T14:27:19.3303867Z 
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-25T14:27:19.3304127Z The check total above is INCOMPLETE and must not be quoted.
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-25T14:27:19.3382753Z ##[error]Process completed with exit code 1.
+verilator-suites	Require every Verilator worker to pass	2026-09-25T14:27:19.3501136Z   SHARD_RESULT: failure
+verilator-suites	Require every Verilator worker to pass	2026-09-25T14:27:19.3501390Z ##[endgroup]
+verilator-suites	Require every Verilator worker to pass	2026-09-25T14:27:19.3582123Z one or more Verilator workers ended: failure
+verilator-suites	Require every Verilator worker to pass	2026-09-25T14:27:19.3585917Z ##[error]Process completed with exit code 1.

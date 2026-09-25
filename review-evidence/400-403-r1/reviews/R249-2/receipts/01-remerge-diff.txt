@@ -1,0 +1,114 @@
+diff --git a/docs/diagrams/PNG_MANIFEST.json b/docs/diagrams/PNG_MANIFEST.json
+remerge CONFLICT (content): Merge conflict in docs/diagrams/PNG_MANIFEST.json
+index 8d0b0c3d..d6ada40f 100644
+--- a/docs/diagrams/PNG_MANIFEST.json
++++ b/docs/diagrams/PNG_MANIFEST.json
+@@ -9,15 +9,9 @@
+     },
+     "docs/diagrams/submodule_boundaries.png": {
+       "height": 1440,
+-<<<<<<< 17e2cf69 (Make SRP and stream declarations match generated reset and boot policy)
+-      "raster_sha256": "9e0407c2067e0fa00a42b0825251c37651dc352b7c65a74013e1d20f353a558a",
+-      "source": "docs/diagrams/submodule_boundaries.drawio",
+-      "source_sha256": "a13d8b86cb24ca469d68ab35c391d2f84e3cd51beee1ca11b1ace1b621449298",
+-=======
+       "raster_sha256": "dd20e3af39752086c25672b8a6fb44bfad09b047dc5abfecf7b5355b7a477404",
+       "source": "docs/diagrams/submodule_boundaries.drawio",
+       "source_sha256": "63a40328f70dba63b9f53c560d67adb725eee267532c9ddfb6e7121e67d09aac",
+->>>>>>> 864b36f5 (Merge PR #560: Adopt the processor pin at 990f9652 and serve processor-owned GET_STREAM_INFO fields)
+       "width": 2400
+     },
+     "docs/diagrams/timesync_chain.png": {
+diff --git a/docs/diagrams/submodule_boundaries.drawio b/docs/diagrams/submodule_boundaries.drawio
+remerge CONFLICT (content): Merge conflict in docs/diagrams/submodule_boundaries.drawio
+index 5add3630..f1edbf1c 100644
+--- a/docs/diagrams/submodule_boundaries.drawio
++++ b/docs/diagrams/submodule_boundaries.drawio
+@@ -1,5 +1 @@
+-<<<<<<< 17e2cf69 (Make SRP and stream declarations match generated reset and boot policy)
+-<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin 8452f5642943&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin c1b617435824&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="785" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+-=======
+ <mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin 990f96526bb8&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin e5dcea6e351a&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="785" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+->>>>>>> 864b36f5 (Merge PR #560: Adopt the processor pin at 990f9652 and serve processor-owned GET_STREAM_INFO fields)
+diff --git a/docs/diagrams/submodule_boundaries.png b/docs/diagrams/submodule_boundaries.png
+remerge warning: Cannot merge binary files: docs/diagrams/submodule_boundaries.png (17e2cf69 (Make SRP and stream declarations match generated reset and boot policy) vs. 864b36f5 (Merge PR #560: Adopt the processor pin at 990f9652 and serve processor-owned GET_STREAM_INFO fields))
+remerge CONFLICT (content): Merge conflict in docs/diagrams/submodule_boundaries.png
+index 488b8afc..d1c268f8 100644
+Binary files a/docs/diagrams/submodule_boundaries.png and b/docs/diagrams/submodule_boundaries.png differ
+diff --git a/docs/diagrams/submodule_boundaries.svg b/docs/diagrams/submodule_boundaries.svg
+remerge CONFLICT (content): Merge conflict in docs/diagrams/submodule_boundaries.svg
+index ffc0319c..eba40320 100644
+--- a/docs/diagrams/submodule_boundaries.svg
++++ b/docs/diagrams/submodule_boundaries.svg
+@@ -26,11 +26,7 @@
+ <text x="133" y="174" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">ACTIVE CONTROL</text>
+ <text x="53" y="215" font-size="20" font-weight="bold" fill="#212121">protocol-processor</text>
+ <text x="53" y="258" font-size="16" fill="#37474F">ADP, ACMP, AECP, and SRP engine</text>
+-<<<<<<< 17e2cf69 (Make SRP and stream declarations match generated reset and boot policy)
+-<text x="53" y="297" font-size="16" fill="#37474F">pin 8452f5642943</text>
+-=======
+ <text x="53" y="297" font-size="16" fill="#37474F">pin 990f96526bb8</text>
+->>>>>>> 864b36f5 (Merge PR #560: Adopt the processor pin at 990f9652 and serve processor-owned GET_STREAM_INFO fields)
+ <text x="53" y="323" font-size="16" fill="#37474F">wrapper:</text>
+ <text x="53" y="344" font-size="16" fill="#37474F">hdl/milan/</text>
+ <text x="53" y="365" font-size="16" fill="#37474F">KL_pp_shadow.sv</text>
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+remerge CONFLICT (content): Merge conflict in docs/reference/REGISTER_MAP.md
+index 814bf38e..a352e676 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -1169,13 +1169,8 @@ admits frames. **When those two disagree, the bypass is engaged** — on
+ 
+ | Offset | Name | Acc | Reset | Description |
+ |--------|------|-----|-------|-------------|
+-<<<<<<< 17e2cf69 (Make SRP and stream declarations match generated reset and boot policy)
+ | `0x680` | `LWSRP_CTRL` | RW | `0x10` | `[0]` live admission enable, `[1]` live talker admission arm. Generated cold-reset bits may differ; firmware ORs both on for normal boot. They do not enable the processor SRP engine. `[4:2]` legacy queue-selection scratch (default 4); `[5]` legacy declare-always scratch. |
+ | `0x684` | `LWSRP_VID` | RW | `2` | Software-owned diagnostic/default VID. Startup reset and firmware share `srp.vid=2` with the generated processor default parameter. Manual writes do not program that elaboration parameter; operational Domain adoption is published at `0x788`. |
+-=======
+-| `0x680` | `LWSRP_CTRL` | RW | `0x10` | `[0]` engine enable, `[1]` talker declare, `[4:2]` class-A queue index, readback only: no slope mux or shaper is instantiated since VERSION `0x0056`, so it selects nothing (reset **4** = the reset PCP3→TC3→**q4** map; it was 5 from VERSION `0x0011` to `0x0013`, when the map had six queues). The field was `[3:2]` until VERSION `0x0011`; it had to widen because the 802.1Q-ordered map puts SR class A on the TOP queue and 2 bits cannot reach it. It keeps 3 bits at `N`=5 (`ceil(log2 5)` = 3), so codes 5-7 name no queue and leave the `0x400` values untouched. `[5]` **declare-always bypass, reset 0** (gh #63 I2): with it clear (the conformant posture) `[1]` only *arms* each talker's TalkerAdvertise, and the declaration opens per Milan v1.2 4.3.3.1's validity terms (a PROBE_TX/CONNECT_TX within the 15 s window **or** a registered Listener attribute for that stream, AND the MAAP term `~MAAP_CTRL[0] \| addr_valid`), withdrawing with a talker LV when the last term lapses; setting `[5]` restores the pre-gate declared-from-boot bring-up posture. A set-at-reset bypass would re-create the 4.3.3.1-Note violation the gate closes: the `0x0018` `AAF_CTRL` lesson. |
+-| `0x684` | `LWSRP_VID` | RW | `2` | `[11:0]` SR VID (Domain + DataFrameParameters + MVRP) |
+->>>>>>> 864b36f5 (Merge PR #560: Adopt the processor pin at 990f9652 and serve processor-owned GET_STREAM_INFO fields)
+ | `0x688` | `LWSRP_DMAC_LO` | RW | `0xF000_FE01` | 🟡 **WRITE-ONLY SCRATCH** — stream dest MAC `[31:0]` (same packing as `AAF_DM*`). The applicant that read it is deleted; the processor takes its destination address from MAAP |
+ | `0x68C` | `LWSRP_DMAC_HI` | RW | `0x91E0` | 🟡 **WRITE-ONLY SCRATCH** — stream dest MAC `[47:32]` |
+ | `0x690` | `LWSRP_TSPEC` | RW | `0x0001_00E0` | 🟡 **WRITE-ONLY SCRATCH** — `[15:0]` MaxFrameSize, `[31:16]` MaxIntervalFrames. The applicant that read them is deleted. The processor DERIVES its Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize from the wire width the framer was elaborated with, so the declaration and the frame cannot disagree, and it derives its interval from the SR class. Writing this changes nothing observable |
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+remerge CONFLICT (content): Merge conflict in docs/reference/SUBMODULES.md
+index 9e982a2b..e0c51db1 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -21,13 +21,8 @@ Dirty submodules invalidate local evidence.
+ | Path | Pin | Purpose | Root integration |
+ |---|---|---|---|
+ | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
+-<<<<<<< 17e2cf69 (Make SRP and stream declarations match generated reset and boot policy)
+-| `gptp-processor` | `c1b617435824929a790739ea8585c3fe1a328cc0` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+-| `protocol-processor` | `8452f564294300a82d56eed464276576f65f4d58` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+-=======
+ | `gptp-processor` | `e5dcea6e351abff18a27a00f8e345f3251bdbd8f` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+ | `protocol-processor` | `990f96526bb89356c963a260ebbdcf2a77e6623a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+->>>>>>> 864b36f5 (Merge PR #560: Adopt the processor pin at 990f9652 and serve processor-owned GET_STREAM_INFO fields)
+ | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
+ <!-- submodule-pins:end -->
+ 
+@@ -134,12 +129,6 @@ Imported prose never defines root runtime behavior.
+ 
+ Track donor repairs separately.
+ 
+-The protocol pin adopts only donor #95 / PR96.
+-It exposes the generated startup VID parameter.
+-
+-[Donor completion](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/96#issuecomment-5772201653) records its independent reviews and validation.
+-Later donor revisions are outside this adoption.
+-
+ Historical audit exceptions remain open disclosures.
+ PR13/PR6 branch continuity is UNKNOWN.
+ 
+diff --git a/protocol-processor b/protocol-processor
+remerge Failed to merge submodule protocol-processor (commits don't follow merge-base)
+remerge CONFLICT (submodule): Merge conflict in protocol-processor
+index 8452f564..990f9652 160000
+--- a/protocol-processor
++++ b/protocol-processor
+@@ -1 +1 @@
+-Subproject commit 8452f564294300a82d56eed464276576f65f4d58
++Subproject commit 990f96526bb89356c963a260ebbdcf2a77e6623a

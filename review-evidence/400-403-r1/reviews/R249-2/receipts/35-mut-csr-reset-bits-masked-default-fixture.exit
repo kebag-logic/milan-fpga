@@ -1,0 +1,4 @@
+mutant: hdl/common/csr/milan_csr.sv: 'lwsrp_ctrl <= LWSRP_CTRL_RST_C;' -> "lwsrp_ctrl <= LWSRP_CTRL_RST_C & ~32'h3;"
+cmd: sh -c cd tb/verilator/csr && make -B VERILATOR=<packet>/scripts/verilator-j8.sh obj_dir/Vcsr_sim && ./obj_dir/Vcsr_sim
+start: 2026-09-25T14:59:52.472299+00:00
+exit: 0

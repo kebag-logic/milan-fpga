@@ -1,0 +1,5 @@
+cmd: sh -c cd tb/verilator/csr && make -B VERILATOR=<packet>/scripts/verilator-j8.sh SHAPE_1x1='+incdir+<packet>/scratch/resetbits3 -CFLAGS -DCSR_SRP_RESET_BITS=3u' obj_dir/Vcsr_sim && ./obj_dir/Vcsr_sim
+dir: <packet>/scratch/tree
+start: 2026-09-25T14:59:46Z
+end: 2026-09-25T14:59:52Z
+exit: 0

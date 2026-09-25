@@ -1,0 +1,4 @@
+mutant: hdl/milan/milan_datapath.sv: '      .SRP_DOM_DEF_VID_P (ADP_SRP_DOM_DEF_VID_C),\n' -> ''
+cmd: sh -c cd tb/verilator/pp_shadow && make VERILATOR=<packet>/scripts/verilator-j8.sh SHAPE_1x1='+incdir+<packet>/scratch/vid73 -CFLAGS -DDECLARATION_VID=73'
+start: 2026-09-25T14:40:44.491516+00:00
+exit: 2

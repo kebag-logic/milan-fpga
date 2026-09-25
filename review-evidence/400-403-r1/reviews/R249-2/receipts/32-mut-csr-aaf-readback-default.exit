@@ -1,0 +1,4 @@
+mutant: hdl/common/csr/milan_csr.sv: 'A_AAF_CTRL[10:0]:   csr_default = AAF_CTRL_RST_C;' -> "A_AAF_CTRL[10:0]:   csr_default = 32'h0002_0000;"
+cmd: sh -c cd tb/verilator/csr && make VERILATOR=<packet>/scripts/verilator-j8.sh obj_dir/Vcsr_sim && ./obj_dir/Vcsr_sim
+start: 2026-09-25T14:38:17.034741+00:00
+exit: 1

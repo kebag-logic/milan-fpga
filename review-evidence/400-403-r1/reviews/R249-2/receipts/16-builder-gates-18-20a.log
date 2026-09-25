@@ -1,0 +1,15 @@
+RUN test_lwsrp_reset_words_match_rtl
+  [gate 18a] arty_current lwSRP reset words == the generated lwsrp_csr_defaults.svh == the symbols milan_csr's reset block and csr_default table use == the REGISTER_MAP Reset column (6 registers, 6 offsets)
+RUN test_lwsrp_class_constants_match_rtl
+  [gate 18d] Milan 4.3.3.2 bandwidth recipe: the clamped CRF row and an unclamped 4ch AAF row both compose to the clause's kb/s, and the step-2 clamp bites (lwsrp_pkg.sv comparand DELETED)
+  [gate 18b] PriorityAndRank == the generated symbol milan_csr drives (emitter -> lwsrp_csr_defaults.svh -> RTL); the reference lwsrp_table.svh still carries the words the CSR subset was cut from, and no hdl/ieee8021q/srp tree was recreated
+RUN test_lwsrp_tspec_and_params
+  [gate 18c] arty_current: TSpec derived, 7360000 bps = 7.36% of the port (ceiling 75%), ctx rows 2 needed / 2 available
+  [gate 18c] arty_4x4: TSpec derived, 47360000 bps = 47.36% of the port (ceiling 75%), ctx rows 9 needed / 9 available
+  [gate 18c] ax7101_8x8: TSpec derived, 138240000 bps = 13.82% of the port (ceiling 75%), ctx rows 17 needed / 17 available
+  [gate 18c] NxN ctx-row shortfall (L+T-1 rows in max(L,T) contexts) marked planned; 1x1 supported
+RUN test_lwsrp_rejects
+  [gate 18d] 7/7 contradictory reservations rejected with ConfigError (incl. a 213 Mb/s class-A request on a 100 Mb/s port)
+RUN test_csr_defaults_header_consumed
+  [gate 20a] milan_csr.sv `include-s gen/lwsrp_csr_defaults.svh; 6 reset words + PriorityAndRank == the FROZEN literals (LWSRP_CTRL moved TWICE for the queue map: 0x0C -> 0x14 at 6 queues, 0x14 -> 0x10 at 5), 0 literals left in the RTL, 7 constants agree with the emitted lwSRP table, 4 consumers carry the include dir
+GATES-OK

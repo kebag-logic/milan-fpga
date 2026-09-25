@@ -1,0 +1,21 @@
+make: Entering directory '<packet>/scratch/tree/tb/verilator/nvm_cosim'
+python3 -B run_cases.py --shapes 1x1 --jobs 8 --pool 8 --skip-mutants
+Traceback (most recent call last):
+  File "<packet>/scratch/tree/tb/verilator/nvm_cosim/run_cases.py", line 780, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<packet>/scratch/tree/tb/verilator/nvm_cosim/run_cases.py", line 739, in main
+    shapes = {n: shape(n) for n in want}
+                 ~~~~~^^^
+  File "<packet>/scratch/tree/tb/verilator/nvm_cosim/run_cases.py", line 131, in shape
+    return ShapeInfo(name, ref.constants_header(shp, donor, ident), table, params, donor,
+                           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/tree/sw/firmware/nvm_hosttest/test_nvm_firmware.py", line 172, in constants_header
+    values = {
+             ^
+    ...<7 lines>...
+    }
+    ^
+TypeError: 'Ident' object is not a mapping
+make: *** [Makefile:61: quick] Error 1
+make: Leaving directory '<packet>/scratch/tree/tb/verilator/nvm_cosim'

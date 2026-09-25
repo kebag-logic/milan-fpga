@@ -1,0 +1,12 @@
+RUN test_crf_output_overlay_structure
+  [gate 15] arty_4x4: CRF STREAM_OUTPUT idx 4 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+  [gate 15] ax7101_8x8: CRF STREAM_OUTPUT idx 8 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+  [gate 15] arty_current: no CRF output (deployed shape untouched)
+RUN test_optional_block_gates_bite
+  [gate 23b] 9/9 contradictory prune configs REFUSED with ConfigError; 3/3 honest prunes accepted and their --no-* flags reach the soc argv
+RUN test_optional_block_prune_accounting
+  [gate 23c] supported prunes, MAAP retained: estimate -4052 LUT / -10816 FF (banked rows -3727 LUT), plan names every block, its parameter, its flag and the re-measurement it forces, labelled ESTIMATE
+RUN test_builder_doc_key_map
+  [gate 32] 112 loader keys == 112 keys across 64 rows of ENDSTATION_BUILDER.md section 3; planted row and dropped row both refused
+  [gate 32] census: 17 untaken loader arms, where a key read is not recorded: endstation_builder.py:1448 endstation_builder.py:1528 endstation_builder.py:1532 endstation_builder.py:1895 endstation_builder.py:1899 endstation_builder.py:3154 endstation_builder.py:3243 endstation_builder.py:3345 endstation_builder.py:3577 endstation_builder.py:3586 endstation_builder.py:3634 endstation_builder.py:3654 endstation_builder.py:3691 endstation_builder.py:4041 endstation_builder.py:4137 endstation_builder.py:4164 endstation_builder.py:4324
+FOCUSED-OK
