@@ -1,0 +1,21 @@
+# head b3458db0db5a7c8b15582d80b492620f05f62e70
+[PASS] multi_clean: rc=0 pass; expected=None
+     == tdm8_render: checks: 65   failures: 0 ==
+[PASS] multi_alias_idx0: rc=1 caught; expected=RENDER-CSR-MULTI: flushed listener 1 has empty prefill
+     [FAIL] RENDER-CSR-MULTI: flushed listener 1 has empty prefill got=12 exp=256
+     [FAIL] RENDER-CSR-MULTI: first absent index reads zero got=12 exp=0
+     == tdm8_render: checks: 65   failures: 2 ==
+[PASS] aclk_rails_zero: rc=1 caught; expected=RENDER-CSR: rail event reached the word
+     [FAIL] RENDER-CSR: rail mirrors taps                              got=14 exp=65550
+     [FAIL] RENDER-CSR: rail event reached the word                    got=0 exp=1
+     [FAIL] RENDER-CSR: bit 9 with listener 0 mirrors taps             got=13 exp=65549
+     [FAIL] RENDER-CSR: write ignored mirrors taps                     got=13 exp=65549
+     media_aclk: 64 checks, 4 failures
+[PASS] aclk_flag_swap: rc=1 caught; expected=RENDER-CSR: prefill mirrors taps
+     [FAIL] RENDER-CSR: prefill mirrors taps                           got=512 exp=256
+     [FAIL] RENDER-CSR: reset prefill                                  got=512 exp=256
+     [FAIL] RENDER-CSR: filling mirrors taps                           got=518 exp=262
+     [FAIL] RENDER-CSR: prefill still held                             got=0 exp=1
+     media_aclk: 64 checks, 9 failures
+probes: 4 run, 0 unexpected
+# rc=0

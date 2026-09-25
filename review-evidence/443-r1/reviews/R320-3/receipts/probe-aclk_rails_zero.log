@@ -1,0 +1,67 @@
+rc=1
+  [ok]   [RENDER-BIND] PP_STAT[2] the restore walk sequenced        = 1
+  [ok]   RENDER-BIND: the listener launched a PROBE_TX at the named talker = 1
+  [ok]   RENDER-BIND: listener bound (0x6A4[3], the class-D record) = 1
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: prefill mirrors taps                           = 256
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 256
+  [ok]   RENDER-CSR: reset prefill                                  = 256
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: filling mirrors taps                           = 262
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 262
+  [ok]   RENDER-CSR: fill nonzero during prefill                    = 1
+  [ok]   RENDER-CSR: prefill still held                             = 1
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: converged mirrors taps                         = 520
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 520
+  [ok]   RENDER-CSR: converged bit reached the word                 = 1
+  [ok]   RENDER-CSR: prefill released                               = 0
+  [ok]   RENDER-INT: every injected PDU was accepted                = 960
+  [ok]   RENDER-INT: PDUs measured in the window                    = 1
+  [ok]   RENDER-INT: every PDU's first event inside the law band    = 916
+  [ok]   RENDER-INT: the fill at accept is the setpoint for every PDU = 916
+  [ok]   RENDER-INT: one constant: spread within 64 cycles          = 1
+  [ok]   RENDER-INT: no rail inside the window                      = 0
+  [ok]   RENDER-INT: no underrun inside the window                  = 0
+  [ok]   RENDER-INT: converged                                      = 1
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [FAIL] RENDER-CSR: rail mirrors taps                              got=14 exp=65550
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 14
+  [FAIL] RENDER-CSR: rail event reached the word                    got=0 exp=1
+  [ok]   RENDER-CSR: rail cleared convergence                       = 0
+  [ok]   RENDER-CSR: talker selection reads zero                    = 0
+  [ok]   RENDER-CSR: bit 9 preserves talker rejection               = 0
+  [ok]   RENDER-CSR: out-of-range listener reads zero               = 0
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [FAIL] RENDER-CSR: bit 9 with listener 0 mirrors taps             got=13 exp=65549
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 13
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [FAIL] RENDER-CSR: write ignored mirrors taps                     got=13 exp=65549
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 13
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: reset again mirrors taps                       = 256
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 256
+  [ok]   RENDER-CSR: reset clears rail and convergence              = 256
+media_aclk: 64 checks, 4 failures
+RESULT: FAIL

@@ -1,0 +1,18 @@
+# gate: check_cpp_idiom
+# head: b3458db0db5a7c8b15582d80b492620f05f62e70
+# verilator: Verilator 5.050 2026-07-01 rev v5.050
+# cmd: python3 scripts/check_cpp_idiom.py
+# start: 2026-09-25T12:59:26Z
+cpp idiom: 155 first-party translation units, 22 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+# end: 2026-09-25T12:59:28Z
+# rc=0
