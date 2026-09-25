@@ -1554,63 +1554,68 @@ Memory shape: the stage holds one container.
 [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
 derives 3264 bytes at 1x1 and 12680 at 8x8.
 
-Timing. The prototype's RV32I -Os build measured per-byte instruction counts.
-The following times are DERIVED, without hardware measurements.
-The hold covers copying closed records after ARM.
-Flash prefill happens before ARM, outside the hold.
-The model uses six instructions and two DDR accesses per byte.
-Walking each record adds about 50 instructions.
-Each instruction costs 10 cycles; each DDR access costs 30.
-The pessimistic case doubles both cycle costs.
+Timing. MEASURED on 2026-09-25 in the
+[product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
+The [#559 assignment](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5828771434)
+requires a worst observed 8x8 copy no longer than 25 ms.
+**The 50 ms hold is enough under this simulation route:** the maximum is
+19.00433 ms across 16 captures, giving about 2.6310x hold margin.
+The first assigned remedy applies: retain the existing hold.
+Product firmware, RTL and builder census lists are unchanged.
 
-The current gate supplies section 4.2's raw areas and counts.
-These exclude container headers, alignment padding, and trailers.
-For raw area `A` and record count `N`:
+The harness instantiates the board's cacheless RV32I CPU and `MilanSoC` buses.
+It retains the CPU memory CDC, PP bridges and DDR controller.
+The shape recipes set CPU/system clocks to 50/100 MHz at 1x1 and 100/100 MHz at 8x8.
+Firmware brackets ARM through successful ATTEST with the 100 MHz system timer.
+This includes ownership reads, every `nvm_rec_after()` walk, byte copying and the fence.
+Probe overhead is included; flash prefill and destination poisoning precede ARM.
+Every capture checks attestation, closed ownership and every raw destination byte.
+Both missing-copy and missing-traffic negative controls are detected.
 
-```text
-instructions = 6 * A + 50 * N
-DDR accesses = 2 * A
-cycles = 10 * instructions + 30 * DDR accesses
-time_ms = cycles * 1000 / 50000000
-hold_margin = 50 / time_ms
-```
+Traffic is continuous AEM READ_DESCRIPTOR ENTITY 0 at the MAC AXIS boundary.
+The driver offers 60-byte frames with backpressure respected and TX always ready.
+There is no line-rate throttle or Ethernet inter-frame gap.
+Traffic continues between captures.
+Counters cover the record walk and byte copy, ending before ATTEST.
+Each capture requires accepted frames, successful responses and shared descriptor-memory read ACKs.
 
 | Quantity | 1x1 | 8x8 |
 |---|---|---|
 | Raw bytes / records | 3,218 / 53 | 12,634 / 156 |
-| Instructions | 21,958 | 83,604 |
-| DDR accesses | 6,436 | 25,268 |
-| Nominal cycles | 412,660 | 1,594,080 |
-| Nominal copy / 50 ms hold margin | 8.3 ms / 6.06x | 31.9 ms / 1.57x |
-| Twice both costs / hold margin | 16.5 ms / 3.03x | 63.8 ms / 0.78x |
+| Captures with concurrent traffic | 16 | 16 |
+| CPU / system MHz | 50 / 100 | 100 / 100 |
+| System timer ticks, minimum to maximum | 654,490 to 655,479 | 1,899,012 to 1,900,433 |
+| Elapsed ms, minimum to maximum | 6.54490 to 6.55479 | 18.99012 to 19.00433 |
+| 50 ms / maximum elapsed | 7.6280x | 2.6310x |
+| Accepted input frames per copy | 40,823 to 40,885 | 237,254 to 237,432 |
+| Successful responses per copy | 41 to 42 | 146 to 147 |
+| Shared-memory read ACKs per copy | 1,600 to 1,638 | 5,694 to 5,726 |
 
-The shipping CPU clock is 50 MHz.
-`sw/litex/milan_soc.py` selects it from the Milan domain.
-The [clock-domain page](../litex/CLOCK_DOMAINS.md) records this shipping choice.
-The CPU memory master also crosses into the system domain.
-Hold sizing must use the writer's actual clock and measured latency.
+Run these commands in the existing product environment, with the
+[harness prerequisites](../../tb/verilator/nvm_capture_cpu/README.md#run):
 
-**The grown 8x8 copy exceeds 50 ms under doubled costs.**
-A grant after hold expiry voids capture; release and retry preserve safety.
-Sustained producer activity risks liveness through repeated void-and-retry cycles.
-The shipping 1x1 shape and its margins are unchanged.
+```sh
+python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --captures 16 --build-dir /tmp/nvm-capture-8x8
+python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --captures 16 --build-dir /tmp/nvm-capture-1x1
+```
 
-[The corrected #501 decision](https://github.com/kebag-logic/milan-fpga/issues/501#issuecomment-5824117439)
-retains the hold without an RTL change here.
+The [measurement receipt](../../tb/verilator/nvm_capture_cpu/measurements.json)
+contains every row, the recipe and input hashes.
+These measurements replace the six-instructions-per-byte and fifty-instructions-per-record estimates.
+They retire assumed instruction and DDR latencies: ten cycles per instruction and thirty per access.
+The estimate of two DDR accesses per byte and blanket twofold penalty are retired too.
+Configured clocks replace the blanket 50 MHz CPU assumption.
+Actual CPU execution, record walking and bus latency are included in the measured interval.
+
 The firmware's `nvm_capture()` copies every CLOSED record at each capture.
 Materialization does not affect that copy.
 An accepted RELOAD closes every allocated record in `KL_nvm_backend.sv`.
-At 8x8, the [counted copy](https://github.com/kebag-logic/milan-fpga/blob/247a9151df9948fe213d078456ff9a53ac196e89/review-evidence/501-r1/reviews/R312-2/scripts/capture_copy_probe.py)
-spans 12,634 bytes over 156 records.
-Output maps account for 4,672 of those bytes.
-The 8x8 doubled-cost exposure therefore exists at this head.
-[Issue #559](https://github.com/kebag-logic/milan-fpga/issues/559) owns measurement and resolution of this firmware copy.
-Measure the actual 8x8 copy, then establish a stated margin.
-Size the hold or reduce copying costs.
-Alternatively, prove the existing 50 ms adequate.
-Record those measurements in UNRESOLVED 6.
+The measured 8x8 copy includes all 4,672 output-map bytes within its 12,634 bytes.
+A grant after hold expiry still voids capture; release and retry preserve safety.
 
-The hold remains below the 500 ms heartbeat period.
+The DDR model retains the board PHY's controller-facing phase and latency settings.
+Physical leveling, wire transport and board timing are outside this measurement.
+The hold remains below the 500 ms heartbeat limit.
 It also remains below the 8000 ms commit deadline.
 The parameter refuses a hold at or above that deadline.
 Hardware timing and memory ordering remain UNRESOLVED 6.
@@ -1694,25 +1699,20 @@ Hardware timing and memory ordering remain UNRESOLVED 6.
 5. The JEDEC identity-mismatch revocation cause of
    [section 9.2](SAVED_STATE_FASTCONNECT.md#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven)
    has no reporter at the current source.
-6. Physical timing remains unmeasured: capture hold, debounce, and memory ordering.
-   Section 18 derives the current full-copy budget at 50 MHz.
-   At 8x8, 12,634 bytes over 156 records take 31.9 ms nominally.
-   Doubled cycle costs give 63.8 ms against the 50 ms hold.
-   The corresponding margins are 1.57x and 0.78x.
-   Void and retry preserve safety; sustained activity risks liveness.
-   Shipping 1x1 stays unchanged: 8.3/16.5 ms, margins 6.06x/3.03x.
-   The firmware's `nvm_capture()` copies every CLOSED record at each capture.
-   Materialization does not affect that copy.
-   An accepted RELOAD closes every allocated record in `KL_nvm_backend.sv`.
-   The [counted 8x8 copy](https://github.com/kebag-logic/milan-fpga/blob/247a9151df9948fe213d078456ff9a53ac196e89/review-evidence/501-r1/reviews/R312-2/scripts/capture_copy_probe.py)
-   includes 4,672 output-map bytes within those 12,634 bytes.
-   The 0.78x modelled margin applies at this head.
-   [Issue #559](https://github.com/kebag-logic/milan-fpga/issues/559) owns measurement and resolution of this firmware copy.
-   Measure the actual 8x8 copy, then establish a stated margin.
-   Size the hold or reduce copying costs.
-   Alternatively, prove the existing 50 ms adequate.
-   Record the result here.
-   The section 19 memory-port ordering also needs measurement.
+6. Physical timing remains unmeasured on the board: capture hold, debounce and memory ordering.
+   [Section 18](#18-cost) replaces the copy model with product-CPU SoC measurements for
+   [issue #559](https://github.com/kebag-logic/milan-fpga/issues/559).
+   Across 16 captures with continuous READ_DESCRIPTOR traffic, the worst 8x8 copy is 19.00433 ms.
+   It copies all 12,634 bytes over 156 closed records, including 4,672 output-map bytes.
+   At the configured 100 MHz CPU clock, this gives about 2.6310x margin against the 50 ms hold.
+   It meets the assigned 25 ms limit, so the existing hold is retained.
+   The same harness measures 16 captures at 1x1 with its configured 50 MHz CPU.
+   Its maximum is 6.55479 ms, giving about 7.6280x hold margin.
+   Both figures use the 100 MHz system timer and include the complete record walk.
+   Commands, per-capture traffic counts and input hashes are linked from section 18.
+   The instruction/access cost factors and blanket twofold penalty are retired.
+   This establishes the simulation margin under the stated traffic.
+   The section 19 physical memory-port ordering still needs measurement.
    The debounce measurement remains open under
    [section 14](SAVED_STATE_FASTCONNECT.md#14-what-this-page-does-not-decide).
 7. Alarm forgiveness. The donor alarm is sticky until reset, so one retry
