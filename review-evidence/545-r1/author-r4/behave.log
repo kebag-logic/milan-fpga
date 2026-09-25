@@ -1,0 +1,2496 @@
+cwd: $LANES/545-crf-servo-slew/tests
+command: behave --no-capture -f plain
+started: 2026-09-25T11:59:32.943307+00:00
+USING RUNNER: behave.runner:Runner
+Feature: READ_DESCRIPTOR is answered again (IEEE 1722.1-2021 7.4.5)
+  Background: 
+
+  Scenario: reading ENTITY[0] answers SUCCESS with the whole response shape
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 0 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 4 with u clear ... passed in 0.000s
+    And the AECP response target_entity_id is our own ... passed in 0.000s
+    And the AECP response echoes the sequence_id and the controller_entity_id ... passed in 0.000s
+    And the AECP response is unicast back to the requester from our own MAC ... passed in 0.000s
+    And the AECP response configuration_index is 0 and the reserved halfword is zero ... passed in 0.000s
+    And the AECP response descriptor is 312 octets opening with type 0 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 340 octets ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.1 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 0 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response descriptor is 312 octets opening with type 0 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 340 octets ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.2 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 1 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response descriptor is 98 octets opening with type 1 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 126 octets ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.3 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 2 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response descriptor is 152 octets opening with type 2 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 180 octets ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.4 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 5 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response descriptor is 152 octets opening with type 5 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 180 octets ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.5 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 6 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response descriptor is 152 octets opening with type 6 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 180 octets ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.6 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 9 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response descriptor is 102 octets opening with type 9 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 130 octets ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.7 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 10 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response descriptor is 86 octets opening with type 10 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 114 octets ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.8 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 36 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response descriptor is 78 octets opening with type 36 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 106 octets ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario: the read does not mutate the entity, so two reads agree
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 5 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response descriptor is 152 octets opening with type 5 index 0 ... passed in 0.000s
+    When the controller reads descriptor type 5 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response descriptor is 152 octets opening with type 5 index 0 ... passed in 0.000s
+
+  Scenario: an unknown descriptor_type is a locate miss, not a bad argument
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 255 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 2 ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 255 index 0 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: an index past the directory count is a locate miss -- @1.1 the shipped image is 1 in / 1 out, so index 1 does not exist
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 5 index 1 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 2 ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 5 index 1 ... passed in 0.000s
+
+  Scenario Outline: an index past the directory count is a locate miss -- @1.2 the shipped image is 1 in / 1 out, so index 1 does not exist
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 6 index 1 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 2 ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 6 index 1 ... passed in 0.000s
+
+  Scenario Outline: an index past the directory count is a locate miss -- @1.3 the shipped image is 1 in / 1 out, so index 1 does not exist
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 5 index 255 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 2 ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 5 index 255 ... passed in 0.000s
+
+  Scenario Outline: an index past the directory count is a locate miss -- @1.4 the shipped image is 1 in / 1 out, so index 1 does not exist
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 1 index 1 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 2 ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 1 index 1 ... passed in 0.000s
+
+  Scenario Outline: an index past the directory count is a locate miss -- @1.5 the shipped image is 1 in / 1 out, so index 1 does not exist
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 36 index 9 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 2 ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 36 index 9 ... passed in 0.000s
+
+  Scenario: a configuration_index past configurations_count is BAD_ARGUMENTS
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 0 index 0 in configuration 1 ... passed in 0.000s
+    Then the AECP response status is 7 ... passed in 0.000s
+    And the AECP response configuration_index is 1 and the reserved halfword is zero ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 0 index 0 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario: the configuration check runs first, so a bad configuration outranks a bad type
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 255 index 7 in configuration 9 ... passed in 0.000s
+    Then the AECP response status is 7 ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 255 index 7 ... passed in 0.000s
+
+  Scenario: a configuration that exists but holds nothing is a locate miss, not BAD_ARGUMENTS
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    Given the AECP image declares 3 configurations ... passed in 0.000s
+    When the controller reads descriptor type 0 index 0 in configuration 2 ... passed in 0.000s
+    Then the AECP response status is 2 ... passed in 0.000s
+    And the AECP response configuration_index is 2 and the reserved halfword is zero ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 0 index 0 ... passed in 0.000s
+
+  Scenario Outline: both failure paths carry the four-octet 7.4.5 stub, not a success-sized body -- @1.1 the locate miss and the bad configuration answer the same shape
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 255 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 2 ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 255 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 32 octets ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: both failure paths carry the four-octet 7.4.5 stub, not a success-sized body -- @1.2 the locate miss and the bad configuration answer the same shape
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 5 index 3 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 2 ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 5 index 3 ... passed in 0.000s
+    And the AECP response AECPDU is 32 octets ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: both failure paths carry the four-octet 7.4.5 stub, not a success-sized body -- @1.3 the locate miss and the bad configuration answer the same shape
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 0 index 0 in configuration 1 ... passed in 0.000s
+    Then the AECP response status is 7 ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 0 index 0 ... passed in 0.000s
+    And the AECP response AECPDU is 32 octets ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: both failure paths carry the four-octet 7.4.5 stub, not a success-sized body -- @1.4 the locate miss and the bad configuration answer the same shape
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller reads descriptor type 6 index 2 in configuration 64 ... passed in 0.000s
+    Then the AECP response status is 7 ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 6 index 2 ... passed in 0.000s
+    And the AECP response AECPDU is 32 octets ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a READ_DESCRIPTOR too short to carry its operands is BAD_ARGUMENTS -- @1.1 20 is the first length that carries configuration, reserved, type and index
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a READ_DESCRIPTOR of control_data_length 12 ... passed in 0.000s
+    Then the AECP response status is 7 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a READ_DESCRIPTOR too short to carry its operands is BAD_ARGUMENTS -- @1.2 20 is the first length that carries configuration, reserved, type and index
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a READ_DESCRIPTOR of control_data_length 16 ... passed in 0.000s
+    Then the AECP response status is 7 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a READ_DESCRIPTOR too short to carry its operands is BAD_ARGUMENTS -- @1.3 20 is the first length that carries configuration, reserved, type and index
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a READ_DESCRIPTOR of control_data_length 19 ... passed in 0.000s
+    Then the AECP response status is 7 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario: control_data_length 20 is long enough, and is served
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a READ_DESCRIPTOR of control_data_length 20 ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response descriptor is 312 octets opening with type 0 index 0 ... passed in 0.000s
+
+  Scenario: before software loads the image, every read is refused and none is silent
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    Given the protocol-processor AECP engine before software loads the image ... passed in 0.000s
+    When the controller reads descriptor type 0 index 0 in configuration 0 ... passed in 0.000s
+    Then the AECP response status is 7 ... passed in 0.000s
+    And the AECP response carries the 7.4.5 stub for type 0 index 0 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+Feature: the AECP answer contract - served commands, fallback, and two silent cases
+  Background: 
+
+  Scenario Outline: an unimplemented AEM command is echoed, not dropped -- @1.1 opcodes with no command behind them at all
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 104 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 104 with u clear ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario Outline: an unimplemented AEM command is echoed, not dropped -- @1.2 opcodes with no command behind them at all
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 16383 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 16383 with u clear ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario: an ADDRESS_ACCESS command is answered as an ADDRESS_ACCESS response
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an ADDRESS_ACCESS command to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 3 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 22 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @1.1 SHALL, served
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends Milan MVU command_type 0x0000 in its Figure 5.3 form to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 0 ... passed in 0.000s
+    And the Milan protocol_id comes back whole in the AECP response ... passed in 0.000s
+    And the AECP response carries the Figure 5.4 body ... passed in 0.000s
+    And the AECP response control_data_length is 32 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.1 RECOMMENDED by the #510 decision, not implemented, echoed at the command's own length
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends Milan MVU command_type 0x0001 in its Figure 5.5 form to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the Milan protocol_id comes back whole in the AECP response ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 28 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.2 RECOMMENDED by the #510 decision, not implemented, echoed at the command's own length
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends Milan MVU command_type 0x0002 in its Figure 5.3 form to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the Milan protocol_id comes back whole in the AECP response ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.3 RECOMMENDED by the #510 decision, not implemented, echoed at the command's own length
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends Milan MVU command_type 0x0003 in its Figure 5.6 form to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the Milan protocol_id comes back whole in the AECP response ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 92 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @2.4 RECOMMENDED by the #510 decision, not implemented, echoed at the command's own length
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends Milan MVU command_type 0x0004 in its Figure 5.7 form to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the Milan protocol_id comes back whole in the AECP response ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+    And the AECP engine counted a command and a response ... passed in 0.000s
+
+  Scenario: GET_MILAN_INFO reports protocol_version 1, no Table 5.20 feature and no certification
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends Milan MVU command_type 0x0000 in its Figure 5.3 form to the AECP engine ... passed in 0.000s
+    Then the GET_MILAN_INFO protocol_version is 1 ... passed in 0.000s
+    And the GET_MILAN_INFO features_flags is 0x00000000 ... passed in 0.000s
+    And the GET_MILAN_INFO certification_version is 0x00000000 ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.1 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id FF-1B-C5-0A-C1-00, word @28 0x0000, reserved 0x0000 and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.2 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-FF-C5-0A-C1-00, word @28 0x0000, reserved 0x0000 and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.3 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-FF-0A-C1-00, word @28 0x0000, reserved 0x0000 and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.4 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-FF-C1-00, word @28 0x0000, reserved 0x0000 and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.5 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-FF-00, word @28 0x0000, reserved 0x0000 and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.6 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-D1-00, word @28 0x0000, reserved 0x0000 and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.7 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-C2-00, word @28 0x0000, reserved 0x0000 and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.8 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-C1-FF, word @28 0x0000, reserved 0x0000 and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.9 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-C1-01, word @28 0x0000, reserved 0x0000 and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.10 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-C1-00, word @28 0x8000, reserved 0x0000 and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @1.11 each compared field, one at a time
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-C1-00, word @28 0x0000, reserved 0x0000 and control_data_length 19 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 19 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.1 the two things the sub-decode does not compare
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-C1-00, word @28 0x0000, reserved 0xDEAD and control_data_length 20 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 0 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the Figure 5.4 body ... passed in 0.000s
+    And the AECP response control_data_length is 32 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.2 the two things the sub-decode does not compare
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-C1-00, word @28 0x0000, reserved 0x0000 and control_data_length 24 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 0 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the Figure 5.4 body ... passed in 0.000s
+    And the AECP response control_data_length is 32 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served -- @2.3 the two things the sub-decode does not compare
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends an MVU command with protocol_id 00-1B-C5-0A-C1-00, word @28 0x0000, reserved 0x0000 and control_data_length 112 ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 0 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the Figure 5.4 body ... passed in 0.000s
+    And the AECP response control_data_length is 32 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.1 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends the GET_MILAN_INFO command as message_type 0 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.2 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends the GET_MILAN_INFO command as message_type 2 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.3 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends the GET_MILAN_INFO command as message_type 4 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.4 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends the GET_MILAN_INFO command as message_type 8 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.5 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends the GET_MILAN_INFO command as message_type 10 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.6 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends the GET_MILAN_INFO command as message_type 12 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: the GET_MILAN_INFO octets under another message_type are not an MVU command -- @1.7 every IEEE 1722.1-2021 Table 9-1 command type but VENDOR_UNIQUE_COMMAND
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends the GET_MILAN_INFO command as message_type 14 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is the command type plus one ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length is 20 ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario: the served MVU command types are the ones the engine RTL decodes
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    Then the served MVU inventory matches the MVU command types the engine RTL decodes ... passed in 0.001s
+
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @1.1 the AEM opcodes the dispatch names
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts 0x0004 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @1.2 the AEM opcodes the dispatch names
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts 0x0026 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @1.3 the AEM opcodes the dispatch names
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts 0x0029 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @1.4 the AEM opcodes the dispatch names
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts 0x002B to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @2.1 OUIs with bit 15 set, which the u-bit mask used to eat
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts 0x8004 to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED -- @2.2 OUIs with bit 15 set, which the u-bit mask used to eat
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts 0xFC1B to the AECP engine ... passed in 0.000s
+    Then the AECP response message_type is 7 ... passed in 0.000s
+    And the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.1 the residual bucket
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a message_type 4 command whose word at 22 is 0x0004 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.2 the residual bucket
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a message_type 4 command whose word at 22 is 0x0014 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.3 the residual bucket
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a message_type 8 command whose word at 22 is 0x0004 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.4 the residual bucket
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a message_type 10 command whose word at 22 is 0x0006 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.5 the residual bucket
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a message_type 12 command whose word at 22 is 0x0016 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type -- @1.6 the residual bucket
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends a message_type 14 command whose word at 22 is 0x0018 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 1 ... passed in 0.000s
+    And the AECP response protocol_id is echoed whole ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario: IDENTIFY_NOTIFICATION arriving as a command is BAD_ARGUMENTS
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 38 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 7 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 38 with u clear ... passed in 0.000s
+    And the AECP response carries the command payload verbatim ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @1.1 Milan 5.4.2.19/5.4.2.20 - a Stream Output is refused by name
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 34 naming descriptor type 6 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 34 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @1.2 Milan 5.4.2.19/5.4.2.20 - a Stream Output is refused by name
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 35 naming descriptor type 6 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 35 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @2.1 every other descriptor type takes the same refusal
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 34 naming descriptor type 0 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 34 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @2.2 every other descriptor type takes the same refusal
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 35 naming descriptor type 0 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 35 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @2.3 every other descriptor type takes the same refusal
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 34 naming descriptor type 26 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 34 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @2.4 every other descriptor type takes the same refusal
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 35 naming descriptor type 26 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 35 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a Stream Input is served -- @1.1 Milan 5.4.2.19/5.4.2.20 - "for each Stream Input"
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 34 naming descriptor type 5 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 34 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario Outline: START/STOP_STREAMING on a Stream Input is served -- @1.2 Milan 5.4.2.19/5.4.2.20 - "for each Stream Input"
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends AEM opcode 35 naming descriptor type 5 to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 0 ... passed in 0.000s
+    And the AECP response message_type is 1 ... passed in 0.000s
+    And the AECP response echoes command_type 35 with u clear ... passed in 0.000s
+    And the AECP response control_data_length is 16 ... passed in 0.000s
+    And the AECP response control_data_length counts its own payload ... passed in 0.000s
+    And the AECP response is well formed against its command ... passed in 0.000s
+
+  Scenario: the whole AEM opcode space answers, and the verdicts partition it
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sweeps AEM opcodes 0 to 104 plus 16383 ... passed in 0.001s
+    Then every swept opcode was answered and none was met with silence ... passed in 0.000s
+    And every swept answer is well formed against its command ... passed in 0.000s
+    And the swept opcodes partition into the served set and the NOT_IMPLEMENTED remainder ... passed in 0.000s
+    And the served inventory matches the opcodes the engine RTL decodes ... passed in 0.000s
+    And every swept answer carries the command payload verbatim except the served set ... passed in 0.000s
+
+  Scenario: a command addressed to another entity gets no frame back
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When a command for entity 0x001B92FFFE00DEAD reaches the AECP engine ... passed in 0.000s
+    Then the AECP engine emits no frame at all ... passed in 0.000s
+    And the AECP engine counted a drop and no command ... passed in 0.000s
+
+  Scenario: an entity_id one bit away from ours is still not ours
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When a command for entity 0x001B92FFFE001123 reaches the AECP engine ... passed in 0.000s
+    Then the AECP engine emits no frame at all ... passed in 0.000s
+    And the AECP engine counted a drop and no command ... passed in 0.000s
+
+  Scenario Outline: an AECP response arriving as input is never answered -- @1.1 every odd message_type is a response, and answering one builds a storm
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When an AECP AEM response arrives at the AECP engine as input ... passed in 0.000s
+    Then the AECP engine emits no frame at all ... passed in 0.000s
+    And the AECP engine counted a drop and no command ... passed in 0.000s
+
+  Scenario Outline: an AECP response arriving as input is never answered -- @1.2 every odd message_type is a response, and answering one builds a storm
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When an AECP ADDRESS_ACCESS response arrives at the AECP engine as input ... passed in 0.000s
+    Then the AECP engine emits no frame at all ... passed in 0.000s
+    And the AECP engine counted a drop and no command ... passed in 0.000s
+
+  Scenario Outline: an AECP response arriving as input is never answered -- @1.3 every odd message_type is a response, and answering one builds a storm
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When an AECP VENDOR_UNIQUE response arrives at the AECP engine as input ... passed in 0.000s
+    Then the AECP engine emits no frame at all ... passed in 0.000s
+    And the AECP engine counted a drop and no command ... passed in 0.000s
+
+  Scenario: Milan Delta 7 ACQUIRE_ENTITY returns NOT_SUPPORTED with no owner
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image ... passed in 0.000s
+    When the controller sends ACQUIRE_ENTITY to the AECP engine ... passed in 0.000s
+    Then the AECP response status is 11 ... passed in 0.000s
+    And the AECP response owner_id is zero, not the acquiring controller ... passed in 0.000s
+
+Feature: AUDIO IS NEVER FORGOTTEN - channel identity and a THD+N gate that measures
+  Background: 
+
+  Scenario: a walking tone lands on the channel it was written to
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a 4-channel AAF frame carrying a walking tone ... passed in 0.000s
+    When the identity check runs for 4 channels ... passed in 0.000s
+    Then every identity verdict is PASS ... passed in 0.000s
+
+  Scenario: two swapped channels are reported as CROSSED, not as "audio present"
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a 4-channel AAF frame whose channels 1 and 2 are swapped ... passed in 0.000s
+    When the identity check runs for 4 channels ... passed in 0.000s
+    Then the identity check reports FAIL on "uncrossed" ... passed in 0.000s
+
+  Scenario: one channel duplicated over its neighbour is its own failure
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a 4-channel AAF frame where channel 0 is duplicated onto channel 1 ... passed in 0.000s
+    When the identity check runs for 4 channels ... passed in 0.000s
+    Then the identity check reports FAIL on "no-duplicate-neighbour" ... passed in 0.000s
+
+  Scenario: a dropped channel is reported as silent, not averaged away
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a 4-channel AAF frame where channel 2 was dropped ... passed in 0.000s
+    When the identity check runs for 4 channels ... passed in 0.000s
+    Then the identity check reports FAIL on "no-silent-channel" ... passed in 0.000s
+
+  Scenario: a frame carrying fewer channels than expected fails the count check
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a 2-channel AAF frame carrying a walking tone ... passed in 0.000s
+    When the identity check runs for 4 channels ... passed in 0.000s
+    Then the identity check reports FAIL on "channel-count" ... passed in 0.000s
+
+  Scenario: a channel-preserving loop through the reference device is an identity test
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a walking tone sent on channels 1 and 2 ... passed in 0.000s
+    When the peer returns the same channels unchanged ... passed in 0.000s
+    Then the loop is channel-preserving ... passed in 0.000s
+    And the returned samples are bit-exact with the sent samples ... passed in 0.000s
+
+  Scenario: ONE altered sample in the return leg is not bit-exact
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a walking tone sent on channels 1 and 2 ... passed in 0.000s
+    When the peer returns the same channels with sample 3 of channel 2 altered by 1 ... passed in 0.000s
+    Then the returned samples are NOT bit-exact with the sent samples ... passed in 0.000s
+
+  Scenario: a loop that returns the channels swapped is NOT channel-preserving
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a walking tone sent on channels 1 and 2 ... passed in 0.000s
+    When the peer returns the channels swapped ... passed in 0.000s
+    Then the loop is not channel-preserving ... passed in 0.000s
+    And the crossed channel pair is reported ... passed in 0.000s
+
+  Scenario: a loop that returns different channels entirely is NOT channel-preserving
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a walking tone sent on channels 1 and 2 ... passed in 0.000s
+    When the peer returns channels 3 and 4 instead ... passed in 0.000s
+    Then the loop is not channel-preserving ... passed in 0.000s
+
+  Scenario: the payload decode follows the WIRE channel count, never the store
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a 2-channel AAF frame carrying a walking tone ... passed in 0.000s
+    Then de-interleaving by the wire count yields 2 channels ... passed in 0.000s
+    And de-interleaving by a declared count of 8 is refused ... passed in 0.000s
+
+  Scenario: the independent reference reads the numerical floor on a pure coherent tone
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a synthetic 1 kHz tone of 480 samples at 48 kHz ... passed in 0.000s
+    When the reference THD+N is measured coherently without a window ... passed in 0.025s
+    Then the reference THD+N is at most -200 dB ... passed in 0.000s
+
+  Scenario: the reference MEASURES distortion rather than always returning a tiny number
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a synthetic 1 kHz tone of 480 samples at 48 kHz with a -60 dB third harmonic ... passed in 0.000s
+    When the reference THD+N is measured coherently without a window ... passed in 0.025s
+    Then the reference THD+N is -60 dB within 1 dB ... passed in 0.000s
+
+  Scenario: windowing a coherent tone MANUFACTURES distortion
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a synthetic 1 kHz tone of 480 samples at 48 kHz ... passed in 0.000s
+    When the reference THD+N is measured with a Hann window excluding only the fundamental bin ... passed in 0.025s
+    Then the reference THD+N is worse than -10 dB ... passed in 0.000s
+    And the un-windowed measurement of the SAME samples is at most -200 dB ... passed in 0.025s
+
+  Scenario: a capture not truncated to whole periods MANUFACTURES distortion too
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a synthetic 1 kHz tone of 500 samples at 48 kHz ... passed in 0.000s
+    When the reference THD+N is measured without truncating to whole periods ... passed in 0.027s
+    Then the reference THD+N is worse than -30 dB ... passed in 0.000s
+    When the reference THD+N is measured coherently without a window ... passed in 0.025s
+    Then the reference THD+N is at most -200 dB ... passed in 0.000s
+
+  Scenario: the production analyser states the coherence preconditions it will not measure without
+    Given the audio identity model is importable ... passed in 0.000s
+    Then 44100 Hz with a 1000 Hz tone is not an integer number of samples per period ... passed in 0.000s
+    And the production THD+N analyser carries both coherence guards in its source ... passed in 0.000s
+    And the production THD+N analyser refuses an incoherent rate where numpy exists ... passed in 0.042s
+    And the production THD+N analyser refuses a capture shorter than 8 periods where numpy exists ... passed in 0.000s
+
+  Scenario Outline: the acceptance gate picks the WORST channel, and clipping invalidates -- @1.1 
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a THD+N result set -140 and -135 ... passed in 0.000s
+    Then the THD+N gate verdict is PASS because the worst channel is inside -120 ... passed in 0.000s
+
+  Scenario Outline: the acceptance gate picks the WORST channel, and clipping invalidates -- @1.2 
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a THD+N result set -140 and -100 ... passed in 0.000s
+    Then the THD+N gate verdict is FAIL because one bad channel fails the set ... passed in 0.000s
+
+  Scenario Outline: the acceptance gate picks the WORST channel, and clipping invalidates -- @1.3 
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a THD+N result set -140 clipped ... passed in 0.000s
+    Then the THD+N gate verdict is FAIL because a clipped capture is not a measurement ... passed in 0.000s
+
+  Scenario Outline: the acceptance gate picks the WORST channel, and clipping invalidates -- @1.4 
+    Given the audio identity model is importable ... passed in 0.000s
+    Given a THD+N result set empty ... passed in 0.000s
+    Then the THD+N gate verdict is FAIL because nothing analysed is not a pass ... passed in 0.000s
+
+  Scenario: the production analyser applies no window, and says why in its own source
+    Given the audio identity model is importable ... passed in 0.000s
+    Then the harness THD+N module states that it applies NO WINDOW ... passed in 0.000s
+    And the harness THD+N module truncates to whole periods ... passed in 0.000s
+    And the harness THD+N module excludes DC and the fundamental skirt ... passed in 0.000s
+    And the harness THD+N module treats a clipped capture as invalid ... passed in 0.000s
+
+  Scenario: the campaign plan carries the audio steps, so a round cannot skip them
+    Given the audio identity model is importable ... passed in 0.000s
+    Then the campaign audio area has an identity step ... passed in 0.000s
+    And the campaign audio area has a per-channel-distinct pattern ... passed in 0.000s
+    And the campaign audio area has a THD+N step that reuses the harness analyser ... passed in 0.000s
+    And the campaign audio area has a channel-preserving loop through the peer ... passed in 0.000s
+
+  Scenario: the audio area walks every index, and the audit is PER AREA so it can say no
+    Given the audio identity model is importable ... passed in 0.000s
+    Then the campaign audio area walks every AAF talker index ... passed in 0.001s
+    And the campaign audio area covers more than index 0 ... passed in 0.000s
+    And the per-area audit reddens on an index-0-only audio area ... passed in 0.001s
+
+Feature: Channel IDENTITY through the capture mux (rx -> talker loopback)
+  Background: 
+
+  Scenario: a received stream's pairs land on the mapped slots, uncrossed
+    Given a fabric capture mux with 32 pair slots over 8 RX streams of 8 channels ... passed in 0.000s
+    When RX stream 3 delivers a 8-channel PDU of 2 sample events from event 1 ... passed in 0.000s
+    And I map capture slot 0 to RX stream 3 pair 0 ... passed in 0.000s
+    And I map capture slot 1 to RX stream 3 pair 1 ... passed in 0.000s
+    And I map capture slot 2 to RX stream 3 pair 2 ... passed in 0.000s
+    And I map capture slot 3 to RX stream 3 pair 3 ... passed in 0.000s
+    And the media tick walks the capture slots ... passed in 0.000s
+    Then capture slot 0 carries RX stream 3 wire channels 0 and 1 ... passed in 0.000s
+    And capture slot 1 carries RX stream 3 wire channels 2 and 3 ... passed in 0.000s
+    And capture slot 2 carries RX stream 3 wire channels 4 and 5 ... passed in 0.000s
+    And capture slot 3 carries RX stream 3 wire channels 6 and 7 ... passed in 0.000s
+    And capture slot 0 L and R are different ... passed in 0.000s
+    And capture slot 3 L and R are different ... passed in 0.000s
+    And every emitted capture channel is distinct ... passed in 0.000s
+    And no emitted capture channel is silent ... passed in 0.000s
+
+  Scenario: two different RX streams keep their own channels
+    Given a fabric capture mux with 32 pair slots over 8 RX streams of 8 channels ... passed in 0.000s
+    When RX stream 3 delivers a 8-channel PDU of 2 sample events from event 1 ... passed in 0.000s
+    And RX stream 5 delivers a 8-channel PDU of 2 sample events from event 1 ... passed in 0.000s
+    And I map capture slot 0 to RX stream 3 pair 1 ... passed in 0.000s
+    And I map capture slot 1 to RX stream 5 pair 1 ... passed in 0.000s
+    And the media tick walks the capture slots ... passed in 0.000s
+    Then capture slot 0 carries RX stream 3 wire channels 2 and 3 ... passed in 0.000s
+    And capture slot 1 carries RX stream 5 wire channels 2 and 3 ... passed in 0.000s
+    And every emitted capture channel is distinct ... passed in 0.000s
+
+  Scenario: the same pair fanned out to two slots duplicates deliberately
+    Given a fabric capture mux with 32 pair slots over 8 RX streams of 8 channels ... passed in 0.000s
+    When RX stream 2 delivers a 8-channel PDU of 2 sample events from event 1 ... passed in 0.000s
+    And I map capture slot 4 to RX stream 2 pair 2 ... passed in 0.000s
+    And I map capture slot 5 to RX stream 2 pair 2 ... passed in 0.000s
+    And the media tick walks the capture slots ... passed in 0.000s
+    Then capture slot 4 carries RX stream 2 wire channels 4 and 5 ... passed in 0.000s
+    And capture slot 5 carries RX stream 2 wire channels 4 and 5 ... passed in 0.000s
+    And capture slot 4 L and R are different ... passed in 0.000s
+
+  Scenario: the de-interleave follows the WIRE, not the AEM store
+    Given a fabric capture mux with 32 pair slots over 8 RX streams of 8 channels ... passed in 0.000s
+    Given the AEM store believes RX stream 1 carries 8 channels ... passed in 0.000s
+    When RX stream 1 delivers a PDU carrying 8 channels of samples but declaring 2 on the wire ... passed in 0.000s
+    And I map capture slot 0 to RX stream 1 pair 0 ... passed in 0.000s
+    And I map capture slot 1 to RX stream 1 pair 1 ... passed in 0.000s
+    And the media tick walks the capture slots ... passed in 0.000s
+    Then capture slot 0 L and R are different ... passed in 0.000s
+    And capture slot 1 is silent ... passed in 0.000s
+
+  Scenario: the pre-first-accept channel count 0 is read as 2
+    Given a fabric capture mux with 32 pair slots over 8 RX streams of 8 channels ... passed in 0.000s
+    When RX stream 4 delivers a PDU carrying 2 channels of samples but declaring 0 on the wire ... passed in 0.000s
+    And I map capture slot 0 to RX stream 4 pair 0 ... passed in 0.000s
+    And I map capture slot 1 to RX stream 4 pair 1 ... passed in 0.000s
+    And the media tick walks the capture slots ... passed in 0.000s
+    Then capture slot 0 L and R are different ... passed in 0.000s
+    And capture slot 1 is silent ... passed in 0.000s
+
+  Scenario: a DISABLED slot emits nothing, an unresolvable one emits silence
+    Given a fabric capture mux with 32 pair slots over 8 RX streams of 8 channels ... passed in 0.000s
+    When RX stream 3 delivers a 8-channel PDU of 2 sample events from event 1 ... passed in 0.000s
+    And I map capture slot 0 to RX stream 3 pair 0 ... passed in 0.000s
+    And I map capture slot 1 to RX stream 3 pair 1 DISABLED ... passed in 0.000s
+    And I map capture slot 2 to RX stream 9 pair 0 ... passed in 0.000s
+    And I map capture slot 3 to RX stream 3 pair 5 ... passed in 0.000s
+    And the media tick walks the capture slots ... passed in 0.000s
+    Then capture slot 0 L and R are different ... passed in 0.000s
+    And capture slot 1 emits nothing at all ... passed in 0.000s
+    And capture slot 2 is silent ... passed in 0.000s
+    And capture slot 3 is silent ... passed in 0.000s
+
+  Scenario: a stream that has never delivered a PDU is silence, not garbage
+    Given a fabric capture mux with 32 pair slots over 8 RX streams of 8 channels ... passed in 0.000s
+    When I map capture slot 0 to RX stream 7 pair 0 ... passed in 0.000s
+    And the media tick walks the capture slots ... passed in 0.000s
+    Then capture slot 0 is silent ... passed in 0.000s
+
+  Scenario Outline: the loopback map word is EN | SRC 5 | stream | pair -- @1.1 
+    Given a fabric capture mux with 32 pair slots over 8 RX streams of 8 channels ... passed in 0.000s
+    Then the CSR word for RX stream 0 pair 0 is 0xD000 ... passed in 0.000s
+    And the capture entry at slot 0 reads 0x000 ... passed in 0.000s
+
+  Scenario Outline: the loopback map word is EN | SRC 5 | stream | pair -- @1.2 
+    Given a fabric capture mux with 32 pair slots over 8 RX streams of 8 channels ... passed in 0.000s
+    Then the CSR word for RX stream 3 pair 1 is 0xD031 ... passed in 0.000s
+    And the capture entry at slot 0 reads 0x000 ... passed in 0.000s
+
+  Scenario Outline: the loopback map word is EN | SRC 5 | stream | pair -- @1.3 
+    Given a fabric capture mux with 32 pair slots over 8 RX streams of 8 channels ... passed in 0.000s
+    Then the CSR word for RX stream 7 pair 3 is 0xD073 ... passed in 0.000s
+    And the capture entry at slot 0 reads 0x000 ... passed in 0.000s
+
+  Scenario: a binary walking tone identifies 8 channels in 3 captures
+    Given a fabric capture mux with 32 pair slots over 8 RX streams of 8 channels ... passed in 0.000s
+    Given a fabric capture mux with 32 pair slots over 8 RX streams of 8 channels ... passed in 0.000s
+    When I map capture slot 0 to RX stream 6 pair 0 ... passed in 0.000s
+    And I map capture slot 1 to RX stream 6 pair 1 ... passed in 0.000s
+    And I map capture slot 2 to RX stream 6 pair 2 ... passed in 0.000s
+    And I map capture slot 3 to RX stream 6 pair 3 ... passed in 0.000s
+    And I run a binary walking-tone identification over 8 channels of RX stream 6 ... passed in 0.000s
+    Then every channel reports its own index ... passed in 0.000s
+    And it took 3 captures ... passed in 0.000s
+
+Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
+  Background: 
+
+  Scenario: Milan Table 5.6 is exactly ten counters, in the 1722.1 block order
+    Given the counters contract is importable ... passed in 0.000s
+    Then the Milan Stream Input counter set has 10 members ... passed in 0.000s
+    And the Milan Stream Input counter set is ... passed in 0.000s
+      | counter             |
+      | MEDIA_LOCKED        |
+      | MEDIA_UNLOCKED      |
+      | STREAM_INTERRUPTED  |
+      | SEQ_NUM_MISMATCH    |
+      | MEDIA_RESET         |
+      | TIMESTAMP_UNCERTAIN |
+      | UNSUPPORTED_FORMAT  |
+      | LATE_TIMESTAMP      |
+      | EARLY_TIMESTAMP     |
+      | FRAMES_RX           |
+    And the Milan Stream Input mandatory wire mask is 0xF3F ... passed in 0.000s
+
+  Scenario: Milan Table 5.4 is exactly five counters and its mask is 0x01F
+    Given the counters contract is importable ... passed in 0.000s
+    Then the Milan Stream Output counter set has 5 members ... passed in 0.000s
+    And the Milan Stream Output wire mask is 0x01F ... passed in 0.000s
+    And the Milan Stream Output counter set is ... passed in 0.000s
+      | counter             |
+      | STREAM_START        |
+      | STREAM_STOP         |
+      | MEDIA_RESET         |
+      | TIMESTAMP_UNCERTAIN |
+      | FRAMES_TX           |
+
+  Scenario: the 1722.1 Stream Input block adds the two tv tallies, so the mask is 0xFFF
+    Given the counters contract is importable ... passed in 0.000s
+    Then the IEEE Stream Input block has 12 members ... passed in 0.000s
+    And the IEEE Stream Input full wire mask is 0xFFF ... passed in 0.000s
+    And TIMESTAMP_VALID is at block offset 24 ... passed in 0.000s
+    And TIMESTAMP_NOT_VALID is at block offset 28 ... passed in 0.000s
+    And FRAMES_RX is at block offset 44 ... passed in 0.000s
+
+  Scenario: the table's bit number is 31 minus the block slot
+    Given the counters contract is importable ... passed in 0.000s
+    Then the IEEE table bit number for block offset 0 is 31 ... passed in 0.000s
+    And the IEEE table bit number for block offset 44 is 20 ... passed in 0.000s
+    And the IEEE table bit number for block offset 124 is 0 ... passed in 0.000s
+    And a block offset that is not quadlet aligned is refused ... passed in 0.000s
+
+  Scenario: the same numbering is what makes entity_capabilities bit 31 the value 1
+    Given the counters contract is importable ... passed in 0.000s
+    Then the table bit number 31 corresponds to wire mask 0x00000001 ... passed in 0.000s
+    And the table bit number 0 corresponds to wire mask 0x80000000 ... passed in 0.000s
+
+  Scenario: the two Stream Output layouts put the same name at different offsets
+    Given the counters contract is importable ... passed in 0.000s
+    Then in the Milan layout FRAMES_TX is at slot 4 ... passed in 0.000s
+    And in the IEEE layout FRAMES_TX is at slot 7 ... passed in 0.000s
+    And in the Milan layout MEDIA_RESET is at slot 2 ... passed in 0.000s
+    And in the IEEE layout MEDIA_RESET is at slot 3 ... passed in 0.000s
+    And decoding a Milan Stream Output block with the IEEE layout mislabels FRAMES_TX ... passed in 0.000s
+
+  Scenario: a claimed slot the layout cannot name is reported, not dropped
+    Given the counters contract is importable ... passed in 0.000s
+    Given a GET_COUNTERS payload for descriptor 5 index 3 claiming mask 0x100F3F ... passed in 0.000s
+    When the contract decodes it as a Stream Input block ... passed in 0.000s
+    Then the decode reports claimed-but-unnamed slot 20 ... passed in 0.000s
+
+  Scenario: an unclaimed counter is ABSENT from the decode, never zero
+    Given the counters contract is importable ... passed in 0.000s
+    Given a GET_COUNTERS payload for descriptor 5 index 0 claiming mask 0x001 ... passed in 0.000s
+    When the contract decodes it as a Stream Input block ... passed in 0.000s
+    Then the decode names only MEDIA_LOCKED ... passed in 0.000s
+
+  Scenario: a truncated counters payload is refused rather than half-decoded
+    Given the counters contract is importable ... passed in 0.000s
+    Given a GET_COUNTERS payload truncated to 12 octets ... passed in 0.000s
+    Then decoding it raises ... passed in 0.000s
+
+  Scenario Outline: the Milan lock invariant admits exactly two states -- @1.1 the two legal states and the two illegal ones
+    Given the counters contract is importable ... passed in 0.000s
+    Given MEDIA_LOCKED 4 and MEDIA_UNLOCKED 4 ... passed in 0.000s
+    Then the lock invariant verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: the Milan lock invariant admits exactly two states -- @1.2 the two legal states and the two illegal ones
+    Given the counters contract is importable ... passed in 0.000s
+    Given MEDIA_LOCKED 5 and MEDIA_UNLOCKED 4 ... passed in 0.000s
+    Then the lock invariant verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: the Milan lock invariant admits exactly two states -- @1.3 the two legal states and the two illegal ones
+    Given the counters contract is importable ... passed in 0.000s
+    Given MEDIA_LOCKED 6 and MEDIA_UNLOCKED 4 ... passed in 0.000s
+    Then the lock invariant verdict is FAIL ... passed in 0.000s
+
+  Scenario Outline: the Milan lock invariant admits exactly two states -- @1.4 the two legal states and the two illegal ones
+    Given the counters contract is importable ... passed in 0.000s
+    Given MEDIA_LOCKED 3 and MEDIA_UNLOCKED 4 ... passed in 0.000s
+    Then the lock invariant verdict is FAIL ... passed in 0.000s
+
+  Scenario: the lock invariant also says WHICH state the stream is in
+    Given the counters contract is importable ... passed in 0.000s
+    Given MEDIA_LOCKED 5 and MEDIA_UNLOCKED 4 ... passed in 0.000s
+    Then the lock invariant reports the stream synchronized ... passed in 0.000s
+    Given MEDIA_LOCKED 4 and MEDIA_UNLOCKED 4 ... passed in 0.000s
+    Then the lock invariant reports the stream not synchronized ... passed in 0.000s
+
+  Scenario Outline: the talker invariant admits exactly two states -- @1.1 
+    Given the counters contract is importable ... passed in 0.000s
+    Given STREAM_START 3 and STREAM_STOP 3 ... passed in 0.000s
+    Then the talker invariant verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: the talker invariant admits exactly two states -- @1.2 
+    Given the counters contract is importable ... passed in 0.000s
+    Given STREAM_START 3 and STREAM_STOP 2 ... passed in 0.000s
+    Then the talker invariant verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: the talker invariant admits exactly two states -- @1.3 
+    Given the counters contract is importable ... passed in 0.000s
+    Given STREAM_START 3 and STREAM_STOP 1 ... passed in 0.000s
+    Then the talker invariant verdict is FAIL ... passed in 0.000s
+
+  Scenario Outline: the talker invariant admits exactly two states -- @1.4 
+    Given the counters contract is importable ... passed in 0.000s
+    Given STREAM_START 1 and STREAM_STOP 3 ... passed in 0.000s
+    Then the talker invariant verdict is FAIL ... passed in 0.000s
+
+  Scenario: TV + TNV == FRAMES_RX holds under the 1722.1 per-frame reading
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID 1000 TIMESTAMP_NOT_VALID 0 FRAMES_RX 1000 ... passed in 0.000s
+    Then the tv-tnv verdict is PASS ... passed in 0.000s
+    And the reading in force is "1722.1-per-frame" ... passed in 0.000s
+
+  Scenario: under the Milan interval reading the same identity does NOT hold, and that is not a defect
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID 8000 TIMESTAMP_NOT_VALID 0 FRAMES_RX 1 ... passed in 0.000s
+    Then the tv-tnv verdict is INFO ... passed in 0.000s
+    And the reading in force is "milan-interval" ... passed in 0.000s
+
+  Scenario: FRAMES_RX above TV plus TNV is a defect under BOTH readings
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID 5 TIMESTAMP_NOT_VALID 0 FRAMES_RX 99 ... passed in 0.000s
+    Then the tv-tnv verdict is FAIL ... passed in 0.000s
+
+  Scenario: an all-zero counter block cannot conclude which reading is in force
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID 0 TIMESTAMP_NOT_VALID 0 FRAMES_RX 0 ... passed in 0.000s
+    Then the tv-tnv verdict is SKIP ... passed in 0.000s
+    And the tv-tnv skip says the block was reset at the bind ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.1 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given UNSUPPORTED_FORMAT reads 0 then 0 ... passed in 0.000s
+    Then the growth verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.2 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given UNSUPPORTED_FORMAT reads 0 then 296294 ... passed in 0.000s
+    Then the growth verdict is FAIL ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.3 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given UNSUPPORTED_FORMAT reads 0 then 1 ... passed in 0.000s
+    Then the growth verdict is FAIL ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.4 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given LATE_TIMESTAMP reads 12 then 12 ... passed in 0.000s
+    Then the growth verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.5 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given LATE_TIMESTAMP reads 12 then 5100000 ... passed in 0.000s
+    Then the growth verdict is FAIL ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.6 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given SEQ_NUM_MISMATCH reads 3 then 4 ... passed in 0.000s
+    Then the growth verdict is FAIL ... passed in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.7 the two real escapes and their controls
+    Given the counters contract is importable ... passed in 0.000s
+    Given EARLY_TIMESTAMP reads 9 then 0 ... passed in 0.000s
+    Then the growth verdict is INFO ... passed in 0.000s
+
+  Scenario: a counter the mask never claimed is a SKIP, not a clean growth pass
+    Given the counters contract is importable ... passed in 0.000s
+    Given UNSUPPORTED_FORMAT is not claimed by the mask ... passed in 0.000s
+    Then the growth verdict is SKIP ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.1 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 7995.7 per second ... passed in 0.000s
+    Then the rate is consistent with the per-frame reading ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.2 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 4000.0 per second ... passed in 0.000s
+    Then the rate is consistent with the per-frame reading ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.3 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 3999.0 per second ... passed in 0.000s
+    Then the rate is consistent with the interval reading ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.4 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 200.0 per second ... passed in 0.000s
+    Then the rate is consistent with the interval reading ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.5 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 1.0 per second ... passed in 0.000s
+    Then the rate is consistent with the interval reading ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.6 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 0.4 per second ... passed in 0.000s
+    Then the rate is consistent with the neither reading ... passed in 0.000s
+
+  Scenario Outline: a measured frames rate is classified, not asserted -- @1.7 the silicon numbers from the 2026-07-29 talker/listener window
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 0.0 per second ... passed in 0.000s
+    Then the rate is consistent with the neither reading ... passed in 0.000s
+
+  Scenario: the interval a rate implies is reported, and only over a second is a defect
+    Given the counters contract is importable ... passed in 0.000s
+    Given a measured frames rate of 200.0 per second ... passed in 0.000s
+    Then the implied observation interval is 0.005 seconds ... passed in 0.000s
+    And the rate is consistent with the interval reading ... passed in 0.000s
+    Given a measured frames rate of 0.4 per second ... passed in 0.000s
+    Then the implied observation interval is 2.5 seconds ... passed in 0.000s
+    And the reading refusal cites the 1 second ceiling ... passed in 0.000s
+
+  Scenario: every Stream Input counter has a stated update law, and there are three
+    Given the counters contract is importable ... passed in 0.000s
+    Then every Stream Input counter has an update law ... passed in 0.000s
+    And the update laws in use are "per-event, per-frame, per-interval" ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @1.1 the three state-change counters - "Incremented each time ..."
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of MEDIA_LOCKED is per-event per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @1.2 the three state-change counters - "Incremented each time ..."
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of MEDIA_UNLOCKED is per-event per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @1.3 the three state-change counters - "Incremented each time ..."
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of STREAM_INTERRUPTED is per-event per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.1 the seven observation-interval counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of SEQ_NUM_MISMATCH is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.2 the seven observation-interval counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of MEDIA_RESET is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.3 the seven observation-interval counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of TIMESTAMP_UNCERTAIN is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.4 the seven observation-interval counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of UNSUPPORTED_FORMAT is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.5 the seven observation-interval counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of LATE_TIMESTAMP is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.6 the seven observation-interval counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of EARLY_TIMESTAMP is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @2.7 the seven observation-interval counters
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of FRAMES_RX is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @3.1 the two Milan does not define, so 1722.1 alone governs them
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of TIMESTAMP_VALID is per-frame per IEEE 1722.1-2021 Table 7-157 ... passed in 0.000s
+
+  Scenario Outline: the update law of each counter, and the clause that fixes it -- @3.2 the two Milan does not define, so 1722.1 alone governs them
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of TIMESTAMP_NOT_VALID is per-frame per IEEE 1722.1-2021 Table 7-157 ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.1 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for MEDIA_RESET mentions "'mr' bit was toggled" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.2 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for TIMESTAMP_UNCERTAIN mentions "'tu' bit was set" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.3 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for SEQ_NUM_MISMATCH mentions "non-sequential sequence_num" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.4 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for UNSUPPORTED_FORMAT mentions "did not match the current format" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.5 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for LATE_TIMESTAMP mentions "timestamp field that was in the past" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.6 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for EARLY_TIMESTAMP mentions "too far in the future" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.7 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for FRAMES_RX mentions "at least one Stream Data AVTPDU" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.8 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for TIMESTAMP_VALID mentions "tv bit set" ... passed in 0.000s
+
+  Scenario Outline: the trigger condition each counter is counting -- @1.9 
+    Given the counters contract is importable ... passed in 0.000s
+    Then the trigger for MEDIA_LOCKED mentions "synchronized on the media clock" ... passed in 0.000s
+
+  Scenario: FRAMES_RX is the observation-interval clock, so nothing may out-tick it
+    Given the counters contract is importable ... passed in 0.000s
+    Given a stream input window where FRAMES_RX advanced by 30 ... passed in 0.000s
+    And TIMESTAMP_UNCERTAIN advanced by 30 in that window ... passed in 0.000s
+    And LATE_TIMESTAMP advanced by 2 in that window ... passed in 0.000s
+    Then the interval-ceiling verdict is PASS ... passed in 0.000s
+
+  Scenario: a counter still counting per frame while FRAMES_RX counts per interval is caught
+    Given the counters contract is importable ... passed in 0.000s
+    Given a stream input window where FRAMES_RX advanced by 30 ... passed in 0.000s
+    And TIMESTAMP_UNCERTAIN advanced by 240060 in that window ... passed in 0.000s
+    Then the interval-ceiling verdict is FAIL ... passed in 0.000s
+    And the interval-ceiling offender is TIMESTAMP_UNCERTAIN ... passed in 0.000s
+
+  Scenario: the two tv tallies are exempt from the ceiling, because Milan never defined them
+    Given the counters contract is importable ... passed in 0.000s
+    Given a stream input window where FRAMES_RX advanced by 30 ... passed in 0.000s
+    And LATE_TIMESTAMP advanced by 2 in that window ... passed in 0.000s
+    And TIMESTAMP_VALID advanced by 240060 in that window ... passed in 0.000s
+    Then the interval-ceiling verdict is PASS ... passed in 0.000s
+
+  Scenario: a window with no frames cannot grade the interval clock
+    Given the counters contract is importable ... passed in 0.000s
+    Given a stream input window where FRAMES_RX advanced by 0 ... passed in 0.000s
+    And TIMESTAMP_UNCERTAIN advanced by 0 in that window ... passed in 0.000s
+    Then the interval-ceiling verdict is SKIP ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @1.1 the silicon shape - a bound sink at class A, mask 0xFFF
+    Given the counters contract is importable ... passed in 0.000s
+    Given FRAMES_RX advanced by 30 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @1.2 the silicon shape - a bound sink at class A, mask 0xFFF
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID advanced by 240060 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is per-frame ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @1.3 the silicon shape - a bound sink at class A, mask 0xFFF
+    Given the counters contract is importable ... passed in 0.000s
+    Given MEDIA_LOCKED advanced by 1 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is per-event ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @2.1 the two directions of getting the law wrong
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_VALID advanced by 30 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is interval ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @2.2 the two directions of getting the law wrong
+    Given the counters contract is importable ... passed in 0.000s
+    Given FRAMES_RX advanced by 15 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is neither ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @2.3 the two directions of getting the law wrong
+    Given the counters contract is importable ... passed in 0.000s
+    Given FRAMES_RX advanced by 240060 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is INFO and the reading is per-frame ... passed in 0.000s
+
+  Scenario Outline: a single counter is graded against its own law, with the clause named -- @3.1 nothing measured is nothing concluded
+    Given the counters contract is importable ... passed in 0.000s
+    Given UNSUPPORTED_FORMAT advanced by 0 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is SKIP and the reading is static ... passed in 0.000s
+
+  Scenario Outline: only FRAMES_RX's rate implies the observation interval -- @1.1 the interval clock is graded against the 1 s ceiling
+    Given the counters contract is importable ... passed in 0.000s
+    Given FRAMES_RX advanced by 7545 over 7531 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+
+  Scenario Outline: only FRAMES_RX's rate implies the observation interval -- @2.1 an intermittent condition is not a slow clock
+    Given the counters contract is importable ... passed in 0.000s
+    Given TIMESTAMP_UNCERTAIN advanced by 23 over 7531 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+
+  Scenario Outline: only FRAMES_RX's rate implies the observation interval -- @2.2 an intermittent condition is not a slow clock
+    Given the counters contract is importable ... passed in 0.000s
+    Given LATE_TIMESTAMP advanced by 74 over 7531 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+
+  Scenario Outline: only FRAMES_RX's rate implies the observation interval -- @2.3 an intermittent condition is not a slow clock
+    Given the counters contract is importable ... passed in 0.000s
+    Given SEQ_NUM_MISMATCH advanced by 1 over 7531 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is PASS and the reading is interval ... passed in 0.000s
+
+  Scenario: more ticks than frames is impossible under every reading
+    Given the counters contract is importable ... passed in 0.000s
+    Given FRAMES_RX advanced by 900000 over 30 seconds with the stream flowing ... passed in 0.000s
+    Then the semantics verdict is FAIL and the reading is impossible ... passed in 0.000s
+
+  Scenario: every Stream Input and Stream Output index owes an answer, not just index 0
+    Given the counters contract is importable ... passed in 0.000s
+    Then the campaign plan asks for counters on every Stream Input index ... passed in 0.001s
+    And the campaign plan asks for counters on every Stream Output index ... passed in 0.000s
+    And the campaign plan includes the CRF Media Clock indices ... passed in 0.000s
+
+  Scenario: the CRF Media Clock Input is a Stream Input, so it owes the ten too
+    Given the counters contract is importable ... passed in 0.000s
+    Then the CRF Media Clock Input index is in the plan's listener coverage ... passed in 0.000s
+    And the mandatory mask required of it is 0xF3F ... passed in 0.000s
+
+  Scenario: a counter advertised in the mask must be a measurement, never a constant
+    Given the counters contract is importable ... passed in 0.000s
+    Then a counter is either claimed in the mask and measured, or claimed by neither ... passed in 0.000s
+    And the CRF Media Clock Input counters advertised as valid are all backed by a tally ... passed in 0.005s
+
+  Scenario Outline: the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @1.1 the per-event one among the five that were constant
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of STREAM_INTERRUPTED is per-event per Milan v1.2 Table 5.6 ... passed in 0.000s
+    And the CRF Media Clock Input applies the per-event law to STREAM_INTERRUPTED ... passed in 0.000s
+
+  Scenario Outline: the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @2.1 the four observation-interval ones
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of MEDIA_RESET is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+    And the CRF Media Clock Input applies the per-interval law to MEDIA_RESET ... passed in 0.000s
+
+  Scenario Outline: the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @2.2 the four observation-interval ones
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of TIMESTAMP_UNCERTAIN is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+    And the CRF Media Clock Input applies the per-interval law to TIMESTAMP_UNCERTAIN ... passed in 0.000s
+
+  Scenario Outline: the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @2.3 the four observation-interval ones
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of LATE_TIMESTAMP is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+    And the CRF Media Clock Input applies the per-interval law to LATE_TIMESTAMP ... passed in 0.000s
+
+  Scenario Outline: the CRF Media Clock Input obeys the SAME law per counter as an AAF sink -- @2.4 the four observation-interval ones
+    Given the counters contract is importable ... passed in 0.000s
+    Then the update law of EARLY_TIMESTAMP is per-interval per Milan v1.2 Table 5.6 ... passed in 0.000s
+    And the CRF Media Clock Input applies the per-interval law to EARLY_TIMESTAMP ... passed in 0.000s
+
+  Scenario: the bind edge wipes all ten, and the unbind edge wipes none
+    Given the counters contract is importable ... passed in 0.000s
+    Then the CRF Media Clock Input zeroes all ten counters on the bind edge ... passed in 0.001s
+    And the CRF Media Clock Input era wipe fires on the bind edge only ... passed in 0.000s
+    And the CRF Media Clock Input bind edge drops media lock without scoring an unlock ... passed in 0.000s
+
+  Scenario: the per-stream window exposes the ten counters at the block offsets
+    Given the counters contract is importable ... passed in 0.000s
+    Then the register map documents A_STRMW_CNT0..9 as the ten Table 5.6 counters ... passed in 0.001s
+    And the register map warns that the flat views saturate ... passed in 0.002s
+
+Feature: CRF Media Clock Output is an SR class A stream (Milan v1.2 7.3.3)
+  Background: 
+
+  Scenario: The tagged frame is a well-formed 802.1Q C-TAG
+    Given the CRF talker RTL ... passed in 0.001s
+    Then the CRF emitter builds an 802.1Q C-TAG with TPID 0x8100 at octet 12 ... passed in 0.000s
+    And the TCI is {PCP, DEI, VID} with DEI 0 ... passed in 0.000s
+    And the EtherType moves to octet 16 in the tagged shape ... passed in 0.000s
+    And the PCP and VID are wires, not literals ... passed in 0.001s
+
+  Scenario: The tag replaces pad, it does not resize the frame
+    Given the CRF talker RTL ... passed in 0.001s
+    Then both frame shapes are the same 60-octet frame ... passed in 0.001s
+
+  Scenario: The media clock stream leaves on the data lane, not the control merge
+    Given the CRF talker RTL ... passed in 0.001s
+    Then the CRF AXIS is bound to the data lane, not the control merge ... passed in 0.026s
+
+Feature: gPTP grandmaster is not lost while the announce cadence holds
+  Background: 
+
+  Scenario: a grandmaster that keeps announcing is never displaced by a worse claimant
+    Given a gPTP port with the 802.1AS default intervals ... passed in 0.000s
+    Given grandmaster "020000fffe000001" with priority1 238 ... passed in 0.000s
+    And a competing claimant "3cc0c6fffefe0210" with priority1 246 ... passed in 0.000s
+    When the grandmaster announces every 1.0 s for 60 s ... passed in 0.000s
+    Then the selected grandmaster is "020000fffe000001" ... passed in 0.000s
+    And the grandmaster changed 0 times ... passed in 0.000s
+
+  Scenario: an announce gap SHORTER than announceReceiptTimeout must NOT move the grandmaster
+    Given a gPTP port with the 802.1AS default intervals ... passed in 0.000s
+    Given grandmaster "020000fffe000001" with priority1 238 ... passed in 0.000s
+    And a competing claimant "3cc0c6fffefe0210" with priority1 246 ... passed in 0.000s
+    When the grandmaster stops announcing for 2.0 s ... passed in 0.000s
+    Then the selected grandmaster is "020000fffe000001" ... passed in 0.000s
+    And the grandmaster changed 0 times ... passed in 0.000s
+
+  Scenario: an announce gap of announceReceiptTimeout expires the master and re-elects
+    Given a gPTP port with the 802.1AS default intervals ... passed in 0.000s
+    Given grandmaster "020000fffe000001" with priority1 238 ... passed in 0.000s
+    And a competing claimant "3cc0c6fffefe0210" with priority1 246 ... passed in 0.000s
+    When the grandmaster stops announcing for 3.0 s ... passed in 0.000s
+    Then the selected grandmaster is "3cc0c6fffefe0210" ... passed in 0.000s
+    And the grandmaster changed 1 times ... passed in 0.000s
+
+  Scenario: the measured D7 flap - 60 s of silence, then automatic recovery
+    Given a gPTP port with the 802.1AS default intervals ... passed in 0.000s
+    Given grandmaster "020000fffe000001" with priority1 238 ... passed in 0.000s
+    And a competing claimant "3cc0c6fffefe0210" with priority1 246 ... passed in 0.000s
+    When the grandmaster stops announcing for 60.0 s ... passed in 0.000s
+    Then the selected grandmaster is "3cc0c6fffefe0210" ... passed in 0.000s
+    When the grandmaster announces every 1.0 s for 10 s ... passed in 0.000s
+    Then the selected grandmaster is "020000fffe000001" ... passed in 0.000s
+    And the grandmaster changed 2 times ... passed in 0.000s
+
+  Scenario Outline: the announce cadence budget over an observed window -- @1.1 load the grandmaster survives
+    Given a gPTP port with the 802.1AS default intervals ... passed in 0.000s
+    When 105 Announce messages are observed over 93.27 s ... passed in 0.000s
+    Then the announce cadence budget holds ... passed in 0.000s
+
+  Scenario Outline: the announce cadence budget over an observed window -- @2.1 load the grandmaster does not survive
+    Given a gPTP port with the 802.1AS default intervals ... passed in 0.000s
+    When 116 Announce messages are observed over 183.51 s ... passed in 0.000s
+    Then the announce cadence budget breaks ... passed in 0.000s
+
+  Scenario Outline: the sync cadence budget over an observed window -- @1.1 E1 nominal, E2 flood
+    Given a gPTP port with the 802.1AS default intervals ... passed in 0.000s
+    When 823 Sync messages are observed over 93.27 s ... passed in 0.000s
+    Then the sync cadence budget holds ... passed in 0.000s
+
+  Scenario Outline: the sync cadence budget over an observed window -- @1.2 E1 nominal, E2 flood
+    Given a gPTP port with the 802.1AS default intervals ... passed in 0.000s
+    When 917 Sync messages are observed over 183.51 s ... passed in 0.000s
+    Then the sync cadence budget breaks ... passed in 0.000s
+
+  Scenario Outline: the pdelay cadence budget over an observed window -- @1.1 E1 nominal, E2 flood
+    Given a gPTP port with the 802.1AS default intervals ... passed in 0.000s
+    When 105 Pdelay_Req messages are observed over 93.27 s ... passed in 0.000s
+    Then the pdelay cadence budget holds ... passed in 0.000s
+
+  Scenario Outline: the pdelay cadence budget over an observed window -- @1.2 E1 nominal, E2 flood
+    Given a gPTP port with the 802.1AS default intervals ... passed in 0.000s
+    When 117 Pdelay_Req messages are observed over 183.51 s ... passed in 0.000s
+    Then the pdelay cadence budget breaks ... passed in 0.000s
+
+Feature: the chmap64 render-crossbar binding contract
+  Background: 
+
+  Scenario: the render crossbar projects, replaces and clears map words
+    Given a fresh Milan audio-map model ... passed in 0.000s
+    When I ADD mapping stream_channel 1 at cluster_offset 0 ... passed in 0.000s
+    And I ADD mapping stream_channel 2 at cluster_offset 1 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the fabric map word at cluster_offset 0 equals 0x41 ... passed in 0.000s
+    And the fabric map word at cluster_offset 1 equals 0x42 ... passed in 0.000s
+    And the fabric render crossbar has 2 enabled words ... passed in 0.000s
+    When I ADD mapping stream_channel 4 at cluster_offset 1 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the fabric map word at cluster_offset 1 is en 1 stream 0 ch 4 ... passed in 0.000s
+    And the fabric render crossbar has 2 enabled words ... passed in 0.000s
+    When I REMOVE mapping stream_channel 1 at cluster_offset 0 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the fabric map word at cluster_offset 0 is en 0 stream 0 ch 0 ... passed in 0.000s
+    And the fabric map word at cluster_offset 1 equals 0x44 ... passed in 0.000s
+    And the fabric render crossbar has 1 enabled words ... passed in 0.000s
+
+  Scenario: every Stream Port Input maps independently into one key space
+    Given a fresh Milan audio-map model ... passed in 0.000s
+    Given a Milan audio-map model with 4 dynamic ports of 4 clusters and page 4 ... passed in 0.000s
+    When on input port 1 I ADD stream 1 channel 3 at cluster_offset 2 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the fabric map word at cluster_offset 6 is en 1 stream 1 ch 3 ... passed in 0.000s
+    And the fabric render crossbar has 1 enabled words ... passed in 0.000s
+    When on input port 0 I ADD stream 0 channel 3 at cluster_offset 2 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the fabric map word at cluster_offset 2 is en 1 stream 0 ch 3 ... passed in 0.000s
+    And the fabric render crossbar has 2 enabled words ... passed in 0.000s
+    When the audio-map model GETs input port 1 page 0 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the last GET lists 1 mappings ... passed in 0.000s
+    And the last GET contains stream 1 channel 3 at cluster_offset 2 ... passed in 0.000s
+    When the audio-map model GETs input port 3 page 0 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the last GET lists 0 mappings ... passed in 0.000s
+
+  Scenario: a cluster_offset past the addressed port never reaches its neighbour
+    Given a fresh Milan audio-map model ... passed in 0.000s
+    Given a Milan audio-map model with 4 dynamic ports of 4 clusters and page 4 ... passed in 0.000s
+    When on input port 0 I ADD stream 0 channel 0 at cluster_offset 4 ... passed in 0.000s
+    Then the audio-map model responds status 7 ... passed in 0.000s
+    And the fabric render crossbar has 0 enabled words ... passed in 0.000s
+    When on input port 4 I ADD stream 0 channel 0 at cluster_offset 0 ... passed in 0.000s
+    Then the audio-map model responds status 2 ... passed in 0.000s
+    When the audio-map model GETs input port 0 page 1 ... passed in 0.000s
+    Then the audio-map model responds status 7 ... passed in 0.000s
+
+  Scenario: mapping_stream_index names a Stream Input, and never the CRF sink
+    Given a fresh Milan audio-map model ... passed in 0.000s
+    Given a Milan audio-map model with 2 dynamic ports of 4 clusters and page 4 ... passed in 0.000s
+    When on input port 0 I ADD stream 1 channel 2 at cluster_offset 0 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the fabric map word at cluster_offset 0 is en 1 stream 1 ch 2 ... passed in 0.000s
+    When on input port 0 I ADD stream 2 channel 0 at cluster_offset 1 ... passed in 0.000s
+    Then the audio-map model responds status 7 ... passed in 0.000s
+    When on input port 0 I ADD stream 3 channel 0 at cluster_offset 1 ... passed in 0.000s
+    Then the audio-map model responds status 7 ... passed in 0.000s
+    When on input port 0 I REMOVE stream 0 channel 2 at cluster_offset 0 ... passed in 0.000s
+    Then the audio-map model responds status 7 ... passed in 0.000s
+    And the fabric map word at cluster_offset 0 is en 1 stream 1 ch 2 ... passed in 0.000s
+    When on input port 0 I REMOVE stream 1 channel 2 at cluster_offset 0 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the fabric render crossbar has 0 enabled words ... passed in 0.000s
+
+  Scenario: the mapping command limit is 63 complete records
+    Given a fresh Milan audio-map model ... passed in 0.000s
+    When I ADD 63 copies of stream_channel 0 at cluster_offset 0 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the fabric render crossbar has 1 enabled words ... passed in 0.000s
+    When I ADD 64 copies of stream_channel 1 at cluster_offset 1 ... passed in 0.000s
+    Then the audio-map model responds status 7 ... passed in 0.000s
+    And the fabric render crossbar has 1 enabled words ... passed in 0.000s
+
+  Scenario: a legal cluster with no physical destination maps, lists and clears
+    Given a fresh Milan audio-map model ... passed in 0.000s
+    Given a Milan audio-map model on the arty 4x4 render projection ... passed in 0.000s
+    Then the global cluster key 2 has no physical destination ... passed in 0.000s
+    When on input port 0 I ADD stream 0 channel 3 at cluster_offset 2 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the fabric render crossbar has 0 enabled words ... passed in 0.000s
+    When the audio-map model GETs input port 0 page 0 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the last GET lists 1 mappings ... passed in 0.000s
+    And the last GET contains stream 0 channel 3 at cluster_offset 2 ... passed in 0.000s
+    When on input port 0 I REMOVE stream 0 channel 3 at cluster_offset 2 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the fabric render crossbar has 0 enabled words ... passed in 0.000s
+
+  Scenario: an entirely non-physical port still owns protocol-visible mappings
+    Given a fresh Milan audio-map model ... passed in 0.000s
+    Given a Milan audio-map model on the arty 4x4 render projection ... passed in 0.000s
+    Then the global cluster key 12 has no physical destination ... passed in 0.000s
+    When on input port 3 I ADD stream 3 channel 1 at cluster_offset 0 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the fabric render crossbar has 0 enabled words ... passed in 0.000s
+    When the audio-map model GETs input port 3 page 0 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the last GET lists 1 mappings ... passed in 0.000s
+    And the last GET contains stream 3 channel 1 at cluster_offset 0 ... passed in 0.000s
+    When on input port 0 I ADD stream 0 channel 5 at cluster_offset 1 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the render crossbar physical key 1 is en 1 stream 0 ch 5 ... passed in 0.000s
+    And the fabric render crossbar has 1 enabled words ... passed in 0.000s
+
+  Scenario: a cluster_offset past the port is refused, which a missing pin is not
+    Given a fresh Milan audio-map model ... passed in 0.000s
+    Given a Milan audio-map model on the arty 4x4 render projection ... passed in 0.000s
+    When on input port 0 I ADD stream 0 channel 0 at cluster_offset 4 ... passed in 0.000s
+    Then the audio-map model responds status 7 ... passed in 0.000s
+    And the fabric render crossbar has 0 enabled words ... passed in 0.000s
+
+  Scenario: the shipping TDM8 shape projects its eight clusters onto keys 2..9
+    Given a fresh Milan audio-map model ... passed in 0.000s
+    Given a Milan audio-map model on the shipping tdm8 render projection ... passed in 0.000s
+    Then the global cluster key 0 projects to physical key 2 ... passed in 0.000s
+    And the global cluster key 7 projects to physical key 9 ... passed in 0.000s
+    When on input port 0 I ADD stream 0 channel 3 at cluster_offset 0 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the render crossbar physical key 2 is en 1 stream 0 ch 3 ... passed in 0.000s
+    And the render crossbar physical key 0 is en 0 stream 0 ch 0 ... passed in 0.000s
+    And the render crossbar physical key 1 is en 0 stream 0 ch 0 ... passed in 0.000s
+    When on input port 0 I ADD stream 0 channel 4 at cluster_offset 7 ... passed in 0.000s
+    Then the audio-map model responds status 0 ... passed in 0.000s
+    And the render crossbar physical key 9 is en 1 stream 0 ch 4 ... passed in 0.000s
+    And the fabric render crossbar has 2 enabled words ... passed in 0.000s
+    When on input port 0 I ADD stream 0 channel 0 at cluster_offset 8 ... passed in 0.000s
+    Then the audio-map model responds status 7 ... passed in 0.000s
+    And the fabric render crossbar has 2 enabled words ... passed in 0.000s
+
+Feature: Milan 802.1Q VLAN classification and CBS shaping
+  Background: 
+
+  Scenario: there are exactly 5 egress queues in 802.1Q priority order
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Then the number of queues is 5 ... passed in 0.000s
+    And queue 4 is the highest priority ... passed in 0.000s
+    And queue 0 is the lowest priority ... passed in 0.000s
+
+  Scenario: SR class A maps to queue 4
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Then SR class A is on queue 4 ... passed in 0.000s
+
+  Scenario: SR class B maps to queue 3
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Then SR class B is on queue 3 ... passed in 0.000s
+
+  Scenario: PCP 3 (SR class A) maps to queue 4
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    When a tagged frame arrives with PCP 3 ... passed in 0.000s
+    Then the frame is classified to queue 4 ... passed in 0.000s
+
+  Scenario: PCP 2 (SR class B) maps to queue 3
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    When a tagged frame arrives with PCP 2 ... passed in 0.000s
+    Then the frame is classified to queue 3 ... passed in 0.000s
+
+  Scenario: an untagged control frame uses the default port priority
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    When an untagged frame arrives ... passed in 0.000s
+    Then the frame uses the default port priority for classification ... passed in 0.000s
+
+  Scenario: a reserved-DMAC control frame is classified by the DMAC table
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    When a control frame with reserved DMAC arrives ... passed in 0.000s
+    Then the frame is classified by the DMAC table with no EtherType precondition ... passed in 0.000s
+
+  Scenario: the CBS credit accrues at idleSlope while the queue waits
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the CBS shaper for queue 4 is enabled ... passed in 0.000s
+    And the queue has data but transmission is not occurring ... passed in 0.000s
+    Then the credit is increasing at the idleSlope rate ... passed in 0.000s
+
+  Scenario: the CBS credit drains at sendSlope during transmission
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the CBS shaper for queue 4 is enabled ... passed in 0.000s
+    And the queue is transmitting ... passed in 0.000s
+    Then the credit is decreasing at the sendSlope rate ... passed in 0.000s
+    And the sendSlope equals idleSlope minus portRate ... passed in 0.000s
+
+  Scenario: transmission is allowed only when credit is non-negative
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the CBS shaper for queue 4 is enabled ... passed in 0.000s
+    And the credit is negative ... passed in 0.000s
+    Then transmission is blocked ... passed in 0.000s
+
+  Scenario: transmission is allowed when credit is non-negative
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the CBS shaper for queue 4 is enabled ... passed in 0.000s
+    And the credit is zero ... passed in 0.000s
+    Then transmission is allowed ... passed in 0.000s
+
+  Scenario: credit is clamped to the hiCredit upper bound
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the CBS shaper for queue 4 is enabled ... passed in 0.000s
+    When the credit exceeds hiCredit ... passed in 0.000s
+    Then the credit is clamped to hiCredit ... passed in 0.000s
+
+  Scenario: credit is clamped to the loCredit lower bound
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the CBS shaper for queue 4 is enabled ... passed in 0.000s
+    When the credit drops below loCredit ... passed in 0.000s
+    Then the credit is clamped to loCredit ... passed in 0.000s
+
+  Scenario: an unshaped queue (strict priority) always allows transmission
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the CBS shaper for queue 0 is disabled ... passed in 0.000s
+    Then transmission is always allowed ... passed in 0.000s
+    And the credit is parked at 0 ... passed in 0.000s
+
+  Scenario: the shaped idleSlope sum is below 75 percent at 1 Gbit/s
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the port rate is 1000000000 bits per second ... passed in 0.000s
+    Then queue 4 idleSlope is 450000000 bits per second ... passed in 0.000s
+    And queue 3 idleSlope is 150000000 bits per second ... passed in 0.000s
+    And the shaped idleSlope sum is at most 75 percent of port rate ... passed in 0.000s
+
+  Scenario: the shaped idleSlope sum is below 75 percent at 100 Mbit/s
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the port rate is 100000000 bits per second ... passed in 0.000s
+    Then queue 4 idleSlope is 45000000 bits per second ... passed in 0.000s
+    And queue 3 idleSlope is 15000000 bits per second ... passed in 0.000s
+    And the shaped idleSlope sum is at most 75 percent of port rate ... passed in 0.000s
+
+  Scenario: hiCredit follows maxInterferenceSize times idleSlope over portRate
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the port rate is 1000000000 bits per second ... passed in 0.000s
+    And queue 4 has idleSlope 450000000 bits per second ... passed in 0.000s
+    When hiCredit is calculated for a 1522 byte interfering frame ... passed in 0.000s
+    Then hiCredit equals 684 bytes ... passed in 0.000s
+
+  Scenario: loCredit follows maxFrameSize times sendSlope over portRate
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the port rate is 1000000000 bits per second ... passed in 0.000s
+    And queue 4 has idleSlope 450000000 bits per second ... passed in 0.000s
+    When loCredit is calculated for a 1522 byte frame ... passed in 0.000s
+    Then loCredit equals -837 bytes ... passed in 0.000s
+
+  Scenario: a tagged AVTP frame on the configured VID and format is accepted
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the listener is configured for VID 2 and 4-channel AAF ... passed in 0.000s
+    When a tagged AVTP frame arrives on VID 2 with 4 channels ... passed in 0.000s
+    Then the listener accepts the AVTP frame ... passed in 0.000s
+
+  Scenario: an AVTP frame on the wrong VID is discarded
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the listener is configured for VID 2 and 4-channel AAF ... passed in 0.000s
+    When a tagged AVTP frame arrives on VID 3 with 4 channels ... passed in 0.000s
+    Then the listener discards the AVTP frame ... passed in 0.000s
+
+  Scenario: an AVTP frame with the wrong channel count is discarded
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the listener is configured for VID 2 and 4-channel AAF ... passed in 0.000s
+    When a tagged AVTP frame arrives on VID 2 with 2 channels ... passed in 0.000s
+    Then the listener discards the AVTP frame ... passed in 0.000s
+
+  Scenario: VID zero is not treated as the configured SR VLAN
+    Given a fresh 802.1Q conformance model ... passed in 0.000s
+    Given the listener is configured for VID 2 and 4-channel AAF ... passed in 0.000s
+    When a tagged AVTP frame arrives on VID 0 with 4 channels ... passed in 0.000s
+    Then the listener discards the AVTP frame ... passed in 0.000s
+
+Feature: Every Stream Input advertises the whole Base format family
+  Background: 
+
+  Scenario Outline: endstation_arty_current completes the 48 kHz Base family on every Stream Input -- @1.1 
+    Given the end-station builder is importable ... passed in 0.018s
+    Given the end-station config "endstation_arty_current" ... passed in 0.017s
+    Then every Stream Input advertises all five 48 kHz Base channel counts ... passed in 0.000s
+    And every Stream Input advertises the same Base sampling rates ... passed in 0.000s
+    And every advertised Base sampling rate is one the AUDIO_UNIT reports ... passed in 0.000s
+
+  Scenario Outline: endstation_arty_4x4 completes the 48 kHz Base family on every Stream Input -- @1.2 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_arty_4x4" ... passed in 0.010s
+    Then every Stream Input advertises all five 48 kHz Base channel counts ... passed in 0.000s
+    And every Stream Input advertises the same Base sampling rates ... passed in 0.000s
+    And every advertised Base sampling rate is one the AUDIO_UNIT reports ... passed in 0.000s
+
+  Scenario Outline: endstation_arty_8ch completes the 48 kHz Base family on every Stream Input -- @1.3 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_arty_8ch" ... passed in 0.010s
+    Then every Stream Input advertises all five 48 kHz Base channel counts ... passed in 0.000s
+    And every Stream Input advertises the same Base sampling rates ... passed in 0.000s
+    And every advertised Base sampling rate is one the AUDIO_UNIT reports ... passed in 0.000s
+
+  Scenario Outline: endstation_ax7101_8x8 completes the 48 kHz Base family on every Stream Input -- @1.4 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_ax7101_8x8" ... passed in 0.014s
+    Then every Stream Input advertises all five 48 kHz Base channel counts ... passed in 0.000s
+    And every Stream Input advertises the same Base sampling rates ... passed in 0.000s
+    And every advertised Base sampling rate is one the AUDIO_UNIT reports ... passed in 0.000s
+
+  Scenario Outline: endstation_ax7101_1x1_tdm8 completes the 48 kHz Base family on every Stream Input -- @1.5 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_ax7101_1x1_tdm8" ... passed in 0.009s
+    Then every Stream Input advertises all five 48 kHz Base channel counts ... passed in 0.000s
+    And every Stream Input advertises the same Base sampling rates ... passed in 0.000s
+    And every advertised Base sampling rate is one the AUDIO_UNIT reports ... passed in 0.000s
+
+  Scenario Outline: endstation_arty_current leaves its Stream Outputs at wire truth (Milan 6.3) -- @1.1 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_arty_current" ... passed in 0.008s
+    Then at least one Stream Output advertises a Base format ... passed in 0.000s
+    And no Stream Output advertises more than one Base channel count ... passed in 0.000s
+
+  Scenario Outline: endstation_arty_4x4 leaves its Stream Outputs at wire truth (Milan 6.3) -- @1.2 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_arty_4x4" ... passed in 0.010s
+    Then at least one Stream Output advertises a Base format ... passed in 0.000s
+    And no Stream Output advertises more than one Base channel count ... passed in 0.000s
+
+  Scenario Outline: endstation_ax7101_8x8 leaves its Stream Outputs at wire truth (Milan 6.3) -- @1.3 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_ax7101_8x8" ... passed in 0.013s
+    Then at least one Stream Output advertises a Base format ... passed in 0.000s
+    And no Stream Output advertises more than one Base channel count ... passed in 0.000s
+
+  Scenario Outline: endstation_ax7101_1x1_tdm8 leaves its Stream Outputs at wire truth (Milan 6.3) -- @1.4 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_ax7101_1x1_tdm8" ... passed in 0.009s
+    Then at least one Stream Output advertises a Base format ... passed in 0.000s
+    And no Stream Output advertises more than one Base channel count ... passed in 0.000s
+
+  Scenario Outline: endstation_arty_current keeps the CRF media clock streams out of the family -- @1.1 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_arty_current" ... passed in 0.008s
+    Then every CRF stream advertises exactly the CRF media clock format ... passed in 0.000s
+    And no CRF stream advertises an AAF Base format ... passed in 0.000s
+
+  Scenario Outline: endstation_arty_4x4 keeps the CRF media clock streams out of the family -- @1.2 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_arty_4x4" ... passed in 0.010s
+    Then every CRF stream advertises exactly the CRF media clock format ... passed in 0.000s
+    And no CRF stream advertises an AAF Base format ... passed in 0.000s
+
+  Scenario Outline: endstation_ax7101_8x8 keeps the CRF media clock streams out of the family -- @1.3 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_ax7101_8x8" ... passed in 0.013s
+    Then every CRF stream advertises exactly the CRF media clock format ... passed in 0.000s
+    And no CRF stream advertises an AAF Base format ... passed in 0.000s
+
+  Scenario Outline: endstation_ax7101_1x1_tdm8 keeps the CRF media clock streams out of the family -- @1.4 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_ax7101_1x1_tdm8" ... passed in 0.009s
+    Then every CRF stream advertises exactly the CRF media clock format ... passed in 0.000s
+    And no CRF stream advertises an AAF Base format ... passed in 0.000s
+
+  Scenario: a Stream Input short of the family is REPORTED (negative control)
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_arty_4x4" ... passed in 0.009s
+    When a Stream Input's family is capped at 4 channels ... passed in 0.000s
+    Then the Base family check REPORTS the missing 6- and 8-channel formats ... passed in 0.000s
+
+Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
+  Background: 
+
+  Scenario: every term that can open the AAF admission gate is accounted for
+    Given the Milan datapath and AAF talker RTL sources ... passed in 0.000s
+    When I read the aaf_gate expression from milan_datapath ... passed in 0.004s
+    Then the gate has exactly one escape hatch and it is named cfg_aaf_bypass ... passed in 0.000s
+    And with the escape hatch clear the gate requires the lwSRP stream gate ... passed in 0.000s
+    And the escape hatch is recorded as a Milan 5.3.7.3 conformance defect ... passed in 0.000s
+
+  Scenario: a talker above 0 egresses on the SRP licence alone, with its own identity
+    Given the Milan datapath and AAF talker RTL sources ... passed in 0.000s
+    When I read the t>0 AAF admission expression from milan_datapath ... passed in 0.003s
+    Then the t>0 admission does NOT require a per-context runtime enable ... passed in 0.000s
+    And the t>0 admission requires the lwSRP stream gate unconditionally ... passed in 0.000s
+    And the effective t>0 admission is masked by output mapping reservations ... passed in 0.003s
+    When I read the t>0 wire identity from KL_aaf_packetizer ... passed in 0.001s
+    Then the t>0 identity is derived from the same roots the declaration uses ... passed in 0.000s
+    And software may still name each identity field explicitly ... passed in 0.000s
+
+  Scenario: the stream gate is the processor's ACTIVE, never its raw admission verdict
+    Given the Milan datapath and AAF talker RTL sources ... passed in 0.000s
+    When I read the lwSRP stream gate assignment from milan_datapath ... passed in 0.005s
+    Then the stream gate takes the processor's ACTIVE vector and nothing else ... passed in 0.000s
+
+  Scenario: the bench bridge declares Listener Ready for our StreamID
+    Given the Milan datapath and AAF talker RTL sources ... passed in 0.000s
+    Given the MSRPDU captured from the bench bridge on 2026-07-28 ... passed in 0.000s
+    Then it is a well-formed MRPDU whose every AttributeLength matches 802.1Q Table 35-1 ... passed in 0.000s
+    And it declares a Listener attribute for StreamID 0200000000010000 ... passed in 0.000s
+    And that Listener declaration is Ready ... passed in 0.000s
+    And the SR class A domain is present as the +1 value of a B-first packed pair ... passed in 0.000s
+
+  Scenario: the same capture is not mistaken for a licence when it withdraws
+    Given the Milan datapath and AAF talker RTL sources ... passed in 0.000s
+    Given the MSRPDU captured from the bench bridge on 2026-07-28 ... passed in 0.000s
+    When the Listener three-packed event is changed to Lv ... passed in 0.000s
+    Then the Listener declaration is a withdrawal and licenses nothing ... passed in 0.000s
+
+Feature: The torture campaign's own coverage is auditable at a desk
+  Background: 
+
+  Scenario: the matrix walks every talker and listener index in both directions
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix area is planned ... passed in 0.000s
+    Then the plan covers every DUT talker index ... passed in 0.000s
+    And the plan covers every DUT listener index ... passed in 0.000s
+    And the plan covers every peer talker index ... passed in 0.000s
+    And the plan covers every peer listener index ... passed in 0.000s
+    And the plan contains outbound, return and loopback pair sets ... passed in 0.000s
+
+  Scenario: the index audit can say no
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix area is planned for a device with 1 talker and 1 listener ... passed in 0.000s
+    Then the plan covers only index 0 ... passed in 0.000s
+    And that is fewer indices than the real DUT shape ... passed in 0.000s
+
+  Scenario: the CRF media clock stream is part of the matrix, not an extra
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix area is planned ... passed in 0.000s
+    Then the CRF talker index is in the plan ... passed in 0.000s
+    And the CRF listener index is in the plan ... passed in 0.000s
+    And the CRF pair steps are marked as the media clock pair ... passed in 0.000s
+
+  Scenario: every bind step owes the whole bound-and-streaming assertion set
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix and churn areas are planned ... passed in 0.000s
+    Then every connect step carries the full bound-streaming assertion set ... passed in 0.000s
+    And that includes the rebind steps ... passed in 0.000s
+    And no bind step grades whether frames are advancing ... passed in 0.000s
+
+  Scenario: the licence is measured BEFORE any START_STREAMING is sent
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix and churn areas are planned ... passed in 0.000s
+    Then every bind is followed by a measure-before-start step ... passed in 0.000s
+    And that step asserts the stream starts on the bind alone ... passed in 0.000s
+    And that step measures before it sends anything ... passed in 0.000s
+    And that step asks the SRP licence before it grades any silence ... passed in 0.000s
+
+  Scenario: the licence-owning step measures every participant, not only the DUT
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix area is planned ... passed in 0.000s
+    Then every bind is followed by a measure-before-start step ... passed in 0.000s
+    And the licence-owning step carries the cross-participant invariants ... passed in 0.000s
+
+  Scenario: every unbind VERIFIES the stop, so the next pair can still be measured
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix and churn areas are planned ... passed in 0.000s
+    Then every unbind verifies the stop took effect ... passed in 0.000s
+
+  Scenario: the growth assertions can actually fail
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then the whole campaign has no assertion that can only be INFO at SHALL severity ... passed in 0.000s
+
+  Scenario: coverage is audited PER AREA, because the whole-plan audit is blind
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then coverage is audited per area ... passed in 0.002s
+    And the per-area audit can say no about one area while another is complete ... passed in 0.001s
+
+  Scenario: the topology is configuration, not a source edit
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix area is planned ... passed in 0.000s
+    Then the topology is configuration and a typo is refused ... passed in 0.001s
+
+  Scenario: every assertion in the whole campaign names a clause and a severity
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then every assertion carries a non-empty clause ... passed in 0.000s
+    And every assertion severity is SHALL or RECOMMENDED or INFO ... passed in 0.000s
+
+  Scenario: every step id in the campaign is unique, so two mornings can be diffed
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then no two steps share an id ... passed in 0.001s
+    And every step serialises to JSON with its clauses attached ... passed in 0.009s
+
+  Scenario: the churn area reaches the implicit rebind a bind/unbind loop cannot
+    Given the campaign plan is importable ... passed in 0.000s
+    When the churn area is planned ... passed in 0.000s
+    Then there is a rebind step that does not unbind first ... passed in 0.000s
+    And each rebind moves to a DIFFERENT talker index than its first bind ... passed in 0.000s
+    And the rebind step asserts the counter reset on not-bound to bound ... passed in 0.000s
+
+  Scenario: the churn area binds a second listener while the first is streaming
+    Given the campaign plan is importable ... passed in 0.000s
+    When the churn area is planned ... passed in 0.000s
+    Then there is a bind-while-streaming step ... passed in 0.000s
+
+  Scenario: the rebind storm is auditable by an invariant, not by guessing the winner
+    Given the campaign plan is importable ... passed in 0.000s
+    When the churn area is planned ... passed in 0.000s
+    Then there is a rebind storm step with at least 20 iterations ... passed in 0.000s
+    And the rebind storm asserts the lock invariant and ADP liveness ... passed in 0.000s
+
+  Scenario: storm entries are RECOMMENDED, and control responsiveness is INFO
+    Given the campaign plan is importable ... passed in 0.000s
+    When the torture area is planned ... passed in 0.000s
+    Then every storm step marks stream continuity as RECOMMENDED ... passed in 0.000s
+    And every storm step marks control responsiveness as INFO ... passed in 0.000s
+    And the storm steps cover non-priority broadcast, unicast to our own MAC, AVDECC and AVB management ... passed in 0.000s
+
+  Scenario: malformed-frame entries do NOT cite the adverse-conditions document
+    Given the campaign plan is importable ... passed in 0.000s
+    When the torture area is planned ... passed in 0.000s
+    Then no malformed-frame step cites the adverse-conditions recommendation ... passed in 0.000s
+    And every malformed-frame step cites IEEE 1722.1 or IEEE 1722 ... passed in 0.000s
+    And every malformed-frame step asserts the entity does not wedge ... passed in 0.000s
+
+  Scenario: no clause in the campaign carries a draft version number
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then no clause in the campaign carries a draft version number ... passed in 0.010s
+
+  Scenario: the malformed matrix fuzzes the length fields in both directions
+    Given the campaign plan is importable ... passed in 0.000s
+    When the torture area is planned ... passed in 0.000s
+    Then the malformed matrix includes an overstated control_data_length ... passed in 0.000s
+    And the malformed matrix includes an understated control_data_length ... passed in 0.000s
+    And the malformed matrix includes a truncated AECP payload ... passed in 0.000s
+    And the malformed matrix includes an AAF stream_data_length that overstates the payload ... passed in 0.000s
+
+  Scenario: the MAAP conflict entry asserts the withdraw-wait-reallocate sequence
+    Given the campaign plan is importable ... passed in 0.000s
+    When the torture area is planned ... passed in 0.000s
+    Then the MAAP conflict step asserts a withdraw and reallocate ... passed in 0.000s
+    And the MAAP conflict clause mentions the LeaveAll wait ... passed in 0.000s
+
+  Scenario: VLAN misconfiguration covers the wrong SR VID and VID zero separately
+    Given the campaign plan is importable ... passed in 0.000s
+    When the torture area is planned ... passed in 0.000s
+    Then there is a wrong-SR-VID step ... passed in 0.000s
+    And there is a VID-zero step ... passed in 0.000s
+    And the VID-zero step asserts no untagged stream frames ... passed in 0.000s
+
+  Scenario: starvation asserts silence-with-frames, and stream loss asserts the interrupt counter
+    Given the campaign plan is importable ... passed in 0.000s
+    When the torture area is planned ... passed in 0.000s
+    Then the source-starvation step asserts the talker keeps framing ... passed in 0.000s
+    And the stream-stop step asserts STREAM_INTERRUPTED advances ... passed in 0.000s
+
+  Scenario: entries a human must perform are printed as a checklist, never skipped
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then at least 3 steps need a human ... passed in 0.000s
+    And the checklist names every human step with its action and its clause ... passed in 0.000s
+    And an empty plan produces a checklist that says so ... passed in 0.000s
+
+  Scenario: the physical conditions are still covered - by strip or by hand
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then the human entries include a cable pull ... passed in 0.000s
+    And the human entries include a grandmaster change ... passed in 0.000s
+    And the human entries include a grandmaster loss ... passed in 0.000s
+    And the human entries include a power cycle ... passed in 0.000s
+    And the power-cycle step asserts the non-volatile state is restored ... passed in 0.000s
+
+  Scenario: the physical family is powerstrip-automatable, serialized, and runs last
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then the physical area is the last thing the campaign runs ... passed in 0.000s
+    And every physical cycle step is still a human entry in the plan ... passed in 0.000s
+    And the physical cycle steps name the outlet role they need ... passed in 0.000s
+    And the physical recovery budgets respect the bench floors ... passed in 0.000s
+    And the partition window is asserted as the condition, not a failure ... passed in 0.000s
+    And each physical family ends with a full proof pair at a non-zero index ... passed in 0.000s
+
+  Scenario: areas can be selected, and an unknown area is refused
+    Given the campaign plan is importable ... passed in 0.000s
+    Then selecting the audio area yields only audio steps ... passed in 0.000s
+    And selecting an unknown area raises ... passed in 0.000s
+    And selecting nothing yields all five areas ... passed in 0.000s
+
+  Scenario: the verdict record shape is stable and the exit codes are graded
+    Given the campaign plan is importable ... passed in 0.000s
+    Then a verdict record carries schema, step, assertion, verdict, severity and clause ... passed in 0.000s
+    And a SHALL failure exits 1 ... passed in 0.000s
+    And a RECOMMENDED failure exits 2 ... passed in 0.000s
+    And an outstanding human entry exits 2 ... passed in 0.000s
+    And a SKIP alone exits 0 ... passed in 0.000s
+    And the summary counts every verdict kind ... passed in 0.000s
+
+Feature: Advertised channels_per_frame is a width the fabric can emit
+  Background: 
+
+  Scenario: the shipping stereo config is self-consistent (negative control)
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_arty_current" ... passed in 0.009s
+    Then every AAF talker format's channels_per_frame equals the emitted width ... passed in 0.000s
+
+  Scenario: the 8x8 config advertises 8 channels and the fabric emits 8
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_ax7101_8x8" ... passed in 0.013s
+    Then the declared talker width is 8 channels ... passed in 0.000s
+    And every AAF talker format's channels_per_frame equals the emitted width ... passed in 0.002s
+
+  Scenario: the 4x4 config advertises 4 channels and the fabric emits 4
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_arty_4x4" ... passed in 0.009s
+    Then the declared talker width is 4 channels ... passed in 0.000s
+    And every AAF talker format's channels_per_frame equals the emitted width ... passed in 0.002s
+
+  Scenario Outline: the generated wire constant matches the derivation -- @1.1 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_arty_current" ... passed in 0.008s
+    Then the generated TALKER_WIRE_CHANS_C equals the emitted width ... passed in 0.000s
+
+  Scenario Outline: the generated wire constant matches the derivation -- @1.2 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_arty_4x4" ... passed in 0.009s
+    Then the generated TALKER_WIRE_CHANS_C equals the emitted width ... passed in 0.003s
+
+  Scenario Outline: the generated wire constant matches the derivation -- @1.3 
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_ax7101_8x8" ... passed in 0.013s
+    Then the generated TALKER_WIRE_CHANS_C equals the emitted width ... passed in 0.002s
+
+  Scenario: an unbacked audio interface does not silently change the gateware
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_ax7101_8x8" ... passed in 0.013s
+    When the TDM bus is not backed by the fabric ... passed in 0.000s
+    Then the audio interface is reported as a placeholder ... passed in 0.000s
+    And the emitted width falls back to 2 channels ... passed in 0.000s
+
+  Scenario: with the TDM master present the interface is backed
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_ax7101_8x8" ... passed in 0.013s
+    When the TDM bus is backed by the fabric ... passed in 0.000s
+    Then the audio interface is not a placeholder ... passed in 0.000s
+    And the soc argv carries "--audio-interface" ... passed in 0.003s
+    And the soc argv carries "--audio-interface-master" ... passed in 0.003s
+
+  Scenario: the derivation REFUSES to over-declare (negative control)
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_arty_4x4" ... passed in 0.010s
+    When the TDM bus is backed by the fabric ... passed in 0.000s
+    Then the front-end supplies at least 4 pair slots ... passed in 0.002s
+    And the emitted width is still 4 channels ... passed in 0.002s
+
+  Scenario: the derivation REFUSES to under-declare silently (negative control)
+    Given the end-station builder is importable ... passed in 0.000s
+    Given the end-station config "endstation_ax7101_8x8" ... passed in 0.013s
+    When the TDM bus is not backed by the fabric ... passed in 0.000s
+    Then at least one AAF talker format's channels_per_frame differs from the emitted width ... passed in 0.000s
+
+  Scenario: the elaboration guard is the enforcement, not a comment
+    Given the end-station builder is importable ... passed in 0.000s
+    Then milan_datapath refuses a wire width its capture front-end cannot feed ... passed in 0.001s
+    And milan_datapath refuses a TDM master clock that is not an exact multiple ... passed in 0.001s
+    And KL_aaf_packetizer resets every talker's chans field from the constant ... passed in 0.000s
+
+Feature: AVTP wire truth - the declared format is the format on the wire
+  Background: 
+
+  Scenario: an AAF PCM AVTPDU decodes field for field off Figure 26
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built AAF frame with 4 channels sequence 7 timestamp 0x11223344 ... passed in 0.000s
+    Then the analyser reads channels_per_frame 4 ... passed in 0.000s
+    And the analyser reads sequence_num 7 ... passed in 0.000s
+    And the analyser reads avtp_timestamp 0x11223344 ... passed in 0.000s
+    And the analyser reads bit_depth 32 and nsr 5 and format 2 ... passed in 0.000s
+    And the analyser reads 6 sample events in the payload ... passed in 0.000s
+
+  Scenario: channels_per_frame survives the two-octet split
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built AAF frame with 261 channels sequence 0 timestamp 0 ... passed in 0.000s
+    Then the analyser reads channels_per_frame 261 ... passed in 0.000s
+
+  Scenario: the subtype is the whole octet, so a control frame stays a control frame
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built ADPDU with available_index 1 ... passed in 0.000s
+    Then the analyser classifies the frame as ADP ... passed in 0.000s
+    And the analyser counts 1 ADPDU ... passed in 0.000s
+
+  Scenario: the ATDECC AAF stream_format qwords decode to their channel counts
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Then stream_format "0205022000806000" declares 2 channels ... passed in 0.000s
+    And stream_format "0205022001006000" declares 4 channels ... passed in 0.000s
+    And stream_format "0205022002006000" declares 8 channels ... passed in 0.000s
+    And stream_format "0215022002006000" has the up-to bit set ... passed in 0.000s
+    And stream_format "0205022001006000" declares 6 samples per frame ... passed in 0.000s
+
+  Scenario: the Milan CRF format string decodes to the Milan CRF parameters
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Then the Milan CRF stream format is 0x041060010000BB80 ... passed in 0.000s
+    And it decodes to type 1 interval 96 timestamps 1 pull 0 base 48000 ... passed in 0.000s
+
+  Scenario: a talker declaring 8 channels and emitting 2 is caught
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given the controller was told the format is "0205022002006000" ... passed in 0.000s
+    And a hand-built AAF frame with 2 channels sequence 0 timestamp 0 ... passed in 0.000s
+    When the analyser checks the declared format against the wire ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-vs-wire" ... passed in 0.000s
+    And the mismatch names channels_per_frame ... passed in 0.000s
+
+  Scenario: the honest declaration passes the same check
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given the controller was told the format is "0205022000806000" ... passed in 0.000s
+    And a hand-built AAF frame with 2 channels sequence 0 timestamp 0 ... passed in 0.000s
+    When the analyser checks the declared format against the wire ... passed in 0.000s
+    Then every declared-vs-wire verdict is PASS ... passed in 0.000s
+
+  Scenario Outline: illegal header fields are reported, not rounded away -- @1.1 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built AAF frame that is illegal because channels_per_frame is zero ... passed in 0.000s
+    When the analyser checks header legality ... passed in 0.000s
+    Then the analyser reports FAIL on "header-legal" ... passed in 0.000s
+    And the violation mentions "channels_per_frame 0" ... passed in 0.000s
+
+  Scenario Outline: illegal header fields are reported, not rounded away -- @1.2 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built AAF frame that is illegal because bit_depth is zero ... passed in 0.000s
+    When the analyser checks header legality ... passed in 0.000s
+    Then the analyser reports FAIL on "header-legal" ... passed in 0.000s
+    And the violation mentions "bit_depth 0" ... passed in 0.000s
+
+  Scenario Outline: illegal header fields are reported, not rounded away -- @1.3 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built AAF frame that is illegal because bit_depth exceeds the format ... passed in 0.000s
+    When the analyser checks header legality ... passed in 0.000s
+    Then the analyser reports FAIL on "header-legal" ... passed in 0.000s
+    And the violation mentions "> format width" ... passed in 0.000s
+
+  Scenario: an AAF sequence_num gap is found and the 8-bit wrap is not one
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given hand-built AAF frames with sequence numbers 254,255,0,1 ... passed in 0.000s
+    When the analyser checks sequence continuity ... passed in 0.000s
+    Then every sequence verdict is PASS ... passed in 0.000s
+    Given hand-built AAF frames with sequence numbers 1,2,4 ... passed in 0.000s
+    When the analyser checks sequence continuity ... passed in 0.000s
+    Then the analyser reports FAIL on "seq-continuity" ... passed in 0.000s
+    And the gap count is 1 ... passed in 0.000s
+
+  Scenario: the CRF sequence_num is one octet, so FF to 00 is a wrap
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given hand-built CRF frames with sequence numbers 254,255,0 ... passed in 0.000s
+    When the analyser checks sequence continuity ... passed in 0.000s
+    Then every sequence verdict is PASS ... passed in 0.000s
+
+  Scenario: the presentation time advances by exactly one AVTPDU of media
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given hand-built AAF frames whose timestamps step by 125000 ns ... passed in 0.000s
+    When the analyser checks the presentation timestamps ... passed in 0.000s
+    Then the analyser reports PASS on "pts-step" ... passed in 0.000s
+    And the expected step is 125000 ns ... passed in 0.000s
+
+  Scenario: a presentation time that steps four times too far is caught
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given hand-built AAF frames whose timestamps step by 500000 ns ... passed in 0.000s
+    When the analyser checks the presentation timestamps ... passed in 0.000s
+    Then the analyser reports FAIL on "pts-step" ... passed in 0.000s
+
+  Scenario: the class-A transit check SKIPS rather than inventing a timebase
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built AAF frame with 2 channels sequence 0 timestamp 0 ... passed in 0.000s
+    When the analyser checks the presentation timestamps ... passed in 0.000s
+    Then the analyser reports SKIP on "class-a-transit" ... passed in 0.000s
+    And the skip reason mentions "CLOCK_REALTIME" ... passed in 0.000s
+
+  Scenario: with a gPTP reference supplied the 2 ms class-A window is enforced
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a gPTP reference of 1000000 ns ... passed in 0.000s
+    And a hand-built AAF frame presented 1500000 ns after the reference ... passed in 0.000s
+    When the analyser checks the presentation timestamps ... passed in 0.000s
+    Then the analyser reports PASS on "class-a-transit" ... passed in 0.000s
+    Given a gPTP reference of 1000000 ns ... passed in 0.000s
+    And a hand-built AAF frame presented 9000000 ns after the reference ... passed in 0.000s
+    When the analyser checks the presentation timestamps ... passed in 0.000s
+    Then the analyser reports FAIL on "class-a-transit" ... passed in 0.000s
+
+  Scenario: VID 0 is reported as its own defect, not as a generic mismatch
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built AAF frame tagged with VID 0 ... passed in 0.000s
+    When the analyser checks the VLAN class ... passed in 0.000s
+    Then the analyser reports FAIL on "c-tag-vid" ... passed in 0.000s
+    And the verdict records that VID zero was seen ... passed in 0.000s
+
+  Scenario: an untagged CRF frame fails the class-A reservation requirement
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built untagged CRF frame ... passed in 0.000s
+    When the analyser checks the VLAN class ... passed in 0.000s
+    Then the analyser reports FAIL on "crf.c-tag-present" ... passed in 0.000s
+
+  Scenario: conformant tags pass every VLAN check on both stream classes
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built AAF frame with 2 channels sequence 0 timestamp 0 ... passed in 0.000s
+    And a hand-built CRF frame ... passed in 0.000s
+    When the analyser checks the VLAN class ... passed in 0.000s
+    Then every VLAN verdict is PASS ... passed in 0.000s
+
+  Scenario: an unfed bound talker owes silent FRAMES, and absence is not silence
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given stream 0x0200000000020000 is declared bound but unfed ... passed in 0.000s
+    And a hand-built silent AAF frame on stream 0x0200000000020000 ... passed in 0.000s
+    When the analyser checks zero fill ... passed in 0.000s
+    Then every zero-fill verdict is PASS ... passed in 0.000s
+
+  Scenario: a declared-silent stream that sent nothing at all fails
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given stream 0x0200000000020000 is declared bound but unfed ... passed in 0.000s
+    When the analyser checks zero fill ... passed in 0.000s
+    Then the analyser reports FAIL on "zero-fill-present" ... passed in 0.000s
+
+  Scenario: a fed stream carrying all zeros is the silence defect
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given stream 0x0200000000020000 is declared fed ... passed in 0.000s
+    And a hand-built silent AAF frame on stream 0x0200000000020000 ... passed in 0.000s
+    When the analyser checks zero fill ... passed in 0.000s
+    Then the analyser reports FAIL on "fed-non-silent" ... passed in 0.000s
+
+  Scenario: 500 CRF PDUs a second is derived from the format, not measured first
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given 101 hand-built CRF frames at 2 ms spacing ... passed in 0.002s
+    When the analyser checks the CRF format and rate ... passed in 0.000s
+    Then every CRF format verdict is PASS ... passed in 0.000s
+    And the expected CRF rate is 500 PDUs per second ... passed in 0.000s
+    And the analyser reports PASS on "crf.pdu-rate" ... passed in 0.000s
+
+  Scenario: a CRF timestamp_interval of 48 fails Milan 7.3.2
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built CRF frame with timestamp interval 48 ... passed in 0.000s
+    When the analyser checks the CRF format and rate ... passed in 0.000s
+    Then the analyser reports FAIL on "crf.milan-format" ... passed in 0.000s
+
+  Scenario: the 82-octet ADPDU rule and the available_index that must advance
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given hand-built ADPDUs with available indices 1,2,3 ... passed in 0.000s
+    When the analyser checks the ADP frame rule ... passed in 0.000s
+    Then every ADP verdict is PASS ... passed in 0.000s
+    And the built ADPDU frame is 82 octets ... passed in 0.000s
+
+  Scenario: a repeated available_index reads as an incoherent entity
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given hand-built ADPDUs with available indices 5,5,6 ... passed in 0.000s
+    When the analyser checks the ADP frame rule ... passed in 0.000s
+    Then the analyser reports FAIL on "available-index-advances" ... passed in 0.000s
+
+  Scenario: a frame that lies about its control_data_length is caught
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built ADPDU that claims control_data_length 200 ... passed in 0.000s
+    When the analyser checks control length honesty ... passed in 0.000s
+    Then the analyser reports FAIL on "length-honest" ... passed in 0.000s
+    And the liar's declared control_data_length is 200 ... passed in 0.000s
+
+  Scenario: an empty capture is a FAIL, never a clean pass
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    When the analyser checks the capture shape ... passed in 0.000s
+    Then the analyser reports FAIL on "stream-frames-present" ... passed in 0.000s
+
+  Scenario: a ProfiShark tap capture only decodes with its 28-octet offset
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a written pcap of 3 tap records with a 28 octet header and an FCS ... passed in 0.000s
+    When the analyser reads it with the tap offset ... passed in 0.000s
+    Then the analyser reports PASS on "stream-frames-present" ... passed in 0.000s
+    When the analyser reads it without the tap offset ... passed in 0.000s
+    Then the analyser reports FAIL on "stream-frames-present" ... passed in 0.000s
+
+  Scenario: an empty capture leaves NO check silent and NO check passing
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    When the analyser checks an empty capture end to end ... passed in 0.000s
+    Then no check verdict is PASS ... passed in 0.000s
+    And every check family is represented ... passed in 0.000s
+    And every SKIP names what was absent ... passed in 0.000s
+    And the capture-shape verdict is FAIL ... passed in 0.000s
+
+  Scenario: the Talker Advertise FirstValue decodes to its 25 clause-defined octets
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built MSRP Talker Advertise for stream 0200000000020003 ... passed in 0.000s
+    When the analyser decodes the MRPDU ... passed in 0.000s
+    Then the attribute is a Talker Advertise ... passed in 0.000s
+    And the declared destination address is 91e0f000fe07 ... passed in 0.000s
+    And the declared vlan identifier is 2 ... passed in 0.000s
+    And the declared MaxFrameSize is 1024 ... passed in 0.000s
+    And the attribute is declaring ... passed in 0.000s
+
+  Scenario: a Listener attribute's declaration type rides the FourPackedEvents vector
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built MSRP Listener Ready for stream 0200000000020003 ... passed in 0.000s
+    When the analyser decodes the MRPDU ... passed in 0.000s
+    Then the listener declaration is "Ready" ... passed in 0.000s
+
+  Scenario: a talker Stream Output that never declares is found from the wire
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given the entity declares 5 talker stream ids from 0200000000020000 ... passed in 0.000s
+    And only stream 0200000000020000 and 0200000000020001 advertise ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "talker-advertise-declared" ... passed in 0.000s
+    And the missing declarations are named ... passed in 0.000s
+
+  Scenario: frames on the wire with no Listener Ready are unreserved
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream on the wire whose only Listener declaration is "Asking Failed" ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "listener-declaration-present" ... passed in 0.000s
+
+  Scenario Outline: the declaration and the frames must agree about dmac -- @1.1 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream whose wire dmac differs from its declaration ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-dmac-matches-wire" ... passed in 0.000s
+
+  Scenario Outline: the declaration and the frames must agree about vid -- @1.2 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream whose wire vid differs from its declaration ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-vid-matches-wire" ... passed in 0.000s
+
+  Scenario: a capture with no MRP frames says the tap is what is missing
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream on the wire with no MRP frames captured at all ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then every SRP verdict is SKIP ... passed in 0.000s
+    And the SRP skip says an inline tap is required ... passed in 0.000s
+
+14 features passed, 0 failed, 0 skipped
+344 scenarios passed, 0 failed, 0 skipped
+1739 steps passed, 0 failed, 0 skipped
+Took 0min 0.678s
+
+EXIT=0 WALL_SECONDS=1.165

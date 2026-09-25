@@ -1,0 +1,10 @@
+Base servo: 864b36f5e9450ef64f75ca3f0d68c44330e447d7:hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+Base SHA256: 4de3420d335a039b670bdba34b5f7d280e80cf5ef8d8ba63b3f903dcc9a049ef
+Current servo identical to first parent 92ad1687. SHA256: c0edc68e3b2846c9bba5f8b884fe21e6d8d4ec4a507861f48fd63c632329e6e0
+Alignment block extracted verbatim from hdl/milan/milan_datapath.sv:2762-2767.
+  logic [3:0] gptp_slew_tail_r;
+  wire gptp_slew_eff_w = gptp_slew_active_w || (|gptp_slew_tail_r);
+  always_ff @(posedge axis_clk) begin : slew_rate_alignment
+    if (!axis_resetn) gptp_slew_tail_r <= '0;
+    else gptp_slew_tail_r <= {gptp_slew_tail_r[2:0], gptp_slew_active_w};
+  end : slew_rate_alignment
