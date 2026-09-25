@@ -1,0 +1,51 @@
+== export baseline
+parameters: top 24, guide 24, diagram 24, OK
+rc=0
+== default path, top parameter removed
+PARAMETERS FAIL: guide: extra REG_TL_TIMEOUT_MS_P
+PARAMETERS FAIL: diagram: extra REG_TL_TIMEOUT_MS_P
+parameters: top 23, guide 24, diagram 24, 2 FAILURES
+rc=1
+== make params, top parameter removed
+PARAMETERS FAIL: guide: extra REG_TL_TIMEOUT_MS_P
+PARAMETERS FAIL: diagram: extra REG_TL_TIMEOUT_MS_P
+parameters: top 23, guide 24, diagram 24, 2 FAILURES
+make: *** [Makefile:40: params] Error 1
+rc=2
+== make check (lint wavedrom-check links matrix modmatrix params stale; stale needs git so run the gate prefix only)
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+wavedrom: 18 blocks checked, OK
+links: 916 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (92 rows, 0 untested)
+PARAMETERS FAIL: guide: extra REG_TL_TIMEOUT_MS_P
+PARAMETERS FAIL: diagram: extra REG_TL_TIMEOUT_MS_P
+parameters: top 23, guide 24, diagram 24, 2 FAILURES
+make: *** [Makefile:40: params] Error 1
+rc=2
+== pre-change guide at 008edbbf486598ae237414273d75e385cf0e1a56
+PARAMETERS FAIL: guide: missing LOCK_TIMEOUT_MS_P
+PARAMETERS FAIL: guide: missing NVM_RS_TMO_CYC_P
+PARAMETERS FAIL: guide: missing N_AUDIO_UNIT_P
+PARAMETERS FAIL: guide: missing N_CLK_DOMAIN_P
+PARAMETERS FAIL: guide: missing N_CONTROL_P
+PARAMETERS FAIL: guide: missing REG_TL_TIMEOUT_MS_P
+parameters: top 24, guide 18, diagram 24, 6 FAILURES
+rc=1
+== pre-change diagram at 008edbbf486598ae237414273d75e385cf0e1a56
+PARAMETERS FAIL: diagram: expected one integration-parameters inventory group
+parameters: top 24, guide 24, 1 FAILURES
+rc=1
+== pre-change guide at 60152f3ff068b81333326b5081b5303253ba7fe7
+PARAMETERS FAIL: guide: missing LOCK_TIMEOUT_MS_P
+PARAMETERS FAIL: guide: missing NVM_RS_TMO_CYC_P
+PARAMETERS FAIL: guide: missing N_AUDIO_UNIT_P
+PARAMETERS FAIL: guide: missing N_CLK_DOMAIN_P
+PARAMETERS FAIL: guide: missing N_CONTROL_P
+PARAMETERS FAIL: guide: missing REG_TL_TIMEOUT_MS_P
+parameters: top 24, guide 18, diagram 24, 6 FAILURES
+rc=1
+== pre-change diagram at 60152f3ff068b81333326b5081b5303253ba7fe7
+PARAMETERS FAIL: diagram: expected one integration-parameters inventory group
+parameters: top 24, guide 24, 1 FAILURES
+rc=1

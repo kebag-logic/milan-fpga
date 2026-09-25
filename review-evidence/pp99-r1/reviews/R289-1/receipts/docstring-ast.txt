@@ -1,0 +1,37 @@
+AST identical excluding function docstrings: True
+diff --git a/scripts/check-integrator-params.py b/scripts/check-integrator-params.py
+index 3120344..5722f1a 100755
+--- a/scripts/check-integrator-params.py
++++ b/scripts/check-integrator-params.py
+@@ -21,6 +21,7 @@ DIAGRAM = ROOT / "docs/diagrams/21-integration-faces.svg"
+ 
+ 
+ def top_parameters(path: Path) -> list[str]:
++    """Read overridable parameter names from the top's module header."""
+     # Mask strings and comments before looking for declaration syntax. In
+     # particular, punctuation inside a ROM filename must not split the header.
+     body = re.sub(r'"(?:\\.|[^"\\])*"|//[^\n]*|/\*.*?\*/', " ",
+@@ -62,6 +63,7 @@ def top_parameters(path: Path) -> list[str]:
+ 
+ 
+ def guide_parameters(path: Path) -> list[str]:
++    """Read parameter names from the guide's section 2 inventory table."""
+     body = path.read_text(encoding="utf-8")
+     section = re.search(r"^## 2\. Parameters\b.*?(?=^## |\Z)", body, re.M | re.S)
+     if not section:
+@@ -76,6 +78,7 @@ def guide_parameters(path: Path) -> list[str]:
+ 
+ 
+ def diagram_parameters(path: Path) -> list[str]:
++    """Read parameter names from diagram 21's visible inventory group."""
+     root = ET.parse(path).getroot()
+     groups = root.findall(".//*[@id='integration-parameters']")
+     if len(groups) != 1:
+@@ -86,6 +89,7 @@ def diagram_parameters(path: Path) -> list[str]:
+ 
+ 
+ def main() -> int:
++    """Compare the guide and diagram inventories against the RTL declarations."""
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--top", type=Path, default=TOP)
+     parser.add_argument("--guide", type=Path, default=GUIDE,

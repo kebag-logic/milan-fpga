@@ -1,0 +1,17 @@
+head 663d50d65ff49c33b153107b2f79d6f3c5725799 tree 21e0fddbbe927569b7e16f282088ea4fc1b7b7f1
+=== python3 scripts/check-links.py -> rc=0
+links: 916 checked, OK
+=== python3 scripts/check-matrix.py -> rc=0
+matrix: 115 REQ rows, 17 GAP findings, OK
+=== python3 scripts/check-integrator-params.py -> rc=0
+parameters: top 24, guide 24, diagram 24, OK
+=== python3 scripts/render-wavedrom.py --check -> rc=0
+wavedrom: 18 blocks checked, OK
+=== make stale -> rc=0
+=== make check -> rc=0
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+wavedrom: 18 blocks checked, OK
+links: 916 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (92 rows, 0 untested)
+parameters: top 24, guide 24, diagram 24, OK

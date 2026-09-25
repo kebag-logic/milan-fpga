@@ -1,0 +1,34 @@
+36095709787 hdl pull_request in_progress null 663d50d65ff49c33b153107b2f79d6f3c5725799
+36095706256 hdl push in_progress null 663d50d65ff49c33b153107b2f79d6f3c5725799
+  job docs-gates completed success steps: Set up job=success; Run actions/checkout@v4=success; Link, matrix, parameter, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+  job portability completed success steps: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+  job suites in_progress null steps: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=null; Post Cache the pinned Verilator build=null; Post Run actions/checkout@v4=null
+  job docs-gates completed success steps: Set up job=success; Run actions/checkout@v4=success; Link, matrix, parameter, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+  job suites in_progress null steps: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=null; Post Cache the pinned Verilator build=null; Post Run actions/checkout@v4=null
+  job portability completed success steps: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+run 36095709787 docs-gates job 107947429883
+run 36095706256 docs-gates job 107947420192
+== docs-gates job 107947429883
+2026-09-25T04:45:17.0114062Z ##[group]Checking out the ref
+2026-09-25T04:45:17.0116792Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/119/merge
+2026-09-25T04:45:17.0668140Z [command]/usr/bin/git log -1 --format=%H
+2026-09-25T04:45:17.0967131Z python3 scripts/check-integrator-params.py
+2026-09-25T04:45:21.8816242Z   Created wheel for wavedrom: filename=wavedrom-2.0.3.post3-py2.py3-none-any.whl size=30056 sha256=967dd22e178ecbbf12fe59d72bc1eb28622dfdafcee18602fac34bba04d1b67a
+2026-09-25T04:45:22.3983616Z links: 916 checked, OK
+2026-09-25T04:45:22.4256222Z matrix: 115 REQ rows, 17 GAP findings, OK
+2026-09-25T04:45:22.4652701Z parameters: top 24, guide 24, diagram 24, OK
+2026-09-25T04:45:22.9916591Z wavedrom: 18 blocks checked, OK
+== docs-gates job 107947420192
+2026-09-25T04:45:51.2111408Z ##[group]Checking out the ref
+2026-09-25T04:45:51.2116844Z [command]/usr/bin/git checkout --progress --force -B 99-integrator-params refs/remotes/origin/99-integrator-params
+2026-09-25T04:45:51.2694266Z [command]/usr/bin/git log -1 --format=%H
+2026-09-25T04:45:51.2981575Z python3 scripts/check-integrator-params.py
+2026-09-25T04:45:58.1515247Z   Created wheel for wavedrom: filename=wavedrom-2.0.3.post3-py2.py3-none-any.whl size=30056 sha256=432526346e70fe00cd21fb241f5342eb523bbde316625449e47e94b04592d1c2
+2026-09-25T04:45:58.6874695Z links: 916 checked, OK
+2026-09-25T04:45:58.7154550Z matrix: 115 REQ rows, 17 GAP findings, OK
+2026-09-25T04:45:58.7544067Z parameters: top 24, guide 24, diagram 24, OK
+2026-09-25T04:45:59.2797320Z wavedrom: 18 blocks checked, OK
+push run 36095706256 job docs-gates success steps: Set up job=success; Run actions/checkout@v4=success; Link, matrix, parameter, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+push run 36095706256 job suites success steps: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+push run 36095706256 job portability success steps: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+status at 2026-09-25T04:57:51Z: pull_request run 36095709787 in_progress null

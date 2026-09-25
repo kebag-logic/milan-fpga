@@ -1,0 +1,42 @@
+== PR-own delta (merged main..HEAD), name-status
+M	.github/workflows/hdl.yml
+M	Makefile
+M	docs/diagrams/21-integration-faces.png
+M	docs/diagrams/21-integration-faces.svg
+M	docs/diagrams/README.md
+M	docs/guides/integrator.md
+A	scripts/check-integrator-params.py
+== PR-own delta under hdl/ tb/ syn/ (expect empty)
+(end)
+== 52659df vs base under hdl/ tb/ syn/ (expect empty)
+(end)
+== top parameter header sha256: base 08aec13a64143e2668f478acaacad13349ad975ff0f0d6089476f2d238efb86f  -
+   main 08aec13a64143e2668f478acaacad13349ad975ff0f0d6089476f2d238efb86f  -
+   head 08aec13a64143e2668f478acaacad13349ad975ff0f0d6089476f2d238efb86f  -
+== top file blob: main cb81d64220d59b572f73cdadda3fac8d94a0bb04 head cb81d64220d59b572f73cdadda3fac8d94a0bb04
+== workflow delta (merged main..HEAD)
+diff --git a/.github/workflows/hdl.yml b/.github/workflows/hdl.yml
+index e6ae2f1..dbe21ca 100644
+--- a/.github/workflows/hdl.yml
++++ b/.github/workflows/hdl.yml
+@@ -14,11 +14,12 @@ jobs:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@v4
+-      - name: Link, matrix, wavedrom and staleness gates
++      - name: Link, matrix, parameter, wavedrom and staleness gates
+         run: |
+           python3 -m pip install wavedrom
+           python3 scripts/check-links.py
+           python3 scripts/check-matrix.py
++          python3 scripts/check-integrator-params.py
+           python3 scripts/render-wavedrom.py --check
+           make stale
+ 
+replay merge rc=0
+replayed tree 44a835545b78b6eeba17f1fddfdb187468fa38ae  recorded merge tree 44a835545b78b6eeba17f1fddfdb187468fa38ae
+== recorded merge vs replay (expect empty)
+(end)
+== 663d50d vs merge (expect checker docstrings only)
+ scripts/check-integrator-params.py | 4 ++++
+ 1 file changed, 4 insertions(+)
