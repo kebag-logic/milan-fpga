@@ -1,0 +1,11 @@
+{
+  "source": "syn/yosys/ooc.sh",
+  "source_sha256": "39a46b5dae849702fcbe699d57ab59b64e51a0b7933e0a0c473b58c06e80176f",
+  "adapted_recipe": "$VALIDATION_STORAGE/400-403-a313-tools/ooc-with-csr.sh",
+  "adapted_sha256": "9f5c2acea5b6a0e82430a00e93aef35e71a3fb14420367c51b435f0054f7d6a8",
+  "changes": {
+    ". \"$(dirname \"$0\")/malloc.sh\"": ". \"$LANES/400-403-declaration-truth/syn/yosys/malloc.sh\"",
+    "R=\"$(cd \"$(dirname \"$0\")/../..\" && pwd)\"": "R=\"$LANES/400-403-declaration-truth\"",
+    "tops=(\n": "tops=(\n  \"milan_csr|$R/hdl/common/csr/milan_csr.sv\"\n"
+  }
+}

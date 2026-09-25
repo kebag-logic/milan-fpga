@@ -1,0 +1,42 @@
+[
+  {
+    "command": [
+      "$VALIDATION_TOOLS/verilator-v5.050/bin/verilator",
+      "--version"
+    ],
+    "exit": 0,
+    "output": "Verilator 5.050 2026-07-01 rev v5.050\n"
+  },
+  {
+    "command": [
+      "yosys",
+      "-V"
+    ],
+    "exit": 0,
+    "output": "Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]\n"
+  },
+  {
+    "command": [
+      "sv2v",
+      "--numeric-version"
+    ],
+    "exit": 0,
+    "output": "0.0.13\n"
+  },
+  {
+    "command": [
+      "python3",
+      "--version"
+    ],
+    "exit": 0,
+    "output": "Python 3.14.7\n"
+  },
+  {
+    "command": [
+      "g++",
+      "--version"
+    ],
+    "exit": 0,
+    "output": "g++ (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+  }
+]

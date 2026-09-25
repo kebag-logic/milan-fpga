@@ -1,0 +1,274 @@
+HEAD: 4cfbb825f0082394faaec557ab8ad19d13043169
+COMMAND: ./obj_nolpf/Vmilan_dp_nolpf
+=== milan_datapath integration harness (§A.9 wrapper) ===
+[CSR] identity + reset values
+  [PASS] ID == 'MILN'                       got=0x4d494c4e exp=0x4d494c4e
+  [PASS] VERSION                            got=0x00020060 exp=0x00020060
+  [PASS] LINKG unarmed                      got=0x00000003 exp=0x00000003
+[CSR] eth guard: refused levers, magic unguard, junk re-arm
+  [PASS] GUARD armed at reset               got=0x00000001 exp=0x00000001
+  [PASS] PHY_RST write REFUSED while guarded got=0x00000001 exp=0x00000001
+  [PASS] LINK_CTRL[1] masked while guarded  got=0x00000001 exp=0x00000001
+  [PASS] magic unguards                     got=0x00000000 exp=0x00000000
+  [PASS] PHY_RST write accepted unguarded   got=0x00000000 exp=0x00000000
+  [PASS] junk write re-arms the guard       got=0x00000001 exp=0x00000001
+  [PASS] unguarded for the suite            got=0x00000000 exp=0x00000000
+  [PASS] CAP.ADP bit12                      got=0x00000001 exp=0x00000001
+  [PASS] CAP.TCAM bit13                     got=0x00000001 exp=0x00000001
+[CSR] program classifier (identity map)
+  [PASS] CLS_REGEN readback                 got=0x00fac688 exp=0x00fac688
+  [PASS] CLS_TCQ   readback                 got=0x000000e4 exp=0x000000e4
+[BOOT] PP_CTRL[1] starts the restore walk the listener waits for
+  [PASS] PP_STAT[2] the restore walk sequenced got=0x00000001 exp=0x00000001
+[ADP] served by the protocol processor; diag words are structural zeros
+  [PASS] A_ADP_DIAG 0x668 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+  [PASS] A_ADP_DIAG2 0x674 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+  [GAP]  ADP advertisement cadence is unreachable at the silicon millisecond (T-ADP-DELAY-START is a 0..2000 ms PRNG draw = up to 2e8 cycles; measured: no ADPDU in 4e7). A_ADP_STATUS reads 0x00000000. The ADPDU decode lives in tb/verilator/pp_shadow.
+[ADP] shape 0x618=0x40010001 0x61C=0x48010002 (N_STREAMS=1, CRF source no, CRF sink yes)
+  [PASS] 0x618 RO shape word derives from the config got=0x40010001 exp=0x40010001
+  [PASS] 0x61C RO shape word derives from the config got=0x48010002 exp=0x48010002
+  [PASS] 0x618 refuses the poke             got=0x40010001 exp=0x40010001
+  [PASS] 0x61C refuses the poke             got=0x48010002 exp=0x48010002
+[ACMP] GET_TX_STATE -> RESPONSE through datapath
+  [PASS] ACMP response emerged on MAC port  got=0x00000001 exp=0x00000001
+  [PASS] ACMP response is 9 beats           got=0x00000009 exp=0x00000009
+  [PASS] ACMP dst multicast                 got=0x01f0e091 exp=0x01f0e091
+  [PASS] ACMP subtype 0xFC                  got=0x000000fc exp=0x000000fc
+  [PASS] ACMP msg GET_TX_STATE_RESPONSE(5)  got=0x00000005 exp=0x00000005
+  [PASS] ACMP status SUCCESS + cdl 44       got=0x00002c00 exp=0x00002c00
+  [PASS] ACMP connection_count 0            got=0x00000000 exp=0x00000000
+  [PASS] ACMP sequence echoed               got=0x00002b1a exp=0x00002b1a
+  [PASS] 0x650 ACMP_STAT is a STRUCTURAL ZERO (no PDU counters) got=0x00000000 exp=0x00000000
+  [PASS] PP_DIAG: the plane ACCEPTED control frames (rx_frames > 0) got=0x00000001 exp=0x00000001
+  [PASS] PP_DIAG: and it SENT some (tx_frames > 0) got=0x00000001 exp=0x00000001
+  [PASS] PP_DIAG: nothing was lost to a full control FIFO got=0x00000000 exp=0x00000000
+[IRQ] o_irq_csr is driven
+  [PASS] o_irq_csr defined (0/1)            got=0x00000001 exp=0x00000001
+[PTP] retained PHC CSR control
+  [PASS] PHC adjfine owns the rate          got=0x00000001 exp=0x00000001
+  [PASS] PHC adjtime hops the counter       got=0x00000001 exp=0x00000001
+[MILAN-TALKER] the admission gate, and the bypass escape
+  [PASS] gate closed pre-probe (CSR)        got=0x00000000 exp=0x00000000
+  [PASS] MAC silent while gated             got=0x00000000 exp=0x00000000
+  [PASS] PROBE response emerged             got=0x00000001 exp=0x00000001
+  [PASS] PROBE response 9 beats             got=0x00000009 exp=0x00000009
+  [PASS] PROBE msg RESPONSE(1)              got=0x00000001 exp=0x00000001
+  [PASS] PROBE status TALKER_DEST_MAC_FAILED(3) - no DA held got=0x00000003 exp=0x00000003
+  [PASS] gate STILL closed after a refused probe got=0x00000000 exp=0x00000000
+  [PASS] AAF_CTRL[1] bypass opens the gate, and ONLY the gate got=0x00000008 exp=0x00000008
+  [PASS] AAF frames flow under the bypass escape got=0x00000001 exp=0x00000001
+  [PASS] AAF stream_id == {station MAC, uid 0} got=0x200000000010000 exp=0x200000000010000
+  [PASS] TONE_CTRL readback                 got=0x00000001 exp=0x00000001
+  [PASS] tone L0 in table                   got=0x00000001 exp=0x00000001
+  [PASS] tone L0 == R0 (both channels)      got=0x00000001 exp=0x00000001
+  [PASS] tone advances (L1 = next entry)    got=0x00000001 exp=0x00000001
+  [PASS] tone frame captured                got=0x00000001 exp=0x00000001
+  [PASS] crossbar tone: 48 ticks captured   got=0x00000030 exp=0x00000030
+  [PASS] crossbar tone: all wire channels equal got=0x00000000 exp=0x00000000
+  [PASS] crossbar tone: first sample in table got=0x00000001 exp=0x00000001
+  [PASS] ONE GRID: N ticks = N table steps (no slip) got=0x00000000 exp=0x00000000
+[CLKV] option-off is permanently ownerless (#116)
+  [PASS] CLKV: retained CTRL resets zero    got=0x00000000 exp=0x00000000
+  [PASS] CLKV: reset tu = 1                 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: reset sync_ok = 0            got=0x00000000 exp=0x00000000
+  [PASS] CLKV: retired no-lease bit = 0     got=0x00000000 exp=0x00000000
+  [PASS] CLKV: retired lease count = 0      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: reset asCapable = 0          got=0x00000000 exp=0x00000000
+  [PASS] CLKV: ownerless frame is still emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: ownerless frame carries tu=1 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: ownerless frame keeps tv=1   got=0x00000081 exp=0x00000081
+  [PASS] CLKV: its mr toggled once per PHC step issued so far (#387) got=0x00000001 exp=0x00000001
+  [PASS] CLKV: frame remains the full AAF PDU got=0x0000005a exp=0x0000005a
+  [PASS] CLKV: all owner-control bits read back zero got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot clear tu        got=0x00000001 exp=0x00000001
+  [PASS] CLKV: write cannot assert sync     got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot assert asCapable got=0x00000000 exp=0x00000000
+  [PASS] CLKV: write cannot create a lease  got=0x00000000 exp=0x00000000
+  [PASS] CLKV: software discontinuity is inert got=0x00000000 exp=0x00000000
+  [PASS] CLKV: frame after owner write is emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: owner write cannot clear wire tu got=0x00000001 exp=0x00000001
+  [PASS] CLKV: GM LO write reads zero       got=0x00000000 exp=0x00000000
+  [PASS] CLKV: GM HI write reads zero       got=0x00000000 exp=0x00000000
+  [PASS] CLKV: domain write reads zero      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: pdelay write reads zero      got=0x00000000 exp=0x00000000
+  [PASS] CLKV: parent LO write reads zero   got=0x00000000 exp=0x00000000
+  [PASS] CLKV: parent HI write reads zero   got=0x00000000 exp=0x00000000
+  [PASS] CLKV: publication writes cannot assert GM holdover got=0x00000000 exp=0x00000000
+  [PASS] CLKV: publication writes cannot clear tu got=0x00000001 exp=0x00000001
+  [PASS] CLKV: PHC step arms holdover       got=0x00000001 exp=0x00000001
+  [PASS] CLKV: PHC step keeps tu asserted   got=0x00000001 exp=0x00000001
+  [PASS] CLKV: holdover expires             got=0x00000000 exp=0x00000000
+  [PASS] CLKV: ownerless tu remains asserted after holdover got=0x00000001 exp=0x00000001
+  [PASS] CLKV: TUCNT advances for permanent uncertainty got=0x00000001 exp=0x00000001
+  [PASS] CLKV: post-holdover frame is emitted got=0x00000001 exp=0x00000001
+  [PASS] CLKV: post-holdover frame still carries tu=1 got=0x00000001 exp=0x00000001
+  [PASS] CLKV: the settime toggled mr once more (#387) got=0x00000000 exp=0x00000000
+  [PASS] CLKV: ... and MEDIA_RESET counted that toggle once (#387) got=0x00000001 exp=0x00000001
+[ASPATH] option-off path publication is inert (#116)
+  [PASS] ASP: reset LO zero                 got=0x00000000 exp=0x00000000
+  [PASS] ASP: reset HI zero                 got=0x00000000 exp=0x00000000
+  [PASS] ASP: reset {gen,count} zero        got=0x00000000 exp=0x00000000
+  [PASS] ASP: LO write reads zero           got=0x00000000 exp=0x00000000
+  [PASS] ASP: HI write reads zero           got=0x00000000 exp=0x00000000
+  [PASS] ASP: commit/publish writes read zero got=0x00000000 exp=0x00000000
+[AVTP-RXMON] BIND_RX -> AAF frame -> STREAM_INPUT counters (0x6B8)
+  [PASS] RXMON stat idle                    got=0x00000000 exp=0x00000000
+  [PASS] RXMON frames_rx idle               got=0x00000000 exp=0x00000000
+  [PASS] the listener launched a PROBE_TX at the named talker got=0x00000001 exp=0x00000001
+  [PASS] listener bound (0x6A4[3] bound, the class-D record) got=0x00000001 exp=0x00000001
+  [PASS] ...and 0x6A4[4] stream-active follows it got=0x00000001 exp=0x00000001
+  [PASS] 0x6A4[2:0] SM state is a STRUCTURAL ZERO (no ladder here) got=0x00000000 exp=0x00000000
+  [i] STREAM_INPUT[0] declared-format acceptance: 0x6BC=1 0x6C0=0x00000000 0x6C4=0x00000001 render=6 beats
+  [PASS] in0 fmt is the DECLARED format: a conformant PDU is ACCEPTED got=0x00000000 exp=0x00000000
+  [PASS] ...so FRAMES_RX moved (0x6BC)      got=0x00000001 exp=0x00000001
+  [PASS] ...and PCMRX advanced (0x6C4)      got=0x00000001 exp=0x00000001
+  [PASS] ...and the 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+  [PASS] ...and MEDIA_LOCKED asserts (0x6B8) got=0x00000001 exp=0x00000001
+  [PASS] tagged: the format gate accepts it too (UNSUPPORTED still 0) got=0x00000000 exp=0x00000000
+  [PASS] tagged: FRAMES_RX = 2              got=0x00000002 exp=0x00000002
+  [PASS] tagged: 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+  [PASS] APRB parsed = 2 frames             got=0x00000002 exp=0x00000002
+  [PASS] APRB matched = 2 frames            got=0x00000002 exp=0x00000002
+  [PASS] APRB last SID_HI (wire)            got=0x02000000 exp=0x02000000
+  [PASS] APRB last SID_LO (wire)            got=0x00020000 exp=0x00020000
+  [PASS] APRB info subtype = AAF            got=0x00000002 exp=0x00000002
+  [PASS] APRB info matched flag             got=0x00000001 exp=0x00000001
+  [PASS] APRB info armed entries            got=0x00000001 exp=0x00000001
+  [PASS] APRB unknown-sid: parsed = 3       got=0x00000003 exp=0x00000003
+  [PASS] APRB unknown-sid: matched still 2  got=0x00000002 exp=0x00000002
+  [PASS] APRB unknown-sid: SID_LO is the WIRE value got=0x00090000 exp=0x00090000
+  [PASS] APRB unknown-sid: match flag clear got=0x00000000 exp=0x00000000
+  [PASS] APRB unknown-sid: no fabric-render payload got=0x00000000 exp=0x00000000
+  [PASS] APRB unknown-sid: FRAMES_RX still 2 (unbound sid refused) got=0x00000002 exp=0x00000002
+  [wire86] FRX delta=2 UNSUP 0x0->0x0
+  [wire124pad] FRX delta=1
+  [mkaaf86] FRX delta=1
+  [PASS] prefilter: PCMRX KEPT consuming (+2 PDUs) got=0x00000005 exp=0x00000005
+  [PASS] prefilter: fabric render KEPT consuming (+12 beats) got=0x0000000c exp=0x0000000c
+  [PASS] I2S left sample from payload       got=0x00000001 exp=0x00000001
+  [PASS] epoch = 1 (one reset release since bitstream) got=0x00000001 exp=0x00000001
+  [PASS] LINK_CTRL reads back 0 (shadowed)  got=0x00000000 exp=0x00000000
+  [PASS] LINK_CTRL reads back 1 (shadowed)  got=0x00000001 exp=0x00000001
+  [PASS] epoch unchanged by link toggles    got=0x00000001 exp=0x00000001
+  [PASS] datapath alive after link toggle (ID) got=0x4d494c4e exp=0x4d494c4e
+  [PASS] ENT_NAME_LO reads back             got=0x59545241 exp=0x59545241
+  [PASS] LPF_CTRL default on                got=0x00000001 exp=0x00000001
+  [PASS] LPF_CTRL bypass set                got=0x00000000 exp=0x00000000
+  [PASS] UNSUPPORTED_FORMAT +1 (0x6C0)      got=0x00000001 exp=0x00000001
+  [PASS] FRAMES_RX unchanged by wrong-rate  got=0x00000009 exp=0x00000009
+  [PASS] no fabric render for rejected PDU  got=0x00000000 exp=0x00000000
+  [PASS] PCMRX unchanged by wrong-rate      got=0x00000006 exp=0x00000006
+  [PASS] UNSUPPORTED_FORMAT view reached its 0xFF ceiling got=0x000000ff exp=0x000000ff
+  [PASS] saturated view STAYS 0xFF (no wrap) got=0x000000ff exp=0x000000ff
+  [PASS] neighbouring TIMESTAMP_UNCERTAIN byte untouched got=0x00000000 exp=0x00000000
+  [PASS] full 32-bit UNSUPPORTED_FORMAT > the saturated view got=0x00000001 exp=0x00000001
+
+[CRF] Milan CRF media clock input engine
+  [PASS] CRF pdu_count 1                    got=0x00000001 exp=0x00000001
+  [PASS] CRF no fmt/seq errors              got=0x00000000 exp=0x00000000
+  [PASS] CRF not locked yet                 got=0x00000000 exp=0x00000000
+  [PASS] CRF delta captured (nonzero)       got=0x00000001 exp=0x00000001
+  [PASS] CRF locked after 8 clean PDUs      got=0x00000001 exp=0x00000001
+  [PASS] CRF pdu_count 8                    got=0x00000008 exp=0x00000008
+  [PASS] CRF fmt_err 1 (wrong interval)     got=0x00000001 exp=0x00000001
+  [PASS] CRF count unchanged by bad fmt     got=0x00000008 exp=0x00000008
+  [PASS] CRF still locked (no timeout)      got=0x00000001 exp=0x00000001
+  [PASS] CRF foreign sid ignored            got=0x00000008 exp=0x00000008
+  [PASS] CRF seq_err 1                      got=0x00000001 exp=0x00000001
+  [PASS] CRF rate = +256000 ns/window       got=0x0003e800 exp=0x0003e800
+  [PASS] CRF-5: mr/fs/tu PDUs accepted (+2) got=0x0000010f exp=0x0000010f
+  [PASS] CRF-5: no fmt/seq errors from mr/fs/tu got=0x00000101 exp=0x00000101
+  [PASS] CRF-5: lock survives mr/fs/tu      got=0x00000001 exp=0x00000001
+  [PASS] CRF-5: sv=0 PDU ignored            got=0x0000010f exp=0x0000010f
+  [PASS] CRF-5: clean seq resumes after sv=0 got=0x00000101 exp=0x00000101
+  [PASS] CRF-5: resumed PDU counted         got=0x00000110 exp=0x00000110
+  [PASS] CRF disabled = inert               got=0x00000110 exp=0x00000110
+
+[SERVO] clock_source resolves INTERNAL here (the live default; CRF runs in obj_aclk)
+  [PASS] the NCO grid is structurally free-running (servo_en = 0) got=0x00000000 exp=0x00000000
+  [PASS] MMCM servo stays IDLE at clock_source = INTERNAL (MCSRV_STAT[2:0] == 0) got=0x00000000 exp=0x00000000
+  [PASS] MCSRV_CTRL reads 0 at reset        got=0x00000000 exp=0x00000000
+  [PASS] MCSRV_CTRL ps_invert readback      got=0x00000001 exp=0x00000001
+  [PASS] MCSRV_CTRL clears                  got=0x00000000 exp=0x00000000
+
+[CRFTX] Milan CRF media clock output engine + rx loopback
+  [PASS] CRFT count starts 0                got=0x00000000 exp=0x00000000
+  [PASS] CRFT sid readback (shadow)         got=0x00010001 exp=0x00010001
+  [PASS] CRFT dmac readback (shadow)        got=0xf0002a07 exp=0xf0002a07
+  [PASS] CRFT_CTRL readback en=1 + stat[7]  got=0x00000081 exp=0x00000081
+  [PASS] CRFTX captured 10 PDUs             got=0x0000000a exp=0x0000000a
+  [PASS] CRFTX 60-byte frame (last keep 0x0F) got=0x0000000f exp=0x0000000f
+  [PASS] CRFT count == captured             got=0x0000000a exp=0x0000000a
+  [i]    CRFTX byte15 = 0x81 (mr=0, ownerless tu=1)
+  [PASS] CRFTX header/sid/base/dlen/ival byte-exact got=0x00000001 exp=0x00000001
+  [PASS] CRFTX option-off ownerless tu stays one got=0x00000001 exp=0x00000001
+  [PASS] CRFTX sequence_num 0..9 consecutive got=0x00000001 exp=0x00000001
+  [PASS] CRFTX zero pad to 60B              got=0x00000001 exp=0x00000001
+  [PASS] CRFTX ts strictly monotone         got=0x00000001 exp=0x00000001
+  [PASS] CRFTX ts grid uniform (event-locked) got=0x00000001 exp=0x00000001
+  [PASS] CRFTX ts spacing nonzero           got=0x00000001 exp=0x00000001
+  [PASS] CRFRX counted all looped PDUs      got=0x0000000a exp=0x0000000a
+  [PASS] CRFRX fmt clean on our wire format got=0x00000000 exp=0x00000000
+  [PASS] CRFRX at most the sid-switch seq gap got=0x00000001 exp=0x00000001
+  [PASS] CRFRX locked on our stream         got=0x00000001 exp=0x00000001
+  [PASS] CRFRX delta ~= +PTO (Milan future-dating) got=0x00000001 exp=0x00000001
+  -- [H2] 10.4.3 mr: the level reaches the wire byte --
+  [PASS] H2 baseline: the CRF output is emitting got=0x00000003 exp=0x00000003
+  [PASS] H2 baseline: byte 15 is a well-formed sv|mr|fs|tu byte got=0x00000080 exp=0x00000080
+  [PASS] H2: the granted mr level reaches the wire byte, held got=0x00000001 exp=0x00000001
+  [i]    10.4.3 triggers REACH the media plane since #74: the resolved selection gates mr (obj_aclk's [MR] arm grades the received-toggle echo under CRF and its 10.4.3 silence at INTERNAL), and KL_media_clock_restart's clk_src_i is the live index, so the source-change trigger fires on a real SET_CLOCK_SOURCE.
+  [PASS] CRFTX disabled = silent wire       got=0x00000000 exp=0x00000000
+  [PASS] CRFTX disabled = count frozen      got=0x0000000d exp=0x0000000d
+  [PASS] CRFTX unlicensed (lwSRP on, no listener-ready) = silent got=0x00000000 exp=0x00000000
+  [PASS] CRFTX unlicensed = count frozen    got=0x0000000d exp=0x0000000d
+  [PASS] CRFT stat[7] emission-licensed clear got=0x00000000 exp=0x00000000
+  [PASS] CRFTX free-run restored with lwSRP off got=0x00000001 exp=0x00000001
+  [PASS] CRFT stat[7] emission-licensed set got=0x00000001 exp=0x00000001
+
+[S1CRF] ACMP sink-1 bind provisions the CRF engine
+  [PASS] [S1CRF] CSR enable cleared         got=0x00000000 exp=0x00000000
+  [PASS] [S1CRF] sink 1 launched its PROBE_TX got=0x00000001 exp=0x00000001
+  [i]    s1 probe: msg=0 len=70 teid=020000fffe000009 tuid=0001 luid=0001 seq=0001 sid=0000000000000000
+  [PASS] [S1CRF] ACMPL bit31 = sink-1 bound got=0x00000001 exp=0x00000001
+  [PASS] [S1CRF] engine counted on bound sid got=0x00000009 exp=0x00000009
+  [PASS] [S1CRF] locked via ACMP provisioning got=0x00000001 exp=0x00000001
+  [PASS] [S1CRF] unbind clears bit31        got=0x00000000 exp=0x00000000
+  [PASS] [S1CRF] post-unbind PDU ignored    got=0x00000009 exp=0x00000009
+
+[LINKG] link guard integration drill
+  [PASS] [LINKG] armed alive                got=0x00000003 exp=0x00000003
+  [PASS] [LINKG] reinit pin idle            got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] freeze bounce              got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] freeze state               got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] freeze grst                got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] freeze alive               got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] reinit pin held            got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] disable releases pin       got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] re-enable RUN              got=0x00000000 exp=0x00000000
+  [PASS] [LINKG] re-enable alive            got=0x00000003 exp=0x00000003
+  [PASS] [LINKG] no extra bounce            got=0x00000001 exp=0x00000001
+  [PASS] [LINKG] reinit pin clear           got=0x00000000 exp=0x00000000
+[RMON] boundary good-frame lanes + STATS_CTRL snapshot
+  [PASS] [RMON] baseline TX_GOOD 0          got=0x00000000 exp=0x00000000
+  [PASS] [RMON] baseline RX_GOOD 0          got=0x00000000 exp=0x00000000
+  [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+  [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+  [PASS] [RMON] lanes latched (pre-re-arm TX_GOOD still 0) got=0x00000000 exp=0x00000000
+  [PASS] [RMON] RX_GOOD == 2 (0x230)        got=0x00000002 exp=0x00000002
+  [PASS] [RMON] UNDERFLOW == 0 (0x210)      got=0x00000000 exp=0x00000000
+  [PASS] [RMON] ext UNDERFLOW pulse == 1    got=0x00000001 exp=0x00000001
+  [PASS] [RMON] ext TX_GOOD bit ignored     got=0x00000000 exp=0x00000000
+  [PASS] [RMON] ext RX_GOOD bit ignored     got=0x00000002 exp=0x00000002
+  [PASS] [RMON] reinit release zeroes TX_GOOD got=0x00000000 exp=0x00000000
+  [PASS] [RMON] reinit release zeroes RX_GOOD got=0x00000000 exp=0x00000000
+[RMON] STATS_CAP lane capability mask (0x204)
+  [PASS] [RMON] cap with no MAC = the two derived lanes only got=0x00000108 exp=0x00000108
+  [PASS] [RMON] cap ORs the integration's lanes over the derived pair got=0x000001b8 exp=0x000001b8
+  [PASS] [RMON] TX_ERROR_UNDERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] TX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] TX_FIFO_BAD_FRAME declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] RX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] cap is a live read (bits 31:9 reserved 0) got=0x00000000 exp=0x00000000
+======================================================================
+milan_datapath: 234 checks, 0 failures
+milan_datapath: guarded and NOT run in this shape: 1
