@@ -1,0 +1,37 @@
+# head: e122f3302cf8a8e89de960233a8638b9dd1387dc
+# file: hdl/milan/milan_datapath.sv
+# original sha256: fc940ef0305d0eadf0ed82be082d88fc5539f95e6f503925eb9b2a5d859447fd
+# replace: '.SRP_DOM_DEF_VID_P (ADP_SRP_DOM_DEF_VID_C),'
+# with:    ".SRP_DOM_DEF_VID_P (16'd2),"
+# target: make -C tb/verilator/pp_shadow
+# exit: 2
+# wall_seconds: 35.572
+# restored sha256: fc940ef0305d0eadf0ed82be082d88fc5539f95e6f503925eb9b2a5d859447fd OK
+# --- failing checks and summaries ---
+  [PASS] ...with status TALKER_DEST_MAC_FAILED(3) — no DA to hand out got=0x00000003 exp=0x00000003
+  [PASS] T Asking Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000040 exp=0x00000040
+  [PASS] T Asking Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000040 exp=0x00000040
+  [PASS] T Ready Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+  [PASS] T Ready Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+  [PASS] T Ready: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+  [PASS] T Ready: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+  [PASS] T left: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+  [PASS] T left: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+pp_shadow: 402 checks, 0 failures
+RESULT: PASS
+declaration fixture: vid73.yaml
+  [PASS] ...with status TALKER_DEST_MAC_FAILED(3) — no DA to hand out got=0x00000003 exp=0x00000003
+  [PASS] T Asking Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000040 exp=0x00000040
+  [PASS] T Asking Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000040 exp=0x00000040
+  [PASS] T Ready Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+  [PASS] T Ready Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+  [PASS] T Ready: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+  [PASS] T Ready: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+  [PASS] T left: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+  [PASS] T left: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+  [FAIL] #400 generated parent/wrapper/top/child startup VID got=0x00030002 exp=0x00030049
+  [FAIL] #400 diagnostic writes preserve Domain default got=0x00030002 exp=0x00030049
+  [FAIL] #400 link cycle restores generated default got=0x00030002 exp=0x00030049
+pp_shadow: 402 checks, 3 failures
+RESULT: FAIL
+make: *** [Makefile:146: run-vid73] Error 1

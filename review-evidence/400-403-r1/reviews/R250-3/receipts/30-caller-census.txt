@@ -1,0 +1,40 @@
+# caller census at e122f3302cf8a8e89de960233a8638b9dd1387dc (tracked files incl. submodules, git grep --recurse-submodules)
+## constants_header(
+sw/firmware/nvm_hosttest/test_nvm_firmware.py:166:def constants_header(shape: Shape, donor: Donor,
+sw/firmware/nvm_hosttest/test_nvm_firmware.py:228:    header = constants_header(shape, donor, fabric_constants(overlay, lwsrp))
+tb/verilator/nvm_cosim/run_cases.py:132:    header = ref.constants_header(shp, donor, ref.fabric_constants(overlay, lwsrp))
+## fabric_constants(
+docs/ENDSTATION_BUILDER.md:996:| 30 | `platform.rx_address_filter` | Only `promiscuous`, also the omitted default. `hardware` is refused with migration guidance. `boot_policy.fabric_constants()` generates `MILAN_TCAM_CTRL_BOOT=1` and `MILAN_MAC_CTRL_SET=8`; firmware writes the TCAM bypass explicitly and retains all-multicast. Reset and boot accept station/foreign unicast, broadcast and unregistered multicast. `board.features.rx_mac_filter` independently owns hardware presence. The AVTP listener tap precedes this filter. | REQ-MAC-02, REQ-CLS-03 | firmware boot; post-filter integration test |
+docs/integration/BAREMETAL_FIRMWARE.md:206:the loops in `sw/litex/milan_soc.py` that hand `boot_policy.fabric_constants`
+sw/builder/test_builder.py:4467:        **boot_policy.fabric_constants(
+sw/builder/test_builder.py:26840:        ignoring = boot_policy.fabric_constants(off.overlay, off.lwsrp)
+sw/builder/test_builder.py:26871:        consts = consts or boot_policy.fabric_constants(case.overlay, case.lwsrp)
+sw/builder/test_builder.py:26937:#: green: gate 35 grades what fabric_constants DERIVES, and this loop is the
+sw/builder/test_builder.py:26948:        r"fabric_constants\(\s*_baremetal_ovl\s*,\s*_baremetal_srp\s*\)",
+sw/builder/test_builder.py:26955:        "fabric_constants(_baremetal_ovl, _baremetal_srp)",
+sw/builder/test_builder.py:26962:    assert re.search(r"(?m)^from boot_policy import fabric_constants$", soc), \
+sw/builder/test_builder.py:26963:        "gate 35: milan_soc.py no longer publishes boot_policy.fabric_constants"
+sw/builder/test_builder.py:27449:    off_k = boot_policy.fabric_constants(
+sw/builder/test_builder.py:27452:    on_k = boot_policy.fabric_constants(
+sw/builder/test_builder.py:27464:    table go through boot_policy.fabric_constants, the derivation milan_soc.py
+sw/builder/test_builder.py:27529:            consts = boot_policy.fabric_constants(case.overlay, case.lwsrp)
+sw/firmware/nvm_hosttest/test_nvm_firmware.py:85:from boot_policy import fabric_constants                       # noqa: E402
+sw/firmware/nvm_hosttest/test_nvm_firmware.py:228:    header = constants_header(shape, donor, fabric_constants(overlay, lwsrp))
+sw/litex/boot_policy.py:10:``fabric_constants()`` with ``add_constant``. The inputs are the two files the
+sw/litex/boot_policy.py:35:def fabric_constants(overlay: dict[str, Any],
+sw/litex/milan_soc.py:32:from boot_policy import fabric_constants
+sw/litex/milan_soc.py:3950:        for _name, _value in fabric_constants(_baremetal_ovl,
+tb/verilator/nvm_cosim/run_cases.py:132:    header = ref.constants_header(shp, donor, ref.fabric_constants(overlay, lwsrp))
+## gen_declaration_fixture
+tb/verilator/csr/Makefile:139:	python3 ../../common/gen_declaration_fixture.py fixtures/reset_bits.yaml obj_reset/fixture
+tb/verilator/pp_shadow/Makefile:144:	python3 ../../common/gen_declaration_fixture.py fixtures/vid73.yaml obj_vid73/fixture
+tb/verilator/pp_shadow/Makefile:150:	python3 ../../common/gen_declaration_fixture.py fixtures/crf_on.yaml obj_crf/fixture
+## merge_overrides / emitter_srp_vid
+tb/common/gen_declaration_fixture.py:21:def merge_overrides(config: dict, overrides: dict) -> None:
+tb/common/gen_declaration_fixture.py:25:            merge_overrides(config.setdefault(key, {}), value)
+tb/common/gen_declaration_fixture.py:38:    merge_overrides(raw, fixture.get("overrides", {}))
+tb/common/gen_declaration_fixture.py:43:    if "emitter_srp_vid" in fixture:
+tb/common/gen_declaration_fixture.py:44:        vid = fixture["emitter_srp_vid"]
+tb/verilator/pp_shadow/fixtures/vid73.yaml:4:emitter_srp_vid: 73
+## untracked python importing test_nvm_firmware as module
+tb/verilator/nvm_cosim/run_cases.py:71:import test_nvm_firmware as ref   # noqa: E402  (the repository's own host gate)

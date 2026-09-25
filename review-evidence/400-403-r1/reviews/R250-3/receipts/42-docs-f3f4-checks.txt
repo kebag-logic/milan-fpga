@@ -1,0 +1,34 @@
+# ENDSTATION_BUILDER section 3 table row count at e122f3302cf8a8e89de960233a8638b9dd1387dc
+254:| # | Decision, in one line | Rests on | Status |
+944:| # | Config field | Generates (descriptor / field) | Clause ref | Consumer |
+table header line 944 rows (excluding header+rule): 71
+row ids: 0 1 2 2a 3 3a 4 4b 4c 4d 5 5a 5b 5c 6 6a 7 8 9 9a 10 11 12 13 14 15 16 16a 16b 16c 16d 16e 17 17a 18 19 19a 20 20a 21 22 22a 22b 23 24 25 26 27 28 29 30 31 32 33 33d 33a 33b 33c 34 35 36 37 38 39 40 41 42 43 43a 43b 44
+statement line 1018 : 71 rows. Three rows carry *planned* mark
+## ADP_STROUT_PRES_NS_C consumers
+hdl/common/gen/adp_shape_defaults.svh:87:  localparam logic [31:0] ADP_STROUT_PRES_NS_C [0:1] = '{32'd2000000, 32'd2000000};
+hdl/milan/milan_datapath.sv:3264:                                     : ADP_STROUT_PRES_NS_C[k];
+hdl/milan/milan_datapath.sv:3266:      aecp_pres_offset[32*k +: 32] = ADP_STROUT_PRES_NS_C[0];
+tb/verilator/milan_dp/README.md:684:That row comes from `ADP_STROUT_PRES_NS_C`, rather than zero. The declaration is the default; the setter owns the rest
+tb/verilator/milan_dp/sim_main.cpp:1330:    // row 0 of ADP_STROUT_PRES_NS_C rather than zero. Only the SETTER was AECP's; the
+## milan_dp README 678-686
+zero format a *perfectly conformant* AAF PDU on the bound `stream_id` was
+counted `UNSUPPORTED_FORMAT` and never reached the depacketizer or fabric render.
+Stream 0 accepted nothing. `milan_datapath.sv` now folds the setting over the
+declaration: `aecp_in0_fmt` reads the processor's published SET_STREAM_FORMAT
+row 0 when a controller has set one and the generated `ADP_STRIN0_FMT_C`
+otherwise. Likewise, `aecp_pres_offset` uses its generated per-output default row.
+That row comes from `ADP_STROUT_PRES_NS_C`, rather than zero. The declaration is the default; the setter owns the rest
+(issue #67).
+
+## milan_dp sim_main 1322-1332
+    // PERFECTLY CONFORMANT AAF PDU on the bound stream_id was counted
+    // UNSUPPORTED_FORMAT and never reached the depacketizer or fabric
+    // render: stream 0 accepted NOTHING.
+    //
+    // milan_datapath.sv now reads `assign aecp_in0_fmt =
+    // ADP_STRIN0_FMT_C` - the entity model's DECLARED STREAM_INPUT[0]
+    // format out of the generated shape header, the same file that
+    // feeds 0x618/0x61C - exactly as aecp_pres_offset carries
+    // row 0 of ADP_STROUT_PRES_NS_C rather than zero. Only the SETTER was AECP's; the
+    // declaration never was.
+    //

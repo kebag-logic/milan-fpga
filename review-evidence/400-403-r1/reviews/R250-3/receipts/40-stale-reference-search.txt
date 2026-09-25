@@ -1,0 +1,14 @@
+# stale-reference search at e122f3302cf8a8e89de960233a8638b9dd1387dc
+## PRES_DFLT_C
+## STATICALLY provisioned\|statically provisioned
+docs/design/MAAP_FABRIC.md:4:(before this, `cfg_aaf_dmac` was statically provisioned).
+hdl/ieee1722/maap/doc/KL_maap/KL_maap.md:11:- **[Integration](#integration)** — The one expression that decides whether the claimed address or the statically provisioned one reaches the AAF framer, and the guarantee that comes with it: `en = 0` keeps static pr
+## count (default 8)\|count = 8
+tb/verilator/csr/sim_gptp.cpp:295:  dut->i_gptp_asp_count = 8;
+## reset `0x0800`\|reset 0x0800
+tb/verilator/ptp/sim_main.cpp:26:constexpr int FRAC = 24;   // PTP_INCR is Q8.24 (matches milan_csr reset 0x08000000 = 8.0 ns)
+## bypass=1
+tb/verilator/csr/sim_main.cpp:1135:  axi_write(0x654, 0x00020003);                 // AAF_CTRL: en=1, bypass=1, VID=2
+## reset is bypass
+## keys on a config that asks for
+## keys on platform.rx_address_filter
