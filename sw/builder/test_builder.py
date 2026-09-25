@@ -4466,6 +4466,10 @@ def test_baremetal_profile_contract() -> None:
         "MILAN_MODEL_ID_LO": 0x0A0B_0C0D, "MILAN_MODEL_ID_HI": 0x0102_0304,
         "MILAN_STATION_MAC_LO": 0x3, "MILAN_STATION_MAC_HI": 0x200,
         "MILAN_SR_VID": 2, "MILAN_LWSRP_CTRL_RESET": 0x10,
+        # This census fixture declares one AAF and one CRF output.
+        "MILAN_AAF_CTRL_BOOT": 0x0002_0001,
+        "MILAN_MAAP_CTRL_BOOT": 0x0000_0201,
+        "MILAN_MAC_CTRL_SET": 8, "MILAN_TCAM_CTRL_BOOT": 1,
         "MILAN_N_TALKERS": 1, "MILAN_AEM_FLASH_OFFSET": 0x00E0_0000,
         "MILAN_AEM_IMAGE_BYTES": 4096, "MILAN_AEM_IMAGE_CRC32": 0xDEAD_BEEF,
         # the saved-state writer's constants (#70): the two journal slots,
