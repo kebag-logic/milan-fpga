@@ -1,0 +1,56 @@
+--- syn/yosys/ooc.sh
++++ scratch/base-ooc.sh
+@@ -46,10 +46,10 @@
+ # shell's directory - every yosys run happens in a `(cd "$rundir" && ...)`
+ # subshell - so a relative YOSYS_MALLOC resolves against the caller's directory
+ # as they meant it, and the selection below can sit anywhere before the runs.
+-. "$(dirname "$0")/malloc.sh"
++. "$LANES/545-crf-servo-slew/syn/yosys/malloc.sh"
+ if [ "${1:-}" = "--selftest-alloc" ]; then selftest_alloc; exit $?; fi
+ export PATH="$HOME/.local/bin:$PATH"
+-R="$(cd "$(dirname "$0")/../.." && pwd)"
++R="$LANES/545-crf-servo-slew"
+ A="$R/third_party/verilog-axis/rtl"
+ C="$R/hdl/common"; Q="$R/hdl/ieee8021q/ts"; P="$R/hdl/ieee8021as/ptp_timestamp"
+ E="$R/hdl/common/eth_event_counter"; D="$R/hdl/ieee17221/adp"
+@@ -115,7 +115,7 @@
+ # generated and published both ROMs and then, on a freshly bumped pin,
+ # refused with "no recorded content digest" for a top that does not exist.
+ # The tops list needs nothing but the path variables and $PP_SRCS.
+-DP_SRCS="$PP_SRCS $GPTP_DP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/crf/KL_media_grid_align.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_render_setpoint.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/ieee1722/aaf/KL_tdm_render_master.sv $R/hdl/milan/milan_datapath.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee1722/avtp/KL_media_clock_restart.sv $R/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv"
++DP_SRCS="$PP_SRCS $GPTP_DP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv /tmp/545-a308-area/base.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/crf/KL_media_grid_align.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_render_setpoint.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/ieee1722/aaf/KL_tdm_render_master.sv $R/hdl/milan/milan_datapath.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee1722/avtp/KL_media_clock_restart.sv $R/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv"
+ 
+ # The area-relevant tops: the zero-BRAM LUT hogs of the placer-overflow report,
+ # their parents, and the crf_rx precedent for calibration.
+@@ -148,7 +148,7 @@
+   # against the milan_datapath delta. Standalone OOC is the UPPER bound for a
+   # prune: in context the block shares decode and constants with its
+   # neighbours, so the datapath delta is always the smaller (and truer) number.
+-  "KL_mmcm_drp_servo|$C/cdc_pulse.sv $C/cdc_handshake.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv"
++  "KL_mmcm_drp_servo|$C/cdc_pulse.sv $C/cdc_handshake.sv /tmp/545-a308-area/base.sv"
+   "KL_aaf_latency_taps|$R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv"
+   "KL_maap|$R/hdl/ieee1722/maap/KL_maap.sv"
+   "KL_i2s_playback|$C/cdc_pulse.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv"
+--- syn/yosys/ooc.sh
++++ scratch/alignment-ooc.sh
+@@ -46,10 +46,10 @@
+ # shell's directory - every yosys run happens in a `(cd "$rundir" && ...)`
+ # subshell - so a relative YOSYS_MALLOC resolves against the caller's directory
+ # as they meant it, and the selection below can sit anywhere before the runs.
+-. "$(dirname "$0")/malloc.sh"
++. "$LANES/545-crf-servo-slew/syn/yosys/malloc.sh"
+ if [ "${1:-}" = "--selftest-alloc" ]; then selftest_alloc; exit $?; fi
+ export PATH="$HOME/.local/bin:$PATH"
+-R="$(cd "$(dirname "$0")/../.." && pwd)"
++R="$LANES/545-crf-servo-slew"
+ A="$R/third_party/verilog-axis/rtl"
+ C="$R/hdl/common"; Q="$R/hdl/ieee8021q/ts"; P="$R/hdl/ieee8021as/ptp_timestamp"
+ E="$R/hdl/common/eth_event_counter"; D="$R/hdl/ieee17221/adp"
+@@ -127,6 +127,7 @@
+ # area is measured as KL_pp_shadow (syn/yosys/run.sh has the elaboration) and
+ # inside milan_datapath below, which is the number that decides placement.
+ tops=(
++  "KL_slew_alignment|/tmp/545-a308-area/alignment.sv"
+   "KL_chan_map_render|$R/hdl/ieee1722/aaf/KL_chan_map_render.sv"
+   # #386: the render setpoint stage at its module defaults (eight streams);
+   # the shipping one-stream figure needs OOC_CHPARAM=N_STREAMS_P=1

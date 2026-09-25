@@ -1,0 +1,8 @@
+COMMAND: taskset -c 10,11 python3 /tmp/545-a308-review/review-evidence/545-r1/reviews/R300-2/scripts/reviewer_mutants_r2.py $LANES/545-crf-servo-slew /tmp/545-a308-review/probe-builds step_streak_reset_removed
+CWD: $LANES/545-crf-servo-slew
+  [FAIL] [U12] guard discards 1 to 4 after the step 32 ticks apart got=0 exp=1
+  [FAIL] [U12] the 4th after the step re-bases: 33 ticks      got=32 exp=33
+  KL_mmcm_drp_servo: 100 checks, 2 failures
+VERDICT step_streak_reset_removed: KILLED rc=1
+
+EXIT: 0; WALL_SECONDS: 50.759

@@ -1,0 +1,26 @@
+COMMAND: taskset -c 10,11 make -C tb/verilator/mmcm_servo slew-mutants
+CWD: $LANES/545-crf-servo-slew
+make: Entering directory '$LANES/545-crf-servo-slew/tb/verilator/mmcm_servo'
+python3 slew_mutants.py
+[PASS] clean: rc=0
+[PASS] clean_unit: rc=0
+[PASS] discard_removed: rc=1
+  named rejection: [S1] overlapped window is discarded
+[PASS] level_tied_low: rc=1
+  named rejection: [S1] overlapped window is discarded
+[PASS] partial_tail_trusted: rc=1
+  named rejection: [S1] overlapped window is discarded
+[PASS] discard_not_counted: rc=1
+  named rejection: [S1] discards counted
+[PASS] step_dedupe_removed: rc=1
+  named rejection: [S5] coincident step+slew window counted once
+[PASS] slew_streak_reset_removed: rc=1
+  named rejection: [U15] four fresh guard trips precede re-base
+[PASS] slew_discard_extends_streak: rc=1
+  named rejection: [U15] four fresh guard trips precede re-base
+[PASS] slew_discard_counts_as_guard_trip: rc=1
+  named rejection: [U15] four fresh guard trips precede re-base
+== mmcm_servo slew mutants: checks: 10   failures: 0 ==
+make: Leaving directory '$LANES/545-crf-servo-slew/tb/verilator/mmcm_servo'
+
+EXIT: 0; WALL_SECONDS: 1206.588
