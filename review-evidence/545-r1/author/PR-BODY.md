@@ -1,0 +1,17 @@
+[A303]
+
+Closes #545
+
+A 100 us PHC slew at 200 ppm could move the CRF integrator and drop LOCKED. The servo now discards and counts every measurement window overlapping the plane's registered correction level, including the partial tail, while holding its integrator, trim and lock. Clean windows resume directly. A replacing step counts its open window once.
+
+The processor pin advances to `5dce647a`, with regenerated ROM records and current contract references. The level passes through the shadow and follows the effective PHC rate through the existing synchronous pipeline. Correction follows measured completion without a timeout. The connection makes no network-port assumption.
+
+Validation:
+
+- Both 100 us slew directions hold the integrator and command exactly through affected windows. The first clean update stays within 1 ppm and completes within 1.536 s of the disturbance's start; LOCKED holds throughout.
+- Boundary, short-pulse, prolonged-level, reset, saturation and replacement-step cases pass. Real Sync pairs prove the level reaches the actual servo and covers every release-tail edge.
+- All six new negative controls fail their intended assertions, with passing positive controls.
+- All assigned local gate commands return zero, including all 33 commands in the default datapath sweep. The servo suites pass 94 unit, 8 rail, 113 step and 87 slew checks; the connected phase passes 56 checks.
+- The builder's board-report calibration arm is NOT RUN because the required report is absent. Physical hardware and hosted checks were not run.
+
+The standalone servo adds 7 LUTs and 2 registers. Isolated release alignment adds 1 LUT and 4 registers; memory and arithmetic resources are unchanged. These are isolated parent-logic measurements, not a whole-datapath area delta. The adopted processor's separate published area measurement is outside these figures.

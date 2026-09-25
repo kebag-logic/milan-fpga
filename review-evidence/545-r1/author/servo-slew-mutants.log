@@ -1,0 +1,13 @@
+make: Entering directory '$LANES/545-crf-servo-slew/tb/verilator/mmcm_servo'
+python3 slew_mutants.py
+[PASS] clean: rc=0
+[PASS] discard_removed: rc=1
+  named rejection: [S1] overlapped window is discarded
+[PASS] level_tied_low: rc=1
+  named rejection: [S1] overlapped window is discarded
+[PASS] partial_tail_trusted: rc=1
+  named rejection: [S1] overlapped window is discarded
+[PASS] discard_not_counted: rc=1
+  named rejection: [S1] discards counted
+== mmcm_servo slew mutants: checks: 5   failures: 0 ==
+make: Leaving directory '$LANES/545-crf-servo-slew/tb/verilator/mmcm_servo'
