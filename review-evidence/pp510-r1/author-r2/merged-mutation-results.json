@@ -1,0 +1,44 @@
+{
+  "head": "b51bc3893b06f4d39be49726c1b8f4ed6c65573d",
+  "harness_blob": "a22c5996a985e94c90218440ccdc04f346322ac0",
+  "rom_sha256": "23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144",
+  "mutations": [
+    {
+      "label": "merged",
+      "name": "success",
+      "word": 560,
+      "original": "c00000000001",
+      "mutant": "c00000000000",
+      "rc": 1,
+      "checks": 7640,
+      "failures": 197,
+      "m4_failures": [
+        "FAIL: M4: MVU 0x0001 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED",
+        "FAIL: M4: MVU 0x0001 NOT_IMPLEMENTED echo is not byte-exact",
+        "FAIL: M4: MVU 0x0002 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED",
+        "FAIL: M4: MVU 0x0002 NOT_IMPLEMENTED echo is not byte-exact",
+        "FAIL: M4: MVU 0x0003 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED",
+        "FAIL: M4: MVU 0x0003 NOT_IMPLEMENTED echo is not byte-exact",
+        "FAIL: M4: MVU 0x0004 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED",
+        "FAIL: M4: MVU 0x0004 NOT_IMPLEMENTED echo is not byte-exact",
+        "FAIL: M4: MVU 0x0005 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED",
+        "FAIL: M4: MVU 0x0005 NOT_IMPLEMENTED echo is not byte-exact"
+      ],
+      "log": "merged-success-mutant.log"
+    },
+    {
+      "label": "merged",
+      "name": "features",
+      "word": 741,
+      "original": "230000000000",
+      "mutant": "230000000003",
+      "rc": 1,
+      "checks": 7640,
+      "failures": 3,
+      "m4_failures": [],
+      "log": "merged-features-mutant.log"
+    }
+  ],
+  "binary_sha256": "f965333c458d337c35e3285eef82fd5f4b899e83f053d13ed44818221f6006df",
+  "source_note": "Both mutations executed the merged-baseline binary built before M4L was added. The second process was already running before the round-2 rebuild replaced the on-disk binary."
+}

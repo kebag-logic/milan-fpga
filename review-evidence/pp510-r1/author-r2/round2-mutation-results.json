@@ -1,0 +1,47 @@
+{
+  "head": "b51bc3893b06f4d39be49726c1b8f4ed6c65573d",
+  "harness_blob": "6f97ab99a5778ec0b7a91229c1c071154c38ac05",
+  "binary_sha256": "f81114075d71004872e523ff5c0900e0ef5f2d64ee39886df965c2d41461b3e0",
+  "rom_sha256": "23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144",
+  "mutations": [
+    {
+      "label": "round2",
+      "name": "success",
+      "word": 560,
+      "original": "c00000000001",
+      "mutant": "c00000000000",
+      "rc": 1,
+      "checks": 7646,
+      "failures": 199,
+      "m4_failures": [
+        "FAIL: M4: MVU 0x0001 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED",
+        "FAIL: M4: MVU 0x0001 NOT_IMPLEMENTED echo is not byte-exact",
+        "FAIL: M4: MVU 0x0002 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED",
+        "FAIL: M4: MVU 0x0002 NOT_IMPLEMENTED echo is not byte-exact",
+        "FAIL: M4: MVU 0x0003 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED",
+        "FAIL: M4: MVU 0x0003 NOT_IMPLEMENTED echo is not byte-exact",
+        "FAIL: M4: MVU 0x0004 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED",
+        "FAIL: M4: MVU 0x0004 NOT_IMPLEMENTED echo is not byte-exact",
+        "FAIL: M4: MVU 0x0005 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED",
+        "FAIL: M4: MVU 0x0005 NOT_IMPLEMENTED echo is not byte-exact",
+        "FAIL: M4L: MVU 0x0001 under another controller's lock must echo NOT_IMPLEMENTED byte-exact",
+        "FAIL: M4L: MVU 0x0003 under another controller's lock must echo NOT_IMPLEMENTED byte-exact"
+      ],
+      "log": "round2-success-mutant.log"
+    },
+    {
+      "label": "round2",
+      "name": "features",
+      "word": 741,
+      "original": "230000000000",
+      "mutant": "230000000003",
+      "rc": 1,
+      "checks": 7646,
+      "failures": 3,
+      "m4_failures": [],
+      "log": "round2-features-mutant.log"
+    }
+  ],
+  "validated_commit": "490e4309749c83f92d794a8ff10d3043e0f5f080",
+  "source_note": "The run began before the commit. Its harness blob matches the committed content; implementation sources are unchanged from the named merged baseline."
+}
