@@ -1,0 +1,27 @@
+{
+  "workflow": ".github/workflows/hdl.yml",
+  "yaml_parsed": true,
+  "jobs": [
+    "docs-gates",
+    "suites",
+    "portability"
+  ],
+  "ci_parameter_gate_present": true,
+  "make_check_parameter_gate_present": true,
+  "pinned_version": "v5.050",
+  "run_blocks": {
+    "docs-gates": [
+      "python3 -m pip install wavedrom\npython3 scripts/check-links.py\npython3 scripts/check-matrix.py\npython3 scripts/check-integrator-params.py\npython3 scripts/render-wavedrom.py --check\nmake stale\n"
+    ],
+    "suites": [
+      "sudo apt-get update && sudo apt-get install -y git help2man perl \\\n  python3 make g++ libfl2 libfl-dev zlib1g zlib1g-dev autoconf flex bison\ngit clone --depth 1 --branch $VERILATOR_VERSION \\\n  https://github.com/verilator/verilator ~/verilator-src\ncd ~/verilator-src && autoconf && ./configure --prefix \"$HOME/verilator\"\nmake -j\"$(nproc)\" && make install\n",
+      "export PATH=\"$HOME/verilator/bin:$PATH\"\nverilator --version\n./scripts/lint_hdl.sh\n./scripts/run_suites.sh\n",
+      "python3 scripts/gen_matrix.py --check",
+      "export PATH=\"$HOME/verilator/bin:$PATH\"\n# PR #13 was squash-merged. Its review lineage is therefore absent\n# from main, but remains available through GitHub's durable pull ref.\ngit fetch --no-tags origin refs/pull/13/head\nmake -C tb/nvm_port figures\n"
+    ],
+    "portability": [
+      "sudo apt-get update && sudo apt-get install -y yosys\ncurl -sL https://github.com/zachjs/sv2v/releases/latest/download/sv2v-Linux.zip \\\n  -o /tmp/sv2v.zip && sudo apt-get install -y unzip\nunzip -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install /tmp/sv2v/*/sv2v /usr/local/bin/\n",
+      "./syn/yosys/run.sh"
+    ]
+  }
+}
