@@ -1497,9 +1497,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! local mapping writer and the CSR status mux.
   wire                     aecp_locked;
   wire [15:0]              aecp_current_config, aecp_cmd_count, aecp_resp_count;
-  //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3), CSR 0x6F4
-  //! A_CTLR_DIAG: {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
-  //! CONTROLLER_AVAILABLE probes sent[11:0]}
+  //! CTLR_DIAG (0x6F4): STRUCTURAL ZERO, retained for the CSR ABI (#548).
+  //! Departing-controller detection lives in the processor's KL_aecp_notify
+  //! and KL_aecp_ca_originator; no probe, reply or eviction count is exported.
   wire [31:0]              aecp_ctlr_diag;
   //! ACMP stateless responder (KL_acmp_responder) — response AXIS + counters.
   wire [15:0]              acmp_cmd_count, acmp_resp_count;
@@ -3215,6 +3215,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   assign aecp_current_config = 16'd0;  //! exported config state is not wired into this legacy CSR
   assign aecp_cmd_count = 16'd0;
   assign aecp_resp_count = 16'd0;
+  //! STRUCTURAL ZERO: the deleted local monitor's counters have no source.
+  //! The processor monitor is live; this word cannot measure its activity.
   assign aecp_ctlr_diag = 32'd0;
   assign aemp_stat_w = 32'd0;  //! no AEM patch ingest
   //! pp_aecp_pt_offset_*/pp_aecp_fmt_in_*/pp_aecp_fmt_out_*: the
