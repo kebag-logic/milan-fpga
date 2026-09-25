@@ -1,0 +1,10 @@
+== head: rc=0
+  [ ok ] [C1] arm: stepped sample staged, T0 next edge
+  [ ok ] [C1] arm: boundary fired on the stepped sample
+  [ ok ] [C1] coincident step+slew window counted once = 1 in [1, 1]
+RESULT: PASS
+== mutant_no_step_exclusion: rc=1
+  [ ok ] [C1] arm: stepped sample staged, T0 next edge
+  [ ok ] [C1] arm: boundary fired on the stepped sample
+  [FAIL] [C1] coincident step+slew window counted once = 2 in [1, 1]
+RESULT: FAIL
