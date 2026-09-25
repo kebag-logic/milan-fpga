@@ -68,6 +68,7 @@ class MmcmServoUnitHarness {
         prove_step_with_no_window_open_is_not_counted();
         prove_invalid_remote_sample_holds_the_loop();
         prove_tally_saturates_and_idle_clears_it();
+        prove_slew_reset_and_saturation();
         return report();
     }
 
@@ -190,6 +191,7 @@ class MmcmServoUnitHarness {
 
         dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
         dut->crf_rate_valid_i = 1; // synthetic rate input is valid
+        dut->phc_slew_active_i = 0;
         //! this suite selects CRF at CLOCK_SOURCE index 2, a suite-local
         //! value and NOT the shipping index (AEM_CRF_CLKSRC_C = 1 on every
         //! shipping shape since #389: INTERNAL 0, the CRF sink 1). The DUT
@@ -606,6 +608,37 @@ class MmcmServoUnitHarness {
         dut->crf_rate_i = clean;
         run_ms(24);
         ck("[U13] original rate recovers LOCKED", state(), 4);
+    }
+
+    //! Short windows exercise tally saturation, reset during a correction,
+    //! and a step replacing that correction without waiting minutes.
+    void prove_slew_reset_and_saturation() {
+        dut->clk_src_i = 2;
+        run_ms(60);
+        ck("[U14] slew starts LOCKED", state(), 4);
+        dut->phc_slew_active_i = 1;
+        const int16_t before = trim();
+        run_ms(270);
+        ck("[U14] long slew holds trim", trim(), before);
+        ck("[U14] long slew keeps LOCKED", state(), 4);
+        ck("[U14] slew tally saturates", disc_cnt(), 63);
+        dut->rst_n = 0;
+        run_ms(0.01);
+        ck("[U14] reset clears tally during slew", disc_cnt(), 0);
+        ck("[U14] reset clears trim during slew", trim(), 0);
+        dut->phc_slew_active_i = 0;
+        dut->rst_n = 1;
+        run_ms(100);
+        ck("[U14] reset permits fresh acquisition", state(), 4);
+        dut->phc_slew_active_i = 1;
+        run_ms(0.5);
+        const int d0 = disc_cnt();
+        ptp_step_ns += 150000;
+        run_ms(0.01);
+        ck("[U14] replacing step counts its open window once", disc_cnt() - d0, 1);
+        dut->phc_slew_active_i = 0;
+        run_ms(12);
+        ck("[U14] step after slew retains LOCKED", state(), 4);
     }
 
     int report() const {

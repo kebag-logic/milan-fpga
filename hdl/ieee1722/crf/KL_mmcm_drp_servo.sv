@@ -76,6 +76,16 @@
                           ns (4.29 s) aliases in the detector's 32 bits
                           and meets the 1024 ppm guard instead.
 
+                  policy slew (#545): phc_slew_active_i covers the
+                          effective PHC rate, without an expiry timer.
+                          Every overlapping window is counted once at
+                          its boundary and withheld from PI, trim and
+                          lock qualification. A sticky window flag keeps
+                          the partial tail untrusted after deassertion.
+                          Clean windows resume without ACQUIRE. A step
+                          abandons and counts its open window once, even
+                          when that window also overlaps a slew.
+
                   remote history (#546): crf_rate_valid_i qualifies each
                           window's PI run. Invalid receiver history skips
                           PI, trim and lock-count updates without changing
@@ -242,6 +252,10 @@ module KL_mmcm_drp_servo #(
   input  wire         ps_clk_i,       //! MMCM PSCLK domain (SoC: 200 MHz idelay)
 
   input  wire [63:0]  ptp_now_i,      //! gPTP-synced time (ns, clk_i)
+  //! Policy correction level (clk_i), covering the effective PHC rate.
+  //! The caller includes all rate-application latency through ptp_now_i.
+  //! Reset clears it; it may remain high indefinitely without losing lock.
+  input  wire         phc_slew_active_i,
   input  wire [15:0]  clk_src_i,      //! live CLOCK_DOMAIN clock_source_index
   //! which CLOCK_SOURCE index means "the CRF stream". NOT a literal: the
   //! set is internal then CRF (1 on every shipping shape since #389 dropped
@@ -449,6 +463,15 @@ module KL_mmcm_drp_servo #(
     ptp_q_r <= ptp_now_i;
   end
 
+  //! The policy level describes the same PHC sample as ptp_q_r. Its
+  //! window memory survives deassertion until both endpoints are clean.
+  logic phc_slew_q_r /* verilator public_flat_rd */;
+  logic win_slew_r;
+  always_ff @(posedge clk_i) begin : slew_sample_stage
+    if (!rst_n) phc_slew_q_r <= 1'b0;
+    else phc_slew_q_r <= phc_slew_active_i;
+  end : slew_sample_stage
+
   //! PHC step detector (#539), aligned with ptp_q_r: set on the edge that
   //! stages a sample which jumped from the one staged before it, so the
   //! logic that reads ptp_q_r reads its verdict in the same cycle. The low
@@ -460,12 +483,17 @@ module KL_mmcm_drp_servo #(
     else        ptp_jump_r <= (ptp_now_i[31:0] - ptp_q_r[31:0]) > STEP_DET_NS_C;
   end : ptp_jump_S
 
-  //! the two discard causes, as wires so the status tally below counts both
+  //! The discard causes are independent windows. The tally counts both
   //! when they land on one cycle: the 1024 ppm guard's verdict on a window
   //! in its S4 stage, and a PHC step inside the open window
   wire guard_hit_w = (pp_seq_r == 3'd4) && pp_run_r &&
                      ((ew_r > GUARD_THR_C) || (ew_r < -GUARD_THR_C));
   wire step_hit_w  = ptp_jump_r && win_valid_r;
+  wire slew_window_w = win_slew_r || phc_slew_q_r;
+  //! A coincident step already counts this same open window.
+  wire slew_hit_w = tick_p_w && win_valid_r &&
+                    (tick_cnt_r == (WIN_LOG2_P+1)'(WIN_TICKS_C - 1)) &&
+                    slew_window_w && !step_hit_w;
 
   function automatic logic signed [23:0] clamp_u(input logic signed [31:0] v);
     if (v > 32'(U_MAX_P))       return 24'(U_MAX_P);
@@ -478,6 +506,7 @@ module KL_mmcm_drp_servo #(
       state_r  <= IDLE_S;   dstate_r <= D_IDLE_S;
       tick_cnt_r <= '0;     win_start_r <= '0;
       win_valid_r <= 1'b0;  win_skip_r <= '0;
+      win_slew_r <= 1'b0;
       disc_run_r <= '0;     disc_cnt_r <= '0;
       ew_r <= '0;           integ_r <= '0;      u_cmd_r <= '0;
       lock_cnt_r <= '0;     acc_r <= '0;
@@ -553,12 +582,19 @@ module KL_mmcm_drp_servo #(
         default: state_r <= IDLE_S;
       endcase
 
+      //! Remember any affected sample until this window ends. A boundary
+      //! sample belongs to both intervals; the tick branch seeds the next
+      //! flag from that sample. No open window means no retained overlap.
+      if (!win_valid_r) win_slew_r <= 1'b0;
+      else if (phc_slew_q_r) win_slew_r <= 1'b1;
+
       // ---------------- local rate window + PI ----------------
       if (state_r inside {ACQUIRE_S, LOCKED_S, HOLDOVER_S}) begin
         if (tick_p_w) begin
           if (!win_valid_r) begin
             win_start_r <= ptp_q_r;
             win_valid_r <= 1'b1;
+            win_slew_r <= phc_slew_q_r;
             tick_cnt_r  <= '0;
           end else if (tick_cnt_r == (WIN_LOG2_P+1)'(WIN_TICKS_C - 1)) begin
             //! T0: window boundary - snapshot the operands, kick the
@@ -567,9 +603,11 @@ module KL_mmcm_drp_servo #(
             win_start_r <= ptp_q_r;
             pp_d_r      <= $signed(ptp_q_r - win_start_r);
             pp_rate_r   <= crf_rate_i;
+            win_slew_r  <= phc_slew_q_r;
             //! Invalid remote history holds PI and lock; local step/slew
             //! guards retain their own independent window policy.
             pp_run_r    <= (win_skip_r == '0) && (state_r != HOLDOVER_S)
+                           && !slew_window_w
                            && crf_rate_valid_i;
             pp_seq_r    <= 3'd1;
             if (win_skip_r != '0)
@@ -670,11 +708,13 @@ module KL_mmcm_drp_servo #(
           if (pp_seq_r == '0) pp_run_r <= 1'b0;
         end
 
+        if (slew_hit_w) disc_run_r <= '0;
+
         //! discard tally (status_o[15:10], saturating): a guard-discarded
         //! window and a step-abandoned one may land on the same cycle
         begin : disc_tally
           automatic logic [6:0] n_v;
-          n_v = 7'(disc_cnt_r) + 7'(guard_hit_w) + 7'(step_hit_w);
+          n_v = 7'(disc_cnt_r) + 7'(guard_hit_w) + 7'(step_hit_w) + 7'(slew_hit_w);
           disc_cnt_r <= (n_v > 7'h3F) ? 6'h3F : n_v[5:0];
         end : disc_tally
 
@@ -913,7 +953,7 @@ module KL_mmcm_drp_servo #(
   // ------------------------------------------------------------------ //
   wire signed [15:0] trim_w = 16'(u_cmd_r >>> 5);  //! 1/16 ppm units
   assign status_o = {trim_w,                       //! [31:16] signed trim
-                     disc_cnt_r,                   //! [15:10] guard + step discards
+                     disc_cnt_r,                   //! [15:10] guard + step + slew discards
                      1'b0,                         //! [9]     reserved
                      drp_fault_r,                  //! [8]
                      ps_fault_s_w,                 //! [7]

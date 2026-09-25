@@ -131,6 +131,7 @@ module rails_wrap (
     .clk_audio_i   (clk_audio_i),
     .ps_clk_i      (ps_clk_i),
     .ptp_now_i     (ptp_now_i),
+    .phc_slew_active_i (1'b0), //! This fixture has no policy slew.
     .clk_src_i     (clk_src_i),
     .crf_src_idx_i (crf_src_idx_i),
     .crf_locked_i  (crf_locked_i),

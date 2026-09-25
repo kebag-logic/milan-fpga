@@ -144,6 +144,10 @@ module KL_gptp_shadow #(
     output logic signed [31:0] phc_adj_o,
     output logic               phc_step_we_o,
     output logic        [63:0] phc_step_o,
+    //! Registered engine policy level (clk_i), independent of publication.
+    //! Rises before the slew addend; falls with its replacement pulse.
+    //! Consumers must cover their retained-rate and PHC pipeline tail.
+    output wire                phc_slew_active_o,
 
     //! TX: one wide control-lane leg (whole frames, FRAME_FIFO-held)
     output wire [TDATA_WIDTH_P-1:0]   tx_tdata_o,
@@ -678,6 +682,7 @@ module KL_gptp_shadow #(
       .phc_addend_o       (adj_val_w),
       .phc_step_we_o      (phc_step_we_o),
       .phc_step_o         (phc_step_o),
+      .phc_slew_active_o  (phc_slew_active_o),
       .pub_gm_id_o        (pub_gm_raw_w),
       .pub_parent_id_o    (pub_parent_raw_w),
       .pub_flags_o        (pub_flags_raw_w),

@@ -22,6 +22,11 @@
 //   P3  a guard discard and a step on ONE cycle: both counted
 //   P4  the rate path: a real talker rate change still reaches the integrator
 //
+// +slew_suite grades the #545 level and the 100 us / 200 ppm trajectory,
+// both signs, a short within-window correction, a shared boundary sample,
+// a clean pre-slew close, an indefinitely held correction, and PI resumption.
+// +slew_control selects P0 and the +100 us case for the named mutants.
+//
 // Trace modes (the #539 records; lock, then one disturbance at mid-window,
 // printed window by window):
 //   +trace_step_ns=<n>        a PHC step of n ns (signed)
@@ -95,6 +100,24 @@ class PhcStepHarness {
         prove_step_after_the_boundary_commits_the_closed_window();
         prove_step_before_the_boundary_rebases_the_window();
         prove_coincident_discards_both_count();
+        prove_rate_path_still_integrates();
+        return check_.report();
+    }
+
+    int slew_control() {
+        prove_lock_at_the_silicon_scale();
+        prove_slew_holds(100'000);
+        return check_.report();
+    }
+
+    int slew_suite() {
+        prove_lock_at_the_silicon_scale();
+        prove_slew_holds(100'000);
+        prove_slew_holds(-100'000);
+        prove_slew_holds(100);
+        prove_slew_boundary();
+        prove_clean_close_before_slew();
+        prove_slew_stays_active();
         prove_rate_path_still_integrates();
         return check_.report();
     }
@@ -183,6 +206,7 @@ class PhcStepHarness {
             t_fs = next_i; next_i += kHalfI;
             dut->clk_i ^= 1;
             if (dut->clk_i) {
+                dut->phc_slew_active_i = held_slew_ || slew_left_ns_ != 0.0;
                 if (slew_left_ns_ != 0.0) apply_slew_for_one_cycle();
                 dut->ptp_now_i = static_cast<uint64_t>(std::llround(t_fs / 1e6 + ptp_step_ns));
             }
@@ -268,6 +292,7 @@ class PhcStepHarness {
         dut->crf_src_idx_i = 1;
         dut->crf_locked_i = 0;
         dut->crf_rate_valid_i = 1; // synthetic rate input is valid
+        dut->phc_slew_active_i = 0;
         dut->crf_rate_i = 0;
         dut->auto_repair_i = 0;
         dut->ps_invert_i = 0;
@@ -417,6 +442,76 @@ class PhcStepHarness {
         expect_untouched("[P3]", s0, run_to_window_close(), 2);
     }
 
+    //! Same 100 us / 200 ppm trajectory as the #539 record. The two
+    //! overlapping windows include the partial tail after the level falls.
+    void prove_slew_holds(int64_t ns) {
+        std::printf("[S1] policy slew %+lld ns at 200 ppm\n", static_cast<long long>(ns));
+        run_to_tick(kWinTicks / 2);
+        const Snapshot s0 = snapshot();
+        const double start_fs = t_fs;
+        left_locked_ = false;
+        slew_left_ns_ = static_cast<double>(ns);
+        const int affected = std::abs(ns) == 100'000 ? 2 : 1;
+        for (int w = 0; w < affected; ++w) {
+            const WindowClose c = run_to_window_close();
+            print_row("slew", c);
+            check_.that("[S1] overlapped window is discarded", !c.committed);
+            within("[S1] integrator held exactly", c.integ - s0.integ, 0, 0);
+            within("[S1] written rate held exactly", c.ucmd - s0.ucmd, 0, 0);
+        }
+        check_.that("[S1] tail window closes after deassertion", !dut->phc_slew_active_i);
+        const WindowClose clean = run_to_window_close();
+        expect_untouched("[S1]", s0, clean, affected);
+        check_.that("[S1] first clean close within 1.536 seconds of start",
+                    t_fs - start_fs < 1.536e15);
+    }
+
+    //! Assert on the staged boundary sample, then remove the level before
+    //! the next sample. That shared endpoint taints both adjacent windows.
+    void prove_slew_boundary() {
+        run_to_edges_before_t0(2);
+        const Snapshot s0 = snapshot();
+        left_locked_ = false;
+        held_slew_ = true;
+        clk_edge();
+        check_.that("[S2] arm: boundary next edge", edges_to_t0() == 1);
+        held_slew_ = false;
+        check_.that("[S2] boundary sample is discarded", !run_to_window_close().committed);
+        check_.that("[S2] shared endpoint taints next window", !run_to_window_close().committed);
+        expect_untouched("[S2]", s0, run_to_window_close(), 2);
+    }
+
+    //! A level staged on T0 itself is newer than the closed sample. A
+    //! completed clean measurement must still commit through the PI stages.
+    void prove_clean_close_before_slew() {
+        run_to_edges_before_t0(1);
+        left_locked_ = false;
+        held_slew_ = true;
+        const WindowClose closed = run_to_window_close();
+        check_.that("[S3] clean pre-slew window commits", closed.committed);
+        const Snapshot s0 = snapshot();
+        held_slew_ = false;
+        check_.that("[S3] partial window is discarded", !run_to_window_close().committed);
+        expect_untouched("[S3]", s0, run_to_window_close(), 1);
+    }
+
+    //! The producer can hold correction through missing measurements. No
+    //! 0.5 s timer may silently release the consumer while it stays high.
+    void prove_slew_stays_active() {
+        run_to_tick(kWinTicks / 2);
+        const Snapshot s0 = snapshot();
+        left_locked_ = false;
+        held_slew_ = true;
+        for (int w = 0; w < 7; ++w) {
+            const WindowClose c = run_to_window_close();
+            check_.that("[S4] held level discards every window", !c.committed);
+            within("[S4] integrator held exactly", c.integ - s0.integ, 0, 0);
+        }
+        held_slew_ = false;
+        check_.that("[S4] final partial window discarded", !run_to_window_close().committed);
+        expect_untouched("[S4]", s0, run_to_window_close(), 8);
+    }
+
     //! A real talker rate change is not a step: it is integrated and the servo
     //! re-locks on the new rate, with nothing discarded.
     void prove_rate_path_still_integrates() {
@@ -451,6 +546,7 @@ class PhcStepHarness {
     int32_t talker_rate_ = 0;
     double talker_bias_until_fs_ = 0.0;
     double slew_left_ns_ = 0.0;
+    bool held_slew_ = false;
 
     // ---- clocks (femtosecond wheel, as sim_main.cpp) --------------------------
     double half_p_;
@@ -490,6 +586,12 @@ int main(int argc, char** argv) {
     }
     if (plusarg_ns("trace_talker_step_ns=", ns)) {
         return PhcStepHarness(kHalfPsTrace).trace(Disturbance::talker_step, ns);
+    }
+    if (Verilated::commandArgsPlusMatch("slew_control")[0] != '\0') {
+        return PhcStepHarness(kHalfPsSuite).slew_control();
+    }
+    if (Verilated::commandArgsPlusMatch("slew_suite")[0] != '\0') {
+        return PhcStepHarness(kHalfPsSuite).slew_suite();
     }
     return PhcStepHarness(kHalfPsSuite).suite();
 }

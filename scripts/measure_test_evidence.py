@@ -594,6 +594,10 @@ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\
                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
 DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
 DUT_READER_DISPOSITIONS = {
+    "tb/verilator/mmcm_servo/slew_mutants.py":
+        "mutation campaign; copies the servo and requires named failures for "
+        "discard removal, tied-low level, partial-tail trust and omitted tally; "
+        "no expectations read from RTL",
     "tb/verilator/crf_rx/mutants.py":
         "mutation campaign; copies the receiver and servo, requiring named failures "
         "for tu, jump, refill, accept-edge, ignored-validity and PI-resume defects; "
@@ -612,9 +616,9 @@ DUT_READER_DISPOSITIONS = {
         "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
         "named failure. It is the explicit crflic-mutants target, outside the default sweep",
     "tb/verilator/milan_dp/gmstep_mutants.py":
-        "mutation campaign; it plants one of eleven #387 re-base defects into a copy and requires a "
+        "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
         "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
-        "the three the acceptance names; the explicit gmstep-mutants target plants all eleven",
+        "the three #387 acceptance names; gmstep-mutants plants all, and --slew selects the two #545 controls",
     "tb/verilator/milan_dp/render_mutants.py":
         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":

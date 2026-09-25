@@ -9,7 +9,7 @@
 #     (the drift-lottery rails cease with the servo engaged)
 #   sim_phc_step.cpp -> Vphc_step       : the servo at its SILICON defaults
 #     (1 ms tick, 512 ms window, NORM_SHIFT_P = 0) against a PHC step (#539)
-#   make        - build and run all three
+#   make        - run all harnesses, policy-slew cases and mutants
 #   make trace STEP_NS=<n> - the #539 reproduction record: one n ns step at
 #                 mid-window, integrator and written rate traced per window
 #                 (sim_phc_step.cpp names the slew and talker-step traces)
@@ -26,6 +26,7 @@ VFLAGS = --cc --exe --build -j 0 \
 
 SERVO_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv
 UNIT_MDIR ?= obj_dir
+PHC_MDIR ?= obj_phc
 
 COMMON = $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/common/cdc_handshake.sv \
          $(SERVO_RTL)
@@ -39,18 +40,18 @@ UNIT_G = -GTICK_CYC_P=3072 -GWIN_LOG2_P=5 "-GNOM_WIN_NS_P=64'd4000000" \
          -GNORM_SHIFT_P=7 -GGAIN_NUM_P=7 -GRELOCK_TOUT_P=20000 \
          -GLOCK_THR_P=8192
 
-.PHONY: all run unit-build trace phc_step_build clean
-all: run
+.PHONY: all run unit-build trace phc_step_build slew mutants clean
+all: run mutants
 
 # the step harness reads integ_r / u_cmd_r / ew_r / pp_seq_r / pp_run_r, so it
 # is built with --public-flat-rw at the servo's DEFAULT (silicon) parameters
 STEP_NS ?= 150000
 phc_step_build:
 	$(VERILATOR) $(VFLAGS) --public-flat-rw --top-module KL_mmcm_drp_servo \
-	  -Mdir obj_phc $(COMMON) sim_phc_step.cpp -o Vphc_step
+	  -Mdir $(PHC_MDIR) $(COMMON) sim_phc_step.cpp -o Vphc_step
 
 trace: phc_step_build
-	./obj_phc/Vphc_step +trace_step_ns=$(STEP_NS)
+	./$(PHC_MDIR)/Vphc_step +trace_step_ns=$(STEP_NS)
 
 unit-build:
 	$(VERILATOR) $(VFLAGS) --top-module KL_mmcm_drp_servo $(UNIT_G) \
@@ -67,7 +68,16 @@ run: unit-build
 	./obj_rails/Vrails_sim
 	$(MAKE) --no-print-directory phc_step_build
 	@echo "======================================================================"
-	./obj_phc/Vphc_step
+	./$(PHC_MDIR)/Vphc_step
+	./$(PHC_MDIR)/Vphc_step +slew_suite
+
+# #545 runs the silicon-scale slew and its boundary cases separately, so
+# isolated defects need not repeat every step size in the #539 campaign.
+slew: phc_step_build
+	./$(PHC_MDIR)/Vphc_step +slew_suite
+
+mutants:
+	python3 slew_mutants.py
 
 clean:
 	rm -rf obj_dir obj_rails obj_phc

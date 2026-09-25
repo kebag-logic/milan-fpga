@@ -109,6 +109,14 @@ class Control(NamedTuple):
 
 
 CONTROLS = [
+    Control("the policy level is tied low at the servo", "datapath",
+            ".phc_slew_active_i (gptp_slew_eff_w)",
+            ".phc_slew_active_i (1'b0)",
+            "slew path: the actual servo receives the level", False),
+    Control("the policy level omits the applied-rate tail", "datapath",
+            "gptp_slew_active_w || (|gptp_slew_tail_r)",
+            "gptp_slew_active_w",
+            "slew path: every staged sample covers the PHC tail", False),
     Control("the step does not toggle mr", "datapath",
             "                       | media_rebase_p_w;",
             "                       ;",
@@ -270,6 +278,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--all", action="store_true",
                         help="plant the whole inventory, not only the acceptance's controls")
+    parser.add_argument("--slew", action="store_true", help="plant only the #545 connection controls")
     args = parser.parse_args()
 
     def on_sigterm(*_: object) -> None:
@@ -277,7 +286,8 @@ def main() -> int:
         sys.exit(143)
 
     signal.signal(signal.SIGTERM, on_sigterm)
-    selected = [c for c in CONTROLS if args.all or c.acceptance]
+    selected = [c for c in CONTROLS if
+                (c.name.startswith("the policy level") if args.slew else args.all or c.acceptance)]
     passes = 0
     fails = 0
     with tempfile.TemporaryDirectory(prefix="gmstep-mutants-") as td:
