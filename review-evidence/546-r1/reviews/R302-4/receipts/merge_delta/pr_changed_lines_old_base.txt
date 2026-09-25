@@ -1,0 +1,896 @@
+-| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); what still reaches that grid is a policy-legal slew (#545) and the talker's own step (#546). By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
++| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); the receiver excludes talker-step rate samples (#546). A policy-legal local slew remains tracked by #545. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
+-| CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. A policy-legal 100 us slew still moves its integrator (#545), and so does the talker's own step (#546) |
++| CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. The receiver invalidates rate history on tu transitions or timestamp jumps (#546). After 256 clean intervals, sampling resumes; lock and integrator hold meanwhile. A policy-legal local 100 us slew remains tracked by #545 |
++| `crf_rx` talker_step | Connected receiver and servo: +/-150 us talker-only steps and steps at both ends. The 600 ms listener lag and talker-only cases require a boundary inside crossing history; the 100 ms lag checks guard interaction. Sampled validity, continuous LOCKED state, held integrator and fresh rate recovery; quiet traffic cannot satisfy withholding |
++| `crf_rx` discontinuity | Both tu edges, unmarked steps, refill boundaries and isolated detector mutants |
++| CRF talker discontinuity | Discard crossing rate history; preserve servo lock and integrator (#546) | `KL_crf_rx.rate_valid_o`, `KL_mmcm_drp_servo.crf_rate_valid_i` |
++CRF rate history restarts on either received `tu` edge.
++
++IEEE 1722-2016 `4.4.4.7` defines uncertainty.
++
++Clause `10.4.5` maps CRF's bit.
++
++The separate `mr` restart follows `4.4.4.3` and `10.4.3`.
++
++Held `tu` permits recovery after 256 clean timestamp intervals.
++
++Sequence gaps also restart that history.
++
++Invalid or foreign PDUs never seed its reference.
++
++Silence, reset and binding changes invalidate old history.
++
++STOP suppresses sample validity while counters continue observing.
++
++An adjacent-timestamp jump provides the unmarked-step backstop.
++
++Its threshold derives from the 2 ms CRF interval.
++
++Combined media and PHC drift permits 601 ns deviation.
++
++LocalClock frequency must stay within +/-100 ppm.
++
++See IEEE 802.1AS Annex B.1.1.
++
++We assume that bound also applies to the media oscillator.
++
++Milan v1.2 section 7.4 constrains media clock sources.
++
++Their frequency tolerance must be better than +/-50 ppm.
++
++Using 100 ppm therefore adds conservative margin.
++
++The remote PHC is assumed to share our envelope.
++
++That includes +/-200 ppm trim and timestamp quantization.
++
++Our `timestamp_counter` increment plus adjustment stays below 384 ns.
++
++Two such timestamp quantization bounds add less than 768 ns.
++
++The drift calculation is `ceil(2,000,000 * 300 / 999,900)`.
++
++Adding quantization gives `601 + 768 = 1369 ns`.
++
++Rounding upward gives 2,048 ns.
++
++Both signed jumps are detected using full-width timestamps.
++
++This excludes network arrival jitter from the decision.
++
++The event's PDU seeds the new timestamp history.
++
++After 256 further intervals, the rate becomes valid again.
++
++Until then, `CRF_RATE` holds its last clean value.
++
++The servo skips invalid samples without changing its lock state.
++
++Local PHC guards remain independent of this validity signal.
++
++No additional CSR bit or discard tally is introduced.
++
++The [receiver suite](../../tb/verilator/crf_rx) exercises this connected path.
++
+-| `0x748` | `CRF_RATE` | RO | `0` | signed ns error per 512 ms window (256-PDU ring): the talker's media clock measured against gPTP — the servo frequency input (1 ppm = 512 units) |
++| `0x748` | `CRF_RATE` | RO | `0` | The talker's media clock measured against gPTP, the servo frequency input. Signed ns error per 512 ms window (256-PDU ring); 1 ppm = 512 units. Holds the last clean value during discontinuity refill. Internal validity gates servo sampling; this CSR does not expose validity |
+-| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | the CRF Media Clock Input engine. It parses, counts and reports; since #74 the root's `media_clk_resolve` verdict decides whether its measurements steer the servo chain, so a CRF selection makes them actuate |
++| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. The default gate includes tu, jump, refill, sample-edge and servo-validity mutants |
+-| ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰milan_dp_render | -- |
++| ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `crf_rx` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰milan_dp_render | -- |
+-| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `cdc` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
++| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `cdc` · `crf_rx` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
+-| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aes3` · `cdc` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
++| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aes3` · `cdc` · `crf_rx` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
+-| ✅ `cdc_handshake` | `cdc_handshake.sv` | `cdc` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
++| ✅ `cdc_handshake` | `cdc_handshake.sv` | `cdc` · `crf_rx` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
+-| ✅ `cdc_pulse` | `cdc_pulse.sv` | `aes3` · `cdc` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
++| ✅ `cdc_pulse` | `cdc_pulse.sv` | `aes3` · `cdc` · `crf_rx` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
++                            Holds the last clean value while rate_valid_o
++                            is low after tu edges, timestamp jumps or gaps.
++  //! Valid level for rate_o. A discontinuity invalidates the whole ring;
++  //! only a fresh 256-interval sample restores validity. Lock is independent.
++  output wire         rate_valid_o,
++  //! Adjacent timestamps, unlike the 512 ms rate, expose a phase step.
++  //! Assume the media oscillator meets IEEE 802.1AS Annex B.1.1's
++  //! +/-100 ppm LocalClock bound. Milan v1.2 section 7.4 requires media
++  //! sources better than +/-50 ppm; 100 ppm is a conservative margin.
++  //! Assume the remote talker shares our PHC envelope: +/-200 ppm trim
++  //! (TIME_SYNC) and <384 ns timestamp quantisation (incr + adj).
++  //! 2 ms * (200 + 100) / (1e6 - 100), rounded up, is 601 ns.
++  //! Add two such quantisation errors (the local #539 rationale assumed
++  //! for the remote talker), then round 1369 ns up to 2048 ns. This is
++  //! below the plane's smallest step (>20 us), without copying #539's
++  //! per-cycle 4096 ns threshold. Arrival/network jitter is absent here.
++  localparam int unsigned RATE_DRIFT_NS_C =
++    (NOM_PDU_NS_C * (200 + 100) + (1_000_000 - 100) - 1)
++      / (1_000_000 - 100);
++  localparam logic [63:0] TS_JUMP_NS_C =
++    64'd1 << $clog2(RATE_DRIFT_NS_C + 2 * 384);
++
++  logic [63:0] prev_ts_ns_r; //! full width prevents 2^32 ns step aliasing
++  logic        prev_tu_r;
++  logic        rate_seeded_r;
++  logic        rate_valid_r;
++  //! IEEE 1722-2016 4.4.4.3/4.4.4.7, CRF mapping 10.4.5: tu is
++  //! uncertainty, not a rate. Either edge separates timestamp eras. A
++  //! constant high level does not block recovery. Sequence gaps cannot
++  //! represent 256 consecutive intervals either, so they restart the ring.
++  wire [63:0] ts_spacing_ns_w = w_crf_ts - prev_ts_ns_r;
++  wire ts_jump_w = (ts_spacing_ns_w < (64'(NOM_PDU_NS_C) - TS_JUMP_NS_C))
++                || (ts_spacing_ns_w > (64'(NOM_PDU_NS_C) + TS_JUMP_NS_C));
++  wire tu_change_w = tu_i != prev_tu_r;
++  wire rate_break_w = w_acc && rate_seeded_r &&
++    (tu_change_w || ts_jump_w || (have_seq_r && (seq_i != exp_seq_r)));
++  //! Include the accept-edge verdict: a simultaneous servo boundary must
++  //! not snapshot stale validity before the registered invalidation lands.
++  assign rate_valid_o = rate_valid_r && en_i && !stop_i &&
++                        !w_bind_rise_w && !rate_break_w;
++
++      prev_ts_ns_r <= '0; prev_tu_r <= 1'b0;
++      rate_seeded_r <= 1'b0; rate_valid_r <= 1'b0;
+-      if (rate_pend_r) begin
++      if (rate_pend_r && !rate_break_w) begin
++        rate_valid_r <= 1'b1;
++          rate_seeded_r <= 1'b0;
++          rate_valid_r <= 1'b0;
++          rate_pend_r <= 1'b0;
+-          rate_pend_r <= (hfill_r == 9'(1 << RATE_LOG2_C));
+-          if (hfill_r != 9'(1 << RATE_LOG2_C)) begin
++          prev_ts_ns_r <= w_crf_ts;
++          prev_tu_r <= tu_i;
++          rate_seeded_r <= 1'b1;
++          rate_pend_r <= (hfill_r == 9'(1 << RATE_LOG2_C)) && !rate_break_w;
++          if (rate_break_w) begin
++            //! This PDU is the first timestamp of the new era. Do not
++            //! reset BRAM: all old entries age out before another read.
++            hfill_r <= 9'd1;
++            rate_valid_r <= 1'b0;
++          end else if (hfill_r != 9'(1 << RATE_LOG2_C)) begin
++        hfill_r <= '0;
++        rate_pend_r <= 1'b0;
++        rate_seeded_r <= 1'b0;
++        rate_valid_r <= 1'b0;
++                  remote history (#546): crf_rate_valid_i qualifies each
++                          window's PI run. Invalid receiver history skips
++                          PI, trim and lock-count updates without changing
++                          lock state; sampling resumes with clean history.
++
++  input  wire         crf_rate_valid_i, //! RX ring spans one timestamp era
+-            pp_run_r    <= (win_skip_r == '0) && (state_r != HOLDOVER_S);
++            //! Invalid remote history holds PI and lock; local step/slew
++            //! guards retain their own independent window policy.
++            pp_run_r    <= (win_skip_r == '0) && (state_r != HOLDOVER_S)
++                           && crf_rate_valid_i;
+-| ✅ `KL_mmcm_drp_servo` | `KL_mmcm_drp_servo.sv` | `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰milan_dp_render | -- |
++| ✅ `KL_mmcm_drp_servo` | `KL_mmcm_drp_servo.sv` | `crf_rx` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰milan_dp_render | -- |
++  wire crf_rate_valid_w;
++    .rate_valid_o (crf_rate_valid_w),
++    .crf_rate_valid_i (crf_rate_valid_w),
++    "tb/verilator/crf_rx/mutants.py":
++        "mutation campaign; copies the receiver and servo, requiring named failures "
++        "for tu, jump, refill, accept-edge, ignored-validity and PI-resume defects; "
++        "no expectations read from RTL",
+-#   make        - build and run the self-checking harness
++#   make        - run counters, discontinuity, connected servo and mutation gates
++#   make mutants - detector/refill/servo-validity mutants with named failures
+-SRCS = $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
++RX_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
++SRCS = $(RX_RTL)
++DISC_MDIR ?= obj_discontinuity
+-.PHONY: all run clean
+-all: run
++.PHONY: all run unit discontinuity discontinuity-build talker_step mutants clean
++all: run mutants
+-run:
++run: unit discontinuity talker_step
++
++unit:
++discontinuity: discontinuity-build
++	./$(DISC_MDIR)/Vdiscontinuity
++
++discontinuity-build:
++	$(VERILATOR) $(VFLAGS) -Mdir $(DISC_MDIR) $(SRCS) sim_discontinuity.cpp -o Vdiscontinuity
++
++talker_step:
++	$(VERILATOR) --cc --exe --build -j 4 --public-flat-rw \
++	  --top-module crf_talker_wrap -Mdir obj_talker \
++	  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
++	  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
++	  $(SRCS) $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/common/cdc_handshake.sv \
++	  $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv crf_talker_wrap.sv \
++	  sim_talker_step.cpp -o Vtalker_step
++	./obj_talker/Vtalker_step
++
++mutants:
++	python3 mutants.py
++
+-	rm -rf obj_dir
++	rm -rf obj_dir obj_discontinuity obj_talker
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Receiver-to-servo integration at the production 512 ms window scale.
++// The remote sample travels through the real receiver and validity wire.
++`default_nettype none
++module crf_talker_wrap (
++  input wire frame_p_i, //! one received CRF PDU
++  input wire [63:0] ts_ns_i, //! talker reference timestamp
++  input wire [7:0] seq_i, //! talker sequence
++  input wire tu_i, //! remote timing uncertainty
++  output wire rx_locked_o, //! receiver media lock
++  output wire rate_valid_o, //! receiver rate validity
++  output wire signed [31:0] rate_o, //! receiver ns per 512 ms
++  output wire [31:0] rx_unlocks_o, //! counted receiver unlocks
++  input  wire         clk_i,          //! datapath clock (= MMCM DCLK domain)
++  input  wire         rst_n,          //! active-low reset (clk_i)
++  input  wire         clk_audio_i,    //! MMCM CLKOUT0 (the measured clock)
++  input  wire         ps_clk_i,       //! MMCM PSCLK domain (SoC: 200 MHz idelay)
++
++  input  wire [63:0]  ptp_now_i,      //! gPTP-synced time (ns, clk_i)
++  input  wire [15:0]  clk_src_i,      //! live CLOCK_DOMAIN clock_source_index
++  //! which CLOCK_SOURCE index means "the CRF stream". NOT a literal: the
++  //! set is internal then CRF (1 on every shipping shape since #389 dropped
++  //! the per-listener sources; it was 2 on a 1-listener shape and 9 on an
++  //! 8-listener one before). The datapath feeds this from the generated
++  //! AEM (AEM_CRF_CLKSRC_C); a wrong value here engages the servo on the
++  //! wrong source, silently.
++  input  wire [15:0]  crf_src_idx_i,
++
++  input  wire         auto_repair_i,  //! 1 = DRP REPAIR allowed on mismatch
++  input  wire         ps_invert_i,    //! flip the PS direction mapping (bench
++                                      //! knob, MCSRV_CTRL 0x8FC[0]: 2026-07-23
++                                      //! mf51 silicon stepped the WRONG way -
++                                      //! rails 25x worse under the servo; the
++                                      //! TB model bakes the UG472 sign, so
++                                      //! only silicon can settle it)
++
++  //! MMCME2_ADV DRP port (DCLK = clk_i; DS181 FDCK <= 200 MHz)
++  output logic [6:0]  drp_addr_o,
++  output logic        drp_en_o,       //! 1-cycle DEN (with drp_we_o for writes)
++  output logic        drp_we_o,
++  output logic [15:0] drp_di_o,
++  input  wire  [15:0] drp_do_i,
++  input  wire         drp_rdy_i,      //! DRDY completion pulse
++
++  output logic        mmcm_rst_o,     //! MMCME2_ADV RST (held through repair)
++  input  wire         mmcm_locked_i,  //! MMCME2_ADV LOCKED (async)
++
++  //! MMCME2_ADV dynamic fine phase shift port (ps_clk_i domain, UG472)
++  output logic        ps_en_o,        //! 1-PSCLK-cycle PSEN
++  output logic        ps_incdec_o,    //! 1 = increment (delay = slow down)
++  input  wire         ps_done_i,      //! PSDONE (12 PSCLK cycles after PSEN)
++
++  output logic [31:0] status_o        //! A_MCSRV_STAT (0x8F8) readback
++);
++  KL_crf_rx rx (
++    .clk_i(clk_i), .rst_n(rst_n), .frame_p_i(frame_p_i),
++    .subtype_i(8'd4), .seq_i(seq_i), .sid_frame_i(64'd1),
++    .pullbase_i(32'd48000), .type_i(8'd1),
++    .fsh_i({16'd8, 16'd96, ts_ns_i[63:32]}),
++    .fsh2_i({ts_ns_i[31:0], 32'd0}),
++    .mr_i(1'b0), .tu_i(tu_i), .ptp_now_i(ptp_now_i),
++    .en_i(1'b1), .sid_i(64'd1), .stop_i(1'b0),
++    .rate_o(rate_o), .rate_valid_o(rate_valid_o), .locked_o(rx_locked_o),
++    .cnt_unlocked_o(rx_unlocks_o),
++    .delta_o(), .pdu_count_o(), .fmt_err_o(), .seq_err_o(),
++    .mr_cnt_o(), .tu_cnt_o(), .late_cnt_o(), .early_cnt_o(),
++    .cnt_locked_o(), .cnt_intr_o(), .dirty_p_o(), .mr_toggle_p_o()
++  );
++  KL_mmcm_drp_servo servo (
++    .crf_locked_i(rx_locked_o), .crf_rate_i(rate_o),
++    .crf_rate_valid_i(rate_valid_o), .*
++  );
++endmodule
++`default_nettype wire
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Compile isolated CRF receiver and servo-validity mutants; require named harness failures.
++
++No checkout is edited. Every executable, including the positive control,
++is rebuilt from this invocation's source. The harness has bounded loops.
++"""
++
++import os
++import signal
++import subprocess
++import tempfile
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++RTL = HERE / "../../../hdl/ieee1722/crf/KL_crf_rx.sv"
++SERVO = HERE / "../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv"
++MUTANTS = (
++    ("tu_ignored", "wire tu_change_w = tu_i != prev_tu_r;",
++     "wire tu_change_w = 1'b0;", "tu edge invalidates before the sampling edge"),
++    ("jump_removed", "tu_change_w || ts_jump_w ||", "tu_change_w || 1'b0 ||",
++     "unmarked timestamp jump invalidates the rate"),
++    ("refill_short", "hfill_r <= 9'd1;", "hfill_r <= 9'd2;",
++     "all 255 crossing intervals are withheld"),
++    ("accept_edge_late", "!w_bind_rise_w && !rate_break_w;", "!w_bind_rise_w;",
++     "tu edge invalidates before the sampling edge"),
++)
++
++
++def run_case(work: Path, name: str, source: str, failure: str | None,
++             *, servo: bool = False) -> bool:
++    """A compiler error or abnormal termination never counts as a kill."""
++    rtl = work / f"{name}.sv"
++    rtl.write_text(source)
++    mdir = work / f"obj_{name}"
++    if servo:
++        build = ["make", "-s", "-C", str(HERE / "../mmcm_servo"), "unit-build",
++                 f"SERVO_RTL={rtl}", f"UNIT_MDIR={mdir}"]
++        executable = "Vservo_sim"
++    else:
++        build = ["make", "-s", "-C", str(HERE), "discontinuity-build",
++                 f"RX_RTL={rtl}", f"DISC_MDIR={mdir}"]
++        executable = "Vdiscontinuity"
++    result = subprocess.run(
++        [*build, f"VERILATOR={os.environ.get('VERILATOR', 'verilator')}"],
++        capture_output=True, text=True, check=False)
++    if result.returncode:
++        print(result.stdout[-2000:] + result.stderr[-2000:])
++        print(f"FAIL {name}: compilation failed")
++        return False
++    result = subprocess.run([str(mdir / executable)],
++                            capture_output=True, text=True, check=False)
++    output = result.stdout + result.stderr
++    if failure is None:
++        passed = result.returncode == 0 and ("RESULT: PASS" in output or
++                                           (servo and "0 failures" in output))
++    else:
++        passed = (result.returncode == 1 and (servo or "RESULT: FAIL" in output) and
++                  f"[FAIL] {failure}" in output)
++    print(f"[{'PASS' if passed else 'FAIL'}] {name}: rc={result.returncode}")
++    if passed and failure is not None:
++        # The sweep judges this campaign's verdict, not expected DUT failures.
++        print(f"  named rejection: {failure}")
++    elif not passed:
++        print(output)
++    return passed
++
++
++def main() -> int:
++    """Run all controls and fail if any named defect escapes."""
++    def interrupted(_signum: int, _frame: object) -> None:
++        """Unwind temporary storage when the caller stops the campaign."""
++        raise SystemExit(143)
++
++    signal.signal(signal.SIGTERM, interrupted)
++    source = RTL.read_text()
++    with tempfile.TemporaryDirectory(prefix="crf-step-mutants-") as directory:
++        work = Path(directory)
++        if not run_case(work, "clean", source, None):
++            return 1
++        results = [True]
++        for name, anchor, replacement, failure in MUTANTS:
++            if source.count(anchor) != 1:
++                print(f"FAIL {name}: expected exactly one mutation anchor")
++                results.append(False)
++                continue
++            results.append(run_case(work, name, source.replace(anchor, replacement), failure))
++        servo_source = SERVO.read_text()
++        anchor = "\n                           && crf_rate_valid_i;"
++        if servo_source.count(anchor) != 1:
++            print("FAIL servo_ignores_valid: expected exactly one mutation anchor")
++            return 1
++        results.append(run_case(work, "servo_clean", servo_source, None, servo=True))
++        results.append(run_case(
++            work, "servo_ignores_valid", servo_source.replace(anchor, ";"),
++            "[U13] invalid remote sample holds trim", servo=True))
++        resume_anchor = "  always_ff @(posedge clk_i) begin : servo_engine"
++        if servo_source.count(resume_anchor) != 1:
++            print("FAIL servo_never_resumes: expected exactly one mutation anchor")
++            return 1
++        # A sticky invalid sample stops PI forever, while preserving LOCKED.
++        resume_latch = """  logic invalid_seen_r;
++  always_ff @(posedge clk_i) begin : latch_invalid_sample
++    if (!rst_n) invalid_seen_r <= 1'b0;
++    else if (!crf_rate_valid_i) invalid_seen_r <= 1'b1;
++  end
++"""
++        never_resumes = servo_source.replace(resume_anchor, resume_latch + resume_anchor)
++        never_resumes = never_resumes.replace(anchor, anchor[:-1] + " && !invalid_seen_r;")
++        results.append(run_case(
++            work, "servo_never_resumes", never_resumes,
++            "[U13] valid offset resumes PI trim", servo=True))
++    failures = sum(not passed for passed in results)
++    print(f"== crf_rx mutants: checks: {len(results)}   failures: {failures} ==")
++    return 1 if failures else 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Issue #546: public-output checks of timestamp-era isolation. Expected
++// rates come from the stimulus's interval sum, never from DUT internals.
++#include "VKL_crf_rx.h"
++#include "verilated.h"
++#include "../../common/verilator_harness.hpp"
++#include <array>
++#include <cstdint>
++
++namespace {
++class DiscontinuityHarness {
++ public:
++    int run() {
++        check.echo_passes();
++        reset();
++        fill(200, false);
++        marker(true);
++        marker(false);
++        for (const int64_t jump : std::array<int64_t, 10>{
++                 21000, -21000, 150000, -150000, 1000000000, -1000000000,
++                 4294967296LL, -4294967296LL, 4294968296LL, -4294968296LL})
++            step(jump);
++        spacing_limits();
++        rejected_markers();
++        pending_collision();
++        lifecycle();
++        return check.report();
++    }
++ private:
++    milan::tb::Model<VKL_crf_rx> dut;
++    milan::tb::Checker check{"crf_rx discontinuity"};
++    uint64_t ts = 10'000'000'000ULL;
++    uint8_t seq = 0;
++    static constexpr uint64_t kSid = 0x0200000000010001ULL;
++
++    void tick() {
++        dut->clk_i = 0; dut->eval();
++        dut->clk_i = 1; dut->eval();
++    }
++    void reset() {
++        dut->rst_n = 0; dut->en_i = 0; dut->stop_i = 0;
++        dut->frame_p_i = 0; dut->sid_i = kSid;
++        dut->subtype_i = 4; dut->type_i = 1;
++        dut->sid_frame_i = kSid; dut->pullbase_i = 48000;
++        dut->mr_i = 0; dut->tu_i = 0;
++        tick(); tick(); dut->rst_n = 1; dut->en_i = 1; tick();
++    }
++    void fields() {
++        dut->seq_i = seq;
++        dut->fsh_i = (uint64_t{8} << 48) | (uint64_t{96} << 32) | (ts >> 32);
++        dut->fsh2_i = ts << 32;
++        // Deliberately jitter arrival time: it cannot change source spacing.
++        dut->ptp_now_i = ts - (seq % 2 ? 100 : 1'900'000);
++    }
++    void send(int64_t spacing = 2'000'200) {
++        ts += static_cast<uint64_t>(spacing);
++        fields(); dut->frame_p_i = 1; tick();
++        dut->frame_p_i = 0; tick(); tick(); ++seq;
++    }
++    void fill(int drift, bool tu) {
++        dut->tu_i = tu;
++        for (int n = 0; n < 256; ++n) {
++            send(2'000'000 + drift);
++            check.that("initial history stays invalid for 256 timestamps", !dut->rate_valid_o);
++        }
++        send(2'000'000 + drift);
++        check.that("257th timestamp publishes a valid sample", dut->rate_valid_o);
++        check.that("rate equals 256 source intervals minus nominal",
++                   static_cast<int32_t>(dut->rate_o) == 256 * drift);
++    }
++    void refill(int drift = 200) {
++        const auto held = dut->rate_o;
++        bool isolated = true;
++        for (int n = 1; n < 256; ++n) {
++            send(2'000'000 + drift);
++            isolated &= !dut->rate_valid_o && dut->rate_o == held;
++        }
++        check.that("all 255 crossing intervals are withheld", isolated);
++        send(2'000'000 + drift);
++        check.that("exactly 256 new intervals restore validity", dut->rate_valid_o);
++        check.that("first clean rate excludes the phase jump",
++                   static_cast<int32_t>(dut->rate_o) == 256 * drift);
++    }
++    void marker(bool tu) {
++        const auto held = dut->rate_o;
++        dut->tu_i = tu;
++        ts += 2'001'200; // 1 us phase step: below the backstop, marker alone
++        fields(); dut->frame_p_i = 1; dut->clk_i = 0; dut->eval();
++        check.that("tu edge invalidates before the sampling edge", !dut->rate_valid_o);
++        tick(); dut->frame_p_i = 0; tick(); ++seq;
++        check.that("tu edge holds the published rate", dut->rate_o == held);
++        check.that("tu edge leaves receiver locked", dut->locked_o);
++        refill(); // includes a whole clean window with tu held high
++        check.dec("tu edges never count a media unlock", dut->cnt_unlocked_o, 0);
++    }
++    void step(int64_t jump) {
++        const auto held = dut->rate_o;
++        send(2'000'200 + jump);
++        check.that("unmarked timestamp jump invalidates the rate", !dut->rate_valid_o);
++        check.that("unmarked timestamp jump cannot publish", dut->rate_o == held);
++        check.that("unmarked timestamp jump preserves receiver lock", dut->locked_o);
++        refill();
++    }
++    void spacing_limits() {
++        // Inclusive detector boundary, checked at nominal rate. These are
++        // isolated phase offsets, so subsequent periods return to 2 ms.
++        reset(); fill(0, true);
++        for (const int delta : {-2048, 2048}) {
++            send(2'000'000 + delta);
++            check.that("2048 ns boundary remains valid", dut->rate_valid_o);
++            send(2'000'000);
++        }
++        for (const int delta : {-2049, 2049}) {
++            send(2'000'000 + delta);
++            check.that("2049 ns boundary is rejected", !dut->rate_valid_o);
++            refill(0);
++        }
++        // Legitimate extremes combine 100 ppm media and 200 ppm PHC.
++        for (const int drift : {-601, 601}) {
++            bool valid = true;
++            for (int n = 0; n < 257; ++n) {
++                send(2'000'000 + drift); valid &= dut->rate_valid_o;
++            }
++            check.that("combined legitimate rate extremes are never rejected", valid);
++            check.that("legitimate rate changes still propagate",
++                       static_cast<int32_t>(dut->rate_o) == 256 * drift);
++        }
++    }
++    void rejected_markers() {
++        const auto held = dut->rate_o;
++        dut->tu_i = !dut->tu_i;
++        dut->type_i = 0;
++        fields(); dut->frame_p_i = 1; tick();
++        dut->frame_p_i = 0; tick();
++        check.that("malformed marker cannot invalidate", dut->rate_valid_o);
++        dut->type_i = 1; dut->sid_frame_i = kSid + 1;
++        dut->frame_p_i = 1; tick(); dut->frame_p_i = 0; tick();
++        check.that("foreign marker cannot invalidate", dut->rate_valid_o);
++        check.dec("rejected frames cannot change rate", dut->rate_o, held);
++        dut->sid_frame_i = kSid; dut->tu_i = !dut->tu_i;
++        send();
++        check.that("rejected marker never seeds the reference", dut->rate_valid_o);
++    }
++    void pending_collision() {
++        reset(); fill(200, false);
++        const auto held = dut->rate_o;
++        ts += 2'000'300; fields(); dut->frame_p_i = 1; tick(); ++seq;
++        // A clean rate is pending in the BRAM read pipeline. The very
++        // next cycle carries a sub-threshold jump and a tu transition.
++        ts += 2'001'200; dut->tu_i = 1; fields(); tick(); ++seq;
++        dut->frame_p_i = 0; tick(); tick();
++        check.that("back-to-back marker cancels pending publication", dut->rate_o == held);
++        check.that("back-to-back marker leaves invalid history", !dut->rate_valid_o);
++        refill();
++    }
++    void lifecycle() {
++        ++seq; send(4'000'400);
++        check.that("lost PDU cannot poison a 256-PDU rate", !dut->rate_valid_o);
++        refill();
++        --seq; send();
++        check.that("duplicate PDU restarts the rate history", !dut->rate_valid_o);
++        refill();
++        dut->stop_i = 1; dut->eval();
++        check.that("STOP gates sample validity immediately", !dut->rate_valid_o);
++        dut->stop_i = 0;
++        for (int n = 0; n < 20005; ++n) tick();
++        check.that("silence invalidates the old rate", !dut->rate_valid_o);
++        fill(200, false);
++        dut->en_i = 0; tick(); dut->en_i = 1; tick();
++        check.that("rebind invalidates old history", !dut->rate_valid_o);
++        fill(-100, true);
++        reset();
++        check.that("reset invalidates history", !dut->rate_valid_o);
++        ts = UINT64_MAX - 10'000'000;
++        fill(200, false);
++        check.that("natural 64-bit rollover preserves clean spacing", dut->rate_valid_o);
++    }
++};
++} // namespace
++int main(int argc, char** argv) {
++    Verilated::commandArgs(argc, argv);
++    DiscontinuityHarness harness;
++    return harness.run();
++}
++    uint64_t last_ts = 0;
++    bool last_tu = false;
++    bool rate_seeded = false;
+-    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp, bool mr) {
++    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp, bool mr, bool tu) {
++        // Rate windows require contiguous timestamps from one era. The
++        // directed discontinuity suite independently pins this boundary.
++        const auto spacing = ts - last_ts;
++        if (rate_seeded && (tu != last_tu || seq != exp_seq ||
++                           spacing < 1'997'952 || spacing > 2'002'048))
++            hfill = 0;
++        last_ts = ts;
++        last_tu = tu;
++        rate_seeded = true;
+-            have_seq = false; hfill = 0;
++            have_seq = false; hfill = 0; rate_seeded = false;
++        hfill = 0; rate_seeded = false;
+-        m.good_pdu(ts, seq, ptp, g_mr);
++        m.good_pdu(ts, seq, ptp, g_mr, g_tu);
+-            m.good_pdu(ts, seq, ptp, g_mr); seq++;
++            m.good_pdu(ts, seq, ptp, g_mr, g_tu); seq++;
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// GM-change integration: talker-only and independently stepped PHC timelines.
++// Real CRF timestamps enter the receiver; its rate and valid outputs feed
++// the production servo. Audio frequency responds through the MMCM model.
++#include "Vcrf_talker_wrap.h"
++#include "Vcrf_talker_wrap___024root.h"
++#include "verilated.h"
++#include "../../common/verilator_harness.hpp"
++#include "../mmcm_servo/mmcm_model.h"
++#include <algorithm>
++#include <cmath>
++#include <cstdint>
++#include <cstdio>
++
++namespace {
++class TalkerStepHarness {
++ public:
++    int run() {
++        check.echo_passes();
++        mm.regs[0x08] = 0x0595; mm.regs[0x09] = 0x0080;
++        dut->rst_n = 0; dut->clk_src_i = 1; dut->crf_src_idx_i = 1;
++        dut->auto_repair_i = 0; dut->ps_invert_i = 0;
++        dut->mmcm_locked_i = 1; run_ms(0.01); dut->rst_n = 1;
++        run_ms(8500);
++        check.that("receiver-to-servo loop locks at production scale", state() == 4);
++        check.that("steady receiver rate is valid", dut->rate_valid_o);
++        check.that("steady rate matches the source interval sum",
++                   static_cast<int32_t>(dut->rate_o) == -40 * 256);
++        std::printf("steady integrator %.3f ppm\n", integ() / 512.0);
++        quiet();
++        // No local guard can mask the two talker-only events.
++        gm_change("talker_only_pos", 150000, true, 0);
++        gm_change("talker_only_neg", -150000, false, 0);
++        // Preserve the original short-lag ordering as guard interaction evidence.
++        gm_change("both_short_pos", 150000, true, 100);
++        gm_change("both_short_neg", -150000, false, 100);
++        // The listener steps after a full window; receiver isolation is required.
++        gm_change("both_long_pos", 150000, true, 600);
++        gm_change("both_long_neg", -150000, false, 600);
++        return check.report();
++    }
++ private:
++    milan::tb::Model<Vcrf_talker_wrap> dut;
++    milan::tb::Checker check{"crf_rx talker_step"};
++    MmcmModel mm;
++    double now_fs = 0;
++    double next_i = 10e6;
++    double next_p = 10e6;
++    double next_a = 12345e3;
++    double base_a = 12345e3;
++    double next_pdu_ns = 100000;
++    int64_t local_step_ns = 0;
++    uint64_t remote_ts_ns = 10'000'000'000ULL;
++    int64_t remote_step_ns = 0;
++    bool monitor = false;
++    bool stayed_locked = true;
++    bool saw_invalid = false;
++    int min_integ = 0;
++    int max_integ = 0;
++    int held_updates = 0;
++    bool invalid_window = false;
++    bool step_pending = false;
++    unsigned crossing_intervals = 0;
++    unsigned exposed_boundaries = 0;
++    unsigned invalid_boundaries = 0;
++    unsigned post_edge_artifacts = 0;
++
++    int state() const { return dut->status_o & 7; }
++    int integ() const {
++        return static_cast<int32_t>(
++            dut->rootp->crf_talker_wrap__DOT__servo__DOT__integ_r << 8) >> 8;
++    }
++    void observe(bool sampled_valid, bool boundary, bool writeback, int old_integ) {
++        if (!monitor) return;
++        const int value = integ();
++        stayed_locked &= state() == 4;
++        saw_invalid |= !sampled_valid;
++        min_integ = std::min(min_integ, value);
++        max_integ = std::max(max_integ, value);
++        // The same observer serves quiet and step cases. Post-edge validity
++        // is deliberately counted separately: it is not the servo's input.
++        if (sampled_valid && !dut->rate_valid_o) ++post_edge_artifacts;
++        if (writeback && invalid_window && value != old_integ) ++held_updates;
++        if (boundary) {
++            invalid_window = !sampled_valid;
++            if (crossing_intervals > 0) ++exposed_boundaries;
++            if (!sampled_valid) {
++                ++invalid_boundaries;
++                // Reject even a numerically idle PI run on invalid history.
++                if (dut->rootp->crf_talker_wrap__DOT__servo__DOT__pp_run_r)
++                    ++held_updates;
++            }
++        }
++    }
++    void event() {
++        if (next_i <= next_p && next_i <= next_a) {
++            now_fs = next_i; next_i += 10e6;
++            const bool rising = !dut->clk_i;
++            bool sampled_valid = true;
++            bool boundary = false;
++            bool writeback = false;
++            const int old_integ = integ();
++            if (rising) {
++                dut->ptp_now_i = static_cast<uint64_t>(
++                    10'000'000'000LL + std::llround(now_fs / 1e6) + local_step_ns);
++                dut->frame_p_i = 0;
++                if (dut->rst_n && now_fs / 1e6 >= next_pdu_ns) {
++                    next_pdu_ns += 1'999'960;
++                    remote_ts_ns += 1'999'960;
++                    dut->ts_ns_i = remote_ts_ns + static_cast<uint64_t>(remote_step_ns);
++                    dut->seq_i = static_cast<uint8_t>(dut->seq_i + 1);
++                    dut->frame_p_i = 1;
++                    // Count source intervals independently of receiver state.
++                    if (step_pending) {
++                        crossing_intervals = 256;
++                        step_pending = false;
++                    } else if (crossing_intervals > 0) {
++                        --crossing_intervals;
++                    }
++                }
++                // Settle inputs with clk_i LOW, then capture exactly what
++                // the servo samples on this edge, including accept-edge vetoes.
++                dut->eval();
++                sampled_valid = dut->rate_valid_o;
++                const auto* root = dut->rootp;
++                boundary = root->crf_talker_wrap__DOT__servo__DOT__tick_p_w &&
++                    root->crf_talker_wrap__DOT__servo__DOT__win_valid_r &&
++                    root->crf_talker_wrap__DOT__servo__DOT__tick_cnt_r == 511;
++                writeback = root->crf_talker_wrap__DOT__servo__DOT__pp_seq_r == 7;
++            }
++            dut->clk_i = rising;
++            dut->eval();
++            if (dut->clk_i) {
++                mm.dclk_edge(dut->drp_addr_o, dut->drp_en_o, dut->drp_we_o,
++                             dut->drp_di_o, dut->mmcm_rst_o);
++                dut->drp_do_i = mm.dout; dut->drp_rdy_i = mm.drdy;
++                dut->mmcm_locked_i = mm.locked;
++                // A coincident local PHC step squashes the closing boundary.
++                boundary &= dut->rootp->crf_talker_wrap__DOT__servo__DOT__pp_seq_r == 1;
++                observe(sampled_valid, boundary, writeback, old_integ);
++            }
++        } else if (next_p <= next_a) {
++            now_fs = next_p; next_p += 10e6; dut->ps_clk_i ^= 1;
++            dut->eval();
++            if (dut->ps_clk_i) {
++                mm.psclk_edge(dut->ps_en_o, dut->ps_incdec_o, dut->mmcm_rst_o);
++                dut->ps_done_i = mm.psdone;
++            }
++        } else {
++            now_fs = next_a;
++            base_a += 0.5 * (1e15 / 24.576e6) * (1.0 + 10.64e-6);
++            next_a = std::max(base_a + mm.audio_adj_fs, now_fs + 1e3);
++            dut->clk_audio_i ^= 1; dut->eval();
++        }
++    }
++    void run_ms(double ms) {
++        const auto until = now_fs + ms * 1e12;
++        while (now_fs < until) event();
++    }
++    void align_event() {
++        // Land 100 ms after a real boundary: the next one must close about
++        // 412 ms later, strictly inside the 256 * 1.999960 ms crossing span.
++        const auto deadline = now_fs + 600e12;
++        do { event(); } while (
++            dut->rootp->crf_talker_wrap__DOT__servo__DOT__pp_seq_r != 1 &&
++            now_fs < deadline);
++        check.that("event alignment reaches a servo boundary", now_fs < deadline);
++        run_ms(100);
++    }
++    void begin() {
++        stayed_locked = true; saw_invalid = false; held_updates = 0;
++        exposed_boundaries = 0; invalid_boundaries = 0; post_edge_artifacts = 0;
++        invalid_window = false;
++        min_integ = integ(); max_integ = integ(); monitor = true;
++    }
++    void quiet() {
++        begin(); run_ms(1100); monitor = false;
++        check.that("quiet: post-edge artifact was exercised", post_edge_artifacts > 0);
++        check.that("quiet: sampled validity never satisfies withhold check", !saw_invalid);
++        check.dec("quiet: no invalid servo boundaries", invalid_boundaries, 0);
++        check.that("quiet: servo stays LOCKED", stayed_locked);
++        std::printf("quiet: post-edge artifacts %u, sampled invalid %d\n",
++                    post_edge_artifacts, saw_invalid);
++    }
++    void gm_change(const char* name, int64_t step_ns, bool marker, double lag_ms) {
++        align_event();
++        const int before = integ();
++        const int disc_before = (dut->status_o >> 10) & 63;
++        const auto unlocks_before = dut->rx_unlocks_o;
++        begin();
++        std::printf("scenario %s: step %lld ns, listener lag %.0f ms\n",
++                    name, static_cast<long long>(step_ns), lag_ms);
++        remote_step_ns += step_ns; step_pending = true;
++        if (marker) dut->tu_i = 1;
++        // A marked event holds tu for 250 ms in every ordering. An unmarked
++        // negative event has no tu edge: it specifically needs the backstop.
++        if (lag_ms > 0 && lag_ms < 250) {
++            run_ms(lag_ms); local_step_ns += step_ns;
++            run_ms(250 - lag_ms);
++        } else {
++            run_ms(250);
++        }
++        if (marker) dut->tu_i = 0;
++        if (lag_ms >= 250) {
++            run_ms(lag_ms - 250); local_step_ns += step_ns;
++        }
++        run_ms(1100); // complete refill and at least one clean servo window
++        monitor = false;
++        if (lag_ms == 0 || lag_ms >= 512) {
++            check.that("crossing history reaches a servo boundary", exposed_boundaries > 0);
++            check.that("servo samples invalid history at a boundary", invalid_boundaries > 0);
++        }
++        check.that("GM change: receiver withholds crossing rate samples", saw_invalid);
++        check.that("GM change: servo stays LOCKED on every clock", stayed_locked);
++        check.dec("GM change: no counted receiver re-lock", dut->rx_unlocks_o, unlocks_before);
++        check.that("GM change: integrator stays within 1 ppm",
++                   min_integ >= before - 512 && max_integ <= before + 512);
++        check.dec("invalid sample cannot update the integrator", held_updates, 0);
++        check.that("GM change: receiver returns to clean valid rate", dut->rate_valid_o);
++        check.that("GM change: recovered rate excludes talker step",
++                   static_cast<int32_t>(dut->rate_o) == -40 * 256);
++        check.dec("GM change: local PHC steps counted",
++                  ((dut->status_o >> 10) & 63) - disc_before, lag_ms > 0 ? 1 : 0);
++        std::printf("%s: integrator range %.3f..%.3f ppm, state %d, "
++                    "crossing boundaries %u, invalid boundaries %u\n",
++                    name, min_integ / 512.0, max_integ / 512.0, state(),
++                    exposed_boundaries, invalid_boundaries);
++    }
++};
++} // namespace
++int main(int argc, char** argv) {
++    Verilated::commandArgs(argc, argv);
++    TalkerStepHarness harness;
++    return harness.run();
++}
++SERVO_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv
++UNIT_MDIR ?= obj_dir
++
+-         $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv
++         $(SERVO_RTL)
+-.PHONY: all run trace phc_step_build clean
++.PHONY: all run unit-build trace phc_step_build clean
+-run:
++unit-build:
+-	  $(COMMON) sim_main.cpp -o Vservo_sim
++	  -Mdir $(UNIT_MDIR) $(COMMON) sim_main.cpp -o Vservo_sim
++
++run: unit-build
+-	./obj_dir/Vservo_sim
++	./$(UNIT_MDIR)/Vservo_sim
++    .crf_rate_valid_i (1'b1), //! this harness supplies clean rate samples
++//   U13 invalid CRF rate -> trim and lock held; valid rate resumes PI
++        prove_invalid_remote_sample_holds_the_loop();
++        dut->crf_rate_valid_i = 1; // synthetic rate input is valid
++    //! The value on an invalid sample bus is deliberately plausible but
++    //! wrong: below the guard, large enough to kick PI if valid is ignored.
++    void prove_invalid_remote_sample_holds_the_loop() {
++        ck("[U13] LOCKED before invalid remote sample", state(), 4);
++        const int16_t before = trim();
++        const auto clean = dut->crf_rate_i;
++        dut->crf_rate_valid_i = 0;
++        dut->crf_rate_i = clean + 150000;
++        run_ms(24);
++        ck("[U13] invalid remote sample holds trim", trim(), before);
++        ck("[U13] invalid remote sample holds LOCKED", state(), 4);
++        dut->crf_rate_i = clean;
++        dut->crf_rate_valid_i = 1;
++        run_ms(24);
++        ck("[U13] clean remote sample resumes locked", state(), 4);
++        // A +10 ppm talker offset stays within the 16 ppm unit lock band.
++        // Demand >5 ppm trim movement, beyond the unit's sampling ripple;
++        // a PI loop latched off during invalidity must fail this check.
++        const int16_t resumed = trim();
++        dut->crf_rate_i = rate_for_ppm(+90.0);
++        run_ms(24);
++        ck("[U13] valid offset resumes PI trim", trim() > resumed + 5 * 16, 1);
++        ck("[U13] valid offset stays LOCKED", state(), 4);
++        dut->crf_rate_i = clean;
++        run_ms(24);
++        ck("[U13] original rate recovers LOCKED", state(), 4);
++    }
++
++        dut->crf_rate_valid_i = 1; // synthetic rate input is valid
++    dut->crf_rate_valid_i = 1; // synthetic rate input is valid
