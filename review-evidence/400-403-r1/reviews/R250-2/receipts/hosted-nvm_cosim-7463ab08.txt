@@ -1,0 +1,18 @@
+hosted run 36142747033 job 108096440396 (Verilator shard 1/5), artifact suite-logs-1 id 10868184641
+TARGET_SHA: 80a1f6a7ccfddaefa2f09a6f5e4140fa94a5493c
+--- nvm_cosim.log tail ---
+  File "<ci-checkout>/tb/verilator/nvm_cosim/run_cases.py", line 780, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "<ci-checkout>/tb/verilator/nvm_cosim/run_cases.py", line 739, in main
+    shapes = {n: shape(n) for n in want}
+                 ^^^^^^^^
+  File "<ci-checkout>/tb/verilator/nvm_cosim/run_cases.py", line 131, in shape
+    return ShapeInfo(name, ref.constants_header(shp, donor, ident), table, params, donor,
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<ci-checkout>/sw/firmware/nvm_hosttest/test_nvm_firmware.py", line 172, in constants_header
+    values = {
+             ^
+TypeError: 'Ident' object is not a mapping
+make: *** [Makefile:58: run] Error 1
+make: Leaving directory '<ci-checkout>/tb/verilator/nvm_cosim'

@@ -1,0 +1,21 @@
+host build failed: gcc -std=gnu11 -O1 -g -Wall -Wextra -Werror -I/tmp/nvmfw.qmgb0pdv/endstation_arty_4x4 -I<PACKET>/scratch/probe/sw/firmware/nvm_hosttest/stubs -Wno-format -c /tmp/nvmfw.qmgb0pdv/endstation_arty_4x4/milan_baremetal.c -o /tmp/nvmfw.qmgb0pdv/endstation_arty_4x4/fw.o
+/tmp/nvmfw.qmgb0pdv/endstation_arty_4x4/milan_baremetal.c: In function ‘configure_fabric’:
+/tmp/nvmfw.qmgb0pdv/endstation_arty_4x4/milan_baremetal.c:1376:66: error: ‘MILAN_MAC_CTRL_SET’ undeclared (first use in this function); did you mean ‘MILAN_MAC_CTRL’?
+ 1376 |         milan_write(MILAN_MAC_CTRL, milan_read(MILAN_MAC_CTRL) | MILAN_MAC_CTRL_SET);
+      |                                                                  ^~~~~~~~~~~~~~~~~~
+      |                                                                  MILAN_MAC_CTRL
+/tmp/nvmfw.qmgb0pdv/endstation_arty_4x4/milan_baremetal.c:1376:66: note: each undeclared identifier is reported only once for each function it appears in
+/tmp/nvmfw.qmgb0pdv/endstation_arty_4x4/milan_baremetal.c:1377:38: error: ‘MILAN_TCAM_CTRL_BOOT’ undeclared (first use in this function); did you mean ‘MILAN_TCAM_CTRL’?
+ 1377 |         milan_write(MILAN_TCAM_CTRL, MILAN_TCAM_CTRL_BOOT);
+      |                                      ^~~~~~~~~~~~~~~~~~~~
+      |                                      MILAN_TCAM_CTRL
+/tmp/nvmfw.qmgb0pdv/endstation_arty_4x4/milan_baremetal.c:1380:37: error: ‘MILAN_AAF_CTRL_BOOT’ undeclared (first use in this function); did you mean ‘MILAN_AAF_CTRL’?
+ 1380 |         milan_write(MILAN_AAF_CTRL, MILAN_AAF_CTRL_BOOT);
+      |                                     ^~~~~~~~~~~~~~~~~~~
+      |                                     MILAN_AAF_CTRL
+/tmp/nvmfw.qmgb0pdv/endstation_arty_4x4/milan_baremetal.c:1383:38: error: ‘MILAN_MAAP_CTRL_BOOT’ undeclared (first use in this function); did you mean ‘MILAN_MAAP_CTRL’?
+ 1383 |         milan_write(MILAN_MAAP_CTRL, MILAN_MAAP_CTRL_BOOT);
+      |                                      ^~~~~~~~~~~~~~~~~~~~
+      |                                      MILAN_MAAP_CTRL
+
+exit 1

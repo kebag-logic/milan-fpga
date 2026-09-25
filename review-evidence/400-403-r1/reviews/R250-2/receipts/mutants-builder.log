@@ -1,0 +1,161 @@
+Traceback (most recent call last):
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 171, in <module>
+    test_declaration_contracts()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 104, in test_declaration_contracts
+    raise AssertionError(f"accepted unsupported {reason}")
+AssertionError: accepted unsupported 5.3.7.6
+RESULT MB1-factory-offset-any: exit=1 observed=detect expected=detect AS-EXPECTED
+Traceback (most recent call last):
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 171, in <module>
+    test_declaration_contracts()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 104, in test_declaration_contracts
+    raise AssertionError(f"accepted unsupported {reason}")
+AssertionError: accepted unsupported streams.listeners[0].presentation_time_offset_ns
+RESULT MB2-listener-offset-accepted: exit=1 observed=detect expected=detect AS-EXPECTED
+Traceback (most recent call last):
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 171, in <module>
+    test_declaration_contracts()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 118, in test_declaration_contracts
+    assert_header(header, n)
+    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 52, in assert_header
+    assert match and int(match[1]) == n - 1, "generated output row shape"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: generated output row shape
+RESULT MB3-crf-row-omitted: exit=1 observed=detect expected=detect AS-EXPECTED
+Traceback (most recent call last):
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 171, in <module>
+    test_declaration_contracts()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 104, in test_declaration_contracts
+    raise AssertionError(f"accepted unsupported {reason}")
+AssertionError: accepted unsupported srp.vid
+RESULT MB4-vid-any: exit=1 observed=detect expected=detect AS-EXPECTED
+Traceback (most recent call last):
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 171, in <module>
+    test_declaration_contracts()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 104, in test_declaration_contracts
+    raise AssertionError(f"accepted unsupported {reason}")
+AssertionError: accepted unsupported platform.rx_address_filter
+RESULT MB5-hardware-filter-accepted: exit=1 observed=detect expected=detect AS-EXPECTED
+Traceback (most recent call last):
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 171, in <module>
+    test_declaration_contracts()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 104, in test_declaration_contracts
+    raise AssertionError(f"accepted unsupported {reason}")
+AssertionError: accepted unsupported board.features.maap
+RESULT MB6-maap-prune-accepted: exit=1 observed=detect expected=detect AS-EXPECTED
+Traceback (most recent call last):
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 171, in <module>
+    test_declaration_contracts()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 104, in test_declaration_contracts
+    raise AssertionError(f"accepted unsupported {reason}")
+AssertionError: accepted unsupported srp.bandwidth_limit_pct
+RESULT MB7-bandwidth-100: exit=1 observed=detect expected=detect AS-EXPECTED
+Traceback (most recent call last):
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 171, in <module>
+    test_declaration_contracts()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 104, in test_declaration_contracts
+    raise AssertionError(f"accepted unsupported {reason}")
+AssertionError: accepted unsupported srp.timers_ms.join
+RESULT MB8-timer-any-int: exit=1 observed=detect expected=detect AS-EXPECTED
+Traceback (most recent call last):
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 171, in <module>
+    test_declaration_contracts()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 104, in test_declaration_contracts
+    raise AssertionError(f"accepted unsupported {reason}")
+AssertionError: accepted unsupported srp.tspec.policy
+RESULT MB9-tspec-pinned-accepted: exit=1 observed=detect expected=detect AS-EXPECTED
+Traceback (most recent call last):
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 171, in <module>
+    test_declaration_contracts()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 104, in test_declaration_contracts
+    raise AssertionError(f"accepted unsupported {reason}")
+AssertionError: accepted unsupported srp.tspec.interval_frames
+RESULT MB10-interval-any: exit=1 observed=detect expected=detect AS-EXPECTED
+Traceback (most recent call last):
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 171, in <module>
+    test_declaration_contracts()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 118, in test_declaration_contracts
+    assert_header(header, n)
+    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "<PACKET>/scratch/probe/sw/builder/test_declarations.py", line 50, in assert_header
+    assert re.search(r"ADP_SRP_DOM_DEF_VID_C\s*=\s*16'd2;", text), "generated startup VID"
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: generated startup VID
+RESULT MB11-header-vid-from-literal-3: exit=1 observed=detect expected=detect AS-EXPECTED
+  [gate 35] the writer's waits are generated AND pinned beside their bounds: MILAN_NVM_HEARTBEAT_MS 250 ms, MILAN_NVM_DEBOUNCE_MS 1000 ms, MILAN_NVM_ERASE_TIMEOUT_MS 3500 ms, MILAN_NVM_PROGRAM_TIMEOUT_MS 50 ms, MILAN_NVM_RESTORE_TIMEOUT_MS 3000 ms; both publication loops in milan_soc.py have their complete bodies pinned; 5/5 planted defects refused: the literal NVM_MS(250) planted back; the heartbeat moved to 300 ms, inside its own bound; the publication loop substituting the CRF boot word; the fabric loop overwriting the CRF boot word; the firmware loop overwriting the heartbeat wait
+Traceback (most recent call last):
+  File "<PACKET>/scripts/gate35.py", line 6, in <module>
+    test_builder.test_boot_policy_follows_the_declaration()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_builder.py", line 27536, in test_boot_policy_follows_the_declaration
+    _assert_fabric_writes(case.label, got, consts, case.crf_declared)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PACKET>/scratch/probe/sw/builder/test_builder.py", line 26796, in _assert_fabric_writes
+    assert got == expected, (
+           ^^^^^^^^^^^^^^^
+AssertionError: gate 35: arty_current: configure_fabric() wrote [('0x600', '0x5a060000'), ('0x920', '0x5a092000'), ('0x604', '0xfe000002'), ('0x608', '0x20000ff'), ('0x60c', '0xc1000005'), ('0x610', '0x1bc50a'), ('0x108', '0x2'), ('0x10c', '0x200'), ('0x100', '0x5a010009'), ('0x700', '0x1'), ('0x654', '0x20001'), ('0x684', '0x2'), ('0x680', '0x13'), ('0x6cc', '0x201'), ('0x750', '0x0')], and the pinned list is [('0x600', '0x5a060000'), ('0x920', '0x5a092000'), ('0x604', '0xfe000002'), ('0x608', '0x20000ff'), ('0x60c', '0xc1000005'), ('0x610', '0x1bc50a'), ('0x108', '0x2'), ('0x10c', '0x200'), ('0x100', '0x5a010009'), ('0x700', '0x1'), ('0x654', '0x20001'), ('0x684', '0x2'), ('0x680', '0x13'), ('0x6cc', '0x101'), ('0x750', '0x0')]
+RESULT MP-boot-maap-spare: exit=1 observed=detect expected=detect AS-EXPECTED
+  [gate 35] the writer's waits are generated AND pinned beside their bounds: MILAN_NVM_HEARTBEAT_MS 250 ms, MILAN_NVM_DEBOUNCE_MS 1000 ms, MILAN_NVM_ERASE_TIMEOUT_MS 3500 ms, MILAN_NVM_PROGRAM_TIMEOUT_MS 50 ms, MILAN_NVM_RESTORE_TIMEOUT_MS 3000 ms; both publication loops in milan_soc.py have their complete bodies pinned; 5/5 planted defects refused: the literal NVM_MS(250) planted back; the heartbeat moved to 300 ms, inside its own bound; the publication loop substituting the CRF boot word; the fabric loop overwriting the CRF boot word; the firmware loop overwriting the heartbeat wait
+Traceback (most recent call last):
+  File "<PACKET>/scripts/gate35.py", line 6, in <module>
+    test_builder.test_boot_policy_follows_the_declaration()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_builder.py", line 27536, in test_boot_policy_follows_the_declaration
+    _assert_fabric_writes(case.label, got, consts, case.crf_declared)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PACKET>/scratch/probe/sw/builder/test_builder.py", line 26796, in _assert_fabric_writes
+    assert got == expected, (
+           ^^^^^^^^^^^^^^^
+AssertionError: gate 35: arty_current: configure_fabric() wrote [('0x600', '0x5a060000'), ('0x920', '0x5a092000'), ('0x604', '0xfe000002'), ('0x608', '0x20000ff'), ('0x60c', '0xc1000005'), ('0x610', '0x1bc50a'), ('0x108', '0x2'), ('0x10c', '0x200'), ('0x100', '0x5a010009'), ('0x700', '0x3'), ('0x654', '0x20001'), ('0x684', '0x2'), ('0x680', '0x13'), ('0x6cc', '0x101'), ('0x750', '0x0')], and the pinned list is [('0x600', '0x5a060000'), ('0x920', '0x5a092000'), ('0x604', '0xfe000002'), ('0x608', '0x20000ff'), ('0x60c', '0xc1000005'), ('0x610', '0x1bc50a'), ('0x108', '0x2'), ('0x10c', '0x200'), ('0x100', '0x5a010009'), ('0x700', '0x1'), ('0x654', '0x20001'), ('0x684', '0x2'), ('0x680', '0x13'), ('0x6cc', '0x101'), ('0x750', '0x0')]
+RESULT MP-boot-tcam-filter: exit=1 observed=detect expected=detect AS-EXPECTED
+  [gate 35] the writer's waits are generated AND pinned beside their bounds: MILAN_NVM_HEARTBEAT_MS 250 ms, MILAN_NVM_DEBOUNCE_MS 1000 ms, MILAN_NVM_ERASE_TIMEOUT_MS 3500 ms, MILAN_NVM_PROGRAM_TIMEOUT_MS 50 ms, MILAN_NVM_RESTORE_TIMEOUT_MS 3000 ms; both publication loops in milan_soc.py have their complete bodies pinned; 5/5 planted defects refused: the literal NVM_MS(250) planted back; the heartbeat moved to 300 ms, inside its own bound; the publication loop substituting the CRF boot word; the fabric loop overwriting the CRF boot word; the firmware loop overwriting the heartbeat wait
+Traceback (most recent call last):
+  File "<PACKET>/scripts/gate35.py", line 6, in <module>
+    test_builder.test_boot_policy_follows_the_declaration()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_builder.py", line 27536, in test_boot_policy_follows_the_declaration
+    _assert_fabric_writes(case.label, got, consts, case.crf_declared)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PACKET>/scratch/probe/sw/builder/test_builder.py", line 26796, in _assert_fabric_writes
+    assert got == expected, (
+           ^^^^^^^^^^^^^^^
+AssertionError: gate 35: arty_current: configure_fabric() wrote [('0x600', '0x5a060000'), ('0x920', '0x5a092000'), ('0x604', '0xfe000002'), ('0x608', '0x20000ff'), ('0x60c', '0xc1000005'), ('0x610', '0x1bc50a'), ('0x108', '0x2'), ('0x10c', '0x200'), ('0x100', '0x5a010009'), ('0x700', '0x1'), ('0x654', '0x20000'), ('0x684', '0x2'), ('0x680', '0x13'), ('0x6cc', '0x101'), ('0x750', '0x0')], and the pinned list is [('0x600', '0x5a060000'), ('0x920', '0x5a092000'), ('0x604', '0xfe000002'), ('0x608', '0x20000ff'), ('0x60c', '0xc1000005'), ('0x610', '0x1bc50a'), ('0x108', '0x2'), ('0x10c', '0x200'), ('0x100', '0x5a010009'), ('0x700', '0x1'), ('0x654', '0x20001'), ('0x684', '0x2'), ('0x680', '0x13'), ('0x6cc', '0x101'), ('0x750', '0x0')]
+RESULT MP-boot-aaf-disabled: exit=1 observed=detect expected=detect AS-EXPECTED
+  [gate 35] the writer's waits are generated AND pinned beside their bounds: MILAN_NVM_HEARTBEAT_MS 250 ms, MILAN_NVM_DEBOUNCE_MS 1000 ms, MILAN_NVM_ERASE_TIMEOUT_MS 3500 ms, MILAN_NVM_PROGRAM_TIMEOUT_MS 50 ms, MILAN_NVM_RESTORE_TIMEOUT_MS 3000 ms; both publication loops in milan_soc.py have their complete bodies pinned; 5/5 planted defects refused: the literal NVM_MS(250) planted back; the heartbeat moved to 300 ms, inside its own bound; the publication loop substituting the CRF boot word; the fabric loop overwriting the CRF boot word; the firmware loop overwriting the heartbeat wait
+Traceback (most recent call last):
+  File "<PACKET>/scripts/gate35.py", line 6, in <module>
+    test_builder.test_boot_policy_follows_the_declaration()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_builder.py", line 27536, in test_boot_policy_follows_the_declaration
+    _assert_fabric_writes(case.label, got, consts, case.crf_declared)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PACKET>/scratch/probe/sw/builder/test_builder.py", line 26796, in _assert_fabric_writes
+    assert got == expected, (
+           ^^^^^^^^^^^^^^^
+AssertionError: gate 35: arty_current: configure_fabric() wrote [('0x600', '0x5a060000'), ('0x920', '0x5a092000'), ('0x604', '0xfe000002'), ('0x608', '0x20000ff'), ('0x60c', '0xc1000005'), ('0x610', '0x1bc50a'), ('0x108', '0x2'), ('0x10c', '0x200'), ('0x100', '0x5a010001'), ('0x700', '0x1'), ('0x654', '0x20001'), ('0x684', '0x2'), ('0x680', '0x13'), ('0x6cc', '0x101'), ('0x750', '0x0')], and the pinned list is [('0x600', '0x5a060000'), ('0x920', '0x5a092000'), ('0x604', '0xfe000002'), ('0x608', '0x20000ff'), ('0x60c', '0xc1000005'), ('0x610', '0x1bc50a'), ('0x108', '0x2'), ('0x10c', '0x200'), ('0x100', '0x5a010009'), ('0x700', '0x1'), ('0x654', '0x20001'), ('0x684', '0x2'), ('0x680', '0x13'), ('0x6cc', '0x101'), ('0x750', '0x0')]
+RESULT MP-boot-allmulti-dropped: exit=1 observed=detect expected=detect AS-EXPECTED
+  [gate 35] the writer's waits are generated AND pinned beside their bounds: MILAN_NVM_HEARTBEAT_MS 250 ms, MILAN_NVM_DEBOUNCE_MS 1000 ms, MILAN_NVM_ERASE_TIMEOUT_MS 3500 ms, MILAN_NVM_PROGRAM_TIMEOUT_MS 50 ms, MILAN_NVM_RESTORE_TIMEOUT_MS 3000 ms; both publication loops in milan_soc.py have their complete bodies pinned; 5/5 planted defects refused: the literal NVM_MS(250) planted back; the heartbeat moved to 300 ms, inside its own bound; the publication loop substituting the CRF boot word; the fabric loop overwriting the CRF boot word; the firmware loop overwriting the heartbeat wait
+Traceback (most recent call last):
+  File "<PACKET>/scripts/gate35.py", line 6, in <module>
+    test_builder.test_boot_policy_follows_the_declaration()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<PACKET>/scratch/probe/sw/builder/test_builder.py", line 27527, in test_boot_policy_follows_the_declaration
+    _declaration_boot_cases(cases, work)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "<PACKET>/scratch/probe/sw/builder/test_builder.py", line 27455, in _declaration_boot_cases
+    assert on_k["MILAN_MAAP_CTRL_BOOT"] - off_k["MILAN_MAAP_CTRL_BOOT"] == 256
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+RESULT MP-boot-maap-aaf-only: exit=1 observed=detect expected=detect AS-EXPECTED
