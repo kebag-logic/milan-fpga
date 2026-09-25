@@ -1,0 +1,24 @@
+command: ['$REVIEWS/544-r316-6-packet/scratch/venv/bin/python', '$REVIEWS/544-r316-6-packet/scripts/focused_boot.py', '$REVIEWS/r316-6-544', '$REVIEWS/544-r316-6-packet/scratch', '--compiler', '$REVIEWS/544-r316-6-packet/scratch/sdk/bin/riscv32-linux-gcc']
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$REVIEWS/544-r316-6-packet/scratch/sdk/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+PASS composed production firmware and NVM entries compiled census ran: True
+PASS authorized discarded sample read compiled census ran: True
+PASS fifth existing fence form compiled census ran: True
+PASS published macro x = MILAN_ID_MAGIC refused: identity-sample absence rule
+PASS disconnected x = MILAN_ID_MAGIC compiled census ran: True
+PASS published macro ((x) = MILAN_ID_MAGIC) refused: identity-sample absence rule
+PASS disconnected ((x) = MILAN_ID_MAGIC) compiled census ran: True
+PASS render ADP term refused: render recentre pulse must read only the media re-base
+PASS render GM term refused: render recentre pulse must read only the media re-base
+PASS rebase ADP term refused: media re-base pulse must read only adjtime and settime
+PASS restart ADP term refused: media restart pulse must read only selected CRF disruption
+PASS extra PHC reader refused: phc_load_ts_w must have exactly 4 live references, found 5
+PASS extra rebase reader refused: media_rebase_p_w must have exactly 3 live references, found 4
+PASS extra restart reader refused: mcr_restart_p_w must have exactly 2 live references, found 3
+PASS restart port ADP gate refused: media restart engine must consume mcr_restart_p_w directly
+PASS #501 census constants: all 32 entry keys, no stale cluster keys
+PASS focused boot cases: 15 mode: SDK
+Scope: production path, two legitimate controls, original macro/disconnection controls, eight predecessor structural refusals; no full builder bank or RTL elaboration.
+
+EXIT_STATUS=0
+ELAPSED_SECONDS=12.939

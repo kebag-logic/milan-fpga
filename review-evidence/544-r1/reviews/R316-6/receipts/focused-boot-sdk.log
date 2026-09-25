@@ -1,0 +1,17 @@
+command: ['$REVIEWS/544-r316-6-packet/scratch/venv/bin/python', '$REVIEWS/544-r316-6-packet/scripts/focused_boot.py', '$REVIEWS/r316-6-544', '$REVIEWS/544-r316-6-packet/scratch', '--compiler', '$REVIEWS/544-r316-6-packet/scratch/sdk/bin/riscv32-linux-gcc']
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$REVIEWS/544-r316-6-packet/scripts/focused_boot.py", line 62, in <module>
+    accepted("composed production firmware and NVM entries")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/544-r316-6-packet/scripts/focused_boot.py", line 45, in accepted
+    verdict = gate(firmware, docs, csr)
+  File "$REVIEWS/r316-6-544/sw/builder/test_builder.py", line 11354, in assert_boot_contract
+    census_taken = census_take(source)
+  File "$REVIEWS/r316-6-544/sw/builder/test_builder.py", line 4945, in census_take
+    assert compiler, \
+           ^^^^^^^^
+AssertionError: the compiled census needs a C compiler and found none of ['$REVIEWS/544-r316-6-packet/scratch/sdk/bin/toolchain-wrapper']: this gate cannot bound CSR stores by reading C, so it refuses to report a result it did not take
+
+EXIT_STATUS=1
+ELAPSED_SECONDS=2.572

@@ -1,0 +1,23 @@
+command: ['python3', '$REVIEWS/544-r316-6-packet/scripts/public_evidence.py', '$REVIEWS/r316-6-544', '$REVIEWS/544-r316-6-packet/scratch']
+PUBLIC SOURCE RUN https://raw.githubusercontent.com/kebag-logic/milan-fpga/4c97887dc83f46703b8d767dec671afcb9ebe206/review-evidence/544-r1/author-r3/full-builder-sdk-run.json
+{"elapsed_seconds": 638.925016128982, "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14", "rc": 0, "sha256": {"docs/integration/BAREMETAL_FIRMWARE.md": "394cd54da968460c3fc27bacdaec4a69bb88f6a41a695bda7bb80b8ef1aee551", "hdl/common/csr/milan_csr.sv": "420b486687260298133fe91f88256cb11d6ae936f7aad3c61a8c93cf13725643", "sw/builder/test_builder.py": "0faf7c409efdf17dd25e4e2fbca2eac5f35ad05209d5089606aca7fafb9c0aab", "sw/firmware/milan_baremetal/milan_baremetal.c": "b9bf12aeefd07ce59cb3d33f3c66337ac28847c5ca69acf7faa0219895aa90a2"}, "source_unchanged": true}
+PUBLIC LOG https://raw.githubusercontent.com/kebag-logic/milan-fpga/4c97887dc83f46703b8d767dec671afcb9ebe206/review-evidence/544-r1/author-r3/full-builder-sdk.log sha256 3083d8b1576ba430873f315767687d2ae33422e8d1cbead9248dfa6e1bf5e66c
+Verbatim result excerpts:
+  [gate 1b] boot-unit asm forms: 11 exact production forms; whitespace controls accepted; 7 changed/incomplete forms refused; fifth fence needs no extra entry
+  [gate 1b] identity storage: 3 automatic spellings accepted; 3 nonautomatic spellings refused on the identity-sample absence rule
+  [gate 11] SKIP: real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN
+PUBLIC SOURCE RUN https://raw.githubusercontent.com/kebag-logic/milan-fpga/4c97887dc83f46703b8d767dec671afcb9ebe206/review-evidence/544-r1/author-r3/full-builder-absent-run.json
+{"elapsed_seconds": 437.5137502459693, "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14", "rc": 0, "sha256": {"docs/integration/BAREMETAL_FIRMWARE.md": "394cd54da968460c3fc27bacdaec4a69bb88f6a41a695bda7bb80b8ef1aee551", "hdl/common/csr/milan_csr.sv": "420b486687260298133fe91f88256cb11d6ae936f7aad3c61a8c93cf13725643", "sw/builder/test_builder.py": "0faf7c409efdf17dd25e4e2fbca2eac5f35ad05209d5089606aca7fafb9c0aab", "sw/firmware/milan_baremetal/milan_baremetal.c": "b9bf12aeefd07ce59cb3d33f3c66337ac28847c5ca69acf7faa0219895aa90a2"}, "source_unchanged": true}
+PUBLIC LOG https://raw.githubusercontent.com/kebag-logic/milan-fpga/4c97887dc83f46703b8d767dec671afcb9ebe206/review-evidence/544-r1/author-r3/full-builder-absent.log sha256 fe39bea2317134fbe0f54bc192d20c7c481b6d346aeb12cfb9afc81efe66f3c1
+Verbatim result excerpts:
+  [gate 11] SKIP: real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+2 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 2 NOT RUN
+Source receipts are source evidence only, not the composition head or a future current-dev candidate.
+
+EXIT_STATUS=0
+ELAPSED_SECONDS=0.515

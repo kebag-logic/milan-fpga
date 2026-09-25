@@ -1,0 +1,28 @@
+command: ['$REVIEWS/544-r316-6-packet/scratch/venv/bin/python', '$REVIEWS/544-r316-6-packet/scripts/composition.py', '$REVIEWS/r316-6-544', '$REVIEWS/544-r316-6-packet/scratch']
+Source paths: ['docs/integration/BAREMETAL_FIRMWARE.md', 'sw/builder/test_builder.py']
+7ddbbdc9be73728b239718c8976261c7e0ad0563 59e7f5fd76786faa673b4522018f4e9590d294d0 8383e929fab3ff57a768c88b8b1ff9b568afcf14 Validate issue 544 merge-train candidate
+59e7f5fd76786faa673b4522018f4e9590d294d0 2ab66c9de3a63942c4d3251e1354e8ad3a50d88c f5532c4c3f94a516b748cc4627dc5f78d05fa73e Validate issue 546 merge-train candidate
+2ab66c9de3a63942c4d3251e1354e8ad3a50d88c 0b81fdc969131b82c535c4a183a78065fd1cd2d8 efcabc379b1e0be1366bfc05bdcc05a759b55616 Validate issue 501 merge-train candidate
+0b81fdc969131b82c535c4a183a78065fd1cd2d8 e1333a144115f074f8e3bdcd1de2d3a29d7f9dfd 8544472a19a4b4d3853d64b15dea22f999372a32 Validate issue 548 merge-train candidate
+e1333a144115f074f8e3bdcd1de2d3a29d7f9dfd 4487359031b52b0b92e526839473f2e9c956c967 00db64eb1e6e0c9bdb9f35ec5e37ebe6e00d550b Validate issue 387b merge-train candidate
+4487359031b52b0b92e526839473f2e9c956c967 573f0052a0e4412e81f0845438fcec2086ce5d55 062e89ad098806ae5def8341fcb8c2815583ca00 Validate issue 408 merge-train candidate
+
+dev(387b) overlap: ['docs/integration/BAREMETAL_FIRMWARE.md', 'sw/builder/test_builder.py']
+548 overlap: []
+501 overlap: ['docs/integration/BAREMETAL_FIRMWARE.md', 'sw/builder/test_builder.py']
+546 overlap: []
+Raw three-way merge equals candidate: docs/integration/BAREMETAL_FIRMWARE.md sha256 3e43acc7f7ffc98b648c618b7f894354cf8a925cd875f364d3f05ad6f28bcbb8
+Raw three-way merge equals candidate: sw/builder/test_builder.py sha256 28e65b8c8d8d2c21a57d4fce8d2eebb45a04ef4c83c3e38c24b87b7f63dfe998
+Unchanged source identity function AST: assert_identity_macro_free
+Unchanged source identity function AST: assert_identity_interval
+Unchanged source identity function AST: assert_preprocessed_identity_sample
+Unchanged source identity function AST: assert_preprocessed_asm_allowlist
+No candidate-local changes to RTL, firmware, workflows, registries or gitlinks.
+Source-to-candidate firmware changes:
+ sw/firmware/milan_baremetal/milan_baremetal.c | 94 +++++++++++++--------------
+ 1 file changed, 47 insertions(+), 47 deletions(-)
+
+PASS: source delta retained, predecessor delta retained, no conflict resolution delta.
+
+EXIT_STATUS=0
+ELAPSED_SECONDS=1.420
