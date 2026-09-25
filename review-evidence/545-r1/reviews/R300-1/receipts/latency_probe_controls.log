@@ -1,0 +1,16 @@
+22:  logic [2:0] gptp_slew_tail_r;
+23:  wire gptp_slew_eff_w = eng_level_i || (|gptp_slew_tail_r);
+25:    if (!rst_n) gptp_slew_tail_r <= '0;
+== control: tail length 3
+UNCOVERED gap=6 hold=40 t=49 adv=12
+trials=24 slewed_samples=492 uncovered=24 clean_samples_staged_high_after_release=12
+RESULT: FAIL
+rc=0
+22:  logic [1:0] gptp_slew_tail_r;
+23:  wire gptp_slew_eff_w = eng_level_i || (|gptp_slew_tail_r);
+25:    if (!rst_n) gptp_slew_tail_r <= '0;
+== control: tail length 2
+UNCOVERED gap=6 hold=40 t=49 adv=12
+trials=24 slewed_samples=492 uncovered=42 clean_samples_staged_high_after_release=6
+RESULT: FAIL
+rc=0
