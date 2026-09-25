@@ -1,0 +1,13 @@
+[P1] r306 P1 withdrawal trigger removed from stri_events: verdict=caught rc=1 checks: 364   failures: 2
+    [FAIL] [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A got=0x1 exp=0x2
+    [FAIL] [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to B got=0x1 exp=0x2
+[P2] r306 P2 trace only: verdict=pass rc=0 checks: 380   failures: 0
+[P3] r306 P3 bridge id not gated on registered FAILED: verdict=pass rc=0 checks: 380   failures: 0
+[P4] r306 P4 teardown strobe after a withdrawal suppressed on sink 0: verdict=caught rc=1 checks: 364   failures: 2
+    [FAIL] [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A got=0x1 exp=0x2
+    [FAIL] [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to B got=0x1 exp=0x2
+probe driver rc 1
+
+real	1m52.789s
+user	4m33.780s
+sys	0m11.220s
