@@ -4746,6 +4746,7 @@ def test_baremetal_profile_contract() -> None:
     #: #544: preserve the sampled object, including writes a macro hides.
     IDENTITY_SAMPLE_PIN = "identity-sample absence rule"
     IDENTITY_MACRO_PIN = "identity-sample macro replacement rule"
+    UNIT_ASM_PIN = "boot-unit asm allowlist rule"
     #: ... and the three sentences the RESOLVER answers on, one per
     #: question it asks. Every mutant that reaches a control register by
     #: address arithmetic no immediate reveals fails on the first; every one
@@ -5223,6 +5224,58 @@ def test_baremetal_profile_contract() -> None:
                 "and mismatch guard outside the two delimited rvalue shapes: " \
                 "a complete (unsigned long) sample call argument or the " \
                 "complete (void)(sample & integer-literal); statement"
+
+    # Frozen from production preprocessing with the pinned SDK and LiteX
+    # a1e1c365 headers, at the product RV32I flags. Besides the two firmware
+    # fences: vexiiriscv/system.h emits fence.i, libbase/system.h emits nop,
+    # and picolibc stdlib.h emits the qsort_r assembler-name annotation.
+    # The census uses SDK libc headers instead: their six scanf-family
+    # assembler-name declarations below are from its production -E unit.
+    # Both measured sets are frozen, including attributes after the names.
+    # The fifth-fence fixture repeats fence rw, rw; no extra entry is needed.
+    # Never derive this set from the candidate: that would approve its asm.
+    unit_asm_forms = (
+        '__asm__ volatile("fence iorw, iorw" ::: "memory");',
+        '__asm__ volatile("fence rw, rw" ::: "memory");',
+        'asm volatile("fence.i\\n");',
+        '__asm__ volatile("nop");',
+        '__asm__("" "__bsd_qsort_r");',
+        '__asm__ ("" "__isoc99_fscanf") __attribute__ ((__nonnull__ (1)));',
+        '__asm__ ("" "__isoc99_scanf") ;',
+        '__asm__ ("" "__isoc99_sscanf") __attribute__ ((__nothrow__ , __leaf__)) ;',
+        '__asm__ ("" "__isoc99_vfscanf") '
+        '__attribute__ ((__format__ (__scanf__, 2, 0))) __attribute__ ((__nonnull__ (1)));',
+        '__asm__ ("" "__isoc99_vscanf") __attribute__ ((__format__ (__scanf__, 1, 0))) ;',
+        '__asm__ ("" "__isoc99_vsscanf") __attribute__ ((__nothrow__ , __leaf__)) '
+        '__attribute__ ((__format__ (__scanf__, 2, 0)));',
+    )
+    # Whitespace between tokens is immaterial. Literal bytes, spelling,
+    # operands, qualifiers and clobbers are exact, including concatenation.
+    unit_asm_token_re = re.compile(
+        r'"(?:\\.|[^"\\])*"|[A-Za-z_$][\w$]*|[^\s]', re.ASCII)
+    unit_asm_allowed = {tuple(unit_asm_token_re.findall(form))
+                        for form in unit_asm_forms}
+
+    def assert_preprocessed_asm_allowlist(unit: str) -> None:
+        """Refuse every asm outside the frozen production token forms.
+
+        Read the entire expanded unit, including headers and uncalled
+        functions. Locate keywords and statement ends with literals blanked,
+        but compare original literal bytes. An unknown or incomplete form
+        cannot match; no instruction, operand or clobber wildcard is allowed.
+        Separately linked objects are outside this unit and are not read.
+        """
+        code = blanked(unit)
+        for keyword in c_identifier_re.finditer(code):
+            if keyword.group() not in ("asm", "__asm", "__asm__"):
+                continue
+            end = code.find(";", keyword.end())
+            statement = unit[keyword.start():end + 1] if end >= 0 else ""
+            normalized = tuple(unit_asm_token_re.findall(statement))
+            assert normalized in unit_asm_allowed, \
+                f"{UNIT_ASM_PIN}: asm anywhere in the preprocessed boot " \
+                "unit must match an exact normalized production form; " \
+                f"unlisted or incomplete statement {statement[:240]!r}"
 
     def assert_preprocessed_identity_sample(taken: dict[str, Any],
                                             sample: str,
@@ -11483,6 +11536,9 @@ def test_baremetal_profile_contract() -> None:
                 helper=re.search(
                     r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)"
                     r"\s*\(", firmware, re.ASCII).group(1))
+        if preprocessed["ran"]:
+            # Keep every established text, absence and resolver reason.
+            assert_preprocessed_asm_allowlist(preprocessed["text"])
         return compiled_census_verdict
 
     # Before any firmware is graded: S refuses every construct outside it,
@@ -12137,6 +12193,30 @@ def test_baremetal_profile_contract() -> None:
             firmware_source, source_identity_statement,
             f'{spelling} volatile("" ::: "memory");\n' +
             source_identity_statement, "identity interval asm")
+    # W01-W03 leave the sample untouched in C while callees corrupt saved
+    # registers. W03 leaves the production read-to-guard text unchanged.
+    saved_register_writes = "\\n\\t".join(
+        f"li s{index}, 0x4d494c4e" for index in range(12))
+    clobber_asm = f'__asm__ volatile("{saved_register_writes}");'
+    clobber_helper = (
+        "static void __attribute__((noinline)) milan_settle(void) "
+        f"{{ {clobber_asm} }}")
+    identity_callee_fixtures = {}
+    for label, definition, statement in (
+        ("W01 direct callee", clobber_helper, "milan_settle();"),
+        ("W02 macro callee", clobber_helper +
+         "\n#define MILAN_FORGE(x) milan_settle()", "MILAN_FORGE(id);"),
+        ("W03 diagnostic callee",
+         "static int __attribute__((noinline)) milan_diag(const char *format, ...) "
+         f"{{ (void)format; {clobber_asm} return 0; }}\n#define printf milan_diag", ""),
+    ):
+        defined = replace_once(
+            firmware_source, "static int aem_loaded;",
+            definition + "\n\nstatic int aem_loaded;", label)
+        identity_callee_fixtures[label] = (replace_once(
+            defined, source_identity_statement,
+            statement + "\n" + source_identity_statement, label)
+            if statement else defined)
     # The authorized rvalues are delimited complete forms, not prefixes
     # that a following assignment or a surrounding wrapper may extend.
     identity_near_misses = {
@@ -15958,6 +16038,32 @@ def test_baremetal_profile_contract() -> None:
             (label, fixture, docs_source, csr_source, IDENTITY_MACRO_PIN)
             for label, fixture in identity_macro_costs.items())
     if not instruments_down:
+        # Header forms are absent from the census stubs. Pin them here too,
+        # including literal contents, not just their blanked syntax.
+        for form in unit_asm_forms:
+            assert_preprocessed_asm_allowlist(form)
+            assert_preprocessed_asm_allowlist(
+                " \n ".join(unit_asm_token_re.findall(form)))
+        assert_preprocessed_asm_allowlist(
+            'const char *text = "asm; __asm__(bad)"; /* __asm__ */')
+        for form in (
+            'asm volatile("li s0, 0x4d494c4e");',
+            '__asm volatile("li s0, 0x4d494c4e");',
+            '__asm__ volatile("fence rw, rw; li s0, 0x4d494c4e" ::: "memory");',
+            '__asm__ volatile("fence rw, rw" "\\nli s0, 0x4d494c4e" ::: "memory");',
+            '__asm__ volatile("fence rw, rw" : "=r"(id) :: "memory");',
+            '__asm__ volatile("fence rw, rw" ::: "s0");',
+            '__asm__ volatile("fence rw, rw")',
+        ):
+            try:
+                assert_preprocessed_asm_allowlist(form)
+            except AssertionError as exc:
+                assert UNIT_ASM_PIN in str(exc), exc
+            else:
+                raise AssertionError(f"{UNIT_ASM_PIN}: boundary control passed {form!r}")
+        print("  [gate 1b] boot-unit asm forms: 11 exact production forms; "
+              "whitespace controls accepted; 7 changed/incomplete forms refused; "
+              "fifth fence needs no extra entry")
         # The older source-statement rule refuses storage prefixes before
         # this expanded-unit check runs. Exercise storage at this check's
         # own boundary, including the positive automatic spellings.
@@ -15988,8 +16094,17 @@ def test_baremetal_profile_contract() -> None:
                                    **identity_escape_fixtures,
                                    **identity_absent_fixtures,
                                    **identity_near_miss_fixtures}.items())
+        mutations += tuple(
+            ("identity " + label, fixture, docs_source, csr_source, UNIT_ASM_PIN)
+            for label, fixture in identity_callee_fixtures.items())
     else:
-        for label, fixture in identity_absent_fixtures.items():
+        plain_bounds = {
+            ("C09 " if label == "plain extension address" else
+             "C11 " if label == "plain asm immediate output" else "") + label: fixture
+            for label, fixture in identity_bypasses.items()
+            if label.startswith("plain ")}
+        for label, fixture in {**identity_absent_fixtures, **plain_bounds,
+                               **identity_callee_fixtures}.items():
             assert_boot_contract(fixture, docs_source, csr_source)
             print(f"  [gate 1b] identity compiler-free bound {label}: "
                   "ACCEPTED, identity protection NOT RUN without a compiler")
@@ -16007,6 +16122,15 @@ def test_baremetal_profile_contract() -> None:
         finally:
             assert_identity_macro_free = identity_check
     else:
+        asm_check = assert_preprocessed_asm_allowlist
+        try:
+            assert_preprocessed_asm_allowlist = lambda *_args: None
+            for label, fixture in identity_callee_fixtures.items():
+                assert_boot_contract(fixture, docs_source, csr_source)
+                print(f"  [gate 1b] {label}: REFUSED on {UNIT_ASM_PIN}; "
+                      "ACCEPTED with only that check disconnected")
+        finally:
+            assert_preprocessed_asm_allowlist = asm_check
         identity_check = assert_preprocessed_identity_sample
         try:
             assert_preprocessed_identity_sample = lambda *_args: None
@@ -16027,8 +16151,16 @@ def test_baremetal_profile_contract() -> None:
                 try:
                     assert_boot_contract(fixture, docs_source, csr_source)
                 except (AssertionError, ValueError) as exc:
-                    raise AssertionError(
-                        f"disconnected identity control {label!r} did not pass: {exc}") from exc
+                    # Unit-wide asm protection overlaps the older rule.
+                    # Prove the old control still passes the rest, after
+                    # observing that only the new named check refuses it.
+                    assert UNIT_ASM_PIN in str(exc), \
+                        f"disconnected identity control {label!r} did not pass: {exc}"
+                    try:
+                        assert_preprocessed_asm_allowlist = lambda *_args: None
+                        assert_boot_contract(fixture, docs_source, csr_source)
+                    finally:
+                        assert_preprocessed_asm_allowlist = asm_check
         finally:
             assert_preprocessed_identity_sample = identity_check
     identity_cost = (
@@ -16038,8 +16170,13 @@ def test_baremetal_profile_contract() -> None:
         "macro using header __CONCAT(a, d); C13 object-like writer alias; "
         "writer alias MILAN_FORGE -> MILAN_SET and "
         "MILAN_APPLY(MILAN_SET)(id); C16 (id) assignment; C17 *&(id) "
-        "assignment. These seven pinned forgeries are ACCEPTED in this "
-        "mode and refused with the compiler" if instruments_down else
+        "assignment. On macro-free source only the source-text write-form "
+        "rule checks identity: every spelling it does not match is NOT RUN. "
+        "Examples also include C09 extension address, C11 asm output, plain "
+        "choose/generic/real/extension lvalues and tied asm outputs (A01-A10), "
+        "and W01-W03 callee asm. These are examples of an open class, not "
+        "an exhaustive list; the pinned plain and callee fixtures are "
+        "ACCEPTED without compilation and REFUSED with it" if instruments_down else
         "the sample storage class is automatic (block-scope uint32_t, "
         "no explicit storage specifier); its address is forbidden anywhere "
         "in the preprocessed unit, including unevaluated and read-only "
@@ -16049,10 +16186,19 @@ def test_baremetal_profile_contract() -> None:
         "occur only in a complete (unsigned long) sample call argument "
         "delimited by the call's '('/',' and ','/')', or the complete "
         "(void)(sample & integer-literal); statement. Other rvalue reads "
-        "and wrapped near misses are conservatively refused")
+        "and wrapped near misses are conservatively refused. The boot-unit "
+        "asm allowlist rule permits only eleven exact normalized production "
+        "forms throughout the unit, including headers and uncalled helpers. "
+        "The fifth fence repeats a production form; no extra entry. Other "
+        "asm, even harmless alternatives, is refused. OUT-OF-UNIT BOUND: "
+        "the separately linked pinned LiteX library objects (libc, "
+        "libcompiler_rt, libbase, libfatfs, liblitespi, liblitedram, "
+        "libliteeth, liblitesdcard, liblitesata), BIOS and startup objects "
+        "are not read by this gate; their calling-convention compliance "
+        "and register/memory effects are trusted, not proved")
     print(f"  [gate 1b] {identity_pin}: hostile macros refused; "
-          "removing only this check lets every compilable hostile control "
-          "pass. COST: "
+          "disconnected controls pass (overlapping asm controls require "
+          "both checks removed). COST: "
           + identity_cost)
     if verilator:
         try:
@@ -16398,8 +16544,8 @@ def test_baremetal_profile_contract() -> None:
           "rule classifies and whose other arm is pinned, and the #error "
           "guards, no conditional left ungraded carrying a definition, no "
           "label/goto/switch in milan_init() or "
-          "entity_advertise() and the three boot steps plus the unmodified "
-          "CSR identity sample and check unconditional at its top level, one "
+          "entity_advertise() and the three boot steps plus the source-text "
+          "identity write forms and unconditional mismatch check, one "
           "PP and one ADP enable inside the choke point and exactly one call "
           "to it carrying the verdict, no pointer to the verdict, and every "
           "non-zero return of the verifier placed after the CRC refusal by "

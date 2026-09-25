@@ -457,10 +457,56 @@ The refusal names the `identity-sample absence rule`.
 The production diagnostic and accepted discarded-mask fixture remain unchanged.
 Wrapper, assignment and delimiter near misses have reason-pinned refusals.
 
+The `boot-unit asm allowlist rule` also reads the entire unit.
+This includes headers, helpers, and functions never called.
+Every asm must match an exact normalized production form.
+Normalization removes inter-token whitespace; literal bytes remain exact.
+Qualifiers, operands, clobbers, concatenation and keyword spellings remain exact.
+The pinned SDK and LiteX headers produce these forms:
+
+```c
+__asm__ volatile("fence iorw, iorw" ::: "memory");
+__asm__ volatile("fence rw, rw" ::: "memory");
+asm volatile("fence.i\n");
+__asm__ volatile("nop");
+__asm__("" "__bsd_qsort_r");
+```
+
+The first two occur in the production firmware.
+The next two come from the processor and library headers.
+The final form is the standard-library assembler-name annotation.
+The census uses the SDK's standard-library headers instead.
+Its production unit adds six exact asm-name declaration forms.
+They name `__isoc99_fscanf`, `__isoc99_scanf`, `__isoc99_sscanf`,
+`__isoc99_vfscanf`, `__isoc99_vscanf` and `__isoc99_vsscanf`.
+Their complete trailing attributes are pinned alongside each annotation.
+Both measured sets form the eleven-entry allowlist.
+The production unit uses the pinned RV32I flags.
+The frozen allowlist never learns forms from candidate firmware.
+Unknown forms are refused, including otherwise harmless assembly.
+The fifth-fence fixture repeats the second form.
+It needs no additional allowlist entry.
+W01-W03 cover direct, macro and diagnostic calls to corrupting helpers.
+Each is refused; disconnecting only this allowlist accepts each.
+The earlier interval and escape rules remain active.
+Their asm controls now overlap this additional protection.
+
+The out-of-unit bound is separately linked pinned LiteX objects.
+These include `libc`, `libcompiler_rt`, `libbase`, `libfatfs`, `liblitespi`,
+`liblitedram`, `libliteeth`, `liblitesdcard` and `liblitesata` library objects.
+BIOS and startup objects are also outside this unit.
+Gate 1b does not read these linked objects.
+Their calling-convention compliance and register/memory effects remain trusted, unproved.
+Preprocessing headers does not inspect separately compiled callees.
+The existing census-header trust boundary remains unchanged.
+
 Without the compiler, the replacement-list rule remains bounded.
 `__CONCAT(i, d) = MILAN_ID_MAGIC;` is accepted without compilation.
 Its identity protection is `NOT RUN` there; compilation refuses it.
-These seven pinned forms are accepted without compilation:
+Macro-free source has only the source-text write-form identity check.
+Every spelling it does not match is `NOT RUN`.
+This is an open class, not an exhaustive list.
+The following pinned forms are examples accepted without compilation:
 
 - C03: the header paste `__CONCAT(i, d)`.
 - C05: `MILAN_FORGE2(i)` using header `__CONCAT(a, d)`.
@@ -469,10 +515,17 @@ These seven pinned forms are accepted without compilation:
 - Writer apply: `MILAN_APPLY(MILAN_SET)(id)`.
 - C16: `(id) = MILAN_ID_MAGIC;`.
 - C17: `*&(id) = MILAN_ID_MAGIC;`.
+- C09/A01: `*(__extension__ &(id)) = MILAN_ID_MAGIC;`.
+- C11/A02: plain asm with an `"=r"(id)` output.
+- Plain choose, generic, real and extension assignment wrappers, A03-A06.
+- Plain tied asm output, A07.
+- Calls to corrupting asm helpers, W01-W03.
 
 Each form's identity protection is `NOT RUN` without compilation.
 Each fixture is refused with the compiler.
 The replacement-list rule performs no general macro expansion.
+A08-A10 illustrate further memory-copy, compound and indirect writes.
+The seven original forms and A01-A10 illustrate the wider class.
 
 Outside those bodies what a splice or a paste builds is
 compiled, and the resolved census answers it by the store it makes. The
@@ -1388,8 +1441,10 @@ recognise, and they cost real edits to do it.
 - **Any CSR store must go through `milan_write()`.** Only `milan_reg()` may
   use `MILAN_CSR_BASE` or a `(volatile uint32_t *)` cast. Every other store
   the compiler emits is placed by the resolver at the address it resolves to,
-  so a fifth cast, a fifth store, a fifth `asm` statement or a reordering is
-  GREEN when what it stores lands outside the control window (#409). Where no
+  so a fifth cast, a fifth store or a reordering is GREEN
+  when what it stores lands outside the control window (#409).
+  Assembly additionally requires an allowlisted form with the compiler.
+  The fifth-fence fixture satisfies both rules. Where no
   RV32 compiler answers, that placement is a registered `NOT RUN`, and nothing
   else on that runner bounds address formation outside `milan_reg()`'s own
   spelling.
@@ -1406,7 +1461,9 @@ The rest are refusals, and each one costs a legitimate edit:
 | The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | The original source-text check remains active in both modes. An intervening `id = MILAN_ID_MAGIC` would forge the verdict. Splices and local macro pastes retain their existing refusals. |
 | With the compiler: the automatic identity sample cannot escape | NEW (#544): the `identity-sample absence rule` reads the expanded unit. The production sample has automatic storage, without an explicit storage specifier. A diagnostic copy marks that declaration `register`. The compiler refuses its address anywhere in the unit, regardless of spelling. Unevaluated and read-only address-taking are refused too. Nonautomatic storage requires a separate lifetime and external-writer proof. The diagnostic copy blanks `__extension__` and enables the compiler's pedantic warning for nested functions, including old-style definitions. Expanded pragmas cannot override this diagnostic: they are refused. Every nested function in the unit is refused to exclude implicit capture; this also costs functions that do not capture the sample. Between the sampling read and guard, every asm statement is refused. Sample occurrences are limited to a complete `(unsigned long) id` call argument, delimited by the call's `(`/`,` and `,`/`)`, and the complete statement `(void)(id & <integer-literal>);`. The guard comparison may name the sample. All other rvalue reads, including reversed bitwise operands and extra parentheses, are conservatively refused. The diagnostic copy never replaces the original census input. The trusted census headers remain this instrument's boundary. |
 | Without the compiler: no replacement list names the identity sample | NEW (#544): the `identity-sample macro replacement rule` reads phase-3 definitions. It includes object-like, function-like, continued and unused definitions. Comments and literal contents are excluded. Calls substituting the sample into a used parameter are refused too. This covers both published hostile macros before the guard. Unused parameters remain accepted. Read-only replacements and used-parameter reads are conservatively refused too. This checks local definitions and direct calls, without general expansion. **Remedy:** keep the identity sample out of macro replacements. |
-| Without the compiler: seven identity protections are NOT RUN | C03: header `__CONCAT(i, d)` paste. C05: local `MILAN_FORGE2(i)` using header `__CONCAT(a, d)`. C13: `MILAN_ALIAS(id)` aliasing the parenthesized writer. Writer alias: `MILAN_FORGE(id)` aliasing `MILAN_SET`. Writer apply: `MILAN_APPLY(MILAN_SET)(id)`. C16: `(id) = MILAN_ID_MAGIC;`. C17: `*&(id) = MILAN_ID_MAGIC;`. Each fixture is ACCEPTED without compilation and REFUSED with it. These accepted forgeries are declared `NOT RUN`, never identity coverage. The verdict COST line names them individually. The merge-grading build requires compilation through `--require-rv32`. |
+| With the compiler: unit-wide asm has an exact allowlist | NEW (#544 round 3): `boot-unit asm allowlist rule` checks every asm in the expanded unit, including headers and uncalled helpers. Eleven frozen production forms cover two firmware fences, header `fence.i` and `nop`, the `__bsd_qsort_r` assembler-name annotation and the census SDK headers' six `__isoc99_` scanf-family annotations with exact trailing attributes. Only inter-token whitespace is normalized; all literal bytes, qualifiers, operands, clobbers and spellings remain exact. The fifth fence repeats a production form and needs no extra entry. Other asm, even harmless alternatives, is refused. W01-W03 fail by name and pass with only this check disconnected. The earlier interval/escape and census rules retain their refusals. |
+| Out-of-unit calling-convention bound | The separately linked pinned LiteX library objects (`libc`, `libcompiler_rt`, `libbase`, `libfatfs`, `liblitespi`, `liblitedram`, `libliteeth`, `liblitesdcard`, `liblitesata`), BIOS and startup objects are not read by gate 1b. Their calling-convention compliance and register/memory effects are trusted, not proved. Header preprocessing supplies no inspection of these separately compiled callees. The census-header trust boundary remains. |
+| Without the compiler: unmatched source-text identity forms are NOT RUN | On macro-free source, only the source-text write-form rule checks identity. Every spelling it does not match is NOT RUN; this is an open class, not an exhaustive list. Examples: C03 header `__CONCAT(i, d)` paste; C05 local macro using header `__CONCAT(a, d)`; C13 object-like writer alias; writer alias `MILAN_FORGE -> MILAN_SET`; writer apply `MILAN_APPLY(MILAN_SET)(id)`; C16 `(id)` assignment; C17 `*&(id)` assignment; C09/A01 extension address; C11/A02 asm output; A03-A06 plain choose/generic/real/extension lvalues; A07 tied asm output; A08-A10 memory-copy, compound and indirect writes; W01-W03 callee asm. The original fixtures, plain wrapper/asm fixtures and W01-W03 are pinned ACCEPTED without compilation and REFUSED with it. The verdict COST line states the class. Merge grading requires `--require-rv32`. |
 | A token-joining backslash-newline, or a `##` paste in any macro this file defines that they name at any depth, inside `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors | NARROWED (#408) from the whole file, and refused on every machine. The paste ban reads this file's `#define`s, the one behind a byte-order mark at offset 0 included ([R273] F1 on PR #535), though since round four the character allowlist of S refuses the mark itself first; a macro a header defines, `__CONCAT` for one, is trusted rather than read, so a paste through it is outside this ban. The separate compiler-backed identity-sample check reads its expansion (#544). The text rules reading those bodies key on names as written, and the `-E` comparison compares only the boot tokens there, so a splice or a paste rebuilding another name they read, the identity sample or the verdict, agrees in both texts ([R272] F2 on PR #535). A splice inside a comment or a literal, and one with blanks on either side, joins no token and is not refused. Outside the six bodies both are retired, below |
 | A second `#define` of any name, an identical one included | the address model reads a register name and the identity magic by ONE definition, and the compiler expands every use after a second one with the second: `#define MILAN_ID_MAGIC (milan_read(MILAN_ID))` after the real one turned the identity guard into a comparison of the sample with a fresh read of itself ([R273] F1 on PR #535). **Remedy:** define it once, or in the arms of one graded group, where each arm's definition is the one definition of the firmware it builds |
 | A character or string literal that no quote closes on its line, an apostrophe in the text of an `#if 0` block included; a raw string literal | GCC ends an open literal at its line end with only a warning, and honours `R"d(...)d"` at `-std=gnu99` across lines; neither is what an edit writes to mean it, and before #408 this gate read an open quote as running on to the next one, lines away ([R272] F4 on PR #535) |
@@ -1728,7 +1785,8 @@ retired rules refused are counted as skipped, not rejected.
 Issue #544 adds separate identity-sample checks for both modes.
 The original mutation rows and legitimate fixtures remain unchanged.
 Round two adds wrapper, asm, escape and exception near-miss mutations.
-With the pinned SDK, 348/348 mutation rows are refused.
+Round three adds W01-W03 and the exact unit-wide asm allowlist.
+With the pinned SDK, 351/351 mutation rows are refused.
 Without a compiler, 249/249 mutation rows remain refused.
 The accepted firmware corpus remains 38 and 35 cases respectively.
 The production diagnostic and discarded-mask fixture use the authorized exceptions.
@@ -1737,7 +1795,8 @@ Both modes still accept all four Makefile edits.
 Three unused sample macros explain that accepted-count difference.
 They pass with compilation and incur the documented fallback cost.
 Both published hostile macros are refused by the new rules.
-Removing each check lets its hostile controls pass again.
+Removing the allowlist alone lets W01-W03 pass again.
+Overlapping asm controls require both identity checks removed.
 The fallback includes sample arguments substituted into used macro parameters.
 This implements the published hostile-case requirement without general macro expansion.
 R273-S3 remains accepted in both modes, unchanged from the base.
