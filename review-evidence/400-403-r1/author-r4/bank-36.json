@@ -1,0 +1,15 @@
+{
+  "label": "bank-36",
+  "argv": [
+    "env",
+    "PATH=$VALIDATION_STORAGE/400-403-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+    "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+    "python3",
+    "scripts/measure_fail_fast.py",
+    "--check"
+  ],
+  "cwd": "$LANES/400-403-declaration-truth",
+  "start": "2026-09-25T15:25:27.267509+00:00",
+  "seconds": 1.466,
+  "exit_code": 0
+}

@@ -1,0 +1,12 @@
+{
+  "label": "tool-versions",
+  "argv": [
+    "python3",
+    "-c",
+    "import subprocess; [subprocess.run([tool, \"--version\"], check=True) for tool in (\"verilator\", \"yosys\", \"sv2v\")]"
+  ],
+  "cwd": "$LANES/400-403-declaration-truth",
+  "start": "2026-09-25T15:56:40.435705+00:00",
+  "seconds": 0.165,
+  "exit_code": 0
+}

@@ -1,0 +1,32 @@
+shard: 1/5   selected suites: 21
+PASS     aaf_latency_taps
+PASS     avtp_rxmon
+PASS     cbs
+PASS     cdc
+PASS     clkvalid
+PASS     controller_rate
+PASS     crf_rx
+PASS     datapath
+PASS     gptp_plane
+PASS     gptp_shadow
+PASS     lat_history_ring
+PASS     maap
+PASS     mac_rmon
+PASS     media_nco
+PASS     mmcm_servo_autorepair
+PASS     nvm_cosim
+PASS     pair_fill
+PASS     pcmlpf
+PASS     pp_shadow
+PASS     tcam_csr
+PASS     tsn_fuzz
+----------------------------------------------------------------
+suites: 21   passed: 21   failed: 0   timed out: 0
+checks: 173346   in-suite failures: 0
+
+declared skips (4) -- these ran NOTHING and contribute 0 to the total above:
+  SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+logs: $MANAGEMENT/2026-09-23/400-403-a319/sweep-1-of-5

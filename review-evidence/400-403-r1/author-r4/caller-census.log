@@ -1,0 +1,13 @@
+sw/litex/boot_policy.py:10:``fabric_constants()`` with ``add_constant``. The inputs are the two files the
+sw/litex/boot_policy.py:35:def fabric_constants(overlay: dict[str, Any],
+sw/firmware/nvm_hosttest/test_nvm_firmware.py:166:def constants_header(shape: Shape, donor: Donor,
+sw/firmware/nvm_hosttest/test_nvm_firmware.py:228:    header = constants_header(shape, donor, fabric_constants(overlay, lwsrp))
+sw/litex/milan_soc.py:3950:        for _name, _value in fabric_constants(_baremetal_ovl,
+tb/verilator/nvm_cosim/run_cases.py:132:    header = ref.constants_header(shp, donor, ref.fabric_constants(overlay, lwsrp))
+sw/builder/test_builder.py:4467:        **boot_policy.fabric_constants(
+sw/builder/test_builder.py:26840:        ignoring = boot_policy.fabric_constants(off.overlay, off.lwsrp)
+sw/builder/test_builder.py:26871:        consts = consts or boot_policy.fabric_constants(case.overlay, case.lwsrp)
+sw/builder/test_builder.py:26955:        "fabric_constants(_baremetal_ovl, _baremetal_srp)",
+sw/builder/test_builder.py:27449:    off_k = boot_policy.fabric_constants(
+sw/builder/test_builder.py:27452:    on_k = boot_policy.fabric_constants(
+sw/builder/test_builder.py:27529:            consts = boot_policy.fabric_constants(case.overlay, case.lwsrp)
