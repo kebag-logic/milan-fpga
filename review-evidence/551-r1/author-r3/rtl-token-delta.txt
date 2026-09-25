@@ -1,0 +1,17 @@
+hdl/milan/milan_datapath.sv
+--- dev tokens
++++ merged tokens
+@@ -12291,7 +12291,9 @@
+ assign
+ lwsrp_stream_gate
+ =
+-pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
++pp_cd_srp_active_w[SRP_TALKERS_C-1:0]
++&
++pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];
+ assign
+ lwsrp_slope_en
+ =
+
+hdl/milan/KL_pp_shadow.sv
+

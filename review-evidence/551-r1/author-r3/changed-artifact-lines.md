@@ -1,0 +1,12 @@
+- `tb/verilator/milan_dp/sim_crf_licence.cpp:1078`: void CrfLicenceHarness::grant_case
+- `tb/verilator/milan_dp/sim_crf_licence.cpp:1165`: void CrfLicenceHarness::phase_real_grant
+- `tb/verilator/milan_dp/sim_crf_licence.cpp:1197`: int CrfLicenceHarness::run
+- `hdl/milan/KL_pp_shadow.sv:639`: //! Raw per-source grant, excluding optimism.
+- `docs/reference/FR_NFR.md:220`: > Refused re-declarations cannot
+- `docs/reference/EGRESS_QUEUE_MAP.md:77`: The shipping licence now requires
+- `docs/reference/MILAN_COMPLIANCE_MATRIX.md:179`: | 5.3.7.3 | talker transmit licence
+- `docs/traceability/ieee8021q.md:96`: | Q-9 |
+- `docs/traceability/ieee8021q.md:97`: | Q-10 |
+- `CHANGELOG.md:85`: ## Unreleased - licence and LeaveAll scope
+- `tb/verilator/milan_dp/README.md:442`: Measured ACTIVE-to-licence latency
+- `tb/verilator/milan_dp/README.md:468`: | the pre-#112 processor
