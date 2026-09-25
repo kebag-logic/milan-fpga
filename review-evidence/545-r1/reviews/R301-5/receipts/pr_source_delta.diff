@@ -1,0 +1,1489 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index fcc34c90..d44fb851 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
++- **[Unreleased - CRF servo holds through PHC slew](#unreleased---crf-servo-holds-through-phc-slew)** -- Holds lock.
+ - **[Unreleased - render setpoint state](#unreleased---render-setpoint-state)** -- Publishes the selected listener's state.
+ - **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
+ - **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
+@@ -29,6 +30,20 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
++## Unreleased - CRF servo holds through PHC slew
++
++- Issue #545 isolates the media loop from policy correction.
++- Overlapped windows hold the integrator, trim and lock.
++- The partial window after completion is also discarded.
++- Clean windows resume without acquisition.
++- `MCSRV_STAT[15:10]` counts these discarded windows too.
++- The gPTP processor pin advances to `5dce647a`.
++- Its registered level follows measured completion, without a timeout.
++- The repository recipe regenerates the ROM digest ledger.
++- Silicon-scale tests cover +/-100 us at 200 ppm.
++- Connected tests drive the level from real Sync pairs.
++- Removal, tie-off, tail and tally controls must fail.
++
+ ## Unreleased - render setpoint state
+ 
+ - Issue #443 adds `RENDER_STAT` at `0x8DC`.
+diff --git a/docs/design/GM_LOSS_RECOVERY.md b/docs/design/GM_LOSS_RECOVERY.md
+index 71c79e7a..f7f7324b 100644
+--- a/docs/design/GM_LOSS_RECOVERY.md
++++ b/docs/design/GM_LOSS_RECOVERY.md
+@@ -149,9 +149,9 @@ Issue #387 decided its media reaction.
+ |---|---|---|
+ | `tu` | Rises on the step; clears after at least 0.25 s of holdover | Yes: `KL_ptp_clock_validity` takes the plane's step pulse |
+ | Render setpoint stage (#386) | Re-centres in "one bounded, counted event" (decision part b) | Yes: `render_recentre_p_w` takes the step (`media_rebase_p_w`), and the stage re-centres at the next PDU end, counted in its recentre tally. A grandmaster identity change is no longer a trigger of its own. The gmstep leg counts one re-base, 132 cycles after the plane's step pulse at each of its 42 feed delays |
+-| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); the receiver excludes talker-step rate samples (#546). A policy-legal local slew remains tracked by #545. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
++| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); the receiver excludes talker-step rate samples (#546). The servo now excludes every local slew-overlapped window (#545 closed). By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
+ | Packet NCO | Not named by the decision | No PHC or step input |
+-| CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. The receiver invalidates rate history on tu transitions or timestamp jumps (#546). After 256 clean intervals, sampling resumes; lock and integrator hold meanwhile. A policy-legal local 100 us slew remains tracked by #545 |
++| CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. The receiver invalidates rate history on tu transitions or timestamp jumps (#546). After 256 clean intervals, sampling resumes; lock and integrator hold meanwhile. Local policy-slew overlap also discards and counts each affected window, including its partial tail (#545 closed). Integrator, trim and LOCKED hold; clean windows resume directly |
+ | Outgoing `mr` (IEEE 1722-2016 4.4.4.3) | Toggles once | Yes: `mcr_restart_p_w` takes the step whatever the media clock source. The gmstep leg, under CRF selection, sees one toggle, first sent 75 to 116 cycles after the step pulse over its 42 feed delays. On an INTERNAL media clock the `milan_dp` option-off legs (`obj_dir`, `obj_nolpf`, `obj_ax1x1`) grade `mr` against every PHC step the harness issues, a CLKV adjtime and then a software settime; a control that gates the step's toggle by CRF selection fails them |
+ | Talker MEDIA_RESET (Milan Table 5.4) | Counts that one toggle | Yes: `KL_talker_diag_ctx` counts the `mr` bit each PDU carried. The gmstep leg reads one, and none between the commit and the step. The option-off legs read one for the software settime, and a control whose settime does not toggle `mr` fails them |
+ | A step while an `mr` restart is pending | Merges with it: exactly one restart, never a cancellation, and the step's MEDIA_RESET is still counted (ruling 5802264260 item 2). Pending lasts until a PDU at the new level has gone out ([ruling on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5818091077)) | Yes: `KL_media_clock_restart` keeps a stream pending while the request waits for the hold of the stream's previous toggle, and after the stream adopts the new level until its first PDU at that level. A second request in either part merges. A request after that first PDU is a new restart, sent once the first has held eight PDUs. The engine sees a PDU on its transmitted-PDU feed, the one the hold and MEDIA_RESET count, so a request between that first PDU's launch and its report still merges. `tkdiag` T17 grades the merge in both parts, one toggle and one MEDIA_RESET per stream; T18 grades the new restart after the first PDU, two of each |
+@@ -186,7 +186,7 @@ It grades these rows:
+ It does not grade these:
+ 
+ - The grid aligner: the leg holds the TDM clocks.
+-- The CRF servo: its DRP answers zero. `Vphc_step` grades its step discard (#539).
++- The CRF servo loop: its DRP answers zero. `Vphc_step` grades step and slew discard (#539, #545). The gmstep slew phase grades connection and release alignment.
+ - An lwSRP licence: the escape bit opens the talker.
+ - A pending-restart step: `tkdiag` T17 and T18 grade it.
+ - The physical re-base: the #117 bench measures it.
+diff --git a/docs/design/GPTP_PLANE.md b/docs/design/GPTP_PLANE.md
+index b8ea794e..ae760c50 100644
+--- a/docs/design/GPTP_PLANE.md
++++ b/docs/design/GPTP_PLANE.md
+@@ -29,10 +29,10 @@ This page defines parent integration.
+ 
+ | Reader | Parent guide | Engine guide |
+ |---|---|---|
+-| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/MANAGER.md) |
+-| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/INTEGRATION.md) |
+-| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/HDL_DEVELOPER.md) |
+-| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/TEST_DEVELOPER.md) |
++| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md) |
++| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md) |
++| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md) |
++| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md) |
+ 
+ Parent guides own integration behavior.
+ 
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index a7e32b22..698afcc6 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -97,6 +97,12 @@ The offset is local time minus grandmaster time.
+ - `KL_gptp_txret` computes the same bound as `PHC_ADJ_MAX_C`.
+ - It refuses egress timestamps while the trim exceeds it.
+ - A 100 us slew takes 0.5 s or more.
++- `phc_slew_active_o` identifies transient offset correction.
++- Outside +/-100 ns, a non-stepping pair starts correction.
++- Two consecutive in-band pairs complete it.
++- Missing measurements retain the level and applied correction.
++- Completion has no elapsed-time limit.
++- The CRF servo holds through the entire indicated correction.
+ - One step is one `phc_step_we_o` pulse.
+ - That pulse carries the measured offset, negated.
+ - Each step is one counted [media event](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
+@@ -105,7 +111,25 @@ The offset is local time minus grandmaster time.
+ |---|---|
+ | Owner decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
+ | Link-up ruling | [FPGA-gPTP #68](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68#issuecomment-5798089412) |
+-| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/INTEGRATION.md#step-versus-slew-policy) |
++| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md#step-versus-slew-policy) |
++
++The [coupling decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5816509317) requires discarding slew-overlapped windows.
++
++The historical decision calls 0.5 s a maximum.
++
++The explicitly adopted engine contract instead permits longer corrections.
++
++No timeout overrides its measured completion verdict.
++
++The [resumed assignment](https://github.com/kebag-logic/milan-fpga/issues/545#issuecomment-5827358783) corrects the frequency citations.
++
++IEEE 802.1AS Annex B.1.1 specifies LocalClock accuracy.
++
++Its bound is +/-100 ppm.
++
++Milan v1.2 section 7.4 constrains media-source accuracy.
++
++It requires better than +/-50 ppm.
+ 
+ ## Media boundary
+ 
+@@ -146,12 +170,21 @@ Each link has exactly one master.
+ | MMCM servo bounds | +/-100 ppm per window slew; +/-200 ppm authority | `KL_mmcm_drp_servo` |
+ | CRF talker discontinuity | Discard crossing rate history; preserve servo lock and integrator (#546) | `KL_crf_rx.rate_valid_o`, `KL_mmcm_drp_servo.crf_rate_valid_i` |
+ | CRF unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
+-| MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A [step-policy](#step-policy) slew is not a step and still reaches the integrator (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
++| MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A policy slew uses its separate overlap guard (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
++| MMCM servo on a policy slew | Every overlapping window discarded and counted; integrator, trim and LOCKED held. Clean windows resume directly (#545) | `KL_mmcm_drp_servo.phc_slew_active_i`, `MCSRV_STAT[15:10]` |
+ | MMCM servo on an implausible window | Error above 1024 ppm discarded; four in a row re-base the window | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
+ | Grid-aligner error | Frame-marker phase at one-clock resolution | `KL_media_grid_align` |
+ | Grid-aligner command | PI in servo units; +/-200 ppm authority | `KL_media_grid_align` |
+ | Grid-aligner lock target | Engagement phase, kept 1/128 sample off the tick | `KL_media_grid_align` |
+ 
++A slew discard restarts the four-trip guard streak.
++
++A slew window is not a valid offset sample.
++
++Re-basing therefore requires four fresh guard trips after the slew.
++
++The #539 step discard also restarts this streak.
++
+ | Function | Implemented | Product effect |
+ |---|---|---|
+ | CRF transmit | Yes | Publishes internal media events |
+@@ -164,6 +197,52 @@ Each link has exactly one master.
+ | MMCM servo activation | Conditional | Steers audio clocks under CRF selection |
+ | Packet-grid alignment | Conditional | Follows the physical sample grid |
+ 
++The policy level follows the effective PHC rate.
++
++Engine, shadow and servo use `axis_clk`.
++
++The existing PHC contract requires `gtx_clk == axis_clk`.
++
++There is no new asynchronous crossing.
++
++The datapath asserts immediately and delays release four cycles.
++
++Those cover the shadow latch, two synchronizers and counter update.
++
++The servo stages the level beside its PHC sample.
++
++An overlap flag persists until the affected window closes.
++
++A shared boundary sample taints both adjacent windows.
++
++A pre-slew window already closed may finish its PI sequence.
++
++A coincident step counts that same window only once.
++
++No port count or redundant-network selection is assumed.
++
++`mmcm_servo` grades +/-100 us slews at 200 ppm.
++
++Each lasts 0.5 s and overlaps two measurement windows.
++
++Their integrator and trim remain exactly held.
++
++The first clean window changes the integrator within 1 ppm.
++
++It completes within 1.536 s of the disturbance's start.
++
++LOCKED holds on every observed edge.
++
++Additional cases cover short pulses, shared boundaries and prolonged levels.
++
++The connected `milan_dp` gmstep phase drives real Sync pairs.
++
++It measures fractional PHC advances to grade release-tail coverage.
++
++An extra addend stage must fail this check.
++
++Its compressed clocks do not grade media-loop settling.
++
+ CRF rate history restarts on either received `tu` edge.
+ 
+ IEEE 1722-2016 `4.4.4.7` defines uncertainty.
+diff --git a/docs/diagrams/PNG_MANIFEST.json b/docs/diagrams/PNG_MANIFEST.json
+index d6ada40f..5bf87f0f 100644
+--- a/docs/diagrams/PNG_MANIFEST.json
++++ b/docs/diagrams/PNG_MANIFEST.json
+@@ -9,16 +9,16 @@
+     },
+     "docs/diagrams/submodule_boundaries.png": {
+       "height": 1440,
+-      "raster_sha256": "dd20e3af39752086c25672b8a6fb44bfad09b047dc5abfecf7b5355b7a477404",
++      "raster_sha256": "699ddea666b8eb2c2426959ee8b62889024b4e6bb3bede046cf22aa81b3dad9b",
+       "source": "docs/diagrams/submodule_boundaries.drawio",
+-      "source_sha256": "63a40328f70dba63b9f53c560d67adb725eee267532c9ddfb6e7121e67d09aac",
++      "source_sha256": "672e9529f8e619117f111dd020e065ea9548b77984a1ce109099768f36f028f1",
+       "width": 2400
+     },
+     "docs/diagrams/timesync_chain.png": {
+       "height": 1350,
+-      "raster_sha256": "919eabb95bfeaad45b3914e89bd2aff4159b2434fe634140400410a5629dfa42",
++      "raster_sha256": "e69c8895f9e4646df8259233d28a15cd99f8c39c2dc6328d205522d4936292f8",
+       "source": "docs/diagrams/timesync_chain.drawio",
+-      "source_sha256": "64799a35b5746ba3da7b483e1e41c1bab51183b96ebdd120341ddbf5c766557b",
++      "source_sha256": "013b66762a40084090e9655e6e26dc7b21505aec474b8989b44d15b69fe6838e",
+       "width": 2400
+     },
+     "docs/diagrams/wd_axis_backpressure.png": {
+diff --git a/docs/diagrams/submodule_boundaries.drawio b/docs/diagrams/submodule_boundaries.drawio
+index f1edbf1c..416e907b 100644
+--- a/docs/diagrams/submodule_boundaries.drawio
++++ b/docs/diagrams/submodule_boundaries.drawio
+@@ -1 +1 @@
+-<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin 990f96526bb8&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin e5dcea6e351a&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="785" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
++<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin 990f96526bb8&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin 5dce647ab5a0&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="785" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
+diff --git a/docs/diagrams/submodule_boundaries.png b/docs/diagrams/submodule_boundaries.png
+index d1c268f8..ae1fd2b0 100644
+Binary files a/docs/diagrams/submodule_boundaries.png and b/docs/diagrams/submodule_boundaries.png differ
+diff --git a/docs/diagrams/submodule_boundaries.svg b/docs/diagrams/submodule_boundaries.svg
+index eba40320..0b1ef2f7 100644
+--- a/docs/diagrams/submodule_boundaries.svg
++++ b/docs/diagrams/submodule_boundaries.svg
+@@ -36,7 +36,7 @@
+ <text x="133" y="539" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">ACTIVE TIME</text>
+ <text x="53" y="580" font-size="20" font-weight="bold" fill="#212121">gptp-processor</text>
+ <text x="53" y="623" font-size="16" fill="#37474F">IEEE 802.1AS fabric engine</text>
+-<text x="53" y="662" font-size="16" fill="#37474F">pin e5dcea6e351a</text>
++<text x="53" y="662" font-size="16" fill="#37474F">pin 5dce647ab5a0</text>
+ <text x="53" y="688" font-size="16" fill="#37474F">wrapper:</text>
+ <text x="53" y="709" font-size="16" fill="#37474F">hdl/ieee8021as/gptp_plane/</text>
+ <text x="53" y="730" font-size="16" fill="#37474F">KL_gptp_shadow.sv</text>
+diff --git a/docs/diagrams/timesync_chain.drawio b/docs/diagrams/timesync_chain.drawio
+index 176a668e..8d2f08a3 100644
+--- a/docs/diagrams/timesync_chain.drawio
++++ b/docs/diagrams/timesync_chain.drawio
+@@ -1 +1 @@
+-<mxfile host="app.diagrams.net"><diagram name="fabric-time"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="Fabric time ownership and integration" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=1;fontColor=#263238;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="45" as="geometry"/></mxCell><mxCell id="status" value="Product owner: implemented. Media consumption: implemented." style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="35" y="65" width="900" height="28" as="geometry"/></mxCell><mxCell id="network-boundary" value="NETWORK TIME" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="35" y="95" width="260" height="28" as="geometry"/></mxCell><mxCell id="timestamp-boundary" value="TIMESTAMP AND PUBLICATION BOUNDARIES" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#B26A00;" vertex="1" parent="1"><mxGeometry x="35" y="310" width="420" height="28" as="geometry"/></mxCell><mxCell id="media-boundary" value="PRESENTATION AND MEDIA BOUNDARY" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="35" y="610" width="390" height="28" as="geometry"/></mxCell><mxCell id="sources" value="Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txticket, KL_gptp_txret, KL_gptp_gmii_launch, KL_ptp_clock_validity, feature ledger, and exact Gitlink." style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#78909C;" vertex="1" parent="1"><mxGeometry x="35" y="840" width="1250" height="25" as="geometry"/></mxCell><mxCell id="n-peer" value="&lt;b&gt;802.1AS peer&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ethernet wire" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#ECEFF1;strokeColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="35" y="140" width="175" height="100" as="geometry"/></mxCell><mxCell id="n-rx" value="&lt;b&gt;Parent RX seam&lt;/b&gt;&lt;br&gt;&lt;br&gt;accepted MAC beats&lt;br&gt;first-beat PHC time" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="250" y="125" width="245" height="130" as="geometry"/></mxCell><mxCell id="n-engine" value="&lt;b&gt;Fabric gPTP engine&lt;/b&gt;&lt;br&gt;&lt;br&gt;pin e5dcea6e351a&lt;br&gt;protocol, timers, servo" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="545" y="115" width="300" height="150" as="geometry"/></mxCell><mxCell id="n-tx" value="&lt;b&gt;Parent TX seam&lt;/b&gt;&lt;br&gt;&lt;br&gt;byte-to-wide transport&lt;br&gt;valid-ready backpressure" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="895" y="125" width="245" height="130" as="geometry"/></mxCell><mxCell id="n-mac" value="&lt;b&gt;MAC boundary&lt;/b&gt;&lt;br&gt;&lt;br&gt;actual TX acceptance" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#ECEFF1;strokeColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="1190" y="140" width="175" height="100" as="geometry"/></mxCell><mxCell id="n-phc" value="&lt;b&gt;PHC counter&lt;/b&gt;&lt;br&gt;&lt;br&gt;network nanoseconds&lt;br&gt;rate and phase controls" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1"><mxGeometry x="150" y="350" width="300" height="135" as="geometry"/></mxCell><mxCell id="n-publish" value="&lt;b&gt;Atomic publication&lt;/b&gt;&lt;br&gt;&lt;br&gt;GM, parent, path&lt;br&gt;delay, flags, commit" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1"><mxGeometry x="535" y="350" width="310" height="135" as="geometry"/></mxCell><mxCell id="n-consumers" value="&lt;b&gt;Public consumers&lt;/b&gt;&lt;br&gt;&lt;br&gt;CSR and protocol&lt;br&gt;AVTP tu and status" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1"><mxGeometry x="900" y="350" width="310" height="135" as="geometry"/></mxCell><mxCell id="n-stamp" value="&lt;b&gt;Egress launch timestamp&lt;/b&gt;&lt;br&gt;&lt;br&gt;the frame&#x27;s own launch&lt;br&gt;one stage before the pads&lt;br&gt;sequence plus type" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1"><mxGeometry x="1260" y="350" width="285" height="135" as="geometry"/></mxCell><mxCell id="n-avtp" value="&lt;b&gt;AVTP timeline&lt;/b&gt;&lt;br&gt;&lt;br&gt;PHC dates AAF and CRF&lt;br&gt;tu reports uncertainty" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF3E0;strokeColor=#EF6C00;" vertex="1" parent="1"><mxGeometry x="115" y="650" width="330" height="135" as="geometry"/></mxCell><mxCell id="n-crf" value="&lt;b&gt;CRF measurement&lt;/b&gt;&lt;br&gt;&lt;br&gt;remote phase and rate&lt;br&gt;selection reaches root" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="565" y="650" width="330" height="135" as="geometry"/></mxCell><mxCell id="n-media" value="&lt;b&gt;Media clock lineage&lt;/b&gt;&lt;br&gt;&lt;br&gt;INTERNAL: free-run&lt;br&gt;CRF: steered and aligned" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="1070" y="635" width="380" height="165" as="geometry"/></mxCell><mxCell id="n-select" value="&lt;b&gt;CRF steering gates&lt;/b&gt;&lt;br&gt;&lt;br&gt;status: implemented&lt;br&gt;rate and grid loops" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="920" y="525" width="245" height="100" as="geometry"/></mxCell><mxCell id="e-0" value="RX" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-peer" target="n-rx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-rx" target="n-engine"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-2" value="bytes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-engine" target="n-tx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-3" value="TX" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-tx" target="n-mac"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-4" value="PHC time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-rx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-5" value="rate / phase" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-engine" target="n-phc"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="620" y="310"/><mxPoint x="450" y="310"/></Array></mxGeometry></mxCell><mxCell id="e-6" value="commit" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-engine" target="n-publish"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-7" value="state" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-publish" target="n-consumers"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-8" value="launched frame" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-mac" target="n-stamp"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-9" value="return tuple" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-stamp" target="n-engine"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1402" y="290"/><mxPoint x="800" y="290"/></Array></mxGeometry></mxCell><mxCell id="e-10" value="presentation time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-avtp"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-11" value="common time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-crf"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="500" y="450"/><mxPoint x="500" y="610"/><mxPoint x="730" y="610"/></Array></mxGeometry></mxCell><mxCell id="e-12" value="internal events" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-media" target="n-crf"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-13" value="rate error" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-crf" target="n-select"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="940" y="680"/></Array></mxGeometry></mxCell><mxCell id="e-14" value="steer / align" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-select" target="n-media"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1260" y="575"/></Array></mxGeometry></mxCell></root></mxGraphModel></diagram></mxfile>
++<mxfile host="app.diagrams.net"><diagram name="fabric-time"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="Fabric time ownership and integration" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=1;fontColor=#263238;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="45" as="geometry"/></mxCell><mxCell id="status" value="Product owner: implemented. Media consumption: implemented." style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="35" y="65" width="900" height="28" as="geometry"/></mxCell><mxCell id="network-boundary" value="NETWORK TIME" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="35" y="95" width="260" height="28" as="geometry"/></mxCell><mxCell id="timestamp-boundary" value="TIMESTAMP AND PUBLICATION BOUNDARIES" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#B26A00;" vertex="1" parent="1"><mxGeometry x="35" y="310" width="420" height="28" as="geometry"/></mxCell><mxCell id="media-boundary" value="PRESENTATION AND MEDIA BOUNDARY" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="35" y="610" width="390" height="28" as="geometry"/></mxCell><mxCell id="sources" value="Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txticket, KL_gptp_txret, KL_gptp_gmii_launch, KL_ptp_clock_validity, feature ledger, and exact Gitlink." style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#78909C;" vertex="1" parent="1"><mxGeometry x="35" y="840" width="1250" height="25" as="geometry"/></mxCell><mxCell id="n-peer" value="&lt;b&gt;802.1AS peer&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ethernet wire" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#ECEFF1;strokeColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="35" y="140" width="175" height="100" as="geometry"/></mxCell><mxCell id="n-rx" value="&lt;b&gt;Parent RX seam&lt;/b&gt;&lt;br&gt;&lt;br&gt;accepted MAC beats&lt;br&gt;first-beat PHC time" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="250" y="125" width="245" height="130" as="geometry"/></mxCell><mxCell id="n-engine" value="&lt;b&gt;Fabric gPTP engine&lt;/b&gt;&lt;br&gt;&lt;br&gt;pin 5dce647ab5a0&lt;br&gt;protocol, timers, servo" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="545" y="115" width="300" height="150" as="geometry"/></mxCell><mxCell id="n-tx" value="&lt;b&gt;Parent TX seam&lt;/b&gt;&lt;br&gt;&lt;br&gt;byte-to-wide transport&lt;br&gt;valid-ready backpressure" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="895" y="125" width="245" height="130" as="geometry"/></mxCell><mxCell id="n-mac" value="&lt;b&gt;MAC boundary&lt;/b&gt;&lt;br&gt;&lt;br&gt;actual TX acceptance" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#ECEFF1;strokeColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="1190" y="140" width="175" height="100" as="geometry"/></mxCell><mxCell id="n-phc" value="&lt;b&gt;PHC counter&lt;/b&gt;&lt;br&gt;&lt;br&gt;network nanoseconds&lt;br&gt;rate and phase controls" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1"><mxGeometry x="150" y="350" width="300" height="135" as="geometry"/></mxCell><mxCell id="n-publish" value="&lt;b&gt;Atomic publication&lt;/b&gt;&lt;br&gt;&lt;br&gt;GM, parent, path&lt;br&gt;delay, flags, commit" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1"><mxGeometry x="535" y="350" width="310" height="135" as="geometry"/></mxCell><mxCell id="n-consumers" value="&lt;b&gt;Public consumers&lt;/b&gt;&lt;br&gt;&lt;br&gt;CSR and protocol&lt;br&gt;AVTP tu and status" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1"><mxGeometry x="900" y="350" width="310" height="135" as="geometry"/></mxCell><mxCell id="n-stamp" value="&lt;b&gt;Egress launch timestamp&lt;/b&gt;&lt;br&gt;&lt;br&gt;the frame&#x27;s own launch&lt;br&gt;one stage before the pads&lt;br&gt;sequence plus type" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1"><mxGeometry x="1260" y="350" width="285" height="135" as="geometry"/></mxCell><mxCell id="n-avtp" value="&lt;b&gt;AVTP timeline&lt;/b&gt;&lt;br&gt;&lt;br&gt;PHC dates AAF and CRF&lt;br&gt;tu reports uncertainty" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF3E0;strokeColor=#EF6C00;" vertex="1" parent="1"><mxGeometry x="115" y="650" width="330" height="135" as="geometry"/></mxCell><mxCell id="n-crf" value="&lt;b&gt;CRF measurement&lt;/b&gt;&lt;br&gt;&lt;br&gt;remote phase and rate&lt;br&gt;selection reaches root" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="565" y="650" width="330" height="135" as="geometry"/></mxCell><mxCell id="n-media" value="&lt;b&gt;Media clock lineage&lt;/b&gt;&lt;br&gt;&lt;br&gt;INTERNAL: free-run&lt;br&gt;CRF: steered and aligned" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="1070" y="635" width="380" height="165" as="geometry"/></mxCell><mxCell id="n-select" value="&lt;b&gt;CRF steering gates&lt;/b&gt;&lt;br&gt;&lt;br&gt;status: implemented&lt;br&gt;rate and grid loops" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="920" y="525" width="245" height="100" as="geometry"/></mxCell><mxCell id="e-0" value="RX" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-peer" target="n-rx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-rx" target="n-engine"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-2" value="bytes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-engine" target="n-tx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-3" value="TX" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-tx" target="n-mac"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-4" value="PHC time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-rx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-5" value="rate / phase" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-engine" target="n-phc"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="620" y="310"/><mxPoint x="450" y="310"/></Array></mxGeometry></mxCell><mxCell id="e-6" value="commit" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-engine" target="n-publish"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-7" value="state" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-publish" target="n-consumers"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-8" value="launched frame" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-mac" target="n-stamp"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-9" value="return tuple" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-stamp" target="n-engine"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1402" y="290"/><mxPoint x="800" y="290"/></Array></mxGeometry></mxCell><mxCell id="e-10" value="presentation time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-avtp"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-11" value="common time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-crf"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="500" y="450"/><mxPoint x="500" y="610"/><mxPoint x="730" y="610"/></Array></mxGeometry></mxCell><mxCell id="e-12" value="internal events" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-media" target="n-crf"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-13" value="rate error" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-crf" target="n-select"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="940" y="680"/></Array></mxGeometry></mxCell><mxCell id="e-14" value="steer / align" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-select" target="n-media"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1260" y="575"/></Array></mxGeometry></mxCell></root></mxGraphModel></diagram></mxfile>
+diff --git a/docs/diagrams/timesync_chain.png b/docs/diagrams/timesync_chain.png
+index 3a288604..30a184db 100644
+Binary files a/docs/diagrams/timesync_chain.png and b/docs/diagrams/timesync_chain.png differ
+diff --git a/docs/diagrams/timesync_chain.svg b/docs/diagrams/timesync_chain.svg
+index baf037be..d138ce09 100644
+--- a/docs/diagrams/timesync_chain.svg
++++ b/docs/diagrams/timesync_chain.svg
+@@ -44,7 +44,7 @@
+ <text x="372.5" y="210" text-anchor="middle" font-size="14" fill="#37474F">first-beat PHC time</text>
+ <rect id="engine" x="545" y="115" width="300" height="150" rx="12" fill="#E3F2FD" stroke="#1565C0" stroke-width="2.5"/>
+ <text x="695.0" y="149" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Fabric gPTP engine</text>
+-<text x="695.0" y="177" text-anchor="middle" font-size="14" fill="#37474F">pin e5dcea6e351a</text>
++<text x="695.0" y="177" text-anchor="middle" font-size="14" fill="#37474F">pin 5dce647ab5a0</text>
+ <text x="695.0" y="200" text-anchor="middle" font-size="14" fill="#37474F">protocol, timers, servo</text>
+ <rect id="tx" x="895" y="125" width="245" height="130" rx="12" fill="#E3F2FD" stroke="#1565C0" stroke-width="2.5"/>
+ <text x="1017.5" y="159" text-anchor="middle" font-size="17" font-weight="bold" fill="#212121">Parent TX seam</text>
+diff --git a/docs/guides/gptp/HDL_DEVELOPER.md b/docs/guides/gptp/HDL_DEVELOPER.md
+index 74288702..ef413143 100644
+--- a/docs/guides/gptp/HDL_DEVELOPER.md
++++ b/docs/guides/gptp/HDL_DEVELOPER.md
+@@ -30,13 +30,13 @@ Never patch imported behavior inside the parent lane.
+ 
+ Land donor changes before advancing its pin.
+ 
+-Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/HDL_DEVELOPER.md).
++Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md).
+ 
+ ## Preserve timing
+ 
+-![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/diagrams/wavedrom/rx_accept.svg)
++![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/diagrams/wavedrom/rx_accept.svg)
+ 
+-![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/diagrams/wavedrom/tx_backpressure.svg)
++![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/diagrams/wavedrom/tx_backpressure.svg)
+ 
+ ![Parent Pdelay timestamp ownership](../../diagrams/wd_gptp_pdelay.svg)
+ 
+@@ -99,4 +99,4 @@ Never convert a refused frame into partial data.
+ - Run lint and portability gates.
+ - Record exact-head evidence publicly.
+ 
+-Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/SOURCE_EVIDENCE.md).
++Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/SOURCE_EVIDENCE.md).
+diff --git a/docs/guides/gptp/MANAGER.md b/docs/guides/gptp/MANAGER.md
+index e471eff5..f671d60a 100644
+--- a/docs/guides/gptp/MANAGER.md
++++ b/docs/guides/gptp/MANAGER.md
+@@ -20,7 +20,7 @@ Use this page for delivery decisions.
+ - Atomic publication prevents contradictory consumer state.
+ - Direct health drives every AVTP uncertainty bit.
+ 
+-Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/MANAGER.md).
++Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md).
+ 
+ ## Status
+ 
+@@ -50,7 +50,7 @@ Simulation remains necessary but insufficient.
+ 
+ Transition behavior is in [grandmaster recovery](../../design/GM_LOSS_RECOVERY.md).
+ 
+-Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/MANAGER.md).
++Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md).
+ 
+ ## Release evidence
+ 
+diff --git a/docs/guides/gptp/SYSTEM_INTEGRATOR.md b/docs/guides/gptp/SYSTEM_INTEGRATOR.md
+index fffa613a..a6e747d2 100644
+--- a/docs/guides/gptp/SYSTEM_INTEGRATOR.md
++++ b/docs/guides/gptp/SYSTEM_INTEGRATOR.md
+@@ -58,7 +58,7 @@ A build without a MAC ties the record face off.
+ 
+ That plane then delivers no timestamp and counts the loss.
+ 
+-Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/INTEGRATION.md).
++Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md).
+ 
+ ## Observe
+ 
+diff --git a/docs/guides/gptp/TEST_DEVELOPER.md b/docs/guides/gptp/TEST_DEVELOPER.md
+index fe980764..24742f73 100644
+--- a/docs/guides/gptp/TEST_DEVELOPER.md
++++ b/docs/guides/gptp/TEST_DEVELOPER.md
+@@ -27,7 +27,7 @@ C firmware never judges gPTP correctness.
+ 
+ Python models must not mirror implementation blindly.
+ 
+-Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/TEST_DEVELOPER.md).
++Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md).
+ 
+ ## Choose a suite
+ 
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 325ca082..7c98626c 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -2025,7 +2025,7 @@ on merge; `0x8FC` next to it holds the servo control knobs.
+ 
+ | Offset | Name | Acc | Reset | Description |
+ |--------|------|-----|-------|-------------|
+-| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[9]` reserved 0, `[15:10]` discarded rate windows, saturating at 63: a window whose error exceeds 1024 ppm, or one a PHC step landed in (#539; cleared in IDLE), `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only when the stored `clock_source` selects this shape's CRF descriptor (the generated `AEM_CRF_CLKSRC_C`); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
++| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[9]` reserved 0, `[15:10]` discarded rate windows, saturating at 63: a window whose error exceeds 1024 ppm, one a PHC step landed in (#539), or one overlapping the policy-slew level (#545; cleared in IDLE). Slew overlap counts once at the boundary, including the partial tail; a coincident step counts that same window once, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only when the stored `clock_source` selects this shape's CRF descriptor (the generated `AEM_CRF_CLKSRC_C`); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
+ | `0x8FC` | `MCSRV_CTRL` | RW | `0` | `[0]` ps_invert: flips the servo fine-PS direction mapping (bench sign knob - 2026-07-23 mf51 silicon stepped opposite the UG472 reading and rails went 25x worse under the servo; settle the polarity on silicon via this bit, then bake the winner as the RTL default); `[1]` auto_repair: 1 = allow the DRP divider repair path (a `[4]` mismatch triggers the full reset-sequenced read-modify-write reprogram), default 0 = verify-only (bench-gated). NOTE both 0x8F8/0x8FC needed the rd_in_window >=0x800 carve-out - 0x8F8 read 0 on every build before 2026-07-23 |
+ 
+ ### 0x900  -  channel-map fabric  `([Section 6 of docs/CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md#6-csr-window-0x900-0x97f-debug-and-override), KL_chan_map_render / KL_chan_map_capture)`
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index ae128c1e..88b62b53 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -21,7 +21,7 @@ Dirty submodules invalidate local evidence.
+ | Path | Pin | Purpose | Root integration |
+ |---|---|---|---|
+ | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
+-| `gptp-processor` | `e5dcea6e351abff18a27a00f8e345f3251bdbd8f` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
++| `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+ | `protocol-processor` | `990f96526bb89356c963a260ebbdcf2a77e6623a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+ | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
+ <!-- submodule-pins:end -->
+@@ -110,10 +110,16 @@ The cleanliness command must print nothing.
+ 
+ The reviewed gPTP guides match root ownership.
+ 
+-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/MANAGER.md)
+-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/INTEGRATION.md)
+-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/HDL_DEVELOPER.md)
+-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/TEST_DEVELOPER.md)
++The pinned engine exports `phc_slew_active_o` for policy correction.
++
++The parent carries it to the CRF servo (#545).
++
++Window overlap preserves lock until measured correction completes.
++
++- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md)
++- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md)
++- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md)
++- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md)
+ 
+ Protocol donor prose retains these known contradictions.
+ 
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 23850a2b..40129ca9 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -155,10 +155,26 @@ margin sets each named entry:
+ 
+ | Suite | Budget | Basis |
+ |---|---|---|
+-| every other default suite | 1800 s | longest default suite besides `milan_dp` measured at most 548 s hosted |
++| every other default suite | 1800 s | original hosted basis: at most 548 s |
++| `mmcm_servo` | 1800 s | hosted window 1159.1 s; 640.9 s remains (35.6% of budget) |
+ | `milan_dp` | 3600 s | hosted window 2459.9 s; 1140.1 s remains (31.7% of budget) |
+ | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
+ 
++PR #563's first head timed out during servo mutations.
++
++The #545 decision keeps all clean checks under 1800 seconds.
++
++Its mutation campaign now runs explicitly under #367's rule.
++
++The servo Makefile records the revised two-CPU local measurement.
++
++The hosted sample covers head `b94f53cc` in merge `4bb4317`.
++
++[Run 36113401588](https://github.com/kebag-logic/milan-fpga/actions/runs/36113401588),
++[job 108001867446](https://github.com/kebag-logic/milan-fpga/actions/runs/36113401588/job/108001867446), passed.
++
++The window ran from 08:33:57.4 to 08:53:16.4 UTC.
++
+ The previous `milan_dp` budget used 37 hosted runs.
+ Those ran between 2026-09-15 and 2026-09-19, after #447's split.
+ Passing runs took 1055-1773 s.
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index eacf1e35..650a16c0 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -266,7 +266,8 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ | #447 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
+ | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
+ | #508 GET_STREAM_INFO seam, the eight field and notification mutants | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather, the GET_STREAM_INFO answer block of `milan_datapath.sv` or the `[GSI]` section of `sim_nxn.cpp` |
+-| #387 GM step re-base, the gmstep leg's nine controls and the option-off leg's two | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `sim_gmstep.cpp` or the option-off leg's PHC-step `mr` checks in `sim_main.cpp`. The default sweep runs the three controls #387's acceptance names |
++| #387 GM step re-base and #545 slew coverage: twelve gmstep controls and two option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `sim_gmstep.cpp` or the option-off leg's PHC-step `mr` checks in `sim_main.cpp`. The default sweep runs the three controls #387's acceptance names |
++| #545 servo slew: eight defects and two positive controls | `make -C tb/verilator/mmcm_servo slew-mutants` | the change's validation and reviewers whenever `KL_mmcm_drp_servo.sv`, `sim_main.cpp`, `sim_phc_step.cpp`, `slew_mutants.py` or the suite Makefile changes |
+ 
+ The default sweep still runs both render legs, and their assertions are unchanged.
+ It also runs that campaign's leg-side defect arms, which need no elaboration.
+@@ -482,7 +483,7 @@ verdicts and for check counts.
+ | [`tb/verilator/milan_dp_render` `tdm8render`](../../tb/verilator/milan_dp_render) | **#447, the shipping TDM8 render lane end to end**: `make -C tb/verilator/milan_dp_render tdm8render`. Binds listener 0 over ACMP, programs a no-fixed-point permutation through the real dynamic `ADD_AUDIO_MAPPINGS` path, grades `GET_AUDIO_MAP` and the render RAM readback against its OWN issued route record, feeds channel-distinct AAF through the real acceptance/depacketizer/setpoint/crossbar chain, and decodes `tdm_bclk_o`/`tdm_fsync_o`/`tdm_dout_o` with a pin-only receiver that reads no DUT internal. It grades every 24-bit word and every 8-bit pad against an IMMUTABLE injection record, measures the commit-to-pin terms from registered events, and exercises the render epoch over a reset with the serial clock stopped, a reset inside the frame, a reset ON the frame wrap, a reset while a round trip is outstanding, a bind loss, a map write inside the closed epoch and a rebind. It grades the GRACEFUL FLUSH BOUNDARY from the pins as its own property: the last frame before digital silence must be a complete frame carrying one media event's identity in every routed slot, which is the whole-frame half of the flush contract that the silence checks cannot see. Every one of those states an EXACT epoch count - one counted reopening per event, two for two bind falls inside one round trip - counts the adapter's commits between a reset release and the reopening with the feed still running, and derives the first eligible media event from the preserved prefill rule instead of searching for it. Its `[CRF]` phase then selects this shape's CRF `CLOCK_SOURCE` through a real `SET_CLOCK_SOURCE` on the same AECP face, UNDER the running stream, feeds a real CRF stream into the provisioned sink and decodes the same pins again: the settled-grid recentre fires exactly once, the setpoint law holds in both states, and the commit-to-pin walk drops from the divider plan's `+10.64` ppm to zero. The deselect back to INTERNAL is the same transition the other way |
+ | [`tb/verilator/milan_dp_render` `tdm8render-multi`](../../tb/verilator/milan_dp_render) | **#447 on a TWO-STREAM shape**: `make -C tb/verilator/milan_dp_render tdm8render-multi`. `gen_tdm8r_multi_shape.py` writes a second end-station config and the real builder derives its shape header and entity image, because two properties are unobservable on the one-stream shipping image. It binds both listeners and grades the STREAM-QUALIFIED epoch mask in both directions - a bind fall on a stream the lane does not render leaves the commit gate open for every cycle of the window, and the same fall on a stream the lane DOES render closes it, flushes to digital silence and reopens on a fresh post-flush event - and grades the three cluster-key classes (projected, in-range NONPHYSICAL, out of range) on BOTH the render RAM and the AECP protocol store |
+ | `tdm8_render_mutants.py` | the mutation arm of both legs above, run through the EXPLICIT `make -C tb/verilator/milan_dp_render tdm8render-mutants` target: a per-mutant rebuild costs tens of minutes, so section 0's explicit-campaign rule applies and nothing in the inventory is trimmed for it. The suite's own default target runs the same runner with `--leg-defects`, which is the part of this inventory that needs no elaboration (the three leg-side defect arms and the two clean modes they are the negative of), so the sweep still holds an executable negative arm for these assertions. Its inventory is its own `MUTATIONS`, `CLEAN_CONTROLS` and `LEG_DEFECTS` tables, and every run prints the totals it actually ran: at this head eighteen gateware or generated-shape mutants, three leg-side defect arms, three clean controls and one positive control per elaboration and mode, 28 checks in all. Among them: an explicitly modelled bit-arrival skew that discriminates the gray counter crossing from a raw binary one; one cycle of modelled ARRIVAL SKEW on each of the render epoch's two crossed levels, which the shipping handshake must survive and a producer that rebuilds its reset condition from two reconverged levels must not; a request raised onto a still-visible acknowledgement; an epoch gate that reaches the frame CDC but not the adapter; a moved prefill target; a graceful flush that tears the frame in flight instead of zeroing the active frame at frame starts only; the unqualified bind-fall mask; a lane stream set that ignores the mapping's stream field; and a protocol-store mirror gated on the physical projection |
+-| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Since #74 the build enables it through the live clock-source resolve (Section 7). `sim_phc_step.cpp` runs it at the silicon window scale against a PHC step from 21 us to 1 s, and `make trace STEP_NS=<n>` prints the integrator window by window (#539) |
++| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block, enabled through live clock-source resolution since #74. Default: unit, rails, silicon-scale PHC step and policy-slew suites. Steps range from 21 us to 1 s; `make trace STEP_NS=<n>` prints the integrator per window (#539). Slew cases cover +/-100 us at 200 ppm, short pulses, shared boundaries, prolonged levels, reset, saturation, boundary-coincident step deduplication and restarting the guard streak. All checks remain in the default; the eight-defect mutation campaign runs through the explicit `slew-mutants` target above |
+ | [`tb/verilator/mmcm_servo_autorepair`](../../tb/verilator/mmcm_servo_autorepair) | — |
+ | [`tb/verilator/nvm_backend`](../../tb/verilator/nvm_backend) | the saved-state backing store on BYTES: region decode against an independently built image, the memory face, the bounds refusals, the section 9 status machine, and the parts of the [snapshot-ownership contract](../design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md) that are module properties (the reset row, the contract tag, the open vector, the checked window load, the accepted-load term, the capture identity, the pending bit). Four negative controls must each go RED, and it carries no `-Wno-*` at all |
+ | [`tb/verilator/nvm_cosim`](../../tb/verilator/nvm_cosim) | the same contract's ORDERINGS, with the FIRMWARE in the loop: the shipping `KL_nvm_backend` and the shipping writer compiled for the host, against the real donor producer path at the pinned revision. Every mutant the contract page names must be killed by the ONE check the page names for it; a 2-bit capture identity must alias where 16 bits must not; a capture whose identity wraps to 0 must be acknowledged like any other, graded at 2 identity bits, the minimum the backend's elaboration contract admits (`make wrap`); and with `LEGACY_DIR` a pre-contract backend and writer must reproduce the three historical defects |
+diff --git a/docs/traceability/ieee8021as.md b/docs/traceability/ieee8021as.md
+index 97a9c17d..26ed717b 100644
+--- a/docs/traceability/ieee8021as.md
++++ b/docs/traceability/ieee8021as.md
+@@ -50,7 +50,7 @@ Simulation never becomes physical evidence.
+ 
+ The [fabric guide](../design/GPTP_PLANE.md) defines boundaries.
+ 
+-The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/SOURCE_EVIDENCE.md) maps internals.
++The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/SOURCE_EVIDENCE.md) maps internals.
+ 
+ ## Requirement mapping
+ 
+diff --git a/gptp-processor b/gptp-processor
+index e5dcea6e..5dce647a 160000
+--- a/gptp-processor
++++ b/gptp-processor
+@@ -1 +1 @@
+-Subproject commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f
++Subproject commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
+diff --git a/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv b/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+index 12eaa99c..8dcf9769 100644
+--- a/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
++++ b/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+@@ -76,6 +76,20 @@
+                           ns (4.29 s) aliases in the detector's 32 bits
+                           and meets the 1024 ppm guard instead.
+ 
++                  policy slew (#545): phc_slew_active_i covers the
++                          effective PHC rate, without an expiry timer.
++                          Every overlapping window is counted once at
++                          its boundary and withheld from PI, trim and
++                          lock qualification. A sticky window flag keeps
++                          the partial tail untrusted after deassertion.
++                          Clean windows resume without ACQUIRE. A step
++                          abandons and counts its open window once, even
++                          when that window also overlaps a slew.
++                          Slew discards reset the guard-discard streak,
++                          as #539 step discards do: re-basing needs four
++                          fresh guard trips after the slew. A slew window
++                          is not a valid offset sample.
++
+                   remote history (#546): crf_rate_valid_i qualifies each
+                           window's PI run. Invalid receiver history skips
+                           PI, trim and lock-count updates without changing
+@@ -242,6 +256,10 @@ module KL_mmcm_drp_servo #(
+   input  wire         ps_clk_i,       //! MMCM PSCLK domain (SoC: 200 MHz idelay)
+ 
+   input  wire [63:0]  ptp_now_i,      //! gPTP-synced time (ns, clk_i)
++  //! Policy correction level (clk_i), covering the effective PHC rate.
++  //! The caller includes all rate-application latency through ptp_now_i.
++  //! Reset clears it; it may remain high indefinitely without losing lock.
++  input  wire         phc_slew_active_i,
+   input  wire [15:0]  clk_src_i,      //! live CLOCK_DOMAIN clock_source_index
+   //! which CLOCK_SOURCE index means "the CRF stream". NOT a literal: the
+   //! set is internal then CRF (1 on every shipping shape since #389 dropped
+@@ -449,6 +467,15 @@ module KL_mmcm_drp_servo #(
+     ptp_q_r <= ptp_now_i;
+   end
+ 
++  //! The policy level describes the same PHC sample as ptp_q_r. Its
++  //! window memory survives deassertion until both endpoints are clean.
++  logic phc_slew_q_r /* verilator public_flat_rd */;
++  logic win_slew_r;
++  always_ff @(posedge clk_i) begin : slew_sample_stage
++    if (!rst_n) phc_slew_q_r <= 1'b0;
++    else phc_slew_q_r <= phc_slew_active_i;
++  end : slew_sample_stage
++
+   //! PHC step detector (#539), aligned with ptp_q_r: set on the edge that
+   //! stages a sample which jumped from the one staged before it, so the
+   //! logic that reads ptp_q_r reads its verdict in the same cycle. The low
+@@ -460,12 +487,17 @@ module KL_mmcm_drp_servo #(
+     else        ptp_jump_r <= (ptp_now_i[31:0] - ptp_q_r[31:0]) > STEP_DET_NS_C;
+   end : ptp_jump_S
+ 
+-  //! the two discard causes, as wires so the status tally below counts both
++  //! The discard causes are independent windows. The tally counts both
+   //! when they land on one cycle: the 1024 ppm guard's verdict on a window
+   //! in its S4 stage, and a PHC step inside the open window
+   wire guard_hit_w = (pp_seq_r == 3'd4) && pp_run_r &&
+                      ((ew_r > GUARD_THR_C) || (ew_r < -GUARD_THR_C));
+   wire step_hit_w  = ptp_jump_r && win_valid_r;
++  wire slew_window_w = win_slew_r || phc_slew_q_r;
++  //! A coincident step already counts this same open window.
++  wire slew_hit_w = tick_p_w && win_valid_r &&
++                    (tick_cnt_r == (WIN_LOG2_P+1)'(WIN_TICKS_C - 1)) &&
++                    slew_window_w && !step_hit_w;
+ 
+   function automatic logic signed [23:0] clamp_u(input logic signed [31:0] v);
+     if (v > 32'(U_MAX_P))       return 24'(U_MAX_P);
+@@ -478,6 +510,7 @@ module KL_mmcm_drp_servo #(
+       state_r  <= IDLE_S;   dstate_r <= D_IDLE_S;
+       tick_cnt_r <= '0;     win_start_r <= '0;
+       win_valid_r <= 1'b0;  win_skip_r <= '0;
++      win_slew_r <= 1'b0;
+       disc_run_r <= '0;     disc_cnt_r <= '0;
+       ew_r <= '0;           integ_r <= '0;      u_cmd_r <= '0;
+       lock_cnt_r <= '0;     acc_r <= '0;
+@@ -553,12 +586,19 @@ module KL_mmcm_drp_servo #(
+         default: state_r <= IDLE_S;
+       endcase
+ 
++      //! Remember any affected sample until this window ends. A boundary
++      //! sample belongs to both intervals; the tick branch seeds the next
++      //! flag from that sample. No open window means no retained overlap.
++      if (!win_valid_r) win_slew_r <= 1'b0;
++      else if (phc_slew_q_r) win_slew_r <= 1'b1;
++
+       // ---------------- local rate window + PI ----------------
+       if (state_r inside {ACQUIRE_S, LOCKED_S, HOLDOVER_S}) begin
+         if (tick_p_w) begin
+           if (!win_valid_r) begin
+             win_start_r <= ptp_q_r;
+             win_valid_r <= 1'b1;
++            win_slew_r <= phc_slew_q_r;
+             tick_cnt_r  <= '0;
+           end else if (tick_cnt_r == (WIN_LOG2_P+1)'(WIN_TICKS_C - 1)) begin
+             //! T0: window boundary - snapshot the operands, kick the
+@@ -567,9 +607,11 @@ module KL_mmcm_drp_servo #(
+             win_start_r <= ptp_q_r;
+             pp_d_r      <= $signed(ptp_q_r - win_start_r);
+             pp_rate_r   <= crf_rate_i;
++            win_slew_r  <= phc_slew_q_r;
+             //! Invalid remote history holds PI and lock; local step/slew
+             //! guards retain their own independent window policy.
+             pp_run_r    <= (win_skip_r == '0) && (state_r != HOLDOVER_S)
++                           && !slew_window_w
+                            && crf_rate_valid_i;
+             pp_seq_r    <= 3'd1;
+             if (win_skip_r != '0)
+@@ -670,11 +712,13 @@ module KL_mmcm_drp_servo #(
+           if (pp_seq_r == '0) pp_run_r <= 1'b0;
+         end
+ 
++        if (slew_hit_w) disc_run_r <= '0;
++
+         //! discard tally (status_o[15:10], saturating): a guard-discarded
+         //! window and a step-abandoned one may land on the same cycle
+         begin : disc_tally
+           automatic logic [6:0] n_v;
+-          n_v = 7'(disc_cnt_r) + 7'(guard_hit_w) + 7'(step_hit_w);
++          n_v = 7'(disc_cnt_r) + 7'(guard_hit_w) + 7'(step_hit_w) + 7'(slew_hit_w);
+           disc_cnt_r <= (n_v > 7'h3F) ? 6'h3F : n_v[5:0];
+         end : disc_tally
+ 
+@@ -913,7 +957,7 @@ module KL_mmcm_drp_servo #(
+   // ------------------------------------------------------------------ //
+   wire signed [15:0] trim_w = 16'(u_cmd_r >>> 5);  //! 1/16 ppm units
+   assign status_o = {trim_w,                       //! [31:16] signed trim
+-                     disc_cnt_r,                   //! [15:10] guard + step discards
++                     disc_cnt_r,                   //! [15:10] guard + step + slew discards
+                      1'b0,                         //! [9]     reserved
+                      drp_fault_r,                  //! [8]
+                      ps_fault_s_w,                 //! [7]
+diff --git a/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv b/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+index cca1845b..eb4127cd 100644
+--- a/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
++++ b/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+@@ -144,6 +144,10 @@ module KL_gptp_shadow #(
+     output logic signed [31:0] phc_adj_o,
+     output logic               phc_step_we_o,
+     output logic        [63:0] phc_step_o,
++    //! Registered engine policy level (clk_i), independent of publication.
++    //! Rises before the slew addend; falls with its replacement pulse.
++    //! Consumers must cover their retained-rate and PHC pipeline tail.
++    output wire                phc_slew_active_o,
+ 
+     //! TX: one wide control-lane leg (whole frames, FRAME_FIFO-held)
+     output wire [TDATA_WIDTH_P-1:0]   tx_tdata_o,
+@@ -678,6 +682,7 @@ module KL_gptp_shadow #(
+       .phc_addend_o       (adj_val_w),
+       .phc_step_we_o      (phc_step_we_o),
+       .phc_step_o         (phc_step_o),
++      .phc_slew_active_o  (phc_slew_active_o),
+       .pub_gm_id_o        (pub_gm_raw_w),
+       .pub_parent_id_o    (pub_parent_raw_w),
+       .pub_flags_o        (pub_flags_raw_w),
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index d8b46f33..183a92db 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -1454,12 +1454,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! consumers rather than the late generate block so clock validity, CSR,
+   //! and protocol answers all select the same compile-time owner.
+   wire [63:0] gptp_pub_gm_w, gptp_pub_parent_w, gptp_pub_annq_w;
+-  wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w, gptp_pub_offset_w;
++  wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w;
++  wire [31:0] gptp_pub_offset_w /* verilator public_flat_rd */;
+   wire [7*64-1:0] gptp_pub_path_w;
+   wire [3:0] gptp_pub_path_count_w, gptp_pub_path_gen_w;
+   wire        gptp_pub_disc_w;
+   wire signed [31:0] gptp_adj_w;
+   wire               gptp_step_we_w;
++  wire               gptp_slew_active_w /* verilator public_flat_rd */;
+   wire        [63:0] gptp_step_w;
+   //! One owner for every consumer and the CSR live-read face. With the gPTP
+   //! engine absent every publication output is zero; no alternate publisher
+@@ -2754,6 +2756,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   wire        eff_ptp_adjust_w = (GPTP_PLANE_EN_P != 1'b0)
+                                ? gptp_step_we_w          : cfg_ptp_cmd_adjust;
+ 
++  //! #545: engine, shadow and servo run on axis_clk. As required by the
++  //! live PHC contract below, gtx_clk == axis_clk; this is pipeline
++  //! alignment, not an asynchronous crossing. Assert immediately, release
++  //! after the shadow addend latch, two ptp_sync flops and counter edge.
++  //! The servo stages this level beside ptp_now_w. A future independent
++  //! PHC clock needs a coherent time/control crossing for both signals.
++  logic [3:0] gptp_slew_tail_r;
++  wire gptp_slew_eff_w = gptp_slew_active_w || (|gptp_slew_tail_r);
++  always_ff @(posedge axis_clk) begin : slew_rate_alignment
++    if (!axis_resetn) gptp_slew_tail_r <= '0;
++    else gptp_slew_tail_r <= {gptp_slew_tail_r[2:0], gptp_slew_active_w};
++  end : slew_rate_alignment
++
+   //! The PHC is the counter and its CSR crossing, nothing else. ptp_ts_top's
+   //! TX/RX record stampers, their record FIFOs and the tx_ts_ready pulse left
+   //! with the general-data chain (see the TX-trunk note at the interface
+@@ -5551,6 +5566,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .clk_audio_i   (clk_audio_i),
+     .ps_clk_i      (i_ps_clk),
+     .ptp_now_i     (ptp_now_w),
++    .phc_slew_active_i (gptp_slew_eff_w),
+     //! servo_sel_w is (clk_src_i == crf_src_idx_i) INSIDE the servo, and
+     //! both sides are LIVE now (#74): the stored selection against this
+     //! shape's generated CRF index. On a shape with no CRF source the
+@@ -6939,6 +6955,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+         .phc_adj_o       (gptp_adj_w),
+         .phc_step_we_o   (gptp_step_we_w),
+         .phc_step_o      (gptp_step_w),
++        .phc_slew_active_o (gptp_slew_active_w),
+         .tx_tdata_o      (gtx_tdata_w),
+         .tx_tkeep_o      (gtx_tkeep_w),
+         .tx_tvalid_o     (gtx_tvalid_w),
+@@ -7030,6 +7047,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     assign ctlg2_tready = ctlg3_tready;
+     assign gptp_adj_w = '0;
+     assign gptp_step_we_w = 1'b0;
++    assign gptp_slew_active_w = 1'b0;
+     assign gptp_step_w = '0;
+     assign gptp_pub_gm_w = '0;
+     assign gptp_pub_parent_w = '0;
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index 6773e875..dd01206a 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -594,6 +594,12 @@ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\
+                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
+ DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
+ DUT_READER_DISPOSITIONS = {
++    "tb/verilator/mmcm_servo/slew_mutants.py":
++        "mutation campaign; copies the servo and requires named failures for "
++        "discard removal, tied-low level, partial-tail trust, omitted tally, "
++        "boundary step double counting, retained guard streak, streak increment "
++        "on slew discard and slew discard counted as a guard trip; "
++        "no expectations read from RTL",
+     "tb/verilator/crf_rx/mutants.py":
+         "mutation campaign; copies the receiver and servo, requiring named failures "
+         "for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, "
+@@ -626,9 +632,9 @@ DUT_READER_DISPOSITIONS = {
+         "the datapath or of the processor tree and requires a named failure. It is the explicit "
+         "gsi-mutants target, outside the default sweep",
+     "tb/verilator/milan_dp/gmstep_mutants.py":
+-        "mutation campaign; it plants one of eleven #387 re-base defects into a copy and requires a "
++        "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
+         "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
+-        "the three the acceptance names; the explicit gmstep-mutants target plants all eleven",
++        "the three #387 acceptance names; gmstep-mutants plants all, and --slew selects the three #545 controls",
+     "tb/verilator/milan_dp/render_csr_controls.py":
+         "mutation campaign; the explicit render-csr-controls target plants wrong-fill "
+         "and bit-9 selector defects into copies and requires named failures. Its "
+diff --git a/syn/yosys/rom_digests.tsv b/syn/yosys/rom_digests.tsv
+index 30f2162a..cc1a8e0c 100644
+--- a/syn/yosys/rom_digests.tsv
++++ b/syn/yosys/rom_digests.tsv
+@@ -17,6 +17,7 @@
+ 4b2d710b2a73719e1533d73eff9252fac5534732	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+ 4b2d710b2a73719e1533d73eff9252fac5534732	ucode.hex	305d682d98073506334b343e8b3c815c3e2e4ffbb3806f42c94aa826aa6729e8
+ 5d2c0f31129cb165229ee68bb9e8c6f50f56e038	gptp_ucode.hex	f2d4a1fc22b6ca7c2e210448d302a1951841e89893ccf89197588a130fced983
++5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp_ucode.hex	c496ed8af59edd424e7d980aa3442bb725c745f44469ce53ec3a4d219fa30371
+ 6a9a12416b90158cb4762ab100ede2711bdab76f	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+ 6a9a12416b90158cb4762ab100ede2711bdab76f	ucode.hex	305d682d98073506334b343e8b3c815c3e2e4ffbb3806f42c94aa826aa6729e8
+ 6e6237f4ccccb8053d6db55266742eb9d1f63acf	gptp_ucode.hex	7a80d82e3d36ac7fe70eb202d77b9ba0b58daf356c78cb2cc0aba347a181a586
+diff --git a/tb/verilator/crf_rx/crf_talker_wrap.sv b/tb/verilator/crf_rx/crf_talker_wrap.sv
+index 0bec273b..96330bb1 100644
+--- a/tb/verilator/crf_rx/crf_talker_wrap.sv
++++ b/tb/verilator/crf_rx/crf_talker_wrap.sv
+@@ -68,6 +68,7 @@ module crf_talker_wrap (
+     .cnt_locked_o(), .cnt_intr_o(), .dirty_p_o(), .mr_toggle_p_o()
+   );
+   KL_mmcm_drp_servo servo (
++    .phc_slew_active_i(1'b0), // This fixture changes remote timestamps only.
+     .crf_locked_i(rx_locked_o), .crf_rate_i(rate_o),
+     .crf_rate_valid_i(rate_valid_o), .*
+   );
+diff --git a/tb/verilator/gptp_shadow/gptp_shadow_wrap.sv b/tb/verilator/gptp_shadow/gptp_shadow_wrap.sv
+index 81b1914b..42cf7ea2 100644
+--- a/tb/verilator/gptp_shadow/gptp_shadow_wrap.sv
++++ b/tb/verilator/gptp_shadow/gptp_shadow_wrap.sv
+@@ -294,6 +294,7 @@ module gptp_shadow_wrap #(
+       .phc_adj_o       (adj_w),
+       .phc_step_we_o   (step_we_w),
+       .phc_step_o      (step_w),
++      .phc_slew_active_o (), //! These timestamp tests do not consume media rate.
+       .tx_tdata_o      (tx_tdata_o),
+       .tx_tkeep_o      (tx_tkeep_o),
+       .tx_tvalid_o     (tx_tvalid_o),
+diff --git a/tb/verilator/gptp_txts/gptp_txts_wrap.sv b/tb/verilator/gptp_txts/gptp_txts_wrap.sv
+index ea805df9..29ba0a12 100644
+--- a/tb/verilator/gptp_txts/gptp_txts_wrap.sv
++++ b/tb/verilator/gptp_txts/gptp_txts_wrap.sv
+@@ -232,6 +232,7 @@ module gptp_txts_wrap #(
+       .phc_adj_o        (adj_w),
+       .phc_step_we_o    (step_we_w),
+       .phc_step_o       (step_w),
++      .phc_slew_active_o (), //! These timestamp tests do not consume media rate.
+       .tx_tdata_o       (gtx_tdata_o),
+       .tx_tkeep_o       (gtx_tkeep_o),
+       .tx_tvalid_o      (gtx_tvalid_o),
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index bdbde5b7..5f9bd5b2 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -587,11 +587,17 @@ verdict:
+ | a software settime does not toggle `mr` | datapath | CLKV: the settime toggled mr once more (#387) | `gmstep-mutants`, option-off leg |
+ | the step's `mr` toggle is gated by the CRF clock-source selection | datapath | CLKV: its mr toggled once per PHC step issued so far (#387) | `gmstep-mutants`, option-off leg |
+ 
+-Each control costs one elaboration of the datapath, so the sweep carries the
+-three the acceptance names and the explicit `make gmstep-mutants` target runs
+-all eleven (the explicit-campaign rule of
+-[TESTING.md](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression)).
+-The last two grade the option-off leg (`sim_main.cpp`, rebuilt through
++Each control costs one datapath elaboration.
++The sweep carries the three controls named by acceptance.
++
++The explicit `make gmstep-mutants` target runs all fourteen controls.
++The `CONTROLS` list in [`gmstep_mutants.py`](gmstep_mutants.py) defines that inventory.
++
++It includes the eleven tabulated above, plus three #545 controls.
++The additions cover the policy level and applied-rate tail.
++
++See the [explicit-campaign rule](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression).
++The table's last two grade the option-off leg (`sim_main.cpp`, rebuilt through
+ `option-off-build` with `OPTOFF_MDIR` and `DP_SRC` overridden) on an INTERNAL
+ media clock, where the harness issues a CLKV adjtime and then a software
+ settime: each is one `mr` toggle, and the settime one MEDIA_RESET. The runner
+@@ -601,7 +607,7 @@ older than its recipe's inputs is rebuilt, not graded.
+ What the leg does not grade:
+ 
+ - The grid aligner. The TDM clocks are held, so it stays disengaged. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) it gets no re-centre of its own: #539 keeps the step out of its reference at the CRF servo, and #545 and #546 close the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path.
+-- The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades its step discard (#539).
++- The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades step and slew discard (#539, #545).
+ - An lwSRP licence. The talker is opened by `AAF_CTRL[1]`; no SRP peer exists here.
+ - A step that lands while an `mr` restart is pending. Ruling 5802264260 item 2 merges the two, and pending lasts until a PDU at the new level has gone out (ruling 5818091077). `tb/verilator/tkdiag` T17 and T18 grade the restart engine PDU by PDU, and its `mcr_mutants.py` plants the engine that cancels, a shared target, and a pending window that ends at the adoption or runs to the end of the hold.
+ - The step policy's thresholds. The donor's engine suite proves them; this leg only relies on them.
+@@ -1009,3 +1015,12 @@ python3 tb/verilator/milan_dp/test_render_phase_observation.py
+ * **Name the shape.** Every leg puts its config's generated directory *first* on
+   the include path. Without it the build falls through to
+   `hdl/common/gen/`, which is whichever config last ran `--write-rtl`.
++
++The gmstep leg also drives a policy-legal 90 us offset.
++Real Sync pairs raise and clear the exported slew level.
++It measures fractional PHC advances into each staged servo sample.
++The last measured slew increment identifies the release tail.
++The phase checks wiring; it does not grade media-loop settling.
++Run `python3 gmstep_mutants.py --slew` for the connection controls.
++Tied-low input, missing tail and added addend delay must fail.
++These controls also belong to `make gmstep-mutants`.
+diff --git a/tb/verilator/milan_dp/gmstep_mutants.py b/tb/verilator/milan_dp/gmstep_mutants.py
+index e97c3b9a..7933e5fa 100755
+--- a/tb/verilator/milan_dp/gmstep_mutants.py
++++ b/tb/verilator/milan_dp/gmstep_mutants.py
+@@ -108,7 +108,38 @@ class Control(NamedTuple):
+     leg: str = "gmstep"         #: a key of LEGS
+ 
+ 
++# The counter input is delayed independently of the slew-level release.
++COUNTER_ADDEND_PORT = """  timestamp_counter #(
++    .COUNTER_WIDTH (64),
++    .INCR_WIDTH    (32),
++    .FRAC_WIDTH    (24),
++    .PPS_P             (PPS_P),
++    .PPS_WIDTH_CYC_P (PPS_WIDTH_CYC_P)
++  ) ts_counter (
++    .clk                  (gtx_clk),
++    .resetn               (gtx_resetn),
++    .enable_i             (phc_enable_ts_w),
++    .incr_i               (phc_incr_ts_w),
++    .adj_i                (phc_adj_ts_w),"""
++
+ CONTROLS = [
++    Control("the policy level is tied low at the servo", "datapath",
++            ".phc_slew_active_i (gptp_slew_eff_w)",
++            ".phc_slew_active_i (1'b0)",
++            "slew path: the actual servo receives the level", False),
++    Control("the policy level omits the applied-rate tail", "datapath",
++            "gptp_slew_active_w || (|gptp_slew_tail_r)",
++            "gptp_slew_active_w",
++            "slew path: every staged sample covers the PHC tail", False),
++    Control("the policy level misses an extra addend stage", "datapath",
++            COUNTER_ADDEND_PORT,
++            "  logic [31:0] probe_adj_r;\n"
++            "  always_ff @(posedge gtx_clk) begin : probe_addend_delay\n"
++            "    if (!gtx_resetn) probe_adj_r <= '0;\n"
++            "    else probe_adj_r <= phc_adj_ts_w;\n"
++            "  end : probe_addend_delay\n" +
++            COUNTER_ADDEND_PORT.replace("(phc_adj_ts_w)", "(probe_adj_r)"),
++            "slew path: every staged sample covers the PHC tail", False),
+     Control("the step does not toggle mr", "datapath",
+             "                       | media_rebase_p_w;",
+             "                       ;",
+@@ -270,6 +301,7 @@ def main() -> int:
+     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+     parser.add_argument("--all", action="store_true",
+                         help="plant the whole inventory, not only the acceptance's controls")
++    parser.add_argument("--slew", action="store_true", help="plant only the #545 connection controls")
+     args = parser.parse_args()
+ 
+     def on_sigterm(*_: object) -> None:
+@@ -277,7 +309,8 @@ def main() -> int:
+         sys.exit(143)
+ 
+     signal.signal(signal.SIGTERM, on_sigterm)
+-    selected = [c for c in CONTROLS if args.all or c.acceptance]
++    selected = [c for c in CONTROLS if
++                (c.name.startswith("the policy level") if args.slew else args.all or c.acceptance)]
+     passes = 0
+     fails = 0
+     with tempfile.TemporaryDirectory(prefix="gmstep-mutants-") as td:
+diff --git a/tb/verilator/milan_dp/sim_gmstep.cpp b/tb/verilator/milan_dp/sim_gmstep.cpp
+index a6ef47e3..2a995b82 100644
+--- a/tb/verilator/milan_dp/sim_gmstep.cpp
++++ b/tb/verilator/milan_dp/sim_gmstep.cpp
+@@ -276,6 +276,16 @@ class GmStepHarness {
+     uint64_t phc_prev_ = 0;
+     uint64_t gm_epoch_ = kEpochANs;
+     uint64_t media_epoch_ = kEpochANs;         //! the peer talker's own PHC
++    bool slew_probe_ = false;
++    bool slew_origin_override_ = false;
++    int64_t slew_offset_ns_ = 0;
++    uint64_t phc_fraction_prev_ = 0;
++    uint64_t slew_increment_ = 0;
++    unsigned slew_tail_samples_ = 0;
++    unsigned slew_alignment_errors_ = 0;
++    unsigned slew_high_samples_ = 0;
++    unsigned slew_falls_ = 0;
++    bool slew_previous_ = false;
+     bool media_follows_sync_ = false;          //! steps with the next Sync
+     double talker_interval_ = 0;               //! baseline cycles per PDU
+     uint64_t gm_id_ = kGmA;
+@@ -361,6 +371,8 @@ class GmStepHarness {
+     void provision_media();
+     void baseline();
+     void change_grandmaster();
++    void check_slew_connection();
++    void observe_slew_alignment(bool raw, uint64_t increment);
+     void grade_the_event(const std::vector<uint8_t>& sout0, const std::vector<uint8_t>& sout_mid,
+                          uint64_t mid_cyc, const std::vector<uint8_t>& sin0,
+                          uint64_t recentres0, uint64_t rails0, size_t talker0);
+@@ -406,13 +418,37 @@ void GmStepHarness::tick() {
+     observer_.edge(dut_, cyc_, phc);
+     drp_edge();
+     memory_edge();
++    const bool raw_slew = dut_->rootp->milan_datapath__DOT__gptp_slew_active_w;
++    // The servo samples the current PHC on the next edge. Measure the
++    // advance into that sample, including fractional ns, before the edge.
++    const auto& acc = dut_->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
++    const uint64_t fraction = (static_cast<uint64_t>(acc[1]) << 32) | acc[0];
++    const uint64_t increment = fraction - phc_fraction_prev_;
++    phc_fraction_prev_ = fraction;
+     dut_->axis_clk = 1; dut_->gtx_clk = 1;
+     dut_->eval();
++    observe_slew_alignment(raw_slew, increment);
+     if (rx_fire) rx_accepted();
+     ++cyc_;
+     observe();
+ }
+ 
++//! Observe the servo's staged input, not a parallel harness connection.
++//! After release, the last measured slew increment identifies samples still
++//! carrying the correction. No assumed pipeline depth enters this oracle.
++void GmStepHarness::observe_slew_alignment(bool raw, uint64_t increment) {
++    const bool sampled = dut_->rootp->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__phc_slew_q_r;
++    if (slew_probe_) {
++        if (raw) slew_increment_ = increment;
++        const bool tail = !raw && increment == slew_increment_;
++        slew_alignment_errors_ += (raw || tail) && !sampled;
++        slew_tail_samples_ += tail;
++        slew_high_samples_ += sampled;
++        slew_falls_ += slew_previous_ && !raw;
++    }
++    slew_previous_ = raw;
++}
++
+ void GmStepHarness::observe() {
+     auto* root = dut_->rootp;
+     const bool tu = root->milan_datapath__DOT__clkv_tu_w;
+@@ -614,8 +650,10 @@ void GmStepHarness::rx_accepted() {
+     const bool first = rx_off_ == 0;
+     rx_off_ += 8;
+     if (first && rx_what_.kind == Kind::Sync) {
+-        control_.push_back({Kind::FollowUp, rx_what_.seq,
+-                            gm_ns(cyc_) - static_cast<uint64_t>(kLinkNs), {}, 0, cyc_ + 200});
++        const uint64_t origin = slew_origin_override_
++            ? static_cast<uint64_t>(static_cast<int64_t>(phc_ns()) - kLinkNs - slew_offset_ns_)
++            : gm_ns(cyc_) - static_cast<uint64_t>(kLinkNs);
++        control_.push_back({Kind::FollowUp, rx_what_.seq, origin, {}, 0, cyc_ + 200});
+     }
+     if (rx_off_ < rx_.size()) return;
+     rx_busy_ = false;
+@@ -1024,6 +1062,38 @@ void GmStepHarness::grade_the_restart(size_t talker0, const std::vector<uint8_t>
+                counter_word(sout1, 2) - counter_word(sout0, 2), 1);
+ }
+ 
++//! Wire-driven policy verdict from the real engine through the actual
++//! shadow/datapath/servo port. Unit tests grade lock and rate integration;
++//! this compressed-clock leg grades transport and every release-tail edge.
++void GmStepHarness::check_slew_connection() {
++    slew_origin_override_ = true;
++    slew_offset_ns_ = 0;
++    run_cycles(3 * kSyncPeriodCyc);
++    check_.dec("slew path: in-band pairs clear the plane level",
++               dut_->rootp->milan_datapath__DOT__gptp_slew_active_w, 0);
++    const unsigned steps0 = trace_.steps;
++    slew_probe_ = true;
++    slew_offset_ns_ = 90000;
++    run_cycles(kSyncPeriodCyc + 10000);
++    const int32_t offset = static_cast<int32_t>(dut_->rootp->milan_datapath__DOT__gptp_pub_offset_w);
++    check_.that("slew path: consumed offset is between 80 and 100 us",
++                offset > 80000 && offset < 100000);
++    check_.dec("slew path: the plane raises its level",
++               dut_->rootp->milan_datapath__DOT__gptp_slew_active_w, 1);
++    check_.that("slew path: the actual servo receives the level", slew_high_samples_ > 100);
++    slew_offset_ns_ = 0;
++    run_cycles(3 * kSyncPeriodCyc);
++    check_.dec("slew path: measured completion lowers the level",
++               dut_->rootp->milan_datapath__DOT__gptp_slew_active_w, 0);
++    check_.dec("slew path: completion happened once", slew_falls_, 1);
++    check_.that("slew path: PHC advances witness the release tail", slew_tail_samples_ > 0);
++    check_.dec("slew path: every staged sample covers the PHC tail", slew_alignment_errors_, 0);
++    check_.dec("slew path: servo clears after the PHC tail",
++               dut_->rootp->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__phc_slew_q_r, 0);
++    check_.dec("slew path: a policy slew never steps the PHC", trace_.steps - steps0, 0);
++    slew_probe_ = false;
++}
++
+ int GmStepHarness::run() {
+     printf("gmstep: 2 MHz fabric, 8 ns PHC, quarter tick %llu cycles\n",
+            static_cast<unsigned long long>(kQtickCyc));
+@@ -1033,6 +1103,7 @@ int GmStepHarness::run() {
+         provision_media();
+         baseline();
+         change_grandmaster();
++        check_slew_connection();
+     } catch (const std::exception& e) {
+         check_.fail(e.what());
+         printf("NOT RUN: the remaining phases after a bounded transport failure\n");
+diff --git a/tb/verilator/mmcm_servo/Makefile b/tb/verilator/mmcm_servo/Makefile
+index da15554f..82304ed0 100644
+--- a/tb/verilator/mmcm_servo/Makefile
++++ b/tb/verilator/mmcm_servo/Makefile
+@@ -9,11 +9,17 @@
+ #     (the drift-lottery rails cease with the servo engaged)
+ #   sim_phc_step.cpp -> Vphc_step       : the servo at its SILICON defaults
+ #     (1 ms tick, 512 ms window, NORM_SHIFT_P = 0) against a PHC step (#539)
+-#   make        - build and run all three
++#   make        - run unit, rails, step and policy-slew harnesses
++#   make slew-mutants - run the explicit policy-slew mutation campaign
+ #   make trace STEP_NS=<n> - the #539 reproduction record: one n ns step at
+ #                 mid-window, integrator and written rate traced per window
+ #                 (sim_phc_step.cpp names the slew and talker-step traces)
+ #   make clean  - remove build artifacts
++#
++# #545 round 2, 2026-09-25: clean default 952.797 s on two CPUs
++# (taskset -c 10,11 make; Verilator 5.052), within the 1800 s budget.
++# Shared-host local margin: 847.203 s. Mutations are explicit.
++# Hosted budget basis: docs/testing/CI_WORKFLOWS.md, mmcm_servo row.
+ 
+ VERILATOR ?= verilator
+ RTL_DIR    = ../../../hdl
+@@ -26,6 +32,7 @@ VFLAGS = --cc --exe --build -j 0 \
+ 
+ SERVO_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv
+ UNIT_MDIR ?= obj_dir
++PHC_MDIR ?= obj_phc
+ 
+ COMMON = $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/common/cdc_handshake.sv \
+          $(SERVO_RTL)
+@@ -39,7 +46,7 @@ UNIT_G = -GTICK_CYC_P=3072 -GWIN_LOG2_P=5 "-GNOM_WIN_NS_P=64'd4000000" \
+          -GNORM_SHIFT_P=7 -GGAIN_NUM_P=7 -GRELOCK_TOUT_P=20000 \
+          -GLOCK_THR_P=8192
+ 
+-.PHONY: all run unit-build trace phc_step_build clean
++.PHONY: all run unit-build trace phc_step_build slew slew-mutants mutants clean
+ all: run
+ 
+ # the step harness reads integ_r / u_cmd_r / ew_r / pp_seq_r / pp_run_r, so it
+@@ -47,10 +54,10 @@ all: run
+ STEP_NS ?= 150000
+ phc_step_build:
+ 	$(VERILATOR) $(VFLAGS) --public-flat-rw --top-module KL_mmcm_drp_servo \
+-	  -Mdir obj_phc $(COMMON) sim_phc_step.cpp -o Vphc_step
++	  -Mdir $(PHC_MDIR) $(COMMON) sim_phc_step.cpp -o Vphc_step
+ 
+ trace: phc_step_build
+-	./obj_phc/Vphc_step +trace_step_ns=$(STEP_NS)
++	./$(PHC_MDIR)/Vphc_step +trace_step_ns=$(STEP_NS)
+ 
+ unit-build:
+ 	$(VERILATOR) $(VFLAGS) --top-module KL_mmcm_drp_servo $(UNIT_G) \
+@@ -67,7 +74,18 @@ run: unit-build
+ 	./obj_rails/Vrails_sim
+ 	$(MAKE) --no-print-directory phc_step_build
+ 	@echo "======================================================================"
+-	./obj_phc/Vphc_step
++	./$(PHC_MDIR)/Vphc_step
++	./$(PHC_MDIR)/Vphc_step +slew_suite
++
++# #545 runs the silicon-scale slew and its boundary cases separately, so
++# isolated defects need not repeat every step size in the #539 campaign.
++slew: phc_step_build
++	./$(PHC_MDIR)/Vphc_step +slew_suite
++
++mutants: slew-mutants
++
++slew-mutants:
++	python3 slew_mutants.py
+ 
+ clean:
+ 	rm -rf obj_dir obj_rails obj_phc
+diff --git a/tb/verilator/mmcm_servo/rails_wrap.sv b/tb/verilator/mmcm_servo/rails_wrap.sv
+index 179715e6..a50044e7 100644
+--- a/tb/verilator/mmcm_servo/rails_wrap.sv
++++ b/tb/verilator/mmcm_servo/rails_wrap.sv
+@@ -131,6 +131,7 @@ module rails_wrap (
+     .clk_audio_i   (clk_audio_i),
+     .ps_clk_i      (ps_clk_i),
+     .ptp_now_i     (ptp_now_i),
++    .phc_slew_active_i (1'b0), //! This fixture has no policy slew.
+     .clk_src_i     (clk_src_i),
+     .crf_src_idx_i (crf_src_idx_i),
+     .crf_locked_i  (crf_locked_i),
+diff --git a/tb/verilator/mmcm_servo/sim_main.cpp b/tb/verilator/mmcm_servo/sim_main.cpp
+index 2fb7bc61..164d9260 100644
+--- a/tb/verilator/mmcm_servo/sim_main.cpp
++++ b/tb/verilator/mmcm_servo/sim_main.cpp
+@@ -65,9 +65,11 @@ class MmcmServoUnitHarness {
+         prove_local_ptp_step_windows_are_discarded();
+         prove_implausible_windows_meet_the_guard();
+         prove_step_restarts_the_guard_streak();
++        prove_slew_restarts_the_guard_streak();
+         prove_step_with_no_window_open_is_not_counted();
+         prove_invalid_remote_sample_holds_the_loop();
+         prove_tally_saturates_and_idle_clears_it();
++        prove_slew_reset_and_saturation();
+         return report();
+     }
+ 
+@@ -190,6 +192,7 @@ class MmcmServoUnitHarness {
+ 
+         dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
+         dut->crf_rate_valid_i = 1; // synthetic rate input is valid
++        dut->phc_slew_active_i = 0;
+         //! this suite selects CRF at CLOCK_SOURCE index 2, a suite-local
+         //! value and NOT the shipping index (AEM_CRF_CLKSRC_C = 1 on every
+         //! shipping shape since #389: INTERNAL 0, the CRF sink 1). The DUT
+@@ -547,6 +550,36 @@ class MmcmServoUnitHarness {
+         ck("[U12] LOCKED after the streak", state(), 4);
+     }
+ 
++    //! A slew window is not an offset measurement. Four new guard trips
++    //! must follow it before another re-base, observed as U11's 33-tick gap.
++    void prove_slew_restarts_the_guard_streak() {
++        ck("[U15] LOCKED before", state(), 4);
++        std::vector<double> before;
++        dut->crf_rate_i = rate_for_ppm(+80.0) + 2'000'000;
++        // One guard trip plus two tainted windows cannot wrap a four-trip
++        // streak to zero and hide a regression that counts slew discards.
++        run_noting_discards(12.0, 1, before);
++        ck("[U15] arm: one guard discard opens a streak", before.size(), 1);
++        dut->phc_slew_active_i = 1;
++        std::vector<double> during;
++        run_noting_discards(8.0, 1, during);
++        ck("[U15] arm: slew window discarded", during.size(), 1);
++        dut->phc_slew_active_i = 0;
++        // The shared endpoint also taints the following partial window.
++        std::vector<double> tail;
++        run_noting_discards(8.0, 1, tail);
++        ck("[U15] arm: partial tail discarded", tail.size(), 1);
++        std::vector<double> after;
++        run_noting_discards(40.0, 5, after);
++        dut->crf_rate_i = rate_for_ppm(+80.0);
++        print_gaps(after);
++        ck("[U15] four fresh guard trips precede re-base",
++           ticks_after(after, 0) == 32 && ticks_after(after, 1) == 32 &&
++           ticks_after(after, 2) == 32 && ticks_after(after, 3) == 33, 1);
++        run_ms(24);
++        ck("[U15] LOCKED after the streak", state(), 4);
++    }
++
+     //! Two steps one clk_i edge apart: the first abandons its window, so the
+     //! second lands with no window open, and the tally counts one.
+     void prove_step_with_no_window_open_is_not_counted() {
+@@ -608,6 +641,37 @@ class MmcmServoUnitHarness {
+         ck("[U13] original rate recovers LOCKED", state(), 4);
+     }
+ 
++    //! Short windows exercise tally saturation, reset during a correction,
++    //! and a step replacing that correction without waiting minutes.
++    void prove_slew_reset_and_saturation() {
++        dut->clk_src_i = 2;
++        run_ms(60);
++        ck("[U14] slew starts LOCKED", state(), 4);
++        dut->phc_slew_active_i = 1;
++        const int16_t before = trim();
++        run_ms(270);
++        ck("[U14] long slew holds trim", trim(), before);
++        ck("[U14] long slew keeps LOCKED", state(), 4);
++        ck("[U14] slew tally saturates", disc_cnt(), 63);
++        dut->rst_n = 0;
++        run_ms(0.01);
++        ck("[U14] reset clears tally during slew", disc_cnt(), 0);
++        ck("[U14] reset clears trim during slew", trim(), 0);
++        dut->phc_slew_active_i = 0;
++        dut->rst_n = 1;
++        run_ms(100);
++        ck("[U14] reset permits fresh acquisition", state(), 4);
++        dut->phc_slew_active_i = 1;
++        run_ms(0.5);
++        const int d0 = disc_cnt();
++        ptp_step_ns += 150000;
++        run_ms(0.01);
++        ck("[U14] mid-window step abandons one slew window", disc_cnt() - d0, 1);
++        dut->phc_slew_active_i = 0;
++        run_ms(12);
++        ck("[U14] step after slew retains LOCKED", state(), 4);
++    }
++
+     int report() const {
+         printf("======================================================================\n");
+         printf("KL_mmcm_drp_servo: %ld checks, %ld failures\n", checks, fails);
+diff --git a/tb/verilator/mmcm_servo/sim_phc_step.cpp b/tb/verilator/mmcm_servo/sim_phc_step.cpp
+index 8de8629d..4809bd8f 100644
+--- a/tb/verilator/mmcm_servo/sim_phc_step.cpp
++++ b/tb/verilator/mmcm_servo/sim_phc_step.cpp
+@@ -22,6 +22,11 @@
+ //   P3  a guard discard and a step on ONE cycle: both counted
+ //   P4  the rate path: a real talker rate change still reaches the integrator
+ //
++// +slew_suite grades the #545 level and the 100 us / 200 ppm trajectory,
++// both signs, a short within-window correction, a shared boundary sample,
++// a clean pre-slew close, an indefinitely held correction, and PI resumption.
++// +slew_control selects P0, the +100 us slew and boundary-coincident step.
++//
+ // Trace modes (the #539 records; lock, then one disturbance at mid-window,
+ // printed window by window):
+ //   +trace_step_ns=<n>        a PHC step of n ns (signed)
+@@ -99,6 +104,26 @@ class PhcStepHarness {
+         return check_.report();
+     }
+ 
++    int slew_control() {
++        prove_lock_at_the_silicon_scale();
++        prove_slew_holds(100'000);
++        prove_step_on_slew_boundary_counts_once();
++        return check_.report();
++    }
++
++    int slew_suite() {
++        prove_lock_at_the_silicon_scale();
++        prove_slew_holds(100'000);
++        prove_slew_holds(-100'000);
++        prove_slew_holds(100);
++        prove_slew_boundary();
++        prove_clean_close_before_slew();
++        prove_slew_stays_active();
++        prove_step_on_slew_boundary_counts_once();
++        prove_rate_path_still_integrates();
++        return check_.report();
++    }
++
+     int trace(Disturbance kind, int64_t amount_ns) {
+         bring_up_and_lock();
+         static constexpr std::array<const char*, 3> kNames = {
+@@ -183,6 +208,7 @@ class PhcStepHarness {
+             t_fs = next_i; next_i += kHalfI;
+             dut->clk_i ^= 1;
+             if (dut->clk_i) {
++                dut->phc_slew_active_i = held_slew_ || slew_left_ns_ != 0.0;
+                 if (slew_left_ns_ != 0.0) apply_slew_for_one_cycle();
+                 dut->ptp_now_i = static_cast<uint64_t>(std::llround(t_fs / 1e6 + ptp_step_ns));
+             }
+@@ -268,6 +294,7 @@ class PhcStepHarness {
+         dut->crf_src_idx_i = 1;
+         dut->crf_locked_i = 0;
+         dut->crf_rate_valid_i = 1; // synthetic rate input is valid
++        dut->phc_slew_active_i = 0;
+         dut->crf_rate_i = 0;
+         dut->auto_repair_i = 0;
+         dut->ps_invert_i = 0;
+@@ -417,6 +444,95 @@ class PhcStepHarness {
+         expect_untouched("[P3]", s0, run_to_window_close(), 2);
+     }
+ 
++    //! Same 100 us / 200 ppm trajectory as the #539 record. The two
++    //! overlapping windows include the partial tail after the level falls.
++    void prove_slew_holds(int64_t ns) {
++        std::printf("[S1] policy slew %+lld ns at 200 ppm\n", static_cast<long long>(ns));
++        run_to_tick(kWinTicks / 2);
++        const Snapshot s0 = snapshot();
++        const double start_fs = t_fs;
++        left_locked_ = false;
++        slew_left_ns_ = static_cast<double>(ns);
++        const int affected = std::abs(ns) == 100'000 ? 2 : 1;
++        for (int w = 0; w < affected; ++w) {
++            const WindowClose c = run_to_window_close();
++            print_row("slew", c);
++            check_.that("[S1] overlapped window is discarded", !c.committed);
++            within("[S1] integrator held exactly", c.integ - s0.integ, 0, 0);
++            within("[S1] written rate held exactly", c.ucmd - s0.ucmd, 0, 0);
++        }
++        check_.that("[S1] tail window closes after deassertion", !dut->phc_slew_active_i);
++        const WindowClose clean = run_to_window_close();
++        expect_untouched("[S1]", s0, clean, affected);
++        check_.that("[S1] first clean close within 1.536 seconds of start",
++                    t_fs - start_fs < 1.536e15);
++    }
++
++    //! Assert on the staged boundary sample, then remove the level before
++    //! the next sample. That shared endpoint taints both adjacent windows.
++    void prove_slew_boundary() {
++        run_to_edges_before_t0(2);
++        const Snapshot s0 = snapshot();
++        left_locked_ = false;
++        held_slew_ = true;
++        clk_edge();
++        check_.that("[S2] arm: boundary next edge", edges_to_t0() == 1);
++        held_slew_ = false;
++        check_.that("[S2] boundary sample is discarded", !run_to_window_close().committed);
++        check_.that("[S2] shared endpoint taints next window", !run_to_window_close().committed);
++        expect_untouched("[S2]", s0, run_to_window_close(), 2);
++    }
++
++    //! A level staged on T0 itself is newer than the closed sample. A
++    //! completed clean measurement must still commit through the PI stages.
++    void prove_clean_close_before_slew() {
++        run_to_edges_before_t0(1);
++        left_locked_ = false;
++        held_slew_ = true;
++        const WindowClose closed = run_to_window_close();
++        check_.that("[S3] clean pre-slew window commits", closed.committed);
++        const Snapshot s0 = snapshot();
++        held_slew_ = false;
++        check_.that("[S3] partial window is discarded", !run_to_window_close().committed);
++        expect_untouched("[S3]", s0, run_to_window_close(), 1);
++    }
++
++    //! The producer can hold correction through missing measurements. No
++    //! 0.5 s timer may silently release the consumer while it stays high.
++    void prove_slew_stays_active() {
++        run_to_tick(kWinTicks / 2);
++        const Snapshot s0 = snapshot();
++        left_locked_ = false;
++        held_slew_ = true;
++        for (int w = 0; w < 7; ++w) {
++            const WindowClose c = run_to_window_close();
++            check_.that("[S4] held level discards every window", !c.committed);
++            within("[S4] integrator held exactly", c.integ - s0.integ, 0, 0);
++        }
++        held_slew_ = false;
++        check_.that("[S4] final partial window discarded", !run_to_window_close().committed);
++        expect_untouched("[S4]", s0, run_to_window_close(), 8);
++    }
++
++    //! Both guards meet on the same boundary sample, describing one window.
++    void prove_step_on_slew_boundary_counts_once() {
++        held_slew_ = true;
++        run_to_tick(kWinTicks / 2);
++        run_to_edges_before_t0(2);
++        const int before = disc_cnt();
++        ptp_step_ns += 150'000.0;
++        clk_edge();
++        check_.that("[S5] arm: stepped sample staged, T0 next edge",
++                    ptp_jump() && edges_to_t0() == 1 && dut->phc_slew_active_i);
++        clk_edge();
++        check_.that("[S5] arm: boundary fired on the stepped sample", pp_seq() == 1);
++        for (int e = 0; e < 4; ++e) clk_edge();
++        within("[S5] coincident step+slew window counted once", disc_cnt() - before, 1, 1);
++        held_slew_ = false;
++        run_to_window_close();
++        run_to_window_close();
++    }
++
+     //! A real talker rate change is not a step: it is integrated and the servo
+     //! re-locks on the new rate, with nothing discarded.
+     void prove_rate_path_still_integrates() {
+@@ -451,6 +567,7 @@ class PhcStepHarness {
+     int32_t talker_rate_ = 0;
+     double talker_bias_until_fs_ = 0.0;
+     double slew_left_ns_ = 0.0;
++    bool held_slew_ = false;
+ 
+     // ---- clocks (femtosecond wheel, as sim_main.cpp) --------------------------
+     double half_p_;
+@@ -491,5 +608,11 @@ int main(int argc, char** argv) {
+     if (plusarg_ns("trace_talker_step_ns=", ns)) {
+         return PhcStepHarness(kHalfPsTrace).trace(Disturbance::talker_step, ns);
+     }
++    if (Verilated::commandArgsPlusMatch("slew_control")[0] != '\0') {
++        return PhcStepHarness(kHalfPsSuite).slew_control();
++    }
++    if (Verilated::commandArgsPlusMatch("slew_suite")[0] != '\0') {
++        return PhcStepHarness(kHalfPsSuite).slew_suite();
++    }
+     return PhcStepHarness(kHalfPsSuite).suite();
+ }
+diff --git a/tb/verilator/mmcm_servo/slew_mutants.py b/tb/verilator/mmcm_servo/slew_mutants.py
+new file mode 100755
+index 00000000..61bba54a
+--- /dev/null
++++ b/tb/verilator/mmcm_servo/slew_mutants.py
+@@ -0,0 +1,110 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Require named failures for policy-slew defects in both servo harnesses.
++
++Sources and builds are temporary. Compilation failures never count as kills.
++Run explicitly with make slew-mutants; the default retains every clean case.
++"""
++
++import os
++import signal
++import subprocess
++import tempfile
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++RTL = HERE / "../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv"
++MUTANTS = (
++    ("discard_removed", "&& !slew_window_w", "&& 1'b1",
++     "[S1] overlapped window is discarded"),
++    ("level_tied_low", "else phc_slew_q_r <= phc_slew_active_i;",
++     "else phc_slew_q_r <= 1'b0;", "[S1] overlapped window is discarded"),
++    ("partial_tail_trusted", "wire slew_window_w = win_slew_r || phc_slew_q_r;",
++     "wire slew_window_w = phc_slew_q_r;", "[S1] overlapped window is discarded"),
++    ("discard_not_counted", " + 7'(slew_hit_w)", "",
++     "[S1] discards counted"),
++    ("step_dedupe_removed", "slew_window_w && !step_hit_w;", "slew_window_w;",
++     "[S5] coincident step+slew window counted once"),
++)
++STREAK_MUTANTS = (
++    ("slew_streak_reset_removed", "if (slew_hit_w) disc_run_r <= '0;", "",
++     "[U15] four fresh guard trips precede re-base"),
++    ("slew_discard_extends_streak", "if (slew_hit_w) disc_run_r <= '0;",
++     "if (slew_hit_w) disc_run_r <= disc_run_r + 2'd1;",
++     "[U15] four fresh guard trips precede re-base"),
++    ("slew_discard_counts_as_guard_trip", "if (slew_hit_w) disc_run_r <= '0;",
++     "if (slew_hit_w) begin\n"
++     "          if (disc_run_r == 2'(DISC_MAX_C - 1)) begin\n"
++     "            win_valid_r <= 1'b0;\n"
++     "            disc_run_r  <= '0;\n"
++     "          end else begin\n"
++     "            disc_run_r <= disc_run_r + 2'd1;\n"
++     "          end\n"
++     "        end", "[U15] four fresh guard trips precede re-base"),
++)
++
++
++def run_case(work: Path, name: str, source: str, failure: str | None,
++             unit: bool = False) -> bool:
++    """Build current sources and accept only the expected harness verdict."""
++    rtl = work / f"{name}.sv"
++    rtl.write_text(source)
++    mdir = work / f"obj_{name}"
++    target, mvar, binary = (("unit-build", "UNIT_MDIR", "Vservo_sim") if unit else
++                            ("phc_step_build", "PHC_MDIR", "Vphc_step"))
++    build = ["make", "--no-print-directory", "-s", "-C", str(HERE), target,
++             f"SERVO_RTL={rtl}", f"{mvar}={mdir}",
++             f"VERILATOR={os.environ.get('VERILATOR', 'verilator')}"]
++    result = subprocess.run(build, capture_output=True, text=True, check=False)
++    if result.returncode:
++        print(result.stdout[-2000:] + result.stderr[-2000:])
++        print(f"FAIL {name}: compilation failed")
++        return False
++    result = subprocess.run([str(mdir / binary)] + ([] if unit else ["+slew_control"]),
++                            capture_output=True, text=True, check=False)
++    output = result.stdout + result.stderr
++    clean_marker = "checks, 0 failures" if unit else "RESULT: PASS"
++    failed_marker = "failures" if unit else "RESULT: FAIL"
++    if failure is None:
++        passed = result.returncode == 0 and clean_marker in output
++    else:
++        passed = (result.returncode == 1 and failed_marker in output and
++                  f"[FAIL] {failure}" in output)
++    print(f"[{'PASS' if passed else 'FAIL'}] {name}: rc={result.returncode}", flush=True)
++    if passed and failure:
++        print(f"  named rejection: {failure}", flush=True)
++    elif not passed:
++        print(output, flush=True)
++    return passed
++
++
++def main() -> int:
++    """Every control must fail its own check after a passing clean build."""
++    def interrupted(_signum: int, _frame: object) -> None:
++        """Unwind temporary storage when the campaign is interrupted."""
++        raise SystemExit(143)
++
++    signal.signal(signal.SIGTERM, interrupted)
++    source = RTL.read_text()
++    with tempfile.TemporaryDirectory(prefix="servo-slew-mutants-") as directory:
++        work = Path(directory)
++        if not run_case(work, "clean", source, None):
++            return 1
++        if not run_case(work, "clean_unit", source, None, unit=True):
++            return 1
++        results = [True, True]
++        for name, anchor, replacement, failure in (*MUTANTS, *STREAK_MUTANTS):
++            if source.count(anchor) != 1:
++                print(f"FAIL {name}: expected exactly one mutation anchor")
++                results.append(False)
++                continue
++            results.append(run_case(work, name, source.replace(anchor, replacement), failure,
++                                    unit=any(name == item[0] for item in STREAK_MUTANTS)))
++    failures = sum(not passed for passed in results)
++    print(f"== mmcm_servo slew mutants: checks: {len(results)}   failures: {failures} ==")
++    return 1 if failures else 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp b/tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp
+index 0b0456d5..383952ff 100644
+--- a/tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp
++++ b/tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp
+@@ -165,6 +165,7 @@ void AutoRepairHarness::engage_until_active() {
+ void AutoRepairHarness::reset_and_defaults() {
+     dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
+     dut->crf_rate_valid_i = 1; // synthetic rate input is valid
++    dut->phc_slew_active_i = 0;
+     //! this suite selects CRF at CLOCK_SOURCE index 2, a suite-local
+     //! value and NOT the shipping index (AEM_CRF_CLKSRC_C = 1 on every
+     //! shipping shape since #389: INTERNAL 0, the CRF sink 1). The DUT

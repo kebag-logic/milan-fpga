@@ -1,0 +1,32 @@
+candidate 551e4b5dfa8ac7ec68a3161c95d4000eb6337396 tree bea28456ef036cb8cd8c94a800b1b6921ab6108c
+parents: 0e26e0ac07abf1043ac2712fe39f92de0b34f2dd ddf8151c478fc54c98608589c1afe9525739d6a4
+PR head ddf8151c parents: 4538d7c03dc4f56d7ed4c971603e15bda82050a8 5c78ce2e9d831e588e759b696ed549804327e4d8
+merge-base(dev 5c78ce2e, C_551 0e26e0ac): b3458db0db5a7c8b15582d80b492620f05f62e70
+dev 5c78ce2e ancestor of candidate: yes
+#562 source fa1b5c36 in C_551: yes
+#561 source b3458db0 in C_551: yes
+train first-parent chain b3458db0..0e26e0ac:
+0e26e0ac Validate issue 551 merge-train candidate
+d47a04eb Validate issue 559 merge-train candidate
+4ee96a61 Validate issue 443 merge-train candidate
+ec9cf454 Validate issue 541 merge-train candidate
+b1b33472 Validate issue 508 merge-train candidate
+b74fb111 Validate issue 532 merge-train candidate
+7ddbbdc9 Validate issue 544 merge-train candidate
+59e7f5fd Validate issue 546 merge-train candidate
+2ab66c9d Validate issue 501 merge-train candidate
+0b81fdc9 Validate issue 548 merge-train candidate
+e1333a14 Validate issue 387b merge-train candidate
+44873590 Validate issue 408 merge-train candidate
+
+PR delta 5c78ce2e..ddf8151c vs candidate delta 0e26e0ac..551e4b5d: same 38-file set, identical per-file changed-line multisets (checked)
+train delta 5c78ce2e..0e26e0ac vs ddf8151c..551e4b5d: same file set, identical per-file changed-line multisets (checked)
+
+overlap (PR files x train files since b3458db0):
+CHANGELOG.md
+docs/reference/REGISTER_MAP.md
+docs/testing/CI_WORKFLOWS.md
+docs/testing/TESTING.md
+hdl/milan/milan_datapath.sv
+scripts/measure_test_evidence.py
+tb/verilator/milan_dp/README.md

@@ -1,0 +1,15 @@
+gmstep control  0 anchor count 1 leg gmstep     the policy level is tied low at the servo
+gmstep control  1 anchor count 1 leg gmstep     the policy level omits the applied-rate tail
+gmstep control  2 anchor count 1 leg gmstep     the policy level misses an extra addend stage
+gmstep control  3 anchor count 1 leg gmstep     the step does not toggle mr
+gmstep control  4 anchor count 1 leg gmstep     the grandmaster identity re-bases the render stage as well as the step
+gmstep control  5 anchor count 1 leg gmstep     the step does not re-centre the render stage
+gmstep control  6 anchor count 1 leg gmstep     the render re-base is keyed to the identity, not the step
+gmstep control  7 anchor count 1 leg gmstep     tu reaches the talkers four cycles late
+gmstep control  8 anchor count 1 leg gmstep     the plane's step does not re-arm the holdover
+gmstep control  9 anchor count 1 leg gmstep     tu stops the talker
+gmstep control 10 anchor count 1 leg gmstep     the grandmaster change stops the talker for good
+gmstep control 11 anchor count 1 leg gmstep     the step's re-centre snaps one event off the setpoint
+gmstep control 12 anchor count 1 leg option-off a software settime does not toggle mr
+gmstep control 13 anchor count 1 leg option-off the step's mr toggle is gated by the CRF clock-source selection
+gmstep anchors: 14 controls, 0 not exactly once
