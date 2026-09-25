@@ -1,0 +1,55 @@
+DEPLOY SHAPE DRIFT: deploy.sh's MILAN_OPTS is not derived from the fragment's OPTS: --board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile barem...
+DEPLOY SHAPE DRIFT: deploy.sh's design argv is not the fragment's OPTS:
+      launch line --board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile baremetal --full --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal --gtx-tx-invert --timing-opt --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --loopback-lane --fabric-gptp --l2-bytes 0
+      fragment    --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --audio-interface-render: launch line '(absent)' != config-implied '8' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --gptp-egress-lat-ns: launch line '(absent)' != config-implied '219' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --gptp-ingress-lat-ns: launch line '(absent)' != config-implied '656' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --num-streams: launch line '(absent)' != config-implied '1' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh would build endstation_ax7101_1x1_tdm8.yaml with --audio-interface-render (absent) where the config declares 8 render slots: milan_datapath would elaborate AUDIO_IF_RENDER_SLOTS_P = 0, take the g_tdm_render_parked arm and tie tdm_dout_o (J11.5) to 1'b0, so the board would render silence
+DEPLOY SHAPE DRIFT: deploy.sh's design argv is not the fragment's OPTS:
+      launch line --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1
+      fragment    --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --audio-interface-render: launch line '(absent)' != config-implied '8' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh would build endstation_ax7101_1x1_tdm8.yaml with --audio-interface-render (absent) where the config declares 8 render slots: milan_datapath would elaborate AUDIO_IF_RENDER_SLOTS_P = 0, take the g_tdm_render_parked arm and tie tdm_dout_o (J11.5) to 1'b0, so the board would render silence
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --xlen: launch line '64' != config-implied '32' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh appends --xlen 64 after the shared shape: argparse takes the last occurrence, so this is a design decision deploy.sh makes alone
+DEPLOY SHAPE DRIFT: deploy.sh does not name sweep_opts_ax7101.sh, the generated fragment sweep.sh builds from; a shape it spells itself is a second shipping shape
+DEPLOY SHAPE DRIFT: deploy.sh build --dry-run exited 2; it said: deploy: $LANES/546-cand-manager-builder/configs/generated/sweep_opts_arty.sh does not name endstation_ax7101_1x1_tdm8.yaml as its source;
+  it belongs to another config. Regenerate it with
+  python3 sw/builder/endstation_builder.py configs/endstation_ax7101_1x1_tdm8.yaml --write-fragment
+DEPLOY SHAPE DRIFT: deploy.sh does not name sweep_opts_ax7101.sh, the generated fragment sweep.sh builds from; a shape it spells itself is a second shipping shape
+DEPLOY SHAPE DRIFT: deploy.sh's design argv is not the fragment's OPTS:
+      launch line --board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --fabric-gptp --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1
+      fragment    --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --audio-interface-render: launch line '(absent)' != config-implied '8' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --board: launch line 'arty' != config-implied 'ax7101' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --eth-port: launch line '(absent)' != config-implied 'e1' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --floorplan: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --gptp-egress-lat-ns: launch line '(absent)' != config-implied '219' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --gptp-ingress-lat-ns: launch line '(absent)' != config-implied '656' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --gtx-tx-invert: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --loopback-lane: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --no-i2s-playback: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --no-render-lpf: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --num-streams: launch line '4' != config-implied '1' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --sys-clk-freq: launch line '83.333e6' != config-implied '(absent)' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh: design flag --talker-wire-chans: launch line '4' != config-implied '8' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+DEPLOY SHAPE DRIFT: deploy.sh would build endstation_ax7101_1x1_tdm8.yaml with --audio-interface-render (absent) where the config declares 8 render slots: milan_datapath would elaborate AUDIO_IF_RENDER_SLOTS_P = 0, take the g_tdm_render_parked arm and tie tdm_dout_o (J11.5) to 1'b0, so the board would render silence
+DEPLOY SHAPE DRIFT: deploy.sh build --dry-run exited 2; it said: deploy: $LANES/546-cand-manager-builder/configs/generated/sweep_opts_ax7101.sh defines no OPTS
+  [deploy-shape] deploy.sh builds endstation_ax7101_1x1_tdm8.yaml from configs/generated/sweep_opts_ax7101.sh: its design argv is that fragment's OPTS token for token, every design flag is emit_soc_argv of the config, and --audio-interface-render 8 keeps tdm_dout_o alive
+  [deploy-shape] deploy-only additions: --entity-gen-dir configs/generated/endstation_ax7101_1x1_tdm8, --build, --uart-baudrate 115200 (repeats the shared shape)
+deploy shape gate: OK
+  [selftest] OK: deploy.sh launches the 42 tokens of sweep_opts_ax7101.sh verbatim, --audio-interface-render 8 among them
+  [selftest] the hand-kept option string of #453 is restored - expecting REJECT:
+  [selftest] OK: 7 drift(s) reported
+  [selftest] the derived string is filtered on its way to the launcher - expecting REJECT:
+  [selftest] OK: 3 drift(s) reported
+  [selftest] a design flag is hand-appended after the shared shape - expecting REJECT:
+  [selftest] OK: 2 drift(s) reported
+  [selftest] another board's fragment is sourced - expecting REJECT:
+  [selftest] OK: 2 drift(s) reported
+  [selftest] another board's fragment is sourced with the provenance check neutered - expecting REJECT:
+  [selftest] OK: 16 drift(s) reported
+  [selftest] the sourced fragment defines no shape - expecting REJECT:
+  [selftest] OK: 1 drift(s) reported
