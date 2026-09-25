@@ -1,0 +1,137 @@
+[
+  {
+    "gate": "crf_rx",
+    "command": "make -C tb/verilator/crf_rx",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 641.48,
+    "log": "crf_rx.log"
+  },
+  {
+    "gate": "mmcm_servo",
+    "command": "make -C tb/verilator/mmcm_servo",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 365.19,
+    "log": "mmcm_servo.log"
+  },
+  {
+    "gate": "measure_test_evidence_check",
+    "command": "python3 scripts/measure_test_evidence.py --check",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 7.83,
+    "log": "measure_test_evidence_check.log"
+  },
+  {
+    "gate": "measure_test_evidence_selftest",
+    "command": "python3 scripts/measure_test_evidence.py --selftest",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 5.94,
+    "log": "measure_test_evidence_selftest.log"
+  },
+  {
+    "gate": "docs_check_git",
+    "command": "python3 scripts/docs_check.py",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 4.19,
+    "log": "docs_check_git.log"
+  },
+  {
+    "gate": "docs_check_no_git",
+    "command": "python3 scripts/docs_check.py",
+    "mode": "tracked export without Git metadata",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 4.03,
+    "log": "docs_check_no_git.log"
+  },
+  {
+    "gate": "check_em_dash",
+    "command": "python3 scripts/check_em_dash.py --base c266432dcb0cdd464205823a3d82cad260eedde2",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 3.12,
+    "log": "check_em_dash.log"
+  },
+  {
+    "gate": "check_doc_style",
+    "command": "python3 scripts/check_doc_style.py",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 0.07,
+    "log": "check_doc_style.log"
+  },
+  {
+    "gate": "gen_toc",
+    "command": "python3 scripts/gen_toc.py --check",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 2.45,
+    "log": "gen_toc.log"
+  },
+  {
+    "gate": "check_doc_paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 0.11,
+    "log": "check_doc_paths.log"
+  },
+  {
+    "gate": "module_matrix",
+    "command": "python3 docs/traceability/gen_module_matrix.py --check",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 0.96,
+    "log": "module_matrix.log"
+  },
+  {
+    "gate": "xvlog_gate",
+    "command": "python3 scripts/xvlog_gate.py --check",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 136.37,
+    "log": "xvlog_gate.log"
+  },
+  {
+    "gate": "check_cpp_idiom",
+    "command": "python3 scripts/check_cpp_idiom.py",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 1.25,
+    "log": "check_cpp_idiom.log"
+  },
+  {
+    "gate": "check_py_idiom",
+    "command": "python3 scripts/check_py_idiom.py",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 3.42,
+    "log": "check_py_idiom.log"
+  },
+  {
+    "gate": "git_diff_check",
+    "command": "git diff --check",
+    "mode": "merged worktree",
+    "head": "f5532c4c3f94a516b748cc4627dc5f78d05fa73e",
+    "rc": 0,
+    "seconds": 0.04,
+    "log": "git_diff_check.log"
+  }
+]

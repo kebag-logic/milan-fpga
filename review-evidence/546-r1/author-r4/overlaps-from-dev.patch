@@ -1,0 +1,156 @@
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index cf6b8975f..705a1cce9 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -144,6 +144,7 @@ Each link has exactly one master.
+ | MMCM servo error | Differential rate, ns per 512 ms window | `KL_mmcm_drp_servo` |
+ | MMCM servo command | PI; 1/16 ppm per LSB; positive speeds up | `KL_mmcm_drp_servo`, `MCSRV_STAT[31:16]` |
+ | MMCM servo bounds | +/-100 ppm per window slew; +/-200 ppm authority | `KL_mmcm_drp_servo` |
++| CRF talker discontinuity | Discard crossing rate history; preserve servo lock and integrator (#546) | `KL_crf_rx.rate_valid_o`, `KL_mmcm_drp_servo.crf_rate_valid_i` |
+ | CRF unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
+ | MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A [step-policy](#step-policy) slew is not a step and still reaches the integrator (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
+ | MMCM servo on an implausible window | Error above 1024 ppm discarded; four in a row re-base the window | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
+@@ -163,6 +164,74 @@ Each link has exactly one master.
+ | MMCM servo activation | Conditional | Steers audio clocks under CRF selection |
+ | Packet-grid alignment | Conditional | Follows the physical sample grid |
+ 
++CRF rate history restarts on either received `tu` edge.
++
++IEEE 1722-2016 `4.4.4.7` defines uncertainty.
++
++Clause `10.4.5` maps CRF's bit.
++
++The separate `mr` restart follows `4.4.4.3` and `10.4.3`.
++
++Held `tu` permits recovery after 256 clean timestamp intervals.
++
++Sequence gaps also restart that history.
++
++Invalid or foreign PDUs never seed its reference.
++
++Silence, reset and binding changes invalidate old history.
++
++STOP suppresses sample validity while counters continue observing.
++
++An adjacent-timestamp jump provides the unmarked-step backstop.
++
++Its threshold derives from the 2 ms CRF interval.
++
++Combined media and PHC drift permits 601 ns deviation.
++
++LocalClock frequency must stay within +/-100 ppm.
++
++See IEEE 802.1AS Annex B.1.1.
++
++We assume that bound also applies to the media oscillator.
++
++Milan v1.2 section 7.4 constrains media clock sources.
++
++Their frequency tolerance must be better than +/-50 ppm.
++
++Using 100 ppm therefore adds conservative margin.
++
++The remote PHC is assumed to share our envelope.
++
++That includes +/-200 ppm trim and timestamp quantization.
++
++Our `timestamp_counter` increment plus adjustment stays below 384 ns.
++
++Two such timestamp quantization bounds add less than 768 ns.
++
++The drift calculation is `ceil(2,000,000 * 300 / 999,900)`.
++
++Adding quantization gives `601 + 768 = 1369 ns`.
++
++Rounding upward gives 2,048 ns.
++
++Both signed jumps are detected using full-width timestamps.
++
++This excludes network arrival jitter from the decision.
++
++The event's PDU seeds the new timestamp history.
++
++After 256 further intervals, the rate becomes valid again.
++
++Until then, `CRF_RATE` holds its last clean value.
++
++The servo skips invalid samples without changing its lock state.
++
++Local PHC guards remain independent of this validity signal.
++
++No additional CSR bit or discard tally is introduced.
++
++The [receiver suite](../../tb/verilator/crf_rx) exercises this connected path.
++
+ A dead TDM feed disengages grid alignment.
+ 
+ The packet grid then free-runs nominally.
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index df924db3f..9eff16569 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -838,7 +838,7 @@ bind-restore group notes that this sink re-arms via `0x738`.
+ | `0x73C` | `CRF_SIDLO` | RW | `0` | followed CRF stream_id `[31:0]` |
+ | `0x740` | `CRF_SIDHI` | RW | `0` | stream_id `[63:32]` |
+ | `0x744` | `CRF_DELTA` | RO | `0` | signed `crf_ts - ptp_now` (ns) at each accepted PDU — phase, same signed-delta contract as `AVTPRX_TSD` (0x6EC); carries the talker+transit constant, deliberately NOT a servo input |
+-| `0x748` | `CRF_RATE` | RO | `0` | signed ns error per 512 ms window (256-PDU ring): the talker's media clock measured against gPTP — the servo frequency input (1 ppm = 512 units) |
++| `0x748` | `CRF_RATE` | RO | `0` | The talker's media clock measured against gPTP, the servo frequency input. Signed ns error per 512 ms window (256-PDU ring); 1 ppm = 512 units. Holds the last clean value during discontinuity refill. Internal validity gates servo sampling; this CSR does not expose validity |
+ | `0x74C` | `CRF_STATUS` | RO | `0` | `[31:16]` PDUs accepted, `[15:8]` format errors (7.3.2 pull/base/dlen/interval/type check), `[7:0]` sequence errors |
+ 
+ Those three are the only CRF input counters exported into the local CSR plane,
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 22d237868..d40de063b 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -460,7 +460,7 @@ verdicts and for check counts.
+ | [`tb/verilator/clkvalid`](../../tb/verilator/clkvalid) | `KL_ptp_clock_validity` — the AVTP `tu` verdict, two shapes |
+ | [`tb/verilator/cls`](../../tb/verilator/cls) | classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
+ | [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) | the gating regression born from the CBS datapath bug |
+-| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | the CRF Media Clock Input engine. It parses, counts and reports; since #74 the root's `media_clk_resolve` verdict decides whether its measurements steer the servo chain, so a CRF selection makes them actuate |
++| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. The default gate includes tu, jump, refill, sample-edge and servo-validity mutants |
+ | [`tb/verilator/crf_tx`](../../tb/verilator/crf_tx) | — |
+ | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** - that leg drove the old control-plane windows live. The `obj_pps` leg re-runs the same harness with `PPS_P=1` (#260): the 0x548 block decodes in every build, but `PTP_PPS_CTRL[0]`, its RO built bit `[16]` and `PTP_PPS_WIDTH` are gated, so the default leg grades the **UNSUPPORTED** arm (a structural zero at `o_pps_enable` whatever software writes) and this one grades the supported arm, from one set of expectations rather than two that drift |
+ | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index d91eaf616..78b935936 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -1722,6 +1722,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   wire [7:0]  avtprx_b3;
+   wire [63:0] avtprx_sid_frame, avtprx_fsh2;
+   wire signed [31:0] crf_delta_w, crf_rate_w;
++  wire crf_rate_valid_w;
+   //! public_flat_rd: [31:16] is the servo's signed 1/16 ppm trim, and it is
+   //! the INPUT to the NCO conversion below. A harness that cannot see it
+   //! cannot tell "the gate held the trim at zero" from "the servo was idle
+@@ -5498,6 +5499,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .stop_i      (crf_snk_stopped_w),
+     .delta_o     (crf_delta_w),
+     .rate_o      (crf_rate_w),
++    .rate_valid_o (crf_rate_valid_w),
+     .pdu_count_o (crf_pducnt_w),
+     .fmt_err_o   (crf_fmterr_w),
+     .seq_err_o   (crf_seqerr_w),
+@@ -5556,6 +5558,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .crf_src_idx_i (AEM_CRF_CLKSRC_C),
+     .crf_locked_i  (crf_locked_w),
+     .crf_rate_i    (crf_rate_w),
++    .crf_rate_valid_i (crf_rate_valid_w),
+     .auto_repair_i (mcsrv_auto_repair_w),
+     .ps_invert_i   (mcsrv_ps_invert_w),
+     .drp_addr_o    (o_mmcm_drp_addr),
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index 14d2e7c52..df66aaed7 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -594,6 +594,10 @@ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\
+                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
+ DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
+ DUT_READER_DISPOSITIONS = {
++    "tb/verilator/crf_rx/mutants.py":
++        "mutation campaign; copies the receiver and servo, requiring named failures "
++        "for tu, jump, refill, accept-edge, ignored-validity and PI-resume defects; "
++        "no expectations read from RTL",
+     "gptp-processor/tb/check_phc_contract.py":
+         "structural boundary check; it asserts required/forbidden tokens, not behavior",
+     "gptp-processor/tb/tsngen/mutants.py":
