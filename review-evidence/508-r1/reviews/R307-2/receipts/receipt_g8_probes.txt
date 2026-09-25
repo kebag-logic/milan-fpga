@@ -1,0 +1,84 @@
+===== P1_no_unreg_term: rc=1 verdict=caught (its tallies report 2 failure(s) across 364 checks)
+      [FAIL] [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A got=0x1 exp=0x2
+      [FAIL] [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to B got=0x1 exp=0x2
+      [ok]   [GSI] G8 sink 0 withdrawn: the push equals the solicited answer from the body on = 0x1
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: probing_status = 0x1
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: acmp_status = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: MSRP_FAILURE_VALID = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: REGISTERING_FAILED = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: msrp_failure_code = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: msrp_failure_bridge_id = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: body equals the solicited answer = 0x1
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: probing_status = 0x1
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: acmp_status = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: MSRP_FAILURE_VALID = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: REGISTERING_FAILED = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: msrp_failure_code = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: msrp_failure_bridge_id = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: body equals the solicited answer = 0x1
+      [ok]   [GSI] G8 sink 1 quiet on sink 0 withdrawal: unsolicited GET_STREAM_INFO(sink 1) to A = 0x0
+      [ok]   [GSI] G8 sink 1 quiet on sink 0 withdrawal: unsolicited GET_STREAM_INFO(sink 1) to B = 0x0
+      [ok]   [GSI] G8 sink 0 withdrawn: MSRP_FAILURE_VALID  = 0x0
+      [ok]   [GSI] G8 sink 0 withdrawn: REGISTERING_FAILED  = 0x0
+      [ok]   [GSI] G8 sink 0 withdrawn: msrp_failure_code   = 0x0
+      [ok]   [GSI] G8 sink 0 withdrawn: msrp_failure_bridge_id = 0x0
+      [ok]   [GSI] G8 sink 0 withdrawn: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+      [ok]   [GSI] G8 sink 0 withdrawn: probing_status      = 0x1
+      [ok]   [GSI] G8 sink 0 withdrawn: acmp_status         = 0x0
+      [ok]   [GSI] G8 sink 1 keeps its own failure: MSRP_FAILURE_VALID = 0x1
+      [ok]   [GSI] G8 sink 1 keeps its own failure: REGISTERING_FAILED = 0x1
+      [ok]   [GSI] G8 sink 1 keeps its own failure: msrp_failure_code = 0x8
+      [ok]   [GSI] G8 sink 1 keeps its own failure: msrp_failure_bridge_id = 0xf1e2d3c4b5a6978
+    checks: 364   failures: 2
+    (2 [FAIL] lines; first 12:)
+      [FAIL] [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A got=0x1 exp=0x2
+      [FAIL] [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to B got=0x1 exp=0x2
+===== P2_no_settle_term: rc=1 verdict=caught (its tallies report 35 failure(s) across 364 checks)
+      [FAIL] [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A got=0x1 exp=0x2
+      [FAIL] [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to B got=0x1 exp=0x2
+      [ok]   [GSI] G8 sink 0 withdrawn: the push equals the solicited answer from the body on = 0x1
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: probing_status = 0x1
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: acmp_status = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: MSRP_FAILURE_VALID = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: REGISTERING_FAILED = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: msrp_failure_code = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: msrp_failure_bridge_id = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to A: body equals the solicited answer = 0x1
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: probing_status = 0x1
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: acmp_status = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: MSRP_FAILURE_VALID = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: REGISTERING_FAILED = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: msrp_failure_code = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: msrp_failure_bridge_id = 0x0
+      [ok]   [GSI] G8 sink 0 registrar withdrawal to B: body equals the solicited answer = 0x1
+      [ok]   [GSI] G8 sink 1 quiet on sink 0 withdrawal: unsolicited GET_STREAM_INFO(sink 1) to A = 0x0
+      [ok]   [GSI] G8 sink 1 quiet on sink 0 withdrawal: unsolicited GET_STREAM_INFO(sink 1) to B = 0x0
+      [ok]   [GSI] G8 sink 0 withdrawn: MSRP_FAILURE_VALID  = 0x0
+      [ok]   [GSI] G8 sink 0 withdrawn: REGISTERING_FAILED  = 0x0
+      [ok]   [GSI] G8 sink 0 withdrawn: msrp_failure_code   = 0x0
+      [ok]   [GSI] G8 sink 0 withdrawn: msrp_failure_bridge_id = 0x0
+      [ok]   [GSI] G8 sink 0 withdrawn: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+      [ok]   [GSI] G8 sink 0 withdrawn: probing_status      = 0x1
+      [ok]   [GSI] G8 sink 0 withdrawn: acmp_status         = 0x0
+      [ok]   [GSI] G8 sink 1 keeps its own failure: MSRP_FAILURE_VALID = 0x1
+      [ok]   [GSI] G8 sink 1 keeps its own failure: REGISTERING_FAILED = 0x1
+      [ok]   [GSI] G8 sink 1 keeps its own failure: msrp_failure_code = 0x8
+      [ok]   [GSI] G8 sink 1 keeps its own failure: msrp_failure_bridge_id = 0xf1e2d3c4b5a6978
+    checks: 364   failures: 35
+    (35 [FAIL] lines; first 12:)
+      [FAIL] [GSI] G1 sink 0 bound: unsolicited GET_STREAM_INFO(sink 0) to A got=0x0 exp=0x1
+      [FAIL] [GSI] G1 sink 0 bound: unsolicited GET_STREAM_INFO(sink 0) to B got=0x0 exp=0x1
+      [FAIL] [GSI] G1 sink 0 bound: the push equals the solicited answer from the body on got=0x0 exp=0x1
+      [FAIL] [GSI] G2 sink 0 two probes unanswered: unsolicited GET_STREAM_INFO(sink 0) to A got=0x0 exp=0x1
+      [FAIL] [GSI] G2 sink 0 two probes unanswered: unsolicited GET_STREAM_INFO(sink 0) to B got=0x0 exp=0x1
+      [FAIL] [GSI] G2 sink 0 two probes unanswered: the push equals the solicited answer from the body on got=0x0 exp=0x1
+      [FAIL] [GSI] G2 sink 1 bound: unsolicited GET_STREAM_INFO(sink 1) to A got=0x0 exp=0x1
+      [FAIL] [GSI] G2 sink 1 bound: unsolicited GET_STREAM_INFO(sink 1) to B got=0x0 exp=0x1
+      [FAIL] [GSI] G2 sink 1 bound: the push equals the solicited answer from the body on got=0x0 exp=0x1
+      [FAIL] [GSI] G2 sink 1 probe refused: unsolicited GET_STREAM_INFO(sink 1) to A got=0x0 exp=0x1
+      [FAIL] [GSI] G2 sink 1 probe refused: unsolicited GET_STREAM_INFO(sink 1) to B got=0x0 exp=0x1
+      [FAIL] [GSI] G2 sink 1 probe refused: the push equals the solicited answer from the body on got=0x0 exp=0x1

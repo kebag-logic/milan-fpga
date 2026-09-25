@@ -1,0 +1,18 @@
+﻿2026-09-25T03:28:37.9570616Z ##[group]Run rm -rf .git
+2026-09-25T03:28:37.9571660Z rm -rf .git
+2026-09-25T03:28:37.9572615Z python3 scripts/docs_check.py
+2026-09-25T03:28:37.9574022Z python3 scripts/check_feature_status.py
+2026-09-25T03:28:37.9776382Z shell: /usr/bin/bash -e {0}
+2026-09-25T03:28:37.9777387Z ##[endgroup]
+2026-09-25T03:28:41.5511295Z tb/verilator/milan_dp/README.md:488: broken link -> ../../../protocol-processor/docs/architecture/05_acmp_engine.md
+2026-09-25T03:28:41.5512274Z tb/verilator/milan_dp/README.md:488: broken link -> ../../../protocol-processor/docs/architecture/06_aecp_engine.md
+2026-09-25T03:28:41.5513065Z docs_check: 2 finding(s) across 165 md files + 861 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+2026-09-25T03:28:41.5612921Z ##[error]Process completed with exit code 1.
+﻿2026-09-25T03:29:06.2392500Z ##[group]Run python3 scripts/docs_check.py
+2026-09-25T03:29:06.2393153Z python3 scripts/docs_check.py
+2026-09-25T03:29:06.2474820Z shell: /usr/bin/bash -e {0}
+2026-09-25T03:29:06.2475097Z ##[endgroup]
+2026-09-25T03:29:10.8331176Z tb/verilator/milan_dp/README.md:488: broken link -> ../../../protocol-processor/docs/architecture/05_acmp_engine.md
+2026-09-25T03:29:10.8332569Z tb/verilator/milan_dp/README.md:488: broken link -> ../../../protocol-processor/docs/architecture/06_aecp_engine.md
+2026-09-25T03:29:10.8333886Z docs_check: 2 finding(s) across 165 md files + 861 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+2026-09-25T03:29:10.8430278Z ##[error]Process completed with exit code 1.

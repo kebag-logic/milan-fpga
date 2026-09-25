@@ -1,0 +1,13 @@
+== A: clone with processor submodule checked out (git mode)
+docs_check: 0 finding(s) across 165 md files + 861 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== B: exact-head tree, no submodule contents, no git (as hosted docs-check-no-git)
+tb/verilator/milan_dp/README.md:488: broken link -> ../../../protocol-processor/docs/architecture/05_acmp_engine.md
+tb/verilator/milan_dp/README.md:488: broken link -> ../../../protocol-processor/docs/architecture/06_aecp_engine.md
+docs_check: 2 finding(s) across 165 md files + 861 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+rc=1
+== C: same tree, fresh git index, no submodule contents (as hosted docs-check)
+tb/verilator/milan_dp/README.md:488: broken link -> ../../../protocol-processor/docs/architecture/05_acmp_engine.md
+tb/verilator/milan_dp/README.md:488: broken link -> ../../../protocol-processor/docs/architecture/06_aecp_engine.md
+docs_check: 2 finding(s) across 165 md files + 861 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=1
