@@ -34,7 +34,7 @@ no loop on either path waits on a DUT output without a cycle bound, so a
 leg ends at the same cycle whatever the mutated gateware does. The
 host-time bound is the sweep's: scripts/run_all_suites.sh runs this suite's
 `make` (whose `run` recipe ends with `python3 render_mutants.py`) under its
-per-suite guard, suite_timeout = 2700 s (#444), and reports a kill as TIMEOUT, an
+per-suite guard, suite_timeout = 3600 s (decision 5820240308), and reports a kill as TIMEOUT, an
 UNKNOWN result (exit 92), never a pass or a fail. The SIGTERM handler in
 main() turns that kill into an exit that removes the temporary directory
 and the leg's own process group. Run by hand, outside the sweep, nothing

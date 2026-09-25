@@ -1,9 +1,10 @@
-"""The final, bounded redundant-merge replay proof (#423).
+"""Bounded redundant-merge replay (#423) and optional linear retention (#514).
 
 G1 admits one content-free merge with a direct, ordered parent relation.
 H is supplied by the checker's existing distinct whitespace-exact replay
 helper. T measures raw current entries, then a conflict-free no-op re-merge.
 This is a byte-level criterion, not a judgment about later edits' intent.
+The optional linear arm supplies H + T as a separate current-retention result.
 Filenames stay bytes from Git's output to Git's argv.
 """
 
@@ -151,3 +152,32 @@ def replay_verdict(branch: str, base: str, ahead: int, git: Git,
     return (True, ahead, f"historical whitespace-exact replay across one "
             f"redundant merge; raw no-op retention at {base} "
             f"({ahead} not ancestors)")
+
+
+def linear_retention_verdict(source: str, target: str, git: Git,
+                             replay: Replay) -> tuple[bool, str]:
+    """Optional linear H + T proof, independent of the landing verdict.
+
+    Only nonempty source-only linear ranges with exact replays qualify.
+    Ancestry alone, squash-only equivalence and merge histories cannot supply
+    this arm's baseline. Supersession intent never supplies byte evidence.
+    False means UNKNOWN, including unsupported or unmeasurable cases.
+    """
+    try:
+        merges = _measure(git, "rev-list", "--min-parents=2", "--count",
+                          f"{target}..{source}")
+        if not merges.isdigit():
+            raise _MeasurementError("invalid source merge count")
+        if int(merges) != 0:
+            return False, "unsupported: source-only history contains merges"
+        matched, error = replay(source, target)
+        if matched is None:
+            raise _MeasurementError(error)
+        if not matched:
+            return False, "unsupported: needs a nonempty whitespace-exact linear replay"
+        missing = _retained_at_tip(source, target, git)
+    except (_MeasurementError, OSError) as exc:
+        return False, f"linear retention unmeasurable: {exc}"
+    if missing:
+        return False, "unproved on: " + ", ".join(missing)
+    return True, f"raw no-op retention at {target}; historical linear replay proved"

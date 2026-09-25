@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # milan_dp — the `milan_datapath` integration suite
 
-`make` builds **twelve elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
+`make` builds **thirteen elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
 Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
 against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
 never on grepping the log — a compile error prints no `FAIL` line at all.
@@ -26,6 +26,7 @@ log in the failure so the artifact can be inspected.
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification |
 | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates follow the processor's ACTIVE on every cycle, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
+| `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387: a grandmaster change that steps the PHC by 1.5 s under CRF selection is one counted media event (`tu`, one render re-base, one `mr` toggle, one MEDIA_RESET) and stops no stream; `gmstep_mutants.py` plants the acceptance's three controls in the sweep and `make gmstep-mutants` the whole inventory |
 
 The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 
@@ -38,7 +39,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[First AX7101 1x1 eight-channel run](#first-ax7101-1x1-eight-channel-run)** -- Run the focused datapath baseline and identify its coverage limits.
 - **[AX7101 1x1 eight-channel gPTP physical-rate run](#ax7101-1x1-eight-channel-gptp-physical-rate-run)** -- Run combined clocks, peer exchange, and diagnostic audio checks.
 - **[The #530 CRF talker licence leg (obj_crflic)](#the-530-crf-talker-licence-leg-obj_crflic)** -- The compressed-time leg that reproduces the Run B CRF bursts and early emission, what each phase proves, the failing arms, and why FRAMES_TX is an interval count
-- **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 decision; not in the default sweep until the datapath edit lands
+- **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 decision, and its negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
 - **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
@@ -240,7 +241,7 @@ The unchanged acquisition deadline expires before the acquired-publication check
 First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
 Its separate deadline is 5400 seconds, including compilation.
 The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
-Every other default suite retains its 1800-second deadline; `milan_dp` has 2700 seconds (#444).
+Every other default suite retains its 1800-second deadline; `milan_dp` has 3600 seconds ([#387 decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308)).
 The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
 Physical regressions are therefore caught nightly, outside the PR aggregate.
 Expiry still reports TIMEOUT/UNKNOWN and exits nonzero.
@@ -432,6 +433,10 @@ should read STREAM_START 1 and FRAMES_TX equal to the seconds it has streamed.
 
 ## GM step re-base leg (#387)
 
+The true-ratio leg also commands an absolute software settime.
+`RENDER-SETTIME` requires one pulse and one counted render re-base.
+A further 100 PDUs must produce no second event.
+
 `make gmstep` builds `obj_gmstep` from `sim_gmstep.cpp` on the `gptp` leg's
 elaboration: the AX7101 1x1 TDM8 entity, fabric gPTP on, a 2 MHz fabric clock
 and an 8 ns PHC. It drives issue #387's acceptance 3: a grandmaster change
@@ -466,21 +471,47 @@ through `make`, idles that many fabric cycles before the peer's media feed
 starts. One media tick is 41.67 cycles at 2 MHz, so delays 0 to 41 cover every
 accept phase. With the #387 datapath edit the leg passes at all 42.
 
-**It is not in the default sweep yet.** At this revision the leg passes 44 of
-its 48 checks. The four it fails are decided behaviour the datapath does not
-implement yet: the render stage counts two re-bases, one on the grandmaster
-identity (outside the step's window) and one on the step, and the step neither
-toggles `mr` nor counts MEDIA_RESET. The datapath edit that closes them waits
-behind the lane holding `milan_datapath.sv`, and issue #387 records it. The
-leg joins `run` in the change that makes it pass, together with its
-negative-control runner.
+**It runs in the default sweep, with its negative controls.** Before the
+#387 datapath edit the leg passed 44 of its 48 checks: the render stage
+counted two re-bases, one on the grandmaster identity (outside the step's
+window) and one on the step, and the step neither toggled `mr` nor counted
+MEDIA_RESET. With the edit it passes 48 of 48. `run` then runs
+`gmstep_mutants.py`, which rebuilds the leg against a mutated copy through the
+`gmstep-build` recipe (`GMSTEP_MDIR` and `DP_SRC`, `CLKV_SRC` or `RSP_SRC`
+overridden), and each control must fail its named check by the leg's own
+verdict:
+
+| Control | Planted in | Named check it fails | Runs in |
+|---|---|---|---|
+| the step does not toggle `mr` | datapath | restart: the outgoing mr toggles exactly once | the sweep |
+| the grandmaster identity re-bases the render stage as well as the step | datapath | render: the GM change is one counted re-base event | the sweep |
+| the step does not re-centre the render stage (ruling 5802264260 item 1) | datapath | render: the GM change is one counted re-base event | the sweep |
+| the render re-base is keyed to the identity, not the step | datapath | render: every counted re-base lands at a PDU end right after the step | `gmstep-mutants` |
+| `tu` reaches the talkers four cycles late | clock validity | tu: set in the first cycle the bank names GM B | `gmstep-mutants` |
+| the plane's step does not re-arm the holdover | datapath | tu: held at least the 0.25 s holdover after the step | `gmstep-mutants` |
+| `tu` stops the talker | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
+| the grandmaster change stops the talker for good | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
+| the step's re-centre snaps one event off the setpoint | render stage | render: every PDU push leaves the target fill across the event | `gmstep-mutants` |
+| a software settime does not toggle `mr` | datapath | CLKV: the settime toggled mr once more (#387) | `gmstep-mutants`, option-off leg |
+| the step's `mr` toggle is gated by the CRF clock-source selection | datapath | CLKV: its mr toggled once per PHC step issued so far (#387) | `gmstep-mutants`, option-off leg |
+
+Each control costs one elaboration of the datapath, so the sweep carries the
+three the acceptance names and the explicit `make gmstep-mutants` target runs
+all eleven (the explicit-campaign rule of
+[TESTING.md](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression)).
+The last two grade the option-off leg (`sim_main.cpp`, rebuilt through
+`option-off-build` with `OPTOFF_MDIR` and `DP_SRC` overridden) on an INTERNAL
+media clock, where the harness issues a CLKV adjtime and then a software
+settime: each is one `mr` toggle, and the settime one MEDIA_RESET. The runner
+prints every check each control broke, not only the named one. A clean binary
+older than its recipe's inputs is rebuilt, not graded.
 
 What the leg does not grade:
 
 - The grid aligner. The TDM clocks are held, so it stays disengaged. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) it gets no re-centre of its own: #539 keeps the step out of its reference at the CRF servo, and #545 and #546 close the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path.
 - The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades its step discard (#539).
 - An lwSRP licence. The talker is opened by `AAF_CTRL[1]`; no SRP peer exists here.
-- A step that lands while an `mr` restart is pending. Ruling 5802264260 item 2 merges the two; its arm joins the datapath edit.
+- A step that lands while an `mr` restart is pending. Ruling 5802264260 item 2 merges the two, and pending lasts until a PDU at the new level has gone out (ruling 5818091077). `tb/verilator/tkdiag` T17 and T18 grade the restart engine PDU by PDU, and its `mcr_mutants.py` plants the engine that cancels, a shared target, and a pending window that ends at the adoption or runs to the end of the hold.
 - The step policy's thresholds. The donor's engine suite proves them; this leg only relies on them.
 - The physical re-base. The #117 bench measures it.
 
@@ -489,6 +520,7 @@ stream is graded against its own baseline rate.
 
 `CLKV_SRC`, like `RSP_SRC` and `DP_SRC`, rebuilds this leg against a mutated copy.
 Measured on 2026-09-24 with Verilator 5.050: 8.04 M cycles, about 40 s including the build.
+On the same eight-job host the sweep's three controls took 133 s, and `make gmstep-mutants` (the leg and all eleven controls) 405 s.
 
 ## 2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it
 
@@ -717,16 +749,17 @@ No row projects unexecuted checks.
 | leg | before (measured) | after (measured; date noted below) | note |
 |---|---|---|---|
 | `obj_gptp` (`sim_gptp`) | not available | **164 / 0** | product-default fabric-owner run; inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, the three drop-counter routes at 0x7E8/0x7EC |
-| `obj_dir` (`sim_main`) | 273 checks / 75 fail | **230 / 0** | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU |
+| `obj_dir` (`sim_main`) | 273 checks / 75 fail | **233 / 0** (2026-09-24 UTC) | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU; #387 adds the `mr` level against the PHC steps the leg issued, and the settime's one toggle and one MEDIA_RESET |
 | `obj_notify` (`sim_nxn`, timed) | not in the old table | **117 / 0** | the compressed-timebase 5.4.5 notify leg |
 | `obj_crflic` (`sim_crf_licence`) | not in the old table | **85 / 0** (2026-09-24 UTC) | #530; its three mutants are caught by `make crflic-mutants` |
+| `obj_gmstep` (`sim_gmstep`) | not in the old table | **48 / 0** (2026-09-24 UTC) | #387; `gmstep_mutants.py` catches the acceptance's three controls in the sweep, and `make gmstep-mutants` all eleven (two on the option-off leg) |
 | `obj_nxn` (`sim_nxn`) | 378 / — (did not compile) | **1679 / 0** | the old 145 was already stale at #294's merge (issue #314 measured 1673 there); the suite has kept growing since |
 | `obj_nxndv` (`sim_nxn`) | not in the old table | **1682 / 0** | the divergent-shape leg |
 | `obj_nxn8` (`sim_nxn`) | 512 / not available | **3179 / 0** | `[T66]` grades atomic audio-map mutation (the old row's "current run summary below" pointer named a section that never existed — this cell is the measurement) |
 | `obj_nxn4c` (`sim_nxn`) | 378 / — | **1679 / 0** | |
-| `obj_nolpf` (`sim_main`) | 273 / 75 | **230 / 0** | re-run current (the old "not rerun after the `tu` assertion" caveat is retired) |
+| `obj_nolpf` (`sim_main`) | 273 / 75 | **233 / 0** (2026-09-24 UTC) | re-run current (the old "not rerun after the `tu` assertion" caveat is retired); #387 adds the `mr` checks |
 | `obj_prune` (`sim_prune`) | 31 / 0 | **33 / 0** | the old 31 was already stale at #294's merge (issue #314 measured 28 there); #390 adds the `SLIP_LB` structural zero, read behind listener 0 bound, fed and then starved, plus the `CHMAP_LOOP` lane-establishment read that makes the zero a measurement, whole word against the `0xDEADDEAD` poison and `CHMAP_SNAP[1]` valid before the projection (5 checks) |
-| `obj_ax1x1` (`sim_main`) | 273 / 73 | **227 / 0** | 5 sections guarded out on this shape |
+| `obj_ax1x1` (`sim_main`) | 273 / 73 | **230 / 0** (2026-09-24 UTC) | 5 sections guarded out on this shape; #387 adds the `mr` checks |
 | `obj_aclk` (`sim_aclk`) | 5 / 0 | **139 / 0** | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added; #390 adds the loopback-ring beat at INTERNAL, the zero-slip window under CRF, the SLIP CSR pair and the `CHMAP_LOOP` lane-establishment read behind its whole-word poison and `CHMAP_SNAP[1]` grades, and the priming PDU's loop-tap transit, which is what grades the drain that separates this phase's own priming PDU from one the render-law phases left in flight (25 checks); the balance is the #386 render law, which landed in this same leg with PR #435 |
 | `obj_ax1x1gptp` (`sim_ax1x1gptp`) | **126 / 0** before round two | **127 / 0** (2026-09-07 UTC) | Separate `milan_dp_gptp` suite; trimmed waits; additional four-interval assertion; original spans remain opt-in |
 
@@ -828,7 +861,7 @@ The limits, so a reader does not over-read a record:
 * **A case whose pattern check fails builds and runs nothing**, so it
   contributes no phase record at all; its existing `[FAIL]` line is the report.
 * **The clock is the host's.** A duration includes whatever else that machine
-  was doing, and the per-suite guard (2700 s for this suite since #444) is
+  was doing, and the per-suite guard (3600 s for this suite under #387) is
   still owned by `scripts/run_all_suites.sh`.
 
 `test_render_phase_observation.py` holds this contract with pure fixtures: a

@@ -3069,9 +3069,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  100 ms of CRF silence (and needs 8 clean PDUs to re-lock), so the edge
   //  is the debounced verdict, not a per-PDU twitch.
   //
-  //  Restart requests are IGNORED unless the CRF clock is the one in use: on
+  //  The CRF requests are IGNORED unless the CRF clock is the one in use: on
   //  an internal media clock there is no CRF stream to be disrupted, so
-  //  toggling mr would be a false alarm to every listener.
+  //  toggling mr would be a false alarm to every listener. A PHC step is not
+  //  a CRF request and is not gated (#387, below).
   // --------------------------------------------------------------------------
   //! IEEE 1722-2016 4.4.4.3 disruption pulse: crf_locked_w falls while CRF is
   //! the selected media clock source. The clause's OTHER mandatory trigger, a
@@ -3097,16 +3098,29 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! 4.4.4.3's "disruption of the CRF stream" is not a disruption of OUR
   //! clock and must not toggle mr on our streams; with the CRF source
   //! selected, it is exactly the mandatory trigger, now reachable.
-  wire mcr_restart_p_w = crf_clk_selected_r
-                       & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
+  //! #387: a PHC step is ONE counted media event (decision 5606198212 part
+  //! b, restated by the owner in 5794731090): the plane's phase write (CLKV
+  //! software's adjtime when the plane is off) or a software settime moves
+  //! every presentation time this talker stamps, so it restarts the media
+  //! clock on the wire once (4.4.4.3) - whichever clock source is selected -
+  //! and Milan Table 5.4 MEDIA_RESET counts that toggle. A step that lands
+  //! while another restart is still pending (a CRF disruption, say) merges
+  //! with it inside KL_media_clock_restart: one toggle, never a cancellation
+  //! (ruling 5802264260 item 2). The same pulse re-centres the render stage
+  //! below.
+  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
+  wire mcr_restart_p_w = (crf_clk_selected_r
+                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+                       | media_rebase_p_w;
 
   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
   //! the AAF talkers AND the CRF Media Clock Output, which is a Talker in
   //! its own right (PICS Table F.16 CRF-3/CRF-5) and whose stream is exactly
-  //! the one 10.4.3 writes the clause for. One engine, because the TARGET is
-  //! a property of the media clock and not of a stream: two outputs on one
-  //! clock must never end up on opposite levels. The per-stream half - the
-  //! ">= 8 AVTPDUs for a given continuous stream" hold - stays per context,
+  //! the one 10.4.3 writes the clause for. One engine, because the REQUESTS
+  //! are a property of the media clock: every restart reaches every output.
+  //! The per-stream half - the ">= 8 AVTPDUs for a given continuous stream"
+  //! hold, and with it whether a request is still pending on that stream
+  //! (#387: a request landing on a pending one merges) - stays per context,
   //! so the CRF output's 500 PDU/s hold and an AAF talker's 8 kPDU/s hold
   //! run independently and neither can rush the other.
   //!
@@ -5923,9 +5937,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! walked back into its convergence band at the residual rate error.
   //! One pulse per GM-identity change re-centers it instead; the first
   //! fabric GM publication out of reset (0 -> id) is exempt
-  //! (prefill owns boot). ONE detector for both elastic stages (#386):
-  //! it lives outside the I2SPB generate so the shipping shape, which
-  //! prunes the DAC, still derives the render stage's pulse from it.
+  //! (prefill owns boot). Since #387 only the I2S playback FIFO below reads
+  //! it: the render stage re-centres on the PHC step itself
+  //! (render_recentre_p_w), and a shape that prunes the DAC leaves this
+  //! detector without a reader.
   logic [63:0] gm_recentre_q_r;
   logic        gm_recentre_p_r;
   always_ff @(posedge axis_clk) begin : g_gm_recentre
@@ -6002,15 +6017,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       end
     end
   end : g_src_recentre
-  //! #386: the render stage re-centres on a GM identity change, a PHC
-  //! adjtime (the plane's step, or CLKV software's when the plane is off),
-  //! a PHC settime and a settled clock-source change. The first three are
-  //! the PHC discontinuities KL_ptp_clock_validity also raises tu on; that
-  //! module additionally takes the plane's pre-commit publication events
-  //! and counts the first 0-to-id publication, which this set leaves out
-  //! (prefill owns boot). public: the milan_dp render-law leg counts it.
+  //! #386: the render stage re-centres on a PHC step (the #387 media
+  //! re-base above: the plane's step or CLKV software's adjtime when the
+  //! plane is off, and a software settime) and on a settled clock-source
+  //! change. A GM identity change is no longer a trigger of its own (#387):
+  //! a change that steps the PHC re-centres through that step, once, and a
+  //! change that only slews is no PHC discontinuity. KL_ptp_clock_validity
+  //! still raises tu on the identity change and the plane's pre-commit
+  //! publication events. public: the milan_dp render-law and gmstep legs
+  //! count it.
   wire render_recentre_p_w /* verilator public_flat_rd */ =
-       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load
+       media_rebase_p_w
        | src_recentre_p_r;
 
   generate if (I2SPB_P != 0) begin : g_i2s_player
