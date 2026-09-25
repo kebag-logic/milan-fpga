@@ -1,0 +1,18 @@
+{
+  "head": {
+    "source_recipe": "$VALIDATION_STORAGE/400-403-a313-tools/ooc-with-csr.sh",
+    "source_sha256": "9f5c2acea5b6a0e82430a00e93aef35e71a3fb14420367c51b435f0054f7d6a8",
+    "recheck_recipe": "$VALIDATION_STORAGE/400-403-a313-tools/ooc-head-input-recheck.sh",
+    "recheck_sha256": "51e398ed28e43134aadea35704f7d5881ebb47fde26666a43184ca03aa866913",
+    "change": "Replace the post-sv2v synthesis/report body with byte comparison to the original synthesis input; keep source lists, parameters, include paths and ROM validation unchanged.",
+    "transformation_anchor": "After the sv2v invocation, before its OOC_CHPARAM comment; never the earlier comment inside the top list."
+  },
+  "base": {
+    "source_recipe": "$VALIDATION_STORAGE/400-403-a313-tools/ooc-base-with-csr.sh",
+    "source_sha256": "c112efac01c3bd353a4854f15cf86c94bec0627a1d2a1d81f443389b6885bce6",
+    "recheck_recipe": "$VALIDATION_STORAGE/400-403-a313-tools/ooc-base-input-recheck.sh",
+    "recheck_sha256": "bedf55db3ce3995cb57e1be8175ec09b16bca9919d3f53661d590e7fd3421eb7",
+    "change": "Replace the post-sv2v synthesis/report body with byte comparison to the original synthesis input; keep source lists, parameters, include paths and ROM validation unchanged.",
+    "transformation_anchor": "After the sv2v invocation, before its OOC_CHPARAM comment; never the earlier comment inside the top list."
+  }
+}

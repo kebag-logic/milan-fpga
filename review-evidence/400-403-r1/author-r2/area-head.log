@@ -1,0 +1,8 @@
+HEAD: 4cfbb825f0082394faaec557ab8ad19d13043169
+COMMAND: ['env', 'OOC_TMP=$VALIDATION_STORAGE/400-403-a313-tools/area-head', 'bash', '$VALIDATION_STORAGE/400-403-a313-tools/ooc-with-csr.sh', 'milan_csr', 'KL_pp_shadow', 'milan_datapath']
+== OOC area (synth_xilinx -family xc7 -flatten) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4
+milan_csr                        4236        0     4236     3573        0        2        0       43
+KL_pp_shadow                    60855     6136    66991    30187       15        4        6     2104
+milan_datapath                  90179     6640    96819    43424       17       20       15     3614

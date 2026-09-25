@@ -1,0 +1,11 @@
+HEAD: 2d61e7edafa63cff7d5f8fdca9840a969ee070a6
+COMMAND: ['env', 'OOC_TMP=$VALIDATION_STORAGE/400-403-a313-tools/area-base-recheck', 'OOC_COMPARE_DIR=$VALIDATION_STORAGE/400-403-a313-tools/area-base', 'OOC_SHAPE=$VALIDATION_STORAGE/400-403-a313-tools/area-base-inputs/configs/generated/endstation_arty_current', 'bash', '$VALIDATION_STORAGE/400-403-a313-tools/ooc-base-input-recheck.sh', 'milan_csr', 'KL_pp_shadow', 'milan_datapath']
+== OOC area (synth_xilinx -family xc7 -flatten) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4
+OOC input identical: milan_csr
+54308c4b624e4f1f4d81a5a34e2a6c1e63da4792ec45c3058758bc377a97bff7  $VALIDATION_STORAGE/400-403-a313-tools/area-base-recheck/milan_csr.ooc.v
+OOC input identical: KL_pp_shadow
+3df90cb13635ee47d6d26cbadcc1bc483beaf81ccf129b4bc1d21c7fb191bcb1  $VALIDATION_STORAGE/400-403-a313-tools/area-base-recheck/KL_pp_shadow.ooc.v
+OOC input identical: milan_datapath
+5fa044ac5489dff8d316067a0631377521966110732116bb0e5c20558a006e01  $VALIDATION_STORAGE/400-403-a313-tools/area-base-recheck/milan_datapath.ooc.v

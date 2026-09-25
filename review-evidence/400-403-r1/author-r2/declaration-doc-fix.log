@@ -1,0 +1,33 @@
+HEAD: e7da6545e35a884ae8e0efddcae91eb93b267aca
+COMMAND: ['python3', '-c', 'import sys; sys.path.insert(0,"sw/builder"); import test_builder as t; import test_declarations as d; d.test_declaration_contracts(); t.test_builder_doc_key_map(); t.test_boot_policy_follows_the_declaration()']
+[gate 40] endstation_arty_4x4.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_8ch.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_current.yaml: 1 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_1x1_tdm8.yaml: 2 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_8x8.yaml: 9 output factory rows, VID 2, promiscuous
+[gate 40] 9 binding/reset mutants; donor timer profile
+[gate 40] 26 refusals; 3 header mutants per config
+  [gate 32] 112 loader keys == 112 keys across 64 rows of ENDSTATION_BUILDER.md section 3; planted row and dropped row both refused
+  [gate 32] census: 17 untaken loader arms, where a key read is not recorded: endstation_builder.py:1448 endstation_builder.py:1528 endstation_builder.py:1532 endstation_builder.py:1895 endstation_builder.py:1899 endstation_builder.py:3154 endstation_builder.py:3243 endstation_builder.py:3345 endstation_builder.py:3577 endstation_builder.py:3586 endstation_builder.py:3634 endstation_builder.py:3654 endstation_builder.py:3691 endstation_builder.py:4041 endstation_builder.py:4137 endstation_builder.py:4164 endstation_builder.py:4324
+  [gate 35] the writer's waits are generated AND pinned beside their bounds: MILAN_NVM_HEARTBEAT_MS 250 ms, MILAN_NVM_DEBOUNCE_MS 1000 ms, MILAN_NVM_ERASE_TIMEOUT_MS 3500 ms, MILAN_NVM_PROGRAM_TIMEOUT_MS 50 ms, MILAN_NVM_RESTORE_TIMEOUT_MS 3000 ms; both publication loops in milan_soc.py have their complete bodies pinned; 5/5 planted defects refused: the literal NVM_MS(250) planted back; the heartbeat moved to 300 ms, inside its own bound; the publication loop substituting the CRF boot word; the fabric loop overwriting the CRF boot word; the firmware loop overwriting the heartbeat wait
+  [gate 35 transcript] arty_current: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000005 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] arty_current: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] arty_4x4: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=fc6abbc8 610=001bc557 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000501 750=00000003
+  [gate 35] arty_4x4: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] arty_8ch: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c86f4172 610=001bc507 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000501 750=00000003
+  [gate 35] arty_8ch: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] ax7101_8x8: 600=5a060000 920=5a092000 604=fe000001 608=020000ff 60c=f79bc5d1 610=001bc572 108=00000002 10c=00000100 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000901 750=00000003
+  [gate 35] ax7101_8x8: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] ax7101_1x1_tdm8: 600=5a060000 920=5a092000 604=fe000001 608=020000ff 60c=0236ba0e 610=001bc5c4 108=00000002 10c=00000100 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000201 750=00000003
+  [gate 35] ax7101_1x1_tdm8: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] ax7101_1x1_tdm8, crf_output off: 600=5a060000 920=5a092000 604=fe000001 608=020000ff 60c=3e6c3999 610=001bc510 108=00000002 10c=00000100 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] ax7101_1x1_tdm8, crf_output off: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] reset admission 0: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000005 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] reset admission 0: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] reset admission 1: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000005 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] reset admission 1: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] reset admission 2: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000005 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] reset admission 2: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35 transcript] reset admission 3: 600=5a060000 920=5a092000 604=fe000002 608=020000ff 60c=c1000005 610=001bc50a 108=00000002 10c=00000200 100=5a010009 700=00000001 654=00020001 684=00000002 680=00000013 6cc=00000101 750=00000000
+  [gate 35] reset admission 3: configure_fabric() wrote the 15 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+  [gate 35] 8/8 planted defects refused for the rule each breaks: the literal 3 back in CRFT_CTRL; a derivation that ignores the declaration; the 0x8588 ADP_CAPS write back; the LWSRP_VID write dropped; unconditional spare MAAP address; boot drops live SRP admission enable; boot drops live SRP declaration arm; boot silently enables station filtering

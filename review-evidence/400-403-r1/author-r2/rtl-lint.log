@@ -1,0 +1,110 @@
+HEAD: 4cfbb825f0082394faaec557ab8ad19d13043169
+COMMAND: ['python3', 'scripts/lint_rtl.py', '--check']
+== lint pragma gate (well-formed · balanced · justified) ==
+PRAGMA GATE: PASS (0 justified lint_off, 0 excluded file(s))
+== hdl/ Verilator lint census (70 module elaborations) ==
+  hdl/common                      1  <= ratchet 1
+  hdl/ieee1722/aaf               17  <= ratchet 17
+  hdl/ieee1722/avtp              49  <= ratchet 49
+  hdl/ieee1722/crf                4  <= ratchet 4
+  hdl/ieee1722/maap               1  <= ratchet 1
+  hdl/ieee8021as/ptp_timestamp    8  <= ratchet 8
+  hdl/ieee8021q/ts                8  <= ratchet 8
+  hdl/milan                       2  <= ratchet 2
+  hdl/ieee17221/adp               0  (was 0)
+  TOTAL                          90
+  by rule: WIDTHEXPAND 61, WIDTHTRUNC 20, SYNCASYNCNET 6, ALWCOMBORDER 1, CASEINCOMPLETE 1, DECLFILENAME 1
+  waived (RULE_WAIVERS, reasons in scripts/lint_rtl.py): PINMISSING 15, TIMESCALEMOD 2
+  third_party (upstream verilog-axis - resolved, never linted, not ours to fix): WIDTHTRUNC 10, WIDTHEXPAND 4, SELRANGE 3
+-- outstanding backlog: 90 violation(s) --
+  hdl/common/axis_mux_rr_2in_1out.sv:109:5: CASEINCOMPLETE  Case values incompletely covered (example pattern 0x0)
+  hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:42:25: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:65:8: DECLFILENAME  Filename 'KL_aaf_latency_taps' does not match MODULE name: 'KL_aaf_latency_chain'
+  hdl/ieee1722/aaf/KL_chan_map_render.sv:207:39: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+  hdl/ieee1722/aaf/KL_chan_map_render.sv:208:39: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+  hdl/ieee1722/aaf/KL_chan_map_render.sv:256:23: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+  hdl/ieee1722/aaf/KL_i2s_playback.sv:317:29: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'ms_div_r' generates 16 bits.
+  hdl/ieee1722/aaf/KL_i2s_playback.sv:318:20: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'ms_div_r' generates 16 bits.
+  hdl/ieee1722/aaf/KL_lat_history_ring.sv:210:54: WIDTHEXPAND  Operator SHIFTL expects 32 bits on the LHS, but LHS's REPLICATE generates 30 bits.
+  hdl/ieee1722/aaf/KL_pcm_lpf.sv:172:36: WIDTHEXPAND  Operator NEGATE expects 44 bits on the LHS, but LHS's VARREF 'prod_w' generates 41 bits.
+  hdl/ieee1722/aaf/KL_pcm_lpf.sv:186:41: WIDTHEXPAND  Operator NEGATE expects 44 bits on the LHS, but LHS's VARREF 'prod_w' generates 41 bits.
+  hdl/ieee1722/aaf/KL_pcm_route.sv:73:14: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+  hdl/ieee1722/aaf/KL_tdm_capture.sv:82:23: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/ieee1722/aaf/aaf_talker_i2s.sv:41:25: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/ieee1722/aaf/aaf_talker_i2s.sv:239:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+  hdl/ieee1722/aaf/aaf_talker_i2s.sv:240:34: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+  hdl/ieee1722/aaf/aaf_talker_i2s.sv:257:21: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'nsamp_r' generates 3 bits.
+  hdl/ieee1722/aaf/aaf_talker_i2s.sv:272:22: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+  hdl/ieee1722/avtp/KL_avtp_common_parser.sv:93:39: WIDTHEXPAND  Operator NEQ expects 32 or 2 bits on the LHS, but LHS's VARXREF 'tdest' generates 1 bits.
+  hdl/ieee1722/avtp/KL_avtp_common_parser.sv:95:41: WIDTHEXPAND  Operator NEQ expects 32 or 2 bits on the LHS, but LHS's VARXREF 'tdest' generates 1 bits.
+  hdl/ieee1722/avtp/KL_avtp_common_parser.sv:96:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARREF 'rcvd_subtype_r' generates 8 bits.
+  hdl/ieee1722/avtp/KL_avtp_common_parser.sv:152:7: ALWCOMBORDER  always_comb reads 'tready_pipe' before assigning it later in the same block; behavior may imply latch/state-like behavior and is not purely combinational
+  hdl/ieee1722/avtp/KL_avtp_common_parser.sv:165:26: WIDTHTRUNC  Operator ASSIGN expects 1 bits on the Assign RHS, but Assign RHS's CONST '?32?h2' generates 32 or 2 bits.
+  hdl/ieee1722/avtp/KL_avtp_common_parser.sv:166:30: WIDTHTRUNC  Operator ASSIGN expects 1 bits on the Assign RHS, but Assign RHS's CONST '?32?h3' generates 32 or 2 bits.
+  hdl/ieee1722/avtp/KL_stream_table.sv:109:16: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+  hdl/ieee1722/avtp/KL_stream_table.sv:110:15: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+  hdl/ieee1722/avtp/KL_stream_table.sv:119:18: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:150:35: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'bytes_in' generates 7 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:162:27: WIDTHEXPAND  Operator FUNCREF 'hbyte' expects 32 bits on the Function Argument, but Function Argument's VARREF 'et_off' generates 5 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:163:39: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'et_off' generates 5 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:165:26: WIDTHEXPAND  Operator FUNCREF 'hbyte' expects 32 bits on the Function Argument, but Function Argument's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:166:33: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:171:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:171:46: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:171:58: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:171:71: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:172:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:172:46: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:172:58: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:172:71: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:173:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:173:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:173:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:173:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:174:33: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:175:33: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:175:45: WIDTHTRUNC  Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's AND generates 8 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:176:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:176:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:176:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:176:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:177:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:177:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:177:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:177:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:180:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:180:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:180:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:180:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:181:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:181:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:181:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:181:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:206:30: WIDTHEXPAND  Operator GTE expects 32 bits on the LHS, but LHS's VARREF 'bytes_in' generates 7 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:239:32: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'bytes_in' generates 7 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:239:20: WIDTHTRUNC  Operator ASSIGNDLY expects 7 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+  hdl/ieee1722/avtp/avtp_stream_parser.sv:255:38: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+  hdl/ieee1722/crf/KL_crf_tx.sv:125:23: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/ieee1722/crf/KL_crf_tx.sv:481:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+  hdl/ieee1722/crf/KL_crf_tx.sv:482:34: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+  hdl/ieee1722/crf/KL_crf_tx.sv:515:22: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+  hdl/ieee1722/maap/KL_maap.sv:278:21: WIDTHTRUNC  Operator ASSIGNDLY expects 4 bits on the Assign RHS, but Assign RHS's AND generates 8 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:204:42: WIDTHTRUNC  Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's VARREF 'IS_TX' generates 32 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:224:24: WIDTHEXPAND  Operator LTE expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:225:38: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:225:22: WIDTHTRUNC  Operator ASSIGNDLY expects 7 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:261:39: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:271:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:276:55: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:280:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:170:21: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:200:37: WIDTHEXPAND  Operator GTE expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:211:22: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's SEL generates 3 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:254:36: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:254:20: WIDTHTRUNC  Operator ASSIGNDLY expects 6 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+  hdl/ieee8021q/ts/traffic_queues.sv:150:24: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARREF 'gsel' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:103:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARXREF 'tdest' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.
+  hdl/milan/KL_pp_shadow.sv:246:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
