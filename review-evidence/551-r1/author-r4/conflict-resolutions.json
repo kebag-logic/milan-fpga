@@ -1,0 +1,37 @@
+[
+  {
+    "path": "docs/reference/REGISTER_MAP.md",
+    "block": 1,
+    "original_line": 1108,
+    "replacement": "**The licence requires ACTIVE and the real per-source grant (#551).**\nACTIVE includes the processor's three-published-round optimistic admission term.\nThe real grant excludes that optimistic term.\nEvery declaration clears its registered Listener first.\nAn early Listener Ready can raise ACTIVE before admission completes.\n",
+    "source": "9eee4383"
+  },
+  {
+    "path": "docs/reference/REGISTER_MAP.md",
+    "block": 2,
+    "original_line": 1138,
+    "replacement": "The processor now evaluates the current TSpec before granting admission.\nEvery declaration clears its source's grant until that evaluation completes.\nA round that meets any pending declaration publishes nothing.\nOther grants, the slope sum and over-limit retain their published values.\nThis follows [processor #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112), adopted through #508.\n\n`CRFT_CTRL[6]`/`[7]` require the CRF source's real grant.\n`LWSRP_STATUS[8]` requires source 0's real grant.\n`LWSRP_STATUS[6]` remains raw ACTIVE ORed across sources.\nThat raw bit can rise while every licence stays closed.\nThe `0x82C` snapshot gate bit [3] follows the selected licence.\nIts lobs bit [2] follows that licence above index 0.\nIndex 0's lobs still reports its registered Listener instead.\nAt index 0, [27:19] mirrors `LWSRP_STATUS[8:0]`.\nThus [27] requires the grant; [25] remains raw |ACTIVE.\n\n`LWSRP_STATUS[9]` remains the OR of real admission grants.\n`LWSRP_SLOPE` reports their sum from the last published round.\nAfter withdrawal, the sum updates at the next published round.\nNeither diagnostic programs a shaper; none is instantiated.\nSee [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md#credit-based-shaping).\n",
+    "source": "9eee4383"
+  },
+  {
+    "path": "hdl/milan/milan_datapath.sv",
+    "block": 1,
+    "original_line": 6596,
+    "replacement": "  //! THE LICENCE (#530, #551): ACTIVE AND the real per-source grant.\n  //! ACTIVE supplies the processor's complete Milan v1.2 5.3.7.3 verdict:\n  //! Talker Advertise, not failed, Listener Ready or Ready Failed, admitted.\n  //! Its admission term includes opt_r for three PUBLISHED admission rounds.\n  //! sr_admitted_o excludes opt_r. Processor #112 clears the declaring\n  //! source's grant until its current TSpec has been evaluated. Rounds that\n  //! meet a pending declaration publish nothing; other grants and the slope\n  //! sum hold. Requiring the real grant prevents optimistic admission alone\n  //! from licensing any CRF or AAF consumer, including changed TSpecs.\n  //!\n  //! OPENING EDGE - a declaration clears its Listener registrar. Normally\n  //! Listener Ready arrives after the real grant and adds no start delay.\n  //! A registering Listener event decoded inside the optimistic window can\n  //! raise ACTIVE earlier. The licence also requires the real grant.\n  //! The two-source fixture measures added delay for both TSpec histories;\n  //! see tb/verilator/milan_dp/README.md for the measured cycle counts.\n",
+    "source": "9eee4383"
+  },
+  {
+    "path": "hdl/milan/milan_datapath.sv",
+    "block": 2,
+    "original_line": 6651,
+    "replacement": "  //! CLOSING EDGE - either ACTIVE or the real grant falling closes the gate.\n  //! The raw grant does not follow Listener withdrawal; ACTIVE does. The\n  //! grant drops with withdrawal or re-declaration until that is evaluated.\n  //! LWSRP_SLOPE is latched by PUBLISHED rounds and can retain a withdrawn\n  //! declaration's slope until the next publication. No shaper consumes it.\n  //! A future shaping lane must prove its own slope/gate ordering.\n  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0] &\n                             pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];\n",
+    "source": "9eee4383"
+  },
+  {
+    "path": "tb/verilator/milan_dp/README.md",
+    "block": 1,
+    "original_line": 26,
+    "replacement": "| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30\u201360 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants` |\n| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |\n",
+    "source": "9eee4383"
+  }
+]

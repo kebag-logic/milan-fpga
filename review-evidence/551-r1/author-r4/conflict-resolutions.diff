@@ -1,0 +1,215 @@
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -1105,27 +1105,11 @@
+   and its own destination address from MAAP. Writing these changes nothing
+   observable.
+ 
+-<<<<<<< HEAD
+ **The licence requires ACTIVE and the real per-source grant (#551).**
+-ACTIVE includes the processor's three-round optimistic admission term.
++ACTIVE includes the processor's three-published-round optimistic admission term.
+ The real grant excludes that optimistic term.
+ Every declaration clears its registered Listener first.
+ An early Listener Ready can raise ACTIVE before admission completes.
+-=======
+-**The slope/gate ordering has no object on this wire, and it is recorded
+-honestly.** The deleted bandwidth gate joined a stream's idleSlope into the
+-running sum *before* opening that stream's gate, and closed the gate *before*
+-removing the slope, so the shaper was never asked to carry a stream whose
+-bandwidth was not yet budgeted, in either direction. No shaper is instantiated
+-now ([EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md#credit-based-shaping)): the
+-processor's raw admission verdict and slope sum reach only `LWSRP_STATUS[9]` and
+-`LWSRP_SLOPE`. The stream gate is the processor's ACTIVE since #530. Its
+-optimistic admission window counts a fresh declaration as admitted until the end
+-of the third published admission round after it. The declaration also clears the source's
+-registered Listener, so ACTIVE rises inside the window only if a Listener Ready
+-or Ready Failed for the stream is decoded within those few cycles. That corner
+-has two branches:
+->>>>>>> 864b36f5e9450ef64f75ca3f0d68c44330e447d7
+ 
+ * **Admitted.** The licence opens once both terms hold.
+   A later Listener Ready adds no admission delay.
+@@ -1135,14 +1119,11 @@
+   The refused re-declaration emits no PDU.
+   ACTIVE falls when optimism expires; Talker Failed follows.
+ 
+-<<<<<<< HEAD
+-**Residual: changed TSpec.** The refused TSpec differs from that source's previous one.
+-The first-round grant still uses the previous slope.
+-With an early Listener Ready, about one round's licence remains.
+-A STREAM_START/STREAM_STOP pair and Table 5.4 resets remain possible.
+-So does a PDU if its media event lands inside.
+-[Processor issue #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112) owns the pending fix.
+-Its fix must be pinned before #551 can close.
++The processor now evaluates the current TSpec before granting admission.
++Every declaration clears its source's grant until that evaluation completes.
++A round that meets any pending declaration publishes nothing.
++Other grants, the slope sum and over-limit retain their published values.
++This follows [processor #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112), adopted through #508.
+ 
+ `CRFT_CTRL[6]`/`[7]` require the CRF source's real grant.
+ `LWSRP_STATUS[8]` requires source 0's real grant.
+@@ -1155,23 +1136,10 @@
+ Thus [27] requires the grant; [25] remains raw |ACTIVE.
+ 
+ `LWSRP_STATUS[9]` remains the OR of real admission grants.
+-`LWSRP_SLOPE` reports their round-latched sum.
+-After withdrawal, the sum updates at the next round.
++`LWSRP_SLOPE` reports their sum from the last published round.
++After withdrawal, the sum updates at the next published round.
+ Neither diagnostic programs a shaper; none is instantiated.
+ See [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md#credit-based-shaping).
+-=======
+-Both show on the licensed source's bits. For the CRF output they are
+-`CRFT_CTRL[6]`/`[7]` (`0x750`). `LWSRP_STATUS[8]` is source 0's licence only,
+-so it never shows the CRF output's corner. `LWSRP_STATUS[6]` is ACTIVE ORed
+-over sources, not one source's own bit, so it shows the corner only while no
+-other source is ACTIVE.
+-After a withdrawal `LWSRP_SLOPE` keeps the stream's slope until the next published round.
+-Since processor pin `a8f8ce81` (its issue 112) two rules hold.
+-An accepted re-declaration clears that source's `LWSRP_STATUS[9]` term.
+-The term returns once the new TSpec has been evaluated.
+-A round that meets any pending declaration publishes nothing.
+-So `[9]`, `LWSRP_SLOPE` and `[7]` hold until every declaration is evaluated.
+->>>>>>> 864b36f5e9450ef64f75ca3f0d68c44330e447d7
+ 
+ While enabled the plane declares MSRP Domain (+ TalkerAdvertise) and the MVRP
+ VID, registers the bridge's Listener attribute for our StreamID, and resolves
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -6593,49 +6593,22 @@
+   //! request, and an accepted (re)declaration retires its source's grant
+   //! until its new slope is evaluated.
+   //!
+-<<<<<<< HEAD
+   //! THE LICENCE (#530, #551): ACTIVE AND the real per-source grant.
+   //! ACTIVE supplies the processor's complete Milan v1.2 5.3.7.3 verdict:
+   //! Talker Advertise, not failed, Listener Ready or Ready Failed, admitted.
+-  //! Its admission term includes opt_r for three admission rounds after a
+-  //! declaration. sr_admitted_o excludes opt_r; requiring it here prevents
+-  //! optimistic admission alone from licensing any CRF or AAF consumer.
++  //! Its admission term includes opt_r for three PUBLISHED admission rounds.
++  //! sr_admitted_o excludes opt_r. Processor #112 clears the declaring
++  //! source's grant until its current TSpec has been evaluated. Rounds that
++  //! meet a pending declaration publish nothing; other grants and the slope
++  //! sum hold. Requiring the real grant prevents optimistic admission alone
++  //! from licensing any CRF or AAF consumer, including changed TSpecs.
+   //!
+   //! OPENING EDGE - a declaration clears its Listener registrar. Normally
+   //! Listener Ready arrives after the real grant and adds no start delay.
+   //! A registering Listener event decoded inside the optimistic window can
+   //! raise ACTIVE earlier. The licence also requires the real grant.
+-  //! Measured added delay on the two-source fixture: 0--2 warm-pipeline
+-  //! cycles; a changed-TSpec admitted CRF start took 4 cycles (R296-1).
+-  //! Both fit three rounds (N_SOURCES cycles per admission round).
+-  //! Re-measure after pinning the processor #112 fix.
+-=======
+-  //! THE GATE IS NOT THAT VERDICT (#530). It is the processor's ACTIVE,
+-  //! srp_active_o: declaring Talker Advertise AND not failed AND a Listener
+-  //! Ready or Ready Failed registered AND admitted - the Milan v1.2 5.3.7.3
+-  //! licence, which protocol_processor_top names "THE AVTP transmit gate"
+-  //! and tells a consumer never to rebuild from its terms. The raw verdict
+-  //! is only the last term. It rises within a few admission rounds of the
+-  //! DECLARE_TALKER, before any bridge has answered, so gating on it put
+-  //! the #117 Run B CRF output on
+-  //! the wire 4.7 s before its first Listener Ready and kept it there after
+-  //! the Listener had left. So:
+-  //!
+-  //!   OPENING EDGE - ACTIVE takes the admission term through the
+-  //!   processor's optimistic window (sr_adm_fsm = opt | admitted): a fresh
+-  //!   declaration counts as admitted until the end of the third PUBLISHED
+-  //!   admission round after it, a round walking one source per cycle, so
+-  //!   N_SOURCES cycles each (protocol-processor hdl/srp/KL_srp_top.sv:
+-  //!   sr_adm_fsm_w at 451, opt_r aging at 787-798, reload at 873-876).
+-  //!   The same declaration clears that source's talker-side Listener
+-  //!   registrar (KL_srp_talker_fsm.sv:705-710), so no Listener Ready is
+-  //!   ever registered at a declaration and ACTIVE is 0 after it. ACTIVE
+-  //!   rises inside the window only if a registering Listener event for the
+-  //!   stream (New, JoinIn or JoinMt with Ready or Ready Failed) is decoded
+-  //!   within those few cycles; the Listener Ready that answers the Talker
+-  //!   Advertise arrives by MRPDU long after them. That corner has two
+-  //!   branches, and status skew is the whole effect of the first only:
+->>>>>>> 864b36f5e9450ef64f75ca3f0d68c44330e447d7
++  //! The two-source fixture measures added delay for both TSpec histories;
++  //! see tb/verilator/milan_dp/README.md for the measured cycle counts.
+   //!
+   //! REFUSED, SAME TSPEC PRELOADED - no real grant; ACTIVE may pulse but
+   //! the licence stays closed. No STREAM_START/STREAM_STOP pair, Table 5.4
+@@ -6648,55 +6621,14 @@
+   //! LWSRP_STATUS[6] remains raw |ACTIVE; source 0's gate bit [8] and
+   //! CRFT_CTRL[6]/[7] require the real grant as well.
+   //!
+-<<<<<<< HEAD
+   //! CLOSING EDGE - either ACTIVE or the real grant falling closes the gate.
+-  //! The raw grant does not follow Listener withdrawal; ACTIVE does.
+-  //! LWSRP_SLOPE is round-latched and can retain a withdrawn declaration's
+-  //! slope until the next round. No shaper consumes it. A future shaping
+-  //! lane must establish its own slope/gate ordering and verification.
++  //! The raw grant does not follow Listener withdrawal; ACTIVE does. The
++  //! grant drops with withdrawal or re-declaration until that is evaluated.
++  //! LWSRP_SLOPE is latched by PUBLISHED rounds and can retain a withdrawn
++  //! declaration's slope until the next publication. No shaper consumes it.
++  //! A future shaping lane must prove its own slope/gate ordering.
+   assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0] &
+                              pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];
+-=======
+-  //!   REFUSED - the round refuses the stream: over_limit (LWSRP_STATUS[7])
+-  //!   rises and sr_admitted_o stays 0 (KL_srp_admission.sv:187-190,
+-  //!   261-266). ACTIVE does not fall inside the window: it holds on opt
+-  //!   and falls at the window's end, and the declaration then swaps to
+-  //!   Talker Failed. So a declaration the 75 % ceiling refuses holds, for
+-  //!   up to three rounds, the emission licence (crft_emit_en_w into
+-  //!   KL_crf_tx.enable_i, the AAF gates) and the Milan v1.2 5.3.7.7 Table
+-  //!   5.4 streaming level (tkd_streaming_w). KL_talker_diag_ctx counts a
+-  //!   STREAM_START and a STREAM_STOP a controller reads, the start zeroes
+-  //!   MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX, and at most one PDU
+-  //!   per source can leave, if its media event falls in the window.
+-  //!   CRFT_CTRL[6]/[7] pulse with it for the CRF output and LWSRP_STATUS[8]
+-  //!   for source 0; LWSRP_STATUS[6] is |ACTIVE, so it pulses only while no
+-  //!   other source is ACTIVE. The snap-latched 0x82C talker window's
+-  //!   per-index bits hold the AAF sources only, never the CRF output: its
+-  //!   gate bit [3] pulses at every index, its lobs bit [2] only above
+-  //!   index 0, because index 0's lobs is source 0's registered Listener
+-  //!   level, not ACTIVE. At index 0 its [27:19] mirrors LWSRP_STATUS[8:0],
+-  //!   so [27] pulses as LWSRP_STATUS[8] does and [25] as the OR
+-  //!   LWSRP_STATUS[6] does. ACTIVE still needs a registered Listener Ready
+-  //!   or Ready Failed, so nothing leaves before one (#530). Whether the
+-  //!   licence should also need the real grant is issue #551.
+-  //!
+-  //!   The processor takes the window so that a declaration is never Talker
+-  //!   Failed first.
+-  //!
+-  //!   CLOSING EDGE - ACTIVE drops the cycle any of its terms drops.
+-  //!   sr_admitted_o, whose OR is LWSRP_STATUS[9], does not follow the
+-  //!   Listener: it drops with the request (the declaration), with a
+-  //!   re-declaration until that is evaluated, or with a refusing round.
+-  //!   sum_r is latched by PUBLISHED rounds, so 0x698 keeps a withdrawn
+-  //!   declaration's slope until the next one completes.
+-  //!
+-  //! A LATER LANE that credit-shapes these sources must not pair this gate
+-  //! with sum_r and inherit the bw-gate's ordering: at the opening edge
+-  //! above the gate can lead the Sigma by three rounds, or open for three
+-  //! rounds on a stream the Sigma never includes. That lane derives its
+-  //! own ordering and its own test for it.
+-  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
+->>>>>>> 864b36f5e9450ef64f75ca3f0d68c44330e447d7
+   //! STATUS ONLY (no shaper, above): LWSRP_STATUS[9] reads the RAW verdict
+   //! of any source and LWSRP_SLOPE 0x698 the processor's Sigma across
+   //! admitted sources. Both report admitted DECLARATIONS, licensed or not,
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -23,13 +23,8 @@
+ | `obj_prune` | `sim_prune.cpp` | all six tier-1 blocks pruned | the inert values are STRUCTURAL zeros, not not-armed-yet zeros; `SLIP_LB` (#390) is read behind listener 0 bound, fed well-formed AAF PDUs and then starved, so a built ring would count. The same section then establishes the lane the way the [register map](../../../docs/reference/REGISTER_MAP.md) instructs, and in that order: the whole `0x914` word is graded against the `0xDEADDEAD` not-a-measurement poison, and `CHMAP_SNAP[1]` valid with it, before any projection of it, because that poison projects to the same `{mask_valid, valid, fed}` = 1, 1, 0 this leg expects; behind those two grades the readback answers 1, 1, 0, so the zero is a measured absent lane, and a readback left un-armed fails this leg instead of passing it |
+ | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
+ | `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): the INTERNAL free-run drift (-10.64 ppm, the standing free-run rule), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and dups once per beat period at INTERNAL on the predicted beat, one event per fed pair. The closed form: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup comes (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts the first dup from the first beat and grades it within 25 percent over a window of 1.5 times the prediction. The same aim and window under CRF show zero, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
+-<<<<<<< HEAD
+-| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification |
+-| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal remains EXPECTED-FAIL under processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
+-=======
+ | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants` |
+-| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates follow the processor's ACTIVE on every cycle, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
+->>>>>>> 864b36f5e9450ef64f75ca3f0d68c44330e447d7
++| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
+ | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
+ | `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387: a grandmaster change that steps the PHC by 1.5 s under CRF selection is one counted media event (`tu`, one render re-base, one `mr` toggle, one MEDIA_RESET) and stops no stream; `gmstep_mutants.py` plants the acceptance's three controls in the sweep and `make gmstep-mutants` the whole inventory |
+ 
