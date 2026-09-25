@@ -1,0 +1,27 @@
+CHANGELOG.md side1 added=26 missing=0
+CHANGELOG.md side2 added=25 missing=0
+docs/testing/TESTING.md side1 added=1 missing=0
+docs/testing/TESTING.md side2 added=4 missing=0
+scripts/measure_test_evidence.py side1 added=13 missing=0
+scripts/measure_test_evidence.py side2 added=9 missing=0
+   MISSING(side1): .PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants
+tb/verilator/milan_dp/Makefile side1 added=42 missing=1
+   MISSING(side2): .PHONY: all run gptp gmstep gmstep-build gmstep-mutants option-off option-off-build ax1x1 aclk aclk-build crflic crflic-build crflic-mutants
+tb/verilator/milan_dp/Makefile side2 added=30 missing=1
+   MISSING(side1): | `obj_gptp` (`sim_gptp`) | not available | **181 / 0** (2026-09-24 UTC) | product-default fabric-owner run; inert-write negatives, both cou
+   MISSING(side1): | `obj_dir` (`sim_main`) | 273 checks / 75 fail | **231 / 0** (2026-09-24 UTC) | the focused ownerless option-OFF target; exact CRF `tu=1` o
+   MISSING(side1): | `obj_notify` (`sim_nxn`, timed) | not in the old table | **345 / 0** (2026-09-24 UTC) | the compressed-timebase 5.4.5 notify leg |
+   MISSING(side1): | `obj_nxn` (`sim_nxn`) | 378 / - (did not compile) | **1709 / 0** (2026-09-24 UTC) | the old 145 was already stale at #294's merge (issue #
+   MISSING(side1): | `obj_nxndv` (`sim_nxn`) | not in the old table | **1711 / 0** (2026-09-24 UTC) | the divergent-shape leg |
+   MISSING(side1): | `obj_nxn8` (`sim_nxn`) | 512 / not available | **3137 / 0** (2026-09-24 UTC) | `[T66]` grades atomic audio-map mutation (the old row's "cu
+   MISSING(side1): | `obj_nxn4c` (`sim_nxn`) | 378 / - | **1709 / 0** (2026-09-24 UTC) | |
+   MISSING(side1): | `obj_nolpf` (`sim_main`) | 273 / 75 | **231 / 0** (2026-09-24 UTC) | re-run current (the old "not rerun after the `tu` assertion" caveat i
+   MISSING(side1): | `obj_prune` (`sim_prune`) | 31 / 0 | **33 / 0** (2026-09-24 UTC) | the old 31 was already stale at #294's merge (issue #314 measured 28 th
+   MISSING(side1): | `obj_ax1x1` (`sim_main`) | 273 / 73 | **228 / 0** (2026-09-24 UTC) | 5 sections guarded out on this shape |
+   MISSING(side1): | `obj_aclk` (`sim_aclk`) | 5 / 0 | **140 / 0** (2026-09-24 UTC) | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr
+tb/verilator/milan_dp/README.md side1 added=81 missing=11
+   MISSING(side2): | `obj_dir` (`sim_main`) | 273 checks / 75 fail | **233 / 0** (2026-09-24 UTC) | the focused ownerless option-OFF target; exact CRF `tu=1` o
+   MISSING(side2): | `obj_gmstep` (`sim_gmstep`) | not in the old table | **48 / 0** (2026-09-24 UTC) | #387; `gmstep_mutants.py` catches the acceptance's thre
+   MISSING(side2): | `obj_nolpf` (`sim_main`) | 273 / 75 | **233 / 0** (2026-09-24 UTC) | re-run current (the old "not rerun after the `tu` assertion" caveat i
+   MISSING(side2): | `obj_ax1x1` (`sim_main`) | 273 / 73 | **230 / 0** (2026-09-24 UTC) | 5 sections guarded out on this shape; #387 adds the `mr` checks |
+tb/verilator/milan_dp/README.md side2 added=49 missing=4
