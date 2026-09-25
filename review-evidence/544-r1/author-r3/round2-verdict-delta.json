@@ -1,0 +1,45 @@
+{
+  "R316-sdk": [
+    {
+      "case": "W01",
+      "before": "ACCEPTED",
+      "after": "REFUSED",
+      "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s0, 0x4d494c4e\\\\n\\\\tli s1, 0x4d494c4e\\\\n\\\\tli s2, 0x4d494c4e\\\\n\\\\tli s3, 0x4d494c4e\\\\n\\\\tli s4, 0x4d494c4e\\\\n\\\\tli s5, 0x4d494c4e\\\\n\\\\tli s6, 0x4d494c4e\\\\n\\\\tli s7, 0x4d494c4e\\\\n\\\\tli s8, 0x4d494c4e\\\\n\\\\tli s9, 0x4d494c4e\\\\n\\\\tli s10, 0x4d'"
+    },
+    {
+      "case": "W02",
+      "before": "ACCEPTED",
+      "after": "REFUSED",
+      "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s0, 0x4d494c4e\\\\n\\\\tli s1, 0x4d494c4e\\\\n\\\\tli s2, 0x4d494c4e\\\\n\\\\tli s3, 0x4d494c4e\\\\n\\\\tli s4, 0x4d494c4e\\\\n\\\\tli s5, 0x4d494c4e\\\\n\\\\tli s6, 0x4d494c4e\\\\n\\\\tli s7, 0x4d494c4e\\\\n\\\\tli s8, 0x4d494c4e\\\\n\\\\tli s9, 0x4d494c4e\\\\n\\\\tli s10, 0x4d'"
+    },
+    {
+      "case": "W03",
+      "before": "ACCEPTED",
+      "after": "REFUSED",
+      "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s0, 0x4d494c4e\\\\n\\\\tli s1, 0x4d494c4e\\\\n\\\\tli s2, 0x4d494c4e\\\\n\\\\tli s3, 0x4d494c4e\\\\n\\\\tli s4, 0x4d494c4e\\\\n\\\\tli s5, 0x4d494c4e\\\\n\\\\tli s6, 0x4d494c4e\\\\n\\\\tli s7, 0x4d494c4e\\\\n\\\\tli s8, 0x4d494c4e\\\\n\\\\tli s9, 0x4d494c4e\\\\n\\\\tli s10, 0x4d'"
+    }
+  ],
+  "R316-absent": [],
+  "R317-r2-sdk": [
+    {
+      "case": "LIM asm +r output after guard (no address, after the interval)",
+      "before": "ACCEPTED",
+      "after": "REFUSED",
+      "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile (\"\" : \"+r\"(id));'"
+    },
+    {
+      "case": "LIM callee asm clobbers a callee-saved register, called in interval",
+      "before": "ACCEPTED",
+      "after": "REFUSED",
+      "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s1, 0x4d494c4e\");'"
+    }
+  ],
+  "R317-r2-absent": [],
+  "R317-r2b-sdk": [],
+  "R317-r2b-absent": [],
+  "R317-r2c-sdk": [],
+  "R317-r2c-absent": [],
+  "R317-r2d-sdk": [],
+  "R317-r2d-absent": [],
+  "R317-r2e-sdk": []
+}

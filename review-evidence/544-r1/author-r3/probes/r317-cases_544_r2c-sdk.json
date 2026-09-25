@@ -1,0 +1,36 @@
+{
+  "summary": {
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rev": "head",
+    "mode": "sdk",
+    "disconnect": false,
+    "compiles": 8,
+    "hidden": []
+  },
+  "rows": [
+    {
+      "label": "CTRL unchanged firmware",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "PRIOR C08 macro (*(__extension__ &(x)) = MAGIC)",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+    },
+    {
+      "label": "PRIOR C09 plain (*(__extension__ &(id)) = MAGIC)",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+    },
+    {
+      "label": "PRIOR C10 macro asm li %0 output",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"
+    },
+    {
+      "label": "PRIOR C11 plain asm li %0 output",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"
+    }
+  ]
+}

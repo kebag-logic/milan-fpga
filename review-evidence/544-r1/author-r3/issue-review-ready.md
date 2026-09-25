@@ -1,0 +1,12 @@
+[A296] REVIEW READY
+Commit: 8383e929fab3ff57a768c88b8b1ff9b568afcf14 (local, not pushed).
+
+Changed: unit-wide exact asm allowlist; W01-W03 named mutations and individual disconnected controls; retained round-2 checks; explicit out-of-unit library and compiler-free class bounds. Eleven measured forms cover production and census headers. The fifth fence needs no extra entry.
+
+Validation: full builder exits 0 in both modes using the assigned pinned-compiler mapping and compiler absence. Gate 1b: 351/351 mutations and 38/38 firmware cases with compilation; 249/249 and 35/35 without; both retain 4/4 Makefile cases and 46/46 RTL variants. Both documentation CI modes, baremetal-only, em-dash against ffcbd33de70278ae34b533dcbadde0b36c8cba13, documentation style, contents, paths, Python idiom and diff checks all exit 0.
+
+Both unchanged round-2 probe sets ran at this head: 483 verdicts across 25 configurations, all recorded. W01-W03 refuse on the allowlist sentence and pass with only that check removed. All compiler-free probe verdicts remain unchanged. Production firmware and the accepted corpus blocks are byte-identical to the starting head.
+
+Bounds: separately linked library/BIOS/startup objects remain unread; unmatched compiler-free identity forms are NOT RUN. Existing resource calibration remains NOT RUN; the compiler-free run additionally declares its unavailable instruments.
+
+HANDOFF.md and the complete updated PR-BODY.md are prepared in the assigned output directory. Downloaded scratch evidence and temporary environments were deleted. No PR edit, push, merge or hardware action performed. Ready for the assigned independent delta reviews.
