@@ -1,0 +1,188 @@
+diff --git a/hdl/srp/KL_srp_admission.sv b/hdl/srp/KL_srp_admission.sv
+index 785c380..f456f6c 100644
+--- a/hdl/srp/KL_srp_admission.sv
++++ b/hdl/srp/KL_srp_admission.sv
+@@ -30,8 +30,6 @@
+ //                <= the ceiling; a refused source never displaces a
+ //                lower-indexed grant, and the walk re-runs every round so a
+ //                refused source is admitted the moment capacity frees.
+-//                Capacity frees only by a withdrawal or by an evaluated
+-//                smaller slope, never by a declaration still pending.
+ //                Published per F02.10: granted_slope_bps[src] (the granted
+ //                idleSlope while sr_admitted[src] = 1, else 0),
+ //                sr_admitted[src], the Σ of granted slopes and an
+@@ -47,15 +45,6 @@
+ //                sequential walk — one source through the 3-stage slope
+ //                pipeline per cycle, one admission decision per cycle —
+ //                never a parallel wide adder tree.
+-//                A declaration invalidates its source at every pipeline
+-//                stage and clears its published grant. The partial admission
+-//                round restarts, so no saved decision from the old TSpec can
+-//                be published. A round publishes only if every requesting
+-//                source had a valid slope for its current declaration; a
+-//                round that met a pending source is discarded, so every
+-//                other grant and granted slope, the Σ and over_limit keep
+-//                their last published values. A pending source is neither
+-//                granted nor refused, and never counted as absent.
+ //---------------------------------------------------------------------------//
+ `default_nettype none
+ 
+@@ -70,16 +59,15 @@ module KL_srp_admission #(
+     input  wire                           rst_n,        //! synchronous active-low reset
+ 
+     input  wire  [N_SOURCES_P-1:0]        req_i,        //! per-source reservation request level (declaration standing)
+-    input  wire  [N_SOURCES_P-1:0]        invalidate_i, //! strobe on accepted declare/withdraw, at the edge updating req/TSpec
+     input  wire  [N_SOURCES_P-1:0][15:0]  max_frame_i,  //! per-source TSpec MaxFrameSize (talker declare face)
+     input  wire  [N_SOURCES_P-1:0][15:0]  interval_frames_i, //! per-source TSpec MaxIntervalFrames (talker declare face)
+     input  wire  [31:0]                   port_rate_bps_i,   //! port rate in bps (quasi-static; 1G = 1_000_000_000)
+ 
+     output logic [N_SOURCES_P-1:0]        sr_admitted_o,       //! F02.10: admitted against the Σ-slope ceiling (live-AND with req)
+     output logic [N_SOURCES_P-1:0][31:0]  granted_slope_bps_o, //! F02.10: granted idleSlope while admitted, else 0
+-    output logic [31:0]                   sum_slope_bps_o,     //! Σ of granted slopes, bps (latched by published rounds)
+-    output logic                          over_limit_o,        //! some evaluated source refused by the ceiling (latched by published rounds)
+-    output logic                          round_done_o         //! one-cycle strobe: an admission round latched its verdicts (a discarded round does not strobe)
++    output logic [31:0]                   sum_slope_bps_o,     //! Σ of granted slopes, bps (round-latched)
++    output logic                          over_limit_o,        //! some requested source refused by the ceiling (round-latched)
++    output logic                          round_done_o         //! one-cycle strobe: an admission round latched its verdicts
+ );
+ 
+   // ---- Milan v1.2 §4.3.3.2 constants (reference-matched) -----------------
+@@ -109,13 +97,6 @@ module KL_srp_admission #(
+   logic [16:0]                 frame_bytes_r;   // W = clamped F + wire overhead
+   logic [32:0]                 iv_bytes_r;      // W x MaxIntervalFrames
+   logic [N_SOURCES_P-1:0][31:0] slope_q_r;
+-  logic                         valid_q1_r, valid_q2_r;
+-  logic [N_SOURCES_P-1:0]       slope_valid_r;
+-  logic [N_SOURCES_P-1:0]       invalid_w;
+-
+-  // TSpec/request changes must strobe invalidate_i, even for a same-TSpec
+-  // re-declaration. A dropped request also makes all its old work unusable.
+-  assign invalid_w = invalidate_i | ~req_i;
+ 
+   logic [16:0] f_raw_w;
+   logic [32:0] slope_prod_w;
+@@ -131,22 +112,11 @@ module KL_srp_admission #(
+       frame_bytes_r <= '0;
+       iv_bytes_r    <= '0;
+       slope_q_r     <= '0;
+-      valid_q1_r    <= 1'b0;
+-      valid_q2_r    <= 1'b0;
+-      slope_valid_r <= '0;
+     end else begin
+       cidx_r    <= (32'(cidx_r) == N_SOURCES_P - 1) ? '0
+                                                     : cidx_r + SRC_W_C'(1);
+       cidx_q1_r <= cidx_r;
+       cidx_q2_r <= cidx_q1_r;
+-      valid_q1_r <= !invalid_w[cidx_r];
+-      valid_q2_r <= valid_q1_r && !invalid_w[cidx_q1_r];
+-      slope_valid_r[cidx_q2_r] <= valid_q2_r;
+-      // Invalidation wins over a same-edge pipeline arrival, including
+-      // N_SOURCES_P = 1/2 where several stages hold the same source.
+-      for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+-        if (invalid_w[s]) slope_valid_r[s] <= 1'b0;
+-      end
+       // stage 1: F clamped to the tagged minimum, plus the wire overhead
+       frame_bytes_r <= ((f_raw_w < MIN_L2_BYTES_C) ? MIN_L2_BYTES_C : f_raw_w)
+                        + WIRE_OVERHEAD_C;
+@@ -162,13 +132,11 @@ module KL_srp_admission #(
+ 
+   // ------------------------------------------------------------------------
+   // Admission walk: greedy in index order against the Σ ceiling; verdicts
+-  // (grant vector, granted slopes, Σ, over_limit) latch at the end of a
+-  // round that met no pending source
++  // (grant vector, granted slopes, Σ, over_limit) latch at round end
+   // ------------------------------------------------------------------------
+   logic [SRC_W_C-1:0]           aidx_r;
+   logic [31:0]                  acc_r;        // running granted Σ <= ceiling
+   logic                         over_acc_r;
+-  logic                         pend_acc_r;   // this round met a pending source
+   logic [N_SOURCES_P-1:0]       wgrant_r;
+   logic [N_SOURCES_P-1:0][31:0] wgslope_r;
+   logic [N_SOURCES_P-1:0]       grant_r;
+@@ -179,17 +147,11 @@ module KL_srp_admission #(
+   logic [32:0] cand_w;
+   logic        fit_w;
+   logic        refuse_w;
+-  logic        pend_w;
+   logic        round_w;
+ 
+-  // The validity terms are defensive: a round that visits a pending source
+-  // is discarded (pend_w), so a published round never evaluates a stale slope.
+   assign cand_w   = {1'b0, acc_r} + {1'b0, slope_q_r[aidx_r]};
+-  assign fit_w    = !invalid_w[aidx_r] && slope_valid_r[aidx_r]
+-                   && (cand_w <= {1'b0, limit_w});
+-  assign refuse_w = !invalid_w[aidx_r] && slope_valid_r[aidx_r] && !fit_w;
+-  // requesting, but its current-declaration slope is not valid yet
+-  assign pend_w   = !invalid_w[aidx_r] && !slope_valid_r[aidx_r];
++  assign fit_w    = req_i[aidx_r] && (cand_w <= {1'b0, limit_w});
++  assign refuse_w = req_i[aidx_r] && !fit_w;
+   assign round_w  = (32'(aidx_r) == N_SOURCES_P - 1);
+ 
+   logic [N_SOURCES_P-1:0]       wgrant_now_w;
+@@ -207,7 +169,6 @@ module KL_srp_admission #(
+       aidx_r       <= '0;
+       acc_r        <= 32'd0;
+       over_acc_r   <= 1'b0;
+-      pend_acc_r   <= 1'b0;
+       wgrant_r     <= '0;
+       wgslope_r    <= '0;
+       grant_r      <= '0;
+@@ -217,31 +178,16 @@ module KL_srp_admission #(
+       round_done_o <= 1'b0;
+     end else begin
+       round_done_o <= 1'b0;
+-      if (|invalidate_i) begin
+-        // Retire the changed sources immediately, keep unrelated grants,
+-        // and discard the partial sum/decisions as one coherent snapshot.
+-        grant_r    <= grant_r & ~invalid_w;
+-        aidx_r     <= '0;
+-        acc_r      <= 32'd0;
+-        over_acc_r <= 1'b0;
+-        pend_acc_r <= 1'b0;
+-        wgrant_r   <= '0;
+-        wgslope_r  <= '0;
+-      end else if (round_w) begin
+-        // Publish only a round that saw every requesting source's current
+-        // slope; after a pending visit keep every published verdict.
+-        if (!(pend_acc_r || pend_w)) begin
+-          grant_r      <= wgrant_now_w;
+-          gslope_r     <= wgslope_now_w;
+-          // a FIT candidate sum is <= the ceiling < 2^32: the slice is exact
+-          sum_r        <= fit_w ? cand_w[31:0] : acc_r;
+-          over_r       <= over_acc_r | refuse_w;
+-          round_done_o <= 1'b1;
+-        end
++      if (round_w) begin
++        grant_r      <= wgrant_now_w;
++        gslope_r     <= wgslope_now_w;
++        // a FIT candidate sum is <= the ceiling < 2^32: the slice is exact
++        sum_r        <= fit_w ? cand_w[31:0] : acc_r;
++        over_r       <= over_acc_r | refuse_w;
++        round_done_o <= 1'b1;
+         aidx_r       <= '0;
+         acc_r        <= 32'd0;
+         over_acc_r   <= 1'b0;
+-        pend_acc_r   <= 1'b0;
+         wgrant_r     <= '0;
+         wgslope_r    <= '0;
+       end else begin
+@@ -249,7 +195,6 @@ module KL_srp_admission #(
+         wgslope_r  <= wgslope_now_w;
+         acc_r      <= fit_w ? cand_w[31:0] : acc_r;
+         over_acc_r <= over_acc_r | refuse_w;
+-        pend_acc_r <= pend_acc_r | pend_w;
+         aidx_r     <= aidx_r + SRC_W_C'(1);
+       end
+     end
+diff --git a/hdl/srp/KL_srp_top.sv b/hdl/srp/KL_srp_top.sv
+index 3fff43f..8eb2b9a 100644
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -434,7 +434,6 @@ module KL_srp_top
+       .clk_i               (clk_i),
+       .rst_n               (rst_n),
+       .req_i               (adm_req_r),
+-      .invalidate_i        (adm_invalidate_w),
+       .max_frame_i         (adm_mfs_r),
+       .interval_frames_i   (adm_mif_r),
+       .port_rate_bps_i     (port_rate_bps_i),
