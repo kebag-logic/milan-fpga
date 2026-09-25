@@ -1,0 +1,73 @@
+commit ddf8151c478fc54c98608589c1afe9525739d6a4
+Merge: 4538d7c03 5c78ce2e9
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Fri Sep 25 18:20:39 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Fri Sep 25 18:20:39 2026 +0200
+
+    Merge dev into 545-crf-servo-slew
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+remerge CONFLICT (content): Merge conflict in CHANGELOG.md
+index ac2c51217..d44fb851d 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,11 +8,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
+-<<<<<<< 4538d7c03 (docs: align slew campaign inventories with their controls)
+ - **[Unreleased - CRF servo holds through PHC slew](#unreleased---crf-servo-holds-through-phc-slew)** -- Holds lock.
+-=======
+ - **[Unreleased - render setpoint state](#unreleased---render-setpoint-state)** -- Publishes the selected listener's state.
+->>>>>>> 5c78ce2e9 (Merge PR #561: Expose the render setpoint stage state through a diagnostic CSR word)
+ - **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
+ - **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
+ - **[Unreleased - licence and LeaveAll scope](#unreleased---licence-and-leaveall-scope)** -- No Listener Ready, no stream.
+@@ -33,7 +30,6 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
+-<<<<<<< 4538d7c03 (docs: align slew campaign inventories with their controls)
+ ## Unreleased - CRF servo holds through PHC slew
+ 
+ - Issue #545 isolates the media loop from policy correction.
+@@ -47,7 +43,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - Silicon-scale tests cover +/-100 us at 200 ppm.
+ - Connected tests drive the level from real Sync pairs.
+ - Removal, tie-off, tail and tally controls must fail.
+-=======
++
+ ## Unreleased - render setpoint state
+ 
+ - Issue #443 adds `RENDER_STAT` at `0x8DC`.
+@@ -57,7 +53,6 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - Rail and underrun events do not raise `STREAM_INTERRUPTED`.
+ - VERSION remains `0x0002_0060`; the release step owns the minor bump.
+ - [The recorded decision](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5826779078) follows the existing `GPTP_DROPE[31:16]` deferral.
+->>>>>>> 5c78ce2e9 (Merge PR #561: Expose the render setpoint stage state through a diagnostic CSR word)
+ 
+ ## Unreleased - processor pin 990f9652
+ 
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+remerge CONFLICT (content): Merge conflict in scripts/measure_test_evidence.py
+index 8d0bbf62d..dd01206a1 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -634,16 +634,12 @@ DUT_READER_DISPOSITIONS = {
+     "tb/verilator/milan_dp/gmstep_mutants.py":
+         "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
+         "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
+-<<<<<<< 4538d7c03 (docs: align slew campaign inventories with their controls)
+         "the three #387 acceptance names; gmstep-mutants plants all, and --slew selects the three #545 controls",
+-=======
+-        "the three the acceptance names; the explicit gmstep-mutants target plants all eleven",
+     "tb/verilator/milan_dp/render_csr_controls.py":
+         "mutation campaign; the explicit render-csr-controls target plants wrong-fill "
+         "and bit-9 selector defects into copies and requires named failures. Its "
+         "absent-stage control removes the instance and requires structural zero "
+         "despite accepted ingress; no expected value is derived from source text",
+->>>>>>> 5c78ce2e9 (Merge PR #561: Expose the render setpoint stage state through a diagnostic CSR word)
+     "tb/verilator/milan_dp/render_mutants.py":
+         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
+     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":

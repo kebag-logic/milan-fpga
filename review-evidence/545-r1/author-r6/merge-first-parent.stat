@@ -1,0 +1,21 @@
+ CHANGELOG.md                                     |  11 +++
+ docs/AAF_LATENCY_TAPS.md                         |   9 +-
+ docs/design/TIME_SYNC.md                         |  11 ++-
+ docs/reference/REGISTER_MAP.md                   |  59 ++++++++++++-
+ docs/reference/REGISTER_MAP_CLASSES.md           |   1 +
+ docs/testing/TESTING.md                          |   3 +-
+ hdl/common/csr/milan_csr.sv                      |  13 +++
+ hdl/ieee1722/aaf/KL_render_setpoint.sv           |   2 +-
+ hdl/ieee1722/crf/KL_crf_rx.sv                    |  13 ++-
+ hdl/milan/milan_datapath.sv                      |  13 ++-
+ scripts/measure_test_evidence.py                 |   8 +-
+ tb/verilator/crf_rx/mutants.py                   |   6 ++
+ tb/verilator/crf_rx/sim_discontinuity.cpp        |  86 ++++++++++++++++++
+ tb/verilator/csr/sim_main.cpp                    |  32 ++++++-
+ tb/verilator/csr/sim_win.cpp                     |  23 +++++
+ tb/verilator/milan_dp/Makefile                   |   8 +-
+ tb/verilator/milan_dp/README.md                  |  24 +++++
+ tb/verilator/milan_dp/render_csr_controls.py     |  97 ++++++++++++++++++++
+ tb/verilator/milan_dp/sim_aclk.cpp               | 108 ++++++++++++++++++++++-
+ tb/verilator/milan_dp_render/sim_tdm8_render.cpp |  18 ++++
+ 20 files changed, 525 insertions(+), 20 deletions(-)
