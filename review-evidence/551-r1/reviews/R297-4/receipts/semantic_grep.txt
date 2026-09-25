@@ -1,0 +1,66 @@
+# stale ACTIVE-only / residual-window phrasing in files changed by predecessors (fd9e0ebf..d47a04eb and 864b36f5..fd9e0ebf)
+0e26e0ac:docs/testing/TESTING.md:270:| #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
+0e26e0ac:hdl/milan/milan_datapath.sv:1648:  wire [SRP_TALKERS_C-1:0] lwsrp_stream_gate;
+0e26e0ac:hdl/milan/milan_datapath.sv:1889:                                   (cfg_lwsrp_enable & lwsrp_stream_gate[gj]);
+0e26e0ac:hdl/milan/milan_datapath.sv:1919:                   (~cfg_lwsrp_enable | lwsrp_stream_gate[0])));
+0e26e0ac:hdl/milan/milan_datapath.sv:2029:           (acmp_talker_active_aaf_w[gs] & lwsrp_stream_gate[gs]));
+0e26e0ac:hdl/milan/milan_datapath.sv:2276:  wire [ACMP_SRC_C-1:0]      pp_cd_srp_sr_admitted_w /* verilator public_flat_rd */;
+0e26e0ac:hdl/milan/milan_datapath.sv:2508:                            lwsrp_stream_gate[0], lwsrp_over_limit,
+0e26e0ac:hdl/milan/milan_datapath.sv:3197:  //! (talker_active & lwsrp_stream_gate, bypass/MAAP escapes included -
+0e26e0ac:hdl/milan/milan_datapath.sv:5300:                           lwsrp_stream_gate[SRP_TALKERS_C-1];
+0e26e0ac:hdl/milan/milan_datapath.sv:6599:  //! issue 112); the published sr_admitted_o is grant_r AND the live
+0e26e0ac:hdl/milan/milan_datapath.sv:6607:  //! sr_admitted_o excludes opt_r. Processor #112 clears the declaring
+0e26e0ac:hdl/milan/milan_datapath.sv:6632:  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0] &
+0e26e0ac:hdl/milan/milan_datapath.sv:6633:                             pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];
+0e26e0ac:hdl/milan/milan_datapath.sv:6640:  assign lwsrp_slope_en    = |pp_cd_srp_sr_admitted_w;
+0e26e0ac:hdl/milan/milan_datapath.sv:7634:      .srp_sr_admitted_o       (pp_cd_srp_sr_admitted_w),
+0e26e0ac:tb/verilator/milan_dp/README.md:362:   requires `pp_cd_srp_active_w` AND `pp_cd_srp_sr_admitted_w` (#551).
+# crflic / licence references in predecessor-changed files
+0e26e0ac:CHANGELOG.md:118:- Its unwarmed refusal arm is a required pass.
+0e26e0ac:CHANGELOG.md:132:- `tb/verilator/milan_dp` `obj_crflic` proves it at compressed time.
+0e26e0ac:CHANGELOG.md:133:- `make crflic-mutants` holds its failing arms.
+0e26e0ac:docs/testing/TESTING.md:270:| #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
+0e26e0ac:hdl/milan/milan_datapath.sv:2263:  //! milan_dp's obj_crflic leg can grade them without a CSR window.
+0e26e0ac:scripts/measure_test_evidence.py:621:    "tb/verilator/milan_dp/crflic_mutants.py":
+0e26e0ac:scripts/measure_test_evidence.py:623:        "named failure. It is the explicit crflic-mutants target, outside the default sweep",
+0e26e0ac:tb/verilator/milan_dp/Makefile:11:#   make crflic - run only the #530 CRF talker licence leg (compressed time)
+0e26e0ac:tb/verilator/milan_dp/Makefile:12:#   make crflic-mutants - that leg's explicit mutation campaign
+0e26e0ac:tb/verilator/milan_dp/Makefile:13:#                 (crflic_mutants.py), outside the sweep's deadline
+0e26e0ac:tb/verilator/milan_dp/Makefile:204:.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
+0e26e0ac:tb/verilator/milan_dp/Makefile:252:# millisecond are put on ONE grid of CRFLIC_MS_CYC fabric cycles, the
+0e26e0ac:tb/verilator/milan_dp/Makefile:255:# Milan Table 5.4 observation interval is CRFLIC_DIAG_MS compressed ms, long
+0e26e0ac:tb/verilator/milan_dp/Makefile:259:# grades against. crflic_mutants.py builds a MUTATED datapath through the same
+0e26e0ac:tb/verilator/milan_dp/Makefile:260:# recipe (DP_SRC and CRFLIC_MDIR overridden), so its negative controls
+0e26e0ac:tb/verilator/milan_dp/Makefile:262:CRFLIC_MS_CYC  = 100
+0e26e0ac:tb/verilator/milan_dp/Makefile:263:CRFLIC_DIAG_MS = 2000
+0e26e0ac:tb/verilator/milan_dp/Makefile:264:CRFLIC_MDIR   ?= obj_crflic
+0e26e0ac:tb/verilator/milan_dp/Makefile:265:CRFLIC_FLAGS = $(filter-out -GDIAG_TICK_CYC_P=256,$(GPTP_OFF_VFLAGS)) \
+0e26e0ac:tb/verilator/milan_dp/Makefile:266:  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=$(CRFLIC_MS_CYC) \
+0e26e0ac:tb/verilator/milan_dp/Makefile:267:  -GMAAP_CLK_HZ_P=$(CRFLIC_MS_CYC)000 \
+0e26e0ac:tb/verilator/milan_dp/Makefile:268:  -GDIAG_TICK_CYC_P=$(shell echo $$(($(CRFLIC_MS_CYC) * $(CRFLIC_DIAG_MS))))
+0e26e0ac:tb/verilator/milan_dp/Makefile:269:define CRFLIC_BUILD
+0e26e0ac:tb/verilator/milan_dp/Makefile:270:$(VERILATOR) crflic_probes.vlt $(SHAPE_AX1x1) $(CRFLIC_FLAGS) --Mdir $(CRFLIC_MDIR) \
+0e26e0ac:tb/verilator/milan_dp/Makefile:274:  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DDIAG_TICK_MS_TB=$(CRFLIC_DIAG_MS) -Wall -Wextra" \
+0e26e0ac:tb/verilator/milan_dp/Makefile:275:  $(SRCS) sim_crf_licence.cpp -o Vmilan_dp_crflic
+0e26e0ac:tb/verilator/milan_dp/Makefile:438:crflic: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+0e26e0ac:tb/verilator/milan_dp/Makefile:439:	$(CRFLIC_BUILD)
+0e26e0ac:tb/verilator/milan_dp/Makefile:440:	./$(CRFLIC_MDIR)/Vmilan_dp_crflic
+0e26e0ac:tb/verilator/milan_dp/Makefile:442:crflic-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+0e26e0ac:tb/verilator/milan_dp/Makefile:443:	$(CRFLIC_BUILD)
+0e26e0ac:tb/verilator/milan_dp/Makefile:448:crflic-mutants: crflic
+0e26e0ac:tb/verilator/milan_dp/Makefile:449:	python3 crflic_mutants.py
+0e26e0ac:tb/verilator/milan_dp/Makefile:457:# An EXPLICIT campaign like crflic-mutants: eight more elaborations and
+0e26e0ac:tb/verilator/milan_dp/Makefile:541:	$(CRFLIC_BUILD)
+0e26e0ac:tb/verilator/milan_dp/Makefile:546:	./$(CRFLIC_MDIR)/Vmilan_dp_crflic
+0e26e0ac:tb/verilator/milan_dp/Makefile:594:	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+0e26e0ac:tb/verilator/milan_dp/README.md:27:| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
+0e26e0ac:tb/verilator/milan_dp/README.md:41:- **[The #530 CRF talker licence leg (obj_crflic)](#the-530-crf-talker-licence-leg-obj_crflic)** -- The compressed-time leg that reproduces the Run B CRF bursts and early emission, what each phase proves, the failing arms, and why FRAMES_TX is an interval count
+0e26e0ac:tb/verilator/milan_dp/README.md:344:## The #530 CRF talker licence leg (`obj_crflic`)
+0e26e0ac:tb/verilator/milan_dp/README.md:366:`sim_crf_licence.cpp` elaborates `endstation_ax7101_1x1_tdm8`, where the CRF
+0e26e0ac:tb/verilator/milan_dp/README.md:404:`crflic_probes.vlt` exposes captured SRP service request registers.
+0e26e0ac:tb/verilator/milan_dp/README.md:430:The former `--unwarmed-refusal` opt-in is now unconditional.
+0e26e0ac:tb/verilator/milan_dp/README.md:431:The same command remains usable after building `crflic`:
+0e26e0ac:tb/verilator/milan_dp/README.md:435:./obj_crflic/Vmilan_dp_crflic --unwarmed-refusal
+0e26e0ac:tb/verilator/milan_dp/README.md:466:| the licence mutants | `make crflic-mutants`: each consumer reads raw admission, removing ACTIVE | Three named checks must fail; the clean leg must pass. |
+0e26e0ac:tb/verilator/milan_dp/README.md:470:| the previous processor pin `424c688f` | by hand, the only arm that needs a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 17 of 85 fail, the Run B item 1 signature: every DUT LeaveAll flags only the Domain. ACTIVE and the licence fall six times by the end of `[C]`, each 5.0 s after a LeaveAll that aged the Listener registration with no re-declaration. The DUT withdraws its Talker Advertise four times: once at a registration loss 5.0 s after a switch LeaveAll, three times 15.1 s after the listener's latest probe, as Run B's bursts ended |
+0e26e0ac:tb/verilator/milan_dp/README.md:914:| `obj_crflic` (`sim_crf_licence`) | not in the old table | **85 / 0** (2026-09-24 UTC) | #530; its three mutants are caught by `make crflic-mutants` | same |

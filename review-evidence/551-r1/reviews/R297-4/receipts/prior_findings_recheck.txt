@@ -1,0 +1,9 @@
+# cmd: git grep -nE 'Residual|pending fix|previous slope' 0e26e0ac -- tests/
+# rc=1 (1 = no match expected)
+# cmd: git grep -niE 'whether the licence should also need|Issue #551 asks|up to three (admission )?rounds? .*licen' 0e26e0ac
+# rc=1 (1 = no match expected)
+# feature/steps blob equality candidate vs source head
+tests/features/milan_streaming_licence.feature 5354d3d29bd2e79057fb2916b5c8de1b7257bf6a 5354d3d29bd2e79057fb2916b5c8de1b7257bf6a
+tests/steps/milan_streaming_licence_steps.py ea20363b3836d0bacc2805c0054ef825d3234a9c ea20363b3836d0bacc2805c0054ef825d3234a9c
+# processor gitlink candidate vs source head
+990f96526bb89356c963a260ebbdcf2a77e6623a 990f96526bb89356c963a260ebbdcf2a77e6623a 990f96526bb89356c963a260ebbdcf2a77e6623a
