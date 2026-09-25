@@ -1,0 +1,32 @@
+{
+  "summary": {
+    "head": "77e9ca5ea9e04a7618c577ab511baec63b39dc05",
+    "rev": "head",
+    "mode": "sdk",
+    "disconnect": true,
+    "compiles": 11,
+    "hidden": []
+  },
+  "rows": [
+    {
+      "label": "CTRL unchanged firmware",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "PRIOR C08 macro (*(__extension__ &(x)) = MAGIC)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "PRIOR C09 plain (*(__extension__ &(id)) = MAGIC)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "PRIOR C10 macro asm li %0 output",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "PRIOR C11 plain asm li %0 output",
+      "verdict": "ACCEPTED"
+    }
+  ]
+}

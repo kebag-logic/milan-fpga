@@ -1,0 +1,56 @@
+{
+  "summary": {
+    "head": "77e9ca5ea9e04a7618c577ab511baec63b39dc05",
+    "rev": "head",
+    "mode": "sdk",
+    "disconnect": false,
+    "compiles": 10,
+    "hidden": []
+  },
+  "rows": [
+    {
+      "label": "CTRL unchanged firmware",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "STORE auto sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "STORE register sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "STORE const sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "STORE volatile sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "STORE static sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "ESC nested function in another function, no sample",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: nested functions may capture the automatic sample without an explicit address; none may occur in the unit, including after the guard"
+    },
+    {
+      "label": "ESC nested function in milan_init before the read",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: nested functions may capture the automatic sample without an explicit address; none may occur in the unit, including after the guard"
+    },
+    {
+      "label": "ESC nested function after guard naming the sample",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: nested functions may capture the automatic sample without an explicit address; none may occur in the unit, including after the guard"
+    }
+  ]
+}

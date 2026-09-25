@@ -1,0 +1,54 @@
+{
+  "summary": {
+    "head": "77e9ca5ea9e04a7618c577ab511baec63b39dc05",
+    "rev": "head",
+    "mode": "sdk",
+    "disconnect": true,
+    "compiles": 9,
+    "hidden": []
+  },
+  "rows": [
+    {
+      "label": "CTRL unchanged firmware",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "STORE auto sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "STORE register sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "STORE const sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "STORE volatile sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "STORE static sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "ESC nested function in another function, no sample",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "ESC nested function in milan_init before the read",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "ESC nested function after guard naming the sample",
+      "verdict": "REFUSED",
+      "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: milan_nested.0() through unplaced x1 ['unplaced(None)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime-d"
+    }
+  ]
+}
