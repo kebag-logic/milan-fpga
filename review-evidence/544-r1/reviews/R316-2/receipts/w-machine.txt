@@ -1,0 +1,246 @@
+# [R316] R316-2 machine-level check of W01/W02/W03 (pinned SDK GCC 14.3.0, LiteX BASEFLAGS optimisation)
+# compile: riscv32-linux-gcc -std=gnu99 -Os -g0 -fomit-frame-pointer -fno-builtin -fno-stack-protector -Wall -I<stub tree with LiteX bios/init.h> -S
+# stub tree = gate 1b census_headers(); init.h = LiteX bios/init.h (used, section .bios_init) so milan_init is emitted
+
+=== production: compile rc and warnings
+0
+=== production: milan_init, prologue to identity guard
+milan_init:
+.LFB59:
+	addi	sp,sp,-128
+	li	a5,-1879048192
+	sw	s0,120(sp)
+	lw	s0,0(a5)
+	lw	a2,4(a5)
+	lla	a0,.LC0
+	mv	a1,s0
+	sw	ra,124(sp)
+	sw	s1,116(sp)
+	sw	s2,112(sp)
+	sw	s3,108(sp)
+	sw	s4,104(sp)
+	sw	s5,100(sp)
+	sw	s6,96(sp)
+	sw	s7,92(sp)
+	sw	s8,88(sp)
+	sw	s9,84(sp)
+	sw	s10,80(sp)
+	sw	s11,76(sp)
+	call	printf@plt
+	li	a5,1296650240
+	addi	a5,a5,-946
+	lla	a0,.LC1
+	bne	s0,a5,.L191
+
+=== W01: compile rc and warnings
+0
+=== W01: milan_init, prologue to identity guard
+milan_init:
+.LFB60:
+	addi	sp,sp,-128
+	li	a5,-1879048192
+	sw	s0,120(sp)
+	lw	s0,0(a5)
+	lw	a2,4(a5)
+	lla	a0,.LC0
+	mv	a1,s0
+	sw	ra,124(sp)
+	sw	s1,116(sp)
+	sw	s2,112(sp)
+	sw	s3,108(sp)
+	sw	s4,104(sp)
+	sw	s5,100(sp)
+	sw	s6,96(sp)
+	sw	s7,92(sp)
+	sw	s8,88(sp)
+	sw	s9,84(sp)
+	sw	s10,80(sp)
+	sw	s11,76(sp)
+	call	printf@plt
+	call	milan_settle
+	li	a5,1296650240
+	addi	a5,a5,-946
+	lla	a0,.LC1
+	bne	s0,a5,.L192
+
+=== W02: compile rc and warnings
+0
+=== W02: milan_init, prologue to identity guard
+milan_init:
+.LFB60:
+	addi	sp,sp,-128
+	li	a5,-1879048192
+	sw	s0,120(sp)
+	lw	s0,0(a5)
+	lw	a2,4(a5)
+	lla	a0,.LC0
+	mv	a1,s0
+	sw	ra,124(sp)
+	sw	s1,116(sp)
+	sw	s2,112(sp)
+	sw	s3,108(sp)
+	sw	s4,104(sp)
+	sw	s5,100(sp)
+	sw	s6,96(sp)
+	sw	s7,92(sp)
+	sw	s8,88(sp)
+	sw	s9,84(sp)
+	sw	s10,80(sp)
+	sw	s11,76(sp)
+	call	printf@plt
+	call	milan_settle
+	li	a5,1296650240
+	addi	a5,a5,-946
+	lla	a0,.LC1
+	bne	s0,a5,.L192
+
+=== W03: compile rc and warnings
+0
+=== W03: milan_init, prologue to identity guard
+milan_init:
+.LFB60:
+	addi	sp,sp,-128
+	li	a5,-1879048192
+	sw	s0,120(sp)
+	lw	s0,0(a5)
+	lw	a2,4(a5)
+	lla	a0,.LC0
+	mv	a1,s0
+	sw	ra,124(sp)
+	sw	s1,116(sp)
+	sw	s2,112(sp)
+	sw	s3,108(sp)
+	sw	s4,104(sp)
+	sw	s5,100(sp)
+	sw	s6,96(sp)
+	sw	s7,92(sp)
+	sw	s8,88(sp)
+	sw	s9,84(sp)
+	sw	s10,80(sp)
+	sw	s11,76(sp)
+	call	milan_diag
+	li	a5,1296650240
+	addi	a5,a5,-946
+	lla	a0,.LC1
+	bne	s0,a5,.L193
+
+=== W04: compile rc and warnings
+0
+=== W04: milan_init, prologue to identity guard
+milan_init:
+.LFB60:
+	addi	sp,sp,-128
+	li	a5,-1879048192
+	sw	s0,120(sp)
+	lw	s0,0(a5)
+	lw	a2,4(a5)
+	lla	a0,.LC0
+	mv	a1,s0
+	sw	ra,124(sp)
+	sw	s1,116(sp)
+	sw	s2,112(sp)
+	sw	s3,108(sp)
+	sw	s4,104(sp)
+	sw	s5,100(sp)
+	sw	s6,96(sp)
+	sw	s7,92(sp)
+	sw	s8,88(sp)
+	sw	s9,84(sp)
+	sw	s10,80(sp)
+	sw	s11,76(sp)
+	call	printf@plt
+	li	a5,1296650240
+	addi	a5,a5,-946
+	lla	a0,.LC1
+	bne	s0,a5,.L191
+
+=== W01: milan_settle
+milan_settle:
+.LFB6:
+#APP
+# 61 "W01.c" 1
+	li s0, 0x4d494c4e
+	li s1, 0x4d494c4e
+	li s2, 0x4d494c4e
+	li s3, 0x4d494c4e
+	li s4, 0x4d494c4e
+	li s5, 0x4d494c4e
+	li s6, 0x4d494c4e
+	li s7, 0x4d494c4e
+	li s8, 0x4d494c4e
+	li s9, 0x4d494c4e
+	li s10, 0x4d494c4e
+	li s11, 0x4d494c4e
+# 0 "" 2
+#NO_APP
+	ret
+.LFE6:
+	.size	milan_settle, .-milan_settle
+
+=== W02: milan_settle
+milan_settle:
+.LFB6:
+#APP
+# 61 "W02.c" 1
+	li s0, 0x4d494c4e
+	li s1, 0x4d494c4e
+	li s2, 0x4d494c4e
+	li s3, 0x4d494c4e
+	li s4, 0x4d494c4e
+	li s5, 0x4d494c4e
+	li s6, 0x4d494c4e
+	li s7, 0x4d494c4e
+	li s8, 0x4d494c4e
+	li s9, 0x4d494c4e
+	li s10, 0x4d494c4e
+	li s11, 0x4d494c4e
+# 0 "" 2
+#NO_APP
+	ret
+.LFE6:
+	.size	milan_settle, .-milan_settle
+
+=== W03: milan_diag
+milan_diag:
+.LFB6:
+	addi	sp,sp,-32
+	sw	a1,4(sp)
+	sw	a2,8(sp)
+	sw	a3,12(sp)
+	sw	a4,16(sp)
+	sw	a5,20(sp)
+	sw	a6,24(sp)
+	sw	a7,28(sp)
+#APP
+# 62 "W03.c" 1
+	li s0, 0x4d494c4e
+	li s1, 0x4d494c4e
+	li s2, 0x4d494c4e
+	li s3, 0x4d494c4e
+	li s4, 0x4d494c4e
+	li s5, 0x4d494c4e
+	li s6, 0x4d494c4e
+	li s7, 0x4d494c4e
+	li s8, 0x4d494c4e
+	li s9, 0x4d494c4e
+	li s10, 0x4d494c4e
+	li s11, 0x4d494c4e
+# 0 "" 2
+#NO_APP
+	li	a0,0
+	addi	sp,sp,32
+	jr	ra
+.LFE6:
+	.size	milan_diag, .-milan_diag
+
+=== W04: milan_settle
+b9bf12aeefd07ce59cb3d33f3c66337ac28847c5ca69acf7faa0219895aa90a2  production.c
+c70726c57ec951726c0722df502439e42df0b80496609ccc2c9177bb13efae7f  W01.c
+aee0d65bf5d9b13d2db31df5044f600e7ccbe0a583494f90188f0ceffe470d2e  W02.c
+048788179e05a1f33292644f158bbd4b9554daf7ab59755d54cf174d7522ecca  W03.c
+7f0b2d26be1dc09bba3e3ac3f0e09889deae7a32902ccee18cf9aa5a90829e86  W04.c
+9c3f7bf9ac782f65f11030c07e31d2a93f90597674c56cd97558c8acfdcf106e  production.s
+6190c24a35c49bf3c75742bbab3b719d361318804d19be13bcdb4b7daac31be3  W01.s
+cf5443c7010f17491b9ca514bc24b26a1634dd012e3857cf260032c5ab3d9456  W02.s
+f228270599d613ddacd424c1678af7c875ddd9968106cc6b4d7659e68fe6de36  W03.s
+b44649cee3af31bfa975f081c793e870b5e3fe5591299774427fdacbb18f0d69  W04.s

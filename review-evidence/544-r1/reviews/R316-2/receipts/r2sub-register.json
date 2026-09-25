@@ -1,0 +1,61 @@
+{
+  "mode": "sdk",
+  "base": null,
+  "disable": null,
+  "compiles": 13,
+  "hidden": [],
+  "results": [
+    {
+      "id": "ST-static",
+      "label": "storage unit",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id storage class is 'static'; an automatic block-scope sample is required; other storage needs a separate lifetime and external-writer proof"
+    },
+    {
+      "id": "ST-extern",
+      "label": "storage unit",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id storage class is 'extern'; an automatic block-scope sample is required; other storage needs a separate lifetime and external-writer proof"
+    },
+    {
+      "id": "ST-_Thread_local static",
+      "label": "storage unit",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id storage class is '_Thread_local static'; an automatic block-scope sample is required; other storage needs a separate lifetime and external-writer proof"
+    },
+    {
+      "id": "S01",
+      "label": "nested function defined after the guard writes the sample, called before it",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: nested functions may capture the automatic sample without an explicit address; none may occur in the unit, including after the guard"
+    },
+    {
+      "id": "S02",
+      "label": "__extension__ old-style nested function capture",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: nested functions may capture the automatic sample without an explicit address; none may occur in the unit, including after the guard"
+    },
+    {
+      "id": "S03",
+      "label": "asm without a sample operand in the interval",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"
+    },
+    {
+      "id": "S04",
+      "label": "plain &(id) after the guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "S05",
+      "label": "__extension__ &(id) after the guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "S06",
+      "label": "asm writing s0 directly in the interval (no operands)",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"
+    }
+  ]
+}

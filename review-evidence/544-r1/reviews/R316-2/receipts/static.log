@@ -1,0 +1,48 @@
+$ python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 858 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ python3 -B scripts/check_em_dash.py --base ffcbd33de70278ae34b533dcbadde0b36c8cba13
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+$ python3 -B scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 -B scripts/check_doc_paths.py
+doc path gate: OK (841 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+$ python3 -B scripts/check_py_idiom.py
+py idiom: 232 first-party modules, 167627 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+$ python3 -B scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 856 tracked first-party file(s))
+rc=0
+$ git diff --check ffcbd33de70278ae34b533dcbadde0b36c8cba13 77e9ca5ea9e04a7618c577ab511baec63b39dc05
+rc=0
+$ python3(pinned-renderer venv) -B scripts/check_em_dash.py --base ffcbd33de70278ae34b533dcbadde0b36c8cba13
+check_em_dash: 0 finding(s) over 75 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [ffcbd33d..HEAD]
+rc=0
+$ python3(pinned-renderer venv) -B scripts/gen_toc.py --check
+TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+$ python3(pinned-renderer venv) -B scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 858 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0

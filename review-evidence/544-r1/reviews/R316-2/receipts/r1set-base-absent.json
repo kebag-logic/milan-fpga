@@ -1,0 +1,140 @@
+{
+  "mode": "absent",
+  "base": "ffcbd33de70278ae34b533dcbadde0b36c8cba13",
+  "disable": null,
+  "compiles": 0,
+  "hidden": [
+    "$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc",
+    "riscv32-unknown-elf-gcc",
+    "riscv64-elf-gcc"
+  ],
+  "results": [
+    {
+      "id": "C01",
+      "label": "published R272 macro x = MILAN_ID_MAGIC before guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C02",
+      "label": "published R273 macro ((x) = MILAN_ID_MAGIC) before guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C03",
+      "label": "header token paste __CONCAT(i, d) = MILAN_ID_MAGIC before guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C04",
+      "label": "local ## paste macro MILAN_CAT(i, d) = MILAN_ID_MAGIC",
+      "verdict": "REFUSED",
+      "reason": "a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+    },
+    {
+      "id": "C05",
+      "label": "local macro builds the sample through header __CONCAT(a, d)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C06",
+      "label": "macro takes the address and writes: *&(x) = MAGIC",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C07",
+      "label": "macro sets a pointer alias, then a write through the alias",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C08",
+      "label": "macro takes the address behind __extension__ and writes",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C09",
+      "label": "no macro: *(__extension__ &(id)) = MAGIC",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C10",
+      "label": "macro writes the sample through an asm output operand",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C11",
+      "label": "no macro: asm output operand writes the sample",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C12",
+      "label": "published R273 macro inside a nested block",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C13",
+      "label": "object-like alias of the forging function-like macro",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C14",
+      "label": "published R273 macro invoked AFTER the guard (must be accepted)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C15",
+      "label": "plain write id = 0u AFTER the guard (must be accepted)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C16",
+      "label": "no macro: (id) = MAGIC before guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C17",
+      "label": "no macro: *&(id) = MAGIC before guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C18",
+      "label": "alias taken in the mismatch block, goto back before the sample",
+      "verdict": "REFUSED",
+      "reason": "milan_init() must not contain 'goto': control that enters the AEM-success guard by any path other than the guard's own condition advertises an unverified entity"
+    },
+    {
+      "id": "C19",
+      "label": "R273-S3: verifier group's #else deleted",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C20",
+      "label": "read-only macro use (void)(x) of the sample before guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C21",
+      "label": "variadic forwarding macro to the forging macro",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C22",
+      "label": "sample passed doubly parenthesized MILAN_FORGE((id))",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C23",
+      "label": "object-like macro naming the sample used as an lvalue",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C24",
+      "label": "__builtin_memcpy into &id via macro",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "C25",
+      "label": "compound assignment through a macro, no parentheses: x |= 0x4d494c4eu",
+      "verdict": "ACCEPTED"
+    }
+  ]
+}

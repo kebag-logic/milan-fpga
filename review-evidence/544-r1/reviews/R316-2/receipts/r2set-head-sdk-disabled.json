@@ -1,0 +1,188 @@
+{
+  "mode": "sdk",
+  "base": null,
+  "disable": "assert_preprocessed_identity_sample",
+  "compiles": 63,
+  "hidden": [],
+  "results": [
+    {
+      "id": "N01",
+      "label": "extra diagnostic printf with a complete (unsigned long)id argument",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "N02",
+      "label": "discarded mask with an ull-suffixed hex literal",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "N03",
+      "label": "discarded mask split across lines",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "N04",
+      "label": "cast argument of __alignof (not a call)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "N05",
+      "label": "cast argument of __builtin_constant_p",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "N06",
+      "label": "cast argument of __typeof in a block-scope declaration",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "N07",
+      "label": "authorized argument followed by an assigning argument",
+      "verdict": "REFUSED",
+      "reason": "CSR identity guard must consume the unmodified MILAN_ID sample: no assignment, increment or pointer write may replace the value between its CSR read and mismatch comparison"
+    },
+    {
+      "id": "N08",
+      "label": "discarded mask after a label",
+      "verdict": "REFUSED",
+      "reason": "milan_init() must not contain the label 'milan_l': control that enters the AEM-success guard by any path other than the guard's own condition advertises an unverified entity"
+    },
+    {
+      "id": "N09",
+      "label": "discarded mask with a character literal",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "N10",
+      "label": "cast argument through a parenthesized callee",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "N11",
+      "label": "cast argument after a comma operator in a nested paren",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "N12",
+      "label": "cast argument of __builtin_choose_expr hidden behind a call",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "N13",
+      "label": "compound assignment to a cast argument",
+      "verdict": "REFUSED",
+      "reason": "CSR identity guard must consume the unmodified MILAN_ID sample: no assignment, increment or pointer write may replace the value between its CSR read and mismatch comparison"
+    },
+    {
+      "id": "N14",
+      "label": "discarded mask whose statement is the body of an if",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "N15",
+      "label": "discarded mask whose statement follows a closing initializer brace",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "E01",
+      "label": "address in sizeof after the guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "E02",
+      "label": "address in the unselected arm of __builtin_choose_expr after the guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "E03",
+      "label": "address in an unselected _Generic association after the guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "E04",
+      "label": "address in __typeof__ after the guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "E05",
+      "label": "address via __builtin_memcpy source after the guard",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "W01",
+      "label": "call to a helper whose asm overwrites every callee-saved register",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "W02",
+      "label": "function-like macro invoked with the sample expands to the clobbering helper",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "W03",
+      "label": "printf redefined to a clobbering helper; production diagnostic unchanged",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "W04",
+      "label": "helper call alone, no asm (control for W01)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "W05",
+      "label": "store through the frame address in the interval",
+      "verdict": "REFUSED",
+      "reason": "only milan_reg() may form a CSR address, but a CSR pointer cast is used outside it: a raw store there reaches a control register without passing the bit-0 census"
+    },
+    {
+      "id": "A01",
+      "label": "plain *(__extension__ &(id)) = MAGIC (R316-1 C09)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "A02",
+      "label": "plain asm output operand (R316-1 C11)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "A03",
+      "label": "plain __builtin_choose_expr lvalue",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "A04",
+      "label": "plain _Generic lvalue",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "A05",
+      "label": "plain __real__ lvalue",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "A06",
+      "label": "plain __extension__ lvalue",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "A07",
+      "label": "plain asm tied output",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "A08",
+      "label": "plain __builtin_memcpy into &(id)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "A09",
+      "label": "plain (id)++ repeated to the magic is not needed: (id) |= MAGIC",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "id": "A10",
+      "label": "plain comma-expression lvalue: (0, id) is not an lvalue; use *(&(id)+0)",
+      "verdict": "ACCEPTED"
+    }
+  ]
+}
