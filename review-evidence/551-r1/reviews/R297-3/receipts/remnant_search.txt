@@ -1,0 +1,9 @@
+$ git grep -n -i -E "residual|pending fix|first-round grant|previous slope" -- tests/features/milan_streaming_licence.feature
+rc=1
+$ git grep -n -i -E "pending fix|previous slope|residual window|#112 owns" -- . ":!protocol-processor"
+docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:319:  ❌. That is a stated capability boundary, not a pending fix — it lifts command
+tb/verilator/milan_dp/sim_crf_licence.cpp:1087:    // J leaves a refused one. Neither previous slope may decide the new
+rc=0
+$ git grep -n -E "#112" -- tests/
+tests/features/milan_streaming_licence.feature:93:    # Processor #112 supplies this guarantee, adopted through #508.
+rc=0

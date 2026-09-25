@@ -1,0 +1,43 @@
+$ git diff --raw --stat f219a5ed..6e4a3b42
+:100644 100644 5a6a9a9c7 21bffb72c M	tb/verilator/milan_dp/README.md
+:100644 100644 b066f7d44 5354d3d29 M	tests/features/milan_streaming_licence.feature
+$ git diff f219a5ed..6e4a3b42
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index 5a6a9a9c7..21bffb72c 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -465,7 +465,7 @@ The #551 campaign additionally removes each real-grant term.
+ |---|---|---|
+ | the licence mutants | `make crflic-mutants`: each consumer reads raw admission, removing ACTIVE | Three named checks must fail; the clean leg must pass. |
+ | the real-grant mutants (#551) | Same command: every gate, CRF alone, or AAF source 0 alone reads ACTIVE without its real grant | Each refused-source licence check must fail. |
+-| the pre-#112 processor `7a47f578` | Local control only: temporarily repin the existing submodule, build the same leg in a fresh directory, run once, then restore `990f9652` | `[I]` fails 28 assertions: both sources at both phases pulse a grant/licence, add STREAM_START/STREAM_STOP and reset all three seeded counters. The same fixture passes at the restored pin. |
++| the pre-#112 processor `7a47f578` | Local control only: temporarily repin the existing submodule, build the same leg in a fresh directory, run once, then restore `990f9652` | 34 failures total: 28 `[I]` assertions and 6 `[J]` admitted-case timing checks. In `[I]`, both sources at both phases pulse a grant/licence, add STREAM_START/STREAM_STOP and reset all three seeded counters. The same fixture passes at the restored pin. |
+ | the gate reverted | the first mutant, run as the reproduction before the fix | 23 of 85 fail, the Run B item 2 signature: the licence opens at 1770.38 ms, 1.34 ms after the first probe and before its TALKER_DEST_MAC_FAIL answer at 1772.00 ms; the first CRF PDU leaves at 1966.30 ms, 3.85 s before the first Listener Ready; and the licence never closes again, through Asking Failed and the unbind |
+ | the previous processor pin `424c688f` | by hand, the only arm that needs a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 17 of 85 fail, the Run B item 1 signature: every DUT LeaveAll flags only the Domain. ACTIVE and the licence fall six times by the end of `[C]`, each 5.0 s after a LeaveAll that aged the Listener registration with no re-declaration. The DUT withdraws its Talker Advertise four times: once at a registration loss 5.0 s after a switch LeaveAll, three times 15.1 s after the listener's latest probe, as Run B's bursts ended |
+ 
+diff --git a/tests/features/milan_streaming_licence.feature b/tests/features/milan_streaming_licence.feature
+index b066f7d44..5354d3d29 100644
+--- a/tests/features/milan_streaming_licence.feature
++++ b/tests/features/milan_streaming_licence.feature
+@@ -89,9 +89,9 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
+     # Ready. The #551 decision also requires the per-source real grant,
+     # excluding ACTIVE's optimistic admission term. Neither term alone suffices.
+     # This pins the composition; obj_crflic grades its cycle-level behaviour.
+-    # Residual: a refused re-declaration with a different previous TSpec can
+-    # still see about one round of licence: the first-round grant uses the
+-    # previous slope. Processor issue #112 owns that pending fix.
++    # The real grant waits for evaluation of the current TSpec.
++    # Processor #112 supplies this guarantee, adopted through #508.
++    # obj_crflic [I] grades refusal after a changed-TSpec re-declaration.
+     When I read the lwSRP stream gate assignment from milan_datapath
+     Then the stream gate takes ACTIVE AND the per-source real grant and nothing else
+ 
+$ changed feature lines that are not comments:
+rc=1 (1 = none)
+$ git cat-file commit HEAD
+tree f4e0bc482e7ee734f9ff50c627cedfbc89beacad
+parent f219a5edaa191b33acc8b77abd22469f8f0db1f9
+author hackerman-kl <hackerman-kl@kebag-logic.com> 1790343954 +0200
+committer hackerman-kl <hackerman-kl@kebag-logic.com> 1790343954 +0200
+
+docs: refresh licence grant guarantee and control failure count

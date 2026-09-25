@@ -1,0 +1,7 @@
+clean_before     rc=0 expect=PASS OK
+active_only      rc=1 expect=FAIL OK
+grant_only       rc=1 expect=FAIL OK
+active_or_grant  rc=1 expect=FAIL OK
+extra_term       rc=1 expect=FAIL OK
+clean_after      rc=0 expect=PASS OK
+overall: OK
