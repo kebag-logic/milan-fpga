@@ -89,9 +89,9 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
     # Ready. The #551 decision also requires the per-source real grant,
     # excluding ACTIVE's optimistic admission term. Neither term alone suffices.
     # This pins the composition; obj_crflic grades its cycle-level behaviour.
-    # Residual: a refused re-declaration with a different previous TSpec can
-    # still see about one round of licence: the first-round grant uses the
-    # previous slope. Processor issue #112 owns that pending fix.
+    # The real grant waits for evaluation of the current TSpec.
+    # Processor #112 supplies this guarantee, adopted through #508.
+    # obj_crflic [I] grades refusal after a changed-TSpec re-declaration.
     When I read the lwSRP stream gate assignment from milan_datapath
     Then the stream gate takes ACTIVE AND the per-source real grant and nothing else
 
