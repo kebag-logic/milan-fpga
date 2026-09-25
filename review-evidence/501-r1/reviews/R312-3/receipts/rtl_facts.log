@@ -1,0 +1,80 @@
+# head afdd28b701e7f5849317e27ce845c31d1c87f2a6
+122://  handed to the next capture, and T_HOLD_MS_P bounds the wait per REQUEST
+145:    parameter int unsigned T_HOLD_MS_P    = 50,
+297:  end else if (T_HOLD_MS_P < 1 || T_HOLD_MS_P >= T_COMMIT_MS_P) begin : g_refuse_hold
+298:    $error("KL_nvm_backend: T_HOLD_MS_P=%0d must be at least 1 and below T_COMMIT_MS_P=%0d: the hold bounds a copy, never a flash transaction.",
+299:           T_HOLD_MS_P, T_COMMIT_MS_P);
+522:  localparam int unsigned HOLD_W_C = $clog2(T_HOLD_MS_P + 1);
+713:  //! request is deferred by AT MOST ONE capture and the T_HOLD_MS_P bound
+778:        hold_r <= HOLD_W_C'(T_HOLD_MS_P);
+847:  //! T_HOLD_MS_P, after which the request is granted and the capture it
+hdl/milan/KL_pp_shadow.sv:79:                NVM. The device face is answered by KL_nvm_backend, the
+hdl/milan/KL_pp_shadow.sv:495:    //! A THIRD main-memory master, KL_nvm_backend's: the persisted record
+hdl/milan/KL_pp_shadow.sv:524:    //! channel-map record lengths. Straight through to KL_nvm_backend; record
+hdl/milan/KL_pp_shadow.sv:528:    input  wire  [5:0]                 nvm_csr_addr_i,       //! word index (KL_nvm_backend's csr_addr_i)
+hdl/milan/KL_pp_shadow.sv:879:  //! KL_nvm_backend answers the processor's NVM device face out of the KLJ2
+hdl/milan/KL_pp_shadow.sv:961:  KL_nvm_backend #(
+hdl/milan/milan_datapath.sv:410:  //! The THIRD main-memory master, KL_nvm_backend's (KL_pp_shadow): the
+file=hdl/milan/KL_pp_shadow.sv
+79:                NVM. The device face is answered by KL_nvm_backend, the
+80-                shipping saved-state backing store
+81-                (docs/design/SAVED_STATE_FASTCONNECT.md sections 4, 8, 9):
+82-                record bytes move between the processor's port and a KLJ2
+83-                image in the integrator's main memory over a THIRD memory
+84-                master (nvm_mem_*), and the firmware that owns the flash
+85-                validates that image, heartbeats and acknowledges commits
+--
+495:    //! A THIRD main-memory master, KL_nvm_backend's: the persisted record
+496-    //! image lives in the integrator's main memory (design page section 8.1)
+497-    //! and this face moves record bytes between the processor's NVM port and
+498-    //! that image. SAME CONTRACT as resp_mem_* above, to the letter, and a
+499-    //! separate face for the same reason: one-transaction clients, and the
+500-    //! integrator's memory system as the arbiter. Tying req_ready_i and
+501-    //! wr_ready_i to 0 is legal ONLY for an integration whose firmware never
+--
+524:    //! channel-map record lengths. Straight through to KL_nvm_backend; record
+525-    //! DATA never crosses here. A read is answered the same cycle.
+526-    input  wire                        nvm_csr_sel_i,        //! control-face access
+527-    input  wire                        nvm_csr_we_i,         //! 1 = write
+-- reload_ok_w
+444:  logic        reload_ok_w;
+459:  assign rebase_w       = (reg_we_w & ((csr_addr_i[4:0] == R_IMG_BASE_C)
+688:      end else if (ack_ok_w || release_w || reload_ok_w || rebase_w) begin
+709:  assign void_hard_w = reload_ok_w | rebase_w;
+746:                        : reload_ok_w ? 1'b0
+750:  assign dirty_cap_n_w  = reload_ok_w         ? 1'b0
+1086:  assign reload_ok_w = reload_w & ld_ok_r & ld_pend_r;
+1111:      if (reload_ok_w | win_live_w) ld_pend_r <= 1'b0;
+1113:      if (reload_ok_w) ld_acc_r <= 1'b1;
+1114:      if (reload_w)    rl_ref_r <= ~reload_ok_w;
+-- delta touches
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+docs/design/SAVED_STATE_FASTCONNECT.md
+docs/design/SAVED_STATE_MATERIALIZATION.md
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+docs/integration/BAREMETAL_FIRMWARE.md
+scripts/check_nvm_record_space.py
+scripts/nvm_contract.py
+scripts/nvm_map_checks.py
+scripts/nvm_shape.py
+sw/builder/test_builder.py
+sw/firmware/milan_baremetal/milan_baremetal.c
+tb/verilator/nvm_backend/Makefile
+tb/verilator/nvm_backend/README.md
+tb/verilator/nvm_backend/records_endstation_ax7101_8x8.txt
+tb/verilator/nvm_backend/sim_main.cpp
+  KL_nvm_backend #(
+      .CLK_HZ_P        (CLK_HZ_P),
+      .N_STREAM_IN_P   (N_STREAM_IN_P),
+      .N_STREAM_OUT_P  (N_STREAM_OUT_P),
+      .N_SPORT_IN_P    (N_SPORT_IN_P),
+      .N_SPORT_OUT_P   (N_SPORT_OUT_P),
+      .N_AUDIO_UNIT_P  (N_AUDIO_UNIT_P),
+      .N_CLK_DOM_P     (N_CLK_DOM_P),
+      //! one NAME record per name-store entry: the same count the processor's
+      //! descriptor store is built with, so the two cannot disagree
+      .N_NAME_P        (DESC_NAME_ENTRIES_P)
+  ) u_nvm (
+      .clk_i           (clk_i),
+      .rst_n           (rst_n),
+      .dev_req_i       (nvm_req_w),
