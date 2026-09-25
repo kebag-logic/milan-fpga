@@ -1,0 +1,67 @@
+--- current PR body
++++ prepared PR body
+@@ -1,10 +1,21 @@
+-[A291]
++[A292]
+ 
+ ## Status
+ 
+-Round 3 corrections are committed locally on `501-outmap-record` for `dev`.
+-Every assigned Round 3 gate passes. Earlier validation limits remain below.
+-Delta reviews from [R312] and [R313] remain pending.
++Round 4 correction is committed locally on `501-outmap-record` for `dev`.
++Every assigned Round 4 gate passes. Earlier validation limits remain below.
++Round 4 delta reviews from [R312] and [R313] remain pending.
++
++## Round 4
++
++Removed the single sentence assigning capture-hold measurement to processor #61/#83.
++Stage-3 release does not depend on that measurement.
++[Issue #559](https://github.com/kebag-logic/milan-fpga/issues/559) owns measurement and resolution.
++Every other repository line remains unchanged, including capacity-adoption requirements.
++Both unchanged reviewer scripts return zero with no capture-hold ownership residue.
++The text check retains only the capacity reference at `FASTCONNECT:457`.
++The [Round 4 assignment](https://github.com/kebag-logic/milan-fpga/issues/501#issuecomment-5824399821)
++explicitly requires preserving that line.
+ 
+ ## Round 3
+ 
+@@ -44,7 +55,7 @@
+ Closes #501
+ Relates to #70 and #500.
+ 
+-Executor: [A291]. Internal reviewer: [R312]. External reviewer: [R313].
++Executor: [A292]. Internal reviewer: [R312]. External reviewer: [R313].
+ 
+ ## Description
+ 
+@@ -71,10 +82,19 @@
+ ## How to get into the same state
+ 
+ Base: `573f0052a0e4412e81f0845438fcec2086ce5d55`.
+-Candidate: `afdd28b701e7f5849317e27ce845c31d1c87f2a6`.
++Candidate: `efcabc379b1e0be1366bfc05bdcc05a759b55616`.
+ Use the recorded submodule pins and repository dependencies.
+ 
+ ## How to validate
++
++For Round 4, run the record-space gate and its self-test, both documentation
++modes, em-dash checks against `573f0052a0e4412e81f0845438fcec2086ce5d55`,
++style, TOC, path and whitespace checks. All return zero.
++Run the unchanged `r3_text_check.py` with its archived Round 3 input receipts,
++and the unchanged `residual_search.sh`. Both return zero.
++The text check passes 23 required and 14 forbidden-text checks.
++Neither script finds a capture-hold obligation assigned to the donor.
++The remaining capacity-only reference is preserved as assigned.
+ 
+ For Round 3, run the record-space gate and its self-test, both documentation
+ modes, em-dash checks against `573f0052a0e4412e81f0845438fcec2086ce5d55`,
+@@ -113,7 +133,7 @@
+ - [x] Parent scope items 1-6 implemented and documented.
+ - [x] Changed behavior has self-checking tests.
+ - [x] Required local commands complete; calibration skip disclosed.
+-- [ ] Round 2 and Round 3 evidence copied from #501 into this PR.
++- [ ] Round 2, Round 3 and Round 4 evidence copied from #501 into this PR.
+ - [ ] Independent internal and external reviews positive.
+ - [ ] Reviewer-owned lens ledger accepted.
+ - [ ] Hosted checks and candidate merge validation complete.

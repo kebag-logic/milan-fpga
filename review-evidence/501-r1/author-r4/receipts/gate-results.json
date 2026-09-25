@@ -1,0 +1,93 @@
+[
+  {
+    "name": "record-space",
+    "command": "python3 scripts/check_nvm_record_space.py",
+    "cwd": "$LANES/501-outmap-record",
+    "exit_code": 0,
+    "receipt": "receipts/record-space.log"
+  },
+  {
+    "name": "record-space-self-test",
+    "command": "python3 scripts/check_nvm_record_space.py --self-test",
+    "cwd": "$LANES/501-outmap-record",
+    "exit_code": 0,
+    "receipt": "receipts/record-space-self-test.log"
+  },
+  {
+    "name": "docs-check",
+    "command": "python3 scripts/docs_check.py",
+    "cwd": "$LANES/501-outmap-record",
+    "exit_code": 0,
+    "receipt": "receipts/docs-check.log"
+  },
+  {
+    "name": "docs-check-no-git",
+    "command": "python3 scripts/docs_check.py",
+    "cwd": "/tmp/501-a292-y1n27yiv/no-git",
+    "exit_code": 0,
+    "receipt": "receipts/docs-check-no-git.log"
+  },
+  {
+    "name": "em-dash",
+    "command": "/tmp/501-a292-y1n27yiv/markdown-venv/bin/python3 scripts/check_em_dash.py --base 573f0052a0e4412e81f0845438fcec2086ce5d55",
+    "cwd": "$LANES/501-outmap-record",
+    "exit_code": 0,
+    "receipt": "receipts/em-dash.log"
+  },
+  {
+    "name": "doc-style",
+    "command": "python3 scripts/check_doc_style.py",
+    "cwd": "$LANES/501-outmap-record",
+    "exit_code": 0,
+    "receipt": "receipts/doc-style.log"
+  },
+  {
+    "name": "toc",
+    "command": "/tmp/501-a292-y1n27yiv/markdown-venv/bin/python3 scripts/gen_toc.py --check",
+    "cwd": "$LANES/501-outmap-record",
+    "exit_code": 0,
+    "receipt": "receipts/toc.log"
+  },
+  {
+    "name": "doc-paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "cwd": "$LANES/501-outmap-record",
+    "exit_code": 0,
+    "receipt": "receipts/doc-paths.log"
+  },
+  {
+    "name": "diff-check",
+    "command": "git diff --check",
+    "cwd": "$LANES/501-outmap-record",
+    "exit_code": 0,
+    "receipt": "receipts/diff-check.log"
+  },
+  {
+    "name": "diff-check-delta",
+    "command": "git diff --check afdd28b701e7f5849317e27ce845c31d1c87f2a6 HEAD",
+    "cwd": "$LANES/501-outmap-record",
+    "exit_code": 0,
+    "receipt": "receipts/diff-check-delta.log"
+  },
+  {
+    "name": "diff-check-full",
+    "command": "git diff --check 573f0052a0e4412e81f0845438fcec2086ce5d55 HEAD",
+    "cwd": "$LANES/501-outmap-record",
+    "exit_code": 0,
+    "receipt": "receipts/diff-check-full.log"
+  },
+  {
+    "name": "r3-text-check",
+    "command": "python3 /tmp/501-a292-y1n27yiv/R312-3/r3_text_check.py $LANES/501-outmap-record /tmp/501-a292-y1n27yiv/R312-3/capture_copy_probe.log /tmp/501-a292-y1n27yiv/R312-3/hold_margin.log",
+    "cwd": "$LANES/501-outmap-record",
+    "exit_code": 0,
+    "receipt": "receipts/r3-text-check.log"
+  },
+  {
+    "name": "residual-search",
+    "command": "bash /tmp/501-a292-y1n27yiv/R313-3/residual_search.sh $LANES/501-outmap-record",
+    "cwd": "$LANES/501-outmap-record",
+    "exit_code": 0,
+    "receipt": "receipts/residual-search.log"
+  }
+]
