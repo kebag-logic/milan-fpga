@@ -1,0 +1,29 @@
+[PROBE-OK] csr_dir_ignored: rc=1 caught; named=RENDER-CSR: talker selection reads zero
+    [FAIL] RENDER-CSR: talker selection reads zero                    got=65550 exp=0
+[PROBE-OK] csr_idx_aliased_to_0: rc=1 caught; named=RENDER-CSR: out-of-range listener reads zero
+    [FAIL] RENDER-CSR: out-of-range listener reads zero               got=65550 exp=0
+[PROBE-OK] csr_idx_aliased_to_0_multi: rc=1 caught; named=RENDER-CSR-MULTI
+    [FAIL] RENDER-CSR-MULTI: flushed listener 1 has empty prefill got=12 exp=256
+    [FAIL] RENDER-CSR-MULTI: first absent index reads zero got=12 exp=0
+[PROBE-OK] csr_window_term_dropped: rc=1 caught; named=RENDER-CSR: prefill mirrors taps
+    [FAIL] RENDER-CSR: prefill mirrors taps                           got=0 exp=256
+    [FAIL] RENDER-CSR: reset prefill                                  got=0 exp=256
+    [FAIL] RENDER-CSR: filling mirrors taps                           got=0 exp=262
+    [FAIL] RENDER-CSR: fill nonzero during prefill                    got=0 exp=1
+[PROBE-OK] csr_selector_reset_idx1: rc=1 caught; named=RENDER-CSR: prefill mirrors taps
+    [FAIL] RENDER-CSR: prefill mirrors taps                           got=0 exp=256
+    [FAIL] RENDER-CSR: reset prefill                                  got=0 exp=256
+    [FAIL] RENDER-CSR: filling mirrors taps                           got=0 exp=262
+    [FAIL] RENDER-CSR: fill nonzero during prefill                    got=0 exp=1
+[PROBE-OK] dp_prefill_converged_swapped: rc=1 caught; named=RENDER-CSR: prefill mirrors taps
+    [FAIL] RENDER-CSR: prefill mirrors taps                           got=512 exp=256
+    [FAIL] RENDER-CSR: reset prefill                                  got=512 exp=256
+    [FAIL] RENDER-CSR: filling mirrors taps                           got=518 exp=262
+    [FAIL] RENDER-CSR: prefill still held                             got=0 exp=1
+[PROBE-OK] dp_rails_from_underruns: rc=1 caught; named=RENDER-CSR: rail mirrors taps
+    [FAIL] RENDER-CSR: rail mirrors taps                              got=14 exp=65550
+    [FAIL] RENDER-CSR: rail event reached the word                    got=0 exp=1
+    [FAIL] RENDER-CSR: listener-0 row override mirrors taps           got=14 exp=65550
+    [FAIL] RENDER-CSR: write ignored mirrors taps                     got=14 exp=65550
+[PROBE-OK] dp_rails_upper_byte_zero: rc=0 SURVIVED (expected); named=None
+render_csr_probes: 0 unexpected outcome(s)
