@@ -52,6 +52,56 @@
                 current media-clock truth on its first PDU rather than
                 starting life with a stale bit.
 
+                A PENDING RESTART ABSORBS A SECOND REQUEST (#387, ruling
+                5802264260 item 2). A request is pending on a stream from
+                the cycle it arrives until a PDU carrying the new level has
+                gone out on that stream (the boundary ruled in 5818091077).
+                That window has two parts: the wait for the >= 8 PDU hold of
+                the stream's previous toggle, and then, once the stream has
+                adopted the new level, the time until its first PDU at that
+                level. Until that PDU no listener has seen the toggle, so a
+                second request landing anywhere in the window (a PHC step on
+                top of a CRF disruption, say) asks for what the first
+                already asked for, and the two merge: the stream puts
+                exactly ONE toggle on the wire, and its MEDIA_RESET counts
+                it. A request therefore does not flip a target; it sets the
+                stream's target to the complement of the level the stream
+                stamps now, which a second request cannot undo, and on a
+                stream whose adopted level no PDU has carried yet it leaves
+                the target at that level. Until #387 every request flipped
+                one shared target, so a second request inside the hold
+                flipped it back and NEITHER restart reached the wire. A
+                request that lands after the first PDU at the adopted level
+                is a new restart, not a merge: that PDU told the stream's
+                listeners about the earlier toggle, so the new one follows
+                once the earlier has held its eight PDUs.
+
+                WHERE "GONE OUT" IS MEASURED. The engine sees a PDU only on
+                the transmitted-PDU feed below (frame_p_i / frame_mr_i), the
+                feed the >= 8 PDU hold counts and MEDIA_RESET reads
+                (KL_talker_diag_ctx), so all three share one definition of a
+                PDU on the wire. The window ends when that feed reports the
+                first PDU at the adopted level, which hold_r records by
+                leaving 0. A talker latches mr when it launches a PDU and the
+                feed reports the PDU once it has been sent on, so a request
+                that lands between the launch of that first PDU and its
+                report still merges, although the PDU already carries the
+                toggle. That residue is at most one PDU's launch-to-report
+                time per restart; closing it needs a launch strobe from each
+                talker, which this module does not take.
+
+                So the target is PER STREAM. Every request still reaches
+                every stream, but whether it is pending is a property of one
+                stream's hold: the CRF output's eight PDUs at 500/s outlast
+                an AAF talker's at 8000/s, so one request can be pending on
+                one stream and already stamped on the other, and a shared
+                target could not both merge the first and restart the
+                second. Two streams can end on opposite levels after such a
+                sequence. That carries no meaning: a listener reads a
+                stream's toggles, never its level against another stream's
+                (10.4.3: only the mr bit of the stream a Listener recovers
+                its media clock from is valid).
+
                 THE SOURCE-CHANGE TRIGGER. 4.4.4.3's PRIMARY case is a change
                 of the media clock SOURCE (its S/PDIF A->B example), and PICS
                 Table F.7 AAF-5 makes it AAF:M MANDATORY. clk_src_i carries the
@@ -82,7 +132,7 @@
                 everywhere else; its PDU strobe is the CRF PDU strobe and its
                 frame_mr_i the bit that PDU stamped, so the hold below counts
                 CRF AVTPDUs at 500/s while an AAF talker's counts its own at
-                8000/s - independently, from one shared target.
+                8000/s - independently, each against its own target.
 
   Spec refs   : IEEE 1722-2016 4.4.4.3 (+ 10.4.3 for the CRF talker side,
                 PICS Table F.16 CRF-3/CRF-4/CRF-5),
@@ -91,9 +141,12 @@
 ------------------------------------------------------------------------------
 */
 
-//! Per-talker AVTP mr level: a restart request flips an engine-wide target,
-//! each talker adopts it once its own last change has been on the wire for
-//! HOLD_PDU_P transmitted PDUs (1722-2016 4.4.4.3).
+//! Per-talker AVTP mr level: a restart request sets each talker's target to
+//! the complement of the level it stamps, so a request landing on a pending
+//! one (requested, or adopted but not yet carried by a transmitted PDU)
+//! merges with it, and each talker adopts its target once its own last
+//! change has been on the wire for HOLD_PDU_P transmitted PDUs (1722-2016
+//! 4.4.4.3).
 
 `default_nettype none
 
@@ -106,9 +159,11 @@ module KL_media_clock_restart #(
   input  wire                    clk_i,
   input  wire                    rst_n,
 
-  //! media-clock restart request: one cycle per restart event. This is the
-  //! disruption of the CRF stream our media clock is slaved to; the
-  //! source-change trigger has its own clk_src_i below.
+  //! media-clock restart request: one cycle per restart event. The
+  //! integration ORs every trigger but the source change here: a disruption
+  //! of the CRF stream our media clock is slaved to, that stream's own mr
+  //! toggle, and a PHC step (#387); the source-change trigger has its own
+  //! clk_src_i below.
   input  wire                    restart_p_i,
   //! the live media clock SOURCE (SET_CLOCK_SOURCE / clock_source_index). A
   //! CHANGE of this value is 4.4.4.3's PRIMARY restart trigger (the clause's
@@ -121,7 +176,9 @@ module KL_media_clock_restart #(
   //! per-talker streaming level (a stopped stream holds nothing)
   input  wire [N_TALKERS_P-1:0]  streaming_i,
 
-  //! PDU completion feed: which talker, and the mr bit that PDU carried
+  //! PDU completion feed: which talker, and the mr bit that PDU carried. It
+  //! is also where a pending restart ends (#387): the first PDU reported at
+  //! a talker's adopted level closes that talker's merge window.
   input  wire                    frame_p_i,
   input  wire [3:0]              frame_idx_i,
   input  wire                    frame_mr_i,
@@ -140,8 +197,11 @@ module KL_media_clock_restart #(
   localparam int unsigned IXW_C   = $clog2(N_TALKERS_P == 1 ? 2 : N_TALKERS_P);
   localparam int unsigned HOLDW_C = $clog2(HOLD_PDU_P + 1);
 
-  //! engine-wide target: one media clock, so one restart history
-  logic                     tgt_r /* verilator public_flat_rw */;
+  //! per-talker target: the level each talker stamps once its hold allows.
+  //! It differs from mr_o while a requested restart waits for the hold; a
+  //! talker is ALSO pending, with the target equal to mr_o, from its
+  //! adoption until the feed reports a PDU at that level (hold_r == 0).
+  logic [N_TALKERS_P-1:0]   tgt_r /* verilator public_flat_rw */;
   //! shadow of the media clock source; a difference is a source-change edge
   logic [15:0]              clk_src_q_r;
   wire                      src_change_w = (clk_src_q_r != clk_src_i);
@@ -153,7 +213,7 @@ module KL_media_clock_restart #(
 
   always_ff @(posedge clk_i) begin : mcr_track
     if (!rst_n) begin
-      tgt_r <= 1'b0;
+      tgt_r <= '0;
       mr_o  <= '0;
       clk_src_q_r <= 16'd0;
       for (int t = 0; t < N_TALKERS_P; t++)
@@ -162,9 +222,22 @@ module KL_media_clock_restart #(
         hold_r[t] <= HOLDW_C'(HOLD_PDU_P);
     end else begin
       clk_src_q_r <= clk_src_i;
-      //! toggle on EITHER 4.4.4.3 trigger: a CRF disruption pulse OR a
-      //! media-clock source change. A no-op SET (same source) does not fire.
-      if (restart_p_i | src_change_w) tgt_r <= ~tgt_r;
+      //! request on EITHER input: restart_p_i OR a media-clock source change.
+      //! A no-op SET (same source) does not fire. Every talker's target
+      //! becomes the complement of the level it stamps: a talker with a
+      //! restart pending (tgt_r != mr_o) keeps its target, so the second
+      //! request merges instead of cancelling the first (#387).
+      if (restart_p_i | src_change_w) tgt_r <= ~mr_o;
+      //! ... and so does a streaming talker whose adopted level no reported
+      //! PDU has carried yet (hold_r still 0 since the adoption): no listener
+      //! has seen that toggle, so the request merges into it and the target
+      //! stays the level just adopted (#387, ruling 5818091077). The first
+      //! PDU at that level moves hold_r off 0 and ends the window.
+      //! streaming_i keeps a stop on hold_r == 0 tracking the new target,
+      //! like every non-streaming talker, instead of merging that request.
+      for (int t = 0; t < N_TALKERS_P; t++)
+        if ((restart_p_i | src_change_w) && streaming_i[t] && (hold_r[t] == '0))
+          tgt_r[t] <= mr_o[t];
 
       //! a completed PDU that carried this talker's CURRENT level counts
       //! toward its hold (saturating - only the >= comparison matters)
@@ -176,11 +249,11 @@ module KL_media_clock_restart #(
         if (!streaming_i[t]) begin
           //! no continuous stream to protect: stay adoptable and track the
           //! target directly, so nothing starts up with a stale bit
-          mr_o[t]   <= tgt_r;
+          mr_o[t]   <= tgt_r[t];
           hold_r[t] <= HOLDW_C'(HOLD_PDU_P);
         end
-        else if ((mr_o[t] != tgt_r) && (hold_r[t] == HOLDW_C'(HOLD_PDU_P))) begin : g_adopt
-          mr_o[t]   <= tgt_r;
+        else if ((mr_o[t] != tgt_r[t]) && (hold_r[t] == HOLDW_C'(HOLD_PDU_P))) begin : g_adopt
+          mr_o[t]   <= tgt_r[t];
           hold_r[t] <= '0;
         end
       end

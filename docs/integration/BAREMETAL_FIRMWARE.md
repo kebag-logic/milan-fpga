@@ -1356,6 +1356,10 @@ The rest are refusals, and each one costs a legitimate edit:
 | Constraint | Why the gate needs it |
 |---|---|
 | `o_ptp_enable` is driven directly by `ptp_ctrl[0]`, the `milan_csr` instance binds it directly to `cfg_ptp_enable`, and the `ptp_csr_sync`/`ts_counter` pair directly consumes that net with ungated clocks, resets, increment/adjust/TOD controls and readback | PHC startup is independent of AEM/ADP from the CSR register through the actual PHC consumer; the CSR harness separately proves writes to `ADP_CTRL` cannot force or gate the module output |
+| `cfg_ptp_cmd_load` has exactly five references; `eff_ptp_adjust_w` has three | Their extra reader is now `media_rebase_p_w` (#387). Its initializer is exactly `eff_ptp_adjust_w \| cfg_ptp_cmd_load`. Every other PHC-net census count stays unchanged |
+| `media_rebase_p_w` has exactly three references | Its initializer and two readers: `render_recentre_p_w` and `mcr_restart_p_w`. Another reader or driver is refused |
+| `render_recentre_p_w` is exactly `media_rebase_p_w \| src_recentre_p_r` | The render stage receives the step and settled source change. GM identity alone contributes no second re-centre |
+| `mcr_restart_p_w` is exactly `(crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) \| crf_mr_toggle_p_w)) \| media_rebase_p_w` | The step is ungated by clock selection. Exactly two references admit its initializer and direct `media_clock_restart.restart_p_i` connection |
 | External RX, the pre-filter tap, both enabled and bypass `RXFILT_P` arms, the filter's reset-time policy/programming seams, fabric-gPTP shadow RX/TX and timestamp feedback, `gptp_ctl_mux`, MAC-boundary arbitration and external TX handshakes use direct data, clock and reset connections | checking only an endpoint or data port misses an internal/downstream valid, policy or reset gate that makes the plane externally silent before AEM succeeds |
 | CSR and datapath structural checks ignore comments, census every backtick token at any column and require each checked item to be direct in its inspected generate arm | inactive comment, preprocessor or static-generate text must not stand in for a live gated connection; a future directive or nested generate requires an elaborated checker or an explicit update to this bounded model |
 | `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
@@ -1398,6 +1402,14 @@ The rest are refusals, and each one costs a legitimate edit:
 | FACTORING the CSR accessors, e.g. a `milan_set(offset, bits)` read-modify-write helper | the census places writes by RESOLVED address, and an `offset` parameter has none. **Remedy:** keep the call sites naming a register constant, or teach `CsrModel.address()` to follow the parameter, which is a data-flow change and belongs with #153 |
 | Hoisting the enable mask to a named constant | the OR mask must be a value the gate can evaluate, so `\| MILAN_ENTITY_ENABLE` is not recognised as the enable write. **Remedy:** leave the mask a literal, or add the name to the firmware's `#define` table so `constant_value()` can resolve it |
 | ANY change to the two commands `make` runs, a benign `AR += v` or `CC += -Wall` included | the recipe set is pinned rather than scanned for dangerous flag spellings, and the price of having no list is that benign changes are refused too. **Remedy:** add the changed command to `expected_recipes` in the gate and a mutation-table entry beside it |
+
+The #387 controls preserve the existing render-ADP mutation.
+Restoring the GM term fails the new render pin.
+ADP terms fail the re-base and restart initializer pins.
+Gating the restart port fails its direct-connection pin.
+Additional PHC, re-base and restart readers fail their censuses.
+These controls elaborate before contributing to the mutation tally.
+Their structural checks also run without an RV32 compiler.
 
 The listed refusals bound only the spellings they recognise; what bounds the
 values is the resolver above. **Three rows left this table with #153**,

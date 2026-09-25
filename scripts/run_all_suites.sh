@@ -36,7 +36,7 @@
 #
 # Environment:
 #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
-#                        Defaults: 1800 s; milan_dp gets 2700 s and the
+#                        Defaults: 1800 s; milan_dp gets 3600 s and the
 #                        scheduled milan_dp_gptp 5400 s (suite_timeout below).
 #                        See docs/testing/TESTING.md for the physical timer floor.
 #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
@@ -237,12 +237,12 @@ acquire_lock() {
 
 #! Declared per-suite defaults; an explicit caller override retains its meaning.
 #! The CI runner contract pins every budget and each named suite.
-#! milan_dp (#444): hosted worst case about 1815 s (1726-1773 s passing on the
-#! slower runner class; two runs killed at 1800 s, 1 s and 13 s short of the
-#! end), plus a stated 885 s (49%) margin.
+#! milan_dp (#387, decision 5820240308): hosted window 2459.9 s at a21cd358,
+#! with a 1296-2460 s spread on 2026-09-24. The 3600 s budget leaves
+#! 1140.1 s (31.7% of the budget); CI_WORKFLOWS.md cites the samples.
 suite_timeout() {
   case "$1" in
-    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-2700}" ;;
+    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
     milan_dp_gptp) printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
     *)             printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
   esac
