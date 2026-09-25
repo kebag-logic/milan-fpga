@@ -1,0 +1,76 @@
+[
+  {
+    "shard": "0/4",
+    "tops": [
+      "milan_datapath"
+    ]
+  },
+  {
+    "shard": "1/4",
+    "tops": [
+      "KL_pp_shadow"
+    ]
+  },
+  {
+    "shard": "2/4",
+    "tops": [
+      "tcam",
+      "cdc_pulse",
+      "adp_tx_arbiter",
+      "KL_gptp_txret",
+      "KL_gptp_shadow",
+      "KL_avtp_rx_monitor",
+      "KL_stream_table",
+      "KL_pcm_route",
+      "KL_aaf_capture_i2s",
+      "KL_aes3_rx",
+      "KL_aaf_packetizer",
+      "KL_crf_rx",
+      "KL_media_nco",
+      "KL_maap",
+      "KL_i2s_playback",
+      "KL_i2s_feed_mux",
+      "KL_tdm_capture_master",
+      "KL_chan_map_render",
+      "KL_aaf_rx_depacketizer",
+      "KL_ptp_clock_validity",
+      "ptp_csr_sync",
+      "ethernet_events",
+      "KL_mac_rmon_events",
+      "queues_wrap",
+      "axis_fifo",
+      "axis_demux"
+    ]
+  },
+  {
+    "shard": "3/4",
+    "tops": [
+      "cdc_handshake",
+      "rx_mac_filter",
+      "milan_csr",
+      "KL_gptp_txticket",
+      "KL_gptp_gmii_launch",
+      "avtp_stream_parser",
+      "KL_avtp_rx_monitor_ctx",
+      "KL_tdm_capture",
+      "KL_aes3_tx",
+      "KL_crf_tx",
+      "KL_mmcm_drp_servo",
+      "KL_media_grid_align",
+      "KL_link_guard",
+      "KL_render_setpoint",
+      "KL_tdm_render_master",
+      "KL_chan_map_capture",
+      "KL_tone_gen",
+      "credit_based_shaper",
+      "timestamp_counter",
+      "event_counter",
+      "classifier_wrap",
+      "datapath_wrap",
+      "ptp_ts_top",
+      "KL_pp_maap_shim",
+      "KL_nvm_backend",
+      "axis_arb_mux"
+    ]
+  }
+]

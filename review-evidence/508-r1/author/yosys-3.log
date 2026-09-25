@@ -1,0 +1,33 @@
+{"name": "yosys-3", "argv": ["syn/yosys/run.sh", "--shard", "3/4", "--results", "$MANAGEMENT/2026-09-23/508-a295/yosys-results"], "cwd": "$LANES/508-pp-pin-adopt", "head": "6a9828c172aa4d5d8ee49725e357a10bae2caa52", "start": "2026-09-25T01:52:34.407105+00:00", "log": "yosys-3.log"}
+== Yosys open-synthesis check (synth, via sv2v; shard 3/4) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] cdc_handshake          cells=143
+  [PASS] rx_mac_filter          cells=5350
+  [PASS] milan_csr              cells=70355
+  [PASS] KL_gptp_txticket       cells=259
+  [PASS] KL_gptp_gmii_launch    cells=759
+  [PASS] avtp_stream_parser     cells=2967
+  [PASS] KL_avtp_rx_monitor_ctx cells=9817
+  [PASS] KL_tdm_capture         cells=1178
+  [PASS] KL_aes3_tx             cells=1478
+  [PASS] KL_crf_tx              cells=2726
+  [PASS] KL_mmcm_drp_servo      cells=4433
+  [PASS] KL_media_grid_align    cells=1195
+  [PASS] KL_link_guard          cells=460
+  [PASS] KL_render_setpoint     cells=162918
+  [PASS] KL_tdm_render_master   cells=4213
+  [PASS] KL_chan_map_capture    cells=48895
+  [PASS] KL_tone_gen            cells=1127
+  [PASS] credit_based_shaper    cells=6717
+  [PASS] timestamp_counter      cells=1597
+  [PASS] event_counter          cells=95
+  [PASS] classifier_wrap        cells=2865
+  [PASS] datapath_wrap          cells=185015
+  [PASS] ptp_ts_top             cells=5179
+  [PASS] KL_pp_maap_shim        cells=447
+  [PASS] KL_nvm_backend         cells=7798
+  [PASS] axis_arb_mux           cells=177
+--------------------------------------------------------------
+tops: 26   pass: 26   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker

@@ -1,0 +1,23 @@
+{"name": "dp-10", "argv": ["python3", "../../../avdecc/gen_aemi_image.py", "--overlay", "obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json", "--line-bytes", "576", "-o", "obj_gmstep/aemi.bin"], "cwd": "$LANES/508-pp-pin-adopt/tb/verilator/milan_dp", "head": "6a9828c172aa4d5d8ee49725e357a10bae2caa52", "start": "2026-09-25T01:06:44.047601+00:00", "log": "dp-10.log"}
+[gen_aemi_image] obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json: 41 descriptors -> obj_gmstep/aemi.bin, 7352 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 38
+index_off 0x000020  names_off 0x001338  image_bytes 7352  desc_max_len 452
+checksum 0xBCE6827F
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      1       154     160  0x000350          4
+    0  0x0005      1      1       146     152  0x0003F0          5
+    0  0x0006      0      2       146     152  0x000488          6
+    0  0x0009      0      1       102     104  0x0005B8          8
+    0  0x000A      0      2        86      88  0x000620          9
+    0  0x000C      0      1        72      72  0x0006D0          -
+    0  0x000D      0      1       452     456  0x000718          -
+    0  0x000E      0      1        20      24  0x0008E0          -
+    0  0x000F      0      1        20      24  0x0008F8          -
+    0  0x0014      0     25        90      96  0x000910         11
+    0  0x001A      0      1       113     120  0x001270         36
+    0  0x0024      0      1        80      80  0x0012E8         37
