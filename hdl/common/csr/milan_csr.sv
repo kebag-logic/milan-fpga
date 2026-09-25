@@ -431,6 +431,10 @@ module milan_csr #(
   //! saturating, never cleared - a reader differences two reads
   input  wire [31:0]             i_slip_lb,           //! RO 0x8D4: {lb_skip16, lb_dup16}
   input  wire [31:0]             i_slip_tdm,          //! RO 0x8D8: {tdm_skip16, tdm_dup16}
+  //! RO 0x8DC: one word per listener, selected by STRM_SEL idx/dir.
+  //! Each word is {rails16, 6'd0, converged, prefill, fill_events8}.
+  //! Same aclk domain; tie zero when the render stage is absent.
+  input  wire [N_LISTENERS_P*32-1:0] i_render_status,
 
   //! chmap 0x900 window (docs/CHANNEL_MAP_64.md §6): render/capture map-RAM
   //! debug write port + fabric bypass arm. Default 0 = today's audio path.
@@ -915,6 +919,7 @@ module milan_csr #(
   //! >=0x800 carve-out as the servo word or they read 0.
   localparam [ADDR_WIDTH-1:0] A_SLIP_LB  = 'h8D4;   //! RO live: {lb_skip16, lb_dup16}
   localparam [ADDR_WIDTH-1:0] A_SLIP_TDM = 'h8D8;   //! RO live: {tdm_skip16, tdm_dup16}
+  localparam logic [ADDR_WIDTH-1:0] A_RENDER_STAT = 'h8DC; //! RO live: #443 render state
   //! chmap map-RAM window (docs/CHANNEL_MAP_64.md §6). Same dedicated-arm
   //! carve-out as MCSRV (0x8F8/0x8FC): NOT in is_plain_rw (a 0x900 shadow
   //! write would alias word 0x100), a live read arm per word, and its own
@@ -2381,6 +2386,13 @@ module milan_csr #(
       //! junction slip counters: live, free-running from reset
       A_SLIP_LB:    live_mux = i_slip_lb;
       A_SLIP_TDM:   live_mux = i_slip_tdm;
+      A_RENDER_STAT: begin
+        live_mux = 32'd0;
+        for (int unsigned s = 0; s < N_LISTENERS_P; s++) begin
+          if (!strm_dir_r && (32'(strm_idx_r) == s))
+            live_mux = i_render_status[s*32 +: 32];
+        end
+      end
       //! LTAP_CTRL: module status ({stage,active}) with enable OR-ed into [1]
       A_LTAP_CTRL:  live_mux = i_ltap_status | {30'd0, ltap_en_r, 1'b0};
       A_CHMAP_CTRL: live_mux = chmap_ctrl;
@@ -2546,6 +2558,7 @@ module milan_csr #(
                       //! slip counter pair 0x8D4/0x8D8, same carve-out
                       (rd_addr_q == A_SLIP_LB) ||
                       (rd_addr_q == A_SLIP_TDM) ||
+                      (rd_addr_q == A_RENDER_STAT) ||
                       //! chmap 0x900-0x93F window (else the 0x8F8 dead-read trap)
                       (rd_addr_q >= A_CHMAP_CTRL &&
                        rd_addr_q <  A_CHMAP_CTRL + 16'h40);

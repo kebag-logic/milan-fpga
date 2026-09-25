@@ -404,6 +404,10 @@ aclk: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 aclk-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(ACLK_BUILD)
 
+.PHONY: render-csr-controls
+render-csr-controls: aclk-build
+	python3 render_csr_controls.py
+
 crflic: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(CRFLIC_BUILD)
 	./$(CRFLIC_MDIR)/Vmilan_dp_crflic

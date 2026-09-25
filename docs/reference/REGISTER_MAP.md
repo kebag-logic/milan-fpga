@@ -200,6 +200,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
   - [0x8C8  -  reserved target-media compatibility words](#0x8c8-----reserved-target-media-compatibility-words) -- Three retired addresses that now read structural zero and ignore writes. They expose no media owner or liveness evidence.
   - [0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)](#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture) -- Two live RO words, `SLIP_LB`/`SLIP_TDM`: the loopback ring's and the TDM junction's dup/skip counters from `KL_chan_map_capture`, one dup per fed pair per beat period at INTERNAL by the standing free-run rule (about 2 per second on the shipping four-pair lane), stopping under a CRF selection; they are never cleared, so a pair that counted before the selection reads a static non-zero word, not a zero. Saturating at `0xFFFF`: a starved fed pair counts every tick, so a pegged half is spent, not static. Read twice for a rate below the ceiling; `SLIP_LB` is a structural zero without the loopback lane, so establish the lane from the build before reading it.
+  - [0x8DC  -  render setpoint state](#0x8dc-----render-setpoint-state) -- Selected listener fill, prefill and convergence with global saturating rails.
   - [0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo)](#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo) -- **Engaged by the live selection since #74.** The processor stores `SET_CLOCK_SOURCE`, the wrapper exports it, and the root's `media_clk_resolve` verdict gates this servo. The CRF sink at `0x738` measures, and a CRF selection steers from it; INTERNAL reads IDLE honestly.
   - [0x900  -  channel-map fabric  (Section 6 of docs/CHANNEL_MAP_64.md, KL_chan_map_render / KL_chan_map_capture)](#0x900-----channel-map-fabric--section-6-of-docschannel_map_64md-kl_chan_map_render--kl_chan_map_capture) -- Diagnostic write port into the 64×64 render/capture map stores, disarmed at reset. It also holds the `0x910`/`0x914` **map-store readback**: what the fabric actually contains, not `0x908`'s shadow of the last diagnostic write, with `LOOP_SUSPECT` separating a working quiet loop source from one that was never fed. Its unarmed state is `0xDEADDEAD`, never `0`.
   - [0x920  -  protocol-processor control plane  (KL_pp_shadow, VERSION major 2)](#0x920-----protocol-processor-control-plane--kl_pp_shadow-version-major-2) -- The control plane's own window, now unconditionally decoded: `milan_csr`'s `PP_PLANE_P` parameter is gone. `PP_STAT`'s constant `0x5B` tag is the register to read first -- a `0` there means the gateware predates the group and can never mean "present and idle". The side port is POSTED and one access is outstanding at a time: a request offered while busy is refused, not queued, so software can never read one address's answer believing it asked for another. `PP_DIAG` carries the only frame accounting the control plane still publishes, including the ingress FIFO drop count.
@@ -1815,7 +1816,8 @@ get a rate.
 The former `0x8C8`, `0x8CC`, and `0x8D0` telemetry words are retired. They
 read structural zero, ignore writes, and cannot be used as liveness evidence.
 `0x8D4` and `0x8D8` carry the media-boundary slip counters since `0x0058`
-(next section); `0x8DC` to `0x8F4` remain unmapped and read zero.
+(next section); `0x8DC` carries `RENDER_STAT` (#443).
+`0x8E0` to `0x8F4` remain unmapped and read zero.
 Physical-render diagnostics use the retained channel-map readback,
 Listener/depacketizer counters, I2S status, and pin-level evidence instead.
 
@@ -1934,6 +1936,48 @@ upstream talker runs at the physical grid's rate, the disciplined peer
 | dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups minus skips climbing 0.51/s (dups alone at 0.51/s while the marker dithers over two adjacent cycles; a wider dither adds skips and as many extra dups) | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
 | climbing | static | our own front end is aligned but the upstream talker's clock is not this media clock: look at the peer's clock source |
 | `0xFFFF` in either half | any | the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the present rate; a saturated word is not evidence of one grid. Reset to re-arm, then read again; a bind wipe un-primes the pair but does not clear the word |
+
+### 0x8DC  -  render setpoint state
+
+Issue #443 claims this previously unmapped debug-group word.
+
+| Offset | Name | Acc | Reset | Description |
+|---|---|---|---|---|
+| `0x8DC` | `RENDER_STAT` | RO live | `0x00000100` | Selected listener state and the global rail count |
+
+`STRM_SEL[3:0]` selects the listener, with `STRM_SEL[8]=0`.
+Talker selections and indices outside `N_LISTENERS_P` read zero.
+`STRM_SEL[9]` does not change this word's selection.
+
+| Bits | Width | Source | Meaning | Reset |
+|---|---|---|---|---|
+| `[7:0]` | 8 | selected `fill_o` byte | Queue occupancy in media events; bounded, never wraps | 0 |
+| `[8]` | 1 | selected `prefill_o` bit | Pops held while the queue prefills; level, no counter | 1 |
+| `[9]` | 1 | selected `converged_o` bit | Convergence dwell satisfied; level, no counter | 0 |
+| `[15:10]` | 6 | constant | Reserved zero | 0 |
+| `[31:16]` | 16 | `rails_o` | Global reset-band actions; saturates at `0xFFFF`, never wraps | 0 |
+
+The widths preserve the stage's taps without truncation.
+The current queue holds at most 32 events per listener.
+The rail counter aggregates every listener, including unselected streams.
+Reset clears that counter; bind flushes do not.
+Neither reading nor writing clears it; writes are ignored.
+All fields are sampled together by the live CSR read.
+No snapshot arm or cross-clock transfer is involved.
+
+**STRUCTURAL ZERO** applies when the stage is absent.
+Such integrations must tie `i_render_status` to zero.
+That zero means no source, never a measured healthy stage.
+The current datapath instantiates the stage unconditionally.
+Neither parked TDM pins nor disabled I2S imply its absence.
+Check the elaborated build before interpreting any zero.
+
+Rail and underrun events do not raise `STREAM_INTERRUPTED`.
+That is [#443's manager decision](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5789749713).
+Underrun, overrun and recentre counters remain separate verification taps.
+
+Proof: `make -C tb/verilator/milan_dp aclk` reads the taps.
+`make -C tb/verilator/milan_dp render-csr-controls` checks absence and mutation.
 
 ### 0x8F8  -  MMCM-DRP media-clock servo  `(Milan v1.2 7.3.4, KL_mmcm_drp_servo)`
 
