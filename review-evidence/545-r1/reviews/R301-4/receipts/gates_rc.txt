@@ -1,0 +1,11 @@
+scripts/docs_check.py rc=0
+scripts/docs_check.py --selftest rc=0
+scripts/measure_test_evidence.py --check rc=0
+scripts/measure_test_evidence.py --selftest rc=0
+gen_toc --verify-anchors rc=0
+gen_toc (check) rc=0
+docs_check (no-Git archive of HEAD) rc=0
+check_em_dash --base 864b36f5 rc=0
+check_doc_style rc=0
+check_doc_paths rc=0
+check_py_idiom rc=0
