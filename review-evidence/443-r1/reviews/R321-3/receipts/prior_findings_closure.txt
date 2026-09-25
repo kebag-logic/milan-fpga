@@ -1,0 +1,21 @@
+== prior finding closure at candidate 4ee96a61
+-- F1 (R321-1 F1 = R320-1 F1): any 0x8DC 'unmapped' claim in csr bench?
+142:constexpr uint32_t A_RENDER_STAT = 0x8DC;
+1430:  printf("-- RENDER_STAT (0x8DC) --\n");
+tb/verilator/csr/sim_main.cpp:12
+tb/verilator/csr/sim_win.cpp:7
+-- F2 bit9 graded:
+405:        ck("RENDER-CSR: bit 9 preserves talker rejection", axi_read(0x8DC), 0);
+409:        check_render_csr("bit 9 with listener 0");
+-- F3 TESTING row:
+265:| #443 render CSR controls (`render_csr_controls.py`) | `make -C tb/verilator/milan_dp render-csr-controls` | Author
+-- F4 CHANGELOG deferral:
+34:- Issue #443 adds `RENDER_STAT` at `0x8DC`.
+39:- VERSION remains `0x0002_0060`; the release step owns the minor bump.
+196:  parameter logic [31:0] VERSION = 32'h0002_0060
+-- F5 groups index row:
+242:| `0x8DC` | `RENDER_STAT`: RO live selected-listener state and global rails; structural zero wit
+1957:| `0x8DC` | `RENDER_STAT` | RO live | `0x00000100` | Selected listener state and the global rai
+-- S-A lines milan_datapath packing, S-B csr neighbour reads: blob identity with b3458db0
+hdl/milan/milan_datapath.sv identical to b3458db0
+tb/verilator/csr/sim_main.cpp identical to b3458db0

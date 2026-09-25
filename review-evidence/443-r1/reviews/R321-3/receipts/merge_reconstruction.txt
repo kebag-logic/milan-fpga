@@ -1,0 +1,50 @@
+git git version 2.55.0
+dev 864b36f5e9450ef64f75ca3f0d68c44330e447d7 tree 2719e15f7238e9c1947f9fffb9154ae8a91a2678; C508 tree 2719e15f7238e9c1947f9fffb9154ae8a91a2678: EQUAL
+candidate parents: ec9cf454bf997fab230d0216dc609e737bc47caa b3458db0db5a7c8b15582d80b492620f05f62e70
+merge-base --all C541 SRC: 5b73d3f47dfed519eb988c13d6beb1db664ef1e0 9d66cfe0dc87ffe4a5f45691d5c86b041b050b38 8383e929fab3ff57a768c88b8b1ff9b568afcf14 022290e4c94a23b9ee97852b6c1c2ee2c1f25352 
+step1 merge-tree dev+#541 head rc=0 tree=6cc8996a3b2040f14950456f9951d994e3660887 equals C541 tree: YES
+step2 merge-tree (dev+#541)+#443 source rc=0 tree=42e0c2ec133cf57a8c5f22069b7f08af39f1fddb merge-base 864b36f5e9450ef64f75ca3f0d68c44330e447d7 
+step2 equals candidate tree 42e0c2ec133cf57a8c5f22069b7f08af39f1fddb: YES
+direct merge-tree C541+source rc=0 tree=42e0c2ec133cf57a8c5f22069b7f08af39f1fddb equals candidate: YES
+--- per-file origin of every path #443 changes (dev..source)
+==source CHANGELOG.md
+==source docs/AAF_LATENCY_TAPS.md
+==source docs/design/TIME_SYNC.md
+COMBINED docs/reference/REGISTER_MAP.md
+==source docs/reference/REGISTER_MAP_CLASSES.md
+COMBINED docs/testing/TESTING.md
+==source hdl/common/csr/milan_csr.sv
+==source hdl/ieee1722/aaf/KL_render_setpoint.sv
+==source hdl/milan/milan_datapath.sv
+COMBINED scripts/measure_test_evidence.py
+==source tb/verilator/csr/sim_main.cpp
+==source tb/verilator/csr/sim_win.cpp
+==source tb/verilator/milan_dp/Makefile
+==source tb/verilator/milan_dp/README.md
+==source tb/verilator/milan_dp/render_csr_controls.py
+==source tb/verilator/milan_dp/sim_aclk.cpp
+==source tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+--- paths the #541 side changes (dev..C541)
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+hdl/ieee1722/crf/KL_crf_rx.sv
+scripts/measure_test_evidence.py
+tb/verilator/crf_rx/mutants.py
+tb/verilator/crf_rx/sim_discontinuity.cpp
+--- overlap
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+scripts/measure_test_evidence.py
+--- candidate vs reviewed source: every differing path
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+hdl/ieee1722/crf/KL_crf_rx.sv
+scripts/measure_test_evidence.py
+tb/verilator/crf_rx/mutants.py
+tb/verilator/crf_rx/sim_discontinuity.cpp
+--- KL_crf_rx.sv from 'module' to EOF, source vs candidate
+IDENTICAL (the differing lines sit in the file-header block comment)
+--- submodule gitlinks: candidate / C541 / source
+efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor 990f96526bb89356c963a260ebbdcf2a77e6623a protocol-processor 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis 
+efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor 990f96526bb89356c963a260ebbdcf2a77e6623a protocol-processor 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis 
+efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor 990f96526bb89356c963a260ebbdcf2a77e6623a protocol-processor 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis 

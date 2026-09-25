@@ -1,0 +1,6 @@
+head 4ee96a61bf35402a6f88e1ebad1167e9873721c5 tree 42e0c2ec133cf57a8c5f22069b7f08af39f1fddb verilator $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator: Verilator 5.050 2026-07-01 rev v5.050
+csr                          rc=0    32s  make -C tb/verilator/csr VERILATOR_JOBS=8
+crf_rx                       rc=0   550s  make -C tb/verilator/crf_rx VERILATOR_JOBS=8
+milan_dp_aclk                rc=0   468s  make -C tb/verilator/milan_dp aclk VERILATOR_JOBS=8
+render_csr_controls          rc=0   139s  make -C tb/verilator/milan_dp render-csr-controls VERILATOR_JOBS=8
+milan_dp_render              rc=0   332s  make -C tb/verilator/milan_dp_render VERILATOR_JOBS=8

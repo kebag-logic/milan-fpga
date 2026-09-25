@@ -1,0 +1,20 @@
+head 4ee96a61bf35402a6f88e1ebad1167e9873721c5 tree 42e0c2ec133cf57a8c5f22069b7f08af39f1fddb
+docs_check_git                           rc=0  python3 scripts/docs_check.py
+docs_check_walk                          rc=0  env GIT_DIR=/dev/null python3 scripts/docs_check.py
+gen_toc_check                            rc=2  python3 scripts/gen_toc.py --check
+gen_toc_verify_anchors                   rc=2  python3 scripts/gen_toc.py --verify-anchors
+docs_check_selftest                      rc=0  python3 scripts/docs_check.py --selftest
+check_em_dash_parent                     rc=2  python3 scripts/check_em_dash.py --base ec9cf454bf997fab230d0216dc609e737bc47caa
+check_doc_style                          rc=0  python3 scripts/check_doc_style.py
+check_doc_paths                          rc=0  python3 scripts/check_doc_paths.py
+measure_test_evidence                    rc=0  python3 scripts/measure_test_evidence.py --check
+measure_test_evidence_st                 rc=0  python3 scripts/measure_test_evidence.py --selftest
+ci_events_check                          rc=0  python3 scripts/ci_events.py --check
+ci_events_selftest                       rc=0  python3 scripts/ci_events.py --selftest
+check_rtl_source_lists                   rc=0  python3 scripts/check_rtl_source_lists.py
+check_sv_idiom                           rc=0  python3 scripts/check_sv_idiom.py
+check_cpp_idiom                          rc=0  python3 scripts/check_cpp_idiom.py
+check_py_idiom                           rc=0  python3 scripts/check_py_idiom.py
+check_feature_status                     rc=0  python3 scripts/check_feature_status.py
+check_hygiene                            rc=0  python3 scripts/check_hygiene.py --check
+diff_check_parent                        rc=0  git diff --check ec9cf454bf997fab230d0216dc609e737bc47caa HEAD
