@@ -1,0 +1,30 @@
+{
+ "id": "m02",
+ "name": "the CRF licence alone reads the raw verdict",
+ "must_fail": "the CRF licence equals ACTIVE[CRF] AND real grant",
+ "rc": 1,
+ "verdict": "caught",
+ "n_fail": 16,
+ "fails": [
+  "[FAIL] the CRF licence never opened (every cycle sampled)                 got=1 exp=0",
+  "[FAIL] no CRF PDU on the wire                                             got=8 exp=0",
+  "[FAIL] CRFT_COUNT stays 0                                                 got=8 exp=0",
+  "[FAIL] CRFT_CTRL[6] reservation active reads 0                            got=1 exp=0",
+  "[FAIL] CRFT_CTRL[7] emission licensed reads 0                             got=1 exp=0",
+  "[FAIL] the CRF licence opened on the cycle ACTIVE[CRF] rose               got=177041 exp=581573",
+  "[FAIL] the licence closed on that cycle                                   got=18446744073709551615 exp=8227016",
+  "[FAIL] no CRF PDU 20 ms after the licence closed                          got=168 exp=0",
+  "[FAIL] the licence reopened on that cycle                                 got=177041 exp=8427016",
+  "[FAIL] STREAM_START = 2                                                   got=1 exp=2",
+  "[FAIL] STREAM_STOP = 1                                                    got=0 exp=1",
+  "[FAIL] the licence closed on that cycle                                   got=18446744073709551615 exp=8677016",
+  "[FAIL] no CRF PDU 20 ms after the licence closed                          got=187 exp=0",
+  "[FAIL] CRFT_CTRL[6] reservation active reads 0                            got=1 exp=0",
+  "[FAIL] CRFT_CTRL[7] emission licensed reads 0                             got=1 exp=0",
+  "[FAIL] the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing) got=2855005 exp=0"
+ ],
+ "tally": [
+  "checks: 415   failures: 16",
+  "RESULT: FAIL"
+ ]
+}

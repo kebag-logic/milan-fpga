@@ -1,0 +1,43 @@
+{
+ "id": "m05",
+ "name": "the CRF licence alone drops the real grant",
+ "must_fail": "refused CRF licence never opened",
+ "rc": 1,
+ "verdict": "caught",
+ "n_fail": 29,
+ "fails": [
+  "[FAIL] refused CRF licence never opened                                   got=1 exp=0",
+  "[FAIL] refused re-declaration adds no STREAM_START                        got=3 exp=2",
+  "[FAIL] refused re-declaration adds no STREAM_STOP                         got=3 exp=2",
+  "[FAIL] refused re-declaration preserves MEDIA_RESET                       got=0 exp=17",
+  "[FAIL] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=0 exp=29",
+  "[FAIL] refused re-declaration preserves FRAMES_TX                         got=0 exp=43",
+  "[FAIL] licence waits for both ACTIVE and grant",
+  "[FAIL] refused CRF licence never opened                                   got=1 exp=0",
+  "[FAIL] refused re-declaration adds no STREAM_START                        got=5 exp=4",
+  "[FAIL] refused re-declaration adds no STREAM_STOP                         got=5 exp=4",
+  "[FAIL] refused re-declaration preserves MEDIA_RESET                       got=0 exp=17",
+  "[FAIL] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=0 exp=29",
+  "[FAIL] refused re-declaration preserves FRAMES_TX                         got=0 exp=43",
+  "[FAIL] licence waits for both ACTIVE and grant",
+  "[FAIL] refused CRF licence never opened                                   got=1 exp=0",
+  "[FAIL] refused re-declaration adds no STREAM_START                        got=7 exp=6",
+  "[FAIL] refused re-declaration adds no STREAM_STOP                         got=7 exp=6",
+  "[FAIL] refused re-declaration preserves MEDIA_RESET                       got=0 exp=17",
+  "[FAIL] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=0 exp=29",
+  "[FAIL] refused re-declaration preserves FRAMES_TX                         got=0 exp=43",
+  "[FAIL] licence waits for both ACTIVE and grant",
+  "[FAIL] refused CRF licence never opened                                   got=1 exp=0",
+  "[FAIL] refused re-declaration adds no STREAM_START                        got=9 exp=8",
+  "[FAIL] refused re-declaration adds no STREAM_STOP                         got=9 exp=8",
+  "[FAIL] refused re-declaration preserves MEDIA_RESET                       got=0 exp=17",
+  "[FAIL] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=0 exp=29",
+  "[FAIL] refused re-declaration preserves FRAMES_TX                         got=0 exp=43",
+  "[FAIL] licence waits for both ACTIVE and grant",
+  "[FAIL] the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing) got=52 exp=0"
+ ],
+ "tally": [
+  "checks: 415   failures: 29",
+  "RESULT: FAIL"
+ ]
+}

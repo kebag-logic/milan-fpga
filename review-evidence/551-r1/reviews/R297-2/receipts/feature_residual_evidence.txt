@@ -1,0 +1,27 @@
+git show f219a5eda:tests/features/milan_streaming_licence.feature | sed -n 86,97p
+     1	  @class:structure
+     2	  Scenario: the stream gate requires ACTIVE AND the per-source real grant, nothing else
+     3	    # #530 requires ACTIVE: raw admission alone allowed media before Listener
+     4	    # Ready. The #551 decision also requires the per-source real grant,
+     5	    # excluding ACTIVE's optimistic admission term. Neither term alone suffices.
+     6	    # This pins the composition; obj_crflic grades its cycle-level behaviour.
+     7	    # Residual: a refused re-declaration with a different previous TSpec can
+     8	    # still see about one round of licence: the first-round grant uses the
+     9	    # previous slope. Processor issue #112 owns that pending fix.
+    10	    When I read the lwSRP stream gate assignment from milan_datapath
+    11	    Then the stream gate takes ACTIVE AND the per-source real grant and nothing else
+    12	
+
+last commit touching the file:
+babb89250 Pin licence contract tests and document pending stale-grant fix
+files changed by content commit 8dc98a42..f219a5ed:
+CHANGELOG.md
+docs/reference/EGRESS_QUEUE_MAP.md
+docs/reference/FR_NFR.md
+docs/reference/MILAN_COMPLIANCE_MATRIX.md
+docs/reference/REGISTER_MAP.md
+docs/traceability/ieee8021q.md
+hdl/milan/KL_pp_shadow.sv
+hdl/milan/milan_datapath.sv
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/sim_crf_licence.cpp

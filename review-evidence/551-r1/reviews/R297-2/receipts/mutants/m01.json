@@ -1,0 +1,37 @@
+{
+ "id": "m01",
+ "name": "every gate reads the raw verdict",
+ "must_fail": "the CRF licence never opened (every cycle sampled)",
+ "rc": 1,
+ "verdict": "caught",
+ "n_fail": 23,
+ "fails": [
+  "[FAIL] the CRF licence never opened (every cycle sampled)                 got=1 exp=0",
+  "[FAIL] no CRF PDU on the wire                                             got=8 exp=0",
+  "[FAIL] CRFT_COUNT stays 0                                                 got=8 exp=0",
+  "[FAIL] CRFT_CTRL[6] reservation active reads 0                            got=1 exp=0",
+  "[FAIL] CRFT_CTRL[7] emission licensed reads 0                             got=1 exp=0",
+  "[FAIL] the AAF gate never opened                                          got=1 exp=0",
+  "[FAIL] no AAF PDU on the wire                                             got=31 exp=0",
+  "[FAIL] LWSRP_STATUS[8] stream gate (source 0) reads 0                     got=1 exp=0",
+  "[FAIL] the CRF licence opened on the cycle ACTIVE[CRF] rose               got=177041 exp=581573",
+  "[FAIL] the AAF gate opened on the cycle ACTIVE[AAF] rose                  got=177122 exp=582156",
+  "[FAIL] the AAF gate closed on that cycle                                  got=18446744073709551615 exp=877020",
+  "[FAIL] no AAF PDU 20 ms after the gate closed                             got=108 exp=0",
+  "[FAIL] the licence closed on that cycle                                   got=18446744073709551615 exp=8227016",
+  "[FAIL] no CRF PDU 20 ms after the licence closed                          got=168 exp=0",
+  "[FAIL] the licence reopened on that cycle                                 got=177041 exp=8427016",
+  "[FAIL] STREAM_START = 2                                                   got=1 exp=2",
+  "[FAIL] STREAM_STOP = 1                                                    got=0 exp=1",
+  "[FAIL] the licence closed on that cycle                                   got=18446744073709551615 exp=8677016",
+  "[FAIL] no CRF PDU 20 ms after the licence closed                          got=187 exp=0",
+  "[FAIL] CRFT_CTRL[6] reservation active reads 0                            got=1 exp=0",
+  "[FAIL] CRFT_CTRL[7] emission licensed reads 0                             got=1 exp=0",
+  "[FAIL] the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing) got=2855005 exp=0",
+  "[FAIL] the AAF gate is never open without ACTIVE[AAF] AND real grant      got=1660393 exp=0"
+ ],
+ "tally": [
+  "checks: 415   failures: 23",
+  "RESULT: FAIL"
+ ]
+}
