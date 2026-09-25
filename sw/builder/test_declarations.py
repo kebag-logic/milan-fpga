@@ -89,6 +89,10 @@ def test_declaration_contracts() -> None:
                 presentation_time_offset_ns=value)))
             cases.append(("5.3.7.6", lambda c, value=value: c["clocking"].setdefault(
                 "crf_output", {}).update(enabled=True, presentation_time_offset_ns=value)))
+        for value in (1000000, 2000000):
+            cases.append(("streams.listeners[0].presentation_time_offset_ns",
+                          lambda c, value=value: c["streams"]["listeners"][0].update(
+                              presentation_time_offset_ns=value)))
         for reason, change in cases:
             raw = copy.deepcopy(base)
             change(raw)
