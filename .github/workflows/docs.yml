@@ -219,6 +219,9 @@ jobs:
         run: |
           python3 scripts/check_nvm_record_space.py
           python3 scripts/check_nvm_record_space.py --self-test
+      - name: Capture measurement census and clock gate
+        # Regenerates tables and checks the receipt without compilation or simulation.
+        run: python3 scripts/check_nvm_capture.py
       # Saved-state writer gate (#70): the bare-metal firmware's translation
       # unit compiled unchanged against stub headers and run on a host model
       # of the CSR face, the flash and the clock, per shipped shape. The
