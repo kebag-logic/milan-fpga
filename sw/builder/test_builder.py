@@ -18550,7 +18550,8 @@ def test_crf_output_overlay_structure() -> None:
         so = ovl["stream_outputs"]
         assert len(so) == n + 1, f"{name}: expected {n} AAF + 1 CRF output"
         assert so[-1] == dict(index=n, name="CRF", kind="crf", channels=0,
-                              formats=[CRF_FMT]), f"{name}: CRF entry {so[-1]}"
+                              formats=[CRF_FMT], presentation_time_offset_ns=2000000), \
+            f"{name}: CRF entry {so[-1]}"
         assert all(s["kind"] == "aaf" for s in so[:-1])
         dc = ovl["descriptor_counts"]
         assert dc["STREAM_OUTPUT"] == n + 1
