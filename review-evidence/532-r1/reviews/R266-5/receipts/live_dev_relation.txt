@@ -1,0 +1,18 @@
+merge-base(live dev, candidate) = c266432dcb0cdd464205823a3d82cad260eedde2
+c266432d Merge PR #555: Make a PHC step one counted media event: toggle mr, count MEDIA_RESET, re-base once, and merge a pending restart
+live dev commits not in candidate:
+0755923d Merge PR #556: Document and pin CTLR_DIAG as a structural zero
+files changed by those that the PR also changes:
+(end)
+total files: 5
+is live dev content contained in candidate? trees of diff live-dev..candidate for files changed in MBD..D:
+      2 DIFF docs/reference/REGISTER_MAP.md
+      3 same docs/findings/117_GPTP_SILICON_EVIDENCE.md
+docs/findings/117_GPTP_SILICON_EVIDENCE.md | 10 ++++++++--
+ docs/reference/REGISTER_MAP.md             | 22 ++++++++++++----------
+ hdl/common/csr/milan_csr.sv                | 26 ++++++++++++++------------
+ hdl/milan/milan_datapath.sv                |  8 +++++---
+ tb/verilator/milan_dp/sim_nxn.cpp          |  4 ++++
+ 5 files changed, 43 insertions(+), 27 deletions(-)
+
+Probe: git merge-tree --write-tree b74fb111 0755923d -> f64880a6c1719e28de9e3de266f7aa65bcd214f5 (identical to candidate tree): live dev adds no content beyond the candidate.

@@ -1,0 +1,3 @@
+022290e4c94a23b9ee97852b6c1c2ee2c1f25352: sandbox-policy PASS; job-volume-scope PASS
+b74fb11162fba8f019110d9f2c21492300857da2: sandbox-policy PASS; job-volume-scope PASS
+control: sandbox-policy REFUSED (workflow .github/workflows/docs.yml job docs-check-no-git step 2 uses unapproved action 'someone/untrusted@v1'; local, docker://, and unaudited remote actions can execute through the host Docker daemon); job-volume-scope PASS

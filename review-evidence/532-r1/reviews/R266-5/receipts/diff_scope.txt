@@ -1,0 +1,64 @@
+parents of H: 7ddbbdc9be73728b239718c8976261c7e0ad0563 022290e4c94a23b9ee97852b6c1c2ee2c1f25352
+source merge-base with train parent: 759da623072358afdb0e9d570a7b4b6a788492c9
+PR files on candidate (B..H):
+docs/testing/CI_WORKFLOWS.md
+scripts/act_ci.py
+scripts/act_slot_proof.sh
+scripts/check_baremetal_only.py
+PR files at source (MB..S):
+docs/testing/CI_WORKFLOWS.md
+scripts/act_ci.py
+scripts/act_slot_proof.sh
+scripts/check_baremetal_only.py
+patch-id MB..S: 9233e7cc3fe3732b1d44fb07407c410fcd62d24b
+patch-id B..H:  9233e7cc3fe3732b1d44fb07407c410fcd62d24b
+PR files a predecessor also changed (MB..B):
+docs/testing/CI_WORKFLOWS.md
+predecessor commits on those files:
+e1333a14 Validate issue 387b merge-train candidate
+44873590 Validate issue 408 merge-train candidate
+0f003fab Address GM step re-base round-three validation and scope findings
+c14f96ed Record the wire boundary, the settime evidence and the measured milan_dp margin in the design, test and CI pages
+20b7bdaa Use permitted wording for containment proof claims
+3f2fe73d Separate optional linear retention from historical containment
+a13b6e2e builder: retire gate 1b's text rules onto per-selection grading, -E, -H and the resolved store census
+hunk headers, PR on candidate:
+@@ -1340 +1340,2 @@ through the same explicit `env -i` assignments and private empty `HOME`, keeping
+@@ -1344 +1345,4 @@ ambient current context and proves the two sudo prefixes remain identical apart
+@@ -1534 +1538,2 @@ set of `min(host CPUs, 4)` cores (`--cpuset-cpus=0-3` on a large host;
+@@ -1568,2 +1573,3 @@ volume it does not own, by label or by the job-volume lease described below.
+@@ -1613 +1619,2 @@ own create, and act adopts it. The serialization the tool-cache name already
+@@ -1727,0 +1735,346 @@ an unfinished hosted run.
+hunk headers, predecessors:
+@@ -159 +159 @@ margin sets each named entry:
+@@ -162,6 +162,31 @@ margin sets each named entry:
+@@ -1129 +1154,2 @@ Firmware compilation through a host compiler is refused.
+@@ -1753,0 +1780,8 @@ and the keyword never fired.
+predecessor gate/workflow files changed (MB..B):
+ .github/workflows/docs.yml                   |   15 +
+ AGENTS.md                                    |    2 +-
+ CONTRIBUTING.md                              |   95 +-
+ scripts/check_em_dash.py                     |   23 +-
+ scripts/check_merge_containment.py           |   44 +-
+ scripts/check_nvm_record_space.py            |  100 +-
+ scripts/ci_events.py                         |   31 +-
+ scripts/gen_toc.py                           |  729 ++++-------
+ scripts/gen_toc_cases.py                     |  377 ++----
+ scripts/gen_toc_closer_cases.py              |   20 +-
+ scripts/gen_toc_guards.py                    |  136 --
+ scripts/gen_toc_renderer.py                  |  424 ++++++
+ scripts/gen_toc_renderer_cases.py            |  285 ++++
+ scripts/gen_toc_shape_cases.py               |  261 ++++
+ scripts/gen_toc_shapes.json                  | 6795 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ scripts/measure_test_evidence.py             |   18 +-
+ scripts/measure_test_evidence_selftest.py    |    2 +-
+ scripts/merge_containment_replay.py          |   32 +-
+ scripts/merge_containment_selftest.py        |    2 +
+ scripts/merge_containment_selftest_linear.py |  305 +++++
+ scripts/nvm_contract.py                      |    3 +
+ scripts/nvm_map_checks.py                    |  122 ++
+ scripts/nvm_shape.py                         |   22 +-
+ scripts/port_docs.budget                     |   10 +-
+ scripts/run_all_suites.sh                    |   10 +-
+ tools/markdown/requirements.txt              |   23 +
+ 26 files changed, 8918 insertions(+), 968 deletions(-)
