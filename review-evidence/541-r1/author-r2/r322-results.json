@@ -1,0 +1,49 @@
+[
+  {
+    "name": "clean",
+    "intent": "positive control: unmodified head",
+    "unit": {
+      "rc": 0,
+      "fail_lines": [],
+      "n_fail_lines": 0,
+      "summary": [
+        "KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)"
+      ]
+    },
+    "disc": {
+      "rc": 0,
+      "fail_lines": [],
+      "n_fail_lines": 0,
+      "summary": [
+        "== crf_rx discontinuity: checks: 2201   failures: 0 =="
+      ]
+    },
+    "verdict": "CONTROL_PASS"
+  },
+  {
+    "name": "P2_error_refreshes_timeout",
+    "intent": "validation error refreshes the 100 ms timeout (doc: does not)",
+    "unit": {
+      "rc": 0,
+      "fail_lines": [],
+      "n_fail_lines": 0,
+      "summary": [
+        "KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)"
+      ]
+    },
+    "disc": {
+      "rc": 2,
+      "fail_lines": [
+        "[FAIL] reject stream cannot refresh the 100 ms timeout",
+        "[FAIL] reject stream timeout counts one unlock  got=0 exp=1",
+        "[FAIL] continued reject stream stays unlocked",
+        "[FAIL] continued reject stream never recounts the unlock got=0 exp=1"
+      ],
+      "n_fail_lines": 4,
+      "summary": [
+        "== crf_rx discontinuity: checks: 2201   failures: 4 =="
+      ]
+    },
+    "verdict": "DETECTED"
+  }
+]

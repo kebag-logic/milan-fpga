@@ -1,0 +1,19 @@
+{"name": "precheck-discontinuity", "command": ["make", "-C", "tb/verilator/crf_rx", "discontinuity"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 5.28}
+{"name": "cpp-idiom", "command": ["python3", "scripts/check_cpp_idiom.py"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 1.17}
+{"name": "r322-refresh", "command": ["env", "PROBES=clean,P2_error_refreshes_timeout", "python3", "/tmp/a306-541-s6qjh6s5/evidence/review-evidence/541-r1/reviews/R322-1/scripts/probe_mutants.py", "/tmp/a306-541-s6qjh6s5/head", "/tmp/a306-541-s6qjh6s5/r322-rerun", "/tmp/a306-541-s6qjh6s5/verilator-j8", "1"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 23.07}
+{"name": "docs-git", "command": ["python3", "scripts/docs_check.py"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 4.07}
+{"name": "docs-no-git", "command": ["python3", "/tmp/a306-541-s6qjh6s5/head/scripts/docs_check.py"], "cwd": "/tmp/a306-541-s6qjh6s5/head", "rc": 0, "seconds": 4.02}
+{"name": "em-dash", "command": ["python3", "scripts/check_em_dash.py", "--base", "5b73d3f47dfed519eb988c13d6beb1db664ef1e0"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 3.07}
+{"name": "doc-style", "command": ["python3", "scripts/check_doc_style.py"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 0.06}
+{"name": "toc-check", "command": ["python3", "scripts/gen_toc.py", "--check"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 2.47}
+{"name": "toc-anchors", "command": ["python3", "scripts/gen_toc.py", "--verify-anchors"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 1.57}
+{"name": "doc-paths", "command": ["python3", "scripts/check_doc_paths.py"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 0.06}
+{"name": "module-matrix", "command": ["python3", "docs/traceability/gen_module_matrix.py", "--check"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 0.97}
+{"name": "xvlog", "command": ["python3", "scripts/xvlog_gate.py", "--check"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 134.76}
+{"name": "sv-idiom", "command": ["python3", "scripts/check_sv_idiom.py"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 0.41}
+{"name": "py-idiom", "command": ["python3", "scripts/check_py_idiom.py"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 3.07}
+{"name": "test-evidence", "command": ["python3", "scripts/measure_test_evidence.py", "--check"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 4.92}
+{"name": "diff-check", "command": ["git", "diff", "--check"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 0.02}
+{"name": "mmcm-servo", "command": ["make", "-C", "tb/verilator/mmcm_servo"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 481.34}
+{"name": "crf-rx", "command": ["make", "-C", "tb/verilator/crf_rx"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 566.52}
+{"name": "r323-refresh", "command": ["python3", "/tmp/a306-541-s6qjh6s5/evidence/review-evidence/541-r1/reviews/R323-1/scripts/reviewer_mutants.py", "/tmp/a306-541-s6qjh6s5/head", "/tmp/a306-541-s6qjh6s5/r323-rerun", "clean", "uf_refreshes_timeout"], "cwd": "$LANES/541-crf-unlock", "rc": 0, "seconds": 1049.38}
