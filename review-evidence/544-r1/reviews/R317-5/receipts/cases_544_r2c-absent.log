@@ -1,0 +1,7 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+{"label": "CTRL unchanged firmware", "verdict": "ACCEPTED"}
+{"label": "PRIOR C08 macro (*(__extension__ &(x)) = MAGIC)", "verdict": "REFUSED", "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"}
+{"label": "PRIOR C09 plain (*(__extension__ &(id)) = MAGIC)", "verdict": "ACCEPTED"}
+{"label": "PRIOR C10 macro asm li %0 output", "verdict": "REFUSED", "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"}
+{"label": "PRIOR C11 plain asm li %0 output", "verdict": "ACCEPTED"}
+SUMMARY {"head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14", "rev": "head", "mode": "absent", "disconnect": false, "compiles": 0, "hidden": ["$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc", "riscv32-unknown-elf-gcc", "riscv64-elf-gcc"]}

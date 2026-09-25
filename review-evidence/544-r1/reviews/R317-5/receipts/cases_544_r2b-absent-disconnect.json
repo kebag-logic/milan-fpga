@@ -1,0 +1,57 @@
+{
+  "summary": {
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rev": "head",
+    "mode": "absent",
+    "disconnect": true,
+    "compiles": 0,
+    "hidden": [
+      "$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc",
+      "riscv32-unknown-elf-gcc",
+      "riscv64-elf-gcc"
+    ]
+  },
+  "rows": [
+    {
+      "label": "CTRL unchanged firmware",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "STORE auto sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "STORE register sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "STORE const sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "STORE volatile sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "STORE static sample",
+      "verdict": "REFUSED",
+      "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+    },
+    {
+      "label": "ESC nested function in another function, no sample",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "ESC nested function in milan_init before the read",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "ESC nested function after guard naming the sample",
+      "verdict": "ACCEPTED"
+    }
+  ]
+}

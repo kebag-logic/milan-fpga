@@ -1,0 +1,111 @@
+[
+  {
+    "source": "review-evidence/544-r1/reviews/R317-2/receipts/probes-r2/r2-head-sdk.json",
+    "sha256": "45c5bc6137a8cdf4370d5ce05537158a2ca99b9ee30b66cfc9acacbdcb14f4ae",
+    "mode": "sdk",
+    "rows": 51,
+    "delta": [
+      {
+        "label": "LIM asm +r output after guard (no address, after the interval)",
+        "old": "ACCEPTED",
+        "new": "REFUSED",
+        "new_reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile (\"\" : \"+r\"(id));'"
+      },
+      {
+        "label": "LIM callee asm clobbers a callee-saved register, called in interval",
+        "old": "ACCEPTED",
+        "new": "REFUSED",
+        "new_reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s1, 0x4d494c4e\");'"
+      }
+    ]
+  },
+  {
+    "source": "review-evidence/544-r1/reviews/R317-2/receipts/probes-r2/r2-head-absent.json",
+    "sha256": "336c16166389c9274dd2057ae7348aba7c2c89f14fba9a253a57a1e0a4561f38",
+    "mode": "absent",
+    "rows": 51,
+    "delta": []
+  },
+  {
+    "source": "review-evidence/544-r1/reviews/R317-2/receipts/probes-r2/r2b-head-sdk.json",
+    "sha256": "ce229217249bf4d5ffd128e639b1a39e91fcf028a8feefeb40abdaf075c8bc35",
+    "mode": "sdk",
+    "rows": 9,
+    "delta": []
+  },
+  {
+    "source": "review-evidence/544-r1/reviews/R317-2/receipts/probes-r2/r2b-head-absent.json",
+    "sha256": "9ff41a97b3969249652d91d36155e59b86b0101ed7441a4f83c0e7c675d8d1a1",
+    "mode": "absent",
+    "rows": 9,
+    "delta": []
+  },
+  {
+    "source": "review-evidence/544-r1/reviews/R317-2/receipts/probes-r2/r2c-head-sdk.json",
+    "sha256": "d660968bf3b78effcbb6c7641ea6fdfe8f87b29321b5ce5a99cc6717d34162a8",
+    "mode": "sdk",
+    "rows": 5,
+    "delta": []
+  },
+  {
+    "source": "review-evidence/544-r1/reviews/R317-2/receipts/probes-r2/r2c-head-absent.json",
+    "sha256": "bcac7a58f733aaf5c5a54754cb22c7ff91a1421719bbe303c6f20823a9f3cf5b",
+    "mode": "absent",
+    "rows": 5,
+    "delta": []
+  },
+  {
+    "source": "review-evidence/544-r1/reviews/R317-2/receipts/probes-r2/r2d-head-sdk.json",
+    "sha256": "6ace01aa377d78b18e497ce199f4fecdb96e91095e2783bdc46aa268e39992db",
+    "mode": "sdk",
+    "rows": 8,
+    "delta": []
+  },
+  {
+    "source": "review-evidence/544-r1/reviews/R317-2/receipts/probes-r2/r2d-head-absent.json",
+    "sha256": "72a1aa247934c573d650fa9b7e334faf46fdf509d4616af5b68a7ec7c68576b8",
+    "mode": "absent",
+    "rows": 8,
+    "delta": []
+  },
+  {
+    "source": "review-evidence/544-r1/reviews/R317-2/receipts/probes-r2/r2e-head-sdk.json",
+    "sha256": "9e8cac1cde4ec333d7d31bb390c7b3e400afc35d437c5558eea1aabd3047d4a4",
+    "mode": "sdk",
+    "rows": 4,
+    "delta": []
+  },
+  {
+    "source": "review-evidence/544-r1/reviews/R316-2/receipts/r2set-head-sdk.json",
+    "sha256": "bc973b6ebc746a4e338b57de24323bc0287cd78d34c54a3fdbe11c4277835ba3",
+    "mode": "sdk",
+    "rows": 35,
+    "delta": [
+      {
+        "id": "W01",
+        "old": "ACCEPTED",
+        "new": "REFUSED",
+        "new_reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s0, 0x4d494c4e\\\\n\\\\tli s1, 0x4d494c4e\\\\n\\\\tli s2, 0x4d494c4e\\\\n\\\\tli s3, 0x4d494c4e\\\\n\\\\tli s4, 0x4d494c4e\\\\n\\\\tli s5, 0x4d494c4e\\\\n\\\\tli s6, 0x4d494c4e\\\\n\\\\tli s7, 0x4d494c4e\\\\n\\\\tli s8, 0x4d494c4e\\\\n\\\\tli s9, 0x4d494c4e\\\\n\\\\tli s10, 0x4d'"
+      },
+      {
+        "id": "W02",
+        "old": "ACCEPTED",
+        "new": "REFUSED",
+        "new_reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s0, 0x4d494c4e\\\\n\\\\tli s1, 0x4d494c4e\\\\n\\\\tli s2, 0x4d494c4e\\\\n\\\\tli s3, 0x4d494c4e\\\\n\\\\tli s4, 0x4d494c4e\\\\n\\\\tli s5, 0x4d494c4e\\\\n\\\\tli s6, 0x4d494c4e\\\\n\\\\tli s7, 0x4d494c4e\\\\n\\\\tli s8, 0x4d494c4e\\\\n\\\\tli s9, 0x4d494c4e\\\\n\\\\tli s10, 0x4d'"
+      },
+      {
+        "id": "W03",
+        "old": "ACCEPTED",
+        "new": "REFUSED",
+        "new_reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s0, 0x4d494c4e\\\\n\\\\tli s1, 0x4d494c4e\\\\n\\\\tli s2, 0x4d494c4e\\\\n\\\\tli s3, 0x4d494c4e\\\\n\\\\tli s4, 0x4d494c4e\\\\n\\\\tli s5, 0x4d494c4e\\\\n\\\\tli s6, 0x4d494c4e\\\\n\\\\tli s7, 0x4d494c4e\\\\n\\\\tli s8, 0x4d494c4e\\\\n\\\\tli s9, 0x4d494c4e\\\\n\\\\tli s10, 0x4d'"
+      }
+    ]
+  },
+  {
+    "source": "review-evidence/544-r1/reviews/R316-2/receipts/r2set-head-absent.json",
+    "sha256": "31ba6611f8c9ec8e48ba6638a26780f49dd69d80f46b3f1db1fbabc87bc536dd",
+    "mode": "absent",
+    "rows": 35,
+    "delta": []
+  }
+]

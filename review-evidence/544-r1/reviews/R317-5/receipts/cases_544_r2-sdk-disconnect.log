@@ -1,0 +1,60 @@
+SDK argv: ["$SDK/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$SDK/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$SDK/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$SDK/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "$SDK", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "$SDK/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "$SDK/bin/toolchain-wrapper", "sysroot": "$SDK/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+{"label": "CTRL unchanged firmware", "verdict": "ACCEPTED"}
+{"label": "EXC-OK discarded mask hex literal (void)(id & 0xffu);", "verdict": "ACCEPTED"}
+{"label": "EXC-OK discarded mask no blanks (void)(id&1);", "verdict": "ACCEPTED"}
+{"label": "EXC-OK discarded mask ull suffix (void)(id & 0x1ull);", "verdict": "ACCEPTED"}
+{"label": "EXC-OK discarded mask macro literal (void)(id & MILAN_ID_MAGIC);", "verdict": "ACCEPTED"}
+{"label": "EXC-OK second diagnostic call argument", "verdict": "ACCEPTED"}
+{"label": "EXC-OK two sample arguments in one call", "verdict": "ACCEPTED"}
+{"label": "NEAR argument followed by + 1u", "verdict": "ACCEPTED"}
+{"label": "NEAR argument followed by conditional", "verdict": "ACCEPTED"}
+{"label": "NEAR argument extra parentheses (unsigned long)(x)", "verdict": "ACCEPTED"}
+{"label": "NEAR argument then comma assignment in a second statement expr", "verdict": "ACCEPTED"}
+{"label": "NEAR argument postfix increment", "verdict": "ACCEPTED"}
+{"label": "NEAR argument cast unsigned long int", "verdict": "ACCEPTED"}
+{"label": "NEAR argument cast unsigned int", "verdict": "ACCEPTED"}
+{"label": "NEAR argument via parenthesized callee (printf)(...)", "verdict": "ACCEPTED"}
+{"label": "NEAR argument in statement expression that assigns", "verdict": "REFUSED", "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the boot entry point', 'statements x9', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_aem_image', 'entity_advertise'), ('the boot entry point', 'statements x11', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_aem_image', 'entity_advertise'"}
+{"label": "NEAR argument in sizeof", "verdict": "ACCEPTED"}
+{"label": "NEAR argument in array subscript", "verdict": "ACCEPTED"}
+{"label": "NEAR argument of __typeof__ declaration then assignment", "verdict": "REFUSED", "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the boot entry point', 'statements x9', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_aem_image', 'entity_advertise'), ('the boot entry point', 'statements x11', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_aem_image', 'entity_advertise'"}
+{"label": "NEAR statement two masks (void)(x & 1u & 3u)", "verdict": "ACCEPTED"}
+{"label": "NEAR statement negative literal (void)(x & -1)", "verdict": "ACCEPTED"}
+{"label": "NEAR statement char literal (void)(x & '\\1')", "verdict": "ACCEPTED"}
+{"label": "NEAR statement under if (1)", "verdict": "ACCEPTED"}
+{"label": "NEAR statement followed by & 2u", "verdict": "REFUSED", "reason": "the compiled census could not build the firmware with $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, which IS the RV32 target: a source this gate cannot compile is a source whose CSR stores it cannot census; ['      |         ^~~~~~~~~~~']"}
+{"label": "NEAR statement mask operand reversed (void)(1u & x)", "verdict": "ACCEPTED"}
+{"label": "NEAR statement mask then pre-increment in next statement", "verdict": "REFUSED", "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the boot entry point', 'statements x9', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_aem_image', 'entity_advertise'), ('the boot entry point', 'statements x10', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_aem_image', 'entity_advertise'"}
+{"label": "NEAR statement mask in comma with assignment", "verdict": "ACCEPTED"}
+{"label": "NEAR printf macro routes the argument into a conditional", "verdict": "ACCEPTED"}
+{"label": "NEAR printf macro keeps a delimited argument and reuses it wrapped", "verdict": "ACCEPTED"}
+{"label": "LIM printf macro forwards the argument to a benign identifier call", "verdict": "ACCEPTED"}
+{"label": "ESC sizeof &id after guard", "verdict": "ACCEPTED"}
+{"label": "ESC __typeof__(&id) after guard", "verdict": "ACCEPTED"}
+{"label": "ESC asm m input after guard", "verdict": "REFUSED", "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile (\"\" :: \"m\"(id));'"}
+{"label": "ESC asm +m output after guard", "verdict": "REFUSED", "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile (\"\" : \"+m\"(id));'"}
+{"label": "ESC pointer initialised from &id after guard", "verdict": "ACCEPTED"}
+{"label": "ESC &id + 0 after guard", "verdict": "ACCEPTED"}
+{"label": "ESC macro &(x) after guard", "verdict": "ACCEPTED"}
+{"label": "LIM asm +r output after guard (no address, after the interval)", "verdict": "REFUSED", "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile (\"\" : \"+r\"(id));'"}
+{"label": "BOUND C03 header paste", "verdict": "ACCEPTED"}
+{"label": "BOUND C05 macro using header paste", "verdict": "ACCEPTED"}
+{"label": "BOUND C13 object-like macro alias", "verdict": "ACCEPTED"}
+{"label": "BOUND writer alias", "verdict": "ACCEPTED"}
+{"label": "BOUND writer apply", "verdict": "ACCEPTED"}
+{"label": "BOUND C16 parenthesized assignment", "verdict": "ACCEPTED"}
+{"label": "BOUND C17 indirect assignment", "verdict": "ACCEPTED"}
+{"label": "LIM callee asm clobbers a callee-saved register, called in interval", "verdict": "REFUSED", "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s1, 0x4d494c4e\");'"}
+{"label": "LIM frame-address store in interval", "verdict": "REFUSED", "reason": "only milan_reg() may form a CSR address, but a CSR pointer cast is used outside it: a raw store there reaches a control register without passing the bit-0 census"}
+{"label": "LIM backward goto writes after the guard", "verdict": "REFUSED", "reason": "milan_init() must not contain 'goto': control that enters the AEM-success guard by any path other than the guard's own condition advertises an unverified entity"}
+{"label": "LIM backward goto hidden in macros", "verdict": "REFUSED", "reason": "the CSR identity mismatch guard must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"}
+{"label": "LIM magic definition assigns the sample", "verdict": "REFUSED", "reason": "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default, or the boot guard can accept a forged identity value"}
+{"label": "LIM forged system-header linemarker before a nested capture", "verdict": "REFUSED", "reason": "the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads"}
+SUMMARY {"head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14", "rev": "head", "mode": "sdk", "disconnect": true, "compiles": 90, "hidden": []}

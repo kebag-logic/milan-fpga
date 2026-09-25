@@ -1,0 +1,18 @@
+SDK argv: ["$SDK/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$SDK/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$SDK/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$SDK/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "$SDK", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "$SDK/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "$SDK/bin/toolchain-wrapper", "sysroot": "$SDK/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+{"label": "CTRL unchanged firmware", "verdict": "ACCEPTED"}
+{"label": "STORE auto sample", "verdict": "REFUSED", "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"}
+{"label": "STORE register sample", "verdict": "REFUSED", "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"}
+{"label": "STORE const sample", "verdict": "REFUSED", "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"}
+{"label": "STORE volatile sample", "verdict": "REFUSED", "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"}
+{"label": "STORE static sample", "verdict": "REFUSED", "reason": "the CSR identity read must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"}
+{"label": "ESC nested function in another function, no sample", "verdict": "ACCEPTED"}
+{"label": "ESC nested function in milan_init before the read", "verdict": "ACCEPTED"}
+{"label": "ESC nested function after guard naming the sample", "verdict": "REFUSED", "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: milan_nested.0() through unplaced x1 ['unplaced(None)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime-d"}
+SUMMARY {"head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14", "rev": "head", "mode": "sdk", "disconnect": true, "compiles": 9, "hidden": []}

@@ -1,0 +1,17 @@
+{
+  "tag": "probe2-absent-disconnect-identity",
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe2.py",
+    "absent",
+    "--disable",
+    "assert_identity_macro_free",
+    "--out",
+    "$SCRATCH/raw/probe2-absent-disconnect-identity.json",
+    "--scratch",
+    "$SCRATCH"
+  ],
+  "rc": 0,
+  "seconds": 32.976
+}

@@ -1,0 +1,51 @@
+{
+  "summary": {
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rev": "head",
+    "mode": "sdk",
+    "disconnect": false,
+    "compiles": 11,
+    "hidden": []
+  },
+  "rows": [
+    {
+      "label": "CTRL unchanged firmware",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "PLAIN extension address",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+    },
+    {
+      "label": "PLAIN asm immediate output",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"
+    },
+    {
+      "label": "PLAIN choose lvalue",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+    },
+    {
+      "label": "PLAIN generic lvalue",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+    },
+    {
+      "label": "PLAIN real lvalue",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+    },
+    {
+      "label": "PLAIN extension lvalue",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: id occurs between its CSR read and mismatch guard outside the two delimited rvalue shapes: a complete (unsigned long) sample call argument or the complete (void)(sample & integer-literal); statement"
+    },
+    {
+      "label": "PLAIN asm tied output",
+      "verdict": "REFUSED",
+      "reason": "identity-sample absence rule: no asm statement is permitted between the CSR sampling read and its mismatch guard"
+    }
+  ]
+}

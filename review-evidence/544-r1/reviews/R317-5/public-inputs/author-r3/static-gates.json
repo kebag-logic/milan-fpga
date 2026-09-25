@@ -1,0 +1,122 @@
+[
+  {
+    "label": "docs-git",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/544-macro-sample",
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rc": 0,
+    "seconds": 4.020729469018988
+  },
+  {
+    "label": "docs-no-git",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "/tmp/544-a296-evidence-gbtor192/docs-no-git",
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rc": 0,
+    "seconds": 4.025123297993559
+  },
+  {
+    "label": "check_baremetal_only",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "cwd": "$LANES/544-macro-sample",
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rc": 0,
+    "seconds": 14.099889044999145
+  },
+  {
+    "label": "em-dash",
+    "argv": [
+      "/tmp/544-a296-evidence-gbtor192/markdown-env/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "ffcbd33de70278ae34b533dcbadde0b36c8cba13"
+    ],
+    "cwd": "$LANES/544-macro-sample",
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rc": 0,
+    "seconds": 3.038483835000079
+  },
+  {
+    "label": "check_doc_style",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$LANES/544-macro-sample",
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rc": 0,
+    "seconds": 0.06423845700919628
+  },
+  {
+    "label": "gen_toc",
+    "argv": [
+      "/tmp/544-a296-evidence-gbtor192/markdown-env/bin/python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$LANES/544-macro-sample",
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rc": 0,
+    "seconds": 2.469448048970662
+  },
+  {
+    "label": "check_doc_paths",
+    "argv": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$LANES/544-macro-sample",
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rc": 0,
+    "seconds": 0.06450560700614005
+  },
+  {
+    "label": "check_py_idiom",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$LANES/544-macro-sample",
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rc": 0,
+    "seconds": 3.1217697099782526
+  },
+  {
+    "label": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "$LANES/544-macro-sample",
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rc": 0,
+    "seconds": 0.03217317000962794
+  },
+  {
+    "label": "diff-check-base",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "ffcbd33de70278ae34b533dcbadde0b36c8cba13",
+      "HEAD"
+    ],
+    "cwd": "$LANES/544-macro-sample",
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rc": 0,
+    "seconds": 0.03267755499109626
+  }
+]

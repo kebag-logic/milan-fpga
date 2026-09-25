@@ -1,0 +1,80 @@
+[
+  {
+    "tag": "probe2-sdk-disconnect-identity",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe2.py",
+      "sdk",
+      "--disable",
+      "assert_preprocessed_identity_sample",
+      "--out",
+      "$SCRATCH/raw/probe2-sdk-disconnect-identity.json",
+      "--scratch",
+      "$SCRATCH",
+      "--sdk",
+      "$SDK"
+    ],
+    "rc": 0,
+    "seconds": 43.0
+  },
+  {
+    "tag": "probe2-absent-disconnect-identity",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe2.py",
+      "absent",
+      "--disable",
+      "assert_identity_macro_free",
+      "--out",
+      "$SCRATCH/raw/probe2-absent-disconnect-identity.json",
+      "--scratch",
+      "$SCRATCH"
+    ],
+    "rc": 0,
+    "seconds": 32.976
+  },
+  {
+    "tag": "retained-S3-sdk",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--only",
+      "S3 verifier",
+      "--tag",
+      "retained-S3-sdk",
+      "--outdir",
+      "$SCRATCH/raw",
+      "--sdk",
+      "$SDK"
+    ],
+    "rc": 0,
+    "seconds": 3.372
+  },
+  {
+    "tag": "retained-S3-absent",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b.py",
+      "--mode",
+      "absent",
+      "--rev",
+      "head",
+      "--only",
+      "S3 verifier",
+      "--tag",
+      "retained-S3-absent",
+      "--outdir",
+      "$SCRATCH/raw"
+    ],
+    "rc": 0,
+    "seconds": 2.318
+  }
+]

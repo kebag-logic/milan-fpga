@@ -1,0 +1,19 @@
+{
+  "tag": "probe2-sdk-disconnect-asm",
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe2.py",
+    "sdk",
+    "--out",
+    "$SCRATCH/raw/probe2-sdk-disconnect-asm.json",
+    "--scratch",
+    "$SCRATCH",
+    "--sdk",
+    "$SDK",
+    "--disable",
+    "assert_preprocessed_asm_allowlist"
+  ],
+  "rc": 0,
+  "seconds": 38.44
+}

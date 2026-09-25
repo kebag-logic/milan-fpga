@@ -1,0 +1,85 @@
+[R317] POSITIVE - exact head 8383e929fab3ff57a768c88b8b1ff9b568afcf14
+
+R317-5, external independent delta review of issue #544 / PR #558. Tree: `7002558568dadb29f501869b2bfce4c4e91230c7`. Reviewed the full delta from source base `ffcbd33de70278ae34b533dcbadde0b36c8cba13`, with particular attention to round 3. All five lenses are CLEAN. No BLOCKER, MAJOR or MINOR remains open. Four previously published SUGGESTIONs remain optional, detailed below.
+
+The independent verdict and ledger were written to `INDEPENDENT.md` before opening prior review findings. This final report adds their dispositions and completed integrity evidence. Reconstruction followed the assigned order: repository operating rules and documentation map; frozen issue acceptance and public decisions; requirements and interfaces; diff and three-commit history; public executable evidence. No private author material or another checkout was used.
+
+The controlling scope is the [round-3 decision](https://github.com/kebag-logic/milan-fpga/issues/544#issuecomment-5825016512), retaining the [two rvalue exceptions](https://github.com/kebag-logic/milan-fpga/issues/544#issuecomment-5824093785). The original acceptance is met within its explicitly permitted compiler-free NOT RUN alternative. Production firmware and its Makefile are unchanged. The changes are confined to the gate and its documentation.
+
+The unit-wide asm rule meets the assigned policy. `sw/builder/test_builder.py:5237` freezes eleven forms. The public production preprocessing receipt contains five unique forms; the census receipt contains eight, sharing the two fences. Their union matches the eleven entries exactly (`allowlist-derivation.json`). The production receipt records the pinned SDK, product RV32I flags, included-file hashes and unit hash. The census includes six scanf-family assembler-name annotations with complete trailing attributes. The fifth-fence fixture repeats the existing read/write fence and requires no extra entry. I checked this derivation from public receipts; I did not reconstruct the separate production-header build.
+
+I reviewed normalization and detection directly, not just the examples:
+
+- At `sw/builder/test_builder.py:5254`, quoted literals are indivisible tokens. Their original spelling, escapes, whitespace and concatenation remain significant. Identifiers remain whole; other non-whitespace characters remain in the tuple. There is no operand, instruction or clobber wildcard and no candidate-derived allowlist.
+- At `:5268`, the shared lexer blanks comments and literals while preserving source offsets. At `:5270`, all three asm keyword spellings are recognized. These match the asm entries in the pinned release's [keyword table](https://raw.githubusercontent.com/gcc-mirror/gcc/releases/gcc-14.3.0/gcc/c-family/c-common.cc). Macro expansion and splicing occur before this unit is inspected; the existing lexical subset rejects unsupported source spellings.
+- At `:5272`, the first unblanked semicolon bounds the comparison. A semicolon within a template string cannot truncate it. An operand containing a statement expression would introduce additional tokens and fail membership. Missing terminators, extra qualifiers, operands, clobbers, attributes, literal contents or concatenated strings cannot equal a frozen entry. Every detected keyword is visited independently, including those in headers and uncalled functions.
+- Whitespace-only normalization is permitted by the decision. I identified no accepted non-allowlisted asm spelling that becomes an allowlisted form or escapes this scan within the declared source/header boundary. This is a bounded review judgment, not an exhaustive grammar proof. The existing header trust boundary remains; separately linked objects are outside the scan at `:5266`.
+
+The round-2 interval, automatic-storage and no-escape checks remain active at `:5171` and `:5280`. The diagnostic copy does not replace the census input. The unit-wide check is added after existing checks at `:11539`, preserving their earlier refusal reasons. Its additional refusals are exactly the intended strengthening in the published round-2 comparison.
+
+Independent focused execution used the verified disposable SDK and the scoped simulation frontend. No full builder, parent, processor or synthesis bank was run. `run_checks.py` and `run_followup.py` reproduce the runs with two concurrent foreground subprocesses; all temporary builds and SDK files are confined to `scratch/`.
+
+| Measured result | Compiler required | Compiler absent |
+|---|---:|---:|
+| Gate 1b exit | 0 | 0 |
+| Mutations refused | 351/351 | 249/249 |
+| Legitimate firmware cases accepted | 38/38 | 35/35 |
+| Legitimate Makefile cases accepted | 4/4 | 4/4 |
+| RTL mutation variants elaborated | 46/46 | 46/46 |
+| Firmware compiler invocations | 851 | 0 |
+| Gate 1b registered NOT RUN groups | 0 | 1 |
+
+The compiler-backed gate also passed all eleven exact forms, their whitespace controls, seven changed/incomplete-form refusals, and the three automatic/three nonautomatic storage controls. Each committed W01-W03 row was refused on `boot-unit asm allowlist rule`; disconnecting that check alone accepted each. The unchanged independent `probe2.py` reproduced those three results. Older overlapping asm controls still require both relevant checks removed, as documented. See `receipts/gate1b-sdk.log`, `receipts/gate1b-absent.log` and `receipts/probe2-sdk-disconnect-asm.json`.
+
+Both public round-2 probe sets ran unchanged: 483 verdicts over 25 configurations, including the five external case modules and individual check disconnections. All script hashes match the published hashes (`unchanged-probes.json`). The two additional S3 checks also passed their expected ACCEPTED result. All 29 commands exited zero (`probe-summary.json`). Comparing 220 available prior normal-mode verdicts found only five changes: W01-W03, the external callee-asm case and the external post-guard register-output case changed from ACCEPTED to the new named asm refusal. Every available prior compiler-free verdict is unchanged (`round2-comparison.json`). No prior compiler-free receipt exists for the four-case compound-literal set; its current verdicts are recorded without claiming a historical comparison.
+
+No reduction was found. The original 15 corpus declarations remain structurally identical and ordered; all 18 round-2 declarations remain identical. Both production files are byte-identical to base and round 2 (`conservation.json`). The passing whole gate-1b runs exercise the retained rows and reason pins. Mutation totals increase from the round-2 348/249 to 351/249; accepted totals remain 38/35. The fifth fence is among the accepted cases.
+
+The prose at `docs/integration/BAREMETAL_FIRMWARE.md:494`, cost row `:1465`, and emitted compiler COST line at `sw/builder/test_builder.py:16193` all name separately linked pinned library, BIOS and startup objects as unread. Their calling-convention and register/memory effects remain trusted, unproved. The prose at `:503`, cost row `:1466`, and emitted compiler-free COST line at `test_builder.py:16173` all state the unmatched-source-text class as NOT RUN, not a closed list. C09/C11, plain wrapper/asm fixtures and W01-W03 are printed as accepted without compilation; with compilation they are refused. The corrected header-paste statement remains present. The former broad "unmodified CSR identity sample" summary has been narrowed to source-text write forms.
+
+Prior public findings were reconciled after the independent pass. Original severities and all assigned lenses are retained here:
+
+| Prior ID | Severity; attributable lenses | Disposition at this head and verification |
+|---|---|---|
+| R316-1 F1 | MAJOR; Conformance, RTL, Robustness, Tests, Docs | RESOLVED. Extension-address macro/plain fixtures are refused by the absence rule; committed disconnection controls pass. Independent A01 and escape cases confirm the refusal. |
+| R316-1 F2 | MAJOR; Conformance, RTL, Robustness, Tests, Docs | RESOLVED. Interval asm/output uses receive the named absence refusal, with overlapping unit-wide protection. Both compiled corpus and fifth fence pass. |
+| R317-1 F1 | MAJOR; Conformance, Robustness, Tests, Docs | RESOLVED. Plain and macro choose/generic/real/extension/asm forms are committed reason-pinned rows; A01-A10 and the external plain set refuse with compilation. |
+| R316-1 F3 | MINOR; Conformance, Robustness, Tests, Docs | RESOLVED. C03/C05/C13 are named and pinned compiler-free bounds; the external BOUND rows reproduce accepted/refused mode separation. |
+| R317-1 F2 | MINOR; Conformance, Robustness, Docs | RESOLVED. Header paste, writer alias and writer apply are explicit NOT RUN examples in all three required locations and pinned in both modes. |
+| R316-1 F4 | SUGGESTION; Robustness | RETAINED as an optional follow-up. The later scope decisions require disclosure rather than a wider compiler-free implementation: C16/C17 are named, pinned NOT RUN examples. Their compiler-free behavior remains accepted; compiler mode refuses them. |
+| R316-2 F1 | MAJOR; Conformance, Robustness, Tests, Docs | RESOLVED. Committed and unchanged independent W01-W03 refuse by the new rule and pass with only it disconnected. |
+| R317-2 S1 | SUGGESTION; Robustness, Docs | ADDRESSED. The unchanged callee-asm probe now refuses by the unit-wide rule. The out-of-unit calling-convention boundary is stated. |
+| R316-2 F2 | MINOR; Conformance, Tests, Docs | RESOLVED. The open compiler-free class is explicit in prose, table and COST; A01-A10 reproduce the disclosed results. |
+| R317-2 F1 | MINOR; Conformance, Robustness, Tests, Docs | RESOLVED by the same class statement, plain fixtures and narrowed verdict wording. The unchanged external plain-form set confirms it. |
+
+The two original published macros remain named refusals in both modes with effective committed controls. R273-S3 remains ACCEPTED in both modes (`receipts/retained-S3-sdk.json`, `receipts/retained-S3-absent.json`), as the original decision expressly required reporting without expanding this lane. No blocking finding was moved to another issue to obtain this verdict.
+
+The current [peer round R316-5](https://github.com/kebag-logic/milan-fpga/pull/558#issuecomment-5825681469) appeared after this independent verdict and final report draft. It was then checked for additional findings: its S1/S2/S3 are the same retained suggestions below, with Robustness also attributed to S2; it reports no new blocking or minor finding. This external ledger rests on the independent work recorded above.
+
+The following optional findings remain; none changes lens cleanliness:
+
+- **R316-1 F4, SUGGESTION, Robustness.** Artifact: `sw/builder/test_builder.py:11190` source-text identity check and the C16/C17 rows in `receipts/cases_544_r2-absent.json`. Authority/evidence: parenthesized and indirect writes were pre-existing compiler-free gaps; later public decisions selected explicit NOT RUN disclosure. Impact: those writes remain accepted without compilation. Optional outcome: consider separate scoped work for broader compiler-free protection; none was created by this reviewer. Verification: current C16/C17 results remain disclosed and compiled mode refuses them.
+
+- **R316-2 S1, SUGGESTION, Conformance and Docs.** Artifact: `sw/builder/test_builder.py:5211`, independent N04/N06 in `receipts/probe2-sdk.json`. Authority/evidence: the decision says complete call arguments, while the recognizer admits the alternate keyword operators for alignment and type queries. Impact: harmless unevaluated cast rvalues are admitted; no sample write was found. Optional outcome: include the alternate spellings in the exclusions or describe this lexical allowance. Verification: rerun unchanged N04/N06 and reconcile the wording.
+- **R317-2 S2 / R316-5 S2, SUGGESTION, Conformance, Robustness, Tests and Docs.** Artifact: `sw/builder/test_builder.py:5184` and `:5200`; `receipts/cases_544_r2e-sdk.json`. Authority/evidence: the parent stack tracks parentheses, allowing the unparenthesized compound-literal element case as a call argument. Impact: a third harmless cast-rvalue shape is accepted; its two parenthesized variants refuse. Optional outcome: track bracket/brace parents or describe the lexical reading. Verification: rerun the unchanged four-case set.
+- **R317-1 S1 / R317-2 S3, SUGGESTION, Tests.** Artifact: `sw/builder/test_builder.py:12144`, memory/string destination fixture labels. Evidence: these use the sample value as a destination address, rather than modifying the sample object. Impact: labels describe occurrence/cost controls imprecisely; the absence-rule refusal is valid. Optional outcome: relabel them as occurrence or cost rows. Verification: labels reflect their semantics and existing refusal totals remain intact.
+
+Reviewer-owned completion ledger:
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | Issue #544 acceptance and decisions 5824093785/5825016512; `test_builder.py:5237`, `:11326`, `:11539`; both gate-1b receipts. Named refusals, retained exceptions and NOT RUN alternative checked against the frozen scope. | R317-5 | 8383e929fab3ff57a768c88b8b1ff9b568afcf14 |
+| RTL | CLEAN | `REQUIREMENTS.md` REQ-CSR-05; `hdl/common/csr/milan_csr.sv:717`, `:1940`; `milan_baremetal.c:1438`; two-file diff; 46/46 RTL elaborations per mode. Identity address/default binding and unchanged interface/clock/reset scope checked. | R317-5 | 8383e929fab3ff57a768c88b8b1ff9b568afcf14 |
+| Robustness | CLEAN | `test_builder.py:5171`, `:5259`, `:5280`, `:16043`, `:16125`; unchanged escape, near-miss, storage and callee probe receipts. Malformed, alternative-spelling and compiler-absence boundaries checked. | R317-5 | 8383e929fab3ff57a768c88b8b1ff9b568afcf14 |
+| Tests | CLEAN | `test_builder.py:12108`, `:16090`, `:16111`; W01-W03 controls; `conservation.json`, `unchanged-probes.json`, `probe-summary.json`. Mutation sensitivity, positive corpus and no-reduction claim checked independently. | R317-5 | 8383e929fab3ff57a768c88b8b1ff9b568afcf14 |
+| Docs | CLEAN | `BAREMETAL_FIRMWARE.md:460`, `:494`, `:503`, `:1464`, `:1465`, `:1466`, `:1786`; `test_builder.py:16166`; actual COST output and public evidence. Scope, costs, totals and trust limits agree, subject to the optional wording suggestions above. | R317-5 | 8383e929fab3ff57a768c88b8b1ff9b568afcf14 |
+
+Exact-head hosted evidence was inspected read-only. All seven required contexts succeeded. The five Verilator and four Yosys shards executed successfully, with successful gate steps; they were not merely skipped aggregate contexts. The physical gPTP job was skipped. See `hosted-check-runs.json`, `hosted-jobs-*.json` and `hosted-summary.json`. Public full-builder receipts also bind to this head: all four recorded input hashes match the checkout (`public-full-run-binding.json`). The manager's full source static/builder and native banks were reported passed in the assignment; this reviewer did not rerun those banks or claim an independent reproduction of them.
+
+Real limits and pending manager duties: this is source validation, not validation of a merge into the assigned live-dev tip `0755923d983218ca6ca9db6891a558cbe6425b8d`. The manager must refresh live dev, then build and validate the candidate at the merge turn, complete hosted/local-replica acceptance, account for the other independent review and all rounds in flight, obtain explicit merge authorization, and perform post-merge containment and issue/project completion. The separately linked objects and census-header trust boundary remain outside this proof. Compiler-free instruments are absent, not passing. Physical calibration was NOT RUN; field skips and the skipped hosted physical job provide no hardware proof.
+
+No source fixes, commits, pushes, external writes, delegated work, container execution or hardware actions occurred. No new payload code was authored. Final integrity verification rehashed all 882 tracked parent blobs and all 541 tracked blobs in the three required submodules, checked modes and exact stage-0 index records, and verified their gitlinks. HEAD and tree remain exact and tracked status is clean (`integrity-final.json`). The unrelated external gitlink is preserved and remains uninitialized. Probe disconnections were in-memory only.
+
+Reproduction: install the pinned SDK with `scripts/ci_rv32_sdk.py --destination "$PACKET/scratch/sdk"`, setting `TMPDIR` inside `scratch/`; then run `run_checks.py` and `run_followup.py` with `--root`, `--packet` and the verified `--verilator-bin`. `compare_prior.py`, `verify_conservation.py`, `verify_integrity.py` and `export_receipts.py` provide comparison, integrity and publication steps. Compiler arguments and return codes are in the receipts. Only machine-local path prefixes were replaced for publication; raw originals and disposable trees remain under unpublished `scratch/`. `MANIFEST.sha256` enumerates the publication packet.
+
+R317-5 FINISHED

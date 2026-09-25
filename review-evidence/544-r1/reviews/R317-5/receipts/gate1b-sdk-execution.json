@@ -1,0 +1,15 @@
+{
+  "tag": "gate1b-sdk",
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "sw/builder/test_firmware_compiler.py",
+    "--sdk-destination",
+    "$SDK",
+    "--require-rv32",
+    "--audit",
+    "$SCRATCH/raw/gate1b-sdk-argv.jsonl"
+  ],
+  "rc": 0,
+  "seconds": 556.603
+}
