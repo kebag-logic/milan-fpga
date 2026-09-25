@@ -1,0 +1,45 @@
+
+[1m        __   _ __      _  __[0m
+[1m       / /  (_) /____ | |/_/[0m
+[1m      / /__/ / __/ -_)>  <[0m
+[1m     /____/_/\__/\__/_/|_|[0m
+[1m   Build your hardware, easily![0m
+
+ (c) Copyright 2012-2026 Enjoy-Digital
+ (c) Copyright 2007-2015 M-Labs
+
+
+ LiteX git sha1: a1e1c36
+
+--================ [1mSoC[0m =================--
+[1mCPU[0m:		VexiiRiscv (rv32i2p0__zicsr_zifencei) @ 100MHz
+[1mBUS[0m:		wishbone 32-bit data/32-bit addr
+[1mCSR[0m:		32-bit data big ordering
+[1mROM[0m:		128.0KiB
+[1mSRAM[0m:		8.0KiB
+[1mFLASH[0m:		16.0MiB
+[1mSDRAM[0m:		1.0GiB 32-bit @ 800MT/s (CL-7 CWL-5)
+[1mMAIN RAM[0m:	1.0GiB
+
+--=========== [1mInitialization[0m ===========--
+Initializing SDRAM @0x40000000...
+Switching SDRAM to software control.
+Switching SDRAM to hardware control.
+
+Initializing n25q128a13 SPI Flash @0x01000000...
+Memspeed at 0x1000000 (Sequential, 4.0KiB)...
+   Read speed: 6.1MiB/s
+Memspeed at 0x1000000 (Random, 4.0KiB)...
+   Read speed: 1.0MiB/s
+
+Milan baremetal: CSR ID=4d494c4e VERSION=00020060, RV32I machine mode, no MMU/cache.
+Milan NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0; offered - seq 0 (VD_BLANK), 12680 B at 0x7f7ef000; walk done=1 fail=0 blank=1 backed=1.
+
+TX_FRAME bytes=30 header=0180c200000e02000000000122ea00040400090001060300020000000000
+Milan baremetal: AEM 18288 B copied QSPI +0x00400000 -> 0x7f700000, CRC 823b739f.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+CAPTURE_BOOT ready=1 raw=12634 records=156 sys_hz=100000000
+CAPTURE index=0 ok=1 sys_cycles=2426154 raw=12634 records=156 mismatches=0 open=0 requests=0 responses=0 reads=0
+CAPTURE index=1 ok=1 sys_cycles=2426154 raw=12634 records=156 mismatches=0 open=0 requests=0 responses=0 reads=0
+CAPTURE_DONE== nvm_capture_cpu: checks: 3   failures: 0 ==
+RESULT: PASS

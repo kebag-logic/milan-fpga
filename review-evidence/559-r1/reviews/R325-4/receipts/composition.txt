@@ -1,0 +1,52 @@
+# merge-tree recompute of 4ee96a61 + b02af048 (git 2.55.0)
+808c97c034eab4a1f24f50e86ffbbb16ab731e84
+candidate tree 808c97c034eab4a1f24f50e86ffbbb16ab731e84
+parents 4ee96a61bf35402a6f88e1ebad1167e9873721c5 b02af0480d3a3061df24683d522799d1759f7c33 
+merge-base(parent1, source) a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4
+
+# files changed by source (a3d795ae..b02af048) with per-file patch-id: source vs candidate (4ee96a61..d47a04eb)
+.github/workflows/docs.yml src=5ecd50f887babcdac4fbe6ca11a1ad59c20561e9 cand=5ecd50f887babcdac4fbe6ca11a1ad59c20561e9
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md src=6f07da00ebb4a40517b6b4204ca5c1fb036dbea6 cand=6f07da00ebb4a40517b6b4204ca5c1fb036dbea6
+docs/testing/CI_WORKFLOWS.md src=1d464c62080ed691f2dbf63896125b37a4bf808c cand=1d464c62080ed691f2dbf63896125b37a4bf808c
+docs/testing/TESTING.md src=764da78392a79dc7cf01873589136dc0ba7ebbfc cand=764da78392a79dc7cf01873589136dc0ba7ebbfc
+scripts/check_nvm_capture.py src=bd326a84af4f4320b6452d0e89135e0c154550fd cand=bd326a84af4f4320b6452d0e89135e0c154550fd
+scripts/ci_events.py src=6b22ed6a627d8c907f570be46ee57f215fd8dada cand=6b22ed6a627d8c907f570be46ee57f215fd8dada
+tb/verilator/README.md src=17f63e4f3e34dd570d18c10fedd759d290ec3e15 cand=17f63e4f3e34dd570d18c10fedd759d290ec3e15
+tb/verilator/nvm_capture_cpu/README.md src=c606018b8e7d9ac383e79f6170f22d637eee7215 cand=c606018b8e7d9ac383e79f6170f22d637eee7215
+tb/verilator/nvm_capture_cpu/firmware.py src=6fada45227bbbf5e6a0ed4d5928a268e994426e1 cand=6fada45227bbbf5e6a0ed4d5928a268e994426e1
+tb/verilator/nvm_capture_cpu/measurements.json src=0d666aead202eb55f873795f9d93374b7dde4d8b cand=0d666aead202eb55f873795f9d93374b7dde4d8b
+tb/verilator/nvm_capture_cpu/probe.py src=2fc5ad90323e5813e8c4d009ce916441963d81e8 cand=2fc5ad90323e5813e8c4d009ce916441963d81e8
+tb/verilator/nvm_capture_cpu/recipe.py src=f3496aab57027f1c3c475d0307f9785aa08dcd38 cand=f3496aab57027f1c3c475d0307f9785aa08dcd38
+tb/verilator/nvm_capture_cpu/run.py src=c46cce9bd5ebf45632056ec17a20224595a606be cand=c46cce9bd5ebf45632056ec17a20224595a606be
+tb/verilator/nvm_capture_cpu/sim_main.cpp src=7c4a3cb3c9716694833dba6371efcc7ca5d402e7 cand=7c4a3cb3c9716694833dba6371efcc7ca5d402e7
+tb/verilator/nvm_capture_cpu/soc.py src=ea9737def7d029b4edcad10596462717297806b0 cand=ea9737def7d029b4edcad10596462717297806b0
+
+# files changed by candidate vs parent1: 15 (same set as source: yes)
+# overlap: files changed by source AND by predecessors/dev since a3d795ae
+docs/testing/CI_WORKFLOWS.md
+docs/testing/TESTING.md
+# per train commit touching overlap files
+b74fb111 Validate issue 532 merge-train candidate: docs/testing/CI_WORKFLOWS.md 
+b1b33472 Validate issue 508 merge-train candidate: docs/testing/TESTING.md 
+ec9cf454 Validate issue 541 merge-train candidate: docs/testing/TESTING.md 
+4ee96a61 Validate issue 443 merge-train candidate: docs/testing/TESTING.md 
+# predecessor/dev changes on semantically related inputs since a3d795ae
+ hdl/common/csr/milan_csr.sv            |   13 +
+ hdl/ieee1722/aaf/KL_render_setpoint.sv |    2 +-
+ hdl/ieee1722/crf/KL_crf_rx.sv          |   13 +-
+ hdl/milan/KL_pp_shadow.sv              |   10 +-
+ hdl/milan/milan_datapath.sv            |  104 +-
+ protocol-processor                     |    2 +-
+ scripts/act_ci.py                      | 6343 +++++++++++++++++++++++---------
+ scripts/check_baremetal_only.py        |  115 +-
+ scripts/measure_test_evidence.py       |   21 +-
+ tb/verilator/nvm_cosim/Makefile        |    5 +-
+ tb/verilator/nvm_cosim/README.md       |    3 +
+ tb/verilator/nvm_cosim/cosim_top.sv    |  101 +-
+ tb/verilator/nvm_cosim/run_cases.py    |    6 +-
+ 13 files changed, 4832 insertions(+), 1906 deletions(-)
+# static docs.yml sandbox check (own re-implementation of the runner's uses/runs-on/container rules; act runner itself not run)
+docs-check runs-on ubuntu-latest False untrusted-uses [] steps 50
+wire-accountability runs-on ubuntu-latest False untrusted-uses [] steps 3
+docs-check-no-git runs-on ubuntu-latest False untrusted-uses [] steps 2
+capture step 1-based position 28 prev NVM record-space gate next Saved-state writer gate keys ['name', 'run']

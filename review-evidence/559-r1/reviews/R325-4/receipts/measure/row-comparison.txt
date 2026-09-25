@@ -1,0 +1,13 @@
+cand-ON-vs-receipt index=0 sys_cycles=2429800 ref_sys_cycles=2429800 IDENTICAL
+cand-ON-vs-receipt index=1 sys_cycles=2429322 ref_sys_cycles=2429322 IDENTICAL
+cand-ON-vs-receipt index=2 sys_cycles=2429864 ref_sys_cycles=2429864 IDENTICAL
+cand-ON-vs-receipt: 3 row(s) vs receipt endstation_ax7101_8x8 50000000 on: 3 identical, 0 different
+rc=0
+cand-OFF2-vs-src-OFF2 index=0 sys_cycles=2426154 ref_sys_cycles=2426154 IDENTICAL
+cand-OFF2-vs-src-OFF2 index=1 sys_cycles=2426154 ref_sys_cycles=2426154 IDENTICAL
+cand-OFF2-vs-src-OFF2: 2 row(s) vs <packet>/receipts/measure/m-src-8x8-50-off.capture.log: 2 identical, 0 different
+rc=0
+cand-OFF2-vs-receipt16 index=0 sys_cycles=2426154 ref_sys_cycles=2425516 DIFFERENT
+cand-OFF2-vs-receipt16 index=1 sys_cycles=2426154 ref_sys_cycles=2426154 IDENTICAL
+cand-OFF2-vs-receipt16: 2 row(s) vs receipt endstation_ax7101_8x8 50000000 off: 1 identical, 1 different
+rc=1 (expected nonzero at index 0: capture count 2 vs 16 changes the BIOS; see artifact-hashes.txt)
