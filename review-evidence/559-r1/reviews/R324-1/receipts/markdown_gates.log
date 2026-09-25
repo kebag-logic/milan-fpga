@@ -1,0 +1,9 @@
+=== venv-python scripts/gen_toc.py --check
+TOC gate: OK (107 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+rc=0
+=== venv-python scripts/gen_toc.py --verify-anchors
+anchor check: 175 existing cross-page fragment links reproduced
+rc=0
+=== venv-python scripts/check_em_dash.py --base a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4
+check_em_dash: 0 finding(s) over 175 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [a3d795ae..HEAD]
+rc=0

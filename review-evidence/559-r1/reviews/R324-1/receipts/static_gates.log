@@ -1,0 +1,45 @@
+=== python3 scripts/check_py_idiom.py
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+=== python3 scripts/check_cpp_idiom.py
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0
+=== python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 872 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+=== python3 scripts/check_doc_paths.py
+doc path gate: OK (842 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+=== python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+=== python3 scripts/check_em_dash.py --base a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/measure_test_evidence.py --check
+
+TEST-EVIDENCE RATCHET: PASS (72 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 72
+rc=0
+=== python3 scripts/measure_naming.py --check
+96 candidate(s): 92 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3578 ports and 588 parameters scanned, 384 with no //! and so not judged here, 407 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+rc=0
+=== python3 scripts/suite_shards.py --suite-root tb/verilator --shard 0/1
+tdm_render
+tkdiag
+tsn_fuzz
+rc=0
+=== python3 -m py_compile tb/verilator/nvm_capture_cpu/run.py tb/verilator/nvm_capture_cpu/soc.py tb/verilator/nvm_capture_cpu/firmware.py tb/verilator/nvm_capture_cpu/probe.py
+rc=0

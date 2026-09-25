@@ -1,0 +1,39 @@
+COMMAND <packet>/scratch/b8x8_50_phase/native/Vsim
+VSIM_RC 0
+{
+  "shape": "endstation_ax7101_8x8",
+  "captures": 2,
+  "sys_hz": 100000000,
+  "cpu_hz": 50000000,
+  "traffic": "continuous READ_DESCRIPTOR ENTITY, MAC AXIS",
+  "minimum_ms": 24.29662,
+  "maximum_ms": 24.299020000000002,
+  "hold_ms": 50,
+  "margin": 2.057696154001272,
+  "rows": [
+    {
+      "index": 0,
+      "ok": 1,
+      "sys_cycles": 2429662,
+      "raw": 12634,
+      "records": 156,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 151767,
+      "responses": 150,
+      "reads": 5850
+    },
+    {
+      "index": 1,
+      "ok": 1,
+      "sys_cycles": 2429902,
+      "raw": 12634,
+      "records": 156,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 151782,
+      "responses": 150,
+      "reads": 5834
+    }
+  ]
+}

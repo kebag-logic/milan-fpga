@@ -1,0 +1,78 @@
+# Clock premise trace at 32076148
+## yaml lines
+configs/endstation_ax7101_8x8.yaml:55:    sys_clk_hz: 100000000            # milan_soc.py default (sweep passes none)
+configs/endstation_ax7101_8x8.yaml:56:    milan_clk_hz: 100000000          # single fast domain (AX timing CLOSED)
+configs/endstation_ax7101_1x1_tdm8.yaml:43:    sys_clk_hz: 100000000
+configs/endstation_ax7101_1x1_tdm8.yaml:44:    milan_clk_hz: 50000000   # 64-bit plane still carries 3.2 Gb/s; the
+## origin of the 8x8 100 MHz line
+a94296d4 2026-07-22 endstation builder scaffold (gaps item 4): kebag-logic/milan-endstation-config YAML schema + sw/builder (soc argv / AEM overlay / build plan emitters, NxN validated with planned-item-5 marks) + 3 example configs (arty current 1x1, arty 4x4, ax7101 8x8) + README-parameters/tests templates with KL_i2s_playback pilot; gate 5/5 (argv==sweep.sh, overlay==gen_aem_store)
+## shipping cacheless core moved to 50 MHz
+1e80a106 2026-08-19 Clock the bare-metal shipping core at 50 MHz
+-    milan_clk_hz: 100000000
++    milan_clk_hz: 50000000   # 64-bit plane still carries 3.2 Gb/s; the
++                              # option-on fabric and cacheless CPU close here
+## cpu_clk made unconditional on milan clock
+dfcf83ce 2026-08-26 Finish the bare-metal-only product removal
+2565:            _vex_args.with_cpu_clk = bool(milan_clk_freq)
+2700:            self.comb += self.cpu.cpu_clk.eq(ClockSignal("milan"))
+## authoritative clock statements
+43:- The cacheless CPU side and the 64-bit Milan plane run at 50 MHz. Vexii's
+101:Here, CPU execution is 50 MHz.
+1568:The shape recipes set CPU/system clocks to 50/100 MHz at 1x1 and 100/100 MHz at 8x8.
+1607:Configured clocks replace the blanket 50 MHz CPU assumption.
+1707:   At the configured 100 MHz CPU clock, this gives about 2.6310x margin against the 50 ms hold.
+## builder asserts 50 MHz only for the 1x1
+3000:        if name == "ax7101_1x1_tdm8":
+## hold clock source
+7396:      .CLK_HZ_P       (MILAN_CLK_FREQ_HZ),
+962:      .CLK_HZ_P        (CLK_HZ_P),
+## hold floor
+  localparam int unsigned MS_DIV_C = (CLK_HZ_P >= 1000) ? CLK_HZ_P / 1000 : 1;
+  localparam int unsigned MS_W_C   = (MS_DIV_C > 1) ? $clog2(MS_DIV_C) : 1;
+
+  logic [MS_W_C-1:0] ms_div_r;
+  logic              ms_tick_w;
+  logic [15:0]       alive_r;
+  logic [15:0]       commit_r;
+
+  assign ms_tick_w = (ms_div_r == '0);
+
+  always_ff @(posedge clk_i) begin
+    if (!rst_n) ms_div_r <= MS_W_C'(MS_DIV_C - 1);
+    else        ms_div_r <= ms_tick_w ? MS_W_C'(MS_DIV_C - 1) : ms_div_r - 1'b1;
+  assign hold_exp_w  = cap_hold_r & ms_tick_w & (hold_r == HOLD_W_C'(1));
+      if (arm_ok_w)
+        hold_r <= HOLD_W_C'(T_HOLD_MS_P);
+      else if (cap_hold_r && ms_tick_w && (hold_r != '0))
+        hold_r <= hold_r - 1'b1;
+## NVM windows are in DDR main_ram (probe build soc.h / regions.ld)
+44:#define MILAN_AEM_DESC_BASE 0x7f700000
+55:#define MILAN_NVM_LIVE_BASE 0x7f7ef000
+56:#define MILAN_NVM_STAGE_BASE 0x7f7df000
+4:	rom : ORIGIN = 0x00000000, LENGTH = 0x00020000
+5:	sram : ORIGIN = 0x10000000, LENGTH = 0x00002000
+6:	main_ram : ORIGIN = 0x40000000, LENGTH = 0x40000000
+3019:            _mem_bus.add_master("milan_desc_mem", master=_dwb)
+3074:            _mem_bus.add_master("milan_resp_mem", master=_rwb)
+3184:            _mem_bus.add_master("milan_nvm_mem", master=_nwb)
+            _mem_bus = getattr(self, "dma_bus", self.bus)
+## hosted suite discovery excludes the harness (no Makefile)
+def discover_suites(root: str | Path) -> list[str]:
+    """Return suite directory names in the serial sweep's lexical order."""
+    root = Path(root)
+    return sorted(
+        path.name for path in root.iterdir()
+        if path.is_dir() and (path / "Makefile").is_file()
+    )
+
+
+55
+0
+firmware.py
+measurements.json
+probe.py
+README.md
+run.py
+sim_main.cpp
+soc.py
+373:Every directory needs a `Makefile`; only `milan_dp_gptp` runs separately. **Run it for the verdicts; this page does not carry them.** The last

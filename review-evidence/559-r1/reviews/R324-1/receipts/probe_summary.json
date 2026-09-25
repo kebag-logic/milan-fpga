@@ -1,0 +1,132 @@
+{
+  "b8x8_100": {
+    "arm": "8x8, CPU/system 100/100 MHz, traffic ON (unmodified head; control)",
+    "cpu_hz": 100000000,
+    "sys_hz": 100000000,
+    "captures": 2,
+    "all_ok": true,
+    "sys_cycles": [
+      1899620,
+      1899632
+    ],
+    "max_ms": 18.99632,
+    "margin_vs_50ms": 2.632088741398334,
+    "fraction_of_25ms_bar": 0.7598528,
+    "traffic": [
+      [
+        237330,
+        146,
+        5694
+      ],
+      [
+        237331,
+        146,
+        5694
+      ]
+    ]
+  },
+  "b8x8_100_nt": {
+    "arm": "8x8, CPU/system 100/100 MHz, traffic OFF (harness no-traffic arm)",
+    "cpu_hz": 100000000,
+    "sys_hz": 100000000,
+    "captures": 2,
+    "all_ok": true,
+    "sys_cycles": [
+      1979024,
+      1978694
+    ],
+    "max_ms": 19.79024,
+    "margin_vs_50ms": 2.526497910080929,
+    "fraction_of_25ms_bar": 0.7916096,
+    "traffic": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ]
+  },
+  "b8x8_50": {
+    "arm": "8x8, CPU/system 50/100 MHz, traffic ON",
+    "cpu_hz": 50000000,
+    "sys_hz": 100000000,
+    "captures": 2,
+    "all_ok": true,
+    "sys_cycles": [
+      2415004,
+      2415248
+    ],
+    "max_ms": 24.15248,
+    "margin_vs_50ms": 2.07018078474757,
+    "fraction_of_25ms_bar": 0.9660992,
+    "traffic": [
+      [
+        150855,
+        154,
+        5983
+      ],
+      [
+        150871,
+        153,
+        5967
+      ]
+    ]
+  },
+  "b8x8_50_nt": {
+    "arm": "8x8, CPU/system 50/100 MHz, traffic OFF",
+    "cpu_hz": 50000000,
+    "sys_hz": 100000000,
+    "captures": 2,
+    "all_ok": true,
+    "sys_cycles": [
+      2414830,
+      2415108
+    ],
+    "max_ms": 24.151079999999997,
+    "margin_vs_50ms": 2.070300789861158,
+    "fraction_of_25ms_bar": 0.9660431999999999,
+    "traffic": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ]
+  },
+  "b8x8_50_phase": {
+    "arm": "8x8, CPU/system 50/100 MHz, traffic ON, CPU rising edges aligned to sys rising edges",
+    "cpu_hz": 50000000,
+    "sys_hz": 100000000,
+    "captures": 2,
+    "all_ok": true,
+    "sys_cycles": [
+      2429662,
+      2429902
+    ],
+    "max_ms": 24.299020000000002,
+    "margin_vs_50ms": 2.057696154001272,
+    "fraction_of_25ms_bar": 0.9719608000000001,
+    "traffic": [
+      [
+        151767,
+        150,
+        5850
+      ],
+      [
+        151782,
+        150,
+        5834
+      ]
+    ]
+  }
+}

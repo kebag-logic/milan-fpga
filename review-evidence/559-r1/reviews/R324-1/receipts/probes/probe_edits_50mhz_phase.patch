@@ -1,0 +1,48 @@
+diff --git a/configs/endstation_ax7101_8x8.yaml b/configs/endstation_ax7101_8x8.yaml
+index c1104446..537a8468 100644
+--- a/configs/endstation_ax7101_8x8.yaml
++++ b/configs/endstation_ax7101_8x8.yaml
+@@ -53,7 +53,7 @@ board:
+                           # route-dominated cones)
+   constraints:
+     sys_clk_hz: 100000000            # milan_soc.py default (sweep passes none)
+-    milan_clk_hz: 100000000          # single fast domain (AX timing CLOSED)
++    milan_clk_hz: 50000000           # R324 PROBE: shipping cacheless CPU clock
+     l2_bytes: 0                      # #259 bare-metal cacheless product
+     phy: gmii-1g                     # RTL8211E GMII
+     gtx_tx_invert: true              # PHY samples mid-bit (GMII-TX fix)
+diff --git a/tb/verilator/nvm_capture_cpu/sim_main.cpp b/tb/verilator/nvm_capture_cpu/sim_main.cpp
+index bc6c236b..d4fddfd1 100644
+--- a/tb/verilator/nvm_capture_cpu/sim_main.cpp
++++ b/tb/verilator/nvm_capture_cpu/sim_main.cpp
+@@ -2,6 +2,9 @@
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ #include "Vsim.h"
+ #include "probe_config.hpp"
++#ifndef PHASE_PS
++#define PHASE_PS 5000ULL
++#endif
+ #include "verilator_harness.hpp"
+ #include <algorithm>
+ #include <array>
+@@ -124,7 +127,10 @@ std::string simulate(Vsim& dut) {
+     const std::array<std::uint64_t, 4> frequency = {sys_hz, cpu_hz, 24576000, tdm_hz};
+     std::array<std::uint64_t, 4> edge = {1, 1, 1, 1};
+     std::array<std::uint64_t, 4> next{};
+-    for (unsigned i = 0; i < next.size(); ++i) next[i] = 500000000000ULL / frequency[i];
++    // R324 PHASE PROBE: delay clock 1 (CPU/milan) by PHASE_PS so its rising
++    // edges coincide with sys rising edges, as PLL outputs at phase 0 do.
++    const std::array<std::uint64_t, 4> offset = {0, PHASE_PS, 0, 0};
++    for (unsigned i = 0; i < next.size(); ++i) next[i] = 500000000000ULL / frequency[i] + offset[i];
+     std::string output;
+     Controller controller;
+     bool complete = false;
+@@ -159,7 +165,7 @@ std::string simulate(Vsim& dut) {
+             // Split the quotient before multiplying: edge * 5e11 wraps
+             // after 36 million edges, well inside a repeated capture run.
+             next[i] = edge[i] * (500000000000ULL / frequency[i])
+-                + edge[i] * (500000000000ULL % frequency[i]) / frequency[i];
++                + edge[i] * (500000000000ULL % frequency[i]) / frequency[i] + offset[i];
+         }
+         if (edge[0] > 128) dut.sys_reset = 0;
+         dut.eval();

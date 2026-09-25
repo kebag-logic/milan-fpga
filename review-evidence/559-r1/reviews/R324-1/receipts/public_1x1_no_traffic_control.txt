@@ -1,0 +1,8 @@
+Source: https://github.com/kebag-logic/milan-fpga/blob/c16e4aed649e4b16a34ae3626f664958a5a816c0/review-evidence/559-r1/author/final-mut-no-traffic-uart.log
+1x1 (CPU 50 MHz) no-traffic control rows, as published:
+CAPTURE index=0 ok=1 sys_cycles=655196 raw=3218 records=53 mismatches=0 ...
+CAPTURE index=1 ok=1 sys_cycles=655072 raw=3218 records=53 mismatches=0 ...
+Published 1x1 traffic-ON range (section 18 / measurements.json): 654,490 to 655,479 sys cycles.
+Reading: the no-traffic rows lie inside the traffic-ON range; the offered traffic does not measurably lengthen the 1x1 copy.
+The harness grades this arm only on zero traffic counters and a correct copy; it records no timing comparison.
+Skip-copy control (final-mut-skip-copy-uart.log): 604,386 / 603,436 sys cycles with all 3,218 bytes still poisoned.
