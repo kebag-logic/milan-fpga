@@ -1,0 +1,34 @@
+# restore verification: reviewed clone before vs after all probes
+baseline:
+HEAD b94f53cc4e5dbfd9527ba666922a55804515165c
+TREE 2a7274e19b88474411829707fb0581e2861bb015
+INDEX_LSFILES_SHA256 1d8dff43ec3b09d5da830c865dfcab905c545d01dbb0163c730790ece866929a
+WORKTREE_HASHES_SHA256 c828a324ae006fef00ff8d5ba36b075b3040867562b2818a122a07a6a93dfdaa
+STATUS_IGNORED:
+SUBMODULES:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (remotes/origin/main-5-g5dce647)
+ 09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor (v2.0-222-g09f9bf3)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor dirty: 0
+protocol-processor dirty: 0
+third_party/verilog-axis dirty: 0
+after:
+HEAD b94f53cc4e5dbfd9527ba666922a55804515165c
+TREE 2a7274e19b88474411829707fb0581e2861bb015
+INDEX_LSFILES_SHA256 1d8dff43ec3b09d5da830c865dfcab905c545d01dbb0163c730790ece866929a
+WORKTREE_HASHES_SHA256 c828a324ae006fef00ff8d5ba36b075b3040867562b2818a122a07a6a93dfdaa
+STATUS_IGNORED:
+SUBMODULES:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (remotes/origin/main-5-g5dce647)
+ 09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor (v2.0-222-g09f9bf3)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor dirty: 0
+protocol-processor dirty: 0
+third_party/verilog-axis dirty: 0
+diff: IDENTICAL
+git diff HEAD / --cached: empty
+index modes:  845 100644; 45 100755; 4 160000;
+head modes:   845 100644; 45 100755; 4 160000;
+gitlinks: efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external;5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor;09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor;48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis;
