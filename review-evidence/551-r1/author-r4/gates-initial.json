@@ -1,0 +1,74 @@
+[
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "final-tree",
+      "cmd": "rtk proxy git rev-parse HEAD HEAD^{tree}",
+      "chunk_id": "51e311",
+      "wall_time_seconds": 0.000004377,
+      "exit_code": 0,
+      "original_token_count": 21,
+      "output": "f219a5edaa191b33acc8b77abd22469f8f0db1f9\naca067d42122d785d8319d4d0926484dd9351568\n"
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "tree-diff",
+      "cmd": "rtk proxy git diff --exit-code 9eee4383 HEAD",
+      "chunk_id": "5bd4e9",
+      "wall_time_seconds": 0.000003526,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "merge-first-parent-whitespace",
+      "cmd": "rtk proxy git diff --check HEAD~2 HEAD^",
+      "chunk_id": "0a17fb",
+      "wall_time_seconds": 0.000001252,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "merge-second-parent-whitespace",
+      "cmd": "rtk proxy git diff --check 864b36f5e9450ef64f75ca3f0d68c44330e447d7 HEAD^",
+      "chunk_id": "752f2a",
+      "wall_time_seconds": 0.000001593,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "content-whitespace",
+      "cmd": "rtk proxy git diff --check HEAD^ HEAD",
+      "chunk_id": "ad444c",
+      "wall_time_seconds": 0.000001853,
+      "exit_code": 0,
+      "original_token_count": 0,
+      "output": ""
+    }
+  },
+  {
+    "status": "fulfilled",
+    "value": {
+      "name": "em-dash",
+      "cmd": "rtk proxy timeout 600s python3 scripts/check_em_dash.py --base 864b36f5e9450ef64f75ca3f0d68c44330e447d7",
+      "chunk_id": "3e8f26",
+      "wall_time_seconds": 0.772511177,
+      "exit_code": 2,
+      "original_token_count": 42,
+      "output": "check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt\n"
+    }
+  }
+]
