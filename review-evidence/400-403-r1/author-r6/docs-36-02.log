@@ -1,0 +1,104 @@
+COMMAND python3 scripts/measure_test_evidence.py --selftest
+[PASS] a reachable target running a mutation driver is armed
+[PASS] the driver may be reached through a make variable ($(PY) x.py)
+[PASS] a driver on a target the entry never runs is not an arm
+[PASS] ...until the processor's CI names that target
+[PASS] a compile-time mutation define a recipe passes is armed
+[PASS] a mutation define reaches the recipe through variable expansion
+[PASS] a negative-case table the recipe consumes is armed
+[PASS] a DUT-rewriting driver with no table is still a driver
+[PASS] a DUT reader that rewrites nothing is not a driver
+[PASS] (A) a suite whose entry runs nothing is not armed
+[PASS] (B) a comment naming mutants.py is not an arm
+[PASS] (C) an unrelated -DUSE_MUTEX define is not an arm, even when passed
+[PASS] (D) an empty mutants: target is not an arm
+[PASS] (E) README prose about a negative arm is not an arm
+[PASS] (F) a comment mentioning --selftest is not an arm
+[PASS] a driver named as an echo argument is not run, so not an arm
+[PASS] a table variable nobody's recipe consumes is not an arm
+[PASS] mutation prose alone is not an executable arm
+[PASS] a comment marker inside the driver does not make it one
+[PASS] (G) a `-` recipe line ignores errors: `-python3 mutants.py` is not an arm
+[PASS] (H) `python3 mutants.py || true` is not an arm: the fallback masks the driver
+[PASS] `|| :` and `|| echo ...` mask the same way
+[PASS] a `-` on another line of the same target leaves the driver's line evidence
+[PASS] an && chain carries the driver's failure, so it still counts
+[PASS] `@-` and `-@` are both the ignore prefix, before and after expansion
+[PASS] a `; true` tail masks; `set -e` restores the driver's failure, `set +e` drops it
+[PASS] a driver feeding a pipe reports the consumer's status, not its own
+[PASS] a fallback that re-raises (`|| exit 1`, `|| { ...; exit 1; }`) still counts
+[PASS] an if condition, a $$(...) and a backtick substitution are not arms
+[PASS] .IGNORE makes a target's, or every, recipe non-evidence
+[PASS] the entry reader sees the loop, the named target and the sub-make
+[PASS] an unseeded draw is caught
+[PASS] a seeded draw is not
+[PASS] a Random(seed) instance counts as seeded
+[PASS] the guide's TEST_SEED pattern is clean
+[PASS] an unseeded random.Random() instance draw is caught
+[PASS] a SystemRandom draw is caught (it cannot be seeded)
+[PASS] from random import randint is caught
+[PASS] ...and seeded through seed() is not
+[PASS] random.choices and random.gauss are draws
+[PASS] np.random draws are caught
+[PASS] ...and np.random.seed / default_rng(seed) make them replayable
+[PASS] secrets.randbelow is a draw that can never be seeded
+[PASS] secrets.token_hex is a nonce, not a draw (known limit)
+[PASS] a file that never draws is not counted
+[PASS] a C rand() with no srand is caught
+[PASS] a C rand() with srand is not
+[PASS] std::rand() is caught
+[PASS] srand(time(NULL)) is not a recorded seed
+[PASS] mt19937(random_device) is caught
+[PASS] ...unless the seed it produced is recorded
+[PASS] a literally seeded engine is deterministic
+[PASS] $urandom with no seed is caught
+[PASS] $urandom_range and $random are caught
+[PASS] randomize() is a draw
+[PASS] srandom(seed) makes SystemVerilog draws replayable
+[PASS] $urandom(seed) is a seeded draw
+[PASS] a +seed plusarg records the seed
+[PASS] a draw in a comment is not a draw
+[PASS] a draw inside a string literal is not a draw
+[PASS] a depth-1 file of each tb/tests root is in the seed population
+[PASS] SystemVerilog under tb/ is in the seed population
+[PASS] a test reading an HDL source is an oracle-review candidate
+[PASS] open(...hdl...).read() is a reader
+[PASS] readlines() over an hdl path is a reader
+[PASS] a C++ ifstream over an hdl path is a reader
+[PASS] an SV `include of production HDL is a reader
+[PASS] a Makefile grep over $(RTL_DIR) is a reader
+[PASS] a package import is a binding, not a reader (known limit)
+[PASS] an ordinary behavioral harness is not a source-reader candidate
+[PASS] a reader mentioned only in a comment is not one
+[PASS] host sleep is wall-clock dependent
+[PASS] a cycle timeout is deterministic
+[PASS] an int named timeout is not a deadline
+[PASS] std::chrono is a host clock
+[PASS] clock() and usleep() are host time
+[PASS] check_output(..., timeout=) is a process deadline
+[PASS] a timeout keyword after a nested call is still seen
+[PASS] communicate(timeout=) and select.select are deadlines
+[PASS] asyncio.wait_for(..., timeout=) is a deadline; a cycle-bounded wait_for is not
+[PASS] SO_RCVTIMEO is a socket deadline
+[PASS] a shell sleep and a Makefile timeout are host time
+[PASS] a comment about sleeping is not host time
+[PASS] a zero tally is NOCOUNT, not a pass
+[PASS] every tally line is summed, not only the last
+[PASS] both processor tally shapes are read
+[PASS] a [FAIL] line contradicts a green exit
+[PASS] the live runner preserves timeout and tally verdicts
+[PASS] a timeout reported as failure is rejected
+[PASS] a changed suite budget is rejected: PHYSICAL_GPTP=0
+[PASS] a changed suite budget is rejected: [ "$PHYSICAL_GPTP" = 1 ]
+[PASS] a changed suite budget is rejected: SUITE_TIMEOUT:-1800
+[PASS] a changed suite budget is rejected: SUITE_TIMEOUT:-3600
+[PASS] a changed suite budget is rejected: SUITE_TIMEOUT:-5400
+[PASS] a changed suite budget is rejected: milan_dp_gptp)
+[PASS] a changed suite budget is rejected:     milan_dp)      
+[PASS] a changed suite budget is rejected: TMO=$(suite_timeout "$suite")
+[PASS] the live scan sees the suites
+[PASS] both sides of the mutation split are non-empty
+[PASS] every live arm sits on a target the entry executes
+[PASS] every DUT-source reader has a current disposition
+
+101 checks: 101 PASS, 0 FAIL

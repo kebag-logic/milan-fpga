@@ -1,0 +1,31 @@
+COMMAND make -C tb/verilator/csr
+make: Entering directory '$LANES/400-403-declaration-truth/tb/verilator/csr'
+verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --top-module milan_csr ../../../hdl/common/csr/milan_csr.sv sim_main.cpp -o Vcsr_sim
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_current/../../../hdl/common/csr/milan_csr.sv:2249:29: Procedural assignment to declaration with initial value: 'rst_epoch_r'
+                                                                                                                     : ... note: In instance 'milan_csr'
+                                                                                                                     : ... Location of variable initialization
+ 2249 |   logic [7:0] rst_epoch_r = 8'd0;
+      |                             ^~~~
+                      ../../../configs/generated/endstation_arty_current/../../../hdl/common/csr/milan_csr.sv:2748:34: ... Location of variable process write
+                                                                                                                     : ... Perhaps should initialize instead using a reset in this process
+ 2748 |     if (aresetn && !rstn_seen_r) rst_epoch_r <= rst_epoch_r + 8'd1;
+      |                                  ^~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_current/../../../hdl/common/csr/milan_csr.sv:2745:27: Procedural assignment to declaration with initial value: 'rstn_seen_r'
+                                                                                                                     : ... note: In instance 'milan_csr'
+                                                                                                                     : ... Location of variable initialization
+ 2745 |   logic     rstn_seen_r = 1'b0;
+      |                           ^~~~
+                      ../../../configs/generated/endstation_arty_current/../../../hdl/common/csr/milan_csr.sv:2747:5: ... Location of variable process write
+                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+ 2747 |     rstn_seen_r <= aresetn;
+      |     ^~~~~~~~~~~
+make[1]: Entering directory '$VALIDATION_STORAGE/400-403-a323-csr-obj_dir'
+make[1]: *** No rule to make target '../sim_main.cpp', needed by 'sim_main.o'.  Stop.
+make[1]: Leaving directory '$VALIDATION_STORAGE/400-403-a323-csr-obj_dir'
+%Error: 'make -C $VALIDATION_STORAGE/400-403-a323-csr-obj_dir -f Vmilan_csr.mk -j 8' exited with 2
+        ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+%Error: Command Failed ulimit -s unlimited 2>/dev/null; exec $VALIDATION_TOOLS/verilator-v5.050/bin/verilator_bin +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 8 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS -std=c++17\ -O2\ -Wall\ -Wextra --top-module milan_csr ../../../hdl/common/csr/milan_csr.sv $LANES/400-403-declaration-truth/tb/verilator/csr/sim_main.cpp -o Vcsr_sim --Mdir $VALIDATION_STORAGE/400-403-a323-csr-obj_dir
+make: *** [Makefile:76: obj_dir/Vcsr_sim] Error 2
+make: Leaving directory '$LANES/400-403-declaration-truth/tb/verilator/csr'

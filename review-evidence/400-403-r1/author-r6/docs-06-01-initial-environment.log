@@ -1,0 +1,21 @@
+COMMAND python3 -c "import importlib.metadata as m; print({n:m.version(n) for n in ['cmarkgfm','html5lib','cffi','pycparser','six','webencodings']})"
+Traceback (most recent call last):
+  File "/usr/lib/python3.14/importlib/metadata/__init__.py", line 407, in from_name
+    return next(iter(cls.discover(name=name)))
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import importlib.metadata as m; print({n:m.version(n) for n in ['cmarkgfm','html5lib','cffi','pycparser','six','webencodings']})
+                                             ~~~~~~~~~^^^
+  File "/usr/lib/python3.14/importlib/metadata/__init__.py", line 987, in version
+    return distribution(distribution_name).version
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/importlib/metadata/__init__.py", line 960, in distribution
+    return Distribution.from_name(distribution_name)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/importlib/metadata/__init__.py", line 409, in from_name
+    raise PackageNotFoundError(name)
+importlib.metadata.PackageNotFoundError: No package metadata was found for cffi
