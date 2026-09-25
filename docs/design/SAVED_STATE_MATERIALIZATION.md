@@ -1645,8 +1645,6 @@ descriptor store's roll-back. They add gates, and change no allocation:
   set fits its record (16 stream channels, 17 entries).
   The #501 allocation decision permits stage-3 implementation.
   Release still requires donor adoption, #502, and silicon persistence proof.
-  Processor #61/#83 must also satisfy the
-  [capture-hold measurement obligation](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#20-unresolved).
 - **Stated in every stage's release notes:** a persistence device that
   never ends an operation the restore abandoned keeps the port QUARANTINED
   until reset (section 8.8). Commands are served and the entity is enabled
