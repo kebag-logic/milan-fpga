@@ -1,0 +1,31 @@
+[A317] Static scope and inventory check
+Starting head: b376f6113b388929fe82e883d400e5361319b966
+gmstep CONTROLS: 14 = 12 gmstep + 2 option-off = 11 prior + 3 policy-level controls
+  the policy level is tied low at the servo
+  the policy level omits the applied-rate tail
+  the policy level misses an extra addend stage
+  the step does not toggle mr
+  the grandmaster identity re-bases the render stage as well as the step
+  the step does not re-centre the render stage
+  the render re-base is keyed to the identity, not the step
+  tu reaches the talkers four cycles late
+  the plane's step does not re-arm the holdover
+  tu stops the talker
+  the grandmaster change stops the talker for good
+  the step's re-centre snaps one event off the setpoint
+  a software settime does not toggle mr
+  the step's mr toggle is gated by the CRF clock-source selection
+servo inventory: 8 = 5 MUTANTS + 3 STREAK_MUTANTS
+  discard_removed
+  level_tied_low
+  partial_tail_trusted
+  discard_not_counted
+  step_dedupe_removed
+  slew_streak_reset_removed
+  slew_discard_extends_streak
+  slew_discard_counts_as_guard_trip
+Old disposition: mutation campaign; copies the servo and requires named failures for discard removal, tied-low level, partial-tail trust, omitted tally, boundary step double counting and a retained guard streak; no expectations read from RTL
+New disposition: mutation campaign; copies the servo and requires named failures for discard removal, tied-low level, partial-tail trust, omitted tally, boundary step double counting, retained guard streak, streak increment on slew discard and slew discard counted as a guard trip; no expectations read from RTL
+AST outside the single disposition string: identical
+Changed paths: scripts/measure_test_evidence.py, tb/verilator/milan_dp/README.md
+Result: PASS
