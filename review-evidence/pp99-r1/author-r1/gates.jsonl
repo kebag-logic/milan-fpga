@@ -1,0 +1,19 @@
+{"gate": "upc-map", "command": "python3 scripts/check_upc_map.py", "rc": 0, "started": "2026-09-24T08:37:00.222914+00:00", "elapsed_seconds": 0.04, "log": "upc-map.log"}
+{"gate": "compliance-matrix", "command": "python3 scripts/check-matrix.py", "rc": 0, "started": "2026-09-24T08:37:00.221260+00:00", "elapsed_seconds": 0.05, "log": "compliance-matrix.log"}
+{"gate": "module-matrix", "command": "python3 scripts/gen_matrix.py --check", "rc": 0, "started": "2026-09-24T08:37:00.225333+00:00", "elapsed_seconds": 0.07, "log": "module-matrix.log"}
+{"gate": "params", "command": "python3 scripts/check-integrator-params.py", "rc": 0, "started": "2026-09-24T08:37:00.251744+00:00", "elapsed_seconds": 0.08, "log": "params.log"}
+{"gate": "links", "command": "python3 scripts/check-links.py", "rc": 0, "started": "2026-09-24T08:37:00.217698+00:00", "elapsed_seconds": 0.12, "log": "links.log"}
+{"gate": "wavedrom", "command": "python3 scripts/render-wavedrom.py --check", "rc": 0, "started": "2026-09-24T08:37:14.349289+00:00", "elapsed_seconds": 3.35, "log": "wavedrom.log"}
+{"gate": "hdl-lint", "command": "./scripts/lint_hdl.sh", "rc": 0, "started": "2026-09-24T08:37:54.951246+00:00", "elapsed_seconds": 11.86, "log": "hdl-lint.log"}
+{"gate": "params-before", "command": "python3 scripts/check-integrator-params.py --guide $MANAGEMENT/2026-09-23/pp99-a244/integrator-before.md", "rc": 1, "started": "2026-09-24T08:38:25.404487+00:00", "elapsed_seconds": 0.08, "log": "params-before.log"}
+{"gate": "make-check", "command": "make check", "rc": 0, "started": "2026-09-24T08:37:58.489387+00:00", "elapsed_seconds": 30.12, "log": "make-check.log"}
+{"gate": "portability", "command": "./syn/yosys/run.sh", "rc": 0, "started": "2026-09-24T08:37:56.245539+00:00", "elapsed_seconds": 71.26, "log": "portability.log"}
+{"gate": "parameter-probes", "command": "python3 $MANAGEMENT/2026-09-23/pp99-a244/probe_params.py", "rc": 0, "started": "2026-09-24T08:39:14.944051+00:00", "elapsed_seconds": 0.77, "log": "parameter-probes.log"}
+{"gate": "stale", "command": "make stale", "rc": 0, "started": "2026-09-24T08:40:02.884893+00:00", "elapsed_seconds": 0.06, "log": "stale.log"}
+{"gate": "parameter-probes", "command": "python3 $MANAGEMENT/2026-09-23/pp99-a244/probe_params.py", "rc": 0, "started": "2026-09-24T08:40:03.338629+00:00", "elapsed_seconds": 0.82, "log": "parameter-probes.log"}
+{"gate": "make-check", "command": "make check", "rc": 0, "started": "2026-09-24T08:40:04.236247+00:00", "elapsed_seconds": 28.78, "log": "make-check.log"}
+{"gate": "params-before", "command": "python3 scripts/check-integrator-params.py --guide $MANAGEMENT/2026-09-23/pp99-a244/integrator-before.md", "rc": 1, "started": "2026-09-24T08:41:21.706269+00:00", "elapsed_seconds": 0.08, "log": "params-before.log"}
+{"gate": "params", "command": "python3 scripts/check-integrator-params.py", "rc": 0, "started": "2026-09-24T08:41:21.875586+00:00", "elapsed_seconds": 0.06, "log": "params.log"}
+{"gate": "links", "command": "python3 scripts/check-links.py", "rc": 0, "started": "2026-09-24T08:41:22.027673+00:00", "elapsed_seconds": 0.09, "log": "links.log"}
+{"gate": "nvm-readme-figures", "command": "make -C tb/nvm_port figures", "rc": 0, "started": "2026-09-24T08:37:57.310140+00:00", "elapsed_seconds": 241.54, "log": "nvm-readme-figures.log"}
+{"gate": "review-ready-post", "command": "gh issue comment 99 -R Mister-M-alt/protocol-processor-control-plane-avb-milan --body-file $MANAGEMENT/2026-09-23/pp99-a244/REVIEW-READY.txt", "rc": 0, "started": "2026-09-24T08:44:22.273804+00:00", "elapsed_seconds": 1.46, "log": "review-ready-post.log"}

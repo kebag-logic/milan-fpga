@@ -1,0 +1,60 @@
+$ python3 $MANAGEMENT/2026-09-23/pp99-a244/probe_params.py
+missing-row-still-mentioned: rc 1, expected 1
+PARAMETERS FAIL: guide: missing N_CONTROL_P
+parameters: top 24, guide 23, diagram 24, 1 FAILURES
+extra-guide-row: rc 1, expected 1
+PARAMETERS FAIL: guide: extra EXTRA_P
+parameters: top 24, guide 25, diagram 24, 1 FAILURES
+duplicate-guide-row: rc 1, expected 1
+PARAMETERS FAIL: guide: duplicate N_CONTROL_P (2 occurrences)
+parameters: top 24, guide 24, diagram 24, 1 FAILURES
+new-top-param: rc 1, expected 1
+PARAMETERS FAIL: guide: missing EXTRA_P
+PARAMETERS FAIL: diagram: missing EXTRA_P
+parameters: top 25, guide 24, diagram 24, 2 FAILURES
+removed-top-param: rc 1, expected 1
+PARAMETERS FAIL: guide: extra N_STREAM_IN_P
+PARAMETERS FAIL: diagram: extra N_STREAM_IN_P
+parameters: top 23, guide 24, diagram 24, 2 FAILURES
+comments-localparams-grouped: rc 0, expected 0
+parameters: top 24, guide 24, diagram 24, OK
+empty-guide-inventory: rc 1, expected 1
+PARAMETERS FAIL: guide: parsed no parameters
+PARAMETERS FAIL: guide: missing CLK_HZ_P
+PARAMETERS FAIL: guide: missing DESC_BASE_P
+PARAMETERS FAIL: guide: missing DESC_IDX_ENTRIES_P
+PARAMETERS FAIL: guide: missing DESC_LINE_BYTES_P
+PARAMETERS FAIL: guide: missing DESC_MEM_TMO_CYC_P
+PARAMETERS FAIL: guide: missing DESC_NAME_ENTRIES_P
+PARAMETERS FAIL: guide: missing LOCK_TIMEOUT_MS_P
+PARAMETERS FAIL: guide: missing NVM_RS_TMO_CYC_P
+PARAMETERS FAIL: guide: missing N_AUDIO_UNIT_P
+PARAMETERS FAIL: guide: missing N_CLK_DOMAIN_P
+PARAMETERS FAIL: guide: missing N_CONTROL_P
+PARAMETERS FAIL: guide: missing N_STREAM_IN_P
+PARAMETERS FAIL: guide: missing N_STREAM_OUT_P
+PARAMETERS FAIL: guide: missing REG_TL_TIMEOUT_MS_P
+PARAMETERS FAIL: guide: missing RESP_BASE_P
+PARAMETERS FAIL: guide: missing RX_SLOTS_P
+PARAMETERS FAIL: guide: missing RX_SLOT_BYTES_P
+PARAMETERS FAIL: guide: missing SRP_DOM_DEF_VID_P
+PARAMETERS FAIL: guide: missing TIM_DIV_MS_P
+PARAMETERS FAIL: guide: missing TIM_DIV_US_P
+PARAMETERS FAIL: guide: missing TROM_HEX_P
+PARAMETERS FAIL: guide: missing TX_OVERSIZE_BYTES_P
+PARAMETERS FAIL: guide: missing TX_STD_SLOTS_P
+PARAMETERS FAIL: guide: missing UCODE_HEX_P
+parameters: top 24, guide 0, diagram 24, 25 FAILURES
+unparseable-top: rc 1, expected 1
+PARAMETERS FAIL: top: cannot find protocol_processor_top parameter header
+parameters: guide 24, diagram 24, 1 FAILURES
+missing-diagram-param: rc 1, expected 1
+PARAMETERS FAIL: diagram: missing N_AUDIO_UNIT_P
+parameters: top 24, guide 24, diagram 23, 1 FAILURES
+extra-diagram-param: rc 1, expected 1
+PARAMETERS FAIL: diagram: extra EXTRA_P
+parameters: top 24, guide 24, diagram 25, 1 FAILURES
+duplicate-diagram-param: rc 1, expected 1
+PARAMETERS FAIL: diagram: duplicate N_AUDIO_UNIT_P (2 occurrences)
+parameters: top 24, guide 24, diagram 24, 1 FAILURES
+All parameter gate probes passed.
