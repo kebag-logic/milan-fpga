@@ -1,0 +1,5 @@
+mutant: sw/builder/endstation_builder.py: "ADP_SRP_DOM_DEF_VID_C = 16'd{cfg['srp']['vid']};" -> "ADP_SRP_DOM_DEF_VID_C = 16'd2;"
+cmd: make -C tb/verilator/pp_shadow
+start: 2026-09-25T17:14:24.753826+00:00
+exit: 2
+restored sha256: dcaf9280e84d2b4237c97e60a684decac9df1e27bd7417e16e6e0f3c1376ccc4

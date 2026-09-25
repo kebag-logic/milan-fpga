@@ -1,0 +1,5 @@
+mutant: hdl/common/csr/milan_csr.sv: 'assign o_lwsrp_talker_en     = lwsrp_ctrl[1];' -> "assign o_lwsrp_talker_en     = 1'b0;"
+cmd: make -C tb/verilator/csr
+start: 2026-09-25T17:16:19.537574+00:00
+exit: 2
+restored sha256: 5ef9b3fbf46fda5e9b6f84b5766fd82a6ac589d7e56222f850f4870d81512169

@@ -1,0 +1,91 @@
+## check-runs for e122f3302cf8a8e89de960233a8638b9dd1387dc as of 2026-09-25T17:37:56Z
+bdd-conformance	completed	success	2026-09-25T16:58:51Z	2026-09-25T16:59:01Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202517/job/108167861540
+changes	completed	success	2026-09-25T16:58:53Z	2026-09-25T16:59:11Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202517/job/108167861694
+docs-check	completed	success	2026-09-25T16:58:52Z	2026-09-25T17:19:03Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202480/job/108167861322
+docs-check-no-git	completed	success	2026-09-25T16:58:52Z	2026-09-25T16:59:02Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202480/job/108167861228
+elaborate	completed	success	2026-09-25T16:58:52Z	2026-09-25T17:13:50Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202490/job/108167861591
+full-ci-gate	completed	success	2026-09-25T16:58:52Z	2026-09-25T16:59:11Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108167862594
+Physical gPTP (nightly and manual)	completed	skipped	2026-09-25T16:59:12Z	2026-09-25T16:59:11Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108167985821
+rtl-fast	completed	success	2026-09-25T17:07:49Z	2026-09-25T17:07:52Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202517/job/108170984636
+verilator-lint	completed	success	2026-09-25T16:59:13Z	2026-09-25T16:59:43Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202517/job/108167982484
+Verilator shard 0/5	completed	success	2026-09-25T16:59:41Z	2026-09-25T17:12:44Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108167984702
+Verilator shard 1/5	completed	success	2026-09-25T16:59:14Z	2026-09-25T17:36:16Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108167984593
+Verilator shard 2/5	completed	success	2026-09-25T16:59:14Z	2026-09-25T17:14:38Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108167984525
+Verilator shard 3/5	completed	success	2026-09-25T16:59:13Z	2026-09-25T17:08:55Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108167984638
+Verilator shard 4/5	completed	success	2026-09-25T16:59:14Z	2026-09-25T17:36:46Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108167984603
+verilator-suites	completed	success	2026-09-25T17:36:49Z	2026-09-25T17:36:55Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108181081195
+wire-accountability	completed	success	2026-09-25T16:58:51Z	2026-09-25T16:58:57Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202480/job/108167860904
+yosys-elaboration	completed	success	2026-09-25T16:59:13Z	2026-09-25T17:07:46Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202517/job/108167982550
+yosys-portability	completed	success	2026-09-25T17:36:58Z	2026-09-25T17:37:05Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108181133414
+Yosys shard 0/4	completed	success	2026-09-25T16:59:14Z	2026-09-25T17:05:40Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108167984471
+Yosys shard 1/4	completed	success	2026-09-25T16:59:13Z	2026-09-25T16:59:39Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108167984532
+Yosys shard 2/4	completed	success	2026-09-25T16:59:14Z	2026-09-25T16:59:49Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108167984508
+Yosys shard 3/4	completed	success	2026-09-25T16:59:45Z	2026-09-25T17:00:24Z	https://github.com/kebag-logic/milan-fpga/actions/runs/36164202471/job/108167984583
+
+## run 36164202471 TARGET_SHA (suite-logs-1, suite-logs-3): cbcfd172e29c35fabddff236c3710e3371e85bc5
+## shard 1/5 summary
+2026-09-25T17:01:12.0614694Z shard: 1/5   selected suites: 21
+2026-09-25T17:01:17.5813133Z PASS     aaf_latency_taps
+2026-09-25T17:01:29.0986312Z PASS     avtp_rxmon
+2026-09-25T17:01:34.5330414Z PASS     cbs
+2026-09-25T17:01:39.8708105Z PASS     cdc
+2026-09-25T17:01:55.8540543Z PASS     clkvalid
+2026-09-25T17:02:03.6906886Z PASS     controller_rate
+2026-09-25T17:14:35.9619964Z PASS     crf_rx
+2026-09-25T17:14:41.4684349Z PASS     datapath
+2026-09-25T17:14:49.6842436Z PASS     gptp_plane
+2026-09-25T17:20:28.1841442Z PASS     gptp_shadow
+2026-09-25T17:20:33.4107662Z PASS     lat_history_ring
+2026-09-25T17:20:38.7013307Z PASS     maap
+2026-09-25T17:20:48.9989439Z PASS     mac_rmon
+2026-09-25T17:21:05.3315059Z PASS     media_nco
+2026-09-25T17:21:10.7717409Z PASS     mmcm_servo_autorepair
+2026-09-25T17:32:56.5441229Z PASS     nvm_cosim
+2026-09-25T17:33:01.8355617Z PASS     pair_fill
+2026-09-25T17:33:07.0114892Z PASS     pcmlpf
+2026-09-25T17:35:14.9615411Z PASS     pp_shadow
+2026-09-25T17:35:20.3890517Z PASS     tcam_csr
+2026-09-25T17:36:12.3427043Z PASS     tsn_fuzz
+2026-09-25T17:36:12.3428282Z suites: 21   passed: 21   failed: 0   timed out: 0
+2026-09-25T17:36:12.4900038Z checks: 174734   in-suite failures: 0
+## shard 3/5 summary
+2026-09-25T17:00:40.8896743Z shard: 3/5   selected suites: 12
+2026-09-25T17:00:54.8177823Z PASS     adp_tx
+2026-09-25T17:01:22.2134604Z PASS     avtp_parser
+2026-09-25T17:02:41.5334108Z PASS     chmap_capture
+2026-09-25T17:02:47.0191071Z PASS     classifier
+2026-09-25T17:03:53.2721575Z PASS     csr
+2026-09-25T17:04:00.2850984Z PASS     link_guard
+2026-09-25T17:07:10.3514050Z PASS     media_grid_align
+2026-09-25T17:07:45.7398829Z PASS     nvm_backend
+2026-09-25T17:08:13.1799981Z PASS     tcam
+2026-09-25T17:08:19.0773680Z PASS     tdm
+2026-09-25T17:08:24.4708489Z PASS     tdm_render
+2026-09-25T17:08:53.3414985Z PASS     tkdiag
+2026-09-25T17:08:53.3417262Z suites: 12   passed: 12   failed: 0   timed out: 0
+2026-09-25T17:08:53.4443128Z checks: 14432   in-suite failures: 0
+## shard 4/5 summary
+2026-09-25T17:00:25.1940389Z shard: 4/5   selected suites: 1
+2026-09-25T17:36:42.8186418Z PASS     milan_dp
+2026-09-25T17:36:42.8187957Z suites: 1   passed: 1   failed: 0   timed out: 0
+2026-09-25T17:36:43.1486884Z checks: 10866   in-suite failures: 0
+## suite-logs-1/pp_shadow.log extracts
+pp_shadow: 402 checks, 0 failures
+declaration fixture: vid73.yaml
+pp_shadow: 402 checks, 0 failures
+declaration fixture: crf_on.yaml
+pp_shadow: 402 checks, 0 failures
+## suite-logs-1/nvm_cosim.log extracts
+[contract-1x1] 62 case run(s): 315 ok, 0 bad, 0 not expressible
+[contract-8x8] 27 case run(s): 150 ok, 0 bad, 0 not expressible
+39 of 39 mutant(s) killed by their named check
+nvm_cosim: 465 checks: 465 PASS, 0 FAIL (0 not expressible)
+RESULT: PASS
+## suite-logs-3/csr.log extracts
+checks: 400   failures: 0
+checks: 400   failures: 0
+checks: 121   failures: 0
+checks: 44   failures: 0
+checks: 400   failures: 0
+declaration fixture: reset_bits.yaml
+checks: 400   failures: 0

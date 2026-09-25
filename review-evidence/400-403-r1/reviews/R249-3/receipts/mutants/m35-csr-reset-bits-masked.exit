@@ -1,0 +1,5 @@
+mutant: hdl/common/csr/milan_csr.sv: 'lwsrp_ctrl <= LWSRP_CTRL_RST_C;' -> "lwsrp_ctrl <= LWSRP_CTRL_RST_C & ~32'h3;"
+cmd: make -C tb/verilator/csr
+start: 2026-09-25T17:13:10.792919+00:00
+exit: 2
+restored sha256: 5ef9b3fbf46fda5e9b6f84b5766fd82a6ac589d7e56222f850f4870d81512169
