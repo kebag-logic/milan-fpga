@@ -1,0 +1,25 @@
+{
+  "head": "f36b40ddb5bf7fa5b12bba47d136e0b9d429403c",
+  "base": "5c78ce2e9d831e588e759b696ed549804327e4d8",
+  "unchanged_from_base": [
+    ".github/workflows",
+    "scripts/run_all_suites.sh",
+    "tb/verilator/milan_dp/render_mutants.py",
+    "tb/verilator/milan_dp/gmstep_mutants.py",
+    "tb/verilator/milan_dp/gsi_mutants.py",
+    "tb/verilator/milan_dp/render_csr_controls.py",
+    "tb/verilator/milan_dp/crflic_mutants.py",
+    "hdl",
+    "sw",
+    "protocol-processor",
+    "gptp-processor",
+    "third_party/verilog-axis"
+  ],
+  "runner_unchanged_from": "ff7dac3257a321538a1fd1a310ab3190f646153d",
+  "commits": [
+    "cce997f69ec27fe62af5d357e9e3670588286c8e\tBound ordinary milan_dp simulations with ordered shared-header exclusion\t",
+    "9ceec5199b70e3eeae555b9215d4621d0546022a\tBound simulation host-tool policy masks to their source contexts\t",
+    "c0b1dd5db1132d2bccbd1474ca7128b2bfb435ee\tMake simulation pool cancellation independent of stdout backpressure\t",
+    "f36b40ddb5bf7fa5b12bba47d136e0b9d429403c\tReconcile pooled simulation inventory with the current default suite\t"
+  ]
+}

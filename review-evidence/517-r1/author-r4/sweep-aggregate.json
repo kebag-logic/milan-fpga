@@ -1,0 +1,466 @@
+{
+  "exit_code": 0,
+  "suites": 55,
+  "checks": 2121993,
+  "failures": 0,
+  "skips": [
+    {
+      "suite": "tsn_fuzz",
+      "reason": "AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)"
+    },
+    {
+      "suite": "tsn_fuzz",
+      "reason": "hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))"
+    },
+    {
+      "suite": "tsn_fuzz",
+      "reason": "gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)"
+    },
+    {
+      "suite": "tsn_fuzz",
+      "reason": "hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))"
+    }
+  ],
+  "ownership": {
+    "aaf_latency_tap_bank": {
+      "chunk": "0/5",
+      "sha256": "3de9bbcf2b8b0f03e2e78b85d5667ae5be34488dbff3d6918cc2bb98e3b674b5",
+      "bytes": 12148,
+      "checks": 46,
+      "failures": 0,
+      "tallies": 2
+    },
+    "avtp_stream": {
+      "chunk": "0/5",
+      "sha256": "b0201671529692a8d02dc9c70ac791e20d3e255451e508c8521e97a07c371b64",
+      "bytes": 15871,
+      "checks": 38,
+      "failures": 0,
+      "tallies": 2
+    },
+    "cls": {
+      "chunk": "0/5",
+      "sha256": "58472dd073db4e5c2ba31c857229898f5024ca90d5a4d5d5a5be0a750a95486b",
+      "bytes": 7401,
+      "checks": 200074,
+      "failures": 0,
+      "tallies": 1
+    },
+    "eth_tx_reset": {
+      "chunk": "0/5",
+      "sha256": "6359433a157cde9bdb5b4941e2779279bd97e91eda4e7d3d43dbeb5d22f92298",
+      "bytes": 6604,
+      "checks": 40,
+      "failures": 0,
+      "tallies": 1
+    },
+    "gptp_txts": {
+      "chunk": "0/5",
+      "sha256": "4ba418138e8f18168a2c1417ea50f229cfad3248e010241cabcbe7c577674b72",
+      "bytes": 9992,
+      "checks": 85,
+      "failures": 0,
+      "tallies": 1
+    },
+    "i2spb": {
+      "chunk": "0/5",
+      "sha256": "1660d092c04957b24354be9ea597643643ed1d3e67b90bea7bd30b350de24f9e",
+      "bytes": 6082,
+      "checks": 13,
+      "failures": 0,
+      "tallies": 1
+    },
+    "ifg": {
+      "chunk": "0/5",
+      "sha256": "e613c850ed8f86b1f210b06d0c6ab26026106b6f5dd86df1cfcd71bb17a0e629",
+      "bytes": 5117,
+      "checks": 4,
+      "failures": 0,
+      "tallies": 1
+    },
+    "milan_dp_render": {
+      "chunk": "0/5",
+      "sha256": "ab474f59a67de6c8899a3b34a42c9d2e99f9fc7c88402fe634de24543d4c8ed6",
+      "bytes": 169175,
+      "checks": 222,
+      "failures": 0,
+      "tallies": 3
+    },
+    "ptp": {
+      "chunk": "0/5",
+      "sha256": "4742198e0ff5917f84e63eddae4db10df387486b649c88c1d3585f398c1dec3c",
+      "bytes": 11405,
+      "checks": 201308,
+      "failures": 0,
+      "tallies": 2
+    },
+    "queues": {
+      "chunk": "0/5",
+      "sha256": "b68af61f6fad0f4e34078067d0125b0fc82d531dbff62f52ed79263e7b9fbb71",
+      "bytes": 47508,
+      "checks": 13,
+      "failures": 0,
+      "tallies": 1
+    },
+    "rx_filter": {
+      "chunk": "0/5",
+      "sha256": "ae74b4bae5da28b66ffac6d090de7819db66eb5a545f36d3fc284255a4c3c48c",
+      "bytes": 6592,
+      "checks": 88,
+      "failures": 0,
+      "tallies": 3
+    },
+    "aaf_latency_taps": {
+      "chunk": "1/5",
+      "sha256": "27595c6894676f5cb8165a8cf5bf0ab14ad601385c77601d58fe8a24df8146ec",
+      "bytes": 6958,
+      "checks": 73,
+      "failures": 0,
+      "tallies": 1
+    },
+    "avtp_rxmon": {
+      "chunk": "1/5",
+      "sha256": "7481f06bf446fe68e03c18359fe3cbb22a98c7744069b619476ed831e2fe9eb5",
+      "bytes": 81212,
+      "checks": 215,
+      "failures": 0,
+      "tallies": 2
+    },
+    "cbs": {
+      "chunk": "1/5",
+      "sha256": "41260c27c053b0b34f072c3dee4a3cd0208201d788edc14b05957f70c98b17a1",
+      "bytes": 8863,
+      "checks": 130256,
+      "failures": 0,
+      "tallies": 1
+    },
+    "cdc": {
+      "chunk": "1/5",
+      "sha256": "8c77554f932c45b1b5dc8cf3daf1bf1c829b2ee3f150294ca789ec6bb13698b5",
+      "bytes": 5331,
+      "checks": 16,
+      "failures": 0,
+      "tallies": 1
+    },
+    "clkvalid": {
+      "chunk": "1/5",
+      "sha256": "9566f166c7f50cdc158191d6822996f85c1cabc716ff8e5a1494c7100b40b4d4",
+      "bytes": 20044,
+      "checks": 55,
+      "failures": 0,
+      "tallies": 3
+    },
+    "controller_rate": {
+      "chunk": "1/5",
+      "sha256": "840e6fbd9eef03c1e01b227622b4d5f29e59bc96978b43fe7868523da233e59d",
+      "bytes": 48028,
+      "checks": 24518,
+      "failures": 0,
+      "tallies": 1
+    },
+    "crf_rx": {
+      "chunk": "1/5",
+      "sha256": "30978669f94da70838ce9e4d4d56637bec2501e3df67ecc88c8fb986992d93e4",
+      "bytes": 163250,
+      "checks": 16116,
+      "failures": 0,
+      "tallies": 4
+    },
+    "datapath": {
+      "chunk": "1/5",
+      "sha256": "23e13f1d7cd88c56c249e1da3ace2cf9ddee3f3c9251f2bb7c966c3c3b064243",
+      "bytes": 58144,
+      "checks": 23,
+      "failures": 0,
+      "tallies": 1
+    },
+    "gptp_plane": {
+      "chunk": "1/5",
+      "sha256": "fcf76dbd868aeef6c782d9396116015e34897438d5cb2504c2ca616286887966",
+      "bytes": 11313,
+      "checks": 29,
+      "failures": 0,
+      "tallies": 1
+    },
+    "gptp_shadow": {
+      "chunk": "1/5",
+      "sha256": "07970df20e42388dc6a1fecc5cf68ff3516e3eccdf0f64adb4a65d7e4f2297a3",
+      "bytes": 21987,
+      "checks": 309,
+      "failures": 0,
+      "tallies": 1
+    },
+    "lat_history_ring": {
+      "chunk": "1/5",
+      "sha256": "bba83c7b264c4cb67fab703a792d82830a447e5f7ee08489e5d66e14ed8d3454",
+      "bytes": 5345,
+      "checks": 84,
+      "failures": 0,
+      "tallies": 1
+    },
+    "maap": {
+      "chunk": "1/5",
+      "sha256": "7517adbaa0ca10bae3664b4be508b731edff86aeb0c30ae2e831091aaca6f6b0",
+      "bytes": 9899,
+      "checks": 67,
+      "failures": 0,
+      "tallies": 1
+    },
+    "mac_rmon": {
+      "chunk": "1/5",
+      "sha256": "370e1431044ffc9f01e33e656c64219d14a0165ec4259c86c7a82e69e48bb148",
+      "bytes": 13564,
+      "checks": 56,
+      "failures": 0,
+      "tallies": 2
+    },
+    "media_nco": {
+      "chunk": "1/5",
+      "sha256": "c42bedb9e530e7b69dae9becfdcd695c1f8b673f6f13782c7c56dc5cf0f8aa36",
+      "bytes": 14196,
+      "checks": 248,
+      "failures": 0,
+      "tallies": 1
+    },
+    "mmcm_servo_autorepair": {
+      "chunk": "1/5",
+      "sha256": "cdc1de6f2b30d788c50177d8a10c25ed2d81826103fd84036e2997b247720707",
+      "bytes": 9173,
+      "checks": 47,
+      "failures": 0,
+      "tallies": 1
+    },
+    "nvm_cosim": {
+      "chunk": "1/5",
+      "sha256": "26ba798f58655643fa2e16357422a7ea9074f4af491c68be7f4c98c272f22226",
+      "bytes": 6739,
+      "checks": 465,
+      "failures": 0,
+      "tallies": 1
+    },
+    "pair_fill": {
+      "chunk": "1/5",
+      "sha256": "7fde0e3526a3adcb1ed86a9a8e8afdab7d429209aa4317485eab51b00a565c4d",
+      "bytes": 9405,
+      "checks": 41,
+      "failures": 0,
+      "tallies": 1
+    },
+    "pcmlpf": {
+      "chunk": "1/5",
+      "sha256": "1a6bed396857da5ee409e11b5ba888f8b2d0f25b2abaa2192abc847b7bfd23c0",
+      "bytes": 6329,
+      "checks": 9,
+      "failures": 0,
+      "tallies": 1
+    },
+    "pp_shadow": {
+      "chunk": "1/5",
+      "sha256": "1c25711ed1d43f724529263b34b14e575c75dab6147bb8f5bb0a31884003e7a8",
+      "bytes": 66971,
+      "checks": 371,
+      "failures": 0,
+      "tallies": 1
+    },
+    "tcam_csr": {
+      "chunk": "1/5",
+      "sha256": "80a7a2325a6cfd1d3bc91d08b0eb695191a2b2452fba0568b9ceb31c4ea8a530",
+      "bytes": 7794,
+      "checks": 2,
+      "failures": 0,
+      "tallies": 1
+    },
+    "tsn_fuzz": {
+      "chunk": "1/5",
+      "sha256": "e8dc201eec5c7af2604fd943944d1337a342e2f666d40dd72e7fe66fd40c1ab1",
+      "bytes": 49725,
+      "checks": 56,
+      "failures": 0,
+      "tallies": 2
+    },
+    "aaf": {
+      "chunk": "2/5",
+      "sha256": "b2be4ce40d3ebd6e9506366d5d4634cc58f7f1c40cf07effd5d4b5759649292d",
+      "bytes": 18973,
+      "checks": 69,
+      "failures": 0,
+      "tallies": 2
+    },
+    "aaf_audio_loop": {
+      "chunk": "2/5",
+      "sha256": "cdaec22471c9dfebbc94f3f959ea2e7ffb923d8e511552b8c08c4e03fd282da7",
+      "bytes": 32318,
+      "checks": 10,
+      "failures": 0,
+      "tallies": 1
+    },
+    "aes3": {
+      "chunk": "2/5",
+      "sha256": "64bc0aca673b652c12819242dabea69f20fdadc732a51b6ef37dbd5e7aafea77",
+      "bytes": 9043,
+      "checks": 50,
+      "failures": 0,
+      "tallies": 1
+    },
+    "chmap_render": {
+      "chunk": "2/5",
+      "sha256": "bb1fcc3a6a20d2f41d294364e87a6cd1e72ecf059e04ae779452ab80964298f4",
+      "bytes": 5349,
+      "checks": 81,
+      "failures": 0,
+      "tallies": 1
+    },
+    "crf_tx": {
+      "chunk": "2/5",
+      "sha256": "c764b5f9f453c6d4edc5863829a0198b27d4e650f602637d3fce489da7cffdb5",
+      "bytes": 16256,
+      "checks": 127,
+      "failures": 0,
+      "tallies": 1
+    },
+    "mmcm_servo": {
+      "chunk": "2/5",
+      "sha256": "53587f71bbbc47650420829c7e3a6536e41a2dce97b24713c3821d55b3965201",
+      "bytes": 31074,
+      "checks": 206,
+      "failures": 0,
+      "tallies": 3
+    },
+    "ptp_sync": {
+      "chunk": "2/5",
+      "sha256": "113061d1a3c27547575a978f162d1d083a436d3d55c0328960d1e5f4b99af373",
+      "bytes": 11597,
+      "checks": 30,
+      "failures": 0,
+      "tallies": 2
+    },
+    "ptp_ts": {
+      "chunk": "2/5",
+      "sha256": "1e3289dc0b8f9aaa445410be6a3885191e686e89f7acd2fcb2b11319d3719141",
+      "bytes": 72218,
+      "checks": 495,
+      "failures": 0,
+      "tallies": 4
+    },
+    "render_setpoint": {
+      "chunk": "2/5",
+      "sha256": "cf383865b476e1ba337f9830c12d60fad35a5917c51dc6752e02251673cb3a95",
+      "bytes": 10138,
+      "checks": 277,
+      "failures": 0,
+      "tallies": 3
+    },
+    "shaper_core": {
+      "chunk": "2/5",
+      "sha256": "dda96d8dfcc5f6cca93442ea90360daced99652bd1b62de9677c7b67b5ae8555",
+      "bytes": 11502,
+      "checks": 1521627,
+      "failures": 0,
+      "tallies": 1
+    },
+    "adp_tx": {
+      "chunk": "3/5",
+      "sha256": "8e755c6aa9742330c180a31867fe45312ce5899a61fe035803124526d90f0147",
+      "bytes": 11668,
+      "checks": 46,
+      "failures": 0,
+      "tallies": 2
+    },
+    "avtp_parser": {
+      "chunk": "3/5",
+      "sha256": "30eb7ab267877d01bd686ef6e33bb3ba06692926c737253fb5a22449d40d5661",
+      "bytes": 37207,
+      "checks": 11201,
+      "failures": 0,
+      "tallies": 5
+    },
+    "chmap_capture": {
+      "chunk": "3/5",
+      "sha256": "07fb9e2e713de3502e3be4723caf771f143c992927b2a67c883b4b93dbb0e7cc",
+      "bytes": 41389,
+      "checks": 224,
+      "failures": 0,
+      "tallies": 2
+    },
+    "classifier": {
+      "chunk": "3/5",
+      "sha256": "db31a3dbe69e15991134a33516d0045f33069bca4184ddd99c042efc96a7d748",
+      "bytes": 30208,
+      "checks": 95,
+      "failures": 0,
+      "tallies": 1
+    },
+    "csr": {
+      "chunk": "3/5",
+      "sha256": "ed2ad99373aad0131223ae44575c276f9c63368f9f8da93a7af17861a2b07833",
+      "bytes": 147776,
+      "checks": 1293,
+      "failures": 0,
+      "tallies": 5
+    },
+    "link_guard": {
+      "chunk": "3/5",
+      "sha256": "a780880eda2a1c075956b7d42989bb37a8e34611f494fa6d791997e76517f9d5",
+      "bytes": 8037,
+      "checks": 104,
+      "failures": 0,
+      "tallies": 1
+    },
+    "media_grid_align": {
+      "chunk": "3/5",
+      "sha256": "f95101a5c0dffe0bdf809d3fb99d80bbc9539d397d47b8c604ea65c932e1fd05",
+      "bytes": 41374,
+      "checks": 45,
+      "failures": 0,
+      "tallies": 1
+    },
+    "nvm_backend": {
+      "chunk": "3/5",
+      "sha256": "2dee645e73923bf00a98973c28a6778588c0beda1bedd49e996996f2bfcd3fa6",
+      "bytes": 32876,
+      "checks": 733,
+      "failures": 0,
+      "tallies": 2
+    },
+    "tcam": {
+      "chunk": "3/5",
+      "sha256": "ac17350364d15624f7c17ae2cc1d0d09a64fae6e0ff11b309606e8dc68c44b69",
+      "bytes": 5640,
+      "checks": 23,
+      "failures": 0,
+      "tallies": 2
+    },
+    "tdm": {
+      "chunk": "3/5",
+      "sha256": "af0b9228c611c61289011cb5507865a6d843ca65bdf7d369f240ff9dab356e6b",
+      "bytes": 14826,
+      "checks": 58,
+      "failures": 0,
+      "tallies": 1
+    },
+    "tdm_render": {
+      "chunk": "3/5",
+      "sha256": "9de9099606a68d698e1ed6cf7e1386821206aa6ae6132513cacca92e7e3c63f9",
+      "bytes": 7903,
+      "checks": 37,
+      "failures": 0,
+      "tallies": 1
+    },
+    "tkdiag": {
+      "chunk": "3/5",
+      "sha256": "450a017314235dd7a92f12647a3361cf87de5afb89d04e31d5704037e276aab5",
+      "bytes": 16647,
+      "checks": 101,
+      "failures": 0,
+      "tallies": 2
+    },
+    "milan_dp": {
+      "chunk": "4/5",
+      "sha256": "ca1f33366d2a1e5160b80bc8441a379a9081829062ebf2ffa1576bee637df6d7",
+      "bytes": 932759,
+      "checks": 10074,
+      "failures": 0,
+      "tallies": 16
+    }
+  }
+}

@@ -1,0 +1,184 @@
+[
+  {
+    "shard": "0/1",
+    "argv": [
+      "scripts/run_all_suites.sh",
+      "--shard",
+      "0/1",
+      "--list"
+    ],
+    "exit_code": 0,
+    "suites": [
+      "aaf",
+      "aaf_audio_loop",
+      "aaf_latency_tap_bank",
+      "aaf_latency_taps",
+      "adp_tx",
+      "aes3",
+      "avtp_parser",
+      "avtp_rxmon",
+      "avtp_stream",
+      "cbs",
+      "cdc",
+      "chmap_capture",
+      "chmap_render",
+      "classifier",
+      "clkvalid",
+      "cls",
+      "controller_rate",
+      "crf_rx",
+      "crf_tx",
+      "csr",
+      "datapath",
+      "eth_tx_reset",
+      "gptp_plane",
+      "gptp_shadow",
+      "gptp_txts",
+      "i2spb",
+      "ifg",
+      "lat_history_ring",
+      "link_guard",
+      "maap",
+      "mac_rmon",
+      "media_grid_align",
+      "media_nco",
+      "milan_dp",
+      "milan_dp_render",
+      "mmcm_servo",
+      "mmcm_servo_autorepair",
+      "nvm_backend",
+      "nvm_cosim",
+      "pair_fill",
+      "pcmlpf",
+      "pp_shadow",
+      "ptp",
+      "ptp_sync",
+      "ptp_ts",
+      "queues",
+      "render_setpoint",
+      "rx_filter",
+      "shaper_core",
+      "tcam",
+      "tcam_csr",
+      "tdm",
+      "tdm_render",
+      "tkdiag",
+      "tsn_fuzz"
+    ]
+  },
+  {
+    "shard": "0/5",
+    "argv": [
+      "scripts/run_all_suites.sh",
+      "--shard",
+      "0/5",
+      "--list"
+    ],
+    "exit_code": 0,
+    "suites": [
+      "aaf_latency_tap_bank",
+      "avtp_stream",
+      "cls",
+      "eth_tx_reset",
+      "gptp_txts",
+      "i2spb",
+      "ifg",
+      "milan_dp_render",
+      "ptp",
+      "queues",
+      "rx_filter"
+    ]
+  },
+  {
+    "shard": "1/5",
+    "argv": [
+      "scripts/run_all_suites.sh",
+      "--shard",
+      "1/5",
+      "--list"
+    ],
+    "exit_code": 0,
+    "suites": [
+      "aaf_latency_taps",
+      "avtp_rxmon",
+      "cbs",
+      "cdc",
+      "clkvalid",
+      "controller_rate",
+      "crf_rx",
+      "datapath",
+      "gptp_plane",
+      "gptp_shadow",
+      "lat_history_ring",
+      "maap",
+      "mac_rmon",
+      "media_nco",
+      "mmcm_servo_autorepair",
+      "nvm_cosim",
+      "pair_fill",
+      "pcmlpf",
+      "pp_shadow",
+      "tcam_csr",
+      "tsn_fuzz"
+    ]
+  },
+  {
+    "shard": "2/5",
+    "argv": [
+      "scripts/run_all_suites.sh",
+      "--shard",
+      "2/5",
+      "--list"
+    ],
+    "exit_code": 0,
+    "suites": [
+      "aaf",
+      "aaf_audio_loop",
+      "aes3",
+      "chmap_render",
+      "crf_tx",
+      "mmcm_servo",
+      "ptp_sync",
+      "ptp_ts",
+      "render_setpoint",
+      "shaper_core"
+    ]
+  },
+  {
+    "shard": "3/5",
+    "argv": [
+      "scripts/run_all_suites.sh",
+      "--shard",
+      "3/5",
+      "--list"
+    ],
+    "exit_code": 0,
+    "suites": [
+      "adp_tx",
+      "avtp_parser",
+      "chmap_capture",
+      "classifier",
+      "csr",
+      "link_guard",
+      "media_grid_align",
+      "nvm_backend",
+      "tcam",
+      "tdm",
+      "tdm_render",
+      "tkdiag"
+    ]
+  },
+  {
+    "shard": "4/5",
+    "argv": [
+      "scripts/run_all_suites.sh",
+      "--shard",
+      "4/5",
+      "--list"
+    ],
+    "exit_code": 0,
+    "suites": [
+      "milan_dp"
+    ]
+  }
+]
