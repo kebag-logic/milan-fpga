@@ -115,7 +115,10 @@ def build(args: argparse.Namespace) -> Path:
                             ('audio_tdm_clk', 0, Pins(1)), ('sys_reset', 0, Pins(1))])
     add_pads(platform)
     config = art.cfg
-    clocks = config['constraints']
+    clocks = dict(config['constraints'])
+    configured_cpu_hz = clocks['milan_clk_hz']
+    # The bare-metal clock contract governs until #565 reconciles the yaml.
+    clocks['milan_clk_hz'] = args.cpu_hz
     params = config['soc']
     with patch.object(milan_soc, '_CRG', SimClocks), \
          patch.object(s7ddrphy, 'A7DDRPHY', model_phy), \
@@ -154,7 +157,8 @@ def build(args: argparse.Namespace) -> Path:
         builder = Builder(soc, output_dir=str(args.build_dir),
                           compile_software=True, compile_gateware=False)
         from firmware import prepare
-        firmware = prepare(ROOT, args.build_dir / 'measurement_firmware', args.mutation)
+        mode = 'no-traffic' if args.traffic == 'off' else args.mutation
+        firmware = prepare(ROOT, args.build_dir / 'measurement_firmware', mode)
         builder.add_software_package('libmilan_baremetal', str(firmware))
         builder.add_software_library('libmilan_baremetal', always_link=True)
         sim_config = SimConfig()
@@ -169,7 +173,8 @@ def build(args: argparse.Namespace) -> Path:
             'sources': [str(Path(s[0]).resolve()) for s in soc.platform.sources],
             'includes': soc.platform.verilog_include_paths,
             'sys_hz': clocks['sys_clk_hz'], 'cpu_hz': clocks['milan_clk_hz'],
+            'configured_cpu_hz': configured_cpu_hz, 'phase': 'aligned rising edges',
             'tdm_hz': tdm_hz or 24576000, 'shape': args.shape, 'captures': args.captures,
-            'mutation': args.mutation,
+            'mutation': args.mutation, 'traffic': args.traffic,
         }, indent=2))
     return args.build_dir

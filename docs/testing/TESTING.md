@@ -161,12 +161,15 @@ VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/suite-logs
 ```
 
 Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
-`ls tb/verilator/` is authoritative (one dir per suite).
+The directory inventory includes one environment-dependent measurement exception.
+[`nvm_capture_cpu`](../../tb/verilator/nvm_capture_cpu/README.md) runs outside local and hosted sweeps.
+It requires the product LiteX tree, CPU netlist and pinned RV32 SDK.
+Its README provides measurement commands and the complete receipt.
 
 The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
 [Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets this deadline from recorded hosted samples.
 The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
-It excludes only the scheduled `milan_dp_gptp` directory.
+It excludes scheduled `milan_dp_gptp` and manual `nvm_capture_cpu` measurements.
 The separate physical job permits 5400 seconds, including compilation.
 Its workflow job permits 120 minutes, including toolchain setup.
 Both target a four-core `ubuntu-latest` hosted worker.
@@ -370,7 +373,12 @@ and the tracked gaps: [`tb/verilator/tsn_fuzz/README.md`](../../tb/verilator/tsn
 ### 1.1 Suite index — reconciled against the tree 2026-08-13
 
 [`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh) runs the default inventory under [`tb/verilator/`](../../tb/verilator).
-Every directory needs a `Makefile`; only `milan_dp_gptp` runs separately. **Run it for the verdicts; this page does not carry them.** The last
+Regression directories require a `Makefile`; `milan_dp_gptp` runs separately.
+The manual `nvm_capture_cpu` measurement is the Makefile exception.
+Its LiteX tree, CPU netlist and pinned RV32 SDK are prerequisites.
+The separate `scripts/check_nvm_capture.py` gate needs neither compiler nor simulation.
+It regenerates capture counts and checks clocks against measured inputs.
+**Run the suites for verdicts; this page omits them.** The last
 whole-tree sweep recorded here (2026-07-26, Verilator v5.050, 55/55 green)
 described a tree that no longer exists — twelve of the suites it graded have
 since been deleted — so quoting it would be quoting a measurement of a

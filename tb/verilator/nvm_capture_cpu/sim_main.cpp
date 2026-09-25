@@ -124,7 +124,12 @@ std::string simulate(Vsim& dut) {
     const std::array<std::uint64_t, 4> frequency = {sys_hz, cpu_hz, 24576000, tdm_hz};
     std::array<std::uint64_t, 4> edge = {1, 1, 1, 1};
     std::array<std::uint64_t, 4> next{};
-    for (unsigned i = 0; i < next.size(); ++i) next[i] = 500000000000ULL / frequency[i];
+    // Match the board PLL: every CPU rising edge meets a sys rising edge.
+    // At 50/100 MHz this delays the CPU by 5 ns, as the review probe did.
+    const std::array<std::uint64_t, 4> offset = {
+        0, (500000000000ULL / cpu_hz - 500000000000ULL / sys_hz), 0, 0};
+    for (unsigned i = 0; i < next.size(); ++i)
+        next[i] = 500000000000ULL / frequency[i] + offset[i];
     std::string output;
     Controller controller;
     bool complete = false;
@@ -159,7 +164,7 @@ std::string simulate(Vsim& dut) {
             // Split the quotient before multiplying: edge * 5e11 wraps
             // after 36 million edges, well inside a repeated capture run.
             next[i] = edge[i] * (500000000000ULL / frequency[i])
-                + edge[i] * (500000000000ULL % frequency[i]) / frequency[i];
+                + edge[i] * (500000000000ULL % frequency[i]) / frequency[i] + offset[i];
         }
         if (edge[0] > 128) dut.sys_reset = 0;
         dut.eval();

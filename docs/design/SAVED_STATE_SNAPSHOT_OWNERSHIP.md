@@ -1556,69 +1556,101 @@ derives 3264 bytes at 1x1 and 12680 at 8x8.
 
 Timing. MEASURED on 2026-09-25 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
-The [#559 assignment](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5828771434)
-requires a worst observed 8x8 copy no longer than 25 ms.
-**The 50 ms hold is enough under this simulation route:** the maximum is
-19.00433 ms across 16 captures, giving about 2.6310x hold margin.
-The first assigned remedy applies: retain the existing hold.
-Product firmware, RTL and builder census lists are unchanged.
+The [round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs this measurement.
+**Hold sizing uses the writer's actual clock.**
+The [bare-metal contract](../integration/BAREMETAL_FIRMWARE.md#build-contract) specifies a 50 MHz CPU.
+Both shapes use that clock, with aligned system rising edges.
+The system timer remains at 100 MHz.
+The harness overrides the stale 8x8 configuration explicitly.
+[#565](https://github.com/kebag-logic/milan-fpga/issues/565) owns that configuration's reconciliation.
+The 100 MHz 8x8 point is a non-contract comparison.
 
-The harness instantiates the board's cacheless RV32I CPU and `MilanSoC` buses.
-It retains the CPU memory CDC, PP bridges and DDR controller.
-The shape recipes set CPU/system clocks to 50/100 MHz at 1x1 and 100/100 MHz at 8x8.
-Firmware brackets ARM through successful ATTEST with the 100 MHz system timer.
-This includes ownership reads, every `nvm_rec_after()` walk, byte copying and the fence.
-Probe overhead is included; flash prefill and destination poisoning precede ARM.
-Every capture checks attestation, closed ownership and every raw destination byte.
-Both missing-copy and missing-traffic negative controls are detected.
+The backend retains its nominal 50 ms hold.
+Its free-running millisecond tick gives a 49 ms guaranteed floor.
+The first tick can arrive immediately after ARM.
+The acceptance limit is therefore 24.5 ms, half that floor.
+**The worst 8x8 measurement is 24.30454 ms.**
+This gives 2.0161x margin against the guaranteed floor.
+It leaves 0.19546 ms below the assigned limit.
+The first remedy applies only while measured inputs remain unchanged.
+Product firmware, RTL and builder census lists remain unchanged.
 
-Traffic is continuous AEM READ_DESCRIPTOR ENTITY 0 at the MAC AXIS boundary.
-The driver offers 60-byte frames with backpressure respected and TX always ready.
-There is no line-rate throttle or Ethernet inter-frame gap.
-Traffic continues between captures.
-Counters cover the record walk and byte copy, ending before ATTEST.
-Each capture requires accepted frames, successful responses and shared descriptor-memory read ACKs.
+Each point contains 16 captures per traffic arm.
+The published maximum includes every capture in both arms.
+The 8x8 overall maximum also exceeds both non-contract arms.
+The 1x1 overall maximum is 6.60642 ms (7.4170x floor margin).
 
-| Quantity | 1x1 | 8x8 |
-|---|---|---|
-| Raw bytes / records | 3,218 / 53 | 12,634 / 156 |
-| Captures with concurrent traffic | 16 | 16 |
-| CPU / system MHz | 50 / 100 | 100 / 100 |
-| System timer ticks, minimum to maximum | 654,490 to 655,479 | 1,899,012 to 1,900,433 |
-| Elapsed ms, minimum to maximum | 6.54490 to 6.55479 | 18.99012 to 19.00433 |
-| 50 ms / maximum elapsed | 7.6280x | 2.6310x |
-| Accepted input frames per copy | 40,823 to 40,885 | 237,254 to 237,432 |
-| Successful responses per copy | 41 to 42 | 146 to 147 |
-| Shared-memory read ACKs per copy | 1,600 to 1,638 | 5,694 to 5,726 |
+| Shape | CPU / system MHz, basis | Traffic | System ticks, minimum to maximum | Elapsed ms, minimum to maximum | 49 ms / arm maximum |
+|---|---|---|---|---|---|
+| 1x1 | 50 / 100, contract | ON | 659,822 to 660,642 | 6.59822 to 6.60642 | 7.4170x |
+| 1x1 | 50 / 100, contract | OFF | 658,554 to 658,857 | 6.58554 to 6.58857 | 7.4371x |
+| 8x8 | 50 / 100, contract | ON | 2,429,322 to 2,430,454 | 24.29322 to 24.30454 | 2.0161x |
+| 8x8 | 50 / 100, contract | OFF | 2,425,516 to 2,426,154 | 24.25516 to 24.26154 | 2.0197x |
+| 8x8 | 100 / 100, non-contract | ON | 1,899,012 to 1,900,433 | 18.99012 to 19.00433 | 2.5784x |
+| 8x8 | 100 / 100, non-contract | OFF | 1,978,694 to 1,979,024 | 19.78694 to 19.79024 | 2.4760x |
 
-Run these commands in the existing product environment, with the
-[harness prerequisites](../../tb/verilator/nvm_capture_cpu/README.md#run):
+The full closed-record census is 3,218 bytes / 53 records at 1x1.
+At 8x8 it is 12,634 bytes / 156 records.
+That includes all 4,672 output-map bytes.
+Materialization does not affect this copy.
+An accepted RELOAD closes every allocated backend record.
+
+The harness uses the board's cacheless CPU and product buses.
+It retains memory CDC, PP bridges and the DDR controller.
+Firmware brackets ARM through successful ATTEST with the system timer.
+This includes ownership reads, record walking, copying and the fence.
+Instrumentation overhead is included.
+Flash prefill and destination poisoning precede ARM.
+Every capture checks attestation, closed ownership and every destination byte.
+
+Traffic offers continuous AEM READ_DESCRIPTOR ENTITY 0 requests.
+The MAC AXIS driver respects backpressure; TX remains ready.
+It applies neither line-rate throttling nor Ethernet inter-frame gaps.
+Counters span record walking and copying, ending before ATTEST.
+ON requires accepted requests, successful responses and shared-memory read ACKs.
+OFF requires zero traffic counts and still grades elapsed time.
+
+The offered load supplies no established worst-case stress bound.
+At 50 MHz, 8x8 ON exceeds OFF by 0.04300 ms.
+That is 0.177% between their maxima.
+The 1x1 difference is 0.01785 ms (0.271%).
+The observed effect is small but measurable.
+At 100 MHz, ON is 0.78591 ms faster than OFF.
+This is why both arms determine the maximum.
+
+The [harness README](../../tb/verilator/nvm_capture_cpu/README.md#run) provides the complete run matrix.
+The [receipt](../../tb/verilator/nvm_capture_cpu/measurements.json) contains all 96 captures and input hashes.
+Run the hosted input gate without a compiler or simulation:
 
 ```sh
-python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --captures 16 --build-dir /tmp/nvm-capture-8x8
-python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --captures 16 --build-dir /tmp/nvm-capture-1x1
+python3 scripts/check_nvm_capture.py
 ```
 
-The [measurement receipt](../../tb/verilator/nvm_capture_cpu/measurements.json)
-contains every row, the recipe and input hashes.
-These measurements replace the six-instructions-per-byte and fifty-instructions-per-record estimates.
-They retire assumed instruction and DDR latencies: ten cycles per instruction and thirty per access.
-The estimate of two DDR accesses per byte and blanket twofold penalty are retired too.
-Configured clocks replace the blanket 50 MHz CPU assumption.
-Actual CPU execution, record walking and bus latency are included in the measured interval.
+It regenerates each shape's tables and expands closed-record inventories.
+Bytes, records and CPU clock must match the measured-for values.
+Configured CPU and system clocks are checked too.
+Firmware edits also require new measurements.
+Harness hashes prevent carrying evidence across measurement-path changes.
+Named controls alter bytes, records and clocks independently.
+A slower OFF fixture must determine the published maximum.
+A planted grader ignoring OFF timing fails that fixture.
+The OFF timing limit checks equality and one extra tick.
+Both simulation controls also detect missing copying and missing traffic.
 
-The firmware's `nvm_capture()` copies every CLOSED record at each capture.
-Materialization does not affect that copy.
-An accepted RELOAD closes every allocated record in `KL_nvm_backend.sv`.
-The measured 8x8 copy includes all 4,672 output-map bytes within its 12,634 bytes.
-A grant after hold expiry still voids capture; release and retry preserve safety.
+Measurements retire the six-instructions-per-byte and fifty-instructions-per-record estimates.
+They retire ten cycles per instruction and thirty per access.
+The estimated two accesses per byte are also retired.
+The blanket twofold penalty is retired.
+The actual-clock requirement remains; 50 MHz is not retired.
+Actual execution, record walking and bus latency are measured directly.
 
-The DDR model retains the board PHY's controller-facing phase and latency settings.
-Physical leveling, wire transport and board timing are outside this measurement.
-The hold remains below the 500 ms heartbeat limit.
-It also remains below the 8000 ms commit deadline.
-The parameter refuses a hold at or above that deadline.
-Hardware timing and memory ordering remain UNRESOLVED 6.
+The DDR model retains controller-facing phase and latency settings.
+The README names every substituted model, including clocks and UART.
+Physical leveling, Ethernet transport and board timing remain outside measurement.
+Hold expiry still voids a capture after a mutating grant.
+Release and retry preserve safety.
+The hold remains below heartbeat and commit deadline limits.
+Physical timing and memory ordering remain UNRESOLVED 6.
 
 ## 19. The executable model and its omissions
 
@@ -1699,21 +1731,27 @@ Hardware timing and memory ordering remain UNRESOLVED 6.
 5. The JEDEC identity-mismatch revocation cause of
    [section 9.2](SAVED_STATE_FASTCONNECT.md#92-when-it-sets-when-it-is-revoked-and-when-the-loss-is-forgiven)
    has no reporter at the current source.
-6. Physical timing remains unmeasured on the board: capture hold, debounce and memory ordering.
-   [Section 18](#18-cost) replaces the copy model with product-CPU SoC measurements for
-   [issue #559](https://github.com/kebag-logic/milan-fpga/issues/559).
-   Across 16 captures with continuous READ_DESCRIPTOR traffic, the worst 8x8 copy is 19.00433 ms.
-   It copies all 12,634 bytes over 156 closed records, including 4,672 output-map bytes.
-   At the configured 100 MHz CPU clock, this gives about 2.6310x margin against the 50 ms hold.
-   It meets the assigned 25 ms limit, so the existing hold is retained.
-   The same harness measures 16 captures at 1x1 with its configured 50 MHz CPU.
-   Its maximum is 6.55479 ms, giving about 7.6280x hold margin.
-   Both figures use the 100 MHz system timer and include the complete record walk.
-   Commands, per-capture traffic counts and input hashes are linked from section 18.
-   The instruction/access cost factors and blanket twofold penalty are retired.
-   This establishes the simulation margin under the stated traffic.
-   The section 19 physical memory-port ordering still needs measurement.
-   The debounce measurement remains open under
+6. Physical timing remains unmeasured: capture hold, debounce and memory ordering.
+   [Section 18](#18-cost) replaces the copy model with product-CPU measurements.
+   Both shapes use the contract's 50 MHz CPU and aligned edges.
+   Each has 16 captures per traffic arm, ON and OFF.
+   The worst 8x8 copy is 24.30454 ms across both arms.
+   It covers 12,634 bytes and 156 records, including output maps.
+   Its margin against the guaranteed 49 ms floor is 2.0161x.
+   It meets 24.5 ms only under the measured conditions.
+   The unchanged nominal 50 ms hold is retained conditionally.
+   The 1x1 maximum is 6.60642 ms (7.4170x floor margin).
+   Both intervals include the complete record walk and attestation.
+   The 100 MHz 8x8 comparison is non-contract: 19.79024 ms maximum.
+   [#565](https://github.com/kebag-logic/milan-fpga/issues/565) owns the stale configuration clock.
+   Hold sizing still uses the writer's actual clock.
+   The hosted input gate requires unchanged census and clock values.
+   Changed product firmware also forces new measurements.
+   Traffic effects are quantified in section 18, including small increases.
+   These measurements do not establish a general contention bound.
+   Instruction/access cost factors and the blanket twofold penalty are retired.
+   Physical memory-port ordering remains unmeasured under section 19.
+   Debounce remains open under
    [section 14](SAVED_STATE_FASTCONNECT.md#14-what-this-page-does-not-decide).
 7. Alarm forgiveness. The donor alarm is sticky until reset, so one retry
    exhaustion holds nvm_backed at 0 and nvm_stale at 1 until reset, even

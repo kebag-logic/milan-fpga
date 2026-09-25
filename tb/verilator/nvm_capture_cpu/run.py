@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Build and measure the product CPU capture under continuous controller traffic."""
+"""Measure product CPU captures with controller traffic enabled or disabled."""
 import argparse
 import json
 from pathlib import Path
 import re
 import shlex
 import subprocess
+
+from recipe import CPU_HZ, HOLD_FLOOR_MS, SHAPES
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -36,24 +38,49 @@ def _grade(build_dir: Path, spec: dict, returncode: int) -> None:
         raise RuntimeError('not every requested capture completed')
     if spec['mutation'] != 'none':
         _grade_mutation(rows, spec['mutation'], returncode)
-        return
+        if spec['mutation'] == 'skip-copy':
+            return
+        spec = dict(spec, traffic='off')
     if returncode:
         raise RuntimeError(f'simulator exited {returncode}')
-    expected = (12634, 156) if spec['shape'] == 'endstation_ax7101_8x8' else (3218, 53)
+    summary = grade_rows(rows, spec)
+    (build_dir / 'measurement.json').write_text(json.dumps(summary, indent=2) + '\n')
+    print(json.dumps(summary, indent=2), flush=True)
+
+
+def grade_rows(rows: list[dict], spec: dict) -> dict:
+    """Apply the same timing and byte oracle to both traffic arms."""
+    if len(rows) != spec['captures'] or not rows:
+        raise RuntimeError('not every requested capture completed')
+    expected = (12634, 156) if spec['shape'] == SHAPES[0] else (3218, 53)
+    if spec['traffic'] not in ('on', 'off'):
+        raise RuntimeError('unknown traffic arm')
     for index, row in enumerate(rows):
         if (row['index'] != index or row['ok'] != 1 or row['mismatches'] or row['open']
                 or (row['raw'], row['records']) != expected
-                or not all(row[key] > 0 for key in ('sys_cycles', 'requests', 'responses', 'reads'))):
-            raise RuntimeError(f'capture or concurrent traffic failed: {row}')
+                or row['sys_cycles'] <= 0):
+            raise RuntimeError(f'capture failed: {row}')
+        counts = [row[key] for key in ('requests', 'responses', 'reads')]
+        if (spec['traffic'] == 'on' and not all(value > 0 for value in counts)
+                or spec['traffic'] == 'off' and any(counts)):
+            raise RuntimeError(f'traffic arm failed: {row}')
+        if row['sys_cycles'] * 2000 > HOLD_FLOOR_MS * spec['sys_hz']:
+            raise RuntimeError('worst measured copy exceeds half the 49 ms hold floor')
     elapsed = [row['sys_cycles'] / spec['sys_hz'] * 1000 for row in rows]
-    summary = dict(shape=spec['shape'], captures=len(rows), sys_hz=spec['sys_hz'],
-                   cpu_hz=spec['cpu_hz'], traffic='continuous READ_DESCRIPTOR ENTITY, MAC AXIS',
-                   minimum_ms=min(elapsed), maximum_ms=max(elapsed),
-                   hold_ms=50, margin=50 / max(elapsed), rows=rows)
-    (build_dir / 'measurement.json').write_text(json.dumps(summary, indent=2) + '\n')
-    print(json.dumps(summary, indent=2), flush=True)
-    if max(elapsed) > 25:
-        raise RuntimeError('worst measured copy exceeds half the 50 ms hold')
+    return dict(shape=spec['shape'], captures=len(rows), sys_hz=spec['sys_hz'],
+                cpu_hz=spec['cpu_hz'], configured_cpu_hz=spec['configured_cpu_hz'],
+                phase=spec['phase'], traffic=spec['traffic'],
+                minimum_ms=min(elapsed), maximum_ms=max(elapsed),
+                hold_ms=50, hold_floor_ms=HOLD_FLOOR_MS,
+                margin=HOLD_FLOOR_MS / max(elapsed), rows=rows)
+
+
+def maximum_ms(arms: list[dict]) -> float:
+    """The published maximum includes every capture in both traffic arms."""
+    if {arm['traffic'] for arm in arms} != {'on', 'off'}:
+        raise RuntimeError('both traffic arms are required')
+    return max(row['sys_cycles'] / arm['sys_hz'] * 1000
+               for arm in arms for row in arm['rows'])
 
 
 def _grade_mutation(rows: list[dict], mutation: str, returncode: int) -> None:
@@ -74,13 +101,17 @@ def _grade_mutation(rows: list[dict], mutation: str, returncode: int) -> None:
 def main() -> None:
     """Run in the existing product environment; install or download nothing."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--shape', choices=['endstation_ax7101_8x8', 'endstation_ax7101_1x1_tdm8'],
-                        required=True)
+    parser.add_argument('--shape', choices=SHAPES, required=True)
     parser.add_argument('--build-dir', type=Path, required=True)
     parser.add_argument('--captures', type=int, default=16)
     parser.add_argument('--build-only', action='store_true')
+    parser.add_argument('--cpu-hz', type=int, choices=[CPU_HZ, 100_000_000], default=CPU_HZ,
+                        help='explicit contract clock; 100 MHz is a non-contract comparison')
+    parser.add_argument('--traffic', choices=['on', 'off'], default='on')
     parser.add_argument('--mutation', choices=['none', 'skip-copy', 'no-traffic'], default='none')
     args = parser.parse_args()
+    if args.mutation != 'none' and args.traffic != 'on':
+        parser.error('mutation controls require --traffic on')
     if not 2 <= args.captures <= 256:
         parser.error('--captures must be between 2 and 256')
     args.build_dir = args.build_dir.resolve()
