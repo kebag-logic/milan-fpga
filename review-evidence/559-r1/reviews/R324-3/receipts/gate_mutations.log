@@ -1,0 +1,15 @@
+ARM baseline rc=0 want=0 EXPECTED :: PASS: capture census, clocks, both timing arms and receipt agree
+ARM yaml-8x8-cpu-clock-50MHz rc=1 want=1 EXPECTED :: FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_td
+ARM yaml-1x1-cpu-clock rc=1 want=1 EXPECTED :: FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_t
+ARM yaml-8x8-sys-clock rc=1 want=1 EXPECTED :: FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 100000000, 'sys_hz': 125000000}, 'endstation_ax7101_1x1_t
+ARM recipe-contract-clock rc=1 want=1 EXPECTED :: FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 62500000, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_t
+ARM contract-rate-payload-grows-bytes rc=1 want=1 EXPECTED :: FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12638, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_t
+ARM product-firmware-byte rc=1 want=1 EXPECTED :: FAIL: product firmware changed; remeasure the copy
+ARM planted-grader-ignores-off-limit rc=1 want=1 EXPECTED :: FAIL: OFF timing limit was ignored
+ARM planted-maximum-on-only rc=1 want=1 EXPECTED :: FAIL: OFF timing omitted from maximum
+ARM receipt-drop-off-arm rc=1 want=1 EXPECTED :: FAIL: receipt must contain exactly both arms at every required point
+ARM receipt-row-over-half-floor rc=1 want=1 EXPECTED :: FAIL: worst measured copy exceeds half the 49 ms hold floor
+ARM receipt-maximum-edited-only rc=1 want=1 EXPECTED :: FAIL: published maximum must include every traffic arm
+ARM receipt-measured-for-edited-only rc=1 want=1 EXPECTED :: FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_t
+ARM receipt-consistent-forgery rc=0 want=0 EXPECTED :: PASS: capture census, clocks, both timing arms and receipt agree
+CLONE_STATUS 0 HEAD b02af0480d3a3061df24683d522799d1759f7c33

@@ -1,0 +1,61 @@
+# Generated-artifact difference: head override route (h8x8_50_on) vs yaml-50MHz route (y8x8_50_on)
+diff -r h8x8_50_on/generated/endstation_ax7101_8x8/build_plan.md y8x8_50_on/generated/endstation_ax7101_8x8/build_plan.md
+13c13
+< - target: ax7101 (gmii-1g), sys 100e6 Hz / milan 100e6 Hz, L2 0 B, flashboot baremetal, eth port e1
+---
+> - target: ax7101 (gmii-1g), sys 100e6 Hz / milan 50e6 Hz, L2 0 B, flashboot baremetal, eth port e1
+106c106
+< python3 sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1
+---
+> python3 sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1
+diff -r h8x8_50_on/generated/endstation_ax7101_8x8/gptp_ucode.hex y8x8_50_on/generated/endstation_ax7101_8x8/gptp_ucode.hex
+661c661
+< 210000000056
+---
+> 2100000000AC
+667,668c667,668
+< ED9800008312
+< F35801010625
+---
+> ED9800010625
+> F35801020C4B
+672c672
+< 218000008312
+---
+> 218000010625
+679,680c679,680
+< EDA800008312
+< F35801010625
+---
+> EDA800010625
+> F35801020C4B
+684c684
+< 228000008312
+---
+> 228000010625
+diff -r h8x8_50_on/generated/endstation_ax7101_8x8/lwsrp_table.json y8x8_50_on/generated/endstation_ax7101_8x8/lwsrp_table.json
+53c53
+<   "KL_lwsrp_top.CLK_FREQ_HZ_P": 100000000,
+---
+>   "KL_lwsrp_top.CLK_FREQ_HZ_P": 50000000,
+59c59
+<   "milan_datapath.MILAN_CLK_FREQ_HZ": 100000000,
+---
+>   "milan_datapath.MILAN_CLK_FREQ_HZ": 50000000,
+diff -r h8x8_50_on/generated/endstation_ax7101_8x8/lwsrp_table.svh y8x8_50_on/generated/endstation_ax7101_8x8/lwsrp_table.svh
+57c57
+<   localparam int unsigned LWSRP_CLK_FREQ_C   = 100000000;
+---
+>   localparam int unsigned LWSRP_CLK_FREQ_C   = 50000000;
+diff -r h8x8_50_on/generated/endstation_ax7101_8x8/soc_params.json y8x8_50_on/generated/endstation_ax7101_8x8/soc_params.json
+7c7
+<   "100e6",
+---
+>   "50e6",
+software/include/generated/csr.h identical (timestamp line excluded)
+software/include/generated/soc.h identical (timestamp line excluded)
+software/include/generated/mem.h identical (timestamp line excluded)
+software/include/generated/variables.mak DIFFERS
+bios.bin identical
+instrumented firmware identical
+software/include/generated/variables.mak differs only in build-directory paths (PACKAGE_DIRS, BUILDINC_DIRECTORY, LIBMILAN_BAREMETAL_DIRECTORY).

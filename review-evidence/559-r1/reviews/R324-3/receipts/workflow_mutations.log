@@ -1,0 +1,10 @@
+ARM baseline rc=0 want=0 EXPECTED :: ci_events: OK (1655 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ARM removed rc=1 want=1 EXPECTED :: FAIL .github/workflows/docs.yml: job `docs-check` must carry exactly 50 steps, in the recorded order (found 49): an inserted step of ANY content runs before every later step and can set their inherite
+ARM renamed rc=1 want=1 EXPECTED :: FAIL .github/workflows/docs.yml: job `docs-check` step 28 must be the step named `Capture measurement census and clock gate` (found `Capture measurement gate`): the position is the contract -- the ste
+ARM swallowed rc=1 want=1 EXPECTED :: FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_nvm_capture.py' (found '
+ARM replaced-with-mutation-flag rc=1 want=1 EXPECTED :: FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_nvm_capture.py' (found '
+ARM continue-on-error rc=1 want=1 EXPECTED :: FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) must carry no `continue-on-error` (found True): it decides whether or how the script runs
+ARM if-false rc=1 want=1 EXPECTED :: FAIL .github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) must carry no `if` (found False): it decides whether or how the script runs
+ARM moved-after-writer-gate rc=1 want=1 EXPECTED :: FAIL .github/workflows/docs.yml: job `docs-check` step 28 must be the step named `Capture measurement census and clock gate` (found `Saved-state writer gate`): the position is the contract -- the step
+ARM duplicated rc=1 want=1 EXPECTED :: FAIL .github/workflows/docs.yml: job `docs-check` must carry exactly 50 steps, in the recorded order (found 51): an inserted step of ANY content runs before every later step and can set their inherite
+CLONE_STATUS 0 HEAD b02af0480d3a3061df24683d522799d1759f7c33

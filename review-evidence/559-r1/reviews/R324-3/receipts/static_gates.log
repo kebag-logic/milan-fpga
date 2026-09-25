@@ -1,0 +1,45 @@
+== rc=0 :: python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 874 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== rc=0 :: env GIT_DIR=/dev/null python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 874 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+== rc=2 :: python3 scripts/check_em_dash.py --base a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+== rc=0 :: python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+== rc=2 :: python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+== rc=2 :: python3 scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+== rc=0 :: python3 scripts/check_doc_paths.py
+doc path gate: OK (843 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+== rc=0 :: python3 scripts/check_py_idiom.py
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+== rc=0 :: python3 scripts/check_cpp_idiom.py
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+== rc=0 :: python3 scripts/measure_test_evidence.py --check
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (72 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 72
+== rc=0 :: python3 scripts/measure_naming.py --check
+
+96 candidate(s): 92 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3578 ports and 588 parameters scanned, 384 with no //! and so not judged here, 407 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+== rc=0 :: python3 docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+== rc=0 :: git diff --check a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4 HEAD
+
+== rc=0 :: python3 scripts/check_em_dash.py --base a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4 (pinned renderer in scratch target)
+check_em_dash: 0 finding(s) over 319 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [a3d795ae..HEAD]
+== rc=0 :: python3 scripts/gen_toc.py --check (pinned renderer in scratch target)
+TOC gate: OK (108 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+== rc=0 :: python3 scripts/gen_toc.py --verify-anchors (pinned renderer in scratch target)
+anchor check: 176 existing cross-page fragment links reproduced
