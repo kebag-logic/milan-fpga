@@ -1220,6 +1220,8 @@ class TdmRenderHarness {
     }
 
     void bring_out_of_reset();
+    void boot_the_entity();
+    void start_the_boot_restore_walk();
     void bind_listener_zero();
     void run_the_bind_ladder(int listener, int talker, uint16_t seq,
                              const char* tag);
@@ -1400,9 +1402,6 @@ void TdmRenderHarness::bring_out_of_reset() {
 }
 
 void TdmRenderHarness::bind_listener_zero() {
-    constexpr uint16_t kAdpCtrl = 0x600;
-    constexpr uint16_t kAdpEidLo = 0x604;
-    constexpr uint16_t kAdpEidHi = 0x608;
     constexpr uint16_t kAcmplState = 0x6A4;
     // THE STATION MAC IS LEFT AT ITS RESET ZERO, on purpose. This leg
     // addresses AECP commands to the station's own unicast address, and the
@@ -1411,13 +1410,41 @@ void TdmRenderHarness::bind_listener_zero() {
     // unicast command to it would be filtered out, and silence from a filter
     // looks the same as silence from a broken responder. Every other frame
     // this leg sends is multicast.
-    axi_write(kAdpEidHi, 0x020000FF);
-    axi_write(kAdpEidLo, 0xFE000001);
-    axi_write(kAdpCtrl, 0x00001F01);
-    steps(2000);
+    boot_the_entity();
     run_the_bind_ladder(0, 0, 0x1122, "T1 BIND");
     check.dec("T1 BIND: listener 0 bound (0x6A4[3], the class-D record)",
               (axi_read(kAcmplState) >> 3) & 1, 1);
+}
+
+//! The boot restore walk, as the firmware's nvm_boot() starts it. Since
+//! processor pin a8f8ce81 (its issue 92) the ACMP listener serves nothing
+//! from reset until the binding walk ends, and PP_CTRL[1] starts that walk;
+//! every reset clears the bit, so each bind after a reset sets it again. No
+//! image is configured, so the backend answers blank media and the walk
+//! sequences in a few hundred cycles.
+//! The entity identity, the restore walk and the enable, in the firmware's
+//! order: every bind in this leg follows it.
+void TdmRenderHarness::boot_the_entity() {
+    constexpr uint16_t kAdpCtrl = 0x600;
+    constexpr uint16_t kAdpEidLo = 0x604;
+    constexpr uint16_t kAdpEidHi = 0x608;
+    axi_write(kAdpEidHi, 0x020000FF);
+    axi_write(kAdpEidLo, 0xFE000001);
+    start_the_boot_restore_walk();
+    axi_write(kAdpCtrl, 0x00001F01);
+    steps(2000);
+}
+
+void TdmRenderHarness::start_the_boot_restore_walk() {
+    constexpr uint16_t kPpCtrl = 0x920;
+    constexpr uint16_t kPpStat = 0x924;
+    axi_write(kPpCtrl, axi_read(kPpCtrl) | 0x2u);
+    uint32_t done = 0;
+    for (int r = 0; r < 400 && done == 0; r++) {
+        steps(64);
+        done = (axi_read(kPpStat) >> 2) & 1u;
+    }
+    check.dec("BOOT: PP_STAT[2] the restore walk sequenced", done, 1);
 }
 
 //! The sim_main ACMP ladder for ONE listener: BIND_RX, the harvested
@@ -3389,13 +3416,7 @@ void TdmRenderHarness::prove_the_nonphysical_key_mirrors_without_reaching_a_pin(
 void TdmRenderHarness::phase_multistream() {
     std::printf("\n[MULTI] the stream-qualified render epoch on a two-stream "
                 "shape, and a legal cluster key with no pin\n");
-    constexpr uint16_t kAdpCtrl = 0x600;
-    constexpr uint16_t kAdpEidLo = 0x604;
-    constexpr uint16_t kAdpEidHi = 0x608;
-    axi_write(kAdpEidHi, 0x020000FF);
-    axi_write(kAdpEidLo, 0xFE000001);
-    axi_write(kAdpCtrl, 0x00001F01);
-    steps(2000);
+    boot_the_entity();
     //! STREAM 1'S LISTENER CONTEXT. Stream 0's current format reaches the RX
     //! monitor through the legacy fmt0 path; every stream above it is served
     //! from the per-stream LCTX, which the 0x800 window provisions - the same

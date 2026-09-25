@@ -2846,7 +2846,7 @@ class PpShadowHarness {
     // is the sink-side twin of [T]: the processor publishes the Talker
     // attribute REGISTERED against each bound sink as a two-bit class-D word,
     // tk_reg_state, whose codes are 0 NONE / 1 ADVERTISE / 2 FAILED
-    // (protocol-processor hdl/srp/KL_srp_top.sv:207). It is a CODE, not a
+    // (protocol-processor hdl/srp/KL_srp_top.sv:211 tk_reg_state_o). It is a CODE, not a
     // one-hot, so the bit-1 read this repository used reported a registered
     // Talker FAILED as an ADVERTISE and a registered ADVERTISE as nothing
     // (#472) - and the register map called the field a structural zero, so

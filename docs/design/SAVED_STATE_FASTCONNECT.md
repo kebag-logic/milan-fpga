@@ -185,9 +185,9 @@ Three things make that the answer rather than a fabric-side flash master:
 
 1. **The whole set fits in one erase block, measured at both shapes.** With the
    allocation of section 4, the donor's own F07.8 rule unchanged,
-   `scripts/check_nvm_record_space.py` measures **2,624 bytes** at the shipping
-   `endstation_ax7101_1x1_tdm8` shape and **8,648 bytes** at
-   `endstation_ax7101_8x8`, which is 13 percent of one 64 KiB slot. Both fit
+   `scripts/check_nvm_record_space.py` measures **3,264 bytes** at the shipping
+   `endstation_ax7101_1x1_tdm8` shape and **12,680 bytes** at
+   `endstation_ax7101_8x8`, which is 19 percent of one 64 KiB slot. Both fit
    one block with margin, so whole-image promotion is not
    a compromise forced by geometry; it is comfortably affordable, and it
    upgrades the durability guarantee from the port's per-record one to "at every
@@ -251,8 +251,8 @@ round that only ever looked at the shipping default. The review's floor of 262
 
 > **Status: decided on 2026-09-05 (#70).** The pinned donor's F07.8 is the
 > normative record contract and says "one record per item group and index".
-> This allocation obeys it in every group, user names included, so no donor
-> change gates it. The banked names layout that sections 4.2 and 4.3 carried as
+> This allocation obeys it in every group, user names included.
+> Output payload growth now requires the #501 donor writer adoption below. The banked names layout that sections 4.2 and 4.3 carried as
 > a PROPOSAL from 2026-08 is withdrawn; section 4.3 keeps the arithmetic that
 > forced it, the correction it went through, and why it stopped being needed.
 
@@ -276,9 +276,9 @@ exist follows from the shape, never from what the bytes happen to be.
 | `0x50` .. `0x5F` | presentation time offset | 16 | STREAM_OUTPUT | 2 | 9 |
 | `0x60` .. `0x6F` | channel map in | 16 | STREAM_PORT_INPUT | 1 | 8 |
 | `0x70` .. `0x7F` | channel map out | 16 | STREAM_PORT_OUTPUT | 1 | 8 |
-| `0x80` .. `0xFF` | user name | 128 | name ordinal | 30 | **99** |
-| **records** | | | | **45** | **156** |
-| **highest id** | | | | `0x9D` | `0xE2` |
+| `0x80` .. `0xFF` | user name | 128 | name ordinal | 38 | **99** |
+| **records** | | | | **53** | **156** |
+| **highest id** | | | | `0xA5` | `0xE2` |
 
 The binding block base is not chosen here. It is `REC_ID_BASE_P` in
 `KL_acmp_nvm_shadow`, already fixed in landed gateware, and the gate READS it
@@ -296,6 +296,80 @@ before it retired the per-listener clock source); a shape with more
 writable names than that is check 3's finding, and a shape whose whole record
 set outgrows the 256-id namespace is check 6's, named as such rather than
 absorbed by a layout nobody decided.
+
+**Output-map capacity decision (#501, 2026-09-23).**
+Dynamic output records reserve every stream/channel key per port.
+`amap_edit_validate` keys outputs by `stream_index * 8 + stream_channel`.
+Several keys may reference one cluster.
+Cluster count therefore cannot bound output fan-out.
+
+The allocation follows the generated descriptor shape:
+
+```text
+output_entries(port) = max(port.clusters, STREAM_OUTPUT * 8)  # dynamic
+output_entries(port) = port.clusters                        # static
+payload_bytes(port)  = output_entries(port) * 8
+framed_bytes(port)   = 8 + payload_bytes(port)
+```
+
+Only 8x8 grows among the shipped configurations.
+Input records retain their per-port cluster allocation.
+Each output port retains its own record and full capacity.
+No capacity division or single-port assumption constrains future redundancy.
+Unused entries remain eight `0xFF` bytes each.
+The one-record-per-port rule and IDs remain unchanged.
+
+Derived by `scripts/check_nvm_record_space.py` from the generated shapes:
+
+| Quantity | 1x1 derivation | 8x8 derivation |
+|---|---|---|
+| Output entries per port | `max(17, 2 * 8) = 17` | `max(9, 9 * 8) = 72` |
+| Output payload bytes | `17 * 8 = 136` | `72 * 8 = 576` |
+| Output framed bytes | `8 + 136 = 144` | `8 + 576 = 584` |
+| Output group bytes | `1 * 144 = 144` | `8 * 584 = 4672` |
+| Input group bytes | `1 * (8 + 8 * 8) = 72` | `8 * (8 + 0 * 8) = 64` |
+| Other fixed groups | `10 + 16 + 12 + 10 + 74 + 2 * (28 + 16 + 16 + 12) = 266` | `10 + 16 + 12 + 10 + 74 + 9 * (28 + 16 + 16 + 12) = 770` |
+| Names, from AEMI | `38 * (8 + 64) = 2736` | `99 * (8 + 64) = 7128` |
+| Raw record area | `266 + 72 + 144 + 2736 = 3218` | `770 + 64 + 4672 + 7128 = 12634` |
+| KLJ2 image | `40 + align4(3218) + 4 = 3264` | `40 + align4(12634) + 4 = 12680` |
+| Record IDs used | `5 + 2 * 4 + 2 + 38 = 53` | `5 + 9 * 4 + 16 + 99 = 156` |
+| Highest ID | `0x80 + 38 - 1 = 0xA5` | `0x80 + 99 - 1 = 0xE2` |
+| Image growth | `0` | `8 * (72 - 9) * 8 = 4032` |
+
+The deadline is re-derived from the larger image:
+
+```text
+pages_8x8 = ceil(12680 / 256) = 50
+worst_ms  = 3000 + 50 * 5 + 12680 * 8 * 1000 / 12500000
+          = 3258.1152
+2 * worst_ms = 6516.2304 < 8000
+slot_free = 65536 - 12680 = 52856 bytes
+```
+
+The stream-descriptor allocation includes reserved CRF-row key slots.
+The current 8x8 edit face admits eight AAF streams.
+Its legal audio boundary is therefore `8 * 8 = 64`.
+The storage boundary exercises all `9 * 8 = 72` slots.
+This allocation changes no command-time mapping validity rule.
+
+The gate pins the complete pre-change 1x1 image digest.
+Its `changed_1x1_image` control alters a CRC-clean payload.
+Its `old_output_length` control emits cluster-sized output records.
+Both must fail with their named refusal.
+K16 and full-capacity journals undergo decode and cleared-first model restore.
+Each grown port is tested separately, including atomic over-capacity refusal.
+The backend suite checks whole-span reads, writes, erases and boundaries.
+
+Firmware loads the grown per-port lengths through existing backend tables.
+`tb/verilator/nvm_cosim` checks those writes with firmware executing.
+A wrong output-length table fails that integration suite.
+The host test alone does not detect that defect.
+The backend RTL and its storage widths need no change.
+The processor writer remains donor work:
+[processor #61](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/61)
+and [processor #83](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/83).
+Their output buffer, framing and replay must consume this allocation.
+This parent change does not implement that writer.
 
 ### 4.3 Why the donor contract was going to change, and why it no longer does
 
@@ -359,15 +433,16 @@ PERSISTED-FORMAT DECISION (#70, 2026-09-05): the allocation is the donor's
 F07.8 rule unchanged, one record per item group and index, with each user name
 one 64-byte record at `0x80 + ordinal` (section 4.2). The amendment request to
 the donor is withdrawn and donor issue #24 is to be closed as no longer needed.
-Nothing in this repository asks the donor to change its record contract.
+That reversal changed no donor record grouping.
+The later #501 decision grows output payloads, retaining that grouping.
+Its donor writer adoption is recorded in section 4.2.
 
 **What the reversal cost, at the shapes that shipped then**, measured by the
 gate at both allocations before the banked code was removed. This is the
 PRE-#389 measurement and stays one: the banked column cannot be re-measured,
 because the code that produced it is gone, so re-stating only the decided
-column would compare two different models. The decided column at this head
-is 156 records, top id `0xE2`, 8,648 bytes at 8x8 and 2,624 at 1x1, and the
-conclusion below is unchanged by the move, every figure having fallen:
+column would compare two different models. The current allocation is derived in section 4.2.
+Its #501 output growth leaves these historical measurements unchanged:
 
 | | banked (withdrawn) | flat, F07.8 (decided) |
 |---|---|---|
@@ -378,16 +453,14 @@ conclusion below is unchanged by the move, every figure having fallen:
 | worst commit at 8x8 (section 9.4 deadline 8,000 ms) | 3.18 s | 3.19 s |
 
 The flat images are 424 and 152 bytes larger, 14 and 4 percent of one 64 KiB
-slot, and every one still fits one erase block with margin. What the
-reversal buys is the removal of the only cross-repository dependency the
-record contract had, and with it the largest open risk this page carried.
+slot, and every one still fits one erase block with margin. The reversal removed the name-banking dependency.
+The later output-capacity adoption is a separate donor obligation.
 
 ### 4.4 The gate
 
 [`scripts/check_nvm_record_space.py`](../../scripts/check_nvm_record_space.py)
 builds every `configs/endstation_*.yaml`, generates the full persisted inventory
-for each, **encodes it as a KLJ2 image and decodes it back**, and asserts eleven
-things:
+for each, **encodes it as a KLJ2 image and decodes it back**, and checks the following properties:
 
 0. **the inventory's exact `(group, index)` key set is the set the shape
    requires, with no key claimed twice.** This is graded against a ledger the
@@ -423,14 +496,22 @@ things:
     records applied. Each mandatory key in turn is deleted, the CRC-32 is
     RECOMPUTED so the image is clean, and the decoder has to answer
     `VD_INCOMPLETE` (section 6.2).
+11. **Erased records have exact shape-derived spans.**
+    Erased headers over live payloads are refused.
+12. **Output capacity covers every stream/channel key.**
+    K16 and boundary sets survive journal decode and cleared-first restore.
+    A CRC-clean over-capacity record applies nothing.
+13. **Every 1x1 image byte matches the pre-change digest.**
 
 `--mutate` perturbs one fixed point at a time so each assertion is shown to
 fire: four omission arms, two index-set arms (a shift that keeps the
 cardinality, and a duplicate key with distinct ids), a namespace shrunk below
 the conformant floor, and two arms that restore a round-3 DECODER rule -- the
 content-based name presence rule and "an absent allocated id is not a
-failure". `--self-test` runs all sixteen controls and fails if any of them
-passes.
+failure". `--self-test` runs every registered control.
+Each must exit 1 with its registered, named `FINDING:` line.
+Missing or unrelated findings fail the self-test.
+A traceback fails even alongside the expected finding.
 
 `--emit-record-table` writes the byte offsets of that same image for
 `tb/verilator/nvm_backend`, and the gate rebuilds and compares the committed
@@ -704,12 +785,14 @@ reserved main-memory window, not in block RAM.
   (the AX7101 shapes place it at `0x7F700000`);
   `sw/litex/milan_soc.py` reads it and only checks it. It holds the descriptor
   image, measured at 40,000 bytes at 8x8, plus the 4,096-byte response buffer.
-  Adding the measured 8,648-byte record image brings the window to 52,744 of
+  Adding section 4.2's 12,680-byte image gives 56,776 bytes total.
+  That is `40,000 + 4,096 + 12,680` of
   1,048,576 bytes, about 5 percent. **No new reservation and no change to the
   published memory map.**
 - The BRAM alternative is what is being declined, and its cost is the number
-  that decides it: 8,648 bytes byte-wide is 3 BRAM36 at the 8x8 shape, on a
-  device whose area campaign is fought in single-digit percentages.
+  that decides it: section 4.2 derives 12,680 bytes at 8x8.
+  Byte-wide storage needs `ceil(12,680 / 4,096) = 4` BRAM36.
+  The chosen DRAM placement adds no BRAM.
 
 ### 8.2 The transfer: ordinary loads and stores, no CSR data window
 
@@ -1145,13 +1228,15 @@ T_commit_worst = tSE(max) + ceil(IMG_LEN/256) x tPP(max) + IMG_LEN x 8 / 12.5e6
 
 | shape | image | pages | erase | program | read-back | **worst case** |
 |---|---|---|---|---|---|---|
-| `endstation_ax7101_1x1_tdm8` | 2,624 B | 11 | 3,000 ms | 55 ms | 1.7 ms | **3.06 s** |
-| `endstation_ax7101_8x8` | 8,648 B | 34 | 3,000 ms | 170 ms | 5.5 ms | **3.18 s** |
+| `endstation_ax7101_1x1_tdm8` | 3,264 B | 13 | 3,000 ms | 65 ms | 2.1 ms | **3.07 s** |
+| `endstation_ax7101_8x8` | 12,680 B | 50 | 3,000 ms | 250 ms | 8.1 ms | **3.26 s** |
 
-The erase dominates: 94 percent of the worst case at 8x8 is one `tSE`.
+Section 4.2 derives both image lengths from the gate.
+Its commit calculation gives 3,067.08896 ms and 3,258.1152 ms respectively.
+One erase contributes about 92 percent at 8x8.
 
 **`T-NVM-COMMIT-TIMEOUT` = 8,000 ms**, required to be at least **2x** the
-worst-case transaction at EVERY shipped shape. That is 2.52x at 8x8 and 2.62x
+worst-case transaction at EVERY shipped shape. That is 2.46x at 8x8 and 2.61x
 at 1x1. The margin covers the byte pump, the CPU's polling loop and a second
 erase if the first slot verify fails. Below 2x the deadline starts declaring
 legal flash operations dead, which is the failure mode the review named.
@@ -1225,8 +1310,8 @@ checks the map's internal consistency, including that every image still fits und
 the reserved slots. It passes today.
 
 **G0b -- the record set is complete and fits the namespace (workstation only, no
-board).** `scripts/check_nvm_record_space.py`, and `--self-test` for its eleven
-negative controls. Both pass today. The gate also publishes the F07.8
+board).** `scripts/check_nvm_record_space.py`, and `--self-test` for every
+registered negative control. Both pass today. The gate also publishes the F07.8
 conformance floor of section 4.3 and the worst-case commit time of section 9.4
 per shape, so those two figures are re-derived on every run rather than quoted
 from this page.

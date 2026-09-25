@@ -594,12 +594,25 @@ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\
                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
 DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
 DUT_READER_DISPOSITIONS = {
+    "tb/verilator/crf_rx/mutants.py":
+        "mutation campaign; copies the receiver and servo, requiring named failures "
+        "for tu, jump, refill, accept-edge, ignored-validity and PI-resume defects; "
+        "no expectations read from RTL",
     "gptp-processor/tb/check_phc_contract.py":
         "structural boundary check; it asserts required/forbidden tokens, not behavior",
     "gptp-processor/tb/tsngen/mutants.py":
         "mutation campaign; it stages three engine defects and requires failure",
+    "protocol-processor/tb/desc_mem_guard/mutate.py":
+        "mutation campaign; it removes the guard's two request holds in a copy and "
+        "requires the completed late-byte assertion to fail",
     "protocol-processor/tb/nvm_port/measure_figures.py":
         "mutation campaign; it rewrites one RTL arm and requires the suite to fail",
+    "protocol-processor/tb/pp_top/gsi_mutants.py":
+        "mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table "
+        "into an isolated copy and requires the named response check to fail",
+    "protocol-processor/tb/srp_admission/mutants.py":
+        "mutation campaign; it plants one admission defect into a temporary tree, "
+        "requires the named check to fail, and runs clean controls first",
     "tb/verilator/gptp_shadow/test_mutant_lifecycle.py":
         "orchestration lifecycle fixture; it identifies the planted mutation and "
         "compares caller bytes/modes/index across interruption. Synthetic commands "
@@ -607,6 +620,10 @@ DUT_READER_DISPOSITIONS = {
     "tb/verilator/milan_dp/crflic_mutants.py":
         "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
         "named failure. It is the explicit crflic-mutants target, outside the default sweep",
+    "tb/verilator/milan_dp/gsi_mutants.py":
+        "mutation campaign; it plants one of eight #508 GET_STREAM_INFO seam defects into a copy of "
+        "the datapath or of the processor tree and requires a named failure. It is the explicit "
+        "gsi-mutants target, outside the default sweep",
     "tb/verilator/milan_dp/gmstep_mutants.py":
         "mutation campaign; it plants one of eleven #387 re-base defects into a copy and requires a "
         "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "

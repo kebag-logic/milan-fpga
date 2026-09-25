@@ -4482,8 +4482,8 @@ def test_baremetal_profile_contract() -> None:
         "MILAN_NVM_N_AUDIO_UNIT": 1, "MILAN_NVM_N_CLK_DOM": 1,
         "MILAN_NVM_N_NAME": 31, "MILAN_NVM_BIND_BASE": 0x20,
         "MILAN_NVM_REC_LAYOUT": 2,
-        **{f"MILAN_NVM_MAPIN_CLUSTERS_{k}": 0 for k in range(16)},
-        **{f"MILAN_NVM_MAPOUT_CLUSTERS_{k}": (17 if k == 0 else 0)
+        **{f"MILAN_NVM_MAPIN_ENTRIES_{k}": 0 for k in range(16)},
+        **{f"MILAN_NVM_MAPOUT_ENTRIES_{k}": (17 if k == 0 else 0)
            for k in range(16)},
         # #398: the writer's five waits as milan_soc.py publishes them, and
         # the CRF talker's boot word a declared CRF output gets
@@ -4743,6 +4743,10 @@ def test_baremetal_profile_contract() -> None:
     #: this gate reads -- a macro erasing a boot step, say. A splice or a
     #: paste there is refused before it, by the bans kept in those bodies.
     PREPROCESSED_PIN = "is not the boot path the compiler COMPILES"
+    #: #544: preserve the sampled object, including writes a macro hides.
+    IDENTITY_SAMPLE_PIN = "identity-sample absence rule"
+    IDENTITY_MACRO_PIN = "identity-sample macro replacement rule"
+    UNIT_ASM_PIN = "boot-unit asm allowlist rule"
     #: ... and the three sentences the RESOLVER answers on, one per
     #: question it asks. Every mutant that reaches a control register by
     #: address arithmetic no immediate reveals fails on the first; every one
@@ -5113,6 +5117,243 @@ def test_baremetal_profile_contract() -> None:
         reads. `text` may be the firmware or blanked() of it."""
         return [(name, params or None, body.strip()) for name, params, body in
                 macro_definition_re.findall(_c_phases(text).view)]
+
+    def assert_identity_macro_free(source: str, sample: str,
+                                   between: str) -> None:
+        """Without a compiler, no replacement list may name the sample.
+
+        This deliberately costs unused macros and read-only replacements
+        too (#544). Comments and literal bodies are not identifiers; the
+        shared phase-3 reader handles continued definitions and comments.
+        The published hostile macros name a parameter in their replacement
+        lists and supply the sample at the call. Refuse that substitution
+        too, when the replacement uses the parameter. This is conservative
+        for read-only uses, and does not attempt general macro expansion.
+        """
+        calls = _c_phases(between).view
+        for name, params, body in macro_definitions(source):
+            used = set(c_identifier_re.findall(body))
+            assert sample not in used, \
+                f"{IDENTITY_MACRO_PIN}: #define {name} names {sample} in " \
+                "its replacement list; without a compiler no macro may " \
+                "touch the CSR identity sample"
+            if params is None:
+                continue
+            parameters = [param.strip() for param in params[1:-1].split(",")]
+            for call in re.finditer(rf"\b{re.escape(name)}\s*\(", calls):
+                depth, start, arguments = 0, call.end(), []
+                for at in range(start, len(calls)):
+                    char = calls[at]
+                    if char == ")" and not depth:
+                        arguments.append(calls[start:at])
+                        break
+                    if char == "," and not depth:
+                        arguments.append(calls[start:at])
+                        start = at + 1
+                    depth += {"(": 1, ")": -1, "[": 1, "]": -1,
+                              "{": 1, "}": -1}.get(char, 0)
+                else:
+                    raise AssertionError(
+                        f"{IDENTITY_MACRO_PIN}: unclosed invocation of {name}")
+                for index, param in enumerate(parameters):
+                    variadic = param.endswith("...")
+                    formal = ((param[:-3].strip() or "__VA_ARGS__")
+                              if variadic else param)
+                    actual = (arguments[index:] if variadic else
+                              arguments[index:index + 1])
+                    assert formal not in used or sample not in \
+                        c_identifier_re.findall(",".join(actual)), \
+                        f"{IDENTITY_MACRO_PIN}: {name} substitutes {sample} " \
+                        f"for used parameter {formal} between the CSR read " \
+                        "and mismatch guard; without a compiler even a " \
+                        "read-only macro use of the sample is refused"
+
+    def assert_identity_interval(between: str, sample: str) -> None:
+        """Allow only the two delimited rvalues, and no asm, before the guard."""
+        token_re = re.compile(
+            r"[A-Za-z_$][\w$]*|0[xX][0-9a-fA-F]+[uUlL]*|"
+            r"0[bB][01]+[uUlL]*|[0-9]+[uUlL]*|"
+            r"<<=|>>=|[-+*/%|&^]=|\+\+|--|==|!=|<=|>=|&&|\|\||->|\S",
+            re.ASCII)
+
+        identifiers = c_identifier_re.findall(between)
+        assert not {"asm", "__asm", "__asm__"}.intersection(identifiers), \
+            f"{IDENTITY_SAMPLE_PIN}: no asm statement is permitted between " \
+            "the CSR sampling read and its mismatch guard"
+        tokens = token_re.findall(between)
+        pairs, parents, stack = {}, {}, []
+        for at, token in enumerate(tokens):
+            parents[at] = stack[-1] if stack else None
+            if token == "(":
+                stack.append(at)
+            elif token == ")":
+                assert stack, f"{IDENTITY_SAMPLE_PIN}: unbalanced expression"
+                pairs[at] = stack.pop()
+        assert not stack, f"{IDENTITY_SAMPLE_PIN}: unbalanced expression"
+        integer = re.compile(
+            r"(?:0[xX][0-9a-fA-F]+|0[bB][01]+|0[0-7]*|[1-9][0-9]*)"
+            r"(?:[uU](?:[lL]|ll|LL)?|(?:[lL]|ll|LL)[uU]?)?", re.ASCII)
+        for at, token in enumerate(tokens):
+            if token != sample:
+                continue
+            # Decision 5824093785: exactly one complete call argument or
+            # one complete discarded-mask statement. Never strip a wrapper
+            # and retry: a near miss must remain an occurrence.
+            start = at - 4
+            parent = parents.get(start)
+            argument = (
+                start > 0 and tokens[start:at] == ["(", "unsigned", "long", ")"]
+                and tokens[at + 1:at + 2] in ([","], [")"])
+                and tokens[start - 1] in ("(", ",")
+                and parent is not None and parent > 0
+                and c_identifier_re.fullmatch(tokens[parent - 1])
+                and tokens[parent - 1] not in (
+                    "if", "for", "while", "switch", "sizeof", "_Alignof",
+                    "__alignof__", "typeof", "__typeof__", "_Generic",
+                    "__builtin_choose_expr", "__extension__")
+                and (start - 1 == parent or parents.get(start - 1) == parent)
+                and (tokens[at + 1] != ")" or pairs[at + 1] == parent))
+            statement = (
+                start >= 0 and tokens[start:at] == ["(", "void", ")", "("]
+                and (start == 0 or tokens[start - 1] in (";", "{", "}"))
+                and tokens[at + 1:at + 2] == ["&"]
+                and at + 4 < len(tokens) and integer.fullmatch(tokens[at + 2])
+                and tokens[at + 3:at + 5] == [")", ";"])
+            assert argument or statement, \
+                f"{IDENTITY_SAMPLE_PIN}: {sample} occurs between its CSR read " \
+                "and mismatch guard outside the two delimited rvalue shapes: " \
+                "a complete (unsigned long) sample call argument or the " \
+                "complete (void)(sample & integer-literal); statement"
+
+    # Frozen from production preprocessing with the pinned SDK and LiteX
+    # a1e1c365 headers, at the product RV32I flags. Besides the two firmware
+    # fences: vexiiriscv/system.h emits fence.i, libbase/system.h emits nop,
+    # and picolibc stdlib.h emits the qsort_r assembler-name annotation.
+    # The census uses SDK libc headers instead: their six scanf-family
+    # assembler-name declarations below are from its production -E unit.
+    # Both measured sets are frozen, including attributes after the names.
+    # The fifth-fence fixture repeats fence rw, rw; no extra entry is needed.
+    # Never derive this set from the candidate: that would approve its asm.
+    unit_asm_forms = (
+        '__asm__ volatile("fence iorw, iorw" ::: "memory");',
+        '__asm__ volatile("fence rw, rw" ::: "memory");',
+        'asm volatile("fence.i\\n");',
+        '__asm__ volatile("nop");',
+        '__asm__("" "__bsd_qsort_r");',
+        '__asm__ ("" "__isoc99_fscanf") __attribute__ ((__nonnull__ (1)));',
+        '__asm__ ("" "__isoc99_scanf") ;',
+        '__asm__ ("" "__isoc99_sscanf") __attribute__ ((__nothrow__ , __leaf__)) ;',
+        '__asm__ ("" "__isoc99_vfscanf") '
+        '__attribute__ ((__format__ (__scanf__, 2, 0))) __attribute__ ((__nonnull__ (1)));',
+        '__asm__ ("" "__isoc99_vscanf") __attribute__ ((__format__ (__scanf__, 1, 0))) ;',
+        '__asm__ ("" "__isoc99_vsscanf") __attribute__ ((__nothrow__ , __leaf__)) '
+        '__attribute__ ((__format__ (__scanf__, 2, 0)));',
+    )
+    # Whitespace between tokens is immaterial. Literal bytes, spelling,
+    # operands, qualifiers and clobbers are exact, including concatenation.
+    unit_asm_token_re = re.compile(
+        r'"(?:\\.|[^"\\])*"|[A-Za-z_$][\w$]*|[^\s]', re.ASCII)
+    unit_asm_allowed = {tuple(unit_asm_token_re.findall(form))
+                        for form in unit_asm_forms}
+
+    def assert_preprocessed_asm_allowlist(unit: str) -> None:
+        """Refuse every asm outside the frozen production token forms.
+
+        Read the entire expanded unit, including headers and uncalled
+        functions. Locate keywords and statement ends with literals blanked,
+        but compare original literal bytes. An unknown or incomplete form
+        cannot match; no instruction, operand or clobber wildcard is allowed.
+        Separately linked objects are outside this unit and are not read.
+        """
+        code = blanked(unit)
+        for keyword in c_identifier_re.finditer(code):
+            if keyword.group() not in ("asm", "__asm", "__asm__"):
+                continue
+            end = code.find(";", keyword.end())
+            statement = unit[keyword.start():end + 1] if end >= 0 else ""
+            normalized = tuple(unit_asm_token_re.findall(statement))
+            assert normalized in unit_asm_allowed, \
+                f"{UNIT_ASM_PIN}: asm anywhere in the preprocessed boot " \
+                "unit must match an exact normalized production form; " \
+                f"unlisted or incomplete statement {statement[:240]!r}"
+
+    def assert_preprocessed_identity_sample(taken: dict[str, Any],
+                                            sample: str,
+                                            model: CsrModel) -> None:
+        """An automatic sample cannot escape or occur before its guard.
+
+        The absence rule reads the expanded interval. For the whole unit,
+        compile a diagnostic copy with this declaration made `register`:
+        C forbids taking that object's address, including through GNU/C11
+        lvalue wrappers. The compiler resolves bindings and operands, so
+        neither spelling lists nor an '&' classifier grant an escape.
+        No diagnostic copy is executed or substituted for the census.
+        """
+        assert taken["ran"], f"{IDENTITY_SAMPLE_PIN}: preprocessing did not run"
+        unit = taken["text"]
+        compiled = blanked(unit)
+        init = re.search(boot_path_anchors[0][0], compiled, re.ASCII)
+        body_start, body_stop = braced_span(compiled, init, IDENTITY_SAMPLE_PIN)
+        body = compiled[body_start:body_stop]
+        name = re.escape(sample)
+        reads = list(re.finditer(
+            rf"\buint32_t\s+{name}\s*=\s*milan_read\s*\("
+            r"(?P<address>[^;]+)\)\s*;", body, re.ASCII))
+        guards = list(re.finditer(
+            rf"\bif\s*\(\s*{name}\s*!=\s*"
+            r"(?P<magic>[^;{]+)\)\s*\{", body, re.ASCII))
+        assert len(reads) == len(guards) == 1 and \
+            constant_value(reads[0].group("address")) == model.identity and \
+            constant_value(guards[0].group("magic")) == model.identity_default and \
+            reads[0].end() <= guards[0].start(), \
+            f"{IDENTITY_SAMPLE_PIN}: cannot locate the compiled sample " \
+            f"{sample} and its mismatch guard against the RTL identity"
+        read = reads[0]
+        declaration_start = max(body.rfind(char, 0, read.start())
+                                for char in ";{}") + 1
+        storage = body[declaration_start:read.start()].strip()
+        assert storage in ("", "auto", "register"), \
+            f"{IDENTITY_SAMPLE_PIN}: {sample} storage class is {storage!r}; " \
+            "an automatic block-scope sample is required; other storage " \
+            "needs a separate lifetime and external-writer proof"
+        assert_identity_interval(body[read.end():guards[0].start()], sample)
+        start = body_start + declaration_start
+        stop = body_start + read.start()
+        # Preserve line count and all original declarations except this
+        # storage specifier. `cpp-output` never expands the unit a second time.
+        # A nested function can capture even a register local. Ask for
+        # the compiler's nested-function diagnostic, with __extension__
+        # blanked so it cannot suppress that warning. This unary marker
+        # changes diagnostics only; all other tokens stay in the copy.
+        # S refuses written pragmas and _Pragma; the preceding compiled
+        # boot-path check also refuses surviving directives, including a
+        # pragma synthesized through a header paste. Warnings stay enabled.
+        diagnostic = unit
+        markers = [token for token in c_identifier_re.finditer(compiled)
+                   if token.group() == "__extension__"]
+        for marker in reversed(markers):
+            diagnostic = (diagnostic[:marker.start()] +
+                          " " * len(marker.group()) + diagnostic[marker.end():])
+        diagnostic = (diagnostic[:start] +
+                      "\n" * diagnostic[start:stop].count("\n") +
+                      "register " + diagnostic[stop:])
+        with tempfile.TemporaryDirectory(prefix="milan-identity-") as tmp:
+            path = Path(tmp) / "identity.i"
+            path.write_text(diagnostic, encoding="utf-8")
+            checked = subprocess.run(
+                [taken["compiler"], *tuple(census_used.get("flags") or ()),
+                 "-std=gnu99", "-x", "cpp-output", "-Wpedantic",
+                 "-fsyntax-only", str(path)],
+                capture_output=True, text=True, env={**os.environ, "LC_ALL": "C"})
+        assert "ISO C forbids nested functions" not in checked.stderr, \
+            f"{IDENTITY_SAMPLE_PIN}: nested functions may capture the " \
+            "automatic sample without an explicit address; none may occur " \
+            "in the unit, including after the guard"
+        assert checked.returncode == 0, \
+            f"{IDENTITY_SAMPLE_PIN}: automatic sample {sample} must never " \
+            "escape anywhere in the preprocessed unit; the register " \
+            "diagnostic compile refused address-taking or could not prove " \
+            f"its absence: {checked.stderr.strip()}"
 
     def assert_lexes_as_compiled(source: str) -> None:
         """No literal that GCC lexes in a way no ordinary edit means.
@@ -11102,8 +11343,14 @@ def test_baremetal_profile_contract() -> None:
         # not only for its compiler (#408): it is what the token-joining
         # splice ban and the `##` paste ban retired onto, so it answers only
         # after every rule that still reads text has had its say.
-        assert_preprocessed_boot_path(firmware, source,
-                                      preprocess_take(source))
+        preprocessed = preprocess_take(source)
+        assert_preprocessed_boot_path(firmware, source, preprocessed)
+        if preprocessed["ran"]:
+            assert_preprocessed_identity_sample(
+                preprocessed, identity_read.group("name"), model)
+        else:
+            assert_identity_macro_free(
+                source, identity_read.group("name"), identity_between)
         census_taken = census_take(source)
         compiled_census_verdict = assert_compiled_census_is_clean(
             source, taken=census_taken)
@@ -11309,6 +11556,9 @@ def test_baremetal_profile_contract() -> None:
                 helper=re.search(
                     r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*(\w+)"
                     r"\s*\(", firmware, re.ASCII).group(1))
+        if preprocessed["ran"]:
+            # Keep every established text, absence and resolver reason.
+            assert_preprocessed_asm_allowlist(preprocessed["text"])
         return compiled_census_verdict
 
     # Before any firmware is graded: S refuses every construct outside it,
@@ -11878,6 +12128,199 @@ def test_baremetal_profile_contract() -> None:
         source_identity_read_statement +
         f"\n\t{source_identity_read.group('name')} = MILAN_ID_MAGIC;",
         "overwritten CSR identity sample")
+    sample_name = source_identity_read.group("name")
+
+    def identity_macro_firmware(replacement: str, parameters: str = "",
+                                arguments: str = "") -> str:
+        """A macro invocation between the real sample and mismatch guard."""
+        defined = replace_once(
+            firmware_source, "static int aem_loaded;",
+            f"#define MILAN_FORGE({parameters}) {replacement}\n\n"
+            "static int aem_loaded;", "identity macro definition")
+        return replace_once(
+            defined, source_identity_read_statement,
+            source_identity_read_statement + f"\n\tMILAN_FORGE({arguments});",
+            "identity macro invocation")
+
+    # The public reviews used a parameter, not a literal sample identifier.
+    # Keep both exact replacement spellings, including their parentheses.
+    parameter_identity_macros = (
+        identity_macro_firmware("x = MILAN_ID_MAGIC", "x", sample_name),
+        identity_macro_firmware("((x) = MILAN_ID_MAGIC)", "x", sample_name),
+    )
+    identity_macro_writes = {
+        "assignment": f"{sample_name} = MILAN_ID_MAGIC",
+        "parenthesized assignment": f"(({sample_name}) = MILAN_ID_MAGIC)",
+        **{f"compound {operator}": f"(({sample_name}) {operator} 1u)"
+           for operator in ("+=", "-=", "*=", "/=", "%=", "<<=", ">>=",
+                            "&=", "|=", "^=")},
+        "prefix increment": f"++({sample_name})",
+        "postfix increment": f"({sample_name})++",
+        "prefix decrement": f"--({sample_name})",
+        "postfix decrement": f"({sample_name})--",
+        "address taken": f"(void)&(({sample_name}))",
+        "unevaluated address": f"sizeof &({sample_name})",
+        "conditional address": f"if (1) &({sample_name})",
+        "memory destination":
+            f"__builtin_memset((void *)(uintptr_t){sample_name}, 0, 4)",
+        "string destination":
+            f'__builtin_strcpy((char *)(uintptr_t){sample_name}, "bad")',
+        "continued replacement": f"(\\\n({sample_name}) = MILAN_ID_MAGIC)",
+    }
+    identity_macro_fixtures = {
+        label: identity_macro_firmware(body)
+        for label, body in identity_macro_writes.items()}
+    identity_macro_costs = {
+        label: replace_once(
+            firmware_source, "static int aem_loaded;",
+            definition + "\n\nstatic int aem_loaded;", label)
+        for label, definition in (
+            ("unused object-like sample macro",
+             f"#define MILAN_UNUSED_SAMPLE {sample_name}"),
+            ("unused function-like sample macro",
+             f"#define MILAN_UNUSED_SAMPLE() ({sample_name})"),
+            ("continued sample identifier in an unused replacement",
+             f"#define MILAN_UNUSED_SAMPLE {sample_name[0]}\\\n{sample_name[1:]}"),
+        )}
+    # Expanded lvalue wrappers and asm are occurrences, independent of
+    # which token happens to neighbour the sample. Keep both source forms.
+    identity_bypass_bodies = {
+        "extension address": "(*(__extension__ &(x)) = MILAN_ID_MAGIC)",
+        "asm immediate output":
+            '__asm__ volatile("li %0, 0x4d494c4e" : "=r"(x))',
+        "choose lvalue": "__builtin_choose_expr(1, x, x) = MILAN_ID_MAGIC",
+        "generic lvalue": "_Generic(0, int: x) = MILAN_ID_MAGIC",
+        "real lvalue": "(__real__ x) = MILAN_ID_MAGIC",
+        "extension lvalue": "(__extension__ x) = MILAN_ID_MAGIC",
+        "asm tied output":
+            '__asm__ volatile ("" : "=r"(x) : "0"(MILAN_ID_MAGIC))',
+    }
+    identity_bypasses = {}
+    for label, expression in identity_bypass_bodies.items():
+        identity_bypasses["macro " + label] = identity_macro_firmware(
+            expression, "x", sample_name)
+        identity_bypasses["plain " + label] = replace_once(
+            firmware_source, source_identity_statement,
+            re.sub(r"\bx\b", sample_name, expression) + ";\n" +
+            source_identity_statement, "plain identity " + label)
+    # The public generic macro uses a default association. The plain form
+    # above uses its equivalent int association because the older control-
+    # flow rule independently refuses the keyword `default` in milan_init.
+    identity_bypasses["macro generic default lvalue"] = identity_macro_firmware(
+        "_Generic(0, default: x) = MILAN_ID_MAGIC", "x", sample_name)
+    for spelling in ("asm", "__asm", "__asm__"):
+        identity_bypasses[spelling + " without sample operand"] = replace_once(
+            firmware_source, source_identity_statement,
+            f'{spelling} volatile("" ::: "memory");\n' +
+            source_identity_statement, "identity interval asm")
+    # W01-W03 leave the sample untouched in C while callees corrupt saved
+    # registers. W03 leaves the production read-to-guard text unchanged.
+    saved_register_writes = "\\n\\t".join(
+        f"li s{index}, 0x4d494c4e" for index in range(12))
+    clobber_asm = f'__asm__ volatile("{saved_register_writes}");'
+    clobber_helper = (
+        "static void __attribute__((noinline)) milan_settle(void) "
+        f"{{ {clobber_asm} }}")
+    identity_callee_fixtures = {}
+    for label, definition, statement in (
+        ("W01 direct callee", clobber_helper, "milan_settle();"),
+        ("W02 macro callee", clobber_helper +
+         "\n#define MILAN_FORGE(x) milan_settle()", "MILAN_FORGE(id);"),
+        ("W03 diagnostic callee",
+         "static int __attribute__((noinline)) milan_diag(const char *format, ...) "
+         f"{{ (void)format; {clobber_asm} return 0; }}\n#define printf milan_diag", ""),
+    ):
+        defined = replace_once(
+            firmware_source, "static int aem_loaded;",
+            definition + "\n\nstatic int aem_loaded;", label)
+        identity_callee_fixtures[label] = (replace_once(
+            defined, source_identity_statement,
+            statement + "\n" + source_identity_statement, label)
+            if statement else defined)
+    # The authorized rvalues are delimited complete forms, not prefixes
+    # that a following assignment or a surrounding wrapper may extend.
+    identity_near_misses = {
+        "cast assignment argument": "printf(\"%lu\", (unsigned long)(x = MILAN_ID_MAGIC))",
+        "cast used as lvalue": "(unsigned long)x = MILAN_ID_MAGIC",
+        "discarded compound assignment": "(void)(x &= 1u)",
+        "discarded mask comma assignment": "(void)(x & 1u), x = MILAN_ID_MAGIC",
+        "discarded mask used as lvalue": "(void)(x & 1u) = 0",
+        "extension cast argument": "printf(\"%lu\", __extension__ (unsigned long)x)",
+        "choose cast argument":
+            "printf(\"%lu\", __builtin_choose_expr(1, (unsigned long)x, 0ul))",
+        "extension discarded mask": "__extension__ (void)(x & 1u)",
+        "choose discarded mask": "__builtin_choose_expr(1, (void)(x & 1u), (void)0)",
+    }
+    identity_near_miss_fixtures = {
+        label: identity_macro_firmware(expression, "x", sample_name)
+        for label, expression in identity_near_misses.items()}
+    identity_near_miss_fixtures["printf macro assigns argument"] = replace_once(
+        firmware_source, "static int aem_loaded;",
+        "#define printf(...) MILAN_DIAG(__VA_ARGS__, 0u, 0u)\n"
+        "#define MILAN_DIAG(format, value, ...) "
+        "(((value) = MILAN_ID_MAGIC), (printf)(format, value, __VA_ARGS__))\n\n"
+        "static int aem_loaded;", "hostile diagnostic macro")
+    identity_escape_fixtures = {}
+    for label, expression in {
+        "plain address": "&(id)",
+        "extension address": "__extension__ &(id)",
+        "choose address": "&__builtin_choose_expr(1, id, id)",
+        "generic address": "&_Generic(0, int: id)",
+        "real address": "&(__real__ id)",
+        "wrapped extension address": "&(__extension__ id)",
+    }.items():
+        expression = re.sub(r"\bid\b", sample_name, expression)
+        identity_escape_fixtures[label + " after guard"] = replace_once(
+            firmware_source, source_identity_block,
+            source_identity_block + f"\n\t(void)({expression});",
+            "address after identity guard")
+    identity_escape_fixtures["nested capture after guard"] = replace_once(
+        replace_once(firmware_source, source_identity_read_statement,
+                     "auto void forge_sample(void);\n" +
+                     source_identity_read_statement, "capture declaration"),
+        source_identity_block, source_identity_block +
+        f"\n__attribute__((always_inline)) inline void forge_sample(void) "
+        f"{{ {sample_name} = MILAN_ID_MAGIC; }}",
+        "capture definition")
+    identity_escape_fixtures["nested capture after guard"] = replace_once(
+        identity_escape_fixtures["nested capture after guard"],
+        source_identity_statement, "forge_sample();\n" + source_identity_statement,
+        "capture call before guard")
+    for prefix in ("", "__extension__ "):
+        identity_escape_fixtures[prefix + "old-style nested capture"] = replace_once(
+            replace_once(
+                identity_escape_fixtures["nested capture after guard"],
+                "auto void forge_sample(void);", "auto void forge_sample(int);",
+                "old-style capture declaration"),
+            "__attribute__((always_inline)) inline void forge_sample(void)",
+            prefix + "__attribute__((always_inline)) inline void "
+            "forge_sample(value) int value;",
+            "old-style capture definition").replace("forge_sample();", "forge_sample(0);")
+    # These are measured limitations of the unchanged compiler-free rule,
+    # not accepted evidence that the sample remains authentic.
+    identity_absent_bounds = {
+        "C03 header paste": ("", "__CONCAT(i, d) = MILAN_ID_MAGIC;"),
+        "C05 macro using header paste": (
+            "#define MILAN_FORGE2(a) __CONCAT(a, d) = MILAN_ID_MAGIC",
+            "MILAN_FORGE2(i);"),
+        "C13 object-like macro alias": (
+            "#define MILAN_FORGE(x) ((x) = MILAN_ID_MAGIC)\n"
+            "#define MILAN_ALIAS MILAN_FORGE", "MILAN_ALIAS(id);"),
+        "writer alias": ("#define MILAN_SET(y) y = MILAN_ID_MAGIC\n"
+                         "#define MILAN_FORGE MILAN_SET", "MILAN_FORGE(id);"),
+        "writer apply": ("#define MILAN_SET(y) y = MILAN_ID_MAGIC\n"
+                         "#define MILAN_APPLY(f) f", "MILAN_APPLY(MILAN_SET)(id);"),
+        "C16 parenthesized assignment": ("", "(id) = MILAN_ID_MAGIC;"),
+        "C17 indirect assignment": ("", "*&(id) = MILAN_ID_MAGIC;"),
+    }
+    identity_absent_fixtures = {}
+    for label, (definition, statement) in identity_absent_bounds.items():
+        defined = replace_once(
+            firmware_source, "static int aem_loaded;",
+            definition + "\n\nstatic int aem_loaded;", label)
+        identity_absent_fixtures[label] = replace_once(
+            defined, source_identity_statement,
+            statement + "\n" + source_identity_statement, label)
     identity_address_comment_decoy = replace_once(
         csr_source,
         "    A_ID          = 'h000,",
@@ -14315,6 +14758,31 @@ def test_baremetal_profile_contract() -> None:
         # call above is its positive arm; helper_body_store_mutations carries
         # the paired negative arm relative to this exact spelling.
         assert source_reg_signature == reflowed_reg_signature
+    accepted_cases.update({
+        "identity sample read without modification": replace_once(
+            firmware_source, source_identity_read_statement,
+            source_identity_read_statement + f"\n\t(void)({sample_name} & 1u);",
+            "identity read only"),
+        "identity sample renamed consistently": re.sub(
+            rf"\b{re.escape(sample_name)}\b", "boot_identity", firmware_source,
+            flags=re.ASCII),
+        "sample name in a macro literal and comment": replace_once(
+            firmware_source, "static int aem_loaded;",
+            f'#define MILAN_SAMPLE_TEXT "{sample_name}" /* {sample_name} */\n\n'
+            "static int aem_loaded;", "sample name outside code"),
+        "different identifier in a macro replacement": replace_once(
+            firmware_source, "static int aem_loaded;",
+            f"#define MILAN_OTHER_SAMPLE {sample_name}_copy\n\n"
+            "static int aem_loaded;", "sample token boundary"),
+        "sample name only in an unused formal parameter": replace_once(
+            firmware_source, "static int aem_loaded;",
+            f"#define MILAN_UNUSED_ARGUMENT({sample_name}) 0u\n\n"
+            "static int aem_loaded;", "unused formal parameter"),
+        "sample passed to an unused macro parameter":
+            identity_macro_firmware("0u", "x", sample_name),
+    })
+    if not instruments_down:
+        accepted_cases.update(identity_macro_costs)
     for label, accepted in accepted_cases.items():
         assert accepted != firmware_source, \
             f"accepted case {label!r} did not change the firmware, so it " \
@@ -15648,8 +16116,182 @@ def test_baremetal_profile_contract() -> None:
         raise AssertionError(
             "assert_rejected() accepted a tuple of reasons the refusal did "
             "not all carry, so an arm-selection pin checks only its wrapper")
+    identity_pin = (IDENTITY_MACRO_PIN if instruments_down else
+                    IDENTITY_SAMPLE_PIN)
+    mutations += tuple(
+        (f"identity macro {label}", fixture, docs_source, csr_source,
+         identity_pin) for label, fixture in identity_macro_fixtures.items())
+    mutations += tuple(
+        (f"published identity macro {index}", fixture, docs_source,
+         csr_source, identity_pin)
+        for index, fixture in enumerate(parameter_identity_macros, 1))
+    if instruments_down:
+        mutations += tuple(
+            (label, fixture, docs_source, csr_source, IDENTITY_MACRO_PIN)
+            for label, fixture in identity_macro_costs.items())
+    if not instruments_down:
+        # Header forms are absent from the census stubs. Pin them here too,
+        # including literal contents, not just their blanked syntax.
+        for form in unit_asm_forms:
+            assert_preprocessed_asm_allowlist(form)
+            assert_preprocessed_asm_allowlist(
+                " \n ".join(unit_asm_token_re.findall(form)))
+        assert_preprocessed_asm_allowlist(
+            'const char *text = "asm; __asm__(bad)"; /* __asm__ */')
+        for form in (
+            'asm volatile("li s0, 0x4d494c4e");',
+            '__asm volatile("li s0, 0x4d494c4e");',
+            '__asm__ volatile("fence rw, rw; li s0, 0x4d494c4e" ::: "memory");',
+            '__asm__ volatile("fence rw, rw" "\\nli s0, 0x4d494c4e" ::: "memory");',
+            '__asm__ volatile("fence rw, rw" : "=r"(id) :: "memory");',
+            '__asm__ volatile("fence rw, rw" ::: "s0");',
+            '__asm__ volatile("fence rw, rw")',
+        ):
+            try:
+                assert_preprocessed_asm_allowlist(form)
+            except AssertionError as exc:
+                assert UNIT_ASM_PIN in str(exc), exc
+            else:
+                raise AssertionError(f"{UNIT_ASM_PIN}: boundary control passed {form!r}")
+        print("  [gate 1b] boot-unit asm forms: 11 exact production forms; "
+              "whitespace controls accepted; 7 changed/incomplete forms refused; "
+              "fifth fence needs no extra entry")
+        # The older source-statement rule refuses storage prefixes before
+        # this expanded-unit check runs. Exercise storage at this check's
+        # own boundary, including the positive automatic spellings.
+        for storage in ("", "auto", "register", "static", "extern",
+                        "_Thread_local static"):
+            unit = (
+                "typedef unsigned int uint32_t; uint32_t milan_read(uint32_t); "
+                f"static void milan_init(void) {{ {storage} uint32_t {sample_name} "
+                f"= milan_read({source_model.identity}); "
+                f"if ({sample_name} != {source_model.identity_default}) {{ return; }} }}")
+            try:
+                assert_preprocessed_identity_sample(
+                    {"ran": True, "text": unit, "compiler": census_compiler()},
+                    sample_name, source_model)
+            except AssertionError as exc:
+                assert storage in ("static", "extern", "_Thread_local static") and \
+                    IDENTITY_SAMPLE_PIN in str(exc) and "storage class" in str(exc), \
+                    f"identity storage {storage!r} refused for the wrong reason: {exc}"
+            else:
+                assert storage in ("", "auto", "register"), \
+                    f"identity storage {storage!r} escaped the automatic-storage rule"
+        print("  [gate 1b] identity storage: 3 automatic spellings accepted; "
+              "3 nonautomatic spellings refused on the identity-sample absence rule")
+        mutations += tuple(
+            ("identity " + label, fixture, docs_source, csr_source,
+             IDENTITY_SAMPLE_PIN)
+            for label, fixture in {**identity_bypasses,
+                                   **identity_escape_fixtures,
+                                   **identity_absent_fixtures,
+                                   **identity_near_miss_fixtures}.items())
+        mutations += tuple(
+            ("identity " + label, fixture, docs_source, csr_source, UNIT_ASM_PIN)
+            for label, fixture in identity_callee_fixtures.items())
+    else:
+        plain_bounds = {
+            ("C09 " if label == "plain extension address" else
+             "C11 " if label == "plain asm immediate output" else "") + label: fixture
+            for label, fixture in identity_bypasses.items()
+            if label.startswith("plain ")}
+        for label, fixture in {**identity_absent_fixtures, **plain_bounds,
+                               **identity_callee_fixtures}.items():
+            assert_boot_contract(fixture, docs_source, csr_source)
+            print(f"  [gate 1b] identity compiler-free bound {label}: "
+                  "ACCEPTED, identity protection NOT RUN without a compiler")
     for mutation in mutations:
         assert_rejected(*mutation)
+    # Each new rule must be necessary: remove only that check, then grade
+    # the same hostile firmware through the entire remaining contract.
+    if instruments_down:
+        identity_check = assert_identity_macro_free
+        try:
+            assert_identity_macro_free = lambda *_args: None
+            for fixture in (*parameter_identity_macros,
+                            identity_macro_fixtures["assignment"]):
+                assert_boot_contract(fixture, docs_source, csr_source)
+        finally:
+            assert_identity_macro_free = identity_check
+    else:
+        asm_check = assert_preprocessed_asm_allowlist
+        try:
+            assert_preprocessed_asm_allowlist = lambda *_args: None
+            for label, fixture in identity_callee_fixtures.items():
+                assert_boot_contract(fixture, docs_source, csr_source)
+                print(f"  [gate 1b] {label}: REFUSED on {UNIT_ASM_PIN}; "
+                      "ACCEPTED with only that check disconnected")
+        finally:
+            assert_preprocessed_asm_allowlist = asm_check
+        identity_check = assert_preprocessed_identity_sample
+        try:
+            assert_preprocessed_identity_sample = lambda *_args: None
+            # Invalid cast-lvalue near misses still owe a named early
+            # refusal above. They cannot be acceptance controls: the
+            # original unit is invalid C.
+            controls = {
+                **{f"published macro {index}": fixture for index, fixture in
+                   enumerate(parameter_identity_macros, 1)},
+                **identity_bypasses, **identity_escape_fixtures,
+                **identity_absent_fixtures,
+                **{label: fixture for label, fixture in
+                   identity_near_miss_fixtures.items()
+                   if label not in ("cast used as lvalue",
+                                    "discarded mask used as lvalue",
+                                    "printf macro assigns argument")}}
+            for label, fixture in controls.items():
+                try:
+                    assert_boot_contract(fixture, docs_source, csr_source)
+                except (AssertionError, ValueError) as exc:
+                    # Unit-wide asm protection overlaps the older rule.
+                    # Prove the old control still passes the rest, after
+                    # observing that only the new named check refuses it.
+                    assert UNIT_ASM_PIN in str(exc), \
+                        f"disconnected identity control {label!r} did not pass: {exc}"
+                    try:
+                        assert_preprocessed_asm_allowlist = lambda *_args: None
+                        assert_boot_contract(fixture, docs_source, csr_source)
+                    finally:
+                        assert_preprocessed_asm_allowlist = asm_check
+        finally:
+            assert_preprocessed_identity_sample = identity_check
+    identity_cost = (
+        "unused and read-only replacements naming the sample, and direct "
+        "calls substituting it into a used parameter, are refused. NOT RUN "
+        "without a compiler: C03 header __CONCAT(i, d) paste; C05 local "
+        "macro using header __CONCAT(a, d); C13 object-like writer alias; "
+        "writer alias MILAN_FORGE -> MILAN_SET and "
+        "MILAN_APPLY(MILAN_SET)(id); C16 (id) assignment; C17 *&(id) "
+        "assignment. On macro-free source only the source-text write-form "
+        "rule checks identity: every spelling it does not match is NOT RUN. "
+        "Examples also include C09 extension address, C11 asm output, plain "
+        "choose/generic/real/extension lvalues and tied asm outputs (A01-A10), "
+        "and W01-W03 callee asm. These are examples of an open class, not "
+        "an exhaustive list; the pinned plain and callee fixtures are "
+        "ACCEPTED without compilation and REFUSED with it" if instruments_down else
+        "the sample storage class is automatic (block-scope uint32_t, "
+        "no explicit storage specifier); its address is forbidden anywhere "
+        "in the preprocessed unit, including unevaluated and read-only "
+        "uses. Nested functions anywhere in the unit are refused to "
+        "exclude implicit capture. Between the sampling "
+        "read and guard, every asm statement is forbidden; sample names "
+        "occur only in a complete (unsigned long) sample call argument "
+        "delimited by the call's '('/',' and ','/')', or the complete "
+        "(void)(sample & integer-literal); statement. Other rvalue reads "
+        "and wrapped near misses are conservatively refused. The boot-unit "
+        "asm allowlist rule permits only eleven exact normalized production "
+        "forms throughout the unit, including headers and uncalled helpers. "
+        "The fifth fence repeats a production form; no extra entry. Other "
+        "asm, even harmless alternatives, is refused. OUT-OF-UNIT BOUND: "
+        "the separately linked pinned LiteX library objects (libc, "
+        "libcompiler_rt, libbase, libfatfs, liblitespi, liblitedram, "
+        "libliteeth, liblitesdcard, liblitesata), BIOS and startup objects "
+        "are not read by this gate; their calling-convention compliance "
+        "and register/memory effects are trusted, not proved")
+    print(f"  [gate 1b] {identity_pin}: hostile macros refused; "
+          "disconnected controls pass (overlapping asm controls require "
+          "both checks removed). COST: "
+          + identity_cost)
     if verilator:
         try:
             assert_rtl_mutant_elaborates(
@@ -15994,8 +16636,8 @@ def test_baremetal_profile_contract() -> None:
           "rule classifies and whose other arm is pinned, and the #error "
           "guards, no conditional left ungraded carrying a definition, no "
           "label/goto/switch in milan_init() or "
-          "entity_advertise() and the three boot steps plus the unmodified "
-          "CSR identity sample and check unconditional at its top level, one "
+          "entity_advertise() and the three boot steps plus the source-text "
+          "identity write forms and unconditional mismatch check, one "
           "PP and one ADP enable inside the choke point and exactly one call "
           "to it carrying the verdict, no pointer to the verdict, and every "
           "non-zero return of the verifier placed after the CRC refusal by "

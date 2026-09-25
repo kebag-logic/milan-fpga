@@ -127,7 +127,7 @@ def commit_worst_ms(image: int) -> float:
 #: The channel-map tables the firmware loads into the backend and the record
 #: set it enumerates are both indexed by STREAM_PORT ordinal; the backend's
 #: tables hold sixteen ports per direction (csr_addr_i[3:0]), so the constant
-#: set always names sixteen and a shape's absent ports carry zero clusters.
+#: set always names sixteen and a shape's absent ports carry zero entries.
 FW_MAP_PORTS = 16
 
 #: The writer's five waits in milliseconds, which the firmware scales to
@@ -161,6 +161,19 @@ WRITER_TIMING_MS = {
 }
 
 
+def output_map_entries(shape: Shape, port: dict) -> int:
+    """Reserve every dynamic output stream/channel key without shrinking a record.
+
+    amap_edit_validate keys outputs by stream_index * 8 + stream_channel,
+    independently of the owning port's cluster count. Static maps retain their
+    cluster allocation. Of the shipped shapes only dynamic 8x8 needs growth;
+    1x1 already reserves more clusters than stream/channel keys (#501).
+    """
+    if port.get("map_mode") == "dynamic":
+        return max(port["clusters"], shape.dc["STREAM_OUTPUT"] * 8)
+    return port["clusters"]
+
+
 def firmware_constants(shape: Shape, donor: Donor) -> dict[str, int]:
     """The generated constants the bare-metal writer derives its record set
     and its five waits (`WRITER_TIMING_MS`) from: `MILAN_NVM_*` in the LiteX
@@ -188,9 +201,10 @@ def firmware_constants(shape: Shape, donor: Donor) -> dict[str, int]:
         "MILAN_NVM_REC_LAYOUT": donor.layout,
     }
     for label, ports in (("IN", shape.spi), ("OUT", shape.spo)):
-        clusters = {p["index"]: p["clusters"] for p in ports}
+        entries = {p["index"]: (output_map_entries(shape, p) if label == "OUT"
+                                  else p["clusters"]) for p in ports}
         for k in range(FW_MAP_PORTS):
-            out[f"MILAN_NVM_MAP{label}_CLUSTERS_{k}"] = clusters.get(k, 0)
+            out[f"MILAN_NVM_MAP{label}_ENTRIES_{k}"] = entries.get(k, 0)
     out.update(WRITER_TIMING_MS)
     return out
 
@@ -227,7 +241,7 @@ def inventory(shape: Shape, base: int) -> list[Record]:
     for p in shape.spi:
         add("MAPS_IN", p["index"], p["clusters"] * MAP_ENTRY)
     for p in shape.spo:
-        add("MAPS_OUT", p["index"], p["clusters"] * MAP_ENTRY)
+        add("MAPS_OUT", p["index"], output_map_entries(shape, p) * MAP_ENTRY)
 
     for n in range(names):
         add("NAME", n, NAME_BYTES)
