@@ -1,0 +1,12 @@
+$ check_em_dash.py --base 224ec0e9a9fa129924bf8f0433cf70b4140f7bd2
+check_em_dash: 0 finding(s) over 3 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [224ec0e9..HEAD]
+rc=0
+$ check_em_dash.py --base 573f0052a0e4412e81f0845438fcec2086ce5d55
+check_em_dash: 0 finding(s) over 906 added line(s) in 17 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [573f0052..HEAD]
+rc=0
+$ check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+$ check_doc_style.py --selftest
+documentation style selftest: OK
+rc=0
