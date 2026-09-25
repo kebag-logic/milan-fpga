@@ -1,0 +1,11 @@
+## #390 mentions in the four pointer files at head
+hdl/milan/milan_datapath.sv:1192:  //! rend_pcm_tvalid_w below) and, since #390, CSR-readable at SLIP_LB
+hdl/milan/milan_datapath.sv:2585:    //! #390: the media-boundary slip evidence, {skip16, dup16} per junction
+## #443 mentions
+docs/design/TIME_SYNC.md:273:`RENDER_STAT` (`0x8DC`, #443) exposes the selected listener's fill.
+docs/AAF_LATENCY_TAPS.md:96:  `RENDER_STAT` (`0x8DC`, #443) carries selected-listener fill, prefill and convergence.
+hdl/milan/milan_datapath.sv:1201:  //! #443: packed listener words, declared before the CSR consumer.
+hdl/milan/milan_datapath.sv:6151:  //! #443: RENDER_STAT (0x8DC) mirrors fill/prefill/convergence and rails.
+hdl/ieee1722/aaf/KL_render_setpoint.sv:193:  //! --- observability (#443 RENDER_STAT mirrors fill/flags/rails) ---------
+## STREAM_INTERRUPTED/interrupt in diff hunks of hdl
+(end)
