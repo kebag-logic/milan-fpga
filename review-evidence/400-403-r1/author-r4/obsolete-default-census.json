@@ -1,0 +1,12 @@
+{
+  "label": "obsolete-default-census",
+  "argv": [
+    "python3",
+    "-c",
+    "import subprocess; r=subprocess.run([\"git\",\"grep\",\"-n\",\"PRES_DFLT_C\",\"--\",\":!docs/history\"],capture_output=True,text=True); print(r.stdout); assert r.returncode == 1; print(\"No obsolete presentation-default identifier outside history\")"
+  ],
+  "cwd": "$LANES/400-403-declaration-truth",
+  "start": "2026-09-25T16:37:36.214666+00:00",
+  "seconds": 0.117,
+  "exit_code": 0
+}

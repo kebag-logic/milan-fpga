@@ -1,0 +1,12 @@
+{
+  "label": "declaration-row-count",
+  "argv": [
+    "python3",
+    "-c",
+    "from pathlib import Path; import re; s=Path(\"docs/ENDSTATION_BUILDER.md\").read_text().split(\"## 3. Config schema\",1)[1].split(\"\\n## 4.\",1)[0]; n=len(re.findall(r\"^\\|\\s*\\d+[a-z]?\\s*\\|\",s,re.M)); print(\"Numbered declaration rows:\",n); assert n==71 and \"71 rows.\" in s"
+  ],
+  "cwd": "$LANES/400-403-declaration-truth",
+  "start": "2026-09-25T16:38:13.712381+00:00",
+  "seconds": 0.032,
+  "exit_code": 0
+}
