@@ -1,0 +1,6 @@
+probe merge commit ce4ced81f5eb1bd5038cf45e98fd55493f26cf04 tree 3052b62a55a1fb1c512b1069dc56cb6f3ec0725a (parents live dev 1299b461 + head f36b40dd)
+dev #559 file present: scripts/check_nvm_capture.py
+scripts/check_baremetal_only.py --check rc=0 :: baremetal-only: OK (0 findings across 878 tracked first-party file(s))
+scripts/ci_events.py --check rc=0 :: ci_events: OK (1655 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+scripts/docs_check.py rc=0 :: docs_check: 0 finding(s) across 166 md files + 880 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+tb/verilator/milan_dp/test_sim_pool.py rc=0 :: 17 checks: 17 PASS, 0 FAIL

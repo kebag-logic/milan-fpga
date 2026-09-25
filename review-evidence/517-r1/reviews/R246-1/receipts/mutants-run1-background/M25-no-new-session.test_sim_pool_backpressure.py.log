@@ -1,0 +1,31 @@
+$ timeout -k 5 90 /usr/bin/python3 test_sim_pool_backpressure.py
+rc=1
+[FAIL] direct-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-copy-SIGINT-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-copy-SIGINT-child-exit: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-copy-SIGTERM-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-copy-SIGTERM-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[PASS] direct-copy-SIGTERM-child-exit
+[PASS] direct-copy-normal-drain
+[FAIL] direct-flush-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-flush-SIGINT-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-flush-SIGINT-child-exit: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-flush-SIGTERM-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-flush-SIGTERM-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[PASS] direct-flush-SIGTERM-child-exit
+[PASS] direct-flush-normal-drain
+[FAIL] make-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-copy-SIGINT-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-copy-SIGINT-child-exit: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-copy-SIGTERM-active: AssertionError: partial capture lacks signal attribution
+[FAIL] make-copy-SIGTERM-repeated: AssertionError: partial capture lacks signal attribution
+[PASS] make-copy-SIGTERM-child-exit
+[PASS] make-copy-normal-drain
+[FAIL] make-flush-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-flush-SIGINT-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-flush-SIGINT-child-exit: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-flush-SIGTERM-active: AssertionError: partial capture lacks signal attribution
+[FAIL] make-flush-SIGTERM-repeated: AssertionError: partial capture lacks signal attribution
+[PASS] make-flush-SIGTERM-child-exit
+[PASS] make-flush-normal-drain
+28 backpressure controls: 8 PASS, 20 FAIL
