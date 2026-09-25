@@ -1,0 +1,1 @@
+{"probe": "lsn0_keep_dir@aclk", "leg": "aclk", "file": "hdl/common/csr/milan_csr.sv", "substitutions": [["if (!strm_dir_r && (32'(strm_idx_r) == s))", "if (!strm_dir_r && (strm_lsn0_r ? (s == 0) : (32'(strm_idx_r) == s)))"]], "build_rc": 0, "run_rc": 0, "fail_lines": [], "summary": ["media_aclk: 63 checks, 0 failures"], "result": "SURVIVED"}
