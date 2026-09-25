@@ -1,0 +1,38 @@
+# receipt: mmcm_servo_slew_control_clean_probe
+# date: 2026-09-25T12:47:17Z
+# head: b376f6113b388929fe82e883d400e5361319b966
+# workdir: $REVIEWS/r301-3-545/tb/verilator/mmcm_servo
+# verilator: Verilator 5.050 2026-07-01 rev v5.050
+# command: ./obj_phc/Vphc_step +slew_control
+# ----
+[P0] lock at the silicon window scale (talker +20 ppm)
+  [ ok ] [P0] state LOCKED                        got=4 exp=4
+  [ ok ] [P0] windows to LOCKED = 11 in [1, 39]
+  [ ok ] [P0] the last window committed
+  [ ok ] [P0] last window error (x512 ppm) = 60 in [-1023, 1023]
+  [ ok ] [P0] integrator ~ talker - base (x512 ppm) = 15680 in [14664, 16712]
+[S1] policy slew +100000 ns at 200 ppm
+  slew      ew=  +51239 ( +100.08 ppm) integ= +15680 ( +30.62 ppm) u_cmd= +15695 ( +30.65 ppm) trim= +490 discard state=4
+  [ ok ] [S1] overlapped window is discarded
+  [ ok ] [S1] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S1] written rate held exactly = 0 in [0, 0]
+  slew      ew=  +48861 (  +95.43 ppm) integ= +15680 ( +30.62 ppm) u_cmd= +15695 ( +30.65 ppm) trim= +490 discard state=4
+  [ ok ] [S1] overlapped window is discarded
+  [ ok ] [S1] integrator held exactly = 0 in [0, 0]
+  [ ok ] [S1] written rate held exactly = 0 in [0, 0]
+  [ ok ] [S1] tail window closes after deassertion
+  [ ok ] [S1] discards counted = 2 in [2, 2]
+  [ ok ] [S1] next window committed
+  [ ok ] [S1] next window error = 40 in [-1023, 1023]
+  [ ok ] [S1] integrator moved = 20 in [-512, 512]
+  [ ok ] [S1] written rate moved = 15 in [-1024, 1024]
+  [ ok ] [S1] LOCKED on every edge
+  [ ok ] [S1] first clean close within 1.536 seconds of start
+  [ ok ] [S5] arm: stepped sample staged, T0 next edge
+  [ ok ] [S5] arm: boundary fired on the stepped sample
+  [ ok ] [S5] coincident step+slew window counted once = 1 in [1, 1]
+== mmcm_servo phc_step: checks: 22   failures: 0 ==
+RESULT: PASS
+# ----
+# rc: 0
+# wall_s: 126.582

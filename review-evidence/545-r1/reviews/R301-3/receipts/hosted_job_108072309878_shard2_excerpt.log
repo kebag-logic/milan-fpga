@@ -1,0 +1,43 @@
+# excerpt: hosted job 108072309878 (exact head b376f611, merge 318515b into 864b36f5), shard 2/5, escape codes stripped
+2026-09-25T12:31:59.6026760Z   git switch -
+2026-09-25T12:31:59.6027215Z 
+2026-09-25T12:31:59.6027863Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-25T12:31:59.6028763Z 
+2026-09-25T12:31:59.6029809Z HEAD is now at 318515b Merge b376f6113b388929fe82e883d400e5361319b966 into 864b36f5e9450ef64f75ca3f0d68c44330e447d7
+2026-09-25T12:31:59.6033553Z ##[endgroup]
+2026-09-25T12:31:59.6071757Z [command]/usr/bin/git log -1 --format=%H
+2026-09-25T12:32:04.7854820Z Shard 2 owns:
+2026-09-25T12:32:04.7869720Z   aaf
+2026-09-25T12:32:04.7870059Z   aaf_audio_loop
+2026-09-25T12:32:04.7870293Z   aes3
+2026-09-25T12:32:04.7870501Z   chmap_render
+2026-09-25T12:32:04.7870712Z   crf_tx
+2026-09-25T12:32:04.7870921Z   mmcm_servo
+2026-09-25T12:32:04.7871319Z   ptp_sync
+2026-09-25T12:32:04.7871604Z   ptp_ts
+2026-09-25T12:32:04.7871883Z   render_setpoint
+2026-09-25T12:32:04.7872191Z   shaper_core
+2026-09-25T12:32:04.7961981Z ##[group]Run scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+2026-09-25T12:32:04.7962503Z scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+2026-09-25T12:32:04.7962869Z   --shard "2/5"
+2026-09-25T12:32:04.8033579Z shell: /usr/bin/bash -e {0}
+2026-09-25T12:32:04.8033857Z env:
+2026-09-25T12:32:04.8034077Z   VERILATOR_VERSION: v5.050
+2026-09-25T12:32:04.8034337Z   YOSYS_VERSION: v0.66
+2026-09-25T12:32:04.8034631Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-25T12:32:04.8034960Z ##[endgroup]
+2026-09-25T12:33:19.6272409Z shard: 2/5   selected suites: 10
+2026-09-25T12:33:32.7102042Z PASS     aaf
+2026-09-25T12:33:38.4177331Z PASS     aaf_audio_loop
+2026-09-25T12:33:43.9591231Z PASS     aes3
+2026-09-25T12:33:49.4205887Z PASS     chmap_render
+2026-09-25T12:33:55.1265170Z PASS     crf_tx
+2026-09-25T12:51:40.4146052Z PASS     mmcm_servo
+2026-09-25T12:51:51.2124655Z PASS     ptp_sync
+2026-09-25T12:53:56.4902916Z PASS     ptp_ts
+2026-09-25T12:55:27.7837304Z PASS     render_setpoint
+2026-09-25T12:55:33.8212244Z PASS     shaper_core
+2026-09-25T12:55:33.8212689Z ----------------------------------------------------------------
+2026-09-25T12:55:33.8213289Z suites: 10   passed: 10   failed: 0   timed out: 0
+2026-09-25T12:55:33.8861875Z checks: 1523077   in-suite failures: 0
+2026-09-25T12:55:33.8916461Z logs: <home-path>/work/_temp/suite-logs

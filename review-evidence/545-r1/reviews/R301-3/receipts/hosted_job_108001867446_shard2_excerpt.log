@@ -1,0 +1,37 @@
+# excerpt: hosted job 108001867446 (b94f53cc, merge 4bb4317), shard 2/5 suite lines, escape codes stripped
+2026-09-25T08:32:08.8843671Z Shard 2 owns:
+2026-09-25T08:32:08.8856732Z   aaf
+2026-09-25T08:32:08.8857089Z   aaf_audio_loop
+2026-09-25T08:32:08.8857617Z   aes3
+2026-09-25T08:32:08.8857965Z   chmap_render
+2026-09-25T08:32:08.8858335Z   crf_tx
+2026-09-25T08:32:08.8858668Z   mmcm_servo
+2026-09-25T08:32:08.8859041Z   ptp_sync
+2026-09-25T08:32:08.8859390Z   ptp_ts
+2026-09-25T08:32:08.8859810Z   render_setpoint
+2026-09-25T08:32:08.8860220Z   shaper_core
+2026-09-25T08:32:08.8930174Z ##[group]Run scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+2026-09-25T08:32:08.8930686Z scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+2026-09-25T08:32:08.8931045Z   --shard "2/5"
+2026-09-25T08:32:08.8992393Z shell: /usr/bin/bash -e {0}
+2026-09-25T08:32:08.8992647Z env:
+2026-09-25T08:32:08.8992849Z   VERILATOR_VERSION: v5.050
+2026-09-25T08:32:08.8993089Z   YOSYS_VERSION: v0.66
+2026-09-25T08:32:08.8993356Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-25T08:32:08.8993662Z ##[endgroup]
+2026-09-25T08:33:19.6600792Z shard: 2/5   selected suites: 10
+2026-09-25T08:33:35.7123668Z PASS     aaf
+2026-09-25T08:33:41.1598511Z PASS     aaf_audio_loop
+2026-09-25T08:33:46.5084798Z PASS     aes3
+2026-09-25T08:33:51.8425542Z PASS     chmap_render
+2026-09-25T08:33:57.3804853Z PASS     crf_tx
+2026-09-25T08:53:16.4428172Z PASS     mmcm_servo
+2026-09-25T08:53:26.7034836Z PASS     ptp_sync
+2026-09-25T08:55:32.1935775Z PASS     ptp_ts
+2026-09-25T08:57:03.2388798Z PASS     render_setpoint
+2026-09-25T08:57:09.1004969Z PASS     shaper_core
+2026-09-25T08:57:09.1006605Z ----------------------------------------------------------------
+2026-09-25T08:57:09.1009148Z suites: 10   passed: 10   failed: 0   timed out: 0
+2026-09-25T08:57:09.1646315Z checks: 1523077   in-suite failures: 0
+2026-09-25T08:57:09.1690586Z logs: <home-path>/work/_temp/suite-logs
+2026-09-25T08:57:09.1955797Z ##[group]Run actions/upload-artifact@v4
