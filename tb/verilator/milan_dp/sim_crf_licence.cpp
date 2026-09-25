@@ -56,11 +56,10 @@
 //          Ready lands inside the optimistic window. No licence, counter edge,
 //          interval-counter reset or PDU. Both sources and round phases run.
 //   [H]    the matching admitted cases stream; measure ACTIVE-to-licence delay.
-//   [I]    EXPECTED-FAIL, opt in with --unwarmed-refusal: refused TSpec differs
-//          from the previous one. The first-round grant uses the previous
-//          slope, allowing about one round of licence (processor issue #112).
-//          Default skips I by name; an explicit run retains failing assertions.
-//          After the processor fix is pinned, make I a required default pass.
+//   [I]    a refused TSpec differs from the previous, admissible one. The
+//          current-TSpec grant stays low: no licence, counter pair, reset or
+//          PDU. Required by default after adopting processor issue #112.
+//   [J]    the reverse TSpec change admits; re-measure start latency.
 
 #include "Vmilan_datapath.h"
 #include "Vmilan_datapath___024root.h"
@@ -72,7 +71,6 @@
 #include <deque>
 #include <functional>
 #include <map>
-#include <string_view>
 #include <vector>
 
 #ifndef MS_CYC_TB
@@ -153,7 +151,7 @@ struct Peer {
 
 class CrfLicenceHarness {
  public:
-    int run(bool run_unwarmed);
+    int run();
 
  private:
     Vmilan_datapath* dut = nullptr;
@@ -286,7 +284,7 @@ class CrfLicenceHarness {
     void grade_invariants();
     void stage_declaration(int uid, uint16_t max_frame, bool open);
     uint64_t listener_decode_delay(int uid);
-    void phase_real_grant(bool run_unwarmed);
+    void phase_real_grant();
     void grant_case(int uid, bool refuse, unsigned round_phase, uint64_t decode_delay,
                     bool unwarmed = false);
 };
@@ -1080,17 +1078,16 @@ uint64_t CrfLicenceHarness::listener_decode_delay(int uid) {
 void CrfLicenceHarness::grant_case(int uid, bool refuse, unsigned round_phase, uint64_t decode_delay,
                                    bool unwarmed) {
     printf("[%s] source %d, admission phase %u: %s re-declaration\n",
-           unwarmed ? "I EXPECTED-FAIL processor #112" : (refuse ? "G" : "H"),
+           unwarmed ? (refuse ? "I" : "J") : (refuse ? "G" : "H"),
            uid, round_phase, refuse ? "refused" : "admitted");
     probe(uid);
     run_until(cyc + ms(500));
     // 20000+42 bytes at 8000 intervals/s exceeds even the 1 Gb/s ceiling.
-    // G/H warm the pipeline with the graded TSpec. I deliberately leaves
-    // the previous, admissible slope there. The first-round grant can then
-    // license a refused re-declaration for about one round (processor #112).
-    // All no-pulse assertions remain required when this opt-in arm runs.
+    // G/H preload the graded TSpec. I leaves a previous admissible slope;
+    // J leaves a refused one. Neither previous slope may decide the new
+    // declaration's grant (processor #112). All four cases run by default.
     const uint16_t max_frame = refuse ? 20000 : 224;
-    const uint16_t previous_frame = unwarmed ? 224 : max_frame;
+    const uint16_t previous_frame = unwarmed ? (refuse ? 224 : 20000) : max_frame;
     stage_declaration(uid, previous_frame, true);
     run_until(cyc + 128);
     stage_declaration(uid, previous_frame, false);
@@ -1150,8 +1147,8 @@ void CrfLicenceHarness::grant_case(int uid, bool refuse, unsigned round_phase, u
         ck_true("licence waits for both ACTIVE and grant", gate.last_rise >= active[uid].last_rise
                 && gate.last_rise >= admitted[uid].last_rise);
         const uint64_t delay = gate.last_rise - active[uid].last_rise;
-        printf("  [LATENCY] uid=%d phase=%u ACTIVE=%llu grant=%llu licence=%llu added_cycles=%llu\n",
-               uid, round_phase, static_cast<unsigned long long>(active[uid].last_rise),
+        printf("  [LATENCY] history=%s uid=%d phase=%u ACTIVE=%llu grant=%llu licence=%llu added_cycles=%llu\n",
+               unwarmed ? "changed" : "same", uid, round_phase, static_cast<unsigned long long>(active[uid].last_rise),
                static_cast<unsigned long long>(admitted[uid].last_rise),
                static_cast<unsigned long long>(gate.last_rise), static_cast<unsigned long long>(delay));
         ck_true("added start latency fits three admission rounds", delay <= 3 * kSources);
@@ -1165,7 +1162,7 @@ void CrfLicenceHarness::grant_case(int uid, bool refuse, unsigned round_phase, u
     }
 }
 
-void CrfLicenceHarness::phase_real_grant(bool run_unwarmed) {
+void CrfLicenceHarness::phase_real_grant() {
     printf("[G/H] #551: real admission ceiling and both round phases\n");
     corner_phase = true;
     sched.clear();
@@ -1181,7 +1178,8 @@ void CrfLicenceHarness::phase_real_grant(bool run_unwarmed) {
         for (unsigned phase = 0; phase < kSources; phase++) {
             grant_case(uid, true, phase, delay);
             grant_case(uid, false, phase, delay);
-            if (run_unwarmed) grant_case(uid, true, phase, delay, true);
+            grant_case(uid, true, phase, delay, true);
+            grant_case(uid, false, phase, delay, true);
         }
         stage_declaration(uid, 224, false);
         run_until(cyc + ms(100));
@@ -1196,7 +1194,7 @@ void CrfLicenceHarness::grade_invariants() {
     ck("no malformed DUT MRPDU", static_cast<uint64_t>(dut_malformed), 0);
 }
 
-int CrfLicenceHarness::run(bool run_unwarmed) {
+int CrfLicenceHarness::run() {
     const milan::tb::Model<Vmilan_datapath> model;
     dut = model.get();
     printf("=== obj_crflic: #530 on endstation_ax7101_1x1_tdm8, 1 ms = %llu cycles ===\n",
@@ -1210,12 +1208,7 @@ int CrfLicenceHarness::run(bool run_unwarmed) {
     phase_f_after_c(licence.first_rise);
     phase_d();
     phase_e();
-    if (!run_unwarmed) {
-        printf("[SKIP] [I] unwarmed refused TSpec: EXPECTED-FAIL processor #112 "
-               "(first-round grant uses previous slope); "
-               "run with --unwarmed-refusal\n");
-    }
-    phase_real_grant(run_unwarmed);
+    phase_real_grant();
     grade_invariants();
     printf("--------------------------------------------------------------\n");
     printf("simulated %.2f ms (%llu cycles)\n", t_ms(cyc), static_cast<unsigned long long>(cyc));
@@ -1229,9 +1222,6 @@ int CrfLicenceHarness::run(bool run_unwarmed) {
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     CrfLicenceHarness harness;
-    bool run_unwarmed = false;
-    for (int i = 1; i < argc; i++) {
-        if (std::string_view(argv[i]) == "--unwarmed-refusal") run_unwarmed = true;
-    }
-    return harness.run(run_unwarmed);
+    // The former --unwarmed-refusal opt-in is now unconditional.
+    return harness.run();
 }

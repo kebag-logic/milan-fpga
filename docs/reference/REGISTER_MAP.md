@@ -1113,7 +1113,7 @@ An early Listener Ready can raise ACTIVE before admission completes.
 
 * **Admitted.** The licence opens once both terms hold.
   A later Listener Ready adds no admission delay.
-* **Refused, same TSpec preloaded.** `LWSRP_STATUS[7]` reports ceiling refusal.
+* **Refused, including changed TSpecs.** `LWSRP_STATUS[7]` reports ceiling refusal.
   ACTIVE can pulse, but the licence remains closed.
   No STREAM_START/STREAM_STOP pair or Table 5.4 counter reset follows.
   The refused re-declaration emits no PDU.

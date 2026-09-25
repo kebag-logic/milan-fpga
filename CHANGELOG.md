@@ -46,7 +46,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - It leaves the input failure-code byte of selector 4 zero.
 - Every change of those fields pushes GET_STREAM_INFO once.
 - Processor issue 112: a re-declaration drops the grant until evaluated.
-- `LWSRP_STATUS[9]` and `LWSRP_SLOPE` follow; no gate reads them.
+- `LWSRP_STATUS[9]` and `LWSRP_SLOPE` follow as diagnostics.
+- The per-source real grant also qualifies the licence (#551).
 - A round that meets a pending declaration now publishes nothing.
 - Processor issue 116: parent-gate comments and mutation deadlines corrected.
 - No behavior or external port changes; parent ratchets stay unchanged.
@@ -93,25 +94,20 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - So do the `0x82C` talker lobs above index 0.
 - `LWSRP_STATUS[9]` remains the OR of real admission grants.
 - `LWSRP_SLOPE` remains their diagnostic sum; no shaper consumes it.
-- ACTIVE can lead admission by up to three rounds.
-- That needs a Listener Ready decoded within those rounds.
+- ACTIVE includes three published rounds of optimistic admission.
+- An early Listener Ready can raise ACTIVE before real admission.
 - Each declaration clears its registered Listener first.
 - A refused stream can keep ACTIVE until optimism expires.
-- With the same TSpec preloaded, its licence stays closed.
+- Refused re-declarations cannot open CRF or AAF licences.
 - No `STREAM_START`/`STREAM_STOP` pair, interval-counter reset or PDU follows.
-- Residual: the refused TSpec differs from that source's previous one.
-- The first-round grant still uses the previous slope.
-- With early Listener Ready, about one round's licence remains.
-- Counter pairs, interval resets and a possible PDU remain exposed.
-- [Processor #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112) owns the pending fix.
-- That fix must be pinned before #551 can close.
+- The grant now waits for the current TSpec (#112, #508).
+- Pending rounds hold other grants, the slope sum and over-limit.
 - `LWSRP_STATUS[6]` remains raw ACTIVE ORed over all sources.
-- The default licence simulation covers re-declarations with identical TSpecs.
-- Its unwarmed refused-TSpec arm is opt-in and EXPECTED-FAIL (#112).
+- The default licence simulation covers identical and changed TSpecs.
+- Its unwarmed refusal arm is a required pass.
 - Grant-removal mutants must fail its refused-source checks.
-- Warm-pipeline added latency: 0--2 admission cycles on two sources.
-- A changed-TSpec admission took 4 cycles (R296-1, CRF phase 0).
-- This remains within three rounds on the measured two-source shape.
+- Both histories add 3--5 cycles on the two-source fixture.
+- See the licence leg README for per-source, per-phase cycle counts.
 - Ordinary Listener Ready arrivals add no cycles.
 - A bound CRF talker also ended its own bursts.
 - The processor pin moves to `09f9bf38` (processor issue 106).

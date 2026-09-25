@@ -1641,9 +1641,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam int SRP_CRFSNK_SLOT_C = SRP_LSN0_SLOT_C + 1;
   //! Per-source licence: processor ACTIVE AND the real grant (#530, #551),
   //! one bit per Stream Output; flat CSR status keeps bit 0 only. The top
-  //! slot is CRF when present. A refused re-declaration with a changed TSpec
-  //! can still get about one round of licence: the first-round grant uses
-  //! the previous slope (processor #112; full contract in the SRP block).
+  //! slot is CRF when present. The grant stays low until the current TSpec
+  //! is evaluated (processor #112; full contract in the SRP block).
   wire [SRP_TALKERS_C-1:0] lwsrp_stream_gate;
   //! the per-TALKER "registering a Listener Asking Failed attribute" vector
   //! (gh #56 A2: -> ACMP REGISTERING_FAILED) that used to be declared here
@@ -5292,9 +5291,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire crft_class_a_w = (ACMP_SRC_C > N_STREAMS) &
                         (|pp_cd_srp_tk_decl_state_w[2*CRF_DECL_SLOT_C +: 2]);
   //! The CRF source's ACTIVE AND real admission grant (top slot when
-  //! present). Optimism alone cannot license this output (#551). A refused
-  //! changed-TSpec re-declaration can still get about one round of licence
-  //! from a first-round grant using the previous slope (processor #112).
+  //! present). Neither optimism nor a previous TSpec can license a refused
+  //! re-declaration (#551, processor #112).
   wire crft_res_active_w = (SRP_CRF_TK_C != 0) &
                            lwsrp_stream_gate[SRP_TALKERS_C-1];
   //! the C-TAG's {PCP, VID}: SR class A defaults {3, LWSRP_VID} (802.1Q
@@ -6610,14 +6608,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! The two-source fixture measures added delay for both TSpec histories;
   //! see tb/verilator/milan_dp/README.md for the measured cycle counts.
   //!
-  //! REFUSED, SAME TSPEC PRELOADED - no real grant; ACTIVE may pulse but
-  //! the licence stays closed. No STREAM_START/STREAM_STOP pair, Table 5.4
-  //! counter reset or PDU follows. ACTIVE falls; Talker Failed follows.
-  //! RESIDUAL - if the refused re-declaration's TSpec differs from that
-  //! source's previous one, the first-round grant uses the previous slope.
-  //! With early Listener Ready, about one round of licence remains possible,
-  //! including the counter pair, resets and a PDU if its media event lands
-  //! inside. Processor #112 owns the fix; #551 awaits its parent pin.
+  //! REFUSED - no real grant; ACTIVE may pulse but the licence stays closed.
+  //! No STREAM_START/STREAM_STOP pair, Table 5.4 counter reset or PDU follows.
+  //! ACTIVE falls when optimism expires; Talker Failed follows.
   //! LWSRP_STATUS[6] remains raw |ACTIVE; source 0's gate bit [8] and
   //! CRFT_CTRL[6]/[7] require the real grant as well.
   //!

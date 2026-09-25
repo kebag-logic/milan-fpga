@@ -51,22 +51,20 @@ Two consequences worth stating rather than discovering:
   No shaper consumes the processor's slope sum.
   `LWSRP_SLOPE` and `LWSRP_STATUS[9]` retain their diagnostic roles.
   Every source licence requires ACTIVE and its real admission grant (#551).
-  ACTIVE includes the processor's three-round optimistic admission term.
+  ACTIVE includes the processor's three-published-round optimistic admission term.
   The real grant excludes it.
   An early Listener Ready can raise ACTIVE before admission.
-  With the same TSpec preloaded, refused re-declarations keep licences closed.
+  Refused re-declarations cannot open CRF or AAF licences.
   No STREAM_START/STREAM_STOP pair, interval-counter reset or PDU follows.
   `CRFT_CTRL[6]`/`[7]` and source 0's `LWSRP_STATUS[8]` require the grant.
   `LWSRP_STATUS[6]` remains raw ACTIVE ORed across all sources.
   A future shaping implementation must prove its own ordering.
 
-**Residual: changed TSpec.** The refused TSpec differs from that source's previous one.
-The first-round grant still uses the previous slope.
-With an early Listener Ready, about one round's licence remains.
-A STREAM_START/STREAM_STOP pair and Table 5.4 resets remain possible.
-So does a PDU if its media event lands inside.
-[Processor issue #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112) owns the pending fix.
-Its fix must be pinned before #551 can close.
+The processor now evaluates the current TSpec before granting admission.
+Every declaration clears its source's grant until that evaluation completes.
+A round that meets any pending declaration publishes nothing.
+Other grants, the slope sum and over-limit retain their published values.
+This follows [processor #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112), adopted through #508.
 
 Also gone with the applicant: the MRPDU tx/rx counters and rx-drop count at CSR
 0x680 read **structural zeros**, and the provisioning words software used to write
@@ -95,8 +93,8 @@ the processor's face.
 | Q-6 | 8.6.7 | Queue management: no reordering within a class, loss only by admission | traffic_queues + shaping core | ✅ RTL datapath (in-order byte-exact per class, burst) | 8.6.7: reordering inside an SR class breaks the AVTP sequence_num contract downstream (AVTP-7). |
 | Q-7 | 8.6.8.1 / 34.6.2 | Strict priority transmission selection among non-shaped queues | traffic_shaping_core | ✅ RTL shaper_core (61 k vs independent model: SP order, unshaped bypass) | 8.6.8.1 is the default algorithm; inversion starves the control plane under media load. |
 | Q-8 | 8.6.8.2 / 34.6.1 | Credit-based shaper: idleSlope accrual, sendSlope drain, hiCredit/loCredit clamp, credit-reset rules, no transmit while credit < 0 | credit_based_shaper (CSR 0x400) | ✅ RTL cbs (87 k: bit-exact vs fixed-point replica + bounded vs ideal continuous model; accrual under back-pressure; live reconfig hiCredit clamp) | 34.6.1's math is the AVB latency guarantee itself; the TB's dual-model approach is the reference for any shaper change. |
-| Q-9 | 34.3 | Bandwidth availability: SR classes limited to 75 % (deltaBandwidth defaults) | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → parent ACTIVE AND per-source real-grant licence; status at `LWSRP_STATUS[7]`/`[9]` and `LWSRP_SLOPE` `0x698` | 🔵 PROCESSOR - the 75 % TSpec-refusal scenario went with the deleted `lwsrp` suite. `milan_dp crflic` checks oversized re-declarations with the same TSpec preloaded: no licence, counter edges, resets or PDUs. It does not test the 75 % boundary. `crflic-mutants` catches missing grant terms. A changed TSpec can still get about one round of licence from the previous slope (processor #112, above). No shaper consumes the sum. | 34.3: exceeding 75 % legally starves best-effort, and the bridge will reject what we would declare anyway. |
-| Q-10 | 34.4 | Actual bandwidth derived from TSpec MSDU size including per-frame overheads → idleSlope | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → `LWSRP_SLOPE` `0x698`, status only | 🔵 PROCESSOR - the derived slope has no shaper to program in the shipping datapath. #551 requires ACTIVE AND the real per-source grant; its first round can still use the previous TSpec slope (processor #112, above). A future shaper must prove slope/gate ordering. MaxFrameSize still derives from real AAF geometry in [`milan_datapath`](../../hdl/milan/milan_datapath.sv), passed as `cfg_tspec_max_frame_i`. | 34.4: forgetting the 42-byte per-frame overhead undersizes idleSlope and the shaper throttles in-contract media. |
+| Q-9 | 34.3 | Bandwidth availability: SR classes limited to 75 % (deltaBandwidth defaults) | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → parent ACTIVE AND per-source real-grant licence; status at `LWSRP_STATUS[7]`/`[9]` and `LWSRP_SLOPE` `0x698` | 🔵 PROCESSOR - the 75 % TSpec-refusal scenario went with the deleted `lwsrp` suite. `milan_dp crflic` checks oversized re-declarations with identical and changed TSpecs: no licence, counter edges, resets or PDUs. It does not test the 75 % boundary. `crflic-mutants` catches missing grant terms. The current-TSpec grant stays low on refusal (processor #112, above). No shaper consumes the sum. | 34.3: exceeding 75 % legally starves best-effort, and the bridge will reject what we would declare anyway. |
+| Q-10 | 34.4 | Actual bandwidth derived from TSpec MSDU size including per-frame overheads → idleSlope | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → `LWSRP_SLOPE` `0x698`, status only | 🔵 PROCESSOR - the derived slope has no shaper to program in the shipping datapath. #551 requires ACTIVE AND the real per-source grant; the grant waits for the current TSpec (processor #112, above). A future shaper must prove slope/gate ordering. MaxFrameSize still derives from real AAF geometry in [`milan_datapath`](../../hdl/milan/milan_datapath.sv), passed as `cfg_tspec_max_frame_i`. | 34.4: forgetting the 42-byte per-frame overhead undersizes idleSlope and the shaper throttles in-contract media. |
 | Q-11 | 34.5 | Default SR class config: class A = PCP 3, SR_PVID default = VID 2 | processor SRP encoder for the declaration; `cfg_lwsrp_vid` (reset word 0x684 = 2) for this fabric's default, and the ADOPTED pair from the class-D face once a Domain has been seen | 🔵 PROCESSOR for the Domain bytes; ✅ RTL crf_tx TCI golden 0x6002 for the tag. The property that survives intact is the ONE-SOURCE rule: the AAF and CRF C-TAGs mux off exactly the pair the processor publishes (`srp_class_a_prio_o` / `srp_class_a_vid_o`), so frame and declaration cannot name different values. Historic: BENCH item 1.2; SILICON MSRP Domain = VID 2 | 34.5: the bench-measured truth — Domain misparse as 638 cost a debugging round; the defaults are load-bearing for interop. |
 | Q-12 | 34.2 | SRP domain detection: talker uses the boundary-port rules (Domain attribute) to pick class priority | processor SRP registrar (`srp_domain_adopted_o`) | 🔵 PROCESSOR — the boundary case was pinned by the deleted `lwsrp_rx` suite. The fabric reads only the adopted verdict | 34.2: transmitting class-A-tagged frames on a non-SRP boundary port is undefined behavior for the bridge. |
 | Q-13 | 8.6.1–8.6.5, 8.8, 8.13 | Bridge relay: forwarding, filtering DB, egress rules | — | ➖ N/A — end station (the bench bridge provides these; its pruning behavior is documented in findings) | Bridge-only obligations. |

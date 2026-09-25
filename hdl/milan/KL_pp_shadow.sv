@@ -636,10 +636,9 @@ module KL_pp_shadow #(
     //! Parent decision #551 deliberately qualifies this with srp_sr_admitted_o
     //! per source for every CRF/AAF licence; ACTIVE alone is insufficient.
     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
-    //! Raw per-source grant, excluding optimism. A refused re-declaration whose
-    //! TSpec differs from that source's previous one can still get about one
-    //! round of licence: its first-round grant uses the previous slope.
-    //! Processor #112 owns the fix; the parent must pin it to close #551.
+    //! Raw per-source grant, excluding optimism. Each declaration clears its
+    //! grant until the current TSpec is evaluated (processor #112). Pending
+    //! rounds hold other grants and the published slope sum and over-limit.
     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o, //! per-source granted idleSlope
     output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,     //! per-source self-declared Failed code

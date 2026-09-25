@@ -396,7 +396,8 @@ Advertise state are sampled on every cycle.
 | `[F]` | Item 3: FRAMES_TX counts observation intervals since STREAM_START, far fewer than the PDUs, and restarts at the next STREAM_START. |
 | `[G]` | Each source and admission phase, with the same TSpec preloaded: an oversized re-declaration raises optimistic ACTIVE but receives no real grant. No licence edge, STREAM_START/STREAM_STOP pair, interval-counter reset or PDU follows. |
 | `[H]` | Matching admitted re-declarations stream and reset interval counters. Logs measure ACTIVE-to-licence latency for each source and admission phase. |
-| `[I]` | Opt-in EXPECTED-FAIL: a refused 20,000-byte TSpec follows an admissible 224-byte TSpec. Both sources and both phases retain the no-licence, no-counter-pair, no-reset and no-PDU assertions. Awaiting the processor #112 pin. |
+| `[I]` | A refused 20,000-byte TSpec follows an admissible 224-byte TSpec. Both sources and phases require no licence, counter pair, reset or PDU. This is a required default pass with processor #112. |
+| `[J]` | The reverse TSpec change admits 224 bytes after 20,000 bytes. Both sources and phases must stream; logs re-measure ACTIVE-to-licence latency. |
 | `[INV]` | Every cycle: CRF equals ACTIVE AND its real grant. AAF never opens without both terms. |
 
 **Refused re-declaration fixture (#551).**
@@ -409,7 +410,8 @@ Its measured decoder delay aligns it immediately after re-declaration.
 The replay must reproduce that timing and raise optimistic ACTIVE.
 
 An oversized 20,000-byte TSpec exceeds the real admission ceiling.
-The default cases preload that same TSpec before grading re-declaration.
+Cases `[G]` and `[H]` preload the graded TSpec.
+Cases `[I]` and `[J]` change it; all four run by default.
 Withdrawal clears its grant before each case starts.
 Both source indexes run at both phases of the two-cycle round.
 Nonzero counter seeds distinguish preservation from an unnoticed reset.
@@ -419,51 +421,40 @@ The media clocks continue through several packet periods.
 Matching admitted cases use a 224-byte TSpec and must stream.
 This is boundary staging, not an end-to-end controller timing claim.
 
-**Residual: changed TSpec.** The refused TSpec differs from that source's previous one.
-The first-round grant still uses the previous slope.
-With an early Listener Ready, about one round's licence remains.
-A STREAM_START/STREAM_STOP pair and Table 5.4 resets remain possible.
-So does a PDU if its media event lands inside.
-[Processor issue #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112) owns the pending fix.
-Its fix must be pinned before #551 can close.
+The processor now evaluates the current TSpec before granting admission.
+Every declaration clears its source's grant until that evaluation completes.
+A round that meets any pending declaration publishes nothing.
+Other grants, the slope sum and over-limit retain their published values.
+This follows [processor #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112), adopted through #508.
 
-The default run names `[I]` as skipped: EXPECTED-FAIL processor #112.
-Run the unwarmed case explicitly, after building `crflic`:
+The former `--unwarmed-refusal` opt-in is now unconditional.
+The same command remains usable after building `crflic`:
 
 ```sh
 cd tb/verilator/milan_dp
 ./obj_crflic/Vmilan_dp_crflic --unwarmed-refusal
 ```
 
-This additionally runs `[I]` for both sources and round phases.
-It preloads 224 bytes, withdraws, then declares 20,000 bytes.
-The real pipeline must recompute the changed TSpec.
-No verdict, registrar or gate is forced.
-Failures retain exit status 1; EXPECTED-FAIL never masks them.
-After pinning processor #112, require this arm by default.
-Remove the skip and EXPECTED-FAIL label then; retain every assertion.
+The default and explicit invocations run the same cases.
+Every assertion remains mandatory; any failure returns exit status 1.
 The first declaration after reset is outside this arm's coverage.
 
-Measured warm-pipeline start latency, in admission-clock cycles:
+Measured ACTIVE-to-licence latency at processor pin `990f9652`, in admission-clock cycles:
 
-| Source | Round phase 0 | Round phase 1 |
-|---|---|---|
-| AAF source 0 | 2 | 1 |
-| CRF source 1 | 0 | 1 |
+| TSpec history | Source | Round phase 0 | Round phase 1 |
+|---|---|---|---|
+| Same (224 to 224 bytes) | AAF source 0 | 5 | 5 |
+| Same (224 to 224 bytes) | CRF source 1 | 3 | 5 |
+| Changed (20,000 to 224 bytes) | AAF source 0 | 5 | 5 |
+| Changed (20,000 to 224 bytes) | CRF source 1 | 3 | 5 |
 
-The warm cases use the 100 MHz admission clock: 0--20 ns.
-At 50 MHz, those warm cycles represent 0--40 ns.
-[R296-1](https://github.com/kebag-logic/milan-fpga/pull/553#issuecomment-5815951481)
-also measured a changed-TSpec admitted start.
-CRF phase 0 took 4 cycles after preloading 20,000 bytes.
-Its admitted re-declaration used 224 bytes.
-That is 40 ns here, or 80 ns at 50 MHz.
-The observed warm/changed-TSpec range is therefore 0--4 cycles.
-Four cycles still fit within three two-source admission rounds.
-Re-measure both histories after the processor fix is pinned.
+The fixture uses a 100 MHz admission clock: 30--50 ns.
+At 50 MHz, those cycles represent 60--100 ns.
+Both histories fit the asserted bound of three two-source admission rounds.
 The ordinary Listener Ready cases add zero cycles.
 These measurements cover this two-source shape, not every supported geometry.
-The processor's optimistic window spans three rounds of `N_SOURCES` cycles.
+The optimistic window counts three published admission rounds.
+Discarded rounds do not age it while a declaration remains pending.
 
 **Failing arms.** The #530 rows retain their dated evidence.
 The #551 campaign additionally removes each real-grant term.
@@ -474,6 +465,7 @@ The #551 campaign additionally removes each real-grant term.
 |---|---|---|
 | the licence mutants | `make crflic-mutants`: each consumer reads raw admission, removing ACTIVE | Three named checks must fail; the clean leg must pass. |
 | the real-grant mutants (#551) | Same command: every gate, CRF alone, or AAF source 0 alone reads ACTIVE without its real grant | Each refused-source licence check must fail. |
+| the pre-#112 processor `7a47f578` | Local control only: temporarily repin the existing submodule, build the same leg in a fresh directory, run once, then restore `990f9652` | `[I]` fails 28 assertions: both sources at both phases pulse a grant/licence, add STREAM_START/STREAM_STOP and reset all three seeded counters. The same fixture passes at the restored pin. |
 | the gate reverted | the first mutant, run as the reproduction before the fix | 23 of 85 fail, the Run B item 2 signature: the licence opens at 1770.38 ms, 1.34 ms after the first probe and before its TALKER_DEST_MAC_FAIL answer at 1772.00 ms; the first CRF PDU leaves at 1966.30 ms, 3.85 s before the first Listener Ready; and the licence never closes again, through Asking Failed and the unbind |
 | the previous processor pin `424c688f` | by hand, the only arm that needs a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 17 of 85 fail, the Run B item 1 signature: every DUT LeaveAll flags only the Domain. ACTIVE and the licence fall six times by the end of `[C]`, each 5.0 s after a LeaveAll that aged the Listener registration with no re-declaration. The DUT withdraws its Talker Advertise four times: once at a registration loss 5.0 s after a switch LeaveAll, three times 15.1 s after the listener's latest probe, as Run B's bursts ended |
 
