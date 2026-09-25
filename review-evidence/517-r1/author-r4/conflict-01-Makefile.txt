@@ -1,0 +1,58 @@
+<<<<<<< HEAD
+# Milan 5.4.5 TIMED (issue #69) and the #508 [GSI] section: NOTIFY_BUILD
+# above states the recipe; the real-time legs run [NOTIFY] untimed.
+	$(NOTIFY_BUILD)
+	$(CRFLIC_BUILD)
+	./obj_dir/Vmilan_dp_sim
+	@echo "---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----"
+	./$(NOTIFY_MDIR)/Vmilan_dp_notify
+	@echo "---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----"
+	./$(CRFLIC_MDIR)/Vmilan_dp_crflic
+	./obj_nxn/Vmilan_dp_nxn
+	@echo "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----"
+	./obj_nxndv/Vmilan_dp_nxndv
+	./obj_nxn8/Vmilan_dp_nxn8
+	@echo "---- the shipping Arty shape: 4 streams x 4 wire channels ----"
+	./obj_nxn4c/Vmilan_dp_nxn4c
+	@echo "---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----"
+	./obj_nolpf/Vmilan_dp_nolpf
+	@echo "---- all six tier-1 blocks pruned ----"
+	./obj_prune/Vmilan_dp_prune
+	@echo "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----"
+	./obj_ax1x1/Vmilan_dp_ax1x1
+	@echo "---- the same shape at the TRUE clk_audio ratio (391/1591) ----"
+	./obj_aclk/Vmilan_dp_aclk
+=======
+# Milan 5.4.5 TIMED (issue #69): the processor's timebase compressed
+# 1000x through its own override parameters (PP_TIM_DIV_US_P = 1 clock per
+# microsecond tick, PP_TIM_DIV_MS_P = 100 ticks per millisecond), so one
+# processor millisecond is 100 fabric cycles and the GET_COUNTERS one-second
+# limit and the 30-60 s departing-controller monitor are both runnable in a
+# few million cycles. The fabric clock itself stays at its shipping value.
+# -DMS_CYC_TB hands the same number to the harness so the two cannot drift.
+# sim_nxn's [NOTIFY] section on the shipping 1x1 shape, exiting right after
+# the descriptor image is served (NOTIFY_TIMED_TB); the real-time legs run
+# the same section untimed.
+	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_notify \
+	  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 \
+	  -CFLAGS "-DNSTREAMS_TB=1 -DNOTIFY_TIMED_TB=1 -DMS_CYC_TB=100 -Wall -Wextra" \
+	  $(SRCS) sim_nxn.cpp -o Vmilan_dp_notify
+	@exec python3 sim_pool.py --jobs="$(SIM_JOBS)" \
+	  ./obj_dir/Vmilan_dp_sim \
+	  --banner "---- Milan 5.4.5 notifications, TIMED on the compressed processor timebase ----" \
+	  --exclusive ./obj_notify/Vmilan_dp_notify \
+	  --exclusive ./obj_nxn/Vmilan_dp_nxn \
+	  --banner "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----" \
+	  --exclusive ./obj_nxndv/Vmilan_dp_nxndv \
+	  --exclusive ./obj_nxn8/Vmilan_dp_nxn8 \
+	  --banner "---- the shipping Arty shape: 4 streams x 4 wire channels ----" \
+	  --exclusive ./obj_nxn4c/Vmilan_dp_nxn4c \
+	  --banner "---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----" \
+	  ./obj_nolpf/Vmilan_dp_nolpf \
+	  --banner "---- all six tier-1 blocks pruned ----" \
+	  ./obj_prune/Vmilan_dp_prune \
+	  --banner "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----" \
+	  ./obj_ax1x1/Vmilan_dp_ax1x1 \
+	  --banner "---- the same shape at the TRUE clk_audio ratio (391/1591) ----" \
+	  ./obj_aclk/Vmilan_dp_aclk
+>>>>>>> 7ab1c8d0 (Bound ordinary milan_dp simulations with ordered shared-header exclusion)

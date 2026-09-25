@@ -1,0 +1,65 @@
+suite                        checks   failures  tallies
+aaf                                69          0        2
+aaf_audio_loop                     10          0        1
+aaf_latency_tap_bank               46          0        2
+aaf_latency_taps                   73          0        1
+adp_tx                             46          0        2
+aes3                               50          0        1
+avtp_parser                     11201          0        5
+avtp_rxmon                        215          0        2
+avtp_stream                        38          0        2
+cbs                            130256          0        1
+cdc                                16          0        1
+chmap_capture                     224          0        2
+chmap_render                       81          0        1
+classifier                         95          0        1
+clkvalid                           55          0        3
+cls                            200074          0        1
+controller_rate                 24518          0        1
+crf_rx                          16116          0        4
+crf_tx                            127          0        1
+csr                              1293          0        5
+datapath                           23          0        1
+eth_tx_reset                       40          0        1
+gptp_plane                         29          0        1
+gptp_shadow                       309          0        1
+gptp_txts                          85          0        1
+i2spb                              13          0        1
+ifg                                 4          0        1
+lat_history_ring                   84          0        1
+link_guard                        104          0        1
+maap                               67          0        1
+mac_rmon                           56          0        2
+media_grid_align                   45          0        1
+media_nco                         248          0        1
+milan_dp                        10074          0       16
+milan_dp_render                   222          0        3
+mmcm_servo                        206          0        3
+mmcm_servo_autorepair              47          0        1
+nvm_backend                       733          0        2
+nvm_cosim                         465          0        1
+pair_fill                          41          0        1
+pcmlpf                              9          0        1
+pp_shadow                         371          0        1
+ptp                            201308          0        2
+ptp_sync                           30          0        2
+ptp_ts                            495          0        4
+queues                             13          0        1
+render_setpoint                   277          0        3
+rx_filter                          88          0        3
+shaper_core                   1521627          0        1
+tcam                               23          0        2
+tcam_csr                            2          0        1
+tdm                                58          0        1
+tdm_render                         37          0        1
+tkdiag                            101          0        2
+tsn_fuzz                           56          0        2  <- 4 SKIPPED
+
+checks: 2121993   in-suite failures: 0
+
+declared skips (4) -- these ran NOTHING and contribute 0 to the total above:
+  SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+Combined sweep: 55 unique default suites; exit 0

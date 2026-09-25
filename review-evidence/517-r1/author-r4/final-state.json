@@ -1,0 +1,34 @@
+{
+  "head": "f36b40ddb5bf7fa5b12bba47d136e0b9d429403c",
+  "base": "5c78ce2e9d831e588e759b696ed549804327e4d8",
+  "branch": "517-bounded-simulation-pool",
+  "clean": true,
+  "commits": [
+    {
+      "head": "cce997f69ec27fe62af5d357e9e3670588286c8e",
+      "subject": "Bound ordinary milan_dp simulations with ordered shared-header exclusion"
+    },
+    {
+      "head": "9ceec5199b70e3eeae555b9215d4621d0546022a",
+      "subject": "Bound simulation host-tool policy masks to their source contexts"
+    },
+    {
+      "head": "c0b1dd5db1132d2bccbd1474ca7128b2bfb435ee",
+      "subject": "Make simulation pool cancellation independent of stdout backpressure"
+    },
+    {
+      "head": "f36b40ddb5bf7fa5b12bba47d136e0b9d429403c",
+      "subject": "Reconcile pooled simulation inventory with the current default suite"
+    }
+  ],
+  "changed_files": [
+    "docs/testing/TESTING.md",
+    "scripts/check_baremetal_only.py",
+    "tb/verilator/milan_dp/Makefile",
+    "tb/verilator/milan_dp/README.md",
+    "tb/verilator/milan_dp/sim_nxn.cpp",
+    "tb/verilator/milan_dp/sim_pool.py",
+    "tb/verilator/milan_dp/test_sim_pool.py",
+    "tb/verilator/milan_dp/test_sim_pool_backpressure.py"
+  ]
+}

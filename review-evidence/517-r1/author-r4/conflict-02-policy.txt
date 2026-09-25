@@ -1,0 +1,27 @@
+<<<<<<< HEAD
+    "scripts/ci_rv32_sdk.py": re.compile(
+        SDK_IDENTITY_MASK + r'|\("Linux", "x86_64"\)'),
+    "scripts/ci_rv32_sdk_selftest.py": re.compile(SDK_IDENTITY_MASK),
+=======
+    # #517's host-tool decision: only the suite runner's workstation
+    # subreaper contract, platform check and refusal, in their code homes.
+    # Mask the token, never a whole line: appended policy text stays visible.
+    "tb/verilator/milan_dp/sim_pool.py": re.compile(
+        r'(?<=Every leg is its own session and process group, reading /dev/null\. )Linux(?![A-Za-z0-9])'
+        r'|(?<=""")Linux(?= subreaper: orphaned grandchildren stay ours to kill and reap\.)'
+        r'|(?<=if not sys\.platform\.startswith\(")linux(?="\):)'
+        r'|(?<=raise OSError\("sim_pool requires )Linux(?= child-subreaper support"\))'),
+    "tb/verilator/milan_dp/test_sim_pool.py": re.compile(
+        r'(?<=than a leg takes to start, at every such check, to go unseen\. )Linux(?= only: the)'
+        r'|(?<=print\("\[FAIL\] these arms need )Linux'
+        r'(?= /proc and os\.pidfd_open; nothing was run"\))'),
+    "tb/verilator/milan_dp/README.md": re.compile(
+        r'^Linux(?= subreaper support is required before any child starts\.)'),
+>>>>>>> 5874895e (Bound simulation host-tool policy masks to their source contexts)
+
+<<<<<<< HEAD
+                  _arms_act_slot_masks, _arms_product_and_paths, _arms_build_configuration,
+=======
+                  _arms_sim_pool_host_masks,
+                  _arms_product_and_paths, _arms_build_configuration,
+>>>>>>> 5874895e (Bound simulation host-tool policy masks to their source contexts)
