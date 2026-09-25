@@ -42,7 +42,8 @@ def main() -> None:
     cfg = eb.load_config(str(config_path))
     if "emitter_srp_vid" in fixture:
         vid = fixture["emitter_srp_vid"]
-        assert type(vid) is int and 1 <= vid <= 4094 and vid != 2
+        if type(vid) is not int or not 1 <= vid <= 4094 or vid == 2:
+            raise ValueError("emitter_srp_vid must be an integer in 1..4094, except 2")
         cfg["srp"]["vid"] = vid
     (args.outdir / "gen").mkdir(exist_ok=True)
     (args.outdir / "gen/adp_shape_defaults.svh").write_text(eb.emit_adp_shape_svh(cfg))

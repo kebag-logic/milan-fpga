@@ -358,10 +358,9 @@ SRP_DEFAULTS = dict(
 )
 SRP_TSPEC_POLICIES = ("derived",)
 
-#: `srp.stream_dmac_base: maap` means the stream destination addresses are
-#: ALLOCATED AT RUN TIME by the MAAP engine rather than provisioned here. It
-#: is the only value that makes KL_maap load-bearing, and therefore the only
-#: value that forbids `board.features.maap: false`.
+#: MAAP allocates stream destinations at runtime in every supported config.
+#: Every declared talker requires `board.features.maap: true`.
+#: Numeric `srp.stream_dmac_base` values are legacy table/ABI scratch.
 SRP_DMAC_DYNAMIC = "maap"
 
 # ------------------------------------------------- optional-block features --
@@ -400,13 +399,6 @@ OPTIONAL_BLOCKS = {
                           "closed-finding diagnostics"),
 }
 
-#: Where the RX destination-address decision is taken. `hardware` (the
-#: default, and what both boards ship) REQUIRES rx_mac_filter; the other two
-#: are the honest declarations that let it be pruned. This key exists so that
-#: pruning the filter is a stated deployment property rather than a silent
-#: change of what the port accepts.
-RX_ADDRESS_FILTERS = ("promiscuous",)
-
 #: Revision of the AEM descriptor BYTE LAYOUT, an input to every hash-derived
 #: entity_model_id (see model_shape). 1 was the IEEE 1722.1-2013 layout this
 #: project shipped until 2026-08-13; 2 is 1722.1-2021, which Milan v1.2 clause
@@ -443,6 +435,8 @@ PP_MEM_BYTES = 0x10_0000
 PLATFORM_DEFAULTS = dict(
     mac_address=None,                        # required: must differ per board
     pp_mem_phys=0x4FE0_0000,
+    # Only promiscuous is accepted, matching the existing reset/boot posture.
+    # board.features.rx_mac_filter independently selects hardware presence.
     rx_address_filter="promiscuous",         # existing reset and boot posture
 )
 
@@ -1973,17 +1967,11 @@ def _srp_validate(s, cons):
 
 
 def _srp_dmac(s):
-    """The stream DMAC base as an int, after recording the ALLOCATION POLICY
-    the section asked for. Mutates `s` with the resolved policy + base."""
-    # `maap` = the DMACs are claimed at run time by KL_maap. Everything
-    # downstream still needs a concrete base to model the reservation with,
-    # so the default provisioned base is used for the tables and the
-    # ALLOCATION POLICY is recorded separately - that policy is what
-    # validate_features() keys the MAAP prune gate on.
-    s["stream_dmac_alloc"] = "static"
+    """Return the legacy table DMAC as an int, normalizing `maap` in `s`."""
+    # The table needs a concrete base even though live destinations come
+    # from MAAP. Numeric values remain scratch and never permit pruning it.
     if isinstance(s["stream_dmac_base"], str) and \
             s["stream_dmac_base"].strip().lower() == SRP_DMAC_DYNAMIC:
-        s["stream_dmac_alloc"] = SRP_DMAC_DYNAMIC
         s["stream_dmac_base"] = SRP_DEFAULTS["stream_dmac_base"]
     dmac = _eui64(s["stream_dmac_base"], "srp.stream_dmac_base")
     if dmac > 0xFFFFFFFFFFFF:

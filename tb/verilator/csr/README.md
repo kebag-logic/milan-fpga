@@ -8,33 +8,38 @@ TSN datapath (the "memory-mapped configuration" called out in
 
 ## Contents
 
-- **[Run it](#run-it)** — One `make`, three self-checking harnesses over the same register block (legacy N=1 map, the `0x800` window against modelled engines, the same window against live ones). No vendor tools — the register block is a standalone AXI4-Lite slave. Says where the check count is printed rather than quoting a number that rots.
-- **[What it checks](#what-it-checks)** — Eight families of assertion, from `ID`/`CAP` self-description through reset values, read-only enforcement, output wiring, IRQ write-1-to-clear and the PTP command strobes, ending with the ACMP bind-restore window driven against the live listener context. Also states the AXI pattern in use — combinational-ready and single-outstanding — so a master that drops `*VALID` on handshake still commits.
-- **[Extending](#extending)** — The rule that keeps the ABI honest: a new register group is three edits (RTL, [`REGISTER_MAP.md`](../../../docs/reference/REGISTER_MAP.md), and a `ck(...)` here), because this harness *is* the executable contract for the CSR ABI.
+- **[Run it](#run-it)** -- Default builds, generated fixtures, and exit-code validation.
+- **[What it checks](#what-it-checks)** -- Register behavior and modeled handshake coverage.
+- **[Extending](#extending)** -- Keep the register map and executable checks aligned.
 
 ## Run it
 
 ```
 cd tb/verilator/csr
-make            # verilate + build + run all three harnesses; each prints its
-                # own live "checks: N   failures: N" tally and RESULT: PASS/FAIL
+make            # build and run every default leg
+make reset-bits # run only the generated SRP reset fixture
+make clean      # remove every build directory
 ```
 
-`make` builds and runs **three** self-checking harnesses against the same
-register block:
+`make` runs these builds against the same register block:
 
-| Harness | Shape under test |
+| Source and executable | Shape under test |
 |---|---|
-| `sim_main.cpp` → `Vcsr_sim` | the legacy flat map at the `N=1` silicon shape, plus the `0x800` index-0 hard aliases and the out-of-range rule |
-| `sim_win.cpp` → `obj_win/Vcsr_win` | the `0x800` indexed window at `N_LISTENERS_P=4`/`N_TALKERS_P=4` against **modelled** lane-K engines |
-| `sim_live.cpp` → `obj_live/Vcsr_win_live` | the same window against **live** `KL_lwsrp_top` + `KL_acmp_lstn_ctx` (wrapper `csr_win_live.sv`) |
+| `sim_main.cpp`: `obj_dir/Vcsr_sim` | `arty_current` headers; flat map, `N=1` aliases, out-of-range rules |
+| `sim_main.cpp`: `obj_100m/Vcsr_sim100` | Same headers; frequency-derived resets at 100 MHz |
+| `sim_win.cpp`: `obj_win/Vcsr_win` | `arty_4x4` headers; 4x4 indexed window against modeled engines |
+| `sim_gptp.cpp`: `obj_gptp/Vcsr_gptp` | `ax7101_8x8` headers; fabric gPTP publication enabled |
+| `sim_main.cpp`: `obj_pps/Vcsr_pps` | `arty_current` headers; PPS enabled with `PPS_WIDTH_CYC` |
+| `sim_main.cpp`: `obj_reset/Vcsr_reset` | Generated `arty_current` fixture; both SRP admission reset bits set |
 
-Each prints its own `checks: <n>   failures: 0` / `RESULT: PASS` line — that
-printout is where the current count lives. No total is quoted here on purpose:
-a hand-maintained count rots on the next register group, and the exit code is
-the gate anyway.
+`fixtures/reset_bits.yaml` declares the reset overrides.
+`tb/common/gen_declaration_fixture.py` validates them through the real builder.
+Its headers live under `obj_reset/fixture/gen`.
+The harness independently expects `CSR_SRP_RESET_BITS=3u`.
 
-No Xilinx tools required — `milan_csr.sv` is a standalone AXI4-Lite slave.
+Each executable reports its current results.
+The command's exit code is the gate: zero means success.
+No vendor tools are required for this standalone AXI4-Lite slave.
 
 ## What it checks
 
@@ -71,13 +76,9 @@ An AXI4-Lite master BFM (`sim_main.cpp`) exercises the register map
   port in this build", the state `milan_datapath` actually shipped in — and
   asserts that an arm is *refused* (`unsupported`), that no request reaches the
   fabric, and that the data word never becomes 0.
-* **ACMP bind-restore (0x7A0, E1)** — staging-register RW (incl. the
-  `0xA5C35A3C` feature-probe pattern at `0x7A0`), commit → held
-  `o_acmp_rest_*` request with the staged record, busy/done/status readback
-  through the engine ack. `sim_live.cpp` drives the LIVE
-  `KL_acmp_lstn_ctx` end-to-end (inject → PRB_W_AVAIL, occupied/record-only
-  refusals) and reads the E2 window words `0x860-0x868`
-  (controller_entity_id + {flags, tuid}) back through the tbl port.
+* **ACMP bind-restore (0x7A0, E1)**: `sim_main.cpp` stages records.
+  It checks held requests, acknowledgements, and busy/done/status readback.
+  The harness supplies acknowledgements directly; no live engine runs here.
 
 The AXI slave uses the combinational-ready, single-outstanding pattern, so a
 compliant master that drops `*VALID` on handshake still commits every transfer.

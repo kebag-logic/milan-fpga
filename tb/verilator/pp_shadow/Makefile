@@ -19,7 +19,11 @@
 # shapes and grades the data path around it. This suite grades the control
 # plane's own egress and its class-D outputs.
 #
-#   make        - build and run the self-checking harness
+# Default builds reuse sim_main.cpp with independent expectations:
+#   run-base  -> obj_dir/Vpp_shadow_sim: tracked arty_current headers.
+#   run-vid73 -> obj_vid73/Vpp_vid73: generated startup VID 73 fixture.
+#   run-crf   -> obj_crf/Vpp_crf: generated CRF-output-enabled fixture.
+#   make        - build and run all default legs
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
