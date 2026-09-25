@@ -74,6 +74,26 @@ DP_OLD_SEL7 = ("          4'd7: gsi_ans_raw_w = {32'd0,\n"
                "                                 : 8'd0,\n"
                "                                 24'd0};\n")
 
+#: Replay each withdrawal after the two legitimate pushes have drained.
+#: A same-cycle duplicate OR term would coalesce and create no extra push.
+PP_STRI_EVENTS = "  always_comb begin : stri_events"
+PP_DUPLICATE_WITHDRAWAL = """  logic [N_STREAM_IN_P-1:0][12:0] duplicate_unreg_cyc_r;
+  always_ff @(posedge clk_i) begin : duplicate_withdrawal
+    if (!rst_n) begin
+      duplicate_unreg_cyc_r <= '0;
+    end else begin
+      for (int k = 0; k < N_STREAM_IN_P; k++) begin
+        if (srp_evt_tk_unreg_w[k])
+          duplicate_unreg_cyc_r[k] <= 13'd4096;
+        else if (duplicate_unreg_cyc_r[k] != 0)
+          duplicate_unreg_cyc_r[k] <= duplicate_unreg_cyc_r[k] - 13'd1;
+      end
+    end
+  end
+
+"""
+PP_UNREGISTER = "          || srp_evt_tk_reg_w[k] || srp_evt_tk_unreg_w[k]"
+
 # (name, [(file, the text it replaces, its replacement)], the check it must fail).
 # `file` is "pp" for the processor top or "dp" for milan_datapath.
 MUTATIONS = [
@@ -101,6 +121,11 @@ MUTATIONS = [
       ("pp", PP_SEL7, "        4'd7: aecp_gsi_data_w = gsi_data_i;"),
       ("dp", DP_SEL15, DP_OLD_SEL7 + DP_SEL15)],
      "[GSI] G1 sink 0 bound: probing_status"),
+    ("the processor duplicates the withdrawal push after 4096 cycles",
+     [("pp", PP_STRI_EVENTS, PP_DUPLICATE_WITHDRAWAL + PP_STRI_EVENTS),
+      ("pp", PP_UNREGISTER,
+       PP_UNREGISTER + " || (duplicate_unreg_cyc_r[k] == 13'd1)")],
+     "[GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A"),
 ]
 
 

@@ -1660,14 +1660,16 @@ class NxnDatapathHarness {
     //        64-bit BridgeID into the sink it names, distinct per sink;
     //    G6  an unchanged refresh announces nothing;
     //    G7  a changed FailureInformation changes that sink alone, once;
-    //    G8  a withdrawal clears the sink's failure fields;
+    //    G8  withdrawal pushes twice per controller: registrar withdrawal,
+    //        then settlement teardown to PASSIVE, both with cleared failure;
     //    G9  STOP_STREAMING pushes its own response, never GET_STREAM_INFO,
     //        and never to the requester (Milan 5.4.5.2);
     //    G10 a reset returns both sinks to DISABLED with nothing carried.
-    //  Every transition's unsolicited GET_STREAM_INFO reaches both registered
-    //  controllers exactly once and is byte-identical, from the body on, to
-    //  the solicited answer that follows it. gsi_mutants.py plants the
-    //  defects #508 names and requires the named checks here to fail.
+    //  Each named change pushes once to both registered controllers; G8 has
+    //  two changes and grades both pushes to each controller. Its first push
+    //  already reads PASSIVE: the owners are read live, after teardown.
+    //  Both bodies equal the solicited answer. gsi_mutants.py requires the
+    //  named checks to fail, including an extra withdrawal push in G8.
     //
     //  THE SECTION OWNS THE MAC PORTS. One RX queue and one TX accumulator
     //  carry every frame it sends and every frame the entity sends, so a
@@ -2170,12 +2172,33 @@ class NxnDatapathHarness {
         notify_clear();
         gsi_withdraw(0);
         gsi_ms(kGsiWinMs);
-        const long pushes = notify_count(0x000F, &CTL_B, 0x0005, 0);
-        ck("[GSI] G8 sink 0 withdrawn: the withdrawal pushed", static_cast<long>(pushes >= 1), 1);
-        const std::vector<uint8_t> last = notify_last(0x000F, CTL_B, 0x0005, 0);
-        const std::vector<uint8_t> w = gsi_get(CTL_B, 0);
-        ck("[GSI] G8 sink 0 withdrawn: the last push equals the solicited answer",
-           static_cast<long>(notify_same_from(last, w, 38)), 1);
+        const std::vector<uint8_t> w = gsi_ck_pushes("[GSI] G8 sink 0 withdrawn", 0, 2);
+        //! protocol_processor_top.stri_events first sees srp_evt_tk_unreg_w,
+        //! then lstn_gsi_changed_r when the lost reservation tears down the
+        //! settlement (05_acmp_engine F05.5: talker gone -> PRB_W_AVAIL).
+        //! Both pushes read the owners live (06_aecp_engine F06.13), so even
+        //! the registrar's push already carries PASSIVE, not COMPLETED.
+        //! Grade BOTH ordered pushes to EACH controller against that state.
+        const Ctlr* controllers[] = {&CTL_A, &CTL_B};
+        const char* changes[] = {"registrar withdrawal", "settlement teardown"};
+        for (unsigned c = 0; c < 2; c++) {
+            unsigned seen = 0;
+            for (const std::vector<uint8_t>& f : uns_log) {
+                if (f.size() < 42 || !aecp_is_unsolicited(f)
+                    || notify_cmd(f) != 0x000F || !notify_to(f, *controllers[c])
+                    || gsi_be(f, 38, 2) != 0x0005 || gsi_be(f, 40, 2) != 0) continue;
+                char tag[128];
+                snprintf(tag, sizeof tag, "[GSI] G8 sink 0 %s to %c",
+                         seen < 2 ? changes[seen] : "unexpected extra push", 'A' + c);
+                gsi_ck_state(tag, f, kPbPassive, 0);
+                gsi_ck_failure(tag, f, false, 0, 0);
+                char check[200];
+                snprintf(check, sizeof check, "%s: body equals the solicited answer", tag);
+                ck(check, static_cast<long>(notify_same_from(f, w, 38)), 1);
+                seen++;
+            }
+        }
+        gsi_ck_pushes("[GSI] G8 sink 1 quiet on sink 0 withdrawal", 1, 0);
         gsi_ck_failure("[GSI] G8 sink 0 withdrawn", w, false, 0, 0);
         //! the registration was the settled sink's reservation: its loss
         //! tears the settlement down, and no talker was ever discovered

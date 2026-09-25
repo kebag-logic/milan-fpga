@@ -474,12 +474,20 @@ The processor's response tests own isolated latency-change coverage.
 | G5 | the bridge declares Talker Failed on each stream | code and 64-bit bridge id per sink, distinct values, flags set |
 | G6 | the same Talker Failed, refreshed | no push |
 | G7 | sink 1's FailureInformation changes | one push for sink 1, new values; sink 0 untouched |
-| G8 | sink 0's Talker Failed is withdrawn | its failure fields clear; the settlement tears down to PASSIVE |
+| G8 | sink 0's Talker Failed is withdrawn | exactly two pushes per controller: registrar withdrawal, then settlement teardown; both PASSIVE with cleared failure fields; sink 1 quiet |
 | G9 | STOP_STREAMING(sink 1) from A | B gets STOP_STREAMING, A gets nothing, nobody gets GET_STREAM_INFO |
 | G10 | a reset | both sinks DISABLED with nothing carried |
 
-Every transition pushes exactly one GET_STREAM_INFO to each controller.
-Each push equals the solicited answer that follows it, from the body on.
+Each named change pushes one GET_STREAM_INFO to each controller.
+G8 has two changes, producing exactly two pushes per controller.
+The first follows `srp_evt_tk_unreg_w`: the registrar withdraws its attribute.
+The second follows `lstn_gsi_changed_r`: settlement tears down to PASSIVE.
+Both trigger `protocol_processor_top.stri_events` at the adopted pin.
+Both responses carry PASSIVE, zero ACMP status, and cleared failures.
+The first already sees teardown because response gathers read live.
+See [field lineage](../../../protocol-processor/docs/architecture/06_aecp_engine.md#fig-06-lineage) and [settlement states](../../../protocol-processor/docs/architecture/05_acmp_engine.md#fig-05-settled).
+G8 grades both ordered responses to each controller against that state.
+Both bodies equal the subsequent solicited answer; sink 1 stays quiet.
 Acceptance 2 names PASSIVE after a bind.
 The processor reads Milan 5.5.3.5.3 and 5.5.3.5.29 as ACTIVE first.
 A bind probes at once, and PASSIVE follows an unanswered probe's retry.
@@ -488,20 +496,25 @@ G1 and G3 grade that order (processor issue 43, PR 111).
 **Failing arms.** `make gsi-mutants` runs `gsi_mutants.py`.
 It plants each defect in a copy of the processor tree or the datapath.
 The submodule checkout is never edited.
-Each was run on this head (2026-09-24 UTC); the clean leg passes 345 of 345.
+Measured on 2026-09-25 UTC: the clean leg passes 380/380 checks.
 
 | Mutant | Named check that fails | Failures |
 |---|---|---|
-| the processor ties the bridge id to zero | G5 sink 0 `msrp_failure_bridge_id` | 7 of 345 |
-| selector 5 goes back to the datapath, which answers zero | G5 sink 0 `msrp_failure_bridge_id` | 7 of 345 |
-| the processor ties the failure code to zero | G5 sink 0 `msrp_failure_code` | 7 of 345 |
-| the failure-code byte is left to the datapath | G5 sink 1 `msrp_failure_code` | 7 of 345 |
-| the processor ties probing/ACMP status to zero | G2 sink 0 `acmp_status` | 17 of 345 |
-| the processor reads the other sink's owners | G5 sink 0 beside the other sink, bridge id | 30 of 345 |
-| the datapath's bound/settled approximation returns | G1 sink 0 `probing_status` | 10 of 345 |
+| the processor ties the bridge id to zero | G5 sink 0 `msrp_failure_bridge_id` | 7 of 380 |
+| selector 5 goes back to the datapath, which answers zero | G5 sink 0 `msrp_failure_bridge_id` | 7 of 380 |
+| the processor ties the failure code to zero | G5 sink 0 `msrp_failure_code` | 7 of 380 |
+| the failure-code byte is left to the datapath | G5 sink 1 `msrp_failure_code` | 7 of 380 |
+| the processor ties probing/ACMP status to zero | G2 sink 0 `acmp_status` | 21 of 380 |
+| the processor reads the other sink's owners | G5 sink 0 beside the other sink, bridge id | 42 of 380 |
+| the datapath's bound/settled approximation returns | G1 sink 0 `probing_status` | 14 of 380 |
+| the processor duplicates withdrawal after 4096 cycles | G8 sink 0 unsolicited GET_STREAM_INFO count to A | 2 of 396 |
 
-The campaign is explicit, not a sweep step: seven elaborations and eight runs.
-It took about 3.5 minutes on an eight-core host.
+The duplicate also fails the exact count to B.
+It replays `srp_evt_tk_unreg_w` after the legitimate pushes drain.
+A simultaneous duplicate would coalesce, providing no extra push.
+The mutant's two extra responses receive the same content checks.
+That adds sixteen checks to its run.
+The campaign runs explicitly: eight mutant elaborations and nine runs.
 
 **Every harness that binds a sink starts the restore walk.**
 Since the same pin, the processor holds its ACMP listener from reset.

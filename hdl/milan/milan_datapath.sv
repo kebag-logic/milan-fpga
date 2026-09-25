@@ -6600,8 +6600,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //!   processor's optimistic window (sr_adm_fsm = opt | admitted): a fresh
   //!   declaration counts as admitted until the end of the third PUBLISHED
   //!   admission round after it, a round walking one source per cycle, so
-  //!   N_SOURCES cycles each (protocol-processor hdl/srp/KL_srp_top.sv:450,
-  //!   785-796, 871-874).
+  //!   N_SOURCES cycles each (protocol-processor hdl/srp/KL_srp_top.sv:
+  //!   sr_adm_fsm_w at 451, opt_r aging at 787-798, reload at 873-876).
   //!   The same declaration clears that source's talker-side Listener
   //!   registrar (KL_srp_talker_fsm.sv:705-710), so no Listener Ready is
   //!   ever registered at a declaration and ACTIVE is 0 after it. ACTIVE
@@ -6680,8 +6680,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! scalars and always described sink 0, and [2*k +: 2] is the per-sink
   //! slice. tk_reg_state is a CODE, not a one-hot: the processor publishes
   //! 0 NONE / 1 ADVERTISE / 2 FAILED (protocol-processor
-  //! hdl/srp/KL_srp_top.sv:210, driven at hdl/srp/KL_srp_listener_fsm.sv:
-  //! 842-843), so bit 1 of the slice is set for a registered Talker FAILED
+  //! hdl/srp/KL_srp_top.sv:211 tk_reg_state_o, driven by status_map at
+  //! hdl/srp/KL_srp_listener_fsm.sv:851-853), so bit 1 of the slice is set
+  //! for a registered Talker FAILED
   //! and clear for the registered Talker ADVERTISE this field is named for -
   //! the inversion #472 measured. The compare is against the ADVERTISE code,
   //! named below because the processor spells this word's codes in a port
