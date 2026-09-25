@@ -1,0 +1,29 @@
+$ python3 scripts/check_doc_paths.py
+doc path gate: OK (842 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+$ python3 scripts/check_py_idiom.py
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+$ python3 scripts/check_em_dash.py --base c266432dcb0cdd464205823a3d82cad260eedde2
+check_em_dash: 0 finding(s) over 222 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [c266432d..HEAD]
+rc=0
+$ git diff --check 224ec0e9a..9d66cfe0
+rc=0
+$ git diff --numstat 224ec0e9a..9d66cfe0
+1	1	CHANGELOG.md
+1	1	docs/testing/TESTING.md
+1	1	scripts/measure_test_evidence.py
+2	2	tb/verilator/milan_dp/Makefile
+1	1	tb/verilator/milan_dp/README.md
+$ gitlinks at head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 990f96526bb89356c963a260ebbdcf2a77e6623a	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+$ gitlinks at prior head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 990f96526bb89356c963a260ebbdcf2a77e6623a	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis

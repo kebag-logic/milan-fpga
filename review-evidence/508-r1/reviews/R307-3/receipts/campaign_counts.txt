@@ -1,0 +1,7 @@
+gsi_mutants.py: arms=8 extra_elaborations=8 runs=9 reuses_prerequisite_clean_build=True expected=(8, 8, 9)
+crflic_mutants.py: arms=3 extra_elaborations=3 runs=4 reuses_prerequisite_clean_build=True expected=(3, 3, 4)
+Makefile: # three more elaborations and four runs of the leg, measured at 139 s on an
+Makefile: # An EXPLICIT campaign like crflic-mutants: eight more elaborations and
+Makefile: # nine runs of the timed leg, outside the sweep's deadline.
+RESULT OK
+rc=0
