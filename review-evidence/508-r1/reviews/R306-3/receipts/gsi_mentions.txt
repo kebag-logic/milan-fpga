@@ -1,0 +1,26 @@
+CHANGELOG.md:57:- `make gsi-mutants` holds its eight failing arms.
+docs/testing/TESTING.md:267:| #508 GET_STREAM_INFO seam, the eight field and notification mutants | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather, the GET_STREAM_INFO answer block of `milan_datapath.sv` or the `[GSI]` section of `sim_nxn.cpp` |
+scripts/measure_test_evidence.py:606:    "protocol-processor/tb/pp_top/gsi_mutants.py":
+scripts/measure_test_evidence.py:607:        "mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table "
+scripts/measure_test_evidence.py:619:    "tb/verilator/milan_dp/gsi_mutants.py":
+scripts/measure_test_evidence.py:620:        "mutation campaign; it plants one of eight #508 GET_STREAM_INFO seam defects into a copy of "
+scripts/measure_test_evidence.py:622:        "gsi-mutants target, outside the default sweep",
+tb/verilator/milan_dp/Makefile:15:#                 the #508 GET_STREAM_INFO seam ([GSI]) at compressed time
+tb/verilator/milan_dp/Makefile:16:#   make gsi-mutants - the [GSI] section's explicit mutation campaign
+tb/verilator/milan_dp/Makefile:17:#                 (gsi_mutants.py), outside the sweep's deadline
+tb/verilator/milan_dp/Makefile:202:.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
+tb/verilator/milan_dp/Makefile:276:# Milan 5.4.5 TIMED (issue #69) and the #508 GET_STREAM_INFO seam: the
+tb/verilator/milan_dp/Makefile:285:# right after them (NOTIFY_TIMED_TB). gsi_mutants.py builds a MUTATED
+tb/verilator/milan_dp/Makefile:453:gsi-mutants: notify
+tb/verilator/milan_dp/Makefile:454:	python3 gsi_mutants.py
+tb/verilator/milan_dp/Makefile:537:	@echo "---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----"
+tb/verilator/milan_dp/README.md:26:| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants` |
+tb/verilator/milan_dp/README.md:42:- **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
+tb/verilator/milan_dp/README.md:435:## The #508 GET_STREAM_INFO seam (the GSI section of `obj_notify`)
+tb/verilator/milan_dp/README.md:496:**Failing arms.** `make gsi-mutants` runs `gsi_mutants.py`.
+tb/verilator/milan_dp/gsi_mutants.py:4:"""Mutation arm for the #508 GET_STREAM_INFO seam in milan_dp: prove the checks can fail.
+tb/verilator/milan_dp/gsi_mutants.py:20:(obj_notify, which `make gsi-mutants` builds and runs first), re-run here.
+tb/verilator/milan_dp/gsi_mutants.py:36:Usage: make -C tb/verilator/milan_dp gsi-mutants
+tb/verilator/milan_dp/gsi_mutants.py:37:       (or python3 gsi_mutants.py [N ...] from tb/verilator/milan_dp, where
+tb/verilator/milan_dp/gsi_mutants.py:249:    with tempfile.TemporaryDirectory(prefix="gsi-mutants-") as td:
+tb/verilator/milan_dp/sim_nxn.cpp:1671:    //  Both bodies equal the solicited answer. gsi_mutants.py requires the
