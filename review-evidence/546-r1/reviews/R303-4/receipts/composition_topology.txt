@@ -1,0 +1,102 @@
+candidate 59e7f5fd76786faa673b4522018f4e9590d294d0 tree 21557de92fc191e37e357a330e7a1a6077618f1b
+parents: 2ab66c9de3a63942c4d3251e1354e8ad3a50d88c f5532c4c3f94a516b748cc4627dc5f78d05fa73e
+clean merge-tree of parents: 21557de92fc191e37e357a330e7a1a6077618f1b
+dev ancestor of source: yes
+dev ancestor of train: no
+commits in dev not in train (merge commits only expected):
+c266432d Merge PR #555: Make a PHC step one counted media event: toggle mr, count MEDIA_RESET, re-base once, and merge a pending restart
+ffcbd33d Merge PR #535: Retire gate 1b's text rules onto per-selection grading, -E, -H and the resolved store census
+tree diff dev..train (content the predecessors add):
+ 19 files changed, 711 insertions(+), 329 deletions(-)
+predecessor commits (train not in dev):
+efcabc37 docs: remove donor capture-hold measurement condition
+afdd28b7 Document current capture-copy exposure and parent measurement owner
+dd6a68e9 Require named NVM controls and align saved-state timing contracts
+8544472a Correct CTLR_DIAG structural-zero comments
+b5ee412c Grow dynamic output-map records to the stream-channel key space
+e41703b2 Document and pin CTLR_DIAG as a structural zero
+== files the 546 side adds on the train (train..candidate)
+docs/design/GM_LOSS_RECOVERY.md
+docs/design/TIME_SYNC.md
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+docs/traceability/MODULE_MATRIX.md
+hdl/common/README-tests.md
+hdl/ieee1722/crf/KL_crf_rx.sv
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+hdl/ieee1722/crf/README-tests.md
+hdl/milan/milan_datapath.sv
+scripts/measure_test_evidence.py
+tb/verilator/crf_rx/crf_talker_wrap.sv
+tb/verilator/crf_rx/Makefile
+tb/verilator/crf_rx/mutants.py
+tb/verilator/crf_rx/sim_discontinuity.cpp
+tb/verilator/crf_rx/sim_main.cpp
+tb/verilator/crf_rx/sim_talker_step.cpp
+tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp
+tb/verilator/mmcm_servo/Makefile
+tb/verilator/mmcm_servo/rails_wrap.sv
+tb/verilator/mmcm_servo/sim_main.cpp
+tb/verilator/mmcm_servo/sim_phc_step.cpp
+== files the predecessors change relative to dev (dev..train)
+docs/design/SAVED_STATE_FASTCONNECT.md
+docs/design/SAVED_STATE_MATERIALIZATION.md
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+docs/findings/117_GPTP_SILICON_EVIDENCE.md
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/reference/REGISTER_MAP.md
+hdl/common/csr/milan_csr.sv
+hdl/milan/milan_datapath.sv
+scripts/check_nvm_record_space.py
+scripts/nvm_contract.py
+scripts/nvm_map_checks.py
+scripts/nvm_shape.py
+sw/builder/test_builder.py
+sw/firmware/milan_baremetal/milan_baremetal.c
+tb/verilator/milan_dp/sim_nxn.cpp
+tb/verilator/nvm_backend/Makefile
+tb/verilator/nvm_backend/README.md
+tb/verilator/nvm_backend/records_endstation_ax7101_8x8.txt
+tb/verilator/nvm_backend/sim_main.cpp
+== OVERLAP
+docs/reference/REGISTER_MAP.md
+hdl/milan/milan_datapath.sv
+== overlap blob table: path dev train source candidate
+docs/reference/REGISTER_MAP.md df924db3fa82 acf03eae0e62 9eff16569eb7 be9e1c5379c0
+hdl/milan/milan_datapath.sv d91eaf616885 3502ec5413b2 78b935936123 4925feb4c3c2
+== owners of the overlap on the predecessor side
+docs/reference/REGISTER_MAP.md: e41703b2 Document and pin CTLR_DIAG as a structural zero
+hdl/milan/milan_datapath.sv: e41703b2 Document and pin CTLR_DIAG as a structural zero
+== patch equivalence: diff(train..candidate) vs diff(dev..source), header lines only expected
+114c114
+< index acf03eae..be9e1c53 100644
+---
+> index df924db3..9eff1656 100644
+370c370
+< index 3502ec54..4925feb4 100644
+---
+> index d91eaf61..78b93593 100644
+381c381
+< @@ -5500,6 +5501,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+---
+> @@ -5498,6 +5499,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+389c389
+< @@ -5558,6 +5560,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+---
+> @@ -5556,6 +5558,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+rc=1
+== source-only suite paths identical source vs candidate
+(empty line above = byte-identical)
+== gitlinks
+2ab66c9de3a63942c4d3251e1354e8ad3a50d88c 160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+2ab66c9de3a63942c4d3251e1354e8ad3a50d88c 160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+2ab66c9de3a63942c4d3251e1354e8ad3a50d88c 160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+2ab66c9de3a63942c4d3251e1354e8ad3a50d88c 160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+f5532c4c3f94a516b748cc4627dc5f78d05fa73e 160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+f5532c4c3f94a516b748cc4627dc5f78d05fa73e 160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+f5532c4c3f94a516b748cc4627dc5f78d05fa73e 160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+f5532c4c3f94a516b748cc4627dc5f78d05fa73e 160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+59e7f5fd76786faa673b4522018f4e9590d294d0 160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+59e7f5fd76786faa673b4522018f4e9590d294d0 160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+59e7f5fd76786faa673b4522018f4e9590d294d0 160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+59e7f5fd76786faa673b4522018f4e9590d294d0 160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis

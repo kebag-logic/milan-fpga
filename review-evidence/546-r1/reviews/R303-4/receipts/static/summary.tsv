@@ -1,0 +1,42 @@
+docs_check	0	4s	python3 scripts/docs_check.py
+docs_check_selftest	0	0s	python3 scripts/docs_check.py --selftest
+feature_status	0	1s	python3 scripts/check_feature_status.py
+em_dash_base_parent1	0	3s	$REVIEWS/546-r303-4-packet/scratch/mdvenv/bin/python scripts/check_em_dash.py --base 2ab66c9de3a63942c4d3251e1354e8ad3a50d88c
+em_dash_base_dev	0	3s	$REVIEWS/546-r303-4-packet/scratch/mdvenv/bin/python scripts/check_em_dash.py --base c266432dcb0cdd464205823a3d82cad260eedde2
+em_dash_selftest	0	3s	$REVIEWS/546-r303-4-packet/scratch/mdvenv/bin/python scripts/check_em_dash.py --selftest
+doc_style	0	0s	python3 scripts/check_doc_style.py
+doc_style_selftest	0	0s	python3 scripts/check_doc_style.py --selftest
+gptp_docs	0	0s	python3 scripts/check_gptp_docs.py
+doc_paths	0	0s	python3 scripts/check_doc_paths.py
+doc_map_check	0	1s	python3 docs/DOC_MAP.gen.py --check
+timesync_chain_check	0	0s	python3 docs/diagrams/timesync_chain.gen.py --check
+solution_docs	0	0s	python3 scripts/check_solution_docs.py
+submodule_bound_check	0	0s	python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule_docs	0	1s	python3 scripts/check_submodule_docs.py
+module_matrix_check	0	1s	python3 docs/traceability/gen_module_matrix.py --check
+gen_toc_check	0	2s	$REVIEWS/546-r303-4-packet/scratch/mdvenv/bin/python scripts/gen_toc.py --check
+gen_toc_anchors	0	2s	$REVIEWS/546-r303-4-packet/scratch/mdvenv/bin/python scripts/gen_toc.py --verify-anchors
+gen_toc_selftest	0	0s	$REVIEWS/546-r303-4-packet/scratch/mdvenv/bin/python scripts/gen_toc.py --selftest
+measure_evidence	0	5s	python3 scripts/measure_test_evidence.py --check
+measure_evidence_st	0	5s	python3 scripts/measure_test_evidence.py --selftest
+nvm_record_space	0	2s	python3 scripts/check_nvm_record_space.py
+nvm_record_space_st	0	31s	python3 scripts/check_nvm_record_space.py --self-test
+rtl_source_lists	0	1s	python3 scripts/check_rtl_source_lists.py
+port_contracts	0	3s	python3 scripts/check_port_contracts.py
+naming_check	0	0s	python3 scripts/measure_naming.py --check
+fail_fast_check	0	1s	python3 scripts/measure_fail_fast.py --check
+todo_ownership	0	2s	python3 scripts/check_todo_ownership.py
+hygiene_check	0	0s	python3 scripts/check_hygiene.py --check
+sv_idiom	0	0s	python3 scripts/check_sv_idiom.py
+cpp_idiom	0	1s	python3 scripts/check_cpp_idiom.py
+py_idiom	0	4s	python3 scripts/check_py_idiom.py
+sh_idiom	0	0s	python3 scripts/check_sh_idiom.py
+ci_events_check	0	0s	python3 scripts/ci_events.py --check
+ci_events_selftest	0	15s	python3 scripts/ci_events.py --selftest
+archive_check	0	0s	python3 scripts/check_archive.py
+baremetal_only	0	14s	python3 scripts/check_baremetal_only.py --check
+xvlog_gate_check	0	136s	python3 scripts/xvlog_gate.py --check
+lint_rtl_check	0	6s	python3 scripts/lint_rtl.py --check
+diff_check_parent1	0	0s	git diff --check 2ab66c9de3a63942c4d3251e1354e8ad3a50d88c 59e7f5fd76786faa673b4522018f4e9590d294d0
+docs_check_no_git	0	-	exported tree, no .git: python3 scripts/docs_check.py
+feature_status_no_git	0	-	exported tree, no .git: python3 scripts/check_feature_status.py

@@ -1,0 +1,50 @@
+== blob identity source vs candidate for prior-finding artifacts
+tb/verilator/crf_rx/Makefile 9364b0cb9d22cfcbde2f451d72a7443d5dba17db 9364b0cb9d22cfcbde2f451d72a7443d5dba17db IDENTICAL
+tb/verilator/crf_rx/mutants.py c5d5bd9b33b92cca89c39b28b42edd68603697a3 c5d5bd9b33b92cca89c39b28b42edd68603697a3 IDENTICAL
+tb/verilator/crf_rx/sim_talker_step.cpp 6dbdc48db00e529031c294e970b35e53367aa0d5 6dbdc48db00e529031c294e970b35e53367aa0d5 IDENTICAL
+tb/verilator/mmcm_servo/sim_main.cpp 2fb7bc615c4e42c4cfcfc999c5bd9b5242920a20 2fb7bc615c4e42c4cfcfc999c5bd9b5242920a20 IDENTICAL
+hdl/ieee1722/crf/KL_crf_rx.sv 2429b4f51883f3361b57f4b25f1d5dece6b18c76 2429b4f51883f3361b57f4b25f1d5dece6b18c76 IDENTICAL
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv 12eaa99c47e6cc46d8fa2cd8e9710373cfad1ff8 12eaa99c47e6cc46d8fa2cd8e9710373cfad1ff8 IDENTICAL
+docs/design/TIME_SYNC.md 705a1cce96c7aaed2a800ebb2a70135e5adaf235 705a1cce96c7aaed2a800ebb2a70135e5adaf235 IDENTICAL
+docs/design/GM_LOSS_RECOVERY.md 71c79e7ac2a7fb2c53333674050a13dbb149ab3e 71c79e7ac2a7fb2c53333674050a13dbb149ab3e IDENTICAL
+scripts/measure_test_evidence.py df66aaed723b62400fa60b41a45c003cb4573c2f df66aaed723b62400fa60b41a45c003cb4573c2f IDENTICAL
+== F3/S2: mutants gated
+53:all: run mutants
+== F2/R30x-2-F1: citations
+hdl/ieee1722/crf/KL_crf_rx.sv:275:  //! Assume the media oscillator meets IEEE 802.1AS Annex B.1.1's
+hdl/ieee1722/crf/KL_crf_rx.sv:276:  //! +/-100 ppm LocalClock bound. Milan v1.2 section 7.4 requires media
+docs/design/TIME_SYNC.md:48:    PEER[802.1AS peer] --> RX[RX boundary timestamp]
+docs/design/TIME_SYNC.md:193:See IEEE 802.1AS Annex B.1.1.
+docs/design/TIME_SYNC.md:197:Milan v1.2 section 7.4 constrains media clock sources.
+== R303-2 S1: U13 resume
+604:        ck("[U13] valid offset resumes PI trim", trim() > resumed + 5 * 16, 1);
+100:            print("FAIL servo_never_resumes: expected exactly one mutation anchor")
+112:            work, "servo_never_resumes", never_resumes,
+== R303-2 S2: disposition
+DUT_READER_DISPOSITIONS = {
+    "tb/verilator/crf_rx/mutants.py":
+        "mutation campaign; copies the receiver and servo, requiring named failures "
+        "for tu, jump, refill, accept-edge, ignored-validity and PI-resume defects; "
+        "no expectations read from RTL",
+    "gptp-processor/tb/check_phc_contract.py":
+== R303-1 S2 wording
+841:| `0x748` | `CRF_RATE` | RO | `0` | The talker's media clock measured against gPTP, the servo frequency input. Signe
+152:| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase referen
+== R302-1 S3 servo banner
+                          ns (4.29 s) aliases in the detector's 32 bits
+                          and meets the 1024 ppm guard instead.
+
+                  remote history (#546): crf_rate_valid_i qualifies each
+                          window's PI run. Invalid receiver history skips
+                          PI, trim and lock-count updates without changing
+== R302-4 S1 gmstep not-graded list
+- `mr` and MEDIA_RESET: one each, and both belong to the step.
+- Streams: the talker keeps streaming and the listener stays locked.
+
+It does not grade these:
+
+- The grid aligner: the leg holds the TDM clocks.
+- The CRF servo: its DRP answers zero. `Vphc_step` grades its step discard (#539).
+- An lwSRP licence: the escape bit opens the talker.
+- A pending-restart step: `tkdiag` T17 and T18 grade it.
+- The physical re-base: the #117 bench measures it.
