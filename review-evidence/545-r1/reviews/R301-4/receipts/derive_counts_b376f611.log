@@ -1,0 +1,15 @@
+gmstep CONTROLS: total=14 acceptance=3 option-off=2 slew(--slew)=3 gmstep-leg=12
+[OK] README control table rows=11, CONTROLS minus --slew=11
+[OK] README table names equal the non-slew CONTROLS names (only-in-table=[], only-in-source=[])
+[OK] README table 'the sweep' rows=3, acceptance controls=3
+[OK] README table option-off rows=2, option-off controls=2
+[MISMATCH] README:592: 'all eleven (the explicit-campaign rule' states 11; source make gmstep-mutants (--all) controls = 14
+[MISMATCH] README:615: 'all eleven controls' states 11; source make gmstep-mutants (--all) controls = 14
+[MISMATCH] README:859: 'all eleven (two on the option-off leg' states 11; source make gmstep-mutants (--all) controls = 14
+[OK] TESTING.md:268: 12 gmstep + 2 option-off; source 12 + 2
+slew_mutants defects=8: discard_removed, level_tied_low, partial_tail_trusted, discard_not_counted, step_dedupe_removed, slew_streak_reset_removed, slew_discard_extends_streak, slew_discard_counts_as_guard_trip
+[OK] TESTING.md:269: 8 defects; source 8
+disposition classes=6: ['discard removal', 'tied-low level', 'partial-tail trust', 'omitted tally', 'boundary step double counting', 'a retained guard streak']
+[MISMATCH] disposition names 6 classes for 8 defects
+RESULT: 4 MISMATCH(ES)
+rc=1
