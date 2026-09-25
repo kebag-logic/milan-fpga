@@ -1,0 +1,33 @@
+## ver.d header resolution per leg (pp_shadow)
+== obj_dir
+../../../configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+../../../hdl/common/csr/gen/lwsrp_csr_defaults.svh
+== obj_vid73
+obj_vid73/fixture/gen/adp_shape_defaults.svh
+obj_vid73/fixture/gen/lwsrp_csr_defaults.svh
+== obj_crf
+obj_crf/fixture/gen/adp_shape_defaults.svh
+obj_crf/fixture/gen/lwsrp_csr_defaults.svh
+## vid73 fixture adp header vs tracked arty_current
+8c8
+< //  Source      : tb/verilator/pp_shadow/obj_vid73/fixture/config.yaml
+---
+> //  Source      : configs/endstation_arty_current.yaml
+84c84
+<   localparam logic [15:0] ADP_SRP_DOM_DEF_VID_C = 16'd73;
+---
+>   localparam logic [15:0] ADP_SRP_DOM_DEF_VID_C = 16'd2;
+## vid73 fixture csr header vs tracked
+8c8
+< //  Source      : tb/verilator/pp_shadow/obj_vid73/fixture/config.yaml
+---
+> //  Source      : configs/endstation_arty_current.yaml
+33c33
+<   localparam [31:0] LWSRP_VID_RST_C       = 32'h0000_0049;  //! 0x684
+---
+>   localparam [31:0] LWSRP_VID_RST_C       = 32'h0000_0002;  //! 0x684
+## crf fixture csr header vs tracked
+8c8
+< //  Source      : tb/verilator/pp_shadow/obj_crf/fixture/config.yaml
+---
+> //  Source      : configs/endstation_arty_current.yaml

@@ -1,0 +1,25 @@
+# RX posture residue at e122f3302cf8a8e89de960233a8638b9dd1387dc
+## RX_ADDRESS_FILTERS uses
+sw/builder/endstation_builder.py:408:RX_ADDRESS_FILTERS = ("promiscuous",)
+## builder lines 403-409
+#: Where the RX destination-address decision is taken. `hardware` (the
+#: default, and what both boards ship) REQUIRES rx_mac_filter; the other two
+#: are the honest declarations that let it be pruned. This key exists so that
+#: pruning the filter is a stated deployment property rather than a silent
+#: change of what the port accepts.
+RX_ADDRESS_FILTERS = ("promiscuous",)
+
+## same block at base 864b36f5
+#: Where the RX destination-address decision is taken. `hardware` (the
+#: default, and what both boards ship) REQUIRES rx_mac_filter; the other two
+#: are the honest declarations that let it be pruned. This key exists so that
+#: pruning the filter is a stated deployment property rather than a silent
+#: change of what the port accepts.
+RX_ADDRESS_FILTERS = ("hardware", "promiscuous")
+## rx_address_filter mentions of hardware/disabled
+docs/ENDSTATION_BUILDER.md:996:| 30 | `platform.rx_address_filter` | Only `promiscuous`, also the omitted default. `hardware` is refused with migration guidance. `boot_policy.fabric_constants()` generates `MILAN_TCAM_CTRL_BOOT=1` and `MILAN_MAC_CTRL_SET=8`; firmware writes the TCAM bypass explicitly
+sw/builder/README-parameters.md:71:| `rx_address_filter` | `promiscuous` | Existing reset/boot accept-all posture. `hardware` refuses with migration text. |
+sw/builder/test_builder.py:20542:        ("filter pruned but rx_address_filter is hardware",
+sw/builder/test_builder.py:20544:             rx_address_filter="hardware"), True),
+sw/builder/test_builder.py:20606:        c.setdefault("platform", {}).update(rx_address_filter="promiscuous")
+sw/builder/test_declarations.py:84:            ("platform.rx_address_filter", lambda c: c["platform"].update(rx_address_filter="hardware")),

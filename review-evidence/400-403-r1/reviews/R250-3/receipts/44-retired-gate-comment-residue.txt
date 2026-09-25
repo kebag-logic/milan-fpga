@@ -1,0 +1,42 @@
+# retired-gate residue at e122f3302cf8a8e89de960233a8638b9dd1387dc
+## builder 361-365 (head)
+#: `srp.stream_dmac_base: maap` means the stream destination addresses are
+#: ALLOCATED AT RUN TIME by the MAAP engine rather than provisioned here. It
+#: is the only value that makes KL_maap load-bearing, and therefore the only
+#: value that forbids `board.features.maap: false`.
+SRP_DMAC_DYNAMIC = "maap"
+## builder 403-408 (head)
+#: Where the RX destination-address decision is taken. `hardware` (the
+#: default, and what both boards ship) REQUIRES rx_mac_filter; the other two
+#: are the honest declarations that let it be pruned. This key exists so that
+#: pruning the filter is a stated deployment property rather than a silent
+#: change of what the port accepts.
+RX_ADDRESS_FILTERS = ("promiscuous",)
+## base gate 3163-3170 (864b36f5) for comparison
+    # 2. MAAP: load-bearing exactly when the stream DMACs are allocated at
+    #    run time rather than provisioned in this file.
+    if not feat["maap"] and srp["stream_dmac_alloc"] == SRP_DMAC_DYNAMIC:
+        raise ConfigError(
+            "board.features.maap: false prunes KL_maap, but "
+            f"srp.stream_dmac_base is '{SRP_DMAC_DYNAMIC}' = the addresses "
+            "are claimed at run time by that engine. Provision a static "
+            "multicast base instead, or keep MAAP.")
+## head gate 3208-3214
+    # Every supported configuration declares AAF talkers. Numeric legacy
+    # table addresses never replace their live MAAP allocation.
+    if not feat["maap"]:
+        raise ConfigError(
+            "board.features.maap: false removes the allocator required by "
+            "every declared talker (Milan v1.2 4.3.3.1 and 4.3.5.1). "
+            "Numeric srp.stream_dmac_base is legacy scratch; keep MAAP.")
+## phrase search (tracked, excluding docs/history)
+### only value that forbids
+### static multicast base
+### load-bearing exactly when
+### let it be pruned
+sw/builder/endstation_builder.py:405:#: are the honest declarations that let it be pruned. This key exists so that
+### what both boards ship
+sw/builder/endstation_builder.py:404:#: default, and what both boards ship) REQUIRES rx_mac_filter; the other two
+### stream_dmac_alloc
+sw/builder/endstation_builder.py:1983:    s["stream_dmac_alloc"] = "static"
+sw/builder/endstation_builder.py:1986:        s["stream_dmac_alloc"] = SRP_DMAC_DYNAMIC

@@ -1,0 +1,36 @@
+# hosted evidence for e122f3302cf8a8e89de960233a8638b9dd1387dc, polled 2026-09-25T17:25:26+00:00
+## check runs (name status conclusion completed)
+bdd-conformance	completed	success	2026-09-25T16:59:01Z
+changes	completed	success	2026-09-25T16:59:11Z
+docs-check	completed	success	2026-09-25T17:19:03Z
+docs-check-no-git	completed	success	2026-09-25T16:59:02Z
+elaborate	completed	success	2026-09-25T17:13:50Z
+full-ci-gate	completed	success	2026-09-25T16:59:11Z
+Physical gPTP (nightly and manual)	completed	skipped	2026-09-25T16:59:11Z
+rtl-fast	completed	success	2026-09-25T17:07:52Z
+verilator-lint	completed	success	2026-09-25T16:59:43Z
+Verilator shard 0/5	completed	success	2026-09-25T17:12:44Z
+Verilator shard 1/5	in_progress	null	null
+Verilator shard 2/5	completed	success	2026-09-25T17:14:38Z
+Verilator shard 3/5	completed	success	2026-09-25T17:08:55Z
+Verilator shard 4/5	in_progress	null	null
+wire-accountability	completed	success	2026-09-25T16:58:57Z
+yosys-elaboration	completed	success	2026-09-25T17:07:46Z
+Yosys shard 0/4	completed	success	2026-09-25T17:05:40Z
+Yosys shard 1/4	completed	success	2026-09-25T16:59:39Z
+Yosys shard 2/4	completed	success	2026-09-25T16:59:49Z
+Yosys shard 3/4	completed	success	2026-09-25T17:00:24Z
+## shard 3/5 job 108167984638 (run 36164202471) checkout line
+HEAD is now at cbcfd17 Merge e122f3302cf8a8e89de960233a8638b9dd1387dc into 5c78ce2e9d831e588e759b696ed549804327e4d8
+## shard 3/5 tally
+shard: 3/5   selected suites: 12
+PASS     csr
+suites: 12   passed: 12   failed: 0   timed out: 0
+checks: 14432   in-suite failures: 0
+## artifact suite-logs-3 csr.log reset-bits leg
+2095:declaration fixture: reset_bits.yaml
+2236:  [ok]   generated SRP reset control readback = 0x13
+2237:  [ok]   generated SRP reset enable output = 0x1
+2238:  [ok]   generated SRP reset arm output = 0x1
+## note: hosted csr binaries report 400 checks vs 391 locally; the extra checks (RENDER_STAT, 0x8E0/0x8F4) come from dev 5c78ce2e in the merge ref, not from this head
+## confirmation: 'RENDER_STAT' occurrences in tb/verilator/csr/sim_main.cpp: dev 5c78ce2e = 12, head e122f330 = 0

@@ -1,0 +1,15 @@
+# repo: $REVIEWS/r250-3-400-403
+# head: e122f3302cf8a8e89de960233a8638b9dd1387dc
+# command: make -C tb/verilator/nvm_cosim quick JOBS=8 POOL=8
+# verilator: Verilator 5.050 2026-07-01 rev v5.050
+# start: 2026-09-25T19:12:32+02:00
+make: Entering directory '$REVIEWS/r250-3-400-403/tb/verilator/nvm_cosim'
+python3 -B run_cases.py --shapes 1x1 --jobs 8 --pool 8 --skip-mutants
+building 2 build(s)
+[contract-1x1] 62 case run(s): 315 ok, 0 bad, 0 not expressible
+nvm_cosim: 315 checks: 315 PASS, 0 FAIL (0 not expressible)
+RESULT: PASS
+make: Leaving directory '$REVIEWS/r250-3-400-403/tb/verilator/nvm_cosim'
+# end: 2026-09-25T19:13:01+02:00
+# wall_seconds: 28.736
+# exit: 0

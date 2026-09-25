@@ -1,0 +1,26 @@
+# head: e122f3302cf8a8e89de960233a8638b9dd1387dc
+# file: hdl/common/csr/milan_csr.sv
+# original sha256: 5ef9b3fbf46fda5e9b6f84b5766fd82a6ac589d7e56222f850f4870d81512169
+# replace: 'lwsrp_ctrl <= LWSRP_CTRL_RST_C;'
+# with:    "lwsrp_ctrl <= LWSRP_CTRL_RST_C & ~32'h3;"
+# target: make -C tb/verilator/csr
+# exit: 2
+# wall_seconds: 35.230
+# restored sha256: 5ef9b3fbf46fda5e9b6f84b5766fd82a6ac589d7e56222f850f4870d81512169 OK
+# --- failing checks and summaries ---
+checks: 391   failures: 0
+RESULT: PASS
+checks: 391   failures: 0
+RESULT: PASS
+checks: 110   failures: 0
+RESULT: PASS
+checks: 44   failures: 0
+checks: 391   failures: 0
+RESULT: PASS
+declaration fixture: reset_bits.yaml
+  [FAIL] generated SRP reset enable output got=0x0 exp=0x1
+  [FAIL] generated SRP reset arm output got=0x0 exp=0x1
+checks: 391   failures: 2
+RESULT: FAIL
+make[1]: *** [Makefile:141: reset-bits] Error 1
+make: *** [Makefile:134: run] Error 2
