@@ -1,0 +1,32 @@
+== prior-finding re-checks at candidate b1b33472
+-- R307-1 F1 = R306-1 F1: CHANGELOG blob candidate vs PR head vs train
+candidate 4eb5d125068724de778e14f622eb1958f749dec2 pr-head 4eb5d125068724de778e14f622eb1958f749dec2 train 95c1a29f6ad5c2050b2c9fec3e09d124997207c0 base-c266 95c1a29f6ad5c2050b2c9fec3e09d124997207c0
+occurrences of processor issue 116 / 113 lines:
+-- R306-2 F2 = R307-2 F2: 'seven' in the four locations
+grep rc (1 = none) 1
+-- R306-2 F1 = R307-2 F1: README submodule links
+relative-submodule-link rc (1 = none) 0
+488:blob/990f96526bb89356c963a260ebbdcf2a77e6623a/docs/architecture/06_aecp_engine.md#fig-06-lineage
+488:blob/990f96526bb89356c963a260ebbdcf2a77e6623a/docs/architecture/05_acmp_engine.md#fig-05-settled
+-- R306-1 F2: processor citations in milan_datapath.sv / pp_shadow sim_main.cpp (pin unchanged vs PR head)
+gitlink candidate 990f96526bb89356c963a260ebbdcf2a77e6623a pr-head 990f96526bb89356c963a260ebbdcf2a77e6623a
+pp_shadow/sim_main.cpp blob equal to PR head: yes
+milan_datapath.sv processor-citation lines, candidate vs PR head (text-equal set):
+identical citation set
+
+== corrections (the two probes above were mis-measured: a pipe masked grep's rc, and the CHANGELOG pattern did not match the page's spelling)
+-- relative links into the processor submodule in the milan_dp README (no pipe):
+grep rc (1 = none) 1
+-- CHANGELOG lines naming processor 116 or 113:
+51:- Processor issue 116: parent-gate comments and mutation deadlines corrected.
+53:- Processor issue 113: latency-only input changes now push GET_STREAM_INFO.
+-- CHANGELOG section headers:
+9:## Contents
+31:## Unreleased - processor pin 990f9652
+60:## Unreleased - one media event per PHC step
+84:## Unreleased - licence and LeaveAll scope
+121:## Unreleased - CRF input counters served
+137:## Unreleased - gPTP egress launch time
+158:## At 0x0002_0060 - two descriptor fields name the device
+197:## Release 0x0002_0060 - saved-state pending bit widened
+-- #530 section ('licence and LeaveAll scope') sha256/16 at c266432d=f546c55a472865b4 candidate=f546c55a472865b4 lines=37 BYTE-IDENTICAL

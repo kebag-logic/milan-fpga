@@ -1,0 +1,39 @@
+$ python3 scripts/check_nvm_record_space.py --self-test
+cwd: $REVIEWS/r307-4-508
+self-test OK: --mutate=accept_absent   exits 1 -- FINDING: endstation_arty_4x4: an image with mandatory record BINDING[0] (record_id 0x20) deleted and the CRC-32 RECOMPUTED was accepted -- verdict VD_OK, 83 record(s) applied. A logically incomplete image must be refused with zero records applied, or the item it omits silently reverts to its vendor default
+self-test OK: --mutate=block           exits 1 -- FINDING: endstation_arty_4x4: NAME[8] has no id -- the group's block holds 8 and this shape needs 9
+self-test OK: --mutate=changed_1x1_image exits 1 -- FINDING: endstation_ax7101_1x1_tdm8: 1x1 image digest changed: 829db990eb6637237de9ef91d9f5e940873ff9f8d63ecffdb6da8ec64f87fe2e; pre-change emit 103ce107b1402884914036a363055800ad2cd97b8067df41f5cc54be9d3a3aea
+self-test OK: --mutate=collide         exits 1 -- FINDING: endstation_arty_4x4: record_id 0x30 is claimed by both FMT_IN[0] and FMT_OUT[0] -- one of them is lost
+self-test OK: --mutate=deadline        exits 1 -- FINDING: endstation_arty_4x4: T-NVM-COMMIT-TIMEOUT is 1000 ms but the worst-case commit of an 4520 B image is 3093 ms (tSE 3000 + 18 page(s) x 5 ms + read-back), and the contract requires 2x margin
+self-test OK: --mutate=dup_index       exits 1 -- FINDING: endstation_arty_4x4: FMT_OUT[0] is claimed by 2 records (0x40, 0x4C) -- F07.8 is one record per item group and index, so all but one of them is dead weight nothing reads
+self-test OK: --mutate=erased_header_only exits 1 -- FINDING: endstation_arty_4x4: an erased header over a payload that is not erased was VD_OK with 83 record(s) applied; a torn or foreign span must be refused with none applied
+self-test OK: --mutate=idspace         exits 1 -- FINDING: endstation_arty_4x4: NAME[0] wants record_id 128 but the port's namespace is record_id[7:0] -- 128 ids
+self-test OK: --mutate=image           exits 1 -- FINDING: endstation_ax7101_8x8: image is 12680 B, over one 8192 B erase block -- whole-image A/B promotion no longer fits a slot
+self-test OK: --mutate=name_absent_rule exits 1 -- FINDING: endstation_arty_4x4: a user name SET to the empty string is not restored at all -- the encoding reads 64 zero bytes as 'no name stored', so the Milan 5.3.13 name a controller cleared comes back as the vendor default 'Kebag Milan Endstation'
+self-test OK: --mutate=old_output_length exits 1 -- FINDING: endstation_ax7101_8x8: output-record capacity: MAPS_OUT[0] cannot save 10 keys in 9 entries
+self-test OK: --mutate=omit_index      exits 1 -- FINDING: endstation_arty_4x4: mandatory per-descriptor record FMT_IN[0] (Milan 5.3.8.1) is MISSING from the persisted inventory
+self-test OK: --mutate=omit_indexed    exits 1 -- FINDING: endstation_arty_4x4: mandatory per-descriptor record PT_OFS[0] (Milan 5.3.7.6) is MISSING from the persisted inventory
+self-test OK: --mutate=omit_names      exits 1 -- FINDING: endstation_arty_4x4: mandatory per-name record NAME[0] (Milan 5.3.13) is MISSING from the persisted inventory
+self-test OK: --mutate=omit_singleton  exits 1 -- FINDING: endstation_arty_4x4: mandatory singleton record SUID[0] (donor 07 5.1 design decision) is MISSING from the persisted inventory
+self-test OK: --mutate=payload         exits 1 -- FINDING: endstation_arty_4x4: MCR[0] payload is 1025 B, over MAX_PAYLOAD_P = 1024 -- the port refuses it
+self-test OK: --mutate=shift_index     exits 1 -- FINDING: endstation_arty_4x4: the persisted inventory's record key set is not the set this shape requires -- MISSING FMT_IN[0]; EXTRA FMT_IN[5]. The cardinalities agree, which is exactly why a count oracle cannot see this
+self-test OK: --mutate=shift_name      exits 1 -- FINDING: endstation_arty_4x4: the persisted inventory's record key set is not the set this shape requires -- MISSING NAME[0]; EXTRA NAME[51]. The cardinalities agree, which is exactly why a count oracle cannot see this
+
+BINDING base read from the donor: REC_ID_BASE_P = 0x20, LAYOUT_VER_P = 0x02
+deadlines: T-NVM-COMMIT-TIMEOUT = 8000 ms, T-NVM-WRITER-ALIVE = 2000 ms, heartbeat = 500 ms
+endstation_arty_4x4          names= 51 records= 84 top_id=0xB2 image=  4520 B (6% of a slot) F07.8 floor= 84/256 commit<=3.09 s
+endstation_arty_8ch          names= 83 records=116 top_id=0xD2 image=  7080 B (10% of a slot) F07.8 floor=116/256 commit<=3.14 s
+endstation_arty_current      names= 28 records= 41 top_id=0x9B image=  2444 B (3% of a slot) F07.8 floor= 41/256 commit<=3.05 s
+endstation_ax7101_1x1_tdm8   names= 38 records= 53 top_id=0xA5 image=  3264 B (4% of a slot) F07.8 floor= 53/256 commit<=3.07 s
+endstation_ax7101_8x8: MAPS_OUT[0]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[1]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[2]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[3]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[4]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[5]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[6]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8        names= 99 records=156 top_id=0xE2 image= 12680 B (19% of a slot) F07.8 floor=156/256 commit<=3.26 s
+
+0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYLOAD_P, every image fits one erase block, the allocation is the donor's own F07.8 rule and its floor fits the namespace at every shipped shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with 2x margin, every record round trips through a KLJ2 image, an empty user name survives it, and a CRC-clean image missing any mandatory record is refused with zero records applied
+rc=0

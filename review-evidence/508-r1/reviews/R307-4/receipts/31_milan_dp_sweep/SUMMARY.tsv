@@ -1,0 +1,46 @@
+01	0	0	python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+02	0	0	python3 gen_divergent_shape.py
+03	0	13	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/
+04	0	85	./obj_gptp/Vmilan_dp_gptp
+05	0	13	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/
+06	0	85	./obj_gptplat/Vmilan_dp_gptplat
+07	0	0	python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_gmstep/aem-build
+08	0	0	python3 ../../../avdecc/gen_aemi_image.py --overlay obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o obj_gmstep/aemi.bin
+09	0	13	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/
+10	0	23	./obj_gmstep/Vmilan_dp_gmstep obj_gmstep/aemi.bin 0
+11	0	13	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/com
+12	0	13	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_arty_4x4 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/common 
+13	0	15	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+gen_divergent --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +
+14	0	15	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_ax7101_8x8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/commo
+15	0	15	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_arty_4x4 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/common 
+16	0	13	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/com
+17	0	12	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/com
+18	0	14	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/
+19	0	13	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/
+20	0	0	echo "======================================================================"
+21	0	0	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/
+22	0	14	$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/
+23	0	5	./obj_dir/Vmilan_dp_sim
+24	0	0	echo "---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----"
+25	0	14	./obj_notify/Vmilan_dp_notify
+26	0	0	echo "---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----"
+27	0	25	./obj_crflic/Vmilan_dp_crflic
+28	0	6	./obj_nxn/Vmilan_dp_nxn
+29	0	0	echo "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----"
+30	0	6	./obj_nxndv/Vmilan_dp_nxndv
+31	0	12	./obj_nxn8/Vmilan_dp_nxn8
+32	0	0	echo "---- the shipping Arty shape: 4 streams x 4 wire channels ----"
+33	0	6	./obj_nxn4c/Vmilan_dp_nxn4c
+34	0	0	echo "---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----"
+35	0	5	./obj_nolpf/Vmilan_dp_nolpf
+36	0	0	echo "---- all six tier-1 blocks pruned ----"
+37	0	0	./obj_prune/Vmilan_dp_prune
+38	0	0	echo "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----"
+39	0	5	./obj_ax1x1/Vmilan_dp_ax1x1
+40	0	0	echo "---- the same shape at the TRUE clk_audio ratio (391/1591) ----"
+41	0	457	./obj_aclk/Vmilan_dp_aclk
+42	0	0	echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
+43	1	276	python3 render_mutants.py
+44	0	0	echo "---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----"
+45	0	133	python3 gmstep_mutants.py
+43	0	341	python3 render_mutants.py

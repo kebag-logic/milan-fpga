@@ -1,0 +1,83 @@
+n	rc	seconds	command
+01	0	4	python3 scripts/docs_check.py
+02	0	3	python3 scripts/check_em_dash.py --base b74fb11162fba8f019110d9f2c21492300857da2
+03	0	3	python3 scripts/check_em_dash.py --base c266432dcb0cdd464205823a3d82cad260eedde2
+04	0	0	python3 scripts/check_doc_style.py
+05	0	0	python3 scripts/check_doc_style.py --selftest
+06	0	0	python3 scripts/check_gptp_docs.py
+07	0	0	python3 scripts/check_gptp_docs.py --selftest
+08	0	1	python3 docs/DOC_MAP.gen.py --check
+09	0	0	python3 docs/DOC_MAP.gen.py --selftest
+10	0	1	python3 docs/diagrams/timesync_chain.gen.py --check
+11	0	0	python3 docs/diagrams/timesync_chain.gen.py --selftest
+12	0	0	python3 scripts/check_solution_docs.py
+13	0	3	python3 scripts/check_solution_docs.py --selftest
+14	0	0	python3 docs/diagrams/submodule_boundaries.gen.py --check
+15	0	0	python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+16	0	1	python3 scripts/check_submodule_docs.py
+17	0	0	python3 scripts/check_submodule_docs.py --selftest
+18	0	0	python3 scripts/gen_wavedrom.py --selftest
+19	0	0	python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+20	0	1	python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+21	0	0	python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+22	0	0	python3 scripts/check_diagram_pngs.py
+23	0	7	python3 scripts/check_diagram_pngs.py --selftest
+24	0	0	python3 scripts/check_feature_status.py --self-test
+25	0	1	python3 docs/traceability/gen_module_matrix.py --check
+26	0	0	python3 scripts/check_gptp_docs.py --with-submodule
+27	0	1	python3 scripts/measure_control_flow.py --selftest
+28	0	0	python3 scripts/measure_cohesion.py --selftest
+29	0	14	python3 scripts/check_baremetal_only.py --check
+30	0	3	python3 scripts/check_baremetal_only.py --selftest
+31	0	2	python3 scripts/check_nvm_record_space.py
+32	0	30	python3 scripts/check_nvm_record_space.py --self-test
+33	0	40	python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+34	0	0	python3 scripts/check_soc_sources.py
+35	0	0	python3 scripts/check_soc_sources.py --selftest
+36	0	2	python3 sw/litex/iob_pack_selftest.py
+37	0	2	python3 scripts/check_rtl_source_lists.py
+38	0	2	python3 scripts/check_rtl_source_lists.py --selftest
+39	0	1	python3 scripts/measure_naming.py --check
+40	0	0	python3 scripts/measure_naming.py --selftest
+41	0	2	python3 scripts/check_port_contracts.py
+42	0	3	python3 scripts/check_port_contracts.py --selftest
+43	0	1	python3 scripts/measure_fail_fast.py --check
+44	0	2	python3 scripts/measure_fail_fast.py --selftest
+45	0	1	python3 scripts/check_todo_ownership.py
+46	0	2	python3 scripts/check_todo_ownership.py --selftest
+47	0	5	python3 scripts/measure_test_evidence.py --check
+48	0	5	python3 scripts/measure_test_evidence.py --selftest
+49	0	0	python3 scripts/check_hygiene.py --check
+50	0	1	python3 scripts/check_hygiene.py --selftest
+51	0	0	python3 scripts/check_sv_idiom.py
+52	0	0	python3 scripts/check_sv_idiom.py --selftest
+53	0	2	python3 scripts/check_cpp_idiom.py
+54	0	1	python3 scripts/check_cpp_idiom.py --selftest
+55	0	3	python3 scripts/check_py_idiom.py
+56	0	3	python3 scripts/check_py_idiom.py --selftest
+57	0	0	python3 scripts/check_sh_idiom.py
+58	0	1	python3 scripts/check_sh_idiom.py --selftest
+59	0	0	python3 scripts/ci_events.py --check
+60	0	14	python3 scripts/ci_events.py --selftest
+61	0	1	python3 scripts/check_doc_paths.py
+62	0	0	python3 scripts/check_archive.py
+63	0	0	python3 scripts/check_archive.py --selftest
+64	0	1	python3 scripts/gen_toc.py --selftest
+65	0	1	python3 scripts/gen_toc.py --verify-anchors
+66	0	3	python3 scripts/gen_toc.py --check
+67	0	0	python3 avdecc/gen_aem_store.py --self-test
+68	0	11	python3 scripts/check_sweep_shape.py --self-test
+69	0	1	python3 scripts/check_deploy_shape.py --self-test
+70	0	40	python3 scripts/check_entity_shape.py --self-test
+71	0	0	python3 scripts/check_wire_accountability.py --self-test
+72	0	2	python3 scripts/ci_scope.py --selftest
+73	0	0	python3 scripts/pp_srcs.py --check --selftest
+74	0	6	python3 scripts/lint_rtl.py --check --self-test
+75	0	0	python3 scripts/suite_shards.py --selftest
+76	0	0	python3 scripts/gen_hdl_reference.py --selftest
+77	0	2	python3 scripts/gen_hdl_reference.py --output $REVIEWS/508-r307-4-packet/receipts/20_static_gates/../../scratch/hdl-reference
+78	0	11	python3 syn/ooc/dp_srcs.py --selftest
+79	0	7	python3 syn/ooc/dp_srcs.py --top milan_datapath
+80	0	4	python3 syn/ooc/dp_srcs.py --top KL_pp_shadow
+81	0	0	git diff --check b74fb11162fba8f019110d9f2c21492300857da2 HEAD
+82	0	0	git diff --check 9d66cfe0dc87ffe4a5f45691d5c86b041b050b38 HEAD
