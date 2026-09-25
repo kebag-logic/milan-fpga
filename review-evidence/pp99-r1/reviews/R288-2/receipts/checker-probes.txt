@@ -1,0 +1,144 @@
+# probe_param_checker.py at 9cde1c19dbfd859257be8e012d4455856fcfce3b
+=== PASS baseline rc=0 expected_rc=0
+    parameters: top 24, guide 24, diagram 24, OK
+=== PASS top-remove-param rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: extra N_CONTROL_P
+    PARAMETERS FAIL: diagram: extra N_CONTROL_P
+    parameters: top 23, guide 24, diagram 24, 2 FAILURES
+=== PASS top-add-param rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: missing NEW_PROBE_P
+    PARAMETERS FAIL: diagram: missing NEW_PROBE_P
+    parameters: top 25, guide 24, diagram 24, 2 FAILURES
+=== PASS top-add-param-no-type-multi rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: missing EXTRA_A_P
+    PARAMETERS FAIL: guide: missing EXTRA_B_P
+    PARAMETERS FAIL: diagram: missing EXTRA_A_P
+    PARAMETERS FAIL: diagram: missing EXTRA_B_P
+    parameters: top 26, guide 24, diagram 24, 4 FAILURES
+=== PASS top-rename-param rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: missing LOCK_TMO_MS_P
+    PARAMETERS FAIL: guide: extra LOCK_TIMEOUT_MS_P
+    PARAMETERS FAIL: diagram: missing LOCK_TMO_MS_P
+    PARAMETERS FAIL: diagram: extra LOCK_TIMEOUT_MS_P
+    parameters: top 24, guide 24, diagram 24, 4 FAILURES
+=== PASS top-param-to-localparam rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: extra SRP_DOM_DEF_VID_P
+    PARAMETERS FAIL: diagram: extra SRP_DOM_DEF_VID_P
+    parameters: top 23, guide 24, diagram 24, 2 FAILURES
+=== PASS top-param-in-comment-only rc=0 expected_rc=0
+    parameters: top 24, guide 24, diagram 24, OK
+=== PASS top-empty-inventory rc=1 expected_rc=1
+    PARAMETERS FAIL: top: parsed no parameters
+    parameters: top 0, guide 24, diagram 24, 1 FAILURES
+=== PASS top-unparseable-no-module rc=1 expected_rc=1
+    PARAMETERS FAIL: top: cannot find protocol_processor_top parameter header
+    parameters: guide 24, diagram 24, 1 FAILURES
+=== PASS top-unparseable-unterminated rc=1 expected_rc=1
+    PARAMETERS FAIL: top: unterminated parameter header
+    parameters: guide 24, diagram 24, 1 FAILURES
+=== PASS top-unparseable-declaration rc=1 expected_rc=1
+    PARAMETERS FAIL: top: cannot parse declaration 'garbage here'
+    parameters: guide 24, diagram 24, 1 FAILURES
+=== PASS top-missing-file rc=1 expected_rc=1
+    PARAMETERS FAIL: top: [Errno 2] No such file or directory: '$REVIEWS/pp99-r288-2-packet/scratch/param-probes/top-missing-file/protocol_processor_top.sv'
+    parameters: guide 24, diagram 24, 1 FAILURES
+=== PASS guide-missing-row rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: missing N_CLK_DOMAIN_P
+    parameters: top 24, guide 23, diagram 24, 1 FAILURES
+=== PASS guide-extra-row rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: extra BOGUS_P
+    parameters: top 24, guide 25, diagram 24, 1 FAILURES
+=== PASS guide-duplicate-row rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: duplicate RESP_BASE_P (2 occurrences)
+    parameters: top 24, guide 24, diagram 24, 1 FAILURES
+=== PASS guide-empty-inventory rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: parsed no parameters
+    PARAMETERS FAIL: guide: missing CLK_HZ_P
+    PARAMETERS FAIL: guide: missing DESC_BASE_P
+    PARAMETERS FAIL: guide: missing DESC_IDX_ENTRIES_P
+    PARAMETERS FAIL: guide: missing DESC_LINE_BYTES_P
+    PARAMETERS FAIL: guide: missing DESC_MEM_TMO_CYC_P
+    PARAMETERS FAIL: guide: missing DESC_NAME_ENTRIES_P
+    PARAMETERS FAIL: guide: missing LOCK_TIMEOUT_MS_P
+    PARAMETERS FAIL: guide: missing NVM_RS_TMO_CYC_P
+    PARAMETERS FAIL: guide: missing N_AUDIO_UNIT_P
+    PARAMETERS FAIL: guide: missing N_CLK_DOMAIN_P
+    PARAMETERS FAIL: guide: missing N_CONTROL_P
+    PARAMETERS FAIL: guide: missing N_STREAM_IN_P
+    PARAMETERS FAIL: guide: missing N_STREAM_OUT_P
+    PARAMETERS FAIL: guide: missing REG_TL_TIMEOUT_MS_P
+    PARAMETERS FAIL: guide: missing RESP_BASE_P
+    PARAMETERS FAIL: guide: missing RX_SLOTS_P
+    PARAMETERS FAIL: guide: missing RX_SLOT_BYTES_P
+    PARAMETERS FAIL: guide: missing SRP_DOM_DEF_VID_P
+    PARAMETERS FAIL: guide: missing TIM_DIV_MS_P
+    PARAMETERS FAIL: guide: missing TIM_DIV_US_P
+    PARAMETERS FAIL: guide: missing TROM_HEX_P
+    PARAMETERS FAIL: guide: missing TX_OVERSIZE_BYTES_P
+    PARAMETERS FAIL: guide: missing TX_STD_SLOTS_P
+    PARAMETERS FAIL: guide: missing UCODE_HEX_P
+    parameters: top 24, guide 0, diagram 24, 25 FAILURES
+=== PASS guide-no-section rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: cannot find section 2 parameter inventory
+    parameters: top 24, diagram 24, 1 FAILURES
+=== PASS guide-row-only-in-comment rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: missing N_CLK_DOMAIN_P
+    parameters: top 24, guide 23, diagram 24, 1 FAILURES
+=== PASS guide-row-only-in-fence rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: missing N_CLK_DOMAIN_P
+    parameters: top 24, guide 23, diagram 24, 1 FAILURES
+=== PASS guide-name-only-outside-section2 rc=1 expected_rc=1
+    PARAMETERS FAIL: guide: missing N_CLK_DOMAIN_P
+    parameters: top 24, guide 23, diagram 24, 1 FAILURES
+=== PASS diagram-missing-entry rc=1 expected_rc=1
+    PARAMETERS FAIL: diagram: missing N_CLK_DOMAIN_P
+    parameters: top 24, guide 24, diagram 23, 1 FAILURES
+=== PASS diagram-extra-entry rc=1 expected_rc=1
+    PARAMETERS FAIL: diagram: extra BOGUS_P
+    parameters: top 24, guide 24, diagram 25, 1 FAILURES
+=== PASS diagram-duplicate-entry rc=1 expected_rc=1
+    PARAMETERS FAIL: diagram: duplicate CLK_HZ_P (2 occurrences)
+    parameters: top 24, guide 24, diagram 24, 1 FAILURES
+=== PASS diagram-empty-inventory rc=1 expected_rc=1
+    PARAMETERS FAIL: diagram: parsed no parameters
+    PARAMETERS FAIL: diagram: missing CLK_HZ_P
+    PARAMETERS FAIL: diagram: missing DESC_BASE_P
+    PARAMETERS FAIL: diagram: missing DESC_IDX_ENTRIES_P
+    PARAMETERS FAIL: diagram: missing DESC_LINE_BYTES_P
+    PARAMETERS FAIL: diagram: missing DESC_MEM_TMO_CYC_P
+    PARAMETERS FAIL: diagram: missing DESC_NAME_ENTRIES_P
+    PARAMETERS FAIL: diagram: missing LOCK_TIMEOUT_MS_P
+    PARAMETERS FAIL: diagram: missing NVM_RS_TMO_CYC_P
+    PARAMETERS FAIL: diagram: missing N_AUDIO_UNIT_P
+    PARAMETERS FAIL: diagram: missing N_CLK_DOMAIN_P
+    PARAMETERS FAIL: diagram: missing N_CONTROL_P
+    PARAMETERS FAIL: diagram: missing N_STREAM_IN_P
+    PARAMETERS FAIL: diagram: missing N_STREAM_OUT_P
+    PARAMETERS FAIL: diagram: missing REG_TL_TIMEOUT_MS_P
+    PARAMETERS FAIL: diagram: missing RESP_BASE_P
+    PARAMETERS FAIL: diagram: missing RX_SLOTS_P
+    PARAMETERS FAIL: diagram: missing RX_SLOT_BYTES_P
+    PARAMETERS FAIL: diagram: missing SRP_DOM_DEF_VID_P
+    PARAMETERS FAIL: diagram: missing TIM_DIV_MS_P
+    PARAMETERS FAIL: diagram: missing TIM_DIV_US_P
+    PARAMETERS FAIL: diagram: missing TROM_HEX_P
+    PARAMETERS FAIL: diagram: missing TX_OVERSIZE_BYTES_P
+    PARAMETERS FAIL: diagram: missing TX_STD_SLOTS_P
+    PARAMETERS FAIL: diagram: missing UCODE_HEX_P
+    parameters: top 24, guide 24, diagram 0, 25 FAILURES
+=== PASS diagram-no-group rc=1 expected_rc=1
+    PARAMETERS FAIL: diagram: expected one integration-parameters inventory group
+    parameters: top 24, guide 24, 1 FAILURES
+=== PASS diagram-two-groups rc=1 expected_rc=1
+    PARAMETERS FAIL: diagram: expected one integration-parameters inventory group
+    parameters: top 24, guide 24, 1 FAILURES
+=== PASS diagram-malformed-xml rc=1 expected_rc=1
+    PARAMETERS FAIL: diagram: no element found: line 135, column 0
+    parameters: top 24, guide 24, 1 FAILURES
+=== PASS diagram-name-outside-group-only rc=1 expected_rc=1
+    PARAMETERS FAIL: diagram: missing N_CLK_DOMAIN_P
+    parameters: top 24, guide 24, diagram 23, 1 FAILURES
+=== OBSERVED OBS-diagram-hidden-text-counts rc=0 expected_rc=None
+    parameters: top 24, guide 24, diagram 24, OK
+probes: 29 run, 0 unexpected
+rc=0

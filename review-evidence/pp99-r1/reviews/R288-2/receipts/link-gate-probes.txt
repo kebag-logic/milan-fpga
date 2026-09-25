@@ -1,0 +1,10 @@
+# probe_delta_links.sh at 9cde1c19dbfd859257be8e012d4455856fcfce3b
+PASS baseline                           want=0 rc=0 | links: 916 checked, OK 
+PASS link-resp-typo                     want=1 rc=1 | LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#sec-resp-memoryX links: 916 checked, 1 FAILURES 
+PASS link-desc-typo-row80               want=1 rc=1 | links: 916 checked, 1 FAILURES 
+PASS anchor-resp-removed                want=1 rc=1 | LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#sec-resp-memory links: 916 checked, 1 FAILURES 
+PASS anchor-desc-removed                want=1 rc=1 | LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#sec-desc-memory LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#sec-desc-memory LINK FAI
+PASS anchor-resp-renamed                want=1 rc=1 | LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#sec-resp-memory links: 916 checked, 1 FAILURES 
+PASS OBS-old-332-slug-passes-local      want=0 rc=0 | links: 916 checked, OK 
+probes: all expectations met
+rc=0

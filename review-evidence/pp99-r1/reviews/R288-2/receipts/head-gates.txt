@@ -1,0 +1,15 @@
+$ python3 scripts/check-integrator-params.py
+parameters: top 24, guide 24, diagram 24, OK
+rc=0
+$ python3 scripts/check-links.py
+links: 916 checked, OK
+rc=0
+$ python3 scripts/check-matrix.py
+matrix: 115 REQ rows, 17 GAP findings, OK
+rc=0
+$ git diff --check 663d50d65ff49c33b153107b2f79d6f3c5725799 HEAD
+rc=0
+$ git diff --check 008edbbf486598ae237414273d75e385cf0e1a56 HEAD
+rc=0
+$ git diff --check 60152f3ff068b81333326b5081b5303253ba7fe7 HEAD
+rc=0

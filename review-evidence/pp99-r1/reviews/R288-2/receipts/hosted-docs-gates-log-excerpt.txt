@@ -1,0 +1,19 @@
+## job 107952470709 docs-gates
+Complete job name: docs-gates
+[command]/usr/bin/git checkout --progress --force -B 99-integrator-params refs/remotes/origin/99-integrator-params
+python3 scripts/check-integrator-params.py
+  Created wheel for wavedrom: filename=wavedrom-2.0.3.post3-py2.py3-none-any.whl size=30056 sha256=3769b170b7c78628f3e0b69efc66408853ef7a601f98b2db19a7a8e8ce661039
+links: 916 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+parameters: top 24, guide 24, diagram 24, OK
+wavedrom: 18 blocks checked, OK
+## job 107952480993 docs-gates
+Complete job name: docs-gates
+[command]/usr/bin/git checkout --progress --force refs/remotes/pull/119/merge
+HEAD is now at 4960f75 Merge 9cde1c19dbfd859257be8e012d4455856fcfce3b into 60152f3ff068b81333326b5081b5303253ba7fe7
+python3 scripts/check-integrator-params.py
+  Created wheel for wavedrom: filename=wavedrom-2.0.3.post3-py2.py3-none-any.whl size=30056 sha256=b6f4dcb85a3536436b366c35a21ffa954d72eb00aef8bd6fb2ac54f9e054fabd
+links: 916 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+parameters: top 24, guide 24, diagram 24, OK
+wavedrom: 18 blocks checked, OK

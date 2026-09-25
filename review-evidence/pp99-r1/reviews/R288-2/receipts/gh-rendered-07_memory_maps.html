@@ -1,0 +1,929 @@
+<div id="file" class="md" data-path="docs/architecture/07_memory_maps.md"><article class="markdown-body entry-content container-lg" itemprop="text">
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">07 — Memory Maps, Records, Persistence</h1><a id="user-content-07--memory-maps-records-persistence" class="anchor" aria-label="Permalink: 07 — Memory Maps, Records, Persistence" href="#07--memory-maps-records-persistence"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">1. Role</h2><a id="user-content-1-role" class="anchor" aria-label="Permalink: 1. Role" href="#1-role"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">All storage: the entity model (static image + dynamic overlay + names), per-sink and
+registry records, counter banks, buffers, the NVM layout and its commit/restore flows,
+and the management side-port map. Other documents link here for every layout.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">2. Memory system overview</h2><a id="user-content-2-memory-system-overview" class="anchor" aria-label="Permalink: 2. Memory system overview" href="#2-memory-system-overview"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a id="user-content-fig-07-regions"></a><strong>F07.1 — Regions and port owners</strong></p>
+<section class="js-render-needs-enrichment render-needs-enrichment position-relative" data-identity="5aeb5c11-30e8-48d5-9637-266f270a1770" data-host="https://viewscreen.githubusercontent.com" data-src="https://viewscreen.githubusercontent.com/markdown/mermaid?docs_host=https%3A%2F%2Fdocs.github.com" data-type="mermaid" aria-label="mermaid rendered output container">
+  <div class="js-render-enrichment-target" data-json="{&quot;data&quot;:&quot;flowchart LR\n  subgraph mainmem [\&quot;integrator main memory, at compile-time bases (3.3.1, 3.3.2)\&quot;]\n    img[(\&quot;descriptor image at DESC-BASE\&quot;)]\n    rsp[(\&quot;AECP response buffer at RESP-BASE\&quot;)]\n  end\n  subgraph rams [\&quot;on-chip single-ported RAMs behind priority muxes (F03.1)\&quot;]\n    line[(\&quot;one located-descriptor line buffer\&quot;)]\n    idx[(\&quot;cached index map\&quot;)]\n    ovl[(\&quot;dynamic overlay\&quot;)]\n    names[(\&quot;name table 64 B x N_NAMED\&quot;)]\n    dyn[(\&quot;sink/source records\&quot;)]\n    reg[(\&quot;controller registry\&quot;)]\n    ctr[(\&quot;counter banks\&quot;)]\n    rxs[(\&quot;RX slots\&quot;)]\n    txs[(\&quot;TX slots std + oversize\&quot;)]\n    ucr[[\&quot;µcode + dispatch + resp-size + transition ROMs\&quot;]]\n  end\n  aecp[\&quot;AECP µCPU\&quot;] --&gt; line &amp; ovl &amp; names &amp; dyn &amp; reg &amp; ctr\n  aecp --&gt; rsp\n  store[\&quot;descriptor store\&quot;] --&gt; img\n  store --&gt; line &amp; idx\n  acmp[\&quot;ACMP executor\&quot;] --&gt; dyn\n  adp[\&quot;ADP engine\&quot;] --&gt; dyn\n  pkt[\&quot;packet engine\&quot;] --&gt; rxs &amp; txs\n  side[\&quot;mgmt side-port\&quot;] -. \&quot;RO debug windows\&quot; .-&gt; ovl &amp; reg &amp; ctr\n  nvmm[\&quot;NVM manager\&quot;] &lt;--&gt; ovl &amp; dyn &amp; names\n&quot;}" data-plain="flowchart LR
+  subgraph mainmem [&quot;integrator main memory, at compile-time bases (3.3.1, 3.3.2)&quot;]
+    img[(&quot;descriptor image at DESC-BASE&quot;)]
+    rsp[(&quot;AECP response buffer at RESP-BASE&quot;)]
+  end
+  subgraph rams [&quot;on-chip single-ported RAMs behind priority muxes (F03.1)&quot;]
+    line[(&quot;one located-descriptor line buffer&quot;)]
+    idx[(&quot;cached index map&quot;)]
+    ovl[(&quot;dynamic overlay&quot;)]
+    names[(&quot;name table 64 B x N_NAMED&quot;)]
+    dyn[(&quot;sink/source records&quot;)]
+    reg[(&quot;controller registry&quot;)]
+    ctr[(&quot;counter banks&quot;)]
+    rxs[(&quot;RX slots&quot;)]
+    txs[(&quot;TX slots std + oversize&quot;)]
+    ucr[[&quot;µcode + dispatch + resp-size + transition ROMs&quot;]]
+  end
+  aecp[&quot;AECP µCPU&quot;] --&gt; line &amp; ovl &amp; names &amp; dyn &amp; reg &amp; ctr
+  aecp --&gt; rsp
+  store[&quot;descriptor store&quot;] --&gt; img
+  store --&gt; line &amp; idx
+  acmp[&quot;ACMP executor&quot;] --&gt; dyn
+  adp[&quot;ADP engine&quot;] --&gt; dyn
+  pkt[&quot;packet engine&quot;] --&gt; rxs &amp; txs
+  side[&quot;mgmt side-port&quot;] -. &quot;RO debug windows&quot; .-&gt; ovl &amp; reg &amp; ctr
+  nvmm[&quot;NVM manager&quot;] &lt;--&gt; ovl &amp; dyn &amp; names
+" dir="auto">
+    <div class="render-plaintext-hidden" dir="auto">
+      <pre lang="mermaid" aria-label="Raw mermaid code">flowchart LR
+  subgraph mainmem ["integrator main memory, at compile-time bases (3.3.1, 3.3.2)"]
+    img[("descriptor image at DESC-BASE")]
+    rsp[("AECP response buffer at RESP-BASE")]
+  end
+  subgraph rams ["on-chip single-ported RAMs behind priority muxes (F03.1)"]
+    line[("one located-descriptor line buffer")]
+    idx[("cached index map")]
+    ovl[("dynamic overlay")]
+    names[("name table 64 B x N_NAMED")]
+    dyn[("sink/source records")]
+    reg[("controller registry")]
+    ctr[("counter banks")]
+    rxs[("RX slots")]
+    txs[("TX slots std + oversize")]
+    ucr[["µcode + dispatch + resp-size + transition ROMs"]]
+  end
+  aecp["AECP µCPU"] --&gt; line &amp; ovl &amp; names &amp; dyn &amp; reg &amp; ctr
+  aecp --&gt; rsp
+  store["descriptor store"] --&gt; img
+  store --&gt; line &amp; idx
+  acmp["ACMP executor"] --&gt; dyn
+  adp["ADP engine"] --&gt; dyn
+  pkt["packet engine"] --&gt; rxs &amp; txs
+  side["mgmt side-port"] -. "RO debug windows" .-&gt; ovl &amp; reg &amp; ctr
+  nvmm["NVM manager"] &lt;--&gt; ovl &amp; dyn &amp; names
+</pre>
+    </div>
+  </div>
+  <span class="js-render-enrichment-loader d-flex flex-justify-center flex-items-center width-full" style="min-height:100px" role="presentation">
+    <span data-view-component="true">
+  <svg style="box-sizing: content-box; color: var(--color-icon-primary);" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" data-view-component="true" class="octospinner mx-auto tmp-mx-auto anim-rotate">
+    <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-opacity="0.25" stroke-width="2" vector-effect="non-scaling-stroke" fill="none"></circle>
+    <path d="M15 8a7.002 7.002 0 00-7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+</svg>    <span class="sr-only">Loading</span>
+</span>
+  </span>
+</section>
+
+<p dir="auto">The two regions in main memory are reached over separate vendor-neutral masters and are
+the integrator's to reserve — see the
+<a href="../guides/integrator.md#5-what-you-must-reserve-in-your-memory-map">integrator guide</a>
+and <a href="../diagrams/22-aecp-descriptor-fetch.svg">diagram 22</a>.</p>
+<p dir="auto">Access-rights rule: exactly one writer class per region at runtime (µCPU for
+overlay/names, ACMP executor for sink records, counters subsystem for banks); the
+side-port is read-only everywhere after <code>entity_enable</code> except the control window.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">3. Entity model</h2><a id="user-content-3-entity-model" class="anchor" aria-label="Permalink: 3. Entity model" href="#3-entity-model"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">3.1 Descriptor tree</h3><a id="user-content-31-descriptor-tree" class="anchor" aria-label="Permalink: 3.1 Descriptor tree" href="#31-descriptor-tree"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a id="user-content-fig-07-tree"></a><strong>F07.2 — Milan descriptor tree (multiplicities per Milan §5.3.2/§5.3.3)</strong></p>
+<section class="js-render-needs-enrichment render-needs-enrichment position-relative" data-identity="f8ee283d-baae-4384-bb10-5337e989d9a6" data-host="https://viewscreen.githubusercontent.com" data-src="https://viewscreen.githubusercontent.com/markdown/mermaid?docs_host=https%3A%2F%2Fdocs.github.com" data-type="mermaid" aria-label="mermaid rendered output container">
+  <div class="js-render-enrichment-target" data-json="{&quot;data&quot;:&quot;classDiagram\n    ENTITY \&quot;1\&quot; *-- \&quot;1..*\&quot; CONFIGURATION\n    CONFIGURATION \&quot;1\&quot; *-- \&quot;0..*\&quot; STREAM_INPUT\n    CONFIGURATION \&quot;1\&quot; *-- \&quot;0..*\&quot; STREAM_OUTPUT\n    CONFIGURATION \&quot;1\&quot; *-- \&quot;1..*\&quot; AVB_INTERFACE\n    CONFIGURATION \&quot;1\&quot; *-- \&quot;1..*\&quot; CLOCK_DOMAIN\n    CONFIGURATION \&quot;1\&quot; *-- \&quot;0..*\&quot; AUDIO_UNIT\n    CONFIGURATION \&quot;1\&quot; *-- \&quot;0..*\&quot; CONTROL_IDENTIFY\n    CLOCK_DOMAIN \&quot;1\&quot; o-- \&quot;1..*\&quot; CLOCK_SOURCE\n    AUDIO_UNIT \&quot;1\&quot; *-- \&quot;0..*\&quot; STREAM_PORT_INPUT\n    AUDIO_UNIT \&quot;1\&quot; *-- \&quot;0..*\&quot; STREAM_PORT_OUTPUT\n    STREAM_PORT_INPUT \&quot;1\&quot; *-- \&quot;1..*\&quot; AUDIO_CLUSTER_IN\n    STREAM_PORT_OUTPUT \&quot;1\&quot; *-- \&quot;1..*\&quot; AUDIO_CLUSTER_OUT\n    STREAM_PORT_OUTPUT \&quot;1\&quot; *-- \&quot;0..*\&quot; AUDIO_MAP\n    class STREAM_PORT_INPUT { no static AUDIO_MAP - dynamic only }\n    class AUDIO_CLUSTER_IN { channel_count = 1 }\n    class AUDIO_CLUSTER_OUT { channel_count = 1 }\n&quot;}" data-plain="classDiagram
+    ENTITY &quot;1&quot; *-- &quot;1..*&quot; CONFIGURATION
+    CONFIGURATION &quot;1&quot; *-- &quot;0..*&quot; STREAM_INPUT
+    CONFIGURATION &quot;1&quot; *-- &quot;0..*&quot; STREAM_OUTPUT
+    CONFIGURATION &quot;1&quot; *-- &quot;1..*&quot; AVB_INTERFACE
+    CONFIGURATION &quot;1&quot; *-- &quot;1..*&quot; CLOCK_DOMAIN
+    CONFIGURATION &quot;1&quot; *-- &quot;0..*&quot; AUDIO_UNIT
+    CONFIGURATION &quot;1&quot; *-- &quot;0..*&quot; CONTROL_IDENTIFY
+    CLOCK_DOMAIN &quot;1&quot; o-- &quot;1..*&quot; CLOCK_SOURCE
+    AUDIO_UNIT &quot;1&quot; *-- &quot;0..*&quot; STREAM_PORT_INPUT
+    AUDIO_UNIT &quot;1&quot; *-- &quot;0..*&quot; STREAM_PORT_OUTPUT
+    STREAM_PORT_INPUT &quot;1&quot; *-- &quot;1..*&quot; AUDIO_CLUSTER_IN
+    STREAM_PORT_OUTPUT &quot;1&quot; *-- &quot;1..*&quot; AUDIO_CLUSTER_OUT
+    STREAM_PORT_OUTPUT &quot;1&quot; *-- &quot;0..*&quot; AUDIO_MAP
+    class STREAM_PORT_INPUT { no static AUDIO_MAP - dynamic only }
+    class AUDIO_CLUSTER_IN { channel_count = 1 }
+    class AUDIO_CLUSTER_OUT { channel_count = 1 }
+" dir="auto">
+    <div class="render-plaintext-hidden" dir="auto">
+      <pre lang="mermaid" aria-label="Raw mermaid code">classDiagram
+    ENTITY "1" *-- "1..*" CONFIGURATION
+    CONFIGURATION "1" *-- "0..*" STREAM_INPUT
+    CONFIGURATION "1" *-- "0..*" STREAM_OUTPUT
+    CONFIGURATION "1" *-- "1..*" AVB_INTERFACE
+    CONFIGURATION "1" *-- "1..*" CLOCK_DOMAIN
+    CONFIGURATION "1" *-- "0..*" AUDIO_UNIT
+    CONFIGURATION "1" *-- "0..*" CONTROL_IDENTIFY
+    CLOCK_DOMAIN "1" o-- "1..*" CLOCK_SOURCE
+    AUDIO_UNIT "1" *-- "0..*" STREAM_PORT_INPUT
+    AUDIO_UNIT "1" *-- "0..*" STREAM_PORT_OUTPUT
+    STREAM_PORT_INPUT "1" *-- "1..*" AUDIO_CLUSTER_IN
+    STREAM_PORT_OUTPUT "1" *-- "1..*" AUDIO_CLUSTER_OUT
+    STREAM_PORT_OUTPUT "1" *-- "0..*" AUDIO_MAP
+    class STREAM_PORT_INPUT { no static AUDIO_MAP - dynamic only }
+    class AUDIO_CLUSTER_IN { channel_count = 1 }
+    class AUDIO_CLUSTER_OUT { channel_count = 1 }
+</pre>
+    </div>
+  </div>
+  <span class="js-render-enrichment-loader d-flex flex-justify-center flex-items-center width-full" style="min-height:100px" role="presentation">
+    <span data-view-component="true">
+  <svg style="box-sizing: content-box; color: var(--color-icon-primary);" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" data-view-component="true" class="octospinner mx-auto tmp-mx-auto anim-rotate">
+    <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-opacity="0.25" stroke-width="2" vector-effect="non-scaling-stroke" fill="none"></circle>
+    <path d="M15 8a7.002 7.002 0 00-7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+</svg>    <span class="sr-only">Loading</span>
+</span>
+  </span>
+</section>
+
+<p dir="auto">Structural rules enforced by the <strong>model lint</strong> (build-time, part of the single-source
+toolchain — <a href="09_verification.md">09 §1</a>):</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Rule</th>
+<th>Clause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1</td>
+<td>Every descriptor except ENTITY/CONFIGURATION has exactly one parent; no cross-subtree sharing</td>
+<td>Milan §5.3.2</td>
+</tr>
+<tr>
+<td>L2</td>
+<td>Indices dense, restart at 0 per configuration, IEEE ordering for multi-level types</td>
+<td>IEEE §7.2</td>
+</tr>
+<tr>
+<td>L3</td>
+<td>≥1 STREAM_INPUT or STREAM_OUTPUT per configuration; each with a Base format (talker §6.3 / listener §6.4 incl. rate-completeness + configuration-uniformity)</td>
+<td>Milan §5.3.3.4, §6.3/§6.4</td>
+</tr>
+<tr>
+<td>L4</td>
+<td>STREAM_INPUT <code>buffer_length</code> ≥ 2 126 000 ns; CLASS_A flag set; CRF and AAF never mixed in one format list; <code>current_format</code> ∈ list; N formats ≤ 47</td>
+<td>Milan §5.3.3.4; IEEE 1722.1-2021 Table 7-8 (the N cap)</td>
+</tr>
+<tr>
+<td>L5</td>
+<td>Same AVB_INTERFACE index for the same physical port in every configuration</td>
+<td>Milan §5.3.3.5</td>
+</tr>
+<tr>
+<td>L6</td>
+<td>CLOCK_SOURCE construction: one INPUT_STREAM per CRF-capable input (or the single AAF input when no CRF input exists); ≥1 INTERNAL if any output; ≥1 CLOCK_SOURCE per CLOCK_DOMAIN; each CLOCK_DOMAIN's <code>clock_sources</code> list is the identity permutation 0..count-1 (dense, zero-based, in order): the processor's SET_CLOCK_SOURCE range check tests <code>clock_source_index</code> &lt; <code>clock_sources_count</code> and relies on this list shape to be the IEEE §7.4.23.1 membership test (<a href="06_aecp_engine.md#64-validation-chains-order-matters-first-failure-responds">06 §6.4</a>); gPTP-as-media-clock chain only in non-redundant single-interface models</td>
+<td>Milan §5.3.3.6, §7.5; IEEE §7.4.23.1</td>
+</tr>
+<tr>
+<td>L7</td>
+<td>STREAM_PORT_INPUT owns no AUDIO_MAP; ≤1 static mapping per output stream channel; AUDIO_CLUSTER <code>channel_count</code> = 1</td>
+<td>Milan §5.3.3.7–.9</td>
+</tr>
+<tr>
+<td>L8</td>
+<td>Primary IDENTIFY CONTROL present in all configurations at the same index</td>
+<td>Milan §5.3.3.10</td>
+</tr>
+<tr>
+<td>L9</td>
+<td><code>entity_model_id</code> ≠ 0 / ≠ all-1s; changes whenever the static model changes</td>
+<td>Milan §5.3.1</td>
+</tr>
+<tr>
+<td>L10</td>
+<td>AUDIO_UNIT <code>sampling_rates_offset</code> = 144 and <code>sampling_rates_count</code> ≤ 8, each entry the full sampling-rate word (pull field included): the processor's SET_SAMPLING_RATE reads the list at 144 and consults at most its first 8 entries (<a href="06_aecp_engine.md#64-validation-chains-order-matters-first-failure-responds">06 §6.4</a>). Another offset refuses every rate, and a rate listed past the eighth entry is refused; neither can accept an unlisted rate</td>
+<td>IEEE §7.2.3, §7.4.21.1; Milan §5.3.3.3</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">3.2 Descriptor sizing</h3><a id="user-content-32-descriptor-sizing" class="anchor" aria-label="Permalink: 3.2 Descriptor sizing" href="#32-descriptor-sizing"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a id="user-content-fig-07-sizing"></a><strong>F07.3 — Fixed sizes + variable parts (IEEE Std 1722.1-2021 §7.2)</strong></p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Descriptor</th>
+<th>Type</th>
+<th>Fixed B</th>
+<th>Variable part</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ENTITY</td>
+<td>0x0000</td>
+<td>312</td>
+<td>—</td>
+</tr>
+<tr>
+<td>CONFIGURATION</td>
+<td>0x0001</td>
+<td>74</td>
+<td>+ 4·descriptor_counts</td>
+</tr>
+<tr>
+<td>AUDIO_UNIT</td>
+<td>0x0002</td>
+<td>144</td>
+<td>+ 4·sampling_rates</td>
+</tr>
+<tr>
+<td>STREAM_INPUT / OUTPUT</td>
+<td>0x0005/6</td>
+<td>138</td>
+<td>+ 8·F formats (F ≤ 47, <code>formats_offset</code> = 138) + redundancy tail <code>redundant_offset</code> = 138+8F, <strong>R = 0 emitted</strong> (Table 7-8; see the Δ note)</td>
+</tr>
+<tr>
+<td>AVB_INTERFACE</td>
+<td>0x0009</td>
+<td>102</td>
+<td>—</td>
+</tr>
+<tr>
+<td>CLOCK_SOURCE</td>
+<td>0x000A</td>
+<td>86</td>
+<td>—</td>
+</tr>
+<tr>
+<td>STREAM_PORT_IN/OUT</td>
+<td>0x000E/F</td>
+<td>20</td>
+<td>— (no name field)</td>
+</tr>
+<tr>
+<td>AUDIO_CLUSTER</td>
+<td>0x0014</td>
+<td>90</td>
+<td>—</td>
+</tr>
+<tr>
+<td>AUDIO_MAP</td>
+<td>0x0017</td>
+<td>8</td>
+<td>+ 8·mappings {stream_index, stream_channel, cluster_offset, cluster_channel}</td>
+</tr>
+<tr>
+<td>CONTROL (identify)</td>
+<td>0x001A</td>
+<td>104</td>
+<td>+ values (LINEAR_UINT8: 1×{min,max,step,default,current…})</td>
+</tr>
+<tr>
+<td>CLOCK_DOMAIN</td>
+<td>0x0024</td>
+<td>76</td>
+<td>+ 2·clock_sources</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<blockquote>
+<p dir="auto">Δ note — two stream layouts exist; <strong>IEEE Std 1722.1-2021 Table 7-8 is the one this
+design emits</strong>. Table 7-8 (§7.2.6) places <code>redundant_offset</code> at 132,
+<code>number_of_redundant_streams</code> at 134, <code>timing</code> at 136 and <code>formats</code> at 138, for
+138+8F+2R octets. Milan v1.2 §5.3.3.4 binds the descriptor to it: these descriptors
+"shall have the format specified in [ATDECC, Clause 7.2.6]". Milan v1.2 clause 2
+(References) defines [ATDECC] as IEEE Std 1722.1-2021.</p>
+<p dir="auto">Milan v1.2 Annex C Table C.1 is a second normative layout: <code>formats</code> at 136, no
+<code>timing</code> field, 136+8F+2R octets. It is <strong>optional here</strong>. §5.3.3.4 says "A PAAD-AE
+may use the extension ... for any of its Streams and shall use it for the Streams
+that are part of the redundant pair". This design declares no redundant pair (R = 0),
+so the <em>shall</em> never fires and Table 7-8 governs unmodified. A previous revision of
+this note claimed Annex C "takes precedence for Milan builds". That read the <strong>may</strong>
+as a <strong>shall</strong>, and no shipping descriptor was ever assembled that way.</p>
+<p dir="auto">One artifact still carries Annex C deliberately: the test vector
+<a href="../../hdl/aecp/desc/example_milan_8.json"><code>hdl/aecp/desc/example_milan_8.json</code></a>,
+labelled as such in its own header. It disagrees with the shipping packer on purpose,
+because §3.3 below takes each descriptor's length from the index map and never reads a
+descriptor's interior. It is not a compliance reference and must not be copied into an
+entity model.</p>
+</blockquote>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">3.3 Static image</h3><a id="user-content-33-static-image" class="anchor" aria-label="Permalink: 3.3 Static image" href="#33-static-image"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Read-only at runtime. Layout = concatenated descriptors in (configuration, type,
+index) order + an <strong>index map</strong> per configuration (type → base pointer + count) used by
+<code>DESC_ADDR</code>. READ_DESCRIPTOR assembles: image bytes, then overlay patches
+(current values, names), then the Table 7-8 redundancy tail with R = 0.</p>
+<p dir="auto">Software loads it into the integrator's main memory at <code>DESC_BASE_P</code> before
+<code>entity_enable</code> — <strong>not</strong> through the side-port window, and not as a synthesized ROM.
+Both alternatives were priced and rejected in §3.3.1 below, and neither is what the RTL
+does.</p>
+<p dir="auto"><a id="user-content-sec-desc-memory"></a></p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">3.3.1 Realization — the image lives in MAIN MEMORY, not on chip</h4><a id="user-content-331-realization--the-image-lives-in-main-memory-not-on-chip" class="anchor" aria-label="Permalink: 3.3.1 Realization — the image lives in MAIN MEMORY, not on chip" href="#331-realization--the-image-lives-in-main-memory-not-on-chip"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><code>hdl/aecp/KL_aecp_desc_store.sv</code>. A ROM was priced and rejected: the reference
+consumer's generated model is 22,561 B at the 8×8 shape (~5 RAMB36) <em>before</em> the
+§3.4 overlay and the 64-B-per-descriptor name table, it grows with every stream,
+descriptor and localized string, and the reference part (xc7a100t, 135 block-RAM
+tiles) measured 131 tiles used. So the image sits in the integrator's main memory —
+DDR3 on the reference board — behind a <strong>vendor-neutral read-only master</strong> on
+<code>protocol_processor_top</code> (<code>desc_mem_*</code>: byte address + 64-bit beat count out, an
+in-order response stream back). This repository does not know what that memory is.</p>
+<p dir="auto">The master passes through <code>KL_aecp_desc_mem_guard</code> before reaching that face.
+An accepted burst remains owed until its terminal response (<code>last</code> or <code>err</code>)
+is consumed. The guard holds subsequent requests while owed and passes every
+response through unchanged; a store that abandoned the burst discards its late
+beats. A permanently unterminated burst therefore holds memory requests, while
+the store watchdog still bounds every locate with an error. The watchdog itself
+is unchanged, including the immediate error on the next locate after a fetch
+response timeout.</p>
+<p dir="auto">The guard is reset by the hard reset alone. Its module port <code>debt_o</code> is the D3
+interface: a <code>clk_i</code> level set on request acceptance and cleared on a consumed
+<code>last</code> or <code>err</code>, or hard reset only. It is not a <code>protocol_processor_top</code> port.
+The D3 lane will route it to the top together with the parent consumer changes.
+The future D3 writer must hold restorable owners while this debt is set and end
+CLOSED if its deadline expires; that writer and its rollback cases are deferred
+to the D3 lane. The memory ordering, terminal-error and reset obligations are in the
+<a href="../guides/integrator.md#sec-desc-memory">integrator guide §4.1</a>.</p>
+<p dir="auto">Every address is an <strong>elaboration parameter</strong> (<code>DESC_BASE_P</code>), never a register and
+never a CSR: the memory map is fixed when the bitstream is built, so a runtime base
+would only buy a port and the flops behind it. The failure it removes ("base points
+at nothing") is replaced by a likelier one — <em>software has not loaded the image yet</em>,
+or loaded a truncated one — and uninitialised DRAM is not a recognisable zero. The
+image therefore opens with a <strong>magic + layout-version + checksum header</strong> and nothing
+is served until all three agree. While the image is invalid, an RGN_NCFG read reports
+zero configurations, so <code>READ_DESCRIPTOR</code> returns <code>BAD_ARGUMENTS</code> before it locates.
+A command that starts with a direct locate instead receives <code>st_err</code> and returns
+<code>NO_SUCH_DESCRIPTOR</code>. Neither path can put descriptor bytes on the wire. A locate or
+an RGN_NCFG read arriving while invalid TRIGGERS the header probe and stalls through
+it, answering from the walk's
+outcome (heal BEFORE answer, the r49a/w3a silicon round: the old
+answer-then-re-arm order sacrificed the first wire command after every late
+image load). A late load therefore heals with no reset and no lost command;
+an absent bridge still degrades inside the memory watchdog.</p>
+<p dir="auto">Latency is the design problem (the reference SoC measures ~1424 ns on a miss to main
+memory), so: the <strong>index map is walked once into an on-chip table</strong> — it is consulted
+on every locate, and at 16 B per (configuration, type) caching it is cheap exactly
+where caching the image is not — and a located descriptor is fetched <strong>once, as a
+single burst</strong>, into a <code>LINE_BYTES_P</code> line buffer that every subsequent <code>READ_STATE</code> /
+<code>COPY_BUFFER</code> beat reads on chip. One command pays one memory latency, not one per
+byte. <code>LINE_BYTES_P</code> defaults to 576 = the largest descriptor §3.2 can produce, rounded
+to the <a href="03_packet_engine.md">03 §2</a> slot size. That worst case is a
+STREAM_INPUT/OUTPUT at Table 7-8's caps of F ≤ 47 formats and R ≤ 8 redundant streams:
+138 + 8·47 + 2·8 = 530 B. The Annex C layout of the Δ note is 2 B shorter at the same
+caps (528 B), so 576 covers a model assembled either way. A descriptor longer than
+the line is refused at load time (header <code>desc_max_len</code>) and at locate time, never
+truncated.</p>
+<p dir="auto">The writable name table is loaded into its own on-chip overlay during the same
+validation walk. A request can carry at most 511 beats, so the loader uses
+504-beat chunks, the largest whole-name multiple that fits, until every 64-byte
+entry is present. <code>NAME_ENTRIES_P</code> is the elaborated capacity and an image that
+exceeds it is refused. The reference root derives that capacity from the same
+generated entity shape that produces the image, including models whose table is
+larger than one request.</p>
+<p dir="auto"><a id="user-content-sec-resp-memory"></a></p>
+<div class="markdown-heading" dir="auto"><h4 class="heading-element" dir="auto">3.3.2 The other main-memory region — the AECP response buffer</h4><a id="user-content-332-the-other-main-memory-region--the-aecp-response-buffer" class="anchor" aria-label="Permalink: 3.3.2 The other main-memory region — the AECP response buffer" href="#332-the-other-main-memory-region--the-aecp-response-buffer"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The image is read-only and the store never writes it, but it is not the only region
+this processor addresses. The AECP <strong>response buffer</strong> (<a href="03_packet_engine.md">03 §7.1</a>)
+lives in main memory too, at its own compile-time <code>RESP_BASE_P</code>, behind a second
+vendor-neutral master (<code>resp_mem_*</code>) that is READ <strong>and</strong> WRITE. The integrator
+reserves <code>16 + LINE_BYTES_P</code> bytes there; unlike the image it is written by the
+processor, so an overlap with <code>DESC_BASE_P</code> is silent corruption of the entity model
+and neither base may be a register.</p>
+<p dir="auto"><a id="user-content-fig-07-image"></a><strong>F07.4 — flat image layout</strong> (generator:
+<code>hdl/aecp/desc/gen_desc_image.py</code>; all fields big-endian)</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Region</th>
+<th>Field</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>header @0x00 (32 B)</td>
+<td><code>magic</code> u32 = <code>"AEMI"</code> · <code>layout_version</code> u16 = 1 · <code>n_config</code> u16</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>n_entries</code> u16 · <code>n_names</code> u16 · <code>index_off</code> u32</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>names_off</code> u32 · <code>image_bytes</code> u32</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td><code>desc_max_len</code> u16 · reserved u16 · <code>checksum</code> u32</td>
+<td>the eight u32 words sum to <code>0xFFFFFFFF</code></td>
+</tr>
+<tr>
+<td>index map @<code>index_off</code></td>
+<td><code>n_entries</code> × 16 B, sorted by (configuration, type): <code>config_index</code> u16 · <code>descriptor_type</code> u16 · <code>count</code> u16 · <code>elem_len</code> u16 · <code>elem_off</code> u32 · <code>name_base</code> u16 · <code>elem_stride</code> u16</td>
+<td>locate = <code>elem_off + index·elem_stride</code>, length <code>elem_len</code></td>
+</tr>
+<tr>
+<td>descriptors</td>
+<td>concatenated in (configuration, type, index) order at <code>elem_stride</code> spacing</td>
+<td></td>
+</tr>
+<tr>
+<td>name table @<code>names_off</code></td>
+<td><code>n_names</code> × 64 B — the §3.4 overlay's initial content</td>
+<td></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">Layout-version-1 constraints, enforced by the generator (it refuses an input that
+violates them) and re-checked by the store at locate time: each index row is one
+maximal run of equal <code>elem_len</code>, and <code>elem_stride</code> is <code>elem_len</code> rounded up to 8 so
+index &gt; 0 never starts mid-beat. Rows for one descriptor type remain contiguous.
+The store accumulates the counts of earlier rows of that type before calculating
+the run-relative index. This permits an AAF and CRF Stream Input to have the
+different lengths their format lists require without adding a second indirection.</p>
+<p dir="auto">The µCPU's <code>st_*</code> face reaches all of this through a region nibble on <code>st_addr[19:16]</code>:
+0x0 descriptor data, 0xB semantic <code>name_index</code> to writable-table byte address,
+0xC the located descriptor's <code>name_base</code>, 0xD
+<code>configurations_count</code> (so a µprogram can answer <code>BAD_ARGUMENTS</code> for a bad
+configuration index per <a href="06_aecp_engine.md">06 §6.1</a>, not <code>NO_SUCH_DESCRIPTOR</code>), 0xE
+its length, 0xF LOCATE with the 48-bit key on <code>st_wdata</code> — because a 20-bit address
+cannot carry {configuration, type, index} and <a href="06_aecp_engine.md">06 §8</a> leaves the
+encoding open.</p>
+<p dir="auto">After every descriptor fetch, the store copies its named fields from the writable
+table into the line buffer: ENTITY offsets 48 and 180, and offset 4 for every
+other named descriptor. A name write to the currently located descriptor patches
+the same line before accepting another state operation. Thus the table is the
+single writable source while descriptor reads remain coherent with it.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">3.4 Dynamic overlay</h3><a id="user-content-34-dynamic-overlay" class="anchor" aria-label="Permalink: 3.4 Dynamic overlay" href="#34-dynamic-overlay"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Overlaid field</th>
+<th>Width</th>
+<th>NVM?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>current configuration index</td>
+<td>16</td>
+<td>design decision — <strong>yes</strong> (review §8 item 1)</td>
+</tr>
+<tr>
+<td>per AUDIO_UNIT <code>current_sampling_rate</code></td>
+<td>32</td>
+<td>yes (§5.3.5.1)</td>
+</tr>
+<tr>
+<td>per CLOCK_DOMAIN <code>clock_source_index</code></td>
+<td>16</td>
+<td>yes (§5.3.11.1)</td>
+</tr>
+<tr>
+<td>per stream <code>current_format</code></td>
+<td>64</td>
+<td>yes (§5.3.7.1/§5.3.8.1)</td>
+</tr>
+<tr>
+<td>per STREAM_OUTPUT presentation-time offset</td>
+<td>32</td>
+<td>yes (§5.3.7.6)</td>
+</tr>
+<tr>
+<td>per port dynamic mapping tables</td>
+<td>64·M</td>
+<td>yes (§5.3.9.1/§5.3.10.1)</td>
+</tr>
+<tr>
+<td>name table: <code>entity_name</code>, <code>group_name</code>, <code>object_name</code> of every named descriptor</td>
+<td>64 B each</td>
+<td>yes (§5.3.13)</td>
+</tr>
+<tr>
+<td>identify value</td>
+<td>8</td>
+<td>no — reset to 0</td>
+</tr>
+<tr>
+<td><code>system_unique_id</code> (deferred design; no storage)</td>
+<td>64</td>
+<td>not implemented under the October MVU waiver (<a href="06_aecp_engine.md#69-mvu-commands">06 §6.9</a>)</td>
+</tr>
+<tr>
+<td>per CLOCK_DOMAIN <code>user_mcr_prio</code> + media-clock-domain name (deferred design; no storage)</td>
+<td>8 + 64 B</td>
+<td>not implemented under the same waiver</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">4. Dynamic state records</h2><a id="user-content-4-dynamic-state-records" class="anchor" aria-label="Permalink: 4. Dynamic state records" href="#4-dynamic-state-records"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a id="user-content-fig-07-sinkrec"></a><strong>F07.6 — ACMP sink record</strong> (48 B core; fields defined in
+<a href="05_acmp_engine.md">05 §5</a>; lanes bottom→top = record order)</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="../diagrams/wavedrom/fig-07-sinkrec.svg"><img src="../diagrams/wavedrom/fig-07-sinkrec.svg" alt="fig-07-sinkrec" style="max-width: 100%;"></a></p>
+<details>
+<summary>WaveDrom source (editable)</summary>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="{&quot;reg&quot;: [
+  {&quot;bits&quot;: 3,  &quot;name&quot;: &quot;sm_state&quot;},
+  {&quot;bits&quot;: 3,  &quot;name&quot;: &quot;pbsta&quot;},
+  {&quot;bits&quot;: 5,  &quot;name&quot;: &quot;acmpsta&quot;},
+  {&quot;bits&quot;: 8,  &quot;name&quot;: &quot;flags: bound,started,sw,retried,srp_decl[1:0],tk_reg,tk_disc&quot;},
+  {&quot;bits&quot;: 13, &quot;name&quot;: &quot;reserved&quot;},
+  {&quot;bits&quot;: 64, &quot;name&quot;: &quot;talker_entity_id&quot;},
+  {&quot;bits&quot;: 16, &quot;name&quot;: &quot;talker_unique_id&quot;},
+  {&quot;bits&quot;: 16, &quot;name&quot;: &quot;probe_seq&quot;},
+  {&quot;bits&quot;: 64, &quot;name&quot;: &quot;bind_controller_eid&quot;},
+  {&quot;bits&quot;: 64, &quot;name&quot;: &quot;settled stream_id&quot;},
+  {&quot;bits&quot;: 48, &quot;name&quot;: &quot;settled stream_dest_mac&quot;},
+  {&quot;bits&quot;: 12, &quot;name&quot;: &quot;settled vlan_id&quot;},
+  {&quot;bits&quot;: 4,  &quot;name&quot;: &quot;rsv&quot;},
+  {&quot;bits&quot;: 32, &quot;name&quot;: &quot;last_available_index&quot;},
+  {&quot;bits&quot;: 8,  &quot;name&quot;: &quot;saved interface_index&quot;},
+  {&quot;bits&quot;: 8,  &quot;name&quot;: &quot;sm timer handle&quot;},
+  {&quot;bits&quot;: 8,  &quot;name&quot;: &quot;noadp timer handle&quot;},
+  {&quot;bits&quot;: 8,  &quot;name&quot;: &quot;rsv&quot;}
+], &quot;config&quot;: {&quot;bits&quot;: 384, &quot;lanes&quot;: 12, &quot;hspace&quot;: 950}}"><pre lang="wavedrom" class="notranslate"><code>{"reg": [
+  {"bits": 3,  "name": "sm_state"},
+  {"bits": 3,  "name": "pbsta"},
+  {"bits": 5,  "name": "acmpsta"},
+  {"bits": 8,  "name": "flags: bound,started,sw,retried,srp_decl[1:0],tk_reg,tk_disc"},
+  {"bits": 13, "name": "reserved"},
+  {"bits": 64, "name": "talker_entity_id"},
+  {"bits": 16, "name": "talker_unique_id"},
+  {"bits": 16, "name": "probe_seq"},
+  {"bits": 64, "name": "bind_controller_eid"},
+  {"bits": 64, "name": "settled stream_id"},
+  {"bits": 48, "name": "settled stream_dest_mac"},
+  {"bits": 12, "name": "settled vlan_id"},
+  {"bits": 4,  "name": "rsv"},
+  {"bits": 32, "name": "last_available_index"},
+  {"bits": 8,  "name": "saved interface_index"},
+  {"bits": 8,  "name": "sm timer handle"},
+  {"bits": 8,  "name": "noadp timer handle"},
+  {"bits": 8,  "name": "rsv"}
+], "config": {"bits": 384, "lanes": 12, "hspace": 950}}
+</code></pre></div>
+</details>
+<p dir="auto">Plus per sink: SRP failure registers {code 8, bridge_id 64} held in the <code>srp</code> adapter;
+NVM shadow ≈ 20 B ({valid, talker EID, unique_id, controller EID, started}).</p>
+<p dir="auto"><a id="user-content-fig-07-regrec"></a><strong>F07.7 — Controller-registry entry</strong> (28 B; Δ12 tuple; lanes
+bottom→top = record order)</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="../diagrams/wavedrom/fig-07-regrec.svg"><img src="../diagrams/wavedrom/fig-07-regrec.svg" alt="fig-07-regrec" style="max-width: 100%;"></a></p>
+<details>
+<summary>WaveDrom source (editable)</summary>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="{&quot;reg&quot;: [
+  {&quot;bits&quot;: 64, &quot;name&quot;: &quot;controller_entity_id&quot;},
+  {&quot;bits&quot;: 48, &quot;name&quot;: &quot;mac_address&quot;},
+  {&quot;bits&quot;: 8,  &quot;name&quot;: &quot;port (AVB interface)&quot;},
+  {&quot;bits&quot;: 8,  &quot;name&quot;: &quot;flags: valid, time_limited, probing&quot;},
+  {&quot;bits&quot;: 16, &quot;name&quot;: &quot;next unsolicited sequence_id (init 0)&quot;},
+  {&quot;bits&quot;: 16, &quot;name&quot;: &quot;reserved&quot;},
+  {&quot;bits&quot;: 32, &quot;name&quot;: &quot;monitor deadline (T-NOTIF-MONITOR)&quot;},
+  {&quot;bits&quot;: 32, &quot;name&quot;: &quot;time-limited deadline (T-NOTIF-TIMELIMITED)&quot;}
+], &quot;config&quot;: {&quot;bits&quot;: 224, &quot;lanes&quot;: 7, &quot;hspace&quot;: 950}}"><pre lang="wavedrom" class="notranslate"><code>{"reg": [
+  {"bits": 64, "name": "controller_entity_id"},
+  {"bits": 48, "name": "mac_address"},
+  {"bits": 8,  "name": "port (AVB interface)"},
+  {"bits": 8,  "name": "flags: valid, time_limited, probing"},
+  {"bits": 16, "name": "next unsolicited sequence_id (init 0)"},
+  {"bits": 16, "name": "reserved"},
+  {"bits": 32, "name": "monitor deadline (T-NOTIF-MONITOR)"},
+  {"bits": 32, "name": "time-limited deadline (T-NOTIF-TIMELIMITED)"}
+], "config": {"bits": 224, "lanes": 7, "hspace": 950}}
+</code></pre></div>
+</details>
+<p dir="auto"><a id="user-content-fig-07-ctrmap"></a><strong>F07.10 — Counter banks</strong> (full-bank form; compressed
+option = only-implemented-offsets with an index ROM):</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Bank</th>
+<th>Instances</th>
+<th>Size</th>
+<th>Reset domain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AVB_INTERFACE</td>
+<td>P-N-AVB-INTERFACES</td>
+<td>4 (valid mask ROM) + 128 B</td>
+<td>boot only</td>
+</tr>
+<tr>
+<td>CLOCK_DOMAIN</td>
+<td>P-N-CLOCK-DOMAINS</td>
+<td>128 B</td>
+<td>boot only</td>
+</tr>
+<tr>
+<td>STREAM_INPUT</td>
+<td>P-N-STREAM-IN</td>
+<td>128 B</td>
+<td>boot + <strong>not-bound→bound</strong> clear</td>
+</tr>
+<tr>
+<td>STREAM_OUTPUT</td>
+<td>P-N-STREAM-OUT</td>
+<td>128 B</td>
+<td>boot; MEDIA_RESET/TS_UNCERTAIN/FRAMES_TX clear on stream start</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">Event→address mapping and masks: <a href="06_aecp_engine.md#fig-06-counters">F06.15</a>.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">5. Persistence</h2><a id="user-content-5-persistence" class="anchor" aria-label="Permalink: 5. Persistence" href="#5-persistence"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">5.1 Persisted vs volatile (normative set — REQ-PER-001/002)</h3><a id="user-content-51-persisted-vs-volatile-normative-set--req-per-001002" class="anchor" aria-label="Permalink: 5.1 Persisted vs volatile (normative set — REQ-PER-001/002)" href="#51-persisted-vs-volatile-normative-set--req-per-001002"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Persisted (Milan clause)</th>
+<th>Volatile (clause)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sampling rate (§5.3.5.1) · stream formats in/out (§5.3.7.1/§5.3.8.1) · presentation offset (§5.3.7.6) · bound state + binding params (§5.3.8.2/.3) · started/stopped (§5.3.8.7) · output + input mappings (§5.3.9.1/§5.3.10.1) · clock source (§5.3.11.1) · all user names (§5.3.13)</td>
+<td>lock state (§5.3.4.1) · controller registry (§5.3.4.2) · identify value = 0 after reset (§5.3.12)</td>
+</tr>
+<tr>
+<td>design decision (review §8): current configuration index</td>
+<td></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">The earlier design intention to persist <code>system_unique_id</code>, <code>user_mcr_prio</code>
+and the media-clock-domain name is deferred with their commands under the
+<a href="06_aecp_engine.md#69-mvu-commands">October MVU waiver</a>. These fields are neither
+stored nor persisted by the processor in this release.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">5.2 NVM record layout</h3><a id="user-content-52-nvm-record-layout" class="anchor" aria-label="Permalink: 5.2 NVM record layout" href="#52-nvm-record-layout"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a id="user-content-fig-07-nvmrec"></a><strong>F07.8 — Record framing</strong> (device-agnostic; one record per
+item group and index — a partial update never rewrites unrelated records; lanes
+bottom→top = record order)</p>
+<p dir="auto">The SUID and MCR[d] labels in F07.8 are reserved design groups, not implemented
+records in the October release (<a href="06_aecp_engine.md#69-mvu-commands">06 §6.9</a>).</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="../diagrams/wavedrom/fig-07-nvmrec.svg"><img src="../diagrams/wavedrom/fig-07-nvmrec.svg" alt="fig-07-nvmrec" style="max-width: 100%;"></a></p>
+<details>
+<summary>WaveDrom source (editable)</summary>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="{&quot;reg&quot;: [
+  {&quot;bits&quot;: 16, &quot;name&quot;: &quot;magic 0x1722&quot;},
+  {&quot;bits&quot;: 8,  &quot;name&quot;: &quot;layout_version&quot;},
+  {&quot;bits&quot;: 8,  &quot;name&quot;: &quot;record_id&quot;},
+  {&quot;bits&quot;: 16, &quot;name&quot;: &quot;payload_length&quot;},
+  {&quot;bits&quot;: 16, &quot;name&quot;: &quot;crc16 (header+payload)&quot;},
+  {&quot;bits&quot;: 32, &quot;name&quot;: &quot;payload ... record structs: RATE, FMT_IN/OUT[i], PT_OFS[i], BINDING[i]&quot;, &quot;type&quot;: 3},
+  {&quot;bits&quot;: 32, &quot;name&quot;: &quot;... MAPS_IN/OUT[p], CLKSRC[d], NAMES[n], CFG_IDX, SUID, MCR[d]&quot;, &quot;type&quot;: 3}
+], &quot;config&quot;: {&quot;bits&quot;: 128, &quot;lanes&quot;: 4, &quot;hspace&quot;: 950}}"><pre lang="wavedrom" class="notranslate"><code>{"reg": [
+  {"bits": 16, "name": "magic 0x1722"},
+  {"bits": 8,  "name": "layout_version"},
+  {"bits": 8,  "name": "record_id"},
+  {"bits": 16, "name": "payload_length"},
+  {"bits": 16, "name": "crc16 (header+payload)"},
+  {"bits": 32, "name": "payload ... record structs: RATE, FMT_IN/OUT[i], PT_OFS[i], BINDING[i]", "type": 3},
+  {"bits": 32, "name": "... MAPS_IN/OUT[p], CLKSRC[d], NAMES[n], CFG_IDX, SUID, MCR[d]", "type": 3}
+], "config": {"bits": 128, "lanes": 4, "hspace": 950}}
+</code></pre></div>
+</details>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">5.3 Commit / restore flows</h3><a id="user-content-53-commit--restore-flows" class="anchor" aria-label="Permalink: 5.3 Commit / restore flows" href="#53-commit--restore-flows"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto"><a id="user-content-fig-07-nvmflow"></a><strong>F07.9 — Runtime commit and boot restore</strong></p>
+<section class="js-render-needs-enrichment render-needs-enrichment position-relative" data-identity="e1f89b6e-fdcc-4791-92b4-180da5549d60" data-host="https://viewscreen.githubusercontent.com" data-src="https://viewscreen.githubusercontent.com/markdown/mermaid?docs_host=https%3A%2F%2Fdocs.github.com" data-type="mermaid" aria-label="mermaid rendered output container">
+  <div class="js-render-enrichment-target" data-json="{&quot;data&quot;:&quot;flowchart TB\n  subgraph runtime [\&quot;runtime commit\&quot;]\n    chg[\&quot;committed state change (COMMIT + NVM_MARK)\&quot;] --&gt; dirty[\&quot;set record dirty bit\&quot;]\n    dirty --&gt; deb[\&quot;debounce T-NVM-DEBOUNCE (coalesce bursts)\&quot;]\n    deb --&gt; ser[\&quot;serialize record + crc16\&quot;] --&gt; port[\&quot;class-F port write (F02.8)\&quot;]\n    port --&gt; ok{\&quot;done?\&quot;}\n    ok -- err --&gt; retry[\&quot;bounded retry, then side-port alarm - responses were never blocked\&quot;]\n    ok -- done --&gt; clr[\&quot;clear dirty\&quot;]\n  end\n  subgraph boot [\&quot;boot restore (before entity_enable)\&quot;]\n    rd[\&quot;read all records\&quot;] --&gt; crc{\&quot;magic+version+crc ok?\&quot;}\n    crc -- no --&gt; defs[\&quot;vendor defaults for that record\&quot;]\n    crc -- yes --&gt; apply[\&quot;apply to overlay / sink shadows\&quot;]\n    defs --&gt; apply\n    apply --&gt; preload[\&quot;saved binding present? preload listener SM to PRB_W_AVAIL (05)\&quot;]\n    preload --&gt; en[\&quot;release entity_enable (ADP may start - Milan 5.6.1)\&quot;]\n  end\n&quot;}" data-plain="flowchart TB
+  subgraph runtime [&quot;runtime commit&quot;]
+    chg[&quot;committed state change (COMMIT + NVM_MARK)&quot;] --&gt; dirty[&quot;set record dirty bit&quot;]
+    dirty --&gt; deb[&quot;debounce T-NVM-DEBOUNCE (coalesce bursts)&quot;]
+    deb --&gt; ser[&quot;serialize record + crc16&quot;] --&gt; port[&quot;class-F port write (F02.8)&quot;]
+    port --&gt; ok{&quot;done?&quot;}
+    ok -- err --&gt; retry[&quot;bounded retry, then side-port alarm - responses were never blocked&quot;]
+    ok -- done --&gt; clr[&quot;clear dirty&quot;]
+  end
+  subgraph boot [&quot;boot restore (before entity_enable)&quot;]
+    rd[&quot;read all records&quot;] --&gt; crc{&quot;magic+version+crc ok?&quot;}
+    crc -- no --&gt; defs[&quot;vendor defaults for that record&quot;]
+    crc -- yes --&gt; apply[&quot;apply to overlay / sink shadows&quot;]
+    defs --&gt; apply
+    apply --&gt; preload[&quot;saved binding present? preload listener SM to PRB_W_AVAIL (05)&quot;]
+    preload --&gt; en[&quot;release entity_enable (ADP may start - Milan 5.6.1)&quot;]
+  end
+" dir="auto">
+    <div class="render-plaintext-hidden" dir="auto">
+      <pre lang="mermaid" aria-label="Raw mermaid code">flowchart TB
+  subgraph runtime ["runtime commit"]
+    chg["committed state change (COMMIT + NVM_MARK)"] --&gt; dirty["set record dirty bit"]
+    dirty --&gt; deb["debounce T-NVM-DEBOUNCE (coalesce bursts)"]
+    deb --&gt; ser["serialize record + crc16"] --&gt; port["class-F port write (F02.8)"]
+    port --&gt; ok{"done?"}
+    ok -- err --&gt; retry["bounded retry, then side-port alarm - responses were never blocked"]
+    ok -- done --&gt; clr["clear dirty"]
+  end
+  subgraph boot ["boot restore (before entity_enable)"]
+    rd["read all records"] --&gt; crc{"magic+version+crc ok?"}
+    crc -- no --&gt; defs["vendor defaults for that record"]
+    crc -- yes --&gt; apply["apply to overlay / sink shadows"]
+    defs --&gt; apply
+    apply --&gt; preload["saved binding present? preload listener SM to PRB_W_AVAIL (05)"]
+    preload --&gt; en["release entity_enable (ADP may start - Milan 5.6.1)"]
+  end
+</pre>
+    </div>
+  </div>
+  <span class="js-render-enrichment-loader d-flex flex-justify-center flex-items-center width-full" style="min-height:100px" role="presentation">
+    <span data-view-component="true">
+  <svg style="box-sizing: content-box; color: var(--color-icon-primary);" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" data-view-component="true" class="octospinner mx-auto tmp-mx-auto anim-rotate">
+    <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-opacity="0.25" stroke-width="2" vector-effect="non-scaling-stroke" fill="none"></circle>
+    <path d="M15 8a7.002 7.002 0 00-7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+</svg>    <span class="sr-only">Loading</span>
+</span>
+  </span>
+</section>
+
+<p dir="auto">The binding walk owns the ACMP listener from reset until its last preload has been
+written and armed: commands, talker events, START/STOP requests and timer expiries wait
+at their producers until then, and <code>restore_done_o</code> marks that end
+(<a href="05_acmp_engine.md#sec-05-boot-admission">05 §5.1</a>). A read-only command that arrives
+during the walk is answered afterwards, from the restored image or, if the walk failed,
+from the vendor defaults, and it changes nothing here either way.</p>
+<p dir="auto"><strong>How a binding walk ends</strong> (<code>KL_acmp_nvm_shadow</code>, processor issue #93). A walk is a
+transaction: a transport failure anywhere ends it with <strong>every</strong> sink not captured live at
+its vendor default, <code>restore_fail_o</code> and no preload, never with part of the image. It
+rejects the image, not the media: every saved record stays in the device as it was.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>The record read…</th>
+<th>Result</th>
+<th><code>restore_cause_o</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>delivers a whole record that passes crc, layout_version, record_id and length</td>
+<td>that sink's saved binding is stored and later preloaded</td>
+<td>0</td>
+</tr>
+<tr>
+<td>delivers a whole record that fails one of those</td>
+<td><strong>that record's</strong> vendor default; the walk continues</td>
+<td>0</td>
+</tr>
+<tr>
+<td>ends with nothing forwarded because the device answered with something that is not a record: a clean <code>done</code>, or an <code>err</code> the port names UNFRAMED (<a href="02_interfaces.md#fig-02-nvmwave">02 §8</a>)</td>
+<td><strong>that record's</strong> vendor default; the walk continues</td>
+<td>0</td>
+</tr>
+<tr>
+<td>ends after at least one forwarded byte and short of the record (torn)</td>
+<td>the <strong>whole walk</strong> fails</td>
+<td>1</td>
+</tr>
+<tr>
+<td>ends with nothing forwarded on an <code>err</code> the port names DEVICE (a device error, or a header read the device ended short)</td>
+<td>the <strong>whole walk</strong> fails: a failing device is not an empty record</td>
+<td>2</td>
+</tr>
+<tr>
+<td>waits <code>P-NVM-RS-TMO-CYC</code> consecutive clocks without progress (<code>T-NVM-RS-DEADLINE</code>): for the port idle before a read, or for a byte, <code>done</code> or <code>err</code> during it</td>
+<td>the <strong>whole walk</strong> fails, and a read already issued is abandoned to the arbiter, which drains it (<a href="02_interfaces.md#82-two-record-managers-one-port">02 §8.2</a>)</td>
+<td>3</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">Progress is the awaited event itself, so a device that is slow but moving never trips the
+deadline, and the deadline bounds only the read phase: the preload phase is bounded by
+the listener's admission (<a href="05_acmp_engine.md#sec-05-boot-admission">05 §5.1</a>). A failed
+walk still reaches its terminal, the listener is released and answers on the defaults,
+and an enable gated on <code>restore_done_o</code> follows. A walk that validated no record reports
+<code>restore_blank_o</code>, a failed one included. What the deadline does <strong>not</strong> do: it gives the
+port no deadline of its own and releases nothing on time. A device that ends the
+abandoned read late ends the drain and the port serves the next operation; a device that
+never ends it leaves the port quarantined until reset.</p>
+<p dir="auto"><strong>A failed walk keeps the saved records</strong> (processor issue #92). After the atomic reject
+the listener runs on its defaults, and it writes its record back for every command it
+serves, a read-only <code>GET_RX_STATE</code> included. The shadow commits only a record that differs
+from what it holds, and <strong>two unbound records never differ</strong>, whatever their other fields:
+an unbound record carries no binding (Milan v1.2 5.3.8.3 clears the binding parameters on
+unbind), and no walk preloads one. So a command that leaves a sink unbound writes nothing
+after a failed walk, whether it is a <code>GET_RX_STATE</code> held from the boot window, a later
+poll, or an <code>UNBIND</code> of a sink the failed walk left unbound, and the next walk on a
+healthy device restores every saved binding. A <code>BIND</code> does bind the sink: it replaces
+that sink's record, as it would after any walk. Graded for all three causes in
+<a href="../../tb/acmp_nvm/README.md"><code>tb/acmp_nvm</code></a> (N8) and at the top in
+<a href="../../tb/pp_top/README.md"><code>tb/pp_top</code></a> (BW3).</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">5.4 Open decisions</h3><a id="user-content-54-open-decisions" class="anchor" aria-label="Permalink: 5.4 Open decisions" href="#54-open-decisions"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Recorded in <a href="../00_MILAN_COMPLIANCE_REVIEW.md">review §8</a>: configuration-index
+persistence is a design decision (Milan silent). The earlier system_unique_id
+and MCR persistence plans are deferred under <a href="06_aecp_engine.md#69-mvu-commands">06 §6.9</a>.
+Wear management (write coalescing beyond <code>T-NVM-DEBOUNCE</code>) is device-dependent
+and out of contract.</p>
+<div class="markdown-heading" dir="auto"><h3 class="heading-element" dir="auto">5.5 Side-port address map (detail of <a href="02_interfaces.md">02 §7</a>)</h3><a id="user-content-55-side-port-address-map-detail-of-02-7" class="anchor" aria-label="Permalink: 5.5 Side-port address map (detail of 02 §7)" href="#55-side-port-address-map-detail-of-02-7"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Window (word addr)</th>
+<th>Access</th>
+<th>Contents</th>
+<th>State in the landed top</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x00000–0x0FFFF</td>
+<td>W pre-enable</td>
+<td>descriptor image, index maps, identity registers (entity_id, model_id, MACs, capabilities), profile select</td>
+<td>reserved seam — reads 0; the image is loaded into main memory at <code>DESC_BASE_P</code> instead (§3.3.1 above)</td>
+</tr>
+<tr>
+<td>0x10000–0x1FFFF</td>
+<td>RO</td>
+<td>overlay + name table debug view</td>
+<td>reserved seam — reads 0</td>
+</tr>
+<tr>
+<td>0x20000–0x2FFFF</td>
+<td>RO</td>
+<td>registry entries, counter banks, sink records (snapshot)</td>
+<td><strong>implemented</strong> — the F02.10 class-D dictionary plus front-end counters</td>
+</tr>
+<tr>
+<td>0x30000–0x300FF</td>
+<td>RW</td>
+<td>control/status: entity_enable, boot state, NVM alarm, version/build id</td>
+<td>word 0 scratch, word 1 boot state</td>
+</tr>
+<tr>
+<td>0x40000–0x4FFFF</td>
+<td>RO</td>
+<td>trace ring (class-A framing)</td>
+<td><strong>implemented</strong></td>
+</tr>
+<tr>
+<td>0x50000–0x5FFFF</td>
+<td>RW</td>
+<td>firmware mailbox (<code>P-EN-FIRMWARE-ASSIST</code> only)</td>
+<td>disabled — every access refused</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">The <strong>snapshot window at <code>0x20000</code></strong> is the observability surface. Its words 32–36 publish
+the AECP engine, the descriptor store and the response buffer: command, response, drop and
+locate-miss counters, the last response's status and length, the image-valid flag and its
+fault code, and — words 35 and 36 — the count of responses voided by the response memory,
+the lanes written to it and the last fault code on that master. The wire only ever shows
+<code>ENTITY_MISBEHAVING</code> when that bridge fails; this window is where an integrator sees which
+channel failed and how often.</p>
+<p dir="auto">The word-by-word map, with bit positions, is in the
+<a href="../guides/operator.md#5-the-snapshot-window-word-by-word">operator guide</a>. Refused
+accesses — a write to a read-only window, an image write after <code>entity_enable</code>, or any
+unmapped address — answer with the error flag one cycle later and are never forwarded;
+the enforcement lives in
+<a href="../../hdl/packet_engine/KL_pp_side_port.sv"><code>KL_pp_side_port</code></a>, not with the host.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">6. Sizing roll-up (worked example)</h2><a id="user-content-6-sizing-roll-up-worked-example" class="anchor" aria-label="Permalink: 6. Sizing roll-up (worked example)" href="#6-sizing-roll-up-worked-example"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Baseline: 1 configuration, 1 AVB interface, 2 in + 2 out streams, F = 6 formats each,
+1 audio unit, 2 + 2 stream ports, 2 clusters/port, 1 output AUDIO_MAP (8 entries),
+2 clock sources, 1 clock domain, identify control.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Region</th>
+<th>Formula</th>
+<th>Bytes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Static image (<strong>main memory</strong>, not block RAM)</td>
+<td>312 + (74+4·10) + (144+4·3) + 4·(138+48) + 102 + 2·86 + 4·20 + 8·90 + (8+64) + (104+9) + (76+4) + index maps ≈</td>
+<td><strong>≈ 2.9 K</strong> at this small baseline; the reference consumer's model at its shipping shape is an order of magnitude larger, which is why §3.3.1 moved it off chip</td>
+</tr>
+<tr>
+<td>Overlay + names</td>
+<td>≈ 20 named × 64 + currents + maps</td>
+<td>≈ 1.6 K</td>
+</tr>
+<tr>
+<td>Sink/source records</td>
+<td>2×48 + 2×16 (source DA gates)</td>
+<td>128</td>
+</tr>
+<tr>
+<td>Registry</td>
+<td>16 × 28</td>
+<td>448</td>
+</tr>
+<tr>
+<td>Counters</td>
+<td>(1+1+2+2) × 132</td>
+<td>792</td>
+</tr>
+<tr>
+<td>RX + TX slots</td>
+<td>4×576 + 4×576 + 1600</td>
+<td>6.2 K</td>
+</tr>
+<tr>
+<td>NVM image</td>
+<td>Σ records ≈</td>
+<td>≈ 2.5 K</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">Total block RAM well under 32 KB for the baseline — the architecture scales linearly
+via the <a href="01_overview.md#fig-01-params">F01.5</a> parameters. Note that the first and largest
+row is <strong>not</strong> block RAM in the landed implementation: the static image and the AECP
+response buffer both live in the integrator's main memory (§3.3.1, §3.3.2), which is what
+makes the on-chip total fit at all on the reference part.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">7. Cross-references</h2><a id="user-content-7-cross-references" class="anchor" aria-label="Permalink: 7. Cross-references" href="#7-cross-references"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Covers REQ-MDL-001…011, REQ-PER-001…003 and storage referenced by
+<a href="04_adp_engine.md">04</a>/<a href="05_acmp_engine.md">05</a>/<a href="06_aecp_engine.md">06</a>. NVM handshake:
+<a href="02_interfaces.md#fig-02-nvmwave">F02.8</a>. Power-cut verification: NVM category
+(<a href="09_verification.md">09 §3</a>).</p>
+</article></div>
