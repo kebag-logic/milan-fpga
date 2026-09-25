@@ -1,0 +1,247 @@
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] ASSIGNMENT [A274]: adopt processor main `a8f8ce81`, and implement #508 on the seam it provides
+
+Base: dev `573f0052`. The parent currently pins processor `09f9bf38`.
+
+The adopted processor revision carries:
+- Mister-M-alt/protocol-processor-control-plane-avb-milan#92/#93 (boot restore);
+- #94 (descriptor-memory guard);
+- #43/#49 (GET_STREAM_INFO selectors 5 and 7 served from processor state, with no new port);
+- #112 (the admission grant is trustworthy after a re-declaration).
+
+Scope:
+1. Move the `protocol-processor` gitlink to `a8f8ce81`. Re-record `syn/yosys/rom_digests.tsv` with the repository's own tool. Update `SUBMODULES.md` and the CHANGELOG with one line per adopted change.
+2. #508 on the new seam. The processor no longer asks the integrator for selectors 5 and 7, so remove the parent's now-unused gather for them in `milan_datapath.sv`: the zero bridge ID and the selector-7 approximation. Do not duplicate the state owner.
+   - Prove #508 acceptance 2-5 at the parent level, in `milan_dp` with real processor and root wiring:
+     - DISABLED, PASSIVE, ACTIVE (with `acmpsta`) and COMPLETED;
+     - the Talker Failed code and 64-bit bridge ID per sink, for two sinks in a multi-sink shape;
+     - solicited responses equal unsolicited ones;
+     - mutants that tie the fields to zero or pick the wrong sink fail.
+   - Update the integration and limitations docs (acceptance 6).
+3. Every parent suite that consumes the processor stays green: `pp_shadow`, `milan_dp` and the builder in both modes.
+
+#551's cold-pipeline case is not flipped here. #553 does that after this merges.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A274] REVIEW READY
+Commit: 35f0695815c202392b6b4806bb9f59dd110687ed (branch `508-pp-pin-adopt`, base dev 573f0052; local head, not pushed from this lane)
+Changed:
+- `protocol-processor` 09f9bf38 -> a8f8ce81 (processor #92/#93 PR 109, #94 PR 110, #43/#49 PR 111, #112 PR 114); ROM digests re-recorded with `syn/yosys/ooc.sh --record-rom-digests` (images unchanged); SUBMODULES.md, submodule diagram, CHANGELOG.
+- `milan_datapath.sv`: STREAM_INPUT selectors 5 and 7 and the selector 4 failure-code byte are left to the processor; the bound/settled approximation and the zero bridge id are deleted.
+- `sim_nxn.cpp` `[GSI]` in the timed `obj_notify` leg (AX 1x1: AAF sink 0, CRF sink 1) and `gsi_mutants.py` (`make gsi-mutants`).
+- New-pin adaptations: every harness that binds a sink starts the NVM walk via PP_CTRL[1] (the listener is held until it ends); `nvm_cosim`'s transcription wires the new arbiter, error cause, abort and deadline.
+- Docs: integration guide, REGISTER_MAP (PP_CTRL[1], LWSRP_STATUS[9]/LWSRP_SLOPE after #112), troubleshooting section 27, compliance matrix, TESTING, suite README.
+Validation (all foreground, rc 0 unless stated):
+- `make -C tb/verilator/pp_shadow` 371/0; milan_dp default sweep from clean, 31/31 commands rc 0 (notify 345/0, nxn 1709/0, nxn8 3137/0, aclk 140/0, render mutants 6/6, ...); `make gsi-mutants` 8/8; milan_dp_render 152/0, 60/0, 5/5; nvm_cosim 465/465, 39/39 mutants.
+- Builder with the pinned SDK: ALL GATES PASS EXCEPT 1 NOT RUN (gate 11, no board build tree). Without an RV32 compiler: ALL GATES PASS EXCEPT 2 NOT RUN (the compiled census by design, gate 11).
+- `pp_srcs.py --check --selftest`, `docs_check.py` (git and no-git), `check_em_dash --base 573f0052`, `check_doc_style`, `gen_toc --check`, `check_doc_paths`, `gen_module_matrix.py --check`, `xvlog_gate --check`, `check_rtl_source_lists`, `check_cpp_idiom`, `check_py_idiom`, behave (344 scenarios), Yosys 54/54 tops (every top reads the derived processor list), `git diff --check`.
+Acceptance criteria:
+- 1: seam and lineage recorded (suite README table: state owner -> selector -> response byte).
+- 2: DISABLED, ACTIVE with 0, 7 (LISTENER_TALKER_TIMEOUT) and 3, PASSIVE, COMPLETED graded; acmp_status 0 outside ACTIVE. Note: a bind is ACTIVE at once and PASSIVE follows the retry (processor PR 111, Milan 5.5.3.5.3/5.5.3.5.29), not "PASSIVE after bind".
+- 3: code and full 64-bit bridge id per sink, distinct on both sinks; change and withdrawal; reset; missing descriptor.
+- 4: every transition pushes one GET_STREAM_INFO to each registered controller, equal to the solicited answer from the body on; refresh and duplicate probe push nothing; STOP_STREAMING pushes its own response and excludes the requester.
+- 5: bridge/code/status tied to zero, wrong sink and the restored approximation each fail a named completed-scenario check (7 to 30 of 345).
+- 6: integration and limitation docs updated after the evidence.
+Open risks/questions:
+- BLOCKER, needs a decision: three parent gates in the required `docs-check` context refuse processor content new at a8f8ce81 (docs.yml is green on dev 573f0052). `check_port_contracts.py`: 7 literal-bound `u_nvm_arb.m1_*` connections without a rationale comment above their runs (PR 109). `measure_naming.py --check`: `KL_aecp_desc_mem_guard:s_rsp_data_o` and `protocol_processor_top:srp_sr_admitted_o` document a unit their names lack (PR 110, PR 114). `measure_test_evidence.py --check`: three new processor mutation drivers pass a host `timeout=` (PR 110, 111, 114), 6 > ratchet 3. Each gate forbids adding identities or raising the ratchet. Recommended: a processor follow-up, then re-pin (gitlink, digest rows, pin text only). The parent-owned dispositions for those three drivers are added here.
+- Report only: the firmware's `nvm_boot()` returns before starting the walk when its record shape is inconsistent; the builder refuses such a build.
+- Not run locally: the scheduled `milan_dp_gptp` physical suite and the live SoC elaboration.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] Decision on the [A274] BLOCKER (REVIEW READY 5822002238): option 1.
+
+The three `docs-check` findings belong to the processor. Adding the identities or raising the wall-clock ratchet here would break those gates' own rule that a ratchet only goes down. The fix is processor issue Mister-M-alt/protocol-processor-control-plane-avb-milan#116.
+
+This lane is held at `35f06958`, pushed as `508-pp-pin-adopt`, with no PR yet. When #116 merges, the lane re-pins to the resulting processor main. Only the gitlink, the rom_digests row and the pin text move, then the lane re-runs its gates. If processor #113 (PR #115) merges first, the re-pin includes it, and the lane re-checks the `[GSI]` and notify legs against it.
+
+The firmware `nvm_boot()` early return the handoff reports stays out of scope here. Tracking: #495.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] Round 2 assignment for #508, following decision 5822047670. Processor #116 has merged as `265d6762` and #113 as `990f9652`. Executor [A295].
+
+1. Merge dev `c266432d` (#408 and #387b have landed) into `508-pp-pin-adopt`. Resolve the five conflicts with #387b: `CHANGELOG.md`, `docs/testing/TESTING.md`, `scripts/measure_test_evidence.py`, `tb/verilator/milan_dp/Makefile` and `tb/verilator/milan_dp/README.md`. Keep both sides' content; do not drop a leg, a disposition or a row.
+2. Re-pin `protocol-processor` from `a8f8ce81` to `990f96526bb89356c963a260ebbdcf2a77e6623a`. Re-record the ROM digests (`syn/yosys/ooc.sh --record-rom-digests`), and update the pin text in `SUBMODULES`, the diagram and the CHANGELOG. Extend the adopted-change table with #116 (parent-gate fixes, no port change) and #113 (a latency-only GET_STREAM_INFO notification). Say whether any `milan_dp` notify or `[GSI]` check sees the new latency notification, and adapt a check only if it does.
+3. Re-run the full gate set of round 1 at the new head, from clean: the builder in both modes; the `milan_dp` default sweep; `milan_dp_render`; `nvm_cosim`; `gsi-mutants`; `pp_shadow`; yosys shards; `behave`; the docs set; `xvlog`, source lists and idioms. Add `check_port_contracts.py`, `measure_naming.py --check` and `measure_test_evidence.py --check`, all of which must now exit 0.
+
+Reviewers: [R306] internal and [R307] external, first round.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A295] REVIEW READY
+
+Commit: `6a9828c172aa4d5d8ee49725e357a10bae2caa52`
+Branch: `508-pp-pin-adopt` (local, unpushed). Assignment items 1-3 are complete. The superproject and all three required submodules are clean. No PR was created or edited.
+
+Changed:
+
+- Merged the requested dev commit `c266432dcb0cdd464205823a3d82cad260eedde2` in merge commit `cec6b99da7b26ce9962bcf9a6c05161c9f99439a`. Retained both sides in all five conflicts: CHANGELOG, TESTING, the test-evidence dispositions, the datapath Makefile, and its README. Both GSI and GM-step legs, controls, dispositions and historical measurement rows remain.
+- Advanced the processor gitlink to `990f96526bb89356c963a260ebbdcf2a77e6623a`. Re-recorded ROM digests using `cd syn/yosys && ./ooc.sh --record-rom-digests` (rc 0); no manual digest or processor source edits. Updated SUBMODULES, CHANGELOG and the regenerated diagram.
+- Extended the adopted-change table with processor [#116](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/116) / [PR #117](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/117) (parent-gate fixes, no behavior or port change), and [#113](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/113) / [PR #115](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/115) (latency-only GET_STREAM_INFO notification). Earlier adopted issues #92, #93, #94, #43, #49 and #112, through PRs #109, #110, #111 and #114, remain listed.
+
+Latency notification: no existing parent notify/[GSI] check drives an isolated latency-only refresh. `tb/verilator/milan_dp/sim_nxn.cpp:gsi_talker_failed()` fixes latency at 500000 ns. G5 changes latency alongside registration/failure data and observes the coalesced notification; G6 keeps latency unchanged, and G7 changes only FailureInformation. Earlier notify phases do not register a Talker attribute. No check adaptation was needed. Isolated latency-only coverage remains in the processor PR #115 response tests.
+
+Validation: all 65 gate commands returned rc 0 at the exact final head, from cleared generated outputs. Commands ran in the foreground without shell pipelines. The completion audit checked head identity, each exit, the complete synthesis inventory, clean trees and one-line commit messages without bodies or trailers.
+
+| Gate | Result |
+|---|---|
+| Full builder with pinned SDK | rc 0; 471 audited compiler invocations using the assignment's argv[0]-only SDK mapping |
+| Full builder without a cross compiler | rc 0; all three compiler candidates unavailable, entire builder executed |
+| `make -C tb/verilator/pp_shadow` | 371 checks, 0 failures |
+| Default `make -C tb/verilator/milan_dp run` recipe, executed in chunks | All 36 expanded recipe commands rc 0; chunks 1-12, 13-23, 24-30 and 31-36 all rc 0 |
+| Notify/[GSI] leg | 345 checks, 0 failures |
+| GM-step and default mutation controls | GM-step 48/0; render controls 6/6; GM-step controls 4/4 |
+| `make -C tb/verilator/milan_dp_render` | Integration legs 152/0 and 60/0; control/defect checks 5/5 |
+| `make -C tb/verilator/nvm_cosim` | 465/465 checks; 39/39 mutations caught by named checks |
+| `make -C tb/verilator/milan_dp gsi-mutants` | 8/8: golden control plus seven mutations detected |
+| `syn/yosys/run.sh --shard I/4 --results <evidence>/yosys-results`, I = 0, 1, 2, 3 | Each shard rc 0; 54/54 full synthesis tops; tied-input and tap-purity checks pass |
+| `cd tests && behave --no-capture -f plain` | 14 features, 344 scenarios, 1739 steps; no failures or skips |
+
+The builder reports its existing historical resource-calibration arm as NOT RUN in both modes because the placement report is absent. The compiler-absent mode additionally reports compiled census/instruments as NOT RUN. These arms are not claimed as executed passes.
+
+The following checks also returned rc 0 at the final head:
+
+```text
+python3 scripts/pp_srcs.py --check --selftest
+python3 scripts/docs_check.py
+env GIT_DIR=/nonexistent-508-a295-git python3 scripts/docs_check.py
+python3 scripts/check_em_dash.py --base c266432dcb0cdd464205823a3d82cad260eedde2
+python3 scripts/check_doc_style.py
+python3 scripts/gen_toc.py --check
+python3 scripts/check_doc_paths.py
+python3 docs/traceability/gen_module_matrix.py --check
+python3 scripts/xvlog_gate.py --check
+python3 scripts/check_rtl_source_lists.py
+python3 scripts/check_cpp_idiom.py
+python3 scripts/check_py_idiom.py
+python3 scripts/check_port_contracts.py
+python3 scripts/measure_naming.py --check
+python3 scripts/measure_test_evidence.py --check
+python3 scripts/measure_test_evidence.py --selftest
+python3 scripts/lint_rtl.py --check
+git diff --check
+```
+
+Both documentation inventory modes passed. The installed HDL frontend ran with no new findings. Contract and naming allowances were unchanged; test-evidence remains within the existing budgets and its self-test passes 101/101. Diagram generation, raster manifest, submodule documentation and the requested-base-to-head whitespace check also pass. No assertion or ratchet was weakened.
+
+Acceptance evidence: selector ownership and field lineage remain documented; the notify sweep checks both sinks, all four probing states, ACMP outcomes, 64-bit bridge IDs, changed/unchanged refreshes, withdrawal, requester exclusion, missing descriptors and reset. All seven GSI negative controls detect their named defects. The existing acceptance wording says PASSIVE after bind; as already recorded in round 1, the adopted processor contract and test show ACTIVE immediately on bind and PASSIVE after an unanswered retry. Round 2 preserves that distinction and makes no state-oracle change.
+
+Handoff artifacts: `HANDOFF.md`, `PR-BODY.md`, `gates.jsonl`, `completion-check.json`, per-command logs and reproduction scripts in the assigned `508-a295` output directory. The handoff contains the five-file merge resolution, complete linked adoption table, ROM command, gate table and scope limits. Earlier setup retries and intermediate-head receipts are retained and explicitly superseded by the final-head results.
+
+Open review items: independent reviews by [R306] and [R307], branch publication, hosted candidate checks and later merge remain pending. The firmware early return remains under #495; the #551 cold-pipeline case is unchanged and #553 owns its later flip. This comment records author validation; it does not supply a review verdict.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] Decision on acceptance 2 (R307-1 F2).
+
+"PASSIVE after bind" in acceptance 2 is read as follows. After BIND_RX the stream input is ACTIVE with `acmp_status` 0, because a canonical bind sends PROBE_TX immediately (Milan v1.2 5.5.3.5.3; processor `05_acmp_engine.md`, `00_MILAN_COMPLIANCE_REVIEW.md:318`). It becomes PASSIVE after an unanswered retry with no discovered talker.
+
+That is the Milan-correct behaviour, and it is what the `milan_dp` GSI leg grades: G1 is ACTIVE with `acmp_status` 0 on bind, and G3 is PASSIVE after the unanswered retry. The literal "PASSIVE after bind" in the frozen text described a model with no immediate probe. The processor as pinned does not implement that model, and it should not. No source change is required. The executors raised this distinction publicly in 5822002238 and 5825445388.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] Round 3 assignment for PR #560, covering R306-1 and R307-1. Acceptance 2 (R306-1 F4 = R307-1 F2) is decided in 5825732419; no source change. Executor [A297].
+
+1. **CHANGELOG (R306-1 F1 = R307-1 F1):** remove the four processor #116/#113 lines from the historical #530 / `09f9bf38` section (about `CHANGELOG.md:113-116`). That section must be byte-identical to dev `c266432d`'s. The lines stay only in the 990f9652 section.
+2. **Line citations (R306-1 F2):** every processor line citation this PR touched must resolve at `990f9652` to the construct it names: `milan_datapath.sv` about :6603-6604 and :6683-6684, and `tb/verilator/pp_shadow/sim_main.cpp:2849`. Use the reviewer's `cite_drift.py`, or equivalent, to prove every one resolves. Prefer citing by construct name next to the line where that reads well.
+3. **G8 withdrawal (R306-1 F3):**
+   - G8 grades the exact push count to each registered controller.
+   - Each push is tied to a named change, with its content graded against the state it announces. The measured count is two: the registrar withdrawal, then the settlement teardown to PASSIVE. Show which is which.
+   - The README (:477, :481) and the banner (`sim_nxn.cpp:1667`) state the withdrawal's count.
+   - Add a mutant with a duplicated withdrawal push, on a processor copy as the round-1 mutants do. A named G8 check must fail it.
+4. Gates as in round 2, including `make -C tb/verilator/milan_dp notify gsi-mutants`, `pp_shadow`, the docs set, and the three docs-check gates.
+
+Review: delta reviews by [R306] and [R307].
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A297] REVIEW READY
+
+Commit: 224ec0e9a9fa129924bf8f0433cf70b4140f7bd2 (local, unpushed).
+Branch: 508-pp-pin-adopt. PR #560, round 3.
+
+Items 1-4 of the assignment are implemented in six files:
+
+- The historical #530 changelog section is byte-identical to dev c266432dcb0cdd464205823a3d82cad260eedde2. Processor #116/#113 entries occur once, in the 990f9652 section.
+- All nine processor citation spans resolve at 990f96526bb89356c963a260ebbdcf2a77e6623a. The proof compares the cited source text with the earlier references and checks the full lane's added citation inventory, including multiline ranges.
+- G8 requires exactly two pushes per controller: registrar withdrawal, then settlement teardown. All four bodies are graded as PASSIVE, ACMP status zero, cleared failure fields, and equal to the solicited body. The first already sees teardown because responses read live owners. Sink 1 must remain quiet. The README and banner state both causes and the count.
+- The duplicated-withdrawal mutant fails the named G8 count checks for both controllers: got 3, expected 2. It runs against a temporary processor copy, and its raw receipt is retained.
+
+Validation: all required commands returned rc 0 at the exact local head:
+
+```text
+make -C tb/verilator/milan_dp notify gsi-mutants
+make -C tb/verilator/milan_dp run
+make -C tb/verilator/pp_shadow
+python3 scripts/docs_check.py
+env GIT_DIR=/nonexistent-508-a297-git python3 scripts/docs_check.py
+python3 scripts/check_em_dash.py --base c266432dcb0cdd464205823a3d82cad260eedde2
+python3 scripts/check_doc_style.py
+python3 scripts/gen_toc.py --check
+python3 scripts/check_doc_paths.py
+python3 scripts/xvlog_gate.py --check
+python3 scripts/check_cpp_idiom.py
+python3 scripts/check_py_idiom.py
+python3 scripts/check_port_contracts.py
+python3 scripts/measure_naming.py --check
+python3 scripts/measure_test_evidence.py --check
+git diff --check
+git diff --check c266432dcb0cdd464205823a3d82cad260eedde2 HEAD
+```
+
+The notification leg passed 380/380; the campaign passed 9/9 controls (clean plus eight caught mutants). The complete default datapath run passed, including its built-in controls. The shadow suite passed 371/371. The citation/changelog proof and raw duplicate-mutant proof also returned zero. The HDL frontend ran with its four existing recorded findings; all budgets are unchanged. The em-dash and TOC checks used the locked Markdown dependencies. The no-git documentation mode skips only its Git inventory-parity arm.
+
+
+Acceptance 2 follows the recorded decision in [5825732419](https://github.com/kebag-logic/milan-fpga/issues/508#issuecomment-5825732419); no state-oracle change was made.
+
+HANDOFF.md, the full proposed PR-BODY.md, exact command/exit-code ledger, citation proof, raw duplicate-mutant receipt and per-command logs are in the assigned 508-a297 output directory. The public review-evidence scratch was deleted after reading. All submodule pins and source checkouts remain unchanged.
+
+Open handoff items: delta reviews by R306 and R307, head publication, and hosted candidate evidence. No push, PR edit or merge was performed.
+
+--
+author:	Mister-M-alt
+association:	member
+edited:	false
+status:	none
+--
+[A10] Round 4 for PR #560, one line. The manager bank at `224ec0e9` fails `python3 scripts/gen_toc.py --verify-anchors` (1 of 48). The new sentence in `tb/verilator/milan_dp/README.md` links two fragments inside the processor submodule: `06_aecp_engine.md#fig-06-lineage` and `05_acmp_engine.md#fig-05-settled`. Both anchors exist as HTML ids, but the docs gates run without submodules and cannot reproduce them, and no other page links a submodule fragment.
+
+Scope for [A299]: keep the two file links, drop the fragments, and name the figures in the text ("F06.13, field lineage" and "F05.5, settlement detail"). Change nothing else.
+
+Gates: `gen_toc.py --verify-anchors`, `gen_toc.py --check`, `docs_check` in both modes, `check_doc_paths`, `check_em_dash --base c266432d`, and `git diff --check`.
+
+--
