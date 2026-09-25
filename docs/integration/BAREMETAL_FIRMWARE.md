@@ -429,13 +429,51 @@ name at any depth, the token-joining splice ban and the `##` paste ban are
 therefore KEPT, and they refuse on every machine. The paste ban reads this
 file's own `#define`s: a paste through a macro a header defines, such as
 `__CONCAT(i, d) = MILAN_ID_MAGIC;` before the identity guard, is outside it
-([R273] F2 on PR #535). The separate identity-sample check (#544)
-now reads the expanded sample-to-guard interval with the compiler.
-Assignments, compound assignments, increments, decrements and address-taking are refused.
-The first argument of every `mem*`/`str*` call is checked too.
-Parenthesized sample names remain the same protected object.
-The refusal names the `identity-sample single-store rule`.
-Without the compiler, the replacement-list rule described below applies.
+([R273] F2 on PR #535). The identity-sample absence rule
+reads the expanded interval with the compiler (#544).
+The sample must be an automatic block-scope object.
+Its address must never be taken anywhere in that unit.
+A diagnostic copy gives its declaration the `register` storage specifier.
+The compiler then rejects address-taking, including lvalue wrappers.
+This copy supplies evidence; the original unit supplies the census.
+Between the read and guard, only two delimited rvalue shapes may name it.
+The [recorded exception decision](https://github.com/kebag-logic/milan-fpga/issues/544#issuecomment-5824093785)
+authorizes exactly these forms:
+
+- `( unsigned long ) id` as a complete call argument.
+  The call's `(` or `,` precedes it; `,` or `)` follows it.
+- The complete statement `( void ) ( id & <integer-literal> ) ;`.
+
+Every other sample occurrence in that interval is refused.
+Every `asm`, `__asm` and `__asm__` statement there is refused.
+The guard comparison remains permitted.
+Nested functions anywhere in the unit are refused too.
+They can capture a local without explicitly taking its address.
+The diagnostic copy blanks `__extension__` so it cannot suppress that warning.
+The compiler identifies nested definitions, including old-style parameter declarations.
+The existing preprocessed-unit check refuses surviving directives, including synthesized pragmas.
+They therefore cannot suppress that diagnostic.
+The refusal names the `identity-sample absence rule`.
+The production diagnostic and accepted discarded-mask fixture remain unchanged.
+Wrapper, assignment and delimiter near misses have reason-pinned refusals.
+
+Without the compiler, the replacement-list rule remains bounded.
+`__CONCAT(i, d) = MILAN_ID_MAGIC;` is accepted without compilation.
+Its identity protection is `NOT RUN` there; compilation refuses it.
+These seven pinned forms are accepted without compilation:
+
+- C03: the header paste `__CONCAT(i, d)`.
+- C05: `MILAN_FORGE2(i)` using header `__CONCAT(a, d)`.
+- C13: `MILAN_ALIAS(id)` aliasing the parenthesized writer macro.
+- Writer alias: `MILAN_FORGE(id)` aliasing `MILAN_SET`.
+- Writer apply: `MILAN_APPLY(MILAN_SET)(id)`.
+- C16: `(id) = MILAN_ID_MAGIC;`.
+- C17: `*&(id) = MILAN_ID_MAGIC;`.
+
+Each form's identity protection is `NOT RUN` without compilation.
+Each fixture is refused with the compiler.
+The replacement-list rule performs no general macro expansion.
+
 Outside those bodies what a splice or a paste builds is
 compiled, and the resolved census answers it by the store it makes. The
 caveat is this instrument's and
@@ -1366,8 +1404,9 @@ The rest are refusals, and each one costs a legitimate edit:
 | `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
 | Firmware `MILAN_ID` and `MILAN_ID_MAGIC` equal the comment-blanked, directive-closed RTL `A_ID` address and readback default | otherwise inactive decoy text can hide a live address/value change that teaches the token-level guard to validate a different CSR or forged identity |
 | The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | The original source-text check remains active in both modes. An intervening `id = MILAN_ID_MAGIC` would forge the verdict. Splices and local macro pastes retain their existing refusals. |
-| With the compiler: the identity-sample object gets one store before its mismatch guard | NEW (#544): the `identity-sample single-store rule` reads the preprocessed boot unit. It refuses assignments, compound assignments, increments, decrements and address-taking. It also refuses the sample in any `mem*`/`str*` first argument. Macro expansion exposes both published hostile macro spellings. Parentheses cannot hide the object. Address-taking for reading is conservatively refused too. An ambiguous `&` following parentheses is treated as address-taking. The first-argument check includes read-only calls with those prefixes. **Remedy:** consume the sampled value without exposing or overwriting it. The trusted census headers remain this instrument's boundary. |
+| With the compiler: the automatic identity sample cannot escape | NEW (#544): the `identity-sample absence rule` reads the expanded unit. The production sample has automatic storage, without an explicit storage specifier. A diagnostic copy marks that declaration `register`. The compiler refuses its address anywhere in the unit, regardless of spelling. Unevaluated and read-only address-taking are refused too. Nonautomatic storage requires a separate lifetime and external-writer proof. The diagnostic copy blanks `__extension__` and enables the compiler's pedantic warning for nested functions, including old-style definitions. Expanded pragmas cannot override this diagnostic: they are refused. Every nested function in the unit is refused to exclude implicit capture; this also costs functions that do not capture the sample. Between the sampling read and guard, every asm statement is refused. Sample occurrences are limited to a complete `(unsigned long) id` call argument, delimited by the call's `(`/`,` and `,`/`)`, and the complete statement `(void)(id & <integer-literal>);`. The guard comparison may name the sample. All other rvalue reads, including reversed bitwise operands and extra parentheses, are conservatively refused. The diagnostic copy never replaces the original census input. The trusted census headers remain this instrument's boundary. |
 | Without the compiler: no replacement list names the identity sample | NEW (#544): the `identity-sample macro replacement rule` reads phase-3 definitions. It includes object-like, function-like, continued and unused definitions. Comments and literal contents are excluded. Calls substituting the sample into a used parameter are refused too. This covers both published hostile macros before the guard. Unused parameters remain accepted. Read-only replacements and used-parameter reads are conservatively refused too. This checks local definitions and direct calls, without general expansion. **Remedy:** keep the identity sample out of macro replacements. |
+| Without the compiler: seven identity protections are NOT RUN | C03: header `__CONCAT(i, d)` paste. C05: local `MILAN_FORGE2(i)` using header `__CONCAT(a, d)`. C13: `MILAN_ALIAS(id)` aliasing the parenthesized writer. Writer alias: `MILAN_FORGE(id)` aliasing `MILAN_SET`. Writer apply: `MILAN_APPLY(MILAN_SET)(id)`. C16: `(id) = MILAN_ID_MAGIC;`. C17: `*&(id) = MILAN_ID_MAGIC;`. Each fixture is ACCEPTED without compilation and REFUSED with it. These accepted forgeries are declared `NOT RUN`, never identity coverage. The verdict COST line names them individually. The merge-grading build requires compilation through `--require-rv32`. |
 | A token-joining backslash-newline, or a `##` paste in any macro this file defines that they name at any depth, inside `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors | NARROWED (#408) from the whole file, and refused on every machine. The paste ban reads this file's `#define`s, the one behind a byte-order mark at offset 0 included ([R273] F1 on PR #535), though since round four the character allowlist of S refuses the mark itself first; a macro a header defines, `__CONCAT` for one, is trusted rather than read, so a paste through it is outside this ban. The separate compiler-backed identity-sample check reads its expansion (#544). The text rules reading those bodies key on names as written, and the `-E` comparison compares only the boot tokens there, so a splice or a paste rebuilding another name they read, the identity sample or the verdict, agrees in both texts ([R272] F2 on PR #535). A splice inside a comment or a literal, and one with blanks on either side, joins no token and is not refused. Outside the six bodies both are retired, below |
 | A second `#define` of any name, an identical one included | the address model reads a register name and the identity magic by ONE definition, and the compiler expands every use after a second one with the second: `#define MILAN_ID_MAGIC (milan_read(MILAN_ID))` after the real one turned the identity guard into a comparison of the sample with a fresh read of itself ([R273] F1 on PR #535). **Remedy:** define it once, or in the arms of one graded group, where each arm's definition is the one definition of the firmware it builds |
 | A character or string literal that no quote closes on its line, an apostrophe in the text of an `#if 0` block included; a raw string literal | GCC ends an open literal at its line end with only a warning, and honours `R"d(...)d"` at `-std=gnu99` across lines; neither is what an edit writes to mean it, and before #408 this gate read an open quote as running on to the next one, lines away ([R272] F4 on PR #535) |
@@ -1687,10 +1726,13 @@ compiler, 33 census and resolver entries and 25 entries measuring what the
 retired rules refused are counted as skipped, not rejected.
 
 Issue #544 adds separate identity-sample checks for both modes.
-The original mutation rows and legitimate corpus remain unchanged.
-With the pinned SDK, 304/304 mutation rows are refused.
-Without a compiler, 249/249 mutation rows are refused.
-The accepted firmware counts are 38 and 35 respectively.
+The original mutation rows and legitimate fixtures remain unchanged.
+Round two adds wrapper, asm, escape and exception near-miss mutations.
+With the pinned SDK, 348/348 mutation rows are refused.
+Without a compiler, 249/249 mutation rows remain refused.
+The accepted firmware corpus remains 38 and 35 cases respectively.
+The production diagnostic and discarded-mask fixture use the authorized exceptions.
+The fifth-fence fixture remains accepted outside the protected interval.
 Both modes still accept all four Makefile edits.
 Three unused sample macros explain that accepted-count difference.
 They pass with compilation and incur the documented fallback cost.
@@ -1698,7 +1740,11 @@ Both published hostile macros are refused by the new rules.
 Removing each check lets its hostile controls pass again.
 The fallback includes sample arguments substituted into used macro parameters.
 This implements the published hostile-case requirement without general macro expansion.
-R273-S3 still passes in both modes, unchanged from the base.
+R273-S3 remains accepted in both modes, unchanged from the base.
+The unchanged reviewer probes also measure conservative rvalue costs.
+Their bare read, reversed mask and parenthesized macro-mask forms are refused.
+They are outside the two authorized exceptions.
+These verdicts do not change any repository corpus fixture.
 Deleting the verifier's `#else` remains outside these identity checks.
 
 Gate 1b's verdict says which it was in its first clause -- `TEXT RULES +
