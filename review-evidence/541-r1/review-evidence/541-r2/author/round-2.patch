@@ -1,0 +1,108 @@
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index d40de063b..12b77fe3b 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -460,7 +460,7 @@ verdicts and for check counts.
+ | [`tb/verilator/clkvalid`](../../tb/verilator/clkvalid) | `KL_ptp_clock_validity` — the AVTP `tu` verdict, two shapes |
+ | [`tb/verilator/cls`](../../tb/verilator/cls) | classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
+ | [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) | the gating regression born from the CBS datapath bug |
+-| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. The default gate includes tu, jump, refill, sample-edge and servo-validity mutants |
++| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. Locked-sink validation errors retain lock but cannot extend the 100 ms timeout. The default gate includes `validation_error_unlocks`, `validation_error_refreshes_timeout`, tu, jump, refill, sample-edge and servo-validity mutants |
+ | [`tb/verilator/crf_tx`](../../tb/verilator/crf_tx) | — |
+ | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** - that leg drove the old control-plane windows live. The `obj_pps` leg re-runs the same harness with `PPS_P=1` (#260): the 0x548 block decodes in every build, but `PTP_PPS_CTRL[0]`, its RO built bit `[16]` and `PTP_PPS_WIDTH` are gated, so the default leg grades the **UNSUPPORTED** arm (a structural zero at `o_pps_enable` whatever software writes) and this one grades the supported arm, from one set of expectations rather than two that drift |
+ | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index df66aaed7..f66f63775 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -596,7 +596,8 @@ DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
+ DUT_READER_DISPOSITIONS = {
+     "tb/verilator/crf_rx/mutants.py":
+         "mutation campaign; copies the receiver and servo, requiring named failures "
+-        "for tu, jump, refill, accept-edge, ignored-validity and PI-resume defects; "
++        "for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, "
++        "refill, accept-edge, ignored-validity and PI-resume defects; "
+         "no expectations read from RTL",
+     "gptp-processor/tb/check_phc_contract.py":
+         "structural boundary check; it asserts required/forbidden tokens, not behavior",
+diff --git a/tb/verilator/crf_rx/mutants.py b/tb/verilator/crf_rx/mutants.py
+index e68af8d07..0273b2a76 100644
+--- a/tb/verilator/crf_rx/mutants.py
++++ b/tb/verilator/crf_rx/mutants.py
+@@ -20,6 +20,9 @@ MUTANTS = (
+     ("validation_error_unlocks", "if (!w_fmt_ok) begin",
+      "if (!w_fmt_ok) begin\n          locked_o <= 1'b0;",
+      "validation error preserves established lock"),
++    ("validation_error_refreshes_timeout", "      if (w_acc_run_w) begin",
++     "      if (w_acc_run_w || w_ev_uf_w) begin",
++     "reject stream cannot refresh the 100 ms timeout"),
+     ("tu_ignored", "wire tu_change_w = tu_i != prev_tu_r;",
+      "wire tu_change_w = 1'b0;", "tu edge invalidates before the sampling edge"),
+     ("jump_removed", "tu_change_w || ts_jump_w ||", "tu_change_w || 1'b0 ||",
+diff --git a/tb/verilator/crf_rx/sim_discontinuity.cpp b/tb/verilator/crf_rx/sim_discontinuity.cpp
+index 5bc76e8cf..85ef4ed6f 100644
+--- a/tb/verilator/crf_rx/sim_discontinuity.cpp
++++ b/tb/verilator/crf_rx/sim_discontinuity.cpp
+@@ -26,6 +26,7 @@ class DiscontinuityHarness {
+         pending_collision();
+         lifecycle();
+         locked_validation_error();
++        rejected_stream_timeout();
+         return check.report();
+     }
+  private:
+@@ -179,7 +180,8 @@ class DiscontinuityHarness {
+     }
+     void locked_validation_error() {
+         // #541: Table 5.6 leaves lock criteria to the implementation.
+-        // A format reject counts an interval; only silence expires lock.
++        // A format reject counts an interval but does not refresh the
++        // 100 ms timeout measured from the last consumed accepted PDU.
+         reset(); fill(200, false);
+         check.that("validation error precondition: sink is locked", dut->locked_o);
+         check.dec("validation error precondition: one lock event", dut->cnt_locked_o, 1);
+@@ -222,6 +224,44 @@ class DiscontinuityHarness {
+         for (unsigned n = 0; n < IVAL_CYC_C + 2; ++n) tick();
+         check.dec("continued silence never recounts the unlock", dut->cnt_unlocked_o, unlocks + 1);
+     }
++    void rejected_stream_timeout() {
++        reset(); fill(200, false);
++        check.that("reject stream precondition: sink is locked", dut->locked_o);
++        check.dec("reject stream precondition: one lock event", dut->cnt_locked_o, 1);
++        check.dec("reject stream precondition: no unlock event", dut->cnt_unlocked_o, 0);
++        const auto formats = dut->fmt_err_o;
++
++        // At 200 kHz, matched wrong-type PDUs arrive every 400 clocks
++        // (2 ms), far short of the 20,000-clock timeout. Only the final
++        // valid PDU in fill() may refresh it; send() left us two clocks
++        // past that accept. Grade public outputs around 100 ms, then
++        // keep rejecting through 200 ms to catch a repeat unlock/relock.
++        dut->type_i = 0;
++        bool stayed_locked = true;
++        bool stayed_unlocked = true;
++        for (int elapsed_cyc = 3; elapsed_cyc <= 40012; ++elapsed_cyc) {
++            dut->frame_p_i = elapsed_cyc % 400 == 0;
++            if (dut->frame_p_i) {
++                ts += 2'000'000;
++                fields(); ++seq;
++            }
++            tick();
++            if (elapsed_cyc <= 19992) stayed_locked &= dut->locked_o;
++            if (elapsed_cyc == 19992) {
++                check.that("reject stream retains lock before 100 ms", stayed_locked);
++                check.dec("reject stream before timeout adds no unlock", dut->cnt_unlocked_o, 0);
++            }
++            if (elapsed_cyc == 20012) {
++                check.that("reject stream cannot refresh the 100 ms timeout", !dut->locked_o);
++                check.dec("reject stream timeout counts one unlock", dut->cnt_unlocked_o, 1);
++            }
++            if (elapsed_cyc >= 20012) stayed_unlocked &= !dut->locked_o;
++        }
++        check.that("continued reject stream stays unlocked", stayed_unlocked);
++        check.dec("continued reject stream never recounts the unlock", dut->cnt_unlocked_o, 1);
++        check.dec("reject stream never adds a lock event", dut->cnt_locked_o, 1);
++        check.that("reject stream counts validation errors", dut->fmt_err_o > formats);
++    }
+ };
+ } // namespace
+ int main(int argc, char** argv) {
