@@ -1,0 +1,23 @@
+# receipt: probe_slew_rebase
+# date: 2026-09-25T13:03:18Z
+# head: b376f6113b388929fe82e883d400e5361319b966
+# workdir: $REVIEWS/r301-3-545
+# verilator: Verilator 5.050 2026-07-01 rev v5.050
+# command: $REVIEWS/545-r301-3-packet/scripts/probe_slew_rebase.sh $REVIEWS/r301-3-545 $REVIEWS/545-r301-3-packet/scratch/probe_rebase
+# ----
+build rc unit=0 phc=0
+unit rc=1
+slew_suite rc=1
+--- unit failures:
+  [FAIL] [U15] four fresh guard trips precede re-base         got=0 exp=1
+KL_mmcm_drp_servo: 100 checks, 1 failures
+--- slew suite failures:
+  [FAIL] [S2] shared endpoint taints next window
+  [FAIL] [S2] discards counted = 1 in [2, 2]
+  [FAIL] [S4] final partial window discarded
+  [FAIL] [S4] discards counted = 7 in [8, 8]
+== mmcm_servo phc_step: checks: 90   failures: 4 ==
+RESULT: FAIL
+# ----
+# rc: 0
+# wall_s: 351.340

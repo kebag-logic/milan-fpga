@@ -1,0 +1,29 @@
+# receipt: mmcm_servo_slew_mutants
+# date: 2026-09-25T12:49:42Z
+# head: b376f6113b388929fe82e883d400e5361319b966
+# workdir: $REVIEWS/r301-3-545
+# verilator: Verilator 5.050 2026-07-01 rev v5.050
+# command: python3 $REVIEWS/545-r301-3-packet/scripts/slew_mutants_parallel.py $REVIEWS/r301-3-545 $REVIEWS/545-r301-3-packet/scratch
+# ----
+[PASS] clean_unit: rc=0
+[PASS] clean: rc=0
+[PASS] slew_discard_extends_streak: rc=1
+  named rejection: [U15] four fresh guard trips precede re-base
+[PASS] slew_streak_reset_removed: rc=1
+  named rejection: [U15] four fresh guard trips precede re-base
+[PASS] slew_discard_counts_as_guard_trip: rc=1
+  named rejection: [U15] four fresh guard trips precede re-base
+[PASS] step_dedupe_removed: rc=1
+  named rejection: [S5] coincident step+slew window counted once
+[PASS] level_tied_low: rc=1
+  named rejection: [S1] overlapped window is discarded
+[PASS] discard_removed: rc=1
+  named rejection: [S1] overlapped window is discarded
+[PASS] partial_tail_trusted: rc=1
+  named rejection: [S1] overlapped window is discarded
+[PASS] discard_not_counted: rc=1
+  named rejection: [S1] discards counted
+== mmcm_servo slew mutants (parallel driver): checks: 10   failures: 0 ==
+# ----
+# rc: 0
+# wall_s: 265.952

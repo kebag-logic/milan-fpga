@@ -1,0 +1,70 @@
+# receipt: merge_provenance
+# date: 2026-09-25T12:54:36Z
+# head: b376f6113b388929fe82e883d400e5361319b966
+# workdir: $REVIEWS/r301-3-545
+# verilator: Verilator 5.050 2026-07-01 rev v5.050
+# command: $REVIEWS/545-r301-3-packet/scripts/merge_provenance.sh b376f611
+# ----
+merge=b376f6113b388929fe82e883d400e5361319b966 lane=92ad1687d84ff077f872719b4f1df601f82064d2 dev=864b36f5e9450ef64f75ca3f0d68c44330e447d7 base=5b73d3f47dfed519eb988c13d6beb1db664ef1e0
+BOTH_CHANGED_MERGED CHANGELOG.md
+LANE_ONLY docs/design/GM_LOSS_RECOVERY.md
+LANE_ONLY docs/design/GPTP_PLANE.md
+LANE_ONLY docs/design/TIME_SYNC.md
+BOTH_CHANGED_MERGED docs/diagrams/PNG_MANIFEST.json
+BOTH_CHANGED_MERGED docs/diagrams/submodule_boundaries.drawio
+BOTH_CHANGED_MERGED docs/diagrams/submodule_boundaries.png
+BOTH_CHANGED_MERGED docs/diagrams/submodule_boundaries.svg
+LANE_ONLY docs/diagrams/timesync_chain.drawio
+LANE_ONLY docs/diagrams/timesync_chain.png
+LANE_ONLY docs/diagrams/timesync_chain.svg
+LANE_ONLY docs/guides/gptp/HDL_DEVELOPER.md
+LANE_ONLY docs/guides/gptp/MANAGER.md
+LANE_ONLY docs/guides/gptp/SYSTEM_INTEGRATOR.md
+LANE_ONLY docs/guides/gptp/TEST_DEVELOPER.md
+DEV_ONLY docs/integration/BAREMETAL_FIRMWARE.md
+DEV_ONLY docs/integration/INTEGRATION_GUIDE.md
+DEV_ONLY docs/limitations/TROUBLESHOOTING.md
+DEV_ONLY docs/reference/MILAN_COMPLIANCE_MATRIX.md
+BOTH_CHANGED_MERGED docs/reference/REGISTER_MAP.md
+BOTH_CHANGED_MERGED docs/reference/SUBMODULES.md
+BOTH_CHANGED_MERGED docs/testing/CI_WORKFLOWS.md
+BOTH_CHANGED_MERGED docs/testing/TESTING.md
+LANE_ONLY docs/traceability/ieee8021as.md
+LANE_ONLY gptp-processor
+LANE_ONLY hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+LANE_ONLY hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+DEV_ONLY hdl/milan/KL_pp_shadow.sv
+BOTH_CHANGED_MERGED hdl/milan/milan_datapath.sv
+DEV_ONLY protocol-processor
+DEV_ONLY scripts/act_ci.py
+DEV_ONLY scripts/act_slot_proof.sh
+DEV_ONLY scripts/check_baremetal_only.py
+BOTH_CHANGED_MERGED scripts/measure_test_evidence.py
+DEV_ONLY sw/builder/test_builder.py
+BOTH_CHANGED_MERGED syn/yosys/rom_digests.tsv
+LANE_ONLY tb/verilator/crf_rx/crf_talker_wrap.sv
+LANE_ONLY tb/verilator/gptp_shadow/gptp_shadow_wrap.sv
+LANE_ONLY tb/verilator/gptp_txts/gptp_txts_wrap.sv
+LANE_ONLY tb/verilator/milan_dp/gmstep_mutants.py
+DEV_ONLY tb/verilator/milan_dp/gsi_mutants.py
+DEV_ONLY tb/verilator/milan_dp/Makefile
+BOTH_CHANGED_MERGED tb/verilator/milan_dp/README.md
+DEV_ONLY tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+DEV_ONLY tb/verilator/milan_dp/sim_aclk.cpp
+LANE_ONLY tb/verilator/milan_dp/sim_gmstep.cpp
+DEV_ONLY tb/verilator/milan_dp/sim_main.cpp
+DEV_ONLY tb/verilator/milan_dp/sim_nxn.cpp
+LANE_ONLY tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp
+LANE_ONLY tb/verilator/mmcm_servo/Makefile
+LANE_ONLY tb/verilator/mmcm_servo/rails_wrap.sv
+LANE_ONLY tb/verilator/mmcm_servo/sim_main.cpp
+LANE_ONLY tb/verilator/mmcm_servo/sim_phc_step.cpp
+LANE_ONLY tb/verilator/mmcm_servo/slew_mutants.py
+DEV_ONLY tb/verilator/nvm_cosim/cosim_top.sv
+DEV_ONLY tb/verilator/nvm_cosim/Makefile
+DEV_ONLY tb/verilator/nvm_cosim/README.md
+DEV_ONLY tb/verilator/nvm_cosim/run_cases.py
+DEV_ONLY tb/verilator/pp_shadow/sim_main.cpp
+# ----
+# rc: 0
+# wall_s: 0.782

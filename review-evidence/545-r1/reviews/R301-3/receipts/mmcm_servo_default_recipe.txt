@@ -1,0 +1,16 @@
+verilator --cc --exe --build -j 0 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --top-module KL_mmcm_drp_servo -GTICK_CYC_P=3072 -GWIN_LOG2_P=5 "-GNOM_WIN_NS_P=64'd4000000" -GNORM_SHIFT_P=7 -GGAIN_NUM_P=7 -GRELOCK_TOUT_P=20000 -GLOCK_THR_P=8192 \
+  -Mdir obj_dir ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv sim_main.cpp -o Vservo_sim
+echo "======================================================================"
+./obj_dir/Vservo_sim
+verilator --cc --exe --build -j 0 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --top-module rails_wrap -Mdir obj_rails \
+  ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/common/cdc_pair_fifo.sv \
+  ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv rails_wrap.sv \
+  sim_rails.cpp -o Vrails_sim
+echo "======================================================================"
+./obj_rails/Vrails_sim
+make --no-print-directory phc_step_build
+verilator --cc --exe --build -j 0 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --public-flat-rw --top-module KL_mmcm_drp_servo \
+  -Mdir obj_phc ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv sim_phc_step.cpp -o Vphc_step
+echo "======================================================================"
+./obj_phc/Vphc_step
+./obj_phc/Vphc_step +slew_suite
