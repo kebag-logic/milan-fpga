@@ -25,6 +25,7 @@ class DiscontinuityHarness {
         rejected_markers();
         pending_collision();
         lifecycle();
+        locked_validation_error();
         return check.report();
     }
  private:
@@ -175,6 +176,51 @@ class DiscontinuityHarness {
         ts = UINT64_MAX - 10'000'000;
         fill(200, false);
         check.that("natural 64-bit rollover preserves clean spacing", dut->rate_valid_o);
+    }
+    void locked_validation_error() {
+        // #541: Table 5.6 leaves lock criteria to the implementation.
+        // A format reject counts an interval; only silence expires lock.
+        reset(); fill(200, false);
+        check.that("validation error precondition: sink is locked", dut->locked_o);
+        check.dec("validation error precondition: one lock event", dut->cnt_locked_o, 1);
+        for (unsigned n = 0; n < IVAL_CYC_C + 2; ++n) tick();
+        const auto formats = dut->fmt_err_o;
+        const auto received = dut->pdu_count_o;
+        const auto locks = dut->cnt_locked_o;
+        const auto unlocks = dut->cnt_unlocked_o;
+
+        // Matching SID and subtype, but not the required CRF_AUDIO_SAMPLE.
+        dut->type_i = 0;
+        fields(); dut->frame_p_i = 1; tick();
+        dut->frame_p_i = 0;
+        check.that("validation error preserves established lock", dut->locked_o);
+        bool stayed_locked = dut->locked_o;
+        for (unsigned n = 0; n < IVAL_CYC_C + 2; ++n) {
+            tick(); stayed_locked &= dut->locked_o;
+        }
+        check.that("validation error retains lock through interval commit", stayed_locked);
+        check.dec("locked validation error counts UNSUPPORTED_FORMAT once",
+                  dut->fmt_err_o, formats + 1);
+        check.dec("validation error never counts an accepted PDU", dut->pdu_count_o, received);
+        check.dec("validation error adds no lock event", dut->cnt_locked_o, locks);
+        check.dec("validation error adds no unlock event", dut->cnt_unlocked_o, unlocks);
+        for (unsigned n = 0; n < IVAL_CYC_C + 2; ++n) tick();
+        check.dec("empty interval never recounts the validation error",
+                  dut->fmt_err_o, formats + 1);
+
+        dut->type_i = 1; send();
+        check.that("valid resume keeps the established lock", dut->locked_o);
+        check.dec("valid resume needs no new lock event", dut->cnt_locked_o, locks);
+        // 200 kHz in the Makefile: 100 ms is 20,000 clocks. send() has
+        // already advanced two idle clocks since the last accepted PDU.
+        for (int n = 0; n < 19990; ++n) tick();
+        check.that("silence shorter than 100 ms retains lock", dut->locked_o);
+        check.dec("silence before timeout adds no unlock", dut->cnt_unlocked_o, unlocks);
+        for (int n = 0; n < 20; ++n) tick();
+        check.that("100 ms silence still unlocks after validation error", !dut->locked_o);
+        check.dec("100 ms silence counts one unlock", dut->cnt_unlocked_o, unlocks + 1);
+        for (unsigned n = 0; n < IVAL_CYC_C + 2; ++n) tick();
+        check.dec("continued silence never recounts the unlock", dut->cnt_unlocked_o, unlocks + 1);
     }
 };
 } // namespace
