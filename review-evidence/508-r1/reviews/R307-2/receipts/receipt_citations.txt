@@ -1,0 +1,61 @@
+== hdl/srp/KL_srp_top.sv a8f8ce81:450-450 -> 990f9652:451-451 (sr_adm_fsm_w): SAME TEXT
+   old|   assign sr_adm_fsm_w = opt_r | adm_admitted_w;
+   new|   assign sr_adm_fsm_w = opt_r | adm_admitted_w;
+== hdl/srp/KL_srp_top.sv a8f8ce81:785-796 -> 990f9652:787-798 (opt_r aging): SAME TEXT
+   old|       // ---- optimistic-window aging (three published admission rounds;
+   old|       // invalidation restarts a partial round, and a round discarded for a
+   old|       // pending source does not strobe, so the window outlives a held
+   old|       // verdict). The real grant separately waits for a published round. ----
+   old|       if (adm_round_w) begin
+   old|         for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+   old|           if (opt_r[s]) begin
+   old|             if (opt_cnt_r[s] != 2'd0) opt_cnt_r[s] <= opt_cnt_r[s] - 2'd1;
+   old|             else                      opt_r[s]     <= 1'b0;
+   old|           end
+   old|         end
+   old|       end
+   new|       // ---- optimistic-window aging (three published admission rounds;
+   new|       // invalidation restarts a partial round, and a round discarded for a
+   new|       // pending source does not strobe, so the window outlives a held
+   new|       // verdict). The real grant separately waits for a published round. ----
+   new|       if (adm_round_w) begin
+   new|         for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+   new|           if (opt_r[s]) begin
+   new|             if (opt_cnt_r[s] != 2'd0) opt_cnt_r[s] <= opt_cnt_r[s] - 2'd1;
+   new|             else                      opt_r[s]     <= 1'b0;
+   new|           end
+   new|         end
+   new|       end
+== hdl/srp/KL_srp_top.sv a8f8ce81:871-874 -> 990f9652:873-876 (reload): SAME TEXT
+   old|               adm_mfs_r[a_idx_r[SRC_W_C-1:0]]   <= a_mfs_r;
+   old|               adm_mif_r[a_idx_r[SRC_W_C-1:0]]   <= a_mif_r;
+   old|               opt_r[a_idx_r[SRC_W_C-1:0]]       <= 1'b1;
+   old|               opt_cnt_r[a_idx_r[SRC_W_C-1:0]]   <= 2'd2;
+   new|               adm_mfs_r[a_idx_r[SRC_W_C-1:0]]   <= a_mfs_r;
+   new|               adm_mif_r[a_idx_r[SRC_W_C-1:0]]   <= a_mif_r;
+   new|               opt_r[a_idx_r[SRC_W_C-1:0]]       <= 1'b1;
+   new|               opt_cnt_r[a_idx_r[SRC_W_C-1:0]]   <= 2'd2;
+== hdl/srp/KL_srp_top.sv a8f8ce81:210-210 -> 990f9652:211-211 (tk_reg_state_o): SAME TEXT
+   old|     output logic [N_SINKS_P-1:0][1:0]     tk_reg_state_o,      //! 0 NONE / 1 ADVERTISE / 2 FAILED for the settled match
+   new|     output logic [N_SINKS_P-1:0][1:0]     tk_reg_state_o,      //! 0 NONE / 1 ADVERTISE / 2 FAILED for the settled match
+== hdl/srp/KL_srp_listener_fsm.sv a8f8ce81:842-843 -> 990f9652:851-853 (status_map driver of tk_reg_state_o): SAME TEXT (+1 line)
+   old|       tk_reg_state_o[s] = (armed_r[s] && (reg_r[s] != R_MT_C))
+   old|                         ? (rtype_r[s] ? 2'd2 : 2'd1)
+   new|       tk_reg_state_o[s] = (armed_r[s] && (reg_r[s] != R_MT_C))
+   new|                         ? (rtype_r[s] ? 2'd2 : 2'd1)
+   new|                         : 2'd0;
+RESULT: every re-aimed span names the same text
+rc=0
+== public cite_drift.py unchanged, old=a8f8ce81 new=990f9652 at head 224ec0e9:
+hdl/milan/milan_datapath.sv:6683: hdl/srp/KL_srp_top.sv:211 differs between a8f8ce81 and 990f9652
+hdl/milan/milan_datapath.sv:6684: hdl/srp/KL_srp_listener_fsm.sv:851-853 differs between a8f8ce81 and 990f9652
+tb/verilator/pp_shadow/sim_main.cpp:2849: hdl/srp/KL_srp_top.sv:211 differs between a8f8ce81 and 990f9652
+rc=0
+== old=09f9bf38:
+AGENTS.md:352: hdl/packet_engine/KL_pp_nvm_port.sv:153 differs between 09f9bf38 and 990f9652
+hdl/milan/milan_datapath.sv:6683: hdl/srp/KL_srp_top.sv:211 differs between 09f9bf38 and 990f9652
+hdl/milan/milan_datapath.sv:6684: hdl/srp/KL_srp_listener_fsm.sv:851-853 differs between 09f9bf38 and 990f9652
+scripts/hygiene.budget:26: tb/nvm_port/measure_figures.py:206 differs between 09f9bf38 and 990f9652
+sw/litex/milan_soc.py:2123: hdl/top/protocol_processor_top.sv:113 differs between 09f9bf38 and 990f9652
+tb/verilator/pp_shadow/sim_main.cpp:2849: hdl/srp/KL_srp_top.sv:211 differs between 09f9bf38 and 990f9652
+rc=0
