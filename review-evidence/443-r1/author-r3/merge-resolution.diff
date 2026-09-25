@@ -1,0 +1,49 @@
+commit b3458db0db5a7c8b15582d80b492620f05f62e70
+Merge: 5beebb7c7 864b36f5e
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Fri Sep 25 13:53:39 2026 +0200
+
+    Merge dev into 443-render-csr
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+remerge CONFLICT (content): Merge conflict in CHANGELOG.md
+index 9cace7ab6..fcc34c901 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,11 +8,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
+-<<<<<<< 5beebb7c7 (test: close render CSR round 2 review findings)
+ - **[Unreleased - render setpoint state](#unreleased---render-setpoint-state)** -- Publishes the selected listener's state.
+-=======
+ - **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
+->>>>>>> 864b36f5e (Merge PR #560: Adopt the processor pin at 990f9652 and serve processor-owned GET_STREAM_INFO fields)
+ - **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
+ - **[Unreleased - licence and LeaveAll scope](#unreleased---licence-and-leaveall-scope)** -- No Listener Ready, no stream.
+ - **[Unreleased - CRF input counters served](#unreleased---crf-input-counters-served)** -- The CRF input answers GET_COUNTERS.
+@@ -32,7 +29,6 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
+-<<<<<<< 5beebb7c7 (test: close render CSR round 2 review findings)
+ ## Unreleased - render setpoint state
+ 
+ - Issue #443 adds `RENDER_STAT` at `0x8DC`.
+@@ -42,7 +38,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - Rail and underrun events do not raise `STREAM_INTERRUPTED`.
+ - VERSION remains `0x0002_0060`; the release step owns the minor bump.
+ - [The recorded decision](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5826779078) follows the existing `GPTP_DROPE[31:16]` deferral.
+-=======
++
+ ## Unreleased - processor pin 990f9652
+ 
+ - The processor pin moves from `09f9bf38` to `990f9652` (#508).
+@@ -71,7 +67,6 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - `tb/verilator/milan_dp` `obj_notify` grades the seam in `[GSI]`.
+ - `make gsi-mutants` holds its eight failing arms.
+ - VERSION is unchanged; the release step owns the bump.
+->>>>>>> 864b36f5e (Merge PR #560: Adopt the processor pin at 990f9652 and serve processor-owned GET_STREAM_INFO fields)
+ 
+ ## Unreleased - one media event per PHC step
+ 

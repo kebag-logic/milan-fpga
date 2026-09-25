@@ -1,0 +1,141 @@
+[
+  {
+    "gate": "csr",
+    "command": "make -C tb/verilator/csr",
+    "started_utc": "2026-09-25T11:55:05.412774+00:00",
+    "rc": 0,
+    "seconds": 0.053,
+    "log": "csr.log"
+  },
+  {
+    "gate": "milan-dp",
+    "command": "make -C tb/verilator/milan_dp",
+    "started_utc": "2026-09-25T11:55:05.466000+00:00",
+    "rc": 0,
+    "seconds": 1501.167,
+    "log": "milan-dp.log"
+  },
+  {
+    "gate": "render-csr-controls",
+    "command": "make -C tb/verilator/milan_dp render-csr-controls",
+    "started_utc": "2026-09-25T12:20:06.634058+00:00",
+    "rc": 0,
+    "seconds": 139.92,
+    "log": "render-csr-controls.log"
+  },
+  {
+    "gate": "milan-dp-render",
+    "command": "make -C tb/verilator/milan_dp_render",
+    "started_utc": "2026-09-25T12:22:26.554574+00:00",
+    "rc": 0,
+    "seconds": 347.966,
+    "log": "milan-dp-render.log"
+  },
+  {
+    "gate": "docs-check",
+    "command": "python3 scripts/docs_check.py",
+    "started_utc": "2026-09-25T12:28:14.521596+00:00",
+    "rc": 0,
+    "seconds": 4.429,
+    "log": "docs-check.log"
+  },
+  {
+    "gate": "docs-check-no-git",
+    "command": "env GIT_DIR=/dev/null python3 scripts/docs_check.py",
+    "started_utc": "2026-09-25T12:28:18.951036+00:00",
+    "rc": 0,
+    "seconds": 4.172,
+    "log": "docs-check-no-git.log"
+  },
+  {
+    "gate": "em-dash",
+    "command": "python3 scripts/check_em_dash.py --base 864b36f5e9450ef64f75ca3f0d68c44330e447d7",
+    "rc": 0,
+    "seconds": 3.126,
+    "log": "em-dash-locked.log",
+    "attempt": 2,
+    "environment": "tools/markdown/requirements.txt"
+  },
+  {
+    "gate": "doc-style",
+    "command": "python3 scripts/check_doc_style.py",
+    "started_utc": "2026-09-25T12:28:24.020752+00:00",
+    "rc": 0,
+    "seconds": 0.068,
+    "log": "doc-style.log"
+  },
+  {
+    "gate": "toc",
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 0,
+    "seconds": 2.621,
+    "log": "toc-locked.log",
+    "attempt": 2,
+    "environment": "tools/markdown/requirements.txt"
+  },
+  {
+    "gate": "anchors",
+    "command": "python3 scripts/gen_toc.py --verify-anchors",
+    "rc": 0,
+    "seconds": 1.604,
+    "log": "anchors-locked.log",
+    "attempt": 2,
+    "environment": "tools/markdown/requirements.txt"
+  },
+  {
+    "gate": "doc-paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "started_utc": "2026-09-25T12:28:24.317840+00:00",
+    "rc": 0,
+    "seconds": 0.083,
+    "log": "doc-paths.log"
+  },
+  {
+    "gate": "xvlog",
+    "command": "python3 scripts/xvlog_gate.py --check",
+    "started_utc": "2026-09-25T12:28:24.401390+00:00",
+    "rc": 0,
+    "seconds": 139.802,
+    "log": "xvlog.log"
+  },
+  {
+    "gate": "sv-idiom",
+    "command": "python3 scripts/check_sv_idiom.py",
+    "started_utc": "2026-09-25T12:30:44.204106+00:00",
+    "rc": 0,
+    "seconds": 0.45,
+    "log": "sv-idiom.log"
+  },
+  {
+    "gate": "cpp-idiom",
+    "command": "python3 scripts/check_cpp_idiom.py",
+    "started_utc": "2026-09-25T12:30:44.654373+00:00",
+    "rc": 0,
+    "seconds": 1.251,
+    "log": "cpp-idiom.log"
+  },
+  {
+    "gate": "py-idiom",
+    "command": "python3 scripts/check_py_idiom.py",
+    "started_utc": "2026-09-25T12:30:45.906112+00:00",
+    "rc": 0,
+    "seconds": 3.32,
+    "log": "py-idiom.log"
+  },
+  {
+    "gate": "test-evidence",
+    "command": "python3 scripts/measure_test_evidence.py --check",
+    "started_utc": "2026-09-25T12:30:49.226737+00:00",
+    "rc": 0,
+    "seconds": 5.231,
+    "log": "test-evidence.log"
+  },
+  {
+    "gate": "diff-check",
+    "command": "git diff --check",
+    "started_utc": "2026-09-25T12:30:54.458112+00:00",
+    "rc": 0,
+    "seconds": 0.048,
+    "log": "diff-check.log"
+  }
+]

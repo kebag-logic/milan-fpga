@@ -1,0 +1,29 @@
+[
+  {
+    "gate": "em-dash",
+    "command": "python3 scripts/check_em_dash.py --base 864b36f5e9450ef64f75ca3f0d68c44330e447d7",
+    "rc": 0,
+    "seconds": 3.126,
+    "log": "em-dash-locked.log",
+    "attempt": 2,
+    "environment": "tools/markdown/requirements.txt"
+  },
+  {
+    "gate": "toc",
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 0,
+    "seconds": 2.621,
+    "log": "toc-locked.log",
+    "attempt": 2,
+    "environment": "tools/markdown/requirements.txt"
+  },
+  {
+    "gate": "anchors",
+    "command": "python3 scripts/gen_toc.py --verify-anchors",
+    "rc": 0,
+    "seconds": 1.604,
+    "log": "anchors-locked.log",
+    "attempt": 2,
+    "environment": "tools/markdown/requirements.txt"
+  }
+]
