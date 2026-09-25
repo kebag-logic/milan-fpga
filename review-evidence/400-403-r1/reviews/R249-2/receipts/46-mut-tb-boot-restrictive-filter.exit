@@ -1,0 +1,4 @@
+mutant: tb/verilator/pp_shadow/sim_main.cpp: '        axi_write(0x700, 1);\n        grade_rx_destinations("boot");' -> '        axi_write(0x700, 2);\n        grade_rx_destinations("boot");'
+cmd: sh -c cd tb/verilator/pp_shadow && make VERILATOR=<packet>/scripts/verilator-j8.sh
+start: 2026-09-25T14:42:02.627077+00:00
+exit: 2

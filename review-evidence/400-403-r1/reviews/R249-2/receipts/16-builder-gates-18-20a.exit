@@ -1,0 +1,8 @@
+cmd: python3 -c import test_builder as t
+for f in (t.test_lwsrp_reset_words_match_rtl, t.test_lwsrp_class_constants_match_rtl, t.test_lwsrp_tspec_and_params, t.test_lwsrp_rejects, t.test_csr_defaults_header_consumed):
+    print("RUN", f.__name__, flush=True); f()
+print("GATES-OK")
+dir: <packet>/scratch/tree/sw/builder
+start: 2026-09-25T15:03:47Z
+end: 2026-09-25T15:03:48Z
+exit: 0

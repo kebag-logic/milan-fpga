@@ -1,0 +1,4 @@
+mutant: hdl/milan/milan_datapath.sv: '? pp_aecp_pt_offset_w[32*k +: 32]' -> '? pp_aecp_pt_offset_w[31:0]'
+cmd: sh -c make -C tb/verilator/milan_dp -f Makefile -f <packet>/scripts/focused-legs.mk nxn-only VERILATOR=<packet>/scripts/verilator-j8.sh
+start: 2026-09-25T14:44:06.769599+00:00
+exit: 2

@@ -1,0 +1,8 @@
+cmd: python3 -c import test_builder as t
+for f in (t.test_crf_output_overlay_structure, t.test_optional_block_gates_bite, t.test_optional_block_prune_accounting, t.test_builder_doc_key_map):
+    print("RUN", f.__name__, flush=True); f()
+print("FOCUSED-OK")
+dir: <packet>/scratch/tree/sw/builder
+start: 2026-09-25T14:35:11Z
+end: 2026-09-25T14:35:12Z
+exit: 0

@@ -1,0 +1,8 @@
+endstation_arty_4x4: generated adp_shape_defaults.svh == emission
+endstation_arty_8ch: generated adp_shape_defaults.svh == emission
+endstation_arty_current: generated adp_shape_defaults.svh == emission
+  rtl_table owner endstation_arty_current: hdl/common/csr/gen/lwsrp_csr_defaults.svh == emission
+endstation_ax7101_1x1_tdm8: generated adp_shape_defaults.svh == emission
+  hdl/common/gen/adp_shape_defaults.svh == endstation_ax7101_1x1_tdm8 emission
+endstation_ax7101_8x8: generated adp_shape_defaults.svh == emission
+tracked hdl/common/gen shape owner: ['endstation_ax7101_1x1_tdm8']
