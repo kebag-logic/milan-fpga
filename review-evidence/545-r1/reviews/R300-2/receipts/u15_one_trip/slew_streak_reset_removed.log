@@ -1,0 +1,13 @@
+  [FAIL] [U15] four fresh guard trips precede re-base         got=0 exp=1
+  KL_mmcm_drp_servo: 100 checks, 1 failures
+VERDICT slew_streak_reset_removed: KILLED rc=1
+rc=0
+  info: 7 discards, ticks between them: 32 32 32 33 32 32
+  info: 5 discards, ticks between them: 32 32 32 33
+  [ ok ] [U15] LOCKED before                                  = 4
+  [ ok ] [U15] arm: two guard discards open a streak          = 1
+  [ ok ] [U15] arm: slew window discarded                     = 1
+  [ ok ] [U15] arm: partial tail discarded                    = 1
+  info: 5 discards, ticks between them: 32 32 33 32
+  [FAIL] [U15] four fresh guard trips precede re-base         got=0 exp=1
+  [ ok ] [U15] LOCKED after the streak                        = 4

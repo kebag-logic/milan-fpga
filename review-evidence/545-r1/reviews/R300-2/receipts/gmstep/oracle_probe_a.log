@@ -1,0 +1,79 @@
+  [ ok ] slew path: in-band pairs clear the plane level got=0 exp=0
+  [ ok ] slew path: consumed offset is between 80 and 100 us
+  [ ok ] slew path: the plane raises its level    got=1 exp=1
+  [ ok ] slew path: the actual servo receives the level
+  probe-release: raw=0 increment=132708124 last_slew_increment=132708124 staged=1
+  probe-release: raw=0 increment=132708124 last_slew_increment=132708124 staged=1
+  probe-release: raw=0 increment=132708124 last_slew_increment=132708124 staged=1
+  probe-release: raw=0 increment=132708124 last_slew_increment=132708124 staged=1
+  probe-release: raw=0 increment=132708225 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708225 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708225 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708225 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708225 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708225 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708225 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708225 last_slew_increment=132708124 staged=0
+  [ ok ] slew path: measured completion lowers the level got=0 exp=0
+  [ ok ] slew path: completion happened once      got=1 exp=1
+  [ ok ] slew path: PHC advances witness the release tail
+  [ ok ] slew path: every staged sample covers the PHC tail got=0 exp=0
+  [ ok ] slew path: servo clears after the PHC tail got=0 exp=0
+  [ ok ] slew path: a policy slew never steps the PHC got=0 exp=0
+  probe: tail_samples=4 alignment_errors=0 staged_high=500200 falls=1 slew_increment=132708124
+  == gmstep: checks: 58   failures: 0 ==
+  RESULT: PASS
+CASE clean: rc=0
+  [ ok ] slew path: in-band pairs clear the plane level got=0 exp=0
+  [ ok ] slew path: consumed offset is between 80 and 100 us
+  [ ok ] slew path: the plane raises its level    got=1 exp=1
+  [ ok ] slew path: the actual servo receives the level
+  probe-release: raw=0 increment=132708124 last_slew_increment=132708124 staged=1
+  probe-release: raw=0 increment=132708124 last_slew_increment=132708124 staged=1
+  probe-release: raw=0 increment=132708124 last_slew_increment=132708124 staged=1
+  probe-release: raw=0 increment=132708124 last_slew_increment=132708124 staged=1
+  probe-release: raw=0 increment=132708124 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708158 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708158 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708158 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708158 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708158 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708158 last_slew_increment=132708124 staged=0
+  probe-release: raw=0 increment=132708158 last_slew_increment=132708124 staged=0
+  [ ok ] slew path: measured completion lowers the level got=0 exp=0
+  [ ok ] slew path: completion happened once      got=1 exp=1
+  [ ok ] slew path: PHC advances witness the release tail
+  [FAIL] slew path: every staged sample covers the PHC tail got=1 exp=0
+  [ ok ] slew path: servo clears after the PHC tail got=0 exp=0
+  [ ok ] slew path: a policy slew never steps the PHC got=0 exp=0
+  probe: tail_samples=5 alignment_errors=1 staged_high=500200 falls=1 slew_increment=132708124
+  == gmstep: checks: 58   failures: 1 ==
+  RESULT: FAIL
+CASE addend_delay_1: rc=1
+  [ ok ] slew path: in-band pairs clear the plane level got=0 exp=0
+  [ ok ] slew path: consumed offset is between 80 and 100 us
+  [ ok ] slew path: the plane raises its level    got=1 exp=1
+  [ ok ] slew path: the actual servo receives the level
+  probe-release: raw=0 increment=132708057 last_slew_increment=132708057 staged=1
+  probe-release: raw=0 increment=132708057 last_slew_increment=132708057 staged=1
+  probe-release: raw=0 increment=132708057 last_slew_increment=132708057 staged=1
+  probe-release: raw=0 increment=132708057 last_slew_increment=132708057 staged=1
+  probe-release: raw=0 increment=132708057 last_slew_increment=132708057 staged=0
+  probe-release: raw=0 increment=132708057 last_slew_increment=132708057 staged=0
+  probe-release: raw=0 increment=132708208 last_slew_increment=132708057 staged=0
+  probe-release: raw=0 increment=132708208 last_slew_increment=132708057 staged=0
+  probe-release: raw=0 increment=132708208 last_slew_increment=132708057 staged=0
+  probe-release: raw=0 increment=132708208 last_slew_increment=132708057 staged=0
+  probe-release: raw=0 increment=132708208 last_slew_increment=132708057 staged=0
+  probe-release: raw=0 increment=132708208 last_slew_increment=132708057 staged=0
+  [ ok ] slew path: measured completion lowers the level got=0 exp=0
+  [ ok ] slew path: completion happened once      got=1 exp=1
+  [ ok ] slew path: PHC advances witness the release tail
+  [FAIL] slew path: every staged sample covers the PHC tail got=2 exp=0
+  [ ok ] slew path: servo clears after the PHC tail got=0 exp=0
+  [ ok ] slew path: a policy slew never steps the PHC got=0 exp=0
+  probe: tail_samples=6 alignment_errors=2 staged_high=500200 falls=1 slew_increment=132708057
+  == gmstep: checks: 58   failures: 1 ==
+  RESULT: FAIL
+CASE addend_delay_2: rc=1
+rc=0 wall_s=160

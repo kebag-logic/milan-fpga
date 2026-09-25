@@ -1,0 +1,25 @@
+HEAD: b94f53cc4e5dbfd9527ba666922a55804515165c
+tree: 2a7274e19b88474411829707fb0581e2861bb015
+status --porcelain (tracked+untracked):
+(end)
+ignored entries:
+!! scripts/__pycache__/
+(end)
+worktree == index: yes
+index == HEAD: yes
+index modes/blobs/paths sha256: bbb021c5bab47ecfa4b732d74bc6f7544bd7179f94ee0d89e4a2ec25df06e82f
+HEAD  modes/blobs/paths sha256: bbb021c5bab47ecfa4b732d74bc6f7544bd7179f94ee0d89e4a2ec25df06e82f
+index matches HEAD tree entries: yes
+worktree blob hash check:
+all 890 worktree blobs match index: yes
+gitlinks:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+gptp-processor HEAD=5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d dirty=0
+protocol-processor HEAD=09f9bf3846511f8388d995126502ed92eaa65213 dirty=0
+third_party/verilog-axis HEAD=48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0
+external: 0 entries (not initialised)
+removed reviewer-created scripts/__pycache__ (all 7 files created 11:34-11:35 local by the gate runs); status --ignored now empty
+removed reviewer-created __pycache__ in scripts/, tb/verilator/milan_dp/, tb/verilator/mmcm_servo/ after the inventory parse; status --ignored empty again at 11:38:13
