@@ -3738,9 +3738,11 @@ class NxnDatapathHarness {
            tkd_dirty_seen & all_dirty, all_dirty);
 
         //! Inject the media-clock target change at the actual restart
-        //! engine. The next packetizer and CRF PDUs carry the new mr bit,
-        //! then each diagnostic context and processor row must expose it.
-        dut->rootp->milan_datapath__DOT__media_clock_restart__DOT__tgt_r ^= 1;
+        //! engine, on every AAF and CRF context (the target is per stream
+        //! since #387). The next packetizer and CRF PDUs carry the new mr
+        //! bit, then each diagnostic context and processor row must expose it.
+        dut->rootp->milan_datapath__DOT__media_clock_restart__DOT__tgt_r ^=
+            (1u << (kNstreamsTb + 1)) - 1u;
         step();
         for (int i = 0; i < RealPduWait; i++) step();
         long all_real_mr = 1;

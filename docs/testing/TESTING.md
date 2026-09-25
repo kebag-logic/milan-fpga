@@ -163,8 +163,8 @@ VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/suite-logs
 Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
 `ls tb/verilator/` is authoritative (one dir per suite).
 
-The default driver permits 1800 seconds per suite, and 2700 seconds for `milan_dp`.
-That figure is the suite's measured hosted worst case plus a stated margin (#444).
+The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
+[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets this deadline from recorded hosted samples.
 The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
 It excludes only the scheduled `milan_dp_gptp` directory.
 The separate physical job permits 5400 seconds, including compilation.
@@ -265,6 +265,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
 | #447 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
 | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
 | #508 GET_STREAM_INFO seam, the seven field mutants | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather, the GET_STREAM_INFO answer block of `milan_datapath.sv` or the `[GSI]` section of `sim_nxn.cpp` |
+| #387 GM step re-base, the gmstep leg's nine controls and the option-off leg's two | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `sim_gmstep.cpp` or the option-off leg's PHC-step `mr` checks in `sim_main.cpp`. The default sweep runs the three controls #387's acceptance names |
 
 The default sweep still runs both render legs, and their assertions are unchanged.
 It also runs that campaign's leg-side defect arms, which need no elaboration.
@@ -498,7 +499,7 @@ verdicts and for check counts.
 | [`tb/verilator/tcam_csr`](../../tb/verilator/tcam_csr) | — |
 | [`tb/verilator/tdm`](../../tb/verilator/tdm) | — |
 | [`tb/verilator/tdm_render`](../../tb/verilator/tdm_render) | — |
-| [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) | `KL_talker_diag_ctx` grades the Milan Table 5.4 per-STREAM_OUTPUT counter arithmetic, including the nonvacuous MEDIA_RESET reset-on-start path. `milan_datapath` instantiates one context for every AAF output and the CRF output; `milan_dp` grades that integration and its AECP response path |
+| [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) | `KL_talker_diag_ctx` grades the Milan Table 5.4 per-STREAM_OUTPUT counter arithmetic, including the nonvacuous MEDIA_RESET reset-on-start path. `KL_media_clock_restart` feeds it the `mr` bit: its per-stream hold and, since #387, a request that lands on a pending restart merging with it (T17) until a PDU at the new level has gone out (T18), whose four failing engines `mcr_mutants.py` plants in the default target. `milan_datapath` instantiates one context for every AAF output and the CRF output; `milan_dp` grades that integration and its AECP response path |
 | [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) | the field-validation campaign -- **AAF only** since 2026-08-13 (Section 1.0); standalone `make` skips without tsn-gen, CI installs the pinned generator, and the full sweep rejects an uncounted skip |
 
 The standing rule is that every round grows this table. 2026-08-13 is the one

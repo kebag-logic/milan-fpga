@@ -264,39 +264,204 @@ One constraint is answered by a tool rather than by reading text:
   behind and no way to make an exception.
 
 **The text this gate reads is the text the compiler compiles, and that is
-MEASURED as well as defended by refusals** (#408). The same compiler, under
-the same flags, preprocesses the firmware with `-E`; each of `milan_init()`,
-`configure_fabric()`, `entity_advertise()` and the three CSR accessors is
-compared against its body in that unit by CONTENT -- the ordered sequence of
-the CSR primitives and boot steps it calls, and the number of statements they
-sit in -- read both as this gate reads it and after translation phases 1 and
-2, where a splice is closed; no preprocessing directive may survive into the
-unit at all; and what a conditional may select inside one of those bodies is
-BOUNDED to names this file does not define, because an arm this gate cannot
-evaluate is the one region no comparison of two texts can read. Those tokens
-are macro-invariant, so the texts can be compared although one has its
-register names expanded. A conditional that adds or removes a boot step, a
-backslash-newline that joins `milan_` to `write`, a `##` that pastes a call
-name, and an arm dropped in this gate's stub tree and compiled in the
-product, are all one disagreement, reported rather than anticipated.
+MEASURED rather than defended by refusals** (#408). Three measurements
+carry it.
+
+**Every preprocessor conditional the pinned GCC reads is graded one arm
+selection at a time.** Each conditional group is resolved to each of its arms
+in turn, and to no arm where no `#else` closes it, and every resulting text is
+graded by the whole gate as a firmware of its own: the text rules on every
+machine, and the preprocessed-unit comparison, the compiled census and the
+resolver wherever an RV32 compiler answers. Whatever the product's headers
+select, the product builds one of the firmwares graded, so no arm is read in
+one state and compiled in another. That includes an arm the census stub tree
+drops and the product compiles, such as `if (\n#ifdef CSR_UART_BASE\n0
+&&\n#endif\n!verified) return;` inside the choke point, which names nothing
+this file defines and moves no boot token.
+
+Groups that ask only whether one macro is defined (`#ifdef N`, `#ifndef N`,
+`#if defined(N)` or `#if !defined(N)`, with at most an `#else`) are graded
+together when the firmware neither defines nor undefines `N` and every
+`#include` precedes them: each value of `N` is one build, as it is to the
+preprocessor. So a debug helper defined under one `#ifdef MILAN_DEBUG_TOD`
+and called under a second is graded as the two builds that exist. Any other
+condition is not evaluated, so its arms are graded in every combination with
+the other groups', including combinations no build selects, and a refusal
+names the selection it graded rather than claiming the product builds it.
+
+That claim holds for the conditionals the gate's readers find, and it is
+exact **on a declared lexical subset S** and no wider (#408, PR #535 round
+three). The readers are regexes over the phase-3 view; they model a bounded
+set of C11 6.4 token classes exactly and disagree with the pinned GCC on the
+rest. Rather than chase GCC's whole grammar, the grammar is CLOSED: a firmware
+carrying a construct outside S is refused, by name, before any reader runs, on
+every machine. Refusing is never a reduction (acceptance 4): S admits every
+spelling the shipping firmware uses. S starts at the character (round four)
+and is then enumerated by C11 6.4 token class, each MODELLED exactly by the
+readers or REFUSED:
+
+| C11 class | In S? | How |
+|---|---|---|
+| 5.2.1 source characters, outside a comment and a string or character literal | modelled: printable ASCII, U+0020 to U+007E, and tab, line feed, vertical tab, form feed, carriage return and NUL, the six the readers model as whitespace or a line end. Every other character is REFUSED | the CHARACTER ALLOWLIST, the first check S runs. Every non-ASCII character (a byte-order mark at offset 0 included) and every other control is refused by name before any reader. The pinned GCC reads U+00B7, U+0301, U+0387 and U+203F as identifier characters, so `#if`, U+00B7, `x` is one unknown directive it ignores in skipped code, while the readers, stopping a name at an ASCII boundary, read `#if` (both reviews of PR #535's round-three head). A list of refused characters cannot be shown complete; this list of admitted ones is closed by construction, since the allowlist reads the whole code text wherever a character sits. That the readers read each admitted character as GCC does is measured by the closure table below at the positions it holds |
+| 5.2.1 source characters, inside a comment or a literal | any UTF-8 character | phase 3 blanks each comment and each literal's body in the view every directive and macro reader reads and in the code text every other rule reads, so no reader sees one; the trigraph ban and the `#include` operand check, the two that read raw text, match ASCII spellings only. A byte that is not UTF-8 is refused wherever it sits, a comment or a literal included, although the pinned GCC accepts one inside a comment or a literal (it warns only under `-Winvalid-utf8`). That refusal is a deliberate fail-closed choice and a cost, stated in the cost table below; the gate keeps such a byte as an escape so that S names it |
+| 6.4.1 keywords, 6.4.2.1 identifiers | modelled | the `[A-Za-z_][A-Za-z0-9_]*` class every reader keys on, in ASCII mode; an extended character in one is refused by the allowlist |
+| 6.4.3 universal character names in identifiers | REFUSED | GCC admits a `\u`/`\U` name in an identifier; the readers lex `\w`. A backslash left in code once phase 2 has deleted every splice is refused |
+| the gnu `$` identifier extension | REFUSED | GCC admits `$` in an identifier and a directive name, so `#if$a` is an unknown directive it ignores in skipped code while the readers read `#if` ([R272] F1 on PR #535 at `8e12d31f`) |
+| 6.4.4 constants, 6.4.5 string literals | modelled | as spelled; a raw string literal (a gnu99 extension spanning lines) and a literal no quote closes on its line (GCC ends it there with a warning) are refused |
+| 6.4.6 punctuators | modelled | as spelled; the digraphs and any trigraph are refused (below) |
+| 6.4.7 header names | modelled only as a plain `#include` operand | `__has_include`/`__has_include_next` lexes a header name anywhere in an `#if`, so `<x/*y>` opens no comment there while the readers read `/*` as a comment (the round-two external finding on PR #535); it is refused, and a `#include` operand hiding a comment or a backslash is refused |
+| 6.4.9 comments | modelled | a block comment no `*/` closes is refused: GCC errors, the readers would blank to end of file |
+| the `_Pragma` operator | REFUSED | a `#pragma` built from a string the `#`-directive scan cannot see |
+
+The shipping firmware is inside S: it spells printable ASCII, tabs and line
+feeds and nothing else. `subset_refusal_corpus` in the gate measures each
+excluded class refused on its own message. The twice-found spellings are
+among those classes: a `$` in a directive name, a header name in
+`__has_include`, and U+00B7, U+0301, U+0387 and U+203F in a directive name.
+
+The allowlist's refusal does not depend on position: it reads the whole code
+text, so a character outside it is refused wherever it sits. Whether the
+readers read an admitted character as GCC does is measured, by a generated
+table rather than a list of probes. Every byte value 0 to 255 alone, 0x80 to
+0xFF then not being UTF-8, and twenty multi-byte UTF-8 sequences and four
+byte strings that are not UTF-8, is put in each of 23 positions.
+
+- Nine are round four's: at offset 0 before `#`, in a line's lead before `#`,
+  between `#` and a directive name, inside a directive name, after one, inside
+  an identifier in code, and inside a block comment, a string literal and a
+  character literal. Each directive position sits in a group GCC skips, where
+  an unknown directive is ignored and a known one nests, so a character that
+  ends a name for one side and not the other leaves different code. The
+  identifier position asks whether the character ends the name `a` before
+  `b`, a macro: `-E` expands `b` exactly when GCC ends `a` there.
+- Fourteen are round five's comment, literal and directive-line boundaries.
+  The internal review measured them outside those nine
+  ([R272] F1 on PR #535's round-four head): splitting `/*`, `*/` and `//`, ending a line comment, between a
+  backslash and the line end in a line comment and in a `#define`, after an
+  escaping backslash in a string and a character literal, between a
+  raw-string prefix and its quote, between a digit and a quote, at the end of
+  the file in a line comment and in code, before a string's closing quote,
+  and after the `<` of an `#include` in a skipped group.
+  Eleven test comments or literals opening, closing or continuing.
+  One decides whether a splice continues a directive line.
+  Each decides whether the following `#define FOO` is live.
+  The following `#ifdef FOO` tests that definition.
+  The two file-end positions test the last character there.
+
+The pinned GCC's answer for each of the 6440 cells is recorded and re-measured
+wherever the compiler answers. Gate 1b shows each cell refused by S or read as
+GCC reads it, with one exception it names and fails closed on: a `#` alone at
+the end of the file is a null directive to GCC and a directive with no name to
+the readers, which refuse it, as the directive-set closure does on a whole
+firmware. Null directives elsewhere are also refused by that closure.
+Every cell outside the allowlist is refused by the allowlist itself,
+and no cell inside it is. The table also counts the cells the allowlist
+closes, those the readers would read differently from GCC, and fails if
+U+00B7 inside a directive name is no longer one of them, which is its negative
+control. At a position the table does not hold, agreement rests on the two
+lexer corpora below and is bounded by them. Every reader regex runs in ASCII
+mode besides, `re.ASCII` or `(?a)`, or spells explicit ASCII classes, and the
+lexer's raw-prefix test keys on an ASCII set.
+That is defence in depth: with the allowlist in place no reader meets a
+non-ASCII character in code at all.
+
+Within S, the gate RUNS translation phases 1 to 3 (C11 5.1.1.2) in the
+standard's order and as the pinned GCC 14.3 runs them at `-std=gnu99`, once
+per text, and every C directive reader reads the result through one anchor.
+Phase 1 drops a UTF-8 byte-order mark at offset 0, as GCC does, though S
+refuses the mark before any reader, and ends a line at LF, CRLF or a lone CR. Phase 2 deletes every splice: a backslash, any run of space,
+tab, form feed, vertical tab or NUL, then a line end. Phase 3 lexes what is
+left: a comment is whitespace, on one line or across several; a form feed, a
+vertical tab or a NUL is whitespace. (The `%:` and `%:%:` digraphs of `#` and
+`##` are outside S and refused, so no reader lexes one.) Every span a reader
+finds is mapped back to the source, so a refusal names the line the `#` is on.
+
+Two corpora, each firmware recorded with what the pinned GCC keeps of it, are
+read by the gate's readers on every run and re-measured on the compiler
+wherever it answers; the two must agree. The fixed corpus holds the spellings
+the reviews found, the byte-order mark among them ([R273] F1 on PR #535); it
+also records what the shared lexer makes of the digraph and trigraph
+spellings, because that same lexer is how the subset check DETECTS them, so S
+is exact about what it refuses. The generated corpus holds the spellings
+nobody thought of, RESTRICTED to S: a splice at every offset of each directive
+line in turn, at the end of the line before it, and at every offset of the
+introducer on both lines at once, crossed with the within-S introducers (`#`,
+alone or after a form feed, a vertical tab, a NUL or blanks, and `##`, which
+GCC reads as two `#` tokens and so a directive with no name). The digraph
+introducers round two crossed here are outside S and refused before any
+reader; `subset_refusal_corpus` measures each. The first template takes all
+ten spellings of the splice when no blank precedes the introducer (after a
+space, a tab, a form feed, a vertical tab or a NUL, CRLF and lone-CR line
+ends, two in a row) and three after one; the others take three. Its templates
+exercise each reader: a conditional and the `#endif` closing it, the macro
+name a condition reads, `#define`, `#undef`, `#else`, `#elifdef`, `#elifndef`,
+and the `##` a `#define` body pastes with. BOUNDED, and the bound is these
+corpora: a spelling in neither that GCC reads differently is outside the
+measurement. The readers are exact ON S, not because every spelling has been
+tried: a spelling they would lex differently is one S refuses before they see
+it.
+
+Two kinds of group are left as written. A guard whose one arm holds only
+`#error` emits no code in any selection. The AEM verifier's QSPI-slot group
+has another arm, the build with no AEM slot. No selection compiles that arm
+and the census stub tree takes the first, so it is pinned to a literal
+`printf` and `return 0;`. A condition the stub tree does not satisfy would
+hand the census the other arm instead; the resolver refuses that, because the
+verifier it then compiles has no copy loop to place. More than 16 selections
+in the whole firmware is refused rather than graded in part, and a disabled
+`#if 0` block is graded as the code it would be.
+
+**The preprocessed unit is compared against the text.** The same compiler,
+under the same flags, preprocesses each graded firmware with `-E`; each of
+`milan_init()`, `configure_fabric()`, `entity_advertise()` and the three CSR
+accessors is compared against its body in that unit by CONTENT -- the ordered
+sequence of the CSR primitives and boot steps it calls, and the number of
+statements they sit in -- read both as this gate reads it and after
+translation phases 1 to 3, where a splice is deleted; and no preprocessing
+directive may survive into the unit at all. Those tokens are macro-invariant,
+so the texts can be compared although one has its register names expanded. A
+macro that erases or moves a boot step is one disagreement, reported rather
+than anticipated. The comparison reads the boot tokens and not every name the
+text rules in those bodies read, the CSR identity sample and the verdict
+among them, so a splice or a paste rebuilding such a name would agree in both
+texts. Inside the six bodies, and in every macro this file defines that they
+name at any depth, the token-joining splice ban and the `##` paste ban are
+therefore KEPT, and they refuse on every machine. The paste ban reads this
+file's own `#define`s: a paste through a macro a header defines, such as
+`__CONCAT(i, d) = MILAN_ID_MAGIC;` before the identity guard, is outside it
+([R273] F2 on PR #535), accepted on dev and here, and it is the same bound as
+the plain function-like macro that forges the identity sample with no paste
+at all (#544). Outside those bodies what a splice or a paste builds is
+compiled, and the resolved census answers it by the store it makes. The
+caveat is this instrument's and
+is written at its site as well as here: the unit is the one the census STUB
+tree produces, so a macro whose DEFINITION differs between that tree and the
+product expands to text this comparison never sees. The stub headers' values
+are asserted outside the CSR window, and their contents are trusted rather
+than read.
 
 **And which FILE each pinned include name reaches is measured too**, by
-`-H`: the preprocessor lists the files it opened, by resolved path, and no
-pinned name may reach a file beside the firmware. That is what a listing pin
-cannot say, however exact it is about the directory. The caveat belongs with
-the instrument and is written at its site as well as here: **`-H` proves
-resolution in the tree it is HANDED** -- the firmware's own directory plus
-the census's stub header root -- so a different `-I` set, sysroot or working
-directory is outside this measurement, and the CONTENTS behind each resolved
-third-party name stay trusted rather than read.
+`-H`: the preprocessor lists the files it opened, and no pinned name may be
+opened beside the firmware, whether the entry there is a file or a link to a
+file elsewhere. It is judged by the path the preprocessor opened and by the
+file that path reached. That is what a listing pin cannot say, however exact
+it is about the directory. The caveat belongs with the instrument and is
+written at its site as well as here: **`-H` proves resolution in the tree it
+is HANDED** -- the firmware's own directory plus the census's stub header
+root -- so a different `-I` set, sysroot or working directory is outside this
+measurement, and the CONTENTS behind each resolved third-party name stay
+trusted rather than read.
 
-Both instruments take the census's RV32 compiler, so both stand down where
-there is none. #504 provisions both hosted builder consumers. Neither
-REPLACES a refusal: the text rules they measure beside are in force on every
-machine, unchanged, and gate 1b's verdict says in its first clause whether
-the instruments graded with them. The section "Instruments added beside the
-text rules", below, states what each instrument adds and what retiring a
-refusal onto it would first require.
+The `-E` and `-H` measurements take the census's RV32 compiler, and so does
+the compiled half of the per-selection grading, so they stand down where there
+is none. Both hosted builder consumers REQUIRE that compiler (#504,
+`--require-rv32`), so they grade wherever a merge is graded. The text
+refusals they replaced are RETIRED on every machine, with no fallback arm,
+except the splice and `##` bans inside the six boot-path bodies, which are
+NARROWED and refuse on every machine alike: where no RV32 compiler answers,
+what the retired refusals used to refuse is a registered `NOT RUN`, never
+coverage, and gate 1b's verdict says so in its first clause. The section
+"Text rules retired onto instruments", below, is the ledger.
 
 A second tool check runs alongside the text rules, and it is an **addition**
 rather than a replacement. Where an RV32 cross compiler is available, the gate
@@ -369,13 +534,12 @@ result, each rejected with the property named:
 None of the four is recognised as a construct. Each is answered by a value or
 by an edge, so a fifth spelling of the same defect needs no new rule.
 
-The source store instrument HAS two uncovered classes, and the resolver is
-what covers both; they are what #409 would retire the cast, store and asm
-sets onto rather than widen them again. The cast set only recognises a
-cast whose text contains a `*`, and the store set only recognises a
-left-hand side that starts with `*` or is `name[...]`. So a cast with no
-`*` combined with a `->` or subscript store is outside the source
-instrument:
+The source store instrument HAD two uncovered classes, and the resolver is
+what covers both; #409 retired the cast, store and asm sets onto it rather
+than widen them again. The cast set only recognised a cast whose text
+contained a `*`, and the store set only recognised a left-hand side that
+started with `*` or was `name[...]`. So a cast with no `*` combined with a
+`->` or subscript store was outside the source instrument:
 
 ```c
 typedef struct { volatile uint32_t ctrl; } *milan_adp_blk;
@@ -396,14 +560,15 @@ static unsigned int csr_page = 0x9000u;
 ```
 
 The second class is the one both reviews of PR #491 reported and #495
-records: the store set takes a left-hand side back to the last `;{}`, so a
-store behind a BRACE-LESS `if` reads as `if (c) *p`, begins with neither a `*`
-nor a subscript, and is not a store at all to that rule, whatever it points
-at. The tripwire does not fire for a whole statement class, and it still does
-not on a runner with no compiler. A RESOLVED store address has no such shape
-to miss, and that spelling is a permanent mutation where the resolver runs:
-a brace-less `if` storing through a paged base into `ADP_CTRL` is refused on
-the address it resolves to.
+records: the store set took a left-hand side back to the last `;{}`, so a
+store behind a BRACE-LESS `if` read as `if (c) *p`, began with neither a `*`
+nor a subscript, and was not a store at all to that rule, whatever it pointed
+at. The tripwire did not fire for a whole statement class. A RESOLVED store
+address has no such shape to miss, and that spelling is a permanent mutation
+where the resolver runs: a brace-less `if` storing through a paged base into
+`ADP_CTRL` is refused on the address it resolves to. On a runner with no RV32
+compiler neither class is refused, as before #409; the hosted builder jobs
+require that compiler.
 
 Both paged-base stores were measured GREEN on the whole gate before the
 resolver existed. The resolver
@@ -538,8 +703,8 @@ reader takes it for more:
 - A byte or half-word load from a frame slot reads the slot's whole modelled
   word. A static's word is read back only by `lw`.
 
-A text rule retired onto the census (#408, #409) would not cover these shapes
-either.
+The text rules #408 and #409 retired onto these instruments did not cover
+these shapes either.
 
 **The residual that was a hole, and why it is gone.** An earlier revision
 DECLARED the copy loop's store rather than placing it, as the residual entry
@@ -1178,31 +1343,40 @@ Read the constraints below as what they are: they bound the spellings they
 recognise, and they cost real edits to do it.
 
 - **Any CSR store must go through `milan_write()`.** Only `milan_reg()` may
-  use `MILAN_CSR_BASE` or a `(volatile uint32_t *)` cast. The set of pointer
-  casts, the set of pointer stores and the set of inline-asm statements in the
-  file are each pinned, so a fifth cast, a fifth store or a fifth `asm` is
-  refused until it is added to the gate. All three grade on every machine;
-  the resolver added with #409 runs BESIDE them where an RV32 compiler
-  answers, and retiring them onto it is the remaining scope of that issue.
+  use `MILAN_CSR_BASE` or a `(volatile uint32_t *)` cast. Every other store
+  the compiler emits is placed by the resolver at the address it resolves to,
+  so a fifth cast, a fifth store, a fifth `asm` statement or a reordering is
+  GREEN when what it stores lands outside the control window (#409). Where no
+  RV32 compiler answers, that placement is a registered `NOT RUN`, and nothing
+  else on that runner bounds address formation outside `milan_reg()`'s own
+  spelling.
 
 The rest are refusals, and each one costs a legitimate edit:
 
 | Constraint | Why the gate needs it |
 |---|---|
 | `o_ptp_enable` is driven directly by `ptp_ctrl[0]`, the `milan_csr` instance binds it directly to `cfg_ptp_enable`, and the `ptp_csr_sync`/`ts_counter` pair directly consumes that net with ungated clocks, resets, increment/adjust/TOD controls and readback | PHC startup is independent of AEM/ADP from the CSR register through the actual PHC consumer; the CSR harness separately proves writes to `ADP_CTRL` cannot force or gate the module output |
+| `cfg_ptp_cmd_load` has exactly five references; `eff_ptp_adjust_w` has three | Their extra reader is now `media_rebase_p_w` (#387). Its initializer is exactly `eff_ptp_adjust_w \| cfg_ptp_cmd_load`. Every other PHC-net census count stays unchanged |
+| `media_rebase_p_w` has exactly three references | Its initializer and two readers: `render_recentre_p_w` and `mcr_restart_p_w`. Another reader or driver is refused |
+| `render_recentre_p_w` is exactly `media_rebase_p_w \| src_recentre_p_r` | The render stage receives the step and settled source change. GM identity alone contributes no second re-centre |
+| `mcr_restart_p_w` is exactly `(crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) \| crf_mr_toggle_p_w)) \| media_rebase_p_w` | The step is ungated by clock selection. Exactly two references admit its initializer and direct `media_clock_restart.restart_p_i` connection |
 | External RX, the pre-filter tap, both enabled and bypass `RXFILT_P` arms, the filter's reset-time policy/programming seams, fabric-gPTP shadow RX/TX and timestamp feedback, `gptp_ctl_mux`, MAC-boundary arbitration and external TX handshakes use direct data, clock and reset connections | checking only an endpoint or data port misses an internal/downstream valid, policy or reset gate that makes the plane externally silent before AEM succeeds |
 | CSR and datapath structural checks ignore comments, census every backtick token at any column and require each checked item to be direct in its inspected generate arm | inactive comment, preprocessor or static-generate text must not stand in for a live gated connection; a future directive or nested generate requires an elaborated checker or an explicit update to this bounded model |
 | `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
 | Firmware `MILAN_ID` and `MILAN_ID_MAGIC` equal the comment-blanked, directive-closed RTL `A_ID` address and readback default | otherwise inactive decoy text can hide a live address/value change that teaches the token-level guard to validate a different CSR or forged identity |
-| The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor |
+| The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor. A splice, or a `##` paste in a macro this file defines, that rebuilds the local's name there is refused by the bans kept inside the six boot-path bodies (#408). BOUND, measured by both reviews of PR #535's first head, `a13b6e2e`, and not changed here: an assignment inside a plain function-like macro invoked there, `MILAN_FORGE(id);`, is not refused, on dev or here (#544), and neither is a paste through a macro a header defines, `__CONCAT(i, d) = MILAN_ID_MAGIC;` ([R273] F2 on PR #535) |
+| A token-joining backslash-newline, or a `##` paste in any macro this file defines that they name at any depth, inside `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors | NARROWED (#408) from the whole file, and refused on every machine. The paste ban reads this file's `#define`s, the one behind a byte-order mark at offset 0 included ([R273] F1 on PR #535), though since round four the character allowlist of S refuses the mark itself first; a macro a header defines, `__CONCAT` for one, is trusted rather than read, so a paste through it is outside the ban, with the bound of the plain function-like macro (#544). The text rules reading those bodies key on names as written, and the `-E` comparison compares only the boot tokens there, so a splice or a paste rebuilding another name they read, the identity sample or the verdict, agrees in both texts ([R272] F2 on PR #535). A splice inside a comment or a literal, and one with blanks on either side, joins no token and is not refused. Outside the six bodies both are retired, below |
+| A second `#define` of any name, an identical one included | the address model reads a register name and the identity magic by ONE definition, and the compiler expands every use after a second one with the second: `#define MILAN_ID_MAGIC (milan_read(MILAN_ID))` after the real one turned the identity guard into a comparison of the sample with a fresh read of itself ([R273] F1 on PR #535). **Remedy:** define it once, or in the arms of one graded group, where each arm's definition is the one definition of the firmware it builds |
+| A character or string literal that no quote closes on its line, an apostrophe in the text of an `#if 0` block included; a raw string literal | GCC ends an open literal at its line end with only a warning, and honours `R"d(...)d"` at `-std=gnu99` across lines; neither is what an edit writes to mean it, and before #408 this gate read an open quote as running on to the next one, lines away ([R272] F4 on PR #535) |
 | The identity refusal remains the exact `if (id != MILAN_ID_MAGIC)` spelling | an equivalent comparison such as `if ((id ^ MILAN_ID_MAGIC) != 0u)` is refused because this bounded model anchors the mismatch block by that exact expression; accepting another form requires extending the recognizer and its paired controls |
-| No `#pragma`, `#line`, `#error`, `#undef` or `#include_next` | the gate has no rule for them, so it refuses rather than ignores |
-| No `#ifdef`/`#if` reaching `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors | the gate would read one arm while the compiler takes the other. The `-E` comparison (#408) measures the same property beside this rule where a compiler answers; it does not lift it |
-| No C backslash-newline that JOINS two tokens | translation phase 2 deletes the pair before tokens exist, so a splice inside `milan_write` hands the compiler one identifier where a text reader sees two. Independent space, tab, form-feed and vertical-tab mutants pin every whitespace form the recognizer accepts. An ordinary continuation, which puts whitespace before the backslash, is GREEN |
-| No `##`, `%:` or `??` anywhere in the file | a pasted call name builds a CSR store a text reader cannot see, and an alternate spelling of `#` builds a directive it cannot read |
-| No new file in `sw/firmware/milan_baremetal/`, a `README` included | a quoted include resolves against this directory FIRST, so a file here answers to a pinned name. The `-H` measurement (#408) reads the PATH each name resolved to beside this pin, and the pin still grades |
-| A fifth pointer cast, a fifth pointer store or a fifth `asm` statement, and REORDERING two functions that hold a pinned store | the compiled census does not cover all three, so the sets are what bound address formation, and they are ORDERED lists, which is what makes the reorder a cost. A store planted inside the address helper the census exempts by name is measured invisible to the census on every run where the census is live, which is why those 2 mutants stay reason-pinned on the cast set rather than on the helper's own return-provenance rule (that rule keeps its own mutant, "milan_reg() ignores its offset") |
-| An `#ifdef`/`#if` carrying a `#define`, `#undef` or `#include`, wherever it sits | the address model reads every definition out of this file's own TEXT, so an arm this gate cannot evaluate chooses what a register name resolves to, and comparing the two texts does not answer that. This is the one row below that no instrument can buy back |
+| No null directive (`#` alone), `#pragma`, `#line`, `#undef` or `#include_next`, and no `#error` but the one saved-state contract guard | KEPT (#408), with this reason rather than a measurement: `#undef` changes what a register name resolves to in the address model, which reads definitions out of this file's text, and `#line` rewrites the line markers the `-E` comparison finds this file's bodies by. `#pragma` and `#include_next` change what the compiler does with text this gate has already read. It has no rule for them, so it refuses rather than ignores. A null directive is also refused, wherever it sits: the directive-set closure requires a supported name, although GCC accepts a nameless directive |
+| A `$` or a universal character name in an identifier or a directive name; `__has_include` or `__has_include_next`; a `#include` header name hiding a comment or a backslash; a block comment no `*/` closes; the `_Pragma` operator | NEW (#408, round three): the closed lexical grammar S, refused by name on the WHOLE firmware before any reader, on every machine. GCC lexes each of these and the readers do not -- `#if$a` is an unknown directive GCC keeps in skipped code while the readers read `#if` ([R272] F1 on PR #535 at `8e12d31f`), and `<x/*y>` after `__has_include` is one header-name token to GCC, so its `/*` opens no comment while the readers read one hiding a line (the round-two external finding). Rather than extend the readers toward GCC's whole grammar, S refuses everything outside it. The shipping firmware spells none. The full class list is the S table above; `subset_refusal_corpus` measures each refused |
+| Outside a comment or a literal, any character but printable ASCII and tab, line feed, vertical tab, form feed, carriage return and NUL: a non-ASCII letter, mark or space in code, a control such as FS, and a UTF-8 byte-order mark at offset 0; and a byte that is not UTF-8 anywhere, a comment included | NEW (#408, round four): the character allowlist S starts with, refused by name on the WHOLE firmware before any reader, on every machine. The pinned GCC reads U+00B7, U+0301, U+0387 and U+203F as identifier characters, so `#if`, U+00B7, `x` is one unknown directive it ignores in skipped code, while the readers read `#if`, and a store in the CSR window hidden between two such directive names compiled live (both reviews of PR #535's round-three head). Denying such characters one at a time cannot be shown complete, and admitting a stated set can: the allowlist reads the whole code text, so its refusal does not depend on where a character sits. Whether the readers read an admitted character as GCC does is measured by the closure table above at the 23 positions it holds; at any other position it rests on the lexer corpora. A byte-order mark at offset 0 was accepted in round two, since phase 1 drops it as GCC does; it is a non-ASCII character outside a comment, and it is refused now. A byte that is not UTF-8 inside a comment or a literal is refused although the pinned GCC accepts it there, warning only under `-Winvalid-utf8`: that is a deliberate fail-closed choice (the #408 decision), since the gate reads the firmware as UTF-8, and it is a cost. **Remedy:** spell code in ASCII, keep any other character in a comment or a literal, and save the file as UTF-8, re-encoding a comment or a literal written in another encoding |
+| `%:` or `??` in code, and a trigraph anywhere in the file, a comment's `what??!` included | KEPT (#408), the digraph and trigraph half of the old `##`/`%:`/`??` ban, folded into the subset check S and read on the WHOLE firmware before any reader and before a conditional is resolved, as dev read it: a digraph spelling a conditional's own directive is refused on every machine, not only graded where a compiler answers. The digraphs are the tokens phase 3 builds after phase 2 has deleted every splice, so `%\`, a line end, then `:ifdef` is refused as the `%:ifdef` GCC reads; the round-one ban read the text before phase 2 and missed it ([R272] F1 on PR #535's round-one head). A `%:` pair phase 3 reads as other tokens, the `<%` and `:` of `<%:`, is refused too, as dev refused every `%:` pair in code, so the ban is no narrower than dev's. Outside a literal or a comment nothing but a digraph or a trigraph spells either pair, so that half costs no edit anybody writes. A trigraph is refused in comments and literals too: the pinned GCC ignores it at `-std=gnu99` and a strict `-std` replaces it before comments exist, so `// ...??/` ends its comment in one dialect and swallows the next line, a directive, in the other. The `##` half is narrowed, above |
+| A `#define` or `#include` inside the AEM verifier's QSPI-slot group or an `#error` guard | NARROWED (#408) from every conditional. Those are the two kinds of group left as written rather than graded one selection at a time, and the address model reads every definition as unconditional text, so an arm no selection resolves would choose what a register name resolves to. In a graded group each arm's definition IS unconditional in the firmware that arm builds, so an `#ifdef`/`#else` choosing a `#define` is GREEN. dev exempted the verifier's group from this rule, so a `#define` there was GREEN before and is refused now |
+| Any statement in the AEM verifier's no-QSPI arm beyond a literal `printf` and `return 0;` | no selection compiles that arm and the census stub tree takes the other, so it is the one text in the firmware no instrument compiles. The retired cast, store and asm sets used to read it with the rest of the file; it is pinned instead |
+| More than 16 preprocessor arm selections in the whole firmware, and code inside a disabled `#if 0` | every selection is graded as a firmware of its own, so an arm nothing builds is still graded as the code it would be, and a firmware with more selections than the bound is refused rather than graded in part. **Remedy:** delete dead code rather than disabling it |
+| A helper split across two conditionals whose conditions are not both a bare `defined` test of one macro, such as a definition under `#if MILAN_DEBUG > 1` and a call under `#ifdef MILAN_DEBUG` | only groups asking whether one macro is defined are graded together, as the builds that exist; any other condition is not evaluated, so its arms are graded in every combination, one with the call and without the definition included, and the census compile of that one fails. The refusal names the selection it graded, not a build the product makes. **Remedy:** test the one macro with `#ifdef`, `#ifndef` or `#if defined(...)` in both groups |
 | The `#include` set is exactly the twelve headers listed in the gate | a twelfth include is text in the translation unit no rule reads. A NAME pin, and it stays one whatever the `-H` measurement says: a name that names no existing file cannot be RESOLVED at all, so the measurement cannot refuse one and the name set is what does |
 | `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | held now by the recipe pin rather than by a flag rule: the compile command is pinned whole, so any added flag changes it |
 | The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist. The set is read from the file TEXT, so it is exact over the lines in the file: a line an expansion creates would be outside it, and both routes to one are refused below, but a direct `$(file >frag,TEXT)` write is a recorded channel rather than a ruled one |
@@ -1224,10 +1398,18 @@ The rest are refusals, and each one costs a legitimate edit:
 | `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |
 | Renaming `load_aem_image`, `milan_init` or `configure_fabric` | the gate finds them by literal identifier; the refusal names the property and the anchor to update |
 | Renaming the verdict `aem_loaded` | same, and the message says so rather than reporting a boot-order defect |
-| A read-only `#define` accessor wrapping `milan_read()` | it hides a CSR primitive from the operand census; the macro contains no store |
+| A macro body naming `milan_write()` or `milan_reg()` | NARROWED (#408) from every CSR primitive: a store or an address formed inside a macro is one the operand census cannot place by the register it names. A read-only `#define` accessor wrapping `milan_read()` is GREEN, because each rule that reads a read fails closed when the read is hidden: a write whose value it cannot evaluate counts as SETTING bit 0, the identity sample is found only by its literal `milan_read(MILAN_ID)` call, and the identity magic must evaluate to the RTL readback default, which a read never does and which one definition per name keeps true. The body is read as the preprocessor reads it, so a body continued across lines is read whole, and a `#define` whose `#` follows a form feed or whose name a splice splits is a definition here too; before PR #535's round one a continued body was read one line at a time, so a continued body naming either is newly refused |
 | FACTORING the CSR accessors, e.g. a `milan_set(offset, bits)` read-modify-write helper | the census places writes by RESOLVED address, and an `offset` parameter has none. **Remedy:** keep the call sites naming a register constant, or teach `CsrModel.address()` to follow the parameter, which is a data-flow change and belongs with #153 |
 | Hoisting the enable mask to a named constant | the OR mask must be a value the gate can evaluate, so `\| MILAN_ENTITY_ENABLE` is not recognised as the enable write. **Remedy:** leave the mask a literal, or add the name to the firmware's `#define` table so `constant_value()` can resolve it |
 | ANY change to the two commands `make` runs, a benign `AR += v` or `CC += -Wall` included | the recipe set is pinned rather than scanned for dangerous flag spellings, and the price of having no list is that benign changes are refused too. **Remedy:** add the changed command to `expected_recipes` in the gate and a mutation-table entry beside it |
+
+The #387 controls preserve the existing render-ADP mutation.
+Restoring the GM term fails the new render pin.
+ADP terms fail the re-base and restart initializer pins.
+Gating the restart port fails its direct-connection pin.
+Additional PHC, re-base and restart readers fail their censuses.
+These controls elaborate before contributing to the mutation tally.
+Their structural checks also run without an RV32 compiler.
 
 The listed refusals bound only the spellings they recognise; what bounds the
 values is the resolver above. **Three rows left this table with #153**,
@@ -1239,119 +1421,283 @@ and each left with an accepted case measured GREEN rather than with a claim:
 | no `#ifdef`/`#if` outside `load_aem_image()` | `#ifdef MILAN_DEBUG_TOD` around a debug `printf` in a UART command handler |
 | no multi-line `#define` anywhere in the file | a two-line `#define MILAN_BOOT_BANNER` |
 
-### Instruments added beside the text rules (#408, #409)
+**Eight more left it with #408 and #409**, two of them only outside the six
+boot-path bodies, each onto a named instrument and each with an accepted
+case. Every accepted case is graded GREEN in gate 1b's
+accepted-case loop, and was measured RED at dev `759da623` on the retired
+rule's own sentence, with and without an RV32 compiler. The labels are the
+gate's own (`retired_rule_cases` in `sw/builder/test_builder.py`); this page
+names no edit of its own.
 
-**Nothing in the table above is retired.** #408 and #409 proposed to replace
-six of those refusals with measurements. What landed is the measurements,
-running BESIDE the refusals: with an RV32-capable compiler this gate refuses
-strictly more than it did before; with none it refuses exactly what it did
-before, and says which instruments did not grade. The refusals are unchanged
-on every machine, including the hosted runners.
+| Retired refusal | Replacing instrument | Accepted case now measured GREEN |
+|---|---|---|
+| no `#ifdef`/`#if` reaching `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors | every arm selection graded as the firmware it builds: the text rules on every machine, and the `-E` comparison, the compiled census and the resolver where an RV32 compiler answers | "an #ifdef around a debug printf INSIDE milan_init()"; "a benign statement in an arm the census tree drops, inside configure_fabric()" |
+| no C backslash-newline that JOINS two tokens, outside the six boot-path bodies | the resolved census; inside those bodies the ban is KEPT (row above) | "a token-joining backslash-newline inside a macro body" |
+| no `##` anywhere in the file, outside the six boot-path bodies and the macros they name | the same | "a ## token paste building a call outside the boot path" |
+| no new file in `sw/firmware/milan_baremetal/`, a `README` included | the `-H` include-resolution measurement, by the path each pinned name was opened at and the file it reached | a `README` and a `notes.txt` beside the firmware |
+| the ordered pointer-cast set | the resolver's store census | "a fifth cast to a pointer, resolving outside the window" |
+| the ordered pointer-store set | the same | "a fifth store through a pointer, resolving outside the window" |
+| the ordered-list comparison that made moving code a cost | the same | "parse_u64() and seconds_to_ns() exchanged, with nothing added or removed" |
+| the inline-`asm` set | the same, which reads the template's own instructions | "a fifth inline-asm statement, a fence in a UART command handler" |
 
-Every instrument requires the census's RV32 compiler.
-At #498, hosted runners lacked that compiler.
-#504 provisions both builder jobs with the selected Bootlin SDK.
-See the [installation and cache contract](../testing/CI_WORKFLOWS.md#elaboration).
-Compiler availability alone does not authorize text-rule retirement.
-The first head of PR #498 retired them
-unconditionally and a phase-2 token splice,
+Four were NARROWED rather than retired, and their rows above say what still
+refuses: the token-joining splice ban and the `##` ban, each to the six
+boot-path bodies ("a token-joining backslash-newline inside a macro body" and
+"a ## token paste building a call outside the boot path" are GREEN), the
+macro-body rule ("a read-only #define accessor over milan_read()" is GREEN)
+and the rule on a conditional carrying a definition ("an #ifdef/#else
+choosing a #define, read in a UART command handler" is GREEN). Two were KEPT,
+with the reason in each row: the directive set, and the `%:`/`??` half of the
+paste ban.
+
+### Text rules retired onto instruments (#408, #409)
+
+**The order of events is the argument.** At PR #498's first head six text
+refusals were retired onto these instruments while the hosted runners had no
+RV32 compiler. On the machines that graded a merge nothing then refused what
+those rules used to refuse, and a phase-2 token splice,
 `milan_\`+newline+`write(ADP_CTRL, 1u)`, advertised the entity before the AEM
-verdict and PASSED the complete gate on the hosted runners.
+verdict and PASSED the complete gate there. The second head kept the rules as
+a fallback arm forced over the shipping firmware, which retired nothing, and
+#498 then retired nothing at all. #504 has since made both hosted builder
+consumers require the pinned Bootlin SDK (`--require-rv32`; see the
+[installation and cache contract](../testing/CI_WORKFLOWS.md#elaboration)),
+so the instruments grade wherever a merge is graded. There is no fallback
+arm: a rule forced back where the compiler is absent refuses the very edits
+the retirement accepts, and the docs job runs gate 1b with every cross
+compiler hidden on every commit.
 
-| Instrument | What it sees that the text rule cannot | Which text rules it would replace |
+| Instrument | What it sees that the text rule cannot | Text rules it replaced |
 |---|---|---|
-| the preprocessed unit: the same compiler under the same flags with `-E`, and each boot-path body compared as CONTENT -- the ordered boot tokens and the statements they sit in -- read both as this gate reads it and after translation phases 1 and 2, with what a conditional may select inside one of those bodies bounded to names this file does not define | the text the compiler is actually handed, so a splice or a paste that changes a call name, a conditional arm this gate reads and the compiler drops, and an arm whose selection differs between the census stub tree and the product, are each a measured disagreement rather than a construct someone had to anticipate | the conditional-reach ban, the token-joining splice ban and the `##`/`%:`/`??` ban |
-| the include-resolution measurement: `-H` reports every file the preprocessor OPENED, and no pinned name may reach one beside the firmware | which FILE each pinned name resolved to, which a listing of the directory cannot say at all. The caveat is the instrument's: it proves resolution in the tree it is HANDED -- the firmware's own directory plus the gate's stub header root -- so a different `-I` set, sysroot or working directory is outside it | the directory pin |
-| the resolver's store census: every store the compiler emits, of every instruction class, classified by the address it RESOLVES to at every word it writes, exempting nobody | an address built with `slli`/`ori` that prints no window immediate, a store inside the address helper the census exempts by name, a `lui`-based `asm` template, a store behind a brace-less `if` that the text store set cannot see at all (#495), an FP store or an RV32A AMO or SC instruction through a paged base (R228-F1 on PR #521), and a local's parked address rewritten by a union byte or half-word store or through a pointer to the local (R227-2-F1 on PR #521). Not a store made inside a called function, such as a `memset` or 64-bit atomic library call handed a window pointer; see [What the census does NOT observe](#editing-contract-for-this-firmware) | the ordered pointer-cast set, the ordered pointer-store set, the inline-`asm` set and the ordered-list comparison that makes a reorder a cost |
+| every arm selection graded: each conditional group resolved to each of its arms, and every resulting text graded by the whole gate as a firmware of its own | the arm the product compiles, whichever its headers select, including one the census stub tree drops: a `0 &&` short-circuiting the choke point's verdict test only where `CSR_UART_BASE` is defined names nothing this file defines and moves no boot token, and is refused in the selection that takes it | the conditional-reach ban, and (narrowed) the rule on a conditional carrying a definition |
+| the preprocessed unit: the same compiler under the same flags with `-E`, and each boot-path body compared as CONTENT -- the ordered boot tokens and the statements they sit in -- read both as this gate reads it and after translation phases 1 to 3 | the text the compiler is actually handed, so a macro that erases or moves a boot step is a measured disagreement rather than a construct someone had to anticipate. It compares the boot tokens and the statement count, not every name the text rules in those bodies read. The caveat is the instrument's: the unit is the one the census stub tree produces, so a macro whose definition differs in the product is outside it | none now: the token-joining splice ban and the `##` ban inside the six boot-path bodies were retired onto it and are KEPT there instead ([R272] F2 on PR #535), since a splice or a paste rebuilding a name it does not compare agrees in both texts |
+| the include-resolution measurement: `-H` reports every file the preprocessor OPENED, and no pinned name may be opened beside the firmware, through a file or a link | which FILE each pinned name resolved to, which a listing of the directory cannot say at all. The caveat is the instrument's: it proves resolution in the tree it is HANDED -- the firmware's own directory plus the gate's stub header root -- so a different `-I` set, sysroot or working directory is outside it | the directory pin |
+| the resolver's store census: every store the compiler emits, of every instruction class, classified by the address it RESOLVES to at every word it writes, exempting nobody | an address built with `slli`/`ori` that prints no window immediate, a store inside the address helper the census exempts by name, a `lui`-based `asm` template, a store behind a brace-less `if` that the text store set could not see at all (#495), an FP store or an RV32A AMO or SC instruction through a paged base (R228-F1 on PR #521), and a local's parked address rewritten by a union byte or half-word store or through a pointer to the local (R227-2-F1 on PR #521). Not a store made inside a called function, such as a `memset` or 64-bit atomic library call handed a window pointer; see [What the census does NOT observe](#editing-contract-for-this-firmware) | the ordered pointer-cast set, the ordered pointer-store set, the inline-`asm` set and the ordered-list comparison; the splice and `##` bans outside the six boot-path bodies |
 
-**The two preconditions of retirement** remain separate acceptance obligations:
+**What still refuses what each retired rule protected** is the mutation
+table. Every entry a retired rule was pinned on is re-pinned on its
+replacement's own sentence, with one stated exception: the two stores planted
+inside the address helper, which the cast set answered first, are answered
+first now by the helper's own return-provenance rule, on every machine. The
+resolver's refusal of the same two, on its own sentence, is asserted beside
+them on every run where it is live, together with the census's blindness to
+them. The hostile shapes the retired rules read file-wide and in arms are
+controls of their own:
 
-1. an RV32-capable compiler on the hosted runners, so the instrument answers
-   where a merge is graded. #504 owns installation and hosted evidence;
-2. an instrument-level acceptance for each refusal being retired: the
-   instrument, asked on its own about the edit that refusal costs, must
-   accept it. Gate 1b measures that on every run where a compiler answers,
-   and prints the result.
+- the conditional-reach ban: a call name pasted, spliced, or spliced onto a
+  literal address in an arm the census stub tree drops or only the product
+  compiles; a struct-overlay store at the `ADP_CTRL` address in a dropped
+  arm; the `0 &&` product-only arm above; a pasted enable, a fifth cast and a
+  `lui`-based `asm` store in product-only arms of a UART command handler; and
+  the verifier's QSPI-slot condition made false in the stub tree. On every
+  machine: the AEM guard, the pre-AEM clear and the CRC comparison each put
+  behind a build flag, a dropped arm inside a CSR write's argument, and
+  `ADP_CTRL`'s name moved to another register by a product-only arm. And
+  the arms dev's ordered sets refused whatever its directive readers saw
+  ([R272] F1 on PR #535 at `a13b6e2e`): the product-only cast
+  in a UART command handler behind a form feed, a vertical tab, a NUL or lone CR line ends, a `lui`
+  store and the `0 &&` arm behind a form feed, a product arm behind an
+  `#else` a splice splits, and a store in the second of two groups on
+  `CSR_UART_BASE`; on every machine, the pre-AEM clear dropped by a
+  product-only `#ifndef` behind each of those four spellings, the verifier's
+  `#else` behind a lone CR, and, for each of the other directive readers, an
+  `#undef`, a second source's `#include`, a second `#error` guard and a second
+  definition of `ADP_CTRL`'s name, each behind one of those spellings;
+- the splice and `##` bans: inside the six boot-path bodies, where both are
+  KEPT and refuse on every machine, the five phase-2 splices of
+  `milan_write` in `configure_fabric()`, the pasted call name, the four
+  spliced or pasted call names in arms there, and the CSR identity sample
+  forged by a splice, a paste and a paste a second macro reaches; outside
+  them, a spliced call name in a UART command handler and a pasted enable in
+  a product-only arm there, by the resolver. `PP_CTRL`'s name redefined onto
+  `ADP_CTRL` through a `#define` whose name a splice joins is refused on
+  every machine by one definition per name;
+- the directory pin: `command.h` and `init.h` planted beside the firmware,
+  and a link planted there to a file outside this repository;
+- the cast, store and asm sets: the inline-`asm` store by literal address, the
+  `lui`-based template, the widened cast, the reordered cast and a pointer
+  held in a local, beside the census-only and resolver-only shapes that
+  needed the compiler before #409 too.
 
-That measurement is the table below, and the gate owns the list: it is
-`retirement_candidates` in `sw/builder/test_builder.py`, each row graded
-twice on every live run -- once through the whole gate, where it must be RED
-on its own text rule's sentence, and once by calling the instrument's own
-function on the edited unit. The labels here are that list's labels.
+Each of those controls was shown failing with its replacement disconnected,
+at the head that retired the rule, `a13b6e2e`: with the `-E` comparison, the
+resolver and the census disconnected together, all twelve splice and paste
+controls then passed the whole gate; with `-H` disconnected, all three
+shadowing controls pass; and with the resolver and the census disconnected,
+all ten cast, store, `asm`, arm-store, redefinition and flipped-verifier
+controls pass. The per-selection grading pins its entries on its own sentence
+and on the property the selected firmware breaks, and with it disconnected
+all fifteen of that head's selection controls failed that pin with a compiler
+and all six without one.
 
-| Edit the text rule costs | Refused today by | The instrument alone, measured |
-|---|---|---|
-| a fifth cast to a pointer, resolving outside the window: `*(volatile unsigned int *)&milan_scratch = 1u;` at the end of `configure_fabric()` | the pointer-cast set | ACCEPTS |
-| a fifth store through a pointer, resolving outside the window: a `milan_poke(volatile uint32_t *)` helper storing through its parameter into a private static | the pointer-store set | ACCEPTS |
-| `parse_u64()` and `seconds_to_ns()` exchanged, with nothing added or removed | the pointer-store set, compared as an ORDERED list | ACCEPTS |
-| a `##` token paste building a call outside the boot path, in a UART command handler | the `##`/`%:`/`??` ban | ACCEPTS |
-| a `README` and a `notes.txt` beside the firmware, named by no include | the directory pin | ACCEPTS |
-| an `#ifdef MILAN_DEBUG_BOOT` printf INSIDE `milan_init()` | the conditional-reach ban | **REFUSES** |
+PR #535's correction rounds are numbered here as everywhere on this page: round
+one corrected that first head, and each paragraph below up to round four names
+its commits. Round one (`75066c16`, `d8abee3e` and `ef903457`) measured each
+fix it adds the same way, over its 43 controls, with the pinned SDK and with
+every cross compiler hidden (32 of them run without a compiler). With nothing
+disconnected all are refused on their own pins. Removing the lexer's
+form-feed, vertical-tab, NUL and lone-CR
+handling lets fifteen of them through or refuses them for another reason
+(nine without a compiler), and
+the lexer corpus then fails on its own sentence before any firmware is
+graded; removing the rejoining of a name a splice splits does the same to the
+spliced-`#else` arm and to the corpus. Reading macro definitions one physical
+line at a time again, as the macro-body rule did, lets three through;
+removing the splice and `##` bans kept inside the six boot-path bodies,
+thirteen; removing the literal and trigraph refusals, four; removing one
+definition per name, four. With the `-E` comparison removed, the boot step
+erased by a macro of its own name passes the whole gate, and with the
+relating of groups on one macro removed, the three correlated debug edits are
+refused where the compiler answers. With the per-selection grading removed,
+seventeen of the 43 fail their pin with a compiler and eight without one.
 
-The last row records the instrument's remaining limitation.
-The `-E` comparison refuses any statement a conditional removes from a
-boot-path body -- it must, because a dropped arm calling a LiteX CSR
-accessor names nothing this file defines and stores to a control register in
-the product. A guarded debug `printf` inside `milan_init()` is exactly such
-a statement. So the conditional-reach ban has nothing to retire onto inside
-those six bodies, and #408's "leaves with an accepted case measured GREEN"
-cannot be met for it by this instrument. A conditional in a UART command
-handler is outside those bodies and was already GREEN before #408.
+Round two (`8fd74a99`, `479a2175` and `8e12d31f`) measured its fixes over the
+same 43 controls and the ten it adds, 53 in all (41 run without a compiler),
+and with nothing disconnected all are refused on their own pins. Reading the digraphs before phase 2, the
+round-one order, stops the gate before any firmware is graded, on the
+assertion that the readers find the `#ifdef` a split `%:` spells. With the
+corpora connected, the generated corpus stops it first, on its own sentence,
+at `%\`, a line end, then `:ifdef`; with only the fixed corpus connected, that
+corpus passes and the assertion stops it, so the generated corpus is what
+measures the phase order. With the corpora and the assertion off, the
+product's selection of the split-digraph arm is not found at all, and the ban
+still refuses the arm itself, because the `%:` pair a splice splits is still a
+pair once phase 2 has run. With that check removed as well, which is the
+round-one state, the split-digraph arm passes the whole gate on every machine
+and the `%:%:` paste two splices split passes without a compiler. Keeping the
+byte-order mark in phase 1 lets the identity forged behind one pass the whole
+gate on every machine, and the `#include` and the `#line` behind one pass
+without a compiler; the fixed corpus then fails on its own sentence. Removing
+the whole-file digraph ban fails five controls: with a compiler each is
+refused for another reason, the two digraph arms by the grading of the
+selection the readers find, and without one four of them pass. Removing the
+check for a `%:` pair phase 3 reads as other tokens lets `<%:` through
+without a compiler. With the page's bound on the paste ban no longer
+required, the page claiming the ban reads a header's macro passes.
 
-The inline-`asm` set carries no candidate edit of its own: the firmware's
-four fences are the only `asm` it has and a fifth benign one would be an
-invention rather than an edit anybody wants. What carries that row is its
-hostile side, and that is measured -- a `lui`-based template storing into the
-window is a permanent mutation, refused by the asm set and, where the
-resolver runs, by the resolved store address as well.
+Round three (`11b1b86c`) adds the closed lexical grammar S and measures each of
+its seven refusals disconnected. Removing any one S check first trips
+`subset_refusal_corpus`, before any firmware is graded, on that class's own
+entry: the subset corpus is a tripwire that a removed refusal fails. With that
+tripwire also bypassed, the whole-firmware consequence shows. Removing the `$`
+check lets a store hidden by `#if$a` misnesting through without a compiler
+(with one, the arm-selection census refuses the store). Removing the universal
+character name check lets an identity local forged as `id` through
+without a compiler (with one, GCC rejects the basic-character UCN and the `-E`
+instrument refuses). Removing the `__has_include` check lets a store hidden
+behind its header name through on EVERY machine, **the pinned SDK included**,
+because the per-selection grading builds each selection from the gate's own
+reading and the original file is never compiled, so the census cannot backstop
+it -- the class the round-two external finding named. Removing the `#include`
+header-name check leaves the include-set name pin to refuse the shadowing
+operand for another reason. Removing the `_Pragma` check lets a
+`_Pragma("push_macro(...)")` through on every machine. Removing the
+unterminated-comment finding lets a trailing `/* no close` through without a
+compiler (with one, GCC stops on an unterminated-comment error). Every
+reviewer probe of every round is now either refused by S or agrees with GCC:
+[R272] F1's `$` in a directive name and the round-two external finding's
+header name in `__has_include` are two of the seven S classes, and the earlier
+splice, form-feed, byte-order-mark and digraph probes are within S or refused
+by the digraph ban as before.
 
-Seven hostile shapes are refused by an instrument ALONE on every live run,
-each handed to one instrument's own function with no text rule in front of
-it. The text rules refuse all seven too -- the reach ban six of them, the
-directory pin the seventh -- so what this measures is what would still refuse
-them if those rules retired: a call name pasted, spliced, or
-spliced onto a literal address inside a conditional arm the census stub tree
-drops; the same splice inside an arm only the product compiles; a statement
-carrying no boot token in a dropped arm; an ARGUMENT selected by a dropped
-arm, naming a register constant this file defines; and a pinned include
-shadowed by a file planted beside the firmware.
+Round four (`4a56ef08`) adds the character allowlist and measures it
+disconnected, with the pinned SDK and with every cross compiler hidden.
+Removing it trips `subset_refusal_corpus` first, on its first entry, U+00B7
+after `#if`, before any firmware is graded. With that tripwire bypassed, the
+closure table stops the gate on its first cell outside the allowlist, byte
+0x01 at offset 0. With both bypassed, the table read without the allowlist
+holds 43 cells on which the readers and GCC disagree, and the whole-firmware
+consequence shows. Without a compiler, eight of the twelve entries pinned on
+the allowlist pass the whole gate: the store in the CSR window hidden between
+two directive names spelled with U+00B7, U+0387 or U+203F (the external
+review's shape, whose store the pinned GCC compiles live), the same store
+with U+0301, a window store between directive lines a no-break space or an FS
+control leads, a byte that is not UTF-8 in a comment, and a byte-order mark
+at offset 0. With the compiler, the per-selection grading refuses each store
+and the byte-order mark alone passes. At the reader level, the internal
+review's `mid.c` and `comb.c` and the external review's misnest spellings pass
+S and disagree with GCC, 22 of the reviews' 89 reader-level spellings. ASCII
+mode is not a second closure: without the allowlist the readers disagree with
+GCC on every extended identifier character tried, where Unicode mode agreed
+on some of them by accident (8 of those 22 disagreed at the round-three head).
+It fixes the readers' own grammar in ASCII, whatever Python's Unicode tables
+say. Every reviewer probe of every round was run again. Of the 89 reader-level
+spellings, S refuses 62 and the readers read the other 27 as GCC does. The 233
+whole-firmware cases were graded in each mode, and the four spellings of the
+split-digraph probe from the internal review of round one's head with the
+compiler; S refuses those outside it and the whole gate grades the rest.
+Against the round-three head every verdict that changed went from accepted to
+refused: the external review's U+00B7, U+0387 and U+203F stores without a
+compiler, and the byte-order-mark and U+00B7 controls in both modes.
 
-What carries those properties now is a measurement over resolved values, not a
-narrowing by exception: control reaching an enable write is answered by
-removing the choke point's verdict edge, and an enable hidden in a continued
-macro body is answered by reading the compiled call, where the macro is
-already expanded. Retiring the remaining store-recognition families still
-requires #162's Makefile half. No further refusal family is deleted until a
-replacement rejects the recorded escapes by measurement.
+Round five adds no refusal. It extends the closure table from nine positions
+to 23 with the fourteen comment, literal and directive-line boundaries above,
+recorded on the pinned GCC one file at a time and re-measured by the gate in
+its batches:
+of the 6440 cells the allowlist refuses 3647 (226 of them cells the readers
+and GCC read differently), another rule of S 246, and the readers and the
+directive-set closure one, the `#` alone at the end of the file; the readers
+read the other 2546 as GCC does. The new cells can fail for what they hold.
+Widening phase 2's splice blanks by the no-break space, which both lexer
+corpora pass, stops the gate on a no-break space between a backslash and the
+line end of a line comment, with the pinned SDK and without a compiler; with
+the table cut back to its nine round-four positions, the same widening passes
+the whole gate in both. Emptying the named reader refusal stops the gate on
+the lone `#`, and naming a cell the readers do not refuse stops it too.
 
-**What a runner with no RV32 compiler gets** remains explicitly weaker.
-The compiler-absent CI control keeps this path executable.
-The `-E` comparison, the `-H` resolution measurement
-and the resolved store census all take the census's compiler, so its
-stand-down stands them down too, and the instrument-level measurements above
-go with them.
+**What a runner with no RV32 compiler gets** is explicitly weaker, and it is
+a registered `NOT RUN`, never coverage. The compiler-absent CI control keeps
+this path executable. The `-E` comparison, the `-H` measurement, the compiled
+half of the per-selection grading and the resolved store census all take the
+census's compiler, so its stand-down stands them down together, and every
+mutation pinned on them is counted as skipped rather than rejected. The
+retired text rules are gone there too, so on that runner NOTHING refuses a
+token-joining splice or a `##` paste outside the six boot-path bodies, a file
+beside the firmware, a cast, store or `asm` the resolver would place in the
+window, or the compiler half of the retired conditional-reach ban: an arm
+only one build compiles whose defect no text rule reads, such as the `0 &&`
+short-circuit of the choke point's verdict test above, is graded there by the
+text rules alone, which do not refuse it. The same was already true there of
+a cast with no `*` plus an `->` store, a store behind a brace-less `if`, and
+the verifier's CFG and CRC provenance. What still grades is every surviving
+text rule: the splice and `##` bans inside the six boot-path bodies, one
+`#define` per name (which is what refuses a read hidden in a second
+definition of the identity magic, on every machine), the macro-body rule, the
+closed-grammar subset check S -- the character allowlist, then the literal,
+digraph, trigraph, `$`, universal-character-name, `__has_include`, `#include`
+header-name, `_Pragma` and unterminated-comment refusals, read on the whole
+firmware before any reader -- the directive readers as the two lexer corpora
+and the character-closure table recorded them (not re-measured there), and
+the text half of the per-selection grading.
 
-What it gets is every text rule in the table, unchanged, in force: the
-conditional-reach ban, the token-joining splice ban, the `##`/`%:`/`??` ban,
-the ordered pointer-cast, pointer-store and inline-`asm` sets, and the
-directory pin. Measured on this change: the same suite refuses 182 mutations
-there and 208 where a compiler answers, against 171 and 194 for the same two
-environments on the base head, with the accepted-edit set identical in all
-four runs. More with the tools, never less without them.
+Measured on this change, once with the pinned SDK mapped and once with every
+cross compiler hidden: gate 1b refuses 280 mutations where the compiler
+answers and 222 where it does not, against 217 and 182 on dev `759da623`, and
+accepts 29 firmware edits and 4 Makefile edits in both, against 17 and 4. The
+seven refusals round three added over round two are the closed-grammar subset
+S, one per excluded token class. The nine round four adds are the character
+allowlist, each refused on every machine: the reviews' four extended-character
+stores, the identity forged behind U+00B7, a no-break space and an FS control
+leading directive lines, a byte that is not UTF-8 in a comment, and the
+byte-order mark at offset 0 that round two accepted (the thirtieth accepted
+edit then). The three entries that measured a directive behind that mark are
+re-pinned on the allowlist, which refuses the mark first; the paste ban, the
+include pin and the directive set keep their other entries. It reads the 1846
+lexer spellings, 79 fixed and 1767 generated (round two crossed 4907, the
+digraph introducers among them; those are outside S and refused, so the
+generated corpus is now within S), and the 6440 closure cells (2520 before
+round five), as recorded in both, and re-measures them on the compiler where
+it answers. Without a
+compiler, 33 census and resolver entries and 25 entries measuring what the
+retired rules refused are counted as skipped, not rejected.
 
 Gate 1b's verdict says which it was in its first clause -- `TEXT RULES +
-INSTRUMENTS` or `TEXT RULES ONLY` -- and the stand-down is REGISTERED, so the
-suite's closing line reads `ALL GATES PASS EXCEPT n NOT RUN`, names the three
-instruments that did not grade, and names the text rules that did. It is
-never a silent pass.
+INSTRUMENTS` or `TEXT RULES ONLY, AND WEAKER` -- and the stand-down is
+REGISTERED, so the suite's closing line reads `ALL GATES PASS EXCEPT n NOT
+RUN` and names what did not run. It is never a silent pass.
 
-What the text rules do NOT recover is the width the instruments buy, and that
-gap is the same one this gate has always had on such a runner: a cast with no
-`*` combined with an `->` or subscript store is outside them, so is a store
-behind a brace-less `if` (#495), and the verifier's CFG and CRC provenance
-need the same compile and are simply not measured there.
-
-**#504 installs the selected compiler without retiring any text refusal.**
+**#504 installed the selected compiler; #408 and #409 retired text rules onto
+it.**
 Both hosted builder calls require the RV32 instruments to execute.
 The pinned Bootlin glibc SDK retains the existing `__errno_location` residual.
 No additional C-library residual is accepted.
@@ -1360,7 +1706,6 @@ That ISA emits FP stores and RV32A AMO and SC instructions the shipping hart nev
 The store census classifies them; see the [editing contract](#editing-contract-for-this-firmware).
 Local mapped-prefix trials establish compatibility only.
 Fresh hosted installation and trusted act need their own evidence.
-Text-rule retirement remains the separate scope of #408 and #409.
 
 ## Saved state: the flash writer
 

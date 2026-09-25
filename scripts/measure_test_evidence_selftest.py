@@ -291,7 +291,7 @@ def _arms_runner_contract(ck):
     for old, new in (("PHYSICAL_GPTP=0", "PHYSICAL_GPTP=1"),
                      ('[ "$PHYSICAL_GPTP" = 1 ]', '[ 1 = 1 ]'),
                      ("SUITE_TIMEOUT:-1800", "SUITE_TIMEOUT:-2400"),
-                     ("SUITE_TIMEOUT:-2700", "SUITE_TIMEOUT:-3600"),
+                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-2700"),
                      ("SUITE_TIMEOUT:-5400", "SUITE_TIMEOUT:-7200"),
                      ("milan_dp_gptp)", "milan_dp)"),
                      ("    milan_dp)      ", "    milan_dp_render) "),
