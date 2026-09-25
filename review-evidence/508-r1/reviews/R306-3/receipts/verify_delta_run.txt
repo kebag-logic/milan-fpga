@@ -1,0 +1,34 @@
+== delta scope
+1	1	CHANGELOG.md
+1	1	docs/testing/TESTING.md
+1	1	scripts/measure_test_evidence.py
+2	2	tb/verilator/milan_dp/Makefile
+1	1	tb/verilator/milan_dp/README.md
+:100644 100644 ed362e364 4eb5d1250 M	CHANGELOG.md
+:100644 100644 3ae34c38e 7fbc4bdd5 M	docs/testing/TESTING.md
+:100644 100644 c00681f2f ad6598e34 M	scripts/measure_test_evidence.py
+:100644 100644 c450bf939 e195378ef M	tb/verilator/milan_dp/Makefile
+:100644 100644 58eae1011 6db232542 M	tb/verilator/milan_dp/README.md
+== gsi_mutants MUTATIONS length
+[8]
+== anchors and figure ids at the pin
+295:<a id="fig-06-lineage"></a>**F06.13 — Field lineage (input rows; output analogous)**
+316:<a id="fig-05-settled"></a>**F05.5 — Settlement detail (matrix columns SNR/SOK)**
+== docs_check in git archives (no submodule content)
+docs_check: 0 finding(s) across 165 md files + 861 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+rc=0 rev=9d66cfe0dc87ffe4a5f45691d5c86b041b050b38
+tb/verilator/milan_dp/README.md:488: broken link -> ../../../protocol-processor/docs/architecture/05_acmp_engine.md
+tb/verilator/milan_dp/README.md:488: broken link -> ../../../protocol-processor/docs/architecture/06_aecp_engine.md
+docs_check: 2 finding(s) across 165 md files + 861 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+rc=1 rev=224ec0e9a9fa129924bf8f0433cf70b4140f7bd2
+== in-clone gates
+rc=0 scripts/docs_check.py :: docs_check: 0 finding(s) across 165 md files + 861 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0 scripts/gen_toc.py --verify-anchors :: anchor check: 168 existing cross-page fragment links reproduced
+rc=0 scripts/gen_toc.py --check :: TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0 scripts/check_doc_paths.py :: doc path gate: OK (842 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0 scripts/check_em_dash.py --base c266432d :: check_em_dash: 0 finding(s) over 222 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [c266432d..HEAD]
+rc=0 scripts/measure_test_evidence.py --check ::   the mutation ratchet can be lowered to 76
+rc=0 scripts/measure_test_evidence.py --selftest :: 101 checks: 101 PASS, 0 FAIL
+rc=0 scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+rc=0 scripts/check_py_idiom.py --selftest :: 54 checks: 54 PASS, 0 FAIL
+diff --check rc=0

@@ -1,0 +1,74 @@
+2026-09-25T04:02:19Z
+bdd-conformance	completed	success
+changes	completed	success
+docs-check	in_progress	-
+docs-check-no-git	completed	success
+elaborate	in_progress	-
+full-ci-gate	completed	success
+Physical gPTP (nightly and manual)	completed	skipped
+verilator-lint	completed	success
+Verilator shard 0/5	in_progress	-
+Verilator shard 1/5	queued	-
+Verilator shard 2/5	in_progress	-
+Verilator shard 3/5	in_progress	-
+Verilator shard 4/5	in_progress	-
+wire-accountability	completed	success
+yosys-elaboration	in_progress	-
+Yosys shard 0/4	completed	success
+Yosys shard 1/4	completed	success
+Yosys shard 2/4	completed	success
+Yosys shard 3/4	queued	-
+-- docs-check job 107937312343 steps
+1	Set up job	completed	success
+2	Run actions/checkout@v4	completed	success
+3	Build the validated HDL reference	completed	success
+4	Upload the HDL reference HTML	completed	success
+5	Install the python gate dependencies	completed	success
+6	Cache the pinned Markdown renderer downloads	completed	success
+7	Install the pinned Markdown renderer	completed	success
+8	Install diagram gate dependencies	completed	success
+9	Link health, wording, dead-reference and local-info gate	completed	success
+10	Added-line em-dash gate	completed	success
+11	Concise audience documentation gate	completed	success
+12	Audience diagram no-drift gate	completed	success
+13	Product solution source-fact gate	completed	success
+14	Verified submodule documentation gate	completed	success
+15	HDL timing diagram no-drift gate	completed	success
+16	Published diagram PNG gate	completed	success
+17	Milan feature-status consistency gate	completed	success
+18	Traceability matrix no-drift gate	completed	success
+19	Fetch the builder source dependencies	completed	success
+20	Imported gPTP documentation gate	completed	success
+21	Code-quality measurement self-tests	completed	success
+22	Install the pinned sv2v release	completed	success
+23	Bare-metal scope gate	completed	success
+24	Cache the pinned RV32 SDK	completed	success
+25	Install and verify the pinned RV32 SDK	completed	success
+26	Compiler-absent firmware controls	completed	success
+27	End-station builder gates	in_progress	-
+28	NVM record-space gate	pending	-
+29	Saved-state writer gate	pending	-
+30	SoC source-list gate (Vivado would fail 40 min in without this)	pending	-
+31	RTL source-list drift gate	pending	-
+32	Boundary-unit naming ratchet	pending	-
+33	Port contract gate	pending	-
+34	Fail-fast ratchet	pending	-
+35	TODO ownership gate	pending	-
+36	Test-evidence ratchet	pending	-
+37	Mechanical hygiene ratchet	pending	-
+38	SystemVerilog idiom gate	pending	-
+39	C and C++ idiom gate	pending	-
+40	Python idiom gate	pending	-
+41	Shell idiom gate	pending	-
+42	CI event and SHA contract gate	pending	-
+43	Local act runner contract gate	pending	-
+44	Doc cited-path gate	pending	-
+45	Archive integrity gate	pending	-
+46	Per-page contents gate	pending	-
+47	AEM store generator self-test	pending	-
+48	Sweep/build shape gate	pending	-
+49	Deploy shape gate	pending	-
+50	Entity shape gate	pending	-
+98	Post Cache the pinned RV32 SDK	pending	-
+99	Post Cache the pinned Markdown renderer downloads	pending	-
+100	Post Run actions/checkout@v4	pending	-
