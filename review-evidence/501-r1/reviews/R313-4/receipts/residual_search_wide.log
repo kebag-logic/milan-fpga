@@ -1,0 +1,34 @@
+head=efcabc379b1e0be1366bfc05bdcc05a759b55616
+--- any capture-hold / hold-margin / capture-copy mention (all tracked md, txt, c, py)
+docs/design/SAVED_STATE_FASTCONNECT.md:1080:current capture does not hold, plus what the open capture holds -- with
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:71:> UNRESOLVED 8 to 10; the derived copy time is re-derived at the shipping
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:267:   the open capture holds). The acknowledgement quotes the capture identity
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:903:deferred_wait' = mut_wait                            (one cycle: the request this capture holds back)
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1220:| Ordinary completion | done, no err | operation ends; a whole-record WRITE closes the record | cleared | nvm_dirty 1 until a capture holding it is acknowledged | A-cases |
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1584:| Nominal copy / 50 ms hold margin | 8.3 ms / 6.06x | 31.9 ms / 1.57x |
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1585:| Twice both costs / hold margin | 16.5 ms / 3.03x | 63.8 ms / 0.78x |
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1697:6. Physical timing remains unmeasured: capture hold, debounce, and memory ordering.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1841:| The derived copy time assumes 100 MHz; the shipping core runs at 50 MHz (G6, MINOR) | Re-derived at 50 MHz: about 22 ms and 44 ms at 8x8, a margin of 1.1 to 2.3 | 18, 20 (item 6) | - |
+docs/fpga/FPGA_DESIGN.md:254:| `KL_chan_map_capture` | per-pair-slot TX source multiplexer (NxN capture mux); since #74 its `tdm_dup_cnt_o`/`tdm_skip_cnt_o` junction detector counts the grid slips at the capture holds |
+docs/history/v1/design/TIME_SYNC.md:452:Three clocks meet at the capture holds, and #74 gives their relationship a
+docs/history/v1/design/TIME_SYNC.md:467:difference slips one sample every 1.9582 s at the capture holds; since
+docs/integration/BUILDING.md:477:suffixed with its group number. Keep both groups: a capture holding `status_1`
+tb/verilator/README.md:71:| [`nvm_cosim/`](nvm_cosim) | `KL_nvm_backend.sv` + the shipping writer in `sw/firmware/milan_baremetal/milan_baremetal.c`, compiled for the host, against the REAL donor producer path | The same contract's ORDERING
+tb/verilator/nvm_cosim/README.md:18:one-pulse re-arm failure of issue #420, the capture hold, the window load, the
+tb/verilator/nvm_cosim/README.md:59:time, and the page's section 18 derives the real copy time separately.
+--- links into SNAPSHOT_OWNERSHIP section 20 / 18 from other pages
+--- processor 61/83 in any spelling, near measure/hold/capture
+docs/development/CODE_QUALITY.md:1592:`protocol-processor/tb/nvm_port/measure_figures.py` (a submodule file, so
+docs/history/v1/findings/PP_SHADOW_AREA_0812.md:14:# The protocol-processor plane, measured — 2026-08-12
+docs/history/v1/findings/PP_SHADOW_AREA_0812.md:60:- **[Instrument](#instrument)** — Out-of-context Vivado synthesis of `KL_pp_shadow` — the wrapper containing the whole `protocol_processor_top` plus the RX classifier, control-frame FIFO an
+docs/history/v1/findings/PP_SHADOW_AREA_0812.md:64:- **[THE SUBSTITUTION CASE — measured 2026-08-12, and it reverses the verdict](#the-substitution-case--measured-2026-08-12-and-it-reverses-the-verdict)** — The right question for scenario B
+docs/history/v1/findings/PP_SHADOW_AREA_0812.md:192:Against the processor's measured cost:
+docs/history/v1/findings/PP_SHADOW_AREA_0812.md:287:The processor's 7,463 LUT is measured with **no working AECP**: the pop face is
+docs/history/v1/traceability/milan-v12.md:226:| M-AECP-11 | 5.4.5.3 | Detection of departing controllers (deregister on ADP departure / timeout) | `KL_aecp_notify` (per-controller monitor slots on the shared timer service, PRNG 30 to 60 s d
+docs/history/v1/traceability/milan-v12.md:234:| M-CNT-2 | Table 5.16 (STREAM_INPUT) | MEDIA_LOCKED/UNLOCKED, SEQ_NUM_MISMATCH, STREAM_INTERRUPTED, UNSUPPORTED_FORMAT, TIMESTAMP_UNCERTAIN semantics | `KL_avtp_rx_monitor_ctx`, CSR mirror and 
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:144:| 5.4.5.3 | departing-controller monitor: random 30–60 s timer, CONTROLLER_AVAILABLE probe + one retry, targeted auto-deregister | implemented at 0x0055 — `KL_aecp_ca_originator` on the processo
+docs/reference/REGISTER_MAP_CLASSES.md:152:[historical protocol-processor area measurement](../history/v1/findings/PP_SHADOW_AREA_0812.md).
+--- stage-3 release conditions
+docs/design/SAVED_STATE_MATERIALIZATION.md:1647:  Release still requires donor adoption, #502, and silicon persistence proof.
+docs/design/SAVED_STATE_MATERIALIZATION.md:1657:| 1. the dynamic-state selectors | configuration index, sampling rate, clock source, stream formats, presentation offset: 9 records at 1x1, 30 at 8x8 | on the seams S1 to S4: the writer with t
+docs/design/SAVED_STATE_MATERIALIZATION.md:1658:| 2. names | 38 at 1x1, 99 at 8x8 | the name trigger, the eight-lane latch, the restore after the image walk; the names' roll-back rides stage 1's descriptor-store reset; `pend_i` stops taking
