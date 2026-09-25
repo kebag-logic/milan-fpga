@@ -1,0 +1,56 @@
+PASS hdl/milan/milan_datapath.sv:6604 -> hdl/srp/KL_srp_top.sv:451-451 sr_adm_fsm_w
+  assign sr_adm_fsm_w = opt_r | adm_admitted_w;
+PASS hdl/milan/milan_datapath.sv:6604 -> hdl/srp/KL_srp_top.sv:787-798 opt_r
+      // ---- optimistic-window aging (three published admission rounds;
+      // invalidation restarts a partial round, and a round discarded for a
+      // pending source does not strobe, so the window outlives a held
+      // verdict). The real grant separately waits for a published round. ----
+      if (adm_round_w) begin
+        for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+          if (opt_r[s]) begin
+            if (opt_cnt_r[s] != 2'd0) opt_cnt_r[s] <= opt_cnt_r[s] - 2'd1;
+            else                      opt_r[s]     <= 1'b0;
+          end
+        end
+      end
+PASS hdl/milan/milan_datapath.sv:6604 -> hdl/srp/KL_srp_top.sv:873-876 opt_cnt_r
+              adm_mfs_r[a_idx_r[SRC_W_C-1:0]]   <= a_mfs_r;
+              adm_mif_r[a_idx_r[SRC_W_C-1:0]]   <= a_mif_r;
+              opt_r[a_idx_r[SRC_W_C-1:0]]       <= 1'b1;
+              opt_cnt_r[a_idx_r[SRC_W_C-1:0]]   <= 2'd2;
+PASS hdl/milan/milan_datapath.sv:6606 -> hdl/srp/KL_srp_talker_fsm.sv:705-710 reg_r
+        // gate re-open arms a fresh tracker for the (possibly new) stream
+        if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
+          if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+          reg_r[s]      <= R_MT_C;
+          lstn_val_r[s] <= 2'd0;
+        end
+PASS hdl/milan/milan_datapath.sv:6623 -> hdl/srp/KL_srp_admission.sv:187-190 refuse_w
+  assign cand_w   = {1'b0, acc_r} + {1'b0, slope_q_r[aidx_r]};
+  assign fit_w    = !invalid_w[aidx_r] && slope_valid_r[aidx_r]
+                   && (cand_w <= {1'b0, limit_w});
+  assign refuse_w = !invalid_w[aidx_r] && slope_valid_r[aidx_r] && !fit_w;
+PASS hdl/milan/milan_datapath.sv:6624 -> hdl/srp/KL_srp_admission.sv:261-266 sr_admitted_o
+  always_comb begin : publish
+    for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+      sr_admitted_o[s]       = grant_r[s] && req_i[s];
+      granted_slope_bps_o[s] = (grant_r[s] && req_i[s]) ? gslope_r[s] : 32'd0;
+    end
+  end
+PASS hdl/milan/milan_datapath.sv:6683 -> hdl/srp/KL_srp_top.sv:211-211 tk_reg_state_o
+    output logic [N_SINKS_P-1:0][1:0]     tk_reg_state_o,      //! 0 NONE / 1 ADVERTISE / 2 FAILED for the settled match
+PASS hdl/milan/milan_datapath.sv:6684 -> hdl/srp/KL_srp_listener_fsm.sv:851-853 tk_reg_state_o
+      tk_reg_state_o[s] = (armed_r[s] && (reg_r[s] != R_MT_C))
+                        ? (rtype_r[s] ? 2'd2 : 2'd1)
+                        : 2'd0;
+PASS tb/verilator/pp_shadow/sim_main.cpp:2849 -> hdl/srp/KL_srp_top.sv:211-211 tk_reg_state_o
+    output logic [N_SINKS_P-1:0][1:0]     tk_reg_state_o,      //! 0 NONE / 1 ADVERTISE / 2 FAILED for the settled match
+PR added citation inventory:
+hdl/milan/milan_datapath.sv +  //!   N_SOURCES cycles each (protocol-processor hdl/srp/KL_srp_top.sv:
+hdl/milan/milan_datapath.sv +  //!   rises and sr_admitted_o stays 0 (KL_srp_admission.sv:187-190,
+hdl/milan/milan_datapath.sv +  //! hdl/srp/KL_srp_top.sv:211 tk_reg_state_o, driven by status_map at
+hdl/milan/milan_datapath.sv +  //! hdl/srp/KL_srp_listener_fsm.sv:851-853), so bit 1 of the slice is set
+tb/verilator/pp_shadow/sim_main.cpp +    // (protocol-processor hdl/srp/KL_srp_top.sv:211 tk_reg_state_o). It is a CODE, not a
+PASS all 9 citation spans, including unchanged adjacent citations
+PASS #530 changelog section byte-identical; sha256 9128aa97df78a8221ad9d38da576756f85d7e5409d0c66b10d4ef693a07f9c47
+PASS processor #116 and #113 entries occur once each
