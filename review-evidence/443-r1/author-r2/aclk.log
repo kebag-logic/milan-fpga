@@ -1,0 +1,270 @@
+make: Entering directory '$LANES/443-render-csr/tb/verilator/milan_dp'
+verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GGPTP_PLANE_EN_P=0 --Mdir obj_aclk -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_aclk.cpp -o Vmilan_dp_aclk
+make[1]: Entering directory '$LANES/443-render-csr/tb/verilator/milan_dp/obj_aclk'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_aclk.o ../sim_aclk.cpp
+g++    sim_aclk.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vmilan_dp_aclk
+make[1]: Leaving directory '$LANES/443-render-csr/tb/verilator/milan_dp/obj_aclk'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 1.286 s (elab=0.000, cvt=0.000, bld=1.283); cpu 0.002 s on 8 threads; allocated 6.145 MB
+./obj_aclk/Vmilan_dp_aclk
+======================================================================
+media-grid alignment at the TRUE ratio: clk_audio = axis * 391/1591
+======================================================================
+
+[RENDER-BIND] listener 0 bound over ACMP for the render-law phases
+  [ok]   RENDER-BIND: the listener launched a PROBE_TX at the named talker = 1
+  [ok]   RENDER-BIND: listener bound (0x6A4[3], the class-D record) = 1
+
+[RENDER-INT] the render law at INTERNAL (cadence = the packet grid)
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: prefill mirrors taps                           = 256
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 256
+  [ok]   RENDER-CSR: reset prefill                                  = 256
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: filling mirrors taps                           = 262
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 262
+  [ok]   RENDER-CSR: fill nonzero during prefill                    = 1
+  [ok]   RENDER-CSR: prefill still held                             = 1
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: converged mirrors taps                         = 520
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 520
+  [ok]   RENDER-CSR: converged bit reached the word                 = 1
+  [ok]   RENDER-CSR: prefill released                               = 0
+  [ok]   RENDER-INT: every injected PDU was accepted                = 960
+  RENDER-INT: 916 PDUs, first-event delay min 17390 max 17390 mean 17390.0 cycles = 8.347..8.347 media ticks
+  RENDER-INT: the law: 8 < d/T <= 9 (+64 cycles of registration slack); setpoint 8 events = 166.67 us
+  [ok]   RENDER-INT: PDUs measured in the window                    = 1
+  [ok]   RENDER-INT: every PDU's first event inside the law band    = 916
+  [ok]   RENDER-INT: the fill at accept is the setpoint for every PDU = 916
+  [ok]   RENDER-INT: one constant: spread within 64 cycles          = 1
+  [ok]   RENDER-INT: no rail inside the window                      = 0
+  [ok]   RENDER-INT: no underrun inside the window                  = 0
+  [ok]   RENDER-INT: converged                                      = 1
+
+[RENDER-RC-INT] shift the cadence three ticks late, then early; a PHC adjtime recentres ONCE each
+  RENDER-RC-INT: displaced 3 ticks late: 12 PDUs, delay min 11140 max 11140 cycles = 5.347..5.347 ticks
+  [ok]   RENDER-RC-INT: the instrument sees the late displacement (fill at accept = setpoint -3) = 12
+  [ok]   RENDER-RC-INT: ...and the delay left the law band (late)   = 0
+  [ok]   RENDER-RC-INT: a three-tick displacement trips no rail (late) = 0
+  [ok]   RENDER-RC-INT: the step reached the render stage as one pulse (late) = 1
+  [ok]   RENDER-RC-INT: the recentre executed once (late)           = 1
+  [ok]   RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late) = 13
+  [ok]   RENDER-RC-INT: ...and the delay is back inside the band (late) = 13
+  [ok]   RENDER-RC-INT: counted once, never again (late)            = 1
+  [ok]   RENDER-RC-INT: no drift back: every later PDU at the setpoint (late) = 96
+  [ok]   RENDER-RC-INT: no drift back: every later PDU inside the band (late) = 96
+  [ok]   RENDER-RC-INT: the recentre is not a rail (late)           = 0
+  RENDER-RC-INT: displaced 3 ticks early: 13 PDUs, delay min 23640 max 23640 cycles = 11.347..11.347 ticks
+  [ok]   RENDER-RC-INT: the instrument sees the early displacement (fill at accept = setpoint +3) = 13
+  [ok]   RENDER-RC-INT: ...and the delay left the law band (early)  = 0
+  [ok]   RENDER-RC-INT: a three-tick displacement trips no rail (early) = 0
+  [ok]   RENDER-RC-INT: the step reached the render stage as one pulse (early) = 2
+  [ok]   RENDER-RC-INT: the recentre executed once (early)          = 2
+  [ok]   RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early) = 13
+  [ok]   RENDER-RC-INT: ...and the delay is back inside the band (early) = 13
+  [ok]   RENDER-RC-INT: counted once, never again (early)           = 2
+  [ok]   RENDER-RC-INT: no drift back: every later PDU at the setpoint (early) = 96
+  [ok]   RENDER-RC-INT: no drift back: every later PDU inside the band (early) = 96
+  [ok]   RENDER-RC-INT: the recentre is not a rail (early)          = 0
+  [ok]   RENDER-SETTIME: the settime reaches the stage as one pulse = 1
+  [ok]   RENDER-SETTIME: the settime executes one render re-base    = 1
+  [ok]   RENDER-SETTIME: no later re-base pulse                     = 1
+  [ok]   RENDER-SETTIME: the render re-base remains counted once    = 1
+
+[RENDER-LIVE] the running feed moved past a tick (the grid moved later): one event off, no recovery
+  RENDER-LIVE: accept phase 0.347 tick; the feed moves 0.953 ticks earlier
+  [ok]   RENDER-LIVE: the stream sat at the setpoint before the move = 17
+  RENDER-LIVE: moved: 13 PDUs, delay min 19375 max 19375 cycles = 9.300..9.300 ticks
+  [ok]   RENDER-LIVE: the fill at accept is one event long for every PDU = 13
+  [ok]   RENDER-LIVE: ...and the delay left the law band            = 0
+  [ok]   RENDER-LIVE: one event off trips no rail                   = 0
+  [ok]   RENDER-LIVE: nothing recentred it                          = 0
+  [ok]   RENDER-LIVE: the move left the convergence verdict as it was = 0
+
+[INTERNAL] clock_source INTERNAL: free-run, slips accepted
+  media_tick_p : 4800 ticks, first 17956314 last 27954230
+  tdm_fsync_o  : 4800 frames, first 17956513 last 27954536
+  [ok]   media grid ticked                                          = 1
+  [ok]   TDM master framed                                          = 1
+  MEASURED     :  -10.7021 ppm   (closed form  -10.6393 ppm)
+  one sample of slip every 1.9467 s
+  [ok]   INTERNAL: fsync SLOWER than the media grid (the known drift) = 1
+  [ok]   INTERNAL: drift matches the divider plan within 0.5 ppm    = 1
+  [ok]   INTERNAL: the grids free-run apart (USER rule: slips accepted) = 1
+  [ok]   INTERNAL: align loop disengaged                            = 0
+  [ok]   INTERNAL: NCO servo gate low                               = 0
+
+[RING-INT] the loopback ring at INTERNAL: pushed on the physical grid, popped on the packet grid
+  [ok]   RING-INT: the priming PDU reached the loop tap             = 1
+  loop-tap landing latency: 59 cycles after the inject slot
+  [ok]   RING-INT: the priming PDU's loop-tap latency is inside one AAF period = 1
+  restart PDU landed 1938 cycles after a tick (aim 1938, band 1875..2000)
+  [ok]   RING-INT: the restart PDU landed inside the aimed band     = 1
+  the PDU spans 23 cycles at the loop tap: its first beat landed 1915 cycles after the tick
+  predicted first dup: 1266 PDUs = 15821714 cycles (0.158 s); window 23732571 cycles
+  ring over the window: 4 dup, 0 skip; first dup at +15975085 cycles (+1.0% of the prediction)
+  [ok]   RING-INT: one beat period = one repeated event on each of the four fed pairs = 4
+  [ok]   RING-INT: no skip - the push side is the slower grid       = 0
+  [ok]   RING-INT: the first dup landed within 25% of the -10.64 ppm prediction = 1
+  [ok]   RING-INT: SLIP_LB 0x8D4 carries the ring's {skip, dup}     = 524360
+
+[SLIP-CSR] SLIP_LB 0x8D4 / SLIP_TDM 0x8D8 carry the junction counters
+  [ok]   SLIP-CSR: one held frame = one TDM junction dup            = 1
+  TDM junction: +1 dup after the held frame, +2 skip after the doubled frames
+  [ok]   SLIP-CSR: doubled frames = TDM junction skips              = 1
+  SLIP_TDM 0x00020001 (tap 0x00020001)
+  [ok]   SLIP-CSR: SLIP_TDM carries the junction's {skip, dup}      = 131073
+  SLIP_LB  0x00080048 (tap 0x00080048)
+  [ok]   SLIP-CSR: SLIP_LB carries the ring's {skip, dup}           = 524360
+  [ok]   SLIP-CSR: both words are non-zero after the induced slips  = 1
+  [ok]   SLIP-CSR: SLIP_LB ignores writes                           = 524360
+  [ok]   SLIP-CSR: SLIP_TDM ignores writes                          = 131073
+
+[CRF] the stored selection goes to this shape's CRF index (1)
+  [ok]   CRF: the root resolve sees the selection                   = 1
+  [ok]   CRF: the NCO servo gate is live                            = 1
+  [ok]   CRF: sink locked (8 clean PDUs)                            = 1
+  [ok]   CRF: align loop engaged on the physical frame marker       = 1
+  MEASURED     :   +0.2667 ppm with CRF selected (was  -10.7021)
+  [ok]   CRF: the grids are ALIGNED (|ppm| < 0.5 - the #74 close)   = 1
+  [ok]   CRF: zero junction dups over the aligned window            = 0
+  [ok]   CRF: zero junction skips over the aligned window           = 0
+  [ok]   CRF: phase error bounded well inside a sample (<300 cycles) = 1
+  A_MCSRV_STAT : 0x00000033
+  [ok]   CRF: the MMCM servo tracks through the live select (ACQUIRE) = 3
+
+[RENDER-LIVE-CRF] the CRF selection under the running stream: one recentre once the grid settled
+  [ok]   RENDER-LIVE-CRF: the selection fired the settled-grid trigger once = 1
+  [ok]   RENDER-LIVE-CRF: ...as one recentre pulse                  = 1
+  [ok]   RENDER-LIVE-CRF: the recentre executed once                = 1
+  RENDER-LIVE-CRF: 1196 PDUs, first-event delay min 18680 max 18686 mean 18683.3 cycles = 8.966..8.969 media ticks
+  RENDER-LIVE-CRF: the law: 8 < d/T <= 9 (+64 cycles of registration slack); setpoint 8 events = 166.67 us
+  [ok]   RENDER-LIVE-CRF: PDUs measured in the window               = 1
+  [ok]   RENDER-LIVE-CRF: every PDU's first event inside the law band = 1196
+  [ok]   RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU = 1196
+  [ok]   RENDER-LIVE-CRF: one constant: spread within 2147 cycles   = 1
+  [ok]   RENDER-LIVE-CRF: converged                                 = 1
+
+[RENDER-CRF] the render law under CRF (cadence = the physical grid, 12500 + 52/391)
+  [ok]   RENDER-CRF: every injected PDU was accepted                = 1359
+  RENDER-CRF: 1195 PDUs, first-event delay min 18686 max 18690 mean 18688.0 cycles = 8.969..8.971 media ticks
+  RENDER-CRF: the law: 8 < d/T <= 9 (+64 cycles of registration slack); setpoint 8 events = 166.67 us
+  [ok]   RENDER-CRF: PDUs measured in the window                    = 1
+  [ok]   RENDER-CRF: every PDU's first event inside the law band    = 1195
+  [ok]   RENDER-CRF: the fill at accept is the setpoint for every PDU = 1195
+  [ok]   RENDER-CRF: one constant: spread within 2147 cycles        = 1
+  [ok]   RENDER-CRF: no rail inside the window                      = 0
+  [ok]   RENDER-CRF: no underrun inside the window                  = 0
+  [ok]   RENDER-CRF: the aligner stayed engaged                     = 1
+  [ok]   RENDER-CRF: converged                                      = 1
+
+[RENDER-RC-CRF] shift the cadence three ticks late, then early; a PHC adjtime recentres ONCE each
+  RENDER-RC-CRF: displaced 3 ticks late: 12 PDUs, delay min 12439 max 12440 cycles = 5.971..5.971 ticks
+  [ok]   RENDER-RC-CRF: the instrument sees the late displacement (fill at accept = setpoint -3) = 12
+  [ok]   RENDER-RC-CRF: ...and the delay left the law band (late)   = 0
+  [ok]   RENDER-RC-CRF: a three-tick displacement trips no rail (late) = 0
+  [ok]   RENDER-RC-CRF: the step reached the render stage as one pulse (late) = 1
+  [ok]   RENDER-RC-CRF: the recentre executed once (late)           = 1
+  [ok]   RENDER-RC-CRF: the recentre restored the law (fill at accept = setpoint) (late) = 13
+  [ok]   RENDER-RC-CRF: ...and the delay is back inside the band (late) = 13
+  [ok]   RENDER-RC-CRF: counted once, never again (late)            = 1
+  [ok]   RENDER-RC-CRF: no drift back: every later PDU at the setpoint (late) = 96
+  [ok]   RENDER-RC-CRF: no drift back: every later PDU inside the band (late) = 96
+  [ok]   RENDER-RC-CRF: the recentre is not a rail (late)           = 0
+  RENDER-RC-CRF: displaced 3 ticks early: 13 PDUs, delay min 24939 max 24940 cycles = 11.971..11.971 ticks
+  [ok]   RENDER-RC-CRF: the instrument sees the early displacement (fill at accept = setpoint +3) = 13
+  [ok]   RENDER-RC-CRF: ...and the delay left the law band (early)  = 0
+  [ok]   RENDER-RC-CRF: a three-tick displacement trips no rail (early) = 0
+  [ok]   RENDER-RC-CRF: the step reached the render stage as one pulse (early) = 2
+  [ok]   RENDER-RC-CRF: the recentre executed once (early)          = 2
+  [ok]   RENDER-RC-CRF: the recentre restored the law (fill at accept = setpoint) (early) = 13
+  [ok]   RENDER-RC-CRF: ...and the delay is back inside the band (early) = 13
+  [ok]   RENDER-RC-CRF: counted once, never again (early)           = 2
+  [ok]   RENDER-RC-CRF: no drift back: every later PDU at the setpoint (early) = 96
+  [ok]   RENDER-RC-CRF: no drift back: every later PDU inside the band (early) = 96
+  [ok]   RENDER-RC-CRF: the recentre is not a rail (early)          = 0
+
+[RING-CRF] under CRF the ring's push (the physical grid) and pop (the aligned packet grid) are one grid
+  [ok]   RING-CRF: the align loop is engaged                        = 1
+  restart PDU landed 1937 cycles after a tick (aim 1938, band 1875..2000)
+  [ok]   RING-CRF: the restart PDU landed inside the aimed band     = 1
+  ring over the same 23732571-cycle window: 0 dup, 0 skip (first dup at -1); TDM junction 0 dup, 0 skip
+  align-loop phase error at the window's end: 2 cycles
+  [ok]   RING-CRF: zero ring dups over the window that exposed -10.64 ppm at INTERNAL = 0
+  [ok]   RING-CRF: zero ring skips                                  = 0
+  [ok]   RING-CRF: zero TDM junction slips over the same window     = 0
+  [ok]   RING-CRF: the align loop stayed engaged                    = 1
+  [ok]   RING-CRF: SLIP_LB still reads its tap under lock           = 786556
+  [ok]   RING-CRF: SLIP_TDM still reads its tap under lock          = 131073
+  [ok]   CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison     = 0
+  [ok]   CHMAP_SNAP valid: a snapshot completed behind that word    = 1
+  [ok]   RING-CRF: CHMAP_LOOP {mask_valid, valid, fed}              = 7
+
+[RENDER-LIVE] the running feed moved past a tick (the grid moved earlier): one event off, no recovery
+  RENDER-LIVE: accept phase 0.095 tick; the feed moves 0.395 ticks later
+  [ok]   RENDER-LIVE: the stream sat at the setpoint before the move = 17
+  RENDER-LIVE: moved: 12 PDUs, delay min 16041 max 16042 cycles = 7.700..7.700 ticks
+  [ok]   RENDER-LIVE: the fill at accept is one event short for every PDU = 12
+  [ok]   RENDER-LIVE: ...and the delay left the law band            = 0
+  [ok]   RENDER-LIVE: one event off trips no rail                   = 0
+  [ok]   RENDER-LIVE: nothing recentred it                          = 0
+  [ok]   RENDER-LIVE: the move left the convergence verdict as it was = 1
+
+[MR] the received mr toggle reaches our streams - only under CRF
+  [ok]   MR baseline: our CRF output is emitting                    = 2
+  [ok]   MR: our outgoing mr FLIPPED on the received toggle (CRF selected) = 1
+  [ok]   MR: deselect resolves back                                 = 0
+  [ok]   MR: the source change itself toggles mr (4.4.4.3)          = 0
+  [ok]   MR: the received toggle does NOT echo at INTERNAL (10.4.3) = 0
+  [ok]   MR: align loop disengaged again at INTERNAL                = 0
+
+[RENDER-LIVE-INT] the deselect under the running stream: one recentre after the dwell
+  [ok]   RENDER-LIVE-INT: the source change fired the settled-grid trigger once = 1
+  [ok]   RENDER-LIVE-INT: ...as one recentre pulse                  = 1
+  [ok]   RENDER-LIVE-INT: the recentre executed once                = 1
+  RENDER-LIVE-INT: 96 PDUs, first-event delay min 18017 max 18030 mean 18023.5 cycles = 8.648..8.654 media ticks
+  RENDER-LIVE-INT: the law: 8 < d/T <= 9 (+64 cycles of registration slack); setpoint 8 events = 166.67 us
+  [ok]   RENDER-LIVE-INT: PDUs measured in the window               = 1
+  [ok]   RENDER-LIVE-INT: every PDU's first event inside the law band = 96
+  [ok]   RENDER-LIVE-INT: the fill at accept is the setpoint for every PDU = 96
+  [ok]   RENDER-LIVE-INT: one constant: spread within 2147 cycles   = 1
+  [ok]   RENDER-LIVE-INT: no rail                                   = 0
+  [ok]   RENDER-LIVE-INT: counted once, never again                 = 1
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: rail mirrors taps                              = 65550
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 65550
+  [ok]   RENDER-CSR: rail event reached the word                    = 1
+  [ok]   RENDER-CSR: rail cleared convergence                       = 0
+  [ok]   RENDER-CSR: talker selection reads zero                    = 0
+  [ok]   RENDER-CSR: bit 9 preserves talker rejection               = 0
+  [ok]   RENDER-CSR: out-of-range listener reads zero               = 0
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: bit 9 with listener 0 mirrors taps             = 65550
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 65550
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: write ignored mirrors taps                     = 65550
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 65550
+
+----------------------------------------------------------------------
+media_aclk: 189 checks, 0 failures
+RESULT: PASS
+make: Leaving directory '$LANES/443-render-csr/tb/verilator/milan_dp'
