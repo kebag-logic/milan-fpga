@@ -1,0 +1,453 @@
+test_compiler_environment_and_arguments (test_fixture_guards.CompilerLocaleTest.test_compiler_environment_and_arguments)
+main() passes every argument through and sets LC_ALL=C for the compiler only. ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+OK
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:412:8: Instance pin connected by name with empty reference: 'aecp_cur_config_o'
+  412 |       .aecp_cur_config_o     (),
+      |        ^~~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:413:8: Instance pin connected by name with empty reference: 'aecp_identify_o'
+  413 |       .aecp_identify_o       (),
+      |        ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:414:8: Instance pin connected by name with empty reference: 'aecp_clk_src_index_o'
+  414 |       .aecp_clk_src_index_o  (),
+      |        ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:422:8: Instance pin connected by name with empty reference: 'aecp_dyn_dirty_o'
+  422 |       .aecp_dyn_dirty_o      (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_tk_decl_state_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:515:42: ... Location of port declaration
+  515 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_tk_decl_state_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_lstn_reg_state_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:516:42: ... Location of port declaration
+  516 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,     
+      |                                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_active_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:520:42: ... Location of port declaration
+  520 |     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+      |                                          ^~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_sr_admitted_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:526:42: ... Location of port declaration
+  526 |     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_granted_slope_bps_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:527:42: ... Location of port declaration
+  527 |     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o,  
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_src_fail_code_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:528:42: ... Location of port declaration
+  528 |     output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_src_fail_bridge_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:529:42: ... Location of port declaration
+  529 |     output logic [N_STREAM_OUT_P*64-1:0] srp_src_fail_bridge_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_sum_slope_bps_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:530:42: ... Location of port declaration
+  530 |     output logic [31:0]                  srp_sum_slope_bps_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_over_limit_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:531:42: ... Location of port declaration
+  531 |     output logic                         srp_over_limit_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_tk_reg_state_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:532:42: ... Location of port declaration
+  532 |     output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,       
+      |                                          ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_lstn_decl_state_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:533:42: ... Location of port declaration
+  533 |     output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_acc_latency_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:534:42: ... Location of port declaration
+  534 |     output logic [N_STREAM_IN_P*32-1:0]  srp_acc_latency_o,        
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_snk_fail_code_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:535:42: ... Location of port declaration
+  535 |     output logic [N_STREAM_IN_P*8-1:0]   srp_snk_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'acmp_bound_eid_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:548:42: ... Location of port declaration
+  548 |     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_eid_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'acmp_bound_sid_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:554:42: ... Location of port declaration
+  554 |     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_sid_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'acmp_bound_dmac_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:555:42: ... Location of port declaration
+  555 |     output logic [N_STREAM_IN_P*48-1:0]  acmp_bound_dmac_o,        
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'acmp_bound_vlan_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:556:42: ... Location of port declaration
+  556 |     output logic [N_STREAM_IN_P*12-1:0]  acmp_bound_vlan_o,        
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'adp_next_avail_index_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:564:42: ... Location of port declaration
+  564 |     output logic [31:0]                  adp_next_avail_index_o,   
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 15.273 MB sources in 48 modules, into 5.904 MB in 12 C++ files needing 0.002 MB
+- Verilator: Walltime 1.310 s (elab=0.130, cvt=0.962, bld=0.000); cpu 1.395 s on 16 threads; allocated 883.934 MB
+fixture guard default (no override): compiles
+fixture guard 5A3C: compiles
+fixture guard 0002: refused: SRP VID fixture must differ from product default 2 in the 16-bit wire value; SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+fixture guard 1002: refused: SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+fixture guards: 4 cases PASS
+python3 ../../hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 80 programs
+<pinned-tool-bin>/verilator --cc --exe --build -j 0 --top-module pp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/adp/pp_adp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_rx_validator.sv ../../hdl/packet_engine/KL_pp_rx_slots.sv ../../hdl/packet_engine/KL_pp_normalizer.sv ../../hdl/packet_engine/KL_pp_dispatch.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/packet_engine/KL_pp_release_merge.sv ../../hdl/packet_engine/KL_pp_tx_arbiter.sv ../../hdl/packet_engine/KL_pp_scoreboard.sv ../../hdl/packet_engine/KL_pp_event_router.sv ../../hdl/packet_engine/KL_pp_originator.sv ../../hdl/packet_engine/KL_pp_trace_ring.sv ../../hdl/packet_engine/KL_pp_side_port.sv ../../hdl/packet_engine/KL_pp_nvm_port.sv ../../hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../hdl/aecp/ucpu_pkg.sv ../../hdl/aecp/KL_aecp_ucpu.sv ../../hdl/aecp/KL_aecp_desc_mem_guard.sv ../../hdl/aecp/KL_aecp_desc_store.sv ../../hdl/aecp/KL_aecp_dyn_state.sv ../../hdl/aecp/KL_aecp_engine.sv ../../hdl/aecp/KL_aecp_resp_buf.sv ../../hdl/aecp/KL_aecp_notify.sv ../../hdl/aecp/KL_aecp_ca_originator.sv ../../hdl/adp/KL_adp_engine.sv ../../hdl/acmp/KL_pp_acmp_listener.sv ../../hdl/acmp/KL_acmp_talker.sv ../../hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../hdl/acmp/KL_acmp_nvm_shadow.sv ../../hdl/maap/KL_pp_maap.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv ../../hdl/top/KL_mrp_strip.sv ../../hdl/top/protocol_processor_top.sv pp_top_wrap.sv sim_main.cpp -o Vpp_top_sim
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:412:8: Instance pin connected by name with empty reference: 'aecp_cur_config_o'
+  412 |       .aecp_cur_config_o     (),
+      |        ^~~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:413:8: Instance pin connected by name with empty reference: 'aecp_identify_o'
+  413 |       .aecp_identify_o       (),
+      |        ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:414:8: Instance pin connected by name with empty reference: 'aecp_clk_src_index_o'
+  414 |       .aecp_clk_src_index_o  (),
+      |        ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:422:8: Instance pin connected by name with empty reference: 'aecp_dyn_dirty_o'
+  422 |       .aecp_dyn_dirty_o      (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_tk_decl_state_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:515:42: ... Location of port declaration
+  515 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_tk_decl_state_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_lstn_reg_state_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:516:42: ... Location of port declaration
+  516 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,     
+      |                                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_active_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:520:42: ... Location of port declaration
+  520 |     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+      |                                          ^~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_sr_admitted_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:526:42: ... Location of port declaration
+  526 |     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_granted_slope_bps_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:527:42: ... Location of port declaration
+  527 |     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o,  
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_src_fail_code_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:528:42: ... Location of port declaration
+  528 |     output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_src_fail_bridge_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:529:42: ... Location of port declaration
+  529 |     output logic [N_STREAM_OUT_P*64-1:0] srp_src_fail_bridge_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_sum_slope_bps_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:530:42: ... Location of port declaration
+  530 |     output logic [31:0]                  srp_sum_slope_bps_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_over_limit_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:531:42: ... Location of port declaration
+  531 |     output logic                         srp_over_limit_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_tk_reg_state_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:532:42: ... Location of port declaration
+  532 |     output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,       
+      |                                          ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_lstn_decl_state_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:533:42: ... Location of port declaration
+  533 |     output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_acc_latency_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:534:42: ... Location of port declaration
+  534 |     output logic [N_STREAM_IN_P*32-1:0]  srp_acc_latency_o,        
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_snk_fail_code_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:535:42: ... Location of port declaration
+  535 |     output logic [N_STREAM_IN_P*8-1:0]   srp_snk_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'acmp_bound_eid_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:548:42: ... Location of port declaration
+  548 |     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_eid_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'acmp_bound_sid_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:554:42: ... Location of port declaration
+  554 |     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_sid_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'acmp_bound_dmac_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:555:42: ... Location of port declaration
+  555 |     output logic [N_STREAM_IN_P*48-1:0]  acmp_bound_dmac_o,        
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'acmp_bound_vlan_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:556:42: ... Location of port declaration
+  556 |     output logic [N_STREAM_IN_P*12-1:0]  acmp_bound_vlan_o,        
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'adp_next_avail_index_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:564:42: ... Location of port declaration
+  564 |     output logic [31:0]                  adp_next_avail_index_o,   
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+make[1]: Entering directory '<packet>/scratch/author-05fd9e1/tb/pp_top/obj_dir'
+g++  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -c -o verilated.o <container-overlay>/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -c -o verilated_dpi.o <container-overlay>/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -c -o verilated_threads.o <container-overlay>/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -x c++-header Vpp_top_wrap__pch.h -o Vpp_top_wrap__pch.h.fast.gch
+g++   -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -x c++-header Vpp_top_wrap__pch.h -o Vpp_top_wrap__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__0.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__1.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__2.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__3.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__4.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap__Dpi.cpp
+g++   -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__Slow.cpp
+g++   -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__0__Slow.cpp
+g++   -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__1__Slow.cpp
+g++   -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap__Syms__Slow.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vpp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpp_top_sim
+rm Vpp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<packet>/scratch/author-05fd9e1/tb/pp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 15.273 MB sources in 48 modules, into 5.904 MB in 12 C++ files needing 0.002 MB
+- Verilator: Walltime 12.420 s (elab=0.125, cvt=0.969, bld=11.128); cpu 1.360 s on 16 threads; allocated 1203.930 MB
+./obj_dir/Vpp_top_sim
+  [B4] command byte 0 -> response byte 0: 2363 clocks (0.024 % of the 10,000,000-clock AECP budget)
+  [B4b] at 143 clocks (~1424 ns) per access: 7523 clocks for a 316-byte payload over 40 lane writes (0.075 % of budget)
+[build default, SRP_DOM_DEF_VID_P 0x0002] 1946 checks, 0 failures
+<pinned-tool-bin>/verilator --cc --exe --build -j 0 --top-module pp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra" "+define+PP_TOP_SRP_DOM_DEF_VID=16'h5A3C" \
+    -CFLAGS "-DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra" \
+    --Mdir obj_vid ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/adp/pp_adp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_rx_validator.sv ../../hdl/packet_engine/KL_pp_rx_slots.sv ../../hdl/packet_engine/KL_pp_normalizer.sv ../../hdl/packet_engine/KL_pp_dispatch.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/packet_engine/KL_pp_release_merge.sv ../../hdl/packet_engine/KL_pp_tx_arbiter.sv ../../hdl/packet_engine/KL_pp_scoreboard.sv ../../hdl/packet_engine/KL_pp_event_router.sv ../../hdl/packet_engine/KL_pp_originator.sv ../../hdl/packet_engine/KL_pp_trace_ring.sv ../../hdl/packet_engine/KL_pp_side_port.sv ../../hdl/packet_engine/KL_pp_nvm_port.sv ../../hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../hdl/aecp/ucpu_pkg.sv ../../hdl/aecp/KL_aecp_ucpu.sv ../../hdl/aecp/KL_aecp_desc_mem_guard.sv ../../hdl/aecp/KL_aecp_desc_store.sv ../../hdl/aecp/KL_aecp_dyn_state.sv ../../hdl/aecp/KL_aecp_engine.sv ../../hdl/aecp/KL_aecp_resp_buf.sv ../../hdl/aecp/KL_aecp_notify.sv ../../hdl/aecp/KL_aecp_ca_originator.sv ../../hdl/adp/KL_adp_engine.sv ../../hdl/acmp/KL_pp_acmp_listener.sv ../../hdl/acmp/KL_acmp_talker.sv ../../hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../hdl/acmp/KL_acmp_nvm_shadow.sv ../../hdl/maap/KL_pp_maap.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv ../../hdl/top/KL_mrp_strip.sv ../../hdl/top/protocol_processor_top.sv pp_top_wrap.sv sim_main.cpp -o Vpp_top_vid
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:412:8: Instance pin connected by name with empty reference: 'aecp_cur_config_o'
+  412 |       .aecp_cur_config_o     (),
+      |        ^~~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:413:8: Instance pin connected by name with empty reference: 'aecp_identify_o'
+  413 |       .aecp_identify_o       (),
+      |        ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:414:8: Instance pin connected by name with empty reference: 'aecp_clk_src_index_o'
+  414 |       .aecp_clk_src_index_o  (),
+      |        ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:422:8: Instance pin connected by name with empty reference: 'aecp_dyn_dirty_o'
+  422 |       .aecp_dyn_dirty_o      (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_tk_decl_state_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:515:42: ... Location of port declaration
+  515 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_tk_decl_state_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_lstn_reg_state_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:516:42: ... Location of port declaration
+  516 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,     
+      |                                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_active_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:520:42: ... Location of port declaration
+  520 |     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+      |                                          ^~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_sr_admitted_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:526:42: ... Location of port declaration
+  526 |     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_granted_slope_bps_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:527:42: ... Location of port declaration
+  527 |     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o,  
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_src_fail_code_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:528:42: ... Location of port declaration
+  528 |     output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_src_fail_bridge_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:529:42: ... Location of port declaration
+  529 |     output logic [N_STREAM_OUT_P*64-1:0] srp_src_fail_bridge_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_sum_slope_bps_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:530:42: ... Location of port declaration
+  530 |     output logic [31:0]                  srp_sum_slope_bps_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_over_limit_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:531:42: ... Location of port declaration
+  531 |     output logic                         srp_over_limit_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_tk_reg_state_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:532:42: ... Location of port declaration
+  532 |     output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,       
+      |                                          ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_lstn_decl_state_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:533:42: ... Location of port declaration
+  533 |     output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_acc_latency_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:534:42: ... Location of port declaration
+  534 |     output logic [N_STREAM_IN_P*32-1:0]  srp_acc_latency_o,        
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'srp_snk_fail_code_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:535:42: ... Location of port declaration
+  535 |     output logic [N_STREAM_IN_P*8-1:0]   srp_snk_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'acmp_bound_eid_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:548:42: ... Location of port declaration
+  548 |     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_eid_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'acmp_bound_sid_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:554:42: ... Location of port declaration
+  554 |     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_sid_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'acmp_bound_dmac_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:555:42: ... Location of port declaration
+  555 |     output logic [N_STREAM_IN_P*48-1:0]  acmp_bound_dmac_o,        
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'acmp_bound_vlan_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:556:42: ... Location of port declaration
+  556 |     output logic [N_STREAM_IN_P*12-1:0]  acmp_bound_vlan_o,        
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:366:5: Instance has missing pin: 'adp_next_avail_index_o'
+  366 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:564:42: ... Location of port declaration
+  564 |     output logic [31:0]                  adp_next_avail_index_o,   
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+make[1]: Entering directory '<packet>/scratch/author-05fd9e1/tb/pp_top/obj_vid'
+g++  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -c -o verilated.o <container-overlay>/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -c -o verilated_dpi.o <container-overlay>/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -c -o verilated_threads.o <container-overlay>/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -x c++-header Vpp_top_wrap__pch.h -o Vpp_top_wrap__pch.h.fast.gch
+g++   -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -x c++-header Vpp_top_wrap__pch.h -o Vpp_top_wrap__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__0.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__1.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__2.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__3.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__4.cpp
+g++ -Os  -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap__Dpi.cpp
+g++   -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__Slow.cpp
+g++   -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__0__Slow.cpp
+g++   -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__1__Slow.cpp
+g++   -I.  -MMD -I<container-overlay>/usr/share/verilator/include -I<container-overlay>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/author-05fd9e1/tb/pp_top -Wall -Wextra -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap__Syms__Slow.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vpp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpp_top_vid
+rm Vpp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<packet>/scratch/author-05fd9e1/tb/pp_top/obj_vid'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 15.273 MB sources in 48 modules, into 5.904 MB in 12 C++ files needing 0.002 MB
+- Verilator: Walltime 12.117 s (elab=0.129, cvt=0.946, bld=10.836); cpu 1.352 s on 16 threads; allocated 1075.930 MB
+./obj_vid/Vpp_top_vid
+[build fixture, SRP_DOM_DEF_VID_P 0x5a3c] 20 checks, 0 failures
+1966 checks: 1966 PASS, 0 FAIL
+exit=0

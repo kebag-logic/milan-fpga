@@ -1,0 +1,229 @@
+[R319] NEGATIVE - exact head b51bc3893b06f4d39be49726c1b8f4ed6c65573d
+
+# R319-1 external independent review: processor PR #118 / issue #77 (closes #55, #56, #77; processor side of milan-fpga #510)
+
+- Repository: Mister-M-alt/protocol-processor-control-plane-avb-milan, PR #118, branch `510-mvu-waiver`
+- Exact head: `b51bc3893b06f4d39be49726c1b8f4ed6c65573d`, tree `aca3aeea278c88cc1fca5495ea6e74eea6794d35`
+- Source base: `265d6762a58d9d9e545624d6d3f1a34e7006d171`. Author commit `05fd9e1b2390e7cb0c704c07cd3d9ec47ecd0a19`. The head is a merge of main `990f96526bb89356c963a260ebbdcf2a77e6623a` (PR #115) into it.
+- Reviewer role: external, cleared context, isolated detached clone. There were no source edits, commits, pushes or GitHub writes.
+
+## Verdict
+
+The October waiver itself is correct and consistently recorded:
+- The Milan wording checks out.
+- The waived command responses are pinned byte-exact, and every SUCCESS mutant is rejected.
+- There is no RTL change.
+- The merge reproduces cleanly.
+
+One MINOR finding remains open. The merge of main made the new `tb/pp_top/README.md` evidence section quote a suite total and mutation denominators that are false at this head. That leaves the Tests and Docs lenses UNCLEAN, so the verdict is NEGATIVE. The fix is limited to documentation.
+
+## Scope reconstructed (public sources, in order)
+
+1. **Repository conventions.** There is no `AGENTS.md` or `CONTRIBUTING.md` at this head; `git ls-files` lists 246 files and neither is among them. I read `README.md`, `docs/README.md` and `Makefile` instead. They set the single-source rules: F01.5 is the only home for parameter values, and 01 §7 is the P-ID registry. They also require `make check` to pass before a commit.
+2. **Issue #77.** Body and both comments: the assignment (5823862684) and REVIEW READY (5824183596). The assignment narrows scope to waiver items 1–4. #77's original acceptance allows "F01.5 and F00.2 are corrected to the shipped state" as the alternative to implementation.
+3. **Issues #55, #56 and #57.** Each of #55 and #56 accepts "06 §6.9 and the REQ row record the waiver" as a closure. #57 (timing) stays out of scope.
+4. **milan-fpga #510.** Body plus the owner decision 5789766089 (2026-09-23): both pairs are RECOMMENDED, not implemented for October, with P4 #416 if the lab requires them. Also comment 5801832005, where the parent half records FR-MVU-02 as SHOULD and a known-conflict row for the processor's F01.5.
+5. **PR #118.** Body, and the two review-start notices (5824213406, 5824217183). There are no PR reviews or review comments.
+6. **Authority.** Milan v1.2 Consolidated, Final Approved 2023-11-30. Local copy sha256 `6bb902be…3bba8`, which matches the author's recorded fingerprint. Receipt: `receipts/spec-check.txt`.
+7. **Diff and history.** `git diff 265d676..b51bc38` and the per-commit history.
+8. **Public evidence.** Two sources:
+   - `kebag-logic/milan-fpga@e63b4124…/review-evidence/pp510-r1`. It contains only the author packet at `05fd9e1`, plus parent-consumer logs at local parent commit `65bc81ed`, which pins `05fd9e1`.
+   - Hosted check runs at the exact head.
+
+**Prior public review findings.** None exist on PR #118 or issue #77 for this round-1 head. The only review-related comments are the two start notices, so nothing is resolved or retained. I did not read the parallel internal review.
+
+## Findings
+
+### R319-1-F1: MINOR (Tests, Docs). The waiver's mutation evidence quotes pre-merge counts at the merged head
+
+- **Location:** `tb/pp_top/README.md:496-515`, section "October MVU waiver response mutation (2026-09-25)".
+  - `:500` says: "The unmodified `make -C tb/pp_top run` passes **1,966 checks**: 1,946 in the default build … plus 20".
+  - `:511` says: "197 of 1,946 default-build checks fail".
+  - `:512` says: "3 of 1,946 default-build checks fail".
+- **Authority:**
+  - The README's own convention at `tb/pp_top/README.md:360-380`: record the suite size a mutation was measured at, and "re-run a mutation before quoting its blast radius".
+  - The assignment's requirement that the merge of main compose cleanly in `tb/pp_top/README.md` and `sim_main.cpp`.
+- **Evidence:** the figures were true at the author commit. The merge of main (PR #115's GI latency walks, 5,568 checks, plus other additions) made them false at the published head. The text merged without conflict, but the facts did not survive.
+
+  | Run | Default build | Fixture build | Total | Receipt |
+  |---|---|---|---|---|
+  | Reviewer, author commit `05fd9e1` | 1,946 | 20 | 1,966 | `receipts/pp_top-author-05fd9e1-run.log` |
+  | Reviewer, exact head `b51bc38` | 7,640 | 20 | 7,660 | `receipts/pp_top-head-run.log` |
+  | Hosted `suites` job at exact head | — | — | `pp_top (7660 checks …)` | `receipts/hosted-ci.txt` |
+
+  At this head the reviewer's ROM swaps give:
+  - word 560 SUCCESS mutant: 197 of 7,640 fail;
+  - word 741 features mutant: 3 of 7,640 fail.
+
+  Receipts: `receipts/probes/rom-*.log`.
+- **Impact:** a reader running the documented reproduction at this head gets 7,660 checks and 7,640 default-build checks, not the quoted 1,966 and 1,946. The mutation denominators are also wrong. This is the stale-figure pattern the repository's CI comment warns about for the `nvm_port` figures. The kill claims themselves still hold: M4 gives 10 failures, and every length/cdl check passes.
+- **Required outcome:** do one of the following in `tb/pp_top/README.md` §"October MVU waiver response mutation":
+  - state that the figures were measured at `05fd9e1`, before main was merged; or
+  - re-measure at the final head and quote those numbers. At this head that is 7,660 total (7,640 default + 20 fixture), 197 of 7,640, and 3 of 7,640.
+- **Verification:** `make -C tb/pp_top run` prints the quoted total. Running the two ROM swaps against the rebuilt default binary reproduces the quoted denominators and failure sets. Example: `scripts/probes.sh base rom-notimpl-success rom-features-3`.
+
+### R319-1-S1: SUGGESTION (Conformance, Docs). Record the rest of Milan's recommendation note and a revision trigger
+
+- **Location:** `docs/architecture/06_aecp_engine.md:619-630` and `docs/00_MILAN_COMPLIANCE_REVIEW.md:116-119, 380-381`.
+- **Issue:** the quoted note stops after its first sentence. Each of the five notes (5.4.4.2 to 5.4.4.5 and 7.6) goes on: "This recommendation will become a requirement in a future revision of this specification." The only revisit trigger recorded is "if the conformance lab requires it".
+- **Suggestion:** add that sentence, and add "a Milan revision that makes it mandatory" as a second trigger. Not blocking, because the owner decision is limited to the October release.
+
+### R319-1-S2: SUGGESTION (Docs). The last phantom P-ID in 06 §11
+
+- **Location:** `docs/architecture/06_aecp_engine.md:1240`.
+- **Issue:** this line still lists `P-EN-TALKER-DYN-MAPPINGS-RUNNING`. The PR removed its only other reference (the old §6.9 GET_MILAN_INFO row). It is not an F01.5 P-ID: F01.5 carries `MILAN_FEATURES_FLAGS.TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING` as a microcode constant, and 06 §8.1 says the same. It is the same kind of phantom this PR reconciled for SUID/MCR.
+- **Suggestion:** replace it with the F01.5 row name. This predates the PR and is outside #77's acceptance.
+
+### R319-1-S3: SUGGESTION (Tests, Robustness). Grade the documented no-lock-check behaviour
+
+- **Location:** `docs/architecture/06_aecp_engine.md:615` states: "The waived MVU SETs (§6.9) take the unsupported-command path without a lock check".
+- **Issue:** no suite grades this. The reviewer's additive probe (`rtl-lock-probe`) confirms it holds, with 4 added checks passing and the suite green at 7,644. The probe does four things:
+  - takes a LOCK_ENTITY from controller 1;
+  - sends SET_SYSTEM_UNIQUE_ID from controller 2 and receives the byte-exact NOT_IMPLEMENTED echo, not ENTITY_LOCKED;
+  - does the same for SET_MEDIA_CLOCK_REFERENCE_INFO;
+  - unlocks.
+- **Suggestion:** a permanent M4 arm would pin the statement.
+
+## Five-lens evidence
+
+### Conformance: CLEAN
+
+**Clause wording.** 5.4.4.2, .3, .4, .5 and 7.6 each open with "Note: Support for this feature is a recommendation for Milan compliant PAADs." Five occurrences at extraction lines 3331, 3384, 3397, 3499 and 6026.
+
+**Printed pages.** The page footers put 5.4.4.2 on p.58 and 5.4.4.3/.4 on p.59, with 5.4.4.4's figure running onto p.60. 5.4.4.5 is on p.61 and 7.6 on p.115. The docs' "pp. 58–61" and "p. 115" are correct.
+
+**Status and flags.**
+- Table 5.19: status 1 is NOT_IMPLEMENTED, "The PAAD-AE does not support the command type".
+- Table 5.20 defines only REDUNDANCY (0x1) and TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING (0x2).
+- So "features_flags advertises neither pair and is not a command-support bitmap" is correct.
+
+**Command lengths, from Figures 5.3, 5.5, 5.6 and 5.7.**
+
+| Command | Form | AECPDU bytes | cdl | Frame bytes |
+|---|---|---|---|---|
+| SET_SYSTEM_UNIQUE_ID | u64 at @32 | 40 | 28 | 60 |
+| GET_SYSTEM_UNIQUE_ID | short Figure 5.3 form | 32 | 20 | 60 |
+| SET_MEDIA_CLOCK_REFERENCE_INFO | flags @32, prios @34/@35, name @40..@103 | 104 | 92 | 118 |
+| GET_MEDIA_CLOCK_REFERENCE_INFO | short Figure 5.7 form | 32 | 20 | 60 |
+
+These match 06 §6.9's table, F06.14 and M4.
+
+**Waiver record is consistent across every artifact:**
+- 06 §6.9 and F06.14 (`:193-194`);
+- 00 GAP-03 (`:107-126`), F00.2 (`:479`) and the note (`:499-500`);
+- REQ-MVU-003 and REQ-MVU-004 (`:380-381`);
+- §8 item 4 (`:509`);
+- F01.5 (`01_overview.md:173`) and `:151`;
+- 02 (`:51`, `:360`), 03 (`:204`) and 07 (`:273-274`, `:358-361`, `:369-370`, `:461-464`).
+
+Each cites the owner decision and the Milan clauses and says "not implemented" or "deferred".
+
+**No MUST or implemented wording remains.** A repository-wide search for `SYSTEM_UNIQUE`, `MEDIA_CLOCK_REFERENCE`, `SUID`, `MCR`, `mcr_prio`, `GET_MCR` and `P-EN-MVU` found no remaining support claim. The F07.8 NVM WaveDrom still names `SUID`/`MCR[d]` groups, and `07:369` explicitly qualifies them as reserved design groups.
+
+**P-EN-MVU-SUID and P-EN-MVU-MCR.** F01.5 marks both "n/a; reserved names; neither is an RTL parameter". A search of `hdl/` finds no `EN_MVU`, `SUID` or `MCR` parameter. 06 §11 no longer lists them as engine parameters.
+
+**Existing GET_MILAN_INFO behaviour is unchanged.** It is SUCCESS, cdl 32, protocol_version 1, features 0, certification 0.
+
+### RTL: CLEAN
+
+- **No RTL, microcode, synthesis, script or CI change.** `git diff-tree` finds no paths under `hdl`, `syn`, `scripts`, `.github` or `Makefile` in either `265d676..05fd9e1` or `990f965..b51bc38`. Receipt: `receipts/merge-and-scope.txt`.
+- **The merge carries no authored content.** `git merge-tree --write-tree 05fd9e1 990f965` reproduces `aca3aee` exactly. The changed lines per file between `265d676..05fd9e1` and `990f965..b51bc38` are identical for all 8 files.
+- **The documented behaviour matches the engine** (`hdl/aecp/KL_aecp_engine.sv`):
+  - `:1290-1296`: MVU re-dispatch happens only for protocol_id 00-1B-C5-0A-C1-00, r=0 and command_type 0x0000, with a payload of at least 8 bytes.
+  - `:2827-2830`: everything else keeps `echo_r` / `UPC_NOTIMPL_C`.
+  - `E_NOTIMPL` (`gen_ucode.py:567-572`) is `SET_STATUS NIMPL; BUILD_HDR; SEND_RESP` with no `CHECK_LOCK`. That matches 06 `:615`.
+  - `E_MVUINFO+5` is `MOVE r6, MILAN_FEATURES_FLAGS`, which is 0.
+- **Gates with the pinned Verilator 5.050:**
+  - `scripts/check_upc_map.py` PASS (56 constants, 80 entry points);
+  - `scripts/lint_hdl.sh` exit 0;
+  - `tb/ucpu` 386/386.
+  - Receipts: `receipts/upc-lint.log`, `receipts/ucpu-head.log`.
+
+### Robustness: CLEAN
+
+These are the reviewer's own disposable probes, each run in its own `git archive` extract with the default build (`scripts/probes.sh`). The clone was never edited.
+
+| Probe | Change | Result |
+|---|---|---|
+| `rtl-mvu-range` | MVU sub-decode serves GET_MILAN_INFO for every command_type 0x0000..0x0007 (a "partial implementation answers SUCCESS") | exit 1; 16 failures, all M4. All five types fail on type/status, cdl and byte-exact; 0x0003 also fails frame length (60 vs 118) |
+| `rtl-mvu-0003` | only the 104-byte SET_MEDIA_CLOCK_REFERENCE_INFO is answered SUCCESS | exit 1; exactly the 4 M4 0x0003 checks fail. Each type is graded independently |
+| `rtl-bench-short-sets` | bench fault: the SETs are sent in the short 8-byte form | exit 1; the cdl and frame-length columns catch it (M4 0x0001 cdl; 0x0003 length and cdl). The table's expected lengths are independent of the payload actually sent |
+| `rtl-lock-probe` | additive bench only: foreign-controller SETs under LOCK_ENTITY | 4/4 new checks PASS; suite 7,644/0. The NOT_IMPLEMENTED echo, not ENTITY_LOCKED, as 06 `:615` states |
+
+### Tests: UNCLEAN (R319-1-F1)
+
+**M4 at `tb/pp_top/sim_main.cpp:2480` grades every requested property.** For each of 0x0001–0x0004 plus reserved 0x0005 it sends complete Milan command forms, with nonzero SET data. The two SETs use a nonzero SUID and flags=3, prio 0x5A and a name. For each response it then checks:
+- frame length;
+- message_type 7 with MVU status 1;
+- cdl 28/20/92/20/20;
+- the full byte-exact echo, with MACs reversed.
+
+M1/M2 pin features_flags = 0 decoded off the wire. #77 acceptance 4 is met: M4 no longer relies on a waived type for the generic refusal, because 0x0005 and M3 keep it covered.
+
+**Reviewer runs at the exact head, pinned Verilator 5.050:**
+- `make -C tb/pp_top run`: 7,660 PASS / 0 FAIL, exit 0. This includes the 4-case fixture-guard test.
+- SUCCESS mutant (word 560 `c00000000001` to `c00000000000`): exit 1, 197 of 7,640 fail. That is 10 M4 failures (status plus byte-exact for each type 0x0001–0x0005), with 0 M4 frame-length or cdl failures.
+- features_flags mutants 1, 2 and 3 (word 741): each exits 1 with exactly M1, M2 and M5b failing. So each Table 5.20 bit is pinned on its own.
+- The original ROM sha256 `236056…a7144` equals the generator output.
+
+**Open issue:** the evidence record quotes pre-merge denominators (F1).
+
+### Docs: UNCLEAN (R319-1-F1)
+
+**Documentation gates** (receipt `receipts/make-check-parts.log`):
+
+| Gate | Result |
+|---|---|
+| `make lint` | 41 mermaid + 18 wavedrom blocks OK |
+| `make wavedrom-check` | 18 blocks OK |
+| `make links` | 872 links OK |
+| `make matrix` | 115 REQ rows, 17 GAPs OK |
+| `make modmatrix` | 92 rows, 0 untested |
+| `make stale`, in the clone, read-only | exit 0 |
+
+Hosted `docs-gates` also succeeded at the exact head.
+
+**The merged README and `sim_main.cpp` compose textually:**
+- #115's GI paragraphs and mutation rows sit in section GI;
+- the waiver sits in section M and in the new section at `:496`;
+- `sim_main.cpp` gets #115's `gsi_fold_latency` hook, independent of M4.
+
+Their stated counts do not survive the merge (F1). S1 and S2 are optional.
+
+## Reviewer-owned ledger
+
+| Lens | Verdict | Examined artifacts | Covering round | Exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | Milan v1.2 5.4.3.3, 5.4.4.1–5.4.4.5, 7.6, Tables 5.18–5.21, Figures 5.3–5.7; 06 §6.9/F06.14/F06.11/§11; 00 GAP-03/F00.2/REQ-MVU-003/004/§8; 01 F01.5; 02; 03; 07 | R319-1 | b51bc3893b06f4d39be49726c1b8f4ed6c65573d |
+| RTL | CLEAN | path-scoped diff (no hdl/syn/scripts/CI change); merge-tree recompute; KL_aecp_engine.sv MVU decode; gen_ucode.py E_NOTIMPL/E_MVUINFO; upc map; lint; tb/ucpu | R319-1 | b51bc3893b06f4d39be49726c1b8f4ed6c65573d |
+| Robustness | CLEAN | 3 RTL/bench mutants plus the foreign-lock probe (`scripts/probes.sh`, `receipts/probes/`) | R319-1 | b51bc3893b06f4d39be49726c1b8f4ed6c65573d |
+| Tests | UNCLEAN (F1) | tb/pp_top M1–M5/M4 source; reviewer pp_top runs at head and at 05fd9e1; 4 ROM mutants; hosted suites job | R319-1 | b51bc3893b06f4d39be49726c1b8f4ed6c65573d |
+| Docs | UNCLEAN (F1) | tb/pp_top/README.md sections M, GI and :496-515; `make` doc subgates; residue search across the tree | R319-1 | b51bc3893b06f4d39be49726c1b8f4ed6c65573d |
+
+**Clone integrity after probes** (`receipts/clone-integrity.txt`):
+- HEAD and the index `write-tree` both equal `aca3aee`;
+- `status --porcelain --ignored` is empty;
+- all 246 tracked blobs were re-hashed, with 0 content or mode mismatches;
+- there are 0 gitlinks and no `.gitmodules` at this head, so no submodule pin applies.
+
+## Real limits
+
+- **Banks not run.** I did not run the full processor suite bank, Yosys portability, `nvm_port` figures or any parent gate, because they were not allowed. For those I rely on the hosted run at the exact head: push run 36074622718 and pull_request run 36074626074, with `docs-gates`, `suites` and `portability` all executed and successful and none skipped. The `suites` job reports 33 suites, 1,014,631 checks, 0 failing, with `pp_top` at 7,660.
+- **Public evidence is pre-merge.** The public evidence tree holds the author packet at `05fd9e1`, not a manager bank at `b51bc38`. I could not see exact-head manager evidence beyond the hosted checks.
+- **Parent consumer not verified at this head.** The parent-consumer evidence covers local parent commit `65bc81ed`, which pins `05fd9e1`. That commit is not public, and `508-pp-pin-adopt` is still at `35f0695` with gitlink `a8f8ce81`. I did not run parent checks.
+- **Probe coverage.** The probes used the default build only. The fixture build was not rebuilt per mutant. ROM swaps reused the head's default binary.
+- **Spec reading.** The spec was read from a text extraction of a local PDF that matches the recorded fingerprint. Page mapping comes from the extracted footers.
+- **No hardware.** Physical calibration was NOT RUN, and no hardware was used. Nothing here is hardware proof.
+
+## Pending manager duties
+
+1. Resolve F1. Documentation-only; no RTL.
+2. Correct the PR body's "normal top-level suite passes 1,966 checks" to match the final head. It is not a repository artifact.
+3. Build the final current-dev candidate: source base `265d676`, parent live dev `ffcbd33`. Rerun the parent consumer on the `508-pp-pin-adopt` branch against the head that is actually pinned, not `05fd9e1`, and retire the parent `SUBMODULES.md` known-conflict row for F01.5 when the pin moves.
+4. Own hosted and act acceptance. File the parent `aecp_response_contract.feature` follow-up noted in milan-fpga #510 comment 5801832005. Keep #57 (REQ-MVU-005 timing) open.
+
+## Receipts
+
+Every publishable file is listed in `MANIFEST.sha256`. `scripts/probes.sh` is portable: run it with `REPO`, `VERILATOR`, `SCRATCH` and `OUT` set.
+
+R319-1 FINISHED

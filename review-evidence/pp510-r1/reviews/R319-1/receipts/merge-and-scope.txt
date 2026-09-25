@@ -1,0 +1,36 @@
+## merge recompute
+git merge-tree --write-tree 05fd9e1 990f965 -> aca3aeea278c88cc1fca5495ea6e74eea6794d35
+HEAD^{tree} -> aca3aeea278c88cc1fca5495ea6e74eea6794d35
+HEAD parents -> 05fd9e1b2390e7cb0c704c07cd3d9ec47ecd0a19 990f96526bb89356c963a260ebbdcf2a77e6623a
+## author commit non-doc/tb paths (expect empty)
+## HEAD vs main 990f965 in hdl/syn/scripts/.github/Makefile (expect empty)
+## HEAD vs main 990f965 changed paths
+ docs/00_MILAN_COMPLIANCE_REVIEW.md    | 27 +++++++++++++++++++++------
+ docs/architecture/01_overview.md      |  4 ++--
+ docs/architecture/02_interfaces.md    |  4 ++--
+ docs/architecture/03_packet_engine.md |  2 +-
+ docs/architecture/06_aecp_engine.md   | 64 ++++++++++++++++++++++++++++++++++++++++++++++++++++++----------
+ docs/architecture/07_memory_maps.md   | 23 ++++++++++++++++-------
+ tb/pp_top/README.md                   | 38 +++++++++++++++++++++++++++++++++-----
+ tb/pp_top/sim_main.cpp                | 67 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-------------
+ 8 files changed, 183 insertions(+), 46 deletions(-)
+## author diff vs merge-side diff equality per file
+docs/00_MILAN_COMPLIANCE_REVIEW.md author=9243f6a7e2468be1 merged=9243f6a7e2468be1 SAME-HUNKS
+docs/architecture/01_overview.md author=3530790574184720 merged=3530790574184720 SAME-HUNKS
+docs/architecture/02_interfaces.md author=c224a1b7997bf51f merged=c224a1b7997bf51f SAME-HUNKS
+docs/architecture/03_packet_engine.md author=04e9a434e4b30e76 merged=04e9a434e4b30e76 SAME-HUNKS
+docs/architecture/06_aecp_engine.md author=f8cb4e431572312a merged=f8cb4e431572312a SAME-HUNKS
+docs/architecture/07_memory_maps.md author=58fcbd9d7ef23c14 merged=58fcbd9d7ef23c14 SAME-HUNKS
+tb/pp_top/README.md author=b3f4ec802a940db0 merged=b3f4ec802a940db0 SAME-HUNKS
+tb/pp_top/sim_main.cpp author=a4e2cd30e9ffe74e merged=a4e2cd30e9ffe74e SAME-HUNKS
+## plumbing re-check (git diff-tree -p): changed +/- lines, author 265d676..05fd9e1 vs merged 990f965..HEAD
+docs/00_MILAN_COMPLIANCE_REVIEW.md 27 27 IDENTICAL
+docs/architecture/01_overview.md 4 4 IDENTICAL
+docs/architecture/02_interfaces.md 4 4 IDENTICAL
+docs/architecture/03_packet_engine.md 2 2 IDENTICAL
+docs/architecture/06_aecp_engine.md 64 64 IDENTICAL
+docs/architecture/07_memory_maps.md 23 23 IDENTICAL
+tb/pp_top/README.md 38 38 IDENTICAL
+tb/pp_top/sim_main.cpp 67 67 IDENTICAL
+non-doc/tb paths 265d6762a .. 05fd9e1b2 : none
+non-doc/tb paths 990f96526 .. b51bc3893 : none
