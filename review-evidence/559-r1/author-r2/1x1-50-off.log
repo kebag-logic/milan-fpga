@@ -1,0 +1,1633 @@
+Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=True, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-09-25 12:53:00)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : SIM.
+INFO:SoC:System clock: 100.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+WARNING:SoC:SoCCore: unknown argument cpu_count ignored.
+INFO:SoC:Controller ctrl added.
+INFO:SoC:CPU vexiiriscv added.
+INFO:SoC:CPU vexiiriscv adding IO Region 0 at 0x80000000 (Size: 0x80000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoC:CPU vexiiriscv overriding sram mapping from 0x01000000 to 0x10000000.
+INFO:SoC:CPU vexiiriscv setting reset address to 0x00000000.
+INFO:SoC:CPU vexiiriscv adding Bus Master(s).
+INFO:SoCBusHandler:cpu_bus0 Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:cpu_bus0 added as Bus Master.
+INFO:SoC:CPU vexiiriscv adding Interrupt(s).
+INFO:SoCIRQHandler:noirq IRQ added at Location 0.
+INFO:SoC:CPU vexiiriscv adding DMA Bus.
+INFO:SoCDMABusHandler:Creating Bus Handler...
+INFO:SoCDMABusHandler:32-bit axi Bus, 4.0GiB Address Space.
+INFO:SoCDMABusHandler:Adding reserved Bus Regions...
+INFO:SoCDMABusHandler:Bus Handler created.
+INFO:SoCDMABusHandler:dma Region added at Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False.
+INFO:SoCDMABusHandler:dma added as Bus Slave.
+INFO:SoC:CPU vexiiriscv adding SoC components.
+INFO:SoCBusHandler:plic Region added at Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:clint Region added at Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:rom Region added at Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:rom added as Bus Slave.
+INFO:SoC:RAM rom added Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram Region added at Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram added as Bus Slave.
+INFO:SoC:RAM sram added Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCIRQHandler:uart IRQ allocated at Location 1.
+INFO:SoCIRQHandler:timer0 IRQ allocated at Location 2.
+INFO:SoCBusHandler:main_ram Region added at Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:Allocating Cached Region of size 0x01000000...
+INFO:SoCBusHandler:spiflash Region allocated at Origin: 0x01000000, Size: 0x01000000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:spiflash Bus offset by 0x01000000.
+INFO:SoCBusHandler:spiflash added as Bus Slave.
+INFO:SoCBusHandler:milan_csr Region added at Origin: 0x90000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:milan_csr Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:milan_csr added as Bus Slave.
+[milan] --audio-interface-master: no `tdm` pads on this platform - bclk/fsync/dout float and the capture front-end frames DIGITAL SILENCE at the declared width
+wrote $LANES/559-capture-copy/configs/generated/ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+$LANES/559-capture-copy/configs/generated/ucode.hex: 2048 words, 80 programs
+INFO:SoCDMABusHandler:milan_desc_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_desc_mem added as Bus Master.
+INFO:SoCDMABusHandler:milan_resp_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_resp_mem added as Bus Master.
+INFO:SoCDMABusHandler:milan_nvm_mem Bus adapted from Wishbone 64-bit to AXI 32-bit.
+INFO:SoCDMABusHandler:milan_nvm_mem added as Bus Master.
+INFO:SoCCSRHandler:ppmem CSR added at Location 31.
+[milan] no user_led pad - IDENTIFY LED not wired
+INFO:SoCCSRHandler:probe CSR allocated at Location 0.
+INFO:SoC:CSR Bridge csr added.
+INFO:SoCBusHandler:csr Region added at Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:csr added as Bus Slave.
+INFO:SoCCSRHandler:csr added as CSR Master.
+INFO:SoCBusHandler:Interconnect: InterconnectShared (1 <-> 5).
+INFO:SoCDMABusHandler:Interconnect: AXIInterconnectShared (3 <-> 1).
+INFO:SoCCSRHandler:ctrl CSR allocated at Location 1.
+INFO:SoCCSRHandler:identifier_mem CSR allocated at Location 2.
+INFO:SoCCSRHandler:sdram CSR allocated at Location 3.
+INFO:SoCCSRHandler:spiflash CSR allocated at Location 4.
+INFO:SoCCSRHandler:timer0 CSR allocated at Location 5.
+INFO:SoCCSRHandler:uart CSR allocated at Location 6.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Finalized SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+IO Regions: (1)
+io0                 : Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False
+Bus Regions: (8)
+rom                 : Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False
+spiflash            : Origin: 0x01000000, Size: 0x01000000, Mode:  RX, Cached:  True, Linker: False
+sram                : Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False
+main_ram            : Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False
+milan_csr           : Origin: 0x90000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+csr                 : Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+clint               : Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True
+plic                : Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True
+Bus Masters: (1)
+- cpu_bus0          : rw
+Bus Slaves: (5)
+- rom               : r
+- sram              : rw
+- spiflash          : r
+- milan_csr         : rw
+- csr               : rw
+INFO:SoC:32-bit axi Bus, 4.0GiB Address Space.
+Bus Regions: (1)
+dma                 : Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False
+Bus Masters: (3)
+- milan_desc_mem    : rw
+- milan_resp_mem    : rw
+- milan_nvm_mem     : rw
+Bus Slaves: (1)
+- dma               : rw
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+CSR Locations: (8)
+- probe          : 0
+- ctrl           : 1
+- identifier_mem : 2
+- sdram          : 3
+- spiflash       : 4
+- timer0         : 5
+- uart           : 6
+- ppmem          : 31
+INFO:SoC:IRQ Handler (up to 32 Locations).
+IRQ Locations: (3)
+- noirq  : 0
+- uart   : 1
+- timer0 : 2
+INFO:SoC:--------------------------------------------------------------------------------
+VexiiRiscv netlist : VexiiRiscvLitex_f5f08b170311db53220574624f819159
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:SoC Hierarchy:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:
+ProductSimulation
+├── bus (SoCBusHandler)
+│    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    └── fsm (FSM)
+│    ├── offset_0 (Offset) [Gen]
+│    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    └── fsm (FSM)
+│    └── _interconnect (InterconnectShared)
+│         ├── arbiter (Arbiter)
+│         │    └── rr (RoundRobin)
+│         ├── decoder (Decoder)
+│         └── timeout (Timeout)
+│              └── waittimer_0 (WaitTimer) [Gen]
+├── csr (SoCCSRHandler)
+├── irq (SoCIRQHandler)
+├── ctrl (SoCController)
+├── cpu (VexiiRiscv)
+│    ├── soc_bus (SoCBusHandler)
+│    │    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    ├── offset_0 (Offset) [Gen]
+│    │    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── _interconnect (InterconnectShared)
+│    │         ├── arbiter (Arbiter)
+│    │         │    └── rr (RoundRobin)
+│    │         ├── decoder (Decoder)
+│    │         └── timeout (Timeout)
+│    │              └── waittimer_0 (WaitTimer) [Gen]
+│    ├── memory_port_cdc0 (AXIClockDomainCrossing)
+│    │    ├── clockdomaincrossing_0 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_1 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_2 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_3 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    └── clockdomaincrossing_4 (ClockDomainCrossing) [Gen]
+│    │         └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    └── [BB:VexiiRiscvLitex_f5f08b170311db53220574624f819159]
+├── dma_bus (SoCBusHandler)
+│    ├── converter_0 (Converter) [Gen]
+│    │    └── downconverter_0 (DownConverter) [Gen]
+│    ├── wishbone2axi_0 (Wishbone2AXI) [Gen]
+│    │    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── axilite2axi_0 (AXILite2AXI) [Gen]
+│    ├── converter_1 (Converter) [Gen]
+│    │    └── downconverter_0 (DownConverter) [Gen]
+│    ├── wishbone2axi_1 (Wishbone2AXI) [Gen]
+│    │    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── axilite2axi_0 (AXILite2AXI) [Gen]
+│    ├── converter_2 (Converter) [Gen]
+│    │    └── downconverter_0 (DownConverter) [Gen]
+│    ├── wishbone2axi_2 (Wishbone2AXI) [Gen]
+│    │    ├── wishbone2axilite_0 (Wishbone2AXILite) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── axilite2axi_0 (AXILite2AXI) [Gen]
+│    └── _interconnect (AXIInterconnectShared)
+│         ├── arbiter (AXIArbiter)
+│         │    ├── rr_write (RoundRobin)
+│         │    ├── rr_read (RoundRobin)
+│         │    ├── wr_lock (_AXIRequestCounter)
+│         │    └── rd_lock (_AXIRequestCounter)
+│         ├── decoder (AXIDecoder)
+│         │    ├── _axirequestcounter_0 (_AXIRequestCounter) [Gen]
+│         │    └── _axirequestcounter_1 (_AXIRequestCounter) [Gen]
+│         └── timeout (AXITimeout)
+│              ├── waittimer_0 (WaitTimer) [Gen]
+│              ├── waittimer_1 (WaitTimer) [Gen]
+│              ├── wr_fsm (FSM)
+│              └── rd_fsm (FSM)
+├── rom (SRAM)
+├── sram (SRAM)
+├── identifier (Identifier)
+├── uart (UART)
+│    ├── ev (EventManager)
+│    │    ├── eventsourcelevel_0 (EventSourceLevel) [Gen]
+│    │    └── eventsourcelevel_1 (EventSourceLevel) [Gen]
+│    ├── phy (RS232PHYModel)
+│    ├── tx_fifo (SyncFIFO)
+│    │    └── fifo (SyncFIFOBuffered)
+│    │         └── fifo (SyncFIFO)
+│    └── rx_fifo (SyncFIFO)
+│         └── fifo (SyncFIFOBuffered)
+│              └── fifo (SyncFIFO)
+├── timer0 (Timer)
+│    └── ev (EventManager)
+│         └── eventsourceprocess_0 (EventSourceProcess) [Gen]
+├── crg (SimClocks)
+├── ddrphy (SDRAMPHYModel)
+│    ├── dfiphasemodel_0 (DFIPhaseModel) [Gen]
+│    ├── dfiphasemodel_1 (DFIPhaseModel) [Gen]
+│    ├── dfiphasemodel_2 (DFIPhaseModel) [Gen]
+│    ├── dfiphasemodel_3 (DFIPhaseModel) [Gen]
+│    ├── bankmodel_0 (BankModel) [Gen]
+│    ├── bankmodel_1 (BankModel) [Gen]
+│    ├── bankmodel_2 (BankModel) [Gen]
+│    ├── bankmodel_3 (BankModel) [Gen]
+│    ├── bankmodel_4 (BankModel) [Gen]
+│    ├── bankmodel_5 (BankModel) [Gen]
+│    ├── bankmodel_6 (BankModel) [Gen]
+│    └── bankmodel_7 (BankModel) [Gen]
+├── sdram (LiteDRAMCore)
+│    ├── dfii (DFIInjector)
+│    │    ├── pi0 (PhaseInjector)
+│    │    ├── pi1 (PhaseInjector)
+│    │    ├── pi2 (PhaseInjector)
+│    │    └── pi3 (PhaseInjector)
+│    ├── controller (LiteDRAMController)
+│    │    ├── refresher (Refresher)
+│    │    │    ├── timer (RefreshTimer)
+│    │    │    ├── postponer (RefreshPostponer)
+│    │    │    ├── sequencer (RefreshSequencer)
+│    │    │    │    └── refreshexecuter_0 (RefreshExecuter) [Gen]
+│    │    │    ├── zqcs_timer (RefreshTimer)
+│    │    │    ├── zqs_executer (ZQCSExecuter)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_0 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_1 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_2 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_3 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_4 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_5 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_6 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_7 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    └── multiplexer (Multiplexer)
+│    │         ├── choose_cmd (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── choose_req (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── _steerer_0 (_Steerer) [Gen]
+│    │         ├── trrdcon (tXXDController)
+│    │         ├── tfawcon (tFAWController)
+│    │         ├── tccdcon (tXXDController)
+│    │         ├── twtrcon (tXXDController)
+│    │         └── fsm (FSM)
+│    └── crossbar (LiteDRAMCrossbar)
+│         ├── roundrobin_0 (RoundRobin) [Gen]
+│         ├── roundrobin_1 (RoundRobin) [Gen]
+│         ├── roundrobin_2 (RoundRobin) [Gen]
+│         ├── roundrobin_3 (RoundRobin) [Gen]
+│         ├── roundrobin_4 (RoundRobin) [Gen]
+│         ├── roundrobin_5 (RoundRobin) [Gen]
+│         ├── roundrobin_6 (RoundRobin) [Gen]
+│         └── roundrobin_7 (RoundRobin) [Gen]
+├── litedramaxi2native_0 (LiteDRAMAXI2Native) [Gen]
+│    ├── write (LiteDRAMAXI2NativeW)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── aw_burst2beat (AXIBurst2Beat)
+│    │    ├── w_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    └── fifo (SyncFIFO)
+│    │    └── syncfifo_1 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    ├── read (LiteDRAMAXI2NativeR)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── ar_burst2beat (AXIBurst2Beat)
+│    │    ├── r_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    └── syncfifo_0 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    └── roundrobin_0 (RoundRobin) [Gen]
+├── spiflash_phy (LiteSPIPHYModel)
+│    └── spiflash_phy (LiteSPIPHYModelCore)
+│         └── fsm (FSM)
+├── spiflash (LiteSPI)
+│    ├── crossbar (LiteSPICrossbar)
+│    │    ├── rr (RoundRobin)
+│    │    ├── tx_mux (Multiplexer)
+│    │    └── rx_demux (Demultiplexer)
+│    ├── mmap (LiteSPIMMAP)
+│    │    ├── burst_timeout (WaitTimer)
+│    │    └── fsm (FSM)
+│    ├── master (LiteSPIMaster)
+│    │    ├── tx_fifo (SyncFIFO)
+│    │    │    └── buffer_0 (Buffer) [Gen]
+│    │    │         ├── pipe_valid (PipeValid)
+│    │    │         └── pipeline (Pipeline)
+│    │    └── rx_fifo (SyncFIFO)
+│    │         └── buffer_0 (Buffer) [Gen]
+│    │              ├── pipe_valid (PipeValid)
+│    │              └── pipeline (Pipeline)
+│    └── phy (LiteSPIPHYModel)
+│         └── spiflash_phy (LiteSPIPHYModelCore)
+│              └── fsm (FSM)
+├── milan (MilanNIC)
+│    ├── milan_axil_cdc (AXILiteClockDomainCrossing)
+│    │    ├── clockdomaincrossing_0 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_1 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_2 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_3 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    └── clockdomaincrossing_4 (ClockDomainCrossing) [Gen]
+│    │         └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── descmem_req_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── descmem_rsp_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── respmem_req_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── respmem_rsp_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── respmem_wr_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── respmem_wd_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── nvmmem_req_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── nvmmem_rsp_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── nvmmem_wr_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    ├── nvmmem_wd_cdc (ClockDomainCrossing)
+│    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │         └── fifo (AsyncFIFOBuffered)
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    └── [BB:milan_datapath]
+├── descmem_fsm (FSM)
+├── respmem_fsm (FSM)
+├── nvmmem_fsm (FSM)
+├── ppmem (_PPMemDiag)
+├── probe (CaptureProbe)
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    ├── csrbank_0 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── sram_0 (SRAM) [Gen]
+│    ├── csrbank_1 (CSRBank) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    ├── csrstatus_3 (CSRStatus) [Gen]
+│    │    └── csrstatus_4 (CSRStatus) [Gen]
+│    ├── csrbank_2 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    └── csrstatus_2 (CSRStatus) [Gen]
+│    ├── csrbank_3 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstorage_4 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstorage_5 (CSRStorage) [Gen]
+│    │    ├── csrstorage_6 (CSRStorage) [Gen]
+│    │    ├── csrstorage_7 (CSRStorage) [Gen]
+│    │    ├── csrstorage_8 (CSRStorage) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstorage_9 (CSRStorage) [Gen]
+│    │    ├── csrstorage_10 (CSRStorage) [Gen]
+│    │    ├── csrstorage_11 (CSRStorage) [Gen]
+│    │    ├── csrstorage_12 (CSRStorage) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    ├── csrstorage_13 (CSRStorage) [Gen]
+│    │    ├── csrstorage_14 (CSRStorage) [Gen]
+│    │    ├── csrstorage_15 (CSRStorage) [Gen]
+│    │    ├── csrstorage_16 (CSRStorage) [Gen]
+│    │    └── csrstatus_3 (CSRStatus) [Gen]
+│    ├── csrbank_4 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    ├── csrbank_5 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_6 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+make: Entering directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/libc'
+cp $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libc/picolibc-minimal.h $VALIDATION_STORAGE/559-a309-1x1-50-off/software/libc/picolibc.h
+rm -f -r $VALIDATION_STORAGE/559-a309-1x1-50-off/software/include/../picolibc_src
+printf "#define FORMAT_DEFAULT_%s\n" "INTEGER" >> $VALIDATION_STORAGE/559-a309-1x1-50-off/software/libc/picolibc.h
+cp -a $WORKSPACE_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data $VALIDATION_STORAGE/559-a309-1x1-50-off/software/include/../picolibc_src
+printf "#define __IO_DEFAULT '%s'\n" "i" >> $VALIDATION_STORAGE/559-a309-1x1-50-off/software/libc/picolibc.h
+if [ -d "$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libc/riscv" ]; then \
+	cp $WORKSPACE_HOME/litex-milan/litex/litex/soc/software/libc/riscv/* $VALIDATION_STORAGE/559-a309-1x1-50-off/software/include/../picolibc_src/libc/machine/riscv/ ;\
+fi
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_ctype_ctype_.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_errno_errno.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_string_strchr.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_string_strnlen.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_stdio_fgetc.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_stdio_fputc.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_string_strncpy.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_string_strncmp.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_stdio_fputs.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_machine_riscv_memmove.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_machine_riscv_memset.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_stdio_printf.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_stdio_puts.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_machine_riscv_strcmp.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_stdio_strtoul.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_machine_riscv_strcpy.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_machine_riscv_memcpy-asm.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_stdio_strtoull.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_machine_riscv_strlen.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_stdlib_lldiv.o
+ CC       minimal__data_milan_tmp_559-a309-1x1-50-off_software_include_.._picolibc_src_libc_stdio_vfiprintf.o
+ AR       __libc_minimal.a
+ CC       _libc_minimal.a
+ AR       _libc_minimal.a
+cp __libc_minimal.a _libc_minimal.a
+ CC       libc-minimal.a
+ AR       libc-minimal.a
+cp _libc_minimal.a libc-minimal.a
+cp libc-minimal.a libc.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/libc'
+make: Entering directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/libcompiler_rt'
+ CC       umodsi3.o
+ CC       modsi3.o
+ CC       udivsi3.o
+ CC       comparesf2.o
+ CC       divsi3.o
+ CC       comparedf2.o
+ CC       negdf2.o
+ CC       negsf2.o
+ CC       addsf3.o
+ CC       mulsf3.o
+ CC       subsf3.o
+ CC       divsf3.o
+ CC       extendsfdf2.o
+ CC       lshrdi3.o
+ CC       muldi3.o
+ CC       truncdfsf2.o
+ CC       divdi3.o
+ CC       ashldi3.o
+ CC       ashrdi3.o
+ CC       udivmoddi4.o
+$WORKSPACE_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/comparedf2.c:85:1: warning: function declaration isn’t a prototype [-Wstrict-prototypes]
+   85 | FNALIAS(__cmpdf2, __ledf2);
+      | ^~~~~~~
+$WORKSPACE_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/comparesf2.c:85:1: warning: function declaration isn’t a prototype [-Wstrict-prototypes]
+   85 | FNALIAS(__cmpsf2, __lesf2);
+      | ^~~~~~~
+ CC       floatsisf.o
+ CC       fixdfdi.o
+ CC       fixunssfsi.o
+ CC       floatunsisf.o
+ CC       fixunsdfdi.o
+ CC       adddf3.o
+ CC       fixsfsi.o
+ CC       subdf3.o
+ CC       muldf3.o
+ CC       divdf3.o
+ CC       floatsidf.o
+ CC       floatdidf.o
+ CC       floatunsidf.o
+ CC       fixunsdfsi.o
+ CC       clzsi2.o
+ CC       ctzsi2.o
+ CC       fixdfsi.o
+ CC       udivdi3.o
+ CC       umoddi3.o
+ CC       clzdi2.o
+ CC       ctzdi2.o
+ CC       ucmpdi2.o
+ CC       moddi3.o
+ CC       mulsi3.o
+ AR       libcompiler_rt.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/libcompiler_rt'
+make: Entering directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/libbase'
+ CC       crc16.o
+ CC       format.o
+ CC       console.o
+ CC       crc32.o
+ CC       system.o
+ CC       progress.o
+ CC       memtest.o
+ CC       uart.o
+ CC       spiflash.o
+ CC       startup.o
+ CC       i2c.o
+ CC       isr.o
+ CC       hyperram.o
+ AR       libbase.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/libbase'
+make: Entering directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/libfatfs'
+ CC       ffunicode.o
+ CC       ff.o
+ AR       libfatfs.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/libfatfs'
+make: Entering directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/liblitespi'
+ CC       spiram.o
+ CC       spiflash.o
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c: In function ‘spiflash_erase_range’:
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c:295:48: warning: format ‘%lx’ expects argument of type ‘long unsigned int’, but argument 2 has type ‘unsigned int’ [-Wformat=]
+  295 |                 printf("Erase SPI Flash @0x%08lx", ((uint32_t)addr+i));
+      |                                            ~~~~^   ~~~~~~~~~~~~~~~~~~
+      |                                                |                  |
+      |                                                long unsigned int  unsigned int
+      |                                            %08x
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c:312:63: warning: format ‘%lx’ expects argument of type ‘long unsigned int’, but argument 2 has type ‘uint32_t’ {aka ‘unsigned int’} [-Wformat=]
+  312 |                                 printf("Error: location 0x%08lx not erased (%0x2x)\n", addr+i+j, *peek);
+      |                                                           ~~~~^                        ~~~~~~~~
+      |                                                               |                              |
+      |                                                               long unsigned int              uint32_t {aka unsigned int}
+      |                                                           %08x
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c: In function ‘spiflash_write_stream’:
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c:357:71: warning: format ‘%lx’ expects argument of type ‘long unsigned int’, but argument 2 has type ‘unsigned int’ [-Wformat=]
+  357 |                                 printf("Error: verify failed at 0x%08lx (0x%02x should be 0x%02x)\n", (uint32_t)peek, *peek, stream[offset+j]);
+      |                                                                   ~~~~^                               ~~~~~~~~~~~~~~
+      |                                                                       |                               |
+      |                                                                       long unsigned int               unsigned int
+      |                                                                   %08x
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c: At top level:
+$WORKSPACE_HOME/litex-milan/litex/litex/soc/software/liblitespi/spiflash.c:118:13: warning: ‘spiflash_master_write’ defined but not used [-Wunused-function]
+  118 | static void spiflash_master_write(uint32_t val, size_t len, size_t width, uint32_t mask)
+      |             ^~~~~~~~~~~~~~~~~~~~~
+ AR       liblitespi.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/liblitespi'
+make: Entering directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/liblitedram'
+ CC       sdram.o
+ CC       bist.o
+ CC       sdram_dbg.o
+ CC       accessors.o
+ CC       sdram_spd.o
+ CC       utils.o
+ AR       liblitedram.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/liblitedram'
+make: Entering directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/libliteeth'
+ CC       udp.o
+ CC       tftp.o
+ CC       mdio.o
+ CC       dhcp.o
+ AR       libliteeth.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/libliteeth'
+make: Entering directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/liblitesdcard'
+ CC       sdcard.o
+ CC       spisdcard.o
+ AR       liblitesdcard.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/liblitesdcard'
+make: Entering directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/liblitesata'
+ CC       sata.o
+ AR       liblitesata.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/liblitesata'
+make: Entering directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/libmilan_baremetal'
+ CC       milan_baremetal.o
+ AR       libmilan_baremetal.a
+make: Leaving directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/libmilan_baremetal'
+make: Entering directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/bios'
+ CC       crt0.o
+ CC       boot-helper.o
+ CC       boot.o
+ CC       cmd_bios.o
+ CC       cmd_boot.o
+ CC       cmd_i2c.o
+ CC       helpers.o
+ CC       cmd_mem.o
+ CC       cmd_spiflash.o
+ CC       cmd_litedram.o
+ CC       cmd_litesata.o
+ CC       cmd_litesdcard.o
+ CC       cmd_liteeth.o
+ CC       sim_debug.o
+ CC       main.o
+ CC       readline.o
+ CC       complete.o
+ CC       bios.elf
+$VALIDATION_STORAGE/504-manager-r1/sdk-install/bin/../lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/../../../../riscv32-buildroot-linux-gnu/bin/ld: warning: bios.elf has a LOAD segment with RWX permissions
+chmod -x bios.elf
+ OBJCOPY  bios.bin
+chmod -x bios.bin
+python3 -m litex.soc.software.crcfbigen bios.bin --little
+python3 -m litex.soc.software.memusage  bios.elf $VALIDATION_STORAGE/559-a309-1x1-50-off/software/bios/../include/generated/regions.ld $VALIDATION_STORAGE/504-manager-r1/sdk-install/bin/riscv32-linux
+
+ROM usage: 47.87KiB 	(37.40%)
+SRAM usage: 2.47KiB 	(30.86%)
+  .data: 0.41KiB
+  .bss: 2.05KiB
+  stack margin: 5.53KiB
+
+make: Leaving directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/software/bios'
+INFO:SoC:Initializing ROM rom with contents (Size: 0xbf7c).
+INFO:SoC:Auto-Resizing ROM rom from 0x20000 to 0xbf7c.
+COMMAND verilator --cc --exe --build -j 8 -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir $VALIDATION_STORAGE/559-a309-1x1-50-off/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off' -I$VALIDATION_STORAGE/559-a309-1x1-50-off/generated/endstation_ax7101_1x1_tdm8 -I$VALIDATION_STORAGE/559-a309-1x1-50-off/generated/endstation_ax7101_1x1_tdm8/gen -I$LANES/559-capture-copy/hdl/common -I$LANES/559-capture-copy/hdl/ieee8021q/ts -I$LANES/559-capture-copy/hdl/ieee8021as/ptp_timestamp -I$LANES/559-capture-copy/hdl/ieee17221/adp -I$LANES/559-capture-copy/hdl/common/csr -I$LANES/559-capture-copy/hdl/common/eth_event_counter -I$LANES/559-capture-copy/hdl/ieee1722/avtp $LANES/559-capture-copy/protocol-processor/hdl/acmp/pp_acmp_pkg.sv $LANES/559-capture-copy/protocol-processor/hdl/adp/pp_adp_pkg.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/ucpu_pkg.sv $LANES/559-capture-copy/protocol-processor/hdl/common/pp_pkg.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/srp_pkg.sv $LANES/559-capture-copy/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv $LANES/559-capture-copy/protocol-processor/hdl/acmp/KL_acmp_talker.sv $LANES/559-capture-copy/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv $LANES/559-capture-copy/protocol-processor/hdl/adp/KL_adp_engine.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_engine.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_notify.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv $LANES/559-capture-copy/protocol-processor/hdl/common/KL_pp_prng.sv $LANES/559-capture-copy/protocol-processor/hdl/common/KL_pp_timer_service.sv $LANES/559-capture-copy/protocol-processor/hdl/maap/KL_pp_maap.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_originator.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_side_port.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_admission.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_decoder.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_domain.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_encoder.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_listener_fsm.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_talker_fsm.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_top.sv $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_vlan.sv $LANES/559-capture-copy/protocol-processor/hdl/top/KL_mrp_strip.sv $LANES/559-capture-copy/protocol-processor/hdl/top/protocol_processor_top.sv $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv $LANES/559-capture-copy/hdl/milan/KL_pp_maap_shim.sv $LANES/559-capture-copy/hdl/milan/KL_nvm_backend.sv $LANES/559-capture-copy/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv $LANES/559-capture-copy/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv $LANES/559-capture-copy/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv $LANES/559-capture-copy/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv $LANES/559-capture-copy/gptp-processor/hdl/common/KL_gptp_timer.sv $LANES/559-capture-copy/gptp-processor/hdl/top/KL_gptp_engine.sv $LANES/559-capture-copy/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv $LANES/559-capture-copy/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv $LANES/559-capture-copy/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv $LANES/559-capture-copy/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv $LANES/559-capture-copy/hdl/common/ethernet_packet_pkg.sv $LANES/559-capture-copy/hdl/common/axi_stream_if.sv $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_fifo.v $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_arb_mux.v $LANES/559-capture-copy/third_party/verilog-axis/rtl/arbiter.v $LANES/559-capture-copy/third_party/verilog-axis/rtl/priority_encoder.v $LANES/559-capture-copy/hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv $LANES/559-capture-copy/hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv $LANES/559-capture-copy/hdl/common/cdc_pulse.sv $LANES/559-capture-copy/hdl/common/cdc_handshake.sv $LANES/559-capture-copy/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv $LANES/559-capture-copy/hdl/ieee8021q/filtering/tcam.sv $LANES/559-capture-copy/hdl/ieee8021q/filtering/rx_mac_filter.sv $LANES/559-capture-copy/hdl/common/tx_ifg_gasket.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_pcm_lpf.sv $LANES/559-capture-copy/hdl/common/KL_link_guard.sv $LANES/559-capture-copy/hdl/ieee17221/adp/adp_tx_arbiter.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/aaf_talker_i2s.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_i2s_playback.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_tone_gen.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_media_adv.sv $LANES/559-capture-copy/hdl/common/cdc_pair_fifo.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/avtp_stream_parser.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/KL_stream_table.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $LANES/559-capture-copy/hdl/ieee1722/avtp/KL_media_clock_restart.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_pcm_route.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_tdm_capture.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_pair_blend.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_tdm_render.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_tdm_render_master.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_render_setpoint.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_chan_map_render.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_chan_map_capture.sv $LANES/559-capture-copy/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $LANES/559-capture-copy/hdl/ieee1722/crf/KL_crf_rx.sv $LANES/559-capture-copy/hdl/ieee1722/crf/KL_crf_tx.sv $LANES/559-capture-copy/hdl/ieee1722/maap/KL_maap.sv $LANES/559-capture-copy/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $LANES/559-capture-copy/hdl/ieee1722/crf/KL_media_nco.sv $LANES/559-capture-copy/hdl/ieee1722/crf/KL_media_grid_align.sv $LANES/559-capture-copy/hdl/common/eth_event_counter/ethernet_events.sv $LANES/559-capture-copy/hdl/common/eth_event_counter/event_counter.sv $LANES/559-capture-copy/hdl/common/eth_event_counter/KL_mac_rmon_events.sv $LANES/559-capture-copy/hdl/common/csr/milan_csr.sv $LANES/559-capture-copy/hdl/milan/milan_datapath.sv $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v $LANES/559-capture-copy/tb/verilator/nvm_capture_cpu/sim_main.cpp
+%Warning-PINMISSING: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:631:48: Instance has missing pin: 'clk'
+  631 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
+      |                                                ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/common/axi_stream_if.sv:28:15: ... Location of port declaration
+   28 |     input bit clk,
+      |               ^~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.052
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:631:48: Instance has missing pin: 'rst_n'
+  631 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
+      |                                                ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/common/axi_stream_if.sv:29:15: ... Location of port declaration
+   29 |     input bit rst_n
+      |               ^~~~~
+%Warning-PINMISSING: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:632:48: Instance has missing pin: 'clk'
+  632 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_from_mac();
+      |                                                ^~~~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/common/axi_stream_if.sv:28:15: ... Location of port declaration
+   28 |     input bit clk,
+      |               ^~~
+%Warning-PINMISSING: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:632:48: Instance has missing pin: 'rst_n'
+  632 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_from_mac();
+      |                                                ^~~~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/common/axi_stream_if.sv:29:15: ... Location of port declaration
+   29 |     input bit rst_n
+      |               ^~~~~
+%Warning-PINMISSING: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:633:48: Instance has missing pin: 'clk'
+  633 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_fabric();
+      |                                                ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/common/axi_stream_if.sv:28:15: ... Location of port declaration
+   28 |     input bit clk,
+      |               ^~~
+%Warning-PINMISSING: $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:633:48: Instance has missing pin: 'rst_n'
+  633 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_fabric();
+      |                                                ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/common/axi_stream_if.sv:29:15: ... Location of port declaration
+   29 |     input bit rst_n
+      |               ^~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'i2s_sclk_o'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:479:35: ... Location of port declaration
+  479 |   output wire                     i2s_sclk_o,
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'i2s_lrck_o'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:480:35: ... Location of port declaration
+  480 |   output wire                     i2s_lrck_o,
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'i2s_sdout_i'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:481:35: ... Location of port declaration
+  481 |   input  wire                     i2s_sdout_i,
+      |                                   ^~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'tdm_mclk_o'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:508:35: ... Location of port declaration
+  508 |   output wire                     tdm_mclk_o,      
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'i2s_dac_mclk_o'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:512:35: ... Location of port declaration
+  512 |   output wire                     i2s_dac_mclk_o,
+      |                                   ^~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'i2s_dac_sclk_o'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:513:35: ... Location of port declaration
+  513 |   output wire                     i2s_dac_sclk_o,
+      |                                   ^~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'i2s_dac_lrck_o'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:514:35: ... Location of port declaration
+  514 |   output wire                     i2s_dac_lrck_o,
+      |                                   ^~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'i2s_dac_sdin_o'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:515:35: ... Location of port declaration
+  515 |   output wire                     i2s_dac_sdin_o,
+      |                                   ^~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mac_tx_en'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:532:22: ... Location of port declaration
+  532 |   output wire        o_mac_tx_en,
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mac_rx_en'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:533:22: ... Location of port declaration
+  533 |   output wire        o_mac_rx_en,
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mac_promisc'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:534:22: ... Location of port declaration
+  534 |   output wire        o_mac_promisc,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mac_allmulti'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:535:22: ... Location of port declaration
+  535 |   output wire        o_mac_allmulti,
+      |                      ^~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mac_is_1g'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:536:22: ... Location of port declaration
+  536 |   output wire        o_mac_is_1g,
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mac_ifg'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:537:22: ... Location of port declaration
+  537 |   output wire [7:0]  o_mac_ifg,
+      |                      ^~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mac_addr'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:538:22: ... Location of port declaration
+  538 |   output wire [47:0] o_mac_addr,
+      |                      ^~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mc_hash'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:539:22: ... Location of port declaration
+  539 |   output wire [63:0] o_mc_hash,
+      |                      ^~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_phy_reset_n'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:540:22: ... Location of port declaration
+  540 |   output wire        o_phy_reset_n,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mac_reinit'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:545:22: ... Location of port declaration
+  545 |   output wire        o_mac_reinit,      
+      |                      ^~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_eth_rst'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:546:22: ... Location of port declaration
+  546 |   output wire        o_eth_rst,         
+      |                      ^~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_eth_guard'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:547:22: ... Location of port declaration
+  547 |   output wire        o_eth_guard,       
+      |                      ^~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mmcm_drp_addr'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:610:22: ... Location of port declaration
+  610 |   output wire [6:0]  o_mmcm_drp_addr,
+      |                      ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mmcm_drp_en'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:611:22: ... Location of port declaration
+  611 |   output wire        o_mmcm_drp_en,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mmcm_drp_we'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:612:22: ... Location of port declaration
+  612 |   output wire        o_mmcm_drp_we,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mmcm_drp_di'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:613:22: ... Location of port declaration
+  613 |   output wire [15:0] o_mmcm_drp_di,
+      |                      ^~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mmcm_rst'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:616:22: ... Location of port declaration
+  616 |   output wire        o_mmcm_rst,
+      |                      ^~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mmcm_ps_en'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:618:22: ... Location of port declaration
+  618 |   output wire        o_mmcm_ps_en,
+      |                      ^~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20686:3: Instance has missing pin: 'o_mmcm_ps_incdec'
+20686 | ) milan_datapath (
+      |   ^~~~~~~~~~~~~~
+                     $LANES/559-capture-copy/hdl/milan/milan_datapath.sv:619:22: ... Location of port declaration
+  619 |   output wire        o_mmcm_ps_incdec,
+      |                      ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20804:50: Instance has missing pin: 'dma_bus_awregion'
+20804 | VexiiRiscvLitex_f5f08b170311db53220574624f819159 VexiiRiscvLitex_f5f08b170311db53220574624f819159(
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v:14:24: ... Location of port declaration
+   14 |   input  wire [3:0]    dma_bus_awregion,
+      |                        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:20804:50: Instance has missing pin: 'dma_bus_arregion'
+20804 | VexiiRiscvLitex_f5f08b170311db53220574624f819159 VexiiRiscvLitex_f5f08b170311db53220574624f819159(
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     $WORKSPACE_HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v:35:24: ... Location of port declaration
+   35 |   input  wire [3:0]    dma_bus_arregion,
+      |                        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/acmp/pp_acmp_pkg.sv:31:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | package pp_acmp_pkg;
+      |         ^~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.052
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/adp/pp_adp_pkg.sv:23:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   23 | package pp_adp_pkg;
+      |         ^~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/ucpu_pkg.sv:32:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   32 | package ucpu_pkg;
+      |         ^~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/common/pp_pkg.sv:31:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | package pp_pkg;
+      |         ^~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/srp_pkg.sv:28:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | package srp_pkg;
+      |         ^~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:84:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   84 | module KL_acmp_nvm_shadow
+      |        ^~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/acmp/KL_acmp_talker.sv:112:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  112 | module KL_acmp_talker
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:54:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   54 | module KL_pp_acmp_listener
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/adp/KL_adp_engine.sv:62:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   62 | module KL_adp_engine
+      |        ^~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv:15:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   15 | module KL_aecp_ca_originator #(
+      |        ^~~~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv:147:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  147 | module KL_aecp_desc_store #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:75:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   75 | module KL_aecp_dyn_state #(
+      |        ^~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_engine.sv:252:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  252 | module KL_aecp_engine
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_notify.sv:149:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  149 | module KL_aecp_notify
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv:96:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   96 | module KL_aecp_resp_buf #(
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv:37:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   37 | module KL_aecp_ucpu
+      |        ^~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/common/KL_pp_prng.sv:63:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   63 | module KL_pp_prng (
+      |        ^~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/common/KL_pp_timer_service.sv:43:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   43 | module KL_pp_timer_service #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/maap/KL_pp_maap.sv:132:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  132 | module KL_pp_maap
+      |        ^~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:48:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   48 | module KL_pp_dispatch
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:224:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  224 | module KL_pp_dispatch_fifo
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv:48:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   48 | module KL_pp_event_router #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv:46:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   46 | module KL_pp_normalizer
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:63:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   63 | module KL_pp_nvm_port #(
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_originator.sv:53:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   53 | module KL_pp_originator #(
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv:22:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   22 | module KL_pp_release_merge #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv:42:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   42 | module KL_pp_rx_slots #(
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv:71:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   71 | module KL_pp_rx_validator
+      |        ^~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv:66:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   66 | module KL_pp_scoreboard #(
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_side_port.sv:42:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   42 | module KL_pp_side_port #(
+      |        ^~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv:39:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   39 | module KL_pp_trace_ring #(
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv:52:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   52 | module KL_pp_tx_arbiter
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv:42:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   42 | module KL_pp_tx_slots #(
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_admission.sv:51:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   51 | module KL_srp_admission #(
+      |        ^~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_decoder.sv:65:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   65 | module KL_srp_decoder
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_domain.sv:38:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   38 | module KL_srp_domain #(
+      |        ^~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_encoder.sv:63:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   63 | module KL_srp_encoder #(
+      |        ^~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_listener_fsm.sv:65:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   65 | module KL_srp_listener_fsm
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:73:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   73 | module KL_srp_talker_fsm
+      |        ^~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_top.sv:79:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   79 | module KL_srp_top
+      |        ^~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/srp/KL_srp_vlan.sv:38:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   38 | module KL_srp_vlan #(
+      |        ^~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/top/KL_mrp_strip.sv:38:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   38 | module KL_mrp_strip #(
+      |        ^~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $LANES/559-capture-copy/protocol-processor/hdl/top/protocol_processor_top.sv:68:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   68 | module protocol_processor_top
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       $LANES/559-capture-copy/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-SELRANGE: $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                     : ... note: In instance 'sim.milan_datapath.pp_shadow.ctl_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.052
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                     : ... note: In instance 'sim.milan_datapath.pp_shadow.ctl_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-SELRANGE: $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 72:0
+                                                                                                     : ... note: In instance 'sim.milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-SELRANGE: $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 72:0
+                                                                                                     : ... note: In instance 'sim.milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-SELRANGE: $LANES/559-capture-copy/third_party/verilog-axis/rtl/axis_fifo.v:240:65: Selection index out of range: 73:73 outside 72:0
+                                                                                                     : ... note: In instance 'sim.milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  240 | wire [USER_WIDTH-1:0]  m_axis_tuser_pipe  = USER_ENABLE ? m_axis[USER_OFFSET +: USER_WIDTH] : {USER_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1955:15: Signal unoptimizable: Circular combinational logic: 'sim.productsimulation_interface1_adapted_interface_ack'
+                                                                              : ... note: In instance 'sim'
+ 1955 | reg           productsimulation_interface1_adapted_interface_ack = 1'd0;
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/UNOPTFLAT?v=5.052
+                    ... Use "/* verilator lint_off UNOPTFLAT */" and lint_on around source to disable this message.
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1955:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6825:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1948:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6871:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1955:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1977:15: Signal unoptimizable: Circular combinational logic: 'sim.productsimulation_interface3_adapted_interface_ack'
+                                                                              : ... note: In instance 'sim'
+ 1977 | reg           productsimulation_interface3_adapted_interface_ack = 1'd0;
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1977:15:      Example path: sim.productsimulation_interface3_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7026:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1970:15:      Example path: sim.productsimulation_interface2_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7072:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1977:15:      Example path: sim.productsimulation_interface3_adapted_interface_ack
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1999:15: Signal unoptimizable: Circular combinational logic: 'sim.productsimulation_interface5_adapted_interface_ack'
+                                                                              : ... note: In instance 'sim'
+ 1999 | reg           productsimulation_interface5_adapted_interface_ack = 1'd0;
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1999:15:      Example path: sim.productsimulation_interface5_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7227:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1992:15:      Example path: sim.productsimulation_interface4_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7273:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1999:15:      Example path: sim.productsimulation_interface5_adapted_interface_ack
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5696:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self22'
+                                                                              : ... note: In instance 'sim'
+ 5696 | reg           rhs_self22 = 1'd0;
+      |               ^~~~~~~~~~
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5696:15:      Example path: sim.rhs_self22
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7645:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5880:15:      Example path: sim.socbushandler1_aw_ready
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7499:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1400:15:      Example path: sim.productsimulation_axiinterface0_aw_ready
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6871:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1955:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6825:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1948:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6871:1:      Example path: ALWAYS
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5710:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self35'
+                                                                              : ... note: In instance 'sim'
+ 5710 | reg           rhs_self35 = 1'd0;
+      |               ^~~~~~~~~~
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5710:15:      Example path: sim.rhs_self35
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7645:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5880:15:      Example path: sim.socbushandler1_aw_ready
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7499:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1400:15:      Example path: sim.productsimulation_axiinterface0_aw_ready
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6871:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1955:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6825:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1948:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6871:1:      Example path: ALWAYS
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5718:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self42'
+                                                                              : ... note: In instance 'sim'
+ 5718 | reg           rhs_self42 = 1'd0;
+      |               ^~~~~~~~~~
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5718:15:      Example path: sim.rhs_self42
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7645:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5880:15:      Example path: sim.socbushandler1_aw_ready
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7499:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1400:15:      Example path: sim.productsimulation_axiinterface0_aw_ready
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6871:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1955:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6825:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1948:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6871:1:      Example path: ALWAYS
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5758:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self8'
+                                                                              : ... note: In instance 'sim'
+ 5758 | reg           rhs_self8 = 1'd0;
+      |               ^~~~~~~~~
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5758:15:      Example path: sim.rhs_self8
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7677:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5866:15:      Example path: sim.socbushandler1_ar_ready
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7445:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1386:15:      Example path: sim.productsimulation_axiinterface0_ar_ready
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6871:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1955:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6825:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1948:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6871:1:      Example path: ALWAYS
+%Warning-UNOPTFLAT: $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5695:15: Signal unoptimizable: Circular combinational logic: 'sim.rhs_self21'
+                                                                              : ... note: In instance 'sim'
+ 5695 | reg           rhs_self21 = 1'd0;
+      |               ^~~~~~~~~~
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5695:15:      Example path: sim.rhs_self21
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7677:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:5866:15:      Example path: sim.socbushandler1_ar_ready
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:7445:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1386:15:      Example path: sim.productsimulation_axiinterface0_ar_ready
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6871:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1955:15:      Example path: sim.productsimulation_interface1_adapted_interface_ack
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6825:1:      Example path: ALWAYS
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:1948:15:      Example path: sim.productsimulation_interface0_adapted_interface_cyc
+                    $VALIDATION_STORAGE/559-a309-1x1-50-off/gateware/sim.v:6871:1:      Example path: ALWAYS
+make: Entering directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/native'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -Os  -c -o sim_main.o $LANES/559-capture-copy/tb/verilator/nvm_capture_cpu/sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -c -o verilated_dpi.o /usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -c -x c++-header Vsim__pch.h -o Vsim__pch.h.fast.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -c -x c++-header Vsim__pch.h -o Vsim__pch.h.slow.gch
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_0.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.slow -c Vsim_sim__1__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_1.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_2.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_3.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.slow -c Vsim_sim__12__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_4.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_5.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.slow -c Vsim_vm_classes_Slow_6.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.slow -c Vsim__Syms__Slow.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.fast -c Vsim_vm_classes_0.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.fast -c Vsim_vm_classes_1.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.fast -c Vsim_vm_classes_2.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.fast -c Vsim_vm_classes_3.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.fast -c Vsim_vm_classes_4.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.fast -c Vsim_vm_classes_5.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.fast -c Vsim_sim__38.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.fast -c Vsim_vm_classes_6.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -O3 -std=c++17 -Wall -Wextra -I$LANES/559-capture-copy/tb/common -I$VALIDATION_STORAGE/559-a309-1x1-50-off   -include Vsim__pch.h.fast -c Vsim__Dpi.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vsim__ALL.a    -pthread -lpthread -latomic   -o Vsim
+rm Vsim__ALL.verilator_deplist.tmp
+make: Leaving directory '$VALIDATION_STORAGE/559-a309-1x1-50-off/native'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 136.720 MB sources in 171 modules, into 15.271 MB in 91 C++ files needing 0.002 MB
+- Verilator: Walltime 22.182 s (elab=1.194, cvt=6.106, bld=14.061); cpu 8.280 s on 8 threads; allocated 408.535 MB
+COMMAND $VALIDATION_STORAGE/559-a309-1x1-50-off/native/Vsim
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "captures": 16,
+  "sys_hz": 100000000,
+  "cpu_hz": 50000000,
+  "configured_cpu_hz": 50000000,
+  "phase": "aligned rising edges",
+  "traffic": "off",
+  "minimum_ms": 6.58554,
+  "maximum_ms": 6.58857,
+  "hold_ms": 50,
+  "hold_floor_ms": 49,
+  "margin": 7.437122167632734,
+  "rows": [
+    {
+      "index": 0,
+      "ok": 1,
+      "sys_cycles": 658857,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 1,
+      "ok": 1,
+      "sys_cycles": 658554,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 2,
+      "ok": 1,
+      "sys_cycles": 658694,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 3,
+      "ok": 1,
+      "sys_cycles": 658832,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 4,
+      "ok": 1,
+      "sys_cycles": 658832,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 5,
+      "ok": 1,
+      "sys_cycles": 658832,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 6,
+      "ok": 1,
+      "sys_cycles": 658832,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 7,
+      "ok": 1,
+      "sys_cycles": 658832,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 8,
+      "ok": 1,
+      "sys_cycles": 658832,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 9,
+      "ok": 1,
+      "sys_cycles": 658857,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 10,
+      "ok": 1,
+      "sys_cycles": 658857,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 11,
+      "ok": 1,
+      "sys_cycles": 658832,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 12,
+      "ok": 1,
+      "sys_cycles": 658832,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 13,
+      "ok": 1,
+      "sys_cycles": 658832,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 14,
+      "ok": 1,
+      "sys_cycles": 658832,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    },
+    {
+      "index": 15,
+      "ok": 1,
+      "sys_cycles": 658832,
+      "raw": 3218,
+      "records": 53,
+      "mismatches": 0,
+      "open": 0,
+      "requests": 0,
+      "responses": 0,
+      "reads": 0
+    }
+  ]
+}

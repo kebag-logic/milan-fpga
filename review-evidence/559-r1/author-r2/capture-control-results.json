@@ -1,0 +1,60 @@
+[
+  {
+    "name": "none",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "returncode": 0,
+    "expected": 0,
+    "matched_reason": "PASS: capture census"
+  },
+  {
+    "name": "bytes",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "bytes"
+    ],
+    "returncode": 1,
+    "expected": 1,
+    "matched_reason": "capture inputs changed; remeasure both arms"
+  },
+  {
+    "name": "records",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "records"
+    ],
+    "returncode": 1,
+    "expected": 1,
+    "matched_reason": "capture inputs changed; remeasure both arms"
+  },
+  {
+    "name": "clock",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "clock"
+    ],
+    "returncode": 1,
+    "expected": 1,
+    "matched_reason": "capture inputs changed; remeasure both arms"
+  },
+  {
+    "name": "ignore-off-timing",
+    "argv": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "ignore-off-timing"
+    ],
+    "returncode": 1,
+    "expected": 1,
+    "matched_reason": "OFF timing omitted from maximum"
+  }
+]

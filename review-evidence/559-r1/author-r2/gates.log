@@ -1,0 +1,16 @@
+{'name': 'baremetal', 'argv': ['python3', 'scripts/check_baremetal_only.py', '--check'], 'returncode': 0, 'seconds': 14.44}
+{'name': 'docs', 'argv': ['python3', '-B', 'scripts/docs_check.py'], 'returncode': 0, 'seconds': 4.27}
+{'name': 'docs-no-git', 'argv': ['env', 'GIT_DIR=/dev/null', 'python3', '-B', 'scripts/docs_check.py'], 'returncode': 0, 'seconds': 4.12}
+{'name': 'doc-style', 'argv': ['python3', 'scripts/check_doc_style.py'], 'returncode': 0, 'seconds': 0.06}
+{'name': 'toc', 'argv': ['python3', 'scripts/gen_toc.py', '--check'], 'returncode': 0, 'seconds': 2.47}
+{'name': 'anchors', 'argv': ['python3', 'scripts/gen_toc.py', '--verify-anchors'], 'returncode': 0, 'seconds': 1.57}
+{'name': 'doc-paths', 'argv': ['python3', 'scripts/check_doc_paths.py'], 'returncode': 0, 'seconds': 0.06}
+{'name': 'module-matrix', 'argv': ['python3', 'docs/traceability/gen_module_matrix.py', '--check'], 'returncode': 0, 'seconds': 0.97}
+{'name': 'xvlog', 'argv': ['python3', 'scripts/xvlog_gate.py', '--check'], 'returncode': 0, 'seconds': 140.41}
+{'name': 'sv-idiom', 'argv': ['python3', 'scripts/check_sv_idiom.py'], 'returncode': 0, 'seconds': 0.46}
+{'name': 'cpp-idiom', 'argv': ['python3', 'scripts/check_cpp_idiom.py'], 'returncode': 0, 'seconds': 1.22}
+{'name': 'py-idiom', 'argv': ['python3', 'scripts/check_py_idiom.py'], 'returncode': 1, 'seconds': 3.42}
+{'name': 'ports', 'argv': ['python3', 'scripts/check_port_contracts.py'], 'returncode': 0, 'seconds': 2.27}
+{'name': 'naming', 'argv': ['python3', 'scripts/measure_naming.py', '--check'], 'returncode': 0, 'seconds': 0.47}
+{'name': 'test-evidence', 'argv': ['python3', 'scripts/measure_test_evidence.py', '--check'], 'returncode': 0, 'seconds': 5.02}
+{'name': 'diff', 'argv': ['git', 'diff', '--check'], 'returncode': 0, 'seconds': 0.03}
