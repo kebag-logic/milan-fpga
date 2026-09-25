@@ -1,0 +1,16 @@
+# cwd: $REVIEWS/r249-4-400-403
+# head: 09419d88053bd7777de966ce825e4ad7fe71c713 tree: d1c94326094b9c9c2ef2f6ecce0f065f003fd7bb
+# cmd: $REVIEWS/400-403-r249-4-packet/scripts/probe_nvm_capture_firmware.sh
+# start: 2026-09-25T18:46:31Z
+probe firmware sha256: 7cdc5e68243ff35a4b3b0b13613ba5f937010835dc737b1400c640d6ebce8a64
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+PASS: capture census, clocks, both timing arms and receipt agree
+probe check_nvm_capture exit=0
+restored sha256: 0bf43cd4fe02b110fb1ae4f051b3bc7baa6bb62c3769962520ed1f4bd12247a6 blob-match: yes
+# end: 2026-09-25T18:46:32Z exit=0

@@ -1,0 +1,22 @@
+# cwd: $REVIEWS/r249-4-400-403
+# head: 09419d88053bd7777de966ce825e4ad7fe71c713 tree: d1c94326094b9c9c2ef2f6ecce0f065f003fd7bb
+# cmd: python3 scripts/check_py_idiom.py
+# start: 2026-09-25T18:44:28Z
+py idiom: 252 first-party modules, 173592 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+# end: 2026-09-25T18:44:31Z exit=0

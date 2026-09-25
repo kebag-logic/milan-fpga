@@ -1,0 +1,51 @@
+# cwd: $REVIEWS/r249-4-400-403
+# head: 09419d88053bd7777de966ce825e4ad7fe71c713 tree: d1c94326094b9c9c2ef2f6ecce0f065f003fd7bb
+# cmd: bash -c B=$(git merge-base 551e4b5dfa8ac7ec68a3161c95d4000eb6337396 c6c65e803f9eb270a11dfd65fda5814fb0b0ea55); echo base=$B; comm -12 <(git diff --name-only $B c6c65e803f9eb270a11dfd65fda5814fb0b0ea55|sort) <(git diff --name-only $B 551e4b5dfa8ac7ec68a3161c95d4000eb6337396|sort); echo; echo PR-only-files; comm -23 <(git diff --name-only $B c6c65e803f9eb270a11dfd65fda5814fb0b0ea55|sort) <(git diff --name-only $B 551e4b5dfa8ac7ec68a3161c95d4000eb6337396|sort); echo; echo check: every PR-only file identical to PR head in candidate; for f in $(comm -23 <(git diff --name-only $B c6c65e803f9eb270a11dfd65fda5814fb0b0ea55|sort) <(git diff --name-only $B 551e4b5dfa8ac7ec68a3161c95d4000eb6337396|sort)); do [ "$(git rev-parse c6c65e80:$f 2>/dev/null)" = "$(git rev-parse HEAD:$f 2>/dev/null)" ] || echo MISMATCH $f; done; echo done
+# start: 2026-09-25T18:39:08Z
+base=864b36f5e9450ef64f75ca3f0d68c44330e447d7
+docs/reference/REGISTER_MAP.md
+docs/reference/SUBMODULES.md
+hdl/common/csr/milan_csr.sv
+hdl/milan/KL_pp_shadow.sv
+hdl/milan/milan_datapath.sv
+tb/verilator/csr/sim_main.cpp
+tb/verilator/csr/sim_win.cpp
+tb/verilator/milan_dp/README.md
+
+PR-only-files
+configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+docs/design/AREA_BUDGET.md
+docs/design/MAAP_FABRIC.md
+docs/ENDSTATION_BUILDER.md
+hdl/common/csr/gen/lwsrp_csr_defaults.svh
+hdl/common/gen/adp_shape_defaults.svh
+scripts/pp_srcs.py
+sw/builder/endstation_builder.py
+sw/builder/README-parameters.md
+sw/builder/test_builder.py
+sw/builder/test_declarations.py
+sw/firmware/milan_baremetal/milan_baremetal.c
+sw/firmware/nvm_hosttest/test_nvm_firmware.py
+sw/litex/boot_policy.py
+sw/litex/milan_soc.py
+tb/common/gen_declaration_fixture.py
+tb/verilator/csr/fixtures/reset_bits.yaml
+tb/verilator/csr/Makefile
+tb/verilator/csr/README.md
+tb/verilator/csr/sim_gptp.cpp
+tb/verilator/milan_dp/sim_main.cpp
+tb/verilator/milan_dp/sim_nxn.cpp
+tb/verilator/nvm_cosim/run_cases.py
+tb/verilator/pp_shadow/fixtures/crf_on.yaml
+tb/verilator/pp_shadow/fixtures/vid73.yaml
+tb/verilator/pp_shadow/Makefile
+tb/verilator/pp_shadow/README.md
+tb/verilator/pp_shadow/sim_main.cpp
+
+check: every PR-only file identical to PR head in candidate
+done
+# end: 2026-09-25T18:39:08Z exit=0

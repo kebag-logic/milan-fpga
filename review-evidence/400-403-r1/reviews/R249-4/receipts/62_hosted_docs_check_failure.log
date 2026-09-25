@@ -1,0 +1,15 @@
+# read-only hosted evidence: run 36171850304 (pull_request, headSha c6c65e803f9eb270a11dfd65fda5814fb0b0ea55), job 108193046684 docs-check
+# failed step: Capture measurement census and clock gate
+﻿2026-09-25T18:29:16.2628216Z ##[group]Run python3 scripts/check_nvm_capture.py
+2026-09-25T18:29:16.2628882Z ^[[36;1mpython3 scripts/check_nvm_capture.py^[[0m
+2026-09-25T18:29:16.2708912Z shell: /usr/bin/bash -e {0}
+2026-09-25T18:29:16.2709246Z ##[endgroup]
+2026-09-25T18:29:17.0878583Z FAIL: product firmware changed; remeasure the copy
+2026-09-25T18:29:17.0881730Z CONTROL bytes: detected
+2026-09-25T18:29:17.0891806Z CONTROL records: detected
+2026-09-25T18:29:17.0892167Z CONTROL clock: detected
+2026-09-25T18:29:17.0892562Z CONTROL configured-clock: detected
+2026-09-25T18:29:17.0892956Z CONTROL system-clock: detected
+2026-09-25T18:29:17.0893435Z CONTROL ignore-off-timing: detected planted grading change
+2026-09-25T18:29:17.0894078Z CONTROL off-time-limit: boundary and one-tick-over detected
+2026-09-25T18:29:17.1068455Z ##[error]Process completed with exit code 1.
