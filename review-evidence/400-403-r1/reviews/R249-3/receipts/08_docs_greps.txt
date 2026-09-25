@@ -1,0 +1,9 @@
+## PRES_DFLT_C
+## MAAP 0x0800 / count 8 in docs
+docs/reference/REGISTER_MAP.md:659:| `0x504` | `PTP_INCR` | RW | derived | nominal increment per tick, **Q8.24** ns: `[31:24]` integer ns, `[23:0]` fractional ns. Reset value = the true PHC clock period, derived from `MILAN_CLK_FREQ_HZ_P` (`0x14000000` = 20.0 ns in the shipping 50 MHz Milan domain; `0x0A000000` = 10.0 ns in the 100 MHz AX bring-up shape; the standalone-default 125 MHz gives the historic `0x08000000`) |
+## REGISTER_MAP MAAP_CTRL
+1242:| `0x6CC` | `MAAP_CTRL` | RW | Neutral disabled reset `0`: `[0]` enable, `[1]` seed_valid, `[15:8]` block count, `[31:16]` seed offset. Firmware writes generated `MILAN_MAAP_CTRL_BOOT`, claiming exactly the declared AAF outputs plus one only when CRF output exists. |
+## hdl stale strings
+## milan_soc --no-maap / static
+docs/design/MAAP_FABRIC.md:4:(before this, `cfg_aaf_dmac` was statically provisioned).
+hdl/ieee1722/maap/doc/KL_maap/KL_maap.md:11:- **[Integration](#integration)** — The one expression that decides whether the claimed address or the statically provisioned one reaches the AAF framer, and the guarantee that comes with it: `en = 0` keeps static provisioning bit-exact.

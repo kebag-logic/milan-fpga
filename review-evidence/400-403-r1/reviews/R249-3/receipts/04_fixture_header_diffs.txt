@@ -1,0 +1,40 @@
+## reset_bits fixture vs tracked
+8c8
+< //  Source      : tb/verilator/csr/obj_reset/fixture/config.yaml
+---
+> //  Source      : configs/endstation_arty_current.yaml
+32c32
+<   localparam [31:0] LWSRP_CTRL_RST_C      = 32'h0000_0013;  //! 0x680
+---
+>   localparam [31:0] LWSRP_CTRL_RST_C      = 32'h0000_0010;  //! 0x680
+8c8
+< //  Source      : tb/verilator/csr/obj_reset/fixture/config.yaml
+---
+> //  Source      : configs/endstation_arty_current.yaml
+## crf_on fixture vs tracked
+8c8
+< //  Source      : tb/verilator/pp_shadow/obj_crf/fixture/config.yaml
+---
+> //  Source      : configs/endstation_arty_current.yaml
+8,9c8,9
+< //  Source      : tb/verilator/pp_shadow/obj_crf/fixture/config.yaml
+< //  Shape       : 1 AAF listener(s) + 1 AAF talker(s); CRF sink yes, CRF output yes
+---
+> //  Source      : configs/endstation_arty_current.yaml
+> //  Shape       : 1 AAF listener(s) + 1 AAF talker(s); CRF sink yes, CRF output no
+24c24
+<   localparam int ADP_TALKER_SRC_C    = 2;
+---
+>   localparam int ADP_TALKER_SRC_C    = 1;
+31c31
+<   localparam int AEM_NAME_ENTRIES_C = 29;
+---
+>   localparam int AEM_NAME_ENTRIES_C = 28;
+41c41
+<   localparam logic [15:0] ADP_TALKER_CAPS_C    = 16'h4801;
+---
+>   localparam logic [15:0] ADP_TALKER_CAPS_C    = 16'h4001;
+87c87
+<   localparam logic [31:0] ADP_STROUT_PRES_NS_C [0:1] = '{32'd2000000, 32'd2000000};
+---
+>   localparam logic [31:0] ADP_STROUT_PRES_NS_C [0:0] = '{32'd2000000};

@@ -1,0 +1,5 @@
+mutant: sw/builder/endstation_builder.py: '| (int(s["talker_declare_at_reset"]) << 1)' -> '| 0'
+cmd: make -C tb/verilator/csr
+start: 2026-09-25T17:15:00.273459+00:00
+exit: 2
+restored sha256: dcaf9280e84d2b4237c97e60a684decac9df1e27bd7417e16e6e0f3c1376ccc4
