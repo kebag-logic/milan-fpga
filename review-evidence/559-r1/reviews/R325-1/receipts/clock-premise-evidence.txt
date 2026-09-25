@@ -1,0 +1,111 @@
+# Clock premise evidence at 32076148 (commands and outputs)
+
+$ grep -n milan_clk_hz configs/endstation_ax7101_8x8.yaml configs/endstation_ax7101_1x1_tdm8.yaml
+configs/endstation_ax7101_8x8.yaml:56:    milan_clk_hz: 100000000          # single fast domain (AX timing CLOSED)
+configs/endstation_ax7101_1x1_tdm8.yaml:44:    milan_clk_hz: 50000000   # 64-bit plane still carries 3.2 Gb/s; the
+
+$ git log -L55,57:configs/endstation_ax7101_8x8.yaml (clock line unchanged since 2026-07-22; L2 history)
+dfcf83ce 2026-08-26 Finish the bare-metal-only product removal
+-    l2_bytes: 0                      # #259 bare-metal cacheless product; the
+-                                     # Linux-era 16K close (07-24, WNS +0.080)
+-                                     # and the 32K congestion wall are
+-                                     # historical records in git history.
++    l2_bytes: 0                      # #259 bare-metal cacheless product
+dc9ed422 2026-08-25 Retire the Linux profile, sound-card surface and rootfs-overlay writes from the builder and its configurations
+-    l2_bytes: 16384                  # USER 2026-07-29: BACK to the AX's
+-                                     # measured-close 16K (the 07-24 close was
+-                                     # at 16K, WNS +0.080). The 07-28 32K
+-                                     # uniformity reference stands on the ARTY
+-                                     # only: at 32K the AX packs but times
+-                                     # -1.0..-1.8 across six configurations -
+-                                     # a congestion wall at ~89%/100 MHz that
+-                                     # the smaller L2 directly relieves.
++    l2_bytes: 0                      # #259 bare-metal cacheless product; the
++                                     # Linux-era 16K close (07-24, WNS +0.080)
++                                     # and the 32K congestion wall are
++                                     # historical records in git history.
+071d177c 2026-07-29 cfg: the AX returns to its measured-close L2 16K (USER
+-    l2_bytes: 32768                  # USER 2026-07-28: L2 32K on BOTH boards
+-                                     # is THE REFERENCE from the 0x0019 flash
+-                                     # round on (uniform L2 across the fleet;
+-                                     # supersedes the 07-24 16K close note -
+-                                     # that build predates the 0x0019 fabric,
+-                                     # the tier-1 prunes, the CBS mask and the
+-                                     # AreaOptimized_high+ExploreArea flow, so
+-                                     # its numbers no longer bind this shape).
++    l2_bytes: 16384                  # USER 2026-07-29: BACK to the AX's
++                                     # measured-close 16K (the 07-24 close was
++                                     # at 16K, WNS +0.080). The 07-28 32K
++                                     # uniformity reference stands on the ARTY
++                                     # only: at 32K the AX packs but times
++                                     # -1.0..-1.8 across six configurations -
++                                     # a congestion wall at ~89%/100 MHz that
++                                     # the smaller L2 directly relieves.
+09877af2 2026-07-28 cfg/flow: L2 32K on BOTH boards is THE REFERENCE (USER
+-    l2_bytes: 16384                  # the 8x8 shape closed at 16K, not 32K.
+-                                     # The USER 32K authorisation is for the 1x1
+-                                     # bench shape (build.sh cfg_ax7101, which is
+
+$ git show 1e80a106 -- configs/endstation_ax7101_1x1_tdm8.yaml sw/litex/build.sh (shipping core to 50 MHz)
+1e80a106 2026-08-19 Clock the bare-metal shipping core at 50 MHz
+
+diff --git a/configs/endstation_ax7101_1x1_tdm8.yaml b/configs/endstation_ax7101_1x1_tdm8.yaml
+index 3caa68b3..0becfbf7 100644
+--- a/configs/endstation_ax7101_1x1_tdm8.yaml
++++ b/configs/endstation_ax7101_1x1_tdm8.yaml
+@@ -43,7 +43,8 @@ board:
+                           # them for area; this shape has the headroom
+   constraints:
+     sys_clk_hz: 100000000
+-    milan_clk_hz: 100000000
++    milan_clk_hz: 50000000   # 64-bit plane still carries 3.2 Gb/s; the
++                              # option-on fabric and cacheless CPU close here
+     l2_bytes: 0      # cacheless RV32I bare-metal core; no L1/L2/MMU
+     phy: gmii-1g
+     gtx_tx_invert: true
+diff --git a/sw/litex/build.sh b/sw/litex/build.sh
+index ab75a590..3f7546c9 100755
+--- a/sw/litex/build.sh
++++ b/sw/litex/build.sh
+@@ -131,7 +131,7 @@ cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart. Linux
+     #   --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16
+     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 \
+           --software-profile baremetal --all-blocks --coherent-dma \
+-          --milan-clk-freq 100e6 --with-spiflash --flashboot baremetal \
++          --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal \
+           --gtx-tx-invert --timing-opt --floorplan --eth-port e1 \
+           --no-i2s-playback --no-render-lpf --audio-interface tdm8 \
+           --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 \
+
+$ sed -n 42,50p docs/integration/BAREMETAL_FIRMWARE.md  (build contract)
+  the only privilege level and the CPU has no MMU.
+- The cacheless CPU side and the 64-bit Milan plane run at 50 MHz. Vexii's
+  decoupled-clock option crosses the CPU's peripheral bridge and DMA slave
+  back into the 100 MHz LiteX system fabric; its memory master stays on the
+  CPU clock, and `sw/litex/milan_soc.py` crosses that port before LiteDRAM
+  sees it (`cross_cpu_memory_ports`, #359: without it the first DRAM access
+  after the BIOS handed the DFI back never completed and no persistent boot
+  reached the firmware). The system/audio clock recipe therefore stays
+  unchanged.
+
+$ sed -n 1990,2002p docs/integration/BAREMETAL_FIRMWARE.md  (1x1 at 100/100 failed setup)
+
+The first option-on experiment kept both the system and Milan planes at
+100 MHz. It emitted bitstreams but did not meet setup timing:
+
+| Place directive | WNS (ns) | TNS (ns) | WHS (ns) |
+|---|---:|---:|---:|
+| `AltSpreadLogic_high` | -3.933 | -11,973.169 | +0.036 |
+| `ExtraTimingOpt` | -3.897 | -9,278.585 | +0.057 |
+| `ExtraPostPlacementOpt` | -3.762 | -12,239.650 | +0.020 |
+
+That result is why the cacheless CPU and 64-bit Milan plane run at 50 MHz;
+3.2 Gb/s still exceeds the 1 Gb/s wire rate while the LiteX system and audio
+recipe remain at 100 MHz.
+
+$ grep -n -i 8x8 docs/integration/BAREMETAL_FIRMWARE.md docs/design/AREA_BUDGET.md docs/litex/CLOCK_DOMAINS.md (no 8x8 bare-metal placement record)
+(no output)
+
+$ board launch argv derived by sw/builder/endstation_builder.emit_design_opts
+endstation_ax7101_8x8 --board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219
+endstation_ax7101_1x1_tdm8 --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219

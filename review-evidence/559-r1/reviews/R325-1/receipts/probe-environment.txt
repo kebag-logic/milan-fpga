@@ -1,0 +1,20 @@
+Probe environment identity (paths redacted: $HOME, $TOOLS)
+litex a1e1c3652ec2f1346ebaea7663d2867f393ae2c4
+migen 4c2ae8dfeea37f235b52acb8166f12acaaae4f7c
+litedram f9b75e0347fc43267d083f7ff5965170fe8f9a58
+litespi 02d5a209bc0010d33ddb506ba18e736636d4109a
+pythondata-cpu-vexiiriscv 15cfab529a17c473d0fc75edf3f409eb374cef35
+author receipt environment-revisions.json (evidence tree c16e4aed, review-evidence/559-r1/author): litex a1e1c365 migen 4c2ae8df litedram f9b75e03 litespi 02d5a209 pythondata-cpu-vexiiriscv 15cfab52 -> identical
+simulator: Verilator 5.052 2026-09-05 rev v5.052 (the author's receipt records Verilator 5.052)
+compiler: riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0
+network: unshare --user --map-current-user --net; COURSIER_MODE=offline; SBT_OPTS=-Dsbt.offline=true; PYTHONHASHSEED=0
+b8x8_50 cpu_netlist VexiiRiscvLitex_f5f08b170311db53220574624f819159.v sha256 c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d; instrumented_firmware sha256 368eb10bd69d9c2d03e557d96da5d719e0d7170d54d0f619605828fc8d32aa8a
+b8x8_50_nt cpu_netlist VexiiRiscvLitex_f5f08b170311db53220574624f819159.v sha256 c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d; instrumented_firmware sha256 040b84506e513be28defb4d34d49498c8e22230f264653ff664c2d660ef73d09
+b8x8_100 cpu_netlist VexiiRiscvLitex_f5f08b170311db53220574624f819159.v sha256 c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d; instrumented_firmware sha256 368eb10bd69d9c2d03e557d96da5d719e0d7170d54d0f619605828fc8d32aa8a
+b8x8_100_nt cpu_netlist VexiiRiscvLitex_f5f08b170311db53220574624f819159.v sha256 c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d; instrumented_firmware sha256 040b84506e513be28defb4d34d49498c8e22230f264653ff664c2d660ef73d09
+author 8x8 receipt: cpu_netlist_sha256 c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d, instrumented_firmware_sha256 368eb10bd69d9c2d03e557d96da5d719e0d7170d54d0f619605828fc8d32aa8a
+firmware layout (riscv32-linux-nm -n bios.elf) is identical in all four builds:
+b8x8_50 nvm_block_plen=000063e8 nvm_rec_after=00006430 nvm_capture=00006988 capture_probe_init=000070ec 
+b8x8_50_nt nvm_block_plen=000063e8 nvm_rec_after=00006430 nvm_capture=00006988 capture_probe_init=000070ec 
+b8x8_100 nvm_block_plen=000063e8 nvm_rec_after=00006430 nvm_capture=00006988 capture_probe_init=000070ec 
+b8x8_100_nt nvm_block_plen=000063e8 nvm_rec_after=00006430 nvm_capture=00006988 capture_probe_init=000070ec 

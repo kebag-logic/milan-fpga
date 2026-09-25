@@ -1,0 +1,17 @@
+$ for d in tb/verilator/*/; do [ -f "$d/Makefile" ] || echo "NO MAKEFILE: $d"; done
+NO MAKEFILE: tb/verilator/nvm_capture_cpu/
+
+$ scripts/run_all_suites.sh --list | grep -c .   and   | grep -c nvm_capture_cpu
+55
+0
+
+$ grep -n "Every directory needs\|ls tb/verilator/. is authoritative" docs/testing/TESTING.md
+164:`ls tb/verilator/` is authoritative (one dir per suite).
+373:Every directory needs a `Makefile`; only `milan_dp_gptp` runs separately. **Run it for the verdicts; this page does not carry them.** The last
+
+$ grep -rn nvm_capture_cpu docs/testing tb/verilator/README.md docs/litex/SIMULATION.md CONTRIBUTING.md
+grep: docs/litex/SIMULATION.md: No such file or directory
+(no output)
+
+$ git diff --stat a3d795ae..32076148 -- .github
+(no workflow change)

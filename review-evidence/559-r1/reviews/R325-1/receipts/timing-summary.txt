@@ -1,0 +1,7 @@
+b8x8_100     cpu_hz=100000000 mutation=none       captures=2 sys_cycles=[1899620, 1899632] max_ms=18.99632 margin50=2.6321 traffic(req/resp/reads)=[(237330, 146, 5694), (237331, 146, 5694)] all_ok=True
+b8x8_100_nt  cpu_hz=100000000 mutation=no-traffic captures=2 sys_cycles=[1979024, 1978694] max_ms=19.79024 margin50=2.5265 traffic(req/resp/reads)=[(0, 0, 0), (0, 0, 0)] all_ok=True
+b8x8_50      cpu_hz= 50000000 mutation=none       captures=4 sys_cycles=[2415004, 2415248, 2415108, 2414638] max_ms=24.15248 margin50=2.0702 traffic(req/resp/reads)=[(150855, 154, 5983), (150871, 153, 5967), (150862, 153, 5967), (150832, 153, 5982)] all_ok=True
+b8x8_50_nt   cpu_hz= 50000000 mutation=no-traffic captures=2 sys_cycles=[2414830, 2415108] max_ms=24.15108 margin50=2.0703 traffic(req/resp/reads)=[(0, 0, 0), (0, 0, 0)] all_ok=True
+
+Author receipt (tb/verilator/nvm_capture_cpu/measurements.json at 32076148): 8x8 cpu 100 MHz traffic, 16 captures, sys_cycles 1899012..1900433, max 19.00433 ms, margin 2.6310
+Author public log final-mut-no-traffic-uart.log (1x1 cpu 50 MHz, no traffic): sys_cycles 655196, 655072; 1x1 traffic receipt 654490..655479
