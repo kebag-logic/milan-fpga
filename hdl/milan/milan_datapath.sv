@@ -4409,23 +4409,26 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! ==== the Milan-info answer block (06 SS6.2/SS6.10) ====================
   //! GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH, one word at a time; the
   //! processor lays the responses out and THIS fabric owns every value and
-  //! every validity flag, because the truth lives here: the pp's own
-  //! class-D binding view and SRP registrars (read back on the same nets
-  //! every other consumer reads), the declared stream identities, the gPTP
-  //! CSR pair and the clock-validator's asCapable.
+  //! every validity flag it is asked for, because the truth lives here: the
+  //! pp's own class-D binding view and SRP registrars (read back on the same
+  //! nets every other consumer reads), the declared stream identities, the
+  //! gPTP CSR pair and the clock-validator's asCapable.
+  //!
+  //! THREE STREAM_INPUT FIELDS ARE THE PROCESSOR'S, NOT THIS FACE'S (#508,
+  //! processor issues 43 and 49). It never asks for a STREAM_INPUT's
+  //! selector 5 (msrp_failure_bridge_id, from its SRP registrar) or
+  //! selector 7 (probing_status and acmp_status, from its listener's
+  //! committed record), and it replaces selector 4's failure-code byte
+  //! [15:8] from the same registrar. This face therefore answers neither
+  //! selector for an input and leaves that byte zero: a second copy here
+  //! would be a second state owner, and it was one - a bound/settled
+  //! approximation of pbsta that never said ACTIVE, and a zero bridge id.
+  //! The MSRP_FAILURE_VALID and REGISTERING_FAILED flags stay this face's.
   //!
   //! HONESTY LEDGER (what this face says and why):
   //!  - a sink is SETTLED when it is bound and its settled stream_id is
   //!    nonzero (the binding view latches identity at settle and zeroes it
-  //!    at unbind) - while actively probing, pbsta reports PASSIVE (1),
-  //!    never ACTIVE, and acmpsta is therefore 0 by Milan 5.3.8.6's own
-  //!    "otherwise" arm: the listener's probe-retry detail never leaves the
-  //!    processor, and claiming ACTIVE without the matching acmpsta would
-  //!    be the invented half of a truth.
-  //!  - msrp_failure_bridge_id for a SINK reads 0: the processor exports
-  //!    the registered failure CODE but not the bridge id; MSRP_FAILURE_
-  //!    VALID still follows the FAILED registration so a controller sees
-  //!    the failure, with the code carried and the bridge honestly zero.
+  //!    at unbind); that gates the stream_id, DA and VLAN fields and flags.
   //!  - stream_format at reset is the addressed ROW's generated declared
   //!    format (ADP_STRIN_FMT_C / ADP_STROUT_FMT_C - the config accepts
   //!    independent per-row format lists, so row 0's fact must never
@@ -4786,37 +4789,32 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                               : {32'd0, gsi_out_w
                                  ? aecp_pres_offset[32*gsi_oix_w +: 32]
                                  : 32'd0};
+          //! an input's failure-code byte [15:8] is left zero: the
+          //! processor replaces it from its SRP registrar (#508)
           4'd4: gsi_ans_raw_w = gsi_setl_w
                               ? {pp_cd_acmp_bound_dmac_w[48*gsi_six_w +: 48],
-                                 gsi_tkfail_w
-                                 ? pp_cd_srp_snk_fail_code_w[8*gsi_six_w +: 8]
-                                 : 8'd0, 8'd0}
+                                 16'd0}
                               : gsi_decl_w
                               ? {(maap_addr_valid ? gsi_odmac_w : 48'd0),
                                  gsi_ofail_w
                                  ? pp_cd_srp_src_fail_code_w[8*gsi_oix_w +: 8]
                                  : 8'd0, 8'd0}
-                              : {48'd0,
-                                 gsi_tkfail_w
-                                 ? pp_cd_srp_snk_fail_code_w[8*gsi_six_w +: 8]
-                                 : 8'd0, 8'd0};
+                              : 64'd0;
+          //! a STREAM_OUTPUT's own FailureInformation; an input's selector 5
+          //! is never asked of this face (#508)
           4'd5: gsi_ans_raw_w = gsi_ofail_w
                               ? pp_cd_srp_src_fail_bridge_w[64*gsi_oix_w +: 64]
-                              : 64'd0;       // sink bridge id: honest zero
+                              : 64'd0;
           4'd6: gsi_ans_raw_w = {gsi_setl_w
                                  ? {4'd0, pp_cd_acmp_bound_vlan_w[12*gsi_six_w +: 12]}
                                  : gsi_decl_w
                                  ? {4'd0, pp_cd_srp_class_a_vid_w}
                                  : 16'd0,
                                  16'd0, gsi_flags_ex_w};
-          4'd7: gsi_ans_raw_w = {32'd0,
-                                 gsi_in_w
-                                 ? {(!gsi_bnd_w ? 3'd0
-                                     : gsi_setl_w ? 3'd3 : 3'd1), 5'd0}
-                                 : 8'd0,
-                                 24'd0};
           //! SET_STREAM_FORMAT's verdict on the proposed format (issue #67)
           4'd15: gsi_ans_raw_w = sfv_verdict_w;
+          //! selector 7 lands here: an input's probing_status and acmp_status
+          //! are the processor's (#508), and an output's are zero
           default: gsi_ans_raw_w = 64'd0;
         endcase
       end
@@ -6602,25 +6600,29 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! claims no slope/gate ordering.
   //!
   //! The processor has no hold. KL_srp_admission walks its sources and
-  //! latches grant_r, gslope_r and sum_r TOGETHER at round end; the published
-  //! sr_admitted_o is grant_r AND the live request.
+  //! latches grant_r, gslope_r and sum_r TOGETHER at the end of a PUBLISHED
+  //! round, one that saw every requesting source's current slope (processor
+  //! issue 112); the published sr_admitted_o is grant_r AND the live
+  //! request, and an accepted (re)declaration retires its source's grant
+  //! until its new slope is evaluated.
   //!
   //! THE GATE IS NOT THAT VERDICT (#530). It is the processor's ACTIVE,
   //! srp_active_o: declaring Talker Advertise AND not failed AND a Listener
   //! Ready or Ready Failed registered AND admitted - the Milan v1.2 5.3.7.3
   //! licence, which protocol_processor_top names "THE AVTP transmit gate"
   //! and tells a consumer never to rebuild from its terms. The raw verdict
-  //! is only the last term. It rises at the DECLARE_TALKER, before any
-  //! bridge has answered, so gating on it put the #117 Run B CRF output on
+  //! is only the last term. It rises within a few admission rounds of the
+  //! DECLARE_TALKER, before any bridge has answered, so gating on it put
+  //! the #117 Run B CRF output on
   //! the wire 4.7 s before its first Listener Ready and kept it there after
   //! the Listener had left. So:
   //!
   //!   OPENING EDGE - ACTIVE takes the admission term through the
   //!   processor's optimistic window (sr_adm_fsm = opt | admitted): a fresh
-  //!   declaration counts as admitted until the end of the third admission
-  //!   round after it, a round walking one source per cycle, so N_SOURCES
-  //!   cycles each (protocol-processor hdl/srp/KL_srp_top.sv:445,772-779,
-  //!   855-858).
+  //!   declaration counts as admitted until the end of the third PUBLISHED
+  //!   admission round after it, a round walking one source per cycle, so
+  //!   N_SOURCES cycles each (protocol-processor hdl/srp/KL_srp_top.sv:
+  //!   sr_adm_fsm_w at 451, opt_r aging at 787-798, reload at 873-876).
   //!   The same declaration clears that source's talker-side Listener
   //!   registrar (KL_srp_talker_fsm.sv:705-710), so no Listener Ready is
   //!   ever registered at a declaration and ACTIVE is 0 after it. ACTIVE
@@ -6639,8 +6641,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //!   never on [8].
   //!
   //!   REFUSED - the round refuses the stream: over_limit (LWSRP_STATUS[7])
-  //!   rises and sr_admitted_o stays 0 (KL_srp_admission.sv:152-154,
-  //!   207-214). ACTIVE does not fall inside the window: it holds on opt
+  //!   rises and sr_admitted_o stays 0 (KL_srp_admission.sv:187-190,
+  //!   261-266). ACTIVE does not fall inside the window: it holds on opt
   //!   and falls at the window's end, and the declaration then swaps to
   //!   Talker Failed. So a declaration the 75 % ceiling refuses holds, for
   //!   up to three rounds, the emission licence (crft_emit_en_w into
@@ -6666,9 +6668,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //!
   //!   CLOSING EDGE - ACTIVE drops the cycle any of its terms drops.
   //!   sr_admitted_o, whose OR is LWSRP_STATUS[9], does not follow the
-  //!   Listener: it drops with the request (the declaration) or a refusing
-  //!   round. sum_r is ROUND-LATCHED, so 0x698 keeps a withdrawn
-  //!   declaration's slope until the next round completes.
+  //!   Listener: it drops with the request (the declaration), with a
+  //!   re-declaration until that is evaluated, or with a refusing round.
+  //!   sum_r is latched by PUBLISHED rounds, so 0x698 keeps a withdrawn
+  //!   declaration's slope until the next one completes.
   //!
   //! A LATER LANE that credit-shapes these sources must not pair this gate
   //! with sum_r and inherit the bw-gate's ordering: at the opening edge
@@ -6698,15 +6701,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! scalars and always described sink 0, and [2*k +: 2] is the per-sink
   //! slice. tk_reg_state is a CODE, not a one-hot: the processor publishes
   //! 0 NONE / 1 ADVERTISE / 2 FAILED (protocol-processor
-  //! hdl/srp/KL_srp_top.sv:207, driven at hdl/srp/KL_srp_listener_fsm.sv:
-  //! 795-796), so bit 1 of the slice is set for a registered Talker FAILED
+  //! hdl/srp/KL_srp_top.sv:211 tk_reg_state_o, driven by status_map at
+  //! hdl/srp/KL_srp_listener_fsm.sv:851-853), so bit 1 of the slice is set
+  //! for a registered Talker FAILED
   //! and clear for the registered Talker ADVERTISE this field is named for -
   //! the inversion #472 measured. The compare is against the ADVERTISE code,
   //! named below because the processor spells this word's codes in a port
   //! comment and not in srp_pkg (the Listener four-pack below IS in the
   //! package, and is taken from it). 802.1Q 35.2.4.4.1 is the registrar.
   //! The per-sink Failure BridgeID and registered VLAN are NOT on the
-  //! class-D face (it carries the per-SOURCE bridge id only), so the CSR
+  //! class-D face (it carries the per-SOURCE bridge id only; the processor
+  //! serves a sink's bridge id itself, in GET_STREAM_INFO, #508), so the CSR
   //! fields that carried them are gone from this file rather than wearing a
   //! source's value under a sink's name.
   localparam logic [1:0] SRP_TK_REG_ADVERTISE_C = 2'd1;

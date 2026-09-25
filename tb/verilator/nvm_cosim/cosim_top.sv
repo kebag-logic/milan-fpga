@@ -23,6 +23,16 @@
 //                historical defects (A2, B1, E1) red on the source they were
 //                reproduced against.
 //
+//                Since pin a8f8ce81 (processor issue 93) the producer path
+//                is TRANSCRIBED from protocol_processor_top as it is there:
+//                the manager drives KL_pp_nvm_mgr_arb, which drains a read the
+//                manager abandons at its walk deadline, in front of the port;
+//                the port's error cause reaches the manager, whose deadline
+//                is the top's NVM_RS_TMO_CYC_P (CLK_HZ_P / 50); and the
+//                arbiter's second manager is tied idle, as the top ties it.
+//                The top's listener admission gate is not modelled: no
+//                listener is, and restore_done here is the walk's own.
+//
 //                The parent glue between them is TRANSCRIBED from
 //                hdl/milan/KL_pp_shadow.sv and says so where it is: the
 //                level-and-alarm wiring the contract specifies, and the dyn
@@ -228,9 +238,22 @@ module cosim_top
   logic        nvm_rvalid_w, nvm_rready_w, nvm_busy_w, nvm_done_w, nvm_err_w;
   logic [N_STREAM_IN_P-1:0] mgr_dirty_w, mgr_valid_nc_w, mgr_touched_nc_w;
   logic        mgr_alarm_w, pp_restore_done_w, pp_restore_fail_w, pp_restore_blank_w;
+  logic [1:0]  nvm_err_cause_w, restore_cause_nc_w;
+  logic        nvm_abort_w;
+  //! the port's manager face, behind the arbiter (protocol_processor_top)
+  logic        np_req_w, np_we_w, np_wvalid_w, np_wready_w, np_rvalid_w;
+  logic        np_rready_w, np_busy_w, np_done_w, np_err_w;
+  logic [7:0]  np_rid_w, np_wdata_w, np_rdata_w;
+  logic [1:0]  np_err_cause_w;
+  logic        nm1_gnt_nc_w, nm1_wready_nc_w, nm1_rvalid_nc_w;
+  logic        nm1_done_nc_w, nm1_err_nc_w, nvm_drain_nc_w;
+  logic [7:0]  nm1_rdata_nc_w;
+  logic [1:0]  nm1_err_cause_nc_w;
 
   KL_acmp_nvm_shadow #(
-      .N_SINKS_P (N_STREAM_IN_P)
+      .N_SINKS_P    (N_STREAM_IN_P),
+      //! the top's NVM_RS_TMO_CYC_P default, derived the way it derives it
+      .RS_TMO_CYC_P (CLK_HZ_P / 32'd50)
   ) u_nvm_shadow (
       .clk_i            (clk_i),
       .rst_n            (rst_n),
@@ -240,6 +263,7 @@ module cosim_top
       .restore_done_o   (pp_restore_done_w),
       .restore_fail_o   (pp_restore_fail_w),
       .restore_blank_o  (pp_restore_blank_w),
+      .restore_cause_o  (restore_cause_nc_w),
       .alarm_o          (mgr_alarm_w),
       .cap_wr_i         (cap_wr_i),
       .cap_sink_i       (SIW_C'(cap_sink_i)),
@@ -264,6 +288,8 @@ module cosim_top
       .nvm_busy_i       (nvm_busy_w),
       .nvm_done_i       (nvm_done_w),
       .nvm_err_i        (nvm_err_w),
+      .nvm_err_cause_i  (nvm_err_cause_w),
+      .nvm_abort_o      (nvm_abort_w),
       .dbg_dirty_o      (mgr_dirty_w),
       .dbg_valid_o      (mgr_valid_nc_w),
       .dbg_touched_o    (mgr_touched_nc_w)
@@ -271,6 +297,54 @@ module cosim_top
   assign mgr_dirty_o = mgr_dirty_w;
   assign alarm_o     = mgr_alarm_w;
   assign port_busy_o = nvm_busy_w;
+
+  // ---- the real manager arbiter, as protocol_processor_top wires it --------
+  KL_pp_nvm_mgr_arb u_nvm_arb (
+      .clk_i          (clk_i),
+      .rst_n          (rst_n),
+      .m0_req_i       (nvm_req_w),
+      .m0_we_i        (nvm_we_w),
+      .m0_rid_i       (nvm_record_id_w),
+      .m0_wvalid_i    (nvm_wvalid_w),
+      .m0_wdata_i     (nvm_wdata_w),
+      .m0_rready_i    (nvm_rready_w),
+      .m0_wready_o    (nvm_wready_w),
+      .m0_rvalid_o    (nvm_rvalid_w),
+      .m0_rdata_o     (nvm_rdata_w),
+      .m0_busy_o      (nvm_busy_w),
+      .m0_done_o      (nvm_done_w),
+      .m0_err_o       (nvm_err_w),
+      .m0_err_cause_o (nvm_err_cause_w),
+      .m0_abort_i     (nvm_abort_w),
+      .m1_req_i       (1'b0),
+      .m1_we_i        (1'b0),
+      .m1_rid_i       (8'd0),
+      .m1_wvalid_i    (1'b0),
+      .m1_wdata_i     (8'd0),
+      .m1_rready_i    (1'b0),
+      .m1_gnt_o       (nm1_gnt_nc_w),
+      .m1_wready_o    (nm1_wready_nc_w),
+      .m1_rvalid_o    (nm1_rvalid_nc_w),
+      .m1_rdata_o     (nm1_rdata_nc_w),
+      .m1_done_o      (nm1_done_nc_w),
+      .m1_err_o       (nm1_err_nc_w),
+      .m1_err_cause_o (nm1_err_cause_nc_w),
+      .m1_abort_i     (1'b0),
+      .p_req_o        (np_req_w),
+      .p_we_o         (np_we_w),
+      .p_rid_o        (np_rid_w),
+      .p_wvalid_o     (np_wvalid_w),
+      .p_wdata_o      (np_wdata_w),
+      .p_rready_o     (np_rready_w),
+      .p_wready_i     (np_wready_w),
+      .p_rvalid_i     (np_rvalid_w),
+      .p_rdata_i      (np_rdata_w),
+      .p_busy_i       (np_busy_w),
+      .p_done_i       (np_done_w),
+      .p_err_i        (np_err_w),
+      .p_err_cause_i  (np_err_cause_w),
+      .dbg_drain_o    (nvm_drain_nc_w)
+  );
 
   // ---- the real port --------------------------------------------------------
   logic        p_dev_req_w, p_dev_wvalid_w, p_dev_rready_w;
@@ -283,18 +357,19 @@ module cosim_top
   KL_pp_nvm_port u_nvm_port (
       .clk_i           (clk_i),
       .rst_n           (rst_n),
-      .nvm_req_i       (nvm_req_w),
-      .nvm_we_i        (nvm_we_w),
-      .nvm_record_id_i (nvm_record_id_w),
-      .nvm_wvalid_i    (nvm_wvalid_w),
-      .nvm_wready_o    (nvm_wready_w),
-      .nvm_wdata_i     (nvm_wdata_w),
-      .nvm_rvalid_o    (nvm_rvalid_w),
-      .nvm_rready_i    (nvm_rready_w),
-      .nvm_rdata_o     (nvm_rdata_w),
-      .nvm_busy_o      (nvm_busy_w),
-      .nvm_done_o      (nvm_done_w),
-      .nvm_err_o       (nvm_err_w),
+      .nvm_req_i       (np_req_w),
+      .nvm_we_i        (np_we_w),
+      .nvm_record_id_i (np_rid_w),
+      .nvm_wvalid_i    (np_wvalid_w),
+      .nvm_wready_o    (np_wready_w),
+      .nvm_wdata_i     (np_wdata_w),
+      .nvm_rvalid_o    (np_rvalid_w),
+      .nvm_rready_i    (np_rready_w),
+      .nvm_rdata_o     (np_rdata_w),
+      .nvm_busy_o      (np_busy_w),
+      .nvm_done_o      (np_done_w),
+      .nvm_err_o       (np_err_w),
+      .nvm_err_cause_o (np_err_cause_w),
       .dev_req_o       (p_dev_req_w),
       //! the port sees nothing of the backend while the BFM owns the face
       .dev_gnt_i       (b_gnt_w    & ~bfm_sel_i),

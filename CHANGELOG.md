@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - CRF servo holds through PHC slew](#unreleased---crf-servo-holds-through-phc-slew)** -- Holds lock.
+- **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
 - **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
 - **[Unreleased - licence and LeaveAll scope](#unreleased---licence-and-leaveall-scope)** -- No Listener Ready, no stream.
 - **[Unreleased - CRF input counters served](#unreleased---crf-input-counters-served)** -- The CRF input answers GET_COUNTERS.
@@ -41,6 +42,35 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Silicon-scale tests cover +/-100 us at 200 ppm.
 - Connected tests drive the level from real Sync pairs.
 - Removal, tie-off, tail and tally controls must fail.
+
+## Unreleased - processor pin 990f9652
+
+- The processor pin moves from `09f9bf38` to `990f9652` (#508).
+- Processor issues 92 and 93: saved bindings survive the walk.
+- The walk now has a deadline: 20 ms by default.
+- The ACMP listener waits from reset for the walk.
+- So `PP_CTRL[1]` must start the walk on every boot.
+- The firmware's `nvm_boot()` already does; the harnesses now do too.
+- Processor issue 94: a descriptor-memory guard holds a late burst.
+- No port changes; the guard's debt output stays internal.
+- Processor issues 43 and 49: GET_STREAM_INFO reads processor state.
+- Input probing and ACMP status come from the listener record.
+- Input failure code and bridge id come from SRP.
+- Input selectors 5 and 7 never reach the datapath.
+- Its bound/settled approximation and zero bridge id are gone.
+- It leaves the input failure-code byte of selector 4 zero.
+- Every change of those fields pushes GET_STREAM_INFO once.
+- Processor issue 112: a re-declaration drops the grant until evaluated.
+- `LWSRP_STATUS[9]` and `LWSRP_SLOPE` follow; no gate reads them.
+- A round that meets a pending declaration now publishes nothing.
+- Processor issue 116: parent-gate comments and mutation deadlines corrected.
+- No behavior or external port changes; parent ratchets stay unchanged.
+- Processor issue 113: latency-only input changes now push GET_STREAM_INFO.
+- Unchanged refreshes stay silent; simultaneous field changes coalesce.
+- Its ROM digests are re-recorded; the images are unchanged.
+- `tb/verilator/milan_dp` `obj_notify` grades the seam in `[GSI]`.
+- `make gsi-mutants` holds its eight failing arms.
+- VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - one media event per PHC step
 
