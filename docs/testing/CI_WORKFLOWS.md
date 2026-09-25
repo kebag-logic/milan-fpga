@@ -156,15 +156,40 @@ margin sets each named entry:
 | Suite | Budget | Basis |
 |---|---|---|
 | every other default suite | 1800 s | longest default suite besides `milan_dp` measured at most 548 s hosted |
-| `milan_dp` | 2700 s | hosted worst case about 1815 s, plus 885 s (49%) |
+| `milan_dp` | 3600 s | hosted window 2459.9 s; 1140.1 s remains (31.7% of budget) |
 | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
 
-The `milan_dp` figures come from the 37 hosted runs of the current suite,
-from 2026-09-15, when #447 split out `milan_dp_render`, to 2026-09-19.
-Passing runs took 1055-1773 s, and the slowest runner class, 19 of them,
-took 1726-1773 s. Two runs of that class were killed at 1800 s, 1 s and 13 s
-short of the end. A timeout stays a red context: the driver exits 92 and the
-worker fails. `scripts/measure_test_evidence.py` pins the table.
+The previous `milan_dp` budget used 37 hosted runs.
+Those ran between 2026-09-15 and 2026-09-19, after #447's split.
+Passing runs took 1055-1773 s.
+The slowest runner class took 1726-1773 s across 19 runs.
+Two runs timed out 1 s and 13 s early.
+That 1800 s deadline became 2700 s under #444.
+A timeout still fails the worker with exit 92.
+`scripts/measure_test_evidence.py` pins the budgets.
+
+The 2026-09-24 samples prompted [decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308).
+It raises `milan_dp` to 3600 s and retains its controls.
+Windows run from `shard: 4/5` through `PASS milan_dp`.
+Each row represents one hosted sample.
+
+| Revision | Window | Checks | Hosted job |
+|---|---|---|---|
+| dev `9d3288107e` | 1296.1 s | 9635 | [107573353073](https://github.com/kebag-logic/milan-fpga/actions/runs/35981190398/job/107573353073) |
+| dev `57456af9` | 2133.3 s | 9720 | [107688389193](https://github.com/kebag-logic/milan-fpga/actions/runs/36015896775/job/107688389193) |
+| PR #555 head `a9636e0f` | 2264.9 s | 9775 | [107720800104](https://github.com/kebag-logic/milan-fpga/actions/runs/36025349467/job/107720800104) |
+| PR #555 head `a21cd358` | 2459.9 s | 9781 | [107763352706](https://github.com/kebag-logic/milan-fpga/actions/runs/36038109516/job/107763352706) |
+
+The PR samples build candidate merges onto dev `57456af9`.
+The day's observed spread was 1296-2460 s.
+The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
+That crossed [decision 5819379503](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5819379503)'s 10% trigger.
+The new budget leaves 1140.1 s: 31.7%, approximately 32%.
+These historical samples do not measure the corrected candidate.
+The three default gmstep controls remain in `run`.
+The additional controls stay in the explicit `gmstep-mutants` campaign.
+The hosted shards allow 120 minutes, accommodating this one-hour deadline.
+If later exact-head margin falls below 10%, split further.
 
 The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.
@@ -1126,7 +1151,8 @@ Elaboration provisioning retains its existing RTL scope guard.
 It executes gate 1b with every cross candidate hidden.
 Host compilers answer version and target probes only.
 Firmware compilation through a host compiler is refused.
-Every text refusal remains active; declined instruments report `NOT RUN`.
+The text refusals #408 and #409 retired are absent there, as on every machine.
+Their replacing instruments decline, and their mutations report `NOT RUN`.
 The existing AEM generator self-test remains scheduled unchanged.
 `ci_events.py` pins new steps, cache inputs, order, and guards.
 Its mutation controls remove adoption and provenance requirements independently.
@@ -1311,11 +1337,15 @@ mount and cache behavior is audited and the repository pin is deliberately
 updated. On a host where the current user cannot open the Docker socket, add
 `--sudo`; this is non-interactive. Both the host-side Docker CLI and `act` pass
 through the same explicit `env -i` assignments and private empty `HOME`, keeping
-them on the same default local daemon without inheriting root's Docker
+them on the same daemon (the default local one unless `--slot` selects another)
+without inheriting root's Docker
 `currentContext`, `DOCKER_CONFIG`, `DOCKER_CONTEXT`, `DOCKER_HOST`, credential
 helpers, or other ambient environment. The offline self-test plants a fake
 ambient current context and proves the two sudo prefixes remain identical apart
-from their executable.
+from their executable. An invoking environment that sets `DOCKER_HOST`,
+`DOCKER_CONTEXT` or `DOCKER_CONFIG` is refused rather than silently dropped,
+because only `--slot` selects a daemon (see
+[Parallel replay slots](#parallel-replay-slots)).
 
 An audited change to the runner's cache, interruption, or Docker cleanup
 boundary must also run the live fault-injection gate. It first writes a marker
@@ -1505,7 +1535,8 @@ consequently runs only in the disposable job boundary.
 
 The same `--container-options` word also bounds every job container to a CPU
 set of `min(host CPUs, 4)` cores (`--cpuset-cpus=0-3` on a large host;
-`CONTAINER_CPU_LIMIT`) and to 16 GB of memory with no swap beyond it
+`CONTAINER_CPU_LIMIT`; an isolated replay slot N uses CPUs `4N` to `4N+3`
+instead) and to 16 GB of memory with no swap beyond it
 (`--memory=16g --memory-swap=16g`; `CONTAINER_MEMORY`). Hosted
 `ubuntu-latest` runners have 4 vCPUs and 16 GB, so `rtl-fast`'s
 `make -j"$(nproc)"` Verilator and Yosys builds are hosted-shaped: `nproc`
@@ -1539,8 +1570,9 @@ it; absence of a label does not prove inactivity. A labelled cache must not be
 removed until no runner, container, or network with its owner token remains.
 The runner never deletes a
 volume it does not own, by label or by the job-volume lease described below.
-Concurrent runner invocations fail closed because only one can
-own the upstream global name. If a Docker create call times out or is
+Concurrent runner invocations on one daemon fail closed because only one can
+own the upstream global name; invocations in different replay slots each own
+the name on their own daemon. If a Docker create call times out or is
 interrupted after the daemon accepted it, the runner inspects the exact global
 volume name and unpredictable network name, removes only resources carrying its
 token, and verifies their absence before propagating the setup failure. The
@@ -1584,7 +1616,8 @@ container, and a volume an owned container mounted outside the scope is
 preserved and reported as lease drift, because only the lease proves this run
 created a name: a rival can create a name between a gate's inventory and act's
 own create, and act adopts it. The serialization the tool-cache name already
-demands also covers a rival running the same workflow name concurrently. The offline self-test pins the name derivation to a volume name
+demands of one daemon also covers a rival running the same workflow name
+concurrently on that daemon. The offline self-test pins the name derivation to a volume name
 a live `act` 0.2.89 produced and pins that no shipping workflow name is a
 hyphen-prefix of another.
 
@@ -1699,6 +1732,352 @@ contexts in the protected merge bar below remain mandatory. Continue useful
 local validation or review while they run; do not spend the interval polling
 an unfinished hosted run.
 
+### Parallel replay slots
+
+On one Docker daemon, replays are serial. `act` 0.2.89's global names (the
+`act-toolcache` volume, and the job volumes and job containers named from
+workflow and job names) make a second concurrent replay on that daemon refuse,
+as described above. `--slot N` runs a replay against a daemon of its own
+instead (#532):
+
+```sh
+python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number> --sudo --slot 1
+```
+
+Slot 0 is the default and means the default local daemon, so a command without
+`--slot` is exactly the replay described above. Slots 1 to 63 each start a
+Docker daemon that the runner owns for one invocation, which requires `--sudo`.
+The environment never selects a daemon. In every Docker-using mode, the runner
+refuses an invoking environment that sets `DOCKER_HOST`, `DOCKER_CONTEXT` or
+`DOCKER_CONFIG`. That includes slot 0, where those variables used to be
+silently dropped. The Docker CLI and `act` receive a slot's socket only as an
+assignment the runner makes from the slot number.
+
+An isolated slot N consists of the following, in the order the runner creates
+them:
+
+- An exclusive host-wide lock, `/run/lock/milan-act-slot-N.lock`. A PR run
+  takes it once the PR head is fetched and materialized, just before the
+  slot's resources are created, and holds it until the slot's teardown ends.
+  The file is created once through sudo and never replaced. A slot that
+  another invocation holds refuses at that point, after the fetch rather than
+  at startup, and nothing of the slot is touched.
+- The network namespace `milan-act-slot-N`.
+- The top-level slice `milan_act_slot_N.slice`, capped as a runtime property
+  at `MemoryMax=24G` with no swap (`SLOT_MEMORY_MAX`).
+- The uplink unit `milan-act-slot-N-net.service`. `pasta` configures the
+  namespace from the host's addresses and gives it outbound connectivity
+  through socket-level NAT. It forwards no port in either direction and does
+  not map the gateway to the host's loopback, so connectivity needs no host
+  firewall change.
+- The runner's own nft table `inet milan_act_slot_N`, created whole or not at
+  all. The uplink is the slot's only socket owner on the host, so every
+  connection a slot job makes is one the host originates, on the host's
+  output path. Two output rules match traffic from the slot's cgroup:
+  - the first rejects every host-local address: the host loopback, the
+    default daemon's bridge gateways, and any other replay's artifact and
+    cache servers;
+  - the second rejects whatever the host would send out of any interface but
+    its uplinks, the interfaces carrying its unicast default routes, which
+    the runner reads (`ip -json -4|-6 route show default`) before it creates
+    anything. That covers a container behind any Docker bridge, a port Docker
+    publishes on a host address (Docker rewrites the destination before this
+    filter runs), and any other local bridge, tunnel or VM network.
+
+  Docker isolates its bridge networks from each other only on the forward
+  path, which host-originated traffic never takes. Without the second rule a
+  slot reached the default daemon's containers, including a concurrent slot-0
+  replay's job containers, which slot 0's own jobs cannot reach.
+  DNS and the internet stay reachable through the uplinks. The slot resolves
+  names through the host's configured nameservers, so those must be reached
+  through an uplink and must not be addresses of the host itself. A host
+  with no usable default route refuses the slot before anything is created.
+  For the same reason, an operator's egress policy in Docker's `DOCKER-USER`
+  chain, which sees only forwarded traffic, applies to slot 0's jobs but not
+  to a slot's. A host that restricts job egress there must also restrict the
+  host output of the slot slices, or its slots are less restricted than
+  slot 0.
+- The daemon unit `milan-act-slot-N-dockerd.service`, inside that namespace
+  and slice. It has:
+  - its own data-root `<slot-root>/slot-N`, exec-root, pidfile and socket
+    `/run/milan-act-slot-N/docker.sock`;
+  - its own containerd: the unit masks `/run/containerd`, so dockerd starts
+    its own instead of attaching to the system containerd that the default
+    daemon uses;
+  - its own containerd namespaces and the address pool `10.231.N.0/24`, with
+    no default bridge;
+  - `/dev/null` as its configuration, so no host `daemon.json` applies;
+  - the host service manager as its cgroup driver, with the slot slice as
+    every container's parent;
+  - labels carrying the slot number and the invocation's unpredictable token.
+
+  Its own iptables management stays enabled and exists only in the slot
+  namespace.
+
+The units, the slice and the cgroup driver belong to the build host's service
+manager, not to the product (#259's host-tooling non-goal, recorded for the
+runner in #376). The bare-metal scope gate, `scripts/check_baremetal_only.py`,
+therefore masks the runner's unit executable, its dockerd cgroup-driver value
+and its cgroup-mount root only in their exact code contexts in
+`scripts/act_ci.py`. The same literals in any other context or file, or in a
+product document, are still refused, and the gate's self-test proves each of
+those refusals.
+
+Before anything else touches the daemon, `docker info` through the slot socket
+must report the slot label, the invocation token and the slot data-root. The
+Docker CLI and `act` then both run under
+`nsenter --net=/run/netns/milan-act-slot-N`, and the two sudo prefixes stay
+identical apart from the executable. So `act` binds its artifact and cache
+servers to the slot network's gateway inside the slot namespace, where neither
+the host nor another slot can reach them. Because every global act name now
+lives in the slot's own daemon, all of the following apply per slot unchanged:
+the tool-cache refusal and seeding, the job-volume lease, the owned-container
+cleanup, the absence windows and the interruption reconciliation above. A
+replay in one slot cannot collide with a replay in another.
+
+Resource bounds:
+
+- The job containers of slot N get the CPU set `4N` to `4N+3`, which is
+  `CONTAINER_CPU_LIMIT` CPUs of their own. Slot 0 keeps `0-3`. A host without
+  those CPUs refuses the slot.
+- `--memory`, `--memory-swap`, `--concurrent-jobs` and the matrix width are
+  unchanged, so each job container is shaped as described above and only its
+  CPUs differ.
+- The slot as a whole is not hosted-shaped. The slice cap bounds everything
+  in the slot together at 24G, while hosted runners give each job its own
+  16 GB machine and slot 0 allows up to four 16 GB matrix legs at once
+  (64 GB). rtl-full's sharded jobs can therefore meet the slot cap where
+  neither slot 0 nor hosted would. When reclaim cannot keep a slot under the
+  cap, the OOM killer acts inside that slot's slice, without taking memory
+  from the host or from another slot.
+- A run with an OOM at the slot cap is refused, never reported as a verdict.
+  After the workflows, the runner reads the slice's own `memory.events.local`,
+  which counts only the slice's limit and never a job container's 16 GB limit
+  below it. Any `oom` there is exit 2 naming the cap, so an OOM at the cap
+  cannot pass for the candidate's `FAILED`.
+- That OOM is all the runner detects. Before one, the host reclaims memory
+  at the cap, which can slow a job until its workflow times out. No `oom` is
+  raised either for an allocation that fails without trying the OOM killer,
+  such as a large contiguous one or one whose caller asked not to retry. A
+  run hurt either way keeps its verdict, so a slot's `FAILED` can still be
+  the cap's. After the workflows the runner prints the slice's memory peak
+  and its `max` count, the number of times usage hit the cap. Usage includes
+  cached file data, which the host reclaims at the cap as a matter of
+  course, so a long run can show a nonzero count with no harm done. Those
+  two numbers are the only sign of such harm, so replay a slot `FAILED` with
+  a nonzero count in slot 0 before attributing it to the candidate. The cap's
+  effect on the shipping workflows has not been measured yet; the run logs of
+  the live proof below record each slot's peak and count.
+- Slot 0 keeps only its per-container bounds. Whoever allocates slots keeps
+  the concurrent caps, plus what slot 0 uses, within host RAM.
+
+`--slot-root` (default `/var/lib/milan-act-ci`) holds every isolated slot's
+persistent data-root. It and every directory above it, from `/` down, must be
+a root-owned real directory (not a symlink) that is not writable by group or
+other. Otherwise whoever controls an ancestor could redirect the root daemon's
+data-root between the check and the daemon's start. The runner never creates
+it; create it once with `sudo install -d -m 0755 -o root -g root <slot-root>`.
+A filesystem mounted on a directory owned by a user can still hold a slot
+root through a root-owned bind mount.
+
+The data-root is the slot's image cache and the only slot resource kept between
+invocations. It is not shared with the default daemon, because a shared
+containerd would put every slot in that daemon's failure domain and on its
+filesystem. The first use of a slot pulls the runner image; a `--dry-run`
+primes it, because a dry run seeds the tool cache. Measured for
+`catthehacker/ubuntu:full-latest`, that is about 19 GB of downloaded content
+and about 56 GB unpacked: roughly 75 GB of disk per slot, pulled again
+whenever the image changes.
+
+Teardown runs on every exit, including a handled signal and a failed setup. It
+runs after the Docker boundary's own teardown and before the run directory is
+removed, and each step runs independently:
+
+1. Stop the daemon unit, which takes its containerd and containers with it.
+2. Stop the uplink.
+3. Stop the slice, which ends anything still in it, and revert its cap.
+4. Delete the table.
+5. Delete the namespace.
+6. Release the lock.
+
+The runner then proves each resource absent:
+
+- both units are unloaded;
+- the runtime directory and the uplink's PID file are gone;
+- the slice is inactive, with no cgroup and no runtime cap;
+- the table and the namespace are gone.
+
+An absence it cannot prove turns the run into exit 2, naming the slot and the
+recovery commands. Each resource is recorded as attempted before the command
+that creates it, so a create that is interrupted or fails midway is still torn
+down. Holding the lock is what makes a resource under the slot's names this
+invocation's own.
+
+A dead invocation (`SIGKILL` or a host crash) can leave resources under its
+slot's names. The next invocation of that slot finds them after taking the
+lock, refuses before any mutation, adopts and removes nothing, and prints the
+recovery commands:
+
+```sh
+sudo systemctl stop milan-act-slot-N-dockerd.service milan-act-slot-N-net.service milan_act_slot_N.slice
+sudo systemctl revert milan_act_slot_N.slice
+sudo nft delete table inet milan_act_slot_N
+sudo ip netns delete milan-act-slot-N
+```
+
+Volumes and containers that such a run left inside the slot's data-root are
+refused on the next run by the ordinary tool-cache and lease checks. To reset
+a slot, delete its data-root (`sudo rm -rf <slot-root>/slot-N`); that costs
+one fresh image pull. No slot resource is shared with another slot or with
+the default daemon, and the firewall above keeps a slot's traffic off both.
+
+The runner-change bootstrap rule applies to slots as to everything else. A PR
+that changes the slot code is validated by the trusted base copy. The new
+code's live behaviour is proved with an independently audited install:
+
+- `--interrupt-selftest --sudo --slot N` runs the live interruption gate
+  inside slot N, then proves the slot's own teardown.
+- `--boundary-selftest` runs on slot 0 only. Its unboundaried arm must see
+  the host loopback, and a slot namespace removes that by design.
+- [`scripts/act_slot_proof.sh`](../../scripts/act_slot_proof.sh) is the live
+  proof of parallel slots, run with the audited install. It records ten
+  checks, in order:
+  1. the interruption gate in slot A, which must pass and print the runner's
+     own line that slot A was then torn down and proved absent;
+  2. serial references for two PRs, each of which must complete;
+  3. both PRs started together in slots A and B. Both must be seen holding
+     their slots at one instant, before either has printed a verdict, and each
+     must complete with its serial reference's verdict;
+  4. while both hold their slots, the isolation control in each slot. The
+     proof starts a listener container on a new bridge network of the default
+     daemon, publishing a port on that network's gateway only. From inside the
+     slot's namespace, the container's address and the published port must
+     both be refused while `--probe-name` (default `github.com`) resolves and
+     answers on 443. The same probe from the host's namespace must reach both,
+     which shows the targets were live. The container and network are then
+     removed and proved absent;
+  5. the collision control with isolation: PR B starts in slot A while PR A
+     holds it, and must be refused on the slot lock before PR A has printed a
+     verdict. PR A must then complete with its serial verdict;
+  6. the collision control without isolation: the same on slot 0, the one
+     shared default daemon, where PR B must be refused on act's tool-cache or
+     job-volume names. That is the collision slots exist to remove, so it is
+     always part of the proof.
+
+  A run completes only with exit 0 and a `PASS` line for every selected
+  workflow, in order, or with exit 1, `PASS` lines up to the first workflow
+  that failed and its `FAILED` line (the runner stops there). A refusal or a
+  signal never completes, so runs that executed no workflow cannot prove
+  anything. The proof prints `PROVED` and exits 0 only when all ten checks
+  recorded `PASS`. It calls `sudo -n` itself for the default daemon's Docker
+  CLI and for the probes, which run as root with a fixed PATH, in the slot's
+  namespace or the host's. The probe's name lookup uses the host's resolver
+  configuration; the replays themselves, whose image pulls and fetches run in
+  the slot, are the end-to-end DNS evidence. The listener image
+  (`--probe-image`, default the runner image) must already be on the default
+  daemon, which the slot-0 serial references ensure; it is never pulled.
+
+  `scripts/act_slot_proof.sh --selftest` grades those checks offline against
+  a stand-in runner and a stand-in `sudo` in a scratch directory, with no
+  Docker, privilege or network. It passes only when the honest case (in which
+  one PR fails a workflow) proves, when every bad start is refused with exit 2
+  before any check records anything, and when every broken case fails on the
+  check meant to catch it. The bad starts are a slot that is not a number,
+  slots A and B equal or either of them slot 0, a runner that is not the
+  recorded digest or is group-writable, and a log directory that is not
+  empty. The broken cases take away, one at a time, what the checks require:
+  - a completed run: runs that refuse after taking their slots, a run that
+    stops early, and runs refused after passing or after failing their
+    workflows, graded at the serial reference, the parallel comparison and
+    the collision holder;
+  - the interruption gate: no teardown line for its slot, no `PASS` line, or
+    a refusal after both;
+  - the parallel runs: a verdict slot A or slot B changed, runs that never
+    overlap, runs that never report their own slot daemons, and, for each
+    run in turn, one that dies before taking its slot while the other holds
+    its own, and one refused after taking its slot before the other takes
+    its own. Each of those last four leaves exactly one of the overlap
+    check's four conditions to catch it;
+  - the isolation control: a target that cannot be started, a slot that
+    reaches the container or the published port, slot B alone reaching the
+    container, a slot that cannot reach `--probe-name`, a dead target, a host
+    that cannot reach the container or only the published port, and a
+    container or network that survives its removal or cannot be queried
+    after it;
+  - the collisions: a missing slot lock, a rival refused late, for another
+    reason, or for the lock but with exit 1, a holder that changes its
+    verdict, a shared daemon that does not collide, and a slot-0 rival
+    refused for neither the tool cache nor a job volume.
+
+  Where the proof judges runs while they hold their slots, the stand-in runs
+  wait for that judgment rather than a timer. A parallel run holds its slot
+  until the proof has failed the overlap check or recorded both isolation
+  controls. A collision's holder holds its slot until the rival's run has
+  returned, then for a fixed time that covers only the proof's next check,
+  and a rival meant to be refused late waits for the holder to exit. So no
+  case's grading depends on how fast a run starts. The case whose runs
+  never overlap is the exception: its runs hold for a fixed time, in
+  whichever order they start. The proof fails it in either order, but which
+  overlap condition fails depends on the order, so each condition also has
+  a case of its own.
+
+  Two guards have no case. The ten-`PASS` count behind `PROVED` is a backstop
+  that no case reaches, because a check is skipped only after another has
+  recorded a `FAIL` (the isolation control after a failed overlap). The
+  install check's refusal of a runner the non-root invoker can write although
+  no write bit is set is not staged. A non-root user can write such a file
+  only with a capability that overrides file modes, such as one kept inside
+  a user namespace, or on a file system that does not enforce the mode, and
+  the self-test depends on neither. Run the self-test before the live proof:
+
+```sh
+scripts/act_slot_proof.sh --selftest
+scripts/act_slot_proof.sh --runner <audited-install>/act_ci.py \
+  --sha256 <recorded-64-hex-digest> --act-bin <absolute-act-0.2.89> \
+  --logs <new-log-directory> \
+  --pr-a <number> --worktree-a <clean-checkout-at-its-head> \
+  --pr-b <number> --worktree-b <clean-checkout-at-its-head> \
+  --slot-a 1 --slot-root-a <slot-root> --slot-b 2 --slot-root-b <slot-root> \
+  [--workflow <name>]... [--probe-image <local-image-with-python3>]
+```
+
+The offline self-test of the runner pins:
+
+- slot selection and its range, and the CPU boundary at the host's last CPU;
+- the inherited-endpoint refusal, for each variable, in the PR run, the dry run
+  and both live self-tests, before any collaborator runs;
+- slot 0's environment, prefixes and act command, unchanged;
+- slot N's derived names, which are disjoint across slots and identical for
+  one slot, together with its endpoint parser, its namespace prefix and its
+  CPUs;
+- the uplink, daemon, firewall and every other host command and query, word
+  for word, and the uplink discovery: which default routes count, and its
+  refusals of no route, loopback, an unquotable name, malformed output and a
+  failed query;
+- acquisition order, and rollback of exactly the attempted resources at every
+  step;
+- the identity refusals, a busy lock, and each kind of residue, including a
+  unit left in a failed, masked or transitional state;
+- each kind of survivor the teardown proves absent: the daemon and uplink
+  units, the runtime directory, the uplink's PID file, an active slice, its
+  cgroup, its runtime cap, the table and the namespace;
+- each proof whose query cannot answer, at residue time and at teardown,
+  refusing rather than reading as absent;
+- teardown running with every cleanup signal blocked, and an interrupted
+  start;
+- the memory cap: one OOM at the cap with no kill in the slice's own events,
+  two OOMs, and unreadable or malformed events or either count missing, each
+  refused after the whole slot is torn down; the peak
+  and the number of cap hits printed; a `FAILED` run whose slice sat at the
+  cap without an OOM keeping its `FAILED`; and a body that raises keeping its
+  own error;
+- the slot root and every directory above it, as checked on acquisition;
+- the real lock's exclusivity, root-owner check (including its production
+  default) and symlink refusal, the dangling-symlink probe, and the host
+  command wrapper's `sudo -n`;
+- the live interruption gate running in the slot the command line names,
+  entered before act is resolved.
+
 ## Protected merge bar
 
 The active repository ruleset named `dev merge bar` applies only to
@@ -1750,6 +2129,14 @@ window. `scripts/check_merge_review_integrity.py` keeps reporting a merged PR
 whose linked Issue is open, for bodies in a form GitHub does not read and for
 the history before 2026-08-22, when every PR merged into a non-default branch
 and the keyword never fired.
+
+Containment reports the proof named beside each verdict.
+Ancestry and linear replay prove historical inclusion.
+Later reversions leave those historical verdicts unchanged.
+The optional `--current-retention` arm separately assesses linear replay retention.
+Its unsupported histories and unproved paths remain `UNKNOWN`.
+The [containment contract](../../CONTRIBUTING.md#21-the-issue-to-merge-lane)
+defines the bounded proofs and their exit codes.
 
 ## Local commands
 

@@ -135,6 +135,7 @@ module rails_wrap (
     .crf_src_idx_i (crf_src_idx_i),
     .crf_locked_i  (crf_locked_i),
     .crf_rate_i    (crf_rate_i),
+    .crf_rate_valid_i (1'b1), //! this harness supplies clean rate samples
     .auto_repair_i (1'b0),
     .ps_invert_i   (1'b0),
     .drp_addr_o    (drp_addr_o),

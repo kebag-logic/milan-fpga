@@ -124,8 +124,11 @@ they are not discovered by surprise:
    and `milan_datapath`'s `media_clk_resolve` compares it against the
    shape's generated `AEM_CRF_CLKSRC_C` into one registered verdict gating
    `KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain and the
-   4.4.4.3 `mr` machinery. At the INTERNAL power-on state `A_MCSRV_STAT`
-   `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
+   CRF triggers of the 4.4.4.3 `mr` machinery (the disruption and the
+   received toggle). A PHC step toggles `mr` on every running Stream
+   Output whatever the selection, and that output's Table 5.4 MEDIA_RESET
+   counts the toggle it transmits (#387). At the INTERNAL power-on state
+   `A_MCSRV_STAT` `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
    by tie-off. Since `0x0058` the accepted slips are counted where software can
    read them, `SLIP_LB`/`SLIP_TDM` at `0x8D4`/`0x8D8`.
 2. **Every Stream Output's presentation-time offset is pinned at the Milan 2 ms
@@ -185,7 +188,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x600  -  ADP advertiser  (IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)](#0x600-----adp-advertiser--ieee-17221-2021--milan-v12-fr-disc-0104) -- Entity identity in, advertise timing and `available_index` owned by hardware -- the protocol processor's now. Two things to know before writing anything here: `ADP_CTRL[0]` is ORed with `PP_CTRL[0]` at `0x920`, so either bit enables the entity; and five ADPDU fields (entity_capabilities, valid_time, association_id, controller_capabilities, interface_index) are **write-only scratch** -- the processor holds them as internal constants and the wire carries those, whatever you write. `ADP_STATUS` available_index is still the liveness read, and now the only one: the dormancy counters at `0x668`/`0x674` are structural zeros.
   - [0x648  -  AECP/ACMP status + AAF talker  (IEEE 1722.1 / Milan v1.2)](#0x648-----aecpacmp-status--aaf-talker--ieee-17221--milan-v12) -- AECP counters remain structural zeros, while `AECP_STAT0[16]` is the processor's live entity-lock level. Diagnostics live in the side-port snapshot window. ACMP PDU counters are structural zeros too, but `ACMP_TALKER[1]` talker_active remains the processor's live declaring level.
   - [0x680  -  lwSRP engine  (802.1Q MSRP/MVRP, Milan v1.2 Section 5.6, FR-SRP-\*)](#0x680-----lwsrp-engine--8021q-msrpmvrp-milan-v12-section-56-fr-srp-) -- The SRP endpoint, now the protocol processor's. The state words (domain, granted slope, over-limit, declaration and registration levels) are live and repointed; the MRPDU counts and the row-shortfall bit are structural zeros; the provisioning words the deleted applicant read (DMAC, TSpec, declare bypass) are write-only scratch. Read the honest note on the CBS slope ordering change -- the slope now arrives with the gate rather than one cycle ahead of it, which is equal at worst and conservative on the closing edge.
-  - [0x6A4  -  ACMP listener SM  (Milan v1.2 Section 5.5 listener, FR-CONN-01)](#0x6a4-----acmp-listener-sm--milan-v12-section-55-listener-fr-conn-01) -- **`ACMPL_STATE` no longer tracks PROBING/SETTLED -- take `bound` as the truth.** The processor publishes a bind record, not a state machine, so the ladder fields, the bound talker id, the counters and the walker forensics are structural zeros; bound, active and the CRF-sink bit are real. The Milan Table 7-156 stream counters, MAAP status, pilot tone, playback rails and ts_delta in this group are untouched and still live.
+  - [0x6A4  -  ACMP listener SM  (Milan v1.2 Section 5.5 listener, FR-CONN-01)](#0x6a4-----acmp-listener-sm--milan-v12-section-55-listener-fr-conn-01) -- **`ACMPL_STATE` no longer tracks PROBING/SETTLED -- take `bound` as the truth.** The processor publishes a bind record, not a state machine, so the ladder fields, the bound talker id, the counters and the walker forensics are structural zeros; bound, active and the CRF-sink bit are real. The Milan Table 7-156 stream counters, MAAP status, pilot tone, playback rails and ts_delta in this group are untouched and still live. **CTLR_DIAG (0x6F4) is STRUCTURAL ZERO; never read it as a measurement.** The departing-controller monitor lives in the protocol processor.
   - [0x7A0  -  ACMP bind-restore  (saved-state fast-connect E1, Milan 5.5.3.5.2)](#0x7a0-----acmp-bind-restore--saved-state-fast-connect-e1-milan-55352) -- **Dead port.** Writes are accepted, the ack never asserts, and nothing is restored -- the ACMP context table it injected into is deleted. The `0xA5C35A3C` feature probe still passes, which is precisely why software must gate on `VERSION` major and not on the probe.
   - [0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) -- **Unwired again at VERSION major 2: writes are accepted and DISCARDED, `JNL_STAT` and `JNL_SEQ` read structural zeros.** Milan v1.2 5.3.8.2 makes the saved bound state a *shall*; this build does not meet it, and nothing in this device restores a binding across a power cycle. The record format and verdict table are kept as the specification a replacement must satisfy.
   - [0x7C8  -  AEM dynamic-state patch port  (saved-state fast-connect E4)](#0x7c8-----aem-dynamic-state-patch-port--saved-state-fast-connect-e4) -- **Unwired: writes accepted and discarded.** The patch engine and the AEM store it wrote are both deleted, so there is no descriptor RAM to patch and no setter whose acceptance it could re-run. Kept as ABI and as specification.
@@ -835,7 +838,7 @@ bind-restore group notes that this sink re-arms via `0x738`.
 | `0x73C` | `CRF_SIDLO` | RW | `0` | followed CRF stream_id `[31:0]` |
 | `0x740` | `CRF_SIDHI` | RW | `0` | stream_id `[63:32]` |
 | `0x744` | `CRF_DELTA` | RO | `0` | signed `crf_ts - ptp_now` (ns) at each accepted PDU — phase, same signed-delta contract as `AVTPRX_TSD` (0x6EC); carries the talker+transit constant, deliberately NOT a servo input |
-| `0x748` | `CRF_RATE` | RO | `0` | signed ns error per 512 ms window (256-PDU ring): the talker's media clock measured against gPTP — the servo frequency input (1 ppm = 512 units) |
+| `0x748` | `CRF_RATE` | RO | `0` | The talker's media clock measured against gPTP, the servo frequency input. Signed ns error per 512 ms window (256-PDU ring); 1 ppm = 512 units. Holds the last clean value during discontinuity refill. Internal validity gates servo sampling; this CSR does not expose validity |
 | `0x74C` | `CRF_STATUS` | RO | `0` | `[31:16]` PDUs accepted, `[15:8]` format errors (7.3.2 pull/base/dlen/interval/type check), `[7:0]` sequence errors |
 
 Those three are the only CRF input counters exported into the local CSR plane,
@@ -1103,7 +1106,7 @@ not:
   observable.
 
 **The licence requires ACTIVE and the real per-source grant (#551).**
-ACTIVE includes the processor's three-round optimistic admission term.
+ACTIVE includes the processor's three-published-round optimistic admission term.
 The real grant excludes that optimistic term.
 Every declaration clears its registered Listener first.
 An early Listener Ready can raise ACTIVE before admission completes.
@@ -1116,13 +1119,11 @@ An early Listener Ready can raise ACTIVE before admission completes.
   The refused re-declaration emits no PDU.
   ACTIVE falls when optimism expires; Talker Failed follows.
 
-**Residual: changed TSpec.** The refused TSpec differs from that source's previous one.
-The first-round grant still uses the previous slope.
-With an early Listener Ready, about one round's licence remains.
-A STREAM_START/STREAM_STOP pair and Table 5.4 resets remain possible.
-So does a PDU if its media event lands inside.
-[Processor issue #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112) owns the pending fix.
-Its fix must be pinned before #551 can close.
+The processor now evaluates the current TSpec before granting admission.
+Every declaration clears its source's grant until that evaluation completes.
+A round that meets any pending declaration publishes nothing.
+Other grants, the slope sum and over-limit retain their published values.
+This follows [processor #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112), adopted through #508.
 
 `CRFT_CTRL[6]`/`[7]` require the CRF source's real grant.
 `LWSRP_STATUS[8]` requires source 0's real grant.
@@ -1135,8 +1136,8 @@ At index 0, [27:19] mirrors `LWSRP_STATUS[8:0]`.
 Thus [27] requires the grant; [25] remains raw |ACTIVE.
 
 `LWSRP_STATUS[9]` remains the OR of real admission grants.
-`LWSRP_SLOPE` reports their round-latched sum.
-After withdrawal, the sum updates at the next round.
+`LWSRP_SLOPE` reports their sum from the last published round.
+After withdrawal, the sum updates at the next published round.
 Neither diagnostic programs a shaper; none is instantiated.
 See [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md#credit-based-shaping).
 
@@ -1247,18 +1248,20 @@ live** — they are the AVTP RX monitor's, not the control plane's.
 | `0x6E8` | `ACMPL_DBG` | RO | 🔴 **STRUCTURAL ZERO**. Was the listener walker forensics — CLASSIFY entries, ACMP-subtype classifies, the flag bundle at the last ACMP classify, ACMP-base + listener-command hits. The walker is deleted. The protocol processor's own RX accounting (control frames in, FIFO drops, frames out) is at `PP_DIAG` `0x930` |
 | `0x6EC` | `AVTPRX_TSD` | RO | signed ts_delta = `avtp_timestamp - ptp_now` (ns) at the last accepted STREAM_INPUT[0] PDU -- the stream-sync error signal (LATE counts when delta < 0, EARLY beyond offset + margin; [presentation validity](../design/TIME_SYNC.md#presentation-validity)) |
 | `0x6F0` | `I2SPB_DBG` | RO | DAC-serial forensics: the exact 32 serial bits of the last LEFT half-frame as sent at the DAC pin (CDC-latched) |
-| `0x6F4` | `CTLR_DIAG` | RO | departing-controller detection (Milan v1.2 Section 5.4.5.3): `[31:24]` controllers deregistered because they went silent, `[23:12]` CONTROLLER_AVAILABLE replies seen, `[11:0]` CONTROLLER_AVAILABLE probes sent (retries included). All three wrap; the 8-bit eviction field wraps at 256, the two 12-bit fields at 4096 |
+| `0x6F4` | `CTLR_DIAG` | RO | 🔴 **STRUCTURAL ZERO**. Reads `0`; never read it as a measurement. The deleted local monitor's probe, reply and eviction counters have no replacement source for this word. The departing-controller monitor lives in the protocol processor |
 | `0x6F8` | — | — | **reserved**, free. Claim it here before wiring it |
 | `0x6FC` | — | — | **reserved**, free — the last word of this group. The next group starts at `0x700` (`TCAM_CTRL`) |
 
-`CTLR_DIAG` (0x6F4) is the standing sweep's window onto the one place the
-entity speaks first. On a healthy bench every probe is answered, so probes
-and replies climb together (about one probe per registered controller per
-45 seconds) and evictions stay flat. Probes climbing *ahead* of replies by
-exactly two per eviction is the signature the clause is about: a controller
-that vanished without deregistering was asked twice, 250 ms apart, and shed.
-Replies climbing with no probes cannot happen — the reply tally counts only
-answers matched to a registered controller.
+`CTLR_DIAG` (0x6F4) is **STRUCTURAL ZERO**. Its source was deleted;
+this word has no replacement source. It reads `0` because nothing backs
+it, not because nothing happened. Never read it as a measurement.
+
+The departing-controller monitor (Milan v1.2 Section 5.4.5.3) lives in the
+protocol processor's `KL_aecp_notify` and `KL_aecp_ca_originator`.
+The processor exports no probe, reply or eviction count.
+The parent ties `aecp_ctlr_diag` to `32'd0`, preserving the address.
+Zero cannot establish controller presence, silence or eviction.
+The `milan_dp` timed notification leg checks this after controller traffic.
 
 Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
 10 s, random pre-probe delay 0..1023 ms (LFSR).
@@ -1966,7 +1969,7 @@ on merge; `0x8FC` next to it holds the servo control knobs.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[15:9]` reserved 0, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only when the stored `clock_source` selects this shape's CRF descriptor (the generated `AEM_CRF_CLKSRC_C`); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
+| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[9]` reserved 0, `[15:10]` discarded rate windows, saturating at 63: a window whose error exceeds 1024 ppm, or one a PHC step landed in (#539; cleared in IDLE), `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only when the stored `clock_source` selects this shape's CRF descriptor (the generated `AEM_CRF_CLKSRC_C`); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
 | `0x8FC` | `MCSRV_CTRL` | RW | `0` | `[0]` ps_invert: flips the servo fine-PS direction mapping (bench sign knob - 2026-07-23 mf51 silicon stepped opposite the UG472 reading and rails went 25x worse under the servo; settle the polarity on silicon via this bit, then bake the winner as the RTL default); `[1]` auto_repair: 1 = allow the DRP divider repair path (a `[4]` mismatch triggers the full reset-sequenced read-modify-write reprogram), default 0 = verify-only (bench-gated). NOTE both 0x8F8/0x8FC needed the rd_in_window >=0x800 carve-out - 0x8F8 read 0 on every build before 2026-07-23 |
 
 ### 0x900  -  channel-map fabric  `([Section 6 of docs/CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md#6-csr-window-0x900-0x97f-debug-and-override), KL_chan_map_render / KL_chan_map_capture)`
@@ -2177,7 +2180,7 @@ another.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x920` | `PP_CTRL` | RW | `0` | `[0]` **entity enable**, ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane. `[1]` `restore_go`: start the NVM boot-restore walk against the saved-state backing store (`KL_nvm_backend` behind the processor's NVM device face, [design page](../design/SAVED_STATE_FASTCONNECT.md) sections 4, 8 and 9). Until firmware has configured AND validated a record image through `PP_NVM_SEL`/`PP_NVM_DATA` the face answers blank flash (reads `0xFF`, writes accepted and discarded, erase completes), so the walk completes with **zero records** and `restore_fail` set. **Validate the image first, then set this bit**: the verdict is latched per walk, and validating afterwards restores nothing |
+| `0x920` | `PP_CTRL` | RW | `0` | `[0]` **entity enable**, ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane. `[1]` `restore_go`: start the NVM boot-restore walk against the saved-state backing store (`KL_nvm_backend` behind the processor's NVM device face, [design page](../design/SAVED_STATE_FASTCONNECT.md) sections 4, 8 and 9). Until firmware has configured AND validated a record image through `PP_NVM_SEL`/`PP_NVM_DATA` the face answers blank flash (reads `0xFF`, writes accepted and discarded, erase completes), so the walk completes with **zero records** and `restore_fail` set. **Validate the image first, then set this bit**: the verdict is latched per walk, and validating afterwards restores nothing. **Set it on every boot** (processor pin `a8f8ce81`, its issue 92): the processor holds its ACMP listener from reset until the walk ends, so a boot that never sets it never answers an ACMP listener command. A device face that never answers ends the walk at `NVM_RS_TMO_CYC_P`, 20 ms at the default clock, with `restore_fail` set |
 | `0x924` | `PP_STAT` | RO | `0x5B00_0000` | `[0]` `sp_busy`, a side-port access is outstanding, `[1]` `restore_busy`, `[2]` `restore_done`, the boot walk **sequenced**, which is not the same as succeeded, `[3]` `restore_fail`, `[4]` `nvm_alarm`, `[5]` `sp_err`, the last side-port access returned an error, `[6]` `nvm_backed`, **live fabric evidence, never a knob**: a writer heartbeat or completed transaction answered within `T-NVM-WRITER-ALIVE` (2000 ms) and no unrevoked failure is outstanding (design page 9.2), `[7]` `nvm_blank`, the completed walk validated **zero** records, `[8]` `nvm_dirty`, the image holds committed changes no flash slot yet holds, `[9]` `nvm_stale`, `nvm_backed` was true since reset and is now false and the loss has not been made good, `[10]` `nvm_img_valid`, firmware validated the image in the window, `[11]` `nvm_pend`, **accepted work that no verified slot holds and `nvm_dirty` does not report**: a change the producer still holds, a record whose logical write has not completed, or -- from reset until the boot window load is accepted -- every record, because none is known yet. The durable reading of design page 9.3 is therefore `(backed 1, dirty 0, stale 0)` **and this bit `0`** (snapshot-ownership page 6.1), `[15:12]` `nvm_verdict`, the section 6.2 verdict code of the last image offered, `[31:24]` **constant presence tag `0x5B`**. A read of `0` here means the gateware predates the group |
 | `0x928` | `PP_SPADDR` | RW | `0` | `[19:0]` side-port **word** address. **A write here POSTS A READ** at that address (ignored while `sp_busy`); the answer lands in `PP_SPDATA`. Readback = the armed address |
 | `0x92C` | `PP_SPDATA` | RW | `0` | **Read**: the data of the last posted read. **Write**: posts a side-port WRITE of this value to the address already in `PP_SPADDR` (ignored while `sp_busy`) |

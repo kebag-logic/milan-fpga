@@ -138,6 +138,7 @@ class NvmBackendHarness {
   void test_regions();
   void test_writes_and_erase(bool posted);
   void test_bounds_and_errors();
+  void test_output_boundaries();
   void test_status_word();
   void hb();
   void commit_ack(uint32_t cap_id);
@@ -755,6 +756,37 @@ void NvmBackendHarness::test_writes_and_erase(bool posted) {
   br_.posted = false;
 }
 
+// Exercise every output port at its emitted length, including the grown tail.
+// Whole writes/erases must preserve every byte outside that record.
+void NvmBackendHarness::test_output_boundaries() {
+  for (const Rec &r : recs_) {
+    if (r.group != "MAPS_OUT") continue;
+    const auto before = mem_;
+    std::vector<uint8_t> frame(area_.begin() + r.off,
+                               area_.begin() + r.off + r.flen);
+    for (auto &byte : frame) byte ^= 0x5A;
+    std::vector<uint8_t> got;
+    check(dev_cmd(1, r.id, 0, r.flen, nullptr, frame.data()),
+          "%s: whole output WRITE refused on port %u", shape_.c_str(), r.index);
+    check(dev_cmd(0, r.id, 0, r.flen, &got, nullptr) && got == frame,
+          "%s: whole output readback lost tail on port %u", shape_.c_str(), r.index);
+    check(!dev_cmd(1, r.id, r.flen, 1, nullptr, frame.data()),
+          "%s: output WRITE beyond capacity accepted on port %u", shape_.c_str(), r.index);
+    check(!dev_cmd(0, r.id, 0, r.flen + 1, &got, nullptr),
+          "%s: output READ beyond capacity accepted on port %u", shape_.c_str(), r.index);
+    check(dev_cmd(2, r.id, 0, 0, nullptr, nullptr),
+          "%s: whole output ERASE refused on port %u", shape_.c_str(), r.index);
+    bool exact = true;
+    for (size_t pos = 0; pos < mem_.size(); ++pos) {
+      const bool inside = pos >= r.off && pos < r.off + r.flen;
+      exact = exact && mem_[pos] == (inside ? 0xFF : before[pos]);
+    }
+    check(exact, "%s: output ERASE crossed span on port %u", shape_.c_str(), r.index);
+    check(dev_cmd(1, r.id, 0, r.flen, nullptr, &area_[r.off]),
+          "%s: restoring output frame refused on port %u", shape_.c_str(), r.index);
+  }
+}
+
 void NvmBackendHarness::test_bounds_and_errors() {
   std::vector<uint8_t> got;
   check(!dev_cmd(0, 0x1A, 0, 4, &got, 0),
@@ -1146,6 +1178,8 @@ int NvmBackendHarness::run(int argc, char **argv) {
   test_status_word();
   test_stale();
   test_ownership();
+
+  test_output_boundaries();
 
   printf("nvm_backend[%s]: checks: %d  failures: %d\n", shape_.c_str(),
          checks_, fails_);

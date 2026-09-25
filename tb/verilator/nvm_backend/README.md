@@ -1,8 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # nvm_backend -- the saved-state backing store, graded on bytes
 
-`make` - exit 0 = PASS. **469 checks at the 8x8 shape and 201 at 1x1, 0
-failures**, plus four negative controls that must each go RED. The suite
+`make` - exit 0 = PASS. **525 checks at 8x8 and 208 at 1x1, zero failures**, plus four negative controls that must each go RED. The suite
 carries no `-Wno-*` at all, not even `-Wno-fatal`, so any Verilator warning
 stops the build.
 
@@ -40,13 +39,19 @@ same source the SoC synthesises, driven here with `CLK_HZ_P` dropped to 10 kHz
 so that the millisecond deadlines are reachable in simulation; the deadline
 VALUES are the design page's and are exercised as relations, not durations.
 
-The asymmetry is the point. On the generated 8x8 overlay an input stream port
-has 8 clusters (a 64-byte payload, a 72-byte framed record) and an output port
-has 17 (136 bytes, 144 framed). At the 1x1 shape the single input port has ZERO
-clusters -- an 8-byte framed record with no payload at all -- against the same
-136-byte output payload. Any decode that gives the two directions one length,
-or that advances past a channel-map group by a nominal stride, reads the wrong
-span in at least one direction at both shapes.
+The generated shapes determine every record length.
+At 8x8, input ports have zero clusters: eight framed bytes.
+Each output reserves `9 * 8 = 72` stream/channel keys.
+Its payload is `72 * 8 = 576` bytes.
+Its framed length is `8 + 576 = 584` bytes.
+At 1x1, eight input clusters require 72 framed bytes.
+The output keeps 17 entries and 144 framed bytes.
+
+Every output port receives whole-record writes, readbacks and erases.
+The harness checks the grown tail and every neighbouring byte.
+One-byte-over-capacity reads and writes must fail.
+The fixture derives offsets by encoding the complete journal.
+The record-space gate also pins the pre-change 1x1 digest.
 
 The harness models the SoC bridge on the memory face exactly as
 `sw/litex/milan_soc.py` builds it: single-beat big-endian 64-bit lanes, real

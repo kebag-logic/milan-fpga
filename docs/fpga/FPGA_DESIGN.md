@@ -166,14 +166,18 @@ numbers reads the wrong mux.** The stagger is deliberate: an abandoned source
 starves every downstream mux on the same cycle, so equal windows would each
 inject their own close beat and put a runt on the wire per level.
 
-Two losses are functional rather than cosmetic (a third — the CRF media
-clock could never be SELECTED — closed with #74: `milan_datapath`'s
-`media_clk_resolve` compares the stored `SET_CLOCK_SOURCE` index against the
-shape's generated `AEM_CRF_CLKSRC_C`, and the one registered verdict gates
-`KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain and the
-1722-2016 4.4.4.3 `mr` machinery; at the INTERNAL power-on state everything
-still reads idle, by the standing free-run rule rather than by tie-off). Each remaining loss
-has a module in the inventory below that is present but idle:
+Two losses remain functional; #74 closed CRF media-clock selection.
+`media_clk_resolve` compares `SET_CLOCK_SOURCE` against the shape's `AEM_CRF_CLKSRC_C`.
+Its registered verdict gates these CRF consumers:
+
+- `KL_mmcm_drp_servo`;
+- the `KL_media_grid_align` packet-grid chain;
+- the CRF triggers of IEEE 1722-2016 4.4.4.3 `mr`.
+
+At INTERNAL, those CRF consumers stay idle under free-run policy.
+A PHC step toggles `mr` whatever the clock-source selection.
+Every running Stream Output counts that toggle in MEDIA_RESET.
+Each remaining loss has a present but idle module:
 
 1. *(closed by #74 — see above.)*
 2. **Presentation-time offset is pinned at the Milan 2 ms DEFAULT** for every

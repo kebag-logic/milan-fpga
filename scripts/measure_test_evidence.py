@@ -594,12 +594,25 @@ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\
                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
 DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
 DUT_READER_DISPOSITIONS = {
+    "tb/verilator/crf_rx/mutants.py":
+        "mutation campaign; copies the receiver and servo, requiring named failures "
+        "for tu, jump, refill, accept-edge, ignored-validity and PI-resume defects; "
+        "no expectations read from RTL",
     "gptp-processor/tb/check_phc_contract.py":
         "structural boundary check; it asserts required/forbidden tokens, not behavior",
     "gptp-processor/tb/tsngen/mutants.py":
         "mutation campaign; it stages three engine defects and requires failure",
+    "protocol-processor/tb/desc_mem_guard/mutate.py":
+        "mutation campaign; it removes the guard's two request holds in a copy and "
+        "requires the completed late-byte assertion to fail",
     "protocol-processor/tb/nvm_port/measure_figures.py":
         "mutation campaign; it rewrites one RTL arm and requires the suite to fail",
+    "protocol-processor/tb/pp_top/gsi_mutants.py":
+        "mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table "
+        "into an isolated copy and requires the named response check to fail",
+    "protocol-processor/tb/srp_admission/mutants.py":
+        "mutation campaign; it plants one admission defect into a temporary tree, "
+        "requires the named check to fail, and runs clean controls first",
     "tb/verilator/gptp_shadow/test_mutant_lifecycle.py":
         "orchestration lifecycle fixture; it identifies the planted mutation and "
         "compares caller bytes/modes/index across interruption. Synthetic commands "
@@ -607,6 +620,14 @@ DUT_READER_DISPOSITIONS = {
     "tb/verilator/milan_dp/crflic_mutants.py":
         "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
         "named failure. It is the explicit crflic-mutants target, outside the default sweep",
+    "tb/verilator/milan_dp/gsi_mutants.py":
+        "mutation campaign; it plants one of eight #508 GET_STREAM_INFO seam defects into a copy of "
+        "the datapath or of the processor tree and requires a named failure. It is the explicit "
+        "gsi-mutants target, outside the default sweep",
+    "tb/verilator/milan_dp/gmstep_mutants.py":
+        "mutation campaign; it plants one of eleven #387 re-base defects into a copy and requires a "
+        "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
+        "the three the acceptance names; the explicit gmstep-mutants target plants all eleven",
     "tb/verilator/milan_dp/render_mutants.py":
         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
@@ -634,6 +655,9 @@ DUT_READER_DISPOSITIONS = {
         "mutation campaign; it ties a real named binding low and requires failure",
     "tb/verilator/tcam/mutants.py":
         "mutation campaign; it injects three RTL defects and requires failure",
+    "tb/verilator/tkdiag/mcr_mutants.py":
+        "mutation campaign; it plants one of four restart-engine defects against the #387 "
+        "pending-restart merge and its wire boundary into a copy and requires a named failure",
 }
 
 
@@ -708,13 +732,13 @@ def runner_contract(text: str) -> list[str]:
         problems.append("the per-suite wall-clock guard is missing")
     budget = '''suite_timeout() {
   case "$1" in
-    milan_dp)      printf '%s\\n' "${SUITE_TIMEOUT:-2700}" ;;
+    milan_dp)      printf '%s\\n' "${SUITE_TIMEOUT:-3600}" ;;
     milan_dp_gptp) printf '%s\\n' "${SUITE_TIMEOUT:-5400}" ;;
     *)             printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
   esac
 }'''
     if budget not in text or 'TMO=$(suite_timeout "$suite")' not in text:
-        problems.append("the declared 1800/2700/5400-second suite budgets changed")
+        problems.append("the declared 1800/3600/5400-second suite budgets changed")
     selection = ('selector=(python3 "$ROOT/scripts/suite_shards.py"',
                  '--suite-root "$ROOT/tb/verilator" --shard "$SHARD")',
                  '[ "$PHYSICAL_GPTP" = 1 ] && selector+=(--physical-gptp)',

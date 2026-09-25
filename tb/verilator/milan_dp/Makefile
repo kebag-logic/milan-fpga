@@ -11,6 +11,15 @@
 #   make crflic - run only the #530 CRF talker licence leg (compressed time)
 #   make crflic-mutants - that leg's explicit mutation campaign
 #                 (crflic_mutants.py), outside the sweep's deadline
+#   make notify - run only the timed leg: the Milan 5.4.5 notifications and
+#                 the #508 GET_STREAM_INFO seam ([GSI]) at compressed time
+#   make gsi-mutants - the [GSI] section's explicit mutation campaign
+#                 (gsi_mutants.py), outside the sweep's deadline
+#   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
+#                 the acceptance's controls of it (gmstep_mutants.py)
+#   make gmstep-mutants - that leg's whole control inventory, with two
+#                 controls of the option-off leg's #387 mr checks, outside
+#                 the sweep's deadline
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -190,7 +199,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -264,6 +273,27 @@ $(VERILATOR) crflic_probes.vlt $(SHAPE_AX1x1) $(CRFLIC_FLAGS) --Mdir $(CRFLIC_MD
   $(SRCS) sim_crf_licence.cpp -o Vmilan_dp_crflic
 endef
 
+# Milan 5.4.5 TIMED (issue #69) and the #508 GET_STREAM_INFO seam: the
+# processor's timebase compressed 1000x through its own override parameters
+# (PP_TIM_DIV_US_P = 1 clock per microsecond tick, PP_TIM_DIV_MS_P = 100
+# ticks per millisecond), so one processor millisecond is 100 fabric cycles
+# and the GET_COUNTERS one-second limit, the 30-60 s departing-controller
+# monitor and the ACMP probe, retry and settle timers are all runnable in a
+# few million cycles. The fabric clock itself stays at its shipping value.
+# -DMS_CYC_TB hands the same number to the harness so the two cannot drift.
+# sim_nxn's [NOTIFY] and [GSI] sections on the shipping 1x1 shape, exiting
+# right after them (NOTIFY_TIMED_TB). gsi_mutants.py builds a MUTATED
+# datapath or a MUTATED processor copy through this same recipe (DP_SRC,
+# PP_DIR and NOTIFY_MDIR overridden), so its negative controls elaborate
+# exactly the gateware the positive leg does.
+NOTIFY_MDIR ?= obj_notify
+define NOTIFY_BUILD
+$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(NOTIFY_MDIR) \
+  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 \
+  -CFLAGS "-DNSTREAMS_TB=1 -DNOTIFY_TIMED_TB=1 -DMS_CYC_TB=100 -Wall -Wextra" \
+  $(SRCS) sim_nxn.cpp -o Vmilan_dp_notify
+endef
+
 # #447: the shipping TDM8 render lane's two elaborations, its leg source and
 # its mutation campaign live in tb/verilator/milan_dp_render, their own suite
 # directory. They are still built from THIS suite's datapath source list and
@@ -306,11 +336,13 @@ gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 # issue #387 acceptance 3: the `gptp` leg's elaboration, driven through a
 # grandmaster change that steps the PHC by 1.5 s while the AAF listener is
 # bound and locked under CRF selection (sim_gmstep.cpp's banner has the
-# model). GMSTEP_MDIR is overridable so the leg's negative controls build
-# through this same recipe (their runner joins with the #387 datapath edit);
-# the AEM image is the shipping config's. GMSTEP_FEED_DELAY idles that many
-# fabric cycles before the peer's media feed starts, which moves the accept
-# phase against the media tick; the leg must pass at every delay.
+# model). `run` runs it and then its negative controls, gmstep_mutants.py,
+# which build mutated copies through this same recipe (GMSTEP_MDIR and
+# DP_SRC, CLKV_SRC or RSP_SRC overridden); the sweep plants the three
+# controls the acceptance names, and gmstep-mutants below the whole
+# inventory. The AEM image is the shipping config's. GMSTEP_FEED_DELAY idles
+# that many fabric cycles before the peer's media feed starts, which moves
+# the accept phase against the media tick; the leg must pass at every delay.
 GMSTEP_MDIR ?= obj_gmstep
 GMSTEP_FEED_DELAY ?= 0
 gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
@@ -322,6 +354,11 @@ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 
 gmstep: gmstep-build
 	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)
+
+# An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md): the
+# gmstep leg's whole control inventory, one datapath elaboration per control.
+gmstep-mutants: gmstep
+	python3 gmstep_mutants.py --all
 
 # issue #358: THE SAME LEG WITH THE BOARD LATENCY CORRECTIONS ON. The `gptp`
 # target above leaves both constants at their zero defaults and therefore
@@ -351,9 +388,15 @@ gptp-lat: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 
 # Focused ownerless boundary: the same 1x1 harness used by the broad suite,
 # with the gPTP product plane structurally absent and every legacy write inert.
-option-off: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
-	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
-	./obj_dir/Vmilan_dp_sim
+# Its build alone, into OPTOFF_MDIR, is what gmstep_mutants.py rebuilds with
+# a MUTATED datapath (DP_SRC) for its option-off controls (#387: a settime is
+# one mr toggle and one MEDIA_RESET, whatever the clock source).
+OPTOFF_MDIR ?= obj_dir
+option-off-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir $(OPTOFF_MDIR) $(SRCS) $(CPP) -o Vmilan_dp_sim
+
+option-off: option-off-build
+	./$(OPTOFF_MDIR)/Vmilan_dp_sim
 
 # First eight-channel datapath baseline, without the ten unrelated elaborations.
 # VERILATOR_JOBS bounds compilation without changing model parameters.
@@ -399,6 +442,17 @@ crflic-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 crflic-mutants: crflic
 	python3 crflic_mutants.py
 
+notify-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+	$(NOTIFY_BUILD)
+
+notify: notify-build
+	./$(NOTIFY_MDIR)/Vmilan_dp_notify
+
+# An EXPLICIT campaign like crflic-mutants: eight more elaborations and
+# nine runs of the timed leg, outside the sweep's deadline.
+gsi-mutants: notify
+	python3 gsi_mutants.py
+
 ax1x1gptp: VERILATOR_JOBS = 4
 ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(VERILATOR) $(SHAPE_AX1x1) $(AX_GPTP_FLAGS) --Mdir obj_ax1x1gptp \
@@ -415,7 +469,7 @@ ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) 
 ax1x1gptp-extended: AX_GPTP_ARGS = --extended
 ax1x1gptp-extended: ax1x1gptp
 
-run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
+run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat gmstep
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
@@ -475,24 +529,13 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 # large blast radius for no gain.
 	$(ACLK_BUILD)
 	@echo "======================================================================"
-# Milan 5.4.5 TIMED (issue #69): the processor's timebase compressed
-# 1000x through its own override parameters (PP_TIM_DIV_US_P = 1 clock per
-# microsecond tick, PP_TIM_DIV_MS_P = 100 ticks per millisecond), so one
-# processor millisecond is 100 fabric cycles and the GET_COUNTERS one-second
-# limit and the 30-60 s departing-controller monitor are both runnable in a
-# few million cycles. The fabric clock itself stays at its shipping value.
-# -DMS_CYC_TB hands the same number to the harness so the two cannot drift.
-# sim_nxn's [NOTIFY] section on the shipping 1x1 shape, exiting right after
-# the descriptor image is served (NOTIFY_TIMED_TB); the real-time legs run
-# the same section untimed.
-	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_notify \
-	  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 \
-	  -CFLAGS "-DNSTREAMS_TB=1 -DNOTIFY_TIMED_TB=1 -DMS_CYC_TB=100 -Wall -Wextra" \
-	  $(SRCS) sim_nxn.cpp -o Vmilan_dp_notify
+# Milan 5.4.5 TIMED (issue #69) and the #508 [GSI] section: NOTIFY_BUILD
+# above states the recipe; the real-time legs run [NOTIFY] untimed.
+	$(NOTIFY_BUILD)
 	$(CRFLIC_BUILD)
 	./obj_dir/Vmilan_dp_sim
-	@echo "---- Milan 5.4.5 notifications, TIMED on the compressed processor timebase ----"
-	./obj_notify/Vmilan_dp_notify
+	@echo "---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----"
+	./$(NOTIFY_MDIR)/Vmilan_dp_notify
 	@echo "---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----"
 	./$(CRFLIC_MDIR)/Vmilan_dp_crflic
 	./obj_nxn/Vmilan_dp_nxn
@@ -511,6 +554,8 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 	./obj_aclk/Vmilan_dp_aclk
 	@echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
 	python3 render_mutants.py
+	@echo "---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----"
+	python3 gmstep_mutants.py
 # The physical-rate leg has its own milan_dp_gptp suite deadline. Its focused
 # target stays here so there is only one source/parameter/build recipe.
 

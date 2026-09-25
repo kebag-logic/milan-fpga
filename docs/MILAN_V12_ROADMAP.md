@@ -356,7 +356,10 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 > and wrapper output landed first, and #74 landed the consumer: the root's
 > `media_clk_resolve` turns the stored index into the one registered verdict
 > that arms `KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain
-> and the 4.4.4.3 `mr` machinery. The INTERNAL selection constant is gone.
+> and the CRF triggers of the 4.4.4.3 `mr` machinery.
+> A PHC step toggles `mr` whatever the clock-source selection.
+> Every running Stream Output counts that toggle in MEDIA_RESET.
+> The INTERNAL selection constant is gone.
 
 ### P2.4 — dynamic audio mappings
 
