@@ -1,0 +1,10 @@
+docs/reference/REGISTER_MAP.md:841: | `0x748` | `CRF_RATE` | RO | `0` | The talker's media clock measured against gPTP, the servo frequency input. Signed ns error per 512 ms window (256-PDU ring); 1 ppm = 512 units. Holds the last clean value during discontinuity refill. Internal validity gates servo sampling; this CSR does not expose validity |
+docs/reference/REGISTER_MAP.md:127:    CRF triggers of the 4.4.4.3 `mr` machinery (the disruption and the
+docs/testing/TESTING.md:463: | [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. The default gate includes tu, jump, refill, sample-edge and servo-validity mutants |
+docs/testing/TESTING.md:166: The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
+scripts/measure_test_evidence.py:597:     "tb/verilator/crf_rx/mutants.py":
+scripts/measure_test_evidence.py:614:     "tb/verilator/milan_dp/gmstep_mutants.py":
+docs/design/TIME_SYNC.md:167: CRF rate history restarts on either received `tu` edge.
+docs/design/TIME_SYNC.md:266: | Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a step is also one `mr` toggle ([media re-base](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step)) |
+hdl/milan/milan_datapath.sv:1725:   wire crf_rate_valid_w;
+hdl/milan/milan_datapath.sv:3111:   wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;

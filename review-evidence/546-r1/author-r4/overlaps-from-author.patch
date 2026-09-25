@@ -1,0 +1,197 @@
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 6931b2d2a..705a1cce9 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -263,7 +263,7 @@ The constant is independent of the audio interface.
+ | Convergence band | +/-3 events at PDU ends, 100 ms | half a PDU |
+ | Reset rail | +/-6 events at PDU ends | one PDU: a PDU one interval late never trips it; later than that trips the low rail |
+ | Prefill | snap to setpoint + 6 at a PDU end | one bounded gap, no repeat storm |
+-| Recentre | GM identity change, PHC adjtime or settime, a settled clock-source change | once, at the next PDU end |
++| Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a step is also one `mr` toggle ([media re-base](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step)) |
+ | Clock-source settle | under CRF: the aligner engaged with its error inside 1/64 sample for 2048 ticks (43 ms), or engaged for 32768 ticks; at INTERNAL: 2048 ticks after the change | `milan_datapath` arms one recentre per change; repeated selections re-arm, never queue |
+ | Pop | one event per stream per tick, decided at the stream's first beat | a rail, a recentre or a flush inside the pop window lands between events, never inside one |
+ | Crossbar channel view | 2 x ceil(N_CH_P / 2) lanes per stream (8 on every in-tree shape) | the pad lane of an odd count is a virtual channel, never a wrap onto channel 0 |
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 8d68ff2fe..9eff16569 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -124,8 +124,11 @@ they are not discovered by surprise:
+    and `milan_datapath`'s `media_clk_resolve` compares it against the
+    shape's generated `AEM_CRF_CLKSRC_C` into one registered verdict gating
+    `KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain and the
+-   4.4.4.3 `mr` machinery. At the INTERNAL power-on state `A_MCSRV_STAT`
+-   `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
++   CRF triggers of the 4.4.4.3 `mr` machinery (the disruption and the
++   received toggle). A PHC step toggles `mr` on every running Stream
++   Output whatever the selection, and that output's Table 5.4 MEDIA_RESET
++   counts the toggle it transmits (#387). At the INTERNAL power-on state
++   `A_MCSRV_STAT` `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
+    by tie-off. Since `0x0058` the accepted slips are counted where software can
+    read them, `SLIP_LB`/`SLIP_TDM` at `0x8D4`/`0x8D8`.
+ 2. **Every Stream Output's presentation-time offset is pinned at the Milan 2 ms
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 557ea4af8..d40de063b 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -163,8 +163,8 @@ VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/suite-logs
+ Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilator/README.md).
+ `ls tb/verilator/` is authoritative (one dir per suite).
+ 
+-The default driver permits 1800 seconds per suite, and 2700 seconds for `milan_dp`.
+-That figure is the suite's measured hosted worst case plus a stated margin (#444).
++The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
++[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets this deadline from recorded hosted samples.
+ The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
+ It excludes only the scheduled `milan_dp_gptp` directory.
+ The separate physical job permits 5400 seconds, including compilation.
+@@ -264,6 +264,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ |---|---|---|
+ | #447 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
+ | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
++| #387 GM step re-base, the gmstep leg's nine controls and the option-off leg's two | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `sim_gmstep.cpp` or the option-off leg's PHC-step `mr` checks in `sim_main.cpp`. The default sweep runs the three controls #387's acceptance names |
+ 
+ The default sweep still runs both render legs, and their assertions are unchanged.
+ It also runs that campaign's leg-side defect arms, which need no elaboration.
+@@ -497,7 +498,7 @@ verdicts and for check counts.
+ | [`tb/verilator/tcam_csr`](../../tb/verilator/tcam_csr) | — |
+ | [`tb/verilator/tdm`](../../tb/verilator/tdm) | — |
+ | [`tb/verilator/tdm_render`](../../tb/verilator/tdm_render) | — |
+-| [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) | `KL_talker_diag_ctx` grades the Milan Table 5.4 per-STREAM_OUTPUT counter arithmetic, including the nonvacuous MEDIA_RESET reset-on-start path. `milan_datapath` instantiates one context for every AAF output and the CRF output; `milan_dp` grades that integration and its AECP response path |
++| [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) | `KL_talker_diag_ctx` grades the Milan Table 5.4 per-STREAM_OUTPUT counter arithmetic, including the nonvacuous MEDIA_RESET reset-on-start path. `KL_media_clock_restart` feeds it the `mr` bit: its per-stream hold and, since #387, a request that lands on a pending restart merging with it (T17) until a PDU at the new level has gone out (T18), whose four failing engines `mcr_mutants.py` plants in the default target. `milan_datapath` instantiates one context for every AAF output and the CRF output; `milan_dp` grades that integration and its AECP response path |
+ | [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) | the field-validation campaign -- **AAF only** since 2026-08-13 (Section 1.0); standalone `make` skips without tsn-gen, CI installs the pinned generator, and the full sweep rejects an uncounted skip |
+ 
+ The standing rule is that every round grows this table. 2026-08-13 is the one
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index b0210b2c3..78b935936 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3069,9 +3069,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //  100 ms of CRF silence (and needs 8 clean PDUs to re-lock), so the edge
+   //  is the debounced verdict, not a per-PDU twitch.
+   //
+-  //  Restart requests are IGNORED unless the CRF clock is the one in use: on
++  //  The CRF requests are IGNORED unless the CRF clock is the one in use: on
+   //  an internal media clock there is no CRF stream to be disrupted, so
+-  //  toggling mr would be a false alarm to every listener.
++  //  toggling mr would be a false alarm to every listener. A PHC step is not
++  //  a CRF request and is not gated (#387, below).
+   // --------------------------------------------------------------------------
+   //! IEEE 1722-2016 4.4.4.3 disruption pulse: crf_locked_w falls while CRF is
+   //! the selected media clock source. The clause's OTHER mandatory trigger, a
+@@ -3097,16 +3098,29 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! 4.4.4.3's "disruption of the CRF stream" is not a disruption of OUR
+   //! clock and must not toggle mr on our streams; with the CRF source
+   //! selected, it is exactly the mandatory trigger, now reachable.
+-  wire mcr_restart_p_w = crf_clk_selected_r
+-                       & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++  //! #387: a PHC step is ONE counted media event (decision 5606198212 part
++  //! b, restated by the owner in 5794731090): the plane's phase write (CLKV
++  //! software's adjtime when the plane is off) or a software settime moves
++  //! every presentation time this talker stamps, so it restarts the media
++  //! clock on the wire once (4.4.4.3) - whichever clock source is selected -
++  //! and Milan Table 5.4 MEDIA_RESET counts that toggle. A step that lands
++  //! while another restart is still pending (a CRF disruption, say) merges
++  //! with it inside KL_media_clock_restart: one toggle, never a cancellation
++  //! (ruling 5802264260 item 2). The same pulse re-centres the render stage
++  //! below.
++  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
++  wire mcr_restart_p_w = (crf_clk_selected_r
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
++                       | media_rebase_p_w;
+ 
+   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
+   //! the AAF talkers AND the CRF Media Clock Output, which is a Talker in
+   //! its own right (PICS Table F.16 CRF-3/CRF-5) and whose stream is exactly
+-  //! the one 10.4.3 writes the clause for. One engine, because the TARGET is
+-  //! a property of the media clock and not of a stream: two outputs on one
+-  //! clock must never end up on opposite levels. The per-stream half - the
+-  //! ">= 8 AVTPDUs for a given continuous stream" hold - stays per context,
++  //! the one 10.4.3 writes the clause for. One engine, because the REQUESTS
++  //! are a property of the media clock: every restart reaches every output.
++  //! The per-stream half - the ">= 8 AVTPDUs for a given continuous stream"
++  //! hold, and with it whether a request is still pending on that stream
++  //! (#387: a request landing on a pending one merges) - stays per context,
+   //! so the CRF output's 500 PDU/s hold and an AAF talker's 8 kPDU/s hold
+   //! run independently and neither can rush the other.
+   //!
+@@ -5923,9 +5937,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! walked back into its convergence band at the residual rate error.
+   //! One pulse per GM-identity change re-centers it instead; the first
+   //! fabric GM publication out of reset (0 -> id) is exempt
+-  //! (prefill owns boot). ONE detector for both elastic stages (#386):
+-  //! it lives outside the I2SPB generate so the shipping shape, which
+-  //! prunes the DAC, still derives the render stage's pulse from it.
++  //! (prefill owns boot). Since #387 only the I2S playback FIFO below reads
++  //! it: the render stage re-centres on the PHC step itself
++  //! (render_recentre_p_w), and a shape that prunes the DAC leaves this
++  //! detector without a reader.
+   logic [63:0] gm_recentre_q_r;
+   logic        gm_recentre_p_r;
+   always_ff @(posedge axis_clk) begin : g_gm_recentre
+@@ -6002,15 +6017,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+       end
+     end
+   end : g_src_recentre
+-  //! #386: the render stage re-centres on a GM identity change, a PHC
+-  //! adjtime (the plane's step, or CLKV software's when the plane is off),
+-  //! a PHC settime and a settled clock-source change. The first three are
+-  //! the PHC discontinuities KL_ptp_clock_validity also raises tu on; that
+-  //! module additionally takes the plane's pre-commit publication events
+-  //! and counts the first 0-to-id publication, which this set leaves out
+-  //! (prefill owns boot). public: the milan_dp render-law leg counts it.
++  //! #386: the render stage re-centres on a PHC step (the #387 media
++  //! re-base above: the plane's step or CLKV software's adjtime when the
++  //! plane is off, and a software settime) and on a settled clock-source
++  //! change. A GM identity change is no longer a trigger of its own (#387):
++  //! a change that steps the PHC re-centres through that step, once, and a
++  //! change that only slews is no PHC discontinuity. KL_ptp_clock_validity
++  //! still raises tu on the identity change and the plane's pre-commit
++  //! publication events. public: the milan_dp render-law and gmstep legs
++  //! count it.
+   wire render_recentre_p_w /* verilator public_flat_rd */ =
+-       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load
++       media_rebase_p_w
+        | src_recentre_p_r;
+ 
+   generate if (I2SPB_P != 0) begin : g_i2s_player
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index b1d85b353..df66aaed7 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -611,6 +611,10 @@ DUT_READER_DISPOSITIONS = {
+     "tb/verilator/milan_dp/crflic_mutants.py":
+         "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
+         "named failure. It is the explicit crflic-mutants target, outside the default sweep",
++    "tb/verilator/milan_dp/gmstep_mutants.py":
++        "mutation campaign; it plants one of eleven #387 re-base defects into a copy and requires a "
++        "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
++        "the three the acceptance names; the explicit gmstep-mutants target plants all eleven",
+     "tb/verilator/milan_dp/render_mutants.py":
+         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
+     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
+@@ -638,6 +642,9 @@ DUT_READER_DISPOSITIONS = {
+         "mutation campaign; it ties a real named binding low and requires failure",
+     "tb/verilator/tcam/mutants.py":
+         "mutation campaign; it injects three RTL defects and requires failure",
++    "tb/verilator/tkdiag/mcr_mutants.py":
++        "mutation campaign; it plants one of four restart-engine defects against the #387 "
++        "pending-restart merge and its wire boundary into a copy and requires a named failure",
+ }
+ 
+ 
+@@ -712,13 +719,13 @@ def runner_contract(text: str) -> list[str]:
+         problems.append("the per-suite wall-clock guard is missing")
+     budget = '''suite_timeout() {
+   case "$1" in
+-    milan_dp)      printf '%s\\n' "${SUITE_TIMEOUT:-2700}" ;;
++    milan_dp)      printf '%s\\n' "${SUITE_TIMEOUT:-3600}" ;;
+     milan_dp_gptp) printf '%s\\n' "${SUITE_TIMEOUT:-5400}" ;;
+     *)             printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
+   esac
+ }'''
+     if budget not in text or 'TMO=$(suite_timeout "$suite")' not in text:
+-        problems.append("the declared 1800/2700/5400-second suite budgets changed")
++        problems.append("the declared 1800/3600/5400-second suite budgets changed")
+     selection = ('selector=(python3 "$ROOT/scripts/suite_shards.py"',
+                  '--suite-root "$ROOT/tb/verilator" --shard "$SHARD")',
+                  '[ "$PHYSICAL_GPTP" = 1 ] && selector+=(--physical-gptp)',
