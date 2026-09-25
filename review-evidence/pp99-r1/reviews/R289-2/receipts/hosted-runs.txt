@@ -1,0 +1,51 @@
+# hosted runs for head_sha=9cde1c19dbfd859257be8e012d4455856fcfce3b (queried 2026-09-25T05:22:27Z)
+run 36097411757 event=pull_request status=in_progress conclusion=null head=9cde1c19dbfd859257be8e012d4455856fcfce3b
+run 36097408423 event=push status=in_progress conclusion=null head=9cde1c19dbfd859257be8e012d4455856fcfce3b
+## jobs of run 36097411757
+job docs-gates status=completed conclusion=success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Link, matrix, parameter, wavedrom and staleness gates: success
+  step 6 Post Run actions/checkout@v4: success
+  step 7 Complete job: success
+job suites status=in_progress conclusion=null
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Cache the pinned Verilator build: success
+  step 4 Build Verilator v5.050: skipped
+  step 5 Lint (zero tolerance) + every suite: success
+  step 6 Traceability matrix no-drift + untested budget 0: success
+  step 7 nvm_port README figures agree with the tree: null
+  step 13 Post Cache the pinned Verilator build: null
+  step 14 Post Run actions/checkout@v4: null
+job portability status=completed conclusion=success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Install yosys + sv2v: success
+  step 4 Elaborate every top off-vendor: success
+  step 8 Post Run actions/checkout@v4: success
+  step 9 Complete job: success
+## jobs of run 36097408423
+job docs-gates status=completed conclusion=success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Link, matrix, parameter, wavedrom and staleness gates: success
+  step 6 Post Run actions/checkout@v4: success
+  step 7 Complete job: success
+job portability status=completed conclusion=success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Install yosys + sv2v: success
+  step 4 Elaborate every top off-vendor: success
+  step 8 Post Run actions/checkout@v4: success
+  step 9 Complete job: success
+job suites status=in_progress conclusion=null
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Cache the pinned Verilator build: success
+  step 4 Build Verilator v5.050: skipped
+  step 5 Lint (zero tolerance) + every suite: success
+  step 6 Traceability matrix no-drift + untested budget 0: success
+  step 7 nvm_port README figures agree with the tree: null
+  step 13 Post Cache the pinned Verilator build: null
+  step 14 Post Run actions/checkout@v4: null

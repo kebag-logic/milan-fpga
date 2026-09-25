@@ -1,0 +1,24 @@
+baseline-head                links rc=0 (expect 0)  anchors rc=0 (expect 0)  AS-EXPECTED
+typo-resp-fragment           links rc=1 (expect 1)  anchors rc=1 (expect 1)  AS-EXPECTED
+    LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#sec-resp-memoryX
+    links: 916 checked, 1 FAILURES
+    DEAD docs/guides/integrator.md:88 -> docs/architecture/07_memory_maps.md#sec-resp-memoryX offline=False online=None
+drop-resp-anchor             links rc=1 (expect 1)  anchors rc=1 (expect 1)  AS-EXPECTED
+    LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#sec-resp-memory
+    links: 916 checked, 1 FAILURES
+    DEAD docs/guides/integrator.md:88 -> docs/architecture/07_memory_maps.md#sec-resp-memory offline=False online=None
+drop-desc-anchor             links rc=1 (expect 1)  anchors rc=1 (expect 1)  AS-EXPECTED
+    LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#sec-desc-memory
+    LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#sec-desc-memory
+    LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#sec-desc-memory
+    DEAD docs/guides/integrator.md:80 -> docs/architecture/07_memory_maps.md#sec-desc-memory offline=False online=None
+    DEAD docs/guides/integrator.md:81 -> docs/architecture/07_memory_maps.md#sec-desc-memory offline=False online=None
+    DEAD docs/guides/integrator.md:82 -> docs/architecture/07_memory_maps.md#sec-desc-memory offline=False online=None
+revert-to-round1-slugs       links rc=0 (expect 0)  anchors rc=1 (expect 1)  AS-EXPECTED
+    DEAD docs/guides/integrator.md:80 -> docs/architecture/07_memory_maps.md#331-realization-the-image-lives-in-main-memory-not-on-chip offline=False online=None
+    DEAD docs/guides/integrator.md:81 -> docs/architecture/07_memory_maps.md#331-realization-the-image-lives-in-main-memory-not-on-chip offline=False online=None
+    DEAD docs/guides/integrator.md:82 -> docs/architecture/07_memory_maps.md#331-realization-the-image-lives-in-main-memory-not-on-chip offline=False online=None
+github-double-hyphen-slugs   links rc=1 (expect 1)  anchors rc=0 (expect 0)  AS-EXPECTED
+    LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#331-realization--the-image-lives-in-main-memory-not-on-chip
+    LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#331-realization--the-image-lives-in-main-memory-not-on-chip
+    LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/07_memory_maps.md#331-realization--the-image-lives-in-main-memory-not-on-chip

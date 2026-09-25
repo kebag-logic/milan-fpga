@@ -1,0 +1,39 @@
+head=9cde1c19dbfd859257be8e012d4455856fcfce3b tree=899808411b924cd161e849039806685e939e6fc4
+## name-status 663d50d65ff49c33b153107b2f79d6f3c5725799..9cde1c19dbfd859257be8e012d4455856fcfce3b
+M	docs/architecture/07_memory_maps.md
+M	docs/architecture/09_verification.md
+M	docs/guides/integrator.md
+## numstat
+1	0	docs/architecture/07_memory_maps.md
+1	0	docs/architecture/09_verification.md
+5	5	docs/guides/integrator.md
+## summary (mode changes, empty = none)
+## whitespace check
+rc=0
+## hdl/tb/syn/scripts/.github/Makefile untouched in round 2 (empty = untouched)
+## integrator.md: lines equal after normalising the 07 fragments
+rc=0
+## 07: head minus the one added anchor line equals base
+rc=0
+## 07 context of new anchor
+larger than one request.$
+$
+<a id="sec-resp-memory"></a>$
+#### 3.3.2 The other main-memory region M-bM-^@M-^T the AECP response buffer$
+$
+## 09: head minus params row equals base
+rc=0
+## author round2.patch vs git diff (content lines only)
+rc=0
+## explicit-anchor style in 07 (existing <a id> lines)
+12:<a id="fig-07-regions"></a>**F07.1 — Regions and port owners**
+56:<a id="fig-07-tree"></a>**F07.2 — Milan descriptor tree (multiplicities per Milan §5.3.2/§5.3.3)**
+96:<a id="fig-07-sizing"></a>**F07.3 — Fixed sizes + variable parts (IEEE Std 1722.1-2021 §7.2)**
+146:<a id="sec-desc-memory"></a>
+215:<a id="sec-resp-memory"></a>
+226:<a id="fig-07-image"></a>**F07.4 — flat image layout** (generator:
+279:<a id="fig-07-sinkrec"></a>**F07.6 — ACMP sink record** (48 B core; fields defined in
+315:<a id="fig-07-regrec"></a>**F07.7 — Controller-registry entry** (28 B; Δ12 tuple; lanes
+338:<a id="fig-07-ctrmap"></a>**F07.10 — Counter banks** (full-bank form; compressed
+366:<a id="fig-07-nvmrec"></a>**F07.8 — Record framing** (device-agnostic; one record per
+394:<a id="fig-07-nvmflow"></a>**F07.9 — Runtime commit and boot restore**
