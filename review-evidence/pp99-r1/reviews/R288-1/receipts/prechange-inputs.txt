@@ -1,0 +1,13 @@
+$ checker --guide <main 60152f3 guide> (head top/diagram)
+PARAMETERS FAIL: guide: missing LOCK_TIMEOUT_MS_P
+PARAMETERS FAIL: guide: missing NVM_RS_TMO_CYC_P
+PARAMETERS FAIL: guide: missing N_AUDIO_UNIT_P
+PARAMETERS FAIL: guide: missing N_CLK_DOMAIN_P
+PARAMETERS FAIL: guide: missing N_CONTROL_P
+PARAMETERS FAIL: guide: missing REG_TL_TIMEOUT_MS_P
+parameters: top 24, guide 18, diagram 24, 6 FAILURES
+rc=1
+$ checker --diagram <main 60152f3 diagram>
+PARAMETERS FAIL: diagram: expected one integration-parameters inventory group
+parameters: top 24, guide 24, 1 FAILURES
+rc=1

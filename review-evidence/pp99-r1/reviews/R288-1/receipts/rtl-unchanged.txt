@@ -1,0 +1,70 @@
+## hdl/ tb/ syn/ tree ids: main 60152f3 vs head vs 52659df vs base 008edbbf
+008edbbf hdl=dd27dda87b5b34c4a7a0843d7f1824e260b422e0 tb=b31e1ed4d740e7eb15dab56de8cfc41f9e5186f5 syn=0ac0a8a27dfb27652f12bd8520dfa5e9d59c805f
+52659df hdl=dd27dda87b5b34c4a7a0843d7f1824e260b422e0 tb=b31e1ed4d740e7eb15dab56de8cfc41f9e5186f5 syn=0ac0a8a27dfb27652f12bd8520dfa5e9d59c805f
+60152f3 hdl=d8879608b8fae8c06a505d7d5d485a97903a5766 tb=a2ca8912aa8fc83db17369afd4cdcfb2d9993148 syn=1b062a92760f3a91ad3fb82b3886a4e51c5f8cf8
+HEAD hdl=d8879608b8fae8c06a505d7d5d485a97903a5766 tb=a2ca8912aa8fc83db17369afd4cdcfb2d9993148 syn=1b062a92760f3a91ad3fb82b3886a4e51c5f8cf8
+## diff 60152f3..HEAD -- hdl tb syn (expect empty)
+## diff 008edbbf..52659df -- hdl tb syn (expect empty)
+## top parameter header 008edbbf vs HEAD
+08aec13a64143e2668f478acaacad13349ad975ff0f0d6089476f2d238efb86f  -
+08aec13a64143e2668f478acaacad13349ad975ff0f0d6089476f2d238efb86f  -
+## merge 9cfe2d3 files differing from both parents (auto-merge sanity)
+.github/workflows/hdl.yml
+Makefile
+docs/diagrams/21-integration-faces.png
+docs/diagrams/21-integration-faces.svg
+docs/diagrams/README.md
+docs/guides/integrator.md
+scripts/check-integrator-params.py
+--
+docs/00_MILAN_COMPLIANCE_REVIEW.md
+docs/architecture/01_overview.md
+docs/architecture/02_interfaces.md
+docs/architecture/03_packet_engine.md
+docs/architecture/06_aecp_engine.md
+docs/architecture/07_memory_maps.md
+docs/architecture/10_srp_engine.md
+docs/diagrams/20-rtl-dataflow.png
+docs/diagrams/20-rtl-dataflow.svg
+docs/diagrams/22-aecp-descriptor-fetch.png
+docs/diagrams/22-aecp-descriptor-fetch.svg
+docs/guides/integrator.md
+docs/traceability/MODULE_MATRIX.md
+hdl/acmp/KL_pp_acmp_listener.sv
+hdl/aecp/KL_aecp_desc_mem_guard.sv
+hdl/aecp/KL_aecp_desc_store.sv
+hdl/aecp/KL_aecp_engine.sv
+hdl/aecp/ucode/gen_ucode.py
+hdl/srp/KL_srp_admission.sv
+hdl/srp/KL_srp_listener_fsm.sv
+hdl/srp/KL_srp_top.sv
+hdl/top/protocol_processor_top.sv
+syn/ooc/README.md
+syn/ooc/desc_mem_guard_ooc.tcl
+syn/ooc/protocol_processor_ooc.tcl
+syn/ooc/srp_ooc.tcl
+syn/yosys/run.sh
+tb/acmp_listener/README.md
+tb/acmp_listener/sim_main.cpp
+tb/desc_mem_guard/Makefile
+tb/desc_mem_guard/README.md
+tb/desc_mem_guard/mutate.py
+tb/desc_mem_guard/sim_main.cpp
+tb/desc_mem_guard/wrap.sv
+tb/pp_top/Makefile
+tb/pp_top/README.md
+tb/pp_top/gsi_internal.hpp
+tb/pp_top/gsi_mutants.py
+tb/pp_top/pp_top_wrap.sv
+tb/pp_top/sim_main.cpp
+tb/srp_admission/Makefile
+tb/srp_admission/README.md
+tb/srp_admission/mutants.py
+tb/srp_admission/sim_main.cpp
+tb/srp_admission/srp_admission_wrap.sv
+tb/srp_stream_fsms/README.md
+tb/srp_stream_fsms/sim_main.cpp
+tb/srp_stream_fsms/srp_stream_fsms_wrap.sv
+tb/srp_top/README.md
+tb/srp_top/sim_main.cpp
+tb/srp_top/srp_top_wrap.sv
