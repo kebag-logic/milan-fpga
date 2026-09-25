@@ -597,7 +597,8 @@ DUT_READER_DISPOSITIONS = {
     "tb/verilator/mmcm_servo/slew_mutants.py":
         "mutation campaign; copies the servo and requires named failures for "
         "discard removal, tied-low level, partial-tail trust, omitted tally, "
-        "boundary step double counting and a retained guard streak; "
+        "boundary step double counting, retained guard streak, streak increment "
+        "on slew discard and slew discard counted as a guard trip; "
         "no expectations read from RTL",
     "tb/verilator/crf_rx/mutants.py":
         "mutation campaign; copies the receiver and servo, requiring named failures "

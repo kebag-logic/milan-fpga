@@ -587,11 +587,17 @@ verdict:
 | a software settime does not toggle `mr` | datapath | CLKV: the settime toggled mr once more (#387) | `gmstep-mutants`, option-off leg |
 | the step's `mr` toggle is gated by the CRF clock-source selection | datapath | CLKV: its mr toggled once per PHC step issued so far (#387) | `gmstep-mutants`, option-off leg |
 
-Each control costs one elaboration of the datapath, so the sweep carries the
-three the acceptance names and the explicit `make gmstep-mutants` target runs
-all eleven (the explicit-campaign rule of
-[TESTING.md](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression)).
-The last two grade the option-off leg (`sim_main.cpp`, rebuilt through
+Each control costs one datapath elaboration.
+The sweep carries the three controls named by acceptance.
+
+The explicit `make gmstep-mutants` target runs all fourteen controls.
+The `CONTROLS` list in [`gmstep_mutants.py`](gmstep_mutants.py) defines that inventory.
+
+It includes the eleven tabulated above, plus three #545 controls.
+The additions cover the policy level and applied-rate tail.
+
+See the [explicit-campaign rule](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression).
+The table's last two grade the option-off leg (`sim_main.cpp`, rebuilt through
 `option-off-build` with `OPTOFF_MDIR` and `DP_SRC` overridden) on an INTERNAL
 media clock, where the harness issues a CLKV adjtime and then a software
 settime: each is one `mr` toggle, and the settime one MEDIA_RESET. The runner
