@@ -1,0 +1,20 @@
+{
+ "id": "m03",
+ "name": "the AAF source 0 gate alone reads the raw verdict",
+ "must_fail": "the AAF gate never opened",
+ "rc": 1,
+ "verdict": "caught",
+ "n_fail": 6,
+ "fails": [
+  "[FAIL] the AAF gate never opened                                          got=1 exp=0",
+  "[FAIL] no AAF PDU on the wire                                             got=31 exp=0",
+  "[FAIL] the AAF gate opened on the cycle ACTIVE[AAF] rose                  got=177122 exp=582156",
+  "[FAIL] the AAF gate closed on that cycle                                  got=18446744073709551615 exp=877020",
+  "[FAIL] no AAF PDU 20 ms after the gate closed                             got=108 exp=0",
+  "[FAIL] the AAF gate is never open without ACTIVE[AAF] AND real grant      got=1660393 exp=0"
+ ],
+ "tally": [
+  "checks: 415   failures: 6",
+  "RESULT: FAIL"
+ ]
+}
