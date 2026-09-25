@@ -84,24 +84,30 @@ def prepare(case: Scenario, recipe: bool, body: str) -> tuple[list[str], list]:
     if not recipe:
         return [sys.executable, "sim_pool.py", "--jobs=2", *commands], selected
     (case.dir / "Makefile").write_bytes((HERE / "Makefile").read_bytes())
-    for path in ("compiler", "obj_gptp/Vmilan_dp_gptp", "obj_gptplat/Vmilan_dp_gptplat"):
+    for path in ("compiler", "obj_gptp/Vmilan_dp_gptp", "obj_gptplat/Vmilan_dp_gptplat",
+                 "obj_gmstep/Vmilan_dp_gmstep"):
         exe = case.dir / path
         exe.parent.mkdir(exist_ok=True)
         exe.write_text("#!/bin/sh\nexit 0\n")
         exe.chmod(0o755)
     (case.dir / "render_mutants.py").write_text(
         "from pathlib import Path\nPath('render-ran').touch()\n")
+    (case.dir / "gmstep_mutants.py").write_text(
+        "from pathlib import Path\nPath('gmstep-controls-ran').touch()\n")
     argv = ["make", "-s", "--no-print-directory", "-f", "Makefile", "run",
             f"CURDIR={HERE}", f"VERILATOR={case.dir}/compiler", "VERILATOR_JOBS=8"]
     # Query expanded prerequisites from the actual recipe, rather than keep
-    # a second generated-input inventory. Both gPTP recipes still execute.
+    # a second generated-input inventory. All three prerequisite legs execute.
+    # CRFLIC_BUILD also adds a target-specific .SHELLSTATUS assignment.
+    # That database row is a variable, not the run prerequisite list.
     database = subprocess.run(["make", "-np", "-C", str(HERE), "run"],
                               env=clean_env(), capture_output=True, text=True, check=True)
     prerequisites = next(line.split()[1:] for line in database.stdout.splitlines()
-                         if line.startswith("run:"))
+                         if line.startswith("run:") and ":=" not in line)
     for name in prerequisites:
-        if name not in ("gptp", "gptp-lat"):
+        if name not in ("gptp", "gptp-lat", "gmstep"):
             argv += ["-o", name]
+    argv += ["-o", "gmstep-build"]
     return argv, selected
 
 
@@ -119,9 +125,11 @@ def check_delivery(case: Scenario, selected: list, body: str, prefix: bytes,
                                 for index, (banner, exe) in enumerate(selected)])
         assert disk == expected, "legacy binary transcript changed"
         suffix = (b"---- #386 render law: the same leg against mutated setpoint stages and datapath ----\n"
+                  b"---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----\n"
                   if recipe else b"")
         assert output == prefix + expected + suffix, "pipe output lost/duplicated/reordered bytes"
         assert (case.dir / "render-ran").exists() == recipe
+        assert (case.dir / "gmstep-controls-ran").exists() == recipe
     else:
         assert (prefix + disk).startswith(output), "partial delivery is not a transcript prefix"
         assert len(output) == len(prefix), "consumer drained before cancellation assertions"
@@ -164,6 +172,7 @@ def cancel_blocked(case: Scenario, control: Control, read_fd: int,
         os.close(parent_fd)
     assert case.runner.wait() == -sig, "original cancellation status was lost"
     assert not (case.dir / "render-ran").exists(), "render ran after cancellation"
+    assert not (case.dir / "gmstep-controls-ran").exists(), "GM-step controls ran after cancellation"
 
 
 def exercise(root: Path, recipe: bool, flush: bool, sig: signal.Signals | None,

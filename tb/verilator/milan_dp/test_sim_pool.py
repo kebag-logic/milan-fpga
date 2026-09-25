@@ -34,7 +34,7 @@ What the arms hold, and why each one is here:
   order, the dump file ends with the last writer's bytes, and an empty name
   fails at the first writer as the sequential recipe did;
 * the runner's own lines add no check and no failure to the suite's tally;
-* the Makefile hands the runner the ten legs of the recipe, in the recipe's
+* the Makefile hands the runner the eleven legs of the recipe, in the recipe's
   order and with its banners, at two workers unless SIM_JOBS says one.
 
 A runner that never has two legs alive leaves the two arms that need two
@@ -67,12 +67,15 @@ RUNNER = HERE / "sim_pool.py"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import FAIL_MARKER, log_reports_failure, scan  # noqa: E402
 
-#: the ten ordinary legs and their banners exactly as the recipe ran them at
-#: dev 483a133e, before #517: the frozen inventory the Makefile must hand over
+#: The ordinary legs and banners at dev 5c78ce2e, including #508 and #530.
+#: The rebase retains this full inventory and each existing execution phase.
 LEGACY_LEGS = (
     (None, "./obj_dir/Vmilan_dp_sim"),
-    ("---- Milan 5.4.5 notifications, TIMED on the compressed processor timebase ----",
+    ("---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, "
+     "TIMED on the compressed processor timebase ----",
      "./obj_notify/Vmilan_dp_notify"),
+    ("---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----",
+     "./obj_crflic/Vmilan_dp_crflic"),
     (None, "./obj_nxn/Vmilan_dp_nxn"),
     ("---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----",
      "./obj_nxndv/Vmilan_dp_nxndv"),
@@ -852,10 +855,10 @@ def logical_lines(text: str) -> list[str]:
     return text.replace("\\\n", " ").splitlines()
 
 
-def arm_the_makefile_hands_the_runner_the_recipes_ten_legs() -> None:
-    """`make -n run`: the runner gets exactly the recipe's ten legs, in its
+def arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs() -> None:
+    """`make -n run`: the runner gets exactly the recipe's eleven legs, in its
     order and with its banners, two workers unless SIM_JOBS=1 and whatever
-    -j says, after the ten builds and before render_mutants.py, on a line
+    -j says, after all ordinary builds and before render_mutants.py, on a line
     whose errors make does not ignore."""
     expected: list[str] = []
     for banner, exe in LEGACY_LEGS:
@@ -864,7 +867,9 @@ def arm_the_makefile_hands_the_runner_the_recipes_ten_legs() -> None:
         if exe.split("/")[1] in {"obj_notify", "obj_nxn", "obj_nxndv", "obj_nxn8", "obj_nxn4c"}:
             expected.append("--exclusive")
         expected.append(exe)
-    for extra, jobs in (([], "2"), (["SIM_JOBS=1"], "1"), (["-j8"], "2")):
+    variants = (([], "2"), (["SIM_JOBS=1"], "1"), (["-j8"], "2"),
+                (["NOTIFY_MDIR=obj_notify_custom", "CRFLIC_MDIR=obj_crflic_custom"], "2"))
+    for extra, jobs in variants:
         dry = subprocess.run(["make", "-n", "-C", str(HERE), "run", *extra],
                              env=clean_env(), capture_output=True, text=True, check=False)
         assert dry.returncode == 0, dry.stderr
@@ -872,11 +877,18 @@ def arm_the_makefile_hands_the_runner_the_recipes_ten_legs() -> None:
         runner_at = [k for k, line in enumerate(lines) if "sim_pool.py" in line]
         assert len(runner_at) == 1, runner_at
         words = shlex.split(lines[runner_at[0]])
-        assert words == ["exec", "python3", "sim_pool.py", f"--jobs={jobs}", *expected], words
+        selected = list(expected)
+        if "NOTIFY_MDIR=obj_notify_custom" in extra:
+            selected = [word.replace("./obj_notify/", "./obj_notify_custom/")
+                        .replace("./obj_crflic/", "./obj_crflic_custom/")
+                        for word in selected]
+        assert words == ["exec", "python3", "sim_pool.py", f"--jobs={jobs}", *selected], words
         built = [k for k, line in enumerate(lines)
                  for _banner, exe in LEGACY_LEGS if line.endswith(f"-o {Path(exe).name}")]
-        assert len(built) == len(LEGACY_LEGS), f"{extra}: {len(built)} of the ten builds"
-        assert max(built) < runner_at[0] < lines.index("python3 render_mutants.py"), extra
+        assert len(built) == len(LEGACY_LEGS), f"{extra}: {len(built)} of the ordinary builds"
+        render_at = lines.index("python3 render_mutants.py")
+        assert max(built) < runner_at[0] < render_at, extra
+        assert render_at < lines.index("python3 gmstep_mutants.py"), extra
     recipe = [line for line in (HERE / "Makefile").read_text().splitlines()
               if "sim_pool.py" in line and line.startswith("\t")]
     assert len(recipe) == 1, recipe
@@ -901,7 +913,7 @@ ARMS = (
     arm_an_interrupt_inherited_as_ignored_stays_ignored,
     arm_the_frame_dump_variable_runs_one_leg_at_a_time,
     arm_the_runner_adds_no_check_and_no_failure,
-    arm_the_makefile_hands_the_runner_the_recipes_ten_legs,
+    arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs,
 )
 
 
