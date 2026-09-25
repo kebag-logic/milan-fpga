@@ -453,6 +453,17 @@ Its two sinks are the AAF input (0) and the CRF input (1).
 The section owns both MAC ports, so no frame is lost between waits.
 Controllers A and B register for notifications first.
 
+The adopted pin `990f9652` also includes processor issue 113 (PR 115).
+It adds a notification for a latency-only Talker refresh.
+No existing notify or `[GSI]` check drives that isolated transition.
+`gsi_talker_failed()` always sends accumulated latency 500000 ns.
+G5 changes latency alongside initial registration and FailureInformation.
+Those events coalesce into the single notification G5 already checks.
+G6 repeats that latency unchanged; G7 changes FailureInformation alone.
+The earlier notify phases inject no registering Talker attribute.
+Their notification expectations therefore need no adaptation.
+The processor's response tests own isolated latency-change coverage.
+
 | Phase | What happens on the wire | Graded |
 |---|---|---|
 | G0 | nothing bound | both sinks DISABLED; STREAM_INPUT 2 answers NO_SUCH_DESCRIPTOR with the zero cdl-68 body |

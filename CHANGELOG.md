@@ -8,7 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
-- **[Unreleased - processor pin a8f8ce81](#unreleased---processor-pin-a8f8ce81)** -- Probing and failure fields move.
+- **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
 - **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
 - **[Unreleased - licence and LeaveAll scope](#unreleased---licence-and-leaveall-scope)** -- No Listener Ready, no stream.
 - **[Unreleased - CRF input counters served](#unreleased---crf-input-counters-served)** -- The CRF input answers GET_COUNTERS.
@@ -28,9 +28,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
 
-## Unreleased - processor pin a8f8ce81
+## Unreleased - processor pin 990f9652
 
-- The processor pin moves from `09f9bf38` to `a8f8ce81` (#508).
+- The processor pin moves from `09f9bf38` to `990f9652` (#508).
 - Processor issues 92 and 93: saved bindings survive the walk.
 - The walk now has a deadline: 20 ms by default.
 - The ACMP listener waits from reset for the walk.
@@ -48,6 +48,10 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Processor issue 112: a re-declaration drops the grant until evaluated.
 - `LWSRP_STATUS[9]` and `LWSRP_SLOPE` follow; no gate reads them.
 - A round that meets a pending declaration now publishes nothing.
+- Processor issue 116: parent-gate comments and mutation deadlines corrected.
+- No behavior or external port changes; parent ratchets stay unchanged.
+- Processor issue 113: latency-only input changes now push GET_STREAM_INFO.
+- Unchanged refreshes stay silent; simultaneous field changes coalesce.
 - Its ROM digests are re-recorded; the images are unchanged.
 - `tb/verilator/milan_dp` `obj_notify` grades the seam in `[GSI]`.
 - `make gsi-mutants` holds its seven failing arms.
@@ -106,6 +110,10 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The processor pin moves to `09f9bf38` (processor issue 106).
 - Its LeaveAll now flags every MSRP attribute type.
 - It applies a received LeaveAll per attribute type.
+- Processor issue 116: parent-gate comments and mutation deadlines corrected.
+- No behavior or external port changes; parent ratchets stay unchanged.
+- Processor issue 113: latency-only input changes now push GET_STREAM_INFO.
+- Unchanged refreshes stay silent; simultaneous field changes coalesce.
 - Its ROM digests are re-recorded; the images are unchanged.
 - FRAMES_TX read 16: Table 5.4 counts intervals, not PDUs.
 - `CRFT_COUNT` is the PDU total; its row now says so.
