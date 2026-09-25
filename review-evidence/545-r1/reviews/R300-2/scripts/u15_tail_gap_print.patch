@@ -1,0 +1,14 @@
+--- a/tb/verilator/mmcm_servo/sim_main.cpp
++++ b/tb/verilator/mmcm_servo/sim_main.cpp
+@@ -571,6 +571,11 @@
+         run_noting_discards(40.0, 5, after);
+         dut->crf_rate_i = rate_for_ppm(+80.0);
+         print_gaps(after);
++        {
++            std::vector<double> joined{tail.at(0), after.at(0)};
++            printf("  probe: ticks from the tail discard to the first fresh trip: %ld\n",
++                   ticks_after(joined, 0));
++        }
+         ck("[U15] four fresh guard trips precede re-base",
+            ticks_after(after, 0) == 32 && ticks_after(after, 1) == 32 &&
+            ticks_after(after, 2) == 32 && ticks_after(after, 3) == 33, 1);

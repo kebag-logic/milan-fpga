@@ -1,0 +1,34 @@
+--- a/tb/verilator/milan_dp/sim_gmstep.cpp
++++ b/tb/verilator/milan_dp/sim_gmstep.cpp
+@@ -282,6 +282,7 @@
+     uint64_t phc_fraction_prev_ = 0;
+     uint64_t slew_increment_ = 0;
+     unsigned slew_tail_samples_ = 0;
++    unsigned release_trace_ = 0;
+     unsigned slew_alignment_errors_ = 0;
+     unsigned slew_high_samples_ = 0;
+     unsigned slew_falls_ = 0;
+@@ -439,6 +440,13 @@
+ void GmStepHarness::observe_slew_alignment(bool raw, uint64_t increment) {
+     const bool sampled = dut_->rootp->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__phc_slew_q_r;
+     if (slew_probe_) {
++        if (slew_previous_ && !raw) release_trace_ = 12;
++        if (release_trace_ > 0) {
++            --release_trace_;
++            printf("  probe-release: raw=%d increment=%llu last_slew_increment=%llu staged=%d\n",
++                   raw ? 1 : 0, static_cast<unsigned long long>(increment),
++                   static_cast<unsigned long long>(slew_increment_), sampled ? 1 : 0);
++        }
+         if (raw) slew_increment_ = increment;
+         const bool tail = !raw && increment == slew_increment_;
+         slew_alignment_errors_ += (raw || tail) && !sampled;
+@@ -1091,6 +1099,9 @@
+     check_.dec("slew path: servo clears after the PHC tail",
+                dut_->rootp->milan_datapath__DOT__g_mmcm_servo__DOT__mmcm_servo__DOT__phc_slew_q_r, 0);
+     check_.dec("slew path: a policy slew never steps the PHC", trace_.steps - steps0, 0);
++    printf("  probe: tail_samples=%u alignment_errors=%u staged_high=%u falls=%u slew_increment=%llu\n",
++           slew_tail_samples_, slew_alignment_errors_, slew_high_samples_, slew_falls_,
++           static_cast<unsigned long long>(slew_increment_));
+     slew_probe_ = false;
+ }
+ 

@@ -1,0 +1,10 @@
+  [FAIL] [U12] guard discards 1 to 4 after the step 32 ticks apart got=0 exp=1
+  [FAIL] [U12] the 4th after the step re-bases: 33 ticks      got=32 exp=33
+  KL_mmcm_drp_servo: 100 checks, 2 failures
+VERDICT step_streak_reset_removed: KILLED rc=1
+rc=0
+  info: 7 discards, ticks between them: 32 32 32 33 32 32
+  info: 5 discards, ticks between them: 32 33 32 32
+  [FAIL] [U12] guard discards 1 to 4 after the step 32 ticks apart got=0 exp=1
+  [FAIL] [U12] the 4th after the step re-bases: 33 ticks      got=32 exp=33
+  info: 5 discards, ticks between them: 32 32 32 33
