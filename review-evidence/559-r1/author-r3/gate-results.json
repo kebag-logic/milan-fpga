@@ -1,0 +1,230 @@
+[
+  {
+    "name": "ci-events-check",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 0.214,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "ci-events-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 15.191,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "act-contract-selftest",
+    "command": [
+      "python3",
+      "scripts/act_ci.py",
+      "--selftest"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 3.37,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "nvm-capture",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 0.765,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "docs-git",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 4.221,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "docs-no-git",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "environment": {
+      "GIT_DIR": "/dev/null"
+    },
+    "rc": 0,
+    "seconds": 4.372,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4"
+    ],
+    "environment": {},
+    "markdown_environment": true,
+    "rc": 0,
+    "seconds": 3.372,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "environment": {},
+    "markdown_environment": true,
+    "rc": 0,
+    "seconds": 0.064,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "doc-style-selftest",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "environment": {},
+    "markdown_environment": true,
+    "rc": 0,
+    "seconds": 0.064,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "toc-check",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "environment": {},
+    "markdown_environment": true,
+    "rc": 0,
+    "seconds": 2.568,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "toc-anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "environment": {},
+    "markdown_environment": true,
+    "rc": 0,
+    "seconds": 1.567,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "environment": {},
+    "markdown_environment": true,
+    "rc": 0,
+    "seconds": 0.114,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "python-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "environment": {},
+    "markdown_environment": true,
+    "rc": 0,
+    "seconds": 3.369,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "python-idiom-selftest",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "environment": {},
+    "markdown_environment": true,
+    "rc": 0,
+    "seconds": 3.32,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "shell-idiom",
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "environment": {},
+    "markdown_environment": true,
+    "rc": 0,
+    "seconds": 0.264,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "shell-idiom-selftest",
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "environment": {},
+    "markdown_environment": true,
+    "rc": 0,
+    "seconds": 0.264,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "environment": {},
+    "markdown_environment": true,
+    "rc": 0,
+    "seconds": 0.064,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  },
+  {
+    "name": "commit-diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "31808e6525a83955bc4322ac8ac6871f9e6b10e6",
+      "HEAD"
+    ],
+    "environment": {},
+    "markdown_environment": true,
+    "rc": 0,
+    "seconds": 0.164,
+    "head": "b02af0480d3a3061df24683d522799d1759f7c33"
+  }
+]

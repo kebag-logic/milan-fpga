@@ -1,0 +1,290 @@
+act-ci: interrupted by SIGTERM after cleanup
+act-ci: interrupted by SIGHUP after cleanup
+act-ci: interrupted by SIGTERM after cleanup
+act-ci: interrupted by SIGTERM after cleanup
+act-ci: interrupted by SIGINT after cleanup
+act-ci: interrupted by SIGTERM after cleanup
+act-ci: interrupted by SIGHUP after cleanup
+act-ci: interrupted by SIGTERM after cleanup
+act-ci: interrupted by SIGINT after cleanup
+act-ci: interrupted by SIGTERM after cleanup
+act-ci: interrupted by SIGHUP after cleanup
+  ok   ready event is selected for a non-draft PR
+  ok   event pins the exact head and base
+  ok   event names the repository default branch without private markers
+  ok   draft event uses synchronize and preserves draft=true
+  ok   a stale recorded base oid resolves to the live dev tip and proceeds
+  ok   the stale-base note prints the recorded and live base SHAs
+  ok   a recorded base oid matching the live tip resolves unchanged
+  ok   an invalid live-tip lookup result is refused
+  ok   a stale recorded base with a moved dev passes the fetch equality check against the resolved live tip
+  ok   a head moved between metadata lookup and fetch is refused naming the head
+  ok   dev moving between the invocation-time resolve and the fetch is refused naming both base SHAs
+  ok   the event carries the recorded base oid, so the local replica classifies the same file set hosted does
+  ok   and that is not the validation base, so the payload cannot be mistaken for the commit the trust checks read
+  ok   the normal validation path prints the resolved base and enters its Docker boundary
+  ok   the normal validation path leases the selected workflow's act job volumes
+  ok   dry-run prints the job bound and the bounded container options as one quoted argv word
+  ok   a two-workflow run leases both, and gates, spawns, cleans containers, then reconciles volumes, once per workflow in that order
+  ok   volumes observed on a workflow's containers reach that workflow's reconciliation
+  ok   a job volume act left after a workflow refuses the run after removal
+  ok   a leftover container refuses the run only after that workflow's volumes were reconciled
+  ok   a boundary that does not lease the selected workflow refuses before act
+  ok   the action cache is populated exactly once per run, before the Docker boundary exists and before the first act launch
+  ok   two workflows sharing two actions produce one clone each, in sorted order
+  ok   the clones in the real sequence carry the run's own credential-free git environment
+  ok   a failing clone refuses the run naming the action, before any boundary or act launch
+  ok   a trusted worktree at the live tip is accepted while the recorded base oid is stale
+  ok   the runner's own bytes - that file, in the trusted root, at the validation base and not the recorded oid - are what is verified
+  ok   a trusted worktree at the stale recorded base is refused naming the loaded head and the live tip
+  ok   a dirty trusted worktree is refused for being dirty, before the base comparison and before any bytes are read
+  ok   a trusted worktree carrying replacement refs is refused for those, before the base comparison and before any bytes are read
+  ok   the fixture's validated base ref is the constant the fetch targets, so the resolve and the fetch name one ref
+  ok   production constructs the validated run exactly once, in the audited resolve, so no second construction can bind the recorded oid as the validation base
+  ok   the trusted-runner check defaults to reading the real checkout state and verifying real bytes
+  ok   the resolve defaults to the real remote lookup and a flushed note
+  ok   a validated run cannot be built on anything but a full commit SHA
+  ok   the resolve re-checks the repository name it interpolates, rather than inheriting the check from main's ordering
+  ok   and re-checks the base ref it interpolates, for the same reason
+  ok   a well-formed ls-remote reply yields the tip
+  ok   an ls-remote reply naming no ref is refused
+  ok   an ls-remote reply naming another ref is refused
+  ok   a ref merely ending in the wanted name is ignored, so one pushed branch or tag cannot refuse every run of the gate
+  ok   an ls-remote reply carrying the wanted ref twice is refused
+  ok   an ls-remote reply line carrying no ref at all is refused
+  ok   all selects each workflow once in stable order
+  ok   explicit workflow selection de-duplicates
+  ok   all plus another workflow is refused
+  ok   cross-repository candidate is refused
+  ok   non-open pull request is refused
+  ok   non-dev pull request is refused
+  ok   malformed GitHub metadata is refused
+  ok   act command selects the real strict exhaustive workflow
+  ok   candidate checkout is copied from immutable materialization
+  ok   job containers receive no Docker socket or host network
+  ok   artifact and cache servers bind only to the bridge gateway
+  ok   job container options are one argv word: the ownership label, the CPU set, then the memory and swap limits
+  ok   act starts at most 1 jobs of a stage at once, stated exactly once
+  ok   only an explicitly empty GitHub token reaches candidate jobs
+  ok   every ambient act input is replaced by an explicit empty file
+  ok   artifact uploads receive a real isolated listener port
+  ok   act reads the pre-populated per-head action cache offline, exactly once
+  ok   job containers get a cpuset of 0-<n-1> for n = min(host CPUs, 4)
+  ok   the CPU bound leaves the unpredictable ownership label in the same container options word
+  ok   job containers are held to 16g of memory and the same swap ceiling, one limit each, in Docker size syntax
+  ok   the container options word splits into exactly four tokens: label, cpuset, memory, memory-swap, in that order
+  ok   a boundary without a job-volume lease cannot build an act command
+  ok   artifact-server port zero is refused rather than advertised
+  ok   a missing bridge gateway cannot produce an act command
+  ok   a boundary without an exclusive tool cache cannot run act
+  ok   a boundary with an unseeded tool cache cannot run act
+  ok   the collector yields each remote action once, sorted, skipping local and docker:// steps
+  ok   an action is cloned into the directory act 0.2.89 derives from its uses: string, from act's exact clone URL
+  ok   a uses: string that is neither local, docker://, nor owner/repo@ref is refused
+  ok   the clone is a full credential-free HTTPS clone, a tag-first resolve, then a detached checkout of the resolved SHA
+  ok   every action git call runs with the runner's no-prompt, no-helper, HTTPS-only environment and no token
+  ok   a ref is resolved the way act duck-types it: tag, then origin branch, then SHA
+  ok   a failing clone is a Refusal naming the action
+  ok   dry-run prints the planned action set and clones nothing
+  ok   the materialiser re-checks each action against the audited set rather than inheriting the sandbox scan's position in the sequence
+  ok   and that refusal reaches git for nothing
+  ok   the materialiser defaults to the real tracked capture boundary
+  ok   the plants occupy every operator-environment name the boundary must withhold, each credential file carries the planted token, and both recorders are executable and silent
+  ok   no plant reaches the runner's git environment, act's environment, or the sudo prefix by construction
+  ok   the probe workflow passes the trusted sandbox, leases its own job-volume prefix, maps the token secret, reports every check in both states, and carries no plant but the token marker
+  ok   grading: an all-absent transcript passes the boundary arm and fails the leaky arm on the three discriminators; all-visible the reverse; an unreported check fails both; `other` fails the boundary arm
+  ok   the boundary command is refused as a leaky arm
+  ok   the leaky command is refused as a boundary arm
+  ok   the boundary command carries the empty token, the disabled socket and the owned network; the leaky command drops exactly those, sources the token from the environment, and keeps the ownership label and the event
+  ok   a boundary command that already lacks the owned network cannot be turned into a leaky arm
+  ok   a sudo boundary command that keeps the operator environment is refused
+  ok   under sudo the leaky command starts act from the planted environment, not an emptied one, and the boundary command without its `-i` is refused
+  ok   the transcript Popen appends the child's output where the grader reads it
+  ok   a failing child whose group drains within the grace yields its last stderr line
+  ok   a probe clone that succeeds is refused
+  ok   the zombie probe records its descendant and group
+  ok   an unreaped zombie in the probe group does not prevent draining
+  ok   the zombie probe is reaped after its drain check
+  ok   the live probe records its descendant and group
+  ok   a live grandchild that outlives the grace is refused and its group killed
+  ok   the scan inventory omits the new same-group child and its old parent is gone
+  ok   a child forked during inspection is refused after the grace and its group killed
+  ok   both changing foreign PIDs are confirmed nonmembers in their frozen inventories
+  ok   confirmed foreign churn drains a zombie-only probe within the unchanged grace
+  ok   the foreign-churn probe is reaped after its drain check
+  ok   proc parsing ignores a zombie even with parentheses and spaces in its name
+  ok   live members count only in their own probe group
+  ok   a PID vanishing between listing and reading is not a survivor or an error
+  ok   an unanswerable proc stat record is refused
+  ok   an unanswerable proc stat record is refused
+  ok   a proven foreign process is skipped before its inaccessible stat is read
+  ok   a PID gone before membership lookup is skipped without reading its stat
+  ok   an unreadable member stat record is refused
+  ok   an unanswerable membership lookup is refused
+  ok   an inspection refusal resumes the frozen group
+  ok   an unavailable proc inventory is refused
+  ok   a probe clone that has not finished within its timeout is killed and refused
+  ok   the labeled ephemeral act tool cache is accepted
+  ok   a tool-cache volume owned by another run is refused
+  ok   a pre-existing unowned tool cache is refused with label guidance
+  ok   rollback never removes an unowned tool-cache volume
+  ok   a rival winning the tool-cache create race is refused
+  ok   create-race rollback never removes the rival's volume
+  ok   tool-cache cleanup refuses when the volume survives removal
+  ok   surviving-volume control exercised the removal request
+  ok   a post-accept volume-create timeout is reconciled
+  ok   post-accept volume rollback removes and verifies its resource
+  ok   a failed setup rollback is surfaced rather than reported clean
+  ok   tool-cache failure cannot suppress independent network teardown
+  ok   a post-accept network-create timeout reconciles both resources
+  ok   network rollback failure is surfaced while cache cleanup continues
+  ok   a post-accept KeyboardInterrupt reconciles both resources
+  ok   a signal after cache return but before network create is reconciled
+  ok   the cold tool cache is seeded exactly once before sibling jobs
+  ok   an unpopulated seed refuses the boundary and reconciles it
+  ok   stable rollback catches delayed Docker daemon mutations
+  ok   two heads receive different writable action/workflow caches
+  ok   a cache entry written by head A is absent from head B
+  ok   controlled act environment drops tokens, agents, and runtime secrets
+  ok   a fake ambient Docker current context is excluded
+  ok   sudo Docker and act share the same explicit isolated environment
+  ok   sudo act groups are privileged-signalled from the first signal
+  ok   sudo process-group absence uses privileged kill zero
+  ok   Docker teardown waits through kill/inspection failure for PGID absence
+  ok   the first handled signal latches and repeats stay harmless
+  ok   SIGINT handler avoids the Python signal-mask race
+  ok   a first signal during cleanup is delivered only afterward
+  ok   worker threads cannot intercept a signal before cleanup finishes
+  ok   a first signal during monitor join waits for proven termination
+  ok   monitor start failure becomes a cleanup refusal
+  ok   registered monitor start failure is a cleanup refusal
+  ok   registered monitor start failure is reported without an invalid join
+  ok   a worker-thread CLI timeout kills its blocked-mask process group
+  ok   act configuration roots and invocation directory are per-run
+  ok   hostile private input actrc is refused
+  ok   hostile private input .actrc is refused
+  ok   hostile private input .actrc is refused
+  ok   hostile private input .env is refused
+  ok   hostile private input .secrets is refused
+  ok   hostile private input .vars is refused
+  ok   hostile private input .input is refused
+  ok   a nonempty explicit secret file is refused
+  ok   stopped boundary and container-network children are owned exactly
+  ok   unrelated containers are excluded from cleanup
+  ok   the live-container inspector verifies the effective tool-cache mount
+  ok   cancellation during the final container inspect stops the monitor inventory
+  ok   an owned container on a different tool-cache volume is refused
+  ok   the act job-volume name mirror reproduces a live act 0.2.89 volume name
+  ok   job workspace and environment volumes fall inside their workflow lease
+  ok   the tool cache, foreign act jobs, and near-miss names stay unleased
+  ok   workflow names sanitize the way act builds container names
+  ok   malformed job-volume lease prefix 'act-docs' is refused
+  ok   malformed job-volume lease prefix 'docs-' is refused
+  ok   malformed job-volume lease prefix 'act--docs-' is refused
+  ok   malformed job-volume lease prefix 'act-docs--' is refused
+  ok   malformed job-volume lease prefix '' is refused
+  ok   a workflow without a name cannot lease act job volumes
+  ok   a blank workflow name cannot lease act job volumes
+  ok   a pre-existing in-scope act job volume refuses acquisition before any mutation
+  ok   act job volumes outside the lease do not block acquisition
+  ok   a boundary without a job-volume lease cannot pass the acquisition gate
+  ok   a lone in-scope twin 237d234b refuses acquisition
+  ok   a lone in-scope twin 234b-env refuses acquisition
+  ok   the lease prefix is what act's own name builder produces for every leasable name
+  ok   a name whose separators act keeps doubled is unleasable
+  ok   the YAML null literal 'null' cannot lease act job volumes
+  ok   the YAML null literal 'NULL' cannot lease act job volumes
+  ok   the YAML null literal '~' cannot lease act job volumes
+  ok   a volume record is None only when Docker names the volume as missing
+  ok   a volume record for another name is refused
+  ok   a malformed volume record is refused
+  ok   a volume inspection failing for another reason is refused
+  ok   a malformed volume inventory refuses acquisition
+  ok   a lease never matches a name that merely contains or re-cases its prefix
+  ok   interrupt cleanup removes the observed job volumes and an in-scope orphan while rival, re-cased, embedding, and bystander volumes survive
+  ok   a bystander container and its volume are neither observed nor removed, and a bind mount is not a volume
+  ok   reconciliation never overrides the removal's absence window
+  ok   the absence window is the daemon constant for the real CLI and zero for fakes
+  ok   job-volume removal never forces and follows every container removal
+  ok   a job volume another container still holds is preserved and reported
+  ok   a job volume surviving its removal is reported rather than certified absent
+  ok   a volume an owned container mounted outside the lease is preserved and reported as lease drift, act-shaped or not
+  ok   an anonymous volume on an owned container is neither drift nor a target
+  ok   an absence probe that fails is reported as unverifiable, never as absent
+  ok   an in-scope volume the final inventory still lists is a reported survivor
+  ok   a failed volume inventory before reconciliation is reported, not skipped
+  ok   a failed volume inventory after reconciliation is reported, not certified
+  ok   a job volume reappearing inside the absence window is a reported survivor
+  ok   the absence window probed more than once before the volume reappeared
+  ok   a job volume absent for the whole window is certified removed
+  ok   malformed owned-container mount metadata fails container cleanup
+  ok   the job-volume name pattern is act's: no underscore, at most 63 stem bytes
+  ok   a workflow name whose prefix act would trim is refused
+  ok   a missing-volume report must name the volume it is about
+  ok   a job volume act left after a workflow is removed and reported as leftover; an observed name the daemon no longer holds is not
+  ok   reconciliation without a lease scope is refused
+  ok   act version parser accepts the tested version
+  ok   the audited act version is accepted
+  ok   an unaudited newer act version is refused
+  ok   unparseable act version is refused
+  ok   a signal after spawn but before Popen return terminates the stored group
+  ok   a successful act leader cannot leave a live process group
+  ok   a successful host-command leader cannot leave a live process group
+  ok   a repeat signal inside a tracked cleanup command cannot abort the tail
+  ok   a timed-out sudo Docker CLI is contained before rollback begins
+  ok   spawned children inherit no cleanup-signal mask and honor SIGTERM
+  ok   process-directed SIGINT contains a captured child tree
+  ok   process-directed SIGTERM contains a captured child tree
+  ok   process-directed SIGHUP contains a captured child tree
+  ok   production main contains an interrupted early repository lookup
+  ok   process-directed SIGINT contains a Git remote-helper tree
+  ok   process-directed SIGTERM contains a Git remote-helper tree
+  ok   process-directed SIGHUP contains a Git remote-helper tree
+  ok   remote head SHA movement across an act process is refused
+  ok   remote state movement across an act process is refused
+  ok   remote draft state movement across an act process is refused
+  ok   remote base ref movement across an act process is refused
+act-ci: NOTE: recorded base oid moved from 1111111111111111111111111111111111111111 to 5555555555555555555555555555555555555555 during validation; the validation base is the live dev tip resolved at invocation and the unchanged exact-head evidence for 2222222222222222222222222222222222222222 remains valid
+  ok   recorded base oid movement is noted without discarding exact-head evidence
+  ok   a signal after run-directory creation reconciles the accepted path
+  ok   a post-create run-directory stat failure is reconciled
+  ok   the stat-failure path is absent after acquisition rollback
+  ok   sudo chown failure cannot report cleanup success
+  ok   sudo chown launch failure is a cleanup refusal
+  ok   content-pinned immutable runner installation is accepted
+  ok   installed runner with the wrong content pin is refused
+  ok   runner installed inside the candidate worktree is refused
+  ok   bootstrap install requires explicit repository and worktree
+  ok   bootstrap accepts both explicit identity arguments
+  ok   directory removal failure cannot report cleanup success
+  ok   broken replacement symlink cannot masquerade as completed cleanup
+  ok   assume-unchanged cannot hide selected workflow bytes
+  ok   skip-worktree cannot hide selected workflow bytes
+  ok   an index flag cannot hide a selected workflow symlink
+  ok   replacement object is refused even when HEAD text is unchanged
+  ok   the exact trusted submodule manifest is accepted
+  ok   candidate submodule URL changes are refused before fetch
+  ok   candidate submodule update commands are refused before fetch
+  ok   candidate gitlink path changes are refused before fetch
+  ok   Git disables every protocol except credential-free HTTPS
+  ok   self-hosted runner authority is refused
+  ok   a missing runner label is refused
+  ok   a nonliteral runner label is refused
+  ok   job container authority is refused
+  ok   service container authority is refused
+  ok   reusable workflow authority is refused
+  ok   step-level action docker://alpine:3.20 is refused before act
+  ok   step-level action example/setup@v1 is refused before act
+  ok   step-level action actions/checkout@v5 is refused before act
+  ok   step-level action ./local-action is refused before act
+  ok   a workflow without a declared name cannot lease act job volumes
+  ok   a workflow name that is a hyphen-prefix of another cannot share a lease
+  ok   either overlapping workflow alone still leases its own volumes
+  ok   workflow reads do not follow a candidate symlink
+  ok   workflow reads reject a FIFO without blocking
+  ok   workflow reads reject a host device before reading it
+  ok   workflow reads reject an oversized regular file before parsing
+  ok   shipping workflows satisfy the sandbox policy
+  ok   shipping workflows lease act job volumes by declared name
+  ok   no shipping workflow name is a hyphen-prefix of another, so a rival workflow's volumes stay outside every lease
+selftest: PASS

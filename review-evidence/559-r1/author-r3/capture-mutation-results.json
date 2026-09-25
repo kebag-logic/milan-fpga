@@ -1,0 +1,50 @@
+[
+  {
+    "mutation": "bytes",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "bytes"
+    ],
+    "rc": 1,
+    "expected_rc": 1,
+    "expected_diagnostic": "capture inputs changed; remeasure both arms"
+  },
+  {
+    "mutation": "records",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "records"
+    ],
+    "rc": 1,
+    "expected_rc": 1,
+    "expected_diagnostic": "capture inputs changed; remeasure both arms"
+  },
+  {
+    "mutation": "clock",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "clock"
+    ],
+    "rc": 1,
+    "expected_rc": 1,
+    "expected_diagnostic": "capture inputs changed; remeasure both arms"
+  },
+  {
+    "mutation": "ignore-off-timing",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "ignore-off-timing"
+    ],
+    "rc": 1,
+    "expected_rc": 1,
+    "expected_diagnostic": "OFF timing omitted from maximum"
+  }
+]

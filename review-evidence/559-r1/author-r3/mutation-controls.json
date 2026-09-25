@@ -1,0 +1,47 @@
+[
+  {
+    "name": "#559 capture measurement gate removed",
+    "expected": "job `docs-check` must carry exactly 50 steps, in the recorded order (found 49)",
+    "diagnostic": ".github/workflows/docs.yml: job `docs-check` must carry exactly 50 steps, in the recorded order (found 49): an inserted step of ANY content runs before every later step and can set their inherited environment at run time -- a `BASH_ENV` written to `$GITHUB_ENV`, a `$GITHUB_PATH` prepend, a third-party action -- which the declared allowlists cannot see, and a removed one takes its gate with it"
+  },
+  {
+    "name": "#559 capture measurement gate reordered",
+    "expected": "job `docs-check` step 28 must be the step named `Capture measurement census and clock gate`",
+    "diagnostic": ".github/workflows/docs.yml: job `docs-check` step 28 must be the step named `Capture measurement census and clock gate` (found `NVM record-space gate`): the position is the contract -- the steps before this one decide what it reads, and the steps after it read what it leaves behind"
+  },
+  {
+    "name": "#559 capture measurement gate renamed",
+    "expected": "job `docs-check` step 28 must be the step named `Capture measurement census and clock gate`",
+    "diagnostic": ".github/workflows/docs.yml: job `docs-check` step 28 must be the step named `Capture measurement census and clock gate` (found `Capture gate`): the position is the contract -- the steps before this one decide what it reads, and the steps after it read what it leaves behind"
+  },
+  {
+    "name": "#559 capture measurement gate if: false",
+    "expected": "(`Capture measurement census and clock gate`) must carry no `if`",
+    "diagnostic": ".github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) must carry no `if` (found False): it decides whether or how the script runs"
+  },
+  {
+    "name": "carrier-script-407 docs-check step 28 no-op",
+    "expected": "job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_nvm_capture.py'",
+    "diagnostic": ".github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_nvm_capture.py' (found 'true'); 1 line(s) expected, 1 found"
+  },
+  {
+    "name": "carrier-script-407 docs-check step 28 or-true",
+    "expected": "job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_nvm_capture.py'",
+    "diagnostic": ".github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_nvm_capture.py' (found 'python3 scripts/check_nvm_capture.py || true'); 1 line(s) expected, 1 found"
+  },
+  {
+    "name": "carrier-script-407 docs-check step 28 append-command",
+    "expected": "job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 2 must be None",
+    "diagnostic": ".github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) script is not the canonical form: line 2 must be None (found 'echo appended'); 1 line(s) expected, 2 found"
+  },
+  {
+    "name": "carrier-script-407 docs-check step 28 continue-on-error",
+    "expected": "job `docs-check` step 28 (`Capture measurement census and clock gate`) must carry no `continue-on-error`",
+    "diagnostic": ".github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) must carry no `continue-on-error` (found True): it decides whether or how the script runs"
+  },
+  {
+    "name": "carrier-script-407 docs-check step 28 missing record",
+    "expected": "job `docs-check` step 28 (`Capture measurement census and clock gate`) must record a canonical normalized `run` script",
+    "diagnostic": ".github/workflows/docs.yml: job `docs-check` step 28 (`Capture measurement census and clock gate`) must record a canonical normalized `run` script"
+  }
+]
