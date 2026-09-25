@@ -1,0 +1,49 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "receipt": "static-0.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "returncode": 0,
+    "receipt": "static-1.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "returncode": 0,
+    "receipt": "static-2.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "returncode": 0,
+    "receipt": "static-3.log"
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "ffcbd33de70278ae34b533dcbadde0b36c8cba13..8383e929fab3ff57a768c88b8b1ff9b568afcf14"
+    ],
+    "returncode": 0,
+    "receipt": "static-4.log"
+  }
+]

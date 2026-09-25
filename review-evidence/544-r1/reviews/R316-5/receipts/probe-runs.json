@@ -1,0 +1,526 @@
+[
+  {
+    "name": "r316-sdk",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe2.py",
+      "sdk",
+      "--out",
+      "$PACKET/scratch/raw/r316-sdk.json",
+      "--scratch",
+      "$PACKET/scratch/tmp",
+      "--sdk",
+      "$SDK"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 38.24
+  },
+  {
+    "name": "r316-absent",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe2.py",
+      "absent",
+      "--out",
+      "$PACKET/scratch/raw/r316-absent.json",
+      "--scratch",
+      "$PACKET/scratch/tmp"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 33.377
+  },
+  {
+    "name": "r316-sdk-assert_preprocessed_asm_allowlist",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe2.py",
+      "sdk",
+      "--out",
+      "$PACKET/scratch/raw/r316-sdk-assert_preprocessed_asm_allowlist.json",
+      "--scratch",
+      "$PACKET/scratch/tmp",
+      "--sdk",
+      "$SDK",
+      "--disable",
+      "assert_preprocessed_asm_allowlist"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 38.632
+  },
+  {
+    "name": "r316-sdk-assert_preprocessed_identity_sample",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe2.py",
+      "sdk",
+      "--out",
+      "$PACKET/scratch/raw/r316-sdk-assert_preprocessed_identity_sample.json",
+      "--scratch",
+      "$PACKET/scratch/tmp",
+      "--sdk",
+      "$SDK",
+      "--disable",
+      "assert_preprocessed_identity_sample"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 43.491
+  },
+  {
+    "name": "r316-absent-assert_identity_macro_free",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe2.py",
+      "absent",
+      "--out",
+      "$PACKET/scratch/raw/r316-absent-assert_identity_macro_free.json",
+      "--scratch",
+      "$PACKET/scratch/tmp",
+      "--disable",
+      "assert_identity_macro_free"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 32.92
+  },
+  {
+    "name": "r316-sub-none",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe3.py",
+      "sdk",
+      "--sdk",
+      "$SDK",
+      "--out",
+      "$PACKET/scratch/raw/r316-sub-none.json",
+      "--scratch",
+      "$PACKET/scratch/tmp"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 8.178
+  },
+  {
+    "name": "r316-sub-mut-nested",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe3.py",
+      "sdk",
+      "--sdk",
+      "$SDK",
+      "--out",
+      "$PACKET/scratch/raw/r316-sub-mut-nested.json",
+      "--scratch",
+      "$PACKET/scratch/tmp",
+      "--disable",
+      "mut:nested"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 8.829
+  },
+  {
+    "name": "r316-sub-mut-asm",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe3.py",
+      "sdk",
+      "--sdk",
+      "$SDK",
+      "--out",
+      "$PACKET/scratch/raw/r316-sub-mut-asm.json",
+      "--scratch",
+      "$PACKET/scratch/tmp",
+      "--disable",
+      "mut:asm"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 8.73
+  },
+  {
+    "name": "r316-sub-mut-extblank",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe3.py",
+      "sdk",
+      "--sdk",
+      "$SDK",
+      "--out",
+      "$PACKET/scratch/raw/r316-sub-mut-extblank.json",
+      "--scratch",
+      "$PACKET/scratch/tmp",
+      "--disable",
+      "mut:extblank"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 8.477
+  },
+  {
+    "name": "r316-sub-mut-register",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe3.py",
+      "sdk",
+      "--sdk",
+      "$SDK",
+      "--out",
+      "$PACKET/scratch/raw/r316-sub-mut-register.json",
+      "--scratch",
+      "$PACKET/scratch/tmp",
+      "--disable",
+      "mut:register"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 8.629
+  },
+  {
+    "name": "r316-sub-mut-storage",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R316-2/scripts/r316-2/probe3.py",
+      "sdk",
+      "--sdk",
+      "$SDK",
+      "--out",
+      "$PACKET/scratch/raw/r316-sub-mut-storage.json",
+      "--scratch",
+      "$PACKET/scratch/tmp",
+      "--disable",
+      "mut:storage"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 8.078
+  },
+  {
+    "name": "public-cases_544_r2-sdk",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2",
+      "--tag",
+      "public-cases_544_r2-sdk",
+      "--outdir",
+      "$PACKET/scratch/raw",
+      "--sdk",
+      "$SDK"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 53.011
+  },
+  {
+    "name": "public-cases_544_r2-absent",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "absent",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2",
+      "--tag",
+      "public-cases_544_r2-absent",
+      "--outdir",
+      "$PACKET/scratch/raw"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 47.259
+  },
+  {
+    "name": "public-cases_544_r2-sdk-disconnected",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2",
+      "--tag",
+      "public-cases_544_r2-sdk-disconnected",
+      "--outdir",
+      "$PACKET/scratch/raw",
+      "--sdk",
+      "$SDK",
+      "--disconnect"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 61.598
+  },
+  {
+    "name": "public-cases_544_r2b-sdk",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2b",
+      "--tag",
+      "public-cases_544_r2b-sdk",
+      "--outdir",
+      "$PACKET/scratch/raw",
+      "--sdk",
+      "$SDK"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 10.886
+  },
+  {
+    "name": "public-cases_544_r2b-absent",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "absent",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2b",
+      "--tag",
+      "public-cases_544_r2b-absent",
+      "--outdir",
+      "$PACKET/scratch/raw"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 9.529
+  },
+  {
+    "name": "public-cases_544_r2b-sdk-disconnected",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2b",
+      "--tag",
+      "public-cases_544_r2b-sdk-disconnected",
+      "--outdir",
+      "$PACKET/scratch/raw",
+      "--sdk",
+      "$SDK",
+      "--disconnect"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 11.435
+  },
+  {
+    "name": "public-cases_544_r2c-sdk",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2c",
+      "--tag",
+      "public-cases_544_r2c-sdk",
+      "--outdir",
+      "$PACKET/scratch/raw",
+      "--sdk",
+      "$SDK"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 7.679
+  },
+  {
+    "name": "public-cases_544_r2c-absent",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "absent",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2c",
+      "--tag",
+      "public-cases_544_r2c-absent",
+      "--outdir",
+      "$PACKET/scratch/raw"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 6.377
+  },
+  {
+    "name": "public-cases_544_r2c-sdk-disconnected",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2c",
+      "--tag",
+      "public-cases_544_r2c-sdk-disconnected",
+      "--outdir",
+      "$PACKET/scratch/raw",
+      "--sdk",
+      "$SDK",
+      "--disconnect"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 8.483
+  },
+  {
+    "name": "public-cases_544_r2d-sdk",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2d",
+      "--tag",
+      "public-cases_544_r2d-sdk",
+      "--outdir",
+      "$PACKET/scratch/raw",
+      "--sdk",
+      "$SDK"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 10.488
+  },
+  {
+    "name": "public-cases_544_r2d-absent",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "absent",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2d",
+      "--tag",
+      "public-cases_544_r2d-absent",
+      "--outdir",
+      "$PACKET/scratch/raw"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 9.137
+  },
+  {
+    "name": "public-cases_544_r2d-sdk-disconnected",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2d",
+      "--tag",
+      "public-cases_544_r2d-sdk-disconnected",
+      "--outdir",
+      "$PACKET/scratch/raw",
+      "--sdk",
+      "$SDK",
+      "--disconnect"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 12.743
+  },
+  {
+    "name": "public-cases_544_r2e-sdk",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2e",
+      "--tag",
+      "public-cases_544_r2e-sdk",
+      "--outdir",
+      "$PACKET/scratch/raw",
+      "--sdk",
+      "$SDK"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 6.679
+  },
+  {
+    "name": "public-cases_544_r2e-absent",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "absent",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2e",
+      "--tag",
+      "public-cases_544_r2e-absent",
+      "--outdir",
+      "$PACKET/scratch/raw"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 5.324
+  },
+  {
+    "name": "public-cases_544_r2e-sdk-disconnected",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "$PACKET/public-inputs/reviews/R317-2/probe_gate1b_r2.py",
+      "--mode",
+      "sdk",
+      "--rev",
+      "head",
+      "--cases",
+      "cases_544_r2e",
+      "--tag",
+      "public-cases_544_r2e-sdk-disconnected",
+      "--outdir",
+      "$PACKET/scratch/raw",
+      "--sdk",
+      "$SDK",
+      "--disconnect"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 7.028
+  }
+]

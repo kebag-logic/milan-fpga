@@ -1,0 +1,81 @@
+{
+  "compared_configurations": 11,
+  "comparisons": {
+    "r316-sdk": {
+      "rows": 35,
+      "changes": [
+        {
+          "case": "W01",
+          "before": "ACCEPTED",
+          "after": "REFUSED",
+          "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s0, 0x4d494c4e\\\\n\\\\tli s1, 0x4d494c4e\\\\n\\\\tli s2, 0x4d494c4e\\\\n\\\\tli s3, 0x4d494c4e\\\\n\\\\tli s4, 0x4d494c4e\\\\n\\\\tli s5, 0x4d494c4e\\\\n\\\\tli s6, 0x4d494c4e\\\\n\\\\tli s7, 0x4d494c4e\\\\n\\\\tli s8, 0x4d494c4e\\\\n\\\\tli s9, 0x4d494c4e\\\\n\\\\tli s10, 0x4d'"
+        },
+        {
+          "case": "W02",
+          "before": "ACCEPTED",
+          "after": "REFUSED",
+          "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s0, 0x4d494c4e\\\\n\\\\tli s1, 0x4d494c4e\\\\n\\\\tli s2, 0x4d494c4e\\\\n\\\\tli s3, 0x4d494c4e\\\\n\\\\tli s4, 0x4d494c4e\\\\n\\\\tli s5, 0x4d494c4e\\\\n\\\\tli s6, 0x4d494c4e\\\\n\\\\tli s7, 0x4d494c4e\\\\n\\\\tli s8, 0x4d494c4e\\\\n\\\\tli s9, 0x4d494c4e\\\\n\\\\tli s10, 0x4d'"
+        },
+        {
+          "case": "W03",
+          "before": "ACCEPTED",
+          "after": "REFUSED",
+          "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s0, 0x4d494c4e\\\\n\\\\tli s1, 0x4d494c4e\\\\n\\\\tli s2, 0x4d494c4e\\\\n\\\\tli s3, 0x4d494c4e\\\\n\\\\tli s4, 0x4d494c4e\\\\n\\\\tli s5, 0x4d494c4e\\\\n\\\\tli s6, 0x4d494c4e\\\\n\\\\tli s7, 0x4d494c4e\\\\n\\\\tli s8, 0x4d494c4e\\\\n\\\\tli s9, 0x4d494c4e\\\\n\\\\tli s10, 0x4d'"
+        }
+      ]
+    },
+    "r316-absent": {
+      "rows": 35,
+      "changes": []
+    },
+    "public-cases_544_r2-sdk": {
+      "rows": 51,
+      "changes": [
+        {
+          "case": "LIM asm +r output after guard (no address, after the interval)",
+          "before": "ACCEPTED",
+          "after": "REFUSED",
+          "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile (\"\" : \"+r\"(id));'"
+        },
+        {
+          "case": "LIM callee asm clobbers a callee-saved register, called in interval",
+          "before": "ACCEPTED",
+          "after": "REFUSED",
+          "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li s1, 0x4d494c4e\");'"
+        }
+      ]
+    },
+    "public-cases_544_r2-absent": {
+      "rows": 51,
+      "changes": []
+    },
+    "public-cases_544_r2b-sdk": {
+      "rows": 9,
+      "changes": []
+    },
+    "public-cases_544_r2b-absent": {
+      "rows": 9,
+      "changes": []
+    },
+    "public-cases_544_r2c-sdk": {
+      "rows": 5,
+      "changes": []
+    },
+    "public-cases_544_r2c-absent": {
+      "rows": 5,
+      "changes": []
+    },
+    "public-cases_544_r2d-sdk": {
+      "rows": 8,
+      "changes": []
+    },
+    "public-cases_544_r2d-absent": {
+      "rows": 8,
+      "changes": []
+    },
+    "public-cases_544_r2e-sdk": {
+      "rows": 4,
+      "changes": []
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "summary": {
+    "head": "8383e929fab3ff57a768c88b8b1ff9b568afcf14",
+    "rev": "head",
+    "mode": "sdk",
+    "disconnect": true,
+    "compiles": 11,
+    "hidden": []
+  },
+  "rows": [
+    {
+      "label": "CTRL unchanged firmware",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "PRIOR C08 macro (*(__extension__ &(x)) = MAGIC)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "PRIOR C09 plain (*(__extension__ &(id)) = MAGIC)",
+      "verdict": "ACCEPTED"
+    },
+    {
+      "label": "PRIOR C10 macro asm li %0 output",
+      "verdict": "REFUSED",
+      "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li %0, 0x4d494c4e\" : \"=r\"(id));'"
+    },
+    {
+      "label": "PRIOR C11 plain asm li %0 output",
+      "verdict": "REFUSED",
+      "reason": "boot-unit asm allowlist rule: asm anywhere in the preprocessed boot unit must match an exact normalized production form; unlisted or incomplete statement '__asm__ volatile(\"li %0, 0x4d494c4e\" : \"=r\"(id));'"
+    }
+  ]
+}
