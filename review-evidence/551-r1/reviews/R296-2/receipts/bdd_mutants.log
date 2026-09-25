@@ -1,0 +1,11 @@
+[control] clean rc=0
+[CAUGHT] ACTIVE only: rc=1
+    Then the stream gate takes ACTIVE AND the per-source real grant and nothing else ... failed in 0.000s
+[CAUGHT] raw grant only: rc=1
+    Then the stream gate takes ACTIVE AND the per-source real grant and nothing else ... failed in 0.000s
+[CAUGHT] ACTIVE OR grant: rc=1
+    Then the stream gate takes ACTIVE AND the per-source real grant and nothing else ... failed in 0.000s
+[CAUGHT] ACTIVE AND grant AND extra term: rc=1
+    Then the stream gate takes ACTIVE AND the per-source real grant and nothing else ... failed in 0.000s
+[control] restored rc=0
+rc=0

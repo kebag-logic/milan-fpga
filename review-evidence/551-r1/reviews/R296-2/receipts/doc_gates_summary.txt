@@ -1,0 +1,8 @@
+python3 scripts/docs_check.py rc=0
+python3 scripts/check_em_dash.py --base 864b36f5e9450ef64f75ca3f0d68c44330e447d7 rc=2
+python3 scripts/check_doc_style.py rc=0
+python3 scripts/gen_toc.py --check rc=2
+python3 scripts/check_doc_paths.py rc=0
+python3 docs/traceability/gen_module_matrix.py --check rc=0
+python3(md-venv) scripts/check_em_dash.py --base 864b36f5e rc=0
+python3(md-venv) scripts/gen_toc.py --check rc=0

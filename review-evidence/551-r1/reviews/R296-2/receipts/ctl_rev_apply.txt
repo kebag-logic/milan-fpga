@@ -1,0 +1,33 @@
+ hdl/srp/KL_srp_admission.sv | 81 ++++++++-------------------------------------
+ hdl/srp/KL_srp_top.sv       |  1 -
+ 2 files changed, 13 insertions(+), 69 deletions(-)
+diff --git a/hdl/srp/KL_srp_admission.sv b/hdl/srp/KL_srp_admission.sv
+index 785c380..f456f6c 100644
+--- a/hdl/srp/KL_srp_admission.sv
++++ b/hdl/srp/KL_srp_admission.sv
+@@ -30,8 +30,6 @@
+ //                <= the ceiling; a refused source never displaces a
+ //                lower-indexed grant, and the walk re-runs every round so a
+ //                refused source is admitted the moment capacity frees.
+-//                Capacity frees only by a withdrawal or by an evaluated
+-//                smaller slope, never by a declaration still pending.
+ //                Published per F02.10: granted_slope_bps[src] (the granted
+ //                idleSlope while sr_admitted[src] = 1, else 0),
+ //                sr_admitted[src], the Σ of granted slopes and an
+@@ -47,15 +45,6 @@
+ //                sequential walk — one source through the 3-stage slope
+ //                pipeline per cycle, one admission decision per cycle —
+ //                never a parallel wide adder tree.
+-//                A declaration invalidates its source at every pipeline
+-//                stage and clears its published grant. The partial admission
+-//                round restarts, so no saved decision from the old TSpec can
+-//                be published. A round publishes only if every requesting
+-//                source had a valid slope for its current declaration; a
+-//                round that met a pending source is discarded, so every
+-//                other grant and granted slope, the Σ and over_limit keep
+-//                their last published values. A pending source is neither
+-//                granted nor refused, and never counted as absent.
+ //---------------------------------------------------------------------------//
+ `default_nettype none
+ 
+@@ -70,16 +59,15 @@ module KL_srp_admission #(

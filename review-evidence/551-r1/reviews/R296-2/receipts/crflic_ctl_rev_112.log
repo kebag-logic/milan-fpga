@@ -1,0 +1,989 @@
+Verilator 5.050 2026-07-01 rev v5.050
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 80 programs
+verilator crflic_probes.vlt +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GGPTP_PLANE_EN_P=0 -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 -GMAAP_CLK_HZ_P=100000 -GDIAG_TICK_CYC_P=200000 --Mdir obj_crflic -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 -CFLAGS "-DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra" ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_crf_licence.cpp -o Vmilan_dp_crflic
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:850:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  850 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:854:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  854 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:857:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:897:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  897 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:901:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:948:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  948 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:951:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  951 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:954:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  954 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:957:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  957 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:963:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1569:5: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1569 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv:113:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+  113 |     $error("KL_pair_zero_fill: TOTAL_P=%0d outside 1..%0d (SLOT_W_P=%0d pair-slot bus).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:208:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+  208 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:191:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  191 |     $error("KL_media_clock_restart: N_TALKERS_P=%0d outside 1..16 (4-bit idx).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:194:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  194 |     $error("KL_media_clock_restart: HOLD_PDU_P=%0d below the 1722-2016 4.4.4.3 floor of 8.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:136:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  136 |     $error("KL_talker_diag_ctx: N_CTX_P=%0d outside 1..16 (the 4-bit index feeds).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:142:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  142 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:144:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  144 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:146:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  146 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:62:32: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   62 |         if (LSB_HIGH_PRIORITY) begin
+      |                                ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:65:18: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   65 |         end else begin
+      |                  ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:75:36: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   75 |             if (LSB_HIGH_PRIORITY) begin
+      |                                    ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:78:22: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   78 |             end else begin
+      |                      ^~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:65:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   65 |   parameter int TDATA_WIDTH = 64,
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:48:19: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   48 |     parameter int TDATA_WIDTH  = 64,
+      |                   ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:58:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   58 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_i2s_playback.sv:52:17: Declaration of signal hides declaration in upper scope: 'CLK_FREQ_HZ'
+   52 |   parameter int CLK_FREQ_HZ   = 50_000_000,  
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:344:15: ... Location of original declaration
+  344 | parameter int CLK_FREQ_HZ = 100_000_000;
+      |               ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:60:70: Procedural assignment to declaration with initial value: 'tx_error_underflow_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   60 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_error_underflow_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:86:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   86 |   tx_error_underflow_cnt <= counters[TX_ERROR_UNDERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:61:68: Procedural assignment to declaration with initial value: 'tx_fifo_overflow_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   61 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_overflow_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:87:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   87 |   tx_fifo_overflow_cnt <= counters[TX_FIFO_OVERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:62:69: Procedural assignment to declaration with initial value: 'tx_fifo_bad_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   62 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_bad_frame_cnt = '0;
+      |                                                                     ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:88:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   88 |   tx_fifo_bad_frame_cnt <= counters[TX_FIFO_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:63:70: Procedural assignment to declaration with initial value: 'tx_fifo_good_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   63 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_good_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:89:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   89 |   tx_fifo_good_frame_cnt <= counters[TX_FIFO_GOOD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:64:70: Procedural assignment to declaration with initial value: 'rx_error_bad_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   64 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:90:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   90 |   rx_error_bad_frame_cnt <= counters[RX_ERROR_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:65:68: Procedural assignment to declaration with initial value: 'rx_error_bad_fcs_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   65 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_fcs_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:91:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   91 |   rx_error_bad_fcs_cnt <= counters[RX_ERROR_BAD_FCS];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:66:68: Procedural assignment to declaration with initial value: 'rx_fifo_overflow_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   66 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_overflow_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:92:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   92 |   rx_fifo_overflow_cnt <= counters[RX_FIFO_OVERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:67:69: Procedural assignment to declaration with initial value: 'rx_fifo_bad_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   67 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_bad_frame_cnt = '0;
+      |                                                                     ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:93:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   93 |   rx_fifo_bad_frame_cnt <= counters[RX_FIFO_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:68:70: Procedural assignment to declaration with initial value: 'rx_fifo_good_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   68 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_good_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:94:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   94 |   rx_fifo_good_frame_cnt <= counters[RX_FIFO_GOOD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/csr/milan_csr.sv:2241:29: Procedural assignment to declaration with initial value: 'rst_epoch_r'
+                                                                                                                        : ... note: In instance 'milan_datapath.csr'
+                                                                                                                        : ... Location of variable initialization
+ 2241 |   logic [7:0] rst_epoch_r = 8'd0;
+      |                             ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/csr/milan_csr.sv:2732:34: ... Location of variable process write
+                                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+ 2732 |     if (aresetn && !rstn_seen_r) rst_epoch_r <= rst_epoch_r + 8'd1;
+      |                                  ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/csr/milan_csr.sv:2729:27: Procedural assignment to declaration with initial value: 'rstn_seen_r'
+                                                                                                                        : ... note: In instance 'milan_datapath.csr'
+                                                                                                                        : ... Location of variable initialization
+ 2729 |   logic     rstn_seen_r = 1'b0;
+      |                           ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/csr/milan_csr.sv:2731:5: ... Location of variable process write
+                                                                                                                       : ... Perhaps should initialize instead using a reset in this process
+ 2731 |     rstn_seen_r <= aresetn;
+      |     ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:187:46: Procedural assignment to declaration with initial value: 'wr_ptr_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  187 | reg [ADDR_WIDTH:0] wr_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:281:21: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  281 |                     wr_ptr_reg <= wr_ptr_commit_reg;
+      |                     ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:188:53: Procedural assignment to declaration with initial value: 'wr_ptr_commit_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  188 | reg [ADDR_WIDTH:0] wr_ptr_commit_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                     ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:298:25: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  298 |                         wr_ptr_commit_reg <= wr_ptr_reg + 1;
+      |                         ^~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:189:46: Procedural assignment to declaration with initial value: 'rd_ptr_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  189 | reg [ADDR_WIDTH:0] rd_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:397:13: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  397 |             rd_ptr_reg <= rd_ptr_reg + 1;
+      |             ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:197:51: Procedural assignment to declaration with initial value: 'm_axis_tvalid_pipe_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  197 | reg [RAM_PIPELINE+1-1:0] m_axis_tvalid_pipe_reg = 0;
+      |                                                   ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:378:9: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  378 |         m_axis_tvalid_pipe_reg[RAM_PIPELINE+1-1] <= 1'b0;
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:206:19: Procedural assignment to declaration with initial value: 's_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  206 | reg s_frame_reg = 1'b0;
+      |                   ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:268:9: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  268 |         s_frame_reg <= !s_axis_tlast;
+      |         ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:208:22: Procedural assignment to declaration with initial value: 'drop_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  208 | reg drop_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:278:17: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  278 |                 drop_frame_reg <= 1'b1;
+      |                 ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:209:22: Procedural assignment to declaration with initial value: 'mark_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  209 | reg mark_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:318:25: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  318 |                         mark_frame_reg <= 1'b0;
+      |                         ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:210:22: Procedural assignment to declaration with initial value: 'send_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  210 | reg send_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:291:21: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  291 |                     send_frame_reg <= !s_axis_tlast;
+      |                     ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:211:32: Procedural assignment to declaration with initial value: 'depth_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  211 | reg [ADDR_WIDTH:0] depth_reg = 0;
+      |                                ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:368:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  368 |     depth_reg <= wr_ptr_reg - rd_ptr_reg;
+      |     ^~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:212:39: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  212 | reg [ADDR_WIDTH:0] depth_commit_reg = 0;
+      |                                       ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:369:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  369 |     depth_commit_reg <= wr_ptr_commit_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  213 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  262 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  214 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  263 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+%Warning-SYNCASYNCNET: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:453:15: Signal flopped as both synchronous and async: 'axis_resetn'
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:3356:10: ... Location of async usage
+ 3356 |     if (!axis_resetn) begin
+      |          ^~~~~~~~~~~
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:759:10: ... Location of sync usage
+  759 |     if (!axis_resetn)        media_lrclk_r <= 1'b0;
+      |          ^~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+make[1]: Entering directory '<PACKET>/scratch/ctl_rev/tb/verilator/milan_dp/obj_crflic'
+g++  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -Os  -c -o sim_crf_licence.o ../sim_crf_licence.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -c -o verilated.o <HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -c -o verilated_dpi.o <HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -c -o verilated_threads.o <HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.fast.gch
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__0.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__1.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__2.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__3.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__4.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__5.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__6.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__7.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__8.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath__Dpi.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__0__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__1__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__2__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__3__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_axi_stream_if__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_axi_stream_if__0__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024unit__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__Syms__Slow.cpp
+g++    sim_crf_licence.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vmilan_dp_crflic
+rm Vmilan_datapath__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<PACKET>/scratch/ctl_rev/tb/verilator/milan_dp/obj_crflic'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 134.621 MB sources in 116 modules, into 11.847 MB in 21 C++ files needing 0.005 MB
+- Verilator: Walltime 12.774 s (elab=0.417, cvt=2.699, bld=9.212); cpu 3.691 s on 8 threads; allocated 929.773 MB
+./obj_crflic/Vmilan_dp_crflic
+=== obj_crflic: #530 on endstation_ax7101_1x1_tdm8, 1 ms = 100 cycles ===
+[BOOT] identity, the firmware boot values, the MAAP claim
+  [PASS] ID == 'MILN'                                                       got=1296649294 exp=1296649294
+  [PASS] KL_maap reached ANNOUNCE (a block of two is claimed)
+  [PASS] CRFT_CTRL[1:0] reads back the boot value                           got=3 exp=3
+  [PASS] nothing declares yet, so nothing is licensed                       got=0 exp=0
+[A] the Run B opening: probe refused, MAAP grant, Talker Advertise declared and admitted, NO Listener Ready - nothing may be emitted
+  [t]     1769.04 ms  listener PROBE_TX, uid 1 (1)
+  [t]     1769.04 ms  listener PROBE_TX, uid 0 (1)
+  [t]     1772.00 ms  PROBE_TX answered, status, uid 1 (3)
+  [t]     1777.83 ms  PROBE_TX answered, status, uid 0 (3)
+  [t]     1806.90 ms  DUT Talker Advertise first on the wire, uid 0 (0)
+  [t]     1806.90 ms  DUT Talker Advertise first on the wire, uid 1 (0)
+  -- source uid 0 (AAF)
+  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+  [PASS] ...and MAAP's grant opens the DA gate after it
+  [PASS] the DUT declares Talker Advertise on the wire
+  [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+  [PASS] ...while no Listener Ready has been declared to the DUT
+  [PASS] ACTIVE never rose                                                  got=0 exp=0
+  -- source uid 1 (CRF Media Clock Output)
+  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+  [PASS] ...and MAAP's grant opens the DA gate after it
+  [PASS] the DUT declares Talker Advertise on the wire
+  [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+  [PASS] ...while no Listener Ready has been declared to the DUT
+  [PASS] ACTIVE never rose                                                  got=0 exp=0
+  [PASS] the CRF licence never opened (every cycle sampled)                 got=0 exp=0
+  [PASS] no CRF PDU on the wire                                             got=0 exp=0
+  [PASS] CRFT_COUNT stays 0                                                 got=0 exp=0
+  [PASS] CRFT_CTRL[5] the output is tagged (its Talker Advertise stands)    got=1 exp=1
+  [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+  [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+  [PASS] the AAF gate never opened                                          got=0 exp=0
+  [PASS] no AAF PDU on the wire                                             got=0 exp=0
+  [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 0                     got=0 exp=0
+  [i]    the raw verdict has stood 3898.78 ms: the window Run B streamed through
+[B] the listener's retry succeeds and the switch declares Listener Ready
+  [t]     5772.00 ms  listener PROBE_TX, uid 1 (2)
+  [t]     5774.65 ms  PROBE_TX answered, status, uid 1 (0)
+  [t]     5777.83 ms  listener PROBE_TX, uid 0 (2)
+  [t]     5780.48 ms  PROBE_TX answered, status, uid 0 (0)
+  [t]     5814.65 ms  switch declares the FIRST Listener Ready, uid 1
+  [t]     5815.73 ms  CRF licence RISES, uid 1
+  [t]     5815.73 ms  ACTIVE RISES, uid 1
+  [t]     5820.48 ms  switch declares the FIRST Listener Ready, uid 0
+  [t]     5898.46 ms  first CRF PDU on the wire
+  [t]     5939.01 ms  first AAF PDU on the wire
+  -- source uid 0
+  [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+  [PASS] the switch's first Listener Ready reached the DUT
+  [PASS] ACTIVE rose after it, within 50 ms
+  -- source uid 1
+  [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+  [PASS] the switch's first Listener Ready reached the DUT
+  [PASS] ACTIVE rose after it, within 50 ms
+  [PASS] the CRF licence opened on the cycle ACTIVE[CRF] rose               got=581573 exp=581573
+  [PASS] the AAF gate opened on the cycle ACTIVE[AAF] rose                  got=582156 exp=582156
+  [PASS] CRF PDUs follow the licence (>= 3 in 3 s)
+  [PASS] AAF PDUs follow the AAF gate
+  [PASS] every CRF PDU: C-tag {PCP 3, VID 2}, stream {MAC, uid 1}, the MAAP DA got=6 exp=6
+  [PASS] CRFT_CTRL[6] reservation active reads 1                            got=1 exp=1
+  [PASS] CRFT_CTRL[7] emission licensed reads 1                             got=1 exp=1
+  [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 1                     got=1 exp=1
+[B2] the AAF listener unbinds; the switch withdraws that Listener
+  [t]     8769.12 ms  switch withdraws its Listener (Lv), uid 0
+  [t]    10207.83 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [PASS] ACTIVE[AAF] fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+  [PASS] the AAF gate closed on that cycle                                  got=877020 exp=877020
+  [PASS] ...while the AAF talker still declares Talker Advertise            got=1 exp=1
+  [PASS] ...and its raw verdict still stands (the pre-#530 gate stayed open) got=1 exp=1
+  [PASS] no AAF PDU 20 ms after the gate closed                             got=0 exp=0
+  [PASS] the CRF output is untouched                                        got=1 exp=1
+[C] bound, the probe window long closed, across the Run B LeaveAll exchange: no self-Leave, no licence drop
+  [t]    20197.83 ms  switch LeaveAll MRPDU (Run B layout) (1)
+  [t]    20801.88 ms  DUT Talker Advertise LEAVE, uid 0
+  [t]    22603.48 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    32593.48 ms  switch LeaveAll MRPDU (Run B layout) (2)
+  [t]    35603.48 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    45593.48 ms  switch LeaveAll MRPDU (Run B layout) (3)
+  [t]    50003.68 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    59993.68 ms  switch LeaveAll MRPDU (Run B layout) (4)
+  [t]    62207.70 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    72197.70 ms  switch LeaveAll MRPDU (Run B layout) (5)
+  [t]    76403.48 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [PASS] the DUT sent no Talker Advertise Leave for its bound CRF output    got=0 exp=0
+  [PASS] ACTIVE[CRF] never fell                                             got=0 exp=0
+  [PASS] the CRF licence never fell                                         got=0 exp=0
+  [PASS] the CRF DA gate never closed                                       got=0 exp=0
+  [PASS] the listener never had to re-probe (two probes in all)             got=2 exp=2
+  [PASS] the registration alone held the DA gate for >= 45 s (probe window + 15 s closed)
+  [i]    5 DUT and 5 switch LeaveAll MRPDUs in this phase
+  [PASS] the DUT sent >= 4 LeaveAll MRPDUs
+  [PASS] every DUT LeaveAll flagged all four MSRP attribute types (802.1Q-2014 10.7.5.20) got=0 exp=0
+  [PASS] the switch sent >= 4 of its own, Listener JoinMt first
+  [PASS] the Listener registration still reads Ready                        got=2 exp=2
+  [i]    155 CRF PDUs, mean period 491.52 ms, longest gap 491.52 ms
+  [PASS] the CRF stream never paused (longest gap <= 1.5 mean periods)
+[F] Stream Output 1's Milan v1.2 5.3.7.7 Table 5.4 counters (observation interval 2000 ms here)
+  [i]    37 intervals since STREAM_START, FRAMES_TX 38, 155 PDUs
+  [PASS] STREAM_START = 1: one start since the bind                         got=1 exp=1
+  [PASS] STREAM_STOP = 0                                                    got=0 exp=0
+  [PASS] FRAMES_TX = the intervals elapsed since STREAM_START (+-1)
+  [PASS] ...which is far fewer than the PDUs sent (>= 3 per interval here)
+  [PASS] CRFT_COUNT (0x764) is the PDU total the wire carried               got=155 exp=155
+[D] the Listener declaration changes: Asking Failed, then Ready Failed
+  [t]    81769.08 ms  listener PROBE_TX, uid 1 (3)
+  [t]    81771.73 ms  PROBE_TX answered, status, uid 1 (0)
+  [t]    82270.16 ms  CRF licence FALLS, uid 1
+  [t]    82270.16 ms  ACTIVE FALLS, uid 1
+  [PASS] Asking Failed registered                                           got=1 exp=1
+  [PASS] ACTIVE fell within 50 ms of it
+  [PASS] the licence closed on that cycle                                   got=8227016 exp=8227016
+  [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+  [PASS] ...and its raw verdict still stands                                got=1 exp=1
+  [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+  [t]    84270.16 ms  CRF licence RISES, uid 1
+  [t]    84270.16 ms  ACTIVE RISES, uid 1
+  [t]    86393.48 ms  switch LeaveAll MRPDU (Run B layout) (6)
+  [PASS] Ready Failed registered                                            got=3 exp=3
+  [PASS] ACTIVE rose after it
+  [PASS] the licence reopened on that cycle                                 got=8427016 exp=8427016
+  [PASS] CRF PDUs resumed
+[F] ...and they restart at the next STREAM_START
+  [PASS] STREAM_START = 2                                                   got=2 exp=2
+  [PASS] STREAM_STOP = 1                                                    got=1 exp=1
+  [PASS] FRAMES_TX restarted: it counts only the intervals since the restart (+1)
+[E] the CRF listener unbinds inside a fresh probe window
+  [t]    86769.08 ms  switch withdraws its Listener (Lv), uid 1
+  [t]    86770.16 ms  CRF licence FALLS, uid 1
+  [t]    86770.16 ms  ACTIVE FALLS, uid 1
+  [t]    90003.68 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [PASS] the probe window is still open
+  [PASS] ACTIVE fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+  [PASS] the licence closed on that cycle                                   got=8677016 exp=8677016
+  [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+  [PASS] ...and its raw verdict still stands                                got=1 exp=1
+  [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+  [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+  [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+[G/H] #551: real admission ceiling and both round phases
+  [t]    93769.12 ms  listener PROBE_TX, uid 0 (3)
+  [t]    93769.12 ms  listener PROBE_TX, uid 1 (4)
+  [t]    93771.77 ms  PROBE_TX answered, status, uid 0 (0)
+  [t]    93777.60 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] calibration decoded a real Listener frame
+  [PASS] decoder delay can bracket a declaration
+[G] source 0, admission phase 0: refused re-declaration
+  [t]    94351.04 ms  listener PROBE_TX, uid 0 (4)
+  [t]    94353.69 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=9695343 exp=9695343
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=2 exp=2
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=2 exp=2
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=27 exp=27
+[H] source 0, admission phase 0: admitted re-declaration
+  [t]    99454.11 ms  listener PROBE_TX, uid 0 (5)
+  [t]    99456.76 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=10205651 exp=10205651
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=0 phase=0 ACTIVE=10205652 grant=10205654 licence=10205654 added_cycles=2
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=3 exp=3
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=2 exp=2
+[I] source 0, admission phase 0: refused re-declaration
+  [t]   104557.15 ms  listener PROBE_TX, uid 0 (6)
+  [t]   104559.80 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=10715955 exp=10715955
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [FAIL] the ceiling refused the re-declaration throughout                  got=1 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [FAIL] refused AAF gate never opened                                      got=1 exp=0
+  [FAIL] refused re-declaration adds no STREAM_START                        got=4 exp=3
+  [FAIL] refused re-declaration adds no STREAM_STOP                         got=4 exp=3
+  [FAIL] refused re-declaration preserves MEDIA_RESET                       got=0 exp=17
+  [FAIL] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=0 exp=29
+  [FAIL] refused re-declaration preserves FRAMES_TX                         got=0 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=51 exp=51
+[J] source 0, admission phase 0: admitted re-declaration
+  [t]   109660.23 ms  listener PROBE_TX, uid 0 (7)
+  [t]   109662.88 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=11226263 exp=11226263
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [FAIL] the optimistic window actually raised ACTIVE                       got=2 exp=1
+  [FAIL] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=0 phase=0 ACTIVE=11226271 grant=11226270 licence=11226271 added_cycles=0
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=5 exp=5
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=4 exp=4
+[G] source 0, admission phase 1: refused re-declaration
+  [t]   114763.27 ms  listener PROBE_TX, uid 0 (8)
+  [t]   114765.92 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=11736566 exp=11736566
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused AAF gate never opened                                      got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=5 exp=5
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=5 exp=5
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=75 exp=75
+[H] source 0, admission phase 1: admitted re-declaration
+  [t]   119866.34 ms  listener PROBE_TX, uid 0 (9)
+  [t]   119868.99 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=12246874 exp=12246874
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=0 phase=1 ACTIVE=12246875 grant=12246876 licence=12246876 added_cycles=1
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+[I] source 0, admission phase 1: refused re-declaration
+  [t]   124969.38 ms  listener PROBE_TX, uid 0 (10)
+  [t]   124972.03 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=12757178 exp=12757178
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [FAIL] the ceiling refused the re-declaration throughout                  got=1 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [FAIL] refused AAF gate never opened                                      got=1 exp=0
+  [FAIL] refused re-declaration adds no STREAM_START                        got=7 exp=6
+  [FAIL] refused re-declaration adds no STREAM_STOP                         got=7 exp=6
+  [FAIL] refused re-declaration preserves MEDIA_RESET                       got=0 exp=17
+  [FAIL] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=0 exp=29
+  [FAIL] refused re-declaration preserves FRAMES_TX                         got=0 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=99 exp=99
+[J] source 0, admission phase 1: admitted re-declaration
+  [t]   130072.46 ms  listener PROBE_TX, uid 0 (11)
+  [t]   130075.11 ms  PROBE_TX answered, status, uid 0 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] Listener replay retained the measured decoder timing               got=13267486 exp=13267486
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [FAIL] the optimistic window actually raised ACTIVE                       got=2 exp=1
+  [FAIL] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=0 phase=1 ACTIVE=13267493 grant=13267492 licence=13267493 added_cycles=0
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=8 exp=8
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=7 exp=7
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] calibration decoded a real Listener frame
+  [PASS] decoder delay can bracket a declaration
+[G] source 1, admission phase 0: refused re-declaration
+  [t]   135357.42 ms  listener PROBE_TX, uid 1 (5)
+  [t]   135360.07 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   137959.82 ms  ACTIVE RISES, uid 1
+  [t]   137959.87 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=13795981 exp=13795981
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=2 exp=2
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=2 exp=2
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=161 exp=161
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=161 exp=161
+[H] source 1, admission phase 0: admitted re-declaration
+  [t]   140460.53 ms  listener PROBE_TX, uid 1 (6)
+  [t]   140463.18 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   143062.94 ms  CRF licence RISES, uid 1
+  [t]   143062.94 ms  ACTIVE RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=14306293 exp=14306293
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=1 phase=0 ACTIVE=14306294 grant=14306294 licence=14306294 added_cycles=0
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=3 exp=3
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=2 exp=2
+[I] source 1, admission phase 0: refused re-declaration
+  [t]   145563.57 ms  listener PROBE_TX, uid 1 (7)
+  [t]   145566.22 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   146063.58 ms  CRF licence FALLS, uid 1
+  [t]   146063.58 ms  ACTIVE FALLS, uid 1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   148165.98 ms  CRF licence RISES, uid 1
+  [t]   148165.98 ms  ACTIVE RISES, uid 1
+  [t]   148166.02 ms  CRF licence FALLS, uid 1
+  [t]   148166.03 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=14816597 exp=14816597
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [FAIL] the ceiling refused the re-declaration throughout                  got=1 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [FAIL] refused CRF licence never opened                                   got=1 exp=0
+  [FAIL] refused re-declaration adds no STREAM_START                        got=4 exp=3
+  [FAIL] refused re-declaration adds no STREAM_STOP                         got=4 exp=3
+  [FAIL] refused re-declaration preserves MEDIA_RESET                       got=0 exp=17
+  [FAIL] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=0 exp=29
+  [FAIL] refused re-declaration preserves FRAMES_TX                         got=0 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=167 exp=167
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=167 exp=167
+[J] source 1, admission phase 0: admitted re-declaration
+  [t]   150666.69 ms  listener PROBE_TX, uid 1 (8)
+  [t]   150669.34 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   153269.10 ms  ACTIVE RISES, uid 1
+  [t]   153269.14 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=15326909 exp=15326909
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=1 phase=0 ACTIVE=15326910 grant=15326914 licence=15326914 added_cycles=4
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=5 exp=5
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=4 exp=4
+[G] source 1, admission phase 1: refused re-declaration
+  [t]   155769.73 ms  listener PROBE_TX, uid 1 (9)
+  [t]   155772.38 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   156269.74 ms  CRF licence FALLS, uid 1
+  [t]   156269.74 ms  ACTIVE FALLS, uid 1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   158372.13 ms  ACTIVE RISES, uid 1
+  [t]   158372.17 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=15837212 exp=15837212
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [PASS] refused CRF licence never opened                                   got=0 exp=0
+  [PASS] refused re-declaration adds no STREAM_START                        got=5 exp=5
+  [PASS] refused re-declaration adds no STREAM_STOP                         got=5 exp=5
+  [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+  [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+  [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=173 exp=173
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=173 exp=173
+[H] source 1, admission phase 1: admitted re-declaration
+  [t]   160872.84 ms  listener PROBE_TX, uid 1 (10)
+  [t]   160875.49 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   163475.25 ms  ACTIVE RISES, uid 1
+  [t]   163475.26 ms  CRF licence RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=16347524 exp=16347524
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=same uid=1 phase=1 ACTIVE=16347525 grant=16347526 licence=16347526 added_cycles=1
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+[I] source 1, admission phase 1: refused re-declaration
+  [t]   165975.88 ms  listener PROBE_TX, uid 1 (11)
+  [t]   165978.53 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   166475.89 ms  CRF licence FALLS, uid 1
+  [t]   166475.89 ms  ACTIVE FALLS, uid 1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   168578.29 ms  ACTIVE RISES, uid 1
+  [t]   168578.30 ms  CRF licence RISES, uid 1
+  [t]   168578.34 ms  CRF licence FALLS, uid 1
+  [t]   168578.34 ms  ACTIVE FALLS, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=16857828 exp=16857828
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+  [PASS] ACTIVE rose within three admission rounds
+  [FAIL] the ceiling refused the re-declaration throughout                  got=1 exp=0
+  [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+  [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+  [PASS] the declaration became Talker Failed                               got=2 exp=2
+  [FAIL] refused CRF licence never opened                                   got=1 exp=0
+  [FAIL] refused re-declaration adds no STREAM_START                        got=7 exp=6
+  [FAIL] refused re-declaration adds no STREAM_STOP                         got=7 exp=6
+  [FAIL] refused re-declaration preserves MEDIA_RESET                       got=0 exp=17
+  [FAIL] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=0 exp=29
+  [FAIL] refused re-declaration preserves FRAMES_TX                         got=0 exp=43
+  [PASS] refused re-declaration emits no PDU                                got=179 exp=179
+  [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=179 exp=179
+[J] source 1, admission phase 1: admitted re-declaration
+  [t]   171079.00 ms  listener PROBE_TX, uid 1 (12)
+  [t]   171081.65 ms  PROBE_TX answered, status, uid 1 (0)
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+  [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+  [PASS] the ACMP declaration still stands                                  got=1 exp=1
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   173681.41 ms  ACTIVE RISES, uid 1
+  [t]   173681.45 ms  ACTIVE FALLS, uid 1
+  [t]   173681.47 ms  CRF licence RISES, uid 1
+  [t]   173681.47 ms  ACTIVE RISES, uid 1
+  [PASS] Listener replay retained the measured decoder timing               got=17368140 exp=17368140
+  [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+  [FAIL] the optimistic window actually raised ACTIVE                       got=2 exp=1
+  [FAIL] ACTIVE rose within three admission rounds
+  [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+  [PASS] licence waits for both ACTIVE and grant
+  [LATENCY] history=changed uid=1 phase=1 ACTIVE=17368147 grant=17368146 licence=17368147 added_cycles=0
+  [PASS] added start latency fits three admission rounds
+  [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+  [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+  [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+  [PASS] admitted re-declaration still streams
+  [PASS] admitted re-declaration adds one STREAM_START                      got=8 exp=8
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=7 exp=7
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   176182.05 ms  CRF licence FALLS, uid 1
+  [t]   176182.05 ms  ACTIVE FALLS, uid 1
+[INV] over the whole run, every cycle
+  [PASS] the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing) got=0 exp=0
+  [PASS] the AAF gate is never open without ACTIVE[AAF] AND real grant      got=0 exp=0
+  [PASS] no malformed DUT MRPDU                                             got=0 exp=0
+--------------------------------------------------------------
+simulated 176282.04 ms (17628204 cycles)
+checks: 415   failures: 34
+RESULT: FAIL
+make: *** [Makefile:434: crflic] Error 1
+rc=2
