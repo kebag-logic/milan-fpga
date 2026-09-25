@@ -1,0 +1,9 @@
+P4b_error_flags_frames_rx        DETECTED      validation error raises the FRAMES_RX interval flag (P4 only hit the tick cycle)
+    unit: rc=2  fails=979 KL_crf_rx: 13836 checks, 979 failures (1053 accepted PDUs pinned)
+      [FAIL] 5 malformed: pdu_count still 0                 got=1 exp=0
+      [FAIL] pdu#1     pdu_count_o                            got=1 exp=0
+      [FAIL] pdu#2     pdu_count_o                            got=1 exp=0
+      [FAIL] pdu#3     pdu_count_o                            got=1 exp=0
+    disc: rc=2  fails=1 == crf_rx discontinuity: checks: 1932   failures: 1 ==
+      [FAIL] validation error never counts an accepted PDU got=5 exp=4
+rc=0

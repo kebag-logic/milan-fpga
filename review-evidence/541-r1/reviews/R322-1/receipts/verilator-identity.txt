@@ -1,0 +1,8 @@
+path: $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator
+-rwxr-xr-x 1 alex alex 319 Sep 22 15:48 $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator
+$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator
+$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator: POSIX shell script, ASCII text executable, with very long lines (308)
+Verilator 5.050 2026-07-01 rev v5.050
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator
+#!/bin/sh
+exec env VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator "$@"

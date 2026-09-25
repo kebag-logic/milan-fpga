@@ -1,0 +1,9 @@
+$ md-venv python3 scripts/check_em_dash.py --base 5b73d3f47dfed519eb988c13d6beb1db664ef1e0
+check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [5b73d3f4..HEAD]
+rc=0
+$ md-venv python3 scripts/gen_toc.py --check
+TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+$ md-venv python3 scripts/gen_toc.py --verify-anchors
+anchor check: 173 existing cross-page fragment links reproduced
+rc=0

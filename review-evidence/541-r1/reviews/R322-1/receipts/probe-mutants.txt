@@ -1,0 +1,78 @@
+clean                            CONTROL_PASS  positive control: unmodified head
+    unit: rc=0  fails=0 KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)
+    disc: rc=0  fails=0 == crf_rx discontinuity: checks: 1932   failures: 0 ==
+P1_error_unlocks_and_counts      DETECTED      validation error unlocks and scores MEDIA_UNLOCKED
+    unit: rc=2  fails=120 KL_crf_rx: 13836 checks, 120 failures (1053 accepted PDUs pinned)
+      [FAIL] pdu#895   locked_o                               got=0 exp=1
+      [FAIL] pdu#895   cnt_unlocked_o                         got=2 exp=1
+      [FAIL] pdu#896   locked_o                               got=0 exp=1
+      [FAIL] pdu#896   cnt_unlocked_o                         got=2 exp=1
+    disc: rc=2  fails=6 == crf_rx discontinuity: checks: 1932   failures: 6 ==
+      [FAIL] validation error preserves established lock
+      [FAIL] validation error retains lock through interval commit
+      [FAIL] validation error adds no unlock event    got=1 exp=0
+      [FAIL] valid resume keeps the established lock
+P2_error_refreshes_timeout       SURVIVED      validation error refreshes the 100 ms timeout (doc: does not)
+    unit: rc=0  fails=0 KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)
+    disc: rc=0  fails=0 == crf_rx discontinuity: checks: 1932   failures: 0 ==
+P3_error_keeps_settling          DETECTED      validation error no longer breaks settling (doc: breaks settling)
+    unit: rc=2  fails=4 KL_crf_rx: 13836 checks, 4 failures (1053 accepted PDUs pinned)
+      [FAIL] pdu#1032  locked_o                               got=1 exp=0
+      [FAIL] pdu#1032  cnt_locked_o                           got=1 exp=0
+      [FAIL] pdu#1033  locked_o                               got=1 exp=0
+      [FAIL] pdu#1033  cnt_locked_o                           got=1 exp=0
+    disc: rc=0  fails=0 == crf_rx discontinuity: checks: 1932   failures: 0 ==
+P4_error_counts_frames_rx        SURVIVED      validation error also commits FRAMES_RX
+    unit: rc=0  fails=0 KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)
+    disc: rc=0  fails=0 == crf_rx discontinuity: checks: 1932   failures: 0 ==
+P5_error_unlocks_at_commit       DETECTED      lock dropped at the UNSUPPORTED_FORMAT interval commit
+    unit: rc=2  fails=65 KL_crf_rx: 13836 checks, 65 failures (1053 accepted PDUs pinned)
+      [FAIL] pdu#895   locked_o                               got=0 exp=1
+      [FAIL] pdu#896   locked_o                               got=0 exp=1
+      [FAIL] pdu#897   locked_o                               got=0 exp=1
+      [FAIL] pdu#898   locked_o                               got=0 exp=1
+    disc: rc=2  fails=5 == crf_rx discontinuity: checks: 1932   failures: 5 ==
+      [FAIL] validation error retains lock through interval commit
+      [FAIL] valid resume keeps the established lock
+      [FAIL] silence shorter than 100 ms retains lock
+      [FAIL] 100 ms silence counts one unlock         got=0 exp=1
+P6_timeout_long                  DETECTED      timeout 50 cycles (250 us at 200 kHz) late
+    unit: rc=2  fails=9 KL_crf_rx: 13836 checks, 9 failures (1053 accepted PDUs pinned)
+      [FAIL] pdu#1021  locked_o                               got=1 exp=0
+      [FAIL] pdu#1021  cnt_unlocked_o                         got=0 exp=1
+      [FAIL] [H2a-d2] the resuming PDU re-seeds, it does not restart got=1 exp=0
+      [FAIL] pdu#1022  locked_o                               got=1 exp=0
+    disc: rc=2  fails=3 == crf_rx discontinuity: checks: 1932   failures: 3 ==
+      [FAIL] silence invalidates the old rate
+      [FAIL] 100 ms silence still unlocks after validation error
+      [FAIL] 100 ms silence counts one unlock         got=0 exp=1
+P7_timeout_short                 DETECTED      timeout 50 cycles early
+    unit: rc=0  fails=0 KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)
+    disc: rc=2  fails=2 == crf_rx discontinuity: checks: 1932   failures: 2 ==
+      [FAIL] silence shorter than 100 ms retains lock
+      [FAIL] silence before timeout adds no unlock    got=1 exp=0
+P8_error_counts_per_pdu          DETECTED      UNSUPPORTED_FORMAT interval commit removed (never counts)
+    unit: rc=2  fails=987 KL_crf_rx: 13836 checks, 987 failures (1053 accepted PDUs pinned)
+      [FAIL] 5 malformed: ONE interval tick, not 5          got=0 exp=1
+      [FAIL] pdu#1     fmt_err_o                              got=0 exp=1
+      [FAIL] pdu#2     fmt_err_o                              got=0 exp=1
+      [FAIL] pdu#3     fmt_err_o                              got=0 exp=1
+    disc: rc=2  fails=2 == crf_rx discontinuity: checks: 1932   failures: 2 ==
+      [FAIL] locked validation error counts UNSUPPORTED_FORMAT once got=0 exp=1
+      [FAIL] empty interval never recounts the validation error got=0 exp=1
+P9_error_unlock_delayed          DETECTED      helper for P9 (paired edit below)
+    unit: rc=2  fails=66 KL_crf_rx: 13836 checks, 66 failures (1053 accepted PDUs pinned)
+      [FAIL] pdu#895   locked_o                               got=0 exp=1
+      [FAIL] pdu#896   locked_o                               got=0 exp=1
+      [FAIL] pdu#897   locked_o                               got=0 exp=1
+      [FAIL] pdu#898   locked_o                               got=0 exp=1
+    disc: rc=2  fails=5 == crf_rx discontinuity: checks: 1932   failures: 5 ==
+      [FAIL] validation error retains lock through interval commit
+      [FAIL] valid resume keeps the established lock
+      [FAIL] silence shorter than 100 ms retains lock
+      [FAIL] 100 ms silence counts one unlock         got=0 exp=1
+
+real	1m41.540s
+user	3m2.589s
+sys	0m8.190s
+rc=0

@@ -1,0 +1,21 @@
+HEAD=2734b771bcf0b383ea62ef05744452827bafe9e4
+index write-tree=34cb4d208c6681af5405dd4da79fe7c5fe6fbc5e  expected=34cb4d208c6681af5405dd4da79fe7c5fe6fbc5e
+worktree+index vs HEAD: identical (content+mode)
+status (incl. ignored/untracked):
+[end status]
+index entries (mode blob path) == HEAD tree
+gitlinks:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor (heads/main)
+ 09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor (v2.0-222-g09f9bf3)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+files hashed from disk vs HEAD blobs (changed-by-PR set + RTL):
+hdl/ieee1722/crf/KL_crf_rx.sv disk=6ddd3af2b17477eba2b9545ed2f2874c73d1ff3f head=6ddd3af2b17477eba2b9545ed2f2874c73d1ff3f mode=644
+docs/reference/REGISTER_MAP.md disk=d8156cdfa9980baba34a34ca57aa3a3c52855c86 head=d8156cdfa9980baba34a34ca57aa3a3c52855c86 mode=644
+tb/verilator/crf_rx/mutants.py disk=e68af8d0711b10349d3b6857b7f5c215bd60478a head=e68af8d0711b10349d3b6857b7f5c215bd60478a mode=644
+tb/verilator/crf_rx/sim_discontinuity.cpp disk=5bc76e8cfaa26b146b71b58b0c959a4d8d227cc1 head=5bc76e8cfaa26b146b71b58b0c959a4d8d227cc1 mode=644
+tb/verilator/crf_rx/Makefile disk=9364b0cb9d22cfcbde2f451d72a7443d5dba17db head=9364b0cb9d22cfcbde2f451d72a7443d5dba17db mode=644

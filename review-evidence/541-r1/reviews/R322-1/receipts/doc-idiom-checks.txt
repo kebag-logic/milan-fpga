@@ -1,0 +1,38 @@
+$ python3 scripts/check_em_dash.py --base 5b73d3f47dfed519eb988c13d6beb1db664ef1e0
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+$ python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 scripts/check_doc_paths.py
+doc path gate: OK (843 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+$ python3 scripts/check_cpp_idiom.py
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0
+$ python3 scripts/check_py_idiom.py
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+$ python3 scripts/check_sv_idiom.py
+SystemVerilog idiom gate: OK (124 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+rc=0
+$ python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 865 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+diff --check rc=0

@@ -1,0 +1,38 @@
+[
+ {
+  "name": "P4b_error_flags_frames_rx",
+  "intent": "validation error raises the FRAMES_RX interval flag (P4 only hit the tick cycle)",
+  "unit": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] 5 malformed: pdu_count still 0                 got=1 exp=0",
+    "[FAIL] pdu#1     pdu_count_o                            got=1 exp=0",
+    "[FAIL] pdu#2     pdu_count_o                            got=1 exp=0",
+    "[FAIL] pdu#3     pdu_count_o                            got=1 exp=0",
+    "[FAIL] pdu#4     pdu_count_o                            got=1 exp=0",
+    "[FAIL] pdu#5     pdu_count_o                            got=1 exp=0",
+    "[FAIL] pdu#6     pdu_count_o                            got=1 exp=0",
+    "[FAIL] pdu#7     pdu_count_o                            got=1 exp=0",
+    "[FAIL] pdu#8     pdu_count_o                            got=1 exp=0",
+    "[FAIL] pdu#9     pdu_count_o                            got=1 exp=0",
+    "[FAIL] pdu#10    pdu_count_o                            got=1 exp=0",
+    "[FAIL] pdu#11    pdu_count_o                            got=1 exp=0"
+   ],
+   "n_fail_lines": 979,
+   "summary": [
+    "KL_crf_rx: 13836 checks, 979 failures (1053 accepted PDUs pinned)"
+   ]
+  },
+  "disc": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] validation error never counts an accepted PDU got=5 exp=4"
+   ],
+   "n_fail_lines": 1,
+   "summary": [
+    "== crf_rx discontinuity: checks: 1932   failures: 1 =="
+   ]
+  },
+  "verdict": "DETECTED"
+ }
+]

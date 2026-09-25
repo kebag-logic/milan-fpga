@@ -1,0 +1,27 @@
+5b73d3f47dfed519eb988c13d6beb1db664ef1e0 raw_sha256=f5f57ceb08c409cd115004e6dcea5e65d640a81f060680049d2ff9c8ae626a4f stripped_sha256=f0081e180e4c8c2637ef97f1a65236cb09051572724487c336657d74c2321de8 stripped_lines=278 tokens=1187
+2734b771bcf0b383ea62ef05744452827bafe9e4 raw_sha256=3cc824af3473f0f399db61466ce2e5fcfc07911eb219d48e24ed243ebcafdbb6 stripped_sha256=f0081e180e4c8c2637ef97f1a65236cb09051572724487c336657d74c2321de8 stripped_lines=278 tokens=1187
+stripped_lines_identical=True stripped_tokens_identical=True
+rc=0
+--- negative control: base vs head of mutants.py-free file that did change (sim_discontinuity.cpp)
+5b73d3f47dfed519eb988c13d6beb1db664ef1e0 raw_sha256=5f922b1fda6bc281b6a6e98a4509dbe7231ca237339806df7e4179c211d843e2 stripped_sha256=e07a57b7b79d24122b28dcea257495127404dd9c9cfcf016f31c35f195b6c687 stripped_lines=173 tokens=723
+2734b771bcf0b383ea62ef05744452827bafe9e4 raw_sha256=5300c0540f37ff481b6f8b3e1fb755068b428d6479bbb6e12d1712b5746d4168 stripped_sha256=527f31d296eebe0defeb9fa3a5350c57d5c66890fa096e5fa5761bf0fa3d40cf stripped_lines=212 tokens=979
+stripped_lines_identical=False stripped_tokens_identical=False
+rc=1
+--- git diff -w --stat on RTL
+hdl/ieee1722/crf/KL_crf_rx.sv | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+non-comment-indent changed lines above (expect none)
+docs/reference/REGISTER_MAP.md
+hdl/ieee1722/crf/KL_crf_rx.sv
+tb/verilator/crf_rx/mutants.py
+tb/verilator/crf_rx/sim_discontinuity.cpp
+
+Changes:
+
+2734b771bcf0b383ea62ef05744452827bafe9e4 5b73d3f47dfed519eb988c13d6beb1db664e...
+tree 34cb4d208c6681af5405dd4da79fe7c5fe6fbc5e
+parent 5b73d3f47dfed519eb988c13d6beb1db664ef1e0
+author hackerman-kl <hackerman-kl@kebag-logic.com> 1790314900 +0200
+committer hackerman-kl <hackerman-kl@kebag-logic.com> 1790314900 +0200
+
+Document and test CRF lock retention on validation errors

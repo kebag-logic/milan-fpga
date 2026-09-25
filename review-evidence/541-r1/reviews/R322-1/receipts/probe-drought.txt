@@ -1,0 +1,23 @@
+[PASS] precondition locked got=1 exp=1
+[PASS] precondition one lock event got=1 exp=1
+[PASS] malformed-only traffic < 100 ms keeps lock got=1 exp=1
+[PASS] malformed-only traffic >= 100 ms unlocks got=0 exp=0
+[PASS] malformed-only drought scores one unlock got=1 exp=1
+[INFO] fmt_err delta over 55 malformed PDUs: 55
+[PASS] UNSUPPORTED_FORMAT counts once per interval (one reject per 2 intervals) got=1 exp=1
+[PASS] continued malformed traffic never re-locks got=0 exp=0
+[PASS] continued malformed traffic never recounts unlock got=1 exp=1
+drought probe: 0 failures
+== head rc=0
+[PASS] precondition locked got=1 exp=1
+[PASS] precondition one lock event got=1 exp=1
+[PASS] malformed-only traffic < 100 ms keeps lock got=1 exp=1
+[FAIL] malformed-only traffic >= 100 ms unlocks got=1 exp=0
+[FAIL] malformed-only drought scores one unlock got=0 exp=1
+[INFO] fmt_err delta over 55 malformed PDUs: 55
+[PASS] UNSUPPORTED_FORMAT counts once per interval (one reject per 2 intervals) got=1 exp=1
+[FAIL] continued malformed traffic never re-locks got=1 exp=0
+[FAIL] continued malformed traffic never recounts unlock got=0 exp=1
+drought probe: 4 failures
+== p2_refresh rc=1
+script rc=0

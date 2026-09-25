@@ -1,0 +1,308 @@
+[
+ {
+  "name": "clean",
+  "intent": "positive control: unmodified head",
+  "unit": {
+   "rc": 0,
+   "fail_lines": [],
+   "n_fail_lines": 0,
+   "summary": [
+    "KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)"
+   ]
+  },
+  "disc": {
+   "rc": 0,
+   "fail_lines": [],
+   "n_fail_lines": 0,
+   "summary": [
+    "== crf_rx discontinuity: checks: 1932   failures: 0 =="
+   ]
+  },
+  "verdict": "CONTROL_PASS"
+ },
+ {
+  "name": "P1_error_unlocks_and_counts",
+  "intent": "validation error unlocks and scores MEDIA_UNLOCKED",
+  "unit": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] pdu#895   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#895   cnt_unlocked_o                         got=2 exp=1",
+    "[FAIL] pdu#896   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#896   cnt_unlocked_o                         got=2 exp=1",
+    "[FAIL] pdu#897   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#897   cnt_unlocked_o                         got=2 exp=1",
+    "[FAIL] pdu#898   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#898   cnt_unlocked_o                         got=2 exp=1",
+    "[FAIL] pdu#899   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#899   cnt_unlocked_o                         got=2 exp=1",
+    "[FAIL] pdu#900   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#900   cnt_unlocked_o                         got=2 exp=1"
+   ],
+   "n_fail_lines": 120,
+   "summary": [
+    "KL_crf_rx: 13836 checks, 120 failures (1053 accepted PDUs pinned)"
+   ]
+  },
+  "disc": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] validation error preserves established lock",
+    "[FAIL] validation error retains lock through interval commit",
+    "[FAIL] validation error adds no unlock event    got=1 exp=0",
+    "[FAIL] valid resume keeps the established lock",
+    "[FAIL] silence shorter than 100 ms retains lock",
+    "[FAIL] silence before timeout adds no unlock    got=1 exp=0"
+   ],
+   "n_fail_lines": 6,
+   "summary": [
+    "== crf_rx discontinuity: checks: 1932   failures: 6 =="
+   ]
+  },
+  "verdict": "DETECTED"
+ },
+ {
+  "name": "P2_error_refreshes_timeout",
+  "intent": "validation error refreshes the 100 ms timeout (doc: does not)",
+  "unit": {
+   "rc": 0,
+   "fail_lines": [],
+   "n_fail_lines": 0,
+   "summary": [
+    "KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)"
+   ]
+  },
+  "disc": {
+   "rc": 0,
+   "fail_lines": [],
+   "n_fail_lines": 0,
+   "summary": [
+    "== crf_rx discontinuity: checks: 1932   failures: 0 =="
+   ]
+  },
+  "verdict": "SURVIVED"
+ },
+ {
+  "name": "P3_error_keeps_settling",
+  "intent": "validation error no longer breaks settling (doc: breaks settling)",
+  "unit": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] pdu#1032  locked_o                               got=1 exp=0",
+    "[FAIL] pdu#1032  cnt_locked_o                           got=1 exp=0",
+    "[FAIL] pdu#1033  locked_o                               got=1 exp=0",
+    "[FAIL] pdu#1033  cnt_locked_o                           got=1 exp=0"
+   ],
+   "n_fail_lines": 4,
+   "summary": [
+    "KL_crf_rx: 13836 checks, 4 failures (1053 accepted PDUs pinned)"
+   ]
+  },
+  "disc": {
+   "rc": 0,
+   "fail_lines": [],
+   "n_fail_lines": 0,
+   "summary": [
+    "== crf_rx discontinuity: checks: 1932   failures: 0 =="
+   ]
+  },
+  "verdict": "DETECTED"
+ },
+ {
+  "name": "P4_error_counts_frames_rx",
+  "intent": "validation error also commits FRAMES_RX",
+  "unit": {
+   "rc": 0,
+   "fail_lines": [],
+   "n_fail_lines": 0,
+   "summary": [
+    "KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)"
+   ]
+  },
+  "disc": {
+   "rc": 0,
+   "fail_lines": [],
+   "n_fail_lines": 0,
+   "summary": [
+    "== crf_rx discontinuity: checks: 1932   failures: 0 =="
+   ]
+  },
+  "verdict": "SURVIVED"
+ },
+ {
+  "name": "P5_error_unlocks_at_commit",
+  "intent": "lock dropped at the UNSUPPORTED_FORMAT interval commit",
+  "unit": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] pdu#895   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#896   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#897   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#898   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#899   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#900   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#901   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#902   cnt_locked_o                           got=3 exp=2",
+    "[FAIL] pdu#903   cnt_locked_o                           got=3 exp=2",
+    "[FAIL] pdu#904   cnt_locked_o                           got=3 exp=2",
+    "[FAIL] pdu#905   cnt_locked_o                           got=3 exp=2",
+    "[FAIL] pdu#906   cnt_locked_o                           got=3 exp=2"
+   ],
+   "n_fail_lines": 65,
+   "summary": [
+    "KL_crf_rx: 13836 checks, 65 failures (1053 accepted PDUs pinned)"
+   ]
+  },
+  "disc": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] validation error retains lock through interval commit",
+    "[FAIL] valid resume keeps the established lock",
+    "[FAIL] silence shorter than 100 ms retains lock",
+    "[FAIL] 100 ms silence counts one unlock         got=0 exp=1",
+    "[FAIL] continued silence never recounts the unlock got=0 exp=1"
+   ],
+   "n_fail_lines": 5,
+   "summary": [
+    "== crf_rx discontinuity: checks: 1932   failures: 5 =="
+   ]
+  },
+  "verdict": "DETECTED"
+ },
+ {
+  "name": "P6_timeout_long",
+  "intent": "timeout 50 cycles (250 us at 200 kHz) late",
+  "unit": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] pdu#1021  locked_o                               got=1 exp=0",
+    "[FAIL] pdu#1021  cnt_unlocked_o                         got=0 exp=1",
+    "[FAIL] [H2a-d2] the resuming PDU re-seeds, it does not restart got=1 exp=0",
+    "[FAIL] pdu#1022  locked_o                               got=1 exp=0",
+    "[FAIL] pdu#1022  cnt_unlocked_o                         got=0 exp=1",
+    "[FAIL] [H2a-d3] ... and the one after it is quiet as well got=1 exp=0",
+    "[FAIL] pdu#1023  locked_o                               got=1 exp=0",
+    "[FAIL] pdu#1023  cnt_unlocked_o                         got=0 exp=1",
+    "[FAIL] [H2a-d4] the re-seeded era still reports a real toggle got=2 exp=1"
+   ],
+   "n_fail_lines": 9,
+   "summary": [
+    "KL_crf_rx: 13836 checks, 9 failures (1053 accepted PDUs pinned)"
+   ]
+  },
+  "disc": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] silence invalidates the old rate",
+    "[FAIL] 100 ms silence still unlocks after validation error",
+    "[FAIL] 100 ms silence counts one unlock         got=0 exp=1"
+   ],
+   "n_fail_lines": 3,
+   "summary": [
+    "== crf_rx discontinuity: checks: 1932   failures: 3 =="
+   ]
+  },
+  "verdict": "DETECTED"
+ },
+ {
+  "name": "P7_timeout_short",
+  "intent": "timeout 50 cycles early",
+  "unit": {
+   "rc": 0,
+   "fail_lines": [],
+   "n_fail_lines": 0,
+   "summary": [
+    "KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)"
+   ]
+  },
+  "disc": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] silence shorter than 100 ms retains lock",
+    "[FAIL] silence before timeout adds no unlock    got=1 exp=0"
+   ],
+   "n_fail_lines": 2,
+   "summary": [
+    "== crf_rx discontinuity: checks: 1932   failures: 2 =="
+   ]
+  },
+  "verdict": "DETECTED"
+ },
+ {
+  "name": "P8_error_counts_per_pdu",
+  "intent": "UNSUPPORTED_FORMAT interval commit removed (never counts)",
+  "unit": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] 5 malformed: ONE interval tick, not 5          got=0 exp=1",
+    "[FAIL] pdu#1     fmt_err_o                              got=0 exp=1",
+    "[FAIL] pdu#2     fmt_err_o                              got=0 exp=1",
+    "[FAIL] pdu#3     fmt_err_o                              got=0 exp=1",
+    "[FAIL] pdu#4     fmt_err_o                              got=0 exp=1",
+    "[FAIL] pdu#5     fmt_err_o                              got=0 exp=1",
+    "[FAIL] pdu#6     fmt_err_o                              got=0 exp=1",
+    "[FAIL] pdu#7     fmt_err_o                              got=0 exp=1",
+    "[FAIL] pdu#8     fmt_err_o                              got=0 exp=1",
+    "[FAIL] pdu#9     fmt_err_o                              got=0 exp=1",
+    "[FAIL] pdu#10    fmt_err_o                              got=0 exp=1",
+    "[FAIL] pdu#11    fmt_err_o                              got=0 exp=1"
+   ],
+   "n_fail_lines": 987,
+   "summary": [
+    "KL_crf_rx: 13836 checks, 987 failures (1053 accepted PDUs pinned)"
+   ]
+  },
+  "disc": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] locked validation error counts UNSUPPORTED_FORMAT once got=0 exp=1",
+    "[FAIL] empty interval never recounts the validation error got=0 exp=1"
+   ],
+   "n_fail_lines": 2,
+   "summary": [
+    "== crf_rx discontinuity: checks: 1932   failures: 2 =="
+   ]
+  },
+  "verdict": "DETECTED"
+ },
+ {
+  "name": "P9_error_unlock_delayed",
+  "intent": "helper for P9 (paired edit below)",
+  "unit": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] pdu#895   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#896   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#897   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#898   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#899   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#900   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#901   locked_o                               got=0 exp=1",
+    "[FAIL] pdu#902   cnt_locked_o                           got=3 exp=2",
+    "[FAIL] pdu#903   cnt_locked_o                           got=3 exp=2",
+    "[FAIL] pdu#904   cnt_locked_o                           got=3 exp=2",
+    "[FAIL] pdu#905   cnt_locked_o                           got=3 exp=2",
+    "[FAIL] pdu#906   cnt_locked_o                           got=3 exp=2"
+   ],
+   "n_fail_lines": 66,
+   "summary": [
+    "KL_crf_rx: 13836 checks, 66 failures (1053 accepted PDUs pinned)"
+   ]
+  },
+  "disc": {
+   "rc": 2,
+   "fail_lines": [
+    "[FAIL] validation error retains lock through interval commit",
+    "[FAIL] valid resume keeps the established lock",
+    "[FAIL] silence shorter than 100 ms retains lock",
+    "[FAIL] 100 ms silence counts one unlock         got=0 exp=1",
+    "[FAIL] continued silence never recounts the unlock got=0 exp=1"
+   ],
+   "n_fail_lines": 5,
+   "summary": [
+    "== crf_rx discontinuity: checks: 1932   failures: 5 =="
+   ]
+  },
+  "verdict": "DETECTED"
+ }
+]
