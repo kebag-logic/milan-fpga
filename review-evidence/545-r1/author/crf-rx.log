@@ -1,0 +1,1984 @@
+make: Entering directory '$LANES/545-crf-servo-slew/tb/verilator/crf_rx'
+$VALIDATION_TOOLS/verilator-v5.050/bin/verilator --cc --exe --build -j 0 --top-module KL_crf_rx --public-flat-rw -GCLK_FREQ_HZ_P=200000 -GIVAL_CYC_P=200 -GMAXTT_NS_P=2000000 -GEARLY_MARGIN_NS_P=10000000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra" ../../../hdl/ieee1722/crf/KL_crf_rx.sv sim_main.cpp -o Vcrf_rx_sim
+make[1]: Entering directory '$LANES/545-crf-servo-slew/tb/verilator/crf_rx/obj_dir'
+g++  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra   -c -o verilated.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra   -c -o verilated_dpi.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra   -c -o verilated_threads.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated_threads.cpp
+python3 $VALIDATION_TOOLS/verilator-v5.050/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_crf_rx.cpp VKL_crf_rx___024root__0.cpp VKL_crf_rx__Dpi.cpp VKL_crf_rx___024root__Slow.cpp VKL_crf_rx___024root__0__Slow.cpp VKL_crf_rx__Syms__Slow.cpp > VKL_crf_rx__ALL.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra   -c -o VKL_crf_rx__ALL.o VKL_crf_rx__ALL.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o VKL_crf_rx__ALL.a    -pthread -lpthread -latomic   -o Vcrf_rx_sim
+rm VKL_crf_rx__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$LANES/545-crf-servo-slew/tb/verilator/crf_rx/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.051 MB sources in 2 modules, into 0.122 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 5.036 s (elab=0.001, cvt=0.010, bld=5.016); cpu 0.022 s on 8 threads; allocated 61.582 MB
+======================================================================
+./obj_dir/Vcrf_rx_sim
+[crf_rx] reset + selection gating
+  [PASS] reset: delta 0                                 got=0 exp=0
+  [PASS] reset: rate 0                                  got=0 exp=0
+  [PASS] reset: unlocked                                got=0 exp=0
+  [PASS] disabled: pdu_count 0                          got=0 exp=0
+  [PASS] foreign frames: pdu_count 0                    got=0 exp=0
+  [PASS] foreign frames: fmt_err 0                      got=0 exp=0
+[crf_rx] format validation (Milan 7.3.2 profile)
+  [PASS] 5 malformed: no commit before the tick         got=0 exp=0
+  [PASS] 5 malformed: ONE interval tick, not 5          got=1 exp=1
+  [PASS] 5 malformed: pdu_count still 0                 got=0 exp=0
+  [PASS] 5 malformed: unlocked                          got=0 exp=0
+[crf_rx] +100 ppm trajectory (300 PDUs, per-PDU pinned)
+  [PASS] lock latched                                   got=1 exp=1
+  [PASS] cnt_locked 1                                   got=1 exp=1
+  [PASS] rate first nonzero on PDU 257 (ring full)      got=257 exp=257
+  [PASS] rate == +100 ppm exactly (51200 ns/512 ms)     got=51200 exp=51200
+  [PASS] FRAMES_RX == replica interval count            got=7 exp=7
+  [PASS] 300 PDUs commit as intervals, NOT frames       got=1 exp=1
+[crf_rx] -50 ppm slope change (300 PDUs, ramp pinned)
+  [info] rate_o update skew after pulse edge: 1 cycle(s)
+  [PASS] rate update skew <= 2 cycles                   got=1 exp=1
+  [PASS] rate == -50 ppm exactly (-25600 ns/512 ms)     got=-25600 exp=-25600
+[crf_rx] sequence discontinuity
+  [PASS] seq skip: still locked                         got=1 exp=1
+  [PASS] seq skip: ONE interval tick                    got=1 exp=1
+  [PASS] clean resume: no extra lock event              got=1 exp=1
+  [PASS] clean resume: seq_err holds at 1               got=1 exp=1
+[crf_rx] 100 ms silence -> unlock -> refill
+  [PASS] silence: unlocked                              got=0 exp=0
+  [PASS] silence: cnt_unlocked 1                        got=1 exp=1
+  [PASS] silence: rate holds last value                 got=-25600 exp=-25600
+  [PASS] silence: empty intervals do NOT tick FRAMES_RX got=17 exp=17
+  [PASS] re-lock: cnt_locked 2                          got=2 exp=2
+  [PASS] refill: rate frozen for 256 PDUs, moves on 257 got=257 exp=257
+  [PASS] refill: rate == +100 ppm again                 got=51200 exp=51200
+[crf_rx] Milan Table 5.6 interval semantics (burst -> ONE tick)
+  [PASS] burst of 10 accepted: no commit before the tick got=25 exp=25
+  [PASS] burst of 10 accepted: FRAMES_RX +1, not +10    got=26 exp=26
+  [PASS] 3 discontinuities: SEQ_NUM_MISMATCH +1         got=2 exp=2
+  [PASS] 2 rejects: UNSUPPORTED_FORMAT +1               got=2 exp=2
+  [PASS] same interval's accepted PDUs: FRAMES_RX +1    got=27 exp=27
+
+[AVTP-5t] the five formerly-constant Table 5.16 counters
+  [PASS] [5t-a1] clean stream: MEDIA_RESET still        got=0 exp=0
+  [PASS] [5t-a2] clean stream: TIMESTAMP_UNCERTAIN still got=0 exp=0
+  [PASS] [5t-a3] clean stream: LATE_TIMESTAMP still     got=0 exp=0
+  [PASS] [5t-a4] clean stream: EARLY_TIMESTAMP still    got=0 exp=0
+  [PASS] [5t-a5] clean stream: STREAM_INTERRUPTED still got=3 exp=3
+  [PASS] [5t-a6] and none of them is stuck at the old constant 0 got=1 exp=1
+  [PASS] [5t-b1] mr toggle: uncommitted before the tick got=0 exp=0
+  [PASS] [5t-b2] one toggle + 8 held PDUs: MEDIA_RESET +1, not +9 got=1 exp=1
+  [PASS] [5t-b3] a HELD mr counts nothing at all        got=1 exp=1
+  [PASS] [5t-b4] two toggles in one interval: +1, not +2 got=2 exp=2
+  [PASS] [5t-b5] rejected PDU: MEDIA_RESET untouched    got=2 exp=2
+  [PASS] [5t-b6] rejected PDU: UNSUPPORTED_FORMAT +1 (and only it) got=3 exp=3
+  [PASS] [5t-b7] rejected PDU: TIMESTAMP_UNCERTAIN untouched got=0 exp=0
+  [PASS] [5t-b8] rejected PDU: LATE_TIMESTAMP untouched got=0 exp=0
+  [PASS] [5t-b9] rejected PDU: EARLY_TIMESTAMP untouched got=0 exp=0
+  [PASS] [5t-b10] the two rejects fold to ONE UNSUPPORTED_FORMAT got=4 exp=4
+  [PASS] [5t-c1] tu burst: uncommitted before the tick  got=0 exp=0
+  [PASS] [5t-c2] 7 tu PDUs in one interval: +1, not +7  got=1 exp=1
+  [PASS] [5t-c3] a second tu interval: +1 more          got=2 exp=2
+  [PASS] [5t-c4] tu clear: TIMESTAMP_UNCERTAIN stops    got=2 exp=2
+  [PASS] [5t-d1] LATE uncommitted before the tick       got=0 exp=0
+  [PASS] [5t-d2] 5 late PDUs in one interval: LATE +1   got=1 exp=1
+  [PASS] [5t-d3] EARLY untouched by LATE PDUs           got=0 exp=0
+  [PASS] [5t-d4] LATE +2 across two more intervals      got=3 exp=3
+  [PASS] [5t-d5] 4 early PDUs in one interval: EARLY +1 got=1 exp=1
+  [PASS] [5t-d6] LATE untouched by EARLY PDUs           got=3 exp=3
+  [PASS] [5t-d7] delta == the limit is NOT early        got=1 exp=1
+  [PASS] [5t-d7b] delta == 0 is NOT late                got=3 exp=3
+  [PASS] [5t-d8] on-time PDUs move neither              got=1 exp=1
+  [PASS] [5t-e1] 1 lost AVTPDU: STREAM_INTERRUPTED unmoved got=3 exp=3
+  [PASS] [5t-e2] 3 gaps in ONE interval: +3 immediately (per-event) got=6 exp=6
+  [PASS] [5t-e3] the interval tick adds nothing to it   got=6 exp=6
+  [PASS] [5t-e4] the same 4 gaps fold to ONE SEQ_NUM_MISMATCH got=3 exp=3
+  [PASS] [5t-f1] unbound: STREAM_INTERRUPTED cannot move got=6 exp=6
+  [PASS] [5t-f2] rebind re-seeds mr: no phantom MEDIA_RESET got=0 exp=0
+  [PASS] [5t-f3] the unbind's own sequence jump is not an interruption got=0 exp=0
+  [PASS] [5t-f4] and the new era IS counting (FRAMES_RX moved off 0) got=1 exp=1
+
+[5t-g] Milan 5.3.8.10 era wipe (not bound -> bound)
+  [PASS] [5t-g1] pre-unbind MEDIA_LOCKED is NON-ZERO    got=1 exp=1
+  [PASS] [5t-g1] pre-unbind MEDIA_UNLOCKED is NON-ZERO  got=1 exp=1
+  [PASS] [5t-g1] pre-unbind STREAM_INTERRUPTED is NON-ZERO got=1 exp=1
+  [PASS] [5t-g1] pre-unbind SEQ_NUM_MISMATCH is NON-ZERO got=1 exp=1
+  [PASS] [5t-g1] pre-unbind MEDIA_RESET is NON-ZERO     got=1 exp=1
+  [PASS] [5t-g1] pre-unbind TIMESTAMP_UNCERTAIN is NON-ZERO got=1 exp=1
+  [PASS] [5t-g1] pre-unbind UNSUPPORTED_FORMAT is NON-ZERO got=1 exp=1
+  [PASS] [5t-g1] pre-unbind LATE_TIMESTAMP is NON-ZERO  got=1 exp=1
+  [PASS] [5t-g1] pre-unbind EARLY_TIMESTAMP is NON-ZERO got=1 exp=1
+  [PASS] [5t-g1] pre-unbind FRAMES_RX is NON-ZERO       got=1 exp=1
+  [PASS] [5t-g2] bound+locked: MEDIA_LOCKED == MEDIA_UNLOCKED + 1 got=2 exp=2
+  [PASS] [5t-g3] unbind must NOT reset MEDIA_LOCKED     got=2 exp=2
+  [PASS] [5t-g3] unbind must NOT reset MEDIA_UNLOCKED   got=1 exp=1
+  [PASS] [5t-g3] unbind must NOT reset STREAM_INTERRUPTED got=1 exp=1
+  [PASS] [5t-g3] unbind must NOT reset SEQ_NUM_MISMATCH got=1 exp=1
+  [PASS] [5t-g3] unbind must NOT reset MEDIA_RESET      got=1 exp=1
+  [PASS] [5t-g3] unbind must NOT reset TIMESTAMP_UNCERTAIN got=1 exp=1
+  [PASS] [5t-g3] unbind must NOT reset UNSUPPORTED_FORMAT got=1 exp=1
+  [PASS] [5t-g3] unbind must NOT reset LATE_TIMESTAMP   got=1 exp=1
+  [PASS] [5t-g3] unbind must NOT reset EARLY_TIMESTAMP  got=1 exp=1
+  [PASS] [5t-g3] unbind must NOT reset FRAMES_RX        got=4 exp=4
+  [PASS] [5t-g4] bind edge zeroes MEDIA_LOCKED          got=0 exp=0
+  [PASS] [5t-g4] bind edge zeroes MEDIA_UNLOCKED        got=0 exp=0
+  [PASS] [5t-g4] bind edge zeroes STREAM_INTERRUPTED    got=0 exp=0
+  [PASS] [5t-g4] bind edge zeroes SEQ_NUM_MISMATCH      got=0 exp=0
+  [PASS] [5t-g4] bind edge zeroes MEDIA_RESET           got=0 exp=0
+  [PASS] [5t-g4] bind edge zeroes TIMESTAMP_UNCERTAIN   got=0 exp=0
+  [PASS] [5t-g4] bind edge zeroes UNSUPPORTED_FORMAT    got=0 exp=0
+  [PASS] [5t-g4] bind edge zeroes LATE_TIMESTAMP        got=0 exp=0
+  [PASS] [5t-g4] bind edge zeroes EARLY_TIMESTAMP       got=0 exp=0
+  [PASS] [5t-g4] bind edge zeroes FRAMES_RX             got=0 exp=0
+  [PASS] [5t-g5] bind edge drops locked_o with the pair got=0 exp=0
+  [PASS] [5t-g6] the drop scores NO unlock (LOCKED == UNLOCKED == 0) got=1 exp=1
+  [PASS] [5t-g7] new era re-locks from zero: MEDIA_LOCKED 1 got=1 exp=1
+  [PASS] [5t-g8] new era counts FRAMES_RX from zero     got=1 exp=1
+  [PASS] [5t-g9] tu flag raised, not yet committed      got=0 exp=0
+  [PASS] [5t-g10] a pre-bind interval flag cannot commit after the wipe got=0 exp=0
+
+[dirty] gh #60 F2 push-source law
+  [PASS] [dirty-a1] the lock event pulses dirty once    got=1 exp=1
+  [PASS] [dirty-a2] healthy FRAMES_RX intervals NEVER pulse got=0 exp=0
+  [PASS] [dirty-b1] no pulse before the interval commit got=0 exp=0
+  [PASS] [dirty-b2] the TU interval commit pulses dirty got=1 exp=1
+  [PASS] [dirty-c1] the SI event pulses immediately     got=1 exp=1
+  [PASS] [dirty-c2] its SM interval commit pulses too   got=1 exp=1
+  [PASS] [dirty-d1] the silence unlock pulses dirty     got=1 exp=1
+  [PASS] [dirty-e1] the bind-rise wipe pulses dirty     got=1 exp=1
+
+[H2a] mr_toggle_p_o: the 10.4.3 restart echo (gh #62)
+  [PASS] [H2a-a1] era-first PDU SEEDS, never pulses     got=0 exp=0
+  [PASS] [H2a-a2] a HELD mr level never pulses          got=0 exp=0
+  [PASS] [H2a-b1] an accepted toggle pulses ONCE        got=1 exp=1
+  [PASS] [H2a-b2] ... and the pulse is one cycle wide   got=0 exp=0
+  [PASS] [H2a-b3] the 8-PDU hold that follows adds nothing got=1 exp=1
+  [PASS] [H2a-b4] the return toggle pulses once too     got=1 exp=1
+  [PASS] [H2a-c1] a format-rejected flip NEVER pulses   got=0 exp=0
+  [PASS] [H2a-c2] ... and did not move the reference either got=0 exp=0
+  [PASS] [H2a-d1] the silence itself pulses nothing     got=0 exp=0
+  [PASS] [H2a-d2] the resuming PDU re-seeds, it does not restart got=0 exp=0
+  [PASS] [H2a-d3] ... and the one after it is quiet as well got=0 exp=0
+  [PASS] [H2a-d4] the re-seeded era still reports a real toggle got=1 exp=1
+  [PASS] [H2a-e1] the bind edge itself pulses nothing   got=0 exp=0
+  [PASS] [H2a-e2] the new era's first PDU seeds silently got=0 exp=0
+  [PASS] [H2a-f1] a FOREIGN stream's mr flip never pulses got=0 exp=0
+
+[G1] 32-bit wrap backing + 0x74C truncated-slice ABI
+  [PASS] [G1-a0] preload holds through a quiet cycle    got=65534 exp=65534
+  [PASS] [G1-a1] FRAMES_RX backing reads 65536 (0x00010000 on the wire) got=65536 exp=65536
+  [PASS] [G1-a2] the 0x74C pdu[15:0] slice truncates to 0 (documented) got=0 exp=0
+  [PASS] [G1-b1] 254 + 1 = 255 (still counting)         got=255 exp=255
+  [PASS] [G1-b2] UNSUPPORTED_FORMAT passes 255 - peg dropped (256) got=256 exp=256
+  [PASS] [G1-b3] the 0x74C fmt[7:0] slice truncates to 0 (documented) got=0 exp=0
+
+[STOP] stopped sink: observation ungated, consumption gated
+  [PASS] [ST-a0] precondition: locked while started     got=1 exp=1
+  [PASS] [ST-a1] the lock holds before the timeout expires got=1 exp=1
+  [PASS] [ST-b1] the stopped toggle never reaches mr_toggle_p_o got=0 exp=0
+  [PASS] [ST-c1] the lock timed out under live, observed traffic got=0 exp=0
+  [PASS] [ST-c2] ...scored as one ordinary unlock       got=1 exp=1
+  [PASS] [ST-c3] no phantom STREAM_INTERRUPTED: the cursor survived got=0 exp=0
+  [PASS] [ST-d0] restart is not a bind edge: FRAMES_RX kept its value got=65548 exp=65548
+  [PASS] [ST-d1] the started sink re-earns the lock through settle got=1 exp=1
+  [PASS] [ST-d2] relock scored one MEDIA_LOCKED event   got=2 exp=2
+  [PASS] [ST-d3] no phantom restart echo on START: the mr reference survived the stopped era got=0 exp=0
+======================================================================
+KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)
+$VALIDATION_TOOLS/verilator-v5.050/bin/verilator --cc --exe --build -j 0 --top-module KL_crf_rx --public-flat-rw -GCLK_FREQ_HZ_P=200000 -GIVAL_CYC_P=200 -GMAXTT_NS_P=2000000 -GEARLY_MARGIN_NS_P=10000000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra" -Mdir obj_discontinuity ../../../hdl/ieee1722/crf/KL_crf_rx.sv sim_discontinuity.cpp -o Vdiscontinuity
+make[1]: Entering directory '$LANES/545-crf-servo-slew/tb/verilator/crf_rx/obj_discontinuity'
+g++  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra   -Os  -c -o sim_discontinuity.o ../sim_discontinuity.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra   -c -o verilated.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra   -c -o verilated_dpi.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra   -c -o verilated_threads.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated_threads.cpp
+python3 $VALIDATION_TOOLS/verilator-v5.050/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_crf_rx.cpp VKL_crf_rx___024root__0.cpp VKL_crf_rx__Dpi.cpp VKL_crf_rx___024root__Slow.cpp VKL_crf_rx___024root__0__Slow.cpp VKL_crf_rx__Syms__Slow.cpp > VKL_crf_rx__ALL.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra   -c -o VKL_crf_rx__ALL.o VKL_crf_rx__ALL.cpp
+g++    sim_discontinuity.o verilated.o verilated_dpi.o verilated_threads.o VKL_crf_rx__ALL.a    -pthread -lpthread -latomic   -o Vdiscontinuity
+rm VKL_crf_rx__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$LANES/545-crf-servo-slew/tb/verilator/crf_rx/obj_discontinuity'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.051 MB sources in 2 modules, into 0.122 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 5.234 s (elab=0.001, cvt=0.009, bld=5.217); cpu 0.020 s on 8 threads; allocated 61.582 MB
+./obj_discontinuity/Vdiscontinuity
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] 257th timestamp publishes a valid sample
+  [ ok ] rate equals 256 source intervals minus nominal
+  [ ok ] tu edge invalidates before the sampling edge
+  [ ok ] tu edge holds the published rate
+  [ ok ] tu edge leaves receiver locked
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] tu edges never count a media unlock      got=0 exp=0
+  [ ok ] tu edge invalidates before the sampling edge
+  [ ok ] tu edge holds the published rate
+  [ ok ] tu edge leaves receiver locked
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] tu edges never count a media unlock      got=0 exp=0
+  [ ok ] unmarked timestamp jump invalidates the rate
+  [ ok ] unmarked timestamp jump cannot publish
+  [ ok ] unmarked timestamp jump preserves receiver lock
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] unmarked timestamp jump invalidates the rate
+  [ ok ] unmarked timestamp jump cannot publish
+  [ ok ] unmarked timestamp jump preserves receiver lock
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] unmarked timestamp jump invalidates the rate
+  [ ok ] unmarked timestamp jump cannot publish
+  [ ok ] unmarked timestamp jump preserves receiver lock
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] unmarked timestamp jump invalidates the rate
+  [ ok ] unmarked timestamp jump cannot publish
+  [ ok ] unmarked timestamp jump preserves receiver lock
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] unmarked timestamp jump invalidates the rate
+  [ ok ] unmarked timestamp jump cannot publish
+  [ ok ] unmarked timestamp jump preserves receiver lock
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] unmarked timestamp jump invalidates the rate
+  [ ok ] unmarked timestamp jump cannot publish
+  [ ok ] unmarked timestamp jump preserves receiver lock
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] unmarked timestamp jump invalidates the rate
+  [ ok ] unmarked timestamp jump cannot publish
+  [ ok ] unmarked timestamp jump preserves receiver lock
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] unmarked timestamp jump invalidates the rate
+  [ ok ] unmarked timestamp jump cannot publish
+  [ ok ] unmarked timestamp jump preserves receiver lock
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] unmarked timestamp jump invalidates the rate
+  [ ok ] unmarked timestamp jump cannot publish
+  [ ok ] unmarked timestamp jump preserves receiver lock
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] unmarked timestamp jump invalidates the rate
+  [ ok ] unmarked timestamp jump cannot publish
+  [ ok ] unmarked timestamp jump preserves receiver lock
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] 257th timestamp publishes a valid sample
+  [ ok ] rate equals 256 source intervals minus nominal
+  [ ok ] 2048 ns boundary remains valid
+  [ ok ] 2048 ns boundary remains valid
+  [ ok ] 2049 ns boundary is rejected
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] 2049 ns boundary is rejected
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] combined legitimate rate extremes are never rejected
+  [ ok ] legitimate rate changes still propagate
+  [ ok ] combined legitimate rate extremes are never rejected
+  [ ok ] legitimate rate changes still propagate
+  [ ok ] malformed marker cannot invalidate
+  [ ok ] foreign marker cannot invalidate
+  [ ok ] rejected frames cannot change rate       got=153856 exp=153856
+  [ ok ] rejected marker never seeds the reference
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] 257th timestamp publishes a valid sample
+  [ ok ] rate equals 256 source intervals minus nominal
+  [ ok ] back-to-back marker cancels pending publication
+  [ ok ] back-to-back marker leaves invalid history
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] lost PDU cannot poison a 256-PDU rate
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] duplicate PDU restarts the rate history
+  [ ok ] all 255 crossing intervals are withheld
+  [ ok ] exactly 256 new intervals restore validity
+  [ ok ] first clean rate excludes the phase jump
+  [ ok ] STOP gates sample validity immediately
+  [ ok ] silence invalidates the old rate
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] 257th timestamp publishes a valid sample
+  [ ok ] rate equals 256 source intervals minus nominal
+  [ ok ] rebind invalidates old history
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] 257th timestamp publishes a valid sample
+  [ ok ] rate equals 256 source intervals minus nominal
+  [ ok ] reset invalidates history
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] initial history stays invalid for 256 timestamps
+  [ ok ] 257th timestamp publishes a valid sample
+  [ ok ] rate equals 256 source intervals minus nominal
+  [ ok ] natural 64-bit rollover preserves clean spacing
+== crf_rx discontinuity: checks: 1658   failures: 0 ==
+RESULT: PASS
+$VALIDATION_TOOLS/verilator-v5.050/bin/verilator --cc --exe --build -j 4 --public-flat-rw \
+  --top-module crf_talker_wrap -Mdir obj_talker \
+  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
+  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
+  ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv \
+  ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv crf_talker_wrap.sv \
+  sim_talker_step.cpp -o Vtalker_step
+make[1]: Entering directory '$LANES/545-crf-servo-slew/tb/verilator/crf_rx/obj_talker'
+g++  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_talker_step.o ../sim_talker_step.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o $VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/verilated_threads.cpp
+python3 $VALIDATION_TOOLS/verilator-v5.050/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vcrf_talker_wrap.cpp Vcrf_talker_wrap___024root__0.cpp Vcrf_talker_wrap__Dpi.cpp Vcrf_talker_wrap___024root__Slow.cpp Vcrf_talker_wrap___024root__0__Slow.cpp Vcrf_talker_wrap__Syms__Slow.cpp > Vcrf_talker_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include -I$VALIDATION_TOOLS/verilator-v5.050/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vcrf_talker_wrap__ALL.o Vcrf_talker_wrap__ALL.cpp
+g++    sim_talker_step.o verilated.o verilated_dpi.o verilated_threads.o Vcrf_talker_wrap__ALL.a    -pthread -lpthread -latomic   -o Vtalker_step
+rm Vcrf_talker_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$LANES/545-crf-servo-slew/tb/verilator/crf_rx/obj_talker'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.274 MB sources in 6 modules, into 0.302 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 5.023 s (elab=0.004, cvt=0.020, bld=4.988); cpu 0.039 s on 4 threads; allocated 52.570 MB
+./obj_talker/Vtalker_step
+  [ ok ] receiver-to-servo loop locks at production scale
+  [ ok ] steady receiver rate is valid
+  [ ok ] steady rate matches the source interval sum
+steady integrator 30.723 ppm
+  [ ok ] quiet: post-edge artifact was exercised
+  [ ok ] quiet: sampled validity never satisfies withhold check
+  [ ok ] quiet: no invalid servo boundaries       got=0 exp=0
+  [ ok ] quiet: servo stays LOCKED
+quiet: post-edge artifacts 550, sampled invalid 0
+  [ ok ] event alignment reaches a servo boundary
+scenario talker_only_pos: step 150000 ns, listener lag 0 ms
+  [ ok ] crossing history reaches a servo boundary
+  [ ok ] servo samples invalid history at a boundary
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=0 exp=0
+talker_only_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+  [ ok ] event alignment reaches a servo boundary
+scenario talker_only_neg: step -150000 ns, listener lag 0 ms
+  [ ok ] crossing history reaches a servo boundary
+  [ ok ] servo samples invalid history at a boundary
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=0 exp=0
+talker_only_neg: integrator range 30.703..30.723 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+  [ ok ] event alignment reaches a servo boundary
+scenario both_short_pos: step 150000 ns, listener lag 100 ms
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=1 exp=1
+both_short_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 0, invalid boundaries 1
+  [ ok ] event alignment reaches a servo boundary
+scenario both_short_neg: step -150000 ns, listener lag 100 ms
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=1 exp=1
+both_short_neg: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 0, invalid boundaries 0
+  [ ok ] event alignment reaches a servo boundary
+scenario both_long_pos: step 150000 ns, listener lag 600 ms
+  [ ok ] crossing history reaches a servo boundary
+  [ ok ] servo samples invalid history at a boundary
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=1 exp=1
+both_long_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+  [ ok ] event alignment reaches a servo boundary
+scenario both_long_neg: step -150000 ns, listener lag 600 ms
+  [ ok ] crossing history reaches a servo boundary
+  [ ok ] servo samples invalid history at a boundary
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC steps counted       got=1 exp=1
+both_long_neg: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+== crf_rx talker_step: checks: 69   failures: 0 ==
+RESULT: PASS
+python3 mutants.py
+[PASS] clean: rc=0
+[PASS] tu_ignored: rc=1
+  named rejection: tu edge invalidates before the sampling edge
+[PASS] jump_removed: rc=1
+  named rejection: unmarked timestamp jump invalidates the rate
+[PASS] refill_short: rc=1
+  named rejection: all 255 crossing intervals are withheld
+[PASS] accept_edge_late: rc=1
+  named rejection: tu edge invalidates before the sampling edge
+[PASS] servo_clean: rc=0
+[PASS] servo_ignores_valid: rc=1
+  named rejection: [U13] invalid remote sample holds trim
+[PASS] servo_never_resumes: rc=1
+  named rejection: [U13] valid offset resumes PI trim
+== crf_rx mutants: checks: 8   failures: 0 ==
+make: Leaving directory '$LANES/545-crf-servo-slew/tb/verilator/crf_rx'
