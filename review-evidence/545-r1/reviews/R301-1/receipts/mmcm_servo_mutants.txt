@@ -1,0 +1,15 @@
+python3 slew_mutants.py
+[PASS] clean: rc=0
+[PASS] discard_removed: rc=1
+  named rejection: [S1] overlapped window is discarded
+[PASS] level_tied_low: rc=1
+  named rejection: [S1] overlapped window is discarded
+[PASS] partial_tail_trusted: rc=1
+  named rejection: [S1] overlapped window is discarded
+[PASS] discard_not_counted: rc=1
+  named rejection: [S1] discards counted
+== mmcm_servo slew mutants: checks: 5   failures: 0 ==
+
+real	9m48.494s
+user	10m7.236s
+sys	0m1.830s
