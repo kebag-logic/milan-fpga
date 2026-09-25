@@ -1,0 +1,16 @@
+ CHANGELOG.md                                   |  35 ++---
+ docs/reference/EGRESS_QUEUE_MAP.md             |  57 ++++----
+ docs/reference/FR_NFR.md                       |  25 ++--
+ docs/reference/MILAN_COMPLIANCE_MATRIX.md      |   2 +-
+ docs/reference/REGISTER_MAP.md                 |  77 ++++++-----
+ docs/traceability/ieee8021q.md                 |  48 +++----
+ hdl/milan/KL_pp_shadow.sv                      |   8 +-
+ hdl/milan/milan_datapath.sv                    | 126 ++++++-----------
+ tb/verilator/milan_dp/Makefile                 |   6 +-
+ tb/verilator/milan_dp/README.md                |  82 +++++++++--
+ tb/verilator/milan_dp/crflic_mutants.py        |  24 +++-
+ tb/verilator/milan_dp/crflic_probes.vlt        |  10 ++
+ tb/verilator/milan_dp/sim_crf_licence.cpp      | 179 ++++++++++++++++++++++++-
+ tests/features/milan_streaming_licence.feature |  23 ++--
+ tests/steps/milan_streaming_licence_steps.py   |  22 +--
+ 15 files changed, 474 insertions(+), 250 deletions(-)
