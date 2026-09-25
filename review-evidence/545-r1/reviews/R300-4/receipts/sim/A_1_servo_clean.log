@@ -1,0 +1,4 @@
+$ (cd tb/verilator/mmcm_servo && taskset -c 0-3 make clean)
+verilator: $VALIDATION_TOOLS/verilator-v5.050/bin/verilator Verilator 5.050 2026-07-01 rev v5.050
+rm -rf obj_dir obj_rails obj_phc
+rc=0 elapsed_s=.092815884

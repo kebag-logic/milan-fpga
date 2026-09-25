@@ -1,0 +1,68 @@
+# dev-side content carried by the merge: per-file changed-line hash equality
+# (git diff 864b36f5 5c78ce2e) vs (git diff 4538d7c0 ddf8151c), and lane side (864b36f5..4538d7c0) vs (5c78ce2e..ddf8151c)
+dev-side SAME CHANGELOG.md
+dev-side SAME docs/AAF_LATENCY_TAPS.md
+dev-side SAME docs/design/TIME_SYNC.md
+dev-side SAME docs/reference/REGISTER_MAP.md
+dev-side SAME docs/reference/REGISTER_MAP_CLASSES.md
+dev-side SAME docs/testing/TESTING.md
+dev-side SAME hdl/common/csr/milan_csr.sv
+dev-side SAME hdl/ieee1722/aaf/KL_render_setpoint.sv
+dev-side SAME hdl/ieee1722/crf/KL_crf_rx.sv
+dev-side SAME hdl/milan/milan_datapath.sv
+dev-side SAME scripts/measure_test_evidence.py
+dev-side SAME tb/verilator/crf_rx/mutants.py
+dev-side SAME tb/verilator/crf_rx/sim_discontinuity.cpp
+dev-side SAME tb/verilator/csr/sim_main.cpp
+dev-side SAME tb/verilator/csr/sim_win.cpp
+dev-side SAME tb/verilator/milan_dp/Makefile
+dev-side SAME tb/verilator/milan_dp/README.md
+dev-side SAME tb/verilator/milan_dp/render_csr_controls.py
+dev-side SAME tb/verilator/milan_dp/sim_aclk.cpp
+dev-side SAME tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+lane-side SAME CHANGELOG.md
+lane-side SAME docs/design/GM_LOSS_RECOVERY.md
+lane-side SAME docs/design/GPTP_PLANE.md
+lane-side SAME docs/design/TIME_SYNC.md
+lane-side SAME docs/diagrams/PNG_MANIFEST.json
+lane-side SAME docs/diagrams/submodule_boundaries.drawio
+lane-side SAME docs/diagrams/submodule_boundaries.png
+lane-side SAME docs/diagrams/submodule_boundaries.svg
+lane-side SAME docs/diagrams/timesync_chain.drawio
+lane-side SAME docs/diagrams/timesync_chain.png
+lane-side SAME docs/diagrams/timesync_chain.svg
+lane-side SAME docs/guides/gptp/HDL_DEVELOPER.md
+lane-side SAME docs/guides/gptp/MANAGER.md
+lane-side SAME docs/guides/gptp/SYSTEM_INTEGRATOR.md
+lane-side SAME docs/guides/gptp/TEST_DEVELOPER.md
+lane-side SAME docs/reference/REGISTER_MAP.md
+lane-side SAME docs/reference/SUBMODULES.md
+lane-side SAME docs/testing/CI_WORKFLOWS.md
+lane-side SAME docs/testing/TESTING.md
+lane-side SAME docs/traceability/ieee8021as.md
+lane-side SAME gptp-processor
+lane-side SAME hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+lane-side SAME hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+lane-side SAME hdl/milan/milan_datapath.sv
+lane-side SAME scripts/measure_test_evidence.py
+lane-side SAME syn/yosys/rom_digests.tsv
+lane-side SAME tb/verilator/crf_rx/crf_talker_wrap.sv
+lane-side SAME tb/verilator/gptp_shadow/gptp_shadow_wrap.sv
+lane-side SAME tb/verilator/gptp_txts/gptp_txts_wrap.sv
+lane-side SAME tb/verilator/milan_dp/README.md
+lane-side SAME tb/verilator/milan_dp/gmstep_mutants.py
+lane-side SAME tb/verilator/milan_dp/sim_gmstep.cpp
+lane-side SAME tb/verilator/mmcm_servo/Makefile
+lane-side SAME tb/verilator/mmcm_servo/rails_wrap.sv
+lane-side SAME tb/verilator/mmcm_servo/sim_main.cpp
+lane-side SAME tb/verilator/mmcm_servo/sim_phc_step.cpp
+lane-side SAME tb/verilator/mmcm_servo/slew_mutants.py
+lane-side SAME tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp
+files touched by both sides:
+CHANGELOG.md
+docs/design/TIME_SYNC.md
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+hdl/milan/milan_datapath.sv
+scripts/measure_test_evidence.py
+tb/verilator/milan_dp/README.md
