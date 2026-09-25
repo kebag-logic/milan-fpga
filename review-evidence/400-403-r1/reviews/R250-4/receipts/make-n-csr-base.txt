@@ -1,0 +1,29 @@
+make: Entering directory '<TREE>/tb/verilator/csr'
+verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --top-module milan_csr ../../../hdl/common/csr/milan_csr.sv sim_main.cpp -o Vcsr_sim
+verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_100m --top-module milan_csr \
+  -GMILAN_CLK_FREQ_HZ_P=100000000 \
+  -CFLAGS "-DCSR_MILAN_CLK_HZ=100000000ULL -Wall -Wextra" \
+  ../../../hdl/common/csr/milan_csr.sv sim_main.cpp -o Vcsr_sim100
+verilator +incdir+../../../configs/generated/endstation_arty_4x4 --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_win --top-module milan_csr \
+  -GN_LISTENERS_P=4 -GN_TALKERS_P=4 -GCHMAP_RDBK_P=3 \
+  ../../../hdl/common/csr/milan_csr.sv sim_win.cpp -o Vcsr_win
+verilator +incdir+../../../configs/generated/endstation_ax7101_8x8 --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_gptp --top-module milan_csr \
+  -GGPTP_PLANE_EN_P=1 ../../../hdl/common/csr/milan_csr.sv sim_gptp.cpp -o Vcsr_gptp
+verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_pps --top-module milan_csr \
+  -GPPS_P=1 -GPPS_WIDTH_CYC_P=125000 \
+  -CFLAGS "-DCSR_PPS_P=1 -DCSR_PPS_WIDTH_CYC=125000u -Wall -Wextra" \
+  ../../../hdl/common/csr/milan_csr.sv sim_main.cpp -o Vcsr_pps
+echo "======================================================================"
+./obj_dir/Vcsr_sim
+./obj_100m/Vcsr_sim100
+./obj_win/Vcsr_win
+./obj_gptp/Vcsr_gptp
+./obj_pps/Vcsr_pps
+make reset-bits
+make[1]: Entering directory '<TREE>/tb/verilator/csr'
+python3 ../../common/gen_declaration_fixture.py fixtures/reset_bits.yaml obj_reset/fixture
+verilator +incdir+obj_reset/fixture --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_reset --top-module milan_csr \
+  -CFLAGS "-DCSR_SRP_RESET_BITS=3u -Wall -Wextra" ../../../hdl/common/csr/milan_csr.sv sim_main.cpp -o Vcsr_reset
+./obj_reset/Vcsr_reset
+make[1]: Leaving directory '<TREE>/tb/verilator/csr'
+make: Leaving directory '<TREE>/tb/verilator/csr'

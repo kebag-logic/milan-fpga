@@ -1,0 +1,124 @@
+{
+ "numeric": {
+  "accepted_base": true,
+  "accepted_head": true,
+  "files": 14,
+  "artifact_differences": [],
+  "srp_keys_only_in_base": [
+   "stream_dmac_alloc"
+  ],
+  "srp_keys_only_in_head": [],
+  "base_stream_dmac_alloc": "static",
+  "srp_common_values_equal": true,
+  "cfg_outside_srp_equal": true,
+  "pass": true
+ },
+ "maap_lower": {
+  "accepted_base": true,
+  "accepted_head": true,
+  "files": 14,
+  "artifact_differences": [],
+  "srp_keys_only_in_base": [
+   "stream_dmac_alloc"
+  ],
+  "srp_keys_only_in_head": [],
+  "base_stream_dmac_alloc": "maap",
+  "srp_common_values_equal": true,
+  "cfg_outside_srp_equal": true,
+  "pass": true
+ },
+ "maap_mixed_ws": {
+  "accepted_base": true,
+  "accepted_head": true,
+  "files": 14,
+  "artifact_differences": [],
+  "srp_keys_only_in_base": [
+   "stream_dmac_alloc"
+  ],
+  "srp_keys_only_in_head": [],
+  "base_stream_dmac_alloc": "maap",
+  "srp_common_values_equal": true,
+  "cfg_outside_srp_equal": true,
+  "pass": true
+ },
+ "rx_mac_filter_absent": {
+  "accepted_base": true,
+  "accepted_head": true,
+  "files": 14,
+  "artifact_differences": [],
+  "srp_keys_only_in_base": [
+   "stream_dmac_alloc"
+  ],
+  "srp_keys_only_in_head": [],
+  "base_stream_dmac_alloc": "static",
+  "srp_common_values_equal": true,
+  "cfg_outside_srp_equal": true,
+  "pass": true
+ },
+ "refuse_maap_false_numeric": {
+  "accepted_base": false,
+  "accepted_head": false,
+  "base_exc": [
+   "ConfigError",
+   "board.features.maap: false removes the allocator required by every declared talker (Milan v1.2 4.3.3.1 and 4.3.5.1). Numeric srp.stream_dmac_base is legacy scratch; keep MAAP."
+  ],
+  "head_exc": [
+   "ConfigError",
+   "board.features.maap: false removes the allocator required by every declared talker (Milan v1.2 4.3.3.1 and 4.3.5.1). Numeric srp.stream_dmac_base is legacy scratch; keep MAAP."
+  ],
+  "pass": true
+ },
+ "refuse_maap_false_dynamic": {
+  "accepted_base": false,
+  "accepted_head": false,
+  "base_exc": [
+   "ConfigError",
+   "board.features.maap: false removes the allocator required by every declared talker (Milan v1.2 4.3.3.1 and 4.3.5.1). Numeric srp.stream_dmac_base is legacy scratch; keep MAAP."
+  ],
+  "head_exc": [
+   "ConfigError",
+   "board.features.maap: false removes the allocator required by every declared talker (Milan v1.2 4.3.3.1 and 4.3.5.1). Numeric srp.stream_dmac_base is legacy scratch; keep MAAP."
+  ],
+  "pass": true
+ },
+ "refuse_rx_hardware": {
+  "accepted_base": false,
+  "accepted_head": false,
+  "base_exc": [
+   "ConfigError",
+   "platform.rx_address_filter 'hardware' is unsupported. Migrate hardware to promiscuous: the existing TCAM reset/boot bypass accepts all destinations. Hardware presence remains board.features.rx_mac_filter."
+  ],
+  "head_exc": [
+   "ConfigError",
+   "platform.rx_address_filter 'hardware' is unsupported. Migrate hardware to promiscuous: the existing TCAM reset/boot bypass accepts all destinations. Hardware presence remains board.features.rx_mac_filter."
+  ],
+  "pass": true
+ },
+ "refuse_rx_hardware_filter_absent": {
+  "accepted_base": false,
+  "accepted_head": false,
+  "base_exc": [
+   "ConfigError",
+   "platform.rx_address_filter 'hardware' is unsupported. Migrate hardware to promiscuous: the existing TCAM reset/boot bypass accepts all destinations. Hardware presence remains board.features.rx_mac_filter."
+  ],
+  "head_exc": [
+   "ConfigError",
+   "platform.rx_address_filter 'hardware' is unsupported. Migrate hardware to promiscuous: the existing TCAM reset/boot bypass accepts all destinations. Hardware presence remains board.features.rx_mac_filter."
+  ],
+  "pass": true
+ },
+ "refuse_unicast_dmac": {
+  "accepted_base": false,
+  "accepted_head": false,
+  "base_exc": [
+   "ConfigError",
+   "srp.stream_dmac_base 0x90E0F000FE01 is not a MULTICAST address (I/G bit clear) - an AAF stream DMAC must come from the MAAP range"
+  ],
+  "head_exc": [
+   "ConfigError",
+   "srp.stream_dmac_base 0x90E0F000FE01 is not a MULTICAST address (I/G bit clear) - an AAF stream DMAC must come from the MAAP range"
+  ],
+  "pass": true
+ },
+ "verdict": "PASS"
+}
