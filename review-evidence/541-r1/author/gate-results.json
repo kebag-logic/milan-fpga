@@ -1,0 +1,157 @@
+[
+  {
+    "gate": "docs-git",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 4.1
+  },
+  {
+    "gate": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "5b73d3f47dfed519eb988c13d6beb1db664ef1e0"
+    ],
+    "rc": 0,
+    "seconds": 3.1
+  },
+  {
+    "gate": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.1
+  },
+  {
+    "gate": "toc-check",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 2.5
+  },
+  {
+    "gate": "toc-anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 1.6
+  },
+  {
+    "gate": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.1
+  },
+  {
+    "gate": "module-matrix",
+    "command": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.0
+  },
+  {
+    "gate": "xvlog",
+    "command": [
+      "python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 134.8
+  },
+  {
+    "gate": "sv-idiom",
+    "command": [
+      "python3",
+      "scripts/check_sv_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 0.5
+  },
+  {
+    "gate": "cpp-idiom",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.1
+  },
+  {
+    "gate": "py-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 3.1
+  },
+  {
+    "gate": "test-evidence",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.0
+  },
+  {
+    "gate": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.0
+  },
+  {
+    "gate": "docs-no-git",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "mode": "HEAD archive without Git metadata",
+    "rc": 0,
+    "seconds": 4.1
+  },
+  {
+    "gate": "crf_rx",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/crf_rx"
+    ],
+    "rc": 0,
+    "seconds": 539.8
+  },
+  {
+    "gate": "mmcm_servo",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/mmcm_servo"
+    ],
+    "rc": 0,
+    "seconds": 375.8
+  }
+]
