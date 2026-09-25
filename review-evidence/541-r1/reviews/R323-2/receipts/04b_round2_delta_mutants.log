@@ -1,0 +1,54 @@
+r2_timeout_late_1ms unit: rc=2 
+    [FAIL] pdu#1021  locked_o                               got=1 exp=0
+    [FAIL] pdu#1021  cnt_unlocked_o                         got=0 exp=1
+    [FAIL] [H2a-d2] the resuming PDU re-seeds, it does not restart got=1 exp=0
+    [FAIL] pdu#1022  locked_o                               got=1 exp=0
+    [FAIL] pdu#1022  cnt_unlocked_o                         got=0 exp=1
+    [FAIL] [H2a-d3] ... and the one after it is quiet as well got=1 exp=0
+r2_timeout_late_1ms discontinuity: rc=2 == crf_rx discontinuity: checks: 2201   failures: 6 ==
+    [FAIL] silence invalidates the old rate
+    [FAIL] 100 ms silence still unlocks after validation error
+    [FAIL] 100 ms silence counts one unlock         got=0 exp=1
+    [FAIL] reject stream cannot refresh the 100 ms timeout
+    [FAIL] reject stream timeout counts one unlock  got=0 exp=1
+    [FAIL] continued reject stream stays unlocked
+== r2_timeout_late_1ms: DETECTED by unit,discontinuity; round-2 reject-stream check fired
+r2_timeout_early_200us unit: rc=0 
+r2_timeout_early_200us discontinuity: rc=2 == crf_rx discontinuity: checks: 2201   failures: 4 ==
+    [FAIL] silence shorter than 100 ms retains lock
+    [FAIL] silence before timeout adds no unlock    got=1 exp=0
+    [FAIL] reject stream retains lock before 100 ms
+    [FAIL] reject stream before timeout adds no unlock got=1 exp=0
+== r2_timeout_early_200us: DETECTED by discontinuity; round-2 reject-stream check fired
+r2_unlock_recounts unit: rc=2 
+    [FAIL] silence: cnt_unlocked 1                        got=211 exp=1
+    [FAIL] pdu#612   cnt_unlocked_o                         got=211 exp=1
+    [FAIL] pdu#613   cnt_unlocked_o                         got=211 exp=1
+    [FAIL] pdu#614   cnt_unlocked_o                         got=211 exp=1
+    [FAIL] pdu#615   cnt_unlocked_o                         got=211 exp=1
+    [FAIL] pdu#616   cnt_unlocked_o                         got=211 exp=1
+r2_unlock_recounts discontinuity: rc=2 == crf_rx discontinuity: checks: 2201   failures: 4 ==
+    [FAIL] 100 ms silence counts one unlock         got=12 exp=1
+    [FAIL] continued silence never recounts the unlock got=214 exp=1
+    [FAIL] reject stream timeout counts one unlock  got=12 exp=1
+    [FAIL] continued reject stream never recounts the unlock got=20012 exp=1
+== r2_unlock_recounts: DETECTED by unit,discontinuity; round-2 reject-stream check fired
+r2_reject_relocks unit: rc=2 
+    [FAIL] 5 malformed: unlocked                          got=1 exp=0
+    [FAIL] pdu#1     locked_o                               got=1 exp=0
+    [FAIL] pdu#1     cnt_locked_o                           got=1 exp=0
+    [FAIL] pdu#2     locked_o                               got=1 exp=0
+    [FAIL] pdu#2     cnt_locked_o                           got=1 exp=0
+    [FAIL] pdu#3     locked_o                               got=1 exp=0
+r2_reject_relocks discontinuity: rc=2 == crf_rx discontinuity: checks: 2201   failures: 3 ==
+    [FAIL] continued reject stream stays unlocked
+    [FAIL] continued reject stream never recounts the unlock got=51 exp=1
+    [FAIL] reject stream never adds a lock event    got=51 exp=1
+== r2_reject_relocks: DETECTED by unit,discontinuity; round-2 reject-stream check fired
+
+SUMMARY
+r2_timeout_late_1ms        DETECTED by unit,discontinuity; round-2 reject-stream check fired
+r2_timeout_early_200us     DETECTED by discontinuity; round-2 reject-stream check fired
+r2_unlock_recounts         DETECTED by unit,discontinuity; round-2 reject-stream check fired
+r2_reject_relocks          DETECTED by unit,discontinuity; round-2 reject-stream check fired
+rc=0

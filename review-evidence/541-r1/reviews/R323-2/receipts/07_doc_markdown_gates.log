@@ -1,0 +1,15 @@
+cffi==2.1.1
+cmarkgfm==2025.10.22
+html5lib==1.1
+pycparser==3.0
+six==1.17.0
+webencodings==0.6.1
+$ python3 scripts/check_em_dash.py --base 5b73d3f47dfed519eb988c13d6beb1db664ef1e0   (private venv with tools/markdown/requirements.txt)
+check_em_dash: 0 finding(s) over 2 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [5b73d3f4..HEAD]
+rc=0
+$ python3 scripts/gen_toc.py --check   (private venv with tools/markdown/requirements.txt)
+TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+$ python3 scripts/gen_toc.py --verify-anchors   (private venv with tools/markdown/requirements.txt)
+anchor check: 173 existing cross-page fragment links reproduced
+rc=0

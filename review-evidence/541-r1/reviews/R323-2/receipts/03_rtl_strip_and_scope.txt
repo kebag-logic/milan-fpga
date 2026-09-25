@@ -1,0 +1,28 @@
+# comment-stripped KL_crf_rx.sv: base vs head, round-1 head vs head
+5b73d3f47dfed519eb988c13d6beb1db664ef1e0 f0081e180e4c8c2637ef97f1a65236cb09051572724487c336657d74c2321de8 lines=278
+fa1b5c364b39842d0f3d8e09acd7ca58a9532f0c f0081e180e4c8c2637ef97f1a65236cb09051572724487c336657d74c2321de8 lines=278
+IDENTICAL
+# raw blob ids
+5b73d3f47dfed519eb988c13d6beb1db664ef1e0 2429b4f51883f3361b57f4b25f1d5dece6b18c76 be9e1c5379c0b590f362d34673f7b881eb06399b
+2734b771bcf0b383ea62ef05744452827bafe9e4 6ddd3af2b17477eba2b9545ed2f2874c73d1ff3f d8156cdfa9980baba34a34ca57aa3a3c52855c86
+fa1b5c364b39842d0f3d8e09acd7ca58a9532f0c 6ddd3af2b17477eba2b9545ed2f2874c73d1ff3f d8156cdfa9980baba34a34ca57aa3a3c52855c86
+# files changed in round-2 delta 2734b771..fa1b5c36
+M	docs/testing/TESTING.md
+M	scripts/measure_test_evidence.py
+M	tb/verilator/crf_rx/mutants.py
+M	tb/verilator/crf_rx/sim_discontinuity.cpp
+# any .sv/.v changes base..head
+hdl/ieee1722/crf/KL_crf_rx.sv
+# gitlinks base vs head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+# parents
+fa1b5c364b39842d0f3d8e09acd7ca58a9532f0c 2734b771bcf0b383ea62ef05744452827bafe9e4 Test CRF timeout under continuous validation errors
+2734b771bcf0b383ea62ef05744452827bafe9e4 5b73d3f47dfed519eb988c13d6beb1db664ef1e0 Document and test CRF lock retention on validation errors
+5b73d3f47dfed519eb988c13d6beb1db664ef1e0 c533b4818df8b3f581df76aa0d1c6d5f55d20449 f5532c4c3f94a516b748cc4627dc5f78d05fa73e Merge PR #554: Discard the CRF rate sample that spans a talker discontinuity

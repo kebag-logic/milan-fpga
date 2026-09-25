@@ -1,0 +1,11 @@
+Written 2026-09-25T09:25:05Z, before reading any other reviewer's report.
+[R323] POSITIVE - exact head fa1b5c364b39842d0f3d8e09acd7ca58a9532f0c (independent pass)
+Own R323-1 F1 (MINOR, Tests + Robustness): CLOSED at fa1b5c36. rejected_stream_timeout
+  (sim_discontinuity.cpp:227-264) drives matched wrong-type PDUs every 400 clocks on a
+  LOCKED sink, grades retention through clock 19992 and unlock + one MEDIA_UNLOCKED at
+  clock 20012; round-1 uf_refreshes_timeout (script unchanged, sha256 013eb10a...)
+  now fails 4 named checks incl. "reject stream cannot refresh the 100 ms timeout".
+Own R323-1 F2 (SUGGESTION, Docs): addressed at TESTING.md:463.
+New findings in delta 2734b771..fa1b5c36: none.
+Ledger (lens | status | head): Conformance CLEAN, RTL CLEAN, Robustness CLEAN,
+  Tests CLEAN, Docs CLEAN; covering round R323-2; head fa1b5c364b39842d0f3d8e09acd7ca58a9532f0c.

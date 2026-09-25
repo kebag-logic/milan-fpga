@@ -1,0 +1,12 @@
+# R322-1 scripts/probe_mutants.py from archive 3a211d8d, sha256 8f2137b5e050cd5907c51b3a968c8715d38c1bca5931747888d8ad3a64d809dc, run unchanged: PROBES=clean,P2_error_refreshes_timeout, jobs=1, pinned Verilator 5.050 wrapper
+clean                            CONTROL_PASS  positive control: unmodified head
+    unit: rc=0  fails=0 KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)
+    disc: rc=0  fails=0 == crf_rx discontinuity: checks: 2201   failures: 0 ==
+P2_error_refreshes_timeout       DETECTED      validation error refreshes the 100 ms timeout (doc: does not)
+    unit: rc=0  fails=0 KL_crf_rx: 13836 checks, 0 failures (1053 accepted PDUs pinned)
+    disc: rc=2  fails=4 == crf_rx discontinuity: checks: 2201   failures: 4 ==
+      [FAIL] reject stream cannot refresh the 100 ms timeout
+      [FAIL] reject stream timeout counts one unlock  got=0 exp=1
+      [FAIL] continued reject stream stays unlocked
+      [FAIL] continued reject stream never recounts the unlock got=0 exp=1
+rc=0

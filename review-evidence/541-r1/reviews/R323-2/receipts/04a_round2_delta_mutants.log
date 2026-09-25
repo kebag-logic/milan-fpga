@@ -1,0 +1,23 @@
+clean unit: rc=0 
+clean discontinuity: rc=0 == crf_rx discontinuity: checks: 2201   failures: 0 ==
+== clean: CONTROL PASS
+r2_refresh_when_locked unit: rc=0 
+r2_refresh_when_locked discontinuity: rc=2 == crf_rx discontinuity: checks: 2201   failures: 4 ==
+    [FAIL] reject stream cannot refresh the 100 ms timeout
+    [FAIL] reject stream timeout counts one unlock  got=0 exp=1
+    [FAIL] continued reject stream stays unlocked
+    [FAIL] continued reject stream never recounts the unlock got=0 exp=1
+== r2_refresh_when_locked: DETECTED by discontinuity; round-2 reject-stream check fired
+r2_refresh_late_window unit: rc=0 
+r2_refresh_late_window discontinuity: rc=2 == crf_rx discontinuity: checks: 2201   failures: 4 ==
+    [FAIL] reject stream cannot refresh the 100 ms timeout
+    [FAIL] reject stream timeout counts one unlock  got=0 exp=1
+    [FAIL] continued reject stream stays unlocked
+    [FAIL] continued reject stream never recounts the unlock got=0 exp=1
+== r2_refresh_late_window: DETECTED by discontinuity; round-2 reject-stream check fired
+
+SUMMARY
+clean                      CONTROL PASS
+r2_refresh_when_locked     DETECTED by discontinuity; round-2 reject-stream check fired
+r2_refresh_late_window     DETECTED by discontinuity; round-2 reject-stream check fired
+rc=0
