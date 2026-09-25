@@ -1,0 +1,17 @@
+[PROBE-OK] idx_aliased_to_0: rc=2 caught; named=RENDER_STAT out-of-range listener reads zero; legs=[('380', '1')]
+    [FAIL] RENDER_STAT out-of-range listener reads zero got=0xa5c30216 exp=0x0
+[PROBE-OK] lsn0_window_semantics: rc=2 caught; named=RENDER_STAT bit 9; legs=[('380', '0'), ('380', '0'), ('115', '5')]
+    [FAIL] RENDER_STAT bit 9 preserves the listener index got=0xa5c30100 exp=0xa5c30206
+    [FAIL] RENDER_STAT bit 9 preserves the listener index got=0xa5c30100 exp=0xa5c30216
+    [FAIL] RENDER_STAT bit 9 preserves the listener index got=0xa5c30100 exp=0xa5c30103
+    [FAIL] RENDER_STAT NxN write ignored                got=0xa5c30100 exp=0xa5c30103
+[PROBE-OK] upper_rails_zeroed: rc=2 caught; named=RENDER_STAT; legs=[('380', '3')]
+    [FAIL] RENDER_STAT selected listener preserves all fields got=0xc30216 exp=0xa5c30216
+    [FAIL] RENDER_STAT ignores writes got=0xc30216 exp=0xa5c30216
+    [FAIL] RENDER_STAT full-width saturated rails stay live got=0xff0100 exp=0xffff0100
+[PROBE-OK] window_term_dropped: rc=2 caught; named=RENDER_STAT; legs=[('380', '4')]
+    [FAIL] RENDER_STAT driven prefill reset word got=0x0 exp=0x100
+    [FAIL] RENDER_STAT selected listener preserves all fields got=0x0 exp=0xa5c30216
+    [FAIL] RENDER_STAT ignores writes got=0x0 exp=0xa5c30216
+    [FAIL] RENDER_STAT full-width saturated rails stay live got=0x0 exp=0xffff0100
+csr_bench_probes: 0 unexpected outcome(s)

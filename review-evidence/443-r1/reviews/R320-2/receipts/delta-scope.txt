@@ -1,0 +1,29 @@
+## git diff --name-status c9bbb03cc..5beebb7c7
+M	CHANGELOG.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/TESTING.md
+M	scripts/measure_test_evidence.py
+M	tb/verilator/csr/sim_main.cpp
+M	tb/verilator/csr/sim_win.cpp
+M	tb/verilator/milan_dp/Makefile
+M	tb/verilator/milan_dp/README.md
+M	tb/verilator/milan_dp/render_csr_controls.py
+M	tb/verilator/milan_dp/sim_aclk.cpp
+## non-tb/docs paths changed (expect scripts/measure_test_evidence.py only)
+scripts/measure_test_evidence.py
+## RTL blobs at c9bbb03c vs 5beebb7c
+hdl/common/csr/milan_csr.sv 4a194ada73a08e2f88b92c03bc2057f126d3f790 4a194ada73a08e2f88b92c03bc2057f126d3f790
+hdl/milan/milan_datapath.sv 10a2195729288c8847726aa519de62de4cad53bd 10a2195729288c8847726aa519de62de4cad53bd
+hdl/ieee1722/aaf/KL_render_setpoint.sv e66b427d84348d6662949a160007c4ebf11c13e9 e66b427d84348d6662949a160007c4ebf11c13e9
+## gitlinks c9bbb03c vs 5beebb7c
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+## parents
+5beebb7c7edd908d08be34e52286c9eee441f5b3 c9bbb03cc3d4da9c6ee28996b91addbb081efa7e test: close render CSR round 2 review findings
+c9bbb03cc3d4da9c6ee28996b91addbb081efa7e 0755923d983218ca6ca9db6891a558cbe6425b8d Expose selected render setpoint state through the diagnostic CSR

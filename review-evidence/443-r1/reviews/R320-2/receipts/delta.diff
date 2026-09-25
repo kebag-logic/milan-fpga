@@ -1,0 +1,363 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 95c1a29f6..5518d5b84 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
++- **[Unreleased - render setpoint state](#unreleased---render-setpoint-state)** -- Publishes the selected listener's state.
+ - **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
+ - **[Unreleased - licence and LeaveAll scope](#unreleased---licence-and-leaveall-scope)** -- No Listener Ready, no stream.
+ - **[Unreleased - CRF input counters served](#unreleased---crf-input-counters-served)** -- The CRF input answers GET_COUNTERS.
+@@ -27,6 +28,16 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
++## Unreleased - render setpoint state
++
++- Issue #443 adds `RENDER_STAT` at `0x8DC`.
++- It exposes selected-listener fill, prefill and convergence.
++- The upper half holds the global saturating rail count.
++- Absent stages supply structural zero.
++- Rail and underrun events do not raise `STREAM_INTERRUPTED`.
++- VERSION remains `0x0002_0060`; the release step owns the minor bump.
++- [The recorded decision](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5826779078) follows the existing `GPTP_DROPE[31:16]` deferral.
++
+ ## Unreleased - one media event per PHC step
+ 
+ - Issue #387 decided a PHC step's media reaction.
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 673eeaeb2..f8092c32b 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -239,6 +239,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
+ | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
+ | `0x8C8` | Reserved target-media compatibility words (structural zero) |
+ | `0x8D4` | Media-boundary slip counters (`SLIP_LB` / `SLIP_TDM`, RO live, minor >= `0x0058`) |
++| `0x8DC` | `RENDER_STAT`: RO live selected-listener state and global rails; structural zero without the stage. VERSION minor remains `0x0060`; the release step owns the bump |
+ | `0x8F8` | MMCM-DRP media-clock servo (Milan v1.2 7.3.4) |
+ | `0x900` | Channel-map fabric debug window (chmap64) — write port + bypass arm, and the `0x910`/`0x914` **map-RAM readback** |
+ | `0x920` | **Protocol-processor control plane** (`PP_CTRL`/`STAT`/`SPADDR`/`SPDATA`/`DIAG`) — always decoded at VERSION major 2 |
+@@ -1941,6 +1942,11 @@ upstream talker runs at the physical grid's rate, the disciplined peer
+ 
+ Issue #443 claims this previously unmapped debug-group word.
+ 
++VERSION remains `0x0002_0060` under [the recorded deferral](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5826779078).
++The release step owns the minor bump.
++Before that bump, VERSION alone cannot identify this addition.
++Verify the build's source revision includes #443's register decode.
++
+ | Offset | Name | Acc | Reset | Description |
+ |---|---|---|---|---|
+ | `0x8DC` | `RENDER_STAT` | RO live | `0x00000100` | Selected listener state and the global rail count |
+@@ -1948,6 +1954,11 @@ Issue #443 claims this previously unmapped debug-group word.
+ `STRM_SEL[3:0]` selects the listener, with `STRM_SEL[8]=0`.
+ Talker selections and indices outside `N_LISTENERS_P` read zero.
+ `STRM_SEL[9]` does not change this word's selection.
++The listed reset assumes a present stage and listener 0.
++That is `STRM_SEL`'s reset selection.
++Writing this shared selector invalidates the window's ACMP/SRP snapshots.
++Another task moving it changes which listener this word reports.
++Diagnostic readers must coordinate access and restore the previous selection.
+ 
+ | Bits | Width | Source | Meaning | Reset |
+ |---|---|---|---|---|
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 22d237868..6b52ca2f7 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -262,6 +262,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ 
+ | Explicit campaign | Command | Who runs it |
+ |---|---|---|
++| #443 render CSR controls (`render_csr_controls.py`) | `make -C tb/verilator/milan_dp render-csr-controls` | Authors and reviewers changing `render_status_w`, its connections in `milan_datapath.sv`, the `RENDER_STAT` decode or selection in `milan_csr.sv`, the taps in `KL_render_setpoint.sv`, `sim_aclk.cpp` or this campaign |
+ | #447 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
+ | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
+ | #387 GM step re-base, the gmstep leg's nine controls and the option-off leg's two | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `sim_gmstep.cpp` or the option-off leg's PHC-step `mr` checks in `sim_main.cpp`. The default sweep runs the three controls #387's acceptance names |
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index 14d2e7c52..f577276d2 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -611,6 +611,11 @@ DUT_READER_DISPOSITIONS = {
+         "mutation campaign; it plants one of eleven #387 re-base defects into a copy and requires a "
+         "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
+         "the three the acceptance names; the explicit gmstep-mutants target plants all eleven",
++    "tb/verilator/milan_dp/render_csr_controls.py":
++        "mutation campaign; the explicit render-csr-controls target plants wrong-fill "
++        "and bit-9 selector defects into copies and requires named failures. Its "
++        "absent-stage control removes the instance and requires structural zero "
++        "despite accepted ingress; no expected value is derived from source text",
+     "tb/verilator/milan_dp/render_mutants.py":
+         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
+     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
+diff --git a/tb/verilator/csr/sim_main.cpp b/tb/verilator/csr/sim_main.cpp
+index 9b67f606a..044d3839d 100644
+--- a/tb/verilator/csr/sim_main.cpp
++++ b/tb/verilator/csr/sim_main.cpp
+@@ -139,6 +139,7 @@ constexpr uint32_t A_SW_STATE   = 0x82C;
+ constexpr uint32_t A_SW_CNT0    = 0x830;
+ constexpr uint32_t A_SW_PDUS    = 0x858;
+ constexpr uint32_t A_SW_SRP     = 0x85C;
++constexpr uint32_t A_RENDER_STAT = 0x8DC;
+ 
+ namespace {
+ 
+@@ -190,6 +191,7 @@ class MilanCsrHarness {
+   void rx_parser_probe_group();
+   void reserved_inert_csr_gap();
+   void junction_slip_counter_words();
++  void render_status_word();
+   void is_1g_follows_the_mac_reported_speed();
+   void chmap_readback_negative_control();
+   void retired_as_path_publication_abi_is_inert();
+@@ -320,6 +322,7 @@ void MilanCsrHarness::reset_and_idle_the_bus() {
+   dut->i_lctx_wr_rdy = 1;   dut->i_tctx_wr_rdy = 1;
+   for (int k = 0; k < 9; ++k) dut->i_stats[k] = 0;
+   dut->i_stats_cap = 0;
++  dut->i_render_status = 0;  // Explicit absent-source tie until driven below.
+   for (int k = 0; k < 10; ++k) dut->i_avtprx_cnt10[k] = 0;
+   for (int i = 0; i < 5; ++i) posedge();
+   dut->aresetn = 1; posedge();
+@@ -1218,9 +1221,8 @@ void MilanCsrHarness::reserved_inert_csr_gap() {
+   ck("reserved gap 0x8C8 reads 0", axi_read(0x8C8), 0);
+   ck("reserved gap 0x8CC reads 0", axi_read(0x8CC), 0);
+   ck("reserved gap 0x8D0 reads 0", axi_read(0x8D0), 0);
+-  // the word above the SLIP pair (0x8D4/0x8D8, #390) is unmapped: reads 0,
+-  // never a shadow alias
+-  ck("0x8DC above the slip pair is unmapped, reads 0", axi_read(0x8DC), 0);
++  ck("0x8E0 above RENDER_STAT is unmapped, reads 0", axi_read(0x8E0), 0);
++  ck("0x8F4 below the servo is unmapped, reads 0", axi_read(0x8F4), 0);
+   axi_write(0x8C8, 0x5A5A0000u);
+   axi_write(0x8CC, 0x5A5A0001u);
+   axi_write(0x8D0, 0x5A5A0002u);
+@@ -1423,6 +1425,29 @@ void MilanCsrHarness::gptp_drop_words_are_zero_with_the_plane_off() {
+   ck("0x7F0 write is inert", axi_read(0x7F0), 0);
+ }
+ 
++// Drive the live input independently of the datapath's field packing.
++void MilanCsrHarness::render_status_word() {
++  printf("-- RENDER_STAT (0x8DC) --\n");
++  axi_write(A_STRM_SEL, 0);
++  ck("RENDER_STAT explicit absent-source tie reads zero", axi_read(A_RENDER_STAT), 0);
++  dut->i_render_status = 0x100u;
++  ck("RENDER_STAT driven prefill reset word", axi_read(A_RENDER_STAT), 0x100u);
++  constexpr uint32_t status = 0xA5C30216u;
++  dut->i_render_status = status;
++  ck("RENDER_STAT selected listener preserves all fields", axi_read(A_RENDER_STAT), status);
++  axi_write(A_RENDER_STAT, 0xFFFFFFFFu);
++  ck("RENDER_STAT ignores writes", axi_read(A_RENDER_STAT), status);
++  axi_write(A_STRM_SEL, 0x100);
++  ck("RENDER_STAT talker selection reads zero", axi_read(A_RENDER_STAT), 0);
++  axi_write(A_STRM_SEL, 1);
++  ck("RENDER_STAT out-of-range listener reads zero", axi_read(A_RENDER_STAT), 0);
++  axi_write(A_STRM_SEL, 0);
++  dut->i_render_status = 0xFFFF0100u;
++  ck("RENDER_STAT full-width saturated rails stay live", axi_read(A_RENDER_STAT), 0xFFFF0100u);
++  dut->i_render_status = 0;
++  ck("RENDER_STAT restored absent-source tie reads zero", axi_read(A_RENDER_STAT), 0);
++}
++
+ // =====================================================================
+ // P11 indexed per-stream window, N=1 silicon shape (defaults):
+ // SEL/SNAP decode, index-0 hard aliases onto the flat registers, and the
+@@ -1471,6 +1496,7 @@ int MilanCsrHarness::run() {
+   rx_parser_probe_group();
+   reserved_inert_csr_gap();
+   junction_slip_counter_words();
++  render_status_word();
+   is_1g_follows_the_mac_reported_speed();
+   chmap_readback_negative_control();
+   retired_as_path_publication_abi_is_inert();
+diff --git a/tb/verilator/csr/sim_win.cpp b/tb/verilator/csr/sim_win.cpp
+index aaa43caec..7ffff5f19 100644
+--- a/tb/verilator/csr/sim_win.cpp
++++ b/tb/verilator/csr/sim_win.cpp
+@@ -47,6 +47,7 @@ constexpr uint32_t A_SW_STATE   = 0x82C;
+ constexpr uint32_t A_SW_CNT0    = 0x830;
+ constexpr uint32_t A_SW_PDUS    = 0x858;
+ constexpr uint32_t A_SW_SRP     = 0x85C;
++constexpr uint32_t A_RENDER_STAT = 0x8DC;
+ 
+ constexpr uint32_t A_CH_CTRL = 0x900;
+ constexpr uint32_t A_CH_SEL  = 0x904;
+@@ -83,6 +84,7 @@ class CsrWindowHarness {
+   void acmp_tbl_master_latches_and_extracts();
+   void adp_shape_is_read_only_and_comes_from_the_config();
+   void out_of_range_index_reads_zero_and_ignores_writes();
++  void render_status_selects_each_listener();
+   void chmap_map_ram_readback();
+   void chmap_unarmed_state_is_poison_not_zero();
+   void chmap_program_capture_channel_five();
+@@ -695,6 +697,26 @@ void CsrWindowHarness::chmap_map_ram_readback() {
+          " and a silent port poisons\n", (fails == f0) ? "PASS" : "FAIL");
+ }
+ 
++void CsrWindowHarness::render_status_selects_each_listener() {
++  constexpr uint32_t status[4] = {0xA5C30100u, 0xA5C30206u,
++                                   0xA5C30216u, 0xA5C30103u};
++  for (int s = 0; s < 4; ++s) dut->i_render_status[s] = status[s];
++  for (int s = 0; s < 4; ++s) {
++    axi_write(A_STRM_SEL, s);
++    ck("RENDER_STAT selected NxN listener word", axi_read(A_RENDER_STAT), status[s]);
++    axi_write(A_STRM_SEL, 0x200u | s);
++    ck("RENDER_STAT bit 9 preserves the listener index", axi_read(A_RENDER_STAT), status[s]);
++  }
++  axi_write(A_RENDER_STAT, 0xFFFFFFFFu);
++  ck("RENDER_STAT NxN write ignored", axi_read(A_RENDER_STAT), status[3]);
++  axi_write(A_STRM_SEL, 4);
++  ck("RENDER_STAT NxN out-of-range reads zero", axi_read(A_RENDER_STAT), 0);
++  axi_write(A_STRM_SEL, 0x303);
++  ck("RENDER_STAT bit 9 preserves talker rejection", axi_read(A_RENDER_STAT), 0);
++  axi_write(A_STRM_SEL, 0);
++  for (int s = 0; s < 4; ++s) dut->i_render_status[s] = 0;
++}
++
+ int CsrWindowHarness::run() {
+   memset(lctx, 0, sizeof lctx); memset(tctx, 0, sizeof tctx);
+   // P12: CFG-word writes are held until the engine's wr_rdy; the model
+@@ -718,6 +740,7 @@ int CsrWindowHarness::run() {
+   adp_shape_is_read_only_and_comes_from_the_config();
+   out_of_range_index_reads_zero_and_ignores_writes();
+   chmap_map_ram_readback();
++  render_status_selects_each_listener();
+ 
+   printf("--------------------------------------------------------------\n");
+   printf("checks: %ld   failures: %ld\n", checks, fails);
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index 34afa9522..49245feeb 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -104,6 +104,8 @@ GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
+ # either through this same recipe
+ RSP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv
+ DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
++# #443: selector controls mutate only a disposable CSR source.
++CSR_SRC ?= $(RTL_DIR)/common/csr/milan_csr.sv
+ # #387: the clock-validity block, overridable the same way so the gmstep
+ # leg's negative controls elaborate a MUTATED copy through its recipe (their
+ # runner joins the tree with the #387 datapath edit).
+@@ -191,7 +193,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
+        $(RTL_DIR)/common/cdc_pair_fifo.sv \
+        $(RTL_DIR)/common/eth_event_counter/ethernet_events.sv \
+        $(RTL_DIR)/common/eth_event_counter/event_counter.sv \
+-       $(RTL_DIR)/common/csr/milan_csr.sv \
++       $(CSR_SRC) \
+        $(DP_SRC)
+ CPP  = sim_main.cpp
+ 
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index fff278269..3dc17d7cf 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -806,10 +806,11 @@ make -C tb/verilator/milan_dp render-csr-controls
+ |---|---|
+ | Clean `--render-csr-only` | All checks pass, including reset after a rail |
+ | Fill field tied zero | Fails `RENDER-CSR: filling mirrors taps` |
++| Bit 9 forces listener 0 | Fails `RENDER-CSR: bit 9 preserves talker rejection` |
+ | Stage instance removed, outputs tied zero | `--render-csr-absent` passes despite accepted ingress |
+ 
+ Temporary control sources leave tracked RTL unchanged.
+-Two extra elaborations stay outside the default sweep's deadline.
++Three extra elaborations stay outside the default sweep's deadline.
+ The default sweep still runs the positive CSR checks.
+ The two-stream `milan_dp_render` leg separately checks listener selection.
+ 
+diff --git a/tb/verilator/milan_dp/render_csr_controls.py b/tb/verilator/milan_dp/render_csr_controls.py
+index 36783e23e..9868c12ca 100644
+--- a/tb/verilator/milan_dp/render_csr_controls.py
++++ b/tb/verilator/milan_dp/render_csr_controls.py
+@@ -3,11 +3,11 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ """Issue #443 controls through the real milan_dp AXI-Lite path.
+ 
+-The clean leg exercises prefill, fill, convergence, a rail and reset. A
+-wrong-fill connection must fail its named comparison. The absent-stage
+-control removes the instance entirely and ties every output to zero; it
+-still accepts AAF ingress but its CSR must remain structural zero. Neither
+-control changes the working tree. Every simulation is cycle-bounded by
++The clean leg exercises prefill, fill, convergence, a rail and reset.
++Wrong-fill and bit-9 selector mutants must fail named comparisons.
++The absent-stage control removes the instance and ties every output to zero;
++it still accepts AAF ingress but its CSR must remain structural zero.
++Control sources leave the working tree unchanged. Every simulation is cycle-bounded by
+ sim_aclk.cpp's loops and existing AXI/ingress guards. No host-time verdict.
+ 
+ Run through `make render-csr-controls`, or after building `make aclk-build`.
+@@ -19,6 +19,8 @@ from pathlib import Path
+ 
+ from render_mutants import CLEAN_EXE, DP_RTL, build, run_leg, verdict
+ 
++CSR_RTL = Path(__file__).resolve().parents[3] / "hdl/common/csr/milan_csr.sv"
++
+ 
+ def without_stage(source: str) -> str:
+     """Remove the real stage; explicit ties are the integration contract."""
+@@ -35,7 +37,7 @@ def without_stage(source: str) -> str:
+ 
+ 
+ def main() -> int:
+-    """Require a clean pass, a named mutant failure and an absent-stage pass."""
++    """Require a clean pass, named mutant failures and an absent-stage pass."""
+     if not CLEAN_EXE.is_file():
+         print("[FAIL] build the clean leg with make aclk-build first")
+         return 1
+@@ -49,18 +51,27 @@ def main() -> int:
+     if source.count(pattern) != 1:
+         print("[FAIL] wrong-fill mutation anchor must occur exactly once")
+         return 1
++    csr_source = CSR_RTL.read_text()
++    selector = "if (!strm_dir_r && (32'(strm_idx_r) == s))"
++    if csr_source.count(selector) != 1:
++        print("[FAIL] selector mutation anchor must occur exactly once")
++        return 1
+     cases = (
+-        ("wrong_fill", source.replace(pattern, "8'd0};"),
++        ("wrong_fill", "DP_SRC", source.replace(pattern, "8'd0};"),
+          "--render-csr-only", "RENDER-CSR: filling mirrors taps"),
+-        ("absent_stage", without_stage(source), "--render-csr-absent", None),
++        ("bit9_window_selection", "CSR_SRC", csr_source.replace(
++            selector, "if (strm_lsn0_r ? (s == 0) : "
++            "(!strm_dir_r && (32'(strm_idx_r) == s)))"),
++         "--render-csr-only", "RENDER-CSR: bit 9 preserves talker rejection"),
++        ("absent_stage", "DP_SRC", without_stage(source), "--render-csr-absent", None),
+     )
+     failures = 0
+     with tempfile.TemporaryDirectory(prefix="render-csr-controls-") as temp:
+         work = Path(temp)
+-        for name, changed, mode, named_check in cases:
++        for name, override, changed, mode, named_check in cases:
+             rtl = work / f"{name}.sv"
+             rtl.write_text(changed)
+-            exe = build("DP_SRC", rtl, work / f"obj_{name}")
++            exe = build(override, rtl, work / f"obj_{name}")
+             if exe is None:
+                 print(f"[FAIL] {name}: build failed; no control evidence")
+                 failures += 1
+@@ -78,7 +89,7 @@ def main() -> int:
+             print(f"[{'PASS' if ok else 'FAIL'}] {name}: rc={rc}, {answer}; "
+                   f"named check={named_check}")
+             failures += not ok
+-    print(f"render_csr_controls: 3 checks, {failures} failures")
++    print(f"render_csr_controls: {1 + len(cases)} checks, {failures} failures")
+     return int(failures != 0)
+ 
+ 
+diff --git a/tb/verilator/milan_dp/sim_aclk.cpp b/tb/verilator/milan_dp/sim_aclk.cpp
+index ac7b66a05..a40bd486d 100644
+--- a/tb/verilator/milan_dp/sim_aclk.cpp
++++ b/tb/verilator/milan_dp/sim_aclk.cpp
+@@ -401,10 +401,12 @@ class MediaGridAlignmentHarness {
+     void check_render_csr_selection() {
+         axi_write(0x800, 0x100);
+         ck("RENDER-CSR: talker selection reads zero", axi_read(0x8DC), 0);
++        axi_write(0x800, 0x300);
++        ck("RENDER-CSR: bit 9 preserves talker rejection", axi_read(0x8DC), 0);
+         axi_write(0x800, 1);
+         ck("RENDER-CSR: out-of-range listener reads zero", axi_read(0x8DC), 0);
+         axi_write(0x800, 0x200);
+-        check_render_csr("listener-0 row override");
++        check_render_csr("bit 9 with listener 0");
+         axi_write(0x800, 0);
+         axi_write(0x8DC, 0xFFFFFFFF);
+         check_render_csr("write ignored");

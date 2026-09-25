@@ -1,0 +1,12 @@
+docs-check rc=0
+doc-style rc=0
+doc-paths rc=0
+module-matrix rc=0
+test-evidence rc=0
+test-evidence-selftest rc=0 (measure_test_evidence.py --selftest)
+diff-check rc=0
+gen-toc-verify-anchors rc=0
+gen-toc-check rc=0
+gen-toc-selftest rc=0
+em-dash rc=0
+diff-check: git diff --check 0755923d..HEAD, empty output

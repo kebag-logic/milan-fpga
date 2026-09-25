@@ -1,0 +1,8 @@
+[PROBE-OK] nodecode: rc=2 caught; named=RENDER_STAT driven prefill reset word; legs=[('380', '4')]
+    [FAIL] RENDER_STAT driven prefill reset word got=0x0 exp=0x100
+    [FAIL] RENDER_STAT selected listener preserves all fields got=0x0 exp=0xa5c30216
+    [FAIL] RENDER_STAT ignores writes got=0x0 exp=0xa5c30216
+    [FAIL] RENDER_STAT full-width saturated rails stay live got=0x0 exp=0xffff0100
+[PROBE-OK] dir_ignored: rc=2 caught; named=RENDER_STAT talker selection reads zero; legs=[('380', '1')]
+    [FAIL] RENDER_STAT talker selection reads zero got=0xa5c30216 exp=0x0
+csr_bench_probes: 0 unexpected outcome(s)

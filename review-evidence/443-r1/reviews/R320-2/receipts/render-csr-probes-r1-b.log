@@ -1,0 +1,8 @@
+[PROBE-OK] csr_idx_aliased_to_0_multi: rc=1 caught; named=RENDER-CSR-MULTI
+    [FAIL] RENDER-CSR-MULTI: flushed listener 1 has empty prefill got=12 exp=256
+    [FAIL] RENDER-CSR-MULTI: first absent index reads zero got=12 exp=0
+[PROBE-UNEXPECTED] csr_lsn0_window_semantics: rc=1 unexpected: caught; named=None
+    [FAIL] RENDER-CSR: bit 9 preserves talker rejection               got=65550 exp=0
+[PROBE-OK] csr_lsn0_window_semantics_multi: rc=0 SURVIVED (expected); named=None
+[PROBE-OK] dp_rails_upper_byte_zero: rc=0 SURVIVED (expected); named=None
+render_csr_probes: 1 unexpected outcome(s)
