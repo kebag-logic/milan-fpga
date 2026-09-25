@@ -25,6 +25,8 @@ class DiscontinuityHarness {
         rejected_markers();
         pending_collision();
         lifecycle();
+        locked_validation_error();
+        rejected_stream_timeout();
         return check.report();
     }
  private:
@@ -175,6 +177,90 @@ class DiscontinuityHarness {
         ts = UINT64_MAX - 10'000'000;
         fill(200, false);
         check.that("natural 64-bit rollover preserves clean spacing", dut->rate_valid_o);
+    }
+    void locked_validation_error() {
+        // #541: Table 5.6 leaves lock criteria to the implementation.
+        // A format reject counts an interval but does not refresh the
+        // 100 ms timeout measured from the last consumed accepted PDU.
+        reset(); fill(200, false);
+        check.that("validation error precondition: sink is locked", dut->locked_o);
+        check.dec("validation error precondition: one lock event", dut->cnt_locked_o, 1);
+        for (unsigned n = 0; n < IVAL_CYC_C + 2; ++n) tick();
+        const auto formats = dut->fmt_err_o;
+        const auto received = dut->pdu_count_o;
+        const auto locks = dut->cnt_locked_o;
+        const auto unlocks = dut->cnt_unlocked_o;
+
+        // Matching SID and subtype, but not the required CRF_AUDIO_SAMPLE.
+        dut->type_i = 0;
+        fields(); dut->frame_p_i = 1; tick();
+        dut->frame_p_i = 0;
+        check.that("validation error preserves established lock", dut->locked_o);
+        bool stayed_locked = dut->locked_o;
+        for (unsigned n = 0; n < IVAL_CYC_C + 2; ++n) {
+            tick(); stayed_locked &= dut->locked_o;
+        }
+        check.that("validation error retains lock through interval commit", stayed_locked);
+        check.dec("locked validation error counts UNSUPPORTED_FORMAT once",
+                  dut->fmt_err_o, formats + 1);
+        check.dec("validation error never counts an accepted PDU", dut->pdu_count_o, received);
+        check.dec("validation error adds no lock event", dut->cnt_locked_o, locks);
+        check.dec("validation error adds no unlock event", dut->cnt_unlocked_o, unlocks);
+        for (unsigned n = 0; n < IVAL_CYC_C + 2; ++n) tick();
+        check.dec("empty interval never recounts the validation error",
+                  dut->fmt_err_o, formats + 1);
+
+        dut->type_i = 1; send();
+        check.that("valid resume keeps the established lock", dut->locked_o);
+        check.dec("valid resume needs no new lock event", dut->cnt_locked_o, locks);
+        // 200 kHz in the Makefile: 100 ms is 20,000 clocks. send() has
+        // already advanced two idle clocks since the last accepted PDU.
+        for (int n = 0; n < 19990; ++n) tick();
+        check.that("silence shorter than 100 ms retains lock", dut->locked_o);
+        check.dec("silence before timeout adds no unlock", dut->cnt_unlocked_o, unlocks);
+        for (int n = 0; n < 20; ++n) tick();
+        check.that("100 ms silence still unlocks after validation error", !dut->locked_o);
+        check.dec("100 ms silence counts one unlock", dut->cnt_unlocked_o, unlocks + 1);
+        for (unsigned n = 0; n < IVAL_CYC_C + 2; ++n) tick();
+        check.dec("continued silence never recounts the unlock", dut->cnt_unlocked_o, unlocks + 1);
+    }
+    void rejected_stream_timeout() {
+        reset(); fill(200, false);
+        check.that("reject stream precondition: sink is locked", dut->locked_o);
+        check.dec("reject stream precondition: one lock event", dut->cnt_locked_o, 1);
+        check.dec("reject stream precondition: no unlock event", dut->cnt_unlocked_o, 0);
+        const auto formats = dut->fmt_err_o;
+
+        // At 200 kHz, matched wrong-type PDUs arrive every 400 clocks
+        // (2 ms), far short of the 20,000-clock timeout. Only the final
+        // valid PDU in fill() may refresh it; send() left us two clocks
+        // past that accept. Grade public outputs around 100 ms, then
+        // keep rejecting through 200 ms to catch a repeat unlock/relock.
+        dut->type_i = 0;
+        bool stayed_locked = true;
+        bool stayed_unlocked = true;
+        for (int elapsed_cyc = 3; elapsed_cyc <= 40012; ++elapsed_cyc) {
+            dut->frame_p_i = elapsed_cyc % 400 == 0;
+            if (dut->frame_p_i) {
+                ts += 2'000'000;
+                fields(); ++seq;
+            }
+            tick();
+            if (elapsed_cyc <= 19992) stayed_locked &= dut->locked_o;
+            if (elapsed_cyc == 19992) {
+                check.that("reject stream retains lock before 100 ms", stayed_locked);
+                check.dec("reject stream before timeout adds no unlock", dut->cnt_unlocked_o, 0);
+            }
+            if (elapsed_cyc == 20012) {
+                check.that("reject stream cannot refresh the 100 ms timeout", !dut->locked_o);
+                check.dec("reject stream timeout counts one unlock", dut->cnt_unlocked_o, 1);
+            }
+            if (elapsed_cyc >= 20012) stayed_unlocked &= !dut->locked_o;
+        }
+        check.that("continued reject stream stays unlocked", stayed_unlocked);
+        check.dec("continued reject stream never recounts the unlock", dut->cnt_unlocked_o, 1);
+        check.dec("reject stream never adds a lock event", dut->cnt_locked_o, 1);
+        check.that("reject stream counts validation errors", dut->fmt_err_o > formats);
     }
 };
 } // namespace

@@ -834,7 +834,7 @@ bind-restore group notes that this sink re-arms via `0x738`.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x738` | `CRF_CTRL` | RW/RO | `0` | `[0]` CRF sink enable (RW); `[31]` locked (RO live: 8 clean consecutive PDUs to lock, 100 ms silence or a validation error to unlock) |
+| `0x738` | `CRF_CTRL` | RW/RO | `0` | `[0]` CRF sink enable (RW); `[31]` locked (RO live). Eight clean consecutive PDUs establish lock. No consumed accepted PDU for 100 ms clears lock. A profile validation error retains lock and breaks settling. It does not refresh the timeout. Each observation interval containing errors increments `UNSUPPORTED_FORMAT` (`fmt_err_o`) once. `CRF_STATUS[15:8]` (`0x74C`) exposes its low eight bits. GET_COUNTERS exposes all 32 bits. |
 | `0x73C` | `CRF_SIDLO` | RW | `0` | followed CRF stream_id `[31:0]` |
 | `0x740` | `CRF_SIDHI` | RW | `0` | stream_id `[63:32]` |
 | `0x744` | `CRF_DELTA` | RO | `0` | signed `crf_ts - ptp_now` (ns) at each accepted PDU — phase, same signed-delta contract as `AVTPRX_TSD` (0x6EC); carries the talker+transit constant, deliberately NOT a servo input |
