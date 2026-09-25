@@ -1,0 +1,31 @@
+00	0	4s	python3 scripts/docs_check.py
+01	0	3s	python3 scripts/check_em_dash.py --base 0b81fdc969131b82c535c4a183a78065fd1cd2d8
+02	0	0s	python3 scripts/check_doc_style.py
+03	0	0s	python3 scripts/check_doc_style.py --selftest
+04	0	0s	python3 docs/DOC_MAP.gen.py --check
+05	0	1s	python3 scripts/gen_toc.py --selftest
+06	0	1s	python3 scripts/gen_toc.py --verify-anchors
+07	0	2s	python3 scripts/gen_toc.py --check
+08	0	0s	python3 scripts/check_doc_paths.py
+09	0	1s	python3 docs/traceability/gen_module_matrix.py --check
+10	0	0s	python3 scripts/check_feature_status.py
+11	0	1s	python3 scripts/check_feature_status.py --self-test
+12	0	2s	python3 scripts/check_nvm_record_space.py
+13	0	31s	python3 scripts/check_nvm_record_space.py --self-test
+14	0	22s	python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py
+15	0	39s	python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+16	0	14s	python3 scripts/check_baremetal_only.py --check
+17	0	3s	python3 scripts/check_baremetal_only.py --selftest
+18	0	4s	python3 scripts/measure_test_evidence.py --check
+19	0	5s	python3 scripts/measure_test_evidence.py --selftest
+20	0	0s	python3 scripts/ci_events.py --check
+21	0	15s	python3 scripts/ci_events.py --selftest
+22	0	1s	python3 scripts/check_cpp_idiom.py
+23	0	3s	python3 scripts/check_py_idiom.py
+24	0	1s	python3 scripts/check_hygiene.py --check
+25	0	1s	python3 scripts/check_todo_ownership.py
+26	0	0s	python3 scripts/measure_naming.py --check
+27	0	2s	python3 scripts/measure_fail_fast.py --check
+28	0	1s	python3 scripts/check_rtl_source_lists.py
+29	0	0s	python3 scripts/check_archive.py
+30	0	0s	git diff --check 0b81fdc969131b82c535c4a183a78065fd1cd2d8 2ab66c9de3a63942c4d3251e1354e8ad3a50d88c

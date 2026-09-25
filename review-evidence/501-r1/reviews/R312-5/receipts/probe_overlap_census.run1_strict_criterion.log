@@ -1,0 +1,12 @@
+ sw/builder/test_builder.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+planted rc=1
+11:    raise AssertionError(
+14:AssertionError: the compiled census could not build the firmware with $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, which IS the RV32 target: a source this gate cannot compile is a source whose CSR stores it cannot census; ['      |                                                          
+restored blob e0a8c0021649c73bd5118fe51cc4528459336e22
+RESULT: NOT caught
+
+real	0m9.455s
+user	0m17.569s
+sys	0m34.064s
+rc=1

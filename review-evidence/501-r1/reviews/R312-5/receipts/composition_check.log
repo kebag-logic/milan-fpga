@@ -1,0 +1,21 @@
+candidate parents: 2ab66c9de3a63942c4d3251e1354e8ad3a50d88c 0b81fdc969131b82c535c4a183a78065fd1cd2d8 efcabc379b1e0be1366bfc05bdcc05a759b55616
+merge base (PR source base): 573f0052a0e4412e81f0845438fcec2086ce5d55
+clean merge-tree of parent+PR == candidate tree c31836885d0319953ec3ea3613a88c6b93977fbf
+408 step 4487359031b52b0b92e526839473f2e9c956c967 tree == live dev ffcbd33de70278ae34b533dcbadde0b36c8cba13 tree
+files(parent..candidate) == files(PR source) (14)
+files(PR..candidate) == files(predecessors) (33)
+overlap (changed by both):
+  docs/integration/BAREMETAL_FIRMWARE.md
+  sw/builder/test_builder.py
+  dev408 touches: docs/integration/BAREMETAL_FIRMWARE.md sw/builder/test_builder.py 
+  387b touches: docs/integration/BAREMETAL_FIRMWARE.md sw/builder/test_builder.py 
+  548 touches: 
+  docs/integration/BAREMETAL_FIRMWARE.md: PR delta patch-id d0801bc4611c188934a5e0be6d7b9b691f7f86e9 identical on predecessor side
+  sw/builder/test_builder.py: PR delta patch-id eccd231a7c424f7b2b35e2492304a362540d5d1d identical on predecessor side
+573f0052 amap_edit_validate sha256 6232a7e4d196863b
+2ab66c9d amap_edit_validate sha256 6232a7e4d196863b
+unchanged base..candidate: hdl/milan/KL_nvm_backend.sv b6dc1f05c3cf622ef2d41e8b7b71d0ac87b6c6bf
+unchanged base..candidate: protocol-processor 09f9bf3846511f8388d995126502ed92eaa65213
+unchanged base..candidate: gptp-processor e5dcea6e351abff18a27a00f8e345f3251bdbd8f
+unchanged base..candidate: third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+rc=0

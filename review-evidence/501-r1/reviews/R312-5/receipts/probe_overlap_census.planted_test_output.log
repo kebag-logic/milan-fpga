@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+    t.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/501-r312-5-packet/scratch/candgit/sw/builder/test_builder.py", line 11323, in test_baremetal_profile_contract
+    baseline_census_verdict = assert_boot_contract(
+        firmware_source, docs_source, csr_source)
+  File "$REVIEWS/501-r312-5-packet/scratch/candgit/sw/builder/test_builder.py", line 11107, in assert_boot_contract
+    census_taken = census_take(source)
+  File "$REVIEWS/501-r312-5-packet/scratch/candgit/sw/builder/test_builder.py", line 4972, in census_take
+    raise AssertionError(
+    ...<3 lines>...
+        f"cannot census; {built.stderr.strip().splitlines()[-1:]}")
+AssertionError: the compiled census could not build the firmware with $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, which IS the RV32 target: a source this gate cannot compile is a source whose CSR stores it cannot census; ['      |                                                                                                MILAN_NVM_MAPOUT_CLUSTERS_15']
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
