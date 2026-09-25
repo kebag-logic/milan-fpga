@@ -27,8 +27,22 @@ MUTANTS = (
     ("step_dedupe_removed", "slew_window_w && !step_hit_w;", "slew_window_w;",
      "[S5] coincident step+slew window counted once"),
 )
-STREAK_MUTANT = ("slew_streak_reset_removed", "if (slew_hit_w) disc_run_r <= '0;", "",
-                 "[U15] four fresh guard trips precede re-base")
+STREAK_MUTANTS = (
+    ("slew_streak_reset_removed", "if (slew_hit_w) disc_run_r <= '0;", "",
+     "[U15] four fresh guard trips precede re-base"),
+    ("slew_discard_extends_streak", "if (slew_hit_w) disc_run_r <= '0;",
+     "if (slew_hit_w) disc_run_r <= disc_run_r + 2'd1;",
+     "[U15] four fresh guard trips precede re-base"),
+    ("slew_discard_counts_as_guard_trip", "if (slew_hit_w) disc_run_r <= '0;",
+     "if (slew_hit_w) begin\n"
+     "          if (disc_run_r == 2'(DISC_MAX_C - 1)) begin\n"
+     "            win_valid_r <= 1'b0;\n"
+     "            disc_run_r  <= '0;\n"
+     "          end else begin\n"
+     "            disc_run_r <= disc_run_r + 2'd1;\n"
+     "          end\n"
+     "        end", "[U15] four fresh guard trips precede re-base"),
+)
 
 
 def run_case(work: Path, name: str, source: str, failure: str | None,
@@ -80,13 +94,13 @@ def main() -> int:
         if not run_case(work, "clean_unit", source, None, unit=True):
             return 1
         results = [True, True]
-        for name, anchor, replacement, failure in (*MUTANTS, STREAK_MUTANT):
+        for name, anchor, replacement, failure in (*MUTANTS, *STREAK_MUTANTS):
             if source.count(anchor) != 1:
                 print(f"FAIL {name}: expected exactly one mutation anchor")
                 results.append(False)
                 continue
             results.append(run_case(work, name, source.replace(anchor, replacement), failure,
-                                    unit=name == STREAK_MUTANT[0]))
+                                    unit=any(name == item[0] for item in STREAK_MUTANTS)))
     failures = sum(not passed for passed in results)
     print(f"== mmcm_servo slew mutants: checks: {len(results)}   failures: {failures} ==")
     return 1 if failures else 0

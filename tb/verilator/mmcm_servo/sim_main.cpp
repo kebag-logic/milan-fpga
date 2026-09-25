@@ -556,8 +556,10 @@ class MmcmServoUnitHarness {
         ck("[U15] LOCKED before", state(), 4);
         std::vector<double> before;
         dut->crf_rate_i = rate_for_ppm(+80.0) + 2'000'000;
-        run_noting_discards(12.0, 2, before);
-        ck("[U15] arm: two guard discards open a streak", before.size(), 2);
+        // One guard trip plus two tainted windows cannot wrap a four-trip
+        // streak to zero and hide a regression that counts slew discards.
+        run_noting_discards(12.0, 1, before);
+        ck("[U15] arm: one guard discard opens a streak", before.size(), 1);
         dut->phc_slew_active_i = 1;
         std::vector<double> during;
         run_noting_discards(8.0, 1, during);

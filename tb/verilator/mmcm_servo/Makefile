@@ -18,7 +18,8 @@
 #
 # #545 round 2, 2026-09-25: clean default 952.797 s on two CPUs
 # (taskset -c 10,11 make; Verilator 5.052), within the 1800 s budget.
-# Shared-host local measurement; 847.203 s margin. Mutations are explicit.
+# Shared-host local margin: 847.203 s. Mutations are explicit.
+# Hosted budget basis: docs/testing/CI_WORKFLOWS.md, mmcm_servo row.
 
 VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
