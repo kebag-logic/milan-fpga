@@ -1,0 +1,30 @@
+### current (non-history) statements of the CRF lock/validation-error rule
+docs/ENDSTATION_BUILDER.md:69:- **[4. What the 8x8 shape adds (endstation_ax7101_8x8.yaml)](#4-what-the-8x8-shape-adds-endstation_ax7101_8x8yaml)** -- Descriptor growth from 1×1 to 8×8 with the clause driving each count, and the new obligat
+docs/diagrams/audio_stream_path.drawio:48:100 ms silence unlock, format compare
+docs/diagrams/audio_stream_path.gen.py:93:     ["lock on 1st valid PDU, 8-PDU settle,", "100 ms silence unlock, format compare",
+docs/diagrams/audio_stream_path.svg:92:<text x="660" y="803" font-size="11.8" fill="#37474F">100 ms silence unlock, format compare</text>
+docs/reference/REGISTER_MAP.md:185:  - [0x738  -  CRF media-clock sink  (Milan v1.2 7.3, KL_crf_rx)](#0x738-----crf-media-clock-sink--milan-v12-73-kl_crf_rx) -- The measurement half of clock recovery: lock takes 8 clean PDUs and drops after
+docs/reference/REGISTER_MAP.md:837:| `0x738` | `CRF_CTRL` | RW/RO | `0` | `[0]` CRF sink enable (RW); `[31]` locked (RO live). Eight clean consecutive PDUs establish lock. No consumed accepted PDU for 100 ms clears lock. A profile validatio
+docs/reference/REGISTER_MAP.md:888:   engine's own 100 ms silence timeout (the harness advances that timeout
+hdl/ieee1722/crf/KL_crf_rx.sv:34:                  locked_o: 8 clean consecutive PDUs consumed while started
+hdl/ieee1722/crf/KL_crf_rx.sv:91:                  a 100 ms silence re-seeds, so a new talker's mr level is
+hdl/ieee1722/crf/KL_crf_rx.sv:260:  //! reference silently (bind rise and the 100 ms silence re-seed), and a
+hdl/ieee1722/crf/KL_crf_rx.sv:296:  //! lock: 8 clean consecutive PDUs in, 100 ms silence out (AAF contract)
+hdl/milan/milan_datapath.sv:3069:  //  100 ms of CRF silence (and needs 8 clean PDUs to re-lock), so the edge
+
+### history-only occurrence of the old claim (obsolete page, not authoritative)
+docs/history/v1/design/TIME_SYNC.md:351:  validation error) to unlock, mirroring the AAF media-lock contract.
+
+### fmt_err_o wiring: CRF_STATUS slice and GET_COUNTERS full width
+hdl/milan/milan_datapath.sv:2574:    .i_crf_status       ({crf_pducnt_w[15:0], crf_fmterr_w[7:0],
+hdl/milan/milan_datapath.sv:3556:      6'd8    : ctr_crf_blk_w = crf_fmterr_w;    // @32  UNSUPPORTED_FORMAT
+hdl/milan/milan_datapath.sv:5506:    .fmt_err_o   (crf_fmterr_w),
+hdl/common/csr/milan_csr.sv:417:  input  wire [31:0]             i_crf_status,        //! RO 0x74C {pdu16,fmt8,seq8}
+hdl/common/csr/milan_csr.sv:2355:      A_CRF_CTRL:   live_mux = {i_crf_locked, 30'd0, crf_ctrl[0]};
+hdl/common/csr/milan_csr.sv:2358:      A_CRF_STATUS: live_mux = i_crf_status;
+
+### pre-existing integration check of lock retention after one reject
+1769:        ck("CRF still locked (no timeout)", axi_read(A_CRF_CTRL) >> 31, 1);
+
+### testing index row for crf_rx
+463:| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. The default gate includes tu, jump, refill, sample-edge and servo-validity mutants |

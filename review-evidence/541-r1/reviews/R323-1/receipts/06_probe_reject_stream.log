@@ -1,0 +1,24 @@
+== head: built=True rc=0
+   make: Entering directory '$REVIEWS/541-r323-1-packet/scratch/probe/head/tb/verilator/crf_rx'
+   $REVIEWS/541-r323-1-packet/scripts/verilator_j8.sh --cc --exe --build -j 0 --top-module KL_crf_rx --public-flat-rw -GCLK_FREQ_HZ_P=200000 -GIVAL_CYC_P=200 -GMAXTT_NS_P=2000000 -GEARLY_MARGIN_NS_P=10000000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra" -Mdir obj_discontinuity $REVIEWS/541-r323-1-packet/scratch/probe/head/head.sv sim_discontinuity.cpp -o Vdiscontinuity
+   make[1]: Entering directory '$REVIEWS/541-r323-1-packet/scratch/probe/head/tb/verilator/crf_rx/obj_discontinuity'
+   make[1]: Leaving directory '$REVIEWS/541-r323-1-packet/scratch/probe/head/tb/verilator/crf_rx/obj_discontinuity'
+   [ ok ] probe precondition: sink is locked
+   [ ok ] probe: rejects alone retain lock before 100 ms
+   [ ok ] probe: reject-only stream still unlocks at 100 ms
+   [ ok ] probe: that unlock is one MEDIA_UNLOCKED event got=1 exp=1
+   == crf_rx discontinuity: checks: 2194   failures: 0 ==
+   RESULT: PASS
+   make: Leaving directory '$REVIEWS/541-r323-1-packet/scratch/probe/head/tb/verilator/crf_rx'
+== uf_refreshes_timeout: built=True rc=2
+   make: Entering directory '$REVIEWS/541-r323-1-packet/scratch/probe/uf_refreshes_timeout/tb/verilator/crf_rx'
+   $REVIEWS/541-r323-1-packet/scripts/verilator_j8.sh --cc --exe --build -j 0 --top-module KL_crf_rx --public-flat-rw -GCLK_FREQ_HZ_P=200000 -GIVAL_CYC_P=200 -GMAXTT_NS_P=2000000 -GEARLY_MARGIN_NS_P=10000000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra" -Mdir obj_discontinuity $REVIEWS/541-r323-1-packet/scratch/probe/uf_refreshes_timeout/uf_refreshes_timeout.sv sim_discontinuity.cpp -o Vdiscontinuity
+   make[1]: Entering directory '$REVIEWS/541-r323-1-packet/scratch/probe/uf_refreshes_timeout/tb/verilator/crf_rx/obj_discontinuity'
+   make[1]: Leaving directory '$REVIEWS/541-r323-1-packet/scratch/probe/uf_refreshes_timeout/tb/verilator/crf_rx/obj_discontinuity'
+   [ ok ] probe precondition: sink is locked
+   [ ok ] probe: rejects alone retain lock before 100 ms
+   [FAIL] probe: reject-only stream still unlocks at 100 ms
+   [FAIL] probe: that unlock is one MEDIA_UNLOCKED event got=0 exp=1
+   == crf_rx discontinuity: checks: 2194   failures: 2 ==
+   RESULT: FAIL
+   make: Leaving directory '$REVIEWS/541-r323-1-packet/scratch/probe/uf_refreshes_timeout/tb/verilator/crf_rx'

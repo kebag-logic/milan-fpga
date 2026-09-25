@@ -1,0 +1,32 @@
+5b73d3f47dfed519eb988c13d6beb1db664ef1e0 f0081e180e4c8c2637ef97f1a65236cb09051572724487c336657d74c2321de8 lines=278
+2734b771bcf0b383ea62ef05744452827bafe9e4 f0081e180e4c8c2637ef97f1a65236cb09051572724487c336657d74c2321de8 lines=278
+IDENTICAL
+rc=0
+--- raw diff hunks (unified=0)
+diff --git a/hdl/ieee1722/crf/KL_crf_rx.sv b/hdl/ieee1722/crf/KL_crf_rx.sv
+index 2429b4f51..6ddd3af2b 100644
+--- a/hdl/ieee1722/crf/KL_crf_rx.sv
++++ b/hdl/ieee1722/crf/KL_crf_rx.sv
+@@ -34,4 +34,9 @@
+-                  locked_o: PDUs arriving AND |delta jitter| within window
+-                            for 8 consecutive PDUs; drops after 100 ms
+-                            without an accepted PDU (mirrors the AAF
+-                            media-lock contract) or on a validation error.
++                  locked_o: 8 clean consecutive PDUs consumed while started
++                            establish lock; drops after 100 ms
++                            without a consumed accepted PDU (mirrors the
++                            AAF media-lock contract). A profile validation
++                            error breaks settling but retains an existing
++                            lock and does not refresh the timeout. It counts
++                            in UNSUPPORTED_FORMAT at the observation-interval
++                            commit: fmt_err_o, full-width via GET_COUNTERS,
++                            low 8 bits at CRF_STATUS[15:8] (0x74C).
+--- files changed
+M	docs/reference/REGISTER_MAP.md
+M	hdl/ieee1722/crf/KL_crf_rx.sv
+M	tb/verilator/crf_rx/mutants.py
+M	tb/verilator/crf_rx/sim_discontinuity.cpp
+--- commit (hash parents / subject / body)
+2734b771bcf0b383ea62ef05744452827bafe9e4 5b73d3f47dfed519eb988c13d6beb1db664ef1e0
+Document and test CRF lock retention on validation errors
+[body:]

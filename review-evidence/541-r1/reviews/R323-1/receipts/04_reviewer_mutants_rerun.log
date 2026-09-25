@@ -1,0 +1,6 @@
+clean unit: rc=0
+clean discontinuity: rc=0
+clean talker_step: rc=0
+== clean: CONTROL PASS
+uf_unlock_counted unit: rc=2 first failures: ['pdu#895   locked_o                               got=0 exp=1', 'pdu#895   cnt_unlocked_o                         got=2 exp=1', 'pdu#896   locked_o                               got=0 exp=1', 'pdu#896   cnt_unlocked_o                         got=2 exp=1', 'pdu#897   locked_o                               got=0 exp=1', 'pdu#897   cnt_unlocked_o                         got=2 exp=1']
+uf_unlock_counted discontinuity: rc=2 first failures: ['validation error preserves established lock', 'validation error retains lock through interval commit', 'validation error adds no unlock event    got=1 exp=0', 'valid resume keeps the established lock', 'silence shorter than 100 ms retains lock', 'silence before timeout adds no unlock    got=1 exp=0']

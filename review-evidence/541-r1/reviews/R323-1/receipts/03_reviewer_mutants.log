@@ -1,0 +1,42 @@
+clean unit: rc=0
+clean discontinuity: rc=0
+clean talker_step: rc=0
+== clean: CONTROL PASS
+uf_refreshes_timeout unit: rc=0
+uf_refreshes_timeout discontinuity: rc=0
+uf_refreshes_timeout talker_step: rc=0
+== uf_refreshes_timeout: SURVIVED
+uf_keeps_settle unit: rc=2 first failures: ['pdu#1032  locked_o                               got=1 exp=0', 'pdu#1032  cnt_locked_o                           got=1 exp=0', 'pdu#1033  locked_o                               got=1 exp=0', 'pdu#1033  cnt_locked_o                           got=1 exp=0']
+uf_keeps_settle discontinuity: rc=0
+uf_keeps_settle talker_step: rc=0
+== uf_keeps_settle: DETECTED by unit
+uf_unlock_at_commit unit: rc=2 first failures: ['pdu#895   locked_o                               got=0 exp=1', 'pdu#896   locked_o                               got=0 exp=1', 'pdu#897   locked_o                               got=0 exp=1', 'pdu#898   locked_o                               got=0 exp=1', 'pdu#899   locked_o                               got=0 exp=1', 'pdu#900   locked_o                               got=0 exp=1']
+uf_unlock_at_commit discontinuity: rc=2 first failures: ['validation error retains lock through interval commit', 'valid resume keeps the established lock', 'silence shorter than 100 ms retains lock', '100 ms silence counts one unlock         got=0 exp=1', 'continued silence never recounts the unlock got=0 exp=1']
+uf_unlock_at_commit talker_step: rc=0
+== uf_unlock_at_commit: DETECTED by unit,discontinuity
+uf_unlock_counted unit: BUILD FAILED rc=2
+uf_unlock_counted discontinuity: rc=2 first failures: ['validation error preserves established lock', 'validation error retains lock through interval commit', 'validation error adds no unlock event    got=1 exp=0', 'valid resume keeps the established lock', 'silence shorter than 100 ms retains lock', 'silence before timeout adds no unlock    got=1 exp=0']
+uf_unlock_counted talker_step: rc=0
+== uf_unlock_counted: BUILD-FAIL
+uf_uncounted_when_locked unit: rc=2 first failures: ['2 rejects: UNSUPPORTED_FORMAT +1               got=1 exp=2', 'pdu#895   fmt_err_o                              got=1 exp=2', 'pdu#896   fmt_err_o                              got=1 exp=2', 'pdu#897   fmt_err_o                              got=1 exp=2', 'pdu#898   fmt_err_o                              got=1 exp=2', 'pdu#899   fmt_err_o                              got=1 exp=2']
+uf_uncounted_when_locked discontinuity: rc=2 first failures: ['locked validation error counts UNSUPPORTED_FORMAT once got=0 exp=1', 'empty interval never recounts the validation error got=0 exp=1']
+uf_uncounted_when_locked talker_step: rc=0
+== uf_uncounted_when_locked: DETECTED by unit,discontinuity
+uf_counts_frames_rx unit: rc=0
+uf_counts_frames_rx discontinuity: rc=0
+uf_counts_frames_rx talker_step: rc=0
+== uf_counts_frames_rx: SURVIVED
+uf_scores_lock_event unit: rc=2 first failures: ['pdu#895   cnt_locked_o                           got=4 exp=2', 'pdu#896   cnt_locked_o                           got=4 exp=2', 'pdu#897   cnt_locked_o                           got=4 exp=2', 'pdu#898   cnt_locked_o                           got=4 exp=2', 'pdu#899   cnt_locked_o                           got=4 exp=2', 'pdu#900   cnt_locked_o                           got=4 exp=2']
+uf_scores_lock_event discontinuity: rc=2 first failures: ['validation error adds no lock event      got=2 exp=1', 'valid resume needs no new lock event     got=2 exp=1']
+uf_scores_lock_event talker_step: rc=0
+== uf_scores_lock_event: DETECTED by unit,discontinuity
+
+SUMMARY
+clean                        CONTROL PASS
+uf_refreshes_timeout         SURVIVED
+uf_keeps_settle              DETECTED by unit
+uf_unlock_at_commit          DETECTED by unit,discontinuity
+uf_unlock_counted            BUILD-FAIL
+uf_uncounted_when_locked     DETECTED by unit,discontinuity
+uf_counts_frames_rx          SURVIVED
+uf_scores_lock_event         DETECTED by unit,discontinuity
