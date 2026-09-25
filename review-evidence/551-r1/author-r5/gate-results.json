@@ -1,0 +1,186 @@
+[
+  {
+    "name": "behave",
+    "command": [
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "$LANES/551-licence-real-grant/tests",
+    "rc": 0,
+    "expected_rc": 0,
+    "pass_gate": true,
+    "seconds": 1.37,
+    "log": "receipts/behave.log"
+  },
+  {
+    "name": "bdd-mutants",
+    "command": [
+      "python3",
+      "scripts/bdd_mutants.py"
+    ],
+    "cwd": "$MANAGEMENT/2026-09-23/551-a318",
+    "rc": 0,
+    "expected_rc": 0,
+    "pass_gate": true,
+    "seconds": 1.12,
+    "log": "receipts/bdd-mutants.log"
+  },
+  {
+    "name": "obsolete-wording",
+    "command": [
+      "grep",
+      "-rnE",
+      "Residual|pending fix|previous slope",
+      "tests/"
+    ],
+    "cwd": "$LANES/551-licence-real-grant",
+    "rc": 1,
+    "expected_rc": 1,
+    "pass_gate": true,
+    "seconds": 0.03,
+    "log": "receipts/obsolete-wording.log"
+  },
+  {
+    "name": "docs-git",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/551-licence-real-grant",
+    "rc": 0,
+    "expected_rc": 0,
+    "pass_gate": true,
+    "seconds": 4.37,
+    "log": "receipts/docs-git.log"
+  },
+  {
+    "name": "docs-no-git",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "/tmp/milan-551-docs-8j98lz29/tree",
+    "rc": 0,
+    "expected_rc": 0,
+    "pass_gate": true,
+    "seconds": 4.17,
+    "log": "receipts/docs-no-git.log"
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "864b36f5e9450ef64f75ca3f0d68c44330e447d7"
+    ],
+    "cwd": "$LANES/551-licence-real-grant",
+    "rc": 0,
+    "expected_rc": 0,
+    "pass_gate": true,
+    "seconds": 3.12,
+    "log": "receipts/em-dash.log"
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$LANES/551-licence-real-grant",
+    "rc": 0,
+    "expected_rc": 0,
+    "pass_gate": true,
+    "seconds": 0.11,
+    "log": "receipts/doc-style.log"
+  },
+  {
+    "name": "toc-check",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$LANES/551-licence-real-grant",
+    "rc": 0,
+    "expected_rc": 0,
+    "pass_gate": true,
+    "seconds": 2.47,
+    "log": "receipts/toc-check.log"
+  },
+  {
+    "name": "toc-anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "cwd": "$LANES/551-licence-real-grant",
+    "rc": 0,
+    "expected_rc": 0,
+    "pass_gate": true,
+    "seconds": 1.62,
+    "log": "receipts/toc-anchors.log"
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$LANES/551-licence-real-grant",
+    "rc": 0,
+    "expected_rc": 0,
+    "pass_gate": true,
+    "seconds": 0.11,
+    "log": "receipts/doc-paths.log"
+  },
+  {
+    "name": "test-evidence",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "cwd": "$LANES/551-licence-real-grant",
+    "rc": 0,
+    "expected_rc": 0,
+    "pass_gate": true,
+    "seconds": 5.22,
+    "log": "receipts/test-evidence.log"
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "$LANES/551-licence-real-grant",
+    "rc": 0,
+    "expected_rc": 0,
+    "pass_gate": true,
+    "seconds": 0.06,
+    "log": "receipts/diff-check.log"
+  },
+  {
+    "name": "commit-diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "HEAD^",
+      "HEAD"
+    ],
+    "cwd": "$LANES/551-licence-real-grant",
+    "rc": 0,
+    "expected_rc": 0,
+    "pass_gate": true,
+    "seconds": 0.03,
+    "log": "receipts/commit-diff-check.log"
+  }
+]
