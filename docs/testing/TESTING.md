@@ -460,7 +460,7 @@ verdicts and for check counts.
 | [`tb/verilator/clkvalid`](../../tb/verilator/clkvalid) | `KL_ptp_clock_validity` — the AVTP `tu` verdict, two shapes |
 | [`tb/verilator/cls`](../../tb/verilator/cls) | classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
 | [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) | the gating regression born from the CBS datapath bug |
-| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | the CRF Media Clock Input engine. It parses, counts and reports; since #74 the root's `media_clk_resolve` verdict decides whether its measurements steer the servo chain, so a CRF selection makes them actuate |
+| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. The default gate includes tu, jump, refill, sample-edge and servo-validity mutants |
 | [`tb/verilator/crf_tx`](../../tb/verilator/crf_tx) | — |
 | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** - that leg drove the old control-plane windows live. The `obj_pps` leg re-runs the same harness with `PPS_P=1` (#260): the 0x548 block decodes in every build, but `PTP_PPS_CTRL[0]`, its RO built bit `[16]` and `PTP_PPS_WIDTH` are gated, so the default leg grades the **UNSUPPORTED** arm (a structural zero at `o_pps_enable` whatever software writes) and this one grades the supported arm, from one set of expectations rather than two that drift |
 | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |

@@ -26,6 +26,7 @@
 //   U12 discard bookkeeping -> a PHC step restarts the guard's streak; a
 //       step with no window open is not counted; the MCSRV_STAT[15:10]
 //       tally saturates at 63 and IDLE clears it
+//   U13 invalid CRF rate -> trim and lock held; valid rate resumes PI
 //
 // Sim-compressed servo params (-G): 125 us tick, 4 ms window; the ns/512ms
 // CSR unit scale is preserved by NORM_SHIFT so crf_rate_i uses REAL units.
@@ -65,6 +66,7 @@ class MmcmServoUnitHarness {
         prove_implausible_windows_meet_the_guard();
         prove_step_restarts_the_guard_streak();
         prove_step_with_no_window_open_is_not_counted();
+        prove_invalid_remote_sample_holds_the_loop();
         prove_tally_saturates_and_idle_clears_it();
         return report();
     }
@@ -187,6 +189,7 @@ class MmcmServoUnitHarness {
         mm.regs[0x09] = 0x0080;
 
         dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
+        dut->crf_rate_valid_i = 1; // synthetic rate input is valid
         //! this suite selects CRF at CLOCK_SOURCE index 2, a suite-local
         //! value and NOT the shipping index (AEM_CRF_CLKSRC_C = 1 on every
         //! shipping shape since #389: INTERNAL 0, the CRF sink 1). The DUT
@@ -575,6 +578,34 @@ class MmcmServoUnitHarness {
         run_ms(3);
         ck("[U12] back to IDLE", state(), 0);
         ck("[U12] IDLE clears the tally", disc_cnt(), 0);
+    }
+
+    //! The value on an invalid sample bus is deliberately plausible but
+    //! wrong: below the guard, large enough to kick PI if valid is ignored.
+    void prove_invalid_remote_sample_holds_the_loop() {
+        ck("[U13] LOCKED before invalid remote sample", state(), 4);
+        const int16_t before = trim();
+        const auto clean = dut->crf_rate_i;
+        dut->crf_rate_valid_i = 0;
+        dut->crf_rate_i = clean + 150000;
+        run_ms(24);
+        ck("[U13] invalid remote sample holds trim", trim(), before);
+        ck("[U13] invalid remote sample holds LOCKED", state(), 4);
+        dut->crf_rate_i = clean;
+        dut->crf_rate_valid_i = 1;
+        run_ms(24);
+        ck("[U13] clean remote sample resumes locked", state(), 4);
+        // A +10 ppm talker offset stays within the 16 ppm unit lock band.
+        // Demand >5 ppm trim movement, beyond the unit's sampling ripple;
+        // a PI loop latched off during invalidity must fail this check.
+        const int16_t resumed = trim();
+        dut->crf_rate_i = rate_for_ppm(+90.0);
+        run_ms(24);
+        ck("[U13] valid offset resumes PI trim", trim() > resumed + 5 * 16, 1);
+        ck("[U13] valid offset stays LOCKED", state(), 4);
+        dut->crf_rate_i = clean;
+        run_ms(24);
+        ck("[U13] original rate recovers LOCKED", state(), 4);
     }
 
     int report() const {

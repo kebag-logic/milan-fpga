@@ -267,6 +267,7 @@ class PhcStepHarness {
         dut->clk_src_i = 0;
         dut->crf_src_idx_i = 1;
         dut->crf_locked_i = 0;
+        dut->crf_rate_valid_i = 1; // synthetic rate input is valid
         dut->crf_rate_i = 0;
         dut->auto_repair_i = 0;
         dut->ps_invert_i = 0;
