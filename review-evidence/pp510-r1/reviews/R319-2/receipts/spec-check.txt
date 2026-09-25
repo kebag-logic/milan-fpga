@@ -1,0 +1,40 @@
+Milan v1.2 Consolidated (Final Approved 2023-11-30), local PDF sha256 6bb902be1c1de8c44f4c4c583a645b0b37e0b2dac27870486ce229e68ce3bba8 (same fingerprint as round 1)
+Recommendation note, as extracted (pdftotext -layout), each clause:
+3331:Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+3332-a requirement in a future revision of this specificaiton.
+--
+3384:Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+3385-a requirement in a future revision of this specificaiton.
+--
+3397:Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+3398-a requirement in a future revision of this specificaiton.
+--
+3499:Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+3500-a requirement in a future revision of this specificaiton.
+--
+6026:Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+6027-a requirement in a future revision of this specificaiton.
+
+Printed page (= PDF page - 7) of each clause heading:
+  pdf 65 printed 58: 5.4.4.2 SET_SYSTEM_UNIQUE_ID
+  pdf 66 printed 59: 5.4.4.3 GET_SYSTEM_UNIQUE_ID
+  pdf 66 printed 59: 5.4.4.4 SET_MEDIA_CLOCK_REFERENCE_INFO
+  pdf 68 printed 61: 5.4.4.5 GET_MEDIA_CLOCK_REFERENCE_INFO
+  pdf 122 printed 115: 7.6 Media Clock Management
+
+Table 5.19 (MVU status codes):
+ Value       Status code                       Meaning
+ 0           SUCCESS                           The PAAD-AE successfully performed the command and has
+                                               valid results.
+ 1           NOT_IMPLEMENTED                   The PAAD-AE does not support the command type.
+ 2 to 31     -                                 Reserved for future use.
+
+Repository quote at 490e430, 06_aecp_engine.md:624-626:
+“Note: Support for this feature is a recommendation for Milan compliant PAADs.
+This recommendation will become a requirement in a future revision of this specification.”
+(Spelling normalized.)
+and 00_MILAN_COMPLIANCE_REVIEW.md:118-120:
+each state: “Note: Support for this feature is a recommendation for Milan compliant PAADs.
+This recommendation will become a requirement in a future revision of this specification.”
+(Spelling normalized.)
+Difference from the extracted text: 'recomendation' -> 'recommendation', 'specificaiton' -> 'specification'; the repository marks this '(Spelling normalized.)'.

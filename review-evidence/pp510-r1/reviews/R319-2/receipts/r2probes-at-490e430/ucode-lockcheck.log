@@ -1,0 +1,22 @@
+patched E_NOTIMPL: CHECK_LOCK prepended
+<packet>/scratch/r2probes/run-lockcheck/ucode.hex: 2048 words, 80 programs
+reference ROM vs mutant ROM (changed zero-based words):
+<    560	c00000000001
+<    561	d07e80000000
+<    562	e00000000000
+<    563	180000000000
+<    564	000000000234
+>    560	687800000232
+>    561	c00000000001
+>    562	d07e80000000
+>    563	e00000000000
+>    564	180000000000
+23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144  tb/pp_top/ucode.hex
+2c1853f1f678f1e36d0f8ac6b4e9536e2d5ca386ec484af24198eb5d83df32c9  run-lockcheck/ucode.hex
+FAIL: M4L: MVU 0x0001 under another controller's lock must echo NOT_IMPLEMENTED byte-exact
+FAIL: M4L: MVU 0x0003 under another controller's lock must echo NOT_IMPLEMENTED byte-exact
+  [B4] command byte 0 -> response byte 0: 2363 clocks (0.024 % of the 10,000,000-clock AECP budget)
+  [B4b] at 143 clocks (~1424 ns) per access: 7523 clocks for a 316-byte payload over 40 lane writes (0.075 % of budget)
+GI latency walks added: 5568 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 7646 checks, 2 failures
+exit=1

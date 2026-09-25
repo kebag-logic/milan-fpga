@@ -1,0 +1,11 @@
+patched && (desc_ty_r  == MVU_GET_MILAN_INFO_C); -> && ((desc_ty_r == MVU_GET_MILAN_INFO_C) || (desc_ty_r == 16'h0003));
+FAIL: M4: MVU 0x0003 frame length 60, want 118
+FAIL: M4: MVU 0x0003 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED
+FAIL: M4: MVU 0x0003 must retain command cdl 92
+FAIL: M4: MVU 0x0003 NOT_IMPLEMENTED echo is not byte-exact
+FAIL: M4L: MVU 0x0003 under another controller's lock must echo NOT_IMPLEMENTED byte-exact
+  [B4] command byte 0 -> response byte 0: 2363 clocks (0.024 % of the 10,000,000-clock AECP budget)
+  [B4b] at 143 clocks (~1424 ns) per access: 7523 clocks for a 316-byte payload over 40 lane writes (0.075 % of budget)
+GI latency walks added: 5568 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 7646 checks, 5 failures
+exit=1

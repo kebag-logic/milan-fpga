@@ -1,0 +1,13 @@
+run 36079817702 event=push head=490e4309749c83f92d794a8ff10d3043e0f5f080 conclusion=success name=hdl
+  job portability success steps: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+  job docs-gates success steps: Set up job=success; Run actions/checkout@v4=success; Link, matrix, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+  job suites success steps: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+run 36079820839 event=pull_request head=490e4309749c83f92d794a8ff10d3043e0f5f080 conclusion=success name=hdl
+  job portability success steps: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+  job suites success steps: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+  job docs-gates success steps: Set up job=success; Run actions/checkout@v4=success; Link, matrix, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+== suites job 107899087749 log tail:
+== push run 36079817702, suites job log excerpts (exact head):
+PASS pp_top (7666 checks: 7666 PASS, 0 FAIL)
+suites: 1014637 checks total, 0 failing
+PASS suite lines: 33

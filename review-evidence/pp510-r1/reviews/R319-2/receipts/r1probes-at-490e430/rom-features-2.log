@@ -1,0 +1,15 @@
+word 741: 230000000000 -> 230000000002
+23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144  base/tb/pp_top/ucode.hex
+5d2650c1175554256363e90c2ff441e0a3166546e43902a686f2ed72e272f9ea  rom-features-2/ucode.hex
+FAIL: M1: GET_MILAN_INFO response is not byte-exact
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 20 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 01 00 1b c5 0a c1 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 20 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 01 00 1b c5 0a c1 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00
+FAIL: M2: features_flags is 0x00000002, want 0 — this PAAD implements neither Table 5.20 feature
+FAIL: M5b: a junk reserved field changed the answer (it must be ignored on the command and zero in the response)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 20 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 05 00 1b c5 0a c1 00 00 00 00 00 00 00 00 01 00 00 00 02 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 20 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 05 00 1b c5 0a c1 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00
+  [B4] command byte 0 -> response byte 0: 2363 clocks (0.024 % of the 10,000,000-clock AECP budget)
+  [B4b] at 143 clocks (~1424 ns) per access: 7523 clocks for a 316-byte payload over 40 lane writes (0.075 % of budget)
+GI latency walks added: 5568 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002] 7646 checks, 3 failures
+exit=1

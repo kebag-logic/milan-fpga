@@ -1,0 +1,32 @@
+Scope at 490e4309749c83f92d794a8ff10d3043e0f5f080 (tree 84028b430d19317b6bfae8931ebd15cee68388d6)
+history 265d676..490e430:
+490e4309749c83f92d794a8ff10d3043e0f5f080 b51bc3893b06f4d39be49726c1b8f4ed6c65573d Refresh merged MVU waiver evidence and pin refusal under lock
+b51bc3893b06f4d39be49726c1b8f4ed6c65573d 05fd9e1b2390e7cb0c704c07cd3d9ec47ecd0a19 990f96526bb89356c963a260ebbdcf2a77e6623a Merge main into 510-mvu-waiver
+05fd9e1b2390e7cb0c704c07cd3d9ec47ecd0a19 265d6762a58d9d9e545624d6d3f1a34e7006d171 Record October MVU waiver and pin unsupported command responses
+990f96526bb89356c963a260ebbdcf2a77e6623a 265d6762a58d9d9e545624d6d3f1a34e7006d171 af53f79854564bcca35e436758fa625d486c4993 Merge PR #115: notify Stream Inputs when registered accumulated latency changes
+af53f79854564bcca35e436758fa625d486c4993 4f6185ce97e31f3bdacc090ec1ab7ede32456d2e 265d6762a58d9d9e545624d6d3f1a34e7006d171 Merge main into 113-latency-notify
+4f6185ce97e31f3bdacc090ec1ab7ede32456d2e 29840136bb2d21bc0fbe92c7c533368f40837ff6 Test every latency comparator bit through notification responses
+29840136bb2d21bc0fbe92c7c533368f40837ff6 a8f8ce810ddba1816cd129d0afcd71e6e02ade1b Notify Stream Inputs when registered accumulated latency changes
+
+round-2 delta b51bc38..490e430:
+ docs/00_MILAN_COMPLIANCE_REVIEW.md  | 12 ++++++---
+ docs/architecture/06_aecp_engine.md | 14 ++++++++---
+ tb/pp_top/README.md                 | 33 ++++++++++++++++--------
+ tb/pp_top/sim_main.cpp              | 50 +++++++++++++++++++++++++++++++++++++
+ 4 files changed, 90 insertions(+), 19 deletions(-)
+
+PR diff vs main merge-base 990f965 (main tip at review time 990f96526bb89356c963a260ebbdcf2a77e6623a):
+ docs/00_MILAN_COMPLIANCE_REVIEW.md    |  31 +++++++--
+ docs/architecture/01_overview.md      |   4 +-
+ docs/architecture/02_interfaces.md    |   4 +-
+ docs/architecture/03_packet_engine.md |   2 +-
+ docs/architecture/06_aecp_engine.md   |  70 +++++++++++++++++---
+ docs/architecture/07_memory_maps.md   |  23 +++++--
+ tb/pp_top/README.md                   |  49 ++++++++++++--
+ tb/pp_top/sim_main.cpp                | 117 ++++++++++++++++++++++++++++++----
+ 8 files changed, 254 insertions(+), 46 deletions(-)
+
+paths under hdl/syn/scripts/Makefile/.github changed in b51bc38..490e430: 0
+paths under hdl/syn/scripts/Makefile/.github changed in 990f965..490e430: 0
+
+residue search at 490e430: '1,966|1,946' in tree: 0 files; 'P-EN-TALKER-DYN' in tree: 0 files
