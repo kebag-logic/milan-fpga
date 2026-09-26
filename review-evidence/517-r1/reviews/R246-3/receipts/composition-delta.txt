@@ -1,0 +1,52 @@
+# Makefile delta: PR on its base vs candidate on its first parent
+IDENTICAL: diff 5c78ce2e..1d694677 == diff ccfed0e7..de4862cb for Makefile
+# whole-PR diff, composed vs source (index/hunk headers dropped)
+321c321
+<  | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
+---
+>  | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates follow the processor's ACTIVE on every cycle, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
+# blob identity with source head
+1d85befdf8b2d4b2717d419543d2fea13e569e88 1d85befdf8b2d4b2717d419543d2fea13e569e88 scripts/check_baremetal_only.py
+899ca69319a47309483d5e48d6db9544b88724cb 899ca69319a47309483d5e48d6db9544b88724cb tb/verilator/milan_dp/sim_pool.py
+8fdc1e58ab1e292cc3ec98f5564eb8c7e66c9f30 8fdc1e58ab1e292cc3ec98f5564eb8c7e66c9f30 tb/verilator/milan_dp/test_sim_pool.py
+b1a18c5764acd63068b68c953faf91972b6a4faa b1a18c5764acd63068b68c953faf91972b6a4faa tb/verilator/milan_dp/test_sim_pool_backpressure.py
+885d6a1ec867df9c237f839f1f9031b0fa93422f 7327d6ef2128e5e3521e42eb9235b3a219976070 tb/verilator/milan_dp/Makefile
+9e1b4558a39e9852cb706795bbf8f0916be5ca4c 4100925d0f148ea4a79eea5eb5df64829e290931 tb/verilator/milan_dp/README.md
+93b8468e8dfbab17929bb4af9c8928505c7dbf36 0dde64e5755f02fe6b2072c431ed114668bab88d docs/testing/TESTING.md
+# predecessor commits since PR base per shared file
+== tb/verilator/milan_dp/Makefile
+220cb5a3 Merge PR #553: Require the processor's real SRP grant, not the optimistic window, for every talker licence
+8dc98a42 Merge dev into 551-licence-real-grant
+4eca4540 Require real SRP admission for talker licences
+== tb/verilator/milan_dp/README.md
+9143e21a docs: restore the recorded processor pin and clarify ledger rows
+1912c047 Adopt processor pin 0922e434 and refresh integration references
+7eb3b0d4 Merge PR #566: Make SRP and boot declarations describe the implemented behavior
+1658ded2 Merge PR #563: Discard CRF servo windows that overlap a gPTP policy slew and keep the servo locked
+6d181922 Merge dev into 400-403-declaration-truth
+220cb5a3 Merge PR #553: Require the processor's real SRP grant, not the optimistic window, for every talker licence
+ddf8151c Merge dev into 545-crf-servo-slew
+de36e514 test: make declaration fixtures durable and restore saved-state co-simulation
+6e4a3b42 docs: refresh licence grant guarantee and control failure count
+4538d7c0 docs: align slew campaign inventories with their controls
+f219a5ed Require unwarmed refusal arm with admission controls and documentation
+8dc98a42 Merge dev into 551-licence-real-grant
+6cb11238 Merge dev into 400-403-declaration-truth
+b376f611 Merge dev into 545-crf-servo-slew
+b94f53cc test: split slew campaign and cover boundary and PHC-tail cases
+fc8a719f fix(crf): discard policy-slew windows while preserving servo lock
+babb8925 Pin licence contract tests and document pending stale-grant fix
+4eca4540 Require real SRP admission for talker licences
+== docs/testing/TESTING.md
+1658ded2 Merge PR #563: Discard CRF servo windows that overlap a gPTP policy slew and keep the servo locked
+1299b461 Merge PR #564: Measure the 8x8 saved-state capture copy on the product CPU
+ddf8151c Merge dev into 545-crf-servo-slew
+b376f611 Merge dev into 545-crf-servo-slew
+31808e65 Gate capture timing against the 50 MHz contract
+92ad1687 Keep the servo suite index control count current
+b46bbcfb Pin slew guard streak counting controls and hosted budget
+b94f53cc test: split slew campaign and cover boundary and PHC-tail cases
+== scripts/check_baremetal_only.py
+# 504/523 merges are ancestors of the PR base
+4876423d4cf8e89b820c56f8339f230abefb4827 ancestor-of 5c78ce2e
+015edd9ab2248289ff000f6ef14890be1812ba7b ancestor-of 5c78ce2e
