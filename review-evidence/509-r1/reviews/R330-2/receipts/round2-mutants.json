@@ -1,0 +1,47 @@
+{
+  "K1_stale_config": {
+    "mode": "normal",
+    "rc": 1,
+    "tail": [
+      "AuditError: identity probe missed changed generator bytes in model identity"
+    ]
+  },
+  "K1_stale_config-O": {
+    "mode": "-O",
+    "rc": 1,
+    "tail": [
+      "AuditError: identity probe missed changed generator bytes in model identity"
+    ]
+  },
+  "K2_control_ignores_field": {
+    "mode": "normal",
+    "rc": 1,
+    "tail": [
+      "AuditError: identity probe missed changed generator bytes in model identity"
+    ]
+  },
+  "K3_assembler_patch_only": {
+    "mode": "normal",
+    "rc": 1,
+    "tail": [
+      "AuditError: identity probe missed changed generator bytes in model identity"
+    ]
+  },
+  "K4_descriptor_patch_only": {
+    "mode": "normal",
+    "rc": 0,
+    "tail": [
+      "Measured 5 configurations; results: $PACKET/scratch/r2/K4_descriptor_patch_only.json"
+    ],
+    "changed_image_offsets": [],
+    "before_model_id": "0x001BC557FC6ABBC8",
+    "after_model_id": "0x001BC557FC6ABBC8"
+  },
+  "K5_packer_normalizes_last_byte-O": {
+    "mode": "-O",
+    "rc": 1,
+    "tail": [
+      "AuditError: packer changed descriptor bytes: type 1, index 0"
+    ]
+  }
+}

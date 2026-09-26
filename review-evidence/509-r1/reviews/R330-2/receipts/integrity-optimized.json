@@ -1,0 +1,15 @@
+{
+  "optimize": 1,
+  "rows": 32,
+  "outcomes": {
+    "pristine": "decoded",
+    "magic": "AuditError: invalid image magic or version",
+    "version": "AuditError: invalid image magic or version",
+    "trailing byte (declared length)": "AuditError: declared image length differs from packed bytes",
+    "header checksum": "AuditError: invalid image header checksum",
+    "body type vs directory": "AuditError: descriptor body type/index differs from directory",
+    "body index vs directory": "AuditError: descriptor body type/index differs from directory",
+    "row beyond image": "AuditError: descriptor extends beyond packed image"
+  }
+}
+rc=0
