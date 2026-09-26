@@ -54,7 +54,8 @@ The repository tool recorded ROM digest rows for `0922e434`.
 
 Their digests match the `990f9652` rows.
 
-OOC synthesis requires rows for every pin.
+OOC synthesis requires ledger rows for the pin of record.
+Rows must match that exact pin.
 
 The parent wrapper's parameter bindings match the documented inventory.
 
