@@ -1,0 +1,155 @@
+== configs/endstation_arty_4x4.yaml descriptors 64 bytes 10112 sha 1b288e13ccbf03410c593a53bc22f4a68e3d289eef8a7f907e63bc98a51415ff
+   counts {'ENTITY': 1, 'CONFIGURATION': 1, 'AUDIO_UNIT': 1, 'STREAM_INPUT': 5, 'STREAM_OUTPUT': 5, 'AVB_INTERFACE': 1, 'CLOCK_SOURCE': 2, '0xc': 1, '0xd': 1, 'STREAM_PORT_INPUT': 4, 'STREAM_PORT_OUTPUT': 4, 'AUDIO_CLUSTER': 32, 'AUDIO_MAP': 4, 'CONTROL': 1, 'CLOCK_DOMAIN': 1}
+   model_id {'value': '0x001BC557FC6ABBC8', 'source': 'hash', 'hash': '0x001BC557FC6ABBC8'} adp {'talker_stream_sources': 5, 'listener_stream_sinks': 5, 'talker_capabilities': 18433, 'listener_capabilities': 18433}
+   lengths {'ENTITY': [312], 'CONFIGURATION': [106], 'AUDIO_UNIT': [148], 'STREAM_INPUT': [146, 154], 'STREAM_OUTPUT': [146], 'AVB_INTERFACE': [102], 'CLOCK_SOURCE': [86], '0xc': [72], '0xd': [452], 'STREAM_PORT_INPUT': [20], 'STREAM_PORT_OUTPUT': [20], 'AUDIO_CLUSTER': [90], 'AUDIO_MAP': [40], 'CONTROL': [113], 'CLOCK_DOMAIN': [80]}
+   ENTITY {'entity_id': '0x020000FFFE000002', 'model_id': '0x001BC557FC6ABBC8', 'capabilities': '0x0000C588', 'talker_sources': 5, 'talker_caps': 18433, 'listener_sinks': 5, 'listener_caps': 18433, 'configurations': 1, 'current_config': 0}
+   CONFIGURATION len 106 {'counts_offset': 74, 'counts_count': 8, 'counts': [[2, 1], [5, 5], [6, 5], [9, 1], [36, 1], [10, 2], [26, 1], [12, 1]]}
+   AUDIO_UNIT off 712 len 148 {'rates_offset': 144, 'rates_count': 1, 'rates': [48000], 'current_rate': 48000}
+   STREAM_INPUT 0 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022001006000', '0x0215022002006000']
+   STREAM_INPUT 1 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022001006000', '0x0215022002006000']
+   STREAM_INPUT 2 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022001006000', '0x0215022002006000']
+   STREAM_INPUT 3 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022001006000', '0x0215022002006000']
+   STREAM_INPUT 4 CRF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x041060010000BB80']
+   STREAM_OUTPUT 0 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022001006000']
+   STREAM_OUTPUT 1 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022001006000']
+   STREAM_OUTPUT 2 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022001006000']
+   STREAM_OUTPUT 3 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022001006000']
+   STREAM_OUTPUT 4 CRF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 3, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x041060010000BB80']
+   AVB_INTERFACE 0 len 102 {'port_number': 1, 'mac': '020000000002', 'clock_identity': '020000fffe000002', 'controls': 0}
+   CLOCK_SOURCE 0 len 86 {'source_type': 0, 'location_type': 10, 'location_index': 0}
+   CLOCK_SOURCE 1 len 86 {'source_type': 2, 'location_type': 5, 'location_index': 4}
+   STREAM_PORT_INPUT 0 len 20 {'clusters': 4, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 1 len 20 {'clusters': 4, 'base_cluster': 4, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 2 len 20 {'clusters': 4, 'base_cluster': 8, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 3 len 20 {'clusters': 4, 'base_cluster': 12, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_OUTPUT 0 len 20 {'clusters': 4, 'base_cluster': 16, 'maps': 1, 'base_map': 0}
+   STREAM_PORT_OUTPUT 1 len 20 {'clusters': 4, 'base_cluster': 20, 'maps': 1, 'base_map': 1}
+   STREAM_PORT_OUTPUT 2 len 20 {'clusters': 4, 'base_cluster': 24, 'maps': 1, 'base_map': 2}
+   STREAM_PORT_OUTPUT 3 len 20 {'clusters': 4, 'base_cluster': 28, 'maps': 1, 'base_map': 3}
+   AUDIO_MAP 0 len 40 off 8 n 4 [[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0]]
+   AUDIO_MAP 1 len 40 off 8 n 4 [[1, 0, 0, 0], [1, 1, 1, 0], [1, 2, 2, 0], [1, 3, 3, 0]]
+   AUDIO_MAP 2 len 40 off 8 n 4 [[2, 0, 0, 0], [2, 1, 1, 0], [2, 2, 2, 0], [2, 3, 3, 0]]
+   AUDIO_MAP 3 len 40 off 8 n 4 [[3, 0, 0, 0], [3, 1, 1, 0], [3, 2, 2, 0], [3, 3, 3, 0]]
+   CONTROL 0 len 113 {'control_type': '0x90E0F00000000001', 'reset_time': 0, 'values_offset': 104}
+   CLOCK_DOMAIN off 6768 len 80 {'sources_offset': 76, 'sources_count': 2, 'sources': [0, 1]}
+   AUDIO_CLUSTER channel_count {1: 32} lengths {90: 32}
+== configs/endstation_arty_8ch.yaml descriptors 96 bytes 15360 sha 2b5c008cf3a2ff1eca11ef5e24c5a2e391e97f25435854430e563758de516b9b
+   counts {'ENTITY': 1, 'CONFIGURATION': 1, 'AUDIO_UNIT': 1, 'STREAM_INPUT': 5, 'STREAM_OUTPUT': 5, 'AVB_INTERFACE': 1, 'CLOCK_SOURCE': 2, '0xc': 1, '0xd': 1, 'STREAM_PORT_INPUT': 4, 'STREAM_PORT_OUTPUT': 4, 'AUDIO_CLUSTER': 64, 'AUDIO_MAP': 4, 'CONTROL': 1, 'CLOCK_DOMAIN': 1}
+   model_id {'value': '0x001BC507C86F4172', 'source': 'hash', 'hash': '0x001BC507C86F4172'} adp {'talker_stream_sources': 5, 'listener_stream_sinks': 5, 'talker_capabilities': 18433, 'listener_capabilities': 18433}
+   lengths {'ENTITY': [312], 'CONFIGURATION': [106], 'AUDIO_UNIT': [148], 'STREAM_INPUT': [146, 154], 'STREAM_OUTPUT': [146], 'AVB_INTERFACE': [102], 'CLOCK_SOURCE': [86], '0xc': [72], '0xd': [452], 'STREAM_PORT_INPUT': [20], 'STREAM_PORT_OUTPUT': [20], 'AUDIO_CLUSTER': [90], 'AUDIO_MAP': [72], 'CONTROL': [113], 'CLOCK_DOMAIN': [80]}
+   ENTITY {'entity_id': '0x020000FFFE000002', 'model_id': '0x001BC507C86F4172', 'capabilities': '0x0000C588', 'talker_sources': 5, 'talker_caps': 18433, 'listener_sinks': 5, 'listener_caps': 18433, 'configurations': 1, 'current_config': 0}
+   CONFIGURATION len 106 {'counts_offset': 74, 'counts_count': 8, 'counts': [[2, 1], [5, 5], [6, 5], [9, 1], [36, 1], [10, 2], [26, 1], [12, 1]]}
+   AUDIO_UNIT off 712 len 148 {'rates_offset': 144, 'rates_count': 1, 'rates': [48000], 'current_rate': 48000}
+   STREAM_INPUT 0 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 1 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 2 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 3 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 4 CRF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x041060010000BB80']
+   STREAM_OUTPUT 0 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 1 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 2 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 3 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 4 CRF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 3, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x041060010000BB80']
+   AVB_INTERFACE 0 len 102 {'port_number': 1, 'mac': '020000000002', 'clock_identity': '020000fffe000002', 'controls': 0}
+   CLOCK_SOURCE 0 len 86 {'source_type': 0, 'location_type': 10, 'location_index': 0}
+   CLOCK_SOURCE 1 len 86 {'source_type': 2, 'location_type': 5, 'location_index': 4}
+   STREAM_PORT_INPUT 0 len 20 {'clusters': 8, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 1 len 20 {'clusters': 8, 'base_cluster': 8, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 2 len 20 {'clusters': 8, 'base_cluster': 16, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 3 len 20 {'clusters': 8, 'base_cluster': 24, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_OUTPUT 0 len 20 {'clusters': 8, 'base_cluster': 32, 'maps': 1, 'base_map': 0}
+   STREAM_PORT_OUTPUT 1 len 20 {'clusters': 8, 'base_cluster': 40, 'maps': 1, 'base_map': 1}
+   STREAM_PORT_OUTPUT 2 len 20 {'clusters': 8, 'base_cluster': 48, 'maps': 1, 'base_map': 2}
+   STREAM_PORT_OUTPUT 3 len 20 {'clusters': 8, 'base_cluster': 56, 'maps': 1, 'base_map': 3}
+   AUDIO_MAP 0 len 72 off 8 n 8 [[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0], [0, 4, 4, 0], [0, 5, 5, 0], [0, 6, 6, 0], [0, 7, 7, 0]]
+   AUDIO_MAP 1 len 72 off 8 n 8 [[1, 0, 0, 0], [1, 1, 1, 0], [1, 2, 2, 0], [1, 3, 3, 0], [1, 4, 4, 0], [1, 5, 5, 0], [1, 6, 6, 0], [1, 7, 7, 0]]
+   AUDIO_MAP 2 len 72 off 8 n 8 [[2, 0, 0, 0], [2, 1, 1, 0], [2, 2, 2, 0], [2, 3, 3, 0], [2, 4, 4, 0], [2, 5, 5, 0], [2, 6, 6, 0], [2, 7, 7, 0]]
+   AUDIO_MAP 3 len 72 off 8 n 8 [[3, 0, 0, 0], [3, 1, 1, 0], [3, 2, 2, 0], [3, 3, 3, 0], [3, 4, 4, 0], [3, 5, 5, 0], [3, 6, 6, 0], [3, 7, 7, 0]]
+   CONTROL 0 len 113 {'control_type': '0x90E0F00000000001', 'reset_time': 0, 'values_offset': 104}
+   CLOCK_DOMAIN off 9968 len 80 {'sources_offset': 76, 'sources_count': 2, 'sources': [0, 1]}
+   AUDIO_CLUSTER channel_count {1: 64} lengths {90: 64}
+== configs/endstation_arty_current.yaml descriptors 32 bytes 5792 sha ac833c3ccde42a2d9a78b517d660b9f7da03c4b3d31227aa65dcaf9e8def6192
+   counts {'ENTITY': 1, 'CONFIGURATION': 1, 'AUDIO_UNIT': 1, 'STREAM_INPUT': 2, 'STREAM_OUTPUT': 1, 'AVB_INTERFACE': 1, 'CLOCK_SOURCE': 2, '0xc': 1, '0xd': 1, 'STREAM_PORT_INPUT': 1, 'STREAM_PORT_OUTPUT': 1, 'AUDIO_CLUSTER': 16, 'AUDIO_MAP': 1, 'CONTROL': 1, 'CLOCK_DOMAIN': 1}
+   model_id {'value': '0x001BC50AC1000005', 'source': 'pin', 'hash': '0x001BC575BCD61755'} adp {'talker_stream_sources': 1, 'listener_stream_sinks': 2, 'talker_capabilities': 16385, 'listener_capabilities': 18433}
+   lengths {'ENTITY': [312], 'CONFIGURATION': [106], 'AUDIO_UNIT': [156], 'STREAM_INPUT': [146, 154], 'STREAM_OUTPUT': [146], 'AVB_INTERFACE': [102], 'CLOCK_SOURCE': [86], '0xc': [72], '0xd': [452], 'STREAM_PORT_INPUT': [20], 'STREAM_PORT_OUTPUT': [20], 'AUDIO_CLUSTER': [90], 'AUDIO_MAP': [72], 'CONTROL': [113], 'CLOCK_DOMAIN': [80]}
+   ENTITY {'entity_id': '0x020000FFFE000002', 'model_id': '0x001BC50AC1000005', 'capabilities': '0x0000C588', 'talker_sources': 1, 'talker_caps': 16385, 'listener_sinks': 2, 'listener_caps': 18433, 'configurations': 1, 'current_config': 0}
+   CONFIGURATION len 106 {'counts_offset': 74, 'counts_count': 8, 'counts': [[2, 1], [5, 2], [6, 1], [9, 1], [36, 1], [10, 2], [26, 1], [12, 1]]}
+   AUDIO_UNIT off 712 len 156 {'rates_offset': 144, 'rates_count': 3, 'rates': [48000, 96000, 192000], 'current_rate': 48000}
+   STREAM_INPUT 0 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022000806000', '0x0215022002006000']
+   STREAM_INPUT 1 CRF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x041060010000BB80']
+   STREAM_OUTPUT 0 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022000806000']
+   AVB_INTERFACE 0 len 102 {'port_number': 1, 'mac': '020000000002', 'clock_identity': '020000fffe000002', 'controls': 0}
+   CLOCK_SOURCE 0 len 86 {'source_type': 0, 'location_type': 10, 'location_index': 0}
+   CLOCK_SOURCE 1 len 86 {'source_type': 2, 'location_type': 5, 'location_index': 1}
+   STREAM_PORT_INPUT 0 len 20 {'clusters': 8, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_OUTPUT 0 len 20 {'clusters': 8, 'base_cluster': 8, 'maps': 1, 'base_map': 0}
+   AUDIO_MAP 0 len 72 off 8 n 8 [[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0], [0, 4, 4, 0], [0, 5, 5, 0], [0, 6, 6, 0], [0, 7, 7, 0]]
+   CONTROL 0 len 113 {'control_type': '0x90E0F00000000001', 'reset_time': 0, 'values_offset': 104}
+   CLOCK_DOMAIN off 3920 len 80 {'sources_offset': 76, 'sources_count': 2, 'sources': [0, 1]}
+   AUDIO_CLUSTER channel_count {1: 16} lengths {90: 16}
+== configs/endstation_ax7101_1x1_tdm8.yaml descriptors 41 bytes 7352 sha 9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d16214404
+   counts {'ENTITY': 1, 'CONFIGURATION': 1, 'AUDIO_UNIT': 1, 'STREAM_INPUT': 2, 'STREAM_OUTPUT': 2, 'AVB_INTERFACE': 1, 'CLOCK_SOURCE': 2, '0xc': 1, '0xd': 1, 'STREAM_PORT_INPUT': 1, 'STREAM_PORT_OUTPUT': 1, 'AUDIO_CLUSTER': 25, 'CONTROL': 1, 'CLOCK_DOMAIN': 1}
+   model_id {'value': '0x001BC5C40236BA0E', 'source': 'hash', 'hash': '0x001BC5C40236BA0E'} adp {'talker_stream_sources': 2, 'listener_stream_sinks': 2, 'talker_capabilities': 18433, 'listener_capabilities': 18433}
+   lengths {'ENTITY': [312], 'CONFIGURATION': [106], 'AUDIO_UNIT': [148], 'STREAM_INPUT': [146, 154], 'STREAM_OUTPUT': [146], 'AVB_INTERFACE': [102], 'CLOCK_SOURCE': [86], '0xc': [72], '0xd': [452], 'STREAM_PORT_INPUT': [20], 'STREAM_PORT_OUTPUT': [20], 'AUDIO_CLUSTER': [90], 'CONTROL': [113], 'CLOCK_DOMAIN': [80]}
+   ENTITY {'entity_id': '0x020000FFFE000001', 'model_id': '0x001BC5C40236BA0E', 'capabilities': '0x0000C588', 'talker_sources': 2, 'talker_caps': 18433, 'listener_sinks': 2, 'listener_caps': 18433, 'configurations': 1, 'current_config': 0}
+   CONFIGURATION len 106 {'counts_offset': 74, 'counts_count': 8, 'counts': [[2, 1], [5, 2], [6, 2], [9, 1], [36, 1], [10, 2], [26, 1], [12, 1]]}
+   AUDIO_UNIT off 696 len 148 {'rates_offset': 144, 'rates_count': 1, 'rates': [48000], 'current_rate': 48000}
+   STREAM_INPUT 0 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 1 CRF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x041060010000BB80']
+   STREAM_OUTPUT 0 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 1 CRF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 3, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x041060010000BB80']
+   AVB_INTERFACE 0 len 102 {'port_number': 1, 'mac': '020000000001', 'clock_identity': '020000fffe000001', 'controls': 0}
+   CLOCK_SOURCE 0 len 86 {'source_type': 0, 'location_type': 10, 'location_index': 0}
+   CLOCK_SOURCE 1 len 86 {'source_type': 2, 'location_type': 5, 'location_index': 1}
+   STREAM_PORT_INPUT 0 len 20 {'clusters': 8, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_OUTPUT 0 len 20 {'clusters': 17, 'base_cluster': 8, 'maps': 0, 'base_map': 0}
+   CONTROL 0 len 113 {'control_type': '0x90E0F00000000001', 'reset_time': 0, 'values_offset': 104}
+   CLOCK_DOMAIN off 4840 len 80 {'sources_offset': 76, 'sources_count': 2, 'sources': [0, 1]}
+   AUDIO_CLUSTER channel_count {1: 25} lengths {90: 25}
+== configs/endstation_ax7101_8x8.yaml descriptors 116 bytes 18288 sha 193bf18736d23256c1b25d9af1bddb0721d95780fb36a14cf5f91476aff1a2d4
+   counts {'ENTITY': 1, 'CONFIGURATION': 1, 'AUDIO_UNIT': 1, 'STREAM_INPUT': 9, 'STREAM_OUTPUT': 9, 'AVB_INTERFACE': 1, 'CLOCK_SOURCE': 2, '0xc': 1, '0xd': 1, 'STREAM_PORT_INPUT': 8, 'STREAM_PORT_OUTPUT': 8, 'AUDIO_CLUSTER': 72, 'CONTROL': 1, 'CLOCK_DOMAIN': 1}
+   model_id {'value': '0x001BC572F79BC5D1', 'source': 'hash', 'hash': '0x001BC572F79BC5D1'} adp {'talker_stream_sources': 9, 'listener_stream_sinks': 9, 'talker_capabilities': 18433, 'listener_capabilities': 18433}
+   lengths {'ENTITY': [312], 'CONFIGURATION': [106], 'AUDIO_UNIT': [148], 'STREAM_INPUT': [146, 154], 'STREAM_OUTPUT': [146], 'AVB_INTERFACE': [102], 'CLOCK_SOURCE': [86], '0xc': [72], '0xd': [452], 'STREAM_PORT_INPUT': [20], 'STREAM_PORT_OUTPUT': [20], 'AUDIO_CLUSTER': [90], 'CONTROL': [113], 'CLOCK_DOMAIN': [80]}
+   ENTITY {'entity_id': '0x020000FFFE000001', 'model_id': '0x001BC572F79BC5D1', 'capabilities': '0x0000C588', 'talker_sources': 9, 'talker_caps': 18433, 'listener_sinks': 9, 'listener_caps': 18433, 'configurations': 1, 'current_config': 0}
+   CONFIGURATION len 106 {'counts_offset': 74, 'counts_count': 8, 'counts': [[2, 1], [5, 9], [6, 9], [9, 1], [36, 1], [10, 2], [26, 1], [12, 1]]}
+   AUDIO_UNIT off 696 len 148 {'rates_offset': 144, 'rates_count': 1, 'rates': [48000], 'current_rate': 48000}
+   STREAM_INPUT 0 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 1 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 2 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 3 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 4 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 5 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 6 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 7 AAF len 154 {'formats_offset': 138, 'formats_count': 2, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 154, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000', '0x0215022002006000']
+   STREAM_INPUT 8 CRF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 3, 'buffer_ns': 2126000, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x041060010000BB80']
+   STREAM_OUTPUT 0 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 1 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 2 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 3 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 4 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 5 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 6 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 7 AAF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 2, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x0205022002006000']
+   STREAM_OUTPUT 8 CRF len 146 {'formats_offset': 138, 'formats_count': 1, 'flags': 3, 'buffer_ns': 0, 'redundant_offset': 146, 'redundant_count': 0, 'timing': 0} cur==first True ['0x041060010000BB80']
+   AVB_INTERFACE 0 len 102 {'port_number': 1, 'mac': '020000000001', 'clock_identity': '020000fffe000001', 'controls': 0}
+   CLOCK_SOURCE 0 len 86 {'source_type': 0, 'location_type': 10, 'location_index': 0}
+   CLOCK_SOURCE 1 len 86 {'source_type': 2, 'location_type': 5, 'location_index': 8}
+   STREAM_PORT_INPUT 0 len 20 {'clusters': 0, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 1 len 20 {'clusters': 0, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 2 len 20 {'clusters': 0, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 3 len 20 {'clusters': 0, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 4 len 20 {'clusters': 0, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 5 len 20 {'clusters': 0, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 6 len 20 {'clusters': 0, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_INPUT 7 len 20 {'clusters': 0, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_OUTPUT 0 len 20 {'clusters': 9, 'base_cluster': 0, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_OUTPUT 1 len 20 {'clusters': 9, 'base_cluster': 9, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_OUTPUT 2 len 20 {'clusters': 9, 'base_cluster': 18, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_OUTPUT 3 len 20 {'clusters': 9, 'base_cluster': 27, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_OUTPUT 4 len 20 {'clusters': 9, 'base_cluster': 36, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_OUTPUT 5 len 20 {'clusters': 9, 'base_cluster': 45, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_OUTPUT 6 len 20 {'clusters': 9, 'base_cluster': 54, 'maps': 0, 'base_map': 0}
+   STREAM_PORT_OUTPUT 7 len 20 {'clusters': 9, 'base_cluster': 63, 'maps': 0, 'base_map': 0}
+   CONTROL 0 len 113 {'control_type': '0x90E0F00000000001', 'reset_time': 0, 'values_offset': 104}
+   CLOCK_DOMAIN off 11872 len 80 {'sources_offset': 76, 'sources_count': 2, 'sources': [0, 1]}
+   AUDIO_CLUSTER channel_count {1: 72} lengths {90: 72}
