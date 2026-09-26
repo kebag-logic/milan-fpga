@@ -21,10 +21,14 @@ Only these two values are accepted, independently of make flags.
 Build recipes, gPTP prerequisites and render mutation phases remain unchanged.
 The mutation driver starts only after every ordinary simulation succeeds.
 
-Five `sim_nxn` legs share one exclusive group, in legacy order:
+Five `sim_nxn` legs write only unique `milan_nxn_*` scratch directories:
 `obj_notify`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`, then `obj_nxn4c`.
-Their builder also rewrites tracked per-config shape headers.
-Independent simulations can overlap that group within the two-child limit.
+Each writes `generator.log`, `image.bin`, `image.json`, and eleven builder files.
+Those include the private `gen/adp_shape_defaults.svh` shape header.
+Timestamp and file-operation audits found no repository writes.
+The other six legs write no data files.
+All private write sets are disjoint; no exclusive marks remain.
+Any two ordinary legs can overlap within the two-child limit.
 Presence of `MILAN_COUNTER_FRAME_OUT` serializes the entire ordinary set.
 This includes empty values and preserves the final writer's outcome.
 

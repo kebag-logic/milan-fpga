@@ -864,8 +864,6 @@ def arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs() -> None:
     for banner, exe in LEGACY_LEGS:
         if banner is not None:
             expected += ["--banner", banner]
-        if exe.split("/")[1] in {"obj_notify", "obj_nxn", "obj_nxndv", "obj_nxn8", "obj_nxn4c"}:
-            expected.append("--exclusive")
         expected.append(exe)
     variants = (([], "2"), (["SIM_JOBS=1"], "1"), (["-j8"], "2"),
                 (["NOTIFY_MDIR=obj_notify_custom", "CRFLIC_MDIR=obj_crflic_custom"], "2"))

@@ -5,11 +5,15 @@
 
     python3 sim_pool.py [--jobs=1|2] [--exclusive] [--banner TEXT] EXE ...
 
-The `run` recipe builds every model first and used to run ten of them one
-after another. Each is a finished executable that takes no argument. The five sim_nxn
-legs rewrite repository-relative shape headers as well as private images.
-Mark each with --exclusive: only one member of this shared group runs at a
-time, in recipe order. Independent legs may bypass a waiting group member.
+The `run` recipe builds every model first and used to run eleven of them one
+after another. Each is a finished executable that takes no argument. Measured
+with the frame dump absent, the five sim_nxn legs write only their unique
+milan_nxn_* scratch directories: generator.log, image.bin, image.json, and
+eleven builder files including the private gen/adp_shape_defaults.svh.
+The other six legs write no data files. No leg writes a repository file, and
+their private write sets are disjoint, so the recipe needs no --exclusive
+marks. The option remains available for a shared group: only one marked leg
+runs at a time, in recipe order; independent legs may bypass a waiting member.
 At most JOBS legs are alive at once: 2 by default, 1 for sequential replay.
 Each leg writes stdout and stderr into one capture file of its own, the way
 scripts/run_all_suites.sh writes a suite into one log, and the captures are
@@ -41,9 +45,9 @@ reap adopted descendants as well as direct children. Every started leg is
 then recorded with what it had written in obj_legs/replay.log; each
 unfinished or unstarted leg is named. Available stdout receives that ordered
 transcript, but cancellation never waits for a blocked consumer. This process
-ends by the same signal. SIGKILL rather than SIGTERM because none of the ten
-legs handles a signal, so both end a leg the same way, and SIGKILL needs no
-grace period, so
+ends by the same signal. SIGKILL rather than SIGTERM because none of the eleven
+legs, including obj_crflic, handles a signal, so both end a leg the same way,
+and SIGKILL needs no grace period, so
 this runner reads no host clock (rule 8's wall-clock ratchet,
 scripts/test_evidence.budget item 4). A leg that exits by itself has its
 group killed too, before it is reaped, so nothing it spawned outlives it and

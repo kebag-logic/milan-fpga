@@ -145,7 +145,6 @@ def cancel_blocked(case: Scenario, control: Control, read_fd: int,
                    write_fd: int, runner_fd: int, row: dict) -> None:
     """Require shutdown and owned reaping before permitting any consumer drain."""
     recipe, sig, race = control.recipe, control.signo, control.race
-    runner_pid = next(entry["ppid"] for entry in case.events("start"))
     if recipe:
         os.killpg(case.runner.pid, sig)
     else:
@@ -157,7 +156,7 @@ def cancel_blocked(case: Scenario, control: Control, read_fd: int,
     runner_events = events(runner_fd, 2000)
     owned = {pid: events(fd) for pid, fd in case.pidfds.items()}
     row.update(signal=sig.name, recipe=recipe, race=race,
-               runner_pid=runner_pid, runner_events=runner_events, owned_events=owned,
+               runner_events=runner_events, owned_events=owned,
                queued_after=queued(read_fd),
                descriptor_restored=os.get_blocking(write_fd))
     (case.dir / "before-drain.json").write_text(json.dumps(row, indent=2) + "\n")
@@ -188,11 +187,21 @@ def exercise(root: Path, recipe: bool, flush: bool, sig: signal.Signals | None,
         capacity = fcntl.fcntl(write_fd, fcntl.F_SETPIPE_SZ, 4096)
         body = "first binary\x00\xff\x80" + ("x" * 262144 if not flush else "") + "\n"
         argv, selected = prepare(case, recipe, body)
+
+        def signal_state() -> None:
+            """Give the cancellation fixture its own interrupt preconditions."""
+            for signo in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+                signal.signal(signo, signal.SIG_DFL)
+            signal.pthread_sigmask(signal.SIG_SETMASK, set())
+
         with case.stderr_path.open("wb") as err:
             case.runner = subprocess.Popen(argv, cwd=root, env=clean_env(MAKEFLAGS="-j8"),
-                                           stdout=write_fd, stderr=err, start_new_session=True)
+                                           stdout=write_fd, stderr=err, start_new_session=True,
+                                           preexec_fn=signal_state)
         news = [case.next_start(), case.next_start()]
         starts = {entry["leg"]: entry for entry in news}
+        # Both writers announced their start records and are now held.
+        # Save the PID before release; later appends can leave a partial line.
         runner_pid = next(entry["ppid"] for entry in case.events("start"))
         runner_fd = os.pidfd_open(runner_pid)
         prefix = b"======================================================================\n" if recipe else b""
@@ -216,7 +225,8 @@ def exercise(root: Path, recipe: bool, flush: bool, sig: signal.Signals | None,
             signal.sigtimedwait(set(), 0.005)
         if race == "child-exit":
             case.release("L2")
-        row.update(argv=argv, flush=flush, queued_before=queued(read_fd))
+        row.update(argv=argv, runner_pid=runner_pid, flush=flush,
+                   queued_before=queued(read_fd))
         if sig is not None:
             cancel_blocked(case, control, read_fd, write_fd, runner_fd, row)
         else:

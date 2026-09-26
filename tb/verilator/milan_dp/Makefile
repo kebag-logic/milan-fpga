@@ -541,18 +541,20 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 # above states the recipe; the real-time legs run [NOTIFY] untimed.
 	$(NOTIFY_BUILD)
 	$(CRFLIC_BUILD)
+# The write audit found only unique milan_nxn_* scratch directories; no
+# ordinary legs share a written path. Frame-dump presence serializes the set.
 	@exec python3 sim_pool.py --jobs="$(SIM_JOBS)" \
 	  ./obj_dir/Vmilan_dp_sim \
 	  --banner "---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" \
-	  --exclusive ./$(NOTIFY_MDIR)/Vmilan_dp_notify \
+	  ./$(NOTIFY_MDIR)/Vmilan_dp_notify \
 	  --banner "---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" \
 	  ./$(CRFLIC_MDIR)/Vmilan_dp_crflic \
-	  --exclusive ./obj_nxn/Vmilan_dp_nxn \
+	  ./obj_nxn/Vmilan_dp_nxn \
 	  --banner "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----" \
-	  --exclusive ./obj_nxndv/Vmilan_dp_nxndv \
-	  --exclusive ./obj_nxn8/Vmilan_dp_nxn8 \
+	  ./obj_nxndv/Vmilan_dp_nxndv \
+	  ./obj_nxn8/Vmilan_dp_nxn8 \
 	  --banner "---- the shipping Arty shape: 4 streams x 4 wire channels ----" \
-	  --exclusive ./obj_nxn4c/Vmilan_dp_nxn4c \
+	  ./obj_nxn4c/Vmilan_dp_nxn4c \
 	  --banner "---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----" \
 	  ./obj_nolpf/Vmilan_dp_nolpf \
 	  --banner "---- all six tier-1 blocks pruned ----" \
