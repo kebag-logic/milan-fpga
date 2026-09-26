@@ -517,7 +517,7 @@ Its two sinks are the AAF input (0) and the CRF input (1).
 The section owns both MAC ports, so no frame is lost between waits.
 Controllers A and B register for notifications first.
 
-The adopted pin `990f9652` also includes processor issue 113 (PR 115).
+The adopted pin `0922e434` includes processor PR 115.
 It adds a notification for a latency-only Talker refresh.
 No existing notify or `[GSI]` check drives that isolated transition.
 `gsi_talker_failed()` always sends accumulated latency 500000 ns.

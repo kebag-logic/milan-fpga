@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin 0922e434](#unreleased---processor-pin-0922e434)** -- MVU waiver and parameter inventory.
 - **[Unreleased - CRF servo holds through PHC slew](#unreleased---crf-servo-holds-through-phc-slew)** -- Holds lock.
 - **[Unreleased - render setpoint state](#unreleased---render-setpoint-state)** -- Publishes the selected listener's state.
 - **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
@@ -29,6 +30,19 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin 0922e434
+
+- Issue #567 advances the processor from `990f9652` to `0922e434`.
+- Processor PR 118 records the October MVU waiver.
+- Its tests pin unsupported-command responses, including under lock.
+- Processor PR 119 completes the integration parameter inventory.
+- Its checker compares the guide, diagram and top declarations.
+- Parent parameter bindings agree with that inventory.
+- The repository generator refreshes the submodule diagram and pin text.
+- Processor HDL and ROM generator sources are unchanged.
+- The ROM digest ledger remains unchanged under #567 acceptance 2.
+- Parent RTL and VERSION are unchanged.
 
 ## Unreleased - CRF servo holds through PHC slew
 
