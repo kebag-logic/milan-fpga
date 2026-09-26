@@ -1,0 +1,61 @@
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        | 
+   106937 KL_pp_shadow
+    14201 $paramod$629c7e6882cbd1e2a16b2c95f92a63cf58a38d39\protocol_processor_top
+     3602   $paramod$0311096e50f612edf29205d4d93e63bbce35219f\KL_acmp_nvm_shadow
+    12687   $paramod$06c6dba7fd4e5ed794d98936b5d1143ac796e68f\KL_aecp_notify
+      554   $paramod$3cbb17859bc5c326e3aa21152d99119834a3edb3\KL_pp_tx_arbiter
+      772   $paramod$41959a4efa40c173071bc82c7a415c66632eaee1\KL_pp_timer_service
+     2165   $paramod$54b284197ad5b180203df43f3011a65c8ca552dc\KL_pp_maap
+     4831   $paramod$5b6a61537315119417933da5c8e3ab634c9d8146\KL_pp_acmp_listener
+     6423   $paramod$73e07795b672fec76f87d954c1818afb13799896\KL_srp_top
+     4126     $paramod$1224c55e5fd4121b95546e57d33a658897774d54\KL_srp_encoder
+      244     $paramod$391fbb556570799cf2e9dffc5ef8b362f93a0423\KL_srp_vlan
+     5190     $paramod$476e177af911c590ada08d985e05321834a52408\KL_srp_listener_fsm
+     6623     $paramod$e6ce24773c006e18196b0d2c5f61fcfc16767286\KL_srp_talker_fsm
+     2121     $paramod\KL_srp_admission\N_SOURCES_P=32'00000000000000000000000000000010
+     2667     $paramod\KL_srp_decoder\TP_DEPTH_P=32'00000000000000000000010000000000
+      313     $paramod\KL_srp_domain\DEF_PRIO_P=8'00000011\DEF_VID_P=16'0000000000000010
+     1160   $paramod$7e66ef7f4d8df71b7ad5355f525e4de6f4a63a87\KL_pp_event_router
+     2285   $paramod$a0c9e51a3221443125cf97e167814b71f3753a30\KL_acmp_talker
+     1037   $paramod$a7d207fe1311ff35b9b5d4decd019dc982949cab\KL_aecp_ca_originator
+      650   $paramod$a8c30d8aadf644ef66c0c74d8d70b72198c6c3b1\KL_pp_tx_slots
+       56   $paramod$aabaa8190b9b5d1e72f6b8311751912fd23a087b\KL_pp_acmp_lsn_admit
+      263   $paramod$cb40338f349b9ae4857502a2f1634ef48fc22627\KL_pp_rx_slots
+     2647   $paramod$cb40338f349b9ae4857502a2f1634ef48fc22627\KL_pp_rx_validator
+     4942   $paramod$e009e3311598de7ee88caabbf6cb9340a018fbd2\KL_aecp_engine
+      864     $paramod$73170f1836878046d637b3a3bdef2767cb386952\KL_aecp_resp_buf
+     2784     $paramod$8f82317fc72703b7899b6ff837917a6f9e22e511\KL_aecp_ucpu
+     1216     $paramod$a7a6109d36616e2c4a92a46ca939e0b0b6d07dee\KL_aecp_dyn_state
+     2973     $paramod$f2a1c7755ba8e70edbdb95fe4c8a40cdb8a112f8\KL_aecp_desc_store
+       73   $paramod$e2824511843ce3ddfddd18303e45edf2a48573a0\KL_pp_trace_ring
+     2156   $paramod$e297df19fc56329aba5e80a7e2288f3ceac34e44\KL_adp_engine
+     2994   $paramod$fb0d159f06b6081d1a401e3783e797ceb00c83bc\KL_pp_originator
+       47   $paramod\KL_pp_release_merge\N_SLOTS_P=32'00000000000000000000000000000101
+      796   $paramod\KL_pp_scoreboard\MAX_HOLDS_P=s32'00000000000000000000000000001000
+      128   $paramod\KL_pp_side_port\EN_FW_ASSIST_P=1'0
+        7   KL_aecp_desc_mem_guard
+      303   KL_mrp_strip
+      176   KL_pp_dispatch
+      475     $paramod\KL_pp_dispatch_fifo\DEPTH_P=32'00000000000000000000000000000010
+      488     $paramod\KL_pp_dispatch_fifo\DEPTH_P=32'00000000000000000000000000000100
+     1622   KL_pp_normalizer
+       91   KL_pp_nvm_mgr_arb
+      485   KL_pp_nvm_port
+      459   KL_pp_prng
+     2201 $paramod$dc9dde0866956c5c9712e8981b56c06a2928a082\KL_nvm_backend
+      217 $paramod$fce620bab033506f48a5e4f0628d5255a19f235b\axis_fifo
+
+        +----------Count including submodules.
+        | 
+    61458 wires
+   274661 wire bits
+     5552 public wires
+   107427 public wire bits
+     2035 ports
+    34016 port bits
+        - memories
+        - memory bits
+        - processes
