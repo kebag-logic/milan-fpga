@@ -1,0 +1,33 @@
+control: failures=0, expected=0
+  ok   pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor
+  ok   the invoked pasta symlink still resolves to its executable identity
+  ok   every other slot host tool still resolves its final symlink
+  ok   the slot uplink's fake multi-call executable observes the invoked name pasta
+  ok   missing SAFE_PATH pasta refuses despite the ambient PATH impostor
+  ok   a dangling pasta symlink refuses
+  ok   a non-executable pasta target refuses
+resolve-lookup-again: failures=2, expected=2
+  FAIL pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor
+  ok   the invoked pasta symlink still resolves to its executable identity
+  ok   every other slot host tool still resolves its final symlink
+  FAIL the slot uplink's fake multi-call executable observes the invoked name pasta
+  ok   missing SAFE_PATH pasta refuses despite the ambient PATH impostor
+  ok   a dangling pasta symlink refuses
+  ok   a non-executable pasta target refuses
+resolve-uplink-launch-again: failures=1, expected=1
+  ok   pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor
+  ok   the invoked pasta symlink still resolves to its executable identity
+  ok   every other slot host tool still resolves its final symlink
+  FAIL the slot uplink's fake multi-call executable observes the invoked name pasta
+  ok   missing SAFE_PATH pasta refuses despite the ambient PATH impostor
+  ok   a dangling pasta symlink refuses
+  ok   a non-executable pasta target refuses
+preserve-every-tool-name: failures=1, expected=1
+  ok   pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor
+  ok   the invoked pasta symlink still resolves to its executable identity
+  FAIL every other slot host tool still resolves its final symlink
+  ok   the slot uplink's fake multi-call executable observes the invoked name pasta
+  ok   missing SAFE_PATH pasta refuses despite the ambient PATH impostor
+  ok   a dangling pasta symlink refuses
+  ok   a non-executable pasta target refuses
+PASS: control clean; 3/3 path mutations killed
