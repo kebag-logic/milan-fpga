@@ -29,6 +29,11 @@ sys.path.insert(0, str(ROOT / "avdecc"))
 import endstation_builder as builder  # noqa: E402
 import gen_aemi_image as join  # noqa: E402
 import aem_assemble as assemble  # noqa: E402
+import aem_descriptors as descriptors  # noqa: E402
+
+
+class AuditError(RuntimeError):
+    """Refuse untrustworthy evidence, independently of measured model refusals."""
 
 
 def uint(data: bytes, offset: int, width: int = 2) -> int:
@@ -40,9 +45,12 @@ def uint(data: bytes, offset: int, width: int = 2) -> int:
 
 def packed_rows(blob: bytes) -> list[dict[str, Any]]:
     """Decode the actual index map, including repeated unequal-length runs."""
-    assert blob[:4] == b"AEMI" and uint(blob, 4) == 1
-    assert uint(blob, 20, 4) == len(blob)
-    assert sum(struct.unpack_from(">8I", blob)) & 0xFFFFFFFF == 0xFFFFFFFF
+    if blob[:4] != b"AEMI" or uint(blob, 4) != 1:
+        raise AuditError("invalid image magic or version")
+    if uint(blob, 20, 4) != len(blob):
+        raise AuditError("declared image length differs from packed bytes")
+    if sum(struct.unpack_from(">8I", blob)) & 0xFFFFFFFF != 0xFFFFFFFF:
+        raise AuditError("invalid image header checksum")
     rows = []
     next_index: dict[tuple[int, int], int] = {}
     for row in range(uint(blob, 8)):
@@ -54,8 +62,10 @@ def packed_rows(blob: bytes) -> list[dict[str, Any]]:
         for index in range(count):
             offset = base + index * stride
             data = blob[offset:offset + length]
-            assert len(data) == length
-            assert (uint(data, 0), uint(data, 2)) == (dtype, first + index)
+            if len(data) != length:
+                raise AuditError("descriptor extends beyond packed image")
+            if (uint(data, 0), uint(data, 2)) != (dtype, first + index):
+                raise AuditError("descriptor body type/index differs from directory")
             rows.append(dict(configuration=cfg, type=dtype, index=first + index,
                              image_offset=offset, length=length, stride=stride,
                              name_base=name, fields=descriptor_fields(dtype, data)))
@@ -123,7 +133,8 @@ def generate(cfg: dict[str, Any]) -> tuple[dict[str, Any], bytes]:
     model = join.aem.build_model(join.aem.spec_from_overlay(overlay))
     document = join.model_to_document(model, join.identity_from_overlay(overlay))
     blob, _ = join.image.build(document, 576)
-    assert blob == builder._entity_model_image(cfg, overlay)["aem_desc.bin"]
+    if blob != builder._entity_model_image(cfg, overlay)["aem_desc.bin"]:
+        raise AuditError("audit image differs from builder image")
     return document, blob
 
 
@@ -175,7 +186,9 @@ def assert_packed_bytes(document: dict[str, Any], blob: bytes) -> None:
         for index in range(count):
             expected = document_row(document, dtype, first + index)
             offset = base + index * stride
-            assert blob[offset:offset + length] == bytes.fromhex(expected["bytes"])
+            if blob[offset:offset + length] != bytes.fromhex(expected["bytes"]):
+                raise AuditError(f"packer changed descriptor bytes: type {dtype}, "
+                                 f"index {first + index}")
         seen[(cfg, dtype)] = first + count
 
 
@@ -303,8 +316,9 @@ def map_probes() -> list[dict[str, Any]]:
     return results
 
 
-def identity_probe(cfg: dict[str, Any]) -> dict[str, Any]:
-    """Change a generator-owned field, leaving the config and its hash intact."""
+def identity_probe(path: Path) -> dict[str, Any]:
+    """Reload the same input with a generator-owned field changed in memory."""
+    cfg = builder.load_config(path)
     _, before = generate(cfg)
     original = assemble.d_control_identify
 
@@ -314,8 +328,9 @@ def identity_probe(cfg: dict[str, Any]) -> dict[str, Any]:
         data[90:94] = (3).to_bytes(4, "big")
         return bytes(data)
 
-    with patch.object(assemble, "d_control_identify", changed):
-        _, after = generate(cfg)
+    with patch.object(descriptors, "d_control_identify", changed), \
+            patch.object(assemble, "d_control_identify", changed):
+        _, after = generate(builder.load_config(path))
     return dict(model_id=cfg["entity"]["entity_model_id"],
                 model_id_source=cfg["model_id"]["source"],
                 before_sha256=hashlib.sha256(before).hexdigest(),
@@ -323,6 +338,20 @@ def identity_probe(cfg: dict[str, Any]) -> dict[str, Any]:
                 changed_image_offsets=[i for i, (a, b) in enumerate(zip(before, after)) if a != b],
                 before_entity=packed_rows(before)[0]["fields"],
                 after_entity=packed_rows(after)[0]["fields"])
+
+
+def check_identity_probe(path: Path) -> None:
+    """Require the probe to detect a simulated identity-coverage repair."""
+    original = builder.model_shape
+
+    def including_identify(cfg: dict[str, Any]) -> dict[str, Any]:
+        """Add generator-owned bytes to the real identity derivation input."""
+        return dict(original(cfg), audit_identify=descriptors.d_control_identify().hex())
+
+    with patch.object(builder, "model_shape", including_identify):
+        result = identity_probe(path)
+    if result["before_entity"]["model_id"] == result["after_entity"]["model_id"]:
+        raise AuditError("identity probe missed changed generator bytes in model identity")
 
 
 def main() -> None:
@@ -341,7 +370,8 @@ def main() -> None:
                             model_id=cfg["model_id"], adp=builder.adp_shape(cfg),
                             rows=packed_rows(blob)))
     current = ROOT / "configs" / "endstation_arty_current.yaml"
-    hashed = builder.load_config(ROOT / "configs" / "endstation_arty_4x4.yaml")
+    hashed = ROOT / "configs" / "endstation_arty_4x4.yaml"
+    check_identity_probe(hashed)
     report = dict(configurations=configs,
                   packer_probes=packer_probes(documents[current.stem]),
                   config_probes=config_probes(current),
