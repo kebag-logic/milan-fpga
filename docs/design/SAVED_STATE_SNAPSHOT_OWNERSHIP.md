@@ -951,27 +951,39 @@ img_valid and [15:12] verdict are taken). Proposed status dictionary row for
 |---|---|---|
 | [11] | nvm_pend | accepted work that no verified slot holds and nvm_dirty does not report: a change the producer still holds, a record whose logical write has not completed, or -- from reset until the boot window load is accepted -- every record, because none is known yet |
 
-SETS, one cycle after its cause, whenever:
+The backend registers `pend_i` on each `clk_i` edge.
+Issue #502 aligns name/map reporting with live acceptance.
+`KL_pp_shadow` combines these sources:
 
-- pend_i is 1. pend_i is a LEVEL wired in KL_pp_shadow: the dynamic-state
-  store's sticky persisted-field level (aecp_dyn_dirty_o, today reduced to its
-  rising edge), OR, once donor scope D1 lands, any sink the binding manager
-  has accepted and not yet flushed; or
-- any record is open (section 4). Between reset and the first accepted window
-  load that is EVERY allocated record, so a reader of PP_STAT[11] sees 1
-  through the whole boot interval, and a build with no writer at all reads 1
-  for ever where saved-state section 9.3 documents (0,0,0). That is the truth
-  told conservatively -- nothing is known durable yet -- and it is why the
-  three bits are read together.
+- The dynamic-state store's sticky `aecp_dyn_dirty_o` level.
+- The binding manager's `nvm_unflushed_o` vector, reduced with OR.
+- Accepted name writes from `aecp_name_wr_o`.
+- Map edit requests with `amap_edit_phase_o == 5`.
+- Sticky history of those name/map writes, cleared only by reset.
 
-CLEARS only when pend_i is 0 AND no record is open. pend_i falls when the
-manager has flushed every sink (its dirty bit clears on done, or is dropped on
-retry exhaustion, which raises the alarm and revokes nvm_backed) and the
-dynamic-state level is 0, which today happens only at reset because nothing
-writes those fields (section 11). An open record closes at its whole-record
-WRITE completion, or at the accepted boot RELOAD (section 5.3), which the
-backend accepts only when no mutating operation was granted since the last
-re-base and none was in flight at it. It never closes on device idle.
+The accepting pulses bypass the history register into `pend_i`.
+The backend therefore reports pending on the accepting edge.
+All producers share the backend's clock and reset.
+Map phase 5 cannot stall after phase 1 accepts.
+Duplicate map records conservatively set pending, even without a mark.
+Unchanged name lanes produce no pulse.
+The later class-6/7 marks retain their command-completion meaning.
+
+Open records independently assert pending (section 4).
+Every allocated record starts open at reset.
+An accepted boot RELOAD closes those initial records.
+A whole-record WRITE completion closes its corresponding record.
+Device idle alone never closes a record.
+
+Pending clears only when every source is clear.
+The binding manager clears flushed sinks or reports retry exhaustion.
+Retry exhaustion raises the alarm and revokes `nvm_backed`.
+Names, maps and dynamic fields still lack record writers.
+Their sticky sources therefore clear only at reset.
+
+The [shipping K10/K12 tests](../../tb/verilator/pp_shadow/README.md) cover this wiring.
+They include unchanged commands, both groups and reset.
+They also exercise both map directions and snapshot acknowledgement.
 
 NOTHING ELSE affects it: no ACK, RELEASE, commit, deadline or heartbeat.
 It does not drive a commit: the writer commits on nvm_dirty only, so a
@@ -1245,16 +1257,16 @@ are
 | 0x30 to 0x3F | stream format in | KL_aecp_dyn_state, selector 3 | the dynamic-state level | NONE | nvm_pend 1 until reset (E1: two accepted format changes; the tracked and composite builds commit record 0x30 erased, and the prototype commits no slot at all, "record 0x30 in slot None") |
 | 0x40 to 0x4F | stream format out | KL_aecp_dyn_state, selector 4 | the dynamic-state level | NONE | nvm_pend 1 until reset |
 | 0x50 to 0x5F | presentation time offset | KL_aecp_dyn_state, selector 5 | the dynamic-state level | NONE | nvm_pend 1 until reset |
-| 0x60 to 0x7F | channel maps in and out | the AECP engine's mapping state | its commit mark, class 6, on aecp_nvm_stb_o / aecp_nvm_mark_o (donor scope D2, landed) | NONE | nvm_pend 1 from the first marked change until reset; never durable, and never written (UNRESOLVED 1) |
-| 0x80 to 0xFF | user names | KL_aecp_desc_store (SET_NAME) | commit mark class 7, on the same pair | NONE | as the maps row: reported from the mark, never written (UNRESOLVED 1) |
+| 0x60 to 0x7F | channel maps in and out | milan_datapath and KL_chan_map_capture | accepted map edit phase 5 (#502) | NONE | nvm_pend 1 from the first accepted write until reset; never durable, and never written (UNRESOLVED 1) |
+| 0x80 to 0xFF | user names | KL_aecp_desc_store (SET_NAME) | accepted aecp_name_wr_o pulse (#502) | NONE | as the maps row: reported from acceptance, never written (UNRESOLVED 1) |
 
 Acknowledgement identity repairs none of the NONE rows; what this contract
 guarantees for them is only that the status never claims durability over a
 change it can see (E1 on the prototype: no_durable_claim_unmaterialized@first
 and @end pass, and the tracked build fails both). Materialization itself is
 UNRESOLVED 1. The channel-map and name rows are now REPORTED, because donor
-scope D2 landed and the glue makes either mark sticky; what they still lack
-is a writer, which is the same UNRESOLVED 1.
+scope D2 landed. Issue #502 makes accepted live writes sticky instead.
+They still lack a writer, which is the same UNRESOLVED 1.
 
 A writer for every NONE row is proposed on its own page,
 [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500,
@@ -1357,11 +1369,14 @@ revision 424c688f (issue 90, merged): one new output port, no behaviour change.
   dynamic-state field (SET_SAMPLING_RATE, SET_CLOCK_SOURCE,
   SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO), **6** channel maps
   (ADD/REMOVE_AUDIO_MAPPINGS), **7** user names (SET_NAME).
-- Parent use: a mark of class 6 or class 7 sets a sticky pend_i source until
+- Original parent use: a class-6/7 mark set sticky pending until
   the record that materializes it is written, or until reset while no writer
   exists -- and none does (section 11 is NONE for both), so at this revision
   it clears only at reset. Class 1 is deliberately not taken: the processor
   already publishes that group as the aecp_dyn_dirty_o level.
+- Issue #502 replaces that trigger with accepted live writes.
+  Section 6.1 defines the current pending sources.
+  The marks retain their command-completion meaning.
 - EXECUTED at the pin: `protocol-processor/tb/pp_top` R21 grades a committed
   ADD_AUDIO_MAPPINGS raising one strobe carrying 6, a committed SET_NAME one
   carrying 7, and a GET raising none; tying `aecp_nvm_stb_o` to zero fails
@@ -1719,7 +1734,7 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500).
 2. CLOSED for reporting by donor scope D2 (issue 90): the channel-map and
    name commit marks reach the parent on `aecp_nvm_stb_o` /
-   `aecp_nvm_mark_o`, and either sets a sticky pending source, so the status
+   `aecp_nvm_mark_o`. Issue #502 uses live acceptance instead, so the status
    no longer reads durable over them. Making them durable still needs D3,
    which is item 1.
 3. CLOSED by donor scope D1 (issue 90): `nvm_unflushed_o` is bound in

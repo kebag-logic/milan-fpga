@@ -23,6 +23,7 @@
 #   run-base  -> obj_dir/Vpp_shadow_sim: tracked arty_current headers.
 #   run-vid73 -> obj_vid73/Vpp_vid73: generated startup VID 73 fixture.
 #   run-crf   -> obj_crf/Vpp_crf: generated CRF-output-enabled fixture.
+#   run-pending -> obj_pending/Vpp_pending: live-write persistence status.
 #   make        - build and run all default legs
 #   make clean  - remove build artifacts
 
@@ -91,7 +92,7 @@ VFLAGS = --cc --exe --build -j 0 \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/common/csr +incdir+$(RTL_DIR)/common/eth_event_counter \
          +incdir+$(RTL_DIR)/ieee17221/adp +incdir+$(RTL_DIR)/ieee8021q/ts \
          +incdir+$(RTL_DIR)/ieee8021as/ptp_timestamp +incdir+$(AXIS_DIR) \
-         -Wall waivers.vlt \
+         -Wall waivers.vlt pending_probes.vlt \
          -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 \
          -GGPTP_PLANE_EN_P=0 \
          $(TIM_G) $(MAAP_G) \
@@ -106,8 +107,11 @@ VFLAGS = --cc --exe --build -j 0 \
 DP_SRCS := $(shell $(MAKE) -s -C ../milan_dp print-srcs)
 
 CPP = sim_main.cpp
+BUILD_DIR ?= obj_dir
+PENDING_BUILD_DIR ?= obj_pending
+SIM_ARGS ?=
 
-.PHONY: all run run-base run-vid73 run-crf clean
+.PHONY: all run run-base run-vid73 run-crf run-pending pending-mutant clean
 all: run
 
 # The ACMP listener transition ROM is GENERATED, and protocol_processor_top
@@ -135,11 +139,11 @@ ucode.hex: $(PP_DIR)/aecp/ucode/gen_ucode.py
 # hdl/ieee17221/acmp/acmp_pkg.sv are DELETED with the plane they belonged to, so
 # the consumer side of the collision set is permanently empty and the guard can
 # never fire again. A check that cannot fail is not a check.
-run: run-base run-vid73 run-crf
+run: run-base run-vid73 run-crf run-pending
 
 run-base: ltn_rom.hex ucode.hex $(GEN_ALL)
-	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) $(DP_SRCS) $(CPP) -o Vpp_shadow_sim
-	./obj_dir/Vpp_shadow_sim
+	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --Mdir $(BUILD_DIR) $(DP_SRCS) $(CPP) -o Vpp_shadow_sim
+	$(BUILD_DIR)/Vpp_shadow_sim $(SIM_ARGS)
 
 # Both headers come from committed fixture inputs and the builder emitters.
 # Expectations are independent literals, so a dropped binding cannot agree
@@ -156,5 +160,14 @@ run-crf: ltn_rom.hex ucode.hex
 	  -CFLAGS "-DDECLARATION_OUTPUTS=2 -Wall -Wextra" $(DP_SRCS) $(CPP) -o Vpp_crf
 	./obj_crf/Vpp_crf
 
+run-pending: ltn_rom.hex ucode.hex
+	python3 ../../common/gen_declaration_fixture.py fixtures/pending.yaml obj_pending/fixture
+	$(VERILATOR) +incdir+obj_pending/fixture $(VFLAGS) --Mdir $(PENDING_BUILD_DIR) \
+	  -CFLAGS "-DPENDING_OUTPUT_DYNAMIC=1 -Wall -Wextra" $(DP_SRCS) $(CPP) -o Vpp_pending
+	$(PENDING_BUILD_DIR)/Vpp_pending --pending-only
+
+pending-mutant:
+	python3 pending_mutant.py
+
 clean:
-	rm -rf obj_dir obj_vid73 obj_crf ltn_rom.hex ucode.hex
+	rm -rf obj_dir obj_vid73 obj_crf obj_pending ltn_rom.hex ucode.hex

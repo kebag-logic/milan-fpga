@@ -9,7 +9,7 @@
 > UNRESOLVED 1: who materializes the configuration index, the sampling rate,
 > the clock source, the stream formats in and out, the presentation time
 > offset, the channel maps and the user names into NVM records, and how they
-> come back at boot. Nothing on this page is implemented. Two independent
+> come back at boot. The D3 materializer remains unimplemented. Two independent
 > contract reviews accept or reject it; an implementation lane opens only on
 > an accepted page, with the tickets of section 10.
 >
@@ -217,6 +217,26 @@ and 6 model cycles here, a few instructions in the product (DERIVED). This
 design triggers on the write instead (section 3, rule 3). The defect is
 issue #502, and section 10 makes its correction a condition of every stage
 declared shippable.
+
+Issue #502 implements that standalone reporting correction.
+The processor pin is now `870ff88a`.
+`KL_pp_shadow` consumes `aecp_name_wr_o` and map phase 5.
+Both sources share `clk_i` and `rst_n` with the backend.
+Their pulses and sticky history feed the registered pending input.
+Pending therefore rises on the accepting live-write edge.
+The later marks still delimit command completion.
+A duplicate map beat conservatively sets pending without a mark.
+Neither group gains a record writer in this correction.
+Only reset retires their sticky source.
+
+The [shipping harness](../../tb/verilator/pp_shadow/README.md) ports K10/K12.
+It checks every accepting edge through command completion and acknowledgement.
+Changed names and both map directions use the real processor.
+Controls cover unchanged commands, refused output edits and reset.
+The late-mark mutant must fail both durability checks.
+These checks replace neither D3 convergence nor power-cycle evidence.
+The table above remains evidence at its stated historical source.
+
 
 ## 3. Decision
 

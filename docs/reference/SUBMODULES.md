@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `0922e43408f891fc0b84a84691df86b4fd0f1c0d` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `870ff88ad35bbd532244e4c7e6d7661b9f6e1366` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -39,20 +39,31 @@ Issue #508 adopted these processor changes.
 
 PR 117 merged as `265d6762`.
 
-PR 115 then merged as `990f9652`, the previous pin.
+PR 115 then merged as `990f9652`.
 
-Issue #567 advances the processor pin to `0922e434`.
+Issue #567 adopted processor pin `0922e434`.
 
 | Merged processor PR | Adopted change |
 |---|---|
 | [118](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/118) | October MVU waiver and unsupported-command response tests |
 | [119](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/119) | Complete integration parameter inventory and its checker |
 
-Processor HDL and ROM generator sources are unchanged.
+That adoption left processor HDL and ROM generators unchanged.
 
 The repository tool recorded ROM digest rows for `0922e434`.
 
 Their digests match the `990f9652` rows.
+
+Issue #502 advances the current pin to `870ff88a`.
+
+- PR 121 exports each accepted live name write.
+- `KL_pp_shadow` connects that pulse to saved-state pending.
+- Map phase 5 supplies the corresponding map trigger.
+- Later marks retain their command-completion meaning.
+
+The ROM ledger retains both adopted pins' rows.
+
+The boundary diagram follows the current pin.
 
 OOC synthesis requires ledger rows for the pin of record.
 Rows must match that exact pin.

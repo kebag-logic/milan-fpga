@@ -594,6 +594,13 @@ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\
                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
 DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
 DUT_READER_DISPOSITIONS = {
+    "protocol-processor/tb/pp_top/name_wr_mutant.py":
+        "mutation campaign; removes the accepted name-write export in a copy "
+        "and requires the named pulse check to fail",
+    "tb/verilator/pp_shadow/pending_mutant.py":
+        "mutation campaign; restores the late mark trigger in a copy and "
+        "requires both K10/K12 durability checks to fail",
+
     "tb/verilator/mmcm_servo/slew_mutants.py":
         "mutation campaign; copies the servo and requires named failures for "
         "discard removal, tied-low level, partial-tail trust, omitted tally, "
