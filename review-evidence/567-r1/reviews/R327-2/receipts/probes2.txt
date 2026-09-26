@@ -1,0 +1,24 @@
+## P5: every path outside the two changed documents is byte-identical between 54b4c3bbbc8cdea5ced0be29c9226fdf82233b74 and 9143e21a57e6315c7678430cfc45b4a2b7e10c09
+entries old=910 new=910
+IDENTICAL (modes, blob/gitlink ids, paths)
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 0922e43408f891fc0b84a84691df86b4fd0f1c0d	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+changed paths: docs/reference/SUBMODULES.md tb/verilator/milan_dp/README.md 
+## P6: the README:468 restore step, 'restore the pin of record', executed
+repinned checkout=7a47f5788ff504f099a47ad4407c340771bb6bdb gitlink=0922e43408f891fc0b84a84691df86b4fd0f1c0d
++7a47f5788ff504f099a47ad4407c340771bb6bdb protocol-processor (v2.0-250-g7a47f57)
+fatal: transport 'file' not allowed
+fatal: transport 'file' not allowed
+fatal: Fetched in submodule path 'protocol-processor', but it did not contain 0922e43408f891fc0b84a84691df86b4fd0f1c0d. Direct fetching of that commit failed.
+after 'git submodule update protocol-processor': checkout=7a47f5788ff504f099a47ad4407c340771bb6bdb
+NOT RESTORED
+## P6b: restore by explicit checkout of the gitlink (clone has no ref reaching the pin, and file transport is disabled, so submodule update tried to fetch)
+refs containing pin listed above (empty = none)
+checkout=0922e43408f891fc0b84a84691df86b4fd0f1c0d gitlink=0922e43408f891fc0b84a84691df86b4fd0f1c0d
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (5dce647)
+ 0922e43408f891fc0b84a84691df86b4fd0f1c0d protocol-processor (v2.0-271-g0922e43)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+0
