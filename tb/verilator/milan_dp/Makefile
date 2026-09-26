@@ -24,6 +24,8 @@
 
 VERILATOR ?= verilator
 VERILATOR_JOBS ?= 0
+# Ordinary simulations only; never derived from the make jobserver.
+SIM_JOBS ?= 2
 RTL_DIR    = ../../../hdl
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
 PP_DIR     = ../../../protocol-processor/hdl
@@ -539,25 +541,28 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 # above states the recipe; the real-time legs run [NOTIFY] untimed.
 	$(NOTIFY_BUILD)
 	$(CRFLIC_BUILD)
-	./obj_dir/Vmilan_dp_sim
-	@echo "---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----"
-	./$(NOTIFY_MDIR)/Vmilan_dp_notify
-	@echo "---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----"
-	./$(CRFLIC_MDIR)/Vmilan_dp_crflic
-	./obj_nxn/Vmilan_dp_nxn
-	@echo "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----"
-	./obj_nxndv/Vmilan_dp_nxndv
-	./obj_nxn8/Vmilan_dp_nxn8
-	@echo "---- the shipping Arty shape: 4 streams x 4 wire channels ----"
-	./obj_nxn4c/Vmilan_dp_nxn4c
-	@echo "---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----"
-	./obj_nolpf/Vmilan_dp_nolpf
-	@echo "---- all six tier-1 blocks pruned ----"
-	./obj_prune/Vmilan_dp_prune
-	@echo "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----"
-	./obj_ax1x1/Vmilan_dp_ax1x1
-	@echo "---- the same shape at the TRUE clk_audio ratio (391/1591) ----"
-	./obj_aclk/Vmilan_dp_aclk
+# The write audit found only unique milan_nxn_* scratch directories; no
+# ordinary legs share a written path. Frame-dump presence serializes the set.
+	@exec python3 sim_pool.py --jobs="$(SIM_JOBS)" \
+	  ./obj_dir/Vmilan_dp_sim \
+	  --banner "---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" \
+	  ./$(NOTIFY_MDIR)/Vmilan_dp_notify \
+	  --banner "---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" \
+	  ./$(CRFLIC_MDIR)/Vmilan_dp_crflic \
+	  ./obj_nxn/Vmilan_dp_nxn \
+	  --banner "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----" \
+	  ./obj_nxndv/Vmilan_dp_nxndv \
+	  ./obj_nxn8/Vmilan_dp_nxn8 \
+	  --banner "---- the shipping Arty shape: 4 streams x 4 wire channels ----" \
+	  ./obj_nxn4c/Vmilan_dp_nxn4c \
+	  --banner "---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----" \
+	  ./obj_nolpf/Vmilan_dp_nolpf \
+	  --banner "---- all six tier-1 blocks pruned ----" \
+	  ./obj_prune/Vmilan_dp_prune \
+	  --banner "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----" \
+	  ./obj_ax1x1/Vmilan_dp_ax1x1 \
+	  --banner "---- the same shape at the TRUE clk_audio ratio (391/1591) ----" \
+	  ./obj_aclk/Vmilan_dp_aclk
 	@echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
 	python3 render_mutants.py
 	@echo "---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----"

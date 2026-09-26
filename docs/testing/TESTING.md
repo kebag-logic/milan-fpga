@@ -290,6 +290,25 @@ of any kind; `controller_rate` is the gating regression born from the
 control-rate boundary; `cbs`/`ptp` check
 arithmetic against independent reference models (10⁴-10⁵ checks each).
 
+The `milan_dp` default `run` retains eleven ordinary commands in this order:
+`obj_dir`, `obj_notify`, `obj_crflic`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`,
+`obj_nxn4c`, `obj_nolpf`, `obj_prune`, `obj_ax1x1`, then `obj_aclk`.
+All run through the two-child pool after their builds.
+`SIM_JOBS=1` runs that same inventory sequentially.
+The five `sim_nxn` legs write unique `milan_nxn_*` scratch directories.
+Each contains images, a generator log, and eleven builder files.
+The generated shape header stays inside that private directory.
+Timestamp and file-operation audits found no repository writes.
+The other six legs write no data files.
+Disjoint private write sets need no exclusive marks.
+Presence of `MILAN_COUNTER_FRAME_OUT` still serializes the entire ordinary set.
+The #508 GET_STREAM_INFO checks stay in `obj_notify`.
+The #443 render CSR checks stay in `obj_aclk`.
+Their focused `notify`, `gsi-mutants` and `render-csr-controls` targets remain available.
+The `gptp`, `gptp-lat` and `gmstep` prerequisites run before the ordinary pool.
+The render-law and default GM-step mutation controls run after it succeeds.
+Explicit mutation campaigns above retain their separate targets and full inventories.
+
 **The processor submodules serve more suites than name them.**
 `milan_datapath` instantiates `KL_pp_shadow` unconditionally, so `pp_shadow`
 and `milan_dp` resolve `protocol-processor/hdl`. Both of them also resolve

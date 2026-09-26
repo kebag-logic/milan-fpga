@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # milan_dp — the `milan_datapath` integration suite
 
-`make` builds **thirteen elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
+`make` builds **fourteen elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
 Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
 against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
 never on grepping the log — a compile error prints no `FAIL` line at all.
@@ -11,6 +11,55 @@ under `TMPDIR` (falling back to `/tmp`) and remove it after a successful load.
 Set `TMPDIR` to a filesystem with enough quota when review lanes run in
 parallel. A failed generator deliberately leaves that directory and names its
 log in the failure so the artifact can be inspected.
+
+The eleven ordinary simulations use `sim_pool.py` after all model builds.
+They include the #508 GET_STREAM_INFO checks in `obj_notify`,
+the #443 render CSR checks in `obj_aclk`, and `obj_crflic`.
+Focused build and mutation targets retain their existing recipes.
+`SIM_JOBS=2` is the default; `SIM_JOBS=1` reproduces sequential execution.
+Only these two values are accepted, independently of make flags.
+Build recipes, gPTP prerequisites and render mutation phases remain unchanged.
+The mutation driver starts only after every ordinary simulation succeeds.
+
+Five `sim_nxn` legs write only unique `milan_nxn_*` scratch directories:
+`obj_notify`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`, then `obj_nxn4c`.
+Each writes `generator.log`, `image.bin`, `image.json`, and eleven builder files.
+Those include the private `gen/adp_shape_defaults.svh` shape header.
+Timestamp and file-operation audits found no repository writes.
+The other six legs write no data files.
+All private write sets are disjoint; no exclusive marks remain.
+Any two ordinary legs can overlap within the two-child limit.
+Presence of `MILAN_COUNTER_FRAME_OUT` serializes the entire ordinary set.
+This includes empty values and preserves the final writer's outcome.
+
+Each child's complete stdout/stderr stays together under `obj_legs/`.
+Captures, banners and commands replay in legacy order.
+Failed, crashed or missing children fail the recipe.
+SIGINT, SIGTERM and SIGHUP terminate and reap owned descendants.
+Started children retain attributable partial logs; unstarted children are named.
+The ordered transcript also stays in `obj_legs/replay.log`.
+Blocked stdout never delays cancellation, descendant cleanup, or shutdown.
+Cancellation writes only immediately available stdout bytes after cleanup.
+Drain or inspect the disk transcript for any remaining output.
+Normal runs replay every byte, including through pipes.
+Linux subreaper support is required before any child starts.
+Run one suite invocation per working directory.
+
+```sh
+make -C tb/verilator/milan_dp run SIM_JOBS=1 VERILATOR_JOBS=8
+make -C tb/verilator/milan_dp run SIM_JOBS=2 VERILATOR_JOBS=8
+python3 tb/verilator/milan_dp/test_sim_pool.py
+python3 tb/verilator/milan_dp/test_sim_pool_backpressure.py
+```
+
+The runner tests use real processes with controlled shared writes.
+They cover exclusion, independent overlap, order, failures and descendant cleanup.
+They also check frame serialization, complete output and Makefile inventory.
+Backpressure controls execute both direct and actual Makefile paths.
+They cover blocked copies, final flushes, signals, and exit races.
+Their consumer stays blocked until shutdown and reaping are observed.
+Normal draining checks binary output against the complete ordered transcript.
+Runner diagnostics contribute no checks to `suite_tally.py`.
 
 | objdir | harness | shape | what it is for |
 |---|---|---|---|
@@ -26,6 +75,7 @@ log in the failure so the artifact can be inspected.
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants` |
 | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
+| `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
 | `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387: a grandmaster change that steps the PHC by 1.5 s under CRF selection is one counted media event (`tu`, one render re-base, one `mr` toggle, one MEDIA_RESET) and stops no stream; `gmstep_mutants.py` plants the acceptance's three controls in the sweep and `make gmstep-mutants` the whole inventory |
 
 The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
