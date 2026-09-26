@@ -20,6 +20,27 @@ MUTANTS = {
     "parameter ROM depth": (
         "inputs.append(image_record(Path(matches[0]), count,",
         "inputs.append(image_record(Path(matches[0]), None,"),
+    "generated ROM depth": (
+        "inputs.append(image_record(path, int(words), int(width)))",
+        "inputs.append(image_record(path, None, int(width)))"),
+    "generated ROM width": (
+        "inputs.append(image_record(path, int(words), int(width)))",
+        "inputs.append(image_record(path, int(words), None))"),
+    "parameter ROM width": (
+        "                                   package_number(text, width)))\n",
+        "                                   None))\n"),
+    "image and geometry ambiguity": (
+        "        if len(matches) != 1 or len(packages) != 1:\n", "        if False:\n"),
+    "image binding uniqueness": (
+        "        if len(matches) != 1 or len(packages) != 1:\n",
+        "        if len(packages) != 1:\n"),
+    "geometry package uniqueness": (
+        "        if len(matches) != 1 or len(packages) != 1:\n",
+        "        if len(matches) != 1:\n"),
+    "geometry declaration uniqueness": (
+        "    if len(hits) != 1:\n", "    if False:\n"),
+    "microcode address depth": (
+        "            count = 1 << count\n", "            count = count\n"),
     "outside repository guard": (
         "    if output.is_relative_to(root):\n", "    if False:\n"),
     "image depth": (
@@ -35,6 +56,24 @@ MUTANTS = {
     "attribution boundary preservation": (
         '        constraint = "set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/pp_shadow]\\n"\n',
         '        constraint = "set_property KEEP_HIERARCHY FALSE [get_cells milan_datapath/pp_shadow]\\n"\n'),
+    "wrapper declaration equality": (
+        "    if set(values) != set(declarations):\n", "    if False:\n"),
+    "empty parameter block": ("    if not values:\n", "    if False:\n"),
+    "duplicate parameter": ("        if name in values:\n", "        if False:\n"),
+    "integrated output directory": (
+        "    if log is None and output != gateware:\n", "    if False:\n"),
+    "attribution integrated endpoint": (
+        "        if log is not None:\n", "        if False:\n"),
+    "CLI integrated endpoint": (
+        "    if args.integrated_log and (args.synthesis_only or args.attribution_only):\n",
+        "    if False:\n"),
+    "single synthesis command": ("        if len(commands) != 1:\n", "        if False:\n"),
+    "image pathname characters": (
+        "                if any(char in value for char in '{}\"\\n'):\n", "                if False:\n"),
+    "template marker uniqueness": ("    if text.count(marker) != 1:\n", "    if False:\n"),
+    "unfiltered hierarchy report": (
+        " -hierarchical_min_primitive_count 0 -file baseline_hierarchy.rpt\n",
+        " -file baseline_hierarchy.rpt\n"),
 }
 
 

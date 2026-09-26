@@ -8,6 +8,7 @@ All generated scripts, checkpoints and reports belong outside the repository.
 """
 
 import argparse
+from collections.abc import Iterator
 import contextlib
 import hashlib
 import io
@@ -236,6 +237,18 @@ def prepare(gateware: Path, output: Path, log: Path | None,
     print(target)
 
 
+@contextlib.contextmanager
+def expect_refusal(message: str, error_type: type[Exception] = ValueError) -> Iterator[None]:
+    """Require the intended refusal, never an unrelated exception."""
+    try:
+        yield
+    except error_type as error:
+        if message not in str(error):
+            raise AssertionError(f"wrong refusal: expected {message!r}, got {error}") from error
+    else:
+        raise AssertionError(f"missing refusal: {message}")
+
+
 def selftest() -> None:
     """Reject wrong parameter blocks and missing or partial ROM images."""
     log = ("INFO: synthesizing module 'KL_pp_shadow' [wrapper.sv:1]\n"
@@ -283,7 +296,126 @@ def selftest() -> None:
     else:
         raise AssertionError("unreported expression guessed")
     print(f"baseline selftest: complete image and exact block PASS; {refused} refusals PASS")
+    binding = "\tParameter N_STREAM_IN_P bound to: 32'b10\n"
+    for changed, message in (
+            (log.replace(binding, binding + binding), "duplicate parameter"),
+            (log.replace(binding, ""), "no wrapper parameters")):
+        with expect_refusal(message):
+            parameters(changed)
+    with expect_refusal("log parameters differ from wrapper declaration"):
+        wrapper_parameters(log.replace("N_STREAM_IN_P", "UNDECLARED_P"), wrapper)
+    for text in ("absent", "marker marker"):
+        with expect_refusal("expected exactly one template marker"):
+            split_once(text, "marker")
+    print("baseline parameter selftest: 5 refusals PASS")
     export_selftest()
+
+
+def export_inventory_selftest(gateware: Path, source: str, verilog: str) -> None:
+    """Refuse each malformed export independently, restoring its clean input."""
+    generated = gateware / "alinx_ax7101.v"
+    script = gateware / "alinx_ax7101.tcl"
+    mutations = [
+        ("missing generated ROM", gateware / "alinx_ax7101_rom.init", None,
+         "generated memory inventory differs"),
+        ("nonempty SRAM", gateware / "alinx_ax7101_sram.init", "12345678\n", "wrong image depth"),
+        ("unlisted readmemh", generated,
+         verilog.replace('alinx_ax7101_rom.init",', 'unlisted.init",'), "generated memory inventory differs"),
+    ]
+    for label, contents, message in (("short", "12345678\n", "wrong image depth"),
+                                     ("long", "12345678\nabcdef01\n12345678\n", "wrong image depth"),
+                                     ("narrow", "1234\n5678\n", "wrong image width"),
+                                     ("wide", "123456789\nabcdef012\n", "wrong image width")):
+        mutations.append(("generated ROM " + label, gateware / "alinx_ax7101_rom.init", contents, message))
+    duplicate = gateware / "duplicate"
+    duplicate.mkdir()
+    extra_image = duplicate / "partial.hex"
+    extra_image.write_text("12345678\n")
+    for parameter, package, depth, width in (
+            ("PP_TROM_HEX_P", "pp_acmp_pkg.sv", "TROM_DEPTH_C", "TROM_W_C"),
+            ("PP_UCODE_HEX_P", "ucpu_pkg.sv", "UPC_W_C", "UCODE_W_C"),
+            ("GPTP_UCODE_HEX_P", "gptp_ucpu_pkg.sv", "UPC_W_C", "UCODE_W_C")):
+        image_path = gateware / f"{parameter}.hex"
+        binding = f'.{parameter}("{image_path}")'
+        ambiguity = f"ambiguous image or geometry source: {parameter}"
+        mutations.extend([
+            (parameter + " short", image_path, "12345678\n", "wrong image depth"),
+            (parameter + " narrow", image_path, "1234\n5678\n", "wrong image width"),
+            (parameter + " wide", image_path, "123456789\nabcdef012\n", "wrong image width"),
+            (parameter + " duplicate", generated,
+             verilog + f'.{parameter}("{extra_image}")\n', ambiguity),
+            (parameter + " missing", generated, verilog.replace(binding, ""), ambiguity),
+        ])
+        package_path = gateware / package
+        text = package_path.read_text()
+        (duplicate / package).write_text(text)
+        read = f"read_verilog {{{package_path}}}\n"
+        mutations.extend([
+            (package + " duplicate", script, source + f"read_verilog {{{duplicate / package}}}\n", ambiguity),
+            (package + " missing", script, source.replace(read, ""), ambiguity),
+        ])
+        for name in (depth, width):
+            declaration = next(line for line in text.splitlines(keepends=True) if name in line)
+            for label, replacement in (("duplicate", text + declaration),
+                                       ("missing", text.replace(declaration, ""))):
+                mutations.append((package + " " + name + " " + label, package_path, replacement,
+                                  f"expected one decimal declaration of {name}"))
+    for label, path, replacement, message in mutations:
+        original = path.read_text()
+        try:
+            if replacement is None:
+                path.unlink()
+            else:
+                path.write_text(replacement)
+            with expect_refusal(message):
+                prepare(gateware, gateware, None, True)
+            print(f"baseline inventory refusal: {label} PASS")
+        finally:
+            path.write_text(original)
+    if len(inventory(gateware, source)) != 5:
+        raise AssertionError("restored export inventory refused")
+    print(f"baseline inventory selftest: {len(mutations)} refusals and restored control PASS")
+
+
+def export_endpoint_selftest(gateware: Path, standalone: Path, log: Path, source: str) -> None:
+    """Keep endpoint, template and string-parameter refusals observable."""
+    with expect_refusal("integrated scripts must run in their gateware directory"):
+        prepare(gateware, standalone, None, True)
+    with expect_refusal("attribution requires an integrated build"):
+        prepare(gateware, standalone, log, False, attribution_only=True)
+    script = gateware / "alinx_ax7101.tcl"
+    command = next(line for line in source.splitlines(keepends=True) if line.startswith("synth_design "))
+    try:
+        for changed in (source + command, source.replace(command, "")):
+            script.write_text(changed)
+            with expect_refusal("expected exactly one integrated synthesis command"):
+                prepare(gateware, standalone, log, False)
+    finally:
+        script.write_text(source)
+    wrapper = gateware / "KL_pp_shadow.sv"
+    original_wrapper, original_log = wrapper.read_text(), log.read_text()
+    try:
+        wrapper.write_text(original_wrapper + 'parameter string IMAGE_P = "unused",\n')
+        log.write_text(original_log.replace("INFO: end", "Parameter IMAGE_P bound to: valid.hex - type: string\n"
+                                            "INFO: end"))
+        prepare(gateware, standalone, log, False)
+        if '-generic {IMAGE_P="valid.hex"}' not in (standalone / "baseline_ooc.tcl").read_text():
+            raise AssertionError("valid image pathname not preserved")
+        for value in ('bad{path', 'bad}path', 'bad"path'):
+            log.write_text(original_log.replace("INFO: end", f"Parameter IMAGE_P bound to: {value} - type: string\n"
+                                              "INFO: end"))
+            with expect_refusal("unsupported character in image pathname"):
+                prepare(gateware, standalone, log, False)
+    finally:
+        wrapper.write_text(original_wrapper)
+        log.write_text(original_log)
+    for option in ("--synthesis-only", "--attribution-only"):
+        stderr = io.StringIO()
+        with contextlib.redirect_stderr(stderr), expect_refusal("2", SystemExit):
+            main([str(gateware), "--output", str(standalone), "--integrated-log", str(log), option])
+        if "require the integrated endpoint" not in stderr.getvalue():
+            raise AssertionError("wrong CLI endpoint refusal")
+    print("baseline endpoint selftest: valid pathname and 9 refusals PASS")
 
 
 def export_selftest() -> None:
@@ -335,6 +467,9 @@ def export_selftest() -> None:
             promotion = "set_msg_config -id {Synth 8-4445} -new_severity ERROR\n"
             if script.count(promotion) != 1 or script.index(promotion) > script.index("synth_design "):
                 raise AssertionError(f"missing pre-synthesis ROM promotion: {filename}")
+            report = next(line for line in script.splitlines() if "-file baseline_hierarchy.rpt" in line)
+            if "-hierarchical_min_primitive_count 0" not in report:
+                raise AssertionError(f"hierarchy report filters small consumers: {filename}")
         prepare(gateware, gateware, None, True, attribution_only=True)
         script = (gateware / "baseline_integrated.tcl").read_text()
         constraint = (gateware / "baseline_boundary.xdc").read_text()
@@ -343,28 +478,8 @@ def export_selftest() -> None:
             raise AssertionError("attribution boundary constraint is absent or changed")
         if script.index("read_xdc baseline_boundary.xdc") > script.index("synth_design "):
             raise AssertionError("attribution boundary constraint follows synthesis")
-        mutations = [
-            (gateware / "alinx_ax7101_rom.init", None),
-            (gateware / "alinx_ax7101_sram.init", "12345678\n"),
-            (generated, verilog.replace('alinx_ax7101_rom.init",', 'unlisted.init",')),
-        ]
-        for parameter in ("PP_TROM_HEX_P", "PP_UCODE_HEX_P", "GPTP_UCODE_HEX_P"):
-            mutations.append((gateware / f"{parameter}.hex", "12345678\n"))
-        for path, replacement in mutations:
-            original = path.read_text()
-            try:
-                if replacement is None:
-                    path.unlink()
-                else:
-                    path.write_text(replacement)
-                try:
-                    prepare(gateware, gateware, None, True)
-                except (ValueError, FileNotFoundError):
-                    pass
-                else:
-                    raise AssertionError(f"invalid export accepted: {path.name}")
-            finally:
-                path.write_text(original)
+        export_inventory_selftest(gateware, source, verilog)
+        export_endpoint_selftest(gateware, standalone, log, source)
         # Use an existing directory: no test output can be left in the tree.
         # With the guard removed, prepare() reaches its directory mismatch;
         # that ValueError must not count as the expected argparse refusal.
@@ -378,7 +493,7 @@ def export_selftest() -> None:
             else:
                 raise AssertionError("in-repository output accepted")
         print("baseline export selftest: 3 default scripts, attribution constraint, "
-              "6 inventory refusals, CLI refusal PASS")
+              "CLI containment refusal PASS")
 
 
 def main(argv: list[str] | None = None) -> None:
