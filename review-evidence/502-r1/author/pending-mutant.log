@@ -1,0 +1,222 @@
+make: Entering directory '$LANES/502-pending-live-write/tb/verilator/pp_shadow'
+python3 pending_mutant.py
+  [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+  [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+  [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+  [PASS] K10 no_durable_claim_over_unsaved          got=0x00000000 exp=0x00000000
+  [PASS] K10 pending_from_accepting_edge            got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K10 first write 12965, mark 14846, tail 1881 cycles
+  [PASS] K sticky pending at PP_STAT                got=0x00000001 exp=0x00000001
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K10 repeat no_durable_claim_over_unsaved   got=0x00000000 exp=0x00000000
+  [PASS] K10 repeat pending_from_accepting_edge     got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000008 exp=0x00000008
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K10 repeat first write 12965, mark 14846, tail 1881 cycles
+  [PASS] K sticky pending at PP_STAT                got=0x00000001 exp=0x00000001
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K10 GET_NAME observes the accepted value   got=0x00000001 exp=0x00000001
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K12 zero records no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 zero records pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K sticky pending at PP_STAT                got=0x00000000 exp=0x00000000
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+  [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+  [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+  [PASS] K12 input no_durable_claim_over_unsaved    got=0x00000000 exp=0x00000000
+  [PASS] K12 input pending_from_accepting_edge      got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 input first write 12558, mark 12573, tail 15 cycles
+  [PASS] K sticky pending at PP_STAT                got=0x00000001 exp=0x00000001
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K12 GET_AUDIO_MAP contains the accepted record got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate pending_from_accepting_edge  got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000002 exp=0x00000002
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 duplicate first write 12558, mark 12573, tail 15 cycles
+  [PASS] K sticky pending at PP_STAT                got=0x00000001 exp=0x00000001
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K12 remove no_durable_claim_over_unsaved   got=0x00000000 exp=0x00000000
+  [PASS] K12 remove pending_from_accepting_edge     got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000003 exp=0x00000003
+  [PASS] K command marks                            got=0x00000002 exp=0x00000002
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 remove first write 12558, mark 12573, tail 15 cycles
+  [PASS] K sticky pending at PP_STAT                got=0x00000001 exp=0x00000001
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000001 exp=0x00000001
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K12 zero records no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 zero records pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K sticky pending at PP_STAT                got=0x00000000 exp=0x00000000
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+  [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+  [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+  [PASS] K12 no_durable_claim_over_unsaved          got=0x00000000 exp=0x00000000
+  [PASS] K12 pending_from_accepting_edge            got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 first write 12559, mark 12574, tail 15 cycles
+  [PASS] K sticky pending at PP_STAT                got=0x00000001 exp=0x00000001
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K12 GET_AUDIO_MAP contains the accepted record got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate pending_from_accepting_edge  got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000002 exp=0x00000002
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 duplicate first write 12559, mark 12574, tail 15 cycles
+  [PASS] K sticky pending at PP_STAT                got=0x00000001 exp=0x00000001
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K12 remove no_durable_claim_over_unsaved   got=0x00000000 exp=0x00000000
+  [PASS] K12 remove pending_from_accepting_edge     got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000003 exp=0x00000003
+  [PASS] K command marks                            got=0x00000002 exp=0x00000002
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 remove first write 12559, mark 12574, tail 15 cycles
+  [PASS] K sticky pending at PP_STAT                got=0x00000001 exp=0x00000001
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000001 exp=0x00000001
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K reset no_durable_claim_over_unsaved      got=0x00000000 exp=0x00000000
+  [PASS] K reset pending_from_accepting_edge        got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K sticky pending at PP_STAT                got=0x00000000 exp=0x00000000
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000000 exp=0x00000000
+----------------------------------------------------------------
+pp_shadow: 153 checks, 0 failures
+RESULT: PASS
+make[1]: Leaving directory '$LANES/502-pending-live-write/tb/verilator/pp_shadow'
+make[1]: Entering directory '$LANES/502-pending-live-write/tb/verilator/pp_shadow'
+python3 ../../common/gen_declaration_fixture.py fixtures/pending.yaml obj_pending/fixture
+declaration fixture: pending.yaml
+verilator +incdir+obj_pending/fixture --cc --exe --build -j 0 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall waivers.vlt pending_probes.vlt -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GGPTP_PLANE_EN_P=0 -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 -GMAAP_CLK_HZ_P=100000 -CFLAGS "-std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra" --Mdir /tmp/pp-pending-v8tzx0m0/late-mark \
+  -CFLAGS "-DPENDING_OUTPUT_DYNAMIC=1 -Wall -Wextra" $LANES/502-pending-live-write/protocol-processor/hdl/acmp/pp_acmp_pkg.sv $LANES/502-pending-live-write/protocol-processor/hdl/adp/pp_adp_pkg.sv $LANES/502-pending-live-write/protocol-processor/hdl/aecp/ucpu_pkg.sv $LANES/502-pending-live-write/protocol-processor/hdl/common/pp_pkg.sv $LANES/502-pending-live-write/protocol-processor/hdl/srp/srp_pkg.sv $LANES/502-pending-live-write/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv $LANES/502-pending-live-write/protocol-processor/hdl/acmp/KL_acmp_talker.sv $LANES/502-pending-live-write/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv $LANES/502-pending-live-write/protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv $LANES/502-pending-live-write/protocol-processor/hdl/adp/KL_adp_engine.sv $LANES/502-pending-live-write/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv $LANES/502-pending-live-write/protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv $LANES/502-pending-live-write/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv $LANES/502-pending-live-write/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv $LANES/502-pending-live-write/protocol-processor/hdl/aecp/KL_aecp_engine.sv $LANES/502-pending-live-write/protocol-processor/hdl/aecp/KL_aecp_notify.sv $LANES/502-pending-live-write/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv $LANES/502-pending-live-write/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv $LANES/502-pending-live-write/protocol-processor/hdl/common/KL_pp_prng.sv $LANES/502-pending-live-write/protocol-processor/hdl/common/KL_pp_timer_service.sv $LANES/502-pending-live-write/protocol-processor/hdl/maap/KL_pp_maap.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_originator.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_side_port.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv $LANES/502-pending-live-write/protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv $LANES/502-pending-live-write/protocol-processor/hdl/srp/KL_srp_admission.sv $LANES/502-pending-live-write/protocol-processor/hdl/srp/KL_srp_decoder.sv $LANES/502-pending-live-write/protocol-processor/hdl/srp/KL_srp_domain.sv $LANES/502-pending-live-write/protocol-processor/hdl/srp/KL_srp_encoder.sv $LANES/502-pending-live-write/protocol-processor/hdl/srp/KL_srp_listener_fsm.sv $LANES/502-pending-live-write/protocol-processor/hdl/srp/KL_srp_talker_fsm.sv $LANES/502-pending-live-write/protocol-processor/hdl/srp/KL_srp_top.sv $LANES/502-pending-live-write/protocol-processor/hdl/srp/KL_srp_vlan.sv $LANES/502-pending-live-write/protocol-processor/hdl/top/KL_mrp_strip.sv $LANES/502-pending-live-write/protocol-processor/hdl/top/protocol_processor_top.sv /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv $LANES/502-pending-live-write/hdl/milan/KL_pp_maap_shim.sv $LANES/502-pending-live-write/hdl/milan/KL_nvm_backend.sv $LANES/502-pending-live-write/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv $LANES/502-pending-live-write/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv $LANES/502-pending-live-write/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv $LANES/502-pending-live-write/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv $LANES/502-pending-live-write/gptp-processor/hdl/common/KL_gptp_timer.sv $LANES/502-pending-live-write/gptp-processor/hdl/top/KL_gptp_engine.sv $LANES/502-pending-live-write/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv $LANES/502-pending-live-write/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv $LANES/502-pending-live-write/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv $LANES/502-pending-live-write/hdl/common/ethernet_packet_pkg.sv $LANES/502-pending-live-write/hdl/common/axi_stream_if.sv $LANES/502-pending-live-write/third_party/verilog-axis/rtl/axis_fifo.v $LANES/502-pending-live-write/third_party/verilog-axis/rtl/axis_arb_mux.v $LANES/502-pending-live-write/third_party/verilog-axis/rtl/arbiter.v $LANES/502-pending-live-write/third_party/verilog-axis/rtl/priority_encoder.v $LANES/502-pending-live-write/hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv $LANES/502-pending-live-write/hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv $LANES/502-pending-live-write/hdl/common/cdc_pulse.sv $LANES/502-pending-live-write/hdl/common/cdc_handshake.sv $LANES/502-pending-live-write/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv $LANES/502-pending-live-write/hdl/ieee8021q/filtering/tcam.sv $LANES/502-pending-live-write/hdl/ieee8021q/filtering/rx_mac_filter.sv $LANES/502-pending-live-write/hdl/common/tx_ifg_gasket.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_pcm_lpf.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_pcm_route.sv $LANES/502-pending-live-write/hdl/common/KL_link_guard.sv $LANES/502-pending-live-write/hdl/ieee17221/adp/adp_tx_arbiter.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/aaf_talker_i2s.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_tdm_capture.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_pair_blend.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_tdm_render.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_tdm_render_master.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_render_setpoint.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_chan_map_render.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_chan_map_capture.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $LANES/502-pending-live-write/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $LANES/502-pending-live-write/hdl/ieee1722/avtp/avtp_stream_parser.sv $LANES/502-pending-live-write/hdl/ieee1722/avtp/KL_stream_table.sv $LANES/502-pending-live-write/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $LANES/502-pending-live-write/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $LANES/502-pending-live-write/hdl/ieee1722/avtp/KL_media_clock_restart.sv $LANES/502-pending-live-write/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $LANES/502-pending-live-write/hdl/ieee1722/crf/KL_crf_rx.sv $LANES/502-pending-live-write/hdl/ieee1722/crf/KL_crf_tx.sv $LANES/502-pending-live-write/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $LANES/502-pending-live-write/hdl/ieee1722/crf/KL_media_nco.sv $LANES/502-pending-live-write/hdl/ieee1722/crf/KL_media_grid_align.sv $LANES/502-pending-live-write/hdl/ieee1722/maap/KL_maap.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_i2s_playback.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_tone_gen.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv $LANES/502-pending-live-write/hdl/ieee1722/aaf/KL_media_adv.sv $LANES/502-pending-live-write/hdl/common/cdc_pair_fifo.sv $LANES/502-pending-live-write/hdl/common/eth_event_counter/ethernet_events.sv $LANES/502-pending-live-write/hdl/common/eth_event_counter/event_counter.sv $LANES/502-pending-live-write/hdl/common/csr/milan_csr.sv $LANES/502-pending-live-write/hdl/milan/milan_datapath.sv sim_main.cpp -o Vpp_pending
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:828:6: Instance pin connected by name with empty reference: 'm_axis_tid'
+  828 |     .m_axis_tid         (),
+      |      ^~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.052
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:829:6: Instance pin connected by name with empty reference: 'm_axis_tdest'
+  829 |     .m_axis_tdest       (),
+      |      ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:830:6: Instance pin connected by name with empty reference: 'm_axis_tuser'
+  830 |     .m_axis_tuser       (),
+      |      ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:831:6: Instance pin connected by name with empty reference: 'status_overflow'
+  831 |     .status_overflow    (),
+      |      ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:832:6: Instance pin connected by name with empty reference: 'status_bad_frame'
+  832 |     .status_bad_frame   (),
+      |      ^~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:833:6: Instance pin connected by name with empty reference: 'status_good_frame'
+  833 |     .status_good_frame  (),
+      |      ^~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:834:6: Instance pin connected by name with empty reference: 'status_depth'
+  834 |     .status_depth       (),
+      |      ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:835:6: Instance pin connected by name with empty reference: 'status_depth_commit'
+  835 |     .status_depth_commit(),
+      |      ^~~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:837:6: Instance pin connected by name with empty reference: 'pause_ack'
+  837 |     .pause_ack          ()
+      |      ^~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:1031:8: Instance pin connected by name with empty reference: 'nvm_unres_o'
+ 1031 |       .nvm_unres_o     ()
+      |        ^~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:1136:8: Instance pin connected by name with empty reference: 'tx_sof_o'
+ 1136 |       .tx_sof_o            (),
+      |        ^~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:1142:8: Instance pin connected by name with empty reference: 'aecp_txn_valid_o'
+ 1142 |       .aecp_txn_valid_o    (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:1143:8: Instance pin connected by name with empty reference: 'aecp_txn_o'
+ 1143 |       .aecp_txn_o          (),
+      |        ^~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:1148:8: Instance pin connected by name with empty reference: 'aecp_rxs_rd_data_o'
+ 1148 |       .aecp_rxs_rd_data_o  (),
+      |        ^~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:1149:8: Instance pin connected by name with empty reference: 'aecp_rxs_slot_len_o'
+ 1149 |       .aecp_rxs_slot_len_o (),
+      |        ^~~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:1234:8: Instance pin connected by name with empty reference: 'svc_ready_o'
+ 1234 |       .svc_ready_o         (),
+      |        ^~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:1242:8: Instance pin connected by name with empty reference: 'svc_rsp_valid_o'
+ 1242 |       .svc_rsp_valid_o     (),
+      |        ^~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:1243:8: Instance pin connected by name with empty reference: 'svc_rsp_status_o'
+ 1243 |       .svc_rsp_status_o    (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /tmp/pp-pending-v8tzx0m0/KL_pp_shadow.sv:1244:8: Instance pin connected by name with empty reference: 'svc_rsp_data_o'
+ 1244 |       .svc_rsp_data_o      (),
+      |        ^~~~~~~~~~~~~~
+%Error: Exiting due to 19 warning(s)
+make[1]: *** [Makefile:164: run-pending] Error 1
+make[1]: Leaving directory '$LANES/502-pending-live-write/tb/verilator/pp_shadow'
+FAIL: late-mark mutant missed a named K10/K12 failure
+make: *** [Makefile:169: pending-mutant] Error 1
+make: Leaving directory '$LANES/502-pending-live-write/tb/verilator/pp_shadow'

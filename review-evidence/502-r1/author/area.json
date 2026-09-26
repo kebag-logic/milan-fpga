@@ -1,0 +1,26 @@
+{
+  "processor_pin": "870ff88ad35bbd532244e4c7e6d7661b9f6e1366",
+  "recipe": "syn/yosys/ooc.sh KL_pp_shadow",
+  "shape": "wrapper defaults N_STREAM_IN_P=8 N_STREAM_OUT_P=8; repository default OOC config endstation_arty_current",
+  "before_shadow_sha256": "455c6d63d99de143de8756de21dc1dbaa2b17ee16c0787b5b70498aa9c34b34c",
+  "after_shadow_sha256": "6a0090d86582c84c44769a818ff192d6679a652b05fcc5d0137ff12534210618",
+  "before": {
+    "LUT": 60855,
+    "LUTRAM": 6136,
+    "FF": 30187,
+    "RAMB36": 15,
+    "RAMB18": 4,
+    "DSP": 6,
+    "CARRY4": 2104
+  },
+  "after": {
+    "LUT": 60766,
+    "LUTRAM": 6136,
+    "FF": 30187,
+    "RAMB36": 15,
+    "RAMB18": 4,
+    "DSP": 6,
+    "CARRY4": 2104
+  },
+  "limitation": "OOC synthesis estimate at the same adopted pin, not placed timing or hardware measurement."
+}

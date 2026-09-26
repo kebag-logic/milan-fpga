@@ -1,0 +1,60 @@
+make: Entering directory '$LANES/502-pending-live-write/tb/verilator/pp_shadow'
+python3 pending_mutant.py
+  [PASS] K reset no_durable_claim_over_unsaved      got=0x00000000 exp=0x00000000
+  [PASS] K reset pending_from_accepting_edge        got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K sticky pending at PP_STAT                got=0x00000000 exp=0x00000000
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000000 exp=0x00000000
+----------------------------------------------------------------
+pp_shadow: 159 checks, 0 failures
+RESULT: PASS
+make[1]: Leaving directory '$LANES/502-pending-live-write/tb/verilator/pp_shadow'
+  [i] K10 first write 12965, mark 14846, tail 1881 cycles
+  [i] K10 repeat first write 12965, mark 14846, tail 1881 cycles
+  [i] K12 input first write 12558, mark 12573, tail 15 cycles
+  [i] K12 duplicate first write 12558, mark 12573, tail 15 cycles
+  [i] K12 remove first write 12558, mark 12573, tail 15 cycles
+  [i] K12 first write 12559, mark 12574, tail 15 cycles
+  [i] K12 duplicate first write 12559, mark 12574, tail 15 cycles
+  [i] K12 remove first write 12559, mark 12574, tail 15 cycles
+  [PASS] K reset pending_from_accepting_edge        got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K sticky pending at PP_STAT                got=0x00000000 exp=0x00000000
+  [PASS] K sticky pending at PP_NVM_STAT            got=0x00000000 exp=0x00000000
+----------------------------------------------------------------
+pp_shadow: 159 checks, 16 failures
+RESULT: FAIL
+make[1]: *** [Makefile:165: run-pending] Error 1
+make[1]: Leaving directory '$LANES/502-pending-live-write/tb/verilator/pp_shadow'
+  [FAIL] K10 no_durable_claim_over_unsaved          got=0x00000759 exp=0x00000000
+  [FAIL] K10 pending_from_accepting_edge            got=0x00000759 exp=0x00000000
+  [i] K10 first write 12965, mark 14846, tail 1881 cycles
+  [FAIL] K10 repeat no_durable_claim_over_unsaved   got=0x00000759 exp=0x00000000
+  [FAIL] K10 repeat pending_from_accepting_edge     got=0x00000759 exp=0x00000000
+  [i] K10 repeat first write 12965, mark 14846, tail 1881 cycles
+  [FAIL] K12 input no_durable_claim_over_unsaved    got=0x0000000F exp=0x00000000
+  [FAIL] K12 input pending_from_accepting_edge      got=0x0000000F exp=0x00000000
+  [i] K12 input first write 12558, mark 12573, tail 15 cycles
+  [FAIL] K12 duplicate no_durable_claim_over_unsaved got=0x0000000F exp=0x00000000
+  [FAIL] K12 duplicate pending_from_accepting_edge  got=0x0000000F exp=0x00000000
+  [i] K12 duplicate first write 12558, mark 12573, tail 15 cycles
+  [FAIL] K12 remove no_durable_claim_over_unsaved   got=0x0000000F exp=0x00000000
+  [FAIL] K12 remove pending_from_accepting_edge     got=0x0000000F exp=0x00000000
+  [i] K12 remove first write 12558, mark 12573, tail 15 cycles
+  [FAIL] K12 no_durable_claim_over_unsaved          got=0x0000000F exp=0x00000000
+  [FAIL] K12 pending_from_accepting_edge            got=0x0000000F exp=0x00000000
+  [i] K12 first write 12559, mark 12574, tail 15 cycles
+  [FAIL] K12 duplicate no_durable_claim_over_unsaved got=0x0000000F exp=0x00000000
+  [FAIL] K12 duplicate pending_from_accepting_edge  got=0x0000000F exp=0x00000000
+  [i] K12 duplicate first write 12559, mark 12574, tail 15 cycles
+  [FAIL] K12 remove no_durable_claim_over_unsaved   got=0x0000000F exp=0x00000000
+  [FAIL] K12 remove pending_from_accepting_edge     got=0x0000000F exp=0x00000000
+  [i] K12 remove first write 12559, mark 12574, tail 15 cycles
+PASS: late-mark mutant killed by K10 and K12; clean control passes
+make: Leaving directory '$LANES/502-pending-live-write/tb/verilator/pp_shadow'
