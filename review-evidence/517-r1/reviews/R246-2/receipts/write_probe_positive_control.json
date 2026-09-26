@@ -1,0 +1,74 @@
+{
+ "legs": {
+  "plant:a": {
+   "write_ops": 6,
+   "distinct_paths": 4,
+   "chdirs": [
+    "1759729 chdir(\"..\")                     = 0",
+    "1759729 chdir(\"..\")                     = 0",
+    "1759729 chdir(\"..\")                     = 0",
+    "1759729 chdir(\"sw\")                     = 0",
+    "1759729 chdir(\"builder\")                = 0"
+   ],
+   "failed_calls": 17,
+   "private_dirs": [
+    "milan_nxn_6l31bM"
+   ],
+   "files_in_private_dir": [
+    "$TMPDIR/milan_nxn_XXXXXX/image.bin"
+   ],
+   "written_outside_private_dir": [
+    "$TREE/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh",
+    "$TREE/sw/builder/__pycache__/planted-shared.pyc"
+   ],
+   "ops": [
+    "mkdir $TMPDIR/milan_nxn_XXXXXX",
+    "open-write $TMPDIR/milan_nxn_XXXXXX/image.bin",
+    "open-write $TREE/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh",
+    "open-write $TREE/sw/builder/__pycache__/planted-shared.pyc",
+    "unlinkat $TMPDIR/milan_nxn_XXXXXX",
+    "unlinkat $TMPDIR/milan_nxn_XXXXXX/image.bin"
+   ]
+  },
+  "plant:b": {
+   "write_ops": 6,
+   "distinct_paths": 4,
+   "chdirs": [
+    "1759730 chdir(\"..\")                     = 0",
+    "1759730 chdir(\"..\")                     = 0",
+    "1759730 chdir(\"..\")                     = 0",
+    "1759730 chdir(\"sw\")                     = 0",
+    "1759730 chdir(\"builder\")                = 0"
+   ],
+   "failed_calls": 17,
+   "private_dirs": [
+    "milan_nxn_wZV4jw"
+   ],
+   "files_in_private_dir": [
+    "$TMPDIR/milan_nxn_XXXXXX/image.bin"
+   ],
+   "written_outside_private_dir": [
+    "$TREE/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh",
+    "$TREE/sw/builder/__pycache__/planted-shared.pyc"
+   ],
+   "ops": [
+    "mkdir $TMPDIR/milan_nxn_XXXXXX",
+    "open-write $TMPDIR/milan_nxn_XXXXXX/image.bin",
+    "open-write $TREE/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh",
+    "open-write $TREE/sw/builder/__pycache__/planted-shared.pyc",
+    "unlinkat $TMPDIR/milan_nxn_XXXXXX",
+    "unlinkat $TMPDIR/milan_nxn_XXXXXX/image.bin"
+   ]
+  }
+ },
+ "shared_written_paths": [
+  {
+   "a": "plant:a",
+   "b": "plant:b",
+   "paths": [
+    "$TREE/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh",
+    "$TREE/sw/builder/__pycache__/planted-shared.pyc"
+   ]
+  }
+ ]
+}

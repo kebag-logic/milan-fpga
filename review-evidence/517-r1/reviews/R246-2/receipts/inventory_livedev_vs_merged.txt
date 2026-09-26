@@ -1,0 +1,143 @@
+## dev (7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a) make -n run 
+BUILD Vmilan_dp_gptp
+LEG ./obj_gptp/Vmilan_dp_gptp
+BUILD Vmilan_dp_gptplat
+LEG ./obj_gptplat/Vmilan_dp_gptplat
+BUILD Vmilan_dp_gmstep
+LEG ./obj_gmstep/Vmilan_dp_gmstep obj_gmstep/aemi.bin 0
+BUILD Vmilan_dp_sim
+BUILD Vmilan_dp_nxn
+BUILD Vmilan_dp_nxndv
+BUILD Vmilan_dp_nxn8
+BUILD Vmilan_dp_nxn4c
+BUILD Vmilan_dp_nolpf
+BUILD Vmilan_dp_prune
+BUILD Vmilan_dp_ax1x1
+BUILD Vmilan_dp_aclk
+BANNER ======================================================================
+BUILD Vmilan_dp_notify
+BUILD Vmilan_dp_crflic
+LEG ./obj_dir/Vmilan_dp_sim
+BANNER ---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----
+LEG ./obj_notify/Vmilan_dp_notify
+BANNER ---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----
+LEG ./obj_crflic/Vmilan_dp_crflic
+LEG ./obj_nxn/Vmilan_dp_nxn
+BANNER ---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----
+LEG ./obj_nxndv/Vmilan_dp_nxndv
+LEG ./obj_nxn8/Vmilan_dp_nxn8
+BANNER ---- the shipping Arty shape: 4 streams x 4 wire channels ----
+LEG ./obj_nxn4c/Vmilan_dp_nxn4c
+BANNER ---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----
+LEG ./obj_nolpf/Vmilan_dp_nolpf
+BANNER ---- all six tier-1 blocks pruned ----
+LEG ./obj_prune/Vmilan_dp_prune
+BANNER ---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----
+LEG ./obj_ax1x1/Vmilan_dp_ax1x1
+BANNER ---- the same shape at the TRUE clk_audio ratio (391/1591) ----
+LEG ./obj_aclk/Vmilan_dp_aclk
+BANNER ---- #386 render law: the same leg against mutated setpoint stages and datapath ----
+DRIVER python3 render_mutants.py
+BANNER ---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----
+DRIVER python3 gmstep_mutants.py
+
+## head (HEAD) make -n run 
+BUILD Vmilan_dp_gptp
+LEG ./obj_gptp/Vmilan_dp_gptp
+BUILD Vmilan_dp_gptplat
+LEG ./obj_gptplat/Vmilan_dp_gptplat
+BUILD Vmilan_dp_gmstep
+LEG ./obj_gmstep/Vmilan_dp_gmstep obj_gmstep/aemi.bin 0
+BUILD Vmilan_dp_sim
+BUILD Vmilan_dp_nxn
+BUILD Vmilan_dp_nxndv
+BUILD Vmilan_dp_nxn8
+BUILD Vmilan_dp_nxn4c
+BUILD Vmilan_dp_nolpf
+BUILD Vmilan_dp_prune
+BUILD Vmilan_dp_ax1x1
+BUILD Vmilan_dp_aclk
+BANNER ======================================================================
+BUILD Vmilan_dp_notify
+BUILD Vmilan_dp_crflic
+POOL-START --jobs=2
+LEG ./obj_dir/Vmilan_dp_sim
+BANNER ---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----
+LEG ./obj_notify/Vmilan_dp_notify
+BANNER ---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----
+LEG ./obj_crflic/Vmilan_dp_crflic
+LEG ./obj_nxn/Vmilan_dp_nxn
+BANNER ---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----
+LEG ./obj_nxndv/Vmilan_dp_nxndv
+LEG ./obj_nxn8/Vmilan_dp_nxn8
+BANNER ---- the shipping Arty shape: 4 streams x 4 wire channels ----
+LEG ./obj_nxn4c/Vmilan_dp_nxn4c
+BANNER ---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----
+LEG ./obj_nolpf/Vmilan_dp_nolpf
+BANNER ---- all six tier-1 blocks pruned ----
+LEG ./obj_prune/Vmilan_dp_prune
+BANNER ---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----
+LEG ./obj_ax1x1/Vmilan_dp_ax1x1
+BANNER ---- the same shape at the TRUE clk_audio ratio (391/1591) ----
+LEG ./obj_aclk/Vmilan_dp_aclk
+POOL-END
+BANNER ---- #386 render law: the same leg against mutated setpoint stages and datapath ----
+DRIVER python3 render_mutants.py
+BANNER ---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----
+DRIVER python3 gmstep_mutants.py
+
+## head-SIM_JOBS=1 (HEAD) make -n run SIM_JOBS=1
+BUILD Vmilan_dp_gptp
+LEG ./obj_gptp/Vmilan_dp_gptp
+BUILD Vmilan_dp_gptplat
+LEG ./obj_gptplat/Vmilan_dp_gptplat
+BUILD Vmilan_dp_gmstep
+LEG ./obj_gmstep/Vmilan_dp_gmstep obj_gmstep/aemi.bin 0
+BUILD Vmilan_dp_sim
+BUILD Vmilan_dp_nxn
+BUILD Vmilan_dp_nxndv
+BUILD Vmilan_dp_nxn8
+BUILD Vmilan_dp_nxn4c
+BUILD Vmilan_dp_nolpf
+BUILD Vmilan_dp_prune
+BUILD Vmilan_dp_ax1x1
+BUILD Vmilan_dp_aclk
+BANNER ======================================================================
+BUILD Vmilan_dp_notify
+BUILD Vmilan_dp_crflic
+POOL-START --jobs=1
+LEG ./obj_dir/Vmilan_dp_sim
+BANNER ---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----
+LEG ./obj_notify/Vmilan_dp_notify
+BANNER ---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----
+LEG ./obj_crflic/Vmilan_dp_crflic
+LEG ./obj_nxn/Vmilan_dp_nxn
+BANNER ---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----
+LEG ./obj_nxndv/Vmilan_dp_nxndv
+LEG ./obj_nxn8/Vmilan_dp_nxn8
+BANNER ---- the shipping Arty shape: 4 streams x 4 wire channels ----
+LEG ./obj_nxn4c/Vmilan_dp_nxn4c
+BANNER ---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----
+LEG ./obj_nolpf/Vmilan_dp_nolpf
+BANNER ---- all six tier-1 blocks pruned ----
+LEG ./obj_prune/Vmilan_dp_prune
+BANNER ---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----
+LEG ./obj_ax1x1/Vmilan_dp_ax1x1
+BANNER ---- the same shape at the TRUE clk_audio ratio (391/1591) ----
+LEG ./obj_aclk/Vmilan_dp_aclk
+POOL-END
+BANNER ---- #386 render law: the same leg against mutated setpoint stages and datapath ----
+DRIVER python3 render_mutants.py
+BANNER ---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----
+DRIVER python3 gmstep_mutants.py
+
+## comparison
+legs dev=14 head=14 identical order: True
+duplicate legs head: 0
+banners identical: True
+builds identical order: True (14)
+post drivers identical: True ['DRIVER python3 render_mutants.py', 'DRIVER python3 gmstep_mutants.py']
+full interleaved sequence identical (pool markers removed): True
+SIM_JOBS=1 sequence identical to default except jobs: True
+pool jobs default/SIM_JOBS=1: ['POOL-START --jobs=2'] ['POOL-START --jobs=1']
+exclusive legs (recipe order): []

@@ -1,0 +1,14 @@
+== merged checkout 46c29c5c (head 1d694677 + live dev 7eb3b0d4), gptp-processor 5dce647a; pass 1 with NO interpreter caches (realistic positive control)
+endstation_ax7101_8x8 rc=0 private_files=14
+  writes outside private dir: ['mkdir $PACKET/scratch/mtree/avdecc/__pycache__', 'mkdir $PACKET/scratch/mtree/protocol-processor/hdl/aecp/desc/__pycache__', 'mkdir $PACKET/scratch/mtree/sw/litex/platforms/__pycache__', 'openat $PACKET/scratch/mtree/avdecc/__pycache__/aem_assemble.cpython-314.pyc.139898432528016', 'openat $PACKET/scratch/mtree/avdecc/__pycache__/aem_descriptors.cpython-314.pyc.139898433547856', 'openat $PACKET/scratch/mtree/avdecc/__pycache__/aem_emit.cpython-314.pyc.139898432528880', 'openat $PACKET/scratch/mtree/avdecc/__pycache__/aem_maps.cpython-314.pyc.139898432534640', 'openat $PACKET/scratch/mtree/avdecc/__pycache__/aem_specs.cpython-314.pyc.139898432533056', 'openat $PACKET/scratch/mtree/avdecc/__pycache__/gen_aem_store.cpython-314.pyc.139898432522256', 'openat $PACKET/scratch/mtree/protocol-processor/hdl/aecp/desc/__pycache__/gen_desc_image.cpython-314.pyc.140277962188288', 'openat $PACKET/scratch/mtree/sw/litex/platforms/__pycache__/board_audio_routing.cpython-314.pyc.139898432553808', 'rename $PACKET/scratch/mtree/avdecc/__pycache__/aem_assemble.cpython-314.pyc.139898432528016', 'rename $PACKET/scratch/mtree/avdecc/__pycache__/aem_descriptors.cpython-314.pyc.139898433547856', 'rename $PACKET/scratch/mtree/avdecc/__pycache__/aem_emit.cpython-314.pyc.139898432528880', 'rename $PACKET/scratch/mtree/avdecc/__pycache__/aem_maps.cpython-314.pyc.139898432534640', 'rename $PACKET/scratch/mtree/avdecc/__pycache__/aem_specs.cpython-314.pyc.139898432533056', 'rename $PACKET/scratch/mtree/avdecc/__pycache__/gen_aem_store.cpython-314.pyc.139898432522256', 'rename $PACKET/scratch/mtree/protocol-processor/hdl/aecp/desc/__pycache__/gen_desc_image.cpython-314.pyc.140277962188288', 'rename $PACKET/scratch/mtree/sw/litex/platforms/__pycache__/board_audio_routing.cpython-314.pyc.139898432553808']
+endstation_arty_4x4 rc=0 private_files=14
+  writes outside private dir: NONE
+endstation_ax7101_1x1_tdm8 rc=0 private_files=14
+  writes outside private dir: NONE
+== same checkout, pass 2 (caches now present, the state make run's gmstep-build leaves before the pool)
+endstation_ax7101_8x8 rc=0 private_files=14
+  writes outside private dir: NONE
+endstation_arty_4x4 rc=0 private_files=14
+  writes outside private dir: NONE
+endstation_ax7101_1x1_tdm8 rc=0 private_files=14
+  writes outside private dir: NONE

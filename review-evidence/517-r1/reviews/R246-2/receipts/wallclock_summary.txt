@@ -1,0 +1,28 @@
+R246-2 cold pooled run at 1d694677 (fresh copy of the exact head, no build products, pinned Verilator 5.050,
+taskset 8 CPUs, VERILATOR_JOBS=8, SIM_JOBS default 2). One shared-host sample. Source: real-cold-pooled/segments.jsonl.
+
+phase                          seconds
+make gptp                      101.087
+make gptp-lat                  101.456
+make gmstep                     37.942
+14 builds + banners (lines 0-12) 163.241
+ordinary pool --jobs=2 (line 13) 544.588   peak 2 legs alive; peak 2 sim_nxn legs alive (the marks are gone)
+render_mutants.py (14-15)      352.161
+gmstep_mutants.py (16-17)      139.706
+TOTAL cold pooled             1440.181   margin to the unchanged 3600 s milan_dp budget: 2159.8 s
+
+Host load (uptime 1-min) during the pool line: 28.5 at start, 28.8 at end (5-min 35.4). R246-1's f36b40dd
+run saw 8-19 and measured the pool at 491.551 s, total 1371.366 s. The two samples are not comparable
+for a speed claim; the difference tracks host load, not the removed marks.
+
+Why the marks cannot change the wall clock (per-leg durations, receipts/leg_durations_from_probe.txt):
+obj_aclk alone runs ~465 s; the other ten legs together ~97 s (largest obj_crflic ~26 s, the five sim_nxn
+legs ~47 s together). With two slots and recipe start order, obj_aclk (11th) starts after the first ten
+have consumed about half of their ~97 s, so the pool is ~ (start delay) + obj_aclk regardless of whether
+the five sim_nxn legs may overlap each other. This matches the author's +5.264 s (+0.388%) before/after pair
+(1356.114 s -> 1361.378 s) as noise. The PR's overall gain (sequential vs pooled) was measured in R246-1
+(58.8 s, 4.11% of the suite); this round does not change it.
+
+Captures: all eleven obj_legs/*.log and replay.log are byte-identical to R246-1's run at f36b40dd and to
+the author's published after-captures (06 and replay.log by the sha256 in author-r5/OMITTED.txt).
+Tally of the concatenated cold log: 10074 checks, 0 failures, 16 tallies; suite_tally.py --verdict rc=0.
