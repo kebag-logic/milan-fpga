@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+# Both real map owners accept edits in the pending-status integration leg.
+base: configs/endstation_arty_current.yaml
+overrides:
+  streams:
+    talkers:
+      - name: "Stream Output 0"
+        channels: 2
+        clusters: 8
+        map_mode: dynamic

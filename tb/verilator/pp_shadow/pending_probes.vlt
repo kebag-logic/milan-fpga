@@ -1,0 +1,10 @@
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// Read-only cycle probes for accepted writes and the published status.
+`verilator_config
+public_flat_rd -module "KL_pp_shadow" -var "aecp_name_wr_w"
+public_flat_rd -module "KL_pp_shadow" -var "amap_edit_req_o"
+public_flat_rd -module "KL_pp_shadow" -var "amap_edit_phase_o"
+public_flat_rd -module "KL_pp_shadow" -var "aecp_nvm_stb_w"
+public_flat_rd -module "KL_pp_shadow" -var "aecp_nvm_mark_w"
+public_flat_rd -module "milan_datapath" -var "pp_nvm_*_w"

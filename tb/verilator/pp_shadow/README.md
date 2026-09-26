@@ -9,6 +9,7 @@ The suite carries no `-Wno-*` flags, including `-Wno-fatal`.
 ## Contents
 
 - **[Run it](#run-it)** -- Default builds, generated fixtures, and independent expectations.
+- **[Pending from live writes](#pending-from-live-writes)** -- Real programs expose the unsaved interval.
 - **[The premise inverted (2026-08-13)](#the-premise-inverted-2026-08-13)** -- This suite used to prove the processor transmitted NOTHING; with the legacy plane deleted its TX is the wire, so every discipline check was turned around
 - **[What it proves](#what-it-proves)** -- The class-D fabric face, the byte-exact ADPDU rebuilt from the 0x600 CSR group, the ACMP answer, and clean interleaving with MAAP through the shared control arbiter
 - **[The AECP answer, and the memory behind it](#the-aecp-answer-and-the-memory-behind-it)** -- What the µCPU actually answers, why every check decodes the response frame instead of a counter, and how the harness backs the nine descriptor-memory ports with a real AEMI image
@@ -34,6 +35,7 @@ The default target runs these builds of `sim_main.cpp`:
 | `run-base` | `obj_dir/Vpp_shadow_sim` | Tracked `arty_current` headers; VID 2 and one Stream Output |
 | `run-vid73` | `obj_vid73/Vpp_vid73` | `fixtures/vid73.yaml`; expected startup VID 73 |
 | `run-crf` | `obj_crf/Vpp_crf` | `fixtures/crf_on.yaml`; expected Stream Output count 2 |
+| `run-pending` | `obj_pending/Vpp_pending` | `fixtures/pending.yaml`; both map directions accept edits |
 
 Each fixture generates headers through `tb/common/gen_declaration_fixture.py`.
 Headers live under the corresponding `obj_*/fixture/gen` directory.
@@ -44,6 +46,47 @@ Recipe constants supply expectations independently of generated header values.
 
 Each target also generates the required listener and microcode ROMs.
 `clean` removes all build directories and those ROMs.
+
+## Pending from live writes
+
+Issue #502 ports K10/K12 into the shipping datapath.
+The original evidence is `500-design-evidence` at `a21b165a`.
+Its durability predicate now runs on every accepting edge.
+Real SET_NAME and ADD/REMOVE_AUDIO_MAPPINGS programs supply the events.
+The observer reads ports and status, without driving internal state.
+
+```sh
+make -C tb/verilator/pp_shadow
+make -C tb/verilator/pp_shadow pending-mutant
+```
+
+The default run includes a dynamic-output fixture.
+`run-pending` runs that fixture alone.
+Both input and output maps use their real parent owners.
+GET_NAME and GET_AUDIO_MAP independently confirm the accepted values.
+All eight name lanes change in K10.
+K12 starts with an empty map, then adds and removes.
+Duplicate records still offer phase 5, without another mark.
+The parent accepts each held record once.
+
+The control-face writer establishes the initial durable status.
+Each test then observes live writes through command completion.
+Pending must rise on the first accepting edge.
+The later group mark must occur and identify its group.
+An accepted snapshot acknowledgement must preserve the sticky source.
+No name/map record writer exists yet.
+These tests make no flash persistence or restoration claim.
+
+Controls exercise unchanged names and zero-record map commands.
+The default static output refuses edits without setting pending.
+Reset separates the groups and restores the clean baseline.
+A permanently asserted pending bit fails that baseline.
+
+The mutation target first requires a clean control pass.
+It copies only the parent shadow into temporary storage.
+Restoring the late-mark trigger must fail both K10 and K12.
+A build failure cannot count as a killed mutant.
+No processor source is edited.
 
 ## The premise inverted (2026-08-13)
 

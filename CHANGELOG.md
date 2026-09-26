@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - pending follows live writes](#unreleased---pending-follows-live-writes)** -- Pending follows accepted writes.
 - **[Unreleased - CRF servo holds through PHC slew](#unreleased---crf-servo-holds-through-phc-slew)** -- Holds lock.
 - **[Unreleased - render setpoint state](#unreleased---render-setpoint-state)** -- Publishes the selected listener's state.
 - **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
@@ -29,6 +30,18 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - pending follows live writes
+
+- Issue #502 advances the processor pin to `870ff88a`.
+- Accepted name writes now raise saved-state pending immediately.
+- Accepted map commit beats raise the same sticky source.
+- The backend samples each pulse on its accepting edge.
+- Command marks retain their later completion meaning.
+- Neither group has a record writer; pending clears at reset.
+- K10/K12 run real commands through the shipping datapath.
+- A late-mark mutant must fail both durability checks.
+- Firmware and the CSR layout remain unchanged.
 
 ## Unreleased - CRF servo holds through PHC slew
 

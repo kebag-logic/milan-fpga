@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `990f96526bb89356c963a260ebbdcf2a77e6623a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `870ff88ad35bbd532244e4c7e6d7661b9f6e1366` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -39,7 +39,18 @@ Issue #508 adopts these processor changes.
 
 PR 117 merged as `265d6762`.
 
-PR 115 then merged as `990f9652`, the adopted pin.
+PR 115 then merged as `990f9652`.
+
+Issue #502 advances the pin to `870ff88a`.
+
+- PR 118 records the October MVU waiver and refusal tests.
+- PR 119 completes the integration parameter inventory.
+- PR 121 exports each accepted live name write.
+- `KL_pp_shadow` connects that pulse to saved-state pending.
+- Map phase 5 supplies the corresponding map trigger.
+- Later marks retain their command-completion meaning.
+
+The ROM ledger and boundary diagram follow the new pin.
 
 The [datapath suite](../../tb/verilator/milan_dp/README.md#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify) records notification coverage.
 
