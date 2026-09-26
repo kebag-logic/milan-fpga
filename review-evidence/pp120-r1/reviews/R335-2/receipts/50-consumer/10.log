@@ -1,0 +1,151 @@
+RTL suites with an executable mutation or negative arm: 19 of 94
+    56 under tb/verilator  (entry: scripts/run_all_suites.sh)
+    33 under protocol-processor/tb  (entry: protocol-processor/scripts/run_suites.sh, protocol-processor/.github/workflows/hdl.yml)
+     4 under gptp-processor/tb/verilator  (entry: gptp-processor/Makefile)
+
+armed suites, and the executed target that arms them (19):
+   gptp-processor/tb/tsngen: `mutants` driver mutants.py
+   gptp-processor/tb/verilator/engine: `mutants` driver mutants.py
+   gptp-processor/tb/verilator/gaskets: `mutants` driver mutants.py
+   protocol-processor/tb/nvm_port: `figures` driver measure_figures.py
+   tb/verilator/crf_rx: `mutants` driver mutants.py
+   tb/verilator/gptp_shadow: `lifecycle` driver test_mutant_lifecycle.py
+   tb/verilator/gptp_txts: `mutants` driver mutants.py
+   tb/verilator/media_grid_align: `run` define +define+MGA_MUT_U_SIGN
+   tb/verilator/milan_dp: `run` driver render_mutants.py
+   tb/verilator/milan_dp_gptp: `all` driver verify_abort.py
+   tb/verilator/milan_dp_render: `run` driver tdm8_render_mutants.py
+   tb/verilator/nvm_backend: `run` table $(MUTANTS)
+   tb/verilator/nvm_cosim: `run` driver run_cases.py
+   tb/verilator/ptp_ts: `sva-campaign` driver sva_campaign.py
+   tb/verilator/render_setpoint: `mutants` driver mutants.py
+   tb/verilator/rx_filter: `binding-negative` driver binding_mutant.py
+   tb/verilator/tcam: `mutants` driver mutants.py
+   tb/verilator/tkdiag: `run` driver mcr_mutants.py
+   tb/verilator/tsn_fuzz: `graderself` driver test_grade_tx.py
+
+suites with none (75):
+   gptp-processor/tb/verilator/parser
+   gptp-processor/tb/verilator/ucpu
+   protocol-processor/tb/acmp_listener
+   protocol-processor/tb/acmp_nvm
+   protocol-processor/tb/acmp_talker
+   protocol-processor/tb/adp_engine
+   protocol-processor/tb/aecp_notify
+   protocol-processor/tb/ca_originator
+   protocol-processor/tb/desc_mem_guard
+   protocol-processor/tb/desc_store
+   protocol-processor/tb/dispatch
+   protocol-processor/tb/dyn_state
+   protocol-processor/tb/event_router
+   protocol-processor/tb/lsn_admit
+   protocol-processor/tb/maap
+   protocol-processor/tb/originator
+   protocol-processor/tb/pp_top
+   protocol-processor/tb/prng
+   protocol-processor/tb/release_merge
+   protocol-processor/tb/resp_buf
+   protocol-processor/tb/rx_slots
+   protocol-processor/tb/rx_validator
+   protocol-processor/tb/scoreboard
+   protocol-processor/tb/side_port
+   protocol-processor/tb/srp_admission
+   protocol-processor/tb/srp_decoder
+   protocol-processor/tb/srp_encoder
+   protocol-processor/tb/srp_stream_fsms
+   protocol-processor/tb/srp_top
+   protocol-processor/tb/timer_map
+   protocol-processor/tb/timer_service
+   protocol-processor/tb/tx_arbiter
+   protocol-processor/tb/tx_slots
+   protocol-processor/tb/ucpu
+   tb/verilator/aaf
+   tb/verilator/aaf_audio_loop
+   tb/verilator/aaf_latency_tap_bank
+   tb/verilator/aaf_latency_taps
+   tb/verilator/adp_tx
+   tb/verilator/aes3
+   tb/verilator/avtp_parser
+   tb/verilator/avtp_rxmon
+   tb/verilator/avtp_stream
+   tb/verilator/cbs
+   tb/verilator/cdc
+   tb/verilator/chmap_capture
+   tb/verilator/chmap_render
+   tb/verilator/classifier
+   tb/verilator/clkvalid
+   tb/verilator/cls
+   tb/verilator/controller_rate
+   tb/verilator/crf_tx
+   tb/verilator/csr
+   tb/verilator/datapath
+   tb/verilator/eth_tx_reset
+   tb/verilator/gptp_plane
+   tb/verilator/i2spb
+   tb/verilator/ifg
+   tb/verilator/lat_history_ring
+   tb/verilator/link_guard
+   tb/verilator/maap
+   tb/verilator/mac_rmon
+   tb/verilator/media_nco
+   tb/verilator/mmcm_servo
+   tb/verilator/mmcm_servo_autorepair
+   tb/verilator/pair_fill
+   tb/verilator/pcmlpf
+   tb/verilator/pp_shadow
+   tb/verilator/ptp
+   tb/verilator/ptp_sync
+   tb/verilator/queues
+   tb/verilator/shaper_core
+   tb/verilator/tcam_csr
+   tb/verilator/tdm
+   tb/verilator/tdm_render
+
+files that draw random values without recording a seed (10):
+   tb/avtp_packet_gen_sv/tb_classes/avtp_adp_packet_gen.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_alter_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_control_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_random_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_stream_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/itests/802_1q_traffic_shaper/tb_traffic_controller_802_1q.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/1722/kl-avtp-common-parser/tb_top.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/802_1q_traffic_shaper/tb_traffic_classifier.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/ethernet_events/tb_ethernet_events.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/ptp_timestamp/tb_ptp_ts_core.sv: $urandom/$random/randomize without srandom or a seed
+
+test programs that read production HDL (23):
+   gptp-processor/tb/check_phc_contract.py: structural boundary check; it asserts required/forbidden tokens, not behavior
+   gptp-processor/tb/tsngen/mutants.py: mutation campaign; it stages three engine defects and requires failure
+   protocol-processor/tb/desc_mem_guard/mutate.py: mutation campaign; it removes the guard's two request holds in a copy and requires the completed late-byte assertion to fail
+   protocol-processor/tb/nvm_port/measure_figures.py: mutation campaign; it rewrites one RTL arm and requires the suite to fail
+   protocol-processor/tb/pp_top/gsi_mutants.py: mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table into an isolated copy and requires the named response check to fail
+   protocol-processor/tb/pp_top/name_wr_mutant.py: mutation campaign; it plants a command-decode name-write export into a copy and requires the named pulse-count checks to fail
+   protocol-processor/tb/srp_admission/mutants.py: mutation campaign; it plants one admission defect into a temporary tree, requires the named check to fail, and runs clean controls first
+   tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept-edge, ignored-validity and PI-resume defects; no expectations read from RTL
+   tb/verilator/gptp_shadow/test_mutant_lifecycle.py: orchestration lifecycle fixture; it identifies the planted mutation and compares caller bytes/modes/index across interruption. Synthetic commands grade isolation and cleanup only; RTL behavior still requires the real suite
+   tb/verilator/milan_dp/crflic_mutants.py: mutation campaign; it plants one of three streaming-licence defects into a copy and requires a named failure. It is the explicit crflic-mutants target, outside the default sweep
+   tb/verilator/milan_dp/gmstep_mutants.py: mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants the three #387 acceptance names; gmstep-mutants plants all, and --slew selects the three #545 controls
+   tb/verilator/milan_dp/gsi_mutants.py: mutation campaign; it plants one of eight #508 GET_STREAM_INFO seam defects into a copy of the datapath or of the processor tree and requires a named failure. It is the explicit gsi-mutants target, outside the default sweep
+   tb/verilator/milan_dp/render_csr_controls.py: mutation campaign; the explicit render-csr-controls target plants wrong-fill and bit-9 selector defects into copies and requires named failures. Its absent-stage control removes the instance and requires structural zero despite accepted ingress; no expected value is derived from source text
+   tb/verilator/milan_dp/render_mutants.py: mutation campaign; it plants one of four render-law defects into a copy and requires a named failure
+   tb/verilator/milan_dp_render/tdm8_render_mutants.py: mutation campaign; it plants one render-lane defect from its own table into a copy or runs a leg-side defect arm, and requires the named check to fail. The suite's default target runs its --leg-defects arms; the gateware and shape mutants are the explicit tdm8render-mutants target
+   tb/verilator/mmcm_servo/slew_mutants.py: mutation campaign; copies the servo and requires named failures for discard removal, tied-low level, partial-tail trust, omitted tally, boundary step double counting, retained guard streak, streak increment on slew discard and slew discard counted as a guard trip; no expectations read from RTL
+   tb/verilator/nvm_backend/mutate.py: mutation campaign; it plants one of four backend defects into a copy and requires failure
+   tb/verilator/nvm_cosim/run_cases.py: co-simulation driver; it reads the SHIPPING backend and the SHIPPING writer because they ARE the pair under test -- it compiles that writer for the host and Verilates that backend behind it, planting a named defect through mutate.py or taking a pre-contract copy for the non-vacuity control. It grades nothing from the text: every verdict is a named check in cosim_checks.py over a dumped journal
+   tb/verilator/ptp_ts/sva_campaign.py: mutation campaign; it plants one of fifteen axis_mux_rr_2in_1out defects into a scratch copy and requires the named SVA property, or for one row the scoreboard, to fail; no expected value is read from the text
+   tb/verilator/render_setpoint/mutants.py: mutation campaign; it plants one of thirteen setpoint-stage defects into a copy and requires failure
+   tb/verilator/rx_filter/binding_mutant.py: mutation campaign; it ties a real named binding low and requires failure
+   tb/verilator/tcam/mutants.py: mutation campaign; it injects three RTL defects and requires failure
+   tb/verilator/tkdiag/mcr_mutants.py: mutation campaign; it plants one of four restart-engine defects against the #387 pending-restart merge and its wire boundary into a copy and requires a named failure
+
+suite files using host wall-clock/process deadlines (3):
+   tb/verilator/tcam/mutants.py
+   tb/verilator/tsn_fuzz/cosim.py
+   tb/verilator/tsn_fuzz/tsn_model.py
+
+Verilator scheduling: 55 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 75

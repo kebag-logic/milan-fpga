@@ -1,0 +1,27 @@
+diff --git a/hdl/milan/KL_pp_shadow.sv b/hdl/milan/KL_pp_shadow.sv
+index d0832542..b3f38e4e 100644
+--- a/hdl/milan/KL_pp_shadow.sv
++++ b/hdl/milan/KL_pp_shadow.sv
+@@ -1084,6 +1084,8 @@ module KL_pp_shadow #(
+       .aecp_fmt_out_o      (aecp_fmt_out_o),
+       .aecp_fmt_out_v_o    (aecp_fmt_out_v_o),
+       .aecp_dyn_dirty_o    (aecp_dyn_dirty_o),
++      // open until milan-fpga#502 consumes the accepted live name write
++      .aecp_name_wr_o      (),
+       .aecp_nvm_stb_o      (aecp_nvm_stb_w),
+       .aecp_nvm_mark_o     (aecp_nvm_mark_w),
+       .aecp_lock_held_o    (aecp_lock_held_o),
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index dd01206a..b9cf6414 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -617,6 +617,9 @@ DUT_READER_DISPOSITIONS = {
+     "protocol-processor/tb/pp_top/gsi_mutants.py":
+         "mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table "
+         "into an isolated copy and requires the named response check to fail",
++    "protocol-processor/tb/pp_top/name_wr_mutant.py":
++        "mutation campaign; it plants a command-decode name-write export into a copy "
++        "and requires the named pulse-count checks to fail",
+     "protocol-processor/tb/srp_admission/mutants.py":
+         "mutation campaign; it plants one admission defect into a temporary tree, "
+         "requires the named check to fail, and runs clean controls first",

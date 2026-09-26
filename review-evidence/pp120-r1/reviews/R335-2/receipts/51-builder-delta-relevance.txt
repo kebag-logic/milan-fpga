@@ -1,0 +1,14 @@
+== test_builder.py / sw/builder references to delta files or processor tb/
+sw/builder/test_builder.py:25344:    (tb/verilator/aecp/sim_main.cpp), and the descriptor store that replaced
+sw/builder/test_builder.py:27251:    source = (ROOT / "tb/verilator/pp_shadow/sim_main.cpp").read_text()
+(end grep; rc of grep above shown by emptiness)
+== processor paths read by builder (protocol-processor/...)
+      3 protocol-processor/docs/architecture/07_memory_maps.md
+      2 protocol-processor/hdl/aecp/desc
+      2 protocol-processor/hdl/adp/pp_adp_pkg.sv
+      1 protocol-processor/hdl/top/protocol_processor_top.sv
+      1 protocol-processor/hdl/srp/KL_srp_top.sv
+      1 protocol-processor/hdl/common/KL_pp_prng.sv
+      1 protocol-processor/hdl/aecp/desc/gen_desc_image.py
+      1 protocol-processor/hdl/aecp/desc/example_milan_8.json
+      1 protocol-processor/hdl/adp/KL_adp_engine.sv

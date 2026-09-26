@@ -1,0 +1,9 @@
+run.log: verilator warnings old=63 new=63 set-equal(line-numbers-stripped)=True
+run.log: c++ warnings old=1 new=0
+  old: ../sim_main.cpp:9744:13: warning: ‘void run_name_writes(H&)’ defined but not used [-Wunused-function]
+run.log: sim './obj_dir/Vpp_top_sim' lines=5 identical=True
+run.log: sim './obj_vid/Vpp_top_vid' lines=2 identical=True
+name-writes.log: verilator warnings old=0 new=0 set-equal(line-numbers-stripped)=True
+name-writes.log: c++ warnings old=0 new=0
+name-writes.log: sim './obj_dir/Vpp_top_sim --name-writes-only' lines=2 identical=True
+rc=0

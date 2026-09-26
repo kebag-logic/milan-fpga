@@ -1,0 +1,4 @@
+lint_hdl rc=0 seconds=10 cmd: ./scripts/lint_hdl.sh
+make_check rc=0 seconds=30 cmd: make check
+gen_matrix rc=0 seconds=0 cmd: python3 scripts/gen_matrix.py --check
+fixture_guards_test rc=0 seconds=0 cmd: make -C tb/pp_top fixture-guards-test

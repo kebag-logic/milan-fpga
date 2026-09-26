@@ -1,0 +1,54 @@
+public evidence: kebag-logic/milan-fpga@356583ef6ba0d99eec2b7a8d006664a47497d8bc review-evidence/pp120-r1
+author-r3/head.txt: 83c84b19e09d397ed2eb6f5ace337686ce0ef86b
+author-r3/MANIFEST.sha256 check (run inside author-r3/):
+  consumer/06.log: FAILED
+  consumer/07.log: FAILED
+  consumer/setup.log: FAILED
+  gates/name-writes.log: FAILED
+  gates/nvm-figures.log: FAILED
+  gates/pp-top-shared-tally-attempt.log: FAILED
+  gates/pp-top.log: FAILED
+  sha256sum: WARNING: 7 computed checksums did NOT match
+  entries: 52; every non-listed entry OK; the 7 FAILED are exactly the path_redacted entries whose published hashes match MANIFEST.json
+top MANIFEST.json author-r3 entries: 53 published_sha256 mismatches: [] path_redacted: ['author-r3/consumer/06.log', 'author-r3/consumer/07.log', 'author-r3/consumer/setup.log', 'author-r3/gates/name-writes.log', 'author-r3/gates/nvm-figures.log', 'author-r3/gates/pp-top-shared-tally-attempt.log', 'author-r3/gates/pp-top.log']
+author-r3 gates/results.json:
+   make-check rc 0
+   pp-top rc 0
+   name-writes rc 0
+   run-suites rc 0
+   lint-hdl rc 0
+   yosys rc 0
+   parameter-inventory rc 0
+   docs-links rc 0
+   docs-matrix rc 0
+   docs-wavedrom rc 0
+   docs-stale rc 0
+   module-matrix rc 0
+   nvm-figures rc 0
+   diff-check rc 0
+author-r3 consumer/results.json:
+   01 python3 scripts/check_cpp_idiom.py rc 0
+   02 python3 scripts/check_py_idiom.py rc 0
+   03 python3 scripts/xvlog_gate.py --check rc 0
+   04 python3 scripts/check_rtl_source_lists.py rc 0
+   05 python3 scripts/pp_srcs.py --check --selftest rc 0
+   06 python3 sw/builder/test_builder.py rc 0
+   07 make -C tb/verilator/pp_shadow -j8 rc 0
+   08 python3 scripts/check_port_contracts.py rc 0
+   09 python3 scripts/measure_naming.py --check rc 0
+   10 python3 scripts/measure_test_evidence.py --check rc 0
+   11 python3 scripts/docs_check.py rc 0
+   12 python3 scripts/lint_rtl.py --check rc 0
+author-r3 focused/comparison.json:
+  {
+    "default_simulation_stdout_byte_identical": true,
+    "fixture_simulation_stdout_byte_identical": true,
+    "fresh_default_and_fixture_compiler_warnings": 0,
+    "fresh_build_log": "gates/pp-top-shared-tally-attempt.log",
+    "aggregate_status_note": "Sequential canonical rerun passed with exactly two build tallies.",
+    "focused_simulation_stdout_byte_identical": true,
+    "canonical_aggregate_rc": 0,
+    "canonical_aggregate_checks": 7751,
+    "canonical_log": "gates/pp-top.log"
+  }
+author-r3 consumer patch sha256 (setup.log): Patch SHA-256: 1de2a73a99620b6aa6925cbf738a9d42bb2a263680f92aa4602fa35b6e32177c

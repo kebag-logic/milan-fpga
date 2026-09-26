@@ -1,0 +1,26 @@
+parent HEAD 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+submodules:
+  -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+   5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+   83c84b19e09d397ed2eb6f5ace337686ce0ef86b protocol-processor (v2.0-274-g83c84b1)
+   48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+staged gitlink: 160000 83c84b19e09d397ed2eb6f5ace337686ce0ef86b 0	protocol-processor
+status:
+   M hdl/milan/KL_pp_shadow.sv
+  M  protocol-processor
+   M scripts/measure_test_evidence.py
+patch: receipts/50-parent-consumer.patch sha256 9f00302bc32f684b3c64a231cfd4e6843e996faab19a3e3c08ff2c83cec542e0 (reviewer reconstruction; the manager-supplied patch bytes, sha256 1de2a73a..., are not public; same 2-file, +2/+3 diffstat as the author's setup.log)
+processor worktree clean: 0 changed entries
+
+01 rc=0 seconds=2 argv: python3 scripts/check_cpp_idiom.py
+02 rc=0 seconds=3 argv: python3 scripts/check_py_idiom.py
+04 rc=0 seconds=1 argv: python3 scripts/check_rtl_source_lists.py
+05 rc=0 seconds=0 argv: python3 scripts/pp_srcs.py --check --selftest
+08 rc=0 seconds=3 argv: python3 scripts/check_port_contracts.py
+09 rc=0 seconds=0 argv: python3 scripts/measure_naming.py --check
+10 rc=0 seconds=5 argv: python3 scripts/measure_test_evidence.py --check
+11 rc=0 seconds=4 argv: python3 scripts/docs_check.py
+12 rc=0 seconds=7 argv: python3 scripts/lint_rtl.py --check
+03 rc=0 seconds=140 argv: python3 scripts/xvlog_gate.py --check
+07 rc=0 seconds=32 argv: make -C tb/verilator/pp_shadow -j8
+06 rc=124 seconds=585 argv: python3 sw/builder/test_builder.py

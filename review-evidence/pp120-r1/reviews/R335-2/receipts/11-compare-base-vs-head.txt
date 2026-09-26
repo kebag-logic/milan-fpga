@@ -1,0 +1,8 @@
+run.log: verilator warnings old=63 new=63 set-equal(line-numbers-stripped)=True
+run.log: c++ warnings old=0 new=0
+run.log: sim './obj_dir/Vpp_top_sim' lines=5 identical=False
+run.log: sim './obj_vid/Vpp_top_vid' lines=2 identical=False
+name-writes.log: verilator warnings old=0 new=0 set-equal(line-numbers-stripped)=True
+name-writes.log: c++ warnings old=0 new=0
+name-writes.log: sim './obj_dir/Vpp_top_sim --name-writes-only' lines=2 identical=False
+rc=1

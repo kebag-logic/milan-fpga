@@ -1,0 +1,8 @@
+{"variant": "golden", "build_rc": 0, "run_rc": 0, "passed": false, "failures": []}
+Traceback (most recent call last):
+  File "<packet>/scratch/probe-drop-call/tb/pp_top/name_wr_mutant.py", line 80, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<packet>/scratch/probe-drop-call/tb/pp_top/name_wr_mutant.py", line 73, in main
+    raise RuntimeError(f"{name}: missing required verdict; see {log}")
+RuntimeError: golden: missing required verdict; see <packet>/receipts/70-drop-call-probe/mutant/golden-run.log

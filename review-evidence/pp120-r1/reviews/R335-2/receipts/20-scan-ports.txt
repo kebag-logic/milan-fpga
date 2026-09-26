@@ -1,0 +1,39 @@
+parent HEAD: 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+tb/pp_top/pp_top_wrap.sv               base 0922e434: total=209 undocumented=162
+tb/pp_top/pp_top_wrap.sv               r2   a9b7874d: total=211 undocumented=165
+tb/pp_top/pp_top_wrap.sv               r3   83c84b19: total=211 undocumented=162
+hdl/top/protocol_processor_top.sv      base 0922e434: total=205 undocumented=2
+hdl/top/protocol_processor_top.sv      r2   a9b7874d: total=206 undocumented=2
+hdl/top/protocol_processor_top.sv      r3   83c84b19: total=206 undocumented=2
+hdl/aecp/KL_aecp_engine.sv             base 0922e434: total=151 undocumented=15
+hdl/aecp/KL_aecp_engine.sv             r2   a9b7874d: total=152 undocumented=15
+hdl/aecp/KL_aecp_engine.sv             r3   83c84b19: total=152 undocumented=15
+hdl/aecp/KL_aecp_desc_store.sv         base 0922e434: total=27 undocumented=0
+hdl/aecp/KL_aecp_desc_store.sv         r2   a9b7874d: total=28 undocumented=0
+hdl/aecp/KL_aecp_desc_store.sv         r3   83c84b19: total=28 undocumented=0
+tb/desc_mem_guard/wrap.sv              base 0922e434: total=31 undocumented=31
+tb/desc_mem_guard/wrap.sv              r2   a9b7874d: total=31 undocumented=31
+tb/desc_mem_guard/wrap.sv              r3   83c84b19: total=31 undocumented=31
+
+pp_top_wrap.sv base 0922e434:
+  aecp_name_wr_o       ABSENT
+  dbg_name_live_we_o   ABSENT
+  dbg_dyn_writes_o     documented   'the SET_CLOCK_SOURCE refusal contract (06 section 6.4: nothing stored,'
+  aecp_nvm_stb_o       documented   'the SET_CLOCK_SOURCE refusal contract (06 section 6.4: nothing stored,'
+  aecp_nvm_mark_o      documented   'the SET_CLOCK_SOURCE refusal contract (06 section 6.4: nothing stored,'
+  dbg_notify_enq_o     documented   'the SET_CLOCK_SOURCE refusal contract (06 section 6.4: nothing stored,'
+pp_top_wrap.sv r2   a9b7874d:
+  aecp_name_wr_o       documented   'Processor event on clk_i: one cycle per accepted live 64-bit name lane'
+  dbg_name_live_we_o   documented   'Independent clk_i observation of the actual name RAM write enable whil'
+  dbg_dyn_writes_o     documented   'the SET_CLOCK_SOURCE refusal contract (06 section 6.4: nothing stored,'
+  aecp_nvm_stb_o       UNDOCUMENTED ''
+  aecp_nvm_mark_o      UNDOCUMENTED ''
+  dbg_notify_enq_o     UNDOCUMENTED ''
+pp_top_wrap.sv r3   83c84b19:
+  aecp_name_wr_o       documented   'Processor event on clk_i: one cycle per accepted live 64-bit name lane'
+  dbg_name_live_we_o   documented   'Independent clk_i observation of the actual name RAM write enable whil'
+  dbg_dyn_writes_o     documented   'the SET_CLOCK_SOURCE refusal contract (06 section 6.4: nothing stored,'
+  aecp_nvm_stb_o       documented   'the SET_CLOCK_SOURCE refusal contract (06 section 6.4: nothing stored,'
+  aecp_nvm_mark_o      documented   'the SET_CLOCK_SOURCE refusal contract (06 section 6.4: nothing stored,'
+  dbg_notify_enq_o     documented   'the SET_CLOCK_SOURCE refusal contract (06 section 6.4: nothing stored,'
+rc=0

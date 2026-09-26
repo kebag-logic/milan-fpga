@@ -1,0 +1,13 @@
+rev a9b7874d415d935949becd7ccfd58799927efb08
+C++ compiler warnings (run.log):   1
+Verilator %Warning (run.log):      63
+unused-function mentions:          1
+416:../sim_main.cpp:9744:13: warning: ‘void run_name_writes(H&)’ defined but not used [-Wunused-function]
+run.log:NW: 85 checks, 0 failures
+run.log:[build default, SRP_DOM_DEF_VID_P 0x0002] 7731 checks, 0 failures
+run.log:[build fixture, SRP_DOM_DEF_VID_P 0x5a3c] 20 checks, 0 failures
+run.log:7751 checks: 7751 PASS, 0 FAIL
+run.log:make run rc=0
+name-writes.log:NW: 85 checks, 0 failures
+name-writes.log:[build default, SRP_DOM_DEF_VID_P 0x0002] 85 checks, 0 failures
+name-writes.log:make name-writes rc=0
