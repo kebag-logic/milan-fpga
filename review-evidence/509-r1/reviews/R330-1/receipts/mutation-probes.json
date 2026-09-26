@@ -1,0 +1,28 @@
+{
+  "M1_packer_normalizes_last_byte": {
+    "rc": 1,
+    "tail": [
+      "    assert blob[offset:offset + length] == bytes.fromhex(expected[\"bytes\"])",
+      "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+      "AssertionError"
+    ]
+  },
+  "M2_packer_refuses_offset": {
+    "rc": 0,
+    "flipped": {
+      "offset 143": [
+        "accepted",
+        "refused"
+      ]
+    }
+  },
+  "M3_audit_identity_probe": {
+    "rc": 0,
+    "tail": [
+      "Measured 5 configurations; results: $PACKET/scratch/m3.json"
+    ],
+    "changed_offsets": null,
+    "before_model_id": "0x001BC5F531E6A9DA",
+    "after_model_id": "0x001BC5F531E6A9DA"
+  }
+}
