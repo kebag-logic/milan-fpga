@@ -1,0 +1,32 @@
+total CARRY4: 1415
+raw LUT1-6 census: 24941
+CARRY4 u_pp: 1353
+CARRY4 u_pp/u_aecp: 257
+CARRY4 u_pp/u_srp: 242
+CARRY4 u_pp/u_notify: 184
+CARRY4 u_pp/u_listener: 30
+CARRY4 u_pp/u_talker: 18
+CARRY4 u_nvm: 37
+  1 RAMB18E1   ctl_fifo
+  1 RAMB36E1   ctl_fifo
+  1 RAMB36E1   u_pp/g_rx_pool[0].u_rx_slots/mem_r_reg
+  1 RAMB36E1   u_pp/g_rx_pool[1].u_rx_slots/mem_r_reg
+  1 RAMB36E1   u_pp/g_rx_pool[2].u_rx_slots/mem_r_reg
+  1 RAMB36E1   u_pp/g_rx_pool[4].u_rx_slots/mem_r_reg
+  1 RAMB36E1   u_pp/g_rx_pool[5].u_rx_slots/mem_r_reg
+  1 RAMB36E1   u_pp/u_aecp/amap_stage_r_reg
+  2 RAMB36E1   u_pp/u_aecp/u_store
+  3 RAMB36E1   u_pp/u_aecp/u_ucpu
+  1 RAMB36E1   u_pp/u_listener/rec_ram_r_reg_0
+  1 RAMB36E1   u_pp/u_listener/rec_ram_r_reg_1
+  1 RAMB36E1   u_pp/u_listener/rec_ram_r_reg_2
+  1 RAMB36E1   u_pp/u_listener/rec_ram_r_reg_3
+  1 RAMB36E1   u_pp/u_listener/rec_ram_r_reg_4
+  1 RAMB36E1   u_pp/u_mrp_strip/ram_r_reg
+  1 RAMB18E1   u_pp/u_rx_validator/mrp_mem_r_reg
+  1 RAMB18E1   u_pp/u_srp/u_decoder
+  1 RAMB36E1   u_pp/u_timer/slot_ram_r_reg
+  1 RAMB36E1   u_pp/u_trace/mem_r_reg
+  1 RAMB36E1   u_pp/u_tx_slots/mem_r_reg
+DSP cells: ['u_nvm/rec_base_w0', 'u_pp/u_adp/tmr_arm_deadline_ms_o0', 'u_pp/u_aecp/u_store/desc_off_r_reg', 'u_pp/u_srp/u_admission/iv_bytes_r_reg', 'u_pp/u_srp/u_admission/slope_prod_w']
+rows_r FFs in u_notify: 2048

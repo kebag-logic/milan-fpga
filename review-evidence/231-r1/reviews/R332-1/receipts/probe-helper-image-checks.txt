@@ -1,0 +1,11 @@
+control-unmodified     rc=0 $PACKET/scratch/probe/helper/control-unmodified/baseline_integrated.tcl
+ucode-short            rc=1 ValueError: wrong image depth: $PACKET/scratch/probe/helper/ucode-short/roms/ucode.hex: 20
+ucode-long             rc=1 ValueError: wrong image depth: $PACKET/scratch/probe/helper/ucode-long/roms/ucode.hex: 204
+ucode-narrow           rc=1 ValueError: wrong image width: $PACKET/scratch/probe/helper/ucode-narrow/roms/ucode.hex
+ucode-nonhex           rc=1 ValueError: unknown or non-hexadecimal image word: $PACKET/scratch/probe/helper/ucode-nonh
+ucode-missing          rc=1 FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/probe/helper/ucod
+trom-empty             rc=1 ValueError: wrong image depth: $PACKET/scratch/probe/helper/trom-empty/roms/ltn_rom.hex: 0
+litex-rom-missing      rc=1 ValueError: generated memory inventory differs from readmemh inputs
+litex-mem-short        rc=1 ValueError: wrong image depth: $PACKET/scratch/probe/helper/litex-mem-short/alinx_ax7101_m
+sram-nonempty          rc=1 ValueError: wrong image depth: $PACKET/scratch/probe/helper/sram-nonempty/alinx_ax7101_sra
+gptp-dup-param         rc=1 ValueError: ambiguous image or geometry source: GPTP_UCODE_HEX_P

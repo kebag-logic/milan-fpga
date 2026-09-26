@@ -1,0 +1,36 @@
+== ax7101-ooc baseline_timing.rpt
+  WNS -6.180 TNS -4285.311 TNS-failing 3376 WHS 0.159 THS-failing 0 WPWS 3.870 TPWS-failing 0
+  Slack (VIOLATED) :        -6.180ns  (required time - arrival time)
+    Source:                 u_pp/u_notify/pend_r_reg[4]/C
+    Destination:            u_pp/u_tx_arbiter/slot_r_reg[0]/D
+  1. checking no_clock (0)
+  4. checking unconstrained_internal_endpoints (0)
+  5. checking no_input_delay (1281)
+  6. checking no_output_delay (2013)
+== ax8x8-ooc baseline_timing.rpt
+  WNS -10.987 TNS -6855.294 TNS-failing 3753 WHS 0.159 THS-failing 0 WPWS 3.870 TPWS-failing 0
+  Slack (VIOLATED) :        -10.987ns  (required time - arrival time)
+    Source:                 u_pp/u_notify/pend_r_reg[11]/C
+    Destination:            u_pp/u_tx_arbiter/slot_r_reg[0]/D
+  1. checking no_clock (0)
+  4. checking unconstrained_internal_endpoints (0)
+  5. checking no_input_delay (1739)
+  6. checking no_output_delay (5411)
+== ax7101/gateware baseline_timing.rpt
+  WNS 0.013 TNS 0.000 TNS-failing 0 WHS 0.014 THS-failing 0 WPWS 0.264 TPWS-failing 0
+  Slack (MET) :             3.856ns  (required time - arrival time)
+    Source:                 FDCE_4/C
+    Destination:            FDCE_5/D
+  1. checking no_clock (0)
+  4. checking unconstrained_internal_endpoints (0)
+  5. checking no_input_delay (46)
+  6. checking no_output_delay (87)
+== ax8x8/gateware baseline_timing.rpt
+  WNS -11.331 TNS -75771.922 TNS-failing 15374 WHS -0.755 THS-failing 72 WPWS 0.264 TPWS-failing 0
+  Slack (MET) :             4.009ns  (required time - arrival time)
+    Source:                 FDCE/C
+    Destination:            FDCE_1/D
+  1. checking no_clock (0)
+  4. checking unconstrained_internal_endpoints (0)
+  5. checking no_input_delay (46)
+  6. checking no_output_delay (86)
