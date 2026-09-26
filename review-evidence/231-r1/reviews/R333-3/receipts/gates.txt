@@ -1,0 +1,39 @@
+$ python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 168 md files + 894 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ python3 -B scripts/check_doc_paths.py
+doc path gate: OK (848 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+$ python3 -B scripts/check_py_idiom.py
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+$ python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+$ python3 -B scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 -B scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 -B scripts/measure_test_evidence.py --check
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 75
+rc=0
+$ python3 -B scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 -B scripts/ci_events.py --check
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (1655 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0
+$ python3 -B syn/ooc/pp_baseline_reports_selftest.py
+baseline reports selftest: ancestry, sharing, omission, multiplicity, blackboxes, residual PASS
+rc=0
+$ git diff --check 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a 3a1477c528bdf71b7cecadf86383b7579c9197d6
+rc=0
