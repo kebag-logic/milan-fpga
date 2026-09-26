@@ -1,0 +1,30 @@
+exit=1
+[FAIL] direct-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-copy-SIGINT-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[PASS] direct-copy-SIGINT-child-exit
+[FAIL] direct-copy-SIGTERM-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-copy-SIGTERM-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[PASS] direct-copy-SIGTERM-child-exit
+[PASS] direct-copy-normal-drain
+[FAIL] direct-flush-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-flush-SIGINT-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[PASS] direct-flush-SIGINT-child-exit
+[FAIL] direct-flush-SIGTERM-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] direct-flush-SIGTERM-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[PASS] direct-flush-SIGTERM-child-exit
+[PASS] direct-flush-normal-drain
+[FAIL] make-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-copy-SIGINT-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[PASS] make-copy-SIGINT-child-exit
+[FAIL] make-copy-SIGTERM-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-copy-SIGTERM-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[PASS] make-copy-SIGTERM-child-exit
+[PASS] make-copy-normal-drain
+[FAIL] make-flush-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-flush-SIGINT-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[PASS] make-flush-SIGINT-child-exit
+[FAIL] make-flush-SIGTERM-active: AssertionError: runner did not shut down while stdout stayed blocked
+[FAIL] make-flush-SIGTERM-repeated: AssertionError: runner did not shut down while stdout stayed blocked
+[PASS] make-flush-SIGTERM-child-exit
+[PASS] make-flush-normal-drain
+28 backpressure controls: 12 PASS, 16 FAIL

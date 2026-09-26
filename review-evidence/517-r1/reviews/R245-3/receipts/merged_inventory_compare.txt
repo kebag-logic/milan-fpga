@@ -1,0 +1,86 @@
+== variant ['default']
+base sequential ordinary legs: 11
+  B01 ./obj_dir/Vmilan_dp_sim   banner=None
+  B02 ./obj_notify/Vmilan_dp_notify   banner='---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----'
+  B03 ./obj_crflic/Vmilan_dp_crflic   banner='---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----'
+  B04 ./obj_nxn/Vmilan_dp_nxn   banner=None
+  B05 ./obj_nxndv/Vmilan_dp_nxndv   banner='---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----'
+  B06 ./obj_nxn8/Vmilan_dp_nxn8   banner=None
+  B07 ./obj_nxn4c/Vmilan_dp_nxn4c   banner='---- the shipping Arty shape: 4 streams x 4 wire channels ----'
+  B08 ./obj_nolpf/Vmilan_dp_nolpf   banner='---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----'
+  B09 ./obj_prune/Vmilan_dp_prune   banner='---- all six tier-1 blocks pruned ----'
+  B10 ./obj_ax1x1/Vmilan_dp_ax1x1   banner='---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----'
+  B11 ./obj_aclk/Vmilan_dp_aclk   banner='---- the same shape at the TRUE clk_audio ratio (391/1591) ----'
+head ordinary legs (pool argv + any stray direct leg): 11
+  H01 ./obj_dir/Vmilan_dp_sim   exclusive=False banner=None
+  H02 ./obj_notify/Vmilan_dp_notify   exclusive=True banner='---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----'
+  H03 ./obj_crflic/Vmilan_dp_crflic   exclusive=False banner='---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----'
+  H04 ./obj_nxn/Vmilan_dp_nxn   exclusive=True banner=None
+  H05 ./obj_nxndv/Vmilan_dp_nxndv   exclusive=True banner='---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----'
+  H06 ./obj_nxn8/Vmilan_dp_nxn8   exclusive=True banner=None
+  H07 ./obj_nxn4c/Vmilan_dp_nxn4c   exclusive=True banner='---- the shipping Arty shape: 4 streams x 4 wire channels ----'
+  H08 ./obj_nolpf/Vmilan_dp_nolpf   exclusive=False banner='---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----'
+  H09 ./obj_prune/Vmilan_dp_prune   exclusive=False banner='---- all six tier-1 blocks pruned ----'
+  H10 ./obj_ax1x1/Vmilan_dp_ax1x1   exclusive=False banner='---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----'
+  H11 ./obj_aclk/Vmilan_dp_aclk   exclusive=False banner='---- the same shape at the TRUE clk_audio ratio (391/1591) ----'
+same executables in same order: True; same banners: True; stray direct ordinary legs in head: []; duplicate: False
+exclusive members: ['./obj_notify/Vmilan_dp_notify', './obj_nxn/Vmilan_dp_nxn', './obj_nxn4c/Vmilan_dp_nxn4c', './obj_nxn8/Vmilan_dp_nxn8', './obj_nxndv/Vmilan_dp_nxndv']
+non-ordinary commands before pool identical: True (25 lines); after pool identical: True (5 lines)
+== variant ['SIM_JOBS=1']
+base sequential ordinary legs: 11
+  B01 ./obj_dir/Vmilan_dp_sim   banner=None
+  B02 ./obj_notify/Vmilan_dp_notify   banner='---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----'
+  B03 ./obj_crflic/Vmilan_dp_crflic   banner='---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----'
+  B04 ./obj_nxn/Vmilan_dp_nxn   banner=None
+  B05 ./obj_nxndv/Vmilan_dp_nxndv   banner='---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----'
+  B06 ./obj_nxn8/Vmilan_dp_nxn8   banner=None
+  B07 ./obj_nxn4c/Vmilan_dp_nxn4c   banner='---- the shipping Arty shape: 4 streams x 4 wire channels ----'
+  B08 ./obj_nolpf/Vmilan_dp_nolpf   banner='---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----'
+  B09 ./obj_prune/Vmilan_dp_prune   banner='---- all six tier-1 blocks pruned ----'
+  B10 ./obj_ax1x1/Vmilan_dp_ax1x1   banner='---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----'
+  B11 ./obj_aclk/Vmilan_dp_aclk   banner='---- the same shape at the TRUE clk_audio ratio (391/1591) ----'
+head ordinary legs (pool argv + any stray direct leg): 11
+  H01 ./obj_dir/Vmilan_dp_sim   exclusive=False banner=None
+  H02 ./obj_notify/Vmilan_dp_notify   exclusive=True banner='---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----'
+  H03 ./obj_crflic/Vmilan_dp_crflic   exclusive=False banner='---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----'
+  H04 ./obj_nxn/Vmilan_dp_nxn   exclusive=True banner=None
+  H05 ./obj_nxndv/Vmilan_dp_nxndv   exclusive=True banner='---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----'
+  H06 ./obj_nxn8/Vmilan_dp_nxn8   exclusive=True banner=None
+  H07 ./obj_nxn4c/Vmilan_dp_nxn4c   exclusive=True banner='---- the shipping Arty shape: 4 streams x 4 wire channels ----'
+  H08 ./obj_nolpf/Vmilan_dp_nolpf   exclusive=False banner='---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----'
+  H09 ./obj_prune/Vmilan_dp_prune   exclusive=False banner='---- all six tier-1 blocks pruned ----'
+  H10 ./obj_ax1x1/Vmilan_dp_ax1x1   exclusive=False banner='---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----'
+  H11 ./obj_aclk/Vmilan_dp_aclk   exclusive=False banner='---- the same shape at the TRUE clk_audio ratio (391/1591) ----'
+same executables in same order: True; same banners: True; stray direct ordinary legs in head: []; duplicate: False
+exclusive members: ['./obj_notify/Vmilan_dp_notify', './obj_nxn/Vmilan_dp_nxn', './obj_nxn4c/Vmilan_dp_nxn4c', './obj_nxn8/Vmilan_dp_nxn8', './obj_nxndv/Vmilan_dp_nxndv']
+non-ordinary commands before pool identical: True (25 lines); after pool identical: True (5 lines)
+== variant ['NOTIFY_MDIR=obj_notify_x', 'CRFLIC_MDIR=obj_crflic_x']
+base sequential ordinary legs: 11
+  B01 ./obj_dir/Vmilan_dp_sim   banner=None
+  B02 ./obj_notify_x/Vmilan_dp_notify   banner='---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----'
+  B03 ./obj_crflic_x/Vmilan_dp_crflic   banner='---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----'
+  B04 ./obj_nxn/Vmilan_dp_nxn   banner=None
+  B05 ./obj_nxndv/Vmilan_dp_nxndv   banner='---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----'
+  B06 ./obj_nxn8/Vmilan_dp_nxn8   banner=None
+  B07 ./obj_nxn4c/Vmilan_dp_nxn4c   banner='---- the shipping Arty shape: 4 streams x 4 wire channels ----'
+  B08 ./obj_nolpf/Vmilan_dp_nolpf   banner='---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----'
+  B09 ./obj_prune/Vmilan_dp_prune   banner='---- all six tier-1 blocks pruned ----'
+  B10 ./obj_ax1x1/Vmilan_dp_ax1x1   banner='---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----'
+  B11 ./obj_aclk/Vmilan_dp_aclk   banner='---- the same shape at the TRUE clk_audio ratio (391/1591) ----'
+head ordinary legs (pool argv + any stray direct leg): 11
+  H01 ./obj_dir/Vmilan_dp_sim   exclusive=False banner=None
+  H02 ./obj_notify_x/Vmilan_dp_notify   exclusive=True banner='---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----'
+  H03 ./obj_crflic_x/Vmilan_dp_crflic   exclusive=False banner='---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----'
+  H04 ./obj_nxn/Vmilan_dp_nxn   exclusive=True banner=None
+  H05 ./obj_nxndv/Vmilan_dp_nxndv   exclusive=True banner='---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----'
+  H06 ./obj_nxn8/Vmilan_dp_nxn8   exclusive=True banner=None
+  H07 ./obj_nxn4c/Vmilan_dp_nxn4c   exclusive=True banner='---- the shipping Arty shape: 4 streams x 4 wire channels ----'
+  H08 ./obj_nolpf/Vmilan_dp_nolpf   exclusive=False banner='---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----'
+  H09 ./obj_prune/Vmilan_dp_prune   exclusive=False banner='---- all six tier-1 blocks pruned ----'
+  H10 ./obj_ax1x1/Vmilan_dp_ax1x1   exclusive=False banner='---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----'
+  H11 ./obj_aclk/Vmilan_dp_aclk   exclusive=False banner='---- the same shape at the TRUE clk_audio ratio (391/1591) ----'
+same executables in same order: True; same banners: True; stray direct ordinary legs in head: []; duplicate: False
+exclusive members: ['./obj_notify_x/Vmilan_dp_notify', './obj_nxn/Vmilan_dp_nxn', './obj_nxn4c/Vmilan_dp_nxn4c', './obj_nxn8/Vmilan_dp_nxn8', './obj_nxndv/Vmilan_dp_nxndv']
+non-ordinary commands before pool identical: True (25 lines); after pool identical: True (5 lines)
+INVENTORY MATCH
+exit=0
