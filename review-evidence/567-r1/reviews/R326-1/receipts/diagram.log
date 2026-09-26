@@ -1,0 +1,57 @@
+### gen-selftest
+$ python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+submodule diagram selftest: OK (valid wrong-raster control)
+### rc=0
+### gen-check
+$ python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (4 exact gitlinks, decoded PNG)
+### rc=0
+### submodule-docs
+$ python3 scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+### rc=0
+### diagram-pngs
+$ python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+### rc=0
+## regenerate with the repository generator in place, then compare tracked bytes
+### regen-doc-sha
+$ sha256sum docs/diagrams/submodule_boundaries.drawio docs/diagrams/submodule_boundaries.svg docs/diagrams/submodule_boundaries.png docs/diagrams/PNG_MANIFEST.json
+0d38e6cfeb752fa89c36f3a098087768258756ac09a2067776649d6c13cab6a0  docs/diagrams/submodule_boundaries.drawio
+8419857097f4d7f667adf19a8d8e496a0b0ad3d03b465e00b670ff1111c3208c  docs/diagrams/submodule_boundaries.svg
+e931b19ceb5db6236ab4266688174f03af4b12c7a10db9ba4e036248226f147b  docs/diagrams/submodule_boundaries.png
+ac0a6029c30d1dbb46c85d1e991fcf0719352ce3dba99716e9b54363600df672  docs/diagrams/PNG_MANIFEST.json
+### rc=0
+### regen
+$ python3 docs/diagrams/submodule_boundaries.gen.py
+wrote docs/diagrams/submodule_boundaries.svg and docs/diagrams/submodule_boundaries.drawio and docs/diagrams/submodule_boundaries.png
+### rc=0
+### regen-diff
+$ git diff --exit-code --stat -- docs/diagrams
+### rc=0
+### regen-doc-sha-after
+$ sha256sum docs/diagrams/submodule_boundaries.drawio docs/diagrams/submodule_boundaries.svg docs/diagrams/submodule_boundaries.png docs/diagrams/PNG_MANIFEST.json
+0d38e6cfeb752fa89c36f3a098087768258756ac09a2067776649d6c13cab6a0  docs/diagrams/submodule_boundaries.drawio
+8419857097f4d7f667adf19a8d8e496a0b0ad3d03b465e00b670ff1111c3208c  docs/diagrams/submodule_boundaries.svg
+e931b19ceb5db6236ab4266688174f03af4b12c7a10db9ba4e036248226f147b  docs/diagrams/submodule_boundaries.png
+ac0a6029c30d1dbb46c85d1e991fcf0719352ce3dba99716e9b54363600df672  docs/diagrams/PNG_MANIFEST.json
+### rc=0
+## old-pin diagram must fail the check (gate can see a stale pin)
+submodule diagram stale: docs/diagrams/submodule_boundaries.drawio, docs/diagrams/submodule_boundaries.png
+submodule diagram stale: docs/diagrams/submodule_boundaries.drawio, docs/diagrams/submodule_boundaries.png
+submodule documentation: FAIL (1 findings)
+stale-drawio gen-check rc=1 submodule-docs rc=1
+### restored
+$ git diff --exit-code -- docs/diagrams
+### rc=0
+## stale-pin text survey (current-tense references to the old pin)
+CHANGELOG.md:14:- **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
+CHANGELOG.md:36:- Issue #567 advances the processor from `990f9652` to `0922e434`.
+CHANGELOG.md:45:- Their digests match the `990f9652` rows.
+CHANGELOG.md:72:## Unreleased - processor pin 990f9652
+CHANGELOG.md:74:- The processor pin moves from `09f9bf38` to `990f9652` (#508).
+docs/reference/SUBMODULES.md:42:PR 115 then merged as `990f9652`, the previous pin.
+docs/reference/SUBMODULES.md:55:Their digests match the `990f9652` rows.
+tb/verilator/milan_dp/README.md:442:Measured ACTIVE-to-licence latency at processor pin `990f9652`, in admission-clock cycles:
+tb/verilator/milan_dp/README.md:468:| the pre-#112 processor `7a47f578` | Local control only: temporarily repin the existing submodule, build the same leg in a fresh directory, run once, then restore `990f9652` | 34 failures total: 28 `[I]` assertions and 6 `[J]` admitted-case timing checks. In `[I]`, both sources at both phases pulse a grant/licence, add STREAM_START/STREAM_STOP and reset all three seeded counters. The same fixture passes at the restored pin. |
+tb/verilator/milan_dp/README.md:552:See [F06.13, field lineage](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/990f96526bb89356c963a260ebbdcf2a77e6623a/docs/architecture/06_aecp_engine.md#fig-06-lineage) and [F05.5, settlement detail](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/990f96526bb89356c963a260ebbdcf2a77e6623a/docs/architecture/05_acmp_engine.md#fig-05-settled).

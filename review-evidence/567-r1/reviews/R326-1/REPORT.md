@@ -1,0 +1,102 @@
+[R326] POSITIVE - exact head 54b4c3bbbc8cdea5ced0be29c9226fdf82233b74
+
+# R326-1 internal independent review: issue #567 / PR #569
+
+- Head: `54b4c3bbbc8cdea5ced0be29c9226fdf82233b74`, tree `36338cae0ebdd410a366e38a67d80af7c3efb4a7`; source base `7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a`.
+- Scope reconstructed from: AGENTS.md, CONTRIBUTING.md, docs/README.md, the issue #567 body (frozen acceptance 1-4), the [A10] decisions on #567 (Round 2 ledger decision 5845149786; Round 3 text assignment 5845274184), the executor TAKEN / REVIEW READY comments, the PR #569 body, `docs/reference/SUBMODULES.md`, `syn/yosys/ooc.sh`, the processor delta `990f9652..0922e434`, and the parent files that read processor files.
+- Lenses applied: Conformance, RTL, Robustness, Tests, Docs. All five are CLEAN at this head. Four SUGGESTIONs are recorded; none blocks a lens or the verdict.
+- Prior public review findings: at review time PR #569 carried no review and only the review-start comment; issue #567 carried no reviewer findings. There is nothing to resolve or retain.
+
+## Acceptance (issue #567 body, as amended by the Round 2 decision)
+
+| # | Criterion | Result | Evidence |
+|---|---|---|---|
+| 1 | The gitlink is at `0922e434`. SUBMODULES.md, the pin text, the regenerated diagram and CHANGELOG are updated. | MET | `receipts/delta.log`: gitlink `990f9652` -> `0922e434`; the other three gitlinks are unmoved. `0922e434` is processor `main` and the PR #119 merge, and PR #118 merged as `60152f3f` on its first-parent chain. `receipts/diagram.log`: generator `--selftest` and `--check` pass. An in-place regeneration leaves `docs/diagrams` byte-identical. `check_submodule_docs.py` and `check_diagram_pngs.py` pass. Restoring the base drawio makes both gates fail (rc 1), then it is restored. |
+| 2 | Re-record the exact-pin ROM ledger with the repository tool and confirm the digests equal the `990f9652` rows. | MET (ROM bytes unchanged; rows re-recorded because the ledger is keyed by exact pin) | `receipts/ledger.log`: the two new rows equal the `990f9652` rows. `./ooc.sh --record-rom-digests` at this head reproduces the committed ledger byte for byte (`git diff --exit-code` rc 0). ROMs generated independently from archived `hdl/` at both pins hash to the ledger values. The ledger is sorted, well formed, and the diff adds exactly 2 rows. |
+| 3 | Every parent gate that reads processor files passes. The inventory gate passes from the parent pin, and the parent bindings agree. | MET | `receipts/params.log`: the checker passes (24/24/24). An independent parse finds 14 parent bindings, all in the inventory. Product values agree (see RTL below). Two mutations make the checker fail. Also passing: `pp_shadow` (402 checks x 3 configurations), the milan_dp `notify` leg (381 checks, `[GSI]` G0-G10), the 3-top Yosys elaboration, `ooc.sh KL_pp_shadow`, source-list/xvlog/lint/idiom/contract/evidence/TODO gates, both docs modes, and behave (344 scenarios). |
+| 4 | No RTL change in the parent. | MET | `receipts/delta.log`: no path under `hdl`, tb sources/Makefiles, `syn/yosys/*.sh`, `syn/ooc`, `VERSION`, `scripts`, `sw`, `avdecc` or `tests` changed. Processor `hdl/` tree `d8879608` is identical at both pins; `git diff --stat 990f9652 0922e434 -- hdl/` is empty. |
+
+Pin-only check: every line of the 9-file diff follows from the pin move. That includes the removed SUBMODULES "F01.5 P-EN-MVU" conflict row: processor F01.5 now reads `n/a`, and donor issue 77 is closed by PR #118. The 990f9652 wording changes to "previous pin" and "adopted" are also pin consequences. Nothing outside the pin move was changed.
+
+## Lens results (clean-lens lines)
+
+```text
+[R326] PASS Conformance — issue #567 body + comment 5845149786 vs git diff 7eb3b0d4..54b4c3bb, protocol-processor 990f9652..0922e434, syn/yosys/rom_digests.tsv:5-6 — all four acceptance items met as tabled; gitlink equals processor main and the PR #119 merge; MVU behavior unchanged (HDL identical), and the parent FR-MVU-02 / #510 waiver matches processor 06 §6.9 at the new pin
+[R326] PASS RTL — hdl/milan/KL_pp_shadow.sv:1057-1072, hdl/milan/milan_datapath.sv:314-341,7384-7419, protocol-processor/hdl/top/protocol_processor_top.sv:78-101 — no parent RTL change; processor hdl tree identical; 14 bindings ⊂ 24-parameter inventory; SRP_DOM_DEF_VID=2, TIM_DIV clock-derived/1000, timeouts not shortened; unbound unit/domain/control counts (1) equal the builder's fixed AEM counts; 3-top elaboration and KL_pp_shadow OOC pass
+[R326] PASS Robustness — syn/yosys/ooc.sh:459-475 with receipts/ledger.log negative probes; receipts/diagram.log stale-drawio probe; receipts/params.log mutations — pin guards refuse a missing row (rc 2) and a wrong digest (rc 2) at 0922e434; diagram/submodule gates refuse a stale pin; the inventory checker refuses a missing row and the pre-inventory guide; all probe edits restored and verified
+[R326] PASS Tests — tb/verilator/pp_shadow (3 configurations x 402 checks), tb/verilator/milan_dp notify leg (381 checks incl. [GSI] G0-G10), tests/ behave (344 scenarios / 1739 steps), receipts/gates_static.log — the pin-only lane adds no tests, which is appropriate with the processor HDL unchanged; the parent suites that elaborate the processor pass at the new pin, and each new gate this lane relies on was shown able to fail
+[R326] PASS Docs — CHANGELOG.md:11,34-46, docs/reference/SUBMODULES.md:25,29-65,153-156, tb/verilator/milan_dp/README.md:517, docs/diagrams/submodule_boundaries.{drawio,svg,png}, docs/diagrams/PNG_MANIFEST.json — text matches the verified facts (PR 118/119, unchanged HDL/ROM sources, recorded equal digests, bindings agree); no current-tense 990f9652 remains (the remaining mentions are dated or permalinks, see S2); docs_check (git and no-git), em-dash, style, TOC, anchors, doc-paths and diff-check all pass
+```
+
+## Findings
+
+No BLOCKER, MAJOR or MINOR. Four SUGGESTIONs (optional; they do not affect coverage):
+
+```text
+[R326] SUGGESTION S1 Docs, Conformance — docs/reference/MILAN_COMPLIANCE_MATRIX.md:136-137, docs/reference/FR_NFR.md:194 — MVU evidence and tracker pointers lag the adopted processor
+Requirement/evidence: at 0922e434, processor tb/pp_top M4 grades all of 0x0001-0x0005 byte-exact, and M4L grades both waived SETs under another controller's lock (processor PR 118). Donor issues 55, 56 and 77 are closed by the recorded waiver. Row 136 cites only "M4 grades 0x0002". Row 137 says 0x0003/0x0004 have "no per-command PP arm yet". FR-MVU-02 still says donor issues 55/56 "carry the command behavior".
+Impact: the parent evidence under-reports the new donor coverage and points at closed trackers. Behavior and the #510 decision are unchanged, so nothing reads as a false claim about the RTL.
+Required change: optional. On a follow-up issue (outside #567's frozen file list), cite pp_top M4/M4L for all four types and processor 06 §6.9 as the waiver record.
+Verification: docs_check, check_feature_status and a read of both rows against processor tb/pp_top/README.md M4/M4L at the pin.
+```
+
+```text
+[R326] SUGGESTION S2 Docs — tb/verilator/milan_dp/README.md:552 (context 517-551) — "at the adopted pin" links F06.13/F05.5 permalinks at 990f9652
+Requirement/evidence: line 517 now names 0922e434 as the adopted pin, but line 552 keeps 990f9652 permalinks. Neither anchor's content changed between the pins (05_acmp_engine.md is not in the delta, and the 06 hunks do not touch F06.13 at line 297). Lines 442 and 468 are dated records of runs at 990f9652 and are correct as history.
+Impact: cosmetic. The link targets are content-accurate; a reader sees an older SHA than the adopted one.
+Required change: optional. Re-point to 0922e434 on the next touch of this section.
+Verification: doc-paths and anchor gates.
+```
+
+```text
+[R326] SUGGESTION S3 Docs — docs/reference/SUBMODULES.md:57, CHANGELOG.md:42 — two wordings are looser than the mechanism
+Requirement/evidence: syn/yosys/ooc.sh:463-470 requires rows for the exact current gitlink pin, not "every pin". submodule_boundaries.gen.py:524-558 writes only the drawio/svg/png, so the SUBMODULES.md pin table is hand-maintained and gate-checked by scripts/check_submodule_docs.py, not "refreshed" by the generator.
+Impact: minor ambiguity for the next pin mover.
+Required change: optional. For example, "OOC synthesis requires rows for the exact recorded pin" and "The repository generator refreshes the submodule diagram".
+Verification: docs gates.
+```
+
+```text
+[R326] SUGGESTION S4 RTL, Robustness — hdl/milan/KL_pp_shadow.sv:236-237,981-982,1057-1072 — AEM unit/domain counts reach the NVM backend but not protocol_processor_top
+Requirement/evidence: KL_pp_shadow receives N_AUDIO_UNIT_P/N_CLK_DOM_P from the generated AEM counts (milan_datapath.sv:7417-7418). It forwards them to KL_nvm_backend only. protocol_processor_top keeps its defaults N_AUDIO_UNIT_P=N_CLK_DOMAIN_P=N_CONTROL_P=1, and the adopted inventory says these "match the entity model". They agree today only because sw/builder/endstation_builder.py:5085-5090 fixes AUDIO_UNIT, CLOCK_DOMAIN and CONTROL at 1. No elaboration guard ties the two. This coupling predates this lane and is NOT a consequence of the pin move.
+Impact: latent. A future multi-domain model would size NVM records and processor dynamic-state rows differently without failing a build.
+Required change: optional, as a new issue. Forward the counts, or add an elaboration guard that they equal the processor's.
+Verification: pp_shadow and an elaboration probe with a count of 2.
+```
+
+## Reviewer-owned completion ledger
+
+| Lens | Result | Examined artifacts | Covering round | Exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | issue #567 body and decisions; diff 7eb3b0d4..54b4c3bb; processor 990f9652..0922e434 (log, stat, hdl tree); rom_digests.tsv; FR_NFR FR-MVU-02 vs processor 06 §6.9 | R326-1 | 54b4c3bbbc8cdea5ced0be29c9226fdf82233b74 |
+| RTL | CLEAN | KL_pp_shadow.sv, milan_datapath.sv, adp_shape_defaults.svh, protocol_processor_top.sv header; Yosys 3-top elaboration; ooc.sh KL_pp_shadow | R326-1 | 54b4c3bbbc8cdea5ced0be29c9226fdf82233b74 |
+| Robustness | CLEAN | ooc.sh record/verify paths with 2 refusal probes; diagram/submodule stale-pin probe; inventory checker mutations; restoration checks | R326-1 | 54b4c3bbbc8cdea5ced0be29c9226fdf82233b74 |
+| Tests | CLEAN | pp_shadow (3 configurations), milan_dp notify, behave, static and evidence gates, gate-can-fail probes | R326-1 | 54b4c3bbbc8cdea5ced0be29c9226fdf82233b74 |
+| Docs | CLEAN | CHANGELOG.md, SUBMODULES.md, milan_dp README, submodule diagram and PNG manifest; docs gates in both modes; stale-pin survey | R326-1 | 54b4c3bbbc8cdea5ced0be29c9226fdf82233b74 |
+
+## Commands and receipts
+
+`scripts/r326_checks.sh <clone> <packet> <section>...` has these sections: identity, delta, ledger, ooc, params, diagram, gates_docs, gates_static, pp_shadow, milan_dp_notify, yosys_elab and behave_tests. `scripts/r326_params.py` is the independent binding check. Every section returned rc 0; the logs are in `receipts/`.
+
+- Tools: Verilator 5.050 through the lane wrapper `$VALIDATION_STORAGE/567-manager-r1/pinned-tool-bin/verilator` (sha256 `905795b9...`, reports `Verilator 5.050 2026-07-01 rev v5.050`); Yosys 0.66; sv2v v0.0.13; Python 3.14.7 from the hash-locked documentation environment. Details are in `receipts/tool-identity.txt`.
+- Restoration: every probe edit (ledger x3, drawio x1, diagram regeneration) was restored and verified with `git diff --exit-code`. Every build artifact these probes created in the clone was removed. The final `receipts/identity.log` shows HEAD and tree exact, `git status` empty (including ignored files), index == HEAD, worktree == index (modes included), four gitlinks at their recorded SHAs, and clean submodules. `receipts/identity-initial.log` is the pre-probe snapshot.
+
+## Real limits
+
+- The scoped Verilator path named in the assignment (`$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator`) does not exist. I used the #567 lane wrapper at `$VALIDATION_STORAGE/567-manager-r1/pinned-tool-bin/`, after verifying its identity as 5.050.
+- sv2v here is v0.0.13; the Round 2 executor used v0.0.12. The OOC area row was not compared against a recorded figure, because OOC is a measurement path, not a threshold gate.
+- Not run, as the assignment excludes them: full parent/PP/gPTP/Yosys/builder banks, processor donor suites (`run_suites.sh`, `tb/pp_top`), act, hardware and physical calibration. The builder (SDK and no-compiler), NVM firmware and xvlog-with-Vivado evidence are therefore not reproduced here. `xvlog_gate.py --check` passed on its recorded ratchet.
+- Only the milan_dp `notify` leg was run from milan_dp, not every leg that elaborates the processor. `ooc.sh` ran for `KL_pp_shadow` only.
+- The public evidence tree `review-evidence/567-r1` at `d7d077b0` contains executor material only (`author/a325`, `a330`, `a332`). I found no manager bank receipts there or in issue/PR comments, so the manager's source-bank pass is taken as stated, not inspected.
+- Hosted contexts at this head when inspected: rtl-fast, elaborate, verilator-lint, yosys-elaboration, Yosys shards 0-3, Verilator shards 0 and 3, docs-check-no-git, bdd-conformance, wire-accountability, changes and full-ci-gate succeeded. docs-check and Verilator shards 1, 2 and 4 were still in progress. Physical gPTP was skipped, which is not hardware proof.
+- `receipts/pp_shadow.log` and `receipts/milan_dp_notify.log` contain local absolute tool paths; redact them on publication if policy requires.
+
+## Pending manager duties
+
+- Accept the hosted contexts once they complete at this exact head (docs-check and Verilator shards 1, 2 and 4 were pending), and run the act replica per policy.
+- Get the external [R327] review; merge still needs two independent positives.
+- Build and validate the current-dev candidate merge (source base and live dev were both `7eb3b0d4` at review start), then check post-merge containment.
+- Decide whether to file follow-up issues for SUGGESTIONs 1 and 4.
+- Get explicit maintainer authorization for the merge.
+
+R326-1 FINISHED

@@ -1,0 +1,88 @@
+### pr-stat
+$ git diff --stat 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a..54b4c3bbbc8cdea5ced0be29c9226fdf82233b74
+ CHANGELOG.md                              |  15 +++++++++++++++
+ docs/diagrams/PNG_MANIFEST.json           |   4 ++--
+ docs/diagrams/submodule_boundaries.drawio |   2 +-
+ docs/diagrams/submodule_boundaries.png    | Bin 324654 -> 323953 bytes
+ docs/diagrams/submodule_boundaries.svg    |   2 +-
+ docs/reference/SUBMODULES.md              |  30 ++++++++++++++++++++++++++----
+ protocol-processor                        |   2 +-
+ syn/yosys/rom_digests.tsv                 |   2 ++
+ tb/verilator/milan_dp/README.md           |   2 +-
+ 9 files changed, 49 insertions(+), 10 deletions(-)
+### rc=0
+### pr-names
+$ git diff --name-status 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a..54b4c3bbbc8cdea5ced0be29c9226fdf82233b74
+M	CHANGELOG.md
+M	docs/diagrams/PNG_MANIFEST.json
+M	docs/diagrams/submodule_boundaries.drawio
+M	docs/diagrams/submodule_boundaries.png
+M	docs/diagrams/submodule_boundaries.svg
+M	docs/reference/SUBMODULES.md
+M	protocol-processor
+M	syn/yosys/rom_digests.tsv
+M	tb/verilator/milan_dp/README.md
+### rc=0
+### pr-log
+$ git log --format=%H %an %s 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a..54b4c3bbbc8cdea5ced0be29c9226fdf82233b74
+54b4c3bbbc8cdea5ced0be29c9226fdf82233b74 hackerman-kl Align processor pin documentation with recorded ROM digests
+c9484ac8e86cb33d1120471530f9e1762bd4af1f hackerman-kl Record unchanged ROM digests for processor pin 0922e434
+1912c0472635ea174f1a2e2de2f3c96d09f55e9b hackerman-kl Adopt processor pin 0922e434 and refresh integration references
+### rc=0
+## commit message shape (one line, no trailers)
+54b4c3bbbc8cdea5ced0be29c9226fdf82233b74 lines=1
+c9484ac8e86cb33d1120471530f9e1762bd4af1f lines=1
+1912c0472635ea174f1a2e2de2f3c96d09f55e9b lines=1
+## parent RTL / tb / syn-script / VERSION untouched (expect empty)
+[]
+## gitlink move
+### gitlink-old
+$ git rev-parse 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a:protocol-processor
+990f96526bb89356c963a260ebbdcf2a77e6623a
+### rc=0
+### gitlink-new
+$ git rev-parse 54b4c3bbbc8cdea5ced0be29c9226fdf82233b74:protocol-processor
+0922e43408f891fc0b84a84691df86b4fd0f1c0d
+### rc=0
+### pp-ancestor
+$ git merge-base --is-ancestor 990f96526bb89356c963a260ebbdcf2a77e6623a 0922e43408f891fc0b84a84691df86b4fd0f1c0d
+### rc=0
+### pp-log
+$ git log --format=%H %s 990f96526bb89356c963a260ebbdcf2a77e6623a..0922e43408f891fc0b84a84691df86b4fd0f1c0d
+0922e43408f891fc0b84a84691df86b4fd0f1c0d Merge PR #119: complete the integration parameter inventory
+9cde1c19dbfd859257be8e012d4455856fcfce3b Fix parameter owner anchors and document the inventory gate
+663d50d65ff49c33b153107b2f79d6f3c5725799 Document parameter inventory checker functions
+9cfe2d381951467f48d64b75a041bd464ca57e12 Merge main 60152f3f into 99-integrator-params
+60152f3ff068b81333326b5081b5303253ba7fe7 Merge PR #118: record the October MVU waiver and pin unsupported command responses
+490e4309749c83f92d794a8ff10d3043e0f5f080 Refresh merged MVU waiver evidence and pin refusal under lock
+b51bc3893b06f4d39be49726c1b8f4ed6c65573d Merge main into 510-mvu-waiver
+05fd9e1b2390e7cb0c704c07cd3d9ec47ecd0a19 Record October MVU waiver and pin unsupported command responses
+52659df180cd74592b11aaf208efe37bd243ba79 Complete the integration parameter inventory
+### rc=0
+### pp-stat
+$ git diff --stat 990f96526bb89356c963a260ebbdcf2a77e6623a 0922e43408f891fc0b84a84691df86b4fd0f1c0d
+ .github/workflows/hdl.yml              |   3 +-
+ Makefile                               |   7 +-
+ docs/00_MILAN_COMPLIANCE_REVIEW.md     |  31 ++++++--
+ docs/architecture/01_overview.md       |   4 +-
+ docs/architecture/02_interfaces.md     |   4 +-
+ docs/architecture/03_packet_engine.md  |   2 +-
+ docs/architecture/06_aecp_engine.md    |  70 ++++++++++++++---
+ docs/architecture/07_memory_maps.md    |  24 ++++--
+ docs/architecture/09_verification.md   |   1 +
+ docs/diagrams/21-integration-faces.png | Bin 622043 -> 588107 bytes
+ docs/diagrams/21-integration-faces.svg |  47 ++++++------
+ docs/diagrams/README.md                |  12 +++
+ docs/guides/integrator.md              |  68 +++++++++++------
+ scripts/check-integrator-params.py     | 132 +++++++++++++++++++++++++++++++++
+ tb/pp_top/README.md                    |  49 ++++++++++--
+ tb/pp_top/sim_main.cpp                 | 117 +++++++++++++++++++++++++----
+ 16 files changed, 477 insertions(+), 94 deletions(-)
+### rc=0
+## processor hdl/ delta (expect empty)
+[]
+### pp-hdl-trees
+$ git rev-parse 990f96526bb89356c963a260ebbdcf2a77e6623a:hdl 0922e43408f891fc0b84a84691df86b4fd0f1c0d:hdl
+d8879608b8fae8c06a505d7d5d485a97903a5766
+d8879608b8fae8c06a505d7d5d485a97903a5766
+### rc=0
