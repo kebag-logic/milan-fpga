@@ -1,0 +1,415 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sat Sep 26 12:12:26 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_drc -file alinx_ax7101_drc.rpt
+| Design       : alinx_ax7101
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Fully Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Report DRC
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: netlist
+          Floorplan: checkpoint_alinx_ax7101_synth
+      Design limits: <entire design considered>
+           Ruledeck: default
+             Max checks: <unlimited>
+             Checks found: 71
++-----------+----------+-----------------------------------------------------+--------+
+| Rule      | Severity | Description                                         | Checks |
++-----------+----------+-----------------------------------------------------+--------+
+| BUFC-1    | Warning  | Input Buffer Connections                            | 4      |
+| CFGBVS-1  | Warning  | Missing CFGBVS and CONFIG_VOLTAGE Design Properties | 1      |
+| CHECK-3   | Warning  | Report rule limit reached                           | 2      |
+| DPIP-1    | Warning  | Input pipelining                                    | 5      |
+| DPOP-1    | Warning  | PREG Output pipelining                              | 7      |
+| DPOP-2    | Warning  | MREG Output pipelining                              | 11     |
+| REQP-1839 | Warning  | RAMB36 async control check                          | 20     |
+| REQP-1840 | Warning  | RAMB18 async control check                          | 20     |
+| RTSTAT-10 | Warning  | No routable loads                                   | 1      |
++-----------+----------+-----------------------------------------------------+--------+
+
+2. REPORT DETAILS
+-----------------
+BUFC-1#1 Warning
+Input Buffer Connections  
+Input buffer IOBUFDS/IBUFDS (in IOBUFDS macro) has no loads. It is recommended to have an input buffer drive an internal load.
+Related violations: <none>
+
+BUFC-1#2 Warning
+Input Buffer Connections  
+Input buffer IOBUFDS_1/IBUFDS (in IOBUFDS_1 macro) has no loads. It is recommended to have an input buffer drive an internal load.
+Related violations: <none>
+
+BUFC-1#3 Warning
+Input Buffer Connections  
+Input buffer IOBUFDS_2/IBUFDS (in IOBUFDS_2 macro) has no loads. It is recommended to have an input buffer drive an internal load.
+Related violations: <none>
+
+BUFC-1#4 Warning
+Input Buffer Connections  
+Input buffer IOBUFDS_3/IBUFDS (in IOBUFDS_3 macro) has no loads. It is recommended to have an input buffer drive an internal load.
+Related violations: <none>
+
+CFGBVS-1#1 Warning
+Missing CFGBVS and CONFIG_VOLTAGE Design Properties  
+Neither the CFGBVS nor CONFIG_VOLTAGE voltage property is set in the current_design.  Configuration bank voltage select (CFGBVS) must be set to VCCO or GND, and CONFIG_VOLTAGE must be set to the correct configuration voltage, in order to determine the I/O voltage support for the pins in bank 0.  It is suggested to specify these either using the 'Edit Device Properties' function in the GUI or directly in the XDC file using the following syntax:
+
+ set_property CFGBVS value1 [current_design]
+ #where value1 is either VCCO or GND
+
+ set_property CONFIG_VOLTAGE value2 [current_design]
+ #where value2 is the voltage provided to configuration bank 0
+
+Refer to the device configuration user guide for more information.
+Related violations: <none>
+
+CHECK-3#1 Warning
+Report rule limit reached  
+REQP-1839 rule limit reached: 20 violations have been found.
+Related violations: <none>
+
+CHECK-3#2 Warning
+Report rule limit reached  
+REQP-1840 rule limit reached: 20 violations have been found.
+Related violations: <none>
+
+DPIP-1#1 Warning
+Input pipelining  
+DSP milan_datapath/crf_tx/dv_num_r0 input milan_datapath/crf_tx/dv_num_r0/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-1#2 Warning
+Input pipelining  
+DSP milan_datapath/media_nco/servo_lsb_w1 input milan_datapath/media_nco/servo_lsb_w1/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-1#3 Warning
+Input pipelining  
+DSP milan_datapath/pp_shadow/u_pp/u_aecp/u_store/desc_off_r_reg input milan_datapath/pp_shadow/u_pp/u_aecp/u_store/desc_off_r_reg/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-1#4 Warning
+Input pipelining  
+DSP milan_datapath/pp_shadow/u_pp/u_srp/u_admission/iv_bytes_r_reg input milan_datapath/pp_shadow/u_pp/u_srp/u_admission/iv_bytes_r_reg/B[17:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPIP-1#5 Warning
+Input pipelining  
+DSP milan_datapath/pp_shadow/u_pp/u_srp/u_admission/slope_prod_w input milan_datapath/pp_shadow/u_pp/u_srp/u_admission/slope_prod_w/A[29:0] is not pipelined. Pipelining DSP48 input will improve performance.
+Related violations: <none>
+
+DPOP-1#1 Warning
+PREG Output pipelining  
+DSP milan_datapath/crf_tx/dv_num_r0 output milan_datapath/crf_tx/dv_num_r0/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-1#2 Warning
+PREG Output pipelining  
+DSP milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r0 output milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r0/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-1#3 Warning
+PREG Output pipelining  
+DSP milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r0__0 output milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r0__0/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-1#4 Warning
+PREG Output pipelining  
+DSP milan_datapath/media_nco/servo_lsb_w1 output milan_datapath/media_nco/servo_lsb_w1/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-1#5 Warning
+PREG Output pipelining  
+DSP milan_datapath/pp_shadow/u_nvm/rec_base_w0 output milan_datapath/pp_shadow/u_nvm/rec_base_w0/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-1#6 Warning
+PREG Output pipelining  
+DSP milan_datapath/pp_shadow/u_pp/u_adp/tmr_arm_deadline_ms_o0 output milan_datapath/pp_shadow/u_pp/u_adp/tmr_arm_deadline_ms_o0/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-1#7 Warning
+PREG Output pipelining  
+DSP milan_datapath/pp_shadow/u_pp/u_srp/u_admission/slope_prod_w output milan_datapath/pp_shadow/u_pp/u_srp/u_admission/slope_prod_w/P[47:0] is not pipelined (PREG=0). Pipelining the DSP48 output will improve performance and often saves power so it is suggested whenever possible to fully pipeline this function.  If this DSP48 function was inferred, it is suggested to describe an additional register stage after this function.  If the DSP48 was instantiated in the design, it is suggested to set the PREG attribute to 1.
+Related violations: <none>
+
+DPOP-2#1 Warning
+MREG Output pipelining  
+DSP milan_datapath/crf_tx/dv_num_r0 multiplier stage milan_datapath/crf_tx/dv_num_r0/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#2 Warning
+MREG Output pipelining  
+DSP milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r0 multiplier stage milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r0/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#3 Warning
+MREG Output pipelining  
+DSP milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r0__0 multiplier stage milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r0__0/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#4 Warning
+MREG Output pipelining  
+DSP milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r_reg multiplier stage milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r_reg/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#5 Warning
+MREG Output pipelining  
+DSP milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r_reg__0 multiplier stage milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/md_p_r_reg__0/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#6 Warning
+MREG Output pipelining  
+DSP milan_datapath/media_nco/servo_lsb_w1 multiplier stage milan_datapath/media_nco/servo_lsb_w1/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#7 Warning
+MREG Output pipelining  
+DSP milan_datapath/pp_shadow/u_nvm/rec_base_w0 multiplier stage milan_datapath/pp_shadow/u_nvm/rec_base_w0/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#8 Warning
+MREG Output pipelining  
+DSP milan_datapath/pp_shadow/u_pp/u_adp/tmr_arm_deadline_ms_o0 multiplier stage milan_datapath/pp_shadow/u_pp/u_adp/tmr_arm_deadline_ms_o0/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#9 Warning
+MREG Output pipelining  
+DSP milan_datapath/pp_shadow/u_pp/u_aecp/u_store/desc_off_r_reg multiplier stage milan_datapath/pp_shadow/u_pp/u_aecp/u_store/desc_off_r_reg/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#10 Warning
+MREG Output pipelining  
+DSP milan_datapath/pp_shadow/u_pp/u_srp/u_admission/iv_bytes_r_reg multiplier stage milan_datapath/pp_shadow/u_pp/u_srp/u_admission/iv_bytes_r_reg/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+DPOP-2#11 Warning
+MREG Output pipelining  
+DSP milan_datapath/pp_shadow/u_pp/u_srp/u_admission/slope_prod_w multiplier stage milan_datapath/pp_shadow/u_pp/u_srp/u_admission/slope_prod_w/P[47:0] is not pipelined (MREG=0). Pipelining the multiplier function will improve performance and will save significant power so it is suggested whenever possible to fully pipeline this function.  If this multiplier was inferred, it is suggested to describe an additional register stage after this function.  If there is no registered adder/accumulator following the multiply function, two pipeline stages are suggested to allow both the MREG and PREG registers to be used.  If the DSP48 was instantiated in the design, it is suggested to set both the MREG and PREG attributes to 1 when performing multiply functions.
+Related violations: <none>
+
+REQP-1839#1 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ADDRARDADDR[6] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr[0]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr_reg[0]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#2 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ADDRARDADDR[7] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr[1]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr_reg[1]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#3 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ADDRARDADDR[8] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr[2]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr_reg[2]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#4 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ADDRBWRADDR[6] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/pushCC_pushPtr_reg[0]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/pushCC_pushPtr_reg[0]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#5 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ADDRBWRADDR[7] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/pushCC_pushPtr_reg[1]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/pushCC_pushPtr_reg[1]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#6 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ADDRBWRADDR[8] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/pushCC_pushPtr_reg[2]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/pushCC_pushPtr_reg[2]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#7 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENARDEN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0_i_1_n_0) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popCC_addressGen_rValid_reg) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#8 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENARDEN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0_i_1_n_0) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr_reg[0]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#9 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENARDEN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0_i_1_n_0) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr_reg[1]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#10 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENARDEN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0_i_1_n_0) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr_reg[2]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#11 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENARDEN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0_i_1_n_0) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr_reg[3]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#12 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENARDEN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0_i_1_n_0) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/pushToPopGray_buffercc/buffers_1_reg[0]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#13 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENARDEN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0_i_1_n_0) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/pushToPopGray_buffercc/buffers_1_reg[1]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#14 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENARDEN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0_i_1_n_0) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/pushToPopGray_buffercc/buffers_1_reg[2]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#15 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENARDEN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0_i_1_n_0) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/pushToPopGray_buffercc/buffers_1_reg[3]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#16 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENARDEN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0_i_1_n_0) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/io_output_a_rValidN_reg) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#17 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENBWREN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/io_push_valid) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter/locked_reg) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#18 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENBWREN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/io_push_valid) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter/maskLocked_0_reg) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#19 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENBWREN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/io_push_valid) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter/maskLocked_1_reg) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1839#20 Warning
+RAMB36 async control check  
+The RAMB36E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0 has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/ram_reg_0/ENBWREN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/io_push_valid) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/frontend_allocateSlot_valid_reg) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#1 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRARDADDR[10] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/ptr_rsp[1]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/ptr_rsp_reg[1]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#2 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRARDADDR[5] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/_zz_rData_read_cmd_payload[0]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/upR_handle_counter_reg[0]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#3 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRARDADDR[6] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/_zz_rData_read_cmd_payload[1]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/upR_handle_counter_reg[0]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#4 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRARDADDR[6] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/_zz_rData_read_cmd_payload[1]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/upR_handle_counter_reg[1]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#5 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRARDADDR[7] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/_zz_rData_read_cmd_payload[2]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/upR_handle_counter_reg[0]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#6 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRARDADDR[7] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/_zz_rData_read_cmd_payload[2]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/upR_handle_counter_reg[1]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#7 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRARDADDR[7] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/_zz_rData_read_cmd_payload[2]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/upR_handle_counter_reg[2]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#8 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRARDADDR[8] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/_zz_rData_read_cmd_payload[3]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/upR_handle_counter_reg[0]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#9 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRARDADDR[8] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/_zz_rData_read_cmd_payload[3]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/upR_handle_counter_reg[1]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#10 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRARDADDR[8] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/_zz_rData_read_cmd_payload[3]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/upR_handle_counter_reg[2]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#11 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRARDADDR[8] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/_zz_rData_read_cmd_payload[3]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/upR_handle_counter_reg[3]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#12 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRARDADDR[9] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/ptr_rsp[0]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/ptr_rsp_reg[0]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#13 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRBWRADDR[10] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/dma_filter_logic_core_io_up_d_payload_source[1]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_logic_core/doIt_reg) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#14 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRBWRADDR[5] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/Q[0]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/downR_counter_reg[0]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#15 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRBWRADDR[6] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_write_payload_address[1]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/downR_counter_reg[1]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#16 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRBWRADDR[7] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_write_payload_address[2]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/downR_counter_reg[2]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#17 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRBWRADDR[8] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_write_payload_address[3]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/downR_counter_reg[3]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#18 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ADDRBWRADDR[9] (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/dma_filter_logic_core_io_up_d_payload_source[0]) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_logic_core/doIt_reg) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#19 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ENARDEN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_read_cmd_valid) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/ptr_rsp_reg[0]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+REQP-1840#20 Warning
+RAMB18 async control check  
+The RAMB18E1 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg has an input control pin VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_mem_reg/ENARDEN (net: VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/rData_read_cmd_valid) which is driven by a register (VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/ptr_rsp_reg[1]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+Related violations: <none>
+
+RTSTAT-10#1 Warning
+No routable loads  
+288 net(s) have no routable loads. The problem bus(es) and/or net(s) are milan_datapath/ethernet_counters/rx_error_bad_fcs_cnt[31:0],
+milan_datapath/ethernet_counters/rx_error_bad_frame_cnt[31:0],
+milan_datapath/ethernet_counters/rx_fifo_bad_frame_cnt[31:0],
+milan_datapath/ethernet_counters/rx_fifo_good_frame_cnt[31:0],
+milan_datapath/ethernet_counters/rx_fifo_overflow_cnt[31:0],
+milan_datapath/ethernet_counters/tx_error_underflow_cnt[31:0],
+milan_datapath/ethernet_counters/tx_fifo_bad_frame_cnt[31:0],
+milan_datapath/ethernet_counters/tx_fifo_good_frame_cnt[31:0]
+milan_datapath/ethernet_counters/tx_fifo_overflow_cnt[31:0].
+Related violations: <none>
+
+
