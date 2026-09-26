@@ -1,0 +1,10 @@
+1
+ hdl/milan/milan_datapath.sv | 1 -
+ 1 file changed, 1 deletion(-)
+mutant run-vid73 rc=2 (nonzero required)
+  [FAIL] #400 generated parent/wrapper/top/child startup VID got=0x00030002 exp=0x00030049
+  [FAIL] #400 diagnostic writes preserve Domain default got=0x00030002 exp=0x00030049
+  [FAIL] #400 link cycle restores generated default got=0x00030002 exp=0x00030049
+pp_shadow: 402 checks, 3 failures
+restored blob=8db6088701a9594801432669aef3d38acbf3a70f head=8db6088701a9594801432669aef3d38acbf3a70f IDENTICAL
+probe rc=0

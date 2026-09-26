@@ -1,0 +1,9 @@
+[PASS] unmutated option-off leg: pass
+[PASS] control caught: a software settime does not toggle mr - breaks "CLKV: the settime toggled mr once more (#387)"
+    it broke 2 check(s): CLKV: the settime toggled mr once more (#387); CLKV: ... and MEDIA_RESET counted that toggle once (#387)
+[PASS] control caught: the step's mr toggle is gated by the CRF clock-source selection - breaks "CLKV: its mr toggled once per PHC step issued so far (#387)"
+    it broke 2 check(s): CLKV: its mr toggled once per PHC step issued so far (#387); CLKV: ... and MEDIA_RESET counted that toggle once (#387)
+
+3 checks: 3 PASS, 0 FAIL (2 option-off controls)
+wall=37.42 rc=0
+rc=0

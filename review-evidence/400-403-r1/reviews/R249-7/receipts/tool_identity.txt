@@ -1,0 +1,12 @@
+# tool identities used on candidate 6b3936b3
+verilator: Verilator 5.050 2026-07-01 rev v5.050
+verilator_bin sha256: 44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd
+verilator script sha256: fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf
+note: the assigned wrapper path under the 372 manager candidate directory was absent; the manager's 400-403 round-5 pinned wrapper targets the same 5.050 installation, and an identical wrapper in the disposable scratch directory was used
+sv2v: sv2v v0.0.12 sha256 b29952bc8f400ca90207507db0ff6763263e03d3eec711da80338430ed636b9b (docs.yml pins v0.0.12)
+xvlog: Vivado 2026.1 (Vivado Simulator v2026.1)
+python: Python 3.14.7
+markdown renderer: tools/markdown/requirements.txt installed with --require-hashes into a disposable directory
+wavedrom: 2.0.3.post3 (disposable directory)
+RV32 SDK: archive sha256 d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f, installed and verified by scripts/ci_rv32_sdk.py into a disposable prefix
+git: git version 2.55.0

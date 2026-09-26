@@ -1,0 +1,16 @@
+Docs-job step receipts for candidate 6b3936b3b47c0c7d1a6423e9f69ff28b4e7deada, run by
+scripts/run_docs_steps.sh (77 gate commands of .github/workflows/docs.yml job docs-check plus
+the wire-accountability job; tool-installation steps and the act runner self-test excluded).
+summary.tsv is append-only: columns step, exit, wall, command.
+
+- Step 32 appears twice. First run exit 1: the host's default SDK prefix is a local build
+  with no provenance receipt (environment). The pinned SDK archive (sha256 d42680e9...)
+  was then installed by the repository's own scripts/ci_rv32_sdk.py into a disposable
+  prefix, HOME pointed at it, and step 32 re-ran with exit 0. 32.log is the re-run.
+- Step 35 (sw/builder/test_builder.py --require-rv32, the full builder bank) has no
+  summary line: the runner was stopped by the reviewer's own 595 s foreground timeout
+  (exit 124) while step 35 ran; 35.log is empty (buffered output).
+  No verdict is drawn from it. The full builder bank is outside this review's allowed
+  scope; the manager's builder bank is the evidence for it.
+- Steps 36-77 ran after the capture gate (step 38) with exit 0.
+- Host home paths in receipts are redacted to <host-home>.

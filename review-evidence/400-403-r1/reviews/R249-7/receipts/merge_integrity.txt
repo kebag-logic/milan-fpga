@@ -1,0 +1,85 @@
+# merge integrity
+candidate=6b3936b3b47c0c7d1a6423e9f69ff28b4e7deada tree=2ceadf884745dcae5ef5bf1b26efcca872cf666f
+parents: 1658ded24f77177cd1640a7e78ed346826791d27 a07a75de78b19369e228d4ab8403a52f7435fd64
+merge-base(dev,src)=220cb5a34507bb79bbf976b031bb55eb05543d6f
+git merge-tree --write-tree dev src = 2ceadf884745dcae5ef5bf1b26efcca872cf666f
+git remerge-diff of candidate (empty = no manual resolution):
+0
+# per-file provenance: predecessor-only paths equal dev, PR-only paths equal source head
+EQ-dev  CHANGELOG.md
+EQ-dev  docs/design/GM_LOSS_RECOVERY.md
+EQ-dev  docs/design/GPTP_PLANE.md
+EQ-dev  docs/design/TIME_SYNC.md
+EQ-dev  docs/diagrams/PNG_MANIFEST.json
+EQ-dev  docs/diagrams/submodule_boundaries.drawio
+EQ-dev  docs/diagrams/submodule_boundaries.png
+EQ-dev  docs/diagrams/submodule_boundaries.svg
+EQ-dev  docs/diagrams/timesync_chain.drawio
+EQ-dev  docs/diagrams/timesync_chain.png
+EQ-dev  docs/diagrams/timesync_chain.svg
+EQ-dev  docs/guides/gptp/HDL_DEVELOPER.md
+EQ-dev  docs/guides/gptp/MANAGER.md
+EQ-dev  docs/guides/gptp/SYSTEM_INTEGRATOR.md
+EQ-dev  docs/guides/gptp/TEST_DEVELOPER.md
+EQ-dev  docs/testing/CI_WORKFLOWS.md
+EQ-dev  docs/testing/TESTING.md
+EQ-dev  docs/traceability/ieee8021as.md
+EQ-dev  gptp-processor
+EQ-dev  hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+EQ-dev  hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+EQ-dev  scripts/measure_test_evidence.py
+EQ-dev  syn/yosys/rom_digests.tsv
+EQ-dev  tb/verilator/crf_rx/crf_talker_wrap.sv
+EQ-dev  tb/verilator/gptp_shadow/gptp_shadow_wrap.sv
+EQ-dev  tb/verilator/gptp_txts/gptp_txts_wrap.sv
+EQ-dev  tb/verilator/milan_dp/gmstep_mutants.py
+EQ-dev  tb/verilator/milan_dp/sim_gmstep.cpp
+EQ-dev  tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp
+EQ-dev  tb/verilator/mmcm_servo/Makefile
+EQ-dev  tb/verilator/mmcm_servo/rails_wrap.sv
+EQ-dev  tb/verilator/mmcm_servo/sim_main.cpp
+EQ-dev  tb/verilator/mmcm_servo/sim_phc_step.cpp
+EQ-dev  tb/verilator/mmcm_servo/slew_mutants.py
+EQ-src  configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+EQ-src  configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+EQ-src  configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+EQ-src  configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+EQ-src  configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+EQ-src  docs/design/AREA_BUDGET.md
+EQ-src  docs/design/MAAP_FABRIC.md
+EQ-src  docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+EQ-src  docs/ENDSTATION_BUILDER.md
+EQ-src  hdl/common/csr/gen/lwsrp_csr_defaults.svh
+EQ-src  hdl/common/csr/milan_csr.sv
+EQ-src  hdl/common/gen/adp_shape_defaults.svh
+EQ-src  hdl/milan/KL_pp_shadow.sv
+EQ-src  scripts/pp_srcs.py
+EQ-src  sw/builder/endstation_builder.py
+EQ-src  sw/builder/README-parameters.md
+EQ-src  sw/builder/test_builder.py
+EQ-src  sw/builder/test_declarations.py
+EQ-src  sw/firmware/milan_baremetal/milan_baremetal.c
+EQ-src  sw/firmware/nvm_hosttest/test_nvm_firmware.py
+EQ-src  sw/litex/boot_policy.py
+EQ-src  sw/litex/milan_soc.py
+EQ-src  tb/common/gen_declaration_fixture.py
+EQ-src  tb/verilator/csr/fixtures/reset_bits.yaml
+EQ-src  tb/verilator/csr/Makefile
+EQ-src  tb/verilator/csr/README.md
+EQ-src  tb/verilator/csr/sim_gptp.cpp
+EQ-src  tb/verilator/csr/sim_main.cpp
+EQ-src  tb/verilator/csr/sim_win.cpp
+EQ-src  tb/verilator/milan_dp/sim_main.cpp
+EQ-src  tb/verilator/milan_dp/sim_nxn.cpp
+EQ-src  tb/verilator/nvm_capture_cpu/measurements.json
+EQ-src  tb/verilator/nvm_cosim/run_cases.py
+EQ-src  tb/verilator/pp_shadow/fixtures/crf_on.yaml
+EQ-src  tb/verilator/pp_shadow/fixtures/vid73.yaml
+EQ-src  tb/verilator/pp_shadow/Makefile
+EQ-src  tb/verilator/pp_shadow/README.md
+EQ-src  tb/verilator/pp_shadow/sim_main.cpp
+# overlap files: candidate = both sides' hunks (dev-side and PR-side diffs apply unchanged)
+docs/reference/REGISTER_MAP.md dev-delta(P..B)=14b005ff2968066b replayed(S..H)=14b005ff2968066b SAME; pr-delta(P..S)=fcbe8431b9034ccf replayed(B..H)=fcbe8431b9034ccf SAME
+docs/reference/SUBMODULES.md dev-delta(P..B)=0bec4b962944e79e replayed(S..H)=0bec4b962944e79e SAME; pr-delta(P..S)=9606cf7a2c3478a2 replayed(B..H)=9606cf7a2c3478a2 SAME
+hdl/milan/milan_datapath.sv dev-delta(P..B)=3a76895ab6b7ef56 replayed(S..H)=3a76895ab6b7ef56 SAME; pr-delta(P..S)=ce04bb94e8b68e2a replayed(B..H)=ce04bb94e8b68e2a SAME
+tb/verilator/milan_dp/README.md dev-delta(P..B)=16cd34ee1a94aa1d replayed(S..H)=16cd34ee1a94aa1d SAME; pr-delta(P..S)=74d5f4b9e9380460 replayed(B..H)=74d5f4b9e9380460 SAME

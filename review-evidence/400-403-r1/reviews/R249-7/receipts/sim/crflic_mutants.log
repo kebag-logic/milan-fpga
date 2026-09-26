@@ -1,0 +1,11 @@
+[PASS] the unmutated gateware still passes the obj_crflic leg
+[PASS] mutant caught: every gate reads the raw verdict - breaks "the CRF licence never opened (every cycle sampled)"
+[PASS] mutant caught: the CRF licence alone reads the raw verdict - breaks "the CRF licence equals ACTIVE[CRF] AND real grant"
+[PASS] mutant caught: the AAF source 0 gate alone reads the raw verdict - breaks "the AAF gate never opened"
+[PASS] mutant caught: every gate drops the real grant - breaks "refused CRF licence never opened"
+[PASS] mutant caught: the CRF licence alone drops the real grant - breaks "refused CRF licence never opened"
+[PASS] mutant caught: the AAF source 0 gate alone drops the real grant - breaks "refused AAF gate never opened"
+
+7 checks: 7 PASS, 0 FAIL
+wall=408.13 rc=0
+rc=0
