@@ -1,0 +1,59 @@
+{
+  "optimized": 0,
+  "results": [
+    {
+      "probe": "legal image and identity control",
+      "result": "accepted"
+    },
+    {
+      "probe": "bad magic",
+      "result": "refused",
+      "reason": "invalid image magic or version"
+    },
+    {
+      "probe": "bad version",
+      "result": "refused",
+      "reason": "invalid image magic or version"
+    },
+    {
+      "probe": "wrong image length",
+      "result": "refused",
+      "reason": "declared image length differs from packed bytes"
+    },
+    {
+      "probe": "bad header checksum",
+      "result": "refused",
+      "reason": "invalid image header checksum"
+    },
+    {
+      "probe": "body type mismatch",
+      "result": "refused",
+      "reason": "descriptor body type/index differs from directory"
+    },
+    {
+      "probe": "body index mismatch",
+      "result": "refused",
+      "reason": "descriptor body type/index differs from directory"
+    },
+    {
+      "probe": "descriptor outside image",
+      "result": "refused",
+      "reason": "descriptor extends beyond packed image"
+    },
+    {
+      "probe": "builder image disagreement",
+      "result": "refused",
+      "reason": "audit image differs from builder image"
+    },
+    {
+      "probe": "packer normalizes body bytes",
+      "result": "refused",
+      "reason": "packer changed descriptor bytes: type 0, index 0"
+    },
+    {
+      "probe": "identity derivation ignores changed field",
+      "result": "refused",
+      "reason": "identity probe missed changed generator bytes in model identity"
+    }
+  ]
+}

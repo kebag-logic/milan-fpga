@@ -1,0 +1,64 @@
+[
+  {
+    "probe": "R331 M1",
+    "exit_code": 0,
+    "changes": [
+      {
+        "probe": "source list reversed",
+        "field": "result",
+        "before": "accepted",
+        "after": "refused"
+      },
+      {
+        "probe": "nine full rate words",
+        "field": "result",
+        "before": "accepted",
+        "after": "refused"
+      },
+      {
+        "probe": "offset 143",
+        "field": "result",
+        "before": "accepted",
+        "after": "refused"
+      },
+      {
+        "probe": "count disagrees with extent",
+        "field": "result",
+        "before": "accepted",
+        "after": "refused"
+      },
+      {
+        "probe": "one byte short",
+        "field": "result",
+        "before": "accepted",
+        "after": "refused"
+      }
+    ]
+  },
+  {
+    "probe": "R331 M2",
+    "exit_code": 0,
+    "changes": [
+      {
+        "probe": "nine distinct rates",
+        "field": "loader",
+        "before": "refused",
+        "after": "accepted"
+      },
+      {
+        "probe": "nine distinct rates",
+        "field": "image",
+        "before": null,
+        "after": "refused"
+      }
+    ]
+  },
+  {
+    "probe": "R331 M3",
+    "exit_code": 1
+  },
+  {
+    "probe": "R331 M3-O",
+    "exit_code": 1
+  }
+]
