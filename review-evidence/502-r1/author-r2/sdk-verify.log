@@ -1,0 +1,11 @@
+python3 scripts/ci_rv32_sdk.py --verify-only --destination $VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1
+Traceback (most recent call last):
+  File "$LANES/502-pending-live-write/scripts/ci_rv32_sdk.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$LANES/502-pending-live-write/scripts/ci_rv32_sdk.py", line 183, in main
+    verify(args.destination)
+    ~~~~~~^^^^^^^^^^^^^^^^^^
+  File "$LANES/502-pending-live-write/scripts/ci_rv32_sdk.py", line 107, in verify
+    raise ValueError("missing regular SDK provenance receipt; incomplete install")
+ValueError: missing regular SDK provenance receipt; incomplete install

@@ -1,0 +1,90 @@
+make: Entering directory '$LANES/502-pending-live-write/tb/verilator/tsn_fuzz'
+[single-kind and unknown-kind fields]
+  [ok  ] mask: no undefined bit set                                     pass=1/1 fail=0/0
+  [ok  ] mask: an undefined bit IS set                                  pass=0/0 fail=1/1  needles=('undefined=0x80',) found
+  [ok  ] mask: every defined bit set is still legal                     pass=1/1 fail=0/0
+  [ok  ] mask 16b talker_capabilities: legal                            pass=1/1 fail=0/0
+  [ok  ] mask 16b: undefined bit 14, above the low byte                 pass=0/0 fail=1/1  needles=('undefined=0x4000',) found
+  [ok  ] mask 32b acquire_entity_flags: legal                           pass=1/1 fail=0/0
+  [ok  ] mask 32b: undefined bit 29, above 16 bits                      pass=0/0 fail=1/1  needles=('undefined=0x20000000',) found
+  [ok  ] mask 64b msrp_flags: legal                                     pass=1/1 fail=0/0
+  [ok  ] mask 64b: undefined bit 58, above 32 bits                      pass=0/0 fail=1/1  needles=('undefined=0x400000000000000',) found
+  [ok  ] unknown kind fails closed                                      pass=0/0 fail=1/1  needles=('ungradeable constraint kind',) found
+  [ok  ] unknown kind names the field                                   pass=0/0 fail=1/1  needles=('t.f',) found
+  [ok  ] unknown kind names the KIND itself                             pass=0/0 fail=1/1  needles=('regex',) found
+  [ok  ] value: matching                                                pass=1/1 fail=0/0
+  [ok  ] value: mismatching                                             pass=0/0 fail=1/1  needles=('got=67',) found
+  [ok  ] range: inside                                                  pass=1/1 fail=0/0
+  [ok  ] range: outside                                                 pass=0/0 fail=1/1  needles=('got=200',) found
+  [ok  ] values: legal                                                  pass=1/1 fail=0/0
+  [ok  ] values: illegal                                                pass=0/0 fail=1/1  needles=('got=3',) found
+  [ok  ] no constraint at all still skips                               pass=0/0 fail=0/0
+[a field declaring more than one kind is refused]
+  [ok  ] value+values: frame carries the value (first-kind-wins passed it) pass=0/0 fail=1/1  needles=('dual_fld', '2 constraint kinds', '(value, values)') found
+  [ok  ] value+values: frame carries 1, legal upstream (first-kind-wins blamed the DUT) pass=0/0 fail=1/1  needles=('dual_fld', '(value, values)') found
+  [ok  ] value+range                                                    pass=0/0 fail=1/1  needles=('dual_fld', '(range, value)') found
+  [ok  ] values+mask                                                    pass=0/0 fail=1/1  needles=('dual_fld', '(mask, values)') found
+  [ok  ] value+mask                                                     pass=0/0 fail=1/1  needles=('dual_fld', '(mask, value)') found
+  [ok  ] values+range                                                   pass=0/0 fail=1/1  needles=('dual_fld', '(range, values)') found
+  [ok  ] range+mask                                                     pass=0/0 fail=1/1  needles=('dual_fld', '(mask, range)') found
+  [ok  ] three kinds: value+values+range                                pass=0/0 fail=1/1  needles=('dual_fld', '3 constraint kinds', '(range, value, values)') found
+  [ok  ] all four kinds                                                 pass=0/0 fail=1/1  needles=('dual_fld', '4 constraint kinds', '(mask, range, value, values)') found
+  [ok  ] known kind beside an unknown one: value+regex                  pass=0/0 fail=1/1  needles=('dual_fld', '(regex, value)') found
+  [ok  ] 16b values+mask                                                pass=0/0 fail=1/1  needles=('dual_fld', '(mask, values)') found
+[one predicate for grade_tx, legal() and illegal()]
+  [ok  ] same refusal from grade_tx, legal(), illegal(): value+values: frame carries the value (first-kind-wins passed it)
+  [ok  ] same refusal from grade_tx, legal(), illegal(): value+values: frame carries 1, legal upstream (first-kind-wins blamed the DUT)
+  [ok  ] same refusal from grade_tx, legal(), illegal(): value+range   
+  [ok  ] same refusal from grade_tx, legal(), illegal(): values+mask   
+  [ok  ] same refusal from grade_tx, legal(), illegal(): value+mask    
+  [ok  ] same refusal from grade_tx, legal(), illegal(): values+range  
+  [ok  ] same refusal from grade_tx, legal(), illegal(): range+mask    
+  [ok  ] same refusal from grade_tx, legal(), illegal(): three kinds: value+values+range
+  [ok  ] same refusal from grade_tx, legal(), illegal(): all four kinds
+  [ok  ] same refusal from grade_tx, legal(), illegal(): known kind beside an unknown one: value+regex
+  [ok  ] same refusal from grade_tx, legal(), illegal(): 16b values+mask
+  [ok  ] grade_tx asks tsn_model.kind_conflict before it dispatches    
+  [ok  ] legal() asks tsn_model.kind_conflict before it dispatches     
+  [ok  ] illegal() asks tsn_model.kind_conflict before it dispatches   
+  [ok  ] loaded model: the single-kind field grades legal() as before    got [3]
+  [ok  ] loaded model: legal() refuses the dual-kind field by name       got 'field dual_fld declares 2 constraint kinds (value, values); a field takes exactly one of value/values/range/mask, so it is refused'
+  [ok  ] loaded model: illegal() refuses the dual-kind field by name     got 'field dual_fld declares 2 constraint kinds (value, values); a field takes exactly one of value/values/range/mask, so it is refused'
+  [ok  ] loaded model: grade_tx grades solo and refuses dual_fld        pass=1/1 fail=1/1 field dual_fld declares 2 constraint kinds (value, values); a field takes exactly one of value/values/range/mask, so it is refused
+[the refusal cases can fail: mutants of the predicate]
+  [ok  ] mutant 'refusal bypassed: predicate returns None' goes red in every refusal case (11/11)
+  [ok  ] mutant 'refusal bypassed: predicate returns None' leaves every single-kind case green (19/19)
+  [ok  ] mutant 'refusal names neither the field nor the kinds' goes red in every refusal case (11/11)
+  [ok  ] mutant 'refusal names neither the field nor the kinds' leaves every single-kind case green (19/19)
+  [ok  ] mutant 'refusal names the field and only the FIRST kind' goes red in every refusal case (11/11)
+  [ok  ] mutant 'refusal names the field and only the FIRST kind' leaves every single-kind case green (19/19)
+
+grade_tx self-test: 54 checks: 54 PASS, 0 FAIL
+verilator --cc --exe --build -j 0 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -I.. -Wall -Wextra" --top-module gptp_shadow_wrap -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 --Mdir obj_ptp ../gptp_shadow/gptp_shadow_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv cosim_ptp.cpp -o Vptp_cosim
+make[1]: Entering directory '$LANES/502-pending-live-write/tb/verilator/tsn_fuzz/obj_ptp'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$LANES/502-pending-live-write/tb/verilator/tsn_fuzz/obj_ptp'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.010 s (elab=0.000, cvt=0.000, bld=0.009); cpu 0.001 s on 16 threads; allocated 6.082 MB
+== AAF/AVTP stream field campaign (tsn-gen driven) ==
+  SKIP: tsn-gen not found at $WORKSPACE_HOME/tsn-gen/build/traffic-gen/packet_gen
+        set TSN_GEN_ROOT / PACKET_GEN to enable the field campaign
+SUITE-SKIP: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  ..... campaign skipped (tsn-gen absent), not a failure
+SUITE-SKIP: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  the campaign did not run, so there is no fresh result to compare;
+  this is NOT a statement that the committed copy is current.
+== gPTP/802.1AS field campaign (tsn-gen driven) ==
+  SKIP: tsn-gen not found at $WORKSPACE_HOME/tsn-gen/build/traffic-gen/packet_gen
+        set TSN_GEN_ROOT / PACKET_GEN to enable the field campaign
+SUITE-SKIP: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  ..... campaign skipped (tsn-gen absent), not a failure
+SUITE-SKIP: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  the campaign did not run, so there is no fresh result to compare;
+  this is NOT a statement that the committed copy is current.
+python3 ../../../docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+traceability contracts (drift + ratchet): 2 checks: 2 PASS, 0 FAIL
+== tsn_fuzz: all campaigns passed ==
+make: Leaving directory '$LANES/502-pending-live-write/tb/verilator/tsn_fuzz'

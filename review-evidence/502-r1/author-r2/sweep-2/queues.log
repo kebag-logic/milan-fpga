@@ -1,0 +1,15 @@
+make: Entering directory '$LANES/502-pending-live-write/tb/verilator/queues'
+verilator --cc --exe --build -j 0 --top-module queues_wrap +incdir+../../../hdl/common +incdir+../../../hdl/ieee8021q/ts -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_demux.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021q/ts/traffic_queues.sv queues_wrap.sv sim_main.cpp -o Vqueues_sim
+make[1]: Entering directory '$LANES/502-pending-live-write/tb/verilator/queues/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$LANES/502-pending-live-write/tb/verilator/queues/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.018 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 16 threads; allocated 6.008 MB
+======================================================================
+./obj_dir/Vqueues_sim
+== traffic_queues harness (axis_demux/axis_fifo/axis_arb_mux) ==
+--------------------------------------------------------------
+checks: 13   failures: 0
+RESULT: PASS
+make: Leaving directory '$LANES/502-pending-live-write/tb/verilator/queues'

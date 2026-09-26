@@ -1,0 +1,19 @@
+env PATH=$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin:<executor-bin>:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl SUITE_TIMEOUT=10800 scripts/run_all_suites.sh $MANAGEMENT/2026-09-23/502-a340/sweep-2 --shard 2/6
+shard: 2/6   selected suites: 13
+PASS     avtp_stream
+PASS     cdc
+PASS     chmap_capture
+PASS     classifier
+PASS     clkvalid
+PASS     crf_tx
+PASS     datapath
+PASS     ifg
+PASS     lat_history_ring
+PASS     mmcm_servo
+PASS     mmcm_servo_autorepair
+PASS     pp_shadow
+PASS     queues
+----------------------------------------------------------------
+suites: 13   passed: 13   failed: 0   timed out: 0
+checks: 2756   in-suite failures: 0
+logs: $MANAGEMENT/2026-09-23/502-a340/sweep-2
