@@ -1,0 +1,14 @@
+docs_check exit=0 :: docs_check: 0 finding(s) across 165 md files + 871 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-
+doc_style exit=0 :: documentation style: OK (22 current documents)
+em_dash exit=2 :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --req
+doc_paths exit=0 :: doc path gate: OK (847 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+toc exit=2 :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --r
+py_idiom exit=0 ::   over-long line: 0 <= 0
+cpp_idiom exit=0 ::   build without warnings: 0 <= 0
+test_evidence exit=0 ::   the mutation ratchet can be lowered to 75
+baremetal exit=0 :: baremetal-only: OK (0 findings across 869 tracked first-party file(s))
+phase_obs exit=0 :: 24 checks: 24 PASS, 0 FAIL
+diff_check exit=0 :: 
+em_dash exit=0 :: check_em_dash: 0 finding(s) over 70 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/33
+toc exit=0 :: TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+anchors exit=0 :: anchor check: 176 existing cross-page fragment links reproduced

@@ -1,0 +1,62 @@
+{
+ "tag": "pc2-rootbuilder",
+ "exit": 0,
+ "seconds": 0.37,
+ "capture": "captures/pc2-rootbuilder.log",
+ "capture_sha256": "8604c1dff2e31a4a8fa90631657b7664348c78e1d320b215dae97fd2f7013d40",
+ "written": [
+  "$REVIEWS/517-r245-4-packet/probe/pc2-out",
+  "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4",
+  "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/adp_shape_defaults.svh",
+  "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/aecp_aem_rom.svh",
+  "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/aem_overlay.json",
+  "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/build_plan.md",
+  "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/gptp_ucode.hex",
+  "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/lwsrp_csr_defaults.svh",
+  "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/lwsrp_table.json",
+  "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/lwsrp_table.svh",
+  "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/platform_shape.json",
+  "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/soc_params.json",
+  "$REVIEWS/r245-4-517/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh"
+ ],
+ "calls": [
+  "mkdir $REVIEWS/517-r245-4-packet/probe/pc2-out",
+  "mkdir $REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4",
+  "openat $REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/soc_params.json",
+  "openat $REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/aem_overlay.json",
+  "openat $REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/gptp_ucode.hex",
+  "openat $REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/build_plan.md",
+  "openat $REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/lwsrp_table.json",
+  "openat $REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/lwsrp_table.svh",
+  "openat $REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/lwsrp_csr_defaults.svh",
+  "openat $REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/adp_shape_defaults.svh",
+  "openat $REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/aecp_aem_rom.svh",
+  "openat $REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/platform_shape.json",
+  "openat $REVIEWS/r245-4-517/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh"
+ ],
+ "chdirs": [],
+ "failed_mutations": [
+  "1409729 mkdir(\"$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4\", 0777) = -1 ENOENT (No such file or directory)",
+  "1409729 mkdir(\"$REVIEWS/r245-4-517/configs/generated/endstation_arty_4x4/gen\", 0777) = -1 EEXIST (File exists)"
+ ],
+ "classified": {
+  "repo": [
+   "$REVIEWS/r245-4-517/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh"
+  ],
+  "tmpdir": [],
+  "other": [
+   "$REVIEWS/517-r245-4-packet/probe/pc2-out",
+   "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4",
+   "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/adp_shape_defaults.svh",
+   "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/aecp_aem_rom.svh",
+   "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/aem_overlay.json",
+   "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/build_plan.md",
+   "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/gptp_ucode.hex",
+   "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/lwsrp_csr_defaults.svh",
+   "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/lwsrp_table.json",
+   "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/lwsrp_table.svh",
+   "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/platform_shape.json",
+   "$REVIEWS/517-r245-4-packet/probe/pc2-out/endstation_arty_4x4/soc_params.json"
+  ]
+ }
+}

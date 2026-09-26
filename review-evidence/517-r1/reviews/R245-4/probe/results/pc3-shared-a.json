@@ -1,0 +1,24 @@
+{
+ "tag": "pc3-shared-a",
+ "exit": 0,
+ "seconds": 0.009,
+ "capture": "captures/pc3-shared-a.log",
+ "capture_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ "written": [
+  "$REVIEWS/517-r245-4-packet/probe/tmp-common/shared.txt"
+ ],
+ "calls": [
+  "openat $REVIEWS/517-r245-4-packet/probe/tmp-common/shared.txt"
+ ],
+ "chdirs": [],
+ "failed_mutations": [
+  "1409744 openat(AT_FDCWD<$REVIEWS/r245-4-517/tb/verilator/milan_dp>, \"/dev/tty\", O_RDWR|O_NONBLOCK) = -1 ENXIO (No such device or address)"
+ ],
+ "classified": {
+  "repo": [],
+  "tmpdir": [
+   "$REVIEWS/517-r245-4-packet/probe/tmp-common/shared.txt"
+  ],
+  "other": []
+ }
+}
