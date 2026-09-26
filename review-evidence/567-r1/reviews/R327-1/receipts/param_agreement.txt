@@ -1,0 +1,35 @@
+inventory: top 24 guide 24 diagram 24 equal=True
+parent binds 14 parameters; bindings naming no processor parameter: none
+parameter              parent binding           processor default                 
+N_STREAM_IN_P          .N_STREAM_IN_P(N_STREAM_IN_P) 8                                 
+N_STREAM_OUT_P         .N_STREAM_OUT_P(N_STREAM_OUT_P) 8                                 
+N_AUDIO_UNIT_P         unbound (default)        1                                 
+N_CLK_DOMAIN_P         unbound (default)        1                                 
+N_CONTROL_P            unbound (default)        1                                 
+RX_SLOTS_P             unbound (default)        4                                 
+RX_SLOT_BYTES_P        unbound (default)        576                               
+TX_STD_SLOTS_P         unbound (default)        4                                 
+TX_OVERSIZE_BYTES_P    unbound (default)        1600                              
+CLK_HZ_P               .CLK_HZ_P(CLK_HZ_P)      100_000_000                       
+TIM_DIV_US_P           .TIM_DIV_US_P(TIM_DIV_US_P) CLK_HZ_P / 32'd1_000_000          
+TIM_DIV_MS_P           .TIM_DIV_MS_P(TIM_DIV_MS_P) 1000                              
+TROM_HEX_P             .TROM_HEX_P(TROM_HEX_P)  "ltn_rom.hex"                     
+UCODE_HEX_P            .UCODE_HEX_P(UCODE_HEX_P) "ucode.hex"                       
+DESC_BASE_P            .DESC_BASE_P(DESC_BASE_P) 32'h2000_0000                     
+DESC_LINE_BYTES_P      .DESC_LINE_BYTES_P(DESC_LINE_BYTES_P) 576                               
+DESC_IDX_ENTRIES_P     .DESC_IDX_ENTRIES_P(DESC_IDX_ENTRIES_P) 32                                
+DESC_NAME_ENTRIES_P    .DESC_NAME_ENTRIES_P(DESC_NAME_ENTRIES_P) 32                                
+DESC_MEM_TMO_CYC_P     .DESC_MEM_TMO_CYC_P(DESC_MEM_TMO_CYC_P) 4096                              
+NVM_RS_TMO_CYC_P       unbound (default)        CLK_HZ_P / 32'd50                 
+REG_TL_TIMEOUT_MS_P    unbound (default)        300_000                           
+LOCK_TIMEOUT_MS_P      unbound (default)        60_000                            
+RESP_BASE_P            .RESP_BASE_P(RESP_BASE_P) 32'h2010_0000                     
+SRP_DOM_DEF_VID_P      .SRP_DOM_DEF_VID_P(SRP_DOM_DEF_VID_P) 16'd2                             
+generated model (hdl/common/gen/adp_shape_defaults.svh): {'AEM_N_AUDIO_UNIT_C': '1', 'AEM_N_CLKDOM_C': '1', 'ADP_SRP_DOM_DEF_VID_C': "16'd2", 'AEM_NAME_ENTRIES_C': '38'}
+builder descriptor_counts literal: AUDIO_UNIT=1 CLOCK_DOMAIN=1 CONTROL=1
+AGREEMENT OK
+probe clean: rc=0 parameters: top 24, guide 24, diagram 24, OK
+probe guide row dropped: rc=1 PARAMETERS FAIL: guide: missing LOCK_TIMEOUT_MS_P / parameters: top 24, guide 23, diagram 24, 1 FAILURES
+probe extra top parameter: rc=1 PARAMETERS FAIL: guide: missing PROBE_EXTRA_P / PARAMETERS FAIL: diagram: missing PROBE_EXTRA_P / parameters: top 25, guide 24, diagram 24, 2 FAILURES
+probe restored: rc=0 parameters: top 24, guide 24, diagram 24, OK
+rc=0

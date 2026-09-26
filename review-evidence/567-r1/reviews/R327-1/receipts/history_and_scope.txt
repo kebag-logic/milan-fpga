@@ -1,0 +1,61 @@
+dev tip (public): 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+PR head (public): 54b4c3bbbc8cdea5ced0be29c9226fdf82233b74
+merge-base: 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+HEAD=54b4c3bbbc8cdea5ced0be29c9226fdf82233b74 tree=36338cae0ebdd410a366e38a67d80af7c3efb4a7
+-- commits (full messages; raw):
+## 1912c0472635ea174f1a2e2de2f3c96d09f55e9b
+
+Adopt processor pin 0922e434 and refresh integration references
+files:
+M	CHANGELOG.md
+M	docs/diagrams/PNG_MANIFEST.json
+M	docs/diagrams/submodule_boundaries.drawio
+M	docs/diagrams/submodule_boundaries.png
+M	docs/diagrams/submodule_boundaries.svg
+M	docs/reference/SUBMODULES.md
+M	protocol-processor
+M	tb/verilator/milan_dp/README.md
+## c9484ac8e86cb33d1120471530f9e1762bd4af1f
+
+Record unchanged ROM digests for processor pin 0922e434
+files:
+M	syn/yosys/rom_digests.tsv
+## 54b4c3bbbc8cdea5ced0be29c9226fdf82233b74
+
+Align processor pin documentation with recorded ROM digests
+files:
+M	CHANGELOG.md
+M	docs/reference/SUBMODULES.md
+-- parent hdl/ and VERSION diff (empty = unchanged):
+-- processor hdl tree ids:
+d8879608b8fae8c06a505d7d5d485a97903a5766
+d8879608b8fae8c06a505d7d5d485a97903a5766
+-- processor hdl diffstat bytes: 0
+-- processor full diffstat:
+ .github/workflows/hdl.yml              |   3 +-
+ Makefile                               |   7 +-
+ docs/00_MILAN_COMPLIANCE_REVIEW.md     |  31 ++++++--
+ docs/architecture/01_overview.md       |   4 +-
+ docs/architecture/02_interfaces.md     |   4 +-
+ docs/architecture/03_packet_engine.md  |   2 +-
+ docs/architecture/06_aecp_engine.md    |  70 ++++++++++++++---
+ docs/architecture/07_memory_maps.md    |  24 ++++--
+ docs/architecture/09_verification.md   |   1 +
+ docs/diagrams/21-integration-faces.png | Bin 622043 -> 588107 bytes
+ docs/diagrams/21-integration-faces.svg |  47 ++++++------
+ docs/diagrams/README.md                |  12 +++
+ docs/guides/integrator.md              |  68 +++++++++++------
+ scripts/check-integrator-params.py     | 132 +++++++++++++++++++++++++++++++++
+ tb/pp_top/README.md                    |  49 ++++++++++--
+ tb/pp_top/sim_main.cpp                 | 117 +++++++++++++++++++++++++----
+ 16 files changed, 477 insertions(+), 94 deletions(-)
+-- processor commits:
+0922e43 Merge PR #119: complete the integration parameter inventory
+9cde1c1 Fix parameter owner anchors and document the inventory gate
+663d50d Document parameter inventory checker functions
+9cfe2d3 Merge main 60152f3f into 99-integrator-params
+60152f3 Merge PR #118: record the October MVU waiver and pin unsupported command responses
+490e430 Refresh merged MVU waiver evidence and pin refusal under lock
+b51bc38 Merge main into 510-mvu-waiver
+05fd9e1 Record October MVU waiver and pin unsupported command responses
+52659df Complete the integration parameter inventory

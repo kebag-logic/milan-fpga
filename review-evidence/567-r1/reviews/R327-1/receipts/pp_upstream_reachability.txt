@@ -1,0 +1,15 @@
+[submodule "protocol-processor"]
+	path = protocol-processor
+	url = https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+[submodule "gptp-processor"]
+	path = gptp-processor
+-- upstream main head:
+0922e43408f891fc0b84a84691df86b4fd0f1c0d
+-- compare 990f9652...0922e434:
+ahead
+9
+0
+.github/workflows/hdl.yml Makefile docs/00_MILAN_COMPLIANCE_REVIEW.md docs/architecture/01_overview.md docs/architecture/02_interfaces.md docs/architecture/03_packet_engine.md docs/architecture/06_aecp_engine.md docs/architecture/07_memory_maps.md docs/architecture/09_verification.md docs/diagrams/21-integration-faces.png docs/diagrams/21-integration-faces.svg docs/diagrams/README.md docs/guides/integrator.md scripts/check-integrator-params.py tb/pp_top/README.md tb/pp_top/sim_main.cpp
+-- PRs 118/119:
+118 merged=true merge_commit=60152f3ff068b81333326b5081b5303253ba7fe7 Record the October MVU waiver and pin unsupported command responses
+119 merged=true merge_commit=0922e43408f891fc0b84a84691df86b4fd0f1c0d Complete the integration parameter inventory
