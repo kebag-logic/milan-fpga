@@ -1,0 +1,25 @@
+# restore verification 2026-09-26T17:30:18Z
+HEAD 104c8a54b183cd9215ed1e3a2e1be1634f48d33d tree c1d413a847312074618f45635750252aea21e197
+status:
+(end status)
+index vs HEAD tree (cached diff, must be empty):
+(end)
+worktree vs index incl. modes (must be empty):
+(end)
+assume-unchanged/skip-worktree flags (lowercase or S tags; must be empty):
+(end)
+rehash every tracked blob from disk and compare with the index:
+tracked files checked: 911 mismatches: 0
+gitlinks:
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+160000 870ff88ad35bbd532244e4c7e6d7661b9f6e1366 0	protocol-processor
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (5dce647)
+ 870ff88ad35bbd532244e4c7e6d7661b9f6e1366 protocol-processor (v2.0-275-g870ff88)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+protocol-processor head 870ff88ad35bbd532244e4c7e6d7661b9f6e1366 dirty=[0]
+gptp-processor head 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d dirty=[0]
+third_party/verilog-axis head 48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=[0]
+pp blobs rehashed: 248

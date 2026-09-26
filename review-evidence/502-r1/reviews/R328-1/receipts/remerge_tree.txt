@@ -1,0 +1,42 @@
+# git merge-tree --write-tree 87e263fd 831f94f4
+error: Could not read 83c84b19e09d397ed2eb6f5ace337686ce0ef86b
+hint: Recursive merging with submodules currently only supports trivial cases.
+hint: Please manually handle the merging of each conflicted submodule.
+hint: This can be accomplished with the following steps:
+hint:  - go to submodule (protocol-processor), and either merge commit 0922e43
+hint:    or update to an existing commit which has merged those changes
+hint:  - come back to superproject and run:
+hint:
+hint:       git add protocol-processor
+hint:
+hint:    to record the above merge or update
+hint:  - resolve any other conflicts in the superproject
+hint:  - commit the resulting index in the superproject
+hint:
+hint: Disable this message with "git config set advice.submoduleMergeConflict false"
+c786e8881348e016dac5ae4eafe62830f1da53ce
+CHANGELOG.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/reference/SUBMODULES.md
+protocol-processor
+
+Auto-merging CHANGELOG.md
+CONFLICT (content): Merge conflict in CHANGELOG.md
+Auto-merging docs/diagrams/PNG_MANIFEST.json
+CONFLICT (content): Merge conflict in docs/diagrams/PNG_MANIFEST.json
+Auto-merging docs/diagrams/submodule_boundaries.drawio
+CONFLICT (content): Merge conflict in docs/diagrams/submodule_boundaries.drawio
+warning: Cannot merge binary files: docs/diagrams/submodule_boundaries.png (87e263fd1d71b1a7a04a2e9c9339220f35e4348f vs. 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf)
+Auto-merging docs/diagrams/submodule_boundaries.png
+CONFLICT (content): Merge conflict in docs/diagrams/submodule_boundaries.png
+Auto-merging docs/diagrams/submodule_boundaries.svg
+CONFLICT (content): Merge conflict in docs/diagrams/submodule_boundaries.svg
+Auto-merging docs/reference/SUBMODULES.md
+CONFLICT (content): Merge conflict in docs/reference/SUBMODULES.md
+Failed to merge submodule protocol-processor (commits don't follow merge-base)
+CONFLICT (submodule): Merge conflict in protocol-processor
+Auto-merging syn/yosys/rom_digests.tsv
+exit=1
