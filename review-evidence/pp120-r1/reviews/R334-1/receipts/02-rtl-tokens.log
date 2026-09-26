@@ -1,0 +1,16 @@
+== 0922e434..a9b7874d: 3 HDL file(s) changed
+-- hdl/aecp/KL_aecp_desc_store.sv: 4 non-comment line change(s)
+   +output logic name_wr_o,
+   +assign name_wr_o = take_wr_w && st_name_i;
+   -name_we_w = take_wr_w && st_name_i;
+   +name_we_w = name_wr_o;
+-- hdl/aecp/KL_aecp_engine.sv: 2 non-comment line change(s)
+   +output logic name_wr_o,
+   +.name_wr_o (name_wr_o),
+-- hdl/top/protocol_processor_top.sv: 2 non-comment line change(s)
+   +output logic aecp_name_wr_o,
+   +.name_wr_o (aecp_name_wr_o),
+== 691f1d2b..a9b7874d: 3 HDL file(s) changed
+-- hdl/aecp/KL_aecp_desc_store.sv: 0 non-comment line change(s)
+-- hdl/aecp/KL_aecp_engine.sv: 0 non-comment line change(s)
+-- hdl/top/protocol_processor_top.sv: 0 non-comment line change(s)

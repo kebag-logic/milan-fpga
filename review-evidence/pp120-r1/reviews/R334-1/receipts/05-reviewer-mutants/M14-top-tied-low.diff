@@ -1,0 +1,19 @@
+diff -ru <packet>/scratch/head/hdl/top/protocol_processor_top.sv <packet>/scratch/mut/M14-top-tied-low/hdl/top/protocol_processor_top.sv
+--- <packet>/scratch/head/hdl/top/protocol_processor_top.sv	2026-09-26 12:29:46.000000000 +0200
++++ <packet>/scratch/mut/M14-top-tied-low/hdl/top/protocol_processor_top.sv	2026-09-26 13:19:42.425107088 +0200
+@@ -3467,7 +3467,7 @@
+       .lock_held_i        (ntfy_lock_held_w),
+       .lock_ctlr_i        (ntfy_lock_ctlr_w),
+       .eff_commit_o       (aecp_eff_commit_nc_w),
+-      .name_wr_o          (aecp_name_wr_o),
++      .name_wr_o          (),
+       .eff_nvm_mark_o     (aecp_nvm_mark_o),
+       .eff_nvm_stb_o      (aecp_nvm_stb_o),
+       .eff_notify_class_o (aecp_eff_notify_cls_nc_w),
+@@ -4331,5 +4331,6 @@
+     end
+   end
+ 
++  assign aecp_name_wr_o = 1'b0;
+ endmodule : protocol_processor_top
+ `default_nettype wire

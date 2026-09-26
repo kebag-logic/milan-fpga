@@ -1,0 +1,25 @@
+diff -ru <packet>/scratch/head/hdl/aecp/KL_aecp_desc_store.sv <packet>/scratch/mut/M06-two-cycle-stretch/hdl/aecp/KL_aecp_desc_store.sv
+--- <packet>/scratch/head/hdl/aecp/KL_aecp_desc_store.sv	2026-09-26 12:29:46.000000000 +0200
++++ <packet>/scratch/mut/M06-two-cycle-stretch/hdl/aecp/KL_aecp_desc_store.sv	2026-09-26 13:18:19.823345844 +0200
+@@ -454,7 +454,11 @@
+   assign take_wr_w = st_req_i &&  st_we_i && st_ready_o;
+   //! The live RAM write acceptance, before the boot-load mux. No new state
+   //! or command decode: this is the same enable that writes the name lane.
+-  assign name_wr_o = take_wr_w && st_name_i;
++  logic mut_q_r;
++  always_ff @(posedge clk_i) begin : mut_q
++    if (!rst_n) mut_q_r <= 1'b0; else mut_q_r <= (take_wr_w && st_name_i);
++  end
++  assign name_wr_o = (take_wr_w && st_name_i) || mut_q_r;
+ 
+   assign st_rvalid_o = ans_pend_r && !rd_pipe_r && (st_r == S_ANSWER);
+   assign st_rdata_o  = ans_data_r;
+@@ -542,7 +546,7 @@
+       name_wdata_w = mem_rsp_data_i;
+       name_wstrb_w = 8'hFF;
+     end else begin
+-      name_we_w    = name_wr_o;
++      name_we_w    = take_wr_w && st_name_i;
+       name_waddr_w = NAME_AW_C'(st_addr_i[15:3]);
+       name_wdata_w = st_wdata_i;
+       name_wstrb_w = st_wstrb_i;

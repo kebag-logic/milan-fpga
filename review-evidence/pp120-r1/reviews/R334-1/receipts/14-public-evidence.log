@@ -1,0 +1,21 @@
+evidence MANIFEST.json: 123 entries, 0 hash mismatches, 14 path-redacted; producers: ['author', 'author-r2']
+author-r2/repository-results.json: 16 commands, rc set [0]
+author-r2/consumer/results.json: 12 commands, rc set [0]
+author/area.json head: 691f1d2b3a73705a50a8f827e2bb16837dc0dcdc
+test_resource_calibration:
+  [gate 11] SKIP: real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+  - [gate 11] real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+pp_shadow: 402 checks, 0 failures
+pp_shadow: 402 checks, 0 failures
+pp_shadow: 402 checks, 0 failures
+port contract gate: OK (3681 first-party port(s): hdl 1907, gptp-processor 125, protocol-processor 1649; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical bind
+TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+== hosted CI at a9b7874d415d935949becd7ccfd58799927efb08 (read-only)
+run 36236975903 hdl pull_request completed success head=a9b7874d415d935949becd7ccfd58799927efb08
+  job suites success: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+  job portability success: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+  job docs-gates success: Set up job=success; Run actions/checkout@v4=success; Link, matrix, parameter, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+run 36236972897 hdl push completed success head=a9b7874d415d935949becd7ccfd58799927efb08
+  job docs-gates success: Set up job=success; Run actions/checkout@v4=success; Link, matrix, parameter, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+  job portability success: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+  job suites success: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success

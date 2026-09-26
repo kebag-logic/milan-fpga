@@ -1,0 +1,17 @@
+== Rule 11 (C++ idiom) tb/pp_top/sim_main.cpp
+  0922e434 {'naked new/delete': 0, 'goto': 0, 'unbounded C call': 0, 'c-style cast': 0, 'file-scope mutable': 0, 'macro constant': 0, 'unnamed enum block': 0, 'multi-declarator declaration': 0, 'long function': 0, 'build without warnings': 0}
+  0922e434 long functions (> 100 lines): []
+  a9b7874d {'naked new/delete': 0, 'goto': 0, 'unbounded C call': 0, 'c-style cast': 0, 'file-scope mutable': 0, 'macro constant': 0, 'unnamed enum block': 0, 'multi-declarator declaration': 0, 'long function': 0, 'build without warnings': 0}
+  a9b7874d long functions (> 100 lines): []
+== Rule 12 (Python idiom) tb/pp_top/name_wr_mutant.py at head
+  {'long function': 0, 'long module': 0, 'unannotated public function': 0, 'undocumented public function': 0, 'os.path use': 0, 'unmanaged open': 0, 'too many parameters': 0, 'global statement': 0, 'over-long line': 0, 'bare except': 0, 'mutable default argument': 0, 'shell invocation': 0, 'shadowed builtin': 0, 'wildcard import': 0, 'dynamic eval/exec': 0, 'unparseable source': 0}
+== Port contracts (undocumented ports per file, base -> head)
+  hdl/aecp/KL_aecp_desc_store.sv: ports 27 -> 28, undocumented 0 -> 0, newly undocumented []
+  hdl/aecp/KL_aecp_engine.sv: ports 151 -> 152, undocumented 15 -> 15, newly undocumented []
+  hdl/top/protocol_processor_top.sv: ports 205 -> 206, undocumented 2 -> 2, newly undocumented []
+  tb/pp_top/pp_top_wrap.sv: ports 209 -> 211, undocumented 162 -> 165, newly undocumented ['aecp_nvm_mark_o', 'aecp_nvm_stb_o', 'dbg_notify_enq_o']
+  tb/desc_mem_guard/wrap.sv: ports 31 -> 31, undocumented 31 -> 31, newly undocumented []
+== Wall-clock dependence / DUT-source reading (head)
+  tb/pp_top/name_wr_mutant.py: uses_wall_clock=False reads_dut_source=True
+  tb/pp_top/sim_main.cpp: uses_wall_clock=False reads_dut_source=n/a
+  tb/pp_top/Makefile: uses_wall_clock=n/a reads_dut_source=n/a

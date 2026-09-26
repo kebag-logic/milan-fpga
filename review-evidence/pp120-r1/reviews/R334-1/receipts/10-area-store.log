@@ -1,0 +1,49 @@
+base yosys rc=0
+head yosys rc=0
+5,11c5,11
+< 1699 wires
+< 7125 wire bits
+< 126 public wires
+< 2279 public wire bits
+< 27 ports
+< 344 port bits
+< 3294 cells
+---
+> 1673 wires
+> 6984 wire bits
+> 127 public wires
+> 2280 public wire bits
+> 28 ports
+> 345 port bits
+> 3230 cells
+18,27c18,27
+< 588   INV
+< 3   LUT1
+< 303   LUT2
+< 205   LUT3
+< 95   LUT4
+< 250   LUT5
+< 489   LUT6
+< 74   MUXF7
+< 27   MUXF8
+< 179   OBUF
+---
+> 587   INV
+> 2   LUT1
+> 296   LUT2
+> 188   LUT3
+> 108   LUT4
+> 177   LUT5
+> 506   LUT6
+> 75   MUXF7
+> 30   MUXF8
+> 180   OBUF
+LUT     base   1345 head   1277 delta -68
+FF      base    773 head    773 delta +0
+RAMB    base      2 head      2 delta +0
+LUTRAM  base     22 head     22 delta +0
+DSP     base      1 head      1 delta +0
+CARRY4  base    117 head    117 delta +0
+MUXF    base    101 head    105 delta +4
+OBUF    base    179 head    180 delta +1
+IBUF    base    165 head    165 delta +0

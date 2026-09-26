@@ -1,0 +1,86 @@
+M00-golden                         build=0 run=0 SURVIVED full=- fails=0
+M01-cmd-decode-at-mark             build=0 run=1 KILLED   full=- fails=17
+     NW ABORT: output must coincide with actual live RAM write enable
+     NW EIGHT: accepted lane pulse count
+     NW EIGHT: every accepted write precedes the completion mark
+     NW EIGHT: output must coincide with actual live RAM write enable
+     NW IDLE: output must coincide with actual live RAM write enable
+     NW LOCKED: output must coincide with actual live RAM write enable
+     NW ONE: every accepted write precedes the completion mark
+     NW ONE: output must coincide with actual live RAM write enable
+M02-uop-decode-request             build=0 run=0 SURVIVED full=SURVIVED fails=0
+M03-uop-issue-first-cycle          build=0 run=0 SURVIVED full=SURVIVED fails=0
+M04-request-not-ready-qualified    build=0 run=0 SURVIVED full=SURVIVED fails=0
+M05-sticky-level                   build=0 run=1 KILLED   full=- fails=43
+     NW ABORT: accepted lane pulse count
+     NW ABORT: each pulse is one clock wide
+     NW ABORT: output must coincide with actual live RAM write enable
+     NW EIGHT: accepted lane pulse count
+     NW EIGHT: each pulse is one clock wide
+     NW EIGHT: every accepted write precedes the completion mark
+     NW EIGHT: output must coincide with actual live RAM write enable
+     NW IDLE: accepted lane pulse count
+M06-two-cycle-stretch              build=0 run=1 KILLED   full=- fails=21
+     NW ABORT: output must coincide with actual live RAM write enable
+     NW EIGHT: accepted lane pulse count
+     NW EIGHT: each pulse is one clock wide
+     NW EIGHT: output must coincide with actual live RAM write enable
+     NW IDLE: output must coincide with actual live RAM write enable
+     NW LOCKED: output must coincide with actual live RAM write enable
+     NW ONE: accepted lane pulse count
+     NW ONE: each pulse is one clock wide
+M07-one-cycle-late                 build=0 run=1 KILLED   full=- fails=12
+     NW ABORT: output must coincide with actual live RAM write enable
+     NW EIGHT: output must coincide with actual live RAM write enable
+     NW IDLE: output must coincide with actual live RAM write enable
+     NW LOCKED: output must coincide with actual live RAM write enable
+     NW ONE: output must coincide with actual live RAM write enable
+     NW RANGE: output must coincide with actual live RAM write enable
+     NW READBACK: output must coincide with actual live RAM write enable
+     NW RECOVERY: output must coincide with actual live RAM write enable
+M08-drop-lane0                     build=0 run=1 KILLED   full=- fails=14
+     NW ABORT: output must coincide with actual live RAM write enable
+     NW EIGHT: accepted lane pulse count
+     NW EIGHT: output must coincide with actual live RAM write enable
+     NW IDLE: output must coincide with actual live RAM write enable
+     NW LOCKED: output must coincide with actual live RAM write enable
+     NW RANGE: output must coincide with actual live RAM write enable
+     NW READBACK: accepted lane pulse count
+     NW READBACK: output must coincide with actual live RAM write enable
+M09-drop-lane7                     build=0 run=1 KILLED   full=- fails=17
+     NW ABORT: output must coincide with actual live RAM write enable
+     NW EIGHT: accepted lane pulse count
+     NW EIGHT: output must coincide with actual live RAM write enable
+     NW IDLE: output must coincide with actual live RAM write enable
+     NW LOCKED: output must coincide with actual live RAM write enable
+     NW ONE: accepted lane pulse count
+     NW ONE: output must coincide with actual live RAM write enable
+     NW RANGE: output must coincide with actual live RAM write enable
+M10-first-lane-per-command         build=0 run=1 KILLED   full=- fails=14
+     NW ABORT: output must coincide with actual live RAM write enable
+     NW EIGHT: accepted lane pulse count
+     NW EIGHT: output must coincide with actual live RAM write enable
+     NW IDLE: output must coincide with actual live RAM write enable
+     NW LOCKED: output must coincide with actual live RAM write enable
+     NW RANGE: output must coincide with actual live RAM write enable
+     NW READBACK: accepted lane pulse count
+     NW READBACK: output must coincide with actual live RAM write enable
+M11-includes-boot-load             build=0 run=1 KILLED   full=- fails=13
+     NW ABORT: output must coincide with actual live RAM write enable
+     NW BOOT: image/name loading emits no live-write pulse
+     NW EIGHT: output must coincide with actual live RAM write enable
+     NW IDLE: output must coincide with actual live RAM write enable
+     NW LOCKED: output must coincide with actual live RAM write enable
+     NW ONE: output must coincide with actual live RAM write enable
+     NW RANGE: output must coincide with actual live RAM write enable
+     NW READBACK: output must coincide with actual live RAM write enable
+M12-any-store-write                build=0 run=0 SURVIVED full=SURVIVED fails=0
+M14-top-tied-low                   build=0 run=1 KILLED   full=- fails=17
+     NW ABORT: output must coincide with actual live RAM write enable
+     NW EIGHT: accepted lane pulse count
+     NW EIGHT: output must coincide with actual live RAM write enable
+     NW IDLE: output must coincide with actual live RAM write enable
+     NW LOCKED: output must coincide with actual live RAM write enable
+     NW ONE: accepted lane pulse count
+     NW ONE: output must coincide with actual live RAM write enable
+     NW RANGE: output must coincide with actual live RAM write enable

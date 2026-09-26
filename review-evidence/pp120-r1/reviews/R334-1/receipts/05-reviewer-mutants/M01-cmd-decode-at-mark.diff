@@ -1,0 +1,20 @@
+diff -ru <packet>/scratch/head/hdl/aecp/KL_aecp_engine.sv <packet>/scratch/mut/M01-cmd-decode-at-mark/hdl/aecp/KL_aecp_engine.sv
+--- <packet>/scratch/head/hdl/aecp/KL_aecp_engine.sv	2026-09-26 12:29:46.000000000 +0200
++++ <packet>/scratch/mut/M01-cmd-decode-at-mark/hdl/aecp/KL_aecp_engine.sv	2026-09-26 13:06:40.024799468 +0200
+@@ -1609,6 +1609,7 @@
+   end
+ 
+   logic [15:0] store_fetch_nc_w, store_rowr_nc_w, store_dlen_nc_w;
++  assign name_wr_o = eff_nvm_stb_o && (eff_nvm_mark_o == 8'd7);
+ 
+   KL_aecp_desc_store #(
+       .DESC_BASE_P       (DESC_BASE_P),
+@@ -1626,7 +1627,7 @@
+       .st_wdata_i        (st_wdata_w),
+       .st_wstrb_i        (st_wstrb_w),
+       .st_ready_o        (store_ready_w),
+-      .name_wr_o         (name_wr_o),
++      .name_wr_o         (),
+       .st_rvalid_o       (store_rvalid_w),
+       .st_rdata_o        (store_rdata_w),
+       .st_err_o          (store_err_w),
