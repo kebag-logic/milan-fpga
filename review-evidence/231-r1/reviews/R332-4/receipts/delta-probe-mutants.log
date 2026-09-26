@@ -1,0 +1,19 @@
+control	rc=0	control-pass	
+binding: allow duplicates (len<1 only)	rc=1	killed	AssertionError: missing refusal: ambiguous image or geometry source: PP_TROM_HEX_P
+binding: allow missing (len>1 only)	rc=1	killed	IndexError: list index out of range
+package: allow duplicates (len<1 only)	rc=1	killed	AssertionError: missing refusal: ambiguous image or geometry source: PP_TROM_HEX_P
+package: allow missing (len>1 only)	rc=1	killed	IndexError: list index out of range
+package: dedupe by path	rc=0	SURVIVED	
+package: dedupe by content	rc=1	killed	AssertionError: missing refusal: ambiguous image or geometry source: PP_TROM_HEX_P
+binding: dedupe by value	rc=0	SURVIVED	
+declaration: allow duplicates (len<1 only)	rc=1	killed	AssertionError: missing refusal: expected one decimal declaration of TROM_DEPTH_C
+declaration: allow missing (len>1 only)	rc=1	killed	IndexError: list index out of range
+declaration: dedupe identical values	rc=1	killed	AssertionError: missing refusal: expected one decimal declaration of TROM_DEPTH_C
+declaration: first hit wins	rc=1	killed	AssertionError: missing refusal: expected one decimal declaration of TROM_DEPTH_C
+microcode depth: 2*UPC_W_C	rc=0	SURVIVED	
+microcode depth: UPC_W_C+1	rc=0	SURVIVED	
+generated ROM: words/width swapped	rc=1	killed	ValueError: wrong image depth: /tmp/pp-baseline-export-sl07kc2r/gateware/alinx_ax7101_rom.init: 2 != 32
+generated ROM: skip when name contains rom	rc=0	SURVIVED	
+readmemh: subset instead of equality	rc=0	SURVIVED	
+package width read from depth	rc=1	killed	AssertionError: missing refusal: wrong image width
+rc=0

@@ -1,0 +1,39 @@
+== docs/findings/PP_SHADOW_BASELINE.md:279-286 at 3a1477c5
+   279	The preparation helper promotes that diagnostic to an error.
+   280	It also rejects missing, short, malformed and ambiguous inputs before synthesis.
+   281	Its self-test retains nine original refusal cases.
+   282	Synthetic exports exercise six additional inventory refusals and CLI containment.
+   283	Three default scripts promote missing-ROM diagnostics before synthesis.
+   284	The attribution constraint is also checked before synthesis.
+   285	Ten enforcement-removal mutants all fail; the unchanged control passes.
+   286	The fast CI workflow runs these checks automatically.
+== docs/testing/PP_SHADOW_BASELINE_RECIPE.md:378-391 at 3a1477c5
+   378	The echoed severity-setting command is not a diagnostic.
+   379	Rehash `baseline_images.json` inputs after each run.
+   380	The helper checks complete control-ROM and generated-ROM geometry.
+   381	Its self-test exercises real preparation on a synthetic export.
+   382	Run the ten removal mutants alongside the positive control:
+   383	
+   384	```sh
+   385	python3 syn/ooc/pp_baseline.py --selftest
+   386	python3 syn/ooc/pp_baseline_mutants.py
+   387	```
+   388	
+   389	The unmodified control must pass; every removal must fail.
+   390	Both commands also run in the fast CI workflow.
+   391	The report-accounting self-test runs alongside them.
+== Markdown changed in 0a506fa8..3a1477c5 (count)
+0
+== self-test summary lines at 3a1477c5 (receipts/selftest.log)
+baseline selftest: complete image and exact block PASS; 9 refusals PASS
+baseline parameter selftest: 5 refusals PASS
+baseline inventory selftest: 40 refusals and restored control PASS
+baseline endpoint selftest: valid pathname and 9 refusals PASS
+baseline export selftest: 3 default scripts, attribution constraint, CLI containment refusal PASS
+rc=0
+== self-test summary line removed by the delta
+206:-              "6 inventory refusals, CLI refusal PASS")
+== maintained mutant count at 3a1477c5
+28
+== maintained mutant count at 0a506fa8
+10
