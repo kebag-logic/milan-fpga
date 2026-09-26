@@ -60,6 +60,7 @@ Publish conflicts before continuing.
 | Locate ownership domains | [System domain map](overview/SYSTEM_DOMAIN_MAP.md) |
 | Trace clocks, resets, and crossings | [Clock-domain guide](litex/CLOCK_DOMAINS.md) |
 | Understand imported ownership | [Submodule boundaries](reference/SUBMODULES.md) |
+| Audit descriptor ownership | [Processor descriptor contract](reference/PP_DESCRIPTOR_OWNERSHIP.md) |
 | Locate RTL modules | [FPGA design](fpga/FPGA_DESIGN.md) |
 | Follow datapath stages | [Dataplane walkthrough](fpga/DATAPLANE_WALKTHROUGH.md) |
 | Integrate the datapath | [Integration contract](integration/INTEGRATION_GUIDE.md) |
