@@ -1,0 +1,735 @@
+{
+ "_schema": "kebag-logic/aem-overlay",
+ "_schema_version": "2.2.0",
+ "_generated_by": "sw/builder/endstation_builder.py",
+ "_source_config": "configs/endstation_arty_4x4.yaml",
+ "entity": {
+  "name": "Milan FPGA 4x4",
+  "vendor_name": "Kebag Logic",
+  "firmware_version": "2.96.0",
+  "firmware_rev": 0,
+  "serial_number": "<device-serial>",
+  "group_name": "",
+  "entity_id": "mac-derived",
+  "entity_model_id": "0x001BC557FC6ABBC8"
+ },
+ "model_id": {
+  "value": "0x001BC557FC6ABBC8",
+  "source": "hash",
+  "hash": "0x001BC557FC6ABBC8"
+ },
+ "adp": {
+  "entity_id": "0x020000FFFE000002",
+  "mac_address": "02:00:00:00:00:02",
+  "talker_stream_sources": 5,
+  "listener_stream_sinks": 5,
+  "talker_capabilities": "0x4801",
+  "listener_capabilities": "0x4801"
+ },
+ "gptp": {
+  "port_number": 1,
+  "priority1": 248,
+  "priority2": 248,
+  "clock_class": 248,
+  "clock_accuracy": 254,
+  "offset_scaled_log_variance": 17258,
+  "domain": 0,
+  "log_sync_interval": -3,
+  "log_announce_interval": 0,
+  "log_pdelay_interval": 0
+ },
+ "sampling_rates_hz": [
+  48000
+ ],
+ "current_sampling_rate_hz": 48000,
+ "entity_counts": {
+  "talker_stream_sources": 5,
+  "listener_stream_sinks": 5
+ },
+ "descriptor_counts": {
+  "ENTITY": 1,
+  "CONFIGURATION": 1,
+  "AUDIO_UNIT": 1,
+  "STREAM_INPUT": 5,
+  "STREAM_OUTPUT": 5,
+  "AVB_INTERFACE": 1,
+  "CLOCK_SOURCE": 2,
+  "CLOCK_DOMAIN": 1,
+  "CONTROL": 1,
+  "LOCALE": 1,
+  "STRINGS": 1,
+  "STREAM_PORT_INPUT": 4,
+  "STREAM_PORT_OUTPUT": 4,
+  "AUDIO_CLUSTER": 32,
+  "AUDIO_MAP": 4
+ },
+ "stream_inputs": [
+  {
+   "index": 0,
+   "name": "Stream In 0",
+   "kind": "aaf",
+   "channels": 4,
+   "formats": [
+    "0x0205022001006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 1,
+   "name": "Stream In 1",
+   "kind": "aaf",
+   "channels": 4,
+   "formats": [
+    "0x0205022001006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 2,
+   "name": "Stream In 2",
+   "kind": "aaf",
+   "channels": 4,
+   "formats": [
+    "0x0205022001006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 3,
+   "name": "Stream In 3",
+   "kind": "aaf",
+   "channels": 4,
+   "formats": [
+    "0x0205022001006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 4,
+   "name": "CRF",
+   "kind": "crf",
+   "channels": 0,
+   "formats": [
+    "0x041060010000BB80"
+   ],
+   "buffer_length_ns": 2126000
+  }
+ ],
+ "stream_outputs": [
+  {
+   "index": 0,
+   "name": "Stream Out 0",
+   "kind": "aaf",
+   "channels": 4,
+   "formats": [
+    "0x0205022001006000"
+   ]
+  },
+  {
+   "index": 1,
+   "name": "Stream Out 1",
+   "kind": "aaf",
+   "channels": 4,
+   "formats": [
+    "0x0205022001006000"
+   ]
+  },
+  {
+   "index": 2,
+   "name": "Stream Out 2",
+   "kind": "aaf",
+   "channels": 4,
+   "formats": [
+    "0x0205022001006000"
+   ]
+  },
+  {
+   "index": 3,
+   "name": "Stream Out 3",
+   "kind": "aaf",
+   "channels": 4,
+   "formats": [
+    "0x0205022001006000"
+   ]
+  },
+  {
+   "index": 4,
+   "name": "CRF",
+   "kind": "crf",
+   "channels": 0,
+   "formats": [
+    "0x041060010000BB80"
+   ]
+  }
+ ],
+ "clock_sources": [
+  {
+   "index": 0,
+   "name": "Internal",
+   "type": "internal",
+   "location_type": "CLOCK_SOURCE",
+   "location_index": 0
+  },
+  {
+   "index": 1,
+   "name": "CRF Clock",
+   "type": "crf",
+   "location_type": "STREAM_INPUT",
+   "location_index": 4
+  }
+ ],
+ "stream_ports": {
+  "input": [
+   {
+    "index": 0,
+    "stream_index": 0,
+    "clusters": 4,
+    "base_cluster": 0,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 4,
+    "pool": [
+     {
+      "role": "physical",
+      "offset": 0,
+      "width": 2
+     },
+     {
+      "role": "virtual",
+      "offset": 2,
+      "width": 2
+     }
+    ],
+    "primary_role": "physical"
+   },
+   {
+    "index": 1,
+    "stream_index": 1,
+    "clusters": 4,
+    "base_cluster": 4,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 4,
+    "pool": [
+     {
+      "role": "virtual",
+      "offset": 0,
+      "width": 4
+     }
+    ],
+    "primary_role": "virtual"
+   },
+   {
+    "index": 2,
+    "stream_index": 2,
+    "clusters": 4,
+    "base_cluster": 8,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 4,
+    "pool": [
+     {
+      "role": "virtual",
+      "offset": 0,
+      "width": 4
+     }
+    ],
+    "primary_role": "virtual"
+   },
+   {
+    "index": 3,
+    "stream_index": 3,
+    "clusters": 4,
+    "base_cluster": 12,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 4,
+    "pool": [
+     {
+      "role": "virtual",
+      "offset": 0,
+      "width": 4
+     }
+    ],
+    "primary_role": "virtual"
+   }
+  ],
+  "output": [
+   {
+    "index": 0,
+    "stream_index": 0,
+    "clusters": 4,
+    "base_cluster": 16,
+    "maps": 1,
+    "base_map": 0,
+    "pool": [
+     {
+      "role": "physical",
+      "offset": 0,
+      "width": 4
+     }
+    ],
+    "primary_role": "physical"
+   },
+   {
+    "index": 1,
+    "stream_index": 1,
+    "clusters": 4,
+    "base_cluster": 20,
+    "maps": 1,
+    "base_map": 1,
+    "pool": [
+     {
+      "role": "physical",
+      "offset": 0,
+      "width": 4
+     }
+    ],
+    "primary_role": "physical"
+   },
+   {
+    "index": 2,
+    "stream_index": 2,
+    "clusters": 4,
+    "base_cluster": 24,
+    "maps": 1,
+    "base_map": 2,
+    "pool": [
+     {
+      "role": "virtual",
+      "offset": 0,
+      "width": 4
+     }
+    ],
+    "primary_role": "virtual"
+   },
+   {
+    "index": 3,
+    "stream_index": 3,
+    "clusters": 4,
+    "base_cluster": 28,
+    "maps": 1,
+    "base_map": 3,
+    "pool": [
+     {
+      "role": "virtual",
+      "offset": 0,
+      "width": 4
+     }
+    ],
+    "primary_role": "virtual"
+   }
+  ]
+ },
+ "audio_maps": [
+  {
+   "index": 0,
+   "direction": "output",
+   "port_index": 0,
+   "primary_role": "physical",
+   "mappings": [
+    [
+     0,
+     0,
+     0,
+     0
+    ],
+    [
+     0,
+     1,
+     1,
+     0
+    ],
+    [
+     0,
+     2,
+     2,
+     0
+    ],
+    [
+     0,
+     3,
+     3,
+     0
+    ]
+   ]
+  },
+  {
+   "index": 1,
+   "direction": "output",
+   "port_index": 1,
+   "primary_role": "physical",
+   "mappings": [
+    [
+     1,
+     0,
+     0,
+     0
+    ],
+    [
+     1,
+     1,
+     1,
+     0
+    ],
+    [
+     1,
+     2,
+     2,
+     0
+    ],
+    [
+     1,
+     3,
+     3,
+     0
+    ]
+   ]
+  },
+  {
+   "index": 2,
+   "direction": "output",
+   "port_index": 2,
+   "primary_role": "virtual",
+   "mappings": [
+    [
+     2,
+     0,
+     0,
+     0
+    ],
+    [
+     2,
+     1,
+     1,
+     0
+    ],
+    [
+     2,
+     2,
+     2,
+     0
+    ],
+    [
+     2,
+     3,
+     3,
+     0
+    ]
+   ]
+  },
+  {
+   "index": 3,
+   "direction": "output",
+   "port_index": 3,
+   "primary_role": "virtual",
+   "mappings": [
+    [
+     3,
+     0,
+     0,
+     0
+    ],
+    [
+     3,
+     1,
+     1,
+     0
+    ],
+    [
+     3,
+     2,
+     2,
+     0
+    ],
+    [
+     3,
+     3,
+     3,
+     0
+    ]
+   ]
+  }
+ ],
+ "audio_clusters": [
+  {
+   "index": 0,
+   "name": "TDM8 Out 0",
+   "direction": "input",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 0
+  },
+  {
+   "index": 1,
+   "name": "TDM8 Out 1",
+   "direction": "input",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 1
+  },
+  {
+   "index": 2,
+   "name": "Virtual Out 2",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 0,
+   "offset": 2
+  },
+  {
+   "index": 3,
+   "name": "Virtual Out 3",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 0,
+   "offset": 3
+  },
+  {
+   "index": 4,
+   "name": "Virtual Out 4",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 1,
+   "offset": 0
+  },
+  {
+   "index": 5,
+   "name": "Virtual Out 5",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 1,
+   "offset": 1
+  },
+  {
+   "index": 6,
+   "name": "Virtual Out 6",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 1,
+   "offset": 2
+  },
+  {
+   "index": 7,
+   "name": "Virtual Out 7",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 1,
+   "offset": 3
+  },
+  {
+   "index": 8,
+   "name": "Virtual Out 8",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 2,
+   "offset": 0
+  },
+  {
+   "index": 9,
+   "name": "Virtual Out 9",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 2,
+   "offset": 1
+  },
+  {
+   "index": 10,
+   "name": "Virtual Out 10",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 2,
+   "offset": 2
+  },
+  {
+   "index": 11,
+   "name": "Virtual Out 11",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 2,
+   "offset": 3
+  },
+  {
+   "index": 12,
+   "name": "Virtual Out 12",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 3,
+   "offset": 0
+  },
+  {
+   "index": 13,
+   "name": "Virtual Out 13",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 3,
+   "offset": 1
+  },
+  {
+   "index": 14,
+   "name": "Virtual Out 14",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 3,
+   "offset": 2
+  },
+  {
+   "index": 15,
+   "name": "Virtual Out 15",
+   "direction": "input",
+   "role": "virtual",
+   "port_index": 3,
+   "offset": 3
+  },
+  {
+   "index": 16,
+   "name": "TDM8 In 0",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 0
+  },
+  {
+   "index": 17,
+   "name": "TDM8 In 1",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 1
+  },
+  {
+   "index": 18,
+   "name": "TDM8 In 2",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 2
+  },
+  {
+   "index": 19,
+   "name": "TDM8 In 3",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 0,
+   "offset": 3
+  },
+  {
+   "index": 20,
+   "name": "TDM8 In 4",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 1,
+   "offset": 0
+  },
+  {
+   "index": 21,
+   "name": "TDM8 In 5",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 1,
+   "offset": 1
+  },
+  {
+   "index": 22,
+   "name": "TDM8 In 6",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 1,
+   "offset": 2
+  },
+  {
+   "index": 23,
+   "name": "TDM8 In 7",
+   "direction": "output",
+   "role": "physical",
+   "port_index": 1,
+   "offset": 3
+  },
+  {
+   "index": 24,
+   "name": "Virtual In 8",
+   "direction": "output",
+   "role": "virtual",
+   "port_index": 2,
+   "offset": 0
+  },
+  {
+   "index": 25,
+   "name": "Virtual In 9",
+   "direction": "output",
+   "role": "virtual",
+   "port_index": 2,
+   "offset": 1
+  },
+  {
+   "index": 26,
+   "name": "Virtual In 10",
+   "direction": "output",
+   "role": "virtual",
+   "port_index": 2,
+   "offset": 2
+  },
+  {
+   "index": 27,
+   "name": "Virtual In 11",
+   "direction": "output",
+   "role": "virtual",
+   "port_index": 2,
+   "offset": 3
+  },
+  {
+   "index": 28,
+   "name": "Virtual In 12",
+   "direction": "output",
+   "role": "virtual",
+   "port_index": 3,
+   "offset": 0
+  },
+  {
+   "index": 29,
+   "name": "Virtual In 13",
+   "direction": "output",
+   "role": "virtual",
+   "port_index": 3,
+   "offset": 1
+  },
+  {
+   "index": 30,
+   "name": "Virtual In 14",
+   "direction": "output",
+   "role": "virtual",
+   "port_index": 3,
+   "offset": 2
+  },
+  {
+   "index": 31,
+   "name": "Virtual In 15",
+   "direction": "output",
+   "role": "virtual",
+   "port_index": 3,
+   "offset": 3
+  }
+ ],
+ "cluster_format": "MBLA-mono",
+ "cluster_policy": "cap-at-interface",
+ "cluster_pools": {},
+ "cluster_fabric": {
+  "loopback_lane": false
+ },
+ "physical_binding": {
+  "interface": "tdm8",
+  "channels_per_direction": 8,
+  "physical_channels": {
+   "capture": 8,
+   "render": 2
+  },
+  "rule": "first-N-clusters-per-direction; extra stream channels virtual, missing physical channels render 0 (USER wire-truth 1-to-1 rule)"
+ }
+}
