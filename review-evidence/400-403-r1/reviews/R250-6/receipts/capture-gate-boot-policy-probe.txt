@@ -1,0 +1,6 @@
+PROBE boot-policy-edit: MILAN_TCAM_CTRL_BOOT 1 -> 0 and MILAN_MAC_CTRL_SET 1<<3 -> 0 in sw/litex/boot_policy.py
+ sw/litex/boot_policy.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+PASS: capture census, clocks, both timing arms and receipt agree
+rc=0
+restored: 0 entries

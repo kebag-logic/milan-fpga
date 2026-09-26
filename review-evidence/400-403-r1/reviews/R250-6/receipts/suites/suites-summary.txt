@@ -1,0 +1,11 @@
+head a07a75de78b19369e228d4ab8403a52f7435fd64 verilator Verilator 5.052 2026-09-05 rev v5.052
+rc=0    0s | declarations | python3 sw/builder/test_declarations.py
+rc=0   39s | nvm_hosttest | python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+rc=0   39s | csr | make -C tb/verilator/csr
+rc=0   57s | pp_shadow | make -C tb/verilator/pp_shadow
+rc=0  397s | nvm_cosim | make -C tb/verilator/nvm_cosim
+rc=0    0s | capture_gate | python3 scripts/check_nvm_capture.py
+rc=0    1s | capture_mut_bytes | python3 scripts/check_nvm_capture.py --mutation bytes; test $? -ne 0
+rc=0    1s | capture_mut_records | python3 scripts/check_nvm_capture.py --mutation records; test $? -ne 0
+rc=0    0s | capture_mut_clock | python3 scripts/check_nvm_capture.py --mutation clock; test $? -ne 0
+rc=0    1s | capture_mut_ignore-off-timing | python3 scripts/check_nvm_capture.py --mutation ignore-off-timing; test $? -ne 0
