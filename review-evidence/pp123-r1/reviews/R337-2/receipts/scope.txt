@@ -1,0 +1,12 @@
+11dd3e903685183250e7cd8ecc391b04fe7fd494 eb734969154d5a75ff84b2779ff6088a2f4311a5 2e66f6caff52773103df53bc4992d92f72328d0b hackerman-kl <hackerman-kl@kebag-logic.com> Align descriptor body-key tests with consumer conventions
+eb734969154d5a75ff84b2779ff6088a2f4311a5 870ff88ad35bbd532244e4c7e6d7661b9f6e1366 66f2b9733acc16a2e4588178e4582d62ce7f84fb hackerman-kl <hackerman-kl@kebag-logic.com> Refuse descriptor bodies that disagree with their directory keys
+870ff88ad35bbd532244e4c7e6d7661b9f6e1366 0922e43408f891fc0b84a84691df86b4fd0f1c0d 83c84b19e09d397ed2eb6f5ace337686ce0ef86b 7e6d16f3b5dfd3c4f1a0bc9ddb872f1156a1aea9 hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com> Merge PR #121: export accepted live name writes at the processor top
+ docs/architecture/07_memory_maps.md  |  2 ++
+ hdl/aecp/desc/gen_desc_image.py      |  1 +
+ tb/desc_store/test_gen_desc_image.py | 35 +++++++++++++++++++++++------------
+ 3 files changed, 26 insertions(+), 12 deletions(-)
+M	docs/architecture/07_memory_maps.md
+M	hdl/aecp/desc/gen_desc_image.py
+M	tb/desc_store/Makefile
+M	tb/desc_store/README.md
+A	tb/desc_store/test_gen_desc_image.py

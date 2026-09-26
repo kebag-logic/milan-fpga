@@ -1,0 +1,23 @@
+# python3 -B scripts/sketch_and_f074.py tree-base tree-r1 tree-head
+== tree-base
+sketch descriptors: [('ENTITY', 0, 'fields'), ('AUDIO_MAP', 0, 'bytes')]
+  ENTITY: body[0:4]=00002e2e len=312
+  AUDIO_MAP: body[0:4]=00170000 len=4
+sketch body/key rule (_grouped_descriptors): ACCEPTED
+sketch build(): REFUSED: cfg 0 ENTITY entity_name differs from name-table entry 0
+example_milan_8 image: 8 index rows, 8 descriptors walked, 0 with bytes 0-3 != key []
+== tree-r1
+sketch descriptors: [('ENTITY', 0, 'fields'), ('AUDIO_MAP', 0, 'bytes')]
+  ENTITY: body[0:4]=00002e2e len=312
+  AUDIO_MAP: body[0:4]=00170000 len=4
+sketch body/key rule (_grouped_descriptors): REFUSED: cfg 0 directory key type 0x0000 index 0 disagrees with body type 0x0000 index 11822
+sketch build(): REFUSED: cfg 0 directory key type 0x0000 index 0 disagrees with body type 0x0000 index 11822
+example_milan_8 image: 8 index rows, 8 descriptors walked, 0 with bytes 0-3 != key []
+== tree-head
+sketch descriptors: [('ENTITY', 0, 'fields'), ('AUDIO_MAP', 0, 'bytes')]
+  ENTITY: body[0:4]=00000000 len=312
+  AUDIO_MAP: body[0:4]=00170000 len=4
+sketch body/key rule (_grouped_descriptors): ACCEPTED
+sketch build(): REFUSED: cfg 0 ENTITY entity_name differs from name-table entry 0
+example_milan_8 image: 8 index rows, 8 descriptors walked, 0 with bytes 0-3 != key []
+rc=0

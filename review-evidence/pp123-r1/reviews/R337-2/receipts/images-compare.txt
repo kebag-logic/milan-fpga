@@ -1,0 +1,7 @@
+base = r1: IDENTICAL
+base = head: IDENTICAL
+round-1 receipt images-head.sha256 = round-2 head: IDENTICAL
+bytes equal base/head: desc_store_image.bin
+bytes equal base/head: desc_store_image.map
+bytes equal base/head: ltn_rom.hex
+bytes equal base/head: ucode__hdl_aecp_ucode_gen_ucode.py.hex

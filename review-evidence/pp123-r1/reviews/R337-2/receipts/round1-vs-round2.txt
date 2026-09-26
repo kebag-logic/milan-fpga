@@ -1,0 +1,9 @@
+# python3 -B scripts/compare_rounds.py <round-1 receipts> receipts
+mutants.jsonl (timing-normalised): IDENTICAL
+probes-head.jsonl: BYTE-IDENTICAL
+probes-base.jsonl: BYTE-IDENTICAL
+new-tests-vs-base-generator.log: round1 22 outcomes, round2 22 outcomes, EQUAL; FAIL count r1=16 r2=16
+  assertion messages: 16 vs 16, EQUAL
+  tails: rc=1 | ['FAILED (failures=16)']
+rc=0
+round-2 new-tests-head.log: Ran 6 tests in <t> OK 

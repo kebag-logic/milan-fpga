@@ -1,0 +1,27 @@
+# python3 scripts/parent_idiom_scan.py <parent 831f94f4 scripts> <base 870ff88a export> <r1 export>
+parent budget: {'long function': 9, 'long module': 10, 'unannotated public function': 0, 'undocumented public function': 0, 'os.path use': 1, 'unmanaged open': 0, 'too many parameters': 7, 'global statement': 0, 'over-long line': 0}
+base  hdl/aecp/ucode/gen_ucode.py: {'long module': 1}
+base totals (non-zero): {'long module': 1}
+head  hdl/aecp/ucode/gen_ucode.py: {'long module': 1}
+head  tb/desc_store/test_gen_desc_image.py: {'unannotated public function': 10, 'undocumented public function': 9}
+      unannotated public function :25 model
+      unannotated public function :55 cli
+      unannotated public function :64 legal
+      unannotated public function :82 refused
+      unannotated public function :104 test_legal_fields
+      unannotated public function :107 test_legal_bytes
+      unannotated public function :110 test_type_mismatch_fields
+      unannotated public function :113 test_type_mismatch_bytes
+      unannotated public function :116 test_index_mismatch_fields
+      unannotated public function :119 test_index_mismatch_bytes
+      undocumented public function :55 cli
+      undocumented public function :64 legal
+      undocumented public function :82 refused
+      undocumented public function :104 test_legal_fields
+      undocumented public function :107 test_legal_bytes
+      undocumented public function :110 test_type_mismatch_fields
+      undocumented public function :113 test_type_mismatch_bytes
+      undocumented public function :116 test_index_mismatch_fields
+      undocumented public function :119 test_index_mismatch_bytes
+head totals (non-zero): {'long module': 1, 'unannotated public function': 10, 'undocumented public function': 9}
+rc=1

@@ -1,0 +1,16 @@
+python3: Python 3.14.7
+brief-named verilator path: $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator -> absent on this host (directory does not exist); the head-specific pinned wrapper below was used after its identity was checked
+used verilator wrapper: $VALIDATION_STORAGE/pp123-manager-11dd3e90/pinned-tool-bin/verilator
+wrapper sha256: 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f (identical to the round-1 wrapper)
+wrapper text: #!/bin/sh exec env VERILATOR_ROOT=<verilator-image-root>/usr/share/verilator <verilator-image-root>/usr/bin/verilator "$@" 
+binary sha256: fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf
+binary_bin sha256: 44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd
+version: Verilator 5.050 2026-07-01 rev v5.050
+make: GNU Make 4.4.1
+g++: g++ (GCC) 16.2.1 20260810
+public evidence: kebag-logic/milan-fpga pp123-review-evidence head d01c1722a758f42bd61f999ad239f93e67b7e97a (the brief's 8a640700 is its ancestor; the R336-1 scan scripts first appear at b4a249b)
+parent scripts: kebag-logic/milan-fpga 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf
+  d7831ca27a456abf2e5356bddb37b15464aa19c735034d35531360ac8393fb12  scripts/check_py_idiom.py
+  4497818d6444cc1ea7aefc002d1b32675f206e07988cbf6b19708b08409de14b  scripts/code_quality_scope.py
+  d4268e92ca9ed205dbf22323e1666738c38d5952b8fcd354c4b6cf0be65ea846  scripts/py_idiom.budget
+  541e5ee3022283191785281cae7847baaaa2fd7965f63c26277c7520f4ef3d56  scripts/measure_test_evidence.py
