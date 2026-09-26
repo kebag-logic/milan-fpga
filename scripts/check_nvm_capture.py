@@ -5,8 +5,8 @@
 
 Runs without a target compiler, simulator or LiteX installation. The builder
 regenerates each shape's tables in a temporary directory. The explicit clock
-override follows the bare-metal contract; the yaml clock is also pinned until
-#565 reconciles it. This gate does not establish physical timing closure.
+override follows the bare-metal contract; the yaml clock is also recorded.
+This gate does not establish physical timing closure.
 """
 import argparse
 from copy import deepcopy

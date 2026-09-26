@@ -117,7 +117,7 @@ def build(args: argparse.Namespace) -> Path:
     config = art.cfg
     clocks = dict(config['constraints'])
     configured_cpu_hz = clocks['milan_clk_hz']
-    # The bare-metal clock contract governs until #565 reconciles the yaml.
+    # Keep the explicit clock override for the labelled non-contract point.
     clocks['milan_clk_hz'] = args.cpu_hz
     params = config['soc']
     with patch.object(milan_soc, '_CRG', SimClocks), \

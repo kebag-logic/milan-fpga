@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Measurement clock contract, pending the configuration reconciliation in #565."""
+"""Bare-metal capture clock contract, also declared by both measured shapes."""
 
 CPU_HZ = 50_000_000
 HOLD_FLOOR_MS = 49
