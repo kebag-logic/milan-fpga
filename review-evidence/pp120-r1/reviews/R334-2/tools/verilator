@@ -1,0 +1,4 @@
+#!/bin/sh
+# Reviewer wrapper: the same pinned Verilator 5.050 installation used by the same-head bank.
+R=$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr
+exec env VERILATOR_ROOT=$R/share/verilator $R/bin/verilator "$@"

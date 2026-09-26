@@ -1,0 +1,18 @@
+[base] make run rc=0
+[base] make name-writes rc=2
+[base] default build: 144 log lines, 21 warning lines
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:413:8: Instance pin connected by name with empty reference: 'aecp_cur_config_o'
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:414:8: Instance pin connected by name with empty reference: 'aecp_identify_o'
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:415:8: Instance pin connected by name with empty reference: 'aecp_clk_src_index_o'
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:423:8: Instance pin connected by name with empty reference: 'aecp_dyn_dirty_o'
+%Warning-PINMISSING: pp_top_wrap.sv:367:5: Instance has missing pin: 'srp_tk_decl_state_o'
+[base] fixture build: 144 log lines, 21 warning lines
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:413:8: Instance pin connected by name with empty reference: 'aecp_cur_config_o'
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:414:8: Instance pin connected by name with empty reference: 'aecp_identify_o'
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:415:8: Instance pin connected by name with empty reference: 'aecp_clk_src_index_o'
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:423:8: Instance pin connected by name with empty reference: 'aecp_dyn_dirty_o'
+%Warning-PINMISSING: pp_top_wrap.sv:367:5: Instance has missing pin: 'srp_tk_decl_state_o'
+[build default, SRP_DOM_DEF_VID_P 0x0002] 7646 checks, 0 failures
+[build fixture, SRP_DOM_DEF_VID_P 0x5a3c] 20 checks, 0 failures
+7666 checks: 7666 PASS, 0 FAIL
+make: *** No rule to make target 'name-writes'.  Stop.

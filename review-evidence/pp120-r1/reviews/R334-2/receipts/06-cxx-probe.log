@@ -1,0 +1,11 @@
+A (published head):
+  A.cpp obj_dir : rc=0 warnings=0 
+  A.cpp obj_vid -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C: rc=0 warnings=0 
+B (attribute removed):
+  B.cpp obj_dir : rc=0 warnings=0 
+  B.cpp obj_vid -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C: rc=0 warnings=1 B.cpp:9744:13: warning: ‘void run_name_writes(H&)’ defined but not used [-Wunused-function]
+C (default-build call deleted, attribute kept):
+  C.cpp obj_dir : rc=0 warnings=0 
+D (call deleted, #ifndef guard instead of attribute):
+  D.cpp obj_dir : rc=0 warnings=1 D.cpp:9745:13: warning: ‘void run_name_writes(H&)’ defined but not used [-Wunused-function]
+  D.cpp obj_vid -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C: rc=0 warnings=0 

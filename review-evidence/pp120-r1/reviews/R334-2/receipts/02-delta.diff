@@ -1,0 +1,49 @@
+diff --git a/tb/pp_top/pp_top_wrap.sv b/tb/pp_top/pp_top_wrap.sv
+index d914c13..ec9826d 100644
+--- a/tb/pp_top/pp_top_wrap.sv
++++ b/tb/pp_top/pp_top_wrap.sv
+@@ -309,15 +309,6 @@ module pp_top_wrap (
+     output logic  [7:0] aecp_fmt_in_v_o,
+     output logic [8*64-1:0] aecp_fmt_out_o,
+     output logic  [7:0] aecp_fmt_out_v_o,
+-    //! the SET_CLOCK_SOURCE refusal contract (06 section 6.4: nothing
+-    //! stored, marked or notified) has no wire shape: a write of the value
+-    //! the row already holds, an NVM mark and a notification enqueue all
+-    //! leave the response and GET as they were. These three observe the
+-    //! effects themselves: the dynamic store's accepted-write counter, the
+-    //! OP_NVM_MARK strobe and the OP_NOTIFY_ENQ strobe (06 section 8). The
+-    //! mark strobe and its code are TOP-LEVEL PORTS now (issue #90), so they
+-    //! are passed through by name and not peeked at inside the DUT.
+-    output logic [15:0] dbg_dyn_writes_o,
+     //! Processor event on clk_i: one cycle per accepted live 64-bit name
+     //! lane at the write edge, no ready/ack; boot, unchanged, refused and
+     //! pre-acceptance aborted writes remain silent.
+@@ -327,6 +318,15 @@ module pp_top_wrap (
+     //! each write edge alongside aecp_name_wr_o, with no ready/ack.
+     output logic        dbg_name_live_we_o,
+ 
++    //! the SET_CLOCK_SOURCE refusal contract (06 section 6.4: nothing
++    //! stored, marked or notified) has no wire shape: a write of the value
++    //! the row already holds, an NVM mark and a notification enqueue all
++    //! leave the response and GET as they were. These three observe the
++    //! effects themselves: the dynamic store's accepted-write counter, the
++    //! OP_NVM_MARK strobe and the OP_NOTIFY_ENQ strobe (06 section 8). The
++    //! mark strobe and its code are TOP-LEVEL PORTS now (issue #90), so they
++    //! are passed through by name and not peeked at inside the DUT.
++    output logic [15:0] dbg_dyn_writes_o,
+     output logic        aecp_nvm_stb_o,
+     output logic  [7:0] aecp_nvm_mark_o,
+     output logic        dbg_notify_enq_o
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 02e44fa..b9c7d81 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -9741,7 +9741,7 @@ struct NameWritePhase {
+   }
+ };
+ 
+-static void run_name_writes(H& h) {
++[[maybe_unused]] static void run_name_writes(H& h) {
+   const int checks0 = h.checks;
+   const int fails0 = h.fails;
+   Suite setup(h);

@@ -1,0 +1,29 @@
+MANIFEST.json 355 entries; author/author-r2/author-r3 176 verified, 0 mismatches; reviews/ 179 deferred
+author-r3/head.txt: 83c84b19e09d397ed2eb6f5ace337686ce0ef86b
+author-r3/round3.patch hunks == git diff a9b7874d..83c84b19 hunks: True
+author-r3/gates/results.json: 14 command(s), rc [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+author-r3/consumer/results.json: 12 command(s), rc [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+author-r3/consumer/setup-incomplete-results.json: 1 command(s), rc [2]
+author-r3/gates/shared-tally-attempt.json: 1 command(s), rc [2]
+consumer final-state: {'parent_head': '7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a', 'processor_head': '83c84b19e09d397ed2eb6f5ace337686ce0ef86b', 'patch_sha256': '1de2a73a99620b6aa6925cbf738a9d42bb2a263680f92aa4602fa35b6e32177c', 'consumer_commands_match_supplied_argv': True} | parent status: M hdl/milan/KL_pp_shadow.sv; M  protocol-processor;  M scripts/measure_test_evidence.py
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+ALL GATES PASS EXCEPT 1 NOT RUN
+pp_shadow: 402 checks, 0 failures
+pp_shadow: 402 checks, 0 failures
+pp_shadow: 402 checks, 0 failures
+port contract gate: OK (3681 first-party port(s): hdl 1907, gptp-processor 125, protocol-processor 1649; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarc
+TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+suites: 1014722 checks total, 0 failing
+NW: 85 checks, 0 failures
+7751 checks: 7751 PASS, 0 FAIL
+NW: 85 checks, 0 failures
+== hosted CI at 83c84b19e09d397ed2eb6f5ace337686ce0ef86b (read-only)
+run 36241199616 hdl pull_request completed success head=83c84b19e09d397ed2eb6f5ace337686ce0ef86b
+  job suites success: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+  job docs-gates success: Set up job=success; Run actions/checkout@v4=success; Link, matrix, parameter, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+  job portability success: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+run 36241197950 hdl push completed success head=83c84b19e09d397ed2eb6f5ace337686ce0ef86b
+  job docs-gates success: Set up job=success; Run actions/checkout@v4=success; Link, matrix, parameter, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+  job suites success: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+  job portability success: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success

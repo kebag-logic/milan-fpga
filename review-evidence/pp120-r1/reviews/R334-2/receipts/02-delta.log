@@ -1,0 +1,30 @@
+== commits a9b7874d..83c84b19:
+83c84b19e09d397ed2eb6f5ace337686ce0ef86b a9b7874d415d935949becd7ccfd58799927efb08 Restore name-write harness contracts and warning-free builds
+== files changed a9b7874d..83c84b19 (numstat):
+9	9	tb/pp_top/pp_top_wrap.sv
+1	1	tb/pp_top/sim_main.cpp
+== files changed base..head (numstat):
+8	6	docs/architecture/02_interfaces.md
+2	1	docs/guides/integrator.md
+8	1	hdl/aecp/KL_aecp_desc_store.sv
+6	0	hdl/aecp/KL_aecp_engine.sv
+11	1	hdl/top/protocol_processor_top.sv
+2	2	tb/desc_mem_guard/wrap.sv
+4	1	tb/pp_top/Makefile
+25	0	tb/pp_top/README.md
+80	0	tb/pp_top/name_wr_mutant.py
+12	0	tb/pp_top/pp_top_wrap.sv
+186	2	tb/pp_top/sim_main.cpp
+  hdl: IDENTICAL f383eacabd8f
+  docs: IDENTICAL 4b80ff9d0b4c
+  syn: IDENTICAL 1b062a92760f
+  scripts: IDENTICAL a1373cc22cbe
+  .github: IDENTICAL e16db319d60f
+  tb/pp_top/Makefile: IDENTICAL bca5cb53bbb0
+  tb/pp_top/README.md: IDENTICAL 83bc6e4531ac
+  tb/pp_top/name_wr_mutant.py: IDENTICAL e1d078a35b96
+== pp_top_wrap.sv port declarations: r2 211, head 211; same multiset: True; same order: False
+   order-changed names: ['aecp_name_wr_o', 'dbg_name_live_we_o', 'dbg_dyn_writes_o']
+   header declarations (type, width, name; comment/space-stripped) identical as a multiset: True (211)
+   module body after the header token-identical: True
+== sim_main.cpp stripped tokens identical: False; identical after removing '[[maybe_unused]] ' once: True; '[[maybe_unused]]' occurrences r2/head: 0/1
