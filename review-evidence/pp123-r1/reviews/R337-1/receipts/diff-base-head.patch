@@ -1,0 +1,227 @@
+diff --git a/hdl/aecp/desc/gen_desc_image.py b/hdl/aecp/desc/gen_desc_image.py
+index 8afbddd..d2df321 100644
+--- a/hdl/aecp/desc/gen_desc_image.py
++++ b/hdl/aecp/desc/gen_desc_image.py
+@@ -37,6 +37,9 @@ INPUT FORMAT  (JSON; see example_milan_8.json)
+   ]
+ }
+ 
++The assembled body must start with its directory key: a big-endian u16 type
++and u16 index. A disagreement is refused for both body input forms.
++
+ A field carries exactly one of `value` (big-endian unsigned integer, int or
+ "0x.." string), `string` (UTF-8, zero-padded/truncated to `size`), `bytes` (hex,
+ zero-padded/truncated to `size`), or nothing (zeros).
+@@ -209,6 +212,13 @@ def _grouped_descriptors(model):
+         typ = _type_code(desc["type"])
+         idx = _u(desc.get("index", 0))
+         body = descriptor_bytes(desc)
++        body_type = int.from_bytes(body[0:2], "big")
++        body_index = int.from_bytes(body[2:4], "big")
++        if (body_type, body_index) != (typ, idx):
++            raise ImageError(
++                f"cfg {cfg} directory key type 0x{typ:04X} index {idx} "
++                f"disagrees with body type 0x{body_type:04X} "
++                f"index {body_index}")
+         nidx = _u(desc.get("name_index", NAME_NONE))
+         if nidx == -1:
+             nidx = NAME_NONE
+diff --git a/tb/desc_store/Makefile b/tb/desc_store/Makefile
+index b2f96b9..bedeba2 100644
+--- a/tb/desc_store/Makefile
++++ b/tb/desc_store/Makefile
+@@ -18,7 +18,7 @@ VFLAGS = --cc --exe --build -j 0 \
+ SRCS = $(HDL)/aecp/KL_aecp_desc_store.sv
+ CPP  = sim_main.cpp
+ 
+-run: image.bin
++run: generator-check image.bin
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vdesc_store_sim
+ 	./obj_dir/Vdesc_store_sim
+ 
+@@ -28,7 +28,10 @@ image.bin: $(HDL)/aecp/desc/gen_desc_image.py $(HDL)/aecp/desc/example_milan_8.j
+ 	python3 $(HDL)/aecp/desc/gen_desc_image.py \
+ 	  -i $(HDL)/aecp/desc/example_milan_8.json -o $@ -m image.map >/dev/null
+ 
++generator-check:
++	python3 -B test_gen_desc_image.py
++
+ clean:
+ 	rm -rf obj_dir image.bin image.map
+ 
+-.PHONY: run clean
++.PHONY: run generator-check clean
+diff --git a/tb/desc_store/README.md b/tb/desc_store/README.md
+index cca91ca..376060e 100644
+--- a/tb/desc_store/README.md
++++ b/tb/desc_store/README.md
+@@ -56,6 +56,39 @@ buffer, so the harness is two independent models — never DUT logic:
+ the "no bridge at all" arm runs in a few hundred clocks instead of tens of
+ thousands; the default is 4096 (41 µs at P-CLK-HZ), far inside `T-AECP-RESP`.
+ 
++## Generator body/key agreement
++
++`make` runs `generator-check` before the RTL suite; the repository's
++`scripts/run_suites.sh` therefore gates it too. Run just these probes with
++`make -C tb/desc_store generator-check` from the repository root.
++
++`test_gen_desc_image.py` exercises both `build()` and the command-line packer:
++
++| Probe | `fields` | `bytes` |
++|---|---|---|
++| Legal body type/index equals the directory key | accepted, body bytes preserved | accepted, body bytes preserved |
++| Only body type differs | named `ImageError`; CLI exit 1, no image or map | named `ImageError`; CLI exit 1, no image or map |
++| Only body index differs | named `ImageError`; CLI exit 1, no image or map | named `ImageError`; CLI exit 1, no image or map |
++
++Each of the six tests runs with a named type, an integer, a hexadecimal string
++and a numeric type outside the name table: 24 cases. The target is configuration
++1, index 1; all configurations and indices stay dense. Each mismatch changes
++only the high byte of one body field. Refusals must report the configuration,
++both key values and both body values. Legal controls also cover default-zero
++keys, integer-string keys, unnamed fields, hex whitespace and `pad_to`.
++
++Mutation proof (2026-09-26): remove only the body type/index comparison and its
++`ImageError` from `_grouped_descriptors`, retaining every other refusal.
++
++| Probe with check removed | Result |
++|---|---|
++| Legal controls, both forms | 2 tests / 8 cases pass, exit 0 |
++| Type mismatch alone, both forms | 2 tests / 8 cases fail: `ImageError` not raised, exit 1 |
++| Index mismatch alone, both forms | 2 tests / 8 cases fail: `ImageError` not raised, exit 1 |
++| `make generator-check` | 16 refusal cases fail, both legal tests pass, make exit 2 |
++
++The existing RTL tally above remains separate from these Python tests.
++
+ ## Mutation-proven 2026-08-13
+ 
+ | Break | Went red |
+diff --git a/tb/desc_store/test_gen_desc_image.py b/tb/desc_store/test_gen_desc_image.py
+new file mode 100644
+index 0000000..eb1877e
+--- /dev/null
++++ b/tb/desc_store/test_gen_desc_image.py
+@@ -0,0 +1,124 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Body/key agreement at the public build and command-line entry points."""
++import importlib.util
++import json
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++import unittest
++
++
++GENERATOR = (Path(__file__).resolve().parents[2]
++             / "hdl/aecp/desc/gen_desc_image.py")
++spec = importlib.util.spec_from_file_location("gen_desc_image", GENERATOR)
++gen_desc_image = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(gen_desc_image)
++
++
++class BodyKeyTest(unittest.TestCase):
++    # Named, numeric and hex keys, plus a numeric type outside the name table.
++    KEYS = (("AUDIO_CLUSTER", 0x0014), (20, 0x0014),
++            ("0x0014", 0x0014), (0x1234, 0x1234))
++
++    def model(self, form, key, typ, body_type=None, body_index=1):
++        """Only the last body's type or index changes in a refusal probe.
++
++        Dense configurations and indices, no name binding, and short bodies
++        keep unrelated refusals out of the experiment. The target is cfg 1,
++        index 1 so the diagnostic cannot pass by always reporting zero.
++        """
++        descriptors = []
++        for cfg, idx in ((0, 0), (1, 0), (1, 1)):
++            bt, bi = typ, idx
++            if (cfg, idx) == (1, 1):
++                bt = typ if body_type is None else body_type
++                bi = body_index
++            desc = {"type": key, "pad_to": 7}
++            # Also exercise the existing defaults and integer-string keys.
++            if cfg:
++                desc["configuration"] = "0x1"
++            if idx:
++                desc["index"] = "1"
++            if form == "fields":
++                # Field names are optional: the wire offsets are authoritative.
++                desc["fields"] = [{"size": 2, "value": bt},
++                                  {"size": 2, "value": bi},
++                                  {"size": 2, "bytes": "cafe"}]
++            else:
++                desc["bytes"] = f"{bt:04x} {bi:04x} ca fe"
++            descriptors.append(desc)
++        return {"format": "kl-aem-image", "version": 1,
++                "descriptors": descriptors}
++
++    def cli(self, model, directory):
++        source = directory / "model.json"
++        source.write_text(json.dumps(model), encoding="utf-8")
++        return subprocess.run(
++            [sys.executable, "-B", str(GENERATOR), "-i", str(source),
++             "-o", str(directory / "image.bin"),
++             "-m", str(directory / "image.map")],
++            capture_output=True, text=True, timeout=60)
++
++    def legal(self, form):
++        for key, typ in self.KEYS:
++            with self.subTest(key=key):
++                model = self.model(form, key, typ)
++                image, report = gen_desc_image.build(model)
++                # Two 16-byte directory rows after the 32-byte header, then
++                # three 7-byte descriptors at 8-byte strides (07 section 3.3).
++                self.assertEqual(len(image), 88)
++                self.assertEqual(image[64:], b"".join(
++                    bytes.fromhex(f"{typ:04x}{idx:04x}cafe0000")
++                    for idx in (0, 0, 1)))
++                with tempfile.TemporaryDirectory() as tmp:
++                    directory = Path(tmp)
++                    result = self.cli(model, directory)
++                    self.assertEqual(result.returncode, 0, result.stderr)
++                    self.assertEqual((directory / "image.bin").read_bytes(), image)
++                    self.assertEqual((directory / "image.map").read_text(), report)
++
++    def refused(self, form, mismatch):
++        for key, typ in self.KEYS:
++            with self.subTest(key=key):
++                # Change only the high byte, catching truncated comparisons.
++                body_type = typ ^ 0x0100 if mismatch == "type" else typ
++                body_index = 0x0101 if mismatch == "index" else 1
++                model = self.model(form, key, typ, body_type, body_index)
++                message = (f"cfg 1 directory key type 0x{typ:04X} index 1 "
++                           f"disagrees with body type 0x{body_type:04X} "
++                           f"index {body_index}")
++                with self.assertRaises(gen_desc_image.ImageError) as caught:
++                    gen_desc_image.build(model)
++                self.assertEqual(str(caught.exception), message)
++                with tempfile.TemporaryDirectory() as tmp:
++                    directory = Path(tmp)
++                    result = self.cli(model, directory)
++                    self.assertEqual(result.returncode, 1)
++                    self.assertEqual(result.stderr, f"gen_desc_image: {message}\n")
++                    self.assertEqual(result.stdout, "")
++                    self.assertFalse((directory / "image.bin").exists())
++                    self.assertFalse((directory / "image.map").exists())
++
++    def test_legal_fields(self):
++        self.legal("fields")
++
++    def test_legal_bytes(self):
++        self.legal("bytes")
++
++    def test_type_mismatch_fields(self):
++        self.refused("fields", "type")
++
++    def test_type_mismatch_bytes(self):
++        self.refused("bytes", "type")
++
++    def test_index_mismatch_fields(self):
++        self.refused("fields", "index")
++
++    def test_index_mismatch_bytes(self):
++        self.refused("bytes", "index")
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)

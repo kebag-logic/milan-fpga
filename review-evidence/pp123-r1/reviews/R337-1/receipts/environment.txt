@@ -1,0 +1,14 @@
+python3: Python 3.14.7
+brief-named verilator path: $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator -> absent on this host (directory does not exist); the head-specific pinned wrapper below was used after its identity was checked
+used verilator wrapper: $VALIDATION_STORAGE/pp123-manager-eb734969/pinned-tool-bin/verilator
+wrapper sha256: 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+wrapper text: #!/bin/sh
+exec env VERILATOR_ROOT=<verilator-image-root>/usr/share/verilator <verilator-image-root>/usr/bin/verilator "$@"
+binary: <verilator-image-root>/usr/bin/verilator
+binary sha256: fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf
+binary_bin sha256: 44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd
+version: Verilator 5.050 2026-07-01 rev v5.050
+make: GNU Make 4.4.1
+g++: g++ (GCC) 16.2.1 20260810
+public evidence commit: kebag-logic/milan-fpga 8a6407006d4bacaf45a4060a6c94bbfe02897e34 (branch pp123-review-evidence head at read time)
+author mutant.patch sha256: 751b5dcc870bffb34f6e6fde2653fe3ad3a44524b08df4e60d402aad6134ddb3

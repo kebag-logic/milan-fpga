@@ -1,0 +1,22 @@
+verilator: Verilator 5.050 2026-07-01 rev v5.050
+== control: generator sha256 ddaa55f1ee8df3f0aaaf15efe28d8d12cfe1068a8284a6829af2ad281ed93b28
+control make (default target) rc=0
+Ran 6 tests in 1.099s
+OK
+verilator --cc --exe --build -j 8 --top-module KL_aecp_desc_store -GMEM_TIMEOUT_CYC_P=64 -GNAME_ENTRIES_P=256 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp123-r337-1-packet/scratch/entry/control/tb/desc_store -Wall -Wextra" ../../hdl/aecp/KL_aecp_desc_store.sv sim_main.cpp -o Vdesc_store_sim
+g++    sim_main.o verilated.o verilated_threads.o VKL_aecp_desc_store__ALL.a    -pthread -lpthread -latomic   -o Vdesc_store_sim
+./obj_dir/Vdesc_store_sim
+584 checks: 584 PASS, 0 FAIL
+control run_suites.sh rc=0
+UPC MAP GATE: PASS (56 engine constants, 80 entry points, all agree)
+PASS desc_store (584 checks: 584 PASS, 0 FAIL)
+suites: 584 checks total, 0 failing
+== mutant: generator sha256 549a5cb1a74b5d82b91e56f57dcf72fa18dc435bf806df7bcfb3952875769e48
+mutant make (default target) rc=2
+Ran 6 tests in 0.376s
+FAILED (failures=16)
+make: *** [Makefile:32: generator-check] Error 1
+mutant run_suites.sh rc=1
+UPC MAP GATE: PASS (56 engine constants, 80 entry points, all agree)
+FAIL desc_store
+suites: 0 checks total, 1 failing
