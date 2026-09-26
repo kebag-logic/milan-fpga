@@ -1,0 +1,16 @@
+--- a/hdl/aecp/desc/gen_desc_image.py
++++ b/hdl/aecp/desc/gen_desc_image.py
+@@ -213,13 +213,6 @@
+         typ = _type_code(desc["type"])
+         idx = _u(desc.get("index", 0))
+         body = descriptor_bytes(desc)
+-        body_type = int.from_bytes(body[0:2], "big")
+-        body_index = int.from_bytes(body[2:4], "big")
+-        if (body_type, body_index) != (typ, idx):
+-            raise ImageError(
+-                f"cfg {cfg} directory key type 0x{typ:04X} index {idx} "
+-                f"disagrees with body type 0x{body_type:04X} "
+-                f"index {body_index}")
+         nidx = _u(desc.get("name_index", NAME_NONE))
+         if nidx == -1:
+             nidx = NAME_NONE

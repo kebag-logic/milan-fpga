@@ -1,0 +1,47 @@
+Command: /usr/bin/python3 hdl/aecp/desc/gen_desc_image.py -i hdl/aecp/desc/example_milan_8.json -o /tmp/pp123-round2.nEMWg5/images-head/example_milan_8.bin -m /tmp/pp123-round2.nEMWg5/images-head/example_milan_8.map
+/tmp/pp123-round2.nEMWg5/images-head/example_milan_8.bin: 1880 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 8  names 9
+index_off 0x000020  names_off 0x000518  image_bytes 1880  desc_max_len 312
+checksum 0xBD79A61C
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x0000A0          0
+    0  0x0001      0      1        98     104  0x0001D8          2
+    0  0x0002      0      1       152     152  0x000240          3
+    0  0x0005      0      1       152     152  0x0002D8          4
+    0  0x0006      0      1       152     152  0x000370          5
+    0  0x0009      0      1       102     104  0x000408          6
+    0  0x000A      0      1        86      88  0x000470          7
+    0  0x0024      0      1        78      80  0x0004C8          8
+Command: make -B -C tb/desc_store image.bin
+make: Entering directory '/tmp/pp123-round2.nEMWg5/head/tb/desc_store'
+python3 ../../hdl/aecp/desc/gen_desc_image.py \
+  -i ../../hdl/aecp/desc/example_milan_8.json -o image.bin -m image.map >/dev/null
+make: Leaving directory '/tmp/pp123-round2.nEMWg5/head/tb/desc_store'
+Command: make -B -C tb/acmp_listener ltn_rom.hex
+make: Entering directory '/tmp/pp123-round2.nEMWg5/head/tb/acmp_listener'
+python3 ../../hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+make: Leaving directory '/tmp/pp123-round2.nEMWg5/head/tb/acmp_listener'
+Command: make -B -C tb/acmp_nvm ltn_rom.hex
+make: Entering directory '/tmp/pp123-round2.nEMWg5/head/tb/acmp_nvm'
+python3 ../../hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+make: Leaving directory '/tmp/pp123-round2.nEMWg5/head/tb/acmp_nvm'
+Command: make -B -C tb/pp_top ltn_rom.hex ucode.hex
+make: Entering directory '/tmp/pp123-round2.nEMWg5/head/tb/pp_top'
+python3 ../../hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 80 programs
+make: Leaving directory '/tmp/pp123-round2.nEMWg5/head/tb/pp_top'
+Command: make -B -C tb/ucpu ucode.hex
+make: Entering directory '/tmp/pp123-round2.nEMWg5/head/tb/ucpu'
+python3 ../../hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 80 programs
+make: Leaving directory '/tmp/pp123-round2.nEMWg5/head/tb/ucpu'
+Command: /usr/bin/python3 hdl/aecp/ucode/gen_ucode.py -o /tmp/pp123-round2.nEMWg5/images-head/yosys_ucode.hex
+/tmp/pp123-round2.nEMWg5/images-head/yosys_ucode.hex: 2048 words, 80 programs
+Command: /usr/bin/python3 hdl/acmp/rom/gen_ltn_rom.py -o /tmp/pp123-round2.nEMWg5/images-head/yosys_ltn_rom.hex
+wrote /tmp/pp123-round2.nEMWg5/images-head/yosys_ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
