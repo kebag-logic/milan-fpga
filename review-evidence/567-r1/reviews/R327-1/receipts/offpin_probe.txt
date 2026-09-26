@@ -1,0 +1,9 @@
+processor checkout now 990f96526bb89356c963a260ebbdcf2a77e6623a
++990f96526bb89356c963a260ebbdcf2a77e6623a protocol-processor (v2.0-262-g990f965)
+ooc.sh: FATAL: the protocol-processor checkout (990f96526bb89356c963a260ebbdcf2a77e6623a) disagrees with the superproject pin (0922e43408f891fc0b84a84691df86b4fd0f1c0d) - a stale checkout generates another processor's ROMs however valid its own digests look; run git submodule update
+ooc rc=2
+lint rc=0
+  waived (RULE_WAIVERS, reasons in scripts/lint_rtl.py): PINMISSING 15, TIMESCALEMOD 2
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:103:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARXREF 'tdest' generates 3 bits.
+restored: 0922e43408f891fc0b84a84691df86b4fd0f1c0d
+ 0922e43408f891fc0b84a84691df86b4fd0f1c0d protocol-processor (v2.0-271-g0922e43)
