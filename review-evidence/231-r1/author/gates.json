@@ -1,0 +1,198 @@
+[
+  {
+    "name": "nvm-firmware",
+    "command": "python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test",
+    "rc": 0,
+    "seconds": 39.5,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/nvm-firmware.log"
+  },
+  {
+    "name": "nvm-capture",
+    "command": "python3 scripts/check_nvm_capture.py",
+    "rc": 0,
+    "seconds": 0.72,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/nvm-capture.log"
+  },
+  {
+    "name": "baremetal-only",
+    "command": "python3 scripts/check_baremetal_only.py --check",
+    "rc": 0,
+    "seconds": 15.1,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/baremetal-only.log"
+  },
+  {
+    "name": "ci-events-check",
+    "command": "python3 scripts/ci_events.py --check",
+    "rc": 0,
+    "seconds": 0.21,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/ci-events-check.log"
+  },
+  {
+    "name": "ci-events-selftest",
+    "command": "python3 scripts/ci_events.py --selftest",
+    "rc": 0,
+    "seconds": 14.75,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/ci-events-selftest.log"
+  },
+  {
+    "name": "xvlog",
+    "command": "python3 scripts/xvlog_gate.py --check",
+    "rc": 0,
+    "seconds": 142.04,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/xvlog.log"
+  },
+  {
+    "name": "rtl-sources",
+    "command": "python3 scripts/check_rtl_source_lists.py",
+    "rc": 0,
+    "seconds": 1.42,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/rtl-sources.log"
+  },
+  {
+    "name": "sv-idiom",
+    "command": "python3 scripts/check_sv_idiom.py",
+    "rc": 0,
+    "seconds": 0.41,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/sv-idiom.log"
+  },
+  {
+    "name": "rtl-lint",
+    "command": "python3 scripts/lint_rtl.py --check",
+    "rc": 0,
+    "seconds": 5.29,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/rtl-lint.log"
+  },
+  {
+    "name": "cpp-idiom",
+    "command": "python3 scripts/check_cpp_idiom.py",
+    "rc": 0,
+    "seconds": 1.22,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/cpp-idiom.log"
+  },
+  {
+    "name": "py-idiom",
+    "command": "python3 scripts/check_py_idiom.py",
+    "rc": 0,
+    "seconds": 3.28,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/py-idiom.log"
+  },
+  {
+    "name": "port-contracts",
+    "command": "python3 scripts/check_port_contracts.py",
+    "rc": 0,
+    "seconds": 2.32,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/port-contracts.log"
+  },
+  {
+    "name": "naming",
+    "command": "python3 scripts/measure_naming.py --check",
+    "rc": 0,
+    "seconds": 0.46,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/naming.log"
+  },
+  {
+    "name": "test-evidence",
+    "command": "python3 scripts/measure_test_evidence.py --check",
+    "rc": 0,
+    "seconds": 5.27,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/test-evidence.log"
+  },
+  {
+    "name": "behave",
+    "command": "behave --no-capture -f plain",
+    "rc": 0,
+    "seconds": 1.22,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/behave.log"
+  },
+  {
+    "name": "baseline-selftest",
+    "command": "python3 syn/ooc/pp_baseline.py --selftest",
+    "rc": 0,
+    "seconds": 0.07,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/baseline-selftest.log"
+  },
+  {
+    "name": "docs-git",
+    "command": "python3 -B scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 4.22,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/docs-git.log"
+  },
+  {
+    "name": "em-dash",
+    "command": "python3 scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a",
+    "rc": 0,
+    "seconds": 3.62,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/em-dash.log"
+  },
+  {
+    "name": "doc-style",
+    "command": "python3 scripts/check_doc_style.py",
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/doc-style.log"
+  },
+  {
+    "name": "toc",
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 0,
+    "seconds": 2.57,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/toc.log"
+  },
+  {
+    "name": "anchors",
+    "command": "python3 scripts/gen_toc.py --verify-anchors",
+    "rc": 0,
+    "seconds": 1.57,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/anchors.log"
+  },
+  {
+    "name": "doc-paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/doc-paths.log"
+  },
+  {
+    "name": "module-matrix",
+    "command": "python3 docs/traceability/gen_module_matrix.py --check",
+    "rc": 0,
+    "seconds": 0.97,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/module-matrix.log"
+  },
+  {
+    "name": "diff",
+    "command": "git diff --check",
+    "rc": 0,
+    "seconds": 0.02,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/diff.log"
+  },
+  {
+    "name": "docs-no-git",
+    "command": "python3 -B scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 4.27,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/docs-no-git.log"
+  },
+  {
+    "name": "builder-sdk",
+    "command": "python3 sw/builder/test_builder.py --require-rv32",
+    "selector": "Full entry point via runpy with audited subprocess compiler selection; sdk",
+    "rc": 0,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/builder-sdk.log"
+  },
+  {
+    "name": "builder-absent",
+    "command": "python3 sw/builder/test_builder.py",
+    "selector": "Full entry point via runpy with audited subprocess compiler selection; absent",
+    "rc": 0,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/builder-absent.log"
+  },
+  {
+    "name": "diff-candidate",
+    "command": "git diff --check 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a",
+    "rc": 0,
+    "seconds": 0.02,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/diff-candidate.log"
+  }
+]

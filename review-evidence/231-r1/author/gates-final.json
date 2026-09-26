@@ -1,0 +1,72 @@
+[
+  {
+    "name": "baremetal-only",
+    "command": "python3 scripts/check_baremetal_only.py --check",
+    "rc": 0,
+    "seconds": 15.1,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/baremetal-only.log"
+  },
+  {
+    "name": "docs-git",
+    "command": "python3 -B scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 4.22,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/docs-git.log"
+  },
+  {
+    "name": "em-dash",
+    "command": "python3 scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a",
+    "rc": 0,
+    "seconds": 3.62,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/em-dash.log"
+  },
+  {
+    "name": "doc-style",
+    "command": "python3 scripts/check_doc_style.py",
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/doc-style.log"
+  },
+  {
+    "name": "toc",
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 0,
+    "seconds": 2.57,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/toc.log"
+  },
+  {
+    "name": "anchors",
+    "command": "python3 scripts/gen_toc.py --verify-anchors",
+    "rc": 0,
+    "seconds": 1.57,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/anchors.log"
+  },
+  {
+    "name": "doc-paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/doc-paths.log"
+  },
+  {
+    "name": "diff",
+    "command": "git diff --check",
+    "rc": 0,
+    "seconds": 0.02,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/diff.log"
+  },
+  {
+    "name": "diff-candidate",
+    "command": "git diff --check 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a",
+    "rc": 0,
+    "seconds": 0.02,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/diff-candidate.log"
+  },
+  {
+    "name": "docs-no-git",
+    "command": "python3 -B scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 4.27,
+    "log": "$MANAGEMENT/2026-09-23/231-a328/gates/docs-no-git.log"
+  }
+]

@@ -1,0 +1,91 @@
+{
+  "body": "Parent epic: #229\n\n## Objective\n\nCreate a reproducible, apples-to-apples resource and timing baseline for the current `KL_pp_shadow` implementation before architectural optimization begins.\n\n## Scope\n\n- [ ] Synthesize the current head with Vivado for the shipping 1\u00d71 shape.\n- [ ] Synthesize the same head with Vivado for the supported 8\u00d78 shape.\n- [ ] Use the target part, 100 MHz constraint, parameters, defines, and source set from the integrated build.\n- [ ] Capture hierarchical LUT, FF, RAMB18, RAMB36, DSP, carry, and WNS figures.\n- [ ] Capture an integrated pre- and post-substitution comparison.\n- [ ] Run Yosys with equivalent geometry and explain significant mapping differences.\n- [ ] Check in or document the exact commands and generated report locations.\n\n## Acceptance criteria\n\n- [ ] A clean checkout can reproduce both Vivado OOC configurations.\n- [ ] Reports identify the dominant resource consumers by hierarchy.\n- [ ] Standalone, integrated, Vivado, and Yosys numbers are clearly distinguished.\n- [ ] The baseline is linked from #229 and becomes the reference for the remaining optimization tickets.\n",
+  "comments": [
+    {
+      "id": "IC_kwDOP42Xbc8AAAABQYAbYw",
+      "author": {
+        "login": "Mister-M-alt"
+      },
+      "authorAssociation": "MEMBER",
+      "body": "[A1] **Two measured base-versus-head OOC runs, offered as input to this baseline rather than as the baseline itself.** Produced while evidencing PR #227 (#69), which bumps the `protocol-processor` pin from `a25b5cc9` to `44489453`. Vivado 2026.1, `xc7a100tfgg484-2`, 100 MHz OOC, base = `origin/dev` `04b55dad`.\n\n## 1. The whole datapath, `syn/ooc/milan_datapath_ooc.tcl` at its 1x1 arty elaboration shape\n\n| row | base | head (PR #227) | delta |\n| --- | ---: | ---: | ---: |\n| `milan_datapath` total | 34,215 LUT / 38,141 FF | 38,611 LUT / 42,120 FF | **+4,396 LUT / +3,979 FF** |\n| device LUT occupancy | 53.97% | 60.90% | **+6.93 points** |\n| `pp_shadow` inside it | 19,099 / 19,115 | 23,553 / 22,791 | +4,454 / +3,676 |\n| `(milan_datapath)` own logic | 149 / 1,377 | 142 / 1,369 | -7 / -8 |\n| BRAM tiles / DSP | 30.5 / 35 | 30.5 / 35 | 0 / 0 |\n\n## 2. The plane alone, at `N_STREAM_IN_P = N_STREAM_OUT_P = 2`, attributed by module\n\n| module | base LUT | head LUT | dLUT | dFF |\n| --- | ---: | ---: | ---: | ---: |\n| `KL_pp_shadow` total | 18,046 | 22,549 | **+4,503** | +3,895 |\n| `KL_aecp_notify` | 737 | 2,778 | +2,041 | +2,404 |\n| `KL_pp_originator` | 0 | 728 | +728 | +885 |\n| `KL_pp_rx_validator` | 450 | 1,083 | +633 | 0 |\n| `KL_aecp_ucpu` | 1,443 | 1,888 | +445 | 0 |\n| `KL_aecp_ca_originator` | 0 | 320 | +320 | +152 |\n| `KL_pp_timer_service` | 488 | 784 | +296 | 0 |\n| everything else, net | | | +40 | |\n\n`KL_srp_top` moves -74 LUT, so the SRP scaling term this epic's workstream 2 targets is unchanged by that pin; the growth is entirely workstream 3's subject.\n\n## What this says about #232's scope\n\n#232 already names the three structures the numbers point at -- the 16-controller registry, the 16-entry command notification queue, and the 18 per-descriptor 32-bit throttle timestamps. The measurement supports that framing: `KL_aecp_notify` alone is +2,041 LUT and **+2,404 FF**, and the FF count is the tell, because 18 descriptors x 32-bit `now_ms` stamps plus per-descriptor pending and sent bits plus 16 monitor deadlines is most of it. `KL_pp_timer_service` grows +296 LUT for the same reason (the extra deadline slots). None of that is stored in a way a RAM can be inferred from today.\n\n## What these runs are NOT\n\n- Not the 1x1 and 8x8 `KL_pp_shadow` shapes this ticket asks for: run 2 is at 2x2, which is the shipping ax7101 entity's `ACMP_SINKS_C`/`ACMP_SRC_C`, and run 1 is the datapath at the 1x1 arty shape. Both were chosen to answer \"what does this pin cost\", not \"what is the plane's baseline\".\n- Not post-place-and-route, so they carry no WNS verdict and no routability claim.\n- Not reproducible from the repository as it stands: `syn/ooc/pp_shadow_ooc.tcl` never reads the module it names as `-top` and fails with `ERROR: [Synth 8-439] module 'KL_pp_shadow' not found` on `dev` -- filed as #235. Run 2 above used that script's recipe with the one missing `read_verilog` added outside the repo. **That is worth fixing before this ticket starts**, since it is the recipe `docs/findings/PP_SHADOW_AREA_0812.md` documents and the one whoever picks this up will reach for. Run 1's flow (`milan_datapath_ooc.tcl`, sources from `dp_srcs.py`) works as shipped.\n\nRaw reports available on request; the commands are the two `.tcl` files above with `PP_N_IN`/`PP_N_OUT` set as stated.\n",
+      "createdAt": "2026-08-24T10:21:31Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/231#issuecomment-5393881955",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOP42Xbc8AAAABQYfveQ",
+      "author": {
+        "login": "Mister-M-alt"
+      },
+      "authorAssociation": "MEMBER",
+      "body": "[A1] The recipe this ticket reaches for first could not run: `syn/ooc/pp_shadow_ooc.tcl`\nnever read `KL_pp_shadow`, the module it passes to `synth_design -top` (#235). PR #240 fixes\nit, and these are the figures the fixed script produces. They are **out-of-context\npost-synthesis** on `xc7a100tfgg484-2`, Vivado 2026.1, standalone `KL_pp_shadow`, not\npost-place-and-route and not the integrated build, so they do not settle the\n\"integrated pre- and post-substitution comparison\" or the Yosys line of this ticket.\n\nHead `bafd29f3` (PR #240, `dev` `04b55dad` plus the fix), protocol-processor pinned at\n`a25b5cc9`.\n\n| Shape | Slice LUTs | as logic | as memory | FFs | RAMB36 | RAMB18 | BRAM tiles | DSP | WNS | TNS | Failing endpoints |\n|---|---|---|---|---|---|---|---|---|---|---|---|\n| `N_STREAM_IN/OUT = 1` | 16,547 (26.10 %) | 15,565 | 982 | 19,473 (15.36 %) | 16 | 2 | 17 (12.59 %) | 4 | -0.486 ns | -11.528 ns | 136 |\n| `N_STREAM_IN/OUT = 8` | 22,817 (35.99 %) | 21,731 | 1,086 | 25,922 (20.44 %) | 23 | 3 | 24.5 (18.15 %) | 4 | -7.573 ns | -1369.192 ns | 1,491 |\n\n**Carry the WNS with its caveat.** The 100 MHz clock is created *after* `synth_design`, as\nthis instrument has always done, so synthesis was not driven by it: these are post-synthesis\nestimates on an unconstrained-synthesis netlist, useful for comparing shapes and heads with\neach other and not a closure verdict. Neither shape meets the constraint as measured.\n\n**Dominant consumers by hierarchy** (direct children of `u_pp`, total LUTs):\n\n| Instance | Module | 1x1 | 8x8 |\n|---|---|---|---|\n| `u_srp` | `KL_srp_top` | 3,496 | **7,209** |\n| `u_aecp` | `KL_aecp_engine` | **4,512** | 4,928 |\n| `u_listener` | `KL_pp_acmp_listener` | 1,296 | 1,642 |\n| `u_talker` | `KL_acmp_talker` | 735 | 1,473 |\n| `u_dispatch` | `KL_pp_dispatch` | 944 | 853 |\n| `u_adp` | `KL_adp_engine` | 509 | 837 |\n| `u_notify` | `KL_aecp_notify` | 725 | 810 |\n| `u_maap` | `KL_pp_maap` | 786 | 798 |\n| `u_nvm_shadow` | `KL_acmp_nvm_shadow` | 616 | 713 |\n| `u_event_router` | `KL_pp_event_router` | 123 | 708 |\n| `u_timer` | `KL_pp_timer_service` | 478 | 530 |\n| `u_rx_validator` | `KL_pp_rx_validator` | 445 | 422 |\n\nInside `u_aecp` at 1x1: `u_ucpu` 1,437, `u_store` 1,093, `u_resp` 473, engine glue 1,451.\n`axis_fifo` and the wrapper's own logic account for 97 LUT of the 1x1 total; everything else\nis `protocol_processor_top`.\n\nTwo things worth reading against the historical page before this becomes the baseline:\n\n1. The plane is roughly **twice** the 2026-08-12 measurement (7,463 LUT at 1x1, 11,508 at\n   8x8). The AECP engine, its descriptor store and its microcoded core landed in between and\n   are 27 % of the 1x1 total on their own. The old figures should not be treated as current.\n2. The shape scaling has changed character. At 1x1 the AECP engine is now the largest block,\n   not the SRP engine, and the 8x8 growth is concentrated in `KL_srp_top` (+3,713) and\n   `KL_acmp_talker` (+738), the per-stream FSM arrays.\n\n**Reproducing.** Both runs need `ltn_rom.hex` **and** `ucode.hex` generated into the working\ndirectory first. The documented recipe named only the first, and running it that way is not\na failed run: Vivado ignores the missing image with a CRITICAL WARNING, completes, and\nreports **13,676 LUT / 12 BRAM** at 1x1, which is 2,871 LUT low at rc=0. PR #240 makes the\nscript refuse to synthesize without both.\n\n```sh\nd=$(mktemp -d); cd $d\npython3 <repo>/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex\npython3 <repo>/protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex\nPP_N_IN=1 PP_N_OUT=1 vivado -mode batch -source <repo>/syn/ooc/pp_shadow_ooc.tcl \\\n    -nojournal -log ooc.log\n```\n\nRun it outside the tree: the two images are written to the caller's working directory and\nthe three reports land beside them.\n",
+      "createdAt": "2026-08-24T11:12:01Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/231#issuecomment-5394395001",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOP42Xbc8AAAABQoGogg",
+      "author": {
+        "login": "Mister-M-alt"
+      },
+      "authorAssociation": "MEMBER",
+      "body": "[A3] **Provenance check on the whole-datapath figures in the comment above (34,215 -> 38,611 LUT), prompted by #246 / PR #264.**\n\nThe instrument behind those figures, `syn/ooc/milan_datapath_ooc.tcl`, never generated `ucode.hex` before PR #264: a launch directory without one made Vivado read the AECP microcode ROM as all-zero behind a single CRITICAL WARNING (`Synth 8-4445`), constant-fold the uCPU, and report a full, plausible, wrong utilization - about 8,000 LUT low at current heads. Any figure it produced depended on the launch directory's contents, so the pair quoted above needed re-checking rather than trusting ([R-parallel] on PR #264, finding 1).\n\n**Result: the BASE figure reproduces exactly under a run proven to have both ROMs.** Re-run today: `dev` `04b55dad` checked out fresh, `protocol-processor` at its pinned `a25b5cc9`, a freshly generated, geometry-valid `ucode.hex` (26,624 bytes, 2,048x48) placed in an otherwise empty run directory, the recipe of that day executed verbatim, Vivado 2026.1, `xc7a100tfgg484-2`. Outcome: rc=0, ZERO `Synth 8-4445` in the log, and\n\n```\nSlice LUTs   34,215   (53.97 %)\nSlice Regs   38,141\n```\n\nbit-for-bit the base row of the table above. A ROM-less run cannot produce that number (the same-era ROM-less figure is ~4,000-8,000 LUT lower; #246 measured the ROM-less lie directly as 30,925 at `6be50377`).\n\n**The HEAD figure (38,611) is consistent only with a both-ROM run.** #246's own measurements at `6be50377` (the same PR #227 branch): 30,925 LUT without `ucode.hex`, 38,848 with it. 38,611 sits with the with-ROM figure (the 237-LUT gap is branch movement between the two measurement heads), and is irreconcilable with a ROM-less run.\n\n**Conclusion: the 34,215 -> 38,611 pair stands as measured-with-both-ROMs; no correction to the numbers is needed.** Qualification that does stand: those runs were reproducible only because the launch directories happened to hold a correct `ucode.hex`; since PR #264 the recipe generates and validates both images itself (exact geometry from the pinned packages, fresh-temp + atomic publish) and refuses to synthesize otherwise, so the next baseline run cannot depend on launch-dir luck. Evidence transcript on PR #264.\n",
+      "createdAt": "2026-08-25T13:02:18Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/231#issuecomment-5410760834",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOP42Xbc8AAAABQosWsQ",
+      "author": {
+        "login": "Mister-M-alt"
+      },
+      "authorAssociation": "MEMBER",
+      "body": "[A3] **Follow-up to my reconciliation above, after [R0] on PR #264 required the HEAD side re-run at its exact commit rather than an inference. The head figure does NOT reproduce; corrected figures of record below.**\n\nTwo runs of exact PR #227 head `b3507ddd` (pin `44489453`), Vivado 2026.1, `xc7a100tfgg484-2`, each from an empty directory, that day's recipe verbatim, rc=0 and ZERO `Synth 8-4445` in both:\n\n| ucode.hex in the run dir | LUT | FF | device LUT |\n|---|---:|---:|---:|\n| freshly generated at pin `44489453` (2,048x48 validated, md5 `a53ce078`) | **38,879** | 42,555 | 61.32 % |\n| the BASE pin `a25b5cc9`'s image (complete but 576 lines different, md5 `99d5532d`) | **38,879** | 42,555 | 61.32 % |\n\nThree things follow:\n\n1. **The quoted head figure (38,611 / 42,120 / 60.90%) does not reproduce at `b3507ddd`.** Both complete-image runs agree bit-for-bit with each other and disagree with it by 268 LUT / 435 FF.\n2. **The gap is NOT the stale-content hazard**: microcode CONTENT does not move utilization at all (the ROM's size, not its words, drives the report). Any complete 2,048x48 image gives 38,879 at that head; a ROM-LESS run gives the 30,9xx class (#246). So 38,611 was measured on some other tree state: most plausibly another revision of the PR #227 branch between force-pushes (the comment above names no SHA; `57fa8da2` / `8d806c9a` are candidates) or another environment. My earlier \"consistent only with the both-ROM 38,848\" inference stands directionally but is superseded by this exact-head measurement.\n3. **Figures of record for `b3507ddd` are 38,879 LUT (61.32 %) / 42,555 FF**, and the pin's whole-datapath delta against the exactly-reproduced base (34,215 at `04b55dad`) is **+4,664 LUT / +7.35 device points** rather than the quoted +4,396 / +6.93. The `KL_aecp_notify` / `KL_pp_timer_service` attribution is unchanged in kind, adjusted by at most 268 LUT in degree.\n\nThe base row's exact reproduction (my comment above) is unaffected. Since PR #264 the recipe generates and geometry-validates both images itself and refuses otherwise, so a future baseline cannot inherit any of this ambiguity. Full transcripts on PR #264.\n",
+      "createdAt": "2026-08-25T13:50:46Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/231#issuecomment-5411378865",
+      "viewerDidAuthor": true
+    },
+    {
+      "id": "IC_kwDOP42Xbc8AAAABXGGYYw",
+      "author": {
+        "login": "Mister-M-alt"
+      },
+      "authorAssociation": "MEMBER",
+      "body": "[A10] Ready now that #508 and #400/#403 have merged (dev `7eb3b0d4`). Executor [A328]; reviewers [R332] internal and [R333] external. Branch `231-pp-shadow-baseline`.\n\n**Decision on \"integrated pre- and post-substitution comparison\":** the legacy control planes are retired, so there is no pre-substitution build left to compare. The integrated baseline is:\n- the placed-and-routed hierarchy of `KL_pp_shadow` inside the shipping 1x1 AX7101 build;\n- integrated synthesis only for 8x8, because 8x8 does not fit the xc7a100t (see #565 and `AREA_BUDGET.md`).\nThe historical substitution delta stays quoted as history, with its provenance.\n\nScope:\n1. Vivado OOC for `KL_pp_shadow` at 1x1 and 8x8: the part, the 100 MHz constraint and the parameters and defines of the integrated build. Report hierarchical LUT, FF, RAMB18, RAMB36, DSP, CARRY4 and WNS, and the dominant hierarchy consumers.\n   - Every ROM or hex input must be proven present, with zero `Synth 8-4445` (the #246 trap).\n2. The integrated 1x1 place-and-route hierarchy with the repository's build recipe, plus integrated 8x8 synthesis.\n3. Yosys with equivalent geometry. Explain the significant mapping differences.\n4. A committed, clean-checkout-reproducible recipe (commands and report locations) and a baseline page linked from #229.\n   - Standalone, integrated, Vivado and Yosys figures are clearly labelled.\n   - This is measurement only: no RTL change.\n",
+      "createdAt": "2026-09-26T09:08:51Z",
+      "includesCreatedEdit": false,
+      "isMinimized": false,
+      "minimizedReason": "",
+      "reactionGroups": [],
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/231#issuecomment-5844867171",
+      "viewerDidAuthor": true
+    }
+  ],
+  "projectItems": [
+    {
+      "status": {
+        "optionId": "47fc9ee4",
+        "name": "In progress"
+      },
+      "title": "Road to milan v1.2 Task"
+    }
+  ],
+  "state": "OPEN",
+  "title": "[Optimisation] Establish authoritative KL_pp_shadow 1\u00d71 and 8\u00d78 area baselines"
+}
