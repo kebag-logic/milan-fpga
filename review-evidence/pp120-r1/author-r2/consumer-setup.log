@@ -1,0 +1,19 @@
+$ git rev-parse HEAD
+7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+$ git diff --stat
+ hdl/milan/KL_pp_shadow.sv        | 2 ++
+ scripts/measure_test_evidence.py | 3 +++
+ 2 files changed, 5 insertions(+)
+$ git diff --cached --submodule=short
+diff --git a/protocol-processor b/protocol-processor
+index 990f96526..a9b7874d4 160000
+--- a/protocol-processor
++++ b/protocol-processor
+@@ -1 +1 @@
+-Subproject commit 990f96526bb89356c963a260ebbdcf2a77e6623a
++Subproject commit a9b7874d415d935949becd7ccfd58799927efb08
+$ git submodule status protocol-processor gptp-processor third_party/verilog-axis
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ a9b7874d415d935949becd7ccfd58799927efb08 protocol-processor (v2.0-273-ga9b7874)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+Supplied patch SHA-256: 1de2a73a99620b6aa6925cbf738a9d42bb2a263680f92aa4602fa35b6e32177c

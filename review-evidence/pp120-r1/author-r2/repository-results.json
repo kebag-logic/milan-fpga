@@ -1,0 +1,139 @@
+[
+  {
+    "gate": "name-build",
+    "argv": [
+      "make",
+      "-C",
+      "tb/pp_top",
+      "gsi-build"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "name-run",
+    "argv": [
+      "./obj_dir/Vpp_top_sim",
+      "--name-writes-only"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "make-check",
+    "argv": [
+      "make",
+      "check"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "suites",
+    "argv": [
+      "scripts/run_suites.sh"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "lint",
+    "argv": [
+      "scripts/lint_hdl.sh"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "yosys",
+    "argv": [
+      "syn/yosys/run.sh"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "params",
+    "argv": [
+      "python3",
+      "scripts/check-integrator-params.py"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "links",
+    "argv": [
+      "python3",
+      "scripts/check-links.py"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "matrix",
+    "argv": [
+      "python3",
+      "scripts/check-matrix.py"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "wavedrom",
+    "argv": [
+      "python3",
+      "scripts/render-wavedrom.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "stale",
+    "argv": [
+      "make",
+      "stale"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "modmatrix",
+    "argv": [
+      "python3",
+      "scripts/gen_matrix.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "history",
+    "argv": [
+      "git",
+      "fetch",
+      "--no-tags",
+      "origin",
+      "refs/pull/13/head"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "figures",
+    "argv": [
+      "make",
+      "-C",
+      "tb/nvm_port",
+      "figures"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "name-mutation",
+    "argv": [
+      "python3",
+      "tb/pp_top/name_wr_mutant.py",
+      "--output",
+      "$MANAGEMENT/2026-09-23/pp120-a334/name-mutation"
+    ],
+    "rc": 0
+  },
+  {
+    "gate": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0
+  }
+]

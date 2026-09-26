@@ -1,0 +1,106 @@
+[
+  {
+    "number": 1,
+    "argv": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 2
+  },
+  {
+    "number": 2,
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 2
+  },
+  {
+    "number": 3,
+    "argv": [
+      "python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "rc": 2
+  },
+  {
+    "number": 4,
+    "argv": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "rc": 2
+  },
+  {
+    "number": 5,
+    "argv": [
+      "python3",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "number": 6,
+    "argv": [
+      "python3",
+      "sw/builder/test_builder.py"
+    ],
+    "rc": 1
+  },
+  {
+    "number": 7,
+    "argv": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow",
+      "-j8"
+    ],
+    "rc": 2
+  },
+  {
+    "number": 8,
+    "argv": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "rc": 2
+  },
+  {
+    "number": 9,
+    "argv": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "number": 10,
+    "argv": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 2
+  },
+  {
+    "number": 11,
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  {
+    "number": 12,
+    "argv": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check"
+    ],
+    "rc": 2
+  }
+]

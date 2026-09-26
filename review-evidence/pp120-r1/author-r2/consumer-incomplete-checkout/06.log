@@ -1,0 +1,21 @@
+test_declaration_contracts:
+Traceback (most recent call last):
+  File "/tmp/pp120-consumer-check/sw/builder/test_builder.py", line 27637, in <module>
+    fn()
+    ~~^^
+  File "/tmp/pp120-consumer-check/sw/builder/test_declarations.py", line 61, in test_declaration_contracts
+    default = _load(base, directory)
+  File "/tmp/pp120-consumer-check/sw/builder/test_declarations.py", line 17, in _load
+    return eb.load_config(path)
+           ~~~~~~~~~~~~~~^^^^^^
+  File "/tmp/pp120-consumer-check/sw/builder/endstation_builder.py", line 4243, in load_config
+    gptp = _load_gptp(cfg)
+  File "/tmp/pp120-consumer-check/sw/builder/endstation_builder.py", line 3989, in _load_gptp
+    pins = gptp_engine_pins()
+  File "/tmp/pp120-consumer-check/sw/builder/endstation_builder.py", line 3478, in gptp_engine_pins
+    source = _engine_generator_text()
+  File "/tmp/pp120-consumer-check/sw/builder/endstation_builder.py", line 3418, in _engine_generator_text
+    raise ConfigError(
+    ...<3 lines>...
+        "update --init gptp-processor` before loading a config")
+endstation_builder.ConfigError: the gptp-processor submodule is not checked out, and its generator is the authority the gPTP descriptor dataset derives from ([R-parallel] on #228): run `git submodule update --init gptp-processor` before loading a config

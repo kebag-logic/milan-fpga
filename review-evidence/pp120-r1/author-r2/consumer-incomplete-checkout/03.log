@@ -1,0 +1,8 @@
+XVLOG SETUP: REFUSED - a source tree this gate analyses is not the revision this commit pins, so the finding set would not be the pinned population:
+  gptp-processor  (the 802.1AS engine milan_datapath elaborates via KL_gptp_shadow)
+      state:    at the pinned revision, but the working tree does not hold every pinned source AS A REGULAR FILE: deleted, never checked out (sparse or skip-worktree), replaced by a symlink or a directory, or unreadable
+      expected: 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d   <- the superproject gitlink for this path
+      actual:   5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d + 6 of 6 pinned source(s) not held as the pinned file: hdl/common/KL_gptp_timer.sv (not present), hdl/top/KL_gptp_engine.sv (not present), hdl/ucpu/KL_gptp_ucpu.sv (not present), ...
+      fix:      restore every pinned source, then `git submodule update --init --force gptp-processor`. A sparse or skip-worktree checkout of gptp-processor is not the pinned population: clear it with `git -C gptp-processor sparse-checkout disable` and `git -C gptp-processor update-index --no-skip-worktree <path>`
+  A fresh clone or `git worktree add` inherits no submodules, and a standalone clone dropped at the path is NOT one.
+  Refused rather than counted: over a tree that is not the pinned one the gate would print a finding set the pin does not stand behind - smaller (#186's trap) or simply different - and a default run would then rewrite the ratchet from it (#236).
