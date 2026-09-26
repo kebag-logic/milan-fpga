@@ -1,0 +1,191 @@
+[
+  {
+    "gate": "parameter-inventory",
+    "command": "python3 protocol-processor/scripts/check-integrator-params.py",
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "parameter-inventory.log"
+  },
+  {
+    "gate": "nvm-firmware",
+    "command": "python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test",
+    "rc": 0,
+    "seconds": 38.88,
+    "log": "nvm-firmware.log"
+  },
+  {
+    "gate": "nvm-capture",
+    "command": "python3 scripts/check_nvm_capture.py",
+    "rc": 0,
+    "seconds": 0.77,
+    "log": "nvm-capture.log"
+  },
+  {
+    "gate": "baremetal-only",
+    "command": "python3 scripts/check_baremetal_only.py --check",
+    "rc": 0,
+    "seconds": 14.69,
+    "log": "baremetal-only.log"
+  },
+  {
+    "gate": "docs-check",
+    "command": "python3 -B scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 4.12,
+    "log": "docs-check.log"
+  },
+  {
+    "gate": "ci-events-check",
+    "command": "python3 scripts/ci_events.py --check",
+    "rc": 0,
+    "seconds": 0.21,
+    "log": "ci-events-check.log"
+  },
+  {
+    "gate": "ci-events-selftest",
+    "command": "python3 scripts/ci_events.py --selftest",
+    "rc": 0,
+    "seconds": 14.76,
+    "log": "ci-events-selftest.log"
+  },
+  {
+    "gate": "em-dash",
+    "command": "python3 scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a",
+    "rc": 0,
+    "seconds": 3.08,
+    "log": "em-dash.log"
+  },
+  {
+    "gate": "doc-style",
+    "command": "python3 scripts/check_doc_style.py",
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "doc-style.log"
+  },
+  {
+    "gate": "toc-check",
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 0,
+    "seconds": 2.47,
+    "log": "toc-check.log"
+  },
+  {
+    "gate": "toc-anchors",
+    "command": "python3 scripts/gen_toc.py --verify-anchors",
+    "rc": 0,
+    "seconds": 1.62,
+    "log": "toc-anchors.log"
+  },
+  {
+    "gate": "doc-paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0,
+    "seconds": 0.11,
+    "log": "doc-paths.log"
+  },
+  {
+    "gate": "module-matrix",
+    "command": "python3 docs/traceability/gen_module_matrix.py --check",
+    "rc": 0,
+    "seconds": 0.97,
+    "log": "module-matrix.log"
+  },
+  {
+    "gate": "xvlog",
+    "command": "python3 scripts/xvlog_gate.py --check",
+    "rc": 0,
+    "seconds": 139.48,
+    "log": "xvlog.log"
+  },
+  {
+    "gate": "rtl-source-lists",
+    "command": "python3 scripts/check_rtl_source_lists.py",
+    "rc": 0,
+    "seconds": 1.37,
+    "log": "rtl-source-lists.log"
+  },
+  {
+    "gate": "sv-idiom",
+    "command": "python3 scripts/check_sv_idiom.py",
+    "rc": 0,
+    "seconds": 0.46,
+    "log": "sv-idiom.log"
+  },
+  {
+    "gate": "rtl-lint",
+    "command": "python3 scripts/lint_rtl.py --check",
+    "rc": 0,
+    "seconds": 15.44,
+    "log": "rtl-lint.log"
+  },
+  {
+    "gate": "cpp-idiom",
+    "command": "python3 scripts/check_cpp_idiom.py",
+    "rc": 0,
+    "seconds": 1.22,
+    "log": "cpp-idiom.log"
+  },
+  {
+    "gate": "py-idiom",
+    "command": "python3 scripts/check_py_idiom.py",
+    "rc": 0,
+    "seconds": 3.32,
+    "log": "py-idiom.log"
+  },
+  {
+    "gate": "port-contracts",
+    "command": "python3 scripts/check_port_contracts.py",
+    "rc": 0,
+    "seconds": 2.32,
+    "log": "port-contracts.log"
+  },
+  {
+    "gate": "naming",
+    "command": "python3 scripts/measure_naming.py --check",
+    "rc": 0,
+    "seconds": 0.46,
+    "log": "naming.log"
+  },
+  {
+    "gate": "test-evidence",
+    "command": "python3 scripts/measure_test_evidence.py --check",
+    "rc": 0,
+    "seconds": 5.27,
+    "log": "test-evidence.log"
+  },
+  {
+    "gate": "behave",
+    "command": "behave --no-capture -f plain",
+    "rc": 0,
+    "seconds": 1.22,
+    "log": "behave.log"
+  },
+  {
+    "gate": "diff-check",
+    "command": "git diff --check",
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "diff-check.log"
+  },
+  {
+    "gate": "submodule-docs",
+    "command": "python3 scripts/check_submodule_docs.py",
+    "rc": 0,
+    "seconds": 0.46,
+    "log": "submodule-docs.log"
+  },
+  {
+    "gate": "submodule-diagram",
+    "command": "python3 docs/diagrams/submodule_boundaries.gen.py --check",
+    "rc": 0,
+    "seconds": 0.41,
+    "log": "submodule-diagram.log"
+  },
+  {
+    "gate": "diagram-pngs",
+    "command": "python3 scripts/check_diagram_pngs.py",
+    "rc": 0,
+    "seconds": 0.36,
+    "log": "diagram-pngs.log"
+  }
+]

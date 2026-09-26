@@ -1,0 +1,58 @@
+[
+  {
+    "gate": "docs-check",
+    "command": "python3 -B scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 4.18,
+    "log": "docs-check.log"
+  },
+  {
+    "gate": "em-dash",
+    "command": "python3 scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a",
+    "rc": 0,
+    "seconds": 3.12,
+    "log": "em-dash.log"
+  },
+  {
+    "gate": "doc-style",
+    "command": "python3 scripts/check_doc_style.py",
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "doc-style.log"
+  },
+  {
+    "gate": "toc-check",
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 0,
+    "seconds": 2.47,
+    "log": "toc-check.log"
+  },
+  {
+    "gate": "toc-anchors",
+    "command": "python3 scripts/gen_toc.py --verify-anchors",
+    "rc": 0,
+    "seconds": 1.57,
+    "log": "toc-anchors.log"
+  },
+  {
+    "gate": "doc-paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0,
+    "seconds": 0.11,
+    "log": "doc-paths.log"
+  },
+  {
+    "gate": "diff-check",
+    "command": "git diff --check",
+    "rc": 0,
+    "seconds": 0.03,
+    "log": "diff-check.log"
+  },
+  {
+    "gate": "submodule-docs",
+    "command": "python3 scripts/check_submodule_docs.py",
+    "rc": 0,
+    "seconds": 0.46,
+    "log": "submodule-docs.log"
+  }
+]
