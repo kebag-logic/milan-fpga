@@ -1,0 +1,17 @@
+inventory=14 selected=6
+[PASS] control caught: the render re-base is keyed to the identity, not the step - breaks "render: every counted re-base lands at a PDU end right after the step"
+    it broke 1 check(s): render: every counted re-base lands at a PDU end right after the step
+[PASS] control caught: tu reaches the talkers four cycles late - breaks "tu: set in the first cycle the bank names GM B"
+    it broke 1 check(s): tu: set in the first cycle the bank names GM B
+[PASS] control caught: the plane's step does not re-arm the holdover - breaks "tu: held at least the 0.25 s holdover after the step"
+    it broke 1 check(s): tu: held at least the 0.25 s holdover after the step
+[PASS] control caught: tu stops the talker - breaks "licence: the talker never pauses beyond four of its intervals"
+    it broke 5 check(s): tu: talker PDUs graded inside the hold; licence: the talker never pauses beyond four of its intervals; licence: the talker keeps its baseline rate within 1%; restart: every mr toggle is first sent right after the step; restart: the talker's MEDIA_RESET counts exactly one
+[PASS] control caught: the grandmaster change stops the talker for good - breaks "licence: the talker never pauses beyond four of its intervals"
+    it broke 6 check(s): tu: talker PDUs graded inside the hold; tu: talker PDUs graded after tu clears; licence: the talker never pauses beyond four of its intervals; licence: the talker keeps its baseline rate within 1%; restart: the outgoing mr toggles exactly once; restart: the talker's MEDIA_RESET counts exactly one
+[PASS] control caught: the step's re-centre snaps one event off the setpoint - breaks "render: every PDU push leaves the target fill across the event"
+    it broke 1 check(s): render: every PDU push leaves the target fill across the event
+
+6 checks: 6 PASS, 0 FAIL
+wall=251.37 rc=0
+rc=0
