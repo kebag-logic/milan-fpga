@@ -1,0 +1,199 @@
+[
+  {
+    "name": "selftest",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "syn/ooc/pp_baseline.py",
+      "--selftest"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 0.114,
+    "log": "selftest.log"
+  },
+  {
+    "name": "maintained-mutants",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "syn/ooc/pp_baseline_mutants.py"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 1.917,
+    "log": "maintained-mutants.log"
+  },
+  {
+    "name": "R332-3-mutants",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "$SCRATCH/R332-3/scripts/extra_mutants.py",
+      "syn/ooc/pp_baseline.py"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 1.065,
+    "log": "R332-3-mutants.log"
+  },
+  {
+    "name": "R333-2-mutants",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "$SCRATCH/R333-2/probe_selftest/mutate2.py",
+      "syn/ooc/pp_baseline.py",
+      "$SCRATCH/final-mutants"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 1.166,
+    "log": "R333-2-mutants.log"
+  },
+  {
+    "name": "docs-git",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 4.271,
+    "log": "docs-git.log"
+  },
+  {
+    "name": "docs-no-git",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "env": {
+      "GIT_DIR": "$SCRATCH/absent-git"
+    },
+    "rc": 0,
+    "seconds": 4.121,
+    "log": "docs-no-git.log"
+  },
+  {
+    "name": "em-dash",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 3.021,
+    "log": "em-dash.log"
+  },
+  {
+    "name": "doc-style",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 0.064,
+    "log": "doc-style.log"
+  },
+  {
+    "name": "toc",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 2.568,
+    "log": "toc.log"
+  },
+  {
+    "name": "anchors",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 1.567,
+    "log": "anchors.log"
+  },
+  {
+    "name": "doc-paths",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 0.064,
+    "log": "doc-paths.log"
+  },
+  {
+    "name": "py-idiom",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 3.169,
+    "log": "py-idiom.log"
+  },
+  {
+    "name": "test-evidence",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 5.523,
+    "log": "test-evidence.log"
+  },
+  {
+    "name": "diff-check",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 0.016,
+    "log": "diff-check.log"
+  },
+  {
+    "name": "committed-diff-check",
+    "head": "3a1477c528bdf71b7cecadf86383b7579c9197d6",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "0a506fa8f0032d21e9614a617b75b0a57dc5f2e4",
+      "HEAD"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 0.004,
+    "log": "committed-diff-check.log"
+  }
+]
