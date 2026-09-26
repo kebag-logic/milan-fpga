@@ -1,0 +1,14 @@
+head 9143e21a57e6315c7678430cfc45b4a2b7e10c09 tree 12bc47c065c23b6a8a2a9ab766ca0b63f533d3ad
+Python 3.14.7
+docs_check_git               rc=0  $REVIEWS/567-r327-2-packet/scratch/venv/bin/python -B scripts/docs_check.py
+em_dash                      rc=0  $REVIEWS/567-r327-2-packet/scratch/venv/bin/python -B scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+doc_style                    rc=0  $REVIEWS/567-r327-2-packet/scratch/venv/bin/python -B scripts/check_doc_style.py
+toc_check                    rc=0  $REVIEWS/567-r327-2-packet/scratch/venv/bin/python -B scripts/gen_toc.py --check
+toc_anchors                  rc=0  $REVIEWS/567-r327-2-packet/scratch/venv/bin/python -B scripts/gen_toc.py --verify-anchors
+doc_paths                    rc=0  $REVIEWS/567-r327-2-packet/scratch/venv/bin/python -B scripts/check_doc_paths.py
+submodule_docs               rc=0  $REVIEWS/567-r327-2-packet/scratch/venv/bin/python -B scripts/check_submodule_docs.py
+submodule_diagram            rc=0  $REVIEWS/567-r327-2-packet/scratch/venv/bin/python -B docs/diagrams/submodule_boundaries.gen.py --check
+diagram_pngs                 rc=0  $REVIEWS/567-r327-2-packet/scratch/venv/bin/python -B scripts/check_diagram_pngs.py
+diff_check_wt                rc=0  git diff --check
+diff_check_range             rc=0  git diff --check 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a HEAD
+docs_check_nogit             rc=0  docs_check.py in git-archive export
