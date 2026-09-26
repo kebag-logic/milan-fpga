@@ -1,0 +1,23 @@
+HEAD ad4a5ff6ba15502ed60d58b3ca91830b50fa9e1c tree 86b7eb522d05b8f4fc998695bdde0299df998fa2
+## status (tracked + untracked)
+## index vs HEAD
+## worktree vs index (content+mode)
+## index flags (h/S/other than H)
+## index tree == HEAD tree: 86b7eb522d05b8f4fc998695bdde0299df998fa2
+## gitlinks at head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 990f96526bb89356c963a260ebbdcf2a77e6623a	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+## gitlinks base..head diff
+:100644 100644 fbadf1c1 d22d6ab4 M	docs/testing/CI_WORKFLOWS.md
+:100755 100755 3655988c 28f365a0 M	scripts/act_ci.py
+## submodule status
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (5dce647)
+ 990f96526bb89356c963a260ebbdcf2a77e6623a protocol-processor (v2.0-262-g990f965)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+## rehash of changed blobs on disk
+scripts/act_ci.py disk=28f365a0ec80259bd58148f72447aa56a50d8eda head=28f365a0ec80259bd58148f72447aa56a50d8eda mode=755
+docs/testing/CI_WORKFLOWS.md disk=d22d6ab4cef73cf076d3275eb432a10177e5afb0 head=d22d6ab4cef73cf076d3275eb432a10177e5afb0 mode=644
+## post-cleanup: generated scripts/__pycache__ (created by this review's gate runs at 12:33-12:35) removed; git status --porcelain --ignored empty

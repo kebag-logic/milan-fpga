@@ -1,0 +1,24 @@
+M0-control-unchanged: exit=0 ok_arms=432 failing_arms=0 -> PASS
+M1-require_tool-resolves-pasta-again: exit=1 ok_arms=430 failing_arms=2 -> KILLED
+    FAIL pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor
+    FAIL the slot uplink's fake multi-call executable observes the invoked name pasta
+M2-uplink-re-resolves-at-launch: exit=1 ok_arms=430 failing_arms=2 -> KILLED
+    FAIL the slot uplink's fake multi-call executable observes the invoked name pasta
+    FAIL the uplink is socket-level NAT in the slot namespace: no inbound or outbound port forward and no gateway mapped to host loopback
+M3-every-tool-keeps-its-symlink: exit=1 ok_arms=431 failing_arms=1 -> KILLED
+    FAIL every other slot host tool still resolves its final symlink
+M4-ambient-PATH-lookup: exit=1 ok_arms=169 failing_arms=2 -> KILLED
+    FAIL pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor
+    FAIL the invoked pasta symlink still resolves to its executable identity
+M5-pasta-only-ambient-PATH: exit=1 ok_arms=429 failing_arms=3 -> KILLED
+    FAIL pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor
+    FAIL the invoked pasta symlink still resolves to its executable identity
+    FAIL the slot uplink's fake multi-call executable observes the invoked name pasta
+M6-pasta-realpath: exit=1 ok_arms=430 failing_arms=2 -> KILLED
+    FAIL pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor
+    FAIL the slot uplink's fake multi-call executable observes the invoked name pasta
+M8-also-preserve-non-slot-tool-sudo: exit=0 ok_arms=432 failing_arms=0 -> SURVIVED
+M7-pasta-resolves-only-parent-dir: exit=1 ok_arms=430 failing_arms=2 -> KILLED
+    FAIL pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor
+    FAIL the slot uplink's fake multi-call executable observes the invoked name pasta
+rc=1

@@ -1,0 +1,9 @@
+require_tool(pasta) = /usr/sbin/pasta
+resolved target     = /usr/bin/passt
+## invoked by lookup spelling
+pasta 2026_07_28.f8df3f1
+## invoked by resolved target
+passt 2026_07_28.f8df3f1
+## resolved target given a pasta-only option (parse failure only)
+rc=1
+--netns-only is for pasta mode only
