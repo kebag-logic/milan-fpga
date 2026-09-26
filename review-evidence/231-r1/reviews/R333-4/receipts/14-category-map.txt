@@ -1,0 +1,28 @@
+selftest rc=0
+arm category CLI containment: 3
+arm category binding: 6
+arm category declaration: 18
+arm category endpoint: 2
+arm category geometry: 14
+arm category inventory: 2
+arm category pathname: 3
+arm category template (single synthesis command): 2
+inventory labels: 40
+selftest: baseline selftest: complete image and exact block PASS; 9 refusals PASS
+selftest: baseline parameter selftest: 5 refusals PASS
+selftest: baseline inventory selftest: 40 refusals and restored control PASS
+selftest: baseline endpoint selftest: valid pathname and 9 refusals PASS
+selftest: baseline export selftest: 3 default scripts, attribution constraint, CLI containment refusal PASS
+page:281: Its self-test retains nine original refusal cases.
+page:282: Synthetic exports exercise inventory, geometry, binding and declaration refusals.
+page:283: They also exercise endpoint, pathname and CLI containment refusals.
+page:286: Every maintained enforcement-removal mutant fails; the unchanged control passes.
+named on page and exercised: inventory: page=True arms=2
+named on page and exercised: geometry: page=True arms=14
+named on page and exercised: binding: page=True arms=6
+named on page and exercised: declaration: page=True arms=18
+named on page and exercised: endpoint: page=True arms=2
+named on page and exercised: pathname: page=True arms=3
+named on page and exercised: CLI containment: page=True arms=3
+exercised but not named on page: template (single synthesis command): 2
+rc=0

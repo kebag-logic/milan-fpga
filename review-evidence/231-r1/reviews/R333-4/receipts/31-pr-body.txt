@@ -1,0 +1,62 @@
+{'baseRefName': 'dev', 'headRefName': '231-pp-shadow-baseline', 'headRefOid': 'ae729bbfd90934f4d56d3b02f1ffc652496b414d', 'isDraft': False, 'number': 572, 'state': 'OPEN', 'title': 'Record the protocol processor area and timing baseline', 'updatedAt': '2026-09-26T15:51:03Z'}
+[A341]
+
+Closes #231
+
+Commit: `ae729bbfd90934f4d56d3b02f1ffc652496b414d`
+
+Establish the current protocol processor area and timing baseline for the shipping 1x1 and supported 8x8 product configurations. Add a reproducible recipe derived from the shipping build, complete wrapper parameters and image hashes, hierarchical resource tables, and mapping comparisons. No RTL or donor changes.
+
+The shipping 1x1 route uses 48,618 LUTs, with 22,441 assigned to the reconstructed protocol-wrapper name (which includes relocated datapath logic), with final setup slack +0.013 ns and hold slack +0.014 ns under the existing constraints. Integrated 8x8 synthesis uses 68,136 LUTs against 63,400 available. The baseline distinguishes standalone estimates from integrated results and preserves the historical substitution provenance.
+
+Validation: both full builder modes and every requested local gate returned rc 0. The compiler-backed run exercised 855 target compiler invocations. The historical mf48 calibration report was unavailable in both builder modes; the compiler-absent mode also deliberately skipped target compile evidence. Both documentation CI modes passed. Complete evidence and command records accompany the author handoff.
+
+The existing clock-constraint warnings and I/O-delay omissions remain documented limitations. The three placement runs all pass their final setup and hold checks; the best measured setup slack is +0.123 ns. The complete reports retain the exact shipping result separately.
+
+## Round 2
+
+All five items in the round-two assignment are addressed. Default-flow whole-design totals remain the fit baseline. A separate integrated run preserves the protocol-wrapper boundary with `KEEP_HIERARCHY TRUE`; its results are labelled attribution-only. No RTL, donor, geometry, image, clock or synthesis-directive change accompanies that constraint.
+
+| Endpoint | Whole LUT, default / attribution | Wrapper-name LUT, default / attribution | AECP LUT, default / attribution | Dynamic-state LUT, default / attribution |
+|---|---:|---:|---:|---:|
+| 1x1 synthesis | 51,125 / 52,210 | 23,272 / 22,314 | 6,639 / 4,678 | 1,296 / 111 |
+| 1x1 route | 48,618 / 48,825 | 22,441 / 20,655 | 6,428 / 4,504 | 1,299 / 111 |
+| 8x8 synthesis | 68,136 / 70,206 | 37,809 / 29,489 | 15,199 / 5,025 | 6,915 / 574 |
+
+The public boundary and load probes ran unchanged on all three attribution checkpoints. At 8x8 synthesis, the dynamic-state scope drops from 8,817 to 607 raw LUT cells and from 5,922 to zero cells with only external loads. The default load names include datapath audio-map registers. Attribution dynamic-state load histograms are empty at all three endpoints. Remaining wrapper-level external loads include exported signals; the probe does not measure reverse relocation. Raw LUT cells differ from combined utilization LUTs.
+
+The attribution 1x1 route finishes with setup slack +0.041 ns, hold slack +0.015 ns and zero failing setup, hold or pulse-width endpoints. Preserving the boundary changes mapping and sharing: the 8x8 attribution wrapper has eight DSPs, versus five under the default reconstructed name, with the three additional DSPs in `u_nvm`. Attribution counts cannot be subtracted from default whole-design totals.
+
+Complete rankings now cover every reported direct processor and wrapper child, plus own logic, at a zero threshold. LUT and FF ranks are independent. All eight endpoints include parent totals and explicit LUT-sharing reconciliation; the timing tables are labelled subsets. The complete 328-row ranking is in `docs/findings/PP_SHADOW_BASELINE_RANKING.tsv`.
+
+Equivalent-geometry hierarchical Yosys runs locate the largest raw logic-count differences in SRP, processor own logic and notification logic. Complete disjoint contributions plus the measured flattening residual reconcile the original raw gaps exactly: 16,317 LUTs at 1x1 and 33,374 at 8x8. The residual is not assigned speculatively to individual modules. The full accounting is in `docs/findings/PP_SHADOW_BASELINE_MAPPING.tsv`.
+
+The preparation self-test now exercises real script emission, inventory and CLI refusal with synthetic exports. The positive control passes, and all ten enforcement-removal mutants fail, including ROM-error promotion, readmemh inventory equality, empty SRAM, parameter ROM geometry, output containment and attribution constraints. The original public mutant driver also passes its control and kills all five mutants. Fast CI runs the maintained self-tests and mutant checks.
+
+The dangling builder-output citation now denotes a directory. The path gate passes on a clean export with builder output absent. Every requested local gate returns rc 0, including both full builder modes, both documentation CI modes, the event-contract check and self-test, HDL and language gates, traceability, naming, test evidence, Behave and whitespace. The compiler-backed run records 855 target invocations. The historical calibration arm remains unavailable in both modes; compiler-absent mode additionally skips the target compiled CSR census. These skips are recorded as limits rather than evidence.
+
+All 20 wrapper parameters and all six input-image hashes match for each product shape. The two 118-source exports retain source order and commands after work-root normalization; generated Verilog differs only in comments and work-root strings. Attribution synthesis logs contain zero missing-ROM diagnostics. Raw reports, checkpoint receipts and gate logs are retained separately from the compact handoff.
+
+## Round 3
+
+Address the tests-only assignment on issue #231 (comment 5847401184). The synthetic export now refuses duplicated and missing image bindings, duplicated and missing geometry packages, duplicated and missing depth/width declarations, generated ROM depth and width mismatches, and parameter ROM width mismatches. Each refusal checks the intended diagnostic. All three control-ROM families are exercised. A valid export passes again after fixture restoration.
+
+The self-test covers 40 inventory refusals, the original nine cases, five parameter/template refusals, nine endpoint/pathname refusals and CLI output containment. Valid default and attribution scripts, the unfiltered hierarchy report, and a valid string pathname remain positive controls. Production preparation functions and constants, RTL, measured figures and baseline pages are unchanged.
+
+The maintained campaign now kills all 28 named mutants. Both public reviewer scripts run unchanged against this commit: `scripts/extra_mutants.py` from R332-3 kills 15/15, and `probe_selftest/mutate2.py` from R333-2 kills 17/17. All three pristine controls pass. The handoff records every verdict, the public script revisions and hashes, and all gate receipts.
+
+Every requested round-three gate returns rc 0: preparation self-test, maintained mutants, documentation checks in both Git and filesystem modes, em-dash against `7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a`, documentation style, TOC check, anchor verification, cited paths, Python idiom, test evidence and whitespace. Both documentation inventories cover the same 894 text files with zero findings. The filesystem mode skips only Git inventory parity, as expected. The earlier measurement and builder evidence above belongs to prior rounds; this round uses synthetic exports and adds no synthesis or hardware measurement.
+
+Round-three changes were reviewed at `3a1477c528bdf71b7cecadf86383b7579c9197d6` in R332-4 and R333-3. Their shared MINOR documentation finding is addressed by Round 4 below; the corrected head requires independent re-review.
+
+## Round 4
+
+Address the text-only assignment on issue #231 (comment 5847557806) and the shared F1 in R332-4 and R333-3. The baseline page now describes inventory, geometry, binding, declaration, endpoint, pathname and CLI containment refusals. The page and recipe refer to every maintained enforcement-removal mutant alongside the unchanged positive control, without a fixed mutant count.
+
+Only `docs/findings/PP_SHADOW_BASELINE.md` and `docs/testing/PP_SHADOW_BASELINE_RECIPE.md` change in this round. The preparation helper, maintained mutant list and measured baseline remain unchanged.
+
+All requested round-four gates return rc 0 at `ae729bbfd90934f4d56d3b02f1ffc652496b414d`: preparation self-test, maintained mutants, both documentation CI modes, em-dash against `7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a`, documentation style, TOC check, anchor verification, cited paths and whitespace. The pristine mutant control passes and every maintained mutant fails. Both documentation modes inspect the same 894 text files with zero findings; filesystem mode skips only Git inventory parity. Python idiom is inapplicable because no script changed.
+
+This commit is local and unpushed. This body is a prepared replacement; the live PR has not been edited. Independent re-review, publication and final-head acceptance remain pending.
+
+
