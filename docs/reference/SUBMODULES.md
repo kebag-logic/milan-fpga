@@ -26,7 +26,7 @@ Dirty submodules invalidate local evidence.
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
-Issue #508 adopts these processor changes.
+Issue #508 adopted these processor changes.
 
 | Processor issues | Merged PR | Adopted behavior |
 |---|---|---|
@@ -41,16 +41,40 @@ PR 117 merged as `265d6762`.
 
 PR 115 then merged as `990f9652`.
 
-Issue #502 advances the pin to `870ff88a`.
+Issue #567 adopted processor pin `0922e434`.
 
-- PR 118 records the October MVU waiver and refusal tests.
-- PR 119 completes the integration parameter inventory.
+| Merged processor PR | Adopted change |
+|---|---|
+| [118](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/118) | October MVU waiver and unsupported-command response tests |
+| [119](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/119) | Complete integration parameter inventory and its checker |
+
+That adoption left processor HDL and ROM generators unchanged.
+
+The repository tool recorded ROM digest rows for `0922e434`.
+
+Their digests match the `990f9652` rows.
+
+Issue #502 advances the current pin to `870ff88a`.
+
 - PR 121 exports each accepted live name write.
 - `KL_pp_shadow` connects that pulse to saved-state pending.
 - Map phase 5 supplies the corresponding map trigger.
 - Later marks retain their command-completion meaning.
 
-The ROM ledger and boundary diagram follow the new pin.
+The ROM ledger retains both adopted pins' rows.
+
+The boundary diagram follows the current pin.
+
+OOC synthesis requires ledger rows for the pin of record.
+Rows must match that exact pin.
+
+The parent wrapper's parameter bindings match the documented inventory.
+
+Run the inventory checker from the parent checkout:
+
+```sh
+python3 protocol-processor/scripts/check-integrator-params.py
+```
 
 The [datapath suite](../../tb/verilator/milan_dp/README.md#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify) records notification coverage.
 
@@ -142,7 +166,6 @@ Imported prose never defines root runtime behavior.
 |---|---|
 | Protocol interface guide shows word-wide RX | Landed processor receives bytes |
 | Protocol interface guide shows RX backpressure | Landed processor has no RX ready |
-| Protocol overview F01.5 lists `P-EN-MVU-SUID` / `P-EN-MVU-MCR` at 1 / 1 | Landed processor has neither parameter and serves neither command pair; #510 keeps both unserved, and [donor issue 77](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/77) owns the prose |
 
 Track donor repairs separately.
 
