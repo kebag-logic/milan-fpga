@@ -52,6 +52,10 @@ these statements hold:
   builder emits `--fabric-gptp` and generates `gptp_ucode.hex` from that same
   configuration's station MAC, priority1 and 50 MHz Milan clock.
 
+The [8x8 shape](../../configs/endstation_ax7101_8x8.yaml) also declares 50 MHz ([#565](https://github.com/kebag-logic/milan-fpga/issues/565)).
+That declaration states the target, without claiming timing closure.
+No cacheless 8x8 placement or routing record exists.
+
 Build through the checked configuration entry point:
 
 ```console
