@@ -1,0 +1,13 @@
+mutants per commit:
+0a506fa8 [10]
+3a1477c5 [28]
+ae729bbf [28]
+script blobs 3a1477c5 vs ae729bbf:
+identical
+mutant/refusal mentions at head:
+docs/findings/PP_SHADOW_BASELINE.md:281:Its self-test retains nine original refusal cases.
+docs/findings/PP_SHADOW_BASELINE.md:282:Synthetic exports exercise inventory, geometry, binding and declaration refusals.
+docs/findings/PP_SHADOW_BASELINE.md:283:They also exercise endpoint, pathname and CLI containment refusals.
+docs/findings/PP_SHADOW_BASELINE.md:286:Every maintained enforcement-removal mutant fails; the unchanged control passes.
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md:382:Run the maintained enforcement-removal mutants alongside the positive control:
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md:386:python3 syn/ooc/pp_baseline_mutants.py

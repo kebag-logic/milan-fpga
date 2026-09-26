@@ -1,0 +1,4 @@
+5 Commit: `ae729bbfd90934f4d56d3b02f1ffc652496b414d`
+33 The preparation self-test now exercises real script emission, inventory and CLI refusal with synthetic exports. The positive control passes, and all ten enforcement-removal mutants fail, including ROM-error promotion, readmemh inventory equality, empty SRAM, parameter ROM geometry, output containment and attribution constraints. The original public mutant driver also passes its control and kills all five mutants. Fast CI runs the maintained self-tests and mutant checks.
+49 Round-three changes were reviewed at `3a1477c528bdf71b7cecadf86383b7579c9197d6` in R332-4 and R333-3. Their shared MINOR documentation finding is addressed by Round 4 below; the corrected head requires independent re-review.
+59 This commit is local and unpushed. This body is a prepared replacement; the live PR has not been edited. Independent re-review, publication and final-head acceptance remain pending.
