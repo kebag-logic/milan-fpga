@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "<packet>/scratch/mut/scripts/audit_pp_descriptors.py", line 356, in <module>
+    main()
+    ~~~~^^
+  File "<packet>/scratch/mut/scripts/audit_pp_descriptors.py", line 346, in main
+    packer_probes=packer_probes(documents[current.stem]),
+                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut/scripts/audit_pp_descriptors.py", line 222, in packer_probes
+    assert_packed_bytes(candidate, blob)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut/scripts/audit_pp_descriptors.py", line 178, in assert_packed_bytes
+    assert blob[offset:offset + length] == bytes.fromhex(expected["bytes"])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
