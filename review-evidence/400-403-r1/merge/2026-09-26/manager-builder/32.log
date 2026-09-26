@@ -1,0 +1,156 @@
+SHAPE DRIFT [tmpf1v7j3i9.sh] arty vs configs/endstation_arty_4x4.yaml:
+  - --num-streams 5 != config streams 4 (max(listeners, talkers)) - the bitstream would be 5x5, the config says 4x4
+SHAPE DRIFT: arty: generated fragment pins NS=4 but sweep.sh's default is 5 - the fragment is sourced AFTER the defaults, so the fragment would win silently
+SHAPE DRIFT [tmpf1v7j3i9.sh] ax7101 vs configs/endstation_ax7101_1x1_tdm8.yaml:
+  - --num-streams 2 != config streams 1 (max(listeners, talkers)) - the bitstream would be 2x2, the config says 1x1
+SHAPE DRIFT: ax7101: generated fragment pins NS=1 but sweep.sh's default is 2 - the fragment is sourced AFTER the defaults, so the fragment would win silently
+SHAPE DRIFT: cfg_ax8x8: design flag --xlen: launch line '64' != config-implied '32' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_arty: design flag --cpu-count: launch line '2' != config-implied '1' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_ax8x8: --entity-gen-dir names 'endstation_ax7101_1x1_tdm8' but this recipe is graded against endstation_ax7101_8x8.yaml - the gateware and generated artifacts would be different shapes
+SHAPE DRIFT: cfg_ax8x8: design flag --audio-interface: launch line 'tdm8' != config-implied 'tdm32' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --audio-interface-render: launch line '8' != config-implied '(absent)' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --loopback-lane: launch line True != config-implied '(absent)' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --milan-clk-freq: launch line '50e6' != config-implied '100e6' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --no-datapath-probes: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --no-latency-taps: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --num-streams: launch line '1' != config-implied '8' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: build.sh regenerated configs/endstation_ax7101_1x1_tdm8.yaml for a recipe graded against configs/endstation_ax7101_8x8.yaml
+SHAPE DRIFT: cfg_ax8x8: soc_params.json was generated from 'configs/endstation_ax7101_1x1_tdm8.yaml', not 'configs/endstation_ax7101_8x8.yaml'
+SHAPE DRIFT: cfg_ax8x8: $LANES/400-403-cand-manager-builder/sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json is stale: its argv is not emit_soc_argv of endstation_ax7101_8x8.yaml - regenerate it
+SHAPE DRIFT: cfg_arty: design flag --board: launch line '(absent)' != config-implied 'arty' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --board: launch line '(absent)' != config-implied 'ax7101' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --board: launch line '(absent)' != config-implied 'ax7101' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_arty: no --entity-gen-dir. milan_soc.py refuses to launch without it, so this recipe cannot be run at all; it must name configs/generated/endstation_arty_current
+SHAPE DRIFT: cfg_arty: design flag --board: launch line '(absent)' != config-implied 'arty' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --cpu: launch line '(absent)' != config-implied 'vexiiriscv' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --cpu-count: launch line '(absent)' != config-implied '1' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --fabric-gptp: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --flashboot: launch line '(absent)' != config-implied 'baremetal' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --full: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --l2-bytes: launch line '(absent)' != config-implied '0' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --milan-clk-freq: launch line '(absent)' != config-implied '50e6' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --num-streams: launch line '(absent)' != config-implied '1' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --software-profile: launch line '(absent)' != config-implied 'baremetal' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --sys-clk-freq: launch line '(absent)' != config-implied '83.333e6' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --timing-opt: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --uart-baudrate: launch line '(absent)' != config-implied '115200' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --with-spiflash: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_arty: design flag --xlen: launch line '(absent)' != config-implied '32' (emit_soc_argv of endstation_arty_current.yaml)
+SHAPE DRIFT: cfg_ax7101: no --entity-gen-dir. milan_soc.py refuses to launch without it, so this recipe cannot be run at all; it must name configs/generated/endstation_ax7101_1x1_tdm8
+SHAPE DRIFT: cfg_ax7101: design flag --audio-interface: launch line '(absent)' != config-implied 'tdm8' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --audio-interface-master: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --audio-interface-render: launch line '(absent)' != config-implied '8' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --board: launch line '(absent)' != config-implied 'ax7101' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --cpu: launch line '(absent)' != config-implied 'vexiiriscv' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --cpu-count: launch line '(absent)' != config-implied '1' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --eth-port: launch line '(absent)' != config-implied 'e1' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --fabric-gptp: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --flashboot: launch line '(absent)' != config-implied 'baremetal' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --floorplan: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --full: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --gptp-egress-lat-ns: launch line '(absent)' != config-implied '219' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --gptp-ingress-lat-ns: launch line '(absent)' != config-implied '656' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --gtx-tx-invert: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --l2-bytes: launch line '(absent)' != config-implied '0' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --loopback-lane: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --milan-clk-freq: launch line '(absent)' != config-implied '50e6' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --no-i2s-playback: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --no-render-lpf: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --num-streams: launch line '(absent)' != config-implied '1' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --software-profile: launch line '(absent)' != config-implied 'baremetal' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --talker-wire-chans: launch line '(absent)' != config-implied '8' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --timing-opt: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --uart-baudrate: launch line '(absent)' != config-implied '115200' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --with-spiflash: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax7101: design flag --xlen: launch line '(absent)' != config-implied '32' (emit_soc_argv of endstation_ax7101_1x1_tdm8.yaml)
+SHAPE DRIFT: cfg_ax8x8: no --entity-gen-dir. milan_soc.py refuses to launch without it, so this recipe cannot be run at all; it must name configs/generated/endstation_ax7101_8x8
+SHAPE DRIFT: cfg_ax8x8: design flag --audio-interface: launch line '(absent)' != config-implied 'tdm32' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --audio-interface-master: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --board: launch line '(absent)' != config-implied 'ax7101' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --cpu: launch line '(absent)' != config-implied 'vexiiriscv' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --cpu-count: launch line '(absent)' != config-implied '1' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --eth-port: launch line '(absent)' != config-implied 'e1' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --fabric-gptp: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --flashboot: launch line '(absent)' != config-implied 'baremetal' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --floorplan: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --full: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --gptp-egress-lat-ns: launch line '(absent)' != config-implied '219' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --gptp-ingress-lat-ns: launch line '(absent)' != config-implied '656' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --gtx-tx-invert: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --l2-bytes: launch line '(absent)' != config-implied '0' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --milan-clk-freq: launch line '(absent)' != config-implied '100e6' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --no-datapath-probes: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --no-i2s-playback: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --no-latency-taps: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --no-render-lpf: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --num-streams: launch line '(absent)' != config-implied '8' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --software-profile: launch line '(absent)' != config-implied 'baremetal' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --talker-wire-chans: launch line '(absent)' != config-implied '8' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --timing-opt: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --uart-baudrate: launch line '(absent)' != config-implied '115200' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --with-spiflash: launch line '(absent)' != config-implied True (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_ax8x8: design flag --xlen: launch line '(absent)' != config-implied '32' (emit_soc_argv of endstation_ax7101_8x8.yaml)
+SHAPE DRIFT: cfg_arty: build.sh arty --dry-run exited 2: refusing to build: regenerating $LANES/400-403-cand-manager-builder/sw/builder/out/endstation_arty_current/soc_params.json from configs/endstation_arty_current.yaml FAILED (endstation_builder.py exited 2, its error is above). Nothing launched; the design argv already on file was NOT used.
+SHAPE DRIFT: cfg_ax7101: build.sh ax7101 --dry-run exited 2: refusing to build: regenerating $LANES/400-403-cand-manager-builder/sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json from configs/endstation_ax7101_1x1_tdm8.yaml FAILED (endstation_builder.py exited 2, its error is above). Nothing launched; the design argv already on file was NOT used.
+SHAPE DRIFT: cfg_ax8x8: build.sh ax8x8 --dry-run exited 2: refusing to build: regenerating $LANES/400-403-cand-manager-builder/sw/builder/out/endstation_ax7101_8x8/soc_params.json from configs/endstation_ax7101_8x8.yaml FAILED (endstation_builder.py exited 2, its error is above). Nothing launched; the design argv already on file was NOT used.
+SHAPE DRIFT: build.sh cfg_unbound_selftest has no config binding in BUILD_CFGS; an ungraded recipe could silently build a different shape
+SHAPE DRIFT: tmp68jb_wz8.sh: launches milan_soc.py without `export PYTHONHASHSEED=0`; the CPU netlist name would depend on the process
+SHAPE DRIFT: tmppec415y6.sh: launches milan_soc.py without `export PYTHONHASHSEED=0`; the CPU netlist name would depend on the process
+SHAPE DRIFT: tmpusby69te.sh: `export PYTHONHASHSEED=0` on line 523 comes after the milan_soc.py launch on line 498
+  [sweep-shape] arty: num-streams 4, l2 0, render-lpf True == endstation_arty_4x4.yaml
+  [sweep-shape] ax7101: num-streams 1, l2 0, render-lpf False == endstation_ax7101_1x1_tdm8.yaml
+  [sweep-shape] build.sh cfg_arty: 15 design flags on the dry-run launch line agree with endstation_arty_current.yaml flag for flag, --entity-gen-dir names it, and sw/builder/out/endstation_arty_current/soc_params.json is its current emission
+  [sweep-shape] build.sh cfg_ax7101: 26 design flags on the dry-run launch line agree with endstation_ax7101_1x1_tdm8.yaml flag for flag, --entity-gen-dir names it, and sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json is its current emission
+  [sweep-shape] build.sh cfg_ax8x8: 26 design flags on the dry-run launch line agree with endstation_ax7101_8x8.yaml flag for flag, --entity-gen-dir names it, and sw/builder/out/endstation_ax7101_8x8/soc_params.json is its current emission
+  [sweep-shape] build.sh: `export PYTHONHASHSEED=0` on line 498 precedes the milan_soc.py launch on line 499
+  [sweep-shape] sweep.sh: `export PYTHONHASHSEED=0` on line 26 precedes the milan_soc.py launch on line 116
+sweep shape gate: OK
+  [self-test] mutated NS (+1 per board) - expecting REJECT:
+  [self-test] OK: 4 drift(s) reported for the mutated sweep.sh
+  [self-test] cfg_ax8x8 hand-appends an RV64 --xlen after the sourced argv - expecting REJECT:
+  [self-test] OK: 1 drift(s) reported
+  [self-test] cfg_arty hand-appends a second hart - expecting REJECT:
+  [self-test] OK: 1 drift(s) reported
+  [self-test] cfg_ax8x8 is rebound to the 1x1 config - expecting REJECT:
+  [self-test] OK: 11 drift(s) reported
+  [self-test] the reader drops the first design flag pair - expecting REJECT:
+  [self-test] OK: 3 drift(s) reported
+  [self-test] the launch line drops the sourced argv - expecting REJECT:
+  [self-test] OK: 70 drift(s) reported
+  [self-test] the builder run fails - expecting REFUSAL:
+  [self-test] OK: build.sh exited 2, no launch line, no provenance line, refusal names 'endstation_builder.py exited'
+  [self-test] the artefact cannot be read - expecting REFUSAL:
+  [self-test] OK: build.sh exited 2, no launch line, no provenance line, refusal names 'cannot be read'
+  [self-test] the artefact carries no design argv - expecting REFUSAL:
+  [self-test] OK: build.sh exited 2, no launch line, no provenance line, refusal names 'carries no design argv'
+  [self-test] the artefact is another config's emission - expecting REFUSAL:
+  [self-test] OK: build.sh exited 2, no launch line, no provenance line, refusal names 'was generated from'
+  [self-test] OK: the gate reports it as a non-zero exit (3 drift(s))
+  [self-test] OK: cfg_arty launched the 26 design tokens of the artefact it says it regenerated from configs/endstation_arty_current.yaml
+  [self-test] OK: cfg_ax7101 launched the 42 design tokens of the artefact it says it regenerated from configs/endstation_ax7101_1x1_tdm8.yaml
+  [self-test] OK: cfg_ax8x8 launched the 41 design tokens of the artefact it says it regenerated from configs/endstation_ax7101_8x8.yaml
+  [self-test] an artefact another config wrote - expecting REJECT:
+  [self-test] OK: 1 drift(s) reported
+  [self-test] an artefact whose argv is not that config's current emission - expecting REJECT:
+  [self-test] OK: 1 drift(s) reported
+  [self-test] a launcher that regenerated another config - expecting REJECT:
+  [self-test] OK: 1 drift(s) reported
+  [self-test] OK: a current artefact reports nothing, a missing one is rejected
+  [self-test] BUILD_CFG is a file that is not under configs/ - expecting REFUSAL:
+  [self-test] OK: build.sh exited 2 naming the rule ('DIRECTLY under configs/')
+  [self-test] BUILD_CFG is a config one level below configs/ - expecting REFUSAL:
+  [self-test] OK: build.sh exited 2 naming the rule ('DIRECTLY under configs/')
+  [self-test] BUILD_CFG is an absolute path to a real config - expecting REFUSAL:
+  [self-test] OK: build.sh exited 2 naming the rule ('DIRECTLY under configs/')
+  [self-test] BUILD_CFG is a .yml spelling, whose artefact path the launcher would miss - expecting REFUSAL:
+  [self-test] OK: build.sh exited 2 naming the rule ('DIRECTLY under configs/')
+  [self-test] BUILD_CFG=configs/endstation_ax7101_8x8.yaml on cfg_arty - expecting ACCEPT:
+  [self-test] OK: the recipe was rebound to a config under configs/
+  [self-test] unbound cfg_* recipe - expecting REJECT:
+  [self-test] OK: unbound cfg_* recipe rejected
+  [self-test] build.sh without the seed export - expecting REJECT:
+  [self-test] OK: 1 drift(s) reported
+  [self-test] sweep.sh without the seed export - expecting REJECT:
+  [self-test] OK: 1 drift(s) reported
+  [self-test] build.sh exporting the seed after exec - expecting REJECT:
+  [self-test] OK: 1 drift(s) reported
