@@ -1,0 +1,31 @@
+--- base
++++ head
+@@ -125 +125 @@
+-- Verilator: Built from 15.275 MB sources in 48 modules, into 5.913 MB in 12 C++ files needing 0.002 MB
++- Verilator: Built from 15.280 MB sources in 48 modules, into 5.914 MB in 12 C++ files needing 0.002 MB
+@@ -131,5 +131 @@
+-python3 ../../hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+-wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+-python3 ../../hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+-ucode.hex: 2048 words, 80 programs
+-verilator --cc --exe --build -j 0 --top-module pp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp120-r335-1-packet/scratch/base/tb/pp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/adp/pp_adp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_rx_validator.sv ../../hdl/packet_engine/KL_pp_rx_slots.sv ../../hdl/packet_engine/KL_pp_normalizer.sv ../../hdl/packet_engine/KL_pp_dispatch.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/packet_engine/KL_pp_release_merge.sv ../../hdl/packet_engine/KL_pp_tx_arbiter.sv ../../hdl/packet_engine/KL_pp_scoreboard.sv ../../hdl/packet_engine/KL_pp_event_router.sv ../../hdl/packet_engine/KL_pp_originator.sv ../../hdl/packet_engine/KL_pp_trace_ring.sv ../../hdl/packet_engine/KL_pp_side_port.sv ../../hdl/packet_engine/KL_pp_nvm_port.sv ../../hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../hdl/aecp/ucpu_pkg.sv ../../hdl/aecp/KL_aecp_ucpu.sv ../../hdl/aecp/KL_aecp_desc_mem_guard.sv ../../hdl/aecp/KL_aecp_desc_store.sv ../../hdl/aecp/KL_aecp_dyn_state.sv ../../hdl/aecp/KL_aecp_engine.sv ../../hdl/aecp/KL_aecp_resp_buf.sv ../../hdl/aecp/KL_aecp_notify.sv ../../hdl/aecp/KL_aecp_ca_originator.sv ../../hdl/adp/KL_adp_engine.sv ../../hdl/acmp/KL_pp_acmp_listener.sv ../../hdl/acmp/KL_acmp_talker.sv ../../hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../hdl/acmp/KL_acmp_nvm_shadow.sv ../../hdl/maap/KL_pp_maap.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv ../../hdl/top/KL_mrp_strip.sv ../../hdl/top/protocol_processor_top.sv pp_top_wrap.sv sim_main.cpp -o Vpp_top_sim
++verilator --cc --exe --build -j 0 --top-module pp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp120-r335-1-packet/scratch/head/tb/pp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/adp/pp_adp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_rx_validator.sv ../../hdl/packet_engine/KL_pp_rx_slots.sv ../../hdl/packet_engine/KL_pp_normalizer.sv ../../hdl/packet_engine/KL_pp_dispatch.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/packet_engine/KL_pp_release_merge.sv ../../hdl/packet_engine/KL_pp_tx_arbiter.sv ../../hdl/packet_engine/KL_pp_scoreboard.sv ../../hdl/packet_engine/KL_pp_event_router.sv ../../hdl/packet_engine/KL_pp_originator.sv ../../hdl/packet_engine/KL_pp_trace_ring.sv ../../hdl/packet_engine/KL_pp_side_port.sv ../../hdl/packet_engine/KL_pp_nvm_port.sv ../../hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../hdl/aecp/ucpu_pkg.sv ../../hdl/aecp/KL_aecp_ucpu.sv ../../hdl/aecp/KL_aecp_desc_mem_guard.sv ../../hdl/aecp/KL_aecp_desc_store.sv ../../hdl/aecp/KL_aecp_dyn_state.sv ../../hdl/aecp/KL_aecp_engine.sv ../../hdl/aecp/KL_aecp_resp_buf.sv ../../hdl/aecp/KL_aecp_notify.sv ../../hdl/aecp/KL_aecp_ca_originator.sv ../../hdl/adp/KL_adp_engine.sv ../../hdl/acmp/KL_pp_acmp_listener.sv ../../hdl/acmp/KL_acmp_talker.sv ../../hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../hdl/acmp/KL_acmp_nvm_shadow.sv ../../hdl/maap/KL_pp_maap.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv ../../hdl/top/KL_mrp_strip.sv ../../hdl/top/protocol_processor_top.sv pp_top_wrap.sv sim_main.cpp -o Vpp_top_sim
+@@ -256 +252 @@
+-- Verilator: Built from 15.275 MB sources in 48 modules, into 5.913 MB in 12 C++ files needing 0.002 MB
++- Verilator: Built from 15.280 MB sources in 48 modules, into 5.914 MB in 12 C++ files needing 0.002 MB
+@@ -261,2 +257,3 @@
+-[build default, SRP_DOM_DEF_VID_P 0x0002] 7646 checks, 0 failures
+-verilator --cc --exe --build -j 0 --top-module pp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp120-r335-1-packet/scratch/base/tb/pp_top -Wall -Wextra" "+define+PP_TOP_SRP_DOM_DEF_VID=16'h5A3C" \
++NW: 85 checks, 0 failures
++[build default, SRP_DOM_DEF_VID_P 0x0002] 7731 checks, 0 failures
++verilator --cc --exe --build -j 0 --top-module pp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp120-r335-1-packet/scratch/head/tb/pp_top -Wall -Wextra" "+define+PP_TOP_SRP_DOM_DEF_VID=16'h5A3C" \
+@@ -382,0 +380,3 @@
++../sim_main.cpp:N: warning: ‘void run_name_writes(H&)’ defined but not used [-Wunused-function]
++N | static void run_name_writes(H& h) {
++      |             ^~~~~~~~~~~~~~~
+@@ -385 +385 @@
+-- Verilator: Built from 15.275 MB sources in 48 modules, into 5.913 MB in 12 C++ files needing 0.002 MB
++- Verilator: Built from 15.280 MB sources in 48 modules, into 5.914 MB in 12 C++ files needing 0.002 MB
+@@ -388 +388 @@
+-7666 checks: 7666 PASS, 0 FAIL
++7751 checks: 7751 PASS, 0 FAIL

@@ -1,0 +1,17 @@
+compiler: g++ (GCC) 16.2.1 20260810
+base pp_top transcript compiler warnings: 0
+head pp_top transcript compiler warnings: 1
+../sim_main.cpp:9744:13: warning: ‘void run_name_writes(H&)’ defined but not used [-Wunused-function]
+ 9744 | static void run_name_writes(H& h) {
+      |             ^~~~~~~~~~~~~~~
+the warning is emitted by the second (fixture) build, compiled with -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra
+
+source lines (head tb/pp_top/sim_main.cpp):
+78:#ifdef PP_TOP_SRP_DOM_DEF_VID
+85:#else
+87:#endif
+9744:static void run_name_writes(H& h) {
+9772:#ifdef PP_TOP_SRP_DOM_DEF_VID
+9777:#else
+9782:  if (!gsi_only) run_name_writes(h);
+9784:#endif
