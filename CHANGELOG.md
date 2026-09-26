@@ -41,7 +41,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Parent parameter bindings agree with that inventory.
 - The repository generator refreshes the submodule diagram and pin text.
 - Processor HDL and ROM generator sources are unchanged.
-- The ROM digest ledger remains unchanged under #567 acceptance 2.
+- The repository tool recorded ROM digest rows for `0922e434`.
+- Their digests match the `990f9652` rows.
 - Parent RTL and VERSION are unchanged.
 
 ## Unreleased - CRF servo holds through PHC slew

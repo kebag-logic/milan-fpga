@@ -50,11 +50,11 @@ Issue #567 advances the processor pin to `0922e434`.
 
 Processor HDL and ROM generator sources are unchanged.
 
-The ROM digest ledger remains unchanged under #567 acceptance 2.
+The repository tool recorded ROM digest rows for `0922e434`.
+
+Their digests match the `990f9652` rows.
 
 OOC synthesis requires rows for every pin.
-
-The [recorded conflict](https://github.com/kebag-logic/milan-fpga/issues/567#issuecomment-5844889430) needs an acceptance decision.
 
 The parent wrapper's parameter bindings match the documented inventory.
 
