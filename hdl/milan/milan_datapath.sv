@@ -4243,6 +4243,31 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   assign pp_amap_edit_wait_w = 1'b0;
 
+  // One accepted beat can update the live map only once. The same enable
+  // drives the store and the shadow's pending input on this axis_clk edge.
+  logic amap_edit_beat_w;
+  logic amap_edit_live_wr_p;
+  assign amap_edit_beat_w = pp_amap_edit_req_w
+                           && (!amap_edit_seen_r
+                               || (amap_edit_seen_phase_r != pp_amap_edit_phase_w)
+                               || (amap_edit_seen_rec_r != pp_amap_edit_rec_w));
+  assign amap_edit_live_wr_p = axis_resetn && amap_edit_beat_w
+      && (pp_amap_edit_phase_w == 3'd5) && amap_edit_context_w
+      && ((amap_edit_in_key_v_w
+           && amap_edit_iclaim_v_r[amap_edit_in_key_w]
+           && (amap_edit_in_live_w
+               != amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8]))
+          || (amap_edit_out_key_v_w
+              && amap_edit_oclaim_v_r[amap_edit_out_key_w]
+              && ((amap_edit_out_live_w
+                   != amap_edit_oclaim_word_r[amap_edit_out_key_w*13 +: 13])
+                  || (amap_edit_out_owner_v_w != !amap_edit_remove_r)
+                  || (!amap_edit_remove_r
+                      && ((amap_edit_out_owner_w != amap_edit_index_r)
+                          || (amap_edit_out_cluster_w
+                              != amap_edit_oclaim_cluster_r[
+                                   amap_edit_out_key_w*16 +: 16]))))));
+
   wire [12:0] cfg_cmap_entry_w = {cfg_chmap_wr_data[15],
                                    cfg_chmap_wr_data[8],
                                    cfg_chmap_wr_data[14:12],
@@ -4286,9 +4311,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       amap_edit_owr_p_r <= 1'b0;
       if (!pp_amap_edit_req_w) begin
         amap_edit_seen_r <= 1'b0;
-      end else if (!amap_edit_seen_r
-                   || (amap_edit_seen_phase_r != pp_amap_edit_phase_w)
-                   || (amap_edit_seen_rec_r != pp_amap_edit_rec_w)) begin
+      end else if (amap_edit_beat_w) begin
         amap_edit_seen_r <= 1'b1;
         amap_edit_seen_phase_r <= pp_amap_edit_phase_w;
         amap_edit_seen_rec_r <= pp_amap_edit_rec_w;
@@ -4343,47 +4366,32 @@ module milan_datapath import ethernet_packet_pkg::*; #(
             end
           end
           3'd5: begin
-            if (amap_edit_context_w && amap_edit_in_key_v_w
-                && amap_edit_iclaim_v_r[amap_edit_in_key_w]
-                && (amap_edit_in_live_w
-                    != amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8])) begin
-              amap_in_store_r[amap_edit_in_key_w*8 +: 8]
-                <= amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8];
-              if (ADP_DMAP_IN_RPHYS_C[amap_edit_in_key_w][6]) begin
-                amap_edit_iwr_p_r <= 1'b1;
-                amap_edit_iwr_addr_r
-                  <= ADP_DMAP_IN_RPHYS_C[amap_edit_in_key_w][5:0];
-                amap_edit_iwr_word_r
+            if (amap_edit_live_wr_p) begin
+              amap_edit_changed_r <= 1'b1;
+              if (amap_edit_in_key_v_w) begin
+                amap_in_store_r[amap_edit_in_key_w*8 +: 8]
                   <= amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8];
+                if (ADP_DMAP_IN_RPHYS_C[amap_edit_in_key_w][6]) begin
+                  amap_edit_iwr_p_r <= 1'b1;
+                  amap_edit_iwr_addr_r
+                    <= ADP_DMAP_IN_RPHYS_C[amap_edit_in_key_w][5:0];
+                  amap_edit_iwr_word_r
+                    <= amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8];
+                end
+              end else begin
+                amap_edit_owr_p_r <= 1'b1;
+                amap_edit_owr_slot_r <= 6'(amap_edit_out_key_w);
+                amap_edit_owr_word_r
+                  <= amap_edit_oclaim_word_r[amap_edit_out_key_w*13 +: 13];
+                amap_out_owner_v_r[amap_edit_out_key_w]
+                  <= !amap_edit_remove_r;
+                amap_out_owner_r[amap_edit_out_key_w*16 +: 16]
+                  <= amap_edit_remove_r ? 16'd0 : amap_edit_index_r;
+                amap_out_cluster_r[amap_edit_out_key_w*16 +: 16]
+                  <= amap_edit_remove_r ? 16'd0
+                                        : amap_edit_oclaim_cluster_r[
+                                            amap_edit_out_key_w*16 +: 16];
               end
-              amap_edit_changed_r <= 1'b1;
-            end else if (amap_edit_context_w && amap_edit_out_key_v_w
-                         && amap_edit_oclaim_v_r[amap_edit_out_key_w]
-                         && ((amap_edit_out_live_w
-                              != amap_edit_oclaim_word_r[
-                                   amap_edit_out_key_w*13 +: 13])
-                             || (amap_edit_out_owner_v_w
-                                 != !amap_edit_remove_r)
-                             || (!amap_edit_remove_r
-                                 && ((amap_edit_out_owner_w
-                                      != amap_edit_index_r)
-                                     || (amap_edit_out_cluster_w
-                                         != amap_edit_oclaim_cluster_r[
-                                              amap_edit_out_key_w*16
-                                              +: 16]))))) begin
-              amap_edit_owr_p_r <= 1'b1;
-              amap_edit_owr_slot_r <= 6'(amap_edit_out_key_w);
-              amap_edit_owr_word_r
-                <= amap_edit_oclaim_word_r[amap_edit_out_key_w*13 +: 13];
-              amap_out_owner_v_r[amap_edit_out_key_w]
-                <= !amap_edit_remove_r;
-              amap_out_owner_r[amap_edit_out_key_w*16 +: 16]
-                <= amap_edit_remove_r ? 16'd0 : amap_edit_index_r;
-              amap_out_cluster_r[amap_edit_out_key_w*16 +: 16]
-                <= amap_edit_remove_r ? 16'd0
-                                      : amap_edit_oclaim_cluster_r[
-                                          amap_edit_out_key_w*16 +: 16];
-              amap_edit_changed_r <= 1'b1;
             end
           end
           default: ;
@@ -7486,6 +7494,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .amap_edit_value_o (pp_amap_edit_value_w),
       .amap_edit_data_i  (pp_amap_edit_data_w),
       .amap_edit_wait_i  (pp_amap_edit_wait_w),
+      .amap_live_wr_i    (amap_edit_live_wr_p),
       //! the Milan-info face: GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH
       //! answered from the gsi_answer block above
       .gsi_req_o         (pp_gsi_req_w),

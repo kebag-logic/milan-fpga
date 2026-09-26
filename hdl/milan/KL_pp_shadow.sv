@@ -382,6 +382,10 @@ module KL_pp_shadow #(
     output logic [63:0] amap_edit_value_o,
     input  wire  [63:0] amap_edit_data_i,
     input  wire         amap_edit_wait_i,
+    //! One clk_i-cycle pulse from the parent's phase-5 live-map write enable.
+    //! Sampled on the write edge; same clk_i/rst_n, low during reset.
+    //! No pulse for unchanged/refused records or repeated held beats.
+    input  wire         amap_live_wr_i,
 
     //! ---- Milan-info gather face (06 SS6.2/SS6.10) ----
     //! Straight through to protocol_processor_top: GET_STREAM_INFO /
@@ -903,8 +907,8 @@ module KL_pp_shadow #(
   //!     reset, cleared by reset only) and is passed straight through; the
   //!     edge detector the tracked glue derived from it is GONE, because it
   //!     lost every change after the first (issue #420). Two further sources
-  //!     come from the pinned processor's own exports below: the binding
-  //!     manager's unflushed sinks, and accepted live name/map writes held
+  //!     come from the binding manager and the live write owners below:
+  //!     unflushed sinks, and accepted live name/map writes held
   //!     sticky because neither group has a record writer.
   //!   * a blind walk: whether a validated image stood behind the device face
   //!     for EVERY cycle of the restore walk. Latched per walk, because the
@@ -927,7 +931,7 @@ module KL_pp_shadow #(
   //! CDC is introduced. Map phase 5 cannot stall after accepted phase 1.
   //! Feed the accepting pulse as well as its sticky history to pend_i:
   //! the backend registers that input on the SAME edge as the live write.
-  //! A duplicate map record is conservatively pending even without a mark.
+  //! The parent shares its actual write enable; unchanged maps raise nothing.
   logic [N_STREAM_IN_P-1:0] nvm_unflushed_w;
   logic                     aecp_name_wr_w;
   logic                     aecp_live_wr_w;
@@ -939,7 +943,7 @@ module KL_pp_shadow #(
   assign unused_aecp_marks_w = ^{aecp_nvm_stb_w, aecp_nvm_mark_w};
 
   assign aecp_live_wr_w = aecp_name_wr_w
-                        | (amap_edit_req_o && (amap_edit_phase_o == 3'd5));
+                        | amap_live_wr_i;
 
   always_ff @(posedge clk_i) begin : latch_live_pending
     if (!rst_n) begin

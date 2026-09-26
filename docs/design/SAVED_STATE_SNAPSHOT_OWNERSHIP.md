@@ -958,14 +958,16 @@ Issue #502 aligns name/map reporting with live acceptance.
 - The dynamic-state store's sticky `aecp_dyn_dirty_o` level.
 - The binding manager's `nvm_unflushed_o` vector, reduced with OR.
 - Accepted name writes from `aecp_name_wr_o`.
-- Map edit requests with `amap_edit_phase_o == 5`.
+- Actual phase-5 map writes through `amap_live_wr_i`.
 - Sticky history of those name/map writes, cleared only by reset.
 
 The accepting pulses bypass the history register into `pend_i`.
 The backend therefore reports pending on the accepting edge.
 All producers share the backend's clock and reset.
 Map phase 5 cannot stall after phase 1 accepts.
-Duplicate map records conservatively set pending, even without a mark.
+The parent derives `amap_live_wr_i` from `amap_edit_live_wr_p`.
+That same enable updates live storage and records the change.
+Unchanged duplicate records produce no pulse.
 Unchanged name lanes produce no pulse.
 The later class-6/7 marks retain their command-completion meaning.
 
@@ -1257,7 +1259,7 @@ are
 | 0x30 to 0x3F | stream format in | KL_aecp_dyn_state, selector 3 | the dynamic-state level | NONE | nvm_pend 1 until reset (E1: two accepted format changes; the tracked and composite builds commit record 0x30 erased, and the prototype commits no slot at all, "record 0x30 in slot None") |
 | 0x40 to 0x4F | stream format out | KL_aecp_dyn_state, selector 4 | the dynamic-state level | NONE | nvm_pend 1 until reset |
 | 0x50 to 0x5F | presentation time offset | KL_aecp_dyn_state, selector 5 | the dynamic-state level | NONE | nvm_pend 1 until reset |
-| 0x60 to 0x7F | channel maps in and out | milan_datapath and KL_chan_map_capture | accepted map edit phase 5 (#502) | NONE | nvm_pend 1 from the first accepted write until reset; never durable, and never written (UNRESOLVED 1) |
+| 0x60 to 0x7F | channel maps in and out | milan_datapath and KL_chan_map_capture | actual phase-5 map write enable (#502) | NONE | nvm_pend 1 from the first accepted write until reset; never durable, and never written (UNRESOLVED 1) |
 | 0x80 to 0xFF | user names | KL_aecp_desc_store (SET_NAME) | accepted aecp_name_wr_o pulse (#502) | NONE | as the maps row: reported from acceptance, never written (UNRESOLVED 1) |
 
 Acknowledgement identity repairs none of the NONE rows; what this contract

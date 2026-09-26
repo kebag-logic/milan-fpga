@@ -266,6 +266,9 @@ class PpShadowHarness {
     struct PendingObs {
         bool armed = false;
         bool unsaved = false;
+        bool watching = false;
+        std::vector<uint8_t> before;
+        unsigned changes = 0;
         bool map_held = false;
         long cycle = 0;
         long first_write = -1;
@@ -280,9 +283,28 @@ class PpShadowHarness {
     };
     PendingObs pending;
 
+    template <class T>
+    static void pending_append(std::vector<uint8_t>& bytes, const T& value) {
+        const auto* data = reinterpret_cast<const uint8_t*>(&value);
+        bytes.insert(bytes.end(), data, data + sizeof(T));
+    }
+
+    std::vector<uint8_t> pending_live_state() {
+        const auto* rp = dut->rootp;
+        std::vector<uint8_t> state;
+        pending_append(state, rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_store__DOT__name_r);
+        pending_append(state, rp->milan_datapath__DOT__amap_in_store_r);
+        pending_append(state, rp->milan_datapath__DOT__amap_out_owner_v_r);
+        pending_append(state, rp->milan_datapath__DOT__amap_out_owner_r);
+        pending_append(state, rp->milan_datapath__DOT__amap_out_cluster_r);
+        pending_append(state, rp->milan_datapath__DOT__cmap_flat_w);
+        return state;
+    }
+
     void pending_pre_edge() {
         if (!pending.armed || !dut->axis_resetn) return;
         ++pending.cycle;
+        if (pending.watching) pending.before = pending_live_state();
         const auto* rp = dut->rootp;
         const bool name = rp->milan_datapath__DOT__pp_shadow__DOT__aecp_name_wr_w;
         const bool map = rp->milan_datapath__DOT__pp_shadow__DOT__amap_edit_req_o
@@ -290,10 +312,6 @@ class PpShadowHarness {
         pending.names += name;
         pending.maps += map && !pending.map_held;
         pending.map_held = map;
-        if (name || map) {
-            pending.unsaved = true;
-            if (pending.first_write < 0) pending.first_write = pending.cycle;
-        }
         if (rp->milan_datapath__DOT__pp_shadow__DOT__aecp_nvm_stb_w) {
             ++pending.marks;
             pending.wrong_group +=
@@ -304,7 +322,15 @@ class PpShadowHarness {
     }
 
     void pending_post_edge() {
-        if (!pending.armed || !pending.unsaved || !dut->axis_resetn) return;
+        if (!pending.armed || !pending.watching || !dut->axis_resetn) return;
+        // The storage transition, not either pending trigger, starts the
+        // unsaved interval. It includes the capture map's later write edge.
+        if (pending_live_state() != pending.before) {
+            ++pending.changes;
+            pending.unsaved = true;
+            if (pending.first_write < 0) pending.first_write = pending.cycle;
+        }
+        if (!pending.unsaved) return;
         const auto* rp = dut->rootp;
         const bool pend = rp->milan_datapath__DOT__pp_nvm_pend_w;
         pending.missing_pending += !pend;
@@ -713,6 +739,9 @@ class PpShadowHarness {
 
     // ---- inject one little-lane frame on the MAC RX port ----
     void inject_rx(const uint8_t* f, size_t len, int tail_cycles) {
+        // Begin observation before any command byte enters the DUT. Boot
+        // and control-face preloads establish the baseline outside #502.
+        if (pending.armed) pending.watching = true;
         size_t beats = (len + 7) / 8;
         std::vector<uint64_t> bw(beats, 0);
         std::vector<uint8_t>  bk(beats, 0);
@@ -1360,10 +1389,13 @@ class PpShadowHarness {
                    tag, pending.first_write, pending.first_mark,
                    pending.first_mark - pending.first_write);
         }
-        ck("K sticky pending at PP_STAT", (axi_read(A_PP_STAT) >> 11) & 1u,
-           names || maps ? 1 : 0);
-        ck("K sticky pending at PP_NVM_STAT", (axi_read(A_PP_NVM_STAT) >> 22) & 1u,
-           names || maps ? 1 : 0);
+        const bool changed = names != 0 || marks != 0;
+        snprintf(label, sizeof label, "%s live_state_changed", tag);
+        ck(label, pending.changes != 0, changed);
+        snprintf(label, sizeof label, "%s sticky_pending_PP_STAT", tag);
+        ck(label, (axi_read(A_PP_STAT) >> 11) & 1u, changed);
+        snprintf(label, sizeof label, "%s sticky_pending_PP_NVM_STAT", tag);
+        ck(label, (axi_read(A_PP_NVM_STAT) >> 22) & 1u, changed);
     }
 
     void pending_commit_control() {
@@ -1380,6 +1412,70 @@ class PpShadowHarness {
         ck("K capture ACK accepted", (stat >> 20) & 1u, 0);
         ck("K capture closed", (stat >> 16) & 1u, 0);
         ck("K commit preserves unmaterialized pending", (stat >> 22) & 1u, 1);
+    }
+
+    void pending_map_value(uint16_t type, unsigned count, uint16_t seq) {
+        std::vector<uint8_t> get(8, 0);
+        put16be(get.data(), type);
+        const auto response = pending_command(0x002b, get, seq);
+        ck("K12 GET_AUDIO_MAP record count", response.size() >= 48
+           ? get_be(response, 46, 2) : 0xffffu, count);
+        if (count != 0)
+            ck("K12 GET_AUDIO_MAP exact record", response.size() >= 58
+               && get_be(response, 50, 8) == 0, 1);
+    }
+
+    void pending_preload_map(uint16_t type) {
+        // A control-face load establishes a present mapping while durable.
+        // Its persistence is outside this command-reporting test's claim.
+        axi_write(A_CHMAP_CTRL, 1);
+        axi_write(A_CHMAP_SEL, type == 0xe ? 0 : 0x100);
+        // REGISTER_MAP CHMAP_WORD: input listener 0/channel 0; output
+        // fixture cluster 0 is capture source 2, left half, index 0.
+        axi_write(A_CHMAP_WORD, type == 0xe ? 0x8000 : 0xa000);
+        axi_write(A_CHMAP_CTRL, 0);
+        run_idle(200);
+        pending_map_value(type, 1, 0x5080);
+        ck("K12 preloaded baseline durable", axi_read(A_PP_STAT) & 0xb40u, 0x40u);
+    }
+
+    void pending_map_commands(uint16_t type) {
+        pending_boot(6);
+        std::vector<uint8_t> map(8, 0);
+        put16be(map.data(), type);
+        pending_command(0x002c, map, static_cast<uint16_t>(0x5030 + type));
+        pending_report("K12 zero records", 0, 0, 0);
+        map.resize(16, 0);
+        put16be(map.data() + 4, 1); // stream 0/channel 0/cluster 0
+
+        pending_boot(6);
+        auto bad = map;
+        put16be(bad.data() + 8, 0x7fff); // refused at record validation
+        pending_command(0x002c, bad, static_cast<uint16_t>(0x5038 + type), 7);
+        pending_map_value(type, 0, 0x5039);
+        pending_report(type == 0xe ? "K12 refused record input"
+                                  : "K12 refused record output", 0, 0, 0);
+
+        pending_boot(6);
+        pending_command(0x002c, map, static_cast<uint16_t>(0x5040 + type));
+        pending_commit_control();
+        pending_map_value(type, 1, 0x5050);
+        pending_report(type == 0xe ? "K12 input" : "K12", 0, 1, 1);
+
+        pending_boot(6);
+        pending_preload_map(type);
+        pending_command(0x002c, map, static_cast<uint16_t>(0x5060 + type));
+        pending_map_value(type, 1, 0x5061);
+        pending_report(type == 0xe ? "K12 duplicate input"
+                                  : "K12 duplicate output", 0, 1, 0);
+
+        pending_boot(6);
+        pending_preload_map(type);
+        pending_command(0x002d, map, static_cast<uint16_t>(0x5070 + type));
+        pending_commit_control();
+        pending_map_value(type, 0, 0x5071);
+        pending_report(type == 0xe ? "K12 remove input"
+                                  : "K12 remove output", 0, 1, 1);
     }
 
     void grade_pending_live_writes() {
@@ -1411,24 +1507,7 @@ class PpShadowHarness {
                 continue;
             }
 #endif
-            std::vector<uint8_t> map(8, 0);
-            put16be(map.data(), type);
-            pending_command(0x002c, map, static_cast<uint16_t>(0x5030 + type));
-            pending_report("K12 zero records", 0, 0, 0);
-            map.resize(16, 0);
-            put16be(map.data() + 4, 1); // one mapping: stream 0/channel 0/cluster 0
-            pending_command(0x002c, map, static_cast<uint16_t>(0x5040 + type));
-            pending_commit_control();
-            pending_report(type == 0xe ? "K12 input" : "K12", 0, 1, 1);
-            std::vector<uint8_t> get(8, 0);
-            put16be(get.data(), type);
-            response = pending_command(0x002b, get, static_cast<uint16_t>(0x5050 + type));
-            ck("K12 GET_AUDIO_MAP contains the accepted record", response.size() >= 58
-               && get_be(response, 46, 2) == 1 && get_be(response, 50, 8) == 0, 1);
-            pending_command(0x002c, map, static_cast<uint16_t>(0x5060 + type));
-            pending_report("K12 duplicate", 0, 2, 1); // phase 5, no change mark
-            pending_command(0x002d, map, static_cast<uint16_t>(0x5070 + type));
-            pending_report("K12 remove", 0, 3, 2);
+            pending_map_commands(type);
         }
         pending_boot(7);
         pending_report("K reset", 0, 0, 0);

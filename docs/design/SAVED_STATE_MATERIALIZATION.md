@@ -125,10 +125,13 @@ The binding survives a cold power cycle on silicon since 2026-09-21
 The seven other Milan items have no record writer. The
 [snapshot-ownership page section 11](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#11-persistent-field-materialization)
 reads NONE for each, and the contract reports them honestly instead: the
-parent's `pend_i` is the dynamic-state store's sticky level OR the binding
-manager's unflushed sinks OR a sticky bit a class-6 or class-7 commit mark
-sets (`hdl/milan/KL_pp_shadow.sv` lines 935 to 946). After any such change
-the pending bit reads 1 until reset, and no slot ever holds the change.
+parent's `pend_i` combines three sources in `KL_pp_shadow.sv`.
+These are dynamic-state dirtiness, unflushed bindings and live name/map writes.
+Accepted name writes pulse `aecp_name_wr_o`.
+The parent's `amap_edit_live_wr_p` enables actual phase-5 map writes.
+It also drives the shadow's `amap_live_wr_i` input.
+`latch_live_pending` retains both live-write sources until reset.
+No slot holds these unmaterialized name/map changes.
 
 Where each live value is held, read at the current source:
 
@@ -139,8 +142,8 @@ Where each live value is held, read at the current source:
 | `0x0A`.. | clock source | selector 2 | the same level |
 | `0x30`.. and `0x40`.. | stream formats in and out | selectors 3 and 4 | the same level |
 | `0x50`.. | presentation time offset | selector 5 | the same level |
-| `0x60` to `0x7F` | channel maps in and out | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map RAM. The processor reaches them only through the GET_AUDIO_MAP read face and the ADD/REMOVE edit face. Their reset value is the EMPTY set (`KL_chan_map_capture.sv` line 427, `milan_datapath.sv` lines 4193 to 4196) | the class-6 commit mark |
-| `0x80`.. | user names | the writable name table of `KL_aecp_desc_store`, on chip, initialized from the image by the store's walk | the class-7 commit mark |
+| `0x60` to `0x7F` | channel maps in and out | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map RAM. The processor reaches them only through the GET_AUDIO_MAP read face and the ADD/REMOVE edit face. Their reset value is the EMPTY set (`KL_chan_map_capture.sv` line 427, `milan_datapath.sv` block `amap_edit_commit`) | actual phase-5 write enable `amap_edit_live_wr_p`, held sticky |
+| `0x80`.. | user names | the writable name table of `KL_aecp_desc_store`, on chip, initialized from the image by the store's walk | accepted `aecp_name_wr_o` pulse, held sticky |
 
 `0x01` (system unique id) and `0x12` to `0x19` (media clock reference) are
 allocated, but no AECP program writes them, so they have nothing to
@@ -220,19 +223,25 @@ declared shippable.
 
 Issue #502 implements that standalone reporting correction.
 The processor pin is now `870ff88a`.
-`KL_pp_shadow` consumes `aecp_name_wr_o` and map phase 5.
+`KL_pp_shadow` consumes `aecp_name_wr_o` and `amap_live_wr_i`.
+The parent derives `amap_live_wr_i` from its actual write enable.
 Both sources share `clk_i` and `rst_n` with the backend.
 Their pulses and sticky history feed the registered pending input.
 Pending therefore rises on the accepting live-write edge.
 The later marks still delimit command completion.
-A duplicate map beat conservatively sets pending without a mark.
+An unchanged duplicate map record raises neither pending nor mark.
 Neither group gains a record writer in this correction.
 Only reset retires their sticky source.
 
 The [shipping harness](../../tb/verilator/pp_shadow/README.md) ports K10/K12.
-It checks every accepting edge through command completion and acknowledgement.
+Live storage changes start its unsaved interval.
+It checks every edge through command completion and acknowledgement.
 Changed names and both map directions use the real processor.
-Controls cover unchanged commands, refused output edits and reset.
+Controls cover unchanged names, zero-record maps and reset.
+Static output edits are refused before record validation.
+Dynamic input/output controls cover record-validation refusals and unchanged duplicates.
+ADD and REMOVE each start from a durable baseline.
+REMOVE and duplicate controls preload their mapping through CSRs.
 The late-mark mutant must fail both durability checks.
 These checks replace neither D3 convergence nor power-cycle evidence.
 The table above remains evidence at its stated historical source.
@@ -473,7 +482,7 @@ says what the mark trigger would need.
 
 `KL_pp_shadow.sv` changes three lines of glue and adds no CSR:
 
-- `pend_i = (|nvm_unflushed_o) | d3_unflushed_o`. The `aecp_mark_pend_r` bit
+- `pend_i = (|nvm_unflushed_o) | d3_unflushed_o`. The `aecp_live_pend_r` bit
   is deleted with the stage that retires its last class (section 10);
   `aecp_dyn_dirty_o` stays exported for diagnosis but leaves `pend_i`.
 - `alarm_i` takes the processor's combined alarm.

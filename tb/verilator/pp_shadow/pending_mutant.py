@@ -37,7 +37,7 @@ def main() -> None:
     source = ROOT / "hdl/milan/KL_pp_shadow.sv"
     original = source.read_text()
     live = """  assign aecp_live_wr_w = aecp_name_wr_w
-                        | (amap_edit_req_o && (amap_edit_phase_o == 3'd5));"""
+                        | amap_live_wr_i;"""
     late = """  assign aecp_live_wr_w = aecp_nvm_stb_w
                         && ((aecp_nvm_mark_w == 8'd6)
                             || (aecp_nvm_mark_w == 8'd7));"""

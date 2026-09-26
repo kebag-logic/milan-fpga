@@ -51,9 +51,12 @@ Each target also generates the required listener and microcode ROMs.
 
 Issue #502 ports K10/K12 into the shipping datapath.
 The original evidence is `500-design-evidence` at `a21b165a`.
-Its durability predicate now runs on every accepting edge.
+Its durability predicate runs from the first live storage change.
 Real SET_NAME and ADD/REMOVE_AUDIO_MAPPINGS programs supply the events.
-The observer reads ports and status, without driving internal state.
+The observer reads name RAM, map storage and published status.
+It never drives internal state or derives expectations from triggers.
+Observation starts before the first command byte enters the DUT.
+Boot and control-face preloads establish the baseline beforehand.
 
 ```sh
 make -C tb/verilator/pp_shadow
@@ -65,8 +68,12 @@ The default run includes a dynamic-output fixture.
 Both input and output maps use their real parent owners.
 GET_NAME and GET_AUDIO_MAP independently confirm the accepted values.
 All eight name lanes change in K10.
-K12 starts with an empty map, then adds and removes.
-Duplicate records still offer phase 5, without another mark.
+K12 ADD starts with an empty map and durable status.
+REMOVE and duplicate controls each preload a mapping through CSRs.
+Each then starts separately with durable status.
+The duplicate must succeed, preserve the map and leave pending clear.
+REMOVE must empty the map and raise pending immediately.
+Duplicate records offer phase 5 without writing or marking changes.
 The parent accepts each held record once.
 
 The control-face writer establishes the initial durable status.
@@ -78,7 +85,9 @@ No name/map record writer exists yet.
 These tests make no flash persistence or restoration claim.
 
 Controls exercise unchanged names and zero-record map commands.
-The default static output refuses edits without setting pending.
+The default static output refuses edits before record validation.
+Dynamic input/output controls refuse an out-of-range stream at record validation.
+Both refusal paths require pending to stay clear.
 Reset separates the groups and restores the clean baseline.
 A permanently asserted pending bit fails that baseline.
 
