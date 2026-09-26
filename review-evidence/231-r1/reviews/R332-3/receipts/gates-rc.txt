@@ -1,0 +1,15 @@
+rc=0 python3 -B syn/ooc/pp_baseline.py --selftest
+rc=0 python3 -B syn/ooc/pp_baseline_mutants.py
+rc=0 python3 -B syn/ooc/pp_baseline_reports_selftest.py
+rc=0 python3 -B scripts/check_doc_paths.py
+rc=0 python3 -B scripts/check_doc_style.py
+rc=2 python3 -B scripts/gen_toc.py --check
+rc=2 python3 -B scripts/gen_toc.py --verify-anchors
+rc=2 python3 -B scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+rc=0 python3 -B scripts/check_py_idiom.py
+rc=0 python3 -B scripts/docs_check.py
+rc=0 python3 -B scripts/ci_events.py --check
+rc=0 venv-python -B scripts/gen_toc.py --check
+rc=0 venv-python -B scripts/gen_toc.py --verify-anchors
+rc=0 venv-python -B scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+rc=0 venv-python -B scripts/docs_check.py

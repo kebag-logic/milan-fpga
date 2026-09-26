@@ -1,0 +1,80 @@
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        | 
+    69545 KL_pp_shadow
+     9491 $paramod$629c7e6882cbd1e2a16b2c95f92a63cf58a38d39\protocol_processor_top
+     2193   $paramod$0311096e50f612edf29205d4d93e63bbce35219f\KL_acmp_nvm_shadow
+     8267   $paramod$06c6dba7fd4e5ed794d98936b5d1143ac796e68f\KL_aecp_notify
+      334   $paramod$3cbb17859bc5c326e3aa21152d99119834a3edb3\KL_pp_tx_arbiter
+      486   $paramod$41959a4efa40c173071bc82c7a415c66632eaee1\KL_pp_timer_service
+     1485   $paramod$54b284197ad5b180203df43f3011a65c8ca552dc\KL_pp_maap
+     3066   $paramod$5b6a61537315119417933da5c8e3ab634c9d8146\KL_pp_acmp_listener
+     2675   $paramod$73e07795b672fec76f87d954c1818afb13799896\KL_srp_top
+     2648     $paramod$1224c55e5fd4121b95546e57d33a658897774d54\KL_srp_encoder
+      150     $paramod$391fbb556570799cf2e9dffc5ef8b362f93a0423\KL_srp_vlan
+     3682     $paramod$476e177af911c590ada08d985e05321834a52408\KL_srp_listener_fsm
+     4874     $paramod$e6ce24773c006e18196b0d2c5f61fcfc16767286\KL_srp_talker_fsm
+     1543     $paramod\KL_srp_admission\N_SOURCES_P=32'00000000000000000000000000000010
+     1665     $paramod\KL_srp_decoder\TP_DEPTH_P=32'00000000000000000000010000000000
+      176     $paramod\KL_srp_domain\DEF_PRIO_P=8'00000011\DEF_VID_P=16'0000000000000010
+      702   $paramod$7e66ef7f4d8df71b7ad5355f525e4de6f4a63a87\KL_pp_event_router
+     1633   $paramod$a0c9e51a3221443125cf97e167814b71f3753a30\KL_acmp_talker
+      678   $paramod$a7d207fe1311ff35b9b5d4decd019dc982949cab\KL_aecp_ca_originator
+      463   $paramod$a8c30d8aadf644ef66c0c74d8d70b72198c6c3b1\KL_pp_tx_slots
+       32   $paramod$aabaa8190b9b5d1e72f6b8311751912fd23a087b\KL_pp_acmp_lsn_admit
+      155   $paramod$cb40338f349b9ae4857502a2f1634ef48fc22627\KL_pp_rx_slots
+     1624   $paramod$cb40338f349b9ae4857502a2f1634ef48fc22627\KL_pp_rx_validator
+     3605   $paramod$e009e3311598de7ee88caabbf6cb9340a018fbd2\KL_aecp_engine
+      525     $paramod$73170f1836878046d637b3a3bdef2767cb386952\KL_aecp_resp_buf
+     2030     $paramod$8f82317fc72703b7899b6ff837917a6f9e22e511\KL_aecp_ucpu
+      705     $paramod$a7a6109d36616e2c4a92a46ca939e0b0b6d07dee\KL_aecp_dyn_state
+     1985     $paramod$f2a1c7755ba8e70edbdb95fe4c8a40cdb8a112f8\KL_aecp_desc_store
+       51   $paramod$e2824511843ce3ddfddd18303e45edf2a48573a0\KL_pp_trace_ring
+     1401   $paramod$e297df19fc56329aba5e80a7e2288f3ceac34e44\KL_adp_engine
+     1883   $paramod$fb0d159f06b6081d1a401e3783e797ceb00c83bc\KL_pp_originator
+       37   $paramod\KL_pp_release_merge\N_SLOTS_P=32'00000000000000000000000000000101
+      454   $paramod\KL_pp_scoreboard\MAX_HOLDS_P=s32'00000000000000000000000000001000
+      119   $paramod\KL_pp_side_port\EN_FW_ASSIST_P=1'0
+        5   KL_aecp_desc_mem_guard
+      172   KL_mrp_strip
+       94   KL_pp_dispatch
+       10     $paramod\KL_pp_dispatch_fifo\DEPTH_P=32'00000000000000000000000000000010
+       19     $paramod\KL_pp_dispatch_fifo\DEPTH_P=32'00000000000000000000000000000100
+     1220   KL_pp_normalizer
+       54   KL_pp_nvm_mgr_arb
+      327   KL_pp_nvm_port
+      263   KL_pp_prng
+     1520 $paramod$dc9dde0866956c5c9712e8981b56c06a2928a082\KL_nvm_backend
+       70 $paramod$fce620bab033506f48a5e4f0628d5255a19f235b\axis_fifo
+
+        +----------Count including submodules.
+        | 
+    61458 wires
+   274661 wire bits
+     5552 public wires
+   107427 public wire bits
+     2035 ports
+    34016 port bits
+        - memories
+        - memory bits
+        - processes
+    69545 cells
+        1   BUFG
+       10   DSP48E1
+     1283   IBUF
+    17142   INV
+      816   LUT1
+    10011   LUT2
+     6186   LUT3
+     4786   LUT4
+     5697   LUT5
+    21419   LUT6
+     2174   OBUF
+        4   RAMB18E1
+       16   RAMB36E1
+      374 submodules
+        1   $paramod$629c7e6882cbd1e2a16b2c95f92a63cf58a38d39\protocol_processor_top
+        1   $paramod$dc9dde0866956c5c9712e8981b56c06a2928a082\KL_nvm_backend
+        1   $paramod$fce620bab033506f48a5e4f0628d5255a19f235b\axis_fifo
+       22   CARRY4
