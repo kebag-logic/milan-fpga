@@ -1,0 +1,7 @@
+#   set_msg_config -id {Synth 8-4445} -new_severity ERROR
+CRITICAL WARNING: [Synth 8-4445] could not open $readmem data file 'missing_image.hex'; please make sure the file is added to project and has read permission, ignoring [$PACKET/probe_8_4445/rom_probe.sv:7]
+synth_design completed successfully
+#   set_msg_config -id {Synth 8-4445} -new_severity ERROR
+ERROR: [Synth 8-4445] could not open $readmem data file 'missing_image.hex'; please make sure the file is added to project and has read permission, ignoring [$PACKET/probe_8_4445/rom_probe.sv:7]
+synth_design failed
+ERROR: [Common 17-69] Command failed: Vivado Synthesis failed
