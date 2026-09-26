@@ -61,6 +61,12 @@ parallel; this document is the contract it converges on. Its rows are reflected
 in the generated [`traceability/MODULE_MATRIX.md`](traceability/MODULE_MATRIX.md)
 and in executable verification where the behavior is implemented.
 
+The [processor descriptor contract](reference/PP_DESCRIPTOR_OWNERSHIP.md)
+allocates L1-L10 and ADP validation responsibilities under #509.
+It distinguishes construction, tested refusals and remaining enforcement gaps.
+The parent owns shipping semantics; the processor owns generic packing.
+The processor contract update remains a separate reviewed delivery.
+
 ## Contents
 
 - **[1. Artifacts and flow](#1-artifacts-and-flow)** -- What one config emits and, more usefully, who reads each file and where a stale one is caught. The descriptor ROM remains an orphan of the deleted fabric store; the flat image, manifest, and map are the processor deliverables. The section ends with the five tracked shapes side by side, where the 8x8 role-pool policy emits 72 clusters.
@@ -225,13 +231,13 @@ Five tracked shapes exist. Descriptor counts below are read out of the
 | AAF listeners × talkers | 1 × 1 | 4 × 4 | 4 × 4 | 1 × 1 | 8 × 8 |
 | Listener / talker channels | 8 / 2 | 4 / 4 | 8 / 8 | 8 / 8 | 8 / 8 |
 | Talker `clusters` (D3) | 8 | 4 | 8 | *(unused under `role-pools`)* | *(unused under `role-pools`)* |
-| `audio_interface.physical_channels` | default (2/2) | **8 / 2** | **8 / 2** | **8 / 0** | **0 / 0** |
+| `audio_interface.physical_channels` | default (2/2) | **8 / 2** | **8 / 2** | **8 / 8** | **0 / 0** |
 | `cluster_mapping.policy` | `cluster-per-stream-channel` | `cap-at-interface` | `cap-at-interface` | `role-pools` (D8) | `role-pools` (D8) |
 | `clocking.crf_output` | absent (legal at 1 listener) | enabled | enabled | enabled | enabled |
 | STREAM_INPUT / STREAM_OUTPUT | 2 / 1 | 5 / 5 | 5 / 5 | 2 / 2 | 9 / 9 |
 | STREAM_PORT_INPUT / _OUTPUT | 1 / 1 | 4 / 4 | 4 / 4 | 1 / 1 | 8 / 8 |
-| AUDIO_CLUSTER | 16 | 32 | 64 | 17 | **72** |
-| AUDIO_MAP | 2 | 4 | 4 | 0 | 0 |
+| AUDIO_CLUSTER | 16 | 32 | 64 | 25 | **72** |
+| AUDIO_MAP | 1 | 4 | 4 | 0 | 0 |
 | CLOCK_SOURCE | 2 | 2 | 2 | 2 | 2 |
 
 The cluster row is where the policy bites and where a guess would have been
@@ -430,13 +436,16 @@ across ROM changes serves stale models — and the inverse, gratuitous id
 churn, defeats caching and can strand saved bindings, cf. 1722.1's own
 note on stale connections after entity_model_id changes).
 
-Hashing the model-shaping fields makes "model changed ⇔ id changed"
-structural instead of a release-checklist item.
+Hashing covers the fields selected by `model_shape()`.
+It does not automatically cover generator-owned descriptor fields.
+The pin override preserves an explicitly supplied identity.
+It currently performs no model-history comparison.
+Zero and all-ones identities also pass the numeric-width check.
 
-The pin override exists because both flashed boards already advertise
-fixed ids; a pinned config must reproduce them byte-exactly, and the
-builder's job there is to *verify* the pin still matches the generated
-model rather than to invent a new id.
+The [identity audit](reference/PP_DESCRIPTOR_OWNERSHIP.md#identity-reconciliation)
+records these limits and their implementation owners.
+Generator-owned evolution remains assigned to #495, alongside processor #38.
+These gaps do not relax IEEE 1722.1 6.2.2.8.
 
 ### D5 — config as single source of truth (sweep flags generated)
 
@@ -701,7 +710,7 @@ D1 was chosen for, now checked over the wire.
 
 **Emitted counts** (`endstation_ax7101_8x8.yaml`): 8 input ports × 0 local
 clusters + 8 output ports × (1 pilot + 8 loopback) = **72 AUDIO_CLUSTERs**;
-the packed descriptor image is 19,520 B.
+the packed descriptor image is 18,288 B at the audited processor pin.
 
 **Build posture.** The loopback fabric lane is implemented and selectable.
 `KL_chan_map_capture`'s
@@ -1042,7 +1051,7 @@ Descriptor growth under D1–D3, relative to today's 1(+CRF)x1 model
 | STREAM_OUTPUT | 1 | 9 (8 AAF + CRF output) | 1722.1 7.2.6; Milan 7.2.3 (>=2 AAF inputs => CRF Media Clock Output) |
 | STREAM_PORT_INPUT / _OUTPUT | 1 / 1 | 8 / 8 (D1: one per AAF stream; CRF gets none) | 1722.1 7.2.13 |
 | AUDIO_CLUSTER | 16 (8 in + 8 out) | 72 (`role-pools`, D8) | 1722.1 7.2.16; Milan 6.4 |
-| AUDIO_MAP | 2 | 0 (all ports dynamic) | 1722.1 7.2.19; Milan 5.3.3.9 |
+| AUDIO_MAP | 1 | 0 (all ports dynamic) | 1722.1 7.2.19; Milan 5.3.3.9 |
 | CLOCK_SOURCE | 2 (internal + CRF) | 2 (internal + CRF; no per-listener source, #389) | 1722.1 7.2.9.2; Milan 7.2.2 |
 | ADP `talker_stream_sources` / `listener_stream_sinks` | 1 / 2 | 9 / 9 (CRF output counted) | 1722.1 6.2.2.10 / 6.2.2.12 |
 
