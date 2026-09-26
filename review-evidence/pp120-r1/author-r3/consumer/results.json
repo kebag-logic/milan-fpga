@@ -1,0 +1,130 @@
+[
+  {
+    "name": "01",
+    "argv": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.22,
+    "log": "consumer/01.log"
+  },
+  {
+    "name": "02",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 3.22,
+    "log": "consumer/02.log"
+  },
+  {
+    "name": "03",
+    "argv": [
+      "python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 139.79,
+    "log": "consumer/03.log"
+  },
+  {
+    "name": "04",
+    "argv": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "rc": 0,
+    "seconds": 1.37,
+    "log": "consumer/04.log"
+  },
+  {
+    "name": "05",
+    "argv": [
+      "python3",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.21,
+    "log": "consumer/05.log"
+  },
+  {
+    "name": "06",
+    "argv": [
+      "python3",
+      "sw/builder/test_builder.py"
+    ],
+    "rc": 0,
+    "seconds": 687.82,
+    "log": "consumer/06.log"
+  },
+  {
+    "name": "07",
+    "argv": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow",
+      "-j8"
+    ],
+    "rc": 0,
+    "seconds": 33.05,
+    "log": "consumer/07.log"
+  },
+  {
+    "name": "08",
+    "argv": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "rc": 0,
+    "seconds": 2.32,
+    "log": "consumer/08.log"
+  },
+  {
+    "name": "09",
+    "argv": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.46,
+    "log": "consumer/09.log"
+  },
+  {
+    "name": "10",
+    "argv": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.32,
+    "log": "consumer/10.log"
+  },
+  {
+    "name": "11",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 4.17,
+    "log": "consumer/11.log"
+  },
+  {
+    "name": "12",
+    "argv": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.55,
+    "log": "consumer/12.log"
+  }
+]

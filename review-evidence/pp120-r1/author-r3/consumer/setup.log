@@ -1,0 +1,72 @@
+Warning: you are leaving 2 commits behind, not connected to
+any of your branches:
+
+  f041ea4c9 Consumer check: protocol-processor at a9b7874d
+  ea35f8254 Consumer check: parent adaptation
+
+If you want to keep them by creating a new branch, this may be a good time
+to do so with:
+
+ git branch <new-branch-name> f041ea4c9
+
+HEAD is now at 7eb3b0d4a Merge PR #566: Make SRP and boot declarations describe the implemented behavior
+fatal: repository '$LANES/pp120-parent-consumer/external' does not exist
+fatal: clone of '$LANES/pp120-parent-consumer/external' into submodule path '/tmp/pp120-consumer-check/external' failed
+Failed to clone 'external'. Retry scheduled
+Cloning into '/tmp/pp120-consumer-check/gptp-processor'...
+done.
+Cloning into '/tmp/pp120-consumer-check/protocol-processor'...
+done.
+Cloning into '/tmp/pp120-consumer-check/third_party/verilog-axis'...
+done.
+fatal: repository '$LANES/pp120-parent-consumer/external' does not exist
+fatal: clone of '$LANES/pp120-parent-consumer/external' into submodule path '/tmp/pp120-consumer-check/external' failed
+Failed to clone 'external' a second time, aborting
+From $LANES/pp120-name-wr-export
+ * branch            83c84b19e09d397ed2eb6f5ace337686ce0ef86b -> FETCH_HEAD
+Previous HEAD position was 990f965 Merge PR #115: notify Stream Inputs when registered accumulated latency changes
+HEAD is now at 83c84b1 Restore name-write harness contracts and warning-free builds
+7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+ gptp-processor                   | 0
+ hdl/milan/KL_pp_shadow.sv        | 2 ++
+ scripts/measure_test_evidence.py | 3 +++
+ third_party/verilog-axis         | 0
+ 4 files changed, 5 insertions(+)
+diff --git a/protocol-processor b/protocol-processor
+index 990f96526..83c84b19e 160000
+--- a/protocol-processor
++++ b/protocol-processor
+@@ -1 +1 @@
+-Subproject commit 990f96526bb89356c963a260ebbdcf2a77e6623a
++Subproject commit 83c84b19e09d397ed2eb6f5ace337686ce0ef86b
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ 83c84b19e09d397ed2eb6f5ace337686ce0ef86b protocol-processor (v2.0-274-g83c84b1)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+External submodule is absent in the source parent and remains uninitialized.
+Patch SHA-256: 1de2a73a99620b6aa6925cbf738a9d42bb2a263680f92aa4602fa35b6e32177c
+
+Final validated parent state:
+{
+  "parent_head": "7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a",
+  "processor_head": "83c84b19e09d397ed2eb6f5ace337686ce0ef86b",
+  "parent_status": "M hdl/milan/KL_pp_shadow.sv\nM  protocol-processor\n M scripts/measure_test_evidence.py",
+  "submodules": "-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external\n 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)\n 83c84b19e09d397ed2eb6f5ace337686ce0ef86b protocol-processor (v2.0-274-g83c84b1)\n 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)",
+  "patch_sha256": "1de2a73a99620b6aa6925cbf738a9d42bb2a263680f92aa4602fa35b6e32177c",
+  "consumer_commands_match_supplied_argv": true,
+  "consumer_rcs": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "source_parent_head": "f041ea4c95745a7adfa764a2a654ed056600ec8e",
+  "source_parent_status": ""
+}

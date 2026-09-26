@@ -1,0 +1,147 @@
+[
+  {
+    "name": "make-check",
+    "argv": [
+      "make",
+      "check"
+    ],
+    "rc": 0,
+    "seconds": 28.09,
+    "log": "gates/make-check.log"
+  },
+  {
+    "name": "pp-top",
+    "argv": [
+      "make",
+      "-C",
+      "tb/pp_top"
+    ],
+    "rc": 0,
+    "seconds": 208.25,
+    "log": "gates/pp-top.log"
+  },
+  {
+    "name": "name-writes",
+    "argv": [
+      "make",
+      "-C",
+      "tb/pp_top",
+      "name-writes"
+    ],
+    "rc": 0,
+    "seconds": 0.21,
+    "log": "gates/name-writes.log"
+  },
+  {
+    "name": "run-suites",
+    "argv": [
+      "scripts/run_suites.sh"
+    ],
+    "rc": 0,
+    "seconds": 386.03,
+    "log": "gates/run-suites.log"
+  },
+  {
+    "name": "lint-hdl",
+    "argv": [
+      "scripts/lint_hdl.sh"
+    ],
+    "rc": 0,
+    "seconds": 9.1,
+    "log": "gates/lint-hdl.log"
+  },
+  {
+    "name": "yosys",
+    "argv": [
+      "syn/yosys/run.sh"
+    ],
+    "rc": 0,
+    "seconds": 74.31,
+    "log": "gates/yosys.log"
+  },
+  {
+    "name": "parameter-inventory",
+    "argv": [
+      "python3",
+      "scripts/check-integrator-params.py"
+    ],
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "gates/parameter-inventory.log"
+  },
+  {
+    "name": "docs-links",
+    "argv": [
+      "python3",
+      "scripts/check-links.py"
+    ],
+    "rc": 0,
+    "seconds": 0.11,
+    "log": "gates/docs-links.log"
+  },
+  {
+    "name": "docs-matrix",
+    "argv": [
+      "python3",
+      "scripts/check-matrix.py"
+    ],
+    "rc": 0,
+    "seconds": 0.03,
+    "log": "gates/docs-matrix.log"
+  },
+  {
+    "name": "docs-wavedrom",
+    "argv": [
+      "python3",
+      "scripts/render-wavedrom.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.46,
+    "log": "gates/docs-wavedrom.log"
+  },
+  {
+    "name": "docs-stale",
+    "argv": [
+      "make",
+      "stale"
+    ],
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "gates/docs-stale.log"
+  },
+  {
+    "name": "module-matrix",
+    "argv": [
+      "python3",
+      "scripts/gen_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.07,
+    "log": "gates/module-matrix.log"
+  },
+  {
+    "name": "nvm-figures",
+    "argv": [
+      "make",
+      "-C",
+      "tb/nvm_port",
+      "figures"
+    ],
+    "rc": 0,
+    "seconds": 260.54,
+    "log": "gates/nvm-figures.log"
+  },
+  {
+    "name": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.0,
+    "log": "gates/diff-check.log"
+  }
+]
