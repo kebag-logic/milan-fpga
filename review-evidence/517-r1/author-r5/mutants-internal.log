@@ -1,0 +1,12 @@
+no-exclusion: KILLED test_sim_pool=1 backpressure=0 failing_arms=2 first=[FAIL] arm_shared_group_is_exclusive_ordered_and_allows_independent_overlap: AssertionError: shared-state cont
+group-reverse-order: KILLED test_sim_pool=1 backpressure=1 failing_arms=24 first=[FAIL] arm_never_more_than_two_legs_alive: AssertionError: 
+no-independent-overlap: KILLED test_sim_pool=TIMEOUT backpressure=0 failing_arms=0 first=-
+mk-drop-crflic: KILLED test_sim_pool=1 backpressure=1 failing_arms=3 first=[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: ['exec', 'python3', 'sim_p
+mk-swap-order: KILLED test_sim_pool=1 backpressure=1 failing_arms=3 first=[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: ['exec', 'python3', 'sim_p
+mk-default-one: KILLED test_sim_pool=1 backpressure=TIMEOUT failing_arms=1 first=[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: ['exec', 'python3', 'sim_p
+mk-ignore-errors: KILLED test_sim_pool=1 backpressure=0 failing_arms=1 first=[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: the runner's recipe line i
+drain-blocking-write: KILLED test_sim_pool=0 backpressure=1 failing_arms=24 first=[FAIL] direct-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+drain-ignores-signals: KILLED test_sim_pool=0 backpressure=1 failing_arms=24 first=[FAIL] direct-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+final-drain-waits: KILLED test_sim_pool=0 backpressure=1 failing_arms=19 first=[FAIL] direct-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+fd-flags-not-restored: KILLED test_sim_pool=0 backpressure=1 failing_arms=24 first=[FAIL] direct-copy-SIGINT-active: AssertionError: shared stdout flags were not restored
+mutants=11 killed=11 survived=[]

@@ -1,0 +1,10 @@
+## comparison
+legs dev=14 head=14 identical order: True
+duplicate legs head: 0
+banners identical: True
+builds identical order: True (14)
+post drivers identical: True ['DRIVER python3 render_mutants.py', 'DRIVER python3 gmstep_mutants.py']
+full interleaved sequence identical (pool markers removed): True
+SIM_JOBS=1 sequence identical to default except jobs: True
+pool jobs default/SIM_JOBS=1: ['POOL-START --jobs=2'] ['POOL-START --jobs=1']
+exclusive legs (recipe order): []

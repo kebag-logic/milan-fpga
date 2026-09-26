@@ -1,0 +1,41 @@
+{
+  "head": "1d694677c8f376ec44e3b59b1d7fa7abccda106b",
+  "branch": "517-bounded-simulation-pool",
+  "origin": "https://github.com/kebag-logic/milan-fpga.git",
+  "clean": true,
+  "index_matches_head": true,
+  "commit_subject": "Correct simulation write-set grouping and cancellation fixtures",
+  "changed": [
+    "docs/testing/TESTING.md",
+    "tb/verilator/milan_dp/Makefile",
+    "tb/verilator/milan_dp/README.md",
+    "tb/verilator/milan_dp/sim_nxn.cpp",
+    "tb/verilator/milan_dp/sim_pool.py",
+    "tb/verilator/milan_dp/test_sim_pool.py",
+    "tb/verilator/milan_dp/test_sim_pool_backpressure.py"
+  ],
+  "submodules": [
+    {
+      "path": "external",
+      "head": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+      "clean": true
+    },
+    {
+      "path": "gptp-processor",
+      "head": "e5dcea6e351abff18a27a00f8e345f3251bdbd8f",
+      "clean": true
+    },
+    {
+      "path": "protocol-processor",
+      "head": "990f96526bb89356c963a260ebbdcf2a77e6623a",
+      "clean": true
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "clean": true
+    }
+  ],
+  "public_probe_hashes_unchanged": true,
+  "current_pr_body_matches_saved_original": true
+}

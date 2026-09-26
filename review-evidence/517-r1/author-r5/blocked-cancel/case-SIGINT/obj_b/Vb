@@ -1,0 +1,6 @@
+#!/bin/sh
+echo leg2 partial
+setsid sleep 1000 &
+sleep 1000 &
+echo started > leg2.ready
+wait

@@ -1,0 +1,284 @@
+[
+  {
+    "name": "baremetal",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405776.5230694,
+    "seconds": 14.323,
+    "exit": 0
+  },
+  {
+    "name": "baremetal-selftest",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405790.8462496,
+    "seconds": 4.933,
+    "exit": 0
+  },
+  {
+    "name": "docs-git",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405795.7798917,
+    "seconds": 4.132,
+    "exit": 0
+  },
+  {
+    "name": "docs-no-git",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "/tmp/517-a324-runtime/517-docs-export-51ckms9l",
+    "start": 1790405777.8003592,
+    "seconds": 4.081,
+    "exit": 0
+  },
+  {
+    "name": "em-dash",
+    "argv": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "5c78ce2e9d831e588e759b696ed549804327e4d8"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405799.9119809,
+    "seconds": 2.877,
+    "exit": 0
+  },
+  {
+    "name": "doc-style",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405802.789152,
+    "seconds": 0.065,
+    "exit": 0
+  },
+  {
+    "name": "toc",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405802.854468,
+    "seconds": 2.476,
+    "exit": 0
+  },
+  {
+    "name": "anchors",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405805.3314092,
+    "seconds": 1.568,
+    "exit": 0
+  },
+  {
+    "name": "doc-paths",
+    "argv": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405806.8995953,
+    "seconds": 0.064,
+    "exit": 0
+  },
+  {
+    "name": "matrix",
+    "argv": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405806.963908,
+    "seconds": 0.917,
+    "exit": 0
+  },
+  {
+    "name": "xvlog",
+    "argv": [
+      "python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405807.881162,
+    "seconds": 136.387,
+    "exit": 0
+  },
+  {
+    "name": "rtl-sources",
+    "argv": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405944.268099,
+    "seconds": 1.368,
+    "exit": 0
+  },
+  {
+    "name": "sv-idiom",
+    "argv": [
+      "python3",
+      "scripts/check_sv_idiom.py"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405945.6364603,
+    "seconds": 0.415,
+    "exit": 0
+  },
+  {
+    "name": "rtl-lint",
+    "argv": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405946.0514476,
+    "seconds": 8.174,
+    "exit": 0
+  },
+  {
+    "name": "cpp-idiom",
+    "argv": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405954.2258604,
+    "seconds": 1.166,
+    "exit": 0
+  },
+  {
+    "name": "py-idiom",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405955.3928084,
+    "seconds": 3.223,
+    "exit": 0
+  },
+  {
+    "name": "port-contracts",
+    "argv": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405958.6163738,
+    "seconds": 2.27,
+    "exit": 0
+  },
+  {
+    "name": "naming",
+    "argv": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405960.8870451,
+    "seconds": 0.467,
+    "exit": 0
+  },
+  {
+    "name": "test-evidence",
+    "argv": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405961.3548892,
+    "seconds": 5.227,
+    "exit": 0
+  },
+  {
+    "name": "ci-events",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405966.5818894,
+    "seconds": 0.214,
+    "exit": 0
+  },
+  {
+    "name": "ci-events-selftest",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405966.7965188,
+    "seconds": 14.502,
+    "exit": 0
+  },
+  {
+    "name": "phase-observation",
+    "argv": [
+      "python3",
+      "tb/verilator/milan_dp/test_render_phase_observation.py"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405981.2990363,
+    "seconds": 0.114,
+    "exit": 0
+  },
+  {
+    "name": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool",
+    "start": 1790405981.4137175,
+    "seconds": 0.032,
+    "exit": 0
+  },
+  {
+    "name": "behave",
+    "argv": [
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "$LANES/517-bounded-simulation-pool/tests",
+    "start": 1790405981.445878,
+    "seconds": 1.166,
+    "exit": 0
+  }
+]

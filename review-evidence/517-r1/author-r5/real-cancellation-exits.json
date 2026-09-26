@@ -1,0 +1,32 @@
+[
+  {
+    "probe": "internal",
+    "signal": "SIGINT",
+    "mode": "blocked",
+    "exit": 0
+  },
+  {
+    "probe": "internal",
+    "signal": "SIGTERM",
+    "mode": "blocked",
+    "exit": 0
+  },
+  {
+    "probe": "internal",
+    "signal": "SIGHUP",
+    "mode": "blocked",
+    "exit": 0
+  },
+  {
+    "probe": "internal",
+    "signal": "SIGTERM",
+    "mode": "file",
+    "exit": 0
+  },
+  {
+    "probe": "external",
+    "signal": "SIGTERM",
+    "mode": "blocked; live generator",
+    "exit": 0
+  }
+]

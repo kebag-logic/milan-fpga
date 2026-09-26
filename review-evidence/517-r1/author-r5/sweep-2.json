@@ -1,0 +1,18 @@
+{
+  "name": "sweep-2",
+  "argv": [
+    "env",
+    "VERILATOR_JOBS=16",
+    "taskset",
+    "-c",
+    "16-31",
+    "scripts/run_all_suites.sh",
+    "$MANAGEMENT/2026-09-23/517-a324/sweep-2",
+    "--shard",
+    "2/5"
+  ],
+  "cwd": "$LANES/517-bounded-simulation-pool",
+  "start": 1790410495.9930573,
+  "seconds": 622.153,
+  "exit": 0
+}

@@ -1,0 +1,52 @@
+{
+  "signal": "SIGHUP",
+  "mode": "blocked",
+  "argv": [
+    "make",
+    "run",
+    "SIM_JOBS=2",
+    "VERILATOR_JOBS=6",
+    "-o",
+    "gptp",
+    "-o",
+    "gptp-lat",
+    "-o",
+    "gmstep"
+  ],
+  "alive_at_signal": [
+    "./obj_dir/Vmilan_dp_sim",
+    "./obj_notify/Vmilan_dp_notify"
+  ],
+  "queued_before_signal": 3317,
+  "make_bytes_read_before_block": 76156,
+  "transcript_bytes_before_signal": 20525,
+  "runner_wchan": [
+    "do_sigtimedwait.isra.0"
+  ],
+  "alive_before_signal": [
+    "./obj_notify/Vmilan_dp_notify"
+  ],
+  "make_exit": -1,
+  "seconds_to_exit": 0.007,
+  "survivors": [],
+  "captures": [
+    "01-Vmilan_dp_sim.log",
+    "02-Vmilan_dp_notify.log",
+    "replay.log"
+  ],
+  "replay_runner_lines": [
+    "sim_pool: ./obj_notify/Vmilan_dp_notify was killed by this runner on SIGHUP; its output above is incomplete",
+    "sim_pool: ./obj_crflic/Vmilan_dp_crflic was not started before SIGHUP",
+    "sim_pool: ./obj_nxn/Vmilan_dp_nxn was not started before SIGHUP",
+    "sim_pool: ./obj_nxndv/Vmilan_dp_nxndv was not started before SIGHUP",
+    "sim_pool: ./obj_nxn8/Vmilan_dp_nxn8 was not started before SIGHUP",
+    "sim_pool: ./obj_nxn4c/Vmilan_dp_nxn4c was not started before SIGHUP",
+    "sim_pool: ./obj_nolpf/Vmilan_dp_nolpf was not started before SIGHUP",
+    "sim_pool: ./obj_prune/Vmilan_dp_prune was not started before SIGHUP",
+    "sim_pool: ./obj_ax1x1/Vmilan_dp_ax1x1 was not started before SIGHUP",
+    "sim_pool: ./obj_aclk/Vmilan_dp_aclk was not started before SIGHUP"
+  ],
+  "render_ran_marker": false,
+  "transcript_bytes_delivered_by_exit": 82,
+  "verdict": "PASS"
+}

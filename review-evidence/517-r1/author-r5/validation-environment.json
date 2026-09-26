@@ -1,0 +1,14 @@
+{
+  "cpus": "16-23",
+  "verilator_jobs": 8,
+  "verilator": "5.050",
+  "sim_jobs": 2,
+  "frame_dump": "absent",
+  "makeflags": "absent",
+  "object_cache": "absent",
+  "build_state": "make clean before each benchmark",
+  "baseline_source": "f36b40ddb5bf7fa5b12bba47d136e0b9d429403c",
+  "host": "shared; no dedicated-worker claim",
+  "other_work": "backpressure controls pinned to CPUs 24-31 during baseline",
+  "after_other_work": "backpressure repeats and read-only/static checks pinned to CPUs 24-31"
+}
