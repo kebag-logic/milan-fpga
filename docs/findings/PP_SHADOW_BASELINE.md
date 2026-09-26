@@ -19,6 +19,8 @@ This change modifies no RTL.
 Use the [reproduction recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md).
 The assignment decision defines the integrated comparison:
 [issue #231](https://github.com/kebag-logic/milan-fpga/issues/231#issuecomment-5844867171).
+The [round-two decision](https://github.com/kebag-logic/milan-fpga/issues/231#issuecomment-5846064333) separates ownership attribution.
+Default-flow totals remain the implementation baseline.
 The retired control planes have no current build.
 Current integrated measurements therefore replace a new substitution comparison.
 
@@ -67,11 +69,22 @@ Standalone WNS therefore measures internal paths only.
 | Vivado OOC, product 1x1 | 22,350 | 24,533 | 21 | 3 | 5 | 1,415 | -6.180 |
 | Vivado OOC, product 8x8 | 28,992 | 32,984 | 26 | 5 | 5 | 1,775 | -10.987 |
 | Vivado integrated synthesis, whole 1x1 SoC | 51,125 | 58,006 | 79 | 27 | 11 | 3,214 | -1.201 |
-| Vivado integrated synthesis, 1x1 wrapper | 23,272 | 23,499 | 21 | 3 | 5 | 1,364 | -1.201 |
 | Vivado integrated route, whole 1x1 SoC | 48,618 | 57,854 | 79 | 27 | 11 | 3,203 | +0.013 |
-| Vivado integrated route, 1x1 wrapper | 22,441 | 23,493 | 21 | 3 | 5 | 1,361 | +0.013 |
 | Vivado integrated synthesis, whole 8x8 SoC | 68,136 | 70,835 | 80 | 29 | 11 | 3,916 | -11.331 |
-| Vivado integrated synthesis, 8x8 wrapper | 37,809 | 31,391 | 26 | 5 | 5 | 1,803 | -10.594 |
+
+The separate attribution variant preserves the protocol-wrapper boundary.
+It adds `KEEP_HIERARCHY TRUE` on `milan_datapath/pp_shadow`.
+No RTL, geometry, image or synthesis directive changes.
+Both 118-source exports retain identical commands and source order.
+Generated Verilog differs only in comments and work-root strings.
+These wrapper counts describe that variant only.
+They cannot be subtracted from the default whole-design totals.
+
+| Attribution-only wrapper | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 | Internal WNS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 1x1 synthesis | 22,314 | 24,535 | 21 | 3 | 5 | 1,415 | -1.201 |
+| 1x1 route | 20,655 | 23,558 | 21 | 3 | 5 | 1,321 | +0.041 |
+| 8x8 synthesis | 29,489 | 32,991 | 26 | 5 | 8 | 1,809 | -10.846 |
 
 Standalone 1x1 consumes 22.5 BRAM tiles; 8x8 consumes 28.5.
 Both standalone WNS values are estimates, not closure verdicts.
@@ -92,10 +105,23 @@ It has no placement or routing result.
 
 ## Hierarchical consumers
 
-All resource rows include descendants.
+The [complete resource ranking](PP_SHADOW_BASELINE_RANKING.tsv) covers eight measured endpoints.
+Its threshold is zero: every reported direct child appears.
+Wrapper and processor own-logic rows are included.
+LUT and FF ranks are independent, with lexical tie-breaking.
+Rankings use reports with the small-instance filter disabled.
+Each scope includes a parent total and LUT-sharing reconciliation.
+Children plus reconciliation equal the parent in every resource column.
+Storage and DSP columns need no reconciliation adjustment.
+
+Default integrated ranks describe reconstructed names, not source ownership.
+Use the attribution rows for the integrated wrapper's consumers.
+
+The following tables are timing-scope subsets, not dominance rankings.
+Every resource row includes descendants.
 Do not add a parent row to its children.
 Internal WNS requires both endpoints inside that row's instance.
-Sibling crossings appear in the wrapper total, not the individual child rows.
+Sibling crossings appear in the wrapper total, not individual children.
 
 **Vivado OOC, product 1x1**
 
@@ -121,29 +147,29 @@ Sibling crossings appear in the wrapper total, not the individual child rows.
 | `u_pp/u_talker` | 1,354 | 522 | 1 | 1 | 0 | 18 | -1.514 |
 | `u_nvm` | 745 | 1,024 | 0 | 0 | 1 | 38 | +4.219 |
 
-**Vivado integrated synthesis, product 8x8**
+**Vivado attribution-only integrated synthesis, product 8x8**
 
 | Instance | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 | Internal WNS ns |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| `u_pp` | 37,100 | 30,015 | 25 | 4 | 4 | 1,756 | -10.594 |
-| `u_pp/u_aecp` | 15,199 | 4,169 | 7 | 0 | 1 | 409 | -10.594 |
-| `u_pp/u_srp` | 8,155 | 10,393 | 0 | 1 | 2 | 416 | -0.049 |
-| `u_pp/u_notify` | 3,316 | 3,799 | 0 | 0 | 0 | 108 | +1.319 |
-| `u_pp/u_listener` | 1,652 | 1,136 | 5 | 0 | 0 | 24 | -1.865 |
-| `u_pp/u_talker` | 848 | 473 | 1 | 1 | 0 | 18 | -2.551 |
-| `u_nvm` | 635 | 1,024 | 0 | 0 | 1 | 38 | +3.907 |
+| `u_pp` | 28,277 | 31,607 | 25 | 4 | 4 | 1,719 | -10.846 |
+| `u_pp/u_aecp` | 5,025 | 4,154 | 7 | 0 | 1 | 264 | -10.588 |
+| `u_pp/u_srp` | 8,382 | 11,130 | 0 | 1 | 2 | 429 | +0.010 |
+| `u_pp/u_notify` | 2,895 | 3,799 | 0 | 0 | 0 | 68 | +1.319 |
+| `u_pp/u_listener` | 1,655 | 1,124 | 5 | 0 | 0 | 30 | -1.297 |
+| `u_pp/u_talker` | 1,350 | 522 | 1 | 1 | 0 | 19 | -2.315 |
+| `u_nvm` | 1,131 | 1,024 | 0 | 0 | 4 | 58 | +3.907 |
 
-**Vivado integrated route, shipping product 1x1**
+**Vivado attribution-only integrated route, shipping product 1x1**
 
 | Instance | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 | Internal WNS ns |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| `u_pp` | 21,980 | 22,672 | 20 | 2 | 4 | 1,316 | +0.013 |
-| `u_pp/u_aecp` | 6,428 | 3,013 | 6 | 0 | 1 | 362 | +2.311 |
-| `u_pp/u_srp` | 4,166 | 6,203 | 0 | 1 | 2 | 230 | +4.445 |
-| `u_pp/u_notify` | 3,158 | 3,299 | 0 | 0 | 0 | 190 | +4.352 |
-| `u_pp/u_listener` | 1,381 | 1,107 | 5 | 0 | 0 | 24 | +3.968 |
-| `u_pp/u_talker` | 716 | 480 | 0 | 0 | 0 | 11 | +4.537 |
-| `u_nvm` | 391 | 469 | 0 | 0 | 1 | 36 | +11.578 |
+| `u_pp` | 20,110 | 22,737 | 20 | 2 | 4 | 1,254 | +0.041 |
+| `u_pp/u_aecp` | 4,504 | 3,010 | 6 | 0 | 1 | 257 | +2.581 |
+| `u_pp/u_srp` | 3,998 | 6,246 | 0 | 1 | 2 | 241 | +4.783 |
+| `u_pp/u_notify` | 3,111 | 3,299 | 0 | 0 | 0 | 184 | +3.736 |
+| `u_pp/u_listener` | 1,404 | 1,103 | 5 | 0 | 0 | 30 | +5.272 |
+| `u_pp/u_talker` | 789 | 492 | 0 | 0 | 0 | 17 | +5.660 |
+| `u_nvm` | 474 | 469 | 0 | 0 | 1 | 37 | +12.015 |
 
 Integrated instance names are relative to `milan_datapath/pp_shadow`.
 Standalone names are relative to the OOC top.
@@ -151,13 +177,47 @@ The SRP engine drives most of the standalone growth: 4,006 LUTs.
 Its listener FSM grows from 451 to 2,109 LUTs.
 Its talker FSM grows from 679 to 1,905 LUTs.
 
-The 8x8 integrated AECP engine occupies 15,199 LUTs.
-Its standalone counterpart occupies 5,053 LUTs with the same wrapper parameters.
-Within that engine, `u_dyn` changes from 574 to 6,915 LUTs.
-Engine-local logic changes from 1,306 to 4,811 LUTs.
-The source parameters and source order match the integrated elaboration.
-These are different synthesis contexts; the netlist transformations are not isolated.
-A standalone count is therefore not an additive estimate of integrated cost.
+The default flow rebuilds hierarchy after cross-boundary optimization.
+Its names can therefore contain logic from neighboring modules.
+The boundary-preserving variant prevents that relocation across the wrapper.
+Internal child hierarchy remains rebuilt in both flows.
+Preserving the boundary also changes optimization and resource sharing.
+At 8x8, the attribution wrapper uses eight DSPs.
+The default reconstructed wrapper uses five DSPs.
+The three additional DSPs appear in `u_nvm`.
+
+| Endpoint | Whole LUT, default / attribution | Wrapper-name LUT, default / attribution | AECP LUT, default / attribution | Dynamic-state LUT, default / attribution |
+|---|---:|---:|---:|---:|
+| 1x1 synthesis | 51,125 / 52,210 | 23,272 / 22,314 | 6,639 / 4,678 | 1,296 / 111 |
+| 1x1 route | 48,618 / 48,825 | 22,441 / 20,655 | 6,428 / 4,504 | 1,299 / 111 |
+| 8x8 synthesis | 68,136 / 70,206 | 37,809 / 29,489 | 15,199 / 5,025 | 6,915 / 574 |
+
+The unchanged public boundary probe supplies a separate ownership check.
+These are raw LUT cells, not combined utilization LUTs.
+
+| Synthesis scope | Raw LUT cells, default / attribution | Only external loads, default / attribution | External input and only external loads, default / attribution |
+|---|---:|---:|---:|
+| 1x1 `u_pp/u_aecp/u_dyn` | 1,624 / 144 | 763 / 0 | 476 / 0 |
+| 1x1 `u_pp/u_aecp` | 7,649 / 5,269 | 903 / 18 | 574 / 0 |
+| 1x1 `u_pp/u_srp` | 4,960 / 4,947 | 87 / 96 | 86 / 96 |
+| 1x1 `u_pp/u_notify` | 3,419 / 3,361 | 0 / 0 | 0 / 0 |
+| 1x1 `wrapper` | 26,213 / 24,983 | 1,175 / 173 | 792 / 131 |
+| 8x8 `u_pp/u_aecp/u_dyn` | 8,817 / 607 | 5,922 / 0 | 3,108 / 0 |
+| 8x8 `u_pp/u_aecp` | 17,872 / 5,607 | 6,187 / 18 | 3,357 / 0 |
+| 8x8 `u_pp/u_srp` | 9,110 / 9,480 | 74 / 442 | 67 / 432 |
+| 8x8 `u_pp/u_notify` | 3,565 / 3,027 | 1 / 0 | 0 / 0 |
+| 8x8 `wrapper` | 42,962 / 32,833 | 6,397 / 519 | 3,499 / 467 |
+
+The default 8x8 dynamic-state loads name datapath audio-map registers.
+They include `amap_out_owner_r` and `amap_out_cluster_r`.
+The `amap_edit_oclaim` word, expectation and cluster registers also appear.
+The attribution dynamic-state probe has no external-only loads.
+Its load-histogram files are empty at both synthesis shapes.
+The routed attribution checkpoint is probed separately as well.
+Remaining wrapper-level external loads include legitimate exported signals.
+The probe classifies cell locations; reverse relocation is not measured.
+This evidence replaces the earlier AECP ownership interpretation.
+The standalone timer grows by 758 LUTs, alongside SRP growth.
 
 ## Integrated implementation
 
@@ -169,11 +229,14 @@ All reuse the same synthesis checkpoint.
 Post-placement, routing and post-route optimization use `AggressiveExplore`.
 Every run sets 32 threads and leaves the seed at its default.
 
-| Placement directive | Whole LUT | Wrapper LUT | Final WNS ns | Final WHS ns | Setup / hold failing endpoints |
+| Placement directive | Whole LUT | Rebuilt wrapper-name LUT | Final WNS ns | Final WHS ns | Setup / hold failing endpoints |
 |---|---:|---:|---:|---:|---:|
 | `ExtraPostPlacementOpt`, shipping | 48,618 | 22,441 | +0.013 | +0.014 | 0 / 0 |
 | `AltSpreadLogic_high` | 48,972 | 22,560 | +0.123 | +0.036 | 0 / 0 |
 | `ExtraTimingOpt` | 48,893 | 22,534 | +0.106 | +0.026 | 0 / 0 |
+
+Wrapper-name counts above use the default rebuilt hierarchy.
+They are retained for reproduction, not ownership attribution.
 
 The best measured WNS is +0.123 ns with `AltSpreadLogic_high`.
 That run uses 354 more whole-design LUTs than the shipping placement.
@@ -212,10 +275,15 @@ Identifier memories contain 49 bytes.
 The writable SRAM has an intentionally empty initialization file.
 It is not an empty instruction ROM.
 
-The four synthesis logs contain zero `Synth 8-4445` diagnostics.
+All measured Vivado synthesis logs contain zero `Synth 8-4445` diagnostics.
 The preparation helper promotes that diagnostic to an error.
 It also rejects missing, short, malformed and ambiguous inputs before synthesis.
-Its self-test checks nine refusal cases alongside valid inputs.
+Its self-test retains nine original refusal cases.
+Synthetic exports exercise six additional inventory refusals and CLI containment.
+Three default scripts promote missing-ROM diagnostics before synthesis.
+The attribution constraint is also checked before synthesis.
+Ten enforcement-removal mutants all fail; the unchanged control passes.
+The fast CI workflow runs these checks automatically.
 All source and image hashes were checked again after measurement.
 
 ## Mapping differences
@@ -243,8 +311,54 @@ These quantities reconcile the complete reported gap:
 | Difference in distributed-memory LUT equivalents | 4,770 | 5,142 |
 | Total | 24,880 | 42,868 |
 
-The raw logic difference is an observed mapping result.
-This measurement does not isolate each optimizer transformation behind it.
+An equivalent-geometry run now preserves Yosys module hierarchy.
+It changes only the mapping command's `-flatten` option.
+Its raw logic counts are 48,915 and 70,222 LUTs.
+The [complete reconciliation](PP_SHADOW_BASELINE_MAPPING.tsv) partitions both netlists.
+Every direct processor child and both own-logic scopes appear.
+Library simulation cells never inflate their primitive's count.
+Vivado's internal child hierarchy remains rebuilt.
+Child deltas include optimization and relocation across those boundaries.
+The [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#hierarchical-mapping-comparison) reproduces this accounting.
+
+| Raw logic contribution | Hierarchical Yosys 1x1 | Raw Vivado 1x1 | Difference 1x1 | Hierarchical Yosys 8x8 | Raw Vivado 8x8 | Difference 8x8 |
+|---|---:|---:|---:|---:|---:|---:|
+| `u_pp/u_srp` | 13,924 | 4,971 | 8,953 | 28,045 | 9,423 | 18,622 |
+| `u_pp` own logic | 7,075 | 628 | 6,447 | 11,381 | 505 | 10,876 |
+| `u_pp/u_notify` | 7,090 | 3,305 | 3,785 | 6,387 | 3,083 | 3,304 |
+| Remaining disjoint scopes | 20,826 | 16,037 | 4,789 | 24,409 | 19,339 | 5,070 |
+| Hierarchical total | 48,915 | 24,941 | 23,974 | 70,222 | 32,350 | 37,872 |
+| Flattening residual | -7,657 | 0 | -7,657 | -4,498 | 0 | -4,498 |
+| Original flattened total | 41,258 | 24,941 | 16,317 | 65,724 | 32,350 | 33,374 |
+
+SRP dominates the hierarchy-preserved logic difference at both shapes.
+The processor's own logic is the second-largest contribution.
+Notification logic supplies the third-largest positive contribution.
+Together they locate the dominant difference in named source scopes.
+
+Flattening removes hierarchy barriers to cross-module optimization.
+The residual includes those changed optimization and mapping opportunities.
+It is measured globally, without assigning it to individual children.
+In particular, hierarchical Yosys retains the unused fourth receive pool.
+The flattened and Vivado netlists eliminate that pool.
+Preserved-hierarchy figures therefore explain mapping, not integrated fit.
+Vivado remains the target implementation's resource and timing instrument.
+An architectural lever needs a matched before/after implementation measurement.
+
+The flattened netlist also contains dedicated non-LUT primitives:
+
+| Primitive | 1x1 | 8x8 |
+|---|---:|---:|
+| `INV` | 14,204 | 17,624 |
+| `IBUF` | 1,283 | 1,741 |
+| `OBUF` | 2,174 | 5,733 |
+| `MUXF7` | 371 | 772 |
+| `MUXF8` | 102 | 243 |
+
+These cells are excluded from both logic-LUT columns.
+Reset inversion and top-level I/O mapping affect structural comparisons.
+Neither buffer nor inverter counts should be added as LUTs.
+
 Three concrete memory mappings explain part of the storage difference:
 
 | Structure, product 1x1 | Vivado | Yosys |

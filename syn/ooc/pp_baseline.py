@@ -8,7 +8,9 @@ All generated scripts, checkpoints and reports belong outside the repository.
 """
 
 import argparse
+import contextlib
 import hashlib
+import io
 import json
 from pathlib import Path
 import re
@@ -17,7 +19,7 @@ import tempfile
 
 ROM_ERROR = "set_msg_config -id {Synth 8-4445} -new_severity ERROR\n"
 REPORTS = """
-report_utilization -hierarchical -hierarchical_depth 10 -file baseline_hierarchy.rpt
+report_utilization -hierarchical -hierarchical_depth 10 -hierarchical_min_primitive_count 0 -file baseline_hierarchy.rpt
 report_utilization -file baseline_utilization.rpt
 report_timing_summary -max_paths 10 -file baseline_timing.rpt
 set pf [open baseline_cells.tsv w]
@@ -181,17 +183,23 @@ def inventory(gateware: Path, source: str) -> list[dict]:
 
 
 def prepare(gateware: Path, output: Path, log: Path | None,
-            synthesis_only: bool) -> None:
+            synthesis_only: bool, attribution_only: bool = False) -> None:
     """Retain the exported build's sources, includes and synthesis directive."""
     source = (gateware / "alinx_ax7101.tcl").read_text()
     prefix, rest = split_once(source, "# Add constraints")
     prefix += ROM_ERROR
+    if log is None and output != gateware:
+        raise ValueError("integrated scripts must run in their gateware directory")
+    if attribution_only:
+        if log is not None:
+            raise ValueError("attribution requires an integrated build")
+        constraint = "set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/pp_shadow]\n"
+        (gateware / "baseline_boundary.xdc").write_text(constraint)
+        prefix += "read_xdc baseline_boundary.xdc\n"
     output.mkdir(parents=True, exist_ok=True)
     images = inventory(gateware, source)
     (output / "baseline_images.json").write_text(json.dumps(images, indent=2) + "\n")
     if log is None:
-        if output != gateware:
-            raise ValueError("integrated scripts must run in their gateware directory")
         marker = "# Add pre-optimize commands" if synthesis_only else "# Bitstream generation"
         endpoint, _ = split_once(rest, marker)
         script = prefix + "# Add constraints" + endpoint + REPORTS + PP_REPORTS
@@ -275,9 +283,105 @@ def selftest() -> None:
     else:
         raise AssertionError("unreported expression guessed")
     print(f"baseline selftest: complete image and exact block PASS; {refused} refusals PASS")
+    export_selftest()
 
 
-def main() -> None:
+def export_selftest() -> None:
+    """Exercise inventory, emitted enforcement, and the real CLI refusal."""
+    with tempfile.TemporaryDirectory(prefix="pp-baseline-export-") as tmp:
+        gateware = Path(tmp) / "gateware"
+        gateware.mkdir()
+        declarations = []
+        reads = []
+        for parameter, package, depth, width in (
+                ("PP_TROM_HEX_P", "pp_acmp_pkg.sv", "TROM_DEPTH_C", "TROM_W_C"),
+                ("PP_UCODE_HEX_P", "ucpu_pkg.sv", "UPC_W_C", "UCODE_W_C"),
+                ("GPTP_UCODE_HEX_P", "gptp_ucpu_pkg.sv", "UPC_W_C", "UCODE_W_C")):
+            path = gateware / package
+            path.write_text(f"parameter {depth} = {'2' if depth == 'TROM_DEPTH_C' else '1'};\n"
+                            f"parameter {width} = 32;\n")
+            rom = gateware / f"{parameter}.hex"
+            rom.write_text("12345678\nabcdef01\n")
+            declarations.append(f'.{parameter}("{rom}")')
+            reads.append(f"read_verilog {{{path}}}\n")
+        wrapper = gateware / "KL_pp_shadow.sv"
+        wrapper.write_text("parameter int unsigned N_STREAM_IN_P = 2,\n")
+        reads.append(f"read_verilog {{{wrapper}}}\n")
+        verilog = '\n'.join(declarations) + '\n'
+        for name, words in (("rom", 2), ("sram", 4)):
+            verilog += (f"// Memory {name}: {words}-words x 32-bit\n"
+                        f'$readmemh("alinx_ax7101_{name}.init", mem);\n')
+            (gateware / f"alinx_ax7101_{name}.init").write_text(
+                "12345678\nabcdef01\n" if name == "rom" else "")
+        generated = gateware / "alinx_ax7101.v"
+        generated.write_text(verilog)
+        source = ("".join(reads) + "# Add constraints\n"
+                  "synth_design -top alinx_ax7101 -part xc7a100t-fgg484-2\n"
+                  "# Add pre-optimize commands\n# Bitstream generation\n")
+        (gateware / "alinx_ax7101.tcl").write_text(source)
+        log = gateware / "synthesis.log"
+        log.write_text("INFO: synthesizing module 'KL_pp_shadow' [wrapper.sv:1]\n"
+                       "Parameter N_STREAM_IN_P bound to: 2 - type: integer\nINFO: end\n")
+        if len(inventory(gateware, source)) != 5:
+            raise AssertionError("complete export inventory refused")
+        standalone = Path(tmp) / "ooc"
+        for destination, evidence, synth_only, filename in (
+                (gateware, None, False, "baseline_integrated.tcl"),
+                (gateware, None, True, "baseline_integrated.tcl"),
+                (standalone, log, False, "baseline_ooc.tcl")):
+            prepare(gateware, destination, evidence, synth_only)
+            script = (destination / filename).read_text()
+            # This literal oracle must not disappear with ROM_ERROR itself.
+            promotion = "set_msg_config -id {Synth 8-4445} -new_severity ERROR\n"
+            if script.count(promotion) != 1 or script.index(promotion) > script.index("synth_design "):
+                raise AssertionError(f"missing pre-synthesis ROM promotion: {filename}")
+        prepare(gateware, gateware, None, True, attribution_only=True)
+        script = (gateware / "baseline_integrated.tcl").read_text()
+        constraint = (gateware / "baseline_boundary.xdc").read_text()
+        expected = "set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/pp_shadow]\n"
+        if constraint != expected or "read_xdc baseline_boundary.xdc\n" not in script:
+            raise AssertionError("attribution boundary constraint is absent or changed")
+        if script.index("read_xdc baseline_boundary.xdc") > script.index("synth_design "):
+            raise AssertionError("attribution boundary constraint follows synthesis")
+        mutations = [
+            (gateware / "alinx_ax7101_rom.init", None),
+            (gateware / "alinx_ax7101_sram.init", "12345678\n"),
+            (generated, verilog.replace('alinx_ax7101_rom.init",', 'unlisted.init",')),
+        ]
+        for parameter in ("PP_TROM_HEX_P", "PP_UCODE_HEX_P", "GPTP_UCODE_HEX_P"):
+            mutations.append((gateware / f"{parameter}.hex", "12345678\n"))
+        for path, replacement in mutations:
+            original = path.read_text()
+            try:
+                if replacement is None:
+                    path.unlink()
+                else:
+                    path.write_text(replacement)
+                try:
+                    prepare(gateware, gateware, None, True)
+                except (ValueError, FileNotFoundError):
+                    pass
+                else:
+                    raise AssertionError(f"invalid export accepted: {path.name}")
+            finally:
+                path.write_text(original)
+        # Use an existing directory: no test output can be left in the tree.
+        # With the guard removed, prepare() reaches its directory mismatch;
+        # that ValueError must not count as the expected argparse refusal.
+        root = Path(__file__).resolve().parents[2]
+        with contextlib.redirect_stderr(io.StringIO()):
+            try:
+                main([str(gateware), "--output", str(root)])
+            except SystemExit as error:
+                if error.code != 2:
+                    raise AssertionError("wrong in-repository refusal") from error
+            else:
+                raise AssertionError("in-repository output accepted")
+        print("baseline export selftest: 3 default scripts, attribution constraint, "
+              "6 inventory refusals, CLI refusal PASS")
+
+
+def main(argv: list[str] | None = None) -> None:
     """Prepare one explicit measurement endpoint without launching tools."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("gateware", type=Path, nargs="?")
@@ -286,7 +390,9 @@ def main() -> None:
     parser.add_argument("--integrated-log", type=Path,
                         help="derive standalone parameters from this synthesis log")
     parser.add_argument("--synthesis-only", action="store_true")
-    args = parser.parse_args()
+    parser.add_argument("--attribution-only", action="store_true",
+                        help="preserve the integrated protocol-wrapper boundary")
+    args = parser.parse_args(argv)
     if args.selftest:
         selftest()
         return
@@ -297,9 +403,10 @@ def main() -> None:
     root = Path(__file__).resolve().parents[2]
     if output.is_relative_to(root):
         parser.error("measurement output must be outside the repository")
-    if args.integrated_log and args.synthesis_only:
-        parser.error("--synthesis-only selects the integrated endpoint")
-    prepare(gateware, output, args.integrated_log, args.synthesis_only)
+    if args.integrated_log and (args.synthesis_only or args.attribution_only):
+        parser.error("--synthesis-only and --attribution-only require the integrated endpoint")
+    prepare(gateware, output, args.integrated_log, args.synthesis_only,
+            args.attribution_only)
 
 
 if __name__ == "__main__":

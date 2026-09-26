@@ -9,8 +9,11 @@ The [baseline](../findings/PP_SHADOW_BASELINE.md) records the measured revisions
 - **[Prerequisites](#prerequisites)** -- Prepare the checkout and build environment.
 - **[Export the shipping builds](#export-the-shipping-builds)** -- Derive commands and compile firmware.
 - **[Integrated measurements](#integrated-measurements)** -- Route 1x1 and synthesize 8x8.
+- **[Boundary-preserving attribution](#boundary-preserving-attribution)** -- Preserve ownership across synthesis optimization.
+- **[Complete hierarchy rankings](#complete-hierarchy-rankings)** -- Include every reported direct child.
 - **[Standalone measurements](#standalone-measurements)** -- Bind parameters from integrated elaboration.
 - **[Yosys comparison](#yosys-comparison)** -- Map the same numeric geometry.
+- **[Hierarchical mapping comparison](#hierarchical-mapping-comparison)** -- Locate the raw logic-count gap.
 - **[Evidence checks](#evidence-checks)** -- Verify images and retain reports.
 
 ## Prerequisites
@@ -38,7 +41,7 @@ python3 scripts/ci_rv32_sdk.py --destination "$SDK" --verify-only
 python3 syn/ooc/pp_baseline.py --selftest
 ```
 
-Use a clean checkout with no existing `sw/builder/out`.
+Use a clean checkout with no existing `sw/builder/out/`.
 Redirect its generated artifacts into the external work directory.
 The symlink contains no build tree inside the checkout.
 
@@ -164,6 +167,78 @@ for directive in ("AltSpreadLogic_high", "ExtraTimingOpt"):
 PY
 ```
 
+## Boundary-preserving attribution
+
+Keep the default run's whole-design totals as the baseline.
+Repeat the export steps using a separate work directory.
+Prepare that export with the additional attribution switch:
+
+```sh
+python3 syn/ooc/pp_baseline.py "$WORK/ax7101/gateware" --attribution-only
+python3 syn/ooc/pp_baseline.py "$WORK/ax8x8/gateware" \
+  --synthesis-only --attribution-only
+```
+
+Run the generated integrated scripts exactly as above.
+The switch reads one additional constraint before synthesis:
+
+```tcl
+set_property KEEP_HIERARCHY TRUE [get_cells milan_datapath/pp_shadow]
+```
+
+The wrapper boundary stays preserved during synthesis optimization.
+Children retain the default rebuilt-hierarchy behavior.
+Part, sources, parameters, images, directives and clocks remain identical.
+Record attribution results separately from default-flow fit and timing.
+A preserved boundary changes optimization opportunities and placement.
+Its whole-design totals cannot replace the default measurement.
+
+Use both public review probes on each attribution checkpoint.
+The [review packet](https://github.com/kebag-logic/milan-fpga/tree/e21bc530eb89f7bd325f8d774aad5b5d95c70c1c/review-evidence/231-r1/reviews/R333-1/probe_boundary)
+binds their exact source and default-run receipts.
+Fetch those files into a temporary directory, then remove it.
+Copy the required probes into the external measurement directory.
+
+```sh
+vivado -mode batch -source "$PROBES/boundary.tcl" -nojournal \
+  -log "$WORK/boundary.log" -tclargs "$CHECKPOINT" "$WORK/boundary.tsv"
+vivado -mode batch -source "$PROBES/loads.tcl" -nojournal \
+  -log "$WORK/loads.log" -tclargs "$CHECKPOINT" \
+  milan_datapath/pp_shadow/u_pp/u_aecp/u_dyn "$WORK/loads.tsv"
+```
+
+Set `CHECKPOINT` to each synthesis checkpoint, then the 1x1 route.
+Use distinct report filenames for every checkpoint.
+The probes retain their original two-thread setting.
+Their counts describe primitive cells, not combined Slice LUTs.
+External loads include legitimate wrapper outputs.
+Zero external loads are therefore not a required result.
+Report the measured residual, including its named load stems.
+
+## Complete hierarchy rankings
+
+Every report disables the small-instance filter explicitly:
+
+```tcl
+report_utilization -hierarchical -hierarchical_depth 10 \
+  -hierarchical_min_primitive_count 0 -file baseline_hierarchy.rpt
+```
+
+Reopen older checkpoints with this command before ranking them.
+The default report silently omits small instances.
+Generate separate LUT and FF ranks with the maintained parser:
+
+```sh
+python3 syn/ooc/pp_baseline_rank.py "$REPORT" --root "$ROOT" > "$RANKING"
+```
+
+Use `KL_pp_shadow` for the standalone report root.
+Use `alinx_ax7101/milan_datapath/pp_shadow` for integrated reports.
+The threshold is zero: every reported direct child appears.
+The wrapper and processor each include their own logic.
+Reconciliation rows retain the report's cross-child LUT-sharing adjustment.
+Storage and DSP counts must sum exactly, without adjustments.
+
 ## Standalone measurements
 
 Generate each standalone script from its integrated synthesis log.
@@ -221,6 +296,48 @@ Yosys reports no WNS and proves no placed fit.
 Count distributed RAM through the recipe's `LUTRAM` column.
 Compare `LUT_TOT`, not only its logic-LUT column.
 
+## Hierarchical mapping comparison
+
+Run each flattened mapping first, as described above.
+Reuse its converted source, ROMs and complete numeric parameters.
+Remove only `-flatten` from the mapping command:
+
+```sh
+python3 - <<'PYMAP'
+import os
+from pathlib import Path
+import subprocess
+
+work = Path(os.environ["WORK"])
+for shape in ("ax7101", "ax8x8"):
+    output = work / f"{shape}-yosys"
+    values = (work / f"{shape}-ooc/baseline_chparam.txt").read_text().split()
+    script = f"read_verilog {output}/KL_pp_shadow.ooc.v; "
+    for item in values:
+        key, value = item.split("=", 1)
+        script += f"chparam -set {key} {value} KL_pp_shadow; "
+    script += "synth_xilinx -family xc7 -top KL_pp_shadow; "
+    script += "stat; write_json hierarchical.json\n"
+    (output / "hierarchical.ys").write_text(script)
+    with (output / "hierarchical.log").open("w") as log:
+        subprocess.run(["yosys", "-s", "hierarchical.ys"], cwd=output,
+                       stdout=log, stderr=subprocess.STDOUT, check=True)
+PYMAP
+for shape in ax7101 ax8x8; do
+  python3 syn/ooc/pp_baseline_mapping.py \
+    "$WORK/$shape-yosys/hierarchical.json" \
+    "$WORK/$shape-yosys/KL_pp_shadow.ooc.json" \
+    "$WORK/$shape-ooc/baseline_cells.tsv" > "$WORK/$shape-mapping.tsv"
+done
+```
+
+The parser expands module instances with their measured multiplicity.
+Library blackboxes count as primitives, despite retained simulation cells.
+Each source scope contributes a disjoint raw logic-LUT count.
+The final residual records flattened minus hierarchical optimization.
+Those contributions sum to the original raw mapping gap.
+No residual is assigned speculatively to an individual module.
+
 ## Evidence checks
 
 The baseline also records integrated 1x1 synthesis before implementation.
@@ -261,6 +378,17 @@ Require zero diagnostic occurrences of `Synth 8-4445`.
 The echoed severity-setting command is not a diagnostic.
 Rehash `baseline_images.json` inputs after each run.
 The helper checks complete control-ROM and generated-ROM geometry.
+Its self-test exercises real preparation on a synthetic export.
+Run the ten removal mutants alongside the positive control:
+
+```sh
+python3 syn/ooc/pp_baseline.py --selftest
+python3 syn/ooc/pp_baseline_mutants.py
+```
+
+The unmodified control must pass; every removal must fail.
+Both commands also run in the fast CI workflow.
+The report-accounting self-test runs alongside them.
 The empty writable SRAM initialization is explicitly distinguished.
 
 | Artifact | Location relative to each measurement directory |
