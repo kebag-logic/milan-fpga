@@ -1,0 +1,36 @@
+### head
+$ git rev-parse HEAD HEAD^{tree}
+54b4c3bbbc8cdea5ced0be29c9226fdf82233b74
+36338cae0ebdd410a366e38a67d80af7c3efb4a7
+### rc=0
+### status
+$ git status --porcelain=v2 --ignore-submodules=none
+### rc=0
+### gitlinks
+$ git ls-files --stage -- protocol-processor gptp-processor third_party/verilog-axis external
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+160000 0922e43408f891fc0b84a84691df86b4fd0f1c0d 0	protocol-processor
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+### rc=0
+### substatus
+$ git submodule status
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (5dce647)
+ 0922e43408f891fc0b84a84691df86b4fd0f1c0d protocol-processor (v2.0-271-g0922e43)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+### rc=0
+### index-check
+$ git diff --cached --quiet
+### rc=0
+### tracked-bytes
+$ git diff --quiet HEAD
+### rc=0
+### ls-files -s digest (mode+blob+stage+path for every index entry)
+1af89090a88f77ab20ed9faeb652881095014d90829fdcb84124e33e1f334e42  -
+### ls-tree -r HEAD digest
+36ec27ec7e82df98e76f7e6a93c0a6fd3da142ee5e0d28a7ac487943594f1334  -
+### index vs HEAD
+index==HEAD
+### worktree vs index incl modes
+worktree==index

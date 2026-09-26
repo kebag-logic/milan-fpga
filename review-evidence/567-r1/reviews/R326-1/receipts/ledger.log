@@ -1,0 +1,47 @@
+## rows for old and new pin
+7:0922e43408f891fc0b84a84691df86b4fd0f1c0d	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+8:0922e43408f891fc0b84a84691df86b4fd0f1c0d	ucode.hex	23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144
+32:990f96526bb89356c963a260ebbdcf2a77e6623a	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+33:990f96526bb89356c963a260ebbdcf2a77e6623a	ucode.hex	23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144
+old=[ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+ucode.hex	23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144]
+new=[ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+ucode.hex	23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144]
+### ledger-diff
+$ git diff 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a..54b4c3bbbc8cdea5ced0be29c9226fdf82233b74 -- syn/yosys/rom_digests.tsv
+diff --git a/syn/yosys/rom_digests.tsv b/syn/yosys/rom_digests.tsv
+index cc1a8e0c..ea2488fe 100644
+--- a/syn/yosys/rom_digests.tsv
++++ b/syn/yosys/rom_digests.tsv
+@@ -4,6 +4,8 @@
+ # ooc.sh refuses to price the design either way. A pin bump re-records with
+ #   ./ooc.sh --record-rom-digests
+ # and that diff is reviewed with the bump. Columns: pin<TAB>image<TAB>sha256.
++0922e43408f891fc0b84a84691df86b4fd0f1c0d	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
++0922e43408f891fc0b84a84691df86b4fd0f1c0d	ucode.hex	23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144
+ 09f9bf3846511f8388d995126502ed92eaa65213	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+ 09f9bf3846511f8388d995126502ed92eaa65213	ucode.hex	23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144
+ 0c208442c67213c04bde0eb75ec0f649eb09890b	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+### rc=0
+## sortedness and row shape
+sorted-ok
+## independent ROM generation from archived processor hdl at both pins
+990f96526bb89356c963a260ebbdcf2a77e6623a 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956 23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144
+0922e43408f891fc0b84a84691df86b4fd0f1c0d 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956 23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144
+## repository tool re-record reproduces the committed ledger byte for byte
+### record
+$ ./ooc.sh --record-rom-digests
+ooc.sh: recorded ROM content digests for protocol-processor pin 0922e43408f891fc0b84a84691df86b4fd0f1c0d and gptp-processor pin 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d in syn/yosys/rom_digests.tsv
+### rc=0
+### record-diff
+$ git diff --exit-code -- syn/yosys/rom_digests.tsv
+### rc=0
+## negative probe: without the new rows the OOC path refuses the pin
+ooc.sh: FATAL: no recorded content digest for ltn_rom.hex at protocol-processor pin 0922e43408f891fc0b84a84691df86b4fd0f1c0d in syn/yosys/rom_digests.tsv - a pin bump re-records with ./ooc.sh --record-rom-digests, and that diff is reviewed with the bump
+neg rc=2
+## negative probe 2: a wrong digest for the new pin is refused
+ooc.sh: FATAL: content digest mismatch for ucode.hex at protocol-processor pin 0922e43408f891fc0b84a84691df86b4fd0f1c0d: generated 23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144, recorded 0000000000000000000000000000000000000000000000000000000000000000 - the generator regressed (a correctly shaped wrong image still prices wrong) or the ledger is stale
+neg2 rc=2
+### restored
+$ git diff --exit-code -- syn/yosys/rom_digests.tsv
+### rc=0

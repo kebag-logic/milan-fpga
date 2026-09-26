@@ -1,0 +1,12 @@
+### yosys-elab
+$ syn/yosys/run.sh --mode elaborate --no-structural --top milan_datapath --top KL_pp_shadow --top KL_gptp_shadow
+== Yosys fast elaboration check (via sv2v) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] milan_datapath         cells=51252
+  [PASS] KL_pp_shadow           cells=37617
+  [PASS] KL_gptp_shadow         cells=3567
+--------------------------------------------------------------
+tops: 3   pass: 3   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker
+### rc=0

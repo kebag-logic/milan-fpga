@@ -1,0 +1,49 @@
+### checker
+$ python3 protocol-processor/scripts/check-integrator-params.py
+parameters: top 24, guide 24, diagram 24, OK
+### rc=0
+### independent
+$ python3 $REVIEWS/567-r326-1-packet/scripts/r326_params.py $REVIEWS/r326-1-567
+top parameters: 24; guide inventory rows: 24
+parent bindings on protocol_processor_top: 14
+  N_STREAM_IN_P          <- N_STREAM_IN_P          in-inventory
+  N_STREAM_OUT_P         <- N_STREAM_OUT_P         in-inventory
+  SRP_DOM_DEF_VID_P      <- SRP_DOM_DEF_VID_P      in-inventory
+  CLK_HZ_P               <- CLK_HZ_P               in-inventory
+  TIM_DIV_US_P           <- TIM_DIV_US_P           in-inventory
+  TIM_DIV_MS_P           <- TIM_DIV_MS_P           in-inventory
+  TROM_HEX_P             <- TROM_HEX_P             in-inventory
+  UCODE_HEX_P            <- UCODE_HEX_P            in-inventory
+  DESC_BASE_P            <- DESC_BASE_P            in-inventory
+  DESC_LINE_BYTES_P      <- DESC_LINE_BYTES_P      in-inventory
+  DESC_IDX_ENTRIES_P     <- DESC_IDX_ENTRIES_P     in-inventory
+  DESC_NAME_ENTRIES_P    <- DESC_NAME_ENTRIES_P    in-inventory
+  DESC_MEM_TMO_CYC_P     <- DESC_MEM_TMO_CYC_P     in-inventory
+  RESP_BASE_P            <- RESP_BASE_P            in-inventory
+unbound (processor default applies): ['N_AUDIO_UNIT_P', 'N_CLK_DOMAIN_P', 'N_CONTROL_P', 'RX_SLOTS_P', 'RX_SLOT_BYTES_P', 'TX_STD_SLOTS_P', 'TX_OVERSIZE_BYTES_P', 'NVM_RS_TMO_CYC_P', 'REG_TL_TIMEOUT_MS_P', 'LOCK_TIMEOUT_MS_P']
+  [OK] SRP_DOM_DEF_VID_P keeps Milan value 2: ADP_SRP_DOM_DEF_VID_C = 16'd2
+  [OK] TIM_DIV_US_P is clock-derived in product: PP_TIM_DIV_US_P = MILAN_CLK_FREQ_HZ / 1_000_000
+  [OK] TIM_DIV_MS_P is 1000 in product: PP_TIM_DIV_MS_P = 1000
+  [OK] REG_TL_TIMEOUT_MS_P not shortened by parent: default 300_000
+  [OK] LOCK_TIMEOUT_MS_P not shortened by parent: default 60_000
+  [OK] NVM_RS_TMO_CYC_P not shortened by parent: default CLK_HZ_P / 32'd50
+  [OK] N_AUDIO_UNIT_P unbound; default 1: default 1
+  [OK] N_CLK_DOMAIN_P unbound; default 1: default 1
+  [OK] N_CONTROL_P unbound; default 1: default 1
+  [OK] entity model AEM_N_AUDIO_UNIT_C equals processor default 1: AEM_N_AUDIO_UNIT_C = 1
+  [OK] entity model AEM_N_CLKDOM_C equals processor default 1: AEM_N_CLKDOM_C = 1
+RESULT OK
+### rc=0
+## mutation: checker must fail on a guide missing one row
+PARAMETERS FAIL: guide: missing N_CONTROL_P
+parameters: top 24, guide 23, diagram 24, 1 FAILURES
+mutant rc=1
+## mutation: checker at the old pin's guide (pre-inventory) must fail
+PARAMETERS FAIL: guide: missing LOCK_TIMEOUT_MS_P
+PARAMETERS FAIL: guide: missing NVM_RS_TMO_CYC_P
+PARAMETERS FAIL: guide: missing N_AUDIO_UNIT_P
+PARAMETERS FAIL: guide: missing N_CLK_DOMAIN_P
+PARAMETERS FAIL: guide: missing N_CONTROL_P
+PARAMETERS FAIL: guide: missing REG_TL_TIMEOUT_MS_P
+parameters: top 24, guide 18, diagram 24, 6 FAILURES
+old-guide rc=1

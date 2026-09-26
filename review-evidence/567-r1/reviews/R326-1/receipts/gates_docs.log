@@ -1,0 +1,31 @@
+### docs-git
+$ python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 884 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+### rc=0
+### docs-nogit
+$ python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 884 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+### rc=0
+### em-dash
+$ python3 -B scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+check_em_dash: 0 finding(s) over 42 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [7eb3b0d4..HEAD]
+### rc=0
+### doc-style
+$ python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+### rc=0
+### toc
+$ python3 -B scripts/gen_toc.py --check
+TOC gate: OK (108 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+### rc=0
+### toc-anchors
+$ python3 -B scripts/gen_toc.py --verify-anchors
+anchor check: 176 existing cross-page fragment links reproduced
+### rc=0
+### doc-paths
+$ python3 -B scripts/check_doc_paths.py
+doc path gate: OK (847 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+### rc=0
+### diff-check
+$ git diff --check 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a 54b4c3bbbc8cdea5ced0be29c9226fdf82233b74
+### rc=0
