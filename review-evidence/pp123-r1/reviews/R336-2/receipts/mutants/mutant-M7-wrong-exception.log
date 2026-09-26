@@ -1,0 +1,1016 @@
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_legal_fields  (cwd mut-M7-wrong-exception/tb/desc_store)
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.186s
+
+OK
+rc=0
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_legal_bytes  (cwd mut-M7-wrong-exception/tb/desc_store)
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.185s
+
+OK
+rc=0
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_type_mismatch_fields  (cwd mut-M7-wrong-exception/tb/desc_store)
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI. ... ERROR
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_type_mismatch_bytes  (cwd mut-M7-wrong-exception/tb/desc_store)
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_index_mismatch_fields  (cwd mut-M7-wrong-exception/tb/desc_store)
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI. ... ERROR
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_index_mismatch_bytes  (cwd mut-M7-wrong-exception/tb/desc_store)
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=4)
+rc=1
+
+$ make generator-check  (cwd mut-M7-wrong-exception/tb/desc_store)
+python3 -B test_gen_desc_image.py
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI. ... ERROR
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ok
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... ok
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI. ... ERROR
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.409s
+
+FAILED (errors=16)
+make: *** [Makefile:32: generator-check] Error 1
+rc=2
+
+$ make  (cwd mut-M7-wrong-exception/tb/desc_store)
+python3 -B test_gen_desc_image.py
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI. ... ERROR
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ok
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... ok
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI. ... ERROR
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI. ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI. ... ERROR
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 98, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.372s
+
+FAILED (errors=16)
+make: *** [Makefile:32: generator-check] Error 1
+rc=2
+

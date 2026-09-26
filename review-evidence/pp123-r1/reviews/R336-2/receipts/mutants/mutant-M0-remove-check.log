@@ -1,0 +1,680 @@
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_legal_fields  (cwd mut-M0-remove-check/tb/desc_store)
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.222s
+
+OK
+rc=0
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_legal_bytes  (cwd mut-M0-remove-check/tb/desc_store)
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.186s
+
+OK
+rc=0
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_type_mismatch_fields  (cwd mut-M0-remove-check/tb/desc_store)
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_type_mismatch_bytes  (cwd mut-M0-remove-check/tb/desc_store)
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_index_mismatch_fields  (cwd mut-M0-remove-check/tb/desc_store)
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_index_mismatch_bytes  (cwd mut-M0-remove-check/tb/desc_store)
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=4)
+rc=1
+
+$ make generator-check  (cwd mut-M0-remove-check/tb/desc_store)
+python3 -B test_gen_desc_image.py
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ok
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... ok
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.365s
+
+FAILED (failures=16)
+make: *** [Makefile:32: generator-check] Error 1
+rc=2
+
+$ make  (cwd mut-M0-remove-check/tb/desc_store)
+python3 -B test_gen_desc_image.py
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ok
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... ok
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.384s
+
+FAILED (failures=16)
+make: *** [Makefile:32: generator-check] Error 1
+rc=2
+

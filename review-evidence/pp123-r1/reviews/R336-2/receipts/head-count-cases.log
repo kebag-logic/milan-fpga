@@ -1,0 +1,19 @@
+test_index_mismatch_bytes (t.BodyKeyTest.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... ok
+test_index_mismatch_fields (t.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... ok
+test_legal_bytes (t.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ok
+test_legal_fields (t.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... ok
+test_type_mismatch_bytes (t.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... ok
+test_type_mismatch_fields (t.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.148s
+
+OK
+tests run 6; subtests passed 24, failed/errored 0; failures 0, errors 0
+rc=0

@@ -1,0 +1,17 @@
+== r1: sketch has 2 descriptors
+   key type 0x0000 index 0; body bytes 0-3 00002e2e -> type 0x0000 index 11822; first fields ['descriptor_type', 'entity_name', 'raw']: DISAGREES
+   key type 0x0017 index 0; body bytes 0-3 00170000 -> type 0x0017 index 0; first fields []: AGREES
+   _grouped_descriptors(sketch): ImageError: cfg 0 directory key type 0x0000 index 0 disagrees with body type 0x0000 index 11822
+== head: sketch has 2 descriptors
+   key type 0x0000 index 0; body bytes 0-3 00000000 -> type 0x0000 index 0; first fields ['descriptor_type', 'descriptor_index', 'entity_name']: AGREES
+   key type 0x0017 index 0; body bytes 0-3 00170000 -> type 0x0017 index 0; first fields []: AGREES
+   _grouped_descriptors(sketch): accepted, keys [(0, 0), (0, 23)]
+RESULT: 2 disagreement(s)
+rc=1
+## head only
+== head: sketch has 2 descriptors
+   key type 0x0000 index 0; body bytes 0-3 00000000 -> type 0x0000 index 0; first fields ['descriptor_type', 'descriptor_index', 'entity_name']: AGREES
+   key type 0x0017 index 0; body bytes 0-3 00170000 -> type 0x0017 index 0; first fields []: AGREES
+   _grouped_descriptors(sketch): accepted, keys [(0, 0), (0, 23)]
+RESULT: every sketch agrees and is accepted
+rc=0

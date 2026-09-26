@@ -1,0 +1,1376 @@
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_legal_fields  (cwd mut-M10-over-strict-cfg0-only/tb/desc_store)
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... 
+  test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key='AUDIO_CLUSTER')
+Matching field bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key=20)
+Matching field bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key='0x0014')
+Matching field bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key=4660)
+Matching field bodies are accepted unchanged by build and CLI. ... ERROR
+
+======================================================================
+ERROR: test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key='AUDIO_CLUSTER')
+Matching field bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key=20)
+Matching field bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key='0x0014')
+Matching field bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key=4660)
+Matching field bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_legal_bytes  (cwd mut-M10-over-strict-cfg0-only/tb/desc_store)
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... 
+  test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key='AUDIO_CLUSTER')
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key=20)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key='0x0014')
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key=4660)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ERROR
+
+======================================================================
+ERROR: test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key='AUDIO_CLUSTER')
+Matching literal byte bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key=20)
+Matching literal byte bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key='0x0014')
+Matching literal byte bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key=4660)
+Matching literal byte bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_type_mismatch_fields  (cwd mut-M10-over-strict-cfg0-only/tb/desc_store)
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x1234 index 0 disagrees with body type 0x1234 index 0' != 'cfg [13 chars]ey type 0x1234 index 1 disagrees with body type 0x1334 index 1'
+- cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+?                                       ^                             ^         ^
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_type_mismatch_bytes  (cwd mut-M10-over-strict-cfg0-only/tb/desc_store)
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x1234 index 0 disagrees with body type 0x1234 index 0' != 'cfg [13 chars]ey type 0x1234 index 1 disagrees with body type 0x1334 index 1'
+- cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+?                                       ^                             ^         ^
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_index_mismatch_fields  (cwd mut-M10-over-strict-cfg0-only/tb/desc_store)
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x1234 index 0 disagrees with body type 0x1234 index 0' != 'cfg [15 chars] type 0x1234 index 1 disagrees with body type 0x1234 index 257'
+- cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+?                                       ^                                       ^^^
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_index_mismatch_bytes  (cwd mut-M10-over-strict-cfg0-only/tb/desc_store)
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x1234 index 0 disagrees with body type 0x1234 index 0' != 'cfg [15 chars] type 0x1234 index 1 disagrees with body type 0x1234 index 257'
+- cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+?                                       ^                                       ^^^
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=4)
+rc=1
+
+$ make generator-check  (cwd mut-M10-over-strict-cfg0-only/tb/desc_store)
+python3 -B test_gen_desc_image.py
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... 
+  test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key='AUDIO_CLUSTER')
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key=20)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key='0x0014')
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key=4660)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ERROR
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... 
+  test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key='AUDIO_CLUSTER')
+Matching field bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key=20)
+Matching field bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key='0x0014')
+Matching field bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key=4660)
+Matching field bodies are accepted unchanged by build and CLI. ... ERROR
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+
+======================================================================
+ERROR: test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key='AUDIO_CLUSTER')
+Matching literal byte bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key=20)
+Matching literal byte bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key='0x0014')
+Matching literal byte bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key=4660)
+Matching literal byte bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+
+======================================================================
+ERROR: test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key='AUDIO_CLUSTER')
+Matching field bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key=20)
+Matching field bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key='0x0014')
+Matching field bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key=4660)
+Matching field bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x1234 index 0 disagrees with body type 0x1234 index 0' != 'cfg [15 chars] type 0x1234 index 1 disagrees with body type 0x1234 index 257'
+- cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x1234 index 0 disagrees with body type 0x1234 index 0' != 'cfg [15 chars] type 0x1234 index 1 disagrees with body type 0x1234 index 257'
+- cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x1234 index 0 disagrees with body type 0x1234 index 0' != 'cfg [13 chars]ey type 0x1234 index 1 disagrees with body type 0x1334 index 1'
+- cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x1234 index 0 disagrees with body type 0x1234 index 0' != 'cfg [13 chars]ey type 0x1234 index 1 disagrees with body type 0x1334 index 1'
+- cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+?                                       ^                             ^         ^
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.009s
+
+FAILED (failures=16, errors=8)
+make: *** [Makefile:32: generator-check] Error 1
+rc=2
+
+$ make  (cwd mut-M10-over-strict-cfg0-only/tb/desc_store)
+python3 -B test_gen_desc_image.py
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI. ... FAIL
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... 
+  test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key='AUDIO_CLUSTER')
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key=20)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key='0x0014')
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key=4660)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ERROR
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... 
+  test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key='AUDIO_CLUSTER')
+Matching field bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key=20)
+Matching field bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key='0x0014')
+Matching field bodies are accepted unchanged by build and CLI. ... ERROR
+  test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key=4660)
+Matching field bodies are accepted unchanged by build and CLI. ... ERROR
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI. ... FAIL
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI. ... FAIL
+
+======================================================================
+ERROR: test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key='AUDIO_CLUSTER')
+Matching literal byte bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key=20)
+Matching literal byte bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key='0x0014')
+Matching literal byte bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) (key=4660)
+Matching literal byte bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+
+======================================================================
+ERROR: test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key='AUDIO_CLUSTER')
+Matching field bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key=20)
+Matching field bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key='0x0014')
+Matching field bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+
+======================================================================
+ERROR: test_legal_fields (__main__.BodyKeyTest.test_legal_fields) (key=4660)
+Matching field bodies are accepted unchanged by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 72, in legal
+    image, report = gen_desc_image.build(model)
+                    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/hdl/aecp/desc/gen_desc_image.py", line 219, in _grouped_descriptors
+    raise ImageError(
+    ...<2 lines>...
+        f"index {body_index}")
+gen_desc_image.ImageError: cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+An index-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x1234 index 0 disagrees with body type 0x1234 index 0' != 'cfg [15 chars] type 0x1234 index 1 disagrees with body type 0x1234 index 257'
+- cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [15 chars] type 0x0014 index 1 disagrees with body type 0x0014 index 257'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+An index-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [15 chars] type 0x1234 index 0 disagrees with body type 0x1234 index 0' != 'cfg [15 chars] type 0x1234 index 1 disagrees with body type 0x1234 index 257'
+- cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+?                                       ^                                       ^
++ cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+?                                       ^                                       ^^^
+
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+A type-only mismatch in literal bytes is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x1234 index 0 disagrees with body type 0x1234 index 0' != 'cfg [13 chars]ey type 0x1234 index 1 disagrees with body type 0x1334 index 1'
+- cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x0014 index 0 disagrees with body type 0x0014 index 0' != 'cfg [13 chars]ey type 0x0014 index 1 disagrees with body type 0x0114 index 1'
+- cfg 1 directory key type 0x0014 index 0 disagrees with body type 0x0014 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+?                                       ^                             ^         ^
+
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-2-packet/scratch/mut-M10-over-strict-cfg0-only/tb/desc_store/test_gen_desc_image.py", line 99, in refused
+    self.assertEqual(str(caught.exception), message)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cfg [13 chars]ey type 0x1234 index 0 disagrees with body type 0x1234 index 0' != 'cfg [13 chars]ey type 0x1234 index 1 disagrees with body type 0x1334 index 1'
+- cfg 1 directory key type 0x1234 index 0 disagrees with body type 0x1234 index 0
+?                                       ^                             ^         ^
++ cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+?                                       ^                             ^         ^
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.009s
+
+FAILED (failures=16, errors=8)
+make: *** [Makefile:32: generator-check] Error 1
+rc=2
+
