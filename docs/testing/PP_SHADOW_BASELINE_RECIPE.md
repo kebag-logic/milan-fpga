@@ -379,7 +379,7 @@ The echoed severity-setting command is not a diagnostic.
 Rehash `baseline_images.json` inputs after each run.
 The helper checks complete control-ROM and generated-ROM geometry.
 Its self-test exercises real preparation on a synthetic export.
-Run the ten removal mutants alongside the positive control:
+Run the maintained enforcement-removal mutants alongside the positive control:
 
 ```sh
 python3 syn/ooc/pp_baseline.py --selftest

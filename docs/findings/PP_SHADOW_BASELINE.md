@@ -279,10 +279,11 @@ All measured Vivado synthesis logs contain zero `Synth 8-4445` diagnostics.
 The preparation helper promotes that diagnostic to an error.
 It also rejects missing, short, malformed and ambiguous inputs before synthesis.
 Its self-test retains nine original refusal cases.
-Synthetic exports exercise six additional inventory refusals and CLI containment.
+Synthetic exports exercise inventory, geometry, binding and declaration refusals.
+They also exercise endpoint, pathname and CLI containment refusals.
 Three default scripts promote missing-ROM diagnostics before synthesis.
 The attribution constraint is also checked before synthesis.
-Ten enforcement-removal mutants all fail; the unchanged control passes.
+Every maintained enforcement-removal mutant fails; the unchanged control passes.
 The fast CI workflow runs these checks automatically.
 All source and image hashes were checked again after measurement.
 
