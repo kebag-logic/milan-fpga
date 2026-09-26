@@ -1,0 +1,193 @@
+{
+  "sha256_act_ci": "79579e6b618f1d05fae202018e18f066a23cd8d667202fdbe03b561ecad638f8",
+  "mutants": [
+    {
+      "id": "M01",
+      "title": "revert: resolve pasta like every other tool",
+      "expect": "killed",
+      "observed": "killed",
+      "returncode": 1,
+      "failing_arms": [
+        "FAIL pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor",
+        "FAIL the slot uplink's fake multi-call executable observes the invoked name pasta"
+      ],
+      "tail": [
+        "act-ci: interrupted by SIGINT after cleanup",
+        "act-ci: interrupted by SIGTERM after cleanup",
+        "act-ci: interrupted by SIGHUP after cleanup"
+      ]
+    },
+    {
+      "id": "M02",
+      "title": "re-resolve the path at the uplink launch site",
+      "expect": "killed",
+      "observed": "killed",
+      "returncode": 1,
+      "failing_arms": [
+        "FAIL the slot uplink's fake multi-call executable observes the invoked name pasta",
+        "FAIL the uplink is socket-level NAT in the slot namespace: no inbound or outbound port forward and no gateway mapped to host loopback"
+      ],
+      "tail": [
+        "act-ci: interrupted by SIGINT after cleanup",
+        "act-ci: interrupted by SIGTERM after cleanup",
+        "act-ci: interrupted by SIGHUP after cleanup"
+      ]
+    },
+    {
+      "id": "M03",
+      "title": "preserve the symlink name of every tool",
+      "expect": "killed",
+      "observed": "killed",
+      "returncode": 1,
+      "failing_arms": [
+        "FAIL every other slot host tool still resolves its final symlink"
+      ],
+      "tail": [
+        "act-ci: interrupted by SIGINT after cleanup",
+        "act-ci: interrupted by SIGTERM after cleanup",
+        "act-ci: interrupted by SIGHUP after cleanup"
+      ]
+    },
+    {
+      "id": "M04",
+      "title": "look pasta up on the ambient PATH",
+      "expect": "killed",
+      "observed": "killed",
+      "returncode": 1,
+      "failing_arms": [
+        "FAIL pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor",
+        "FAIL the invoked pasta symlink still resolves to its executable identity",
+        "FAIL the slot uplink's fake multi-call executable observes the invoked name pasta",
+        "FAIL missing SAFE_PATH pasta refuses despite the ambient PATH impostor",
+        "FAIL a dangling pasta symlink refuses",
+        "FAIL a non-executable pasta target refuses"
+      ],
+      "tail": [
+        "act-ci: interrupted by SIGINT after cleanup",
+        "act-ci: interrupted by SIGTERM after cleanup",
+        "act-ci: interrupted by SIGHUP after cleanup"
+      ]
+    },
+    {
+      "id": "M05",
+      "title": "fall back to the ambient PATH when SAFE_PATH lacks pasta",
+      "expect": "killed",
+      "observed": "killed",
+      "returncode": 1,
+      "failing_arms": [
+        "FAIL missing SAFE_PATH pasta refuses despite the ambient PATH impostor",
+        "FAIL a dangling pasta symlink refuses",
+        "FAIL a non-executable pasta target refuses"
+      ],
+      "tail": [
+        "act-ci: interrupted by SIGINT after cleanup",
+        "act-ci: interrupted by SIGTERM after cleanup",
+        "act-ci: interrupted by SIGHUP after cleanup"
+      ]
+    },
+    {
+      "id": "M06",
+      "title": "return the bare name so the launcher searches its own PATH",
+      "expect": "killed",
+      "observed": "killed",
+      "returncode": 1,
+      "failing_arms": [
+        "FAIL pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor",
+        "FAIL the invoked pasta symlink still resolves to its executable identity",
+        "FAIL the slot uplink's fake multi-call executable observes the invoked name pasta"
+      ],
+      "tail": [
+        "act-ci: interrupted by SIGINT after cleanup",
+        "act-ci: interrupted by SIGTERM after cleanup",
+        "act-ci: interrupted by SIGHUP after cleanup"
+      ]
+    },
+    {
+      "id": "M07",
+      "title": "drop the executable-bit requirement for pasta",
+      "expect": "killed",
+      "observed": "killed",
+      "returncode": 1,
+      "failing_arms": [
+        "FAIL a non-executable pasta target refuses"
+      ],
+      "tail": [
+        "act-ci: interrupted by SIGINT after cleanup",
+        "act-ci: interrupted by SIGTERM after cleanup",
+        "act-ci: interrupted by SIGHUP after cleanup"
+      ]
+    },
+    {
+      "id": "M08",
+      "title": "accept any directory entry named pasta, even a dangling link",
+      "expect": "killed",
+      "observed": "killed",
+      "returncode": 1,
+      "failing_arms": [
+        "FAIL a dangling pasta symlink refuses",
+        "FAIL a non-executable pasta target refuses"
+      ],
+      "tail": [
+        "act-ci: interrupted by SIGINT after cleanup",
+        "act-ci: interrupted by SIGTERM after cleanup",
+        "act-ci: interrupted by SIGHUP after cleanup"
+      ]
+    },
+    {
+      "id": "M09",
+      "title": "CONTROL: resolve the directory but keep the final name",
+      "expect": "survives",
+      "observed": "survives",
+      "returncode": 0,
+      "failing_arms": [],
+      "tail": [
+        "act-ci: interrupted by SIGINT after cleanup",
+        "act-ci: interrupted by SIGTERM after cleanup",
+        "act-ci: interrupted by SIGHUP after cleanup"
+      ]
+    },
+    {
+      "id": "M10",
+      "title": "widen the preserved set to a non-slot tool (sudo)",
+      "expect": "survives",
+      "observed": "survives",
+      "returncode": 0,
+      "failing_arms": [],
+      "tail": [
+        "act-ci: interrupted by SIGINT after cleanup",
+        "act-ci: interrupted by SIGTERM after cleanup",
+        "act-ci: interrupted by SIGHUP after cleanup"
+      ]
+    },
+    {
+      "id": "M11",
+      "title": "widen the preserved set to a slot tool (ip)",
+      "expect": "killed",
+      "observed": "killed",
+      "returncode": 1,
+      "failing_arms": [
+        "FAIL every other slot host tool still resolves its final symlink"
+      ],
+      "tail": [
+        "act-ci: interrupted by SIGINT after cleanup",
+        "act-ci: interrupted by SIGTERM after cleanup",
+        "act-ci: interrupted by SIGHUP after cleanup"
+      ]
+    },
+    {
+      "id": "M12",
+      "title": "return a cwd-relative spelling of the SAFE_PATH hit",
+      "expect": "killed",
+      "observed": "killed",
+      "returncode": 1,
+      "failing_arms": [
+        "FAIL pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor"
+      ],
+      "tail": [
+        "act-ci: interrupted by SIGINT after cleanup",
+        "act-ci: interrupted by SIGTERM after cleanup",
+        "act-ci: interrupted by SIGHUP after cleanup"
+      ]
+    }
+  ]
+}

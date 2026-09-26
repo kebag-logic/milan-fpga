@@ -1,0 +1,48 @@
+++ readlink /usr/bin/pasta
+passt
+++ sha256sum /usr/bin/passt
+dd97f59e8dbc19db559931b96067efb2d81c19666f48248e22a6532042e4073f  /usr/bin/passt
+++ /usr/sbin/pasta --version
+pasta 2026_07_28.f8df3f1
+Copyright Red Hat
+GNU General Public License, version 2 or later
+  <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+++ echo rc=0
+rc=0
+++ /usr/bin/passt --version
+passt 2026_07_28.f8df3f1
+Copyright Red Hat
+GNU General Public License, version 2 or later
+  <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+++ echo rc=0
+rc=0
+++ /usr/sbin/pasta --netns-only --version
+pasta 2026_07_28.f8df3f1
+Copyright Red Hat
+GNU General Public License, version 2 or later
+  <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+++ echo rc=0
+rc=0
+++ /usr/bin/passt --netns-only --version
+--netns-only is for pasta mode only
+++ echo rc=1
+rc=1
+++ bash -c 'exec -a /usr/bin/pasta /usr/bin/passt --netns-only --version'
+pasta 2026_07_28.f8df3f1
+Copyright Red Hat
+GNU General Public License, version 2 or later
+  <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+++ echo rc=0
+rc=0

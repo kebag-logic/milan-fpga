@@ -1,0 +1,19 @@
+SAME chown: new=/usr/bin/chown old=/usr/bin/chown basename=chown
+SAME docker: new=/usr/bin/docker old=/usr/bin/docker basename=docker
+SAME dockerd: new=/usr/bin/dockerd old=/usr/bin/dockerd basename=dockerd
+SAME env: new=/usr/bin/env old=/usr/bin/env basename=env
+SAME gh: new=/usr/bin/gh old=/usr/bin/gh basename=gh
+SAME git: new=/usr/bin/git old=/usr/bin/git basename=git
+SAME ip: new=/usr/bin/ip old=/usr/bin/ip basename=ip
+SAME kill: new=/usr/bin/kill old=/usr/bin/kill basename=kill
+SAME nft: new=/usr/bin/nft old=/usr/bin/nft basename=nft
+SAME nsenter: new=/usr/bin/nsenter old=/usr/bin/nsenter basename=nsenter
+DIFF pasta: new=/usr/sbin/pasta old=/usr/bin/passt basename=pasta
+SAME ps: new=/usr/bin/ps old=/usr/bin/ps basename=ps
+SAME sh: new=/usr/bin/bash old=/usr/bin/bash basename=bash
+SAME sudo: new=/usr/bin/sudo old=/usr/bin/sudo basename=sudo
+SAME systemctl: new=/usr/bin/systemctl old=/usr/bin/systemctl basename=systemctl
+SAME systemd-run: new=/usr/bin/systemd-run old=/usr/bin/systemd-run basename=systemd-run
+SAME touch: new=/usr/bin/touch old=/usr/bin/touch basename=touch
+changed tools: ['pasta']
+rc=0

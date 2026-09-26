@@ -1,0 +1,31 @@
+++ ls -l $REVIEWS/532b-r266-6-packet/scratch/sdrun/pasta
+lrwxrwxrwx 1 alex alex 14 Sep 26 12:34 $REVIEWS/532b-r266-6-packet/scratch/sdrun/pasta -> /usr/bin/passt
+++ systemd-run --user --quiet --collect --wait --pipe --unit=r266-6-pasta-name-probe -- $REVIEWS/532b-r266-6-packet/scratch/sdrun/pasta --netns-only --version
+pasta 2026_07_28.f8df3f1
+Copyright Red Hat
+GNU General Public License, version 2 or later
+  <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+++ echo rc=0
+rc=0
+++ systemd-run --user --quiet --collect --wait --pipe --unit=r266-6-passt-name-probe -- /usr/bin/passt --netns-only --version
+--netns-only is for pasta mode only
+++ echo rc=1
+rc=1
+++ systemctl --user is-active r266-6-pasta-name-probe.service r266-6-passt-name-probe.service
+inactive
+inactive
+++ systemd-run --user --quiet --collect --wait --pipe --unit=r266-6-usrsbin-pasta-probe -- /usr/sbin/pasta --netns-only --version
+pasta 2026_07_28.f8df3f1
+Copyright Red Hat
+GNU General Public License, version 2 or later
+  <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+++ echo rc=0
+rc=0
+++ systemctl --user is-active r266-6-usrsbin-pasta-probe.service
+inactive

@@ -1,0 +1,106 @@
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index fbadf1c1..d22d6ab4 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -1852,6 +1852,10 @@ and its cgroup-mount root only in their exact code contexts in
+ product document, are still refused, and the gate's self-test proves each of
+ those refusals.
+ 
++The uplink uses the absolute `pasta` path from `SAFE_PATH`.
++Its final symlink stays unresolved, preserving the multi-call mode.
++Other host tools keep their resolved paths.
++
+ Before anything else touches the daemon, `docker info` through the slot socket
+ must report the slot label, the invocation token and the slot data-root. The
+ Docker CLI and `act` then both run under
+diff --git a/scripts/act_ci.py b/scripts/act_ci.py
+index 3655988c..28f365a0 100755
+--- a/scripts/act_ci.py
++++ b/scripts/act_ci.py
+@@ -699,12 +699,15 @@ class CommandContext:
+ 
+ 
+ def require_tool(name: str) -> str:
+-    """The resolved path of host executable `name` found on SAFE_PATH; an absent tool is a Refusal."""
++    """Find a host executable on SAFE_PATH, preserving pasta's invoked name; absence is a Refusal."""
+     # Candidate worktrees are commonly the invocation directory. Never resolve
+     # a host-side prerequisite through their current directory or PATH entry.
+     found = shutil.which(name, path=SAFE_PATH)
+     if not found:
+         raise Refusal(f"required executable is unavailable: {name}")
++    # pasta selects its multi-call mode by the invoked name, not the target.
++    if name == "pasta":
++        return str(pathlib.Path(found).absolute())
+     return str(pathlib.Path(found).resolve())
+ 
+ 
+@@ -11422,6 +11425,61 @@ def selftest_slot_arguments(tally: SelftestTally) -> None:
+     )
+ 
+ 
++def selftest_host_tool_paths(tally: SelftestTally) -> None:
++    """Arms: SAFE_PATH lookup preserves the uplink's multi-call name and resolves other tools."""
++    with tempfile.TemporaryDirectory(prefix="act-ci-tool-path-selftest-") as raw:
++        root = pathlib.Path(raw).resolve()
++        trusted, untrusted = root / "trusted", root / "untrusted"
++        trusted.mkdir()
++        untrusted.mkdir()
++        target = trusted / "passt"
++        target.write_text('#!/bin/sh\nprintf \'%s\\n\' "${0##*/}"\n', encoding="utf-8")
++        target.chmod(0o755)
++        for tool in SLOT_HOST_TOOLS:
++            (trusted / tool).symlink_to(target.name)
++        pasta = trusted / "pasta"
++        (untrusted / "pasta").write_text('#!/bin/sh\nprintf \'untrusted\\n\'\n', encoding="utf-8")
++        (untrusted / "pasta").chmod(0o755)
++        with mock.patch.object(sys.modules[__name__], "SAFE_PATH", str(trusted)), mock.patch.dict(
++            os.environ, {"PATH": str(untrusted)}
++        ):
++            selected = require_tool("pasta")
++            tally.check(
++                "pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor",
++                selected == str(pasta),
++            )
++            tally.check(
++                "the invoked pasta symlink still resolves to its executable identity",
++                pathlib.Path(selected).resolve() == target,
++            )
++            tally.check(
++                "every other slot host tool still resolves its final symlink",
++                all(require_tool(tool) == str(target) for tool in SLOT_HOST_TOOLS if tool != "pasta"),
++            )
++            uplink = slot_uplink_command(ReplaySlot(1))
++            # Execute only the fake uplink, never the unit launcher.
++            result = subprocess.run(
++                uplink[uplink.index("--") + 1 :],
++                cwd=untrusted, env={"PATH": str(untrusted)},
++                capture_output=True, text=True, check=False, timeout=10,
++            )
++            tally.check(
++                "the slot uplink's fake multi-call executable observes the invoked name pasta",
++                result.returncode == 0 and result.stdout == "pasta\n",
++            )
++            pasta.unlink()
++            tally.refused(
++                "missing SAFE_PATH pasta refuses despite the ambient PATH impostor",
++                lambda: require_tool("pasta"),
++            )
++            pasta.symlink_to("missing-target")
++            tally.refused("a dangling pasta symlink refuses", lambda: require_tool("pasta"))
++            pasta.unlink()
++            pasta.symlink_to(target.name)
++            target.chmod(0o644)
++            tally.refused("a non-executable pasta target refuses", lambda: require_tool("pasta"))
++
++
+ def selftest_slot_commands(tally: SelftestTally) -> None:
+     """Arms: the uplink, daemon and firewall a slot starts are pinned word for word."""
+     check = tally.check
+@@ -12419,6 +12477,7 @@ def selftest_slot_stages(tally: SelftestTally, docker: DockerFixture) -> None:
+     selftest_slot_environment(tally, docker.layout)
+     selftest_inherited_docker_environment(tally)
+     selftest_slot_arguments(tally)
++    selftest_host_tool_paths(tally)
+     selftest_slot_commands(tally)
+     selftest_slot_act_command(tally, docker)
+     selftest_slot_lifecycle(tally, docker.layout)

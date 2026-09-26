@@ -1,0 +1,27 @@
+act-ci-selftest-isolated rc=0 secs=3 cmd=python3 -I scripts/act_ci.py --selftest
+act-ci-selftest-contract rc=0 secs=3 cmd=python3 scripts/act_ci.py --selftest
+slot-proof-selftest rc=0 secs=27 cmd=bash scripts/act_slot_proof.sh --selftest
+ci-events-check rc=0 secs=0 cmd=python3 scripts/ci_events.py --check
+ci-events-selftest rc=0 secs=14 cmd=python3 scripts/ci_events.py --selftest
+baremetal-check rc=0 secs=15 cmd=python3 scripts/check_baremetal_only.py --check
+baremetal-selftest rc=0 secs=3 cmd=python3 scripts/check_baremetal_only.py --selftest
+py-idiom rc=0 secs=4 cmd=python3 scripts/check_py_idiom.py
+sh-idiom rc=0 secs=0 cmd=python3 scripts/check_sh_idiom.py
+naming-check rc=0 secs=0 cmd=python3 scripts/measure_naming.py --check
+fail-fast-check rc=0 secs=2 cmd=python3 scripts/measure_fail_fast.py --check
+test-evidence-check rc=0 secs=5 cmd=python3 scripts/measure_test_evidence.py --check
+hygiene-check rc=0 secs=0 cmd=python3 scripts/check_hygiene.py --check
+todo-ownership rc=0 secs=2 cmd=python3 scripts/check_todo_ownership.py
+docs-check rc=0 secs=4 cmd=python3 -B scripts/docs_check.py
+doc-style rc=0 secs=0 cmd=python3 scripts/check_doc_style.py
+doc-paths rc=0 secs=0 cmd=python3 scripts/check_doc_paths.py
+toc-check rc=2 secs=0 cmd=python3 scripts/gen_toc.py --check
+toc-anchors rc=2 secs=0 cmd=python3 scripts/gen_toc.py --verify-anchors
+em-dash rc=2 secs=1 cmd=python3 scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+diff-check rc=0 secs=0 cmd=git diff --check 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a HEAD
+toc-check rc=0 cmd=scratch-venv-python scripts/gen_toc.py --check (pinned tools/markdown/requirements.txt)
+toc-anchors rc=0 cmd=scratch-venv-python scripts/gen_toc.py --verify-anchors (pinned tools/markdown/requirements.txt)
+em-dash rc=0 cmd=scratch-venv-python scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a (pinned tools/markdown/requirements.txt)
+docs-check-venv rc=0 cmd=scratch-venv-python -B scripts/docs_check.py (pinned tools/markdown/requirements.txt)
+doc-style-venv rc=0 cmd=scratch-venv-python scripts/check_doc_style.py (pinned tools/markdown/requirements.txt)
+docs-check-no-git rc=0 cmd=scratch-venv-python -B scripts/docs_check.py in git-free export of HEAD
