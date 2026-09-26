@@ -1,0 +1,33 @@
+make: Entering directory '$LANES/502-pending-live-write/tb/verilator/shaper_core'
+verilator --cc --exe --build -j 0 --top-module shaper_core_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINMISSING +incdir+../../../hdl/common +incdir+../../../hdl/ieee8021q/ts -CFLAGS "-std=c++17 -O2 -I$LANES/502-pending-live-write/tb/verilator/shaper_core -Wall -Wextra" shaper_core_wrap.sv ../../../hdl/ieee8021q/ts/traffic_shaping_core.sv ../../../hdl/ieee8021q/ts/credit_based_shaper.sv ../../../hdl/common/axi_stream_if.sv sim_main.cpp -o Vshaper_sim
+make[1]: Entering directory '$LANES/502-pending-live-write/tb/verilator/shaper_core/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$LANES/502-pending-live-write/tb/verilator/shaper_core/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 16 threads; allocated 5.746 MB
+======================================================================
+./obj_dir/Vshaper_sim
+== traffic_shaping_core arbitration harness (NQ=5, all shaped) ==
+  [PASS] lone queue q2 is granted (idx=2)
+  [PASS] 802.1Q order: the higher queue index always wins (10 pairs + the all-five case, q4 = SR class A on top)
+  [PASS] depleted q4 drove credit negative, then yields to q3: grant idx=3
+  [PASS] unshaped q0 grantable with no credit: allow=0x1F grant idx=0
+  [PASS] randomized 60000 cycles: grant matches arbiter reference exactly
+  [INFO] REQ-CBS-07 fast drain  (8 B/cycle sink)  0.120640 B/cyc | debt-law model 0.120482 (0.13%) | 802.1Qav S/8 0.125000 -> delivers -3.5%
+  [INFO] REQ-CBS-07 paced drain (1 beat / 8 cyc)  0.119680 B/cyc | debt-law model 0.120482 (0.67%) | 802.1Qav S/8 0.125000 -> delivers -4.3%
+  [INFO] REQ-CBS-07 paced drain, 2x idleSlope     0.229120 B/cyc | debt-law model 0.232558 (1.48%) | 802.1Qav S/8 0.250000 -> delivers -8.4%
+  [PASS] REQ-CBS-07 debt law: egress = (S/8)*L*link/(L*link+24*S) at 100 AND 200 Mb/s, never above S/8; regimes differ 0.80%
+== FQTSS (802.1Q-2018 clause 34) ==
+  [PASS] 34.3.1 bandwidth availability: SR A+B = 600 Mb/s (60.0% of 1G, ceiling 75%); all 5 queues = 725 Mb/s (72.5%) at 1G and 72.5% at 100M
+  [INFO] FQTSS share  q4 @ 100 Mb/s                          q4  11.97% | q0  88.03% | model  12.05% | 802.1Qav reservation 10.00%
+  [INFO] FQTSS share  q4 @ 200 Mb/s                          q4  22.91% | q0  77.09% | model  23.26% | 802.1Qav reservation 20.00%
+  [INFO] FQTSS share  q4 @ 450 Mb/s (the class-A RESET slope) q4  47.04% | q0  52.96% | model  48.13% | 802.1Qav reservation 45.00%
+  [PASS] 8.6.8.2: a shaped SR class and unshaped best effort SHARE the port - neither starves the other, and the split tracks idleSlope monotonically
+  [PASS] non-vacuity: with CBS off, q4 takes 100.00% (strict priority, no credit gate) - so the FQTSS split above IS the shaper
+  [PASS] gPTP q2 under a saturating class-A q4: 52.96% of the port, worst service gap 48 slots = 3.07 us of 1 Gb/s wire time (802.1AS needs 8-16 frames/s)
+  [PASS] CBS_QUEUES_MASK_P=11000 sibling: q0-q2 allow==1 always (ref q0 did block), kept q3/q4 bit-equal to the all-CBS core (q4 did shape)
+--------------------------------------------------------------
+cycle checks: 1521627   mismatches: 0
+RESULT: PASS
+make: Leaving directory '$LANES/502-pending-live-write/tb/verilator/shaper_core'
