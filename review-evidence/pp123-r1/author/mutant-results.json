@@ -1,0 +1,44 @@
+{
+  "mutant-legal": {
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "test_gen_desc_image.py",
+      "BodyKeyTest.test_legal_fields",
+      "BodyKeyTest.test_legal_bytes"
+    ],
+    "returncode": 0,
+    "expected": 0
+  },
+  "mutant-type": {
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "test_gen_desc_image.py",
+      "BodyKeyTest.test_type_mismatch_fields",
+      "BodyKeyTest.test_type_mismatch_bytes"
+    ],
+    "returncode": 1,
+    "expected": 1
+  },
+  "mutant-index": {
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "test_gen_desc_image.py",
+      "BodyKeyTest.test_index_mismatch_fields",
+      "BodyKeyTest.test_index_mismatch_bytes"
+    ],
+    "returncode": 1,
+    "expected": 1
+  },
+  "mutant-entry": {
+    "command": [
+      "make",
+      "generator-check"
+    ],
+    "returncode": 2,
+    "expected": 2
+  },
+  "source_restored_sha256": "ddaa55f1ee8df3f0aaaf15efe28d8d12cfe1068a8284a6829af2ad281ed93b28"
+}

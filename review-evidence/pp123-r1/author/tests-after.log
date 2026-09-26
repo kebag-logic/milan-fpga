@@ -1,0 +1,18 @@
+Command: make -C tb/desc_store generator-check
+make: Entering directory '$LANES/pp123-body-key/tb/desc_store'
+python3 -B test_gen_desc_image.py
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) ... ok
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) ... ok
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) ... ok
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields) ... ok
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) ... ok
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.087s
+
+OK
+make: Leaving directory '$LANES/pp123-body-key/tb/desc_store'
+
+Return code: 0
+Elapsed: 1.17s
