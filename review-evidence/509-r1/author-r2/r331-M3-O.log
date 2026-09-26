@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/tmp/509-a333-0u1rsf_c/r331-M3/scripts/audit_pp_descriptors.py", line 386, in <module>
+    main()
+    ~~~~^^
+  File "/tmp/509-a333-0u1rsf_c/r331-M3/scripts/audit_pp_descriptors.py", line 376, in main
+    packer_probes=packer_probes(documents[current.stem]),
+                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/509-a333-0u1rsf_c/r331-M3/scripts/audit_pp_descriptors.py", line 235, in packer_probes
+    assert_packed_bytes(candidate, blob)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/tmp/509-a333-0u1rsf_c/r331-M3/scripts/audit_pp_descriptors.py", line 190, in assert_packed_bytes
+    raise AuditError(f"packer changed descriptor bytes: type {dtype}, "
+                     f"index {first + index}")
+AuditError: packer changed descriptor bytes: type 0, index 0

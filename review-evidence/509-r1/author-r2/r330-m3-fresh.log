@@ -1,0 +1,756 @@
+["m3", "-B", "sw/builder/endstation_builder.py", "configs/endstation_arty_4x4.yaml", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4"]
+[endstation_builder] endstation_arty_4x4: 4x4 AAF + CRF, tdm8, 32 clusters (cap-at-interface), model_id 0x001BC5F531E6A9DA (hash); 4 planned element(s); resources OVER (worst LUT 84.9%)
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/soc_params.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/build_plan.md
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/lwsrp_table.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/lwsrp_table.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/lwsrp_csr_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/adp_shape_defaults.svh
+  wrote configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/platform_shape.json
+  wrote configs/generated/sweep_opts_arty.sh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/gptp_ucode.hex
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/aecp_aem_rom.svh
+["m3", "-B", "avdecc/gen_aem_store.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json", "--out-dir", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4-store"]
+[gen_aem_store] 64 descriptors, ROM 6249 B (overlay /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json) -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4-store
+  type 0x0000 idx 0: base    0 len 312
+  type 0x0001 idx 0: base  312 len 106
+  type 0x0002 idx 0: base  418 len 148
+  type 0x0005 idx 0: base  566 len 154
+  type 0x0005 idx 1: base  720 len 154
+  type 0x0005 idx 2: base  874 len 154
+  type 0x0005 idx 3: base 1028 len 154
+  type 0x0005 idx 4: base 1182 len 146
+  type 0x0006 idx 0: base 1328 len 146
+  type 0x0006 idx 1: base 1474 len 146
+  type 0x0006 idx 2: base 1620 len 146
+  type 0x0006 idx 3: base 1766 len 146
+  type 0x0006 idx 4: base 1912 len 146
+  type 0x0009 idx 0: base 2058 len 102
+  type 0x000A idx 0: base 2160 len 86
+  type 0x000A idx 1: base 2246 len 86
+  type 0x0024 idx 0: base 2332 len 80
+  type 0x001A idx 0: base 2412 len 113
+  type 0x000C idx 0: base 2525 len 72
+  type 0x000D idx 0: base 2597 len 452
+  type 0x000E idx 0: base 3049 len 20
+  type 0x000E idx 1: base 3069 len 20
+  type 0x000E idx 2: base 3089 len 20
+  type 0x000E idx 3: base 3109 len 20
+  type 0x000F idx 0: base 3129 len 20
+  type 0x000F idx 1: base 3149 len 20
+  type 0x000F idx 2: base 3169 len 20
+  type 0x000F idx 3: base 3189 len 20
+  type 0x0014 idx 0: base 3209 len 90
+  type 0x0014 idx 1: base 3299 len 90
+  type 0x0014 idx 2: base 3389 len 90
+  type 0x0014 idx 3: base 3479 len 90
+  type 0x0014 idx 4: base 3569 len 90
+  type 0x0014 idx 5: base 3659 len 90
+  type 0x0014 idx 6: base 3749 len 90
+  type 0x0014 idx 7: base 3839 len 90
+  type 0x0014 idx 8: base 3929 len 90
+  type 0x0014 idx 9: base 4019 len 90
+  type 0x0014 idx 10: base 4109 len 90
+  type 0x0014 idx 11: base 4199 len 90
+  type 0x0014 idx 12: base 4289 len 90
+  type 0x0014 idx 13: base 4379 len 90
+  type 0x0014 idx 14: base 4469 len 90
+  type 0x0014 idx 15: base 4559 len 90
+  type 0x0014 idx 16: base 4649 len 90
+  type 0x0014 idx 17: base 4739 len 90
+  type 0x0014 idx 18: base 4829 len 90
+  type 0x0014 idx 19: base 4919 len 90
+  type 0x0014 idx 20: base 5009 len 90
+  type 0x0014 idx 21: base 5099 len 90
+  type 0x0014 idx 22: base 5189 len 90
+  type 0x0014 idx 23: base 5279 len 90
+  type 0x0014 idx 24: base 5369 len 90
+  type 0x0014 idx 25: base 5459 len 90
+  type 0x0014 idx 26: base 5549 len 90
+  type 0x0014 idx 27: base 5639 len 90
+  type 0x0014 idx 28: base 5729 len 90
+  type 0x0014 idx 29: base 5819 len 90
+  type 0x0014 idx 30: base 5909 len 90
+  type 0x0014 idx 31: base 5999 len 90
+  type 0x0017 idx 0: base 6089 len 40
+  type 0x0017 idx 1: base 6129 len 40
+  type 0x0017 idx 2: base 6169 len 40
+  type 0x0017 idx 3: base 6209 len 40
+["m3", "-B", "avdecc/gen_aemi_image.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4.bin", "-m", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4.map", "--json", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4.json"]
+[gen_aemi_image] /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json: 64 descriptors -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_4x4.bin, 10112 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 16  names 51
+index_off 0x000020  names_off 0x001AC0  image_bytes 10112  desc_max_len 452
+checksum 0xBCE57022
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000120          0
+    0  0x0001      0      1       106     112  0x000258          2
+    0  0x0002      0      1       148     152  0x0002C8          3
+    0  0x0005      0      4       154     160  0x000360          4
+    0  0x0005      4      1       146     152  0x0005E0          8
+    0  0x0006      0      5       146     152  0x000678          9
+    0  0x0009      0      1       102     104  0x000970         14
+    0  0x000A      0      2        86      88  0x0009D8         15
+    0  0x000C      0      1        72      72  0x000A88          -
+    0  0x000D      0      1       452     456  0x000AD0          -
+    0  0x000E      0      4        20      24  0x000C98          -
+    0  0x000F      0      4        20      24  0x000CF8          -
+    0  0x0014      0     32        90      96  0x000D58         17
+    0  0x0017      0      4        40      40  0x001958          -
+    0  0x001A      0      1       113     120  0x0019F8         49
+    0  0x0024      0      1        80      80  0x001A70         50
+["m3", "-B", "sw/builder/endstation_builder.py", "configs/endstation_arty_8ch.yaml", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch"]
+[endstation_builder] endstation_arty_8ch: 4x4 AAF + CRF, tdm8, 64 clusters (cap-at-interface), model_id 0x001BC58A835FA92E (hash); 4 planned element(s); resources OVER (worst LUT 84.9%)
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/soc_params.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/aem_overlay.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/build_plan.md
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/lwsrp_table.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/lwsrp_table.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/lwsrp_csr_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/adp_shape_defaults.svh
+  wrote configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/platform_shape.json
+  wrote configs/generated/sweep_opts_arty.sh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/gptp_ucode.hex
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/aecp_aem_rom.svh
+["m3", "-B", "avdecc/gen_aem_store.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/aem_overlay.json", "--out-dir", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch-store"]
+[gen_aem_store] 96 descriptors, ROM 9257 B (overlay /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/aem_overlay.json) -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch-store
+  type 0x0000 idx 0: base    0 len 312
+  type 0x0001 idx 0: base  312 len 106
+  type 0x0002 idx 0: base  418 len 148
+  type 0x0005 idx 0: base  566 len 154
+  type 0x0005 idx 1: base  720 len 154
+  type 0x0005 idx 2: base  874 len 154
+  type 0x0005 idx 3: base 1028 len 154
+  type 0x0005 idx 4: base 1182 len 146
+  type 0x0006 idx 0: base 1328 len 146
+  type 0x0006 idx 1: base 1474 len 146
+  type 0x0006 idx 2: base 1620 len 146
+  type 0x0006 idx 3: base 1766 len 146
+  type 0x0006 idx 4: base 1912 len 146
+  type 0x0009 idx 0: base 2058 len 102
+  type 0x000A idx 0: base 2160 len 86
+  type 0x000A idx 1: base 2246 len 86
+  type 0x0024 idx 0: base 2332 len 80
+  type 0x001A idx 0: base 2412 len 113
+  type 0x000C idx 0: base 2525 len 72
+  type 0x000D idx 0: base 2597 len 452
+  type 0x000E idx 0: base 3049 len 20
+  type 0x000E idx 1: base 3069 len 20
+  type 0x000E idx 2: base 3089 len 20
+  type 0x000E idx 3: base 3109 len 20
+  type 0x000F idx 0: base 3129 len 20
+  type 0x000F idx 1: base 3149 len 20
+  type 0x000F idx 2: base 3169 len 20
+  type 0x000F idx 3: base 3189 len 20
+  type 0x0014 idx 0: base 3209 len 90
+  type 0x0014 idx 1: base 3299 len 90
+  type 0x0014 idx 2: base 3389 len 90
+  type 0x0014 idx 3: base 3479 len 90
+  type 0x0014 idx 4: base 3569 len 90
+  type 0x0014 idx 5: base 3659 len 90
+  type 0x0014 idx 6: base 3749 len 90
+  type 0x0014 idx 7: base 3839 len 90
+  type 0x0014 idx 8: base 3929 len 90
+  type 0x0014 idx 9: base 4019 len 90
+  type 0x0014 idx 10: base 4109 len 90
+  type 0x0014 idx 11: base 4199 len 90
+  type 0x0014 idx 12: base 4289 len 90
+  type 0x0014 idx 13: base 4379 len 90
+  type 0x0014 idx 14: base 4469 len 90
+  type 0x0014 idx 15: base 4559 len 90
+  type 0x0014 idx 16: base 4649 len 90
+  type 0x0014 idx 17: base 4739 len 90
+  type 0x0014 idx 18: base 4829 len 90
+  type 0x0014 idx 19: base 4919 len 90
+  type 0x0014 idx 20: base 5009 len 90
+  type 0x0014 idx 21: base 5099 len 90
+  type 0x0014 idx 22: base 5189 len 90
+  type 0x0014 idx 23: base 5279 len 90
+  type 0x0014 idx 24: base 5369 len 90
+  type 0x0014 idx 25: base 5459 len 90
+  type 0x0014 idx 26: base 5549 len 90
+  type 0x0014 idx 27: base 5639 len 90
+  type 0x0014 idx 28: base 5729 len 90
+  type 0x0014 idx 29: base 5819 len 90
+  type 0x0014 idx 30: base 5909 len 90
+  type 0x0014 idx 31: base 5999 len 90
+  type 0x0014 idx 32: base 6089 len 90
+  type 0x0014 idx 33: base 6179 len 90
+  type 0x0014 idx 34: base 6269 len 90
+  type 0x0014 idx 35: base 6359 len 90
+  type 0x0014 idx 36: base 6449 len 90
+  type 0x0014 idx 37: base 6539 len 90
+  type 0x0014 idx 38: base 6629 len 90
+  type 0x0014 idx 39: base 6719 len 90
+  type 0x0014 idx 40: base 6809 len 90
+  type 0x0014 idx 41: base 6899 len 90
+  type 0x0014 idx 42: base 6989 len 90
+  type 0x0014 idx 43: base 7079 len 90
+  type 0x0014 idx 44: base 7169 len 90
+  type 0x0014 idx 45: base 7259 len 90
+  type 0x0014 idx 46: base 7349 len 90
+  type 0x0014 idx 47: base 7439 len 90
+  type 0x0014 idx 48: base 7529 len 90
+  type 0x0014 idx 49: base 7619 len 90
+  type 0x0014 idx 50: base 7709 len 90
+  type 0x0014 idx 51: base 7799 len 90
+  type 0x0014 idx 52: base 7889 len 90
+  type 0x0014 idx 53: base 7979 len 90
+  type 0x0014 idx 54: base 8069 len 90
+  type 0x0014 idx 55: base 8159 len 90
+  type 0x0014 idx 56: base 8249 len 90
+  type 0x0014 idx 57: base 8339 len 90
+  type 0x0014 idx 58: base 8429 len 90
+  type 0x0014 idx 59: base 8519 len 90
+  type 0x0014 idx 60: base 8609 len 90
+  type 0x0014 idx 61: base 8699 len 90
+  type 0x0014 idx 62: base 8789 len 90
+  type 0x0014 idx 63: base 8879 len 90
+  type 0x0017 idx 0: base 8969 len 72
+  type 0x0017 idx 1: base 9041 len 72
+  type 0x0017 idx 2: base 9113 len 72
+  type 0x0017 idx 3: base 9185 len 72
+["m3", "-B", "avdecc/gen_aemi_image.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/aem_overlay.json", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch.bin", "-m", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch.map", "--json", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch.json"]
+[gen_aemi_image] /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch/endstation_arty_8ch/aem_overlay.json: 96 descriptors -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_8ch.bin, 15360 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 16  names 83
+index_off 0x000020  names_off 0x002740  image_bytes 15360  desc_max_len 452
+checksum 0xBCE54F02
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000120          0
+    0  0x0001      0      1       106     112  0x000258          2
+    0  0x0002      0      1       148     152  0x0002C8          3
+    0  0x0005      0      4       154     160  0x000360          4
+    0  0x0005      4      1       146     152  0x0005E0          8
+    0  0x0006      0      5       146     152  0x000678          9
+    0  0x0009      0      1       102     104  0x000970         14
+    0  0x000A      0      2        86      88  0x0009D8         15
+    0  0x000C      0      1        72      72  0x000A88          -
+    0  0x000D      0      1       452     456  0x000AD0          -
+    0  0x000E      0      4        20      24  0x000C98          -
+    0  0x000F      0      4        20      24  0x000CF8          -
+    0  0x0014      0     64        90      96  0x000D58         17
+    0  0x0017      0      4        72      72  0x002558          -
+    0  0x001A      0      1       113     120  0x002678         81
+    0  0x0024      0      1        80      80  0x0026F0         82
+["m3", "-B", "sw/builder/endstation_builder.py", "configs/endstation_arty_current.yaml", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current"]
+[endstation_builder] endstation_arty_current: 1x1 AAF + CRF, i2s_philips, 16 clusters (cluster-per-stream-channel), model_id 0x001BC50AC1000005 (pin); 3 planned element(s); resources OVER (worst LUT 81.7%)
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/soc_params.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/aem_overlay.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/build_plan.md
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/lwsrp_table.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/lwsrp_table.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/lwsrp_csr_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/adp_shape_defaults.svh
+  wrote configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/platform_shape.json
+  wrote configs/generated/sweep_opts_arty.sh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/gptp_ucode.hex
+  wrote hdl/common/csr/gen/lwsrp_csr_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/aecp_aem_rom.svh
+["m3", "-B", "avdecc/gen_aem_store.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/aem_overlay.json", "--out-dir", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current-store"]
+[gen_aem_store] 32 descriptors, ROM 3563 B (overlay /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/aem_overlay.json) -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current-store
+  type 0x0000 idx 0: base    0 len 312
+  type 0x0001 idx 0: base  312 len 106
+  type 0x0002 idx 0: base  418 len 156
+  type 0x0005 idx 0: base  574 len 154
+  type 0x0005 idx 1: base  728 len 146
+  type 0x0006 idx 0: base  874 len 146
+  type 0x0009 idx 0: base 1020 len 102
+  type 0x000A idx 0: base 1122 len 86
+  type 0x000A idx 1: base 1208 len 86
+  type 0x0024 idx 0: base 1294 len 80
+  type 0x001A idx 0: base 1374 len 113
+  type 0x000C idx 0: base 1487 len 72
+  type 0x000D idx 0: base 1559 len 452
+  type 0x000E idx 0: base 2011 len 20
+  type 0x000F idx 0: base 2031 len 20
+  type 0x0014 idx 0: base 2051 len 90
+  type 0x0014 idx 1: base 2141 len 90
+  type 0x0014 idx 2: base 2231 len 90
+  type 0x0014 idx 3: base 2321 len 90
+  type 0x0014 idx 4: base 2411 len 90
+  type 0x0014 idx 5: base 2501 len 90
+  type 0x0014 idx 6: base 2591 len 90
+  type 0x0014 idx 7: base 2681 len 90
+  type 0x0014 idx 8: base 2771 len 90
+  type 0x0014 idx 9: base 2861 len 90
+  type 0x0014 idx 10: base 2951 len 90
+  type 0x0014 idx 11: base 3041 len 90
+  type 0x0014 idx 12: base 3131 len 90
+  type 0x0014 idx 13: base 3221 len 90
+  type 0x0014 idx 14: base 3311 len 90
+  type 0x0014 idx 15: base 3401 len 90
+  type 0x0017 idx 0: base 3491 len 72
+["m3", "-B", "avdecc/gen_aemi_image.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/aem_overlay.json", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current.bin", "-m", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current.map", "--json", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current.json"]
+[gen_aemi_image] /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current/endstation_arty_current/aem_overlay.json: 32 descriptors -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_arty_current.bin, 5792 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 16  names 28
+index_off 0x000020  names_off 0x000FA0  image_bytes 5792  desc_max_len 452
+checksum 0xBCE58C39
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000120          0
+    0  0x0001      0      1       106     112  0x000258          2
+    0  0x0002      0      1       156     160  0x0002C8          3
+    0  0x0005      0      1       154     160  0x000368          4
+    0  0x0005      1      1       146     152  0x000408          5
+    0  0x0006      0      1       146     152  0x0004A0          6
+    0  0x0009      0      1       102     104  0x000538          7
+    0  0x000A      0      2        86      88  0x0005A0          8
+    0  0x000C      0      1        72      72  0x000650          -
+    0  0x000D      0      1       452     456  0x000698          -
+    0  0x000E      0      1        20      24  0x000860          -
+    0  0x000F      0      1        20      24  0x000878          -
+    0  0x0014      0     16        90      96  0x000890         10
+    0  0x0017      0      1        72      72  0x000E90          -
+    0  0x001A      0      1       113     120  0x000ED8         26
+    0  0x0024      0      1        80      80  0x000F50         27
+["m3", "-B", "sw/builder/endstation_builder.py", "configs/endstation_ax7101_1x1_tdm8.yaml", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8"]
+[endstation_builder] endstation_ax7101_1x1_tdm8: 1x1 AAF + CRF, tdm8, 25 clusters (role-pools), model_id 0x001BC58FDCB18734 (hash); 3 planned element(s); resources TIGHT (worst LUT 79.4%)
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/soc_params.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/aem_overlay.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/build_plan.md
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/lwsrp_table.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/lwsrp_table.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+  wrote configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh
+["m3", "-B", "avdecc/gen_aem_store.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/aem_overlay.json", "--out-dir", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8-store"]
+[gen_aem_store] 41 descriptors, ROM 4439 B (overlay /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/aem_overlay.json) -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8-store
+  type 0x0000 idx 0: base    0 len 312
+  type 0x0001 idx 0: base  312 len 106
+  type 0x0002 idx 0: base  418 len 148
+  type 0x0005 idx 0: base  566 len 154
+  type 0x0005 idx 1: base  720 len 146
+  type 0x0006 idx 0: base  866 len 146
+  type 0x0006 idx 1: base 1012 len 146
+  type 0x0009 idx 0: base 1158 len 102
+  type 0x000A idx 0: base 1260 len 86
+  type 0x000A idx 1: base 1346 len 86
+  type 0x0024 idx 0: base 1432 len 80
+  type 0x001A idx 0: base 1512 len 113
+  type 0x000C idx 0: base 1625 len 72
+  type 0x000D idx 0: base 1697 len 452
+  type 0x000E idx 0: base 2149 len 20
+  type 0x000F idx 0: base 2169 len 20
+  type 0x0014 idx 0: base 2189 len 90
+  type 0x0014 idx 1: base 2279 len 90
+  type 0x0014 idx 2: base 2369 len 90
+  type 0x0014 idx 3: base 2459 len 90
+  type 0x0014 idx 4: base 2549 len 90
+  type 0x0014 idx 5: base 2639 len 90
+  type 0x0014 idx 6: base 2729 len 90
+  type 0x0014 idx 7: base 2819 len 90
+  type 0x0014 idx 8: base 2909 len 90
+  type 0x0014 idx 9: base 2999 len 90
+  type 0x0014 idx 10: base 3089 len 90
+  type 0x0014 idx 11: base 3179 len 90
+  type 0x0014 idx 12: base 3269 len 90
+  type 0x0014 idx 13: base 3359 len 90
+  type 0x0014 idx 14: base 3449 len 90
+  type 0x0014 idx 15: base 3539 len 90
+  type 0x0014 idx 16: base 3629 len 90
+  type 0x0014 idx 17: base 3719 len 90
+  type 0x0014 idx 18: base 3809 len 90
+  type 0x0014 idx 19: base 3899 len 90
+  type 0x0014 idx 20: base 3989 len 90
+  type 0x0014 idx 21: base 4079 len 90
+  type 0x0014 idx 22: base 4169 len 90
+  type 0x0014 idx 23: base 4259 len 90
+  type 0x0014 idx 24: base 4349 len 90
+["m3", "-B", "avdecc/gen_aemi_image.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/aem_overlay.json", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8.bin", "-m", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8.map", "--json", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8.json"]
+[gen_aemi_image] /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8/endstation_ax7101_1x1_tdm8/aem_overlay.json: 41 descriptors -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_1x1_tdm8.bin, 7352 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 38
+index_off 0x000020  names_off 0x001338  image_bytes 7352  desc_max_len 452
+checksum 0xBCE6827F
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      1       154     160  0x000350          4
+    0  0x0005      1      1       146     152  0x0003F0          5
+    0  0x0006      0      2       146     152  0x000488          6
+    0  0x0009      0      1       102     104  0x0005B8          8
+    0  0x000A      0      2        86      88  0x000620          9
+    0  0x000C      0      1        72      72  0x0006D0          -
+    0  0x000D      0      1       452     456  0x000718          -
+    0  0x000E      0      1        20      24  0x0008E0          -
+    0  0x000F      0      1        20      24  0x0008F8          -
+    0  0x0014      0     25        90      96  0x000910         11
+    0  0x001A      0      1       113     120  0x001270         36
+    0  0x0024      0      1        80      80  0x0012E8         37
+["m3", "-B", "sw/builder/endstation_builder.py", "configs/endstation_ax7101_8x8.yaml", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8"]
+[endstation_builder] endstation_ax7101_8x8: 8x8 AAF + CRF, tdm32, 72 clusters (role-pools), model_id 0x001BC512007DDF2D (hash); 5 planned element(s); resources OVER (worst LUT 85.4%)
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/soc_params.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/aem_overlay.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/build_plan.md
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/lwsrp_table.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/lwsrp_table.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/lwsrp_csr_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/adp_shape_defaults.svh
+  wrote configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/gptp_ucode.hex
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/aecp_aem_rom.svh
+["m3", "-B", "avdecc/gen_aem_store.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/aem_overlay.json", "--out-dir", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8-store"]
+[gen_aem_store] 116 descriptors, ROM 11049 B (overlay /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/aem_overlay.json) -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8-store
+  type 0x0000 idx 0: base    0 len 312
+  type 0x0001 idx 0: base  312 len 106
+  type 0x0002 idx 0: base  418 len 148
+  type 0x0005 idx 0: base  566 len 154
+  type 0x0005 idx 1: base  720 len 154
+  type 0x0005 idx 2: base  874 len 154
+  type 0x0005 idx 3: base 1028 len 154
+  type 0x0005 idx 4: base 1182 len 154
+  type 0x0005 idx 5: base 1336 len 154
+  type 0x0005 idx 6: base 1490 len 154
+  type 0x0005 idx 7: base 1644 len 154
+  type 0x0005 idx 8: base 1798 len 146
+  type 0x0006 idx 0: base 1944 len 146
+  type 0x0006 idx 1: base 2090 len 146
+  type 0x0006 idx 2: base 2236 len 146
+  type 0x0006 idx 3: base 2382 len 146
+  type 0x0006 idx 4: base 2528 len 146
+  type 0x0006 idx 5: base 2674 len 146
+  type 0x0006 idx 6: base 2820 len 146
+  type 0x0006 idx 7: base 2966 len 146
+  type 0x0006 idx 8: base 3112 len 146
+  type 0x0009 idx 0: base 3258 len 102
+  type 0x000A idx 0: base 3360 len 86
+  type 0x000A idx 1: base 3446 len 86
+  type 0x0024 idx 0: base 3532 len 80
+  type 0x001A idx 0: base 3612 len 113
+  type 0x000C idx 0: base 3725 len 72
+  type 0x000D idx 0: base 3797 len 452
+  type 0x000E idx 0: base 4249 len 20
+  type 0x000E idx 1: base 4269 len 20
+  type 0x000E idx 2: base 4289 len 20
+  type 0x000E idx 3: base 4309 len 20
+  type 0x000E idx 4: base 4329 len 20
+  type 0x000E idx 5: base 4349 len 20
+  type 0x000E idx 6: base 4369 len 20
+  type 0x000E idx 7: base 4389 len 20
+  type 0x000F idx 0: base 4409 len 20
+  type 0x000F idx 1: base 4429 len 20
+  type 0x000F idx 2: base 4449 len 20
+  type 0x000F idx 3: base 4469 len 20
+  type 0x000F idx 4: base 4489 len 20
+  type 0x000F idx 5: base 4509 len 20
+  type 0x000F idx 6: base 4529 len 20
+  type 0x000F idx 7: base 4549 len 20
+  type 0x0014 idx 0: base 4569 len 90
+  type 0x0014 idx 1: base 4659 len 90
+  type 0x0014 idx 2: base 4749 len 90
+  type 0x0014 idx 3: base 4839 len 90
+  type 0x0014 idx 4: base 4929 len 90
+  type 0x0014 idx 5: base 5019 len 90
+  type 0x0014 idx 6: base 5109 len 90
+  type 0x0014 idx 7: base 5199 len 90
+  type 0x0014 idx 8: base 5289 len 90
+  type 0x0014 idx 9: base 5379 len 90
+  type 0x0014 idx 10: base 5469 len 90
+  type 0x0014 idx 11: base 5559 len 90
+  type 0x0014 idx 12: base 5649 len 90
+  type 0x0014 idx 13: base 5739 len 90
+  type 0x0014 idx 14: base 5829 len 90
+  type 0x0014 idx 15: base 5919 len 90
+  type 0x0014 idx 16: base 6009 len 90
+  type 0x0014 idx 17: base 6099 len 90
+  type 0x0014 idx 18: base 6189 len 90
+  type 0x0014 idx 19: base 6279 len 90
+  type 0x0014 idx 20: base 6369 len 90
+  type 0x0014 idx 21: base 6459 len 90
+  type 0x0014 idx 22: base 6549 len 90
+  type 0x0014 idx 23: base 6639 len 90
+  type 0x0014 idx 24: base 6729 len 90
+  type 0x0014 idx 25: base 6819 len 90
+  type 0x0014 idx 26: base 6909 len 90
+  type 0x0014 idx 27: base 6999 len 90
+  type 0x0014 idx 28: base 7089 len 90
+  type 0x0014 idx 29: base 7179 len 90
+  type 0x0014 idx 30: base 7269 len 90
+  type 0x0014 idx 31: base 7359 len 90
+  type 0x0014 idx 32: base 7449 len 90
+  type 0x0014 idx 33: base 7539 len 90
+  type 0x0014 idx 34: base 7629 len 90
+  type 0x0014 idx 35: base 7719 len 90
+  type 0x0014 idx 36: base 7809 len 90
+  type 0x0014 idx 37: base 7899 len 90
+  type 0x0014 idx 38: base 7989 len 90
+  type 0x0014 idx 39: base 8079 len 90
+  type 0x0014 idx 40: base 8169 len 90
+  type 0x0014 idx 41: base 8259 len 90
+  type 0x0014 idx 42: base 8349 len 90
+  type 0x0014 idx 43: base 8439 len 90
+  type 0x0014 idx 44: base 8529 len 90
+  type 0x0014 idx 45: base 8619 len 90
+  type 0x0014 idx 46: base 8709 len 90
+  type 0x0014 idx 47: base 8799 len 90
+  type 0x0014 idx 48: base 8889 len 90
+  type 0x0014 idx 49: base 8979 len 90
+  type 0x0014 idx 50: base 9069 len 90
+  type 0x0014 idx 51: base 9159 len 90
+  type 0x0014 idx 52: base 9249 len 90
+  type 0x0014 idx 53: base 9339 len 90
+  type 0x0014 idx 54: base 9429 len 90
+  type 0x0014 idx 55: base 9519 len 90
+  type 0x0014 idx 56: base 9609 len 90
+  type 0x0014 idx 57: base 9699 len 90
+  type 0x0014 idx 58: base 9789 len 90
+  type 0x0014 idx 59: base 9879 len 90
+  type 0x0014 idx 60: base 9969 len 90
+  type 0x0014 idx 61: base 10059 len 90
+  type 0x0014 idx 62: base 10149 len 90
+  type 0x0014 idx 63: base 10239 len 90
+  type 0x0014 idx 64: base 10329 len 90
+  type 0x0014 idx 65: base 10419 len 90
+  type 0x0014 idx 66: base 10509 len 90
+  type 0x0014 idx 67: base 10599 len 90
+  type 0x0014 idx 68: base 10689 len 90
+  type 0x0014 idx 69: base 10779 len 90
+  type 0x0014 idx 70: base 10869 len 90
+  type 0x0014 idx 71: base 10959 len 90
+["m3", "-B", "avdecc/gen_aemi_image.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/aem_overlay.json", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8.bin", "-m", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8.map", "--json", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8.json"]
+[gen_aemi_image] /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8/endstation_ax7101_8x8/aem_overlay.json: 116 descriptors -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean/endstation_ax7101_8x8.bin, 18288 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 99
+index_off 0x000020  names_off 0x002EB0  image_bytes 18288  desc_max_len 452
+checksum 0xBCE63C12
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      8       154     160  0x000350          4
+    0  0x0005      8      1       146     152  0x000850         12
+    0  0x0006      0      9       146     152  0x0008E8         13
+    0  0x0009      0      1       102     104  0x000E40         22
+    0  0x000A      0      2        86      88  0x000EA8         23
+    0  0x000C      0      1        72      72  0x000F58          -
+    0  0x000D      0      1       452     456  0x000FA0          -
+    0  0x000E      0      8        20      24  0x001168          -
+    0  0x000F      0      8        20      24  0x001228          -
+    0  0x0014      0     72        90      96  0x0012E8         25
+    0  0x001A      0      1       113     120  0x002DE8         97
+    0  0x0024      0      1        80      80  0x002E60         98
+["m3", "-B", "sw/builder/endstation_builder.py", "configs/endstation_arty_4x4.yaml", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4"]
+[endstation_builder] endstation_arty_4x4: 4x4 AAF + CRF, tdm8, 32 clusters (cap-at-interface), model_id 0x001BC5F531E6A9DA (hash); 4 planned element(s); resources OVER (worst LUT 84.9%)
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/soc_params.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/build_plan.md
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/lwsrp_table.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/lwsrp_table.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/lwsrp_csr_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/adp_shape_defaults.svh
+  wrote configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/platform_shape.json
+  wrote configs/generated/sweep_opts_arty.sh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/gptp_ucode.hex
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/aecp_aem_rom.svh
+["m3", "-B", "avdecc/gen_aem_store.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json", "--out-dir", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4-store"]
+[gen_aem_store] 64 descriptors, ROM 6249 B (overlay /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json) -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4-store
+  type 0x0000 idx 0: base    0 len 312
+  type 0x0001 idx 0: base  312 len 106
+  type 0x0002 idx 0: base  418 len 148
+  type 0x0005 idx 0: base  566 len 154
+  type 0x0005 idx 1: base  720 len 154
+  type 0x0005 idx 2: base  874 len 154
+  type 0x0005 idx 3: base 1028 len 154
+  type 0x0005 idx 4: base 1182 len 146
+  type 0x0006 idx 0: base 1328 len 146
+  type 0x0006 idx 1: base 1474 len 146
+  type 0x0006 idx 2: base 1620 len 146
+  type 0x0006 idx 3: base 1766 len 146
+  type 0x0006 idx 4: base 1912 len 146
+  type 0x0009 idx 0: base 2058 len 102
+  type 0x000A idx 0: base 2160 len 86
+  type 0x000A idx 1: base 2246 len 86
+  type 0x0024 idx 0: base 2332 len 80
+  type 0x001A idx 0: base 2412 len 113
+  type 0x000C idx 0: base 2525 len 72
+  type 0x000D idx 0: base 2597 len 452
+  type 0x000E idx 0: base 3049 len 20
+  type 0x000E idx 1: base 3069 len 20
+  type 0x000E idx 2: base 3089 len 20
+  type 0x000E idx 3: base 3109 len 20
+  type 0x000F idx 0: base 3129 len 20
+  type 0x000F idx 1: base 3149 len 20
+  type 0x000F idx 2: base 3169 len 20
+  type 0x000F idx 3: base 3189 len 20
+  type 0x0014 idx 0: base 3209 len 90
+  type 0x0014 idx 1: base 3299 len 90
+  type 0x0014 idx 2: base 3389 len 90
+  type 0x0014 idx 3: base 3479 len 90
+  type 0x0014 idx 4: base 3569 len 90
+  type 0x0014 idx 5: base 3659 len 90
+  type 0x0014 idx 6: base 3749 len 90
+  type 0x0014 idx 7: base 3839 len 90
+  type 0x0014 idx 8: base 3929 len 90
+  type 0x0014 idx 9: base 4019 len 90
+  type 0x0014 idx 10: base 4109 len 90
+  type 0x0014 idx 11: base 4199 len 90
+  type 0x0014 idx 12: base 4289 len 90
+  type 0x0014 idx 13: base 4379 len 90
+  type 0x0014 idx 14: base 4469 len 90
+  type 0x0014 idx 15: base 4559 len 90
+  type 0x0014 idx 16: base 4649 len 90
+  type 0x0014 idx 17: base 4739 len 90
+  type 0x0014 idx 18: base 4829 len 90
+  type 0x0014 idx 19: base 4919 len 90
+  type 0x0014 idx 20: base 5009 len 90
+  type 0x0014 idx 21: base 5099 len 90
+  type 0x0014 idx 22: base 5189 len 90
+  type 0x0014 idx 23: base 5279 len 90
+  type 0x0014 idx 24: base 5369 len 90
+  type 0x0014 idx 25: base 5459 len 90
+  type 0x0014 idx 26: base 5549 len 90
+  type 0x0014 idx 27: base 5639 len 90
+  type 0x0014 idx 28: base 5729 len 90
+  type 0x0014 idx 29: base 5819 len 90
+  type 0x0014 idx 30: base 5909 len 90
+  type 0x0014 idx 31: base 5999 len 90
+  type 0x0017 idx 0: base 6089 len 40
+  type 0x0017 idx 1: base 6129 len 40
+  type 0x0017 idx 2: base 6169 len 40
+  type 0x0017 idx 3: base 6209 len 40
+["m3", "-B", "avdecc/gen_aemi_image.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4.bin", "-m", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4.map", "--json", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4.json"]
+[gen_aemi_image] /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json: 64 descriptors -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/clean-id/endstation_arty_4x4.bin, 10112 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 16  names 51
+index_off 0x000020  names_off 0x001AC0  image_bytes 10112  desc_max_len 452
+checksum 0xBCE57022
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000120          0
+    0  0x0001      0      1       106     112  0x000258          2
+    0  0x0002      0      1       148     152  0x0002C8          3
+    0  0x0005      0      4       154     160  0x000360          4
+    0  0x0005      4      1       146     152  0x0005E0          8
+    0  0x0006      0      5       146     152  0x000678          9
+    0  0x0009      0      1       102     104  0x000970         14
+    0  0x000A      0      2        86      88  0x0009D8         15
+    0  0x000C      0      1        72      72  0x000A88          -
+    0  0x000D      0      1       452     456  0x000AD0          -
+    0  0x000E      0      4        20      24  0x000C98          -
+    0  0x000F      0      4        20      24  0x000CF8          -
+    0  0x0014      0     32        90      96  0x000D58         17
+    0  0x0017      0      4        40      40  0x001958          -
+    0  0x001A      0      1       113     120  0x0019F8         49
+    0  0x0024      0      1        80      80  0x001A70         50
+["r330-m3-fresh-mutant", "-B", "sw/builder/endstation_builder.py", "configs/endstation_arty_4x4.yaml", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4"]
+[endstation_builder] endstation_arty_4x4: 4x4 AAF + CRF, tdm8, 32 clusters (cap-at-interface), model_id 0x001BC572445BE3EA (hash); 4 planned element(s); resources OVER (worst LUT 84.9%)
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/soc_params.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/build_plan.md
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/lwsrp_table.json
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/lwsrp_table.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/lwsrp_csr_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/adp_shape_defaults.svh
+  wrote configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/platform_shape.json
+  wrote configs/generated/sweep_opts_arty.sh
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/gptp_ucode.hex
+  wrote /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/aecp_aem_rom.svh
+["r330-m3-fresh-mutant", "-B", "avdecc/gen_aem_store.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json", "--out-dir", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4-store"]
+[gen_aem_store] 64 descriptors, ROM 6249 B (overlay /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json) -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4-store
+  type 0x0000 idx 0: base    0 len 312
+  type 0x0001 idx 0: base  312 len 106
+  type 0x0002 idx 0: base  418 len 148
+  type 0x0005 idx 0: base  566 len 154
+  type 0x0005 idx 1: base  720 len 154
+  type 0x0005 idx 2: base  874 len 154
+  type 0x0005 idx 3: base 1028 len 154
+  type 0x0005 idx 4: base 1182 len 146
+  type 0x0006 idx 0: base 1328 len 146
+  type 0x0006 idx 1: base 1474 len 146
+  type 0x0006 idx 2: base 1620 len 146
+  type 0x0006 idx 3: base 1766 len 146
+  type 0x0006 idx 4: base 1912 len 146
+  type 0x0009 idx 0: base 2058 len 102
+  type 0x000A idx 0: base 2160 len 86
+  type 0x000A idx 1: base 2246 len 86
+  type 0x0024 idx 0: base 2332 len 80
+  type 0x001A idx 0: base 2412 len 113
+  type 0x000C idx 0: base 2525 len 72
+  type 0x000D idx 0: base 2597 len 452
+  type 0x000E idx 0: base 3049 len 20
+  type 0x000E idx 1: base 3069 len 20
+  type 0x000E idx 2: base 3089 len 20
+  type 0x000E idx 3: base 3109 len 20
+  type 0x000F idx 0: base 3129 len 20
+  type 0x000F idx 1: base 3149 len 20
+  type 0x000F idx 2: base 3169 len 20
+  type 0x000F idx 3: base 3189 len 20
+  type 0x0014 idx 0: base 3209 len 90
+  type 0x0014 idx 1: base 3299 len 90
+  type 0x0014 idx 2: base 3389 len 90
+  type 0x0014 idx 3: base 3479 len 90
+  type 0x0014 idx 4: base 3569 len 90
+  type 0x0014 idx 5: base 3659 len 90
+  type 0x0014 idx 6: base 3749 len 90
+  type 0x0014 idx 7: base 3839 len 90
+  type 0x0014 idx 8: base 3929 len 90
+  type 0x0014 idx 9: base 4019 len 90
+  type 0x0014 idx 10: base 4109 len 90
+  type 0x0014 idx 11: base 4199 len 90
+  type 0x0014 idx 12: base 4289 len 90
+  type 0x0014 idx 13: base 4379 len 90
+  type 0x0014 idx 14: base 4469 len 90
+  type 0x0014 idx 15: base 4559 len 90
+  type 0x0014 idx 16: base 4649 len 90
+  type 0x0014 idx 17: base 4739 len 90
+  type 0x0014 idx 18: base 4829 len 90
+  type 0x0014 idx 19: base 4919 len 90
+  type 0x0014 idx 20: base 5009 len 90
+  type 0x0014 idx 21: base 5099 len 90
+  type 0x0014 idx 22: base 5189 len 90
+  type 0x0014 idx 23: base 5279 len 90
+  type 0x0014 idx 24: base 5369 len 90
+  type 0x0014 idx 25: base 5459 len 90
+  type 0x0014 idx 26: base 5549 len 90
+  type 0x0014 idx 27: base 5639 len 90
+  type 0x0014 idx 28: base 5729 len 90
+  type 0x0014 idx 29: base 5819 len 90
+  type 0x0014 idx 30: base 5909 len 90
+  type 0x0014 idx 31: base 5999 len 90
+  type 0x0017 idx 0: base 6089 len 40
+  type 0x0017 idx 1: base 6129 len 40
+  type 0x0017 idx 2: base 6169 len 40
+  type 0x0017 idx 3: base 6209 len 40
+["r330-m3-fresh-mutant", "-B", "avdecc/gen_aemi_image.py", "--overlay", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json", "-o", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4.bin", "-m", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4.map", "--json", "/tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4.json"]
+[gen_aemi_image] /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4/endstation_arty_4x4/aem_overlay.json: 64 descriptors -> /tmp/509-a333-0u1rsf_c/r330-m3-fresh-work/mutant/endstation_arty_4x4.bin, 10112 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 16  names 51
+index_off 0x000020  names_off 0x001AC0  image_bytes 10112  desc_max_len 452
+checksum 0xBCE57022
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000120          0
+    0  0x0001      0      1       106     112  0x000258          2
+    0  0x0002      0      1       148     152  0x0002C8          3
+    0  0x0005      0      4       154     160  0x000360          4
+    0  0x0005      4      1       146     152  0x0005E0          8
+    0  0x0006      0      5       146     152  0x000678          9
+    0  0x0009      0      1       102     104  0x000970         14
+    0  0x000A      0      2        86      88  0x0009D8         15
+    0  0x000C      0      1        72      72  0x000A88          -
+    0  0x000D      0      1       452     456  0x000AD0          -
+    0  0x000E      0      4        20      24  0x000C98          -
+    0  0x000F      0      4        20      24  0x000CF8          -
+    0  0x0014      0     32        90      96  0x000D58         17
+    0  0x0017      0      4        40      40  0x001958          -
+    0  0x001A      0      1       113     120  0x0019F8         49
+    0  0x0024      0      1        80      80  0x001A70         50
