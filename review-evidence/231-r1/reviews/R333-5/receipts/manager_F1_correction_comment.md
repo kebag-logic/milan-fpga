@@ -1,0 +1,2 @@
+[A10] R332-5 F1 (issuecomment-5847672858): corrected in the PR body, no commit. The Round 4 closing line claimed the head was local and unpushed. It now states that `ae729bbf` is the published PR head and is under re-review at this exact head. Rounds 1-3 are unchanged round-scoped history. [R332] re-covers Docs at `ae729bbf` once [R333]'s R333-4 is in.
+

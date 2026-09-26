@@ -1,0 +1,86 @@
+== python3 syn/ooc/pp_baseline.py --selftest
+baseline selftest: complete image and exact block PASS; 9 refusals PASS
+baseline parameter selftest: 5 refusals PASS
+/tmp/pp-baseline-export-j5uak7l3/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-j5uak7l3/gateware/baseline_integrated.tcl
+/tmp/pp-baseline-export-j5uak7l3/ooc/baseline_ooc.tcl
+/tmp/pp-baseline-export-j5uak7l3/gateware/baseline_integrated.tcl
+baseline inventory refusal: missing generated ROM PASS
+baseline inventory refusal: nonempty SRAM PASS
+baseline inventory refusal: unlisted readmemh PASS
+baseline inventory refusal: generated ROM short PASS
+baseline inventory refusal: generated ROM long PASS
+baseline inventory refusal: generated ROM narrow PASS
+baseline inventory refusal: generated ROM wide PASS
+baseline inventory refusal: PP_TROM_HEX_P short PASS
+baseline inventory refusal: PP_TROM_HEX_P narrow PASS
+baseline inventory refusal: PP_TROM_HEX_P wide PASS
+baseline inventory refusal: PP_TROM_HEX_P duplicate PASS
+baseline inventory refusal: PP_TROM_HEX_P missing PASS
+baseline inventory refusal: pp_acmp_pkg.sv duplicate PASS
+baseline inventory refusal: pp_acmp_pkg.sv missing PASS
+baseline inventory refusal: pp_acmp_pkg.sv TROM_DEPTH_C duplicate PASS
+baseline inventory refusal: pp_acmp_pkg.sv TROM_DEPTH_C missing PASS
+baseline inventory refusal: pp_acmp_pkg.sv TROM_W_C duplicate PASS
+baseline inventory refusal: pp_acmp_pkg.sv TROM_W_C missing PASS
+baseline inventory refusal: PP_UCODE_HEX_P short PASS
+baseline inventory refusal: PP_UCODE_HEX_P narrow PASS
+baseline inventory refusal: PP_UCODE_HEX_P wide PASS
+baseline inventory refusal: PP_UCODE_HEX_P duplicate PASS
+baseline inventory refusal: PP_UCODE_HEX_P missing PASS
+baseline inventory refusal: ucpu_pkg.sv duplicate PASS
+baseline inventory refusal: ucpu_pkg.sv missing PASS
+baseline inventory refusal: ucpu_pkg.sv UPC_W_C duplicate PASS
+baseline inventory refusal: ucpu_pkg.sv UPC_W_C missing PASS
+baseline inventory refusal: ucpu_pkg.sv UCODE_W_C duplicate PASS
+baseline inventory refusal: ucpu_pkg.sv UCODE_W_C missing PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P short PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P narrow PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P wide PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P duplicate PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P missing PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv duplicate PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv missing PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv UPC_W_C duplicate PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv UPC_W_C missing PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv UCODE_W_C duplicate PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv UCODE_W_C missing PASS
+baseline inventory selftest: 40 refusals and restored control PASS
+/tmp/pp-baseline-export-j5uak7l3/ooc/baseline_ooc.tcl
+baseline endpoint selftest: valid pathname and 9 refusals PASS
+baseline export selftest: 3 default scripts, attribution constraint, CLI containment refusal PASS
+rc=0
+== python3 syn/ooc/pp_baseline_mutants.py
+control: rc=0 PASS
+ROM error promotion: rc=1 PASS
+readmemh inventory equality: rc=1 PASS
+empty SRAM requirement: rc=1 PASS
+parameter ROM depth: rc=1 PASS
+generated ROM depth: rc=1 PASS
+generated ROM width: rc=1 PASS
+parameter ROM width: rc=1 PASS
+image and geometry ambiguity: rc=1 PASS
+image binding uniqueness: rc=1 PASS
+geometry package uniqueness: rc=1 PASS
+geometry declaration uniqueness: rc=1 PASS
+microcode address depth: rc=1 PASS
+outside repository guard: rc=1 PASS
+image depth: rc=1 PASS
+image width: rc=1 PASS
+hexadecimal image words: rc=1 PASS
+attribution constraint loading: rc=1 PASS
+attribution boundary preservation: rc=1 PASS
+wrapper declaration equality: rc=1 PASS
+empty parameter block: rc=1 PASS
+duplicate parameter: rc=1 PASS
+integrated output directory: rc=1 PASS
+attribution integrated endpoint: rc=1 PASS
+CLI integrated endpoint: rc=1 PASS
+single synthesis command: rc=1 PASS
+image pathname characters: rc=1 PASS
+template marker uniqueness: rc=1 PASS
+unfiltered hierarchy report: rc=1 PASS
+rc=0
+== python3 syn/ooc/pp_baseline_reports_selftest.py
+baseline reports selftest: ancestry, sharing, omission, multiplicity, blackboxes, residual PASS
+rc=0
