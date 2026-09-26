@@ -1,0 +1,14 @@
+.github/workflows/rtl-fast.yml               |   3 +
+ docs/design/AREA_BUDGET.md                   |   4 +
+ docs/findings/PP_SHADOW_BASELINE.md          | 420 +++++++++++++++++++++
+ docs/findings/PP_SHADOW_BASELINE_INPUTS.json | 174 +++++++++
+ docs/findings/PP_SHADOW_BASELINE_MAPPING.tsv |  82 +++++
+ docs/findings/PP_SHADOW_BASELINE_RANKING.tsv | 329 +++++++++++++++++
+ docs/testing/PP_SHADOW_BASELINE_RECIPE.md    | 425 +++++++++++++++++++++
+ scripts/ci_events.py                         |   3 +
+ syn/ooc/pp_baseline.py                       | 528 +++++++++++++++++++++++++++
+ syn/ooc/pp_baseline_mapping.py               | 114 ++++++
+ syn/ooc/pp_baseline_mutants.py               | 105 ++++++
+ syn/ooc/pp_baseline_rank.py                  |  86 +++++
+ syn/ooc/pp_baseline_reports_selftest.py      |  67 ++++
+ 13 files changed, 2340 insertions(+)
