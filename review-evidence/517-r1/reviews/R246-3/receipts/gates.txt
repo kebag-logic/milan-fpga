@@ -1,0 +1,91 @@
+GATE rc=0 python3 scripts/docs_check.py
+    | docs_check: 0 finding(s) across 166 md files + 887 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+GATE rc=2 python3 scripts/check_em_dash.py --base ccfed0e7d5cdd64687af30646536603bbb7ea236
+    | check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+GATE rc=2 python3 scripts/check_em_dash.py --selftest
+    | check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+GATE rc=2 python3 scripts/gen_toc.py --selftest
+    | gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+GATE rc=2 python3 scripts/gen_toc.py --verify-anchors
+    | gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+GATE rc=2 python3 scripts/gen_toc.py --check
+    | gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+GATE rc=0 python3 scripts/check_doc_style.py
+    | documentation style: OK (22 current documents)
+GATE rc=0 python3 scripts/check_doc_paths.py
+    | doc path gate: OK (847 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+GATE rc=0 python3 scripts/check_baremetal_only.py --check
+    | baremetal-only: OK (0 findings across 885 tracked first-party file(s))
+GATE rc=0 python3 scripts/check_baremetal_only.py --selftest
+    | baremetal-only selftest: PASS (700 arm(s))
+GATE rc=0 python3 scripts/measure_test_evidence.py --check
+    | runner evidence contract: OK
+    | 
+    | TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+    |   the mutation ratchet can be lowered to 75
+GATE rc=0 python3 scripts/measure_test_evidence.py --selftest
+    | [PASS] every live arm sits on a target the entry executes
+    | [PASS] every DUT-source reader has a current disposition
+    | 
+    | 101 checks: 101 PASS, 0 FAIL
+GATE rc=0 python3 scripts/check_py_idiom.py
+    |   unmanaged open: 0 <= 0
+    |   too many parameters: 7 <= 7
+    |   global statement: 0 <= 0
+    |   over-long line: 0 <= 0
+GATE rc=0 python3 scripts/check_hygiene.py --check
+    |   superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+    |   protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+    |   gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+    | HYGIENE RATCHET: PASS (3 population(s), 782 file(s))
+GATE rc=0 python3 scripts/measure_fail_fast.py --check
+    |    .github/workflows/rtl.yml:206  the grep IS the version assertion; its status is the verdict
+    | 
+    | FAIL-FAST RATCHET: PASS (82 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+    |   the ratchets can be lowered to 82, 4 and 0
+GATE rc=0 python3 scripts/measure_naming.py --check
+    | 
+    | 96 candidate(s): 92 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3678 ports and 594 parameters scanned, 384 with no //! and so not judged here, 433 match(es) excluded with a reason)
+    | 
+    | NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+GATE rc=0 python3 scripts/check_todo_ownership.py
+    | TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 833 first-party file(s) read)
+GATE rc=0 python3 scripts/ci_events.py --check
+    |   note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+    | ci_events: OK (1655 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+GATE rc=0 python3 scripts/ci_events.py --selftest
+    |   ok   default-branch: pull_request on main warns and continues
+    |   ok   default-branch: push on main warns and continues
+    |   ok   default-branch: a missing event cannot run
+    | selftest: PASS (1655 contract items, 2197 arms)
+GATE rc=0 python3 scripts/check_archive.py
+    | archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+GATE rc=0 python3 scripts/check_solution_docs.py
+    | solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+GATE rc=0 python3 docs/DOC_MAP.gen.py --check
+    | documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+GATE rc=0 python3 scripts/check_sweep_shape.py --self-test
+    |   [self-test] sweep.sh without the seed export - expecting REJECT:
+    |   [self-test] OK: 1 drift(s) reported
+    |   [self-test] build.sh exporting the seed after exec - expecting REJECT:
+    |   [self-test] OK: 1 drift(s) reported
+GATE rc=0 python3 scripts/check_feature_status.py
+    | feature_status: 0 finding(s)
+GATE rc=0 python3 tb/verilator/milan_dp/test_sim_pool.py
+    | [PASS] arm_the_runner_adds_no_check_and_no_failure
+    | [PASS] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs
+    | 
+    | 17 checks: 17 PASS, 0 FAIL
+GATE rc=0 python3 tb/verilator/milan_dp/test_sim_pool_backpressure.py
+    | [PASS] make-flush-SIGTERM-repeated
+    | [PASS] make-flush-SIGTERM-child-exit
+    | [PASS] make-flush-normal-drain
+    | 28 backpressure controls: 28 PASS, 0 FAIL
+GATE rc=0 python3 tb/verilator/milan_dp/test_render_phase_observation.py
+    | [PASS] arm_the_six_case_inventory_is_frozen
+    | [PASS] arm_the_verdict_classifier_is_unchanged
+    | 
+    | 24 checks: 24 PASS, 0 FAIL
+ALL_GATES_FAIL=1
+Command exited with non-zero status 1
+wall_s=93.48

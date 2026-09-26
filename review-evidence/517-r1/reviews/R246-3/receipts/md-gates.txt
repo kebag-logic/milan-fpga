@@ -1,0 +1,13 @@
+GATE rc=0 $TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_em_dash.py --base ccfed0e7d5cdd64687af30646536603bbb7ea236
+    | check_em_dash: 0 finding(s) over 70 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [ccfed0e7..HEAD]
+GATE rc=0 $TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_em_dash.py --selftest
+    | check_em_dash selftest: PASS (339 arm(s))
+GATE rc=0 $TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --selftest
+    | TOC selftest: PASS (1501/1501 arm(s))
+GATE rc=0 $TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --verify-anchors
+    | anchor check: 176 existing cross-page fragment links reproduced
+GATE rc=0 $TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --check
+    | TOC gate: OK (108 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+GATE rc=0 $TOOLS/md-venv-40cdefe08ebd/bin/python scripts/docs_check.py
+    | docs_check: 0 finding(s) across 166 md files + 887 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+ALL_MD_GATES_FAIL=0

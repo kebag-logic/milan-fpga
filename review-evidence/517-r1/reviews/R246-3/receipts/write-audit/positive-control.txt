@@ -1,0 +1,8 @@
+  0    1 writes   1 outside private milan_nxn_* scratch  $PACKET/scratch/pc/writer_a.sh
+      outside: $PACKET/scratch/tmp/pc/pc_shared.txt
+  0    1 writes   1 outside private milan_nxn_* scratch  $PACKET/scratch/pc/writer_b.sh
+      outside: $PACKET/scratch/tmp/pc/pc_shared.txt
+  0    1 writes   1 outside private milan_nxn_* scratch  $PACKET/scratch/pc/writer_suite.sh
+      outside: $CLONE/tb/verilator/milan_dp/pc_suite_probe.tmp
+exact paths written by more than one leg: 1
+  $PACKET/scratch/tmp/pc/pc_shared.txt: $PACKET/scratch/pc/writer_a.sh, $PACKET/scratch/pc/writer_b.sh
