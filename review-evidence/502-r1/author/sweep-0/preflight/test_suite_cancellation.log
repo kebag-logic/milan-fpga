@@ -1,0 +1,29 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 55363, "cwd": "/tmp/suite-cancellation-oub0ba02/normal-orphan input [523]", "identities": {"55362": ["3198671", "S"], "55363": ["3198674", "S"]}, "pid": 55362}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 55529, "cwd": "/tmp/suite-cancellation-oub0ba02/cancel-selection-SIGINT input [523]", "identities": {"55528": ["3198980", "S"], "55529": ["3198983", "S"]}, "pid": 55528}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 55583, "cwd": "/tmp/suite-cancellation-oub0ba02/cancel-selection-SIGTERM input [523]", "identities": {"55582": ["3199217", "S"], "55583": ["3199220", "S"]}, "pid": 55582}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 55803, "cwd": "/tmp/suite-cancellation-oub0ba02/cancel-preflight-SIGINT input [523]", "identities": {"55794": ["3199464", "S"], "55803": ["3199467", "S"]}, "pid": 55794}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 56252, "cwd": "/tmp/suite-cancellation-oub0ba02/cancel-preflight-SIGTERM input [523]", "identities": {"56248": ["3199709", "S"], "56252": ["3199712", "S"]}, "pid": 56248}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 56635, "cwd": "/tmp/suite-cancellation-oub0ba02/cancel-command-SIGINT input [523]", "identities": {"56634": ["3199965", "S"], "56635": ["3199968", "S"]}, "pid": 56634}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 56754, "cwd": "/tmp/suite-cancellation-oub0ba02/cancel-command-SIGTERM input [523]", "identities": {"56753": ["3200226", "S"], "56754": ["3200229", "S"]}, "pid": 56753}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 56965, "cwd": "/tmp/suite-cancellation-oub0ba02/cancel-transition-SIGINT input [523]", "identities": {"56964": ["3200491", "S"], "56965": ["3200494", "S"]}, "pid": 56964}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 57236, "cwd": "/tmp/suite-cancellation-oub0ba02/cancel-transition-SIGTERM input [523]", "identities": {"57235": ["3200755", "S"], "57236": ["3200757", "S"]}, "pid": 57235}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "$LANES/502-pending-live-write/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$LANES/502-pending-live-write/scripts/test_suite_cancellation.py", line 379, in main
+    lock_wait(parent, signum)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$LANES/502-pending-live-write/scripts/test_suite_cancellation.py", line 236, in lock_wait
+    assert probe.process.poll() is None, probe.log()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CANCELLED: TERM; no completed sweep result
+logs were not prepared for this invocation
+CANCELLED: signal 15; no completed sweep result
+
