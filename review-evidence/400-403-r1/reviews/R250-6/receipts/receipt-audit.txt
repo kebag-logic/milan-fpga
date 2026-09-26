@@ -1,0 +1,13 @@
+new product_firmware_sha256 0bf43cd4fe02b110fb1ae4f051b3bc7baa6bb62c3769962520ed1f4bd12247a6
+head milan_baremetal.c sha256 0bf43cd4fe02b110fb1ae4f051b3bc7baa6bb62c3769962520ed1f4bd12247a6
+('endstation_ax7101_8x8', 50000000, 'on') min=24.29290 max=24.30246 recorded=(24.2929,24.30246) margin=2.0163 bad=0 traffic_counts_ok=True phase=aligned rising edges rows_changed_vs_old=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+('endstation_ax7101_8x8', 50000000, 'off') min=24.25794 max=24.26154 recorded=(24.257939999999998,24.26154) margin=2.0197 bad=0 traffic_counts_ok=True phase=aligned rising edges rows_changed_vs_old=[0]
+('endstation_ax7101_1x1_tdm8', 50000000, 'on') min=6.59814 max=6.60642 recorded=(6.59814,6.60642) margin=7.4170 bad=0 traffic_counts_ok=True phase=aligned rising edges rows_changed_vs_old=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+('endstation_ax7101_1x1_tdm8', 50000000, 'off') min=6.58554 max=6.58857 recorded=(6.58554,6.58857) margin=7.4371 bad=0 traffic_counts_ok=True phase=aligned rising edges rows_changed_vs_old=[0]
+('endstation_ax7101_8x8', 100000000, 'on') min=18.99012 max=19.00433 recorded=(18.990119999999997,19.00433) margin=2.5784 bad=0 traffic_counts_ok=True phase=aligned rising edges rows_changed_vs_old=[]
+('endstation_ax7101_8x8', 100000000, 'off') min=19.78694 max=19.79024 recorded=(19.786939999999998,19.79024) margin=2.4760 bad=0 traffic_counts_ok=True phase=aligned rising edges rows_changed_vs_old=[]
+MAX endstation_ax7101_1x1_tdm8 50000000: 6.60642 ms margin 7.4170 below24.5=17.89358 on-off=0.01785 (0.271%)
+MAX endstation_ax7101_8x8 50000000: 24.30246 ms margin 2.0163 below24.5=0.19754 on-off=0.04092 (0.169%)
+MAX endstation_ax7101_8x8 100000000: 19.79024 ms margin 2.4760 below24.5=4.70976 on-off=-0.78591 (-3.971%)
+maxima block [{"shape": "endstation_ax7101_1x1_tdm8", "cpu_hz": 50000000, "maximum_ms": 6.60642, "margin": 7.417027679136355}, {"shape": "endstation_ax7101_8x8", "cpu_hz": 50000000, "maximum_ms": 24.30246, "margin": 2.0162567904648334}, {"shape": "endstation_ax7101_8x8", "cpu_hz": 100000000, "maximum_ms": 19.79024, "margin": 2.4759679518793103}]
+top-level keys changed: ['base', 'maxima', 'measurements', 'product_firmware_sha256', 'remeasurement_assignment']

@@ -1,0 +1,17 @@
+receipt product_firmware_sha256 0bf43cd4fe02b110fb1ae4f051b3bc7baa6bb62c3769962520ed1f4bd12247a6 head 0bf43cd4fe02b110fb1ae4f051b3bc7baa6bb62c3769962520ed1f4bd12247a6 MATCH
+8x8-50-on: shape=endstation_ax7101_8x8 cpu_hz=50000000 traffic=on captures=16 phase=aligned rising edges
+  mine min/max ms 24.29290/24.30246; receipt 24.29290/24.30246
+  rows identical to receipt: True; differing rows: []
+  instrumented firmware d82f1d404f7e00482e5104d986ef635dcb8c420ab139078871f9d8f18d704d56 receipt d82f1d404f7e00482e5104d986ef635dcb8c420ab139078871f9d8f18d704d56 MATCH
+  bios f8aad0a03fd0cde792c307c0e7b42afab85b1ff462931a3854d668a605bb8e83 receipt f8aad0a03fd0cde792c307c0e7b42afab85b1ff462931a3854d668a605bb8e83 MATCH
+8x8-50-off: shape=endstation_ax7101_8x8 cpu_hz=50000000 traffic=off captures=16 phase=aligned rising edges
+  mine min/max ms 24.25794/24.26154; receipt 24.25794/24.26154
+  rows identical to receipt: True; differing rows: []
+  instrumented firmware 71aef8c36ebf5bf5d99bc4dc7f969b5b275c85ce6e2984dcc09723b508313917 receipt 71aef8c36ebf5bf5d99bc4dc7f969b5b275c85ce6e2984dcc09723b508313917 MATCH
+  bios 4c74bd59be9239d30adb07ad252c101a0d4c33e7922e7dea768ee110782971a8 receipt 4c74bd59be9239d30adb07ad252c101a0d4c33e7922e7dea768ee110782971a8 MATCH
+8x8-100-on: shape=endstation_ax7101_8x8 cpu_hz=100000000 traffic=on captures=16 phase=aligned rising edges
+  mine min/max ms 18.99012/19.00433; receipt 18.99012/19.00433
+  rows identical to receipt: True; differing rows: []
+  instrumented firmware d82f1d404f7e00482e5104d986ef635dcb8c420ab139078871f9d8f18d704d56 receipt d82f1d404f7e00482e5104d986ef635dcb8c420ab139078871f9d8f18d704d56 MATCH
+  bios f8aad0a03fd0cde792c307c0e7b42afab85b1ff462931a3854d668a605bb8e83 receipt f8aad0a03fd0cde792c307c0e7b42afab85b1ff462931a3854d668a605bb8e83 MATCH
+ALL REPRODUCED ROWS IDENTICAL

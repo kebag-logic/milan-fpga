@@ -1,0 +1,13 @@
+FAIL: product firmware changed; remeasure the copy
+PROBE dev-receipt-on-head-firmware: expected fail, rc=1 OK
+PASS: capture census, clocks, both timing arms and receipt agree
+PROBE refreshed-receipt: expected pass, rc=0 OK
+FAIL: product firmware changed; remeasure the copy
+PROBE firmware-edit: expected fail, rc=1 OK
+FAIL: measurement harness changed; refresh measured evidence
+PROBE harness-edit: expected fail, rc=1 OK
+FAIL: worst measured copy exceeds half the 49 ms hold floor
+PROBE off-row-over-bar: expected fail, rc=1 OK
+PASS: capture census, clocks, both timing arms and receipt agree
+PROBE restored: expected pass, rc=0 OK
+STATUS: 0 changed tracked/untracked entries

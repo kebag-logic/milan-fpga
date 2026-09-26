@@ -1,0 +1,29 @@
+STEP soc-src
+CMD python3 scripts/check_soc_sources.py --selftest
+[PASS] a two-space instantiation is seen
+[PASS] a column-0 instantiation is seen
+[PASS] a tab-indented instantiation is seen
+[PASS] a parameterised instantiation is seen with or without the space before #
+[PASS] an arrayed instance is seen
+[PASS] an instantiation whose #( starts on the next line is seen
+[PASS] a commented-out instantiation is not one
+[PASS] a function call, a task call and a string are not instantiations
+[PASS] an instantiation inside an included body is seen
+[PASS] a nested include is followed and a header including itself ends
+[PASS] an include with a directory part resolves beside the includer
+[PASS] an include no file answers to is reported by name
+[PASS] a header under the search roots resolves from anywhere
+[PASS] a live row is a row
+[PASS] a commented-out row is not a row
+[PASS] a path in a trailing comment or a docstring is not a row
+[PASS] a conditional registration beside the list is read
+[PASS] a path inside a message string is not a registration
+[PASS] the derived half is reported as the starred call, not guessed from syntax
+[PASS] a vendored .v entry counts as a source
+[PASS] a file without the list is refused, not read as empty
+[PASS] a row that is neither a path nor a derived expansion is refused
+[PASS] the live datapath's first hop is registered and present
+[PASS] commenting out the live row that carries cdc_pulse.sv is a MISSING SOURCE
+[PASS] a column-0 instantiation added to the live datapath reaches the first hop
+
+25 checks: 25 PASS, 0 FAIL
