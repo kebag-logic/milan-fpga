@@ -1,0 +1,214 @@
+# step 33: Fail-fast ratchet
+# script:
+python3 scripts/measure_fail_fast.py --check
+python3 scripts/measure_fail_fast.py --selftest
+
+# output:
+parameterised modules with no elaboration contract (82 of 107):
+   gptp-processor/hdl/common/KL_gptp_timer.sv:KL_gptp_timer
+   gptp-processor/hdl/top/KL_gptp_engine.sv:KL_gptp_engine
+   gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv:KL_gptp_ucpu
+   gptp-processor/hdl/wire/KL_gptp_tx_slot.sv:KL_gptp_tx_slot
+   hdl/common/KL_link_guard.sv:KL_link_guard
+   hdl/common/axis_mux_rr_2in_1out.sv:axis_mux_rr_2in_1out
+   hdl/common/cdc_handshake.sv:cdc_handshake
+   hdl/common/cdc_pair_fifo.sv:cdc_pair_fifo
+   hdl/common/cdc_pulse.sv:cdc_pulse
+   hdl/common/csr/milan_csr.sv:milan_csr
+   hdl/common/eth_event_counter/KL_mac_rmon_events.sv:KL_mac_rmon_events
+   hdl/common/eth_event_counter/ethernet_events.sv:ethernet_events
+   hdl/common/eth_event_counter/event_counter.sv:event_counter
+   hdl/common/tx_ifg_gasket.sv:tx_ifg_gasket
+   hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv:KL_aaf_latency_tap_bank
+   hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_chain
+   hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_taps
+   hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:KL_aaf_rx_depacketizer
+   hdl/ieee1722/aaf/KL_aes3_rx.sv:KL_aes3_rx
+   hdl/ieee1722/aaf/KL_aes3_tx.sv:KL_aes3_tx
+   hdl/ieee1722/aaf/KL_chan_map_capture.sv:KL_chan_map_capture
+   hdl/ieee1722/aaf/KL_chan_map_render.sv:KL_chan_map_render
+   hdl/ieee1722/aaf/KL_i2s_playback.sv:KL_i2s_playback
+   hdl/ieee1722/aaf/KL_lat_history_ring.sv:KL_lat_history_ring
+   hdl/ieee1722/aaf/KL_media_adv.sv:KL_media_adv
+   hdl/ieee1722/aaf/KL_pcm_route.sv:KL_pcm_route
+   hdl/ieee1722/aaf/KL_tdm_capture.sv:KL_tdm_capture
+   hdl/ieee1722/aaf/KL_tdm_render.sv:KL_tdm_render
+   hdl/ieee1722/aaf/KL_tone_gen.sv:KL_tone_gen
+   hdl/ieee1722/aaf/aaf_talker_i2s.sv:aaf_talker_i2s
+   hdl/ieee1722/avtp/KL_avtp_common_parser.sv:KL_avtp_common_parser
+   hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor
+   hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx
+   hdl/ieee1722/avtp/KL_stream_table.sv:KL_stream_table
+   hdl/ieee1722/avtp/avtp_stream_parser.sv:avtp_stream_parser
+   hdl/ieee1722/crf/KL_crf_rx.sv:KL_crf_rx
+   hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo
+   hdl/ieee1722/maap/KL_maap.sv:KL_maap
+   hdl/ieee17221/adp/adp_tx_arbiter.sv:adp_tx_arbiter
+   hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv:KL_ptp_clock_validity
+   hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv:ptp_csr_sync
+   hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:ptp_ts_core
+   hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top
+   hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter
+   hdl/ieee8021q/filtering/tcam.sv:tcam
+   hdl/ieee8021q/ts/credit_based_shaper.sv:credit_based_shaper
+   hdl/ieee8021q/ts/traffic_class_map.sv:traffic_class_map
+   hdl/ieee8021q/ts/traffic_classifier.sv:traffic_classifier
+   hdl/ieee8021q/ts/traffic_controller_802_1q.sv:traffic_controller_802_1q
+   hdl/ieee8021q/ts/traffic_queues.sv:traffic_queues
+   hdl/ieee8021q/ts/traffic_shaping_core.sv:traffic_shaping_core
+   hdl/milan/KL_pp_maap_shim.sv:KL_pp_maap_shim
+   hdl/milan/KL_pp_shadow.sv:KL_pp_shadow
+   protocol-processor/hdl/acmp/KL_acmp_talker.sv:KL_acmp_talker
+   protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:KL_pp_acmp_listener
+   protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv:KL_pp_acmp_lsn_admit
+   protocol-processor/hdl/adp/KL_adp_engine.sv:KL_adp_engine
+   protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv:KL_aecp_ca_originator
+   protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:KL_aecp_dyn_state
+   protocol-processor/hdl/aecp/KL_aecp_notify.sv:KL_aecp_notify
+   protocol-processor/hdl/aecp/KL_aecp_ucpu.sv:KL_aecp_ucpu
+   protocol-processor/hdl/common/KL_pp_timer_service.sv:KL_pp_timer_service
+   protocol-processor/hdl/maap/KL_pp_maap.sv:KL_pp_maap
+   protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch
+   protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch_fifo
+   protocol-processor/hdl/packet_engine/KL_pp_event_router.sv:KL_pp_event_router
+   protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:KL_pp_nvm_port
+   protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv:KL_pp_rx_slots
+   protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv:KL_pp_rx_validator
+   protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv:KL_pp_scoreboard
+   protocol-processor/hdl/packet_engine/KL_pp_side_port.sv:KL_pp_side_port
+   protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv:KL_pp_trace_ring
+   protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv:KL_pp_tx_arbiter
+   protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv:KL_pp_tx_slots
+   protocol-processor/hdl/srp/KL_srp_admission.sv:KL_srp_admission
+   protocol-processor/hdl/srp/KL_srp_decoder.sv:KL_srp_decoder
+   protocol-processor/hdl/srp/KL_srp_domain.sv:KL_srp_domain
+   protocol-processor/hdl/srp/KL_srp_listener_fsm.sv:KL_srp_listener_fsm
+   protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:KL_srp_talker_fsm
+   protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top
+   protocol-processor/hdl/srp/KL_srp_vlan.sv:KL_srp_vlan
+   protocol-processor/hdl/top/KL_mrp_strip.sv:KL_mrp_strip
+
+measured shell population: 25 shell scripts, 5 workflow files, 99 Makefiles (recipe lines); Python and Tcl are not measured
+
+pipelines that discard their producer's exit code (4):
+   gptp-processor/syn/ooc/run.sh:34  grep -A2 "Slice LUTs\|Block RAM Tile\|DSPs" ucpu_util.rpt | head -20
+   gptp-processor/syn/ooc/run.sh:36  grep -A2 "Slice LUTs\|Block RAM Tile\|DSPs" engine_util.rpt | head -20
+   tb/verilator/avtp_rxmon/Makefile:56  verilator_coverage --annotate cov_annotated --annotate-min 1 coverage.dat | tail -2
+   tb/verilator/maap/Makefile:27  verilator_coverage --annotate cov_annotated --annotate-min 1 coverage.dat | tail -2
+
+captured verdicts whose exit status is discarded (0):
+
+waived by site, with a reason (2):
+   .github/workflows/rtl-fast.yml:104  the grep IS the version assertion; its status is the verdict
+   .github/workflows/rtl.yml:206  the grep IS the version assertion; its status is the verdict
+
+FAIL-FAST RATCHET: PASS (82 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+  the ratchets can be lowered to 82, 4 and 0
+[PASS] a module with parameters and no check is unguarded
+[PASS] a module with an elaboration $error is guarded
+[PASS] a module with no parameters is not counted
+[PASS] `parameter int unsigned W = 8` is a parameter
+[PASS] `parameter string HEX_P = ""` is a parameter
+[PASS] `parameter type T = logic [7:0]` is a parameter
+[PASS] `parameter real R = 1.5` is a parameter
+[PASS] `parameter longint L = 64'd0` is a parameter
+[PASS] `parameter int W` is a parameter
+[PASS] `parameter [3:0] X = 4'd2` is a parameter
+[PASS] `parameter X = 3` is a parameter
+[PASS] `parameter int A = 1, B = 2` is a parameter
+[PASS] an $error inside a COMMENT does not count as a guard
+[PASS] two modules in one file are measured independently
+[PASS] a runtime $error inside always is NOT an elaboration contract
+[PASS] a $error inside an always_ff begin/end block is not a contract
+[PASS] an initial-block $fatal is a simulation check, not an elaboration contract
+[PASS] an initial assert ... else $error is not a contract either
+[PASS] a $error inside a function body is not a contract
+[PASS] a module-scope $error in a NAMED generate block is a contract
+[PASS] a generate/endgenerate guard is a contract
+[PASS] a module-scope $error AFTER an always block is still seen
+[PASS] a single-statement always ends at its `;`
+[PASS] a single-statement always with an else ends after the else
+[PASS] a bare initial $readmemh does not swallow the guard after it
+[PASS] the word `always` inside a $error message does not open a procedural block
+[PASS] a module-scope concurrent `assert property ... else $error` is NOT a contract
+[PASS] a labelled concurrent assertion with a begin/end action block is not a contract
+[PASS] assume property and cover property are not contracts either
+[PASS] a deferred immediate `assert #0 (...) else $error` at module scope is not a contract
+[PASS] an `assert final` at module scope is not a contract
+[PASS] a $error inside property ... endproperty is not a contract
+[PASS] a $error inside sequence ... endsequence is not a contract
+[PASS] a concurrent assertion NEXT TO a module-scope $error does not hide the guard
+[PASS] a $error inside an always inside a generate block is still a runtime assertion
+[PASS] a generate-if guard with an else arm is a contract
+[PASS] a guard at the end of an else-if chain is a contract
+[PASS] a case-generate default $error is a contract
+[PASS] a guard inside a for-generate body is a contract
+[PASS] a preprocessor directive before a named always block is a line, not a label
+[PASS] a guard wrapped in `ifdef/`else/`endif is still reached
+[PASS] a guard after a typedef, an instantiation and a DPI import is still reached
+[PASS] a piped gate is masked
+[PASS] a piped make is masked
+[PASS] `$MAKE -C x | tee` is a masked producer
+[PASS] `./obj_dir/Vsim +arg | tee` is a masked producer
+[PASS] `./lint_hdl.sh | tee` is a masked producer
+[PASS] `bash scripts/x.sh | tee` is a masked producer
+[PASS] `xvlog -sv a.sv | tee` is a masked producer
+[PASS] `xelab top | tee` is a masked producer
+[PASS] `vivado -mode batch | tee` is a masked producer
+[PASS] `iverilog -o a b.v | tee` is a masked producer
+[PASS] `verilator_coverage --annotate d coverage.dat | tee` is a masked producer
+[PASS] `$VERILATOR --lint-only x.sv | tee` is a masked producer
+[PASS] a fallback is not a pipe
+[PASS] a comment is not a pipeline
+[PASS] a tool name inside a string is not a producer
+[PASS] a tool name glued to a suffix is not a producer
+[PASS] a path-qualified tool is a producer
+[PASS] a pipe inside a command substitution is not the line's verdict
+[PASS] a pipe inside a parameter expansion is not a pipe
+[PASS] a group that saves the producer's status before the pipe keeps the verdict
+[PASS] a file-reading grep piped to head is a producer whose status is lost
+[PASS] a file-reading cat piped to a consumer is the same shape
+[PASS] grep reading stdin is a consumer, not a producer
+[PASS] a bare grep pattern with no file reads stdin and is not a producer
+[PASS] an ordinary command is not a pipeline
+[PASS] a line that sets pipefail is not masked
+[PASS] the file-reading grep is protected once pipefail is on
+[PASS] a later pipefail cannot protect an earlier pipeline
+[PASS] a pipefail mentioned in a COMMENT protects nothing
+[PASS] a pipefail inside a here-document body protects nothing
+[PASS] a pipefail set inside a subshell ends with the subshell
+[PASS] a multi-line subshell scopes its pipefail the same way
+[PASS] a backslash-continued pipeline is one line, found at its first line
+[PASS] a shebang carrying -eo pipefail protects the script
+[PASS] a plain shebang protects nothing
+[PASS] the GitHub Actions default run shell has NO pipefail
+[PASS] a step that declares shell: bash is protected, before or after its run block
+[PASS] pipefail set in one step does not protect the next step
+[PASS] a Makefile recipe pipe runs under /bin/sh -c with no pipefail and is masked
+[PASS] a Makefile whose .SHELLFLAGS carries pipefail protects its recipes
+[PASS] a `$$(...)` in a recipe is the shell's substitution, not a make variable
+[PASS] a captured verdict with no errexit and no guard is discarded
+[PASS] the same capture under errexit is not discarded
+[PASS] errexit switched off later un-protects a later capture
+[PASS] a local/export assignment discards the status even under errexit
+[PASS] a capture whose status is consulted is not discarded
+[PASS] a capture whose $? is read on the next line is not discarded
+[PASS] a capture through a tool VARIABLE is a capture
+[PASS] an argument-form substitution is the consumer's verdict and is not modelled
+[PASS] a workflow step starts with errexit, so a bare capture there is not discarded
+[PASS] a capture inside a comment is not a finding
+[PASS] a capture inside a subshell that set errexit is protected only there
+[PASS] the version assertion is waived by SITE, with a reason
+[PASS] the same line at another path is masked, not waived
+[PASS] a NEW `--version | grep` is masked: the waiver is not a substring
+[PASS] a gate verdict carrying --version is masked, not waived
+[PASS] an unterminated here-document makes the unit unreadable, never a pass
+[PASS] the live scan reads the tree
+[PASS] the guarded set is not empty
+[PASS] the gptp-processor modules in the `int unsigned`/`string` idiom are in the population
+[PASS] KL_media_nco, the house form the guide cites, is counted guarded
+[PASS] every site waiver names a line that exists and is masked without it
+[PASS] the live scan reaches both processor submodules' shell wrappers
+[PASS] the Makefile population is first-party only and not empty
+
+106 checks: 106 PASS, 0 FAIL

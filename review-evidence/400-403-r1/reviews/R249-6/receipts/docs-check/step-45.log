@@ -1,0 +1,10 @@
+# step 45: Per-page contents gate
+# script:
+python3 scripts/gen_toc.py --selftest
+python3 scripts/gen_toc.py --verify-anchors
+python3 scripts/gen_toc.py --check
+
+# output:
+TOC selftest: PASS (1501/1501 arm(s))
+anchor check: 176 existing cross-page fragment links reproduced
+TOC gate: OK (108 page(s) carry an annotated contents list, 17 below the 3-section threshold)

@@ -1,0 +1,232 @@
+# Output of: git diff 6d181922 a07a75de -- tb/verilator/nvm_capture_cpu/measurements.json
+# Publication note: the host work-storage prefix in the command fields is shown as $VALIDATION_STORAGE here; the tracked file holds the literal path (see S1).
+diff --git a/tb/verilator/nvm_capture_cpu/measurements.json b/tb/verilator/nvm_capture_cpu/measurements.json
+index bb1715f7..1dccc82b 100644
+--- a/tb/verilator/nvm_capture_cpu/measurements.json
++++ b/tb/verilator/nvm_capture_cpu/measurements.json
+@@ -1,6 +1,6 @@
+ {
+   "date": "2026-09-25",
+-  "base": "a3d795ae24202bb00cfa7ba0f5bfb4fffc1eb8e4",
++  "base": "6d1819220f452ed9dcc086127f3f0695d14642aa",
+   "compiler": "riscv32-linux-gcc 14.3.0, RV32I, ILP32, -Os",
+   "soc_component_revisions": {
+     "litex": "a1e1c3652ec2f1346ebaea7663d2867f393ae2c4",
+@@ -14,7 +14,7 @@
+   "simulator": "Verilator 5.052",
+   "network": "disabled; offline dependency resolution",
+   "timer": "100 MHz system downcounter, before ARM through successful ATTEST",
+-  "product_firmware_sha256": "7cdc5e68243ff35a4b3b0b13613ba5f937010835dc737b1400c640d6ebce8a64",
++  "product_firmware_sha256": "0bf43cd4fe02b110fb1ae4f051b3bc7baa6bb62c3769962520ed1f4bd12247a6",
+   "assignment": "https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112",
+   "python_hash_seed": "0",
+   "phase": "CPU rising edges aligned with sys; audio starts at half-period",
+@@ -52,34 +52,34 @@
+       "configured_cpu_hz": 100000000,
+       "phase": "aligned rising edges",
+       "traffic": "on",
+-      "minimum_ms": 24.29322,
+-      "maximum_ms": 24.30454,
++      "minimum_ms": 24.2929,
++      "maximum_ms": 24.30246,
+       "hold_ms": 50,
+       "hold_floor_ms": 49,
+-      "margin": 2.0160842377596944,
++      "margin": 2.0162567904648334,
+       "rows": [
+-        {"index": 0, "ok": 1, "sys_cycles": 2429800, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151776, "responses": 150, "reads": 5830},
+-        {"index": 1, "ok": 1, "sys_cycles": 2429322, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151746, "responses": 149, "reads": 5811},
+-        {"index": 2, "ok": 1, "sys_cycles": 2429864, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151780, "responses": 150, "reads": 5849},
+-        {"index": 3, "ok": 1, "sys_cycles": 2429864, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151780, "responses": 150, "reads": 5849},
+-        {"index": 4, "ok": 1, "sys_cycles": 2429864, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151780, "responses": 150, "reads": 5849},
+-        {"index": 5, "ok": 1, "sys_cycles": 2429864, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151780, "responses": 150, "reads": 5849},
+-        {"index": 6, "ok": 1, "sys_cycles": 2429864, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151780, "responses": 150, "reads": 5849},
+-        {"index": 7, "ok": 1, "sys_cycles": 2429864, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151780, "responses": 150, "reads": 5849},
+-        {"index": 8, "ok": 1, "sys_cycles": 2429864, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151780, "responses": 150, "reads": 5849},
+-        {"index": 9, "ok": 1, "sys_cycles": 2429804, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151776, "responses": 150, "reads": 5830},
+-        {"index": 10, "ok": 1, "sys_cycles": 2430454, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151817, "responses": 150, "reads": 5849},
+-        {"index": 11, "ok": 1, "sys_cycles": 2429942, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151785, "responses": 150, "reads": 5846},
+-        {"index": 12, "ok": 1, "sys_cycles": 2429458, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151754, "responses": 149, "reads": 5811},
+-        {"index": 13, "ok": 1, "sys_cycles": 2430252, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151804, "responses": 150, "reads": 5833},
+-        {"index": 14, "ok": 1, "sys_cycles": 2429800, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151776, "responses": 150, "reads": 5830},
+-        {"index": 15, "ok": 1, "sys_cycles": 2430246, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151804, "responses": 150, "reads": 5850}
++        {"index": 0, "ok": 1, "sys_cycles": 2429734, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151772, "responses": 149, "reads": 5821},
++        {"index": 1, "ok": 1, "sys_cycles": 2429760, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151774, "responses": 150, "reads": 5850},
++        {"index": 2, "ok": 1, "sys_cycles": 2429290, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151743, "responses": 150, "reads": 5848},
++        {"index": 3, "ok": 1, "sys_cycles": 2429298, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151744, "responses": 150, "reads": 5848},
++        {"index": 4, "ok": 1, "sys_cycles": 2429298, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151745, "responses": 150, "reads": 5848},
++        {"index": 5, "ok": 1, "sys_cycles": 2429298, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151745, "responses": 150, "reads": 5848},
++        {"index": 6, "ok": 1, "sys_cycles": 2429298, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151745, "responses": 150, "reads": 5848},
++        {"index": 7, "ok": 1, "sys_cycles": 2429298, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151745, "responses": 150, "reads": 5848},
++        {"index": 8, "ok": 1, "sys_cycles": 2429298, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151745, "responses": 150, "reads": 5848},
++        {"index": 9, "ok": 1, "sys_cycles": 2429298, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151745, "responses": 150, "reads": 5848},
++        {"index": 10, "ok": 1, "sys_cycles": 2429298, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151744, "responses": 150, "reads": 5848},
++        {"index": 11, "ok": 1, "sys_cycles": 2429760, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151774, "responses": 150, "reads": 5850},
++        {"index": 12, "ok": 1, "sys_cycles": 2429800, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151776, "responses": 150, "reads": 5830},
++        {"index": 13, "ok": 1, "sys_cycles": 2430246, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151804, "responses": 150, "reads": 5850},
++        {"index": 14, "ok": 1, "sys_cycles": 2429734, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151772, "responses": 149, "reads": 5823},
++        {"index": 15, "ok": 1, "sys_cycles": 2430216, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 151802, "responses": 150, "reads": 5849}
+       ],
+       "clock_role": "contract",
+-      "command": "python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir /tmp/nvm-capture-8x8-50-on",
++      "command": "unshare -Urn python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir $VALIDATION_STORAGE/400-403-a323-capture-8x8-50-on",
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+-      "instrumented_firmware_sha256": "368eb10bd69d9c2d03e557d96da5d719e0d7170d54d0f619605828fc8d32aa8a",
+-      "bios_sha256": "841e894f1ee1011b50b3f7e5b69d3725bc5f27440a0cfaf1102ad7e84d2c05dd"
++      "instrumented_firmware_sha256": "d82f1d404f7e00482e5104d986ef635dcb8c420ab139078871f9d8f18d704d56",
++      "bios_sha256": "f8aad0a03fd0cde792c307c0e7b42afab85b1ff462931a3854d668a605bb8e83"
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+@@ -89,13 +89,13 @@
+       "configured_cpu_hz": 100000000,
+       "phase": "aligned rising edges",
+       "traffic": "off",
+-      "minimum_ms": 24.25516,
++      "minimum_ms": 24.257939999999998,
+       "maximum_ms": 24.26154,
+       "hold_ms": 50,
+       "hold_floor_ms": 49,
+       "margin": 2.0196574496095465,
+       "rows": [
+-        {"index": 0, "ok": 1, "sys_cycles": 2425516, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0},
++        {"index": 0, "ok": 1, "sys_cycles": 2426010, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0},
+         {"index": 1, "ok": 1, "sys_cycles": 2426154, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0},
+         {"index": 2, "ok": 1, "sys_cycles": 2425794, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0},
+         {"index": 3, "ok": 1, "sys_cycles": 2425794, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0},
+@@ -113,10 +113,10 @@
+         {"index": 15, "ok": 1, "sys_cycles": 2425794, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0}
+       ],
+       "clock_role": "contract",
+-      "command": "python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir /tmp/nvm-capture-8x8-50-off",
++      "command": "unshare -Urn python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir $VALIDATION_STORAGE/400-403-a323-capture-8x8-50-off",
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+-      "instrumented_firmware_sha256": "040b84506e513be28defb4d34d49498c8e22230f264653ff664c2d660ef73d09",
+-      "bios_sha256": "cda2be86be13d0697d3bfd82034496b3e2ec2597f39afc8986e8dc31d03f0b0d"
++      "instrumented_firmware_sha256": "71aef8c36ebf5bf5d99bc4dc7f969b5b275c85ce6e2984dcc09723b508313917",
++      "bios_sha256": "4c74bd59be9239d30adb07ad252c101a0d4c33e7922e7dea768ee110782971a8"
+     },
+     {
+       "shape": "endstation_ax7101_1x1_tdm8",
+@@ -126,34 +126,34 @@
+       "configured_cpu_hz": 50000000,
+       "phase": "aligned rising edges",
+       "traffic": "on",
+-      "minimum_ms": 6.59822,
++      "minimum_ms": 6.59814,
+       "maximum_ms": 6.60642,
+       "hold_ms": 50,
+       "hold_floor_ms": 49,
+       "margin": 7.417027679136355,
+       "rows": [
+-        {"index": 0, "ok": 1, "sys_cycles": 660098, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41169, "responses": 40, "reads": 1590},
+-        {"index": 1, "ok": 1, "sys_cycles": 660480, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41193, "responses": 40, "reads": 1560},
+-        {"index": 2, "ok": 1, "sys_cycles": 660422, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41190, "responses": 40, "reads": 1586},
+-        {"index": 3, "ok": 1, "sys_cycles": 660336, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41185, "responses": 41, "reads": 1585},
+-        {"index": 4, "ok": 1, "sys_cycles": 660515, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41195, "responses": 40, "reads": 1560},
+-        {"index": 5, "ok": 1, "sys_cycles": 659822, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41152, "responses": 41, "reads": 1599},
+-        {"index": 6, "ok": 1, "sys_cycles": 660298, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41182, "responses": 40, "reads": 1560},
+-        {"index": 7, "ok": 1, "sys_cycles": 660590, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41201, "responses": 41, "reads": 1599},
+-        {"index": 8, "ok": 1, "sys_cycles": 660430, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41190, "responses": 41, "reads": 1570},
+-        {"index": 9, "ok": 1, "sys_cycles": 660414, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41190, "responses": 40, "reads": 1567},
+-        {"index": 10, "ok": 1, "sys_cycles": 659956, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41161, "responses": 41, "reads": 1599},
+-        {"index": 11, "ok": 1, "sys_cycles": 659986, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41163, "responses": 41, "reads": 1593},
+-        {"index": 12, "ok": 1, "sys_cycles": 660642, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41203, "responses": 41, "reads": 1582},
++        {"index": 0, "ok": 1, "sys_cycles": 660422, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41190, "responses": 40, "reads": 1586},
++        {"index": 1, "ok": 1, "sys_cycles": 660430, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41190, "responses": 41, "reads": 1570},
++        {"index": 2, "ok": 1, "sys_cycles": 660286, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41181, "responses": 40, "reads": 1562},
++        {"index": 3, "ok": 1, "sys_cycles": 659822, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41152, "responses": 41, "reads": 1599},
++        {"index": 4, "ok": 1, "sys_cycles": 660298, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41183, "responses": 40, "reads": 1560},
++        {"index": 5, "ok": 1, "sys_cycles": 660590, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41201, "responses": 41, "reads": 1599},
++        {"index": 6, "ok": 1, "sys_cycles": 660430, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41190, "responses": 41, "reads": 1570},
++        {"index": 7, "ok": 1, "sys_cycles": 660286, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41180, "responses": 40, "reads": 1562},
++        {"index": 8, "ok": 1, "sys_cycles": 659822, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41153, "responses": 41, "reads": 1599},
++        {"index": 9, "ok": 1, "sys_cycles": 660480, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41193, "responses": 40, "reads": 1560},
++        {"index": 10, "ok": 1, "sys_cycles": 659814, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41152, "responses": 41, "reads": 1599},
++        {"index": 11, "ok": 1, "sys_cycles": 659986, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41162, "responses": 41, "reads": 1593},
++        {"index": 12, "ok": 1, "sys_cycles": 660642, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41204, "responses": 41, "reads": 1582},
+         {"index": 13, "ok": 1, "sys_cycles": 660430, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41190, "responses": 41, "reads": 1570},
+         {"index": 14, "ok": 1, "sys_cycles": 660480, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41193, "responses": 40, "reads": 1560},
+         {"index": 15, "ok": 1, "sys_cycles": 660430, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 41190, "responses": 40, "reads": 1560}
+       ],
+       "clock_role": "contract",
+-      "command": "python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir /tmp/nvm-capture-1x1-50-on",
++      "command": "unshare -Urn python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic on --build-dir $VALIDATION_STORAGE/400-403-a323-capture-1x1_tdm8-50-on",
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+-      "instrumented_firmware_sha256": "368eb10bd69d9c2d03e557d96da5d719e0d7170d54d0f619605828fc8d32aa8a",
+-      "bios_sha256": "25cb729452bd7bb7ff8e56ba6d0765af5ec73a6989bc9740915a67bcc839ef2b"
++      "instrumented_firmware_sha256": "d82f1d404f7e00482e5104d986ef635dcb8c420ab139078871f9d8f18d704d56",
++      "bios_sha256": "c1a8be054807fcc848fd69ffafe379a87971440f3dd754fec610b61f94de8399"
+     },
+     {
+       "shape": "endstation_ax7101_1x1_tdm8",
+@@ -169,7 +169,7 @@
+       "hold_floor_ms": 49,
+       "margin": 7.437122167632734,
+       "rows": [
+-        {"index": 0, "ok": 1, "sys_cycles": 658857, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0},
++        {"index": 0, "ok": 1, "sys_cycles": 658694, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0},
+         {"index": 1, "ok": 1, "sys_cycles": 658554, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0},
+         {"index": 2, "ok": 1, "sys_cycles": 658694, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0},
+         {"index": 3, "ok": 1, "sys_cycles": 658832, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0},
+@@ -187,10 +187,10 @@
+         {"index": 15, "ok": 1, "sys_cycles": 658832, "raw": 3218, "records": 53, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0}
+       ],
+       "clock_role": "contract",
+-      "command": "python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir /tmp/nvm-capture-1x1-50-off",
++      "command": "unshare -Urn python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_1x1_tdm8 --cpu-hz 50000000 --captures 16 --traffic off --build-dir $VALIDATION_STORAGE/400-403-a323-capture-1x1_tdm8-50-off",
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+-      "instrumented_firmware_sha256": "040b84506e513be28defb4d34d49498c8e22230f264653ff664c2d660ef73d09",
+-      "bios_sha256": "6ba01a15d8a073ea64f3817b23e763e9c9301eb888bb1026fae6c9845c0a4052"
++      "instrumented_firmware_sha256": "71aef8c36ebf5bf5d99bc4dc7f969b5b275c85ce6e2984dcc09723b508313917",
++      "bios_sha256": "f0d0a61032a640817edf6877b3350358dd2007aded65a37aa0bbe8fa76e7e9d7"
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+@@ -224,10 +224,10 @@
+         {"index": 15, "ok": 1, "sys_cycles": 1899125, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 237268, "responses": 146, "reads": 5697}
+       ],
+       "clock_role": "non-contract comparison",
+-      "command": "python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic on --build-dir /tmp/nvm-capture-8x8-100-on",
++      "command": "unshare -Urn python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic on --build-dir $VALIDATION_STORAGE/400-403-a323-capture-8x8-100-on",
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+-      "instrumented_firmware_sha256": "368eb10bd69d9c2d03e557d96da5d719e0d7170d54d0f619605828fc8d32aa8a",
+-      "bios_sha256": "841e894f1ee1011b50b3f7e5b69d3725bc5f27440a0cfaf1102ad7e84d2c05dd"
++      "instrumented_firmware_sha256": "d82f1d404f7e00482e5104d986ef635dcb8c420ab139078871f9d8f18d704d56",
++      "bios_sha256": "f8aad0a03fd0cde792c307c0e7b42afab85b1ff462931a3854d668a605bb8e83"
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+@@ -261,10 +261,10 @@
+         {"index": 15, "ok": 1, "sys_cycles": 1978694, "raw": 12634, "records": 156, "mismatches": 0, "open": 0, "requests": 0, "responses": 0, "reads": 0}
+       ],
+       "clock_role": "non-contract comparison",
+-      "command": "python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic off --build-dir /tmp/nvm-capture-8x8-100-off",
++      "command": "unshare -Urn python3 tb/verilator/nvm_capture_cpu/run.py --shape endstation_ax7101_8x8 --cpu-hz 100000000 --captures 16 --traffic off --build-dir $VALIDATION_STORAGE/400-403-a323-capture-8x8-100-off",
+       "cpu_netlist_sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+-      "instrumented_firmware_sha256": "040b84506e513be28defb4d34d49498c8e22230f264653ff664c2d660ef73d09",
+-      "bios_sha256": "cda2be86be13d0697d3bfd82034496b3e2ec2597f39afc8986e8dc31d03f0b0d"
++      "instrumented_firmware_sha256": "71aef8c36ebf5bf5d99bc4dc7f969b5b275c85ce6e2984dcc09723b508313917",
++      "bios_sha256": "4c74bd59be9239d30adb07ad252c101a0d4c33e7922e7dea768ee110782971a8"
+     }
+   ],
+   "maxima": [
+@@ -277,8 +277,8 @@
+     {
+       "shape": "endstation_ax7101_8x8",
+       "cpu_hz": 50000000,
+-      "maximum_ms": 24.30454,
+-      "margin": 2.0160842377596944
++      "maximum_ms": 24.30246,
++      "margin": 2.0162567904648334
+     },
+     {
+       "shape": "endstation_ax7101_8x8",
+@@ -286,5 +286,6 @@
+       "maximum_ms": 19.79024,
+       "margin": 2.4759679518793103
+     }
+-  ]
++  ],
++  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/400#issuecomment-5838671391"
+ }

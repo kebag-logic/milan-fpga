@@ -1,0 +1,54 @@
+# step 34: TODO ownership gate
+# script:
+python3 scripts/check_todo_ownership.py
+python3 scripts/check_todo_ownership.py --selftest
+
+# output:
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 827 first-party file(s) read)
+[PASS] the assembled fixture words are the real marker words
+[PASS] an unowned marker is caught
+[PASS] an owned marker is accepted
+[PASS] FIXME is a marker too
+[PASS] an owned FIXME is accepted
+[PASS] case does not matter
+[PASS] the word then #N is a marker, and not the owned form
+[PASS] two issues in one pair, or the issue after the colon, is not the owned form
+[PASS] the owner issue number is taken on trust, not checked against the tracker
+[PASS] an owned marker beside an unowned one does not own it
+[PASS] nor in the other order
+[PASS] two owned markers on one line are both owned
+[PASS] an issue written before its word owns nothing: the owner follows the word
+[PASS] a second word beside a marker is its own near-miss
+[PASS] an owned marker in a comment beside the word in code
+[PASS] a filename reference is not a marker
+[PASS] an identifier named for the word is not a marker
+[PASS] a comparison against that identifier is not a marker
+[PASS] prose about markers is not a marker
+[PASS] a marker word in a trailing parenthetical is not a marker
+[PASS] a string literal is not a comment
+[PASS] a marker on a later line of a block comment is caught
+[PASS] a sized literal before a marker on the same line
+[PASS] a sized literal on the line before a marker
+[PASS] an aggregate literal before a marker
+[PASS] no SystemVerilog comment is hidden by a literal, a string or an apostrophe
+[PASS] digit separators and character literals hide no C++ comment
+[PASS] a marker-shaped example inside a Python docstring is not a marker, the comment after it is
+[PASS] a heredoc apostrophe does not carry into the next shell line
+[PASS] Tcl has no apostrophe quoting
+[PASS] an apostrophe inside a YAML word is prose
+[PASS] every registered type is read with its own comment syntax
+[PASS] a Gherkin step is not a comment; a Gherkin comment line is
+[PASS] markdown and images are not read
+[PASS] a vendor gitlink is dropped and a project processor is kept
+[PASS] every registered first-party type is read and the rest is not
+[PASS] an empty population is refused
+[PASS] a population missing a processor is refused
+[PASS] a population without the superproject is refused
+[PASS] a complete population is judged
+[PASS] this checker carries no marker of its own
+[PASS] the live population reaches both processors, the gptp bench, RTL headers, Makefiles and this gate, and no vendor tree
+[PASS] every reported occurrence is a real line of its file that carries the word reported
+[PASS] the scan skips markdown
+[PASS] a host without git is refused by name, never passed
+
+45 checks: 45 PASS, 0 FAIL

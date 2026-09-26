@@ -1,0 +1,8 @@
+# step 44: Archive integrity gate
+# script:
+python3 scripts/check_archive.py
+python3 scripts/check_archive.py --selftest
+
+# output:
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+archive selftest: OK (24 controls)

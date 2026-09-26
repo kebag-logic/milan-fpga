@@ -1,0 +1,12 @@
+# step 27: Capture measurement census and clock gate
+# script:
+python3 scripts/check_nvm_capture.py
+# output:
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+PASS: capture census, clocks, both timing arms and receipt agree

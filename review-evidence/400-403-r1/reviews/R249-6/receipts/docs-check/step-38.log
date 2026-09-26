@@ -1,0 +1,94 @@
+# step 38: C and C++ idiom gate
+# script:
+python3 scripts/check_cpp_idiom.py
+python3 scripts/check_cpp_idiom.py --selftest
+
+# output:
+cpp idiom: 156 first-party translation units, 22 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+[PASS] a naked new is a finding
+[PASS] a naked delete is a finding
+[PASS] a placement new is not a finding
+[PASS] a deleted function is not a finding
+[PASS] goto is a finding
+[PASS] strcpy is a finding
+[PASS] atoi is a finding
+[PASS] memcpy is deliberately not a finding
+[PASS] a C-style cast is a finding
+[PASS] a static_cast is not a finding
+[PASS] a parameter list is not a cast
+[PASS] a discarding (void) cast is deliberately not a finding
+[PASS] a parenthesised condition is not a cast
+[PASS] a file-scope mutable is a finding
+[PASS] a file-scope const is not a finding
+[PASS] a file-scope constexpr is not a finding
+[PASS] a local is not a file-scope mutable
+[PASS] a static const list is not a file-scope mutable
+[PASS] a macro constant is a finding
+[PASS] an include guard is not a macro constant
+[PASS] a function-like macro is not a macro constant
+[PASS] an unnamed enum block is a finding
+[PASS] a named enum is not a finding
+[PASS] a multi-declarator declaration is a finding
+[PASS] a single declaration is not a finding
+[PASS] a call with two arguments is not a declaration
+[PASS] a function over the line limit is a finding
+[PASS] a short function is not a finding
+[PASS] a long member function is a finding
+[PASS] a long out-of-line member definition is a finding
+[PASS] a long lambda body is not counted as its own function
+[PASS] an else-if continuation is not a function
+[PASS] a class head is not a function
+[PASS] a brace-initialiser is not a function
+[PASS] a construct in a line comment is not counted
+[PASS] a construct in a block comment is not counted
+[PASS] a construct in a string is not counted
+[PASS] a digit separator does not open a character literal
+[PASS] a digit separator leaves brace counting intact
+[PASS] a character literal is still blanked
+[PASS] a goto inside a character literal is not a finding
+[PASS] blanking preserves line numbers
+[PASS] a C-style cast in C is not a finding
+[PASS] a macro constant in C is not a finding
+[PASS] goto in C is still a finding
+[PASS] a long function in C is still a finding
+[PASS] a count above its budget fails the ratchet
+[PASS] a count equal to its budget passes with no note
+[PASS] a count below its budget passes and names the lowerable value
+[PASS] a missing budget entry fails the ratchet
+[PASS] a malformed budget value is no entry
+[PASS] an absent budget file is an empty budget
+[PASS] a comment is stripped from a budget line
+[PASS] the scan reaches over 100 first-party translation units
+[PASS] the scan reaches protocol-processor
+[PASS] the scan reaches gptp-processor
+[PASS] the live population is complete
+[PASS] generated barectf output is out of scope
+[PASS] an empty population is refused
+[PASS] a population missing a processor is refused
+[PASS] the live scan still detects a planted file-scope mutable
+[PASS] the live scan still detects a planted multi-declarator declaration
+[PASS] the live scan still detects a planted long function
+[PASS] a clean tree is allowed to be clean
+[PASS] the checked-in budget carries every ratcheted key
+[PASS] a build with no warning flags is a finding
+[PASS] a build with both warning flags is not a finding
+[PASS] a flag enabled for only one of several builds is a finding
+[PASS] a Makefile with no -CFLAGS is not judged
+[PASS] a -CFLAGS group continued across lines is one group
+[PASS] an escaped quote inside a -CFLAGS group does not end it
+[PASS] a -CFLAGS mentioned in a comment is not a build line
+[PASS] the testbench Makefile population is non-empty
+[PASS] the shared harness header exists
+[PASS] the harness header copies agree
+
+75 checks: 75 PASS, 0 FAIL
