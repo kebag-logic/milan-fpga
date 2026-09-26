@@ -1852,6 +1852,10 @@ and its cgroup-mount root only in their exact code contexts in
 product document, are still refused, and the gate's self-test proves each of
 those refusals.
 
+The uplink uses the absolute `pasta` path from `SAFE_PATH`.
+Its final symlink stays unresolved, preserving the multi-call mode.
+Other host tools keep their resolved paths.
+
 Before anything else touches the daemon, `docker info` through the slot socket
 must report the slot label, the invocation token and the slot data-root. The
 Docker CLI and `act` then both run under
