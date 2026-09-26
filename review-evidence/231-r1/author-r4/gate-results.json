@@ -1,0 +1,61 @@
+{
+  "head": "ae729bbfd90934f4d56d3b02f1ffc652496b414d",
+  "gates": [
+    {
+      "name": "selftest",
+      "command": "python3 syn/ooc/pp_baseline.py --selftest",
+      "exit_code": 0
+    },
+    {
+      "name": "mutants",
+      "command": "python3 syn/ooc/pp_baseline_mutants.py",
+      "exit_code": 0
+    },
+    {
+      "name": "docs-git",
+      "command": "python3 -B scripts/docs_check.py",
+      "exit_code": 0
+    },
+    {
+      "name": "docs-filesystem",
+      "command": "env GIT_DIR=/dev/null python3 -B scripts/docs_check.py",
+      "exit_code": 0
+    },
+    {
+      "name": "doc-style",
+      "command": "python3 scripts/check_doc_style.py",
+      "exit_code": 0
+    },
+    {
+      "name": "doc-paths",
+      "command": "python3 scripts/check_doc_paths.py",
+      "exit_code": 0
+    },
+    {
+      "name": "em-dash",
+      "command": "python3 scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a",
+      "exit_code": 0
+    },
+    {
+      "name": "toc-check",
+      "command": "python3 scripts/gen_toc.py --check",
+      "exit_code": 0
+    },
+    {
+      "name": "toc-anchors",
+      "command": "python3 scripts/gen_toc.py --verify-anchors",
+      "exit_code": 0
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "name": "diff-check-round4",
+      "command": "git diff --check 3a1477c528bdf71b7cecadf86383b7579c9197d6 HEAD",
+      "exit_code": 0
+    }
+  ]
+}
+
