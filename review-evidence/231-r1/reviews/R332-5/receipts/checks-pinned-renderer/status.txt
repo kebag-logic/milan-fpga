@@ -1,0 +1,10 @@
+selftest rc=0 cmd=python3 syn/ooc/pp_baseline.py --selftest
+mutants rc=0 cmd=python3 syn/ooc/pp_baseline_mutants.py
+reports_selftest rc=0 cmd=python3 syn/ooc/pp_baseline_reports_selftest.py
+docs_check_git rc=0 cmd=python3 scripts/docs_check.py
+docs_check_nogit rc=0 cmd=env GIT_DIR=/dev/null python3 scripts/docs_check.py
+em_dash rc=0 cmd=python3 scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+doc_style rc=0 cmd=python3 scripts/check_doc_style.py
+toc_check rc=0 cmd=python3 scripts/gen_toc.py --check
+toc_anchors rc=0 cmd=python3 scripts/gen_toc.py --verify-anchors
+doc_paths rc=0 cmd=python3 scripts/check_doc_paths.py

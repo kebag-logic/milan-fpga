@@ -1,0 +1,71 @@
+# docs/findings/PP_SHADOW_BASELINE.md:278-288 at ae729bbf
+   278	All measured Vivado synthesis logs contain zero `Synth 8-4445` diagnostics.
+   279	The preparation helper promotes that diagnostic to an error.
+   280	It also rejects missing, short, malformed and ambiguous inputs before synthesis.
+   281	Its self-test retains nine original refusal cases.
+   282	Synthetic exports exercise inventory, geometry, binding and declaration refusals.
+   283	They also exercise endpoint, pathname and CLI containment refusals.
+   284	Three default scripts promote missing-ROM diagnostics before synthesis.
+   285	The attribution constraint is also checked before synthesis.
+   286	Every maintained enforcement-removal mutant fails; the unchanged control passes.
+   287	The fast CI workflow runs these checks automatically.
+   288	All source and image hashes were checked again after measurement.
+
+# docs/testing/PP_SHADOW_BASELINE_RECIPE.md:379-391
+   379	Rehash `baseline_images.json` inputs after each run.
+   380	The helper checks complete control-ROM and generated-ROM geometry.
+   381	Its self-test exercises real preparation on a synthetic export.
+   382	Run the maintained enforcement-removal mutants alongside the positive control:
+       
+   383	```sh
+   384	python3 syn/ooc/pp_baseline.py --selftest
+   385	python3 syn/ooc/pp_baseline_mutants.py
+   386	```
+       
+   387	The unmodified control must pass; every removal must fail.
+   388	Both commands also run in the fast CI workflow.
+   389	The report-accounting self-test runs alongside them.
+
+# self-test arm locations in syn/ooc/pp_baseline.py
+237:    print(target)
+241:def expect_refusal(message: str, error_type: type[Exception] = ValueError) -> Iterator[None]:
+252:def selftest() -> None:
+275:                refused += 1
+282:            refused += 1
+289:            refused += 1
+295:        refused += 1
+298:    print(f"baseline selftest: complete image and exact block PASS; {refused} refusals PASS")
+303:        with expect_refusal(message):
+305:    with expect_refusal("log parameters differ from wrapper declaration"):
+308:        with expect_refusal("expected exactly one template marker"):
+310:    print("baseline parameter selftest: 5 refusals PASS")
+314:def export_inventory_selftest(gateware: Path, source: str, verilog: str) -> None:
+319:        ("missing generated ROM", gateware / "alinx_ax7101_rom.init", None,
+321:        ("nonempty SRAM", gateware / "alinx_ax7101_sram.init", "12345678\n", "wrong image depth"),
+322:        ("unlisted readmemh", generated,
+329:        mutations.append(("generated ROM " + label, gateware / "alinx_ax7101_rom.init", contents, message))
+341:        mutations.extend([
+353:        mutations.extend([
+361:                mutations.append((package + " " + name + " " + label, package_path, replacement,
+370:            with expect_refusal(message):
+372:            print(f"baseline inventory refusal: {label} PASS")
+377:    print(f"baseline inventory selftest: {len(mutations)} refusals and restored control PASS")
+380:def export_endpoint_selftest(gateware: Path, standalone: Path, log: Path, source: str) -> None:
+382:    with expect_refusal("integrated scripts must run in their gateware directory"):
+384:    with expect_refusal("attribution requires an integrated build"):
+391:            with expect_refusal("expected exactly one integrated synthesis command"):
+407:            with expect_refusal("unsupported character in image pathname"):
+414:        with contextlib.redirect_stderr(stderr), expect_refusal("2", SystemExit):
+418:    print("baseline endpoint selftest: valid pathname and 9 refusals PASS")
+421:def export_selftest() -> None:
+492:                    raise AssertionError("wrong in-repository refusal") from error
+494:                raise AssertionError("in-repository output accepted")
+495:        print("baseline export selftest: 3 default scripts, attribution constraint, "
+
+# printed counts at head (from checks-pinned-renderer/selftest.log)
+baseline selftest: complete image and exact block PASS; 9 refusals PASS
+baseline parameter selftest: 5 refusals PASS
+baseline inventory selftest: 40 refusals and restored control PASS
+baseline endpoint selftest: valid pathname and 9 refusals PASS
+baseline export selftest: 3 default scripts, attribution constraint, CLI containment refusal PASS
+maintained mutants killed: 28; control: control: rc=0 PASS
