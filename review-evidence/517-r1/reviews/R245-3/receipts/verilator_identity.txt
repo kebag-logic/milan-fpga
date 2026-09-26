@@ -1,0 +1,15 @@
+# Verilator identity used by this review
+wrapper: scratch/toolbin/verilator (VERILATOR_ROOT=<overlay>/usr/share/verilator, exec <overlay>/usr/bin/verilator)
+note: the assigned path $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator does not exist on this host; an identical-content wrapper to the same overlay as other pinned-tool-bin wrappers was used
+Verilator 5.050 2026-07-01 rev v5.050
+-rwxr-xr-x 1 alex alex    32093 Jul  2 08:43 <pinned-overlay>/usr/bin/verilator
+-rwxr-xr-x 1 alex alex 12906200 Jul  2 08:43 <pinned-overlay>/usr/bin/verilator_bin
+-rwxr-xr-x 1 alex alex 15097920 Jul  2 08:43 <pinned-overlay>/usr/bin/verilator_bin_dbg
+-rwxr-xr-x 1 alex alex     7617 Jul  2 08:43 <pinned-overlay>/usr/bin/verilator_coverage
+-rwxr-xr-x 1 alex alex   871536 Jul  2 08:43 <pinned-overlay>/usr/bin/verilator_coverage_bin_dbg
+-rwxr-xr-x 1 alex alex    25787 Jul  2 08:43 <pinned-overlay>/usr/bin/verilator_gantt
+-rwxr-xr-x 1 alex alex     7543 Jul  2 08:43 <pinned-overlay>/usr/bin/verilator_profcfunc
+44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd  <pinned-overlay>/usr/bin/verilator_bin
+ca94c431f61d9f0b80ceab427174da36be6dbc4fd68c3c08f7e7e8fe97ecd5bd  <pinned-overlay>/usr/bin/verilator_bin_dbg
+fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf  <pinned-overlay>/usr/bin/verilator
+system /usr/bin/verilator (NOT used): Verilator 5.052 2026-09-05 rev v5.052

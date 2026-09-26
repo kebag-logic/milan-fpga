@@ -1,0 +1,21 @@
+PRESENT tb/verilator/milan_dp/sim_pool.py :: Every leg is its own session and process group, reading /dev/null. Linux
+PRESENT tb/verilator/milan_dp/sim_pool.py ::     """Linux subreaper: orphaned grandchildren stay ours to kill and reap.
+PRESENT tb/verilator/milan_dp/sim_pool.py ::     if not sys.platform.startswith("linux"):
+PRESENT tb/verilator/milan_dp/sim_pool.py ::         raise OSError("sim_pool requires Linux child-subreaper support")
+PRESENT tb/verilator/milan_dp/sim_pool.py ::     children = Path(f"/proc/self/task/{os.getpid()}/children")
+PRESENT tb/verilator/milan_dp/test_sim_pool.py :: than a leg takes to start, at every such check, to go unseen. Linux only: the
+PRESENT tb/verilator/milan_dp/test_sim_pool.py :: arms read /proc and wait on pidfds.
+PRESENT tb/verilator/milan_dp/test_sim_pool.py ::     """Children of `ppid` that are not zombies, read from /proc."""
+PRESENT tb/verilator/milan_dp/test_sim_pool.py ::     for entry in os.listdir("/proc"):
+PRESENT tb/verilator/milan_dp/test_sim_pool.py ::             with open("/proc/" + entry + "/stat", "rb") as fh:
+PRESENT tb/verilator/milan_dp/test_sim_pool.py ::     with open("/proc/self/status") as fh:
+PRESENT tb/verilator/milan_dp/test_sim_pool.py ::            argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink("/proc/self/fd/0"),
+PRESENT tb/verilator/milan_dp/test_sim_pool.py ::         """The runner's children that are alive now, read from /proc."""
+PRESENT tb/verilator/milan_dp/test_sim_pool.py ::         for entry in os.listdir("/proc"):
+PRESENT tb/verilator/milan_dp/test_sim_pool.py ::                 raw = Path(f"/proc/{entry}/stat").read_bytes()
+PRESENT tb/verilator/milan_dp/test_sim_pool.py ::             children = Path(f"/proc/self/task/{os.getpid()}/children").read_text().split()
+PRESENT tb/verilator/milan_dp/test_sim_pool.py ::     """The /proc status mask with the bits of `signals` set."""
+PRESENT tb/verilator/milan_dp/test_sim_pool.py ::     if not hasattr(os, "pidfd_open") or not Path("/proc/self/stat").is_file():
+PRESENT tb/verilator/milan_dp/test_sim_pool.py ::         print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run")
+PRESENT tb/verilator/milan_dp/README.md :: Linux subreaper support is required before any child starts.
+missing 0

@@ -1,0 +1,41 @@
+bound-plus-one: KILLED test_sim_pool=1 backpressure=1 failing_arms=16 first=[FAIL] arm_never_more_than_two_legs_alive: AssertionError: [] -j8 --jobserver-auth=fifo:/nonexistent: 3 legs a
+ceiling-three: KILLED test_sim_pool=1 backpressure=0 failing_arms=3 first=[FAIL] arm_never_more_than_two_legs_alive: AssertionError: [] -j8 --jobserver-auth=fifo:/nonexistent: 3 legs a
+jobs-from-makeflags: KILLED test_sim_pool=TIMEOUT backpressure=TIMEOUT failing_arms=0 first=-
+no-exclusion: KILLED test_sim_pool=1 backpressure=0 failing_arms=2 first=[FAIL] arm_shared_group_is_exclusive_ordered_and_allows_independent_overlap: AssertionError: shared-state cont
+group-reverse-order: KILLED test_sim_pool=1 backpressure=1 failing_arms=24 first=[FAIL] arm_never_more_than_two_legs_alive: AssertionError: 
+no-independent-overlap: KILLED test_sim_pool=TIMEOUT backpressure=0 failing_arms=0 first=-
+mutants=6 killed=6 survived=[]
+no-fail-fast: KILLED test_sim_pool=1 backpressure=0 failing_arms=6 first=[FAIL] arm_skipped_group_members_do_not_hide_later_logs: AssertionError: b'./obj_G1/VG1\ngroup output\n./obj_G
+failure-masked: KILLED test_sim_pool=1 backpressure=0 failing_arms=6 first=[FAIL] arm_skipped_group_members_do_not_hide_later_logs: AssertionError: 
+missing-exe-not-failure: KILLED test_sim_pool=1 backpressure=0 failing_arms=2 first=[FAIL] arm_a_leg_that_cannot_start_fails_the_run: AssertionError: owned PID 142572 survived or was not reaped
+failing-leg-unnamed: KILLED test_sim_pool=1 backpressure=0 failing_arms=5 first=[FAIL] arm_a_failing_leg_fails_the_run_and_stops_later_starts: AssertionError: b'./obj_L1/VL1\nL1 before\nL1 a
+stop-no-kill: KILLED test_sim_pool=TIMEOUT backpressure=1 failing_arms=16 first=[FAIL] direct-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+no-subreaper: KILLED test_sim_pool=1 backpressure=1 failing_arms=30 first=[FAIL] arm_an_interrupt_kills_every_leg_and_what_it_spawned: AssertionError: owned PID 151432 survived or was 
+no-adopted-reap: KILLED test_sim_pool=1 backpressure=1 failing_arms=30 first=[FAIL] arm_an_interrupt_kills_every_leg_and_what_it_spawned: AssertionError: owned PID 152414 survived or was 
+exit-no-group-kill: SURVIVED test_sim_pool=0 backpressure=0 failing_arms=0 first=-
+mutants=8 killed=7 survived=['exit-no-group-kill']
+exit-status-not-signal: KILLED test_sim_pool=1 backpressure=1 failing_arms=15 first=[FAIL] arm_skipped_group_members_do_not_hide_later_logs: AssertionError: 
+ignored-rewatched: KILLED test_sim_pool=1 backpressure=0 failing_arms=1 first=[FAIL] arm_an_interrupt_inherited_as_ignored_stays_ignored: AssertionError: 
+child-mask-blocked: KILLED test_sim_pool=1 backpressure=0 failing_arms=2 first=[FAIL] arm_both_worker_counts_run_each_leg_once_as_the_recipe_did: AssertionError: leg inherited blocked 80000
+stdin-inherited: SURVIVED test_sim_pool=0 backpressure=0 failing_arms=0 first=-
+replay-completion-order: KILLED test_sim_pool=TIMEOUT backpressure=1 failing_arms=2 first=[FAIL] make-copy-normal-drain: AssertionError: legacy binary transcript changed
+frame-dump-ignored: KILLED test_sim_pool=1 backpressure=0 failing_arms=2 first=[FAIL] arm_the_frame_dump_variable_runs_one_leg_at_a_time: AssertionError: [2, 1, 2, 1]
+frame-dump-empty-ignored: KILLED test_sim_pool=1 backpressure=0 failing_arms=1 first=[FAIL] arm_the_frame_dump_variable_runs_one_leg_at_a_time: AssertionError: 
+mutants=7 killed=6 survived=['stdin-inherited']
+drain-blocking-write: KILLED test_sim_pool=0 backpressure=1 failing_arms=24 first=[FAIL] direct-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+drain-ignores-signals: KILLED test_sim_pool=0 backpressure=1 failing_arms=24 first=[FAIL] direct-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+final-drain-waits: KILLED test_sim_pool=0 backpressure=1 failing_arms=17 first=[FAIL] direct-copy-SIGINT-active: AssertionError: runner did not shut down while stdout stayed blocked
+fd-flags-not-restored: KILLED test_sim_pool=0 backpressure=1 failing_arms=24 first=[FAIL] direct-copy-SIGINT-active: AssertionError: shared stdout flags were not restored
+unstarted-unnamed: KILLED test_sim_pool=1 backpressure=1 failing_arms=19 first=[FAIL] arm_skipped_group_members_do_not_hide_later_logs: ValueError: subsection not found
+killed-unattributed: KILLED test_sim_pool=1 backpressure=1 failing_arms=18 first=[FAIL] arm_an_interrupt_kills_every_leg_and_what_it_spawned: AssertionError: b'./obj_L1/VL1\nL1 partial\nL1 er
+duplicates-allowed: SURVIVED test_sim_pool=0 backpressure=0 failing_arms=0 first=-
+mutants=7 killed=6 survived=['duplicates-allowed']
+mk-drop-crflic: KILLED test_sim_pool=1 backpressure=1 failing_arms=3 first=[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: ['exec', 'python3', 'sim_p
+mk-notify-not-exclusive: KILLED test_sim_pool=1 backpressure=0 failing_arms=1 first=[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: ['exec', 'python3', 'sim_p
+mk-nxn8-not-exclusive: KILLED test_sim_pool=1 backpressure=0 failing_arms=1 first=[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: ['exec', 'python3', 'sim_p
+mk-default-one: KILLED test_sim_pool=1 backpressure=TIMEOUT failing_arms=1 first=[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: ['exec', 'python3', 'sim_p
+mk-ignore-errors: KILLED test_sim_pool=1 backpressure=0 failing_arms=1 first=[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: the runner's recipe line i
+mk-swap-order: KILLED test_sim_pool=1 backpressure=1 failing_arms=3 first=[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: ['exec', 'python3', 'sim_p
+mk-double-run-after-pool: KILLED test_sim_pool=0 backpressure=1 failing_arms=2 first=[FAIL] make-copy-normal-drain: AssertionError: pipe output lost/duplicated/reordered bytes
+exit-no-group-kill: SURVIVED test_sim_pool=0 backpressure=0 failing_arms=0 first=-
+mutants=8 killed=7 survived=['exit-no-group-kill']

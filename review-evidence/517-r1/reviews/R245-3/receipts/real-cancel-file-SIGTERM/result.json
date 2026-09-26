@@ -1,0 +1,47 @@
+{
+  "signal": "SIGTERM",
+  "mode": "file",
+  "argv": [
+    "make",
+    "run",
+    "SIM_JOBS=2",
+    "VERILATOR_JOBS=6",
+    "-o",
+    "gptp",
+    "-o",
+    "gptp-lat",
+    "-o",
+    "gmstep"
+  ],
+  "alive_at_signal": [
+    "./obj_dir/Vmilan_dp_sim",
+    "./obj_notify/Vmilan_dp_notify"
+  ],
+  "alive_before_signal": [
+    "./obj_dir/Vmilan_dp_sim",
+    "./obj_notify/Vmilan_dp_notify"
+  ],
+  "make_exit": -15,
+  "seconds_to_exit": 0.009,
+  "survivors": [],
+  "captures": [
+    "01-Vmilan_dp_sim.log",
+    "02-Vmilan_dp_notify.log",
+    "replay.log"
+  ],
+  "replay_runner_lines": [
+    "sim_pool: ./obj_dir/Vmilan_dp_sim was killed by this runner on SIGTERM; its output above is incomplete",
+    "sim_pool: ./obj_notify/Vmilan_dp_notify was killed by this runner on SIGTERM; its output above is incomplete",
+    "sim_pool: ./obj_crflic/Vmilan_dp_crflic was not started before SIGTERM",
+    "sim_pool: ./obj_nxn/Vmilan_dp_nxn was not started before SIGTERM",
+    "sim_pool: ./obj_nxndv/Vmilan_dp_nxndv was not started before SIGTERM",
+    "sim_pool: ./obj_nxn8/Vmilan_dp_nxn8 was not started before SIGTERM",
+    "sim_pool: ./obj_nxn4c/Vmilan_dp_nxn4c was not started before SIGTERM",
+    "sim_pool: ./obj_nolpf/Vmilan_dp_nolpf was not started before SIGTERM",
+    "sim_pool: ./obj_prune/Vmilan_dp_prune was not started before SIGTERM",
+    "sim_pool: ./obj_ax1x1/Vmilan_dp_ax1x1 was not started before SIGTERM",
+    "sim_pool: ./obj_aclk/Vmilan_dp_aclk was not started before SIGTERM"
+  ],
+  "render_ran_marker": false,
+  "verdict": "PASS"
+}

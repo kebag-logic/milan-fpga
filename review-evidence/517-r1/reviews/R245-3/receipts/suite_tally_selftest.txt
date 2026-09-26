@@ -1,0 +1,64 @@
+  ok   n-checks-pass-fail               checks=73 failures=3 unparsed=False skips=0
+  ok   labelled-pass-fail               checks=40 failures=0 unparsed=False skips=0
+  ok   labelled                         checks=27 failures=2 unparsed=False skips=0
+  ok   eqeq                             checks=43 failures=1 unparsed=False skips=0
+  ok   result-suffix                    checks=31 failures=0 unparsed=False skips=0
+  ok   cbs-mismatches                   checks=1000 failures=4 unparsed=False skips=0
+  ok   canonical                        checks=228 failures=5 unparsed=False skips=0
+  ok   clkvalid-decorated               checks=74 failures=0 unparsed=False skips=0
+  ok   extras-after                     checks=26 failures=0 unparsed=False skips=0
+  ok   multi-executable                 checks=15 failures=1 unparsed=False skips=0
+  ok   tsn-fuzz-campaign                checks=264 failures=1 unparsed=False skips=0
+  ok   no-double-count                  checks=73 failures=0 unparsed=False skips=0
+  ok   prose-not-a-tally                checks=0 failures=0 unparsed=False skips=0
+  ok   novel-shape                      checks=0 failures=0 unparsed=True skips=0
+  ok   skip-adds-nothing                checks=1 failures=0 unparsed=True skips=1
+  ok   skip-does-not-hide-unparsed      checks=0 failures=0 unparsed=True skips=1
+  ok   skip-line-is-not-a-hiding-place  checks=0 failures=0 unparsed=True skips=1
+  ok   skip-prose-is-not-a-marker       checks=0 failures=0 unparsed=False skips=0
+  ok   skip-marker-must-start-the-line  checks=0 failures=0 unparsed=False skips=0
+  ok   nocount-silent                   nocount=True  -- a silent log is an UNKNOWN, not a zero
+  ok   nocount-skip-only                nocount=True  -- a DECLARED skip does not excuse a suite from counting
+  ok   nocount-cleared-by-a-real-tally  nocount=False  -- ...but a real tally beside it does
+  ok   nocount-all-zero-tally           nocount=True  -- a tally that measured NOTHING is an unknown, not agreement
+  ok   e2e-lone-marker                  rc=1  -- a suite whose only content is a marker still fails the sweep, and the skip is LISTED
+  ok   e2e-marker-plus-real-tally       rc=0  -- ...and passes once it reports what it DID run, at the right total
+  ok   e2e-one-silent-suite-among-many  rc=1  -- one silent suite fails the sweep even beside a healthy one
+  ok   e2e-unparsed-beside-a-real-tally rc=1  -- an unreadable tally fails the sweep even when another one parsed
+  ok   e2e-empty-logdir                 rc=2  -- no logs at all is an unknown, not a zero-check pass
+  ok   e2e-nocount-says-which-cause-silence rc=1  -- a silent suite is told it printed nothing
+  ok   e2e-failures-reach-the-headline  rc=0  -- the failure count is carried, not just the check count
+  ok   e2e-nocount-says-which-cause-zero rc=1  -- ...and a zero-tallying one is told the opposite, not the same thing
+  ok   inventory-exact                  rc=0  -- disjoint shard logs reproduce the serial tally
+  ok   inventory-scheduled-excluded     rc=0  -- the default tally expects only default suite logs
+  ok   inventory-scheduled-leaked       rc=1  -- physical evidence cannot leak into the default aggregate
+  ok   physical-exact                   rc=0  -- the physical tally independently requires its suite
+  ok   physical-missing                 rc=1  -- default evidence cannot stand in for physical evidence
+  ok   inventory-missing                rc=1  -- one omitted serial suite fails closed
+  ok   inventory-unexpected             rc=1  -- a stale or invented suite log fails closed
+  ok   inventory-duplicate              rc=1  -- two workers owning one suite fails closed
+  ok   guard-real-tally                 accounted=True  -- a campaign that measured something is accounted for
+  ok   guard-other-shapes               accounted=True  -- ...in ANY shape the sweep reads, not just the campaign one
+  ok   guard-declared-skip              accounted=True  -- ...and so is one that declared it ran nothing
+  ok   guard-reworded-summary           accounted=False  -- a summary past every shape is NOT, though it looks fine to a human
+  ok   guard-zero-tally                 accounted=False  -- neither is one that ran and measured nothing
+  ok   guard-silence                    accounted=False  -- nor silence
+  ok   guard-skip-beside-a-reword-is-the-known-limit accounted=True  -- a reworded line is invisible to the parser -- documented limit
+  ok   guard-skip-does-not-launder-a-zero accounted=False  -- ...nor a tally that measured nothing
+  ok   guard-skip-plus-real-tally-is-fine accounted=True  -- ...but a real tally beside a marker is still accounted for
+  ok   cli-guard-accepts                rc=0  -- the guard's CLI passes a campaign that measured something
+  ok   cli-guard-rejects                rc=1  -- ...and REJECTS one that did not, with a non-zero exit
+  ok   cli-guard-rejects-zero           rc=1  -- ...including one that ran and measured nothing
+  ok   quiet-still-gates                rc=1  -- --quiet is the mode CI uses, and it still fails a silent suite
+  ok   verdict-clean                    failed=False  -- a clean tally reports no failure
+  ok   verdict-tally-failure            failed=True  -- a tally with a non-zero failure count is a failure, whatever make said
+  ok   verdict-marker-beside-clean-tally failed=True  -- a [FAIL] line is a failure even when the tally beside it says 0
+  ok   verdict-canonical-failures       failed=True  -- ...in every shape the sweep reads, not just one
+  ok   verdict-prose-is-not-a-marker    failed=False  -- FAIL mid-line is prose; the marker is anchored
+  ok   verdict-silence-is-not-this-detector failed=False  -- a silent log is NOCOUNT's finding, not a reported failure
+  ok   cli-verdict-accepts              rc=0  -- the verdict CLI passes a log that reports no failure
+  ok   cli-verdict-refuses-marker       rc=1  -- ...and refuses one that printed [FAIL], with a non-zero exit
+  ok   cli-verdict-refuses-tally        rc=1  -- ...and one whose tally counts a failure
+  ok   cli-verdict-unreadable-log       rc=2  -- a log that cannot be read is an unknown, never a pass
+selftest: PASS
+exit=0
