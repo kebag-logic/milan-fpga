@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "unshare",
+    "-Urn",
+    "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+    "-B",
+    "tb/verilator/nvm_capture_cpu/run.py",
+    "--shape",
+    "endstation_ax7101_8x8",
+    "--cpu-hz",
+    "100000000",
+    "--captures",
+    "16",
+    "--traffic",
+    "off",
+    "--build-dir",
+    "$VALIDATION_STORAGE/565-a344/capture-8x8-100-off"
+  ],
+  "rc": 0,
+  "seconds": 2456.9283766480003
+}

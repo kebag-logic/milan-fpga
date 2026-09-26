@@ -1,0 +1,172 @@
+{
+  "builder-present": {
+    "argv": [
+      "unshare",
+      "-Urn",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/565-a344/builder_modes.py",
+      "present"
+    ],
+    "rc": 0,
+    "seconds": 781.5087084059996
+  },
+  "builder-absent": {
+    "argv": [
+      "unshare",
+      "-Urn",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-B",
+      "$VALIDATION_STORAGE/565-a344/builder_modes.py",
+      "absent"
+    ],
+    "rc": 0,
+    "seconds": 560.7149162800051
+  },
+  "lint": {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/lint_rtl.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 7.224099507999199
+  },
+  "rom-digests": {
+    "argv": [
+      "syn/yosys/ooc.sh",
+      "timestamp_counter"
+    ],
+    "rc": 0,
+    "seconds": 2.918808454996906
+  },
+  "sweep-1": {
+    "argv": [
+      "scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/565-a344/sweep-1",
+      "--shard",
+      "1/5"
+    ],
+    "rc": 0,
+    "seconds": 1711.5775874899991
+  },
+  "sweep-3": {
+    "argv": [
+      "scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/565-a344/sweep-3",
+      "--shard",
+      "3/5"
+    ],
+    "rc": 0,
+    "seconds": 538.2597191219975
+  },
+  "sweep-4": {
+    "argv": [
+      "scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/565-a344/sweep-4",
+      "--shard",
+      "4/5"
+    ],
+    "rc": 0,
+    "seconds": 1662.253398474997
+  },
+  "docs-git": {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 4.1712209210018045
+  },
+  "docs-no-git": {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "env": {
+      "GIT_DIR": "/dev/null"
+    },
+    "rc": 0,
+    "seconds": 4.1731489049998345
+  },
+  "em-dash": {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "831f94f4"
+    ],
+    "env": {
+      "PATH_prefix": "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin"
+    },
+    "rc": 0,
+    "seconds": 3.06986912299908
+  },
+  "doc-style": {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 0.06386971599567914
+  },
+  "toc": {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 2.4178118479976547
+  },
+  "anchors": {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 1.5665562040012446
+  },
+  "doc-paths": {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 0.06404576999921119
+  },
+  "capture-gate": {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_nvm_capture.py"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 0.715007421997143
+  },
+  "diff-check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "env": {},
+    "rc": 0,
+    "seconds": 0.0318856189987855
+  }
+}
