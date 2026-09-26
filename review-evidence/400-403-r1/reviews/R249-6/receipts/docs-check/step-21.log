@@ -1,0 +1,8 @@
+# step 21: Bare-metal scope gate
+# script:
+python3 scripts/check_baremetal_only.py --check
+python3 scripts/check_baremetal_only.py --selftest
+
+# output:
+baremetal-only: OK (0 findings across 881 tracked first-party file(s))
+baremetal-only selftest: PASS (441 arm(s))

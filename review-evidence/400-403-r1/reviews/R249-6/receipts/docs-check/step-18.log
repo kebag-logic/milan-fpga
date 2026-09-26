@@ -1,0 +1,17 @@
+# step 18: Imported gPTP documentation gate
+# script:
+python3 scripts/check_gptp_docs.py --with-submodule
+make -C gptp-processor docs
+
+# output:
+gPTP documentation: OK (8 current pages, donor checkout verified)
+make: Entering directory '$CANDIDATE/gptp-processor'
+python3 scripts/generate_diagrams.py --check
+diagram check: PASS (9 pinned assets, 3 source-bound PNGs)
+python3 scripts/generate_diagrams.py --selftest
+diagram selftest: PASS (10 arms)
+python3 scripts/check_docs.py
+docs check: PASS (11 current pages, 17 historical pages)
+python3 scripts/check_docs.py --selftest
+docs selftest: PASS (10 arms)
+make: Leaving directory '$CANDIDATE/gptp-processor'

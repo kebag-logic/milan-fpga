@@ -1,0 +1,10 @@
+probe=firmware-byte rc=1 msg=FAIL: product firmware changed; remeasure the copy
+probe=row-tamper rc=1 msg=FAIL: receipt summary differs from rows: maximum_ms
+probe=off-slowest-maxima-stale rc=1 msg=FAIL: receipt summary differs from rows: maximum_ms
+probe=off-row-traffic rc=1 msg=FAIL: traffic arm failed: {'index': 5, 'ok': 1, 'sys_cycles': 2425794, 'raw': 12634, 'records': 156, 'mismatches': 0, 'open': 0, 'requests': 1, 'responses': 0, 'reads': 0}
+probe=stale-dev-digest rc=1 msg=FAIL: product firmware changed; remeasure the copy
+probe=over-limit rc=1 msg=FAIL: worst measured copy exceeds half the 49 ms hold floor
+probe=unperturbed-head rc=0 msg=PASS: capture census, clocks, both timing arms and receipt agree
+restored: tracked bytes equal HEAD
+probe=off-slowest-maxima-stale rc=1 msg=FAIL: published maximum must include every traffic arm
+restored: tracked bytes equal HEAD

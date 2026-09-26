@@ -1,0 +1,12 @@
+# step 9: Concise audience documentation gate
+# script:
+python3 scripts/check_doc_style.py
+python3 scripts/check_doc_style.py --selftest
+python3 scripts/check_gptp_docs.py
+python3 scripts/check_gptp_docs.py --selftest
+
+# output:
+documentation style: OK (22 current documents)
+documentation style selftest: OK
+gPTP documentation: OK (8 current pages)
+gPTP documentation selftest: OK (30 controls)

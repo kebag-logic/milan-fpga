@@ -1,0 +1,59 @@
+# step 30: RTL source-list drift gate
+# script:
+python3 scripts/check_rtl_source_lists.py
+python3 scripts/check_rtl_source_lists.py --selftest
+
+# output:
+protocol-processor native tops list (syn/yosys/run.sh): 35 top(s) for 41 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_processor_top
+RTL source-list gate: OK (106 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 35/41 tops, 6 recorded)
+[PASS] the closure is non-empty
+[PASS] the closure resolves every module it names
+[PASS] every `include in the closure resolves to a file
+[PASS] the closure is transitive, not one hop
+[PASS] a declared child needs no approved naming prefix
+[PASS] package dependencies are part of the file closure
+[PASS] interface dependencies are part of the file closure
+[PASS] a module sharing another module's file needs no entry of its own
+[PASS] a column-0 instantiation is followed (traffic_class_map at column 0)
+[PASS] a column-0 instantiation under a non-blank line is followed
+[PASS] a tab-indented instantiation under a non-blank line is followed
+[PASS] an arrayed instance is followed
+[PASS] an interface used through a modport not named master/slave/monitor is followed
+[PASS] an instantiation inside an included body is followed
+[PASS] every consumer answered, so the arms below grade all of them
+[PASS] removing one file from a COPY of each consumer is reported by that consumer's own emit path
+[PASS] the mutation arm left every consumer byte-identical and no copy behind
+[PASS] commenting out a row of the Vivado list removes its files from what the consumer carries
+[PASS] a correctly ordered makefile is accepted
+[PASS] print-srcs as the default goal is caught
+[PASS] a default-goal regression through the real emit path exits 1
+[PASS] a diagnosed defect is never skippable
+[PASS] an emit path that fails exits 2 by default
+[PASS] --allow-skip turns it into a loud SKIPPED marker and a covered verdict
+[PASS] a run in which every consumer was skipped is not a pass
+[PASS] a processor tops list that cannot be read exits 2 by default
+[PASS] --allow-skip skips an unreadable tops list loudly and covers the rest
+[PASS] the closure is a walk, not a directory listing
+[PASS] a multi-line tops array is read whole
+[PASS] a script without a tops array is told apart from an empty one
+[PASS] a commented-out top is not covered: the review's fixture
+[PASS] a quoted name is unquoted and covered
+[PASS] an inline comment after a name runs to the end of its line only
+[PASS] a `#` that does not start a word is not a comment, quoted or bare
+[PASS] a `)` inside a comment or quotes does not close the array
+[PASS] the commented-out top is refused as unrecorded, not credited
+[PASS] the commented-out top reaches the verdict as TOPS DRIFT and exit 1
+[PASS] bash itself reads every fixture the way the parser does
+[PASS] an array that is never closed is refused, not read to the end of the file
+[PASS] declarations are modules only - packages and interfaces are not tops
+[PASS] adding a declared module that the tops array does not name is refused
+[PASS] a recorded omission is debt, not a refusal
+[PASS] a recorded name that became a top is refused as stale
+[PASS] removing a declared module from the tops array is refused
+[PASS] the budget names each omission with its reason
+[PASS] the live processor tops array was read
+[PASS] every recorded omission is real drift at this pin, and every drift is recorded
+[PASS] the record is non-empty at this pin, so the refusal arms grade a live population
+[PASS] a new declared processor module is refused by the live comparison
+
+49 checks: 49 PASS, 0 FAIL

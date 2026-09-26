@@ -1,0 +1,64 @@
+# step 37: SystemVerilog idiom gate
+# script:
+python3 scripts/check_sv_idiom.py
+python3 scripts/check_sv_idiom.py --selftest
+
+# output:
+SystemVerilog idiom gate: OK (127 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+[PASS] a generic always is caught
+[PASS] a generic always with begin before the sensitivity list is caught
+[PASS] a delay-driven generic always is caught
+[PASS] always_ff is not a generic always
+[PASS] always_comb is not a generic always
+[PASS] always_latch is not a generic always
+[PASS] an identifier containing the word is not a generic always
+[PASS] a generic always inside a COMMENT is not counted
+[PASS] a generic always inside a string is not counted
+[PASS] a reg declaration is caught
+[PASS] an ANSI output reg declaration is caught
+[PASS] a wire declaration is NOT a finding
+[PASS] a logic declaration is not a finding
+[PASS] a bare reg declaration with no width is caught
+[PASS] the word reg inside a string is not counted
+[PASS] a non-SystemVerilog HDL file is refused: hdl/x.v
+[PASS] a non-SystemVerilog HDL file is refused: hdl/x.vh
+[PASS] a non-SystemVerilog HDL file is refused: hdl/x.V
+[PASS] a non-SystemVerilog HDL file is refused: hdl/x.SV
+[PASS] a non-SystemVerilog HDL file is refused: hdl/x.vhd
+[PASS] a non-SystemVerilog HDL file is refused: protocol-processor/hdl/x.vh
+[PASS] a SystemVerilog file is not refused by extension: hdl/x.sv
+[PASS] a SystemVerilog file is not refused by extension: hdl/common/x.svh
+[PASS] a non-HDL file under hdl/ is not in the population
+[PASS] an untyped parameter is caught
+[PASS] an untyped parameter with no default is caught
+[PASS] every name of an untyped parameter list is counted
+[PASS] a default expression with its own commas splits nothing
+[PASS] untyped parameters without defaults in a port list are caught
+[PASS] a typed parameter list types every name after it
+[PASS] a typed parameter is not
+[PASS] a logic-typed parameter is not
+[PASS] a user-defined type ahead of the name is a type
+[PASS] a packed range is an explicit width, not an untyped parameter
+[PASS] an untyped localparam is counted in its own population
+[PASS] a typed localparam is not
+[PASS] an empty population is refused
+[PASS] a population without the processors names both
+[PASS] a population without one processor names it
+[PASS] a population without the superproject tree is refused
+[PASS] a complete population is not refused
+[PASS] a count above its budget fails the ratchet
+[PASS] a count equal to its budget passes with no note
+[PASS] a count below its budget passes and names the lowerable value
+[PASS] a missing budget entry fails the ratchet
+[PASS] a malformed budget value is no entry
+[PASS] an absent budget file is an empty budget
+[PASS] the live scan reads the tree
+[PASS] the live scan reaches both project processor submodules
+[PASS] the live population is complete
+[PASS] lint_rtl's exclusion list is empty today, so no first-party HDL file is outside this population
+[PASS] every HDL exception has a reason and evidence
+[PASS] the live scan still detects a planted finding
+[PASS] a clean tree is allowed to be clean
+[PASS] the checked-in budget carries every ratcheted key
+
+55 checks: 55 PASS, 0 FAIL

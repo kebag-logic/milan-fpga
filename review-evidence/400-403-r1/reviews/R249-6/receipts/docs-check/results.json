@@ -1,0 +1,374 @@
+[
+  {
+    "step": 0,
+    "name": "actions/checkout@v4",
+    "status": "action-not-run"
+  },
+  {
+    "step": 1,
+    "name": "Build the validated HDL reference",
+    "status": "skipped",
+    "reason": "installs pyslang via pip; not available offline in this review"
+  },
+  {
+    "step": 2,
+    "name": "Upload the HDL reference HTML",
+    "status": "action-not-run"
+  },
+  {
+    "step": 3,
+    "name": "Install the python gate dependencies",
+    "status": "skipped",
+    "reason": "pip install pyyaml; already present"
+  },
+  {
+    "step": 4,
+    "name": "Cache the pinned Markdown renderer downloads",
+    "status": "action-not-run"
+  },
+  {
+    "step": 5,
+    "name": "Install the pinned Markdown renderer",
+    "status": "skipped",
+    "reason": "pip install of pinned renderer; pinned versions present in doc venv"
+  },
+  {
+    "step": 6,
+    "name": "Install diagram gate dependencies",
+    "status": "skipped",
+    "reason": "installs apt/pip packages; wavedrom supplied by the pinned doc venv"
+  },
+  {
+    "step": 7,
+    "name": "Link health, wording, dead-reference and local-info gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 4.0,
+    "log": "step-07.log"
+  },
+  {
+    "step": 8,
+    "name": "Added-line em-dash gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 2.9,
+    "log": "step-08.log"
+  },
+  {
+    "step": 9,
+    "name": "Concise audience documentation gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.4,
+    "log": "step-09.log"
+  },
+  {
+    "step": 10,
+    "name": "Audience diagram no-drift gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 1.5,
+    "log": "step-10.log"
+  },
+  {
+    "step": 11,
+    "name": "Product solution source-fact gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 2.4,
+    "log": "step-11.log"
+  },
+  {
+    "step": 12,
+    "name": "Verified submodule documentation gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 1.2,
+    "log": "step-12.log"
+  },
+  {
+    "step": 13,
+    "name": "HDL timing diagram no-drift gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 1.0,
+    "log": "step-13.log"
+  },
+  {
+    "step": 14,
+    "name": "Published diagram PNG gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 6.7,
+    "log": "step-14.log"
+  },
+  {
+    "step": 15,
+    "name": "Milan feature-status consistency gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.6,
+    "log": "step-15.log"
+  },
+  {
+    "step": 16,
+    "name": "Traceability matrix no-drift gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.9,
+    "log": "step-16.log"
+  },
+  {
+    "step": 17,
+    "name": "Fetch the builder source dependencies",
+    "status": "skipped",
+    "reason": "submodule fetch; required gitlinks already checked out and verified"
+  },
+  {
+    "step": 18,
+    "name": "Imported gPTP documentation gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.7,
+    "log": "step-18.log"
+  },
+  {
+    "step": 19,
+    "name": "Code-quality measurement self-tests",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.2,
+    "log": "step-19.log"
+  },
+  {
+    "step": 20,
+    "name": "Install the pinned sv2v release",
+    "status": "skipped",
+    "reason": "downloads and installs sv2v; a local sv2v is used instead"
+  },
+  {
+    "step": 21,
+    "name": "Bare-metal scope gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 17.5,
+    "log": "step-21.log"
+  },
+  {
+    "step": 22,
+    "name": "Cache the pinned RV32 SDK",
+    "status": "action-not-run"
+  },
+  {
+    "step": 23,
+    "name": "Install and verify the pinned RV32 SDK",
+    "status": "skipped",
+    "reason": "downloads the RV32 SDK; the pinned SDK already installed is used"
+  },
+  {
+    "step": 24,
+    "name": "Compiler-absent firmware controls",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 336.9,
+    "log": "step-24.log"
+  },
+  {
+    "step": 25,
+    "name": "End-station builder gates",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 660.3,
+    "log": "step-25.log"
+  },
+  {
+    "step": 26,
+    "name": "NVM record-space gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 32.1,
+    "log": "step-26.log"
+  },
+  {
+    "step": 27,
+    "name": "Capture measurement census and clock gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.7,
+    "log": "step-27.log"
+  },
+  {
+    "step": 28,
+    "name": "Saved-state writer gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 39.1,
+    "log": "step-28.log"
+  },
+  {
+    "step": 29,
+    "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 2.3,
+    "log": "step-29.log"
+  },
+  {
+    "step": 30,
+    "name": "RTL source-list drift gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 3.9,
+    "log": "step-30.log"
+  },
+  {
+    "step": 31,
+    "name": "Boundary-unit naming ratchet",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.8,
+    "log": "step-31.log"
+  },
+  {
+    "step": 32,
+    "name": "Port contract gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 4.9,
+    "log": "step-32.log"
+  },
+  {
+    "step": 33,
+    "name": "Fail-fast ratchet",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 2.8,
+    "log": "step-33.log"
+  },
+  {
+    "step": 34,
+    "name": "TODO ownership gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 2.7,
+    "log": "step-34.log"
+  },
+  {
+    "step": 35,
+    "name": "Test-evidence ratchet",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 10.4,
+    "log": "step-35.log"
+  },
+  {
+    "step": 36,
+    "name": "Mechanical hygiene ratchet",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.6,
+    "log": "step-36.log"
+  },
+  {
+    "step": 37,
+    "name": "SystemVerilog idiom gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.8,
+    "log": "step-37.log"
+  },
+  {
+    "step": 38,
+    "name": "C and C++ idiom gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 2.4,
+    "log": "step-38.log"
+  },
+  {
+    "step": 39,
+    "name": "Python idiom gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 6.5,
+    "log": "step-39.log"
+  },
+  {
+    "step": 40,
+    "name": "Shell idiom gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.4,
+    "log": "step-40.log"
+  },
+  {
+    "step": 41,
+    "name": "CI event and SHA contract gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 14.9,
+    "log": "step-41.log"
+  },
+  {
+    "step": 42,
+    "name": "Local act runner contract gate",
+    "status": "skipped",
+    "reason": "act_ci --selftest is outside this reviewer's authority"
+  },
+  {
+    "step": 43,
+    "name": "Doc cited-path gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.1,
+    "log": "step-43.log"
+  },
+  {
+    "step": 44,
+    "name": "Archive integrity gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.3,
+    "log": "step-44.log"
+  },
+  {
+    "step": 45,
+    "name": "Per-page contents gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 4.9,
+    "log": "step-45.log"
+  },
+  {
+    "step": 46,
+    "name": "AEM store generator self-test",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.1,
+    "log": "step-46.log"
+  },
+  {
+    "step": 47,
+    "name": "Sweep/build shape gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 11.7,
+    "log": "step-47.log"
+  },
+  {
+    "step": 48,
+    "name": "Deploy shape gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 0.4,
+    "log": "step-48.log"
+  },
+  {
+    "step": 49,
+    "name": "Entity shape gate",
+    "status": "rc",
+    "rc": 0,
+    "seconds": 39.9,
+    "log": "step-49.log"
+  }
+]
