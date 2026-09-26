@@ -80,6 +80,11 @@
   localparam logic [7:0] ADP_DMAP_OUT_PCBASE_C [0:0] = '{8'd0};
   localparam logic [9:0] ADP_DMAP_OUT_SCH_C [0:0] = '{10'd8};
   localparam logic [12:0] ADP_DMAP_OUT_CSRC_C [0:16] = '{13'h1200, 13'h1A00, 13'h1201, 13'h1A01, 13'h1202, 13'h1A02, 13'h1203, 13'h1A03, 13'h1400, 13'h1500, 13'h1D00, 13'h1501, 13'h1D01, 13'h1502, 13'h1D02, 13'h1503, 13'h1D03};
+  //! Supported startup VID; runtime Domain adoption stays live.
+  localparam logic [15:0] ADP_SRP_DOM_DEF_VID_C = 16'd2;
+  //! Factory offsets in STREAM_OUTPUT index order, including CRF.
+  //! A valid per-output AECP offset overrides only its own row.
+  localparam logic [31:0] ADP_STROUT_PRES_NS_C [0:1] = '{32'd2000000, 32'd2000000};
   //! THE WIRE CHANNEL CONSTANT (roadmap item 00): channels_per_frame
   //! the FRAMER emits, derived from the capture front-end this config
   //! elaborates - NOT from any declared format and NOT from `clusters`

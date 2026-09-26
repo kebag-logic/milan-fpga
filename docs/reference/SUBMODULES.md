@@ -134,3 +134,9 @@ Imported prose never defines root runtime behavior.
 | Protocol overview F01.5 lists `P-EN-MVU-SUID` / `P-EN-MVU-MCR` at 1 / 1 | Landed processor has neither parameter and serves neither command pair; #510 keeps both unserved, and [donor issue 77](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/77) owns the prose |
 
 Track donor repairs separately.
+
+Historical audit exceptions remain open disclosures.
+PR13/PR6 branch continuity is UNKNOWN.
+
+PR13/PR9 retain the negative-merge baseline.
+Parent integration does not clear these donor audit findings.

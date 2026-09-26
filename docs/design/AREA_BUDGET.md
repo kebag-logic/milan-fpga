@@ -38,7 +38,7 @@ The current command and media-clock claims are checked against the
 |---|---|---|---|---|
 | media-clock servo | `MCSERVO_P` | `--no-media-clock-servo` | `media_clock_servo` | every media clock is internal |
 | latency taps | `LTAP_P` | `--no-latency-taps` | `latency_taps` | stage instrumentation is not required |
-| MAAP engine | `MAAP_P` | `--no-maap` | `maap` | stream destination addresses are statically provisioned |
+| MAAP engine | `MAAP_P` | `--no-maap` | `maap` | never in supported configurations; every declared talker requires MAAP |
 | I2S playback | `I2SPB_P` | `--no-i2s-playback` | `i2s_playback` | the board has no I2S DAC |
 | RX address filter | `RXFILT_P` | `--no-rx-mac-filter` | `rx_mac_filter` | the fabric integration intentionally accepts the unfiltered control/media observation |
 | PCM low-pass | `LPF_P` | `--no-render-lpf` | `render_lpf` | the physical render chain does not require the filter |

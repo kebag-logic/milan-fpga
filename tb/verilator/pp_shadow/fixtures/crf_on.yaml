@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+# One AAF output plus one CRF output must claim exactly two addresses.
+base: configs/endstation_arty_current.yaml
+overrides:
+  clocking:
+    crf_output:
+      enabled: true

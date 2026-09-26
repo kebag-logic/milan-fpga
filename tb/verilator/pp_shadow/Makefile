@@ -19,7 +19,11 @@
 # shapes and grades the data path around it. This suite grades the control
 # plane's own egress and its class-D outputs.
 #
-#   make        - build and run the self-checking harness
+# Default builds reuse sim_main.cpp with independent expectations:
+#   run-base  -> obj_dir/Vpp_shadow_sim: tracked arty_current headers.
+#   run-vid73 -> obj_vid73/Vpp_vid73: generated startup VID 73 fixture.
+#   run-crf   -> obj_crf/Vpp_crf: generated CRF-output-enabled fixture.
+#   make        - build and run all default legs
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -103,7 +107,7 @@ DP_SRCS := $(shell $(MAKE) -s -C ../milan_dp print-srcs)
 
 CPP = sim_main.cpp
 
-.PHONY: all run clean
+.PHONY: all run run-base run-vid73 run-crf clean
 all: run
 
 # The ACMP listener transition ROM is GENERATED, and protocol_processor_top
@@ -131,9 +135,26 @@ ucode.hex: $(PP_DIR)/aecp/ucode/gen_ucode.py
 # hdl/ieee17221/acmp/acmp_pkg.sv are DELETED with the plane they belonged to, so
 # the consumer side of the collision set is permanently empty and the guard can
 # never fire again. A check that cannot fail is not a check.
-run: ltn_rom.hex ucode.hex $(GEN_ALL)
+run: run-base run-vid73 run-crf
+
+run-base: ltn_rom.hex ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) $(DP_SRCS) $(CPP) -o Vpp_shadow_sim
 	./obj_dir/Vpp_shadow_sim
 
+# Both headers come from committed fixture inputs and the builder emitters.
+# Expectations are independent literals, so a dropped binding cannot agree
+# merely because both the harness and every donor default happen to say 2.
+run-vid73: ltn_rom.hex ucode.hex
+	python3 ../../common/gen_declaration_fixture.py fixtures/vid73.yaml obj_vid73/fixture
+	$(VERILATOR) +incdir+obj_vid73/fixture $(VFLAGS) --Mdir obj_vid73 \
+	  -CFLAGS "-DDECLARATION_VID=73 -Wall -Wextra" $(DP_SRCS) $(CPP) -o Vpp_vid73
+	./obj_vid73/Vpp_vid73
+
+run-crf: ltn_rom.hex ucode.hex
+	python3 ../../common/gen_declaration_fixture.py fixtures/crf_on.yaml obj_crf/fixture
+	$(VERILATOR) +incdir+obj_crf/fixture $(VFLAGS) --Mdir obj_crf \
+	  -CFLAGS "-DDECLARATION_OUTPUTS=2 -Wall -Wextra" $(DP_SRCS) $(CPP) -o Vpp_crf
+	./obj_crf/Vpp_crf
+
 clean:
-	rm -rf obj_dir ltn_rom.hex ucode.hex
+	rm -rf obj_dir obj_vid73 obj_crf ltn_rom.hex ucode.hex

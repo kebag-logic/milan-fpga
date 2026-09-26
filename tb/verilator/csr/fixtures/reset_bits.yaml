@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+# Both cold-reset admission bits must reach the flop and reset readback.
+base: configs/endstation_arty_current.yaml
+overrides:
+  srp:
+    enable_at_reset: true
+    talker_declare_at_reset: true
+    rtl_table: false

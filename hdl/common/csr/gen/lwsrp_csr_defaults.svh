@@ -15,9 +15,9 @@
 //                Same values as the full reference table
 //                out/<cfg>/lwsrp_table.svh (one config, one pass;
 //                test_builder gate 20a compares them).
-//                NOTE the 0x680 registers no longer DRIVE anything:
-//                the applicant (hdl/ieee8021q/srp/**) is deleted and
-//                the group survives as a software-visible ABI only.
+//                LWSRP_CTRL[1:0] and accumulated latency remain live.
+//                VID is diagnostic; its processor parameter is separate.
+//                The remaining numeric fields are legacy scratch.
 //                Include-only: no `default_nettype directive (it would
 //                leak into the includer's scope), no include guard
 //                (module-scope localparams - each including module

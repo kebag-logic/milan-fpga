@@ -354,8 +354,8 @@ module milan_csr #(
   input  wire [31:0]             i_aaf_pairs,           //! AAF I2S pairs captured (RO, 0x664)
 
   // ---- lwSRP engine (0x680 group, docs/LWSRP_FPGA_ARCHITECTURE.md) ----
-  output wire                    o_lwsrp_enable,        //! LWSRP_CTRL[0] engine enable
-  output wire                    o_lwsrp_talker_en,     //! LWSRP_CTRL[1] TalkerAdvertise declare
+  output wire                    o_lwsrp_enable,        //! LWSRP_CTRL[0] live admission enable
+  output wire                    o_lwsrp_talker_en,     //! LWSRP_CTRL[1] live talker admission arm
   //! LWSRP_CTRL[4:2] (the class-A queue index) has no port: it selected the
   //! CBS slope MUX target, and there is no shaper to select a queue of
   output wire                    o_lwsrp_decl_bypass,   //! LWSRP_CTRL[5] declare-always bypass (reset 0: Milan 4.3.3.1 gates the TalkerAdvertise)
@@ -1208,6 +1208,9 @@ module milan_csr #(
   logic [31:0] acmp_lobs;                    //! A_ACMP_LOBS: [0] listener_observed override
   logic [31:0] lwsrp_ctrl;               //! LWSRP_CTRL: [0]=en, [1]=talker, [4:2]=classA queue, [5]=declare-always bypass (reset 0)
   logic [31:0] maap_ctrl;
+  //! Firmware owns active VID, enable and claim size for the built shape.
+  localparam logic [31:0] AAF_CTRL_RST_C = 32'd0;
+  localparam logic [31:0] MAAP_CTRL_RST_C = 32'd0;
   logic [31:0] link_ctrl;               //! LINK_CTRL: [0] sw_link
   logic [31:0] ent_name_lo, ent_name_hi; //! board-name overlay chars
   logic [31:0] lpf_ctrl;                 //! LPF_CTRL
@@ -1541,17 +1544,17 @@ module milan_csr #(
       ptp_tod_rd <= 64'h0;
       for (i = 0; i < NS; i = i + 1) stat_snap[i] <= 32'h0;
       adp_ctrl <= 32'h0000_0A00;   // enable=0, valid_time=10 (Milan 5.6.2 "shall be set to 10"; validity 20 s)
-      // enable=0, bypass=1 (bit1: legacy stream-whenever-enabled — the
-      // Milan probe-gated mode is opt-in until silicon-proven), VID=2
-      aaf_ctrl <= 32'h0002_0000;   //! bypass OFF at reset (0x0018)
+      // Neutral disabled reset: enable=0, bypass=0, VID=0.
+      // Firmware supplies the generated active AAF policy.
+      aaf_ctrl <= AAF_CTRL_RST_C;
       acmp_lobs <= 32'h0;
       aaf_dmlo <= 32'hF000_FE01;   // MAAP-range default 91:E0:F0:00:FE:01
       aaf_dmhi <= 32'h0000_91E0;
-      // lwSRP: disabled; class-A queue 4 (the reset PCP3->TC3->q4 map);
-      // VID/DMAC mirror the AAF defaults; TSpec {interval 1, max_frame 224}.
-      // All six words come from gen/lwsrp_csr_defaults.svh (the config).
+      // lwSRP admission bits and diagnostic words come from the config.
+      // Its startup VID is 2; the separate neutral AAF VID is 0.
+      // MAAP resets disabled with count 0; firmware declares its count.
       lwsrp_ctrl <= LWSRP_CTRL_RST_C;
-      maap_ctrl  <= 32'h0000_0800;
+      maap_ctrl  <= MAAP_CTRL_RST_C;
       link_ctrl  <= 32'h0000_0001;      //! link assumed UP until firmware qualifies it otherwise
       ent_name_lo <= 32'h0; ent_name_hi <= 32'h0;
       lpf_ctrl    <= 32'h1;             //! LPF on by default
@@ -1974,7 +1977,7 @@ module milan_csr #(
       A_ADP_TALK[10:0]:   csr_default = ADP_TALK_C;
       A_ADP_LIST[10:0]:   csr_default = ADP_LIST_C;
       A_ADP_DOMAIN[10:0]: csr_default = 32'd0;
-      A_AAF_CTRL[10:0]:   csr_default = 32'h0002_0000;
+      A_AAF_CTRL[10:0]:   csr_default = AAF_CTRL_RST_C;
       A_AAF_DMLO[10:0]:   csr_default = 32'hF000_FE01;
       A_AAF_DMHI[10:0]:   csr_default = 32'h0000_91E0;
       A_LWSRP_CTRL[10:0]: csr_default = LWSRP_CTRL_RST_C;
@@ -1985,7 +1988,7 @@ module milan_csr #(
       A_TCAM_CTRL[10:0]:  csr_default = 32'h1;
       A_LINK_CTRL[10:0]:  csr_default = 32'h1;   // link assumed up at boot
       A_LPF_CTRL[10:0]:   csr_default = 32'h1;   // playback LPF on by default
-      A_MAAP_CTRL[10:0]:  csr_default = 32'h0000_0800;   // count=8, en=0
+      A_MAAP_CTRL[10:0]:  csr_default = MAAP_CTRL_RST_C;
       default: begin
         if (a >= A_CBS_BASE[10:0] && a < A_CBS_END[10:0]) begin
           case (a[4:0])

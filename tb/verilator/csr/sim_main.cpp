@@ -100,6 +100,21 @@ constexpr int kAxiGuard = 2048;
 //! `-CFLAGS -DCSR_MILAN_CLK_HZ=100000000ULL` for the 100 MHz leg.
 constexpr uint64_t kCsrMilanClkHz = CSR_MILAN_CLK_HZ;
 
+// Independent expected words for the arty_current 1x1 fixture.
+// Default make also runs fixtures/reset_bits.yaml with both admission bits.
+#ifndef CSR_DECL_TALK
+#define CSR_DECL_TALK 0x40010001u
+#endif
+#ifndef CSR_DECL_LIST
+#define CSR_DECL_LIST 0x48010002u
+#endif
+#ifndef CSR_SRP_RESET_BITS
+#define CSR_SRP_RESET_BITS 0u
+#endif
+constexpr uint32_t kSrpResetBits = CSR_SRP_RESET_BITS;
+constexpr uint32_t kDeclTalk = CSR_DECL_TALK;
+constexpr uint32_t kDeclList = CSR_DECL_LIST;
+
 //! Whether THIS leg elaborated the PPS alarm (issue #260), and the pulse width
 //! it was elaborated with. Same pattern as the clock above: the Makefile's
 //! obj_pps leg passes `-GPPS_P=1` to the RTL and `-DCSR_PPS_P=1` here from one
@@ -161,6 +176,7 @@ class MilanCsrHarness {
   void reset_and_idle_the_bus();
   void identification_and_capabilities();
   void reset_values();
+  void declaration_boot_words();
   void fqtss_bandwidth_availability();
   void read_only_registers_reject_writes();
   void rw_registers_and_output_wiring();
@@ -344,8 +360,42 @@ void MilanCsrHarness::identification_and_capabilities() {
   ck("CAP.ts_width",   (cap >> 16) & 0xFF, 64);
 }
 
+void MilanCsrHarness::declaration_boot_words() {
+  // Gate 35 executes the firmware to prove these writes. This leg checks
+  // their hardware effect and readback for every generated shape.
+  const uint32_t maap = ((kDeclTalk & 0xffffu) << 8) | 1u;
+  const uint32_t srp = axi_read(0x680);
+  axi_write(0x654, 0x00020001);
+  axi_write(0x6cc, maap);
+  axi_write(0x680, srp | 3);
+  ck("declaration boot AAF readback", axi_read(0x654), 0x00020001);
+  ck("declaration boot AAF VID", dut->o_aaf_vid, 2);
+  ck("declaration boot AAF enabled", dut->o_aaf_enable, 1);
+  ck("declaration boot AAF bypass clear", dut->o_aaf_bypass, 0);
+  ck("declaration boot MAAP readback", axi_read(0x6cc), maap);
+  ck("declaration boot MAAP count", dut->o_maap_count, kDeclTalk & 0xffffu);
+  ck("declaration boot MAAP enabled", dut->o_maap_enable, 1);
+  ck("declaration boot SRP OR3", axi_read(0x680), srp | 3);
+  ck("declaration boot SRP enable output", dut->o_lwsrp_enable, 1);
+  ck("declaration boot SRP arm output", dut->o_lwsrp_talker_en, 1);
+  axi_write(0x654, 0);
+  axi_write(0x6cc, 0);
+  axi_write(0x680, srp);
+}
+
 void MilanCsrHarness::reset_values() {
   printf("-- reset values --\n");
+  ck("generated SRP reset control readback", axi_read(0x680), 0x10 | kSrpResetBits);
+  ck("generated SRP reset enable output", dut->o_lwsrp_enable, kSrpResetBits & 1);
+  ck("generated SRP reset arm output", dut->o_lwsrp_talker_en, (kSrpResetBits >> 1) & 1);
+  ck("AAF neutral reset readback", axi_read(0x654), 0);
+  ck("AAF neutral reset VID", dut->o_aaf_vid, 0);
+  ck("AAF neutral reset enable", dut->o_aaf_enable, 0);
+  ck("AAF neutral reset bypass", dut->o_aaf_bypass, 0);
+  ck("MAAP neutral reset readback", axi_read(0x6cc), 0);
+  ck("MAAP neutral reset count", dut->o_maap_count, 0);
+  ck("MAAP neutral reset enable", dut->o_maap_enable, 0);
+
   ck("MAC_CTRL(reset)",  axi_read(A_MAC_CTRL), 0x13);
   ck("MAC_IFG(reset)",   axi_read(A_MAC_IFG),  0x0C);
   ck("PHY_RST(reset)",   axi_read(A_PHY_RST),  0x1);
@@ -699,31 +749,28 @@ void MilanCsrHarness::adp_advertiser_identity_and_control() {
   // ADP SHAPE IS READ-ONLY AND COMES FROM THE CONFIG (VERSION 0x0015).
   // 0x618/0x61C are built from gen/adp_shape_defaults.svh, which
   // sw/builder/endstation_builder.py generates from an end-station config.
-  // This executable carries the TRACKED default - endstation_arty_current,
-  // 1 AAF listener + 1 AAF talker + a CRF sink and no CRF output - so the
-  // entity has 1 STREAM_OUTPUT and 2 STREAM_INPUTs, and talker_capabilities
-  // must NOT claim MEDIA_CLOCK_SOURCE. (sim_win.cpp elaborates the 4x4
-  // config and reads 5/5; sim_live.cpp the 8x8 and reads 9/9.)
+  // The ordinary recipe carries arty_current (one AAF output, no CRF).
+  // The reset-bits leg keeps that shape and changes only admission bits.
   // Before 0x0015 these were plain RW words resetting to ZERO and the values
   // came from a boot script, which is how the 8x8 board advertised the 1x1
   // shape on silicon (2026-07-27). A write must now change NOTHING.
-  ck("ADP_TALK RO = {0x4001, ADP_TALKER_SRC_C=1}",
-     axi_read(A_ADP_TALK), 0x40010001u);
-  ck("ADP_LIST RO = {0x4801, ADP_LISTENER_SINK_C=2}",
-     axi_read(A_ADP_LIST), 0x48010002u);
-  ck("o_adp_talker_sources", dut->o_adp_talker_sources, 1);
-  ck("o_adp_talker_caps",    dut->o_adp_talker_caps, 0x4001);
-  ck("o_adp_listener_sinks", dut->o_adp_listener_sinks, 2);
-  ck("o_adp_listener_caps",  dut->o_adp_listener_caps, 0x4801);
+  ck("ADP_TALK RO matches declared output shape",
+     axi_read(A_ADP_TALK), kDeclTalk);
+  ck("ADP_LIST RO matches declared input shape",
+     axi_read(A_ADP_LIST), kDeclList);
+  ck("o_adp_talker_sources", dut->o_adp_talker_sources, kDeclTalk & 0xffff);
+  ck("o_adp_talker_caps",    dut->o_adp_talker_caps, kDeclTalk >> 16);
+  ck("o_adp_listener_sinks", dut->o_adp_listener_sinks, kDeclList & 0xffff);
+  ck("o_adp_listener_caps",  dut->o_adp_listener_caps, kDeclList >> 16);
   axi_write(A_ADP_TALK, 0x00010008);     // the retired S50milan-style poke
   axi_write(A_ADP_LIST, 0x48010009);
   dut->eval();
-  ck("ADP_TALK ignores the write", axi_read(A_ADP_TALK), 0x40010001u);
-  ck("ADP_LIST ignores the write", axi_read(A_ADP_LIST), 0x48010002u);
-  ck("o_adp_talker_sources unmoved", dut->o_adp_talker_sources, 1);
-  ck("o_adp_talker_caps unmoved",    dut->o_adp_talker_caps, 0x4001);
-  ck("o_adp_listener_sinks unmoved", dut->o_adp_listener_sinks, 2);
-  ck("o_adp_listener_caps unmoved",  dut->o_adp_listener_caps, 0x4801);
+  ck("ADP_TALK ignores the write", axi_read(A_ADP_TALK), kDeclTalk);
+  ck("ADP_LIST ignores the write", axi_read(A_ADP_LIST), kDeclList);
+  ck("o_adp_talker_sources unmoved", dut->o_adp_talker_sources, kDeclTalk & 0xffff);
+  ck("o_adp_talker_caps unmoved",    dut->o_adp_talker_caps, kDeclTalk >> 16);
+  ck("o_adp_listener_sinks unmoved", dut->o_adp_listener_sinks, kDeclList & 0xffff);
+  ck("o_adp_listener_caps unmoved",  dut->o_adp_listener_caps, kDeclList >> 16);
   // #116: without the fabric engine there is no runtime gPTP owner. The
   // historical publication addresses stay mapped but are inert and read zero.
   // The block exports no GM/parent/pdelay mirror ports at all (the datapath's
@@ -769,7 +816,7 @@ void MilanCsrHarness::adp_advertiser_identity_and_control() {
 void MilanCsrHarness::lwsrp_engine_group() {
   printf("-- lwSRP engine (0x680 group, FR-SRP-*) --\n");
   // class-A queue field is [4:2] (3 bits) and resets to q4 = SR class A
-  ck("LWSRP_CTRL(reset q=4)", axi_read(0x680), 0x00000010);
+  ck("LWSRP_CTRL(reset q=4)", axi_read(0x680), 0x10 | kSrpResetBits);
   ck("LWSRP_VID(reset 2)", axi_read(0x684), 2);
   ck("LWSRP_DMAC_LO(reset)", axi_read(0x688), 0xF000FE01u);
   ck("LWSRP_DMAC_HI(reset)", axi_read(0x68C), 0x91E0);
@@ -854,7 +901,7 @@ void MilanCsrHarness::avtp_rx_monitor_ro_group() {
 
 void MilanCsrHarness::maap_and_i2s_playback_groups() {
   printf("-- MAAP group (0x6CC) --\n");
-  ck("MAAP_CTRL reset (count=8, en=0)", axi_read(0x6CC), 0x00000800);
+  ck("MAAP_CTRL neutral reset", axi_read(0x6CC), 0);
   axi_write(0x6CC, 0x12340901);   // seed 0x1234, count 9, en
   dut->eval();
   ck("MAAP_CTRL readback", axi_read(0x6CC), 0x12340901);
@@ -864,7 +911,7 @@ void MilanCsrHarness::maap_and_i2s_playback_groups() {
   dut->i_maap_stat0 = 0x01020055; dut->i_maap_stat1 = 0x00000006; dut->eval();
   ck("MAAP_STAT0 RO", axi_read(0x6D0), 0x01020055);
   ck("MAAP_STAT1 RO", axi_read(0x6D4), 0x00000006);
-  axi_write(0x6CC, 0x00000800);   // restore reset default
+  axi_write(0x6CC, 0);            // restore neutral reset
   dut->i_i2spb_stat = 0x00050002; dut->eval();
   ck("I2SPB_STAT RO", axi_read(0x6D8), 0x00050002);
 
@@ -1469,6 +1516,7 @@ int MilanCsrHarness::run() {
 
   identification_and_capabilities();
   reset_values();
+  declaration_boot_words();
   fqtss_bandwidth_availability();
   read_only_registers_reject_writes();
   rw_registers_and_output_wiring();

@@ -106,6 +106,7 @@
 #include <cstring>
 #include <cstdint>
 #include <vector>
+#include <array>
 
 // The ADPDU's entity_capabilities is the ENGINE's own constant. The Makefile
 // reads it out of pp_adp_pkg.sv and passes it here, so this harness cannot
@@ -137,6 +138,7 @@ class PpShadowHarness {
         build_desc_image();
         do_reset();
 
+        grade_declaration_reset_and_rx();
         grade_plane_presence_and_csr_window();
         provision_the_identity_before_enable();
         grade_absent_backend_reports_no_restore();
@@ -150,6 +152,7 @@ class PpShadowHarness {
         grade_adp_advertisement_is_byte_exact();
         grade_maap_refuses_without_wedging();
         grade_maap_grants_and_opens_the_da_gate();
+        grade_maap_output_boundaries();
         grade_the_device_answers_aecp();
         grade_descriptor_memory_withdrawn();
         grade_response_buffer_memory();
@@ -160,6 +163,7 @@ class PpShadowHarness {
         grade_a_registered_talker_as_a_bound_sink_reads_it();
         grade_heal_before_answer();
         grade_backend_rejection_reaches_the_processor();
+        grade_generated_domain_binding();
 
         printf("----------------------------------------------------------------\n");
         printf("pp_shadow: %ld checks, %ld failures\n", checks, fails);
@@ -209,8 +213,21 @@ class PpShadowHarness {
 
     static constexpr uint64_t MAAP_DST = 0x91E0F000FF00ull;  // KL_maap's own TX DA
 
+    std::vector<std::vector<uint8_t>> rx_fabric_frames;
+    std::vector<uint8_t> rx_fabric_open;
+
     void observe() {
         auto* rp = dut->rootp;
+        if (dut->axis_resetn && rp->milan_datapath__DOT__rx_fabric_valid_w) {
+            for (int lane = 0; lane < 8; ++lane)
+                if ((rp->milan_datapath__DOT__rx_fabric_keep_w >> lane) & 1)
+                    rx_fabric_open.push_back(static_cast<uint8_t>(
+                        rp->milan_datapath__DOT__rx_fabric_data_w >> (8 * lane)));
+            if (rp->milan_datapath__DOT__rx_fabric_last_w) {
+                rx_fabric_frames.push_back(rx_fabric_open);
+                rx_fabric_open.clear();
+            }
+        }
         if (rp->milan_datapath__DOT__pp_maap_req_valid_w
             && rp->milan_datapath__DOT__pp_maap_req_ready_w) mo.accepted++;
         if (rp->milan_datapath__DOT__pp_maap_req_valid_w
@@ -567,6 +584,75 @@ class PpShadowHarness {
         for (int i = 0; i < kResetHoldCycles; i++) step();
         dut->axis_resetn = 1; dut->gtx_resetn = 1;
         for (int i = 0; i < kResetSettleCycles; i++) step();
+    }
+
+    void grade_rx_destinations(const char* posture) {
+        const uint32_t low = axi_read(0x108), high = axi_read(0x10c);
+        const uint8_t station[6] = {static_cast<uint8_t>(low),
+            static_cast<uint8_t>(low >> 8), static_cast<uint8_t>(low >> 16),
+            static_cast<uint8_t>(low >> 24), static_cast<uint8_t>(high),
+            static_cast<uint8_t>(high >> 8)};
+        for (int kind = 0; kind < 4; ++kind) {
+            std::vector<uint8_t> frame(60, 0);
+            for (int n = 0; n < 6; ++n) frame[n] = station[n];
+            if (kind == 1) frame[5] ^= 0x40;       // foreign unicast
+            if (kind == 2) for (int n = 0; n < 6; ++n) frame[n] = 0xff;
+            if (kind == 3) { frame[0] = 0x91; frame[5] ^= 0x20; }
+            frame[6] = 2; frame[11] = 0x79;
+            frame[12] = 0x88; frame[13] = 0xb5;    // experimental EtherType
+            for (int n = 14; n < 60; ++n) frame[n] = static_cast<uint8_t>(n + kind);
+            const size_t before = rx_fabric_frames.size();
+            inject_rx(frame.data(), frame.size(), 200);
+            char label[120];
+            snprintf(label, sizeof label, "#403 %s destination %d post-filter frame", posture, kind);
+            ck(label, static_cast<uint32_t>(rx_fabric_frames.size() - before), 1);
+            if (rx_fabric_frames.size() > before)
+                ck(label, rx_fabric_frames[before] == frame, 1);
+        }
+    }
+
+    void grade_declaration_reset_and_rx() {
+        ck("#403 AAF reset readback is neutral", axi_read(0x654), 0);
+        ck("#403 MAAP reset readback is neutral", axi_read(0x6cc), 0);
+        ck("#403 reset TCAM bypass is explicit", axi_read(0x700), 1);
+        grade_rx_destinations("reset");
+        axi_write(0x100, axi_read(0x100) | 8);
+        axi_write(0x700, 1);
+        grade_rx_destinations("boot");
+    }
+
+    void grade_generated_domain_binding() {
+        // run-base uses VID 2; run-vid73 uses the builder's emitter with
+        // fixtures/vid73.yaml. Both run from the default target.
+#ifndef DECLARATION_VID
+#define DECLARATION_VID 2
+#endif
+        const uint32_t link = axi_read(0x71c);
+        axi_write(0x71c, link | 4);
+        dut->i_link_up = 0; run_idle(100);
+        dut->i_link_up = 1; run_idle(200);
+        ck("#400 generated parent/wrapper/top/child startup VID",
+           axi_read(0x788), 0x00030000u | DECLARATION_VID);
+        // Separate diagnostic overrides must not replace the engine default.
+        axi_write(0x684, 19);
+        axi_write(0x654, 23u << 16);
+        ck("#400 diagnostic writes preserve Domain default",
+           axi_read(0x788), 0x00030000u | DECLARATION_VID);
+        uint8_t dm[60] = {};
+        const std::array<uint8_t, 6> da{1, 0x80, 0xc2, 0, 0, 0x0e};
+        memcpy(dm, da.data(), da.size()); dm[6] = 2; dm[11] = 0x76;
+        dm[12] = 0x22; dm[13] = 0xea;
+        dm[15] = 4; dm[16] = 4; dm[18] = 9; dm[20] = 1;
+        dm[21] = 6; dm[22] = 3; dm[24] = 5; dm[25] = 36;
+        inject_rx(dm, sizeof dm, 2000);
+        ck("#400 network Domain adoption stays live", axi_read(0x788), 0x01030005);
+        ck("#400 adoption leaves diagnostic LWSRP VID", axi_read(0x684), 19);
+        ck("#400 adoption leaves diagnostic AAF VID", axi_read(0x654), 23u << 16);
+        dut->i_link_up = 0; run_idle(100);
+        dut->i_link_up = 1; run_idle(200);
+        ck("#400 link cycle restores generated default", axi_read(0x788),
+           0x00030000u | DECLARATION_VID);
+        axi_write(0x71c, link);
     }
 
     // ---- inject one little-lane frame on the MAC RX port ----
@@ -1475,7 +1561,16 @@ class PpShadowHarness {
         uint8_t pf[128];
         size_t pn = 0;
         printf("[I] maap adapter with a claimed block: grant + DA gate\n");
-        axi_write(A_MAAP_CTRL, 0x00000801);              // count = 8, en = 1
+        #ifndef DECLARATION_OUTPUTS
+#define DECLARATION_OUTPUTS 1
+#endif
+        // The normal fixture has one AAF output; the CRF-on fixture adds one.
+        // This independent fixture count must agree with both ADP and MAAP.
+        constexpr unsigned outputs = DECLARATION_OUTPUTS;
+        ck("#403 declared output count", axi_read(A_ADP_TALK) & 0xffff, outputs);
+        axi_write(A_MAAP_CTRL, (outputs << 8) | 1);
+        ck("#403 exact MAAP boot count readback", axi_read(A_MAAP_CTRL),
+           (outputs << 8) | 1);
         bool announced = false;
         for (int r = 0; r < 200 && !announced; r++) {
             run_idle(2000);
@@ -1538,6 +1633,43 @@ class PpShadowHarness {
                static_cast<uint32_t>(get_be(b, 54, 4)), 0x91E0F000u);
             ck("...and its low half = base offset + 0",
                static_cast<uint32_t>(get_be(b, 58, 2)), maap_off & 0xFFFFu);
+        }
+    }
+
+    void grade_maap_output_boundaries() {
+        constexpr unsigned outputs = DECLARATION_OUTPUTS;
+        const unsigned base = axi_read(A_MAAP_STAT0) & 0xffff;
+        uint8_t frame[128];
+        // The first valid probe may initiate asynchronous allocation; the
+        // second must return the held address. The invalid source never asks.
+        for (unsigned uid : {outputs - 1, outputs}) {
+            const MaapObs before = mo;
+            int status = -1;
+            uint64_t da = 0;
+            for (int attempt = 0; attempt < 2; ++attempt) {
+                const size_t start = tx_frames.size();
+                const size_t size = build_probe_tx(frame, TEST_EID, uid);
+                inject_rx(frame, size, 400);
+                run_idle(8000);
+                for (size_t i = start; i < tx_frames.size(); ++i) {
+                    const auto& b = tx_frames[i].bytes;
+                    if (classify(tx_frames[i]) == FR_ACMP && b.size() >= 70
+                        && (b[15] & 15) == 1 && get_be(b, 50, 2) == uid) {
+                        status = (b[16] >> 3) & 31;
+                        da = get_be(b, 54, 6);
+                    }
+                }
+            }
+            ck("#403 boundary ACMP response status", status,
+               uid < outputs ? 0 : 2);
+            if (uid < outputs) {
+                ck_true("#403 highest valid source gets base + index",
+                        da == (MAAP_POOL_BASE | ((base + uid) & 0xffff)),
+                        "wire destination checked against allocator base");
+            } else {
+                ck("#403 first invalid source makes no allocator request",
+                   mo.accepted - before.accepted, 0);
+            }
         }
     }
 

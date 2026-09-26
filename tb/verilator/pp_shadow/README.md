@@ -1,22 +1,49 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # pp_shadow — milan_datapath with the protocol processor AS the control plane
 
-`make` - exit 0 = PASS. **371 checks, 0 failures, 0 warnings** at the time of
-writing. The suite carries no `-Wno-*` at all (not even `-Wno-fatal`), so any
-Verilator warning stops the build; gate on the **exit code**, never on a warning
-count.
+`make` builds and runs every default leg described below.
+Exit zero means success; each executable reports its current results.
+Verilator warnings stop the build.
+The suite carries no `-Wno-*` flags, including `-Wno-fatal`.
 
 ## Contents
 
-- **[The premise inverted (2026-08-13)](#the-premise-inverted-2026-08-13)** — This suite used to prove the processor transmitted NOTHING; with the legacy plane deleted its TX is the wire, so every discipline check was turned around
-- **[What it proves](#what-it-proves)** — The class-D fabric face, the byte-exact ADPDU rebuilt from the 0x600 CSR group, the ACMP answer, and clean interleaving with MAAP through the shared control arbiter
-- **[The AECP answer, and the memory behind it](#the-aecp-answer-and-the-memory-behind-it)** — What the µCPU actually answers, why every check decodes the response frame instead of a counter, and how the harness backs the nine descriptor-memory ports with a real AEMI image
-- **[The blanket PINMISSING waivers came out (2026-08-13)](#the-blanket-pinmissing-waivers-came-out-2026-08-13)** — Why a tree-wide missing-pin waiver is an undriven input in disguise, what the six findings it was hiding turned out to be, and the two files now waived by name
-- **[What is no longer here](#what-is-no-longer-here)** — The drain-mode and absolute-silence sections, and the parity-against-the-shipping-planes argument, all of which lost their subject when those planes were deleted
-- **[Two traps this suite exists to not fall into](#two-traps-this-suite-exists-to-not-fall-into)** — The tvalid-only monitor tap (gh #65) and the false green a silently-skipped build produces
-- **[Time compression — and why this suite carries the control-plane coverage](#time-compression--and-why-this-suite-carries-the-control-plane-coverage)** — Why the timer prescalers are compressed for simulation, and why this is now the only suite exercising 1722.1/SRP behaviour end to end
-- **[Note on group B's frame (corrected 2026-08-12)](#note-on-group-bs-frame-corrected-2026-08-12)** — A correction to the frame this group injects, kept as a record of what the earlier version measured and why it was wrong
-- **[Note on group I's third probe (2026-08-13)](#note-on-group-is-third-probe-2026-08-13)** — Why the third probe in group I behaves differently from the first two, recorded so it is not mistaken for a flake
+- **[Run it](#run-it)** -- Default builds, generated fixtures, and independent expectations.
+- **[The premise inverted (2026-08-13)](#the-premise-inverted-2026-08-13)** -- This suite used to prove the processor transmitted NOTHING; with the legacy plane deleted its TX is the wire, so every discipline check was turned around
+- **[What it proves](#what-it-proves)** -- The class-D fabric face, the byte-exact ADPDU rebuilt from the 0x600 CSR group, the ACMP answer, and clean interleaving with MAAP through the shared control arbiter
+- **[The AECP answer, and the memory behind it](#the-aecp-answer-and-the-memory-behind-it)** -- What the µCPU actually answers, why every check decodes the response frame instead of a counter, and how the harness backs the nine descriptor-memory ports with a real AEMI image
+- **[The blanket PINMISSING waivers came out (2026-08-13)](#the-blanket-pinmissing-waivers-came-out-2026-08-13)** -- Why a tree-wide missing-pin waiver is an undriven input in disguise, what the six findings it was hiding turned out to be, and the two files now waived by name
+- **[What is no longer here](#what-is-no-longer-here)** -- The drain-mode and absolute-silence sections, and the parity-against-the-shipping-planes argument, all of which lost their subject when those planes were deleted
+- **[Two traps this suite exists to not fall into](#two-traps-this-suite-exists-to-not-fall-into)** -- The tvalid-only monitor tap (gh #65) and the false green a silently-skipped build produces
+- **[Time compression — and why this suite carries the control-plane coverage](#time-compression--and-why-this-suite-carries-the-control-plane-coverage)** -- Why the timer prescalers are compressed for simulation, and why this is now the only suite exercising 1722.1/SRP behaviour end to end
+- **[Note on group B's frame (corrected 2026-08-12)](#note-on-group-bs-frame-corrected-2026-08-12)** -- A correction to the frame this group injects, kept as a record of what the earlier version measured and why it was wrong
+- **[Note on group I's third probe (2026-08-13)](#note-on-group-is-third-probe-2026-08-13)** -- Why the third probe in group I behaves differently from the first two, recorded so it is not mistaken for a flake
+
+## Run it
+
+```sh
+make -C tb/verilator/pp_shadow
+make -C tb/verilator/pp_shadow run-vid73
+make -C tb/verilator/pp_shadow clean
+```
+
+The default target runs these builds of `sim_main.cpp`:
+
+| Target | Executable | Input and independent expectation |
+|---|---|---|
+| `run-base` | `obj_dir/Vpp_shadow_sim` | Tracked `arty_current` headers; VID 2 and one Stream Output |
+| `run-vid73` | `obj_vid73/Vpp_vid73` | `fixtures/vid73.yaml`; expected startup VID 73 |
+| `run-crf` | `obj_crf/Vpp_crf` | `fixtures/crf_on.yaml`; expected Stream Output count 2 |
+
+Each fixture generates headers through `tb/common/gen_declaration_fixture.py`.
+Headers live under the corresponding `obj_*/fixture/gen` directory.
+The VID fixture changes emitter input after shipping validation.
+Shipping configurations still require VID 2.
+The CRF fixture enables an additional declared Stream Output.
+Recipe constants supply expectations independently of generated header values.
+
+Each target also generates the required listener and microcode ROMs.
+`clean` removes all build directories and those ROMs.
 
 ## The premise inverted (2026-08-13)
 

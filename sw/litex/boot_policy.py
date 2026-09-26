@@ -51,6 +51,12 @@ def fabric_constants(overlay: dict[str, Any],
                                for s in overlay["stream_outputs"]),
         "MILAN_SR_VID": int(reset_words["LWSRP_VID"], 16),
         "MILAN_LWSRP_CTRL_RESET": int(reset_words["LWSRP_CTRL"], 16),
+        # Neutral hardware resets; firmware supplies this shape's policy.
+        "MILAN_AAF_CTRL_BOOT": (int(reset_words["LWSRP_VID"], 16) << 16) | 1,
+        "MILAN_MAAP_CTRL_BOOT": (len(overlay["stream_outputs"]) << 8) | 1,
+        # Existing accept-all posture, even with the filter hardware present.
+        "MILAN_MAC_CTRL_SET": 1 << 3,
+        "MILAN_TCAM_CTRL_BOOT": 1,
         # clocking.crf_output.enabled owns the CRF talker: a declared output
         # runs as a class-A stream, and an undeclared one leaves CRFT_CTRL[0]
         # clear and declares nothing.

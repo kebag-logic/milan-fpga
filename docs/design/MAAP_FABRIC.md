@@ -80,8 +80,8 @@ documentation comments).
   destination address. `cfg_aaf_dmac` stays the manual lever (en=0 keeps the
   pre-MAAP behavior bit-exact — soft-migration like CBS bypass).
 - CSR ([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) is authoritative;
-  the block below mirrors its `0x6CC`-`0x6D4` rows): `0x6CC MAAP_CTRL` (RW, reset `0x0800`: `[0]` en,
-  `[1]` seed_valid, `[15:8]` block count (default 8), `[31:16]` seed offset),
+  the block below mirrors its `0x6CC`-`0x6D4` rows): `0x6CC MAAP_CTRL` (RW, reset `0`: `[0]` en,
+  `[1]` seed_valid, `[15:8]` block count, `[31:16]` seed offset),
   `0x6D0 MAAP_STAT0` (RO: `[31:24]` conflicts, `[23:16]` DEFENDs sent,
   `[15:0]` claimed offset), `0x6D4 MAAP_STAT1` (RO: `[2]` addr_valid
   (= ANNOUNCE state), `[1:0]` state). There are NO separate ADDR_LO/ADDR_HI
@@ -148,8 +148,9 @@ Both settled.
   `milan_datapath`: the processor's talker cannot declare without an ALLOC_DA
   success, so "a valid Destination MAC Address exists" is a precondition of
   the declaration itself. One decision, one place.
-- **range/count:** count = 8 like the reference, indices 0..count−1 handed to
-  sources 0..N−1 by the shim.
+- **range/count:** firmware claims exactly the declared Stream Outputs.
+  Count includes CRF only when its output is declared.
+  The shim assigns indices 0..count-1 to those outputs.
 
 ---
 

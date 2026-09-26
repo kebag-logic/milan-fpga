@@ -107,6 +107,7 @@ def shape(name: str) -> ShapeInfo:
     shp = ref.Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo)
     donor = ref.Donor(base=ref.binding_base(), layout=ref.layout_version())
     overlay = json.loads((work / "builder" / cfg.stem / "aem_overlay.json").read_text())
+    lwsrp = json.loads((work / "builder" / cfg.stem / "lwsrp_table.json").read_text())
     ident = ref.Ident(seq=0, entity_id=int(overlay["adp"]["entity_id"], 16),
                       model_id=int(overlay["entity"]["entity_model_id"], 16))
     table = work / "records.txt"
@@ -128,7 +129,8 @@ def shape(name: str) -> ShapeInfo:
                   N_SPORT_IN_P=dc["STREAM_PORT_INPUT"], N_SPORT_OUT_P=dc["STREAM_PORT_OUTPUT"],
                   N_AUDIO_UNIT_P=dc["AUDIO_UNIT"], N_CLK_DOM_P=dc["CLOCK_DOMAIN"],
                   N_NAME_P=names)
-    return ShapeInfo(name, ref.constants_header(shp, donor, ident), table, params, donor,
+    header = ref.constants_header(shp, donor, ref.fabric_constants(overlay, lwsrp))
+    return ShapeInfo(name, header, table, params, donor,
                      ident, ref.expected_payloads(shp), img_len, recs)
 
 

@@ -38,6 +38,7 @@
 #define MILAN_LWSRP_CTRL     0x680u
 #define MILAN_LWSRP_VID      0x684u
 #define MILAN_MAAP_CTRL      0x6ccu
+#define MILAN_TCAM_CTRL      0x700u
 #define MILAN_GPTP_PDELAY    0x6e4u
 #define MILAN_AS_PARENT_LO   0x730u
 #define MILAN_AS_PARENT_HI   0x734u
@@ -1371,14 +1372,15 @@ static void configure_fabric(void)
 	milan_write(MILAN_ADP_MID_HI, MILAN_MODEL_ID_HI);
 	milan_write(MILAN_MAC_ADDR_LO, MILAN_STATION_MAC_LO);
 	milan_write(MILAN_MAC_ADDR_HI, MILAN_STATION_MAC_HI);
-	/* Receive the link-local multicast control groups without promiscuous mode. */
-	milan_write(MILAN_MAC_CTRL, milan_read(MILAN_MAC_CTRL) | (1u << 3));
+	/* Existing promiscuous posture: bypass station selection on TCAM misses. */
+	milan_write(MILAN_MAC_CTRL, milan_read(MILAN_MAC_CTRL) | MILAN_MAC_CTRL_SET);
+	milan_write(MILAN_TCAM_CTRL, MILAN_TCAM_CTRL_BOOT);
 
 	/* Fabric owns media/control. Firmware only provides the generated policy. */
-	milan_write(MILAN_AAF_CTRL, (MILAN_SR_VID << 16) | 1u);
+	milan_write(MILAN_AAF_CTRL, MILAN_AAF_CTRL_BOOT);
 	milan_write(MILAN_LWSRP_VID, MILAN_SR_VID);
 	milan_write(MILAN_LWSRP_CTRL, MILAN_LWSRP_CTRL_RESET | 3u);
-	milan_write(MILAN_MAAP_CTRL, ((MILAN_N_TALKERS + 1u) << 8) | 1u);
+	milan_write(MILAN_MAAP_CTRL, MILAN_MAAP_CTRL_BOOT);
 	/* clocking.crf_output.enabled: talker enable + class-A declare, or 0. */
 	milan_write(MILAN_CRF_TX_CTRL, MILAN_CRF_TX_CTRL_BOOT);
 }

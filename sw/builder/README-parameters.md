@@ -68,7 +68,7 @@ placement fact shared with gateware:
 |---|---|---|
 | `mac_address` | EUI-48 | Required, unicast, and nonzero. |
 | `pp_mem_phys` | aligned address | Base of the protocol-processor descriptor window. |
-| `rx_address_filter` | `hardware` or `promiscuous` | Whether the fabric filters destination addresses. |
+| `rx_address_filter` | `promiscuous` | Existing reset/boot accept-all posture. `hardware` refuses with migration text. |
 
 The emitted `platform_shape.json` is schema 2.x and contains only `pp_mem.phys`
 and the builder-owned fixed extent, plus provenance metadata. Its real product
@@ -86,9 +86,9 @@ default to present and emit a `--no-*` argument only when disabled.
 |---|---|---|
 | `media_clock_servo` | `MCSERVO_P=0` | Only valid with an internal media-clock source. |
 | `latency_taps` | `LTAP_P=0` | May be pruned independently. |
-| `maap` | `MAAP_P=0` | Requires provisioned multicast addresses. |
+| `maap` | `MAAP_P=0` | Refused with declared talkers; numeric scratch cannot allocate addresses. |
 | `i2s_playback` | `I2SPB_P=0` | Cannot be pruned when the physical interface needs it. |
-| `rx_mac_filter` | `RXFILT_P=0` | Cannot be pruned with hardware filtering selected. |
+| `rx_mac_filter` | `RXFILT_P=0` | Hardware presence, independent of promiscuous boot policy. |
 | `render_lpf` | `LPF_P=0` | Cannot remain when its render consumer is pruned. |
 
 `fabric_gptp` has one product value, `true`. The builder emits
@@ -113,6 +113,13 @@ profile; talkers may be consistently static or dynamic across the image.
 actually routed by the board. Role-pool widths and the `loopback_lane` fabric
 fact are validated separately so the model cannot advertise a power-on source
 that the built datapath cannot provide.
+
+Every Stream Output declares `presentation_time_offset_ns`, defaulting to `2000000`.
+AAF uses `streams.talkers[]`; CRF uses `clocking.crf_output`.
+Other factory values refuse under Milan v1.2 5.3.7.6.
+Legal runtime SET_STREAM_INFO values override only their addressed output.
+Generated firmware claims exactly the declared output count through MAAP.
+AAF_CTRL and MAAP_CTRL reset neutral; firmware supplies active values.
 
 ## Entity identity
 
@@ -165,8 +172,13 @@ section 3 rows 33a to 33c state why.
 ## Reservation table and resource estimate
 
 `srp:` owns the emitted class-A reservation defaults and derived TSpec. The
-builder rejects an invalid VID, queue, multicast base, class, or a total slope
-above the configured class bandwidth limit.
+builder requires startup VID 2 and fixed MRP timer assertions.
+The timers are join 200, leave 5000, LeaveAll lower-bound 10000 ms.
+Only derived TSpec and one interval frame are supported.
+The build budget accepts 1 through 75 percent.
+Numeric destination addresses, queue selection and max-frame bytes are legacy scratch.
+Live reset admission bits remain distinct from firmware OR-3 boot policy.
+[The leaf inventory](../../docs/ENDSTATION_BUILDER.md#3-config-schema--aem-descriptor-mapping) names every consumer.
 
 Each build plan includes an approximate pre-place resource estimate. It is a
 capacity warning, not a timing or placement result; final acceptance still

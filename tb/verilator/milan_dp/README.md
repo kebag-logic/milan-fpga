@@ -750,8 +750,8 @@ counted `UNSUPPORTED_FORMAT` and never reached the depacketizer or fabric render
 Stream 0 accepted nothing. `milan_datapath.sv` now folds the setting over the
 declaration: `aecp_in0_fmt` reads the processor's published SET_STREAM_FORMAT
 row 0 when a controller has set one and the generated `ADP_STRIN0_FMT_C`
-otherwise, exactly as `aecp_pres_offset` folds set offsets over `PRES_DFLT_C`
-rather than a zero. The declaration is the default; the setter owns the rest
+otherwise. Likewise, `aecp_pres_offset` uses its generated per-output default row.
+That row comes from `ADP_STROUT_PRES_NS_C`, rather than zero. The declaration is the default; the setter owns the rest
 (issue #67).
 
 `sim_main.cpp` grades the acceptance path again end to end and byte-exact:

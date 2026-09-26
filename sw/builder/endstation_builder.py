@@ -346,23 +346,21 @@ SRP_DEFAULTS = dict(
     bandwidth_limit_pct=75,                  # Milan §5.6 / 802.1Q §34.3.1
     # MILAN v1.2 4.2.7.1.1 Table 4.3, which SUPERSEDES 802.1Q Table 10-7 for a
     # PAAD: LeaveTime is 5000 ms, not the base standard's 600. These words are
-    # emitted into lwsrp_csr_defaults.svh and programmed into the engine, so
-    # leaving 600 here would have quietly overridden the RTL reset the MRP
-    # timer round corrected - the generated default wins over the localparam.
+    # retained in the legacy reference table. They assert the donor fixed
+    # profile; no CSR routes these numbers into processor timers.
     join_time_ms=200,
     leave_time_ms=5_000,
     leaveall_time_ms=10_000,
-    tspec_policy="pinned",                   # pinned | derived
-    max_frame_bytes=224,                     # pinned only (the 0x690 reset)
+    tspec_policy="derived",                  # fixed wire TSpec/budget model
+    max_frame_bytes=224,                     # legacy 0x690 scratch/reset seed
     interval_frames=1,
     rtl_table=False,                         # write the tracked hdl/ .svh
 )
-SRP_TSPEC_POLICIES = ("pinned", "derived")
+SRP_TSPEC_POLICIES = ("derived",)
 
-#: `srp.stream_dmac_base: maap` means the stream destination addresses are
-#: ALLOCATED AT RUN TIME by the MAAP engine rather than provisioned here. It
-#: is the only value that makes KL_maap load-bearing, and therefore the only
-#: value that forbids `board.features.maap: false`.
+#: MAAP allocates stream destinations at runtime in every supported config.
+#: Every declared talker requires `board.features.maap: true`.
+#: Numeric `srp.stream_dmac_base` values are legacy table/ABI scratch.
 SRP_DMAC_DYNAMIC = "maap"
 
 # ------------------------------------------------- optional-block features --
@@ -401,13 +399,6 @@ OPTIONAL_BLOCKS = {
                           "closed-finding diagnostics"),
 }
 
-#: Where the RX destination-address decision is taken. `hardware` (the
-#: default, and what both boards ship) REQUIRES rx_mac_filter; the other two
-#: are the honest declarations that let it be pruned. This key exists so that
-#: pruning the filter is a stated deployment property rather than a silent
-#: change of what the port accepts.
-RX_ADDRESS_FILTERS = ("hardware", "promiscuous")
-
 #: Revision of the AEM descriptor BYTE LAYOUT, an input to every hash-derived
 #: entity_model_id (see model_shape). 1 was the IEEE 1722.1-2013 layout this
 #: project shipped until 2026-08-13; 2 is 1722.1-2021, which Milan v1.2 clause
@@ -444,7 +435,9 @@ PP_MEM_BYTES = 0x10_0000
 PLATFORM_DEFAULTS = dict(
     mac_address=None,                        # required: must differ per board
     pp_mem_phys=0x4FE0_0000,
-    rx_address_filter="hardware",            # hardware | promiscuous
+    # Only promiscuous is accepted, matching the existing reset/boot posture.
+    # board.features.rx_mac_filter independently selects hardware presence.
+    rx_address_filter="promiscuous",         # existing reset and boot posture
 )
 
 # ------------------------------------------------------ resource estimator --
@@ -1358,6 +1351,20 @@ def _pow2_or_zero(v, ctx):
     return _pow2(v, ctx)
 
 
+PRESENTATION_TIME_OFFSET_NS = 2_000_000
+
+
+def _factory_offset(raw, ctx):
+    """Milan's factory value; runtime SET_STREAM_INFO remains independent."""
+    value = raw.get("presentation_time_offset_ns", PRESENTATION_TIME_OFFSET_NS)
+    if type(value) is not int or value != PRESENTATION_TIME_OFFSET_NS:
+        raise ConfigError(
+            f"{ctx}.presentation_time_offset_ns must be 2000000: Milan v1.2 "
+            "5.3.7.6 requires a 2 ms factory default for every Stream Output. "
+            "Use SET_STREAM_INFO for legal runtime offsets.")
+    return value
+
+
 def _streams(lst, ctx, direction, rate_hz=48000):
     if not isinstance(lst, list) or not lst:
         raise ConfigError(f"{ctx}: needs at least one {direction} stream")
@@ -1443,6 +1450,11 @@ def _streams(lst, ctx, direction, rate_hz=48000):
             map_mode=map_mode, map_page=map_page,
             buffer_length_ns=s.get("buffer_length_ns", BUFLEN_DEFAULT_NS),
         ))
+        if direction == "talker":
+            out[-1]["presentation_time_offset_ns"] = _factory_offset(s, sctx)
+        elif "presentation_time_offset_ns" in s:
+            raise ConfigError(f"{sctx}.presentation_time_offset_ns belongs "
+                              "to Stream Outputs, not listener acceptance")
     return out
 
 
@@ -1890,13 +1902,13 @@ def _srp_section(raw):
     for k, key in (("join", "join_time_ms"), ("leave", "leave_time_ms"),
                    ("leaveall", "leaveall_time_ms")):
         if k in tm:
-            s[key] = int(tm[k])
+            s[key] = tm[k]
     if "policy" in ts:
         s["tspec_policy"] = ts["policy"]
     if "max_frame_bytes" in ts:
-        s["max_frame_bytes"] = int(ts["max_frame_bytes"])
+        s["max_frame_bytes"] = ts["max_frame_bytes"]
     if "interval_frames" in ts:
-        s["interval_frames"] = int(ts["interval_frames"])
+        s["interval_frames"] = ts["interval_frames"]
     return s
 
 
@@ -1913,6 +1925,17 @@ def _srp_validate(s, cons):
         raise ConfigError(f"srp.vid {s['vid']} outside 1..4094 (VID 0 is the "
                           "priority-tagged/no-VLAN encoding - an SR stream on "
                           "VID 0 floods UNSHAPED)")
+    if s["vid"] != 2:
+        raise ConfigError("srp.vid must be 2 at startup: Milan v1.2 "
+                          "4.2.7.2.1; runtime Domain adoption is independent")
+    for leaf, key, expected in (("join", "join_time_ms", 200),
+                                ("leave", "leave_time_ms", 5000),
+                                ("leaveall", "leaveall_time_ms", 10000)):
+        if type(s[key]) is not int or s[key] != expected:
+            raise ConfigError(
+                f"srp.timers_ms.{leaf} must be {expected}: fixed Milan v1.2 "
+                "4.2.7.1.1 Table 4.3 profile; leaveall names the 10000 ms "
+                "lower bound of the randomized 10-15 s interval")
     if not (isinstance(s["class_queue"], int)
             and 0 <= s["class_queue"] < (1 << SRP_QUEUE_BITS)):
         raise ConfigError(f"srp.class_queue {s['class_queue']} does not fit "
@@ -1920,36 +1943,35 @@ def _srp_validate(s, cons):
     if s["class_queue"] >= cons["num_queues"]:
         raise ConfigError(f"srp.class_queue {s['class_queue']} >= the board's "
                           f"{cons['num_queues']} shaper queues")
-    if s["tspec_policy"] not in SRP_TSPEC_POLICIES:
-        raise ConfigError(f"srp.tspec.policy '{s['tspec_policy']}' not in "
-                          f"{SRP_TSPEC_POLICIES}")
-    if not (isinstance(s["interval_frames"], int)
+    if s["tspec_policy"] != "derived":
+        raise ConfigError("srp.tspec.policy must be derived: the processor "
+                          "uses wire TSpec (Milan v1.2 4.3.3.2 Table 4.4); "
+                          "pinned policy has no product consumer")
+    if not (type(s["interval_frames"]) is int
             and 1 <= s["interval_frames"] <= 0xFFFF):
         raise ConfigError(f"srp.tspec.interval_frames {s['interval_frames']} "
                           "outside 1..65535 (TSpec MaxIntervalFrames is 16 bit)")
-    if not (isinstance(s["max_frame_bytes"], int)
+    if s["interval_frames"] != 1:
+        raise ConfigError("srp.tspec.interval_frames must be 1: Milan v1.2 "
+                          "4.3.3.2 Table 4.4 fixed wire TSpec")
+    if not (type(s["max_frame_bytes"]) is int
             and 1 <= s["max_frame_bytes"] <= 0xFFFF):
         raise ConfigError(f"srp.tspec.max_frame_bytes {s['max_frame_bytes']} "
                           "outside 1..65535 (TSpec MaxFrameSize is 16 bit)")
-    if not (isinstance(s["bandwidth_limit_pct"], int)
-            and 1 <= s["bandwidth_limit_pct"] <= 100):
+    if not (type(s["bandwidth_limit_pct"]) is int
+            and 1 <= s["bandwidth_limit_pct"] <= 75):
         raise ConfigError(f"srp.bandwidth_limit_pct {s['bandwidth_limit_pct']} "
-                          "outside 1..100")
+                          "outside 1..75 (build-time budget, not the live "
+                          "admission ceiling; IEEE 802.1Q 34.3.1)")
     return cls
 
 
 def _srp_dmac(s):
-    """The stream DMAC base as an int, after recording the ALLOCATION POLICY
-    the section asked for. Mutates `s` with the resolved policy + base."""
-    # `maap` = the DMACs are claimed at run time by KL_maap. Everything
-    # downstream still needs a concrete base to model the reservation with,
-    # so the default provisioned base is used for the tables and the
-    # ALLOCATION POLICY is recorded separately - that policy is what
-    # validate_features() keys the MAAP prune gate on.
-    s["stream_dmac_alloc"] = "static"
+    """Return the legacy table DMAC as an int, normalizing `maap` in `s`."""
+    # The table needs a concrete base even though live destinations come
+    # from MAAP. Numeric values remain scratch and never permit pruning it.
     if isinstance(s["stream_dmac_base"], str) and \
             s["stream_dmac_base"].strip().lower() == SRP_DMAC_DYNAMIC:
-        s["stream_dmac_alloc"] = SRP_DMAC_DYNAMIC
         s["stream_dmac_base"] = SRP_DEFAULTS["stream_dmac_base"]
     dmac = _eui64(s["stream_dmac_base"], "srp.stream_dmac_base")
     if dmac > 0xFFFFFFFFFFFF:
@@ -2486,9 +2508,9 @@ def emit_csr_defaults_svh(cfg: dict[str, Any]) -> str:
     a("//                Same values as the full reference table")
     a("//                out/<cfg>/lwsrp_table.svh (one config, one pass;")
     a("//                test_builder gate 20a compares them).")
-    a("//                NOTE the 0x680 registers no longer DRIVE anything:")
-    a("//                the applicant (hdl/ieee8021q/srp/**) is deleted and")
-    a("//                the group survives as a software-visible ABI only.")
+    a("//                LWSRP_CTRL[1:0] and accumulated latency remain live.")
+    a("//                VID is diagnostic; its processor parameter is separate.")
+    a("//                The remaining numeric fields are legacy scratch.")
     a("//                Include-only: no `default_nettype directive (it would")
     a("//                leak into the includer's scope), no include guard")
     a("//                (module-scope localparams - each including module")
@@ -2875,6 +2897,17 @@ def _adp_formats(cfg):
     fabric admits frames against."""
     ln = []
     a = ln.append
+    a("  //! Supported startup VID; runtime Domain adoption stays live.")
+    a(f"  localparam logic [15:0] ADP_SRP_DOM_DEF_VID_C = 16'd{cfg['srp']['vid']};")
+    offsets = [s.get("presentation_time_offset_ns", PRESENTATION_TIME_OFFSET_NS)
+               for s in cfg["talkers"]]
+    if cfg["clocking"]["crf_output"]:
+        offsets.append(cfg["clocking"].get(
+            "crf_output_presentation_time_offset_ns", PRESENTATION_TIME_OFFSET_NS))
+    a("  //! Factory offsets in STREAM_OUTPUT index order, including CRF.")
+    a("  //! A valid per-output AECP offset overrides only its own row.")
+    _sv_array(ln, "ADP_STROUT_PRES_NS_C", "[31:0]", offsets,
+             lambda v: f"32'd{v}")
     a("  //! THE WIRE CHANNEL CONSTANT (roadmap item 00): channels_per_frame")
     a("  //! the FRAMER emits, derived from the capture front-end this config")
     a("  //! elaborates - NOT from any declared format and NOT from `clusters`")
@@ -3160,14 +3193,13 @@ def validate_features(
                 "what disciplines the audio MMCM to them. Restrict "
                 "media_clock_sources to [internal] (and clocking.crf_sink to "
                 "false) or keep the servo.")
-    # 2. MAAP: load-bearing exactly when the stream DMACs are allocated at
-    #    run time rather than provisioned in this file.
-    if not feat["maap"] and srp["stream_dmac_alloc"] == SRP_DMAC_DYNAMIC:
+    # Every supported configuration declares AAF talkers. Numeric legacy
+    # table addresses never replace their live MAAP allocation.
+    if not feat["maap"]:
         raise ConfigError(
-            "board.features.maap: false prunes KL_maap, but "
-            f"srp.stream_dmac_base is '{SRP_DMAC_DYNAMIC}' = the addresses "
-            "are claimed at run time by that engine. Provision a static "
-            "multicast base instead, or keep MAAP.")
+            "board.features.maap: false removes the allocator required by "
+            "every declared talker (Milan v1.2 4.3.3.1 and 4.3.5.1). "
+            "Numeric srp.stream_dmac_base is legacy scratch; keep MAAP.")
     # 3. I2S playback: the i2s_philips interface's RENDER half IS
     #    KL_i2s_playback (INTERFACES rtl note), so pruning it guts the
     #    declared physical interface.
@@ -3178,15 +3210,7 @@ def validate_features(
             "- the config declares a DAC this build would not be able to "
             "drive. Declare an interface without a local DAC render path, or "
             "keep playback.")
-    # 4. RX filter: the port's address-filtering policy has to say so.
-    if not feat["rx_mac_filter"] and platform["rx_address_filter"] == "hardware":
-        raise ConfigError(
-            "board.features.rx_mac_filter: false prunes rx_mac_filter + its "
-            "TCAM, but platform.rx_address_filter is 'hardware'. A pruned "
-            "filter makes the port PROMISCUOUS (the receive stream bypasses "
-            "address filtering), which is a change in what the "
-            "station accepts. Declare rx_address_filter: promiscuous, or keep "
-            "the filter.")
+    # Hardware presence is independent of the supported promiscuous policy.
     # 5. render LPF: its ONLY consumer in milan_datapath is KL_i2s_playback
     #    (pcm_lpf_tdata/tvalid -> i2s_player.lpf_*; pcm_lpf_active ->
     #    KL_i2s_feed_mux, which exists to feed the same player). Keeping the
@@ -3223,10 +3247,12 @@ def load_platform(raw: dict[str, Any] | None) -> dict[str, Any]:
     if p["pp_mem_phys"] <= 0 or p["pp_mem_phys"] % 0x1000:
         raise ConfigError(
             "platform.pp_mem_phys must be a positive 4 KiB-aligned address")
-    if p["rx_address_filter"] not in RX_ADDRESS_FILTERS:
+    if p["rx_address_filter"] != "promiscuous":
         raise ConfigError(
-            f"platform.rx_address_filter {p['rx_address_filter']!r} not in "
-            f"{list(RX_ADDRESS_FILTERS)}")
+            f"platform.rx_address_filter {p['rx_address_filter']!r} is "
+            "unsupported. Migrate hardware to promiscuous: the existing "
+            "TCAM reset/boot bypass accepts all destinations. Hardware "
+            "presence remains board.features.rx_mac_filter.")
     return p
 
 
@@ -3795,6 +3821,8 @@ def _load_clocking(cfg, path):
         crf_output=bool(co.get("enabled", False)),
         crf_output_format=_fmt64(co.get("format", CRF_FORMAT_DEFAULT),
                                  "clocking.crf_output.format"),
+        crf_output_presentation_time_offset_ns=_factory_offset(
+            co, "clocking.crf_output"),
         audio_pll_hz=int(clk.get("audio_pll_hz", soc_audio_const(
             "AUDIO_CLK_HZ", 24_576_000))),
     )
@@ -4862,12 +4890,15 @@ def _overlay_streams(cfg):
     # domain clock, it is not a selectable source of it, so the CLOCK_SOURCE
     # set (7.2.32 clock_sources) is unchanged.
     stream_outputs = [dict(index=i, name=s["name"], kind="aaf",
-                           channels=s["channels"], formats=s["formats"])
+                           channels=s["channels"], formats=s["formats"],
+                           presentation_time_offset_ns=s["presentation_time_offset_ns"])
                       for i, s in enumerate(T)]
     if n_crf_out:
         stream_outputs.append(dict(index=len(T), name="CRF", kind="crf",
                                    channels=0,
-                                   formats=[clk["crf_output_format"]]))
+                                   formats=[clk["crf_output_format"]],
+                                   presentation_time_offset_ns=clk[
+                                       "crf_output_presentation_time_offset_ns"]))
     return stream_inputs, stream_outputs
 
 

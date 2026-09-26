@@ -728,6 +728,13 @@ int CsrWindowHarness::run() {
   dut->s_axi_arvalid = dut->s_axi_rready = 0;
   for (int i = 0; i < 5; ++i) posedge();
   dut->aresetn = 1; posedge();
+  ck("AAF neutral reset readback", axi_read(0x654), 0);
+  ck("AAF neutral reset VID", dut->o_aaf_vid, 0);
+  ck("AAF neutral reset enable", dut->o_aaf_enable, 0);
+  ck("MAAP neutral reset readback", axi_read(0x6cc), 0);
+  ck("MAAP neutral reset count", dut->o_maap_count, 0);
+  ck("MAAP neutral reset enable", dut->o_maap_enable, 0);
+
 
   printf("== milan_csr P11 window, N=4x4, modeled lane-K engines ==\n");
 
