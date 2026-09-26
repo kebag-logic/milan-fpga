@@ -1,0 +1,17 @@
+rc=0 :: python3 -B scripts/docs_check.py
+rc=0 :: env GIT_DIR=/dev/null python3 -B scripts/docs_check.py
+rc=2 :: python3 -B scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+rc=0 :: python3 -B scripts/check_doc_style.py
+rc=2 :: python3 -B scripts/gen_toc.py --check
+rc=2 :: python3 -B scripts/gen_toc.py --verify-anchors
+rc=0 :: python3 -B scripts/check_doc_paths.py
+rc=0 :: python3 -B scripts/check_py_idiom.py
+rc=0 :: python3 -B scripts/pp_srcs.py --check
+rc=0 :: python3 -B scripts/ci_events.py --check
+rc=0 :: python3 -B docs/traceability/gen_module_matrix.py --check
+rc=0 :: git diff --check 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a 20423082f221a02f3de72952cec4e1ac0c839b1d
+rc=0 :: python3(pinned-renderer venv) -B scripts/check_em_dash.py --base 7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a
+rc=0 :: python3(pinned-renderer venv) -B scripts/check_em_dash.py --selftest
+rc=0 :: python3(pinned-renderer venv) -B scripts/gen_toc.py --check
+rc=0 :: python3(pinned-renderer venv) -B scripts/gen_toc.py --verify-anchors
+rc=0 :: python3(pinned-renderer venv) -B scripts/docs_check.py

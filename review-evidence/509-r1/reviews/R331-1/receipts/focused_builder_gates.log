@@ -1,0 +1,33 @@
+test_port_layout_invariants:
+  [gate 6] arty_current: 1+1 stream ports, 16 clusters, 1 maps - invariants hold
+  [gate 6] arty_4x4: 4+4 stream ports, 32 clusters, 4 maps - invariants hold
+  [gate 6] ax7101_8x8: 8+8 stream ports, 72 clusters, 0 maps - invariants hold
+test_model_id_hashing:
+  [gate 8] model-id: deterministic, OUI-prefixed, shape-sensitive (3 mutations), instance-field-insensitive, 4x4 != 8x8, arty_current pinned to 0x001BC50AC1000005
+test_clock_sources_follow_the_fabric:
+  [gate 33] 5/5 configs advertise INTERNAL + CRF only (overlay, header and model shape agree); input_stream refused by the config loader AND by spec_from_overlay (CLI included), crf-without-a-sink refused by the loader with internal-only accepted beside it, and the overlay arm bites
+test_image_identity_is_baked:
+  [gate 28] ax7101_1x1_tdm8: image ENTITY carries entity_id 0x020000FFFE000001, entity_model_id 0x001BC5C40236BA0E, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 2 source(s)/0x4801 + 2 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:01 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+  [gate 28] arty_current: image ENTITY carries entity_id 0x020000FFFE000002, entity_model_id 0x001BC50AC1000005, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 1 source(s)/0x4001 + 2 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:02 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+  [gate 28] arty_4x4: image ENTITY carries entity_id 0x020000FFFE000002, entity_model_id 0x001BC557FC6ABBC8, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 5 source(s)/0x4801 + 5 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:02 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+  [gate 28] ax7101_8x8: image ENTITY carries entity_id 0x020000FFFE000001, entity_model_id 0x001BC572F79BC5D1, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 9 source(s)/0x4801 + 9 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:01 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+test_milan_base_formats_are_rate_complete:
+  [gate 29] the builder's aaf_pcm32 derivation reproduces all 15 Milan Table 6.2 Base format strings (3 rates x 5 channel counts) and the AVTP I.2.4 ut bit of each
+  [gate 29] arty_current: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 1 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000, 96000, 192000]
+  [gate 29] arty_4x4: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] arty_8ch: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] ax7101_8x8: 8 Base Stream Input(s) complete at [48000] Hz (8 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] ax7101_1x1_tdm8: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+  [gate 29] longest STREAM descriptor 154 octets (ax7101_8x8 STREAM_INPUT[7] ('Stream In 7')), 422 clear of the 576-octet line buffer
+test_audio_unit_rates_loader_contract:
+  [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+test_audio_unit_shipping_rates:
+  [gate 36a] arty_current: image advertises [48000, 96000, 192000], offset 144
+  [gate 36a] arty_4x4: image advertises [48000], offset 144
+  [gate 36a] arty_8ch: image advertises [48000], offset 144
+  [gate 36a] ax7101_8x8: image advertises [48000], offset 144
+  [gate 36a] ax7101_1x1_tdm8: image advertises [48000], offset 144
+test_descriptor_fields_name_this_device:
+  [gate 37] all 5 tracked configs (gPTP plane on) serve AVB_INTERFACE port_number 1 - the engine's OUR_PORTNUM_C, parsed here - and IDENTIFY reset_time 0 (no automatic reset, Milan 5.3.12); the builtin model states the same port; planted port_number and reset_time refused
+SKIPPED []
+FOCUSED GATES DONE

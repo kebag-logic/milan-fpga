@@ -1,0 +1,52 @@
+Measured 5 configurations; results: <packet>/scratch/repro/out/audit.json
+page-vs-receipt: 0 mismatch(es)
+arty_current ac833c3ccde42a2d9a78b517d660b9f7da03c4b3d31227aa65dcaf9e8def6192
+arty_4x4 1b288e13ccbf03410c593a53bc22f4a68e3d289eef8a7f907e63bc98a51415ff
+arty_8ch 2b5c008cf3a2ff1eca11ef5e24c5a2e391e97f25435854430e563758de516b9b
+ax7101_1x1_tdm8 9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d16214404
+ax7101_8x8 193bf18736d23256c1b25d9af1bddb0721d95780fb36a14cf5f91476aff1a2d4
+1b288e13ccbf03410c593a53bc22f4a68e3d289eef8a7f907e63bc98a51415ff
+bb036e26ddb773e5b0e59f92dbd2d0eed0ce7793fcca5175cedd657996f50562
+ 6742   0   3
+overlay (model id) unchanged
+Measured 5 configurations; results: <packet>/scratch/repro/out/M1.json
+Measured 5 configurations; results: <packet>/scratch/repro/out/M2.json
+M3: refused (byte-survival assertion)
+Measured 5 configurations; results: <packet>/scratch/repro/out/M3-O.json
+M3 under -O: exit 0 (assertions stripped)
+M1
+  ('L6', 'source list reversed', 'refused')
+  ('L9', 'zero model ID', 'accepted')
+  ('L9', 'all-ones model ID', 'accepted')
+  ('L10', 'eight full rate words', 'accepted')
+  ('L10', 'nine full rate words', 'refused')
+  ('L10', 'offset 143', 'refused')
+  ('L10', 'count disagrees with extent', 'refused')
+  ('L10', 'one byte short', 'refused')
+  ('L10', 'eight distinct rates', 'accepted', 'refused')
+  ('L10', 'nine distinct rates', 'refused', None)
+  ('L10', 'duplicate rates', 'refused', None)
+M2
+  ('L6', 'source list reversed', 'accepted')
+  ('L9', 'zero model ID', 'accepted')
+  ('L9', 'all-ones model ID', 'accepted')
+  ('L10', 'eight full rate words', 'accepted')
+  ('L10', 'nine full rate words', 'accepted')
+  ('L10', 'offset 143', 'accepted')
+  ('L10', 'count disagrees with extent', 'accepted')
+  ('L10', 'one byte short', 'accepted')
+  ('L10', 'eight distinct rates', 'accepted', 'refused')
+  ('L10', 'nine distinct rates', 'accepted', 'refused')
+  ('L10', 'duplicate rates', 'refused', None)
+M3-O
+  ('L6', 'source list reversed', 'accepted')
+  ('L9', 'zero model ID', 'accepted')
+  ('L9', 'all-ones model ID', 'accepted')
+  ('L10', 'eight full rate words', 'accepted')
+  ('L10', 'nine full rate words', 'accepted')
+  ('L10', 'offset 143', 'accepted')
+  ('L10', 'count disagrees with extent', 'accepted')
+  ('L10', 'one byte short', 'accepted')
+  ('L10', 'eight distinct rates', 'accepted', 'refused')
+  ('L10', 'nine distinct rates', 'refused', None)
+  ('L10', 'duplicate rates', 'refused', None)
