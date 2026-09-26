@@ -1,0 +1,18 @@
+$ grep -n -i -E "mutant|refus|removal|self-test|selftest" <PR documents>
+docs/findings/PP_SHADOW_BASELINE.md:281:Its self-test retains nine original refusal cases.
+docs/findings/PP_SHADOW_BASELINE.md:282:Synthetic exports exercise inventory, geometry, binding and declaration refusals.
+docs/findings/PP_SHADOW_BASELINE.md:283:They also exercise endpoint, pathname and CLI containment refusals.
+docs/findings/PP_SHADOW_BASELINE.md:286:Every maintained enforcement-removal mutant fails; the unchanged control passes.
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md:41:python3 syn/ooc/pp_baseline.py --selftest
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md:247:The script refuses ambiguous blocks and unsupported default expressions.
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md:381:Its self-test exercises real preparation on a synthetic export.
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md:382:Run the maintained enforcement-removal mutants alongside the positive control:
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md:385:python3 syn/ooc/pp_baseline.py --selftest
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md:386:python3 syn/ooc/pp_baseline_mutants.py
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md:389:The unmodified control must pass; every removal must fail.
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md:391:The report-accounting self-test runs alongside them.
+docs/design/AREA_BUDGET.md:6:useful for refusing obviously oversized configurations. Neither is a placement
+docs/design/AREA_BUDGET.md:36:5. The builder refuses a configuration whose declared function needs a pruned
+$ grep for spelled or numeric counts adjacent to refusal/mutant/removal in the same documents
+docs/findings/PP_SHADOW_BASELINE.md:281:Its self-test retains nine original refusal cases.
+rc=0
