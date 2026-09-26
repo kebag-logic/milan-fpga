@@ -1,0 +1,21 @@
+$ timeout -k 5 90 /usr/bin/python3 test_sim_pool.py
+rc=1
+[PASS] arm_both_worker_counts_run_each_leg_once_as_the_recipe_did
+[PASS] arm_every_byte_is_replayed_in_recipe_order
+[PASS] arm_a_leg_that_finishes_first_still_prints_second
+[PASS] arm_never_more_than_two_legs_alive
+[PASS] arm_shared_group_is_exclusive_ordered_and_allows_independent_overlap
+[PASS] arm_skipped_group_members_do_not_hide_later_logs
+[PASS] arm_worker_counts_other_than_one_or_two_are_refused
+[PASS] arm_a_failing_leg_fails_the_run_and_stops_later_starts
+[PASS] arm_a_leg_killed_by_a_signal_fails_the_run
+[PASS] arm_a_leg_that_cannot_start_fails_the_run
+[PASS] arm_a_leg_that_prints_fail_and_exits_0_is_not_masked
+[PASS] arm_an_interrupt_kills_every_leg_and_what_it_spawned
+[PASS] arm_a_leg_that_exits_leaves_nothing_it_spawned
+[PASS] arm_an_interrupt_inherited_as_ignored_stays_ignored
+[PASS] arm_the_frame_dump_variable_runs_one_leg_at_a_time
+[PASS] arm_the_runner_adds_no_check_and_no_failure
+[FAIL] arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs: AssertionError: ['exec', 'python3', 'sim_pool.py', '--jobs=2', './obj_dir/Vmilan_dp_sim', '--banner', '---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----', '--exclusive', './obj_notify/Vmilan_dp_notify', '--banner', '---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----', './obj_crflic/Vmilan_dp_crflic', './obj_nxn/Vmilan_dp_nxn', '--banner', '---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----', './obj_nxndv/Vmilan_dp_nxndv', './obj_nxn8/Vmilan_dp_nxn8', '--banner', '---- the shipping Arty shape: 4 streams x 4 wire channels ----', './obj_nxn4c/Vmilan_dp_nxn4c', '--banner', '---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----', './obj_nolpf/Vmilan_dp_nolpf', '--banner', '---- all six tier-1 blocks pruned ----', './obj_prune/Vmilan_dp_prune', '--banner', '---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----', './obj_ax1x1/Vmilan_dp_ax1x1', '--banner', '---- the same shape at the TRUE clk_audio ratio (391/1591) ----', './obj_aclk/Vmilan_dp_aclk']
+
+17 checks: 16 PASS, 1 FAIL
