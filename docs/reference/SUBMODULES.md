@@ -22,11 +22,11 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `990f96526bb89356c963a260ebbdcf2a77e6623a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `0922e43408f891fc0b84a84691df86b4fd0f1c0d` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
-Issue #508 adopts these processor changes.
+Issue #508 adopted these processor changes.
 
 | Processor issues | Merged PR | Adopted behavior |
 |---|---|---|
@@ -39,7 +39,31 @@ Issue #508 adopts these processor changes.
 
 PR 117 merged as `265d6762`.
 
-PR 115 then merged as `990f9652`, the adopted pin.
+PR 115 then merged as `990f9652`, the previous pin.
+
+Issue #567 advances the processor pin to `0922e434`.
+
+| Merged processor PR | Adopted change |
+|---|---|
+| [118](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/118) | October MVU waiver and unsupported-command response tests |
+| [119](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/119) | Complete integration parameter inventory and its checker |
+
+Processor HDL and ROM generator sources are unchanged.
+
+The repository tool recorded ROM digest rows for `0922e434`.
+
+Their digests match the `990f9652` rows.
+
+OOC synthesis requires ledger rows for the pin of record.
+Rows must match that exact pin.
+
+The parent wrapper's parameter bindings match the documented inventory.
+
+Run the inventory checker from the parent checkout:
+
+```sh
+python3 protocol-processor/scripts/check-integrator-params.py
+```
 
 The [datapath suite](../../tb/verilator/milan_dp/README.md#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify) records notification coverage.
 
@@ -131,7 +155,6 @@ Imported prose never defines root runtime behavior.
 |---|---|
 | Protocol interface guide shows word-wide RX | Landed processor receives bytes |
 | Protocol interface guide shows RX backpressure | Landed processor has no RX ready |
-| Protocol overview F01.5 lists `P-EN-MVU-SUID` / `P-EN-MVU-MCR` at 1 / 1 | Landed processor has neither parameter and serves neither command pair; #510 keeps both unserved, and [donor issue 77](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/77) owns the prose |
 
 Track donor repairs separately.
 
