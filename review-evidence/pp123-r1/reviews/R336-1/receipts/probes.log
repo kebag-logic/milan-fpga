@@ -1,0 +1,23 @@
+PASS  legal-bytes                                head: packed 56 bytes | base: packed 56 bytes
+PASS  legal-fields-4byte-value                   head: packed 56 bytes | base: packed 56 bytes
+PASS  legal-fields-bytes-field                   head: packed 56 bytes | base: packed 56 bytes
+PASS  legal-string-field-at-0                    head: packed 56 bytes | base: packed 56 bytes
+PASS  legal-short-body-padded                    head: packed 56 bytes | base: packed 56 bytes
+PASS  pad_to-zero-body-type-mismatch             head: cfg 0 directory key type 0x0014 index 0 disagrees with body type 0x000 | base: packed 56 bytes
+PASS  pad_to-fields-empty-mismatch               head: cfg 0 directory key type 0x0014 index 0 disagrees with body type 0x000 | base: packed 64 bytes
+PASS  named-group-index-mismatch                 head: cfg 0 directory key type 0x0014 index 1 disagrees with body type 0x001 | base: packed 320 bytes
+PASS  name_index-minus1-type-mismatch            head: cfg 0 directory key type 0x0014 index 0 disagrees with body type 0x001 | base: packed 56 bytes
+PASS  invalid-name_index-still-body-first        head: cfg 0 directory key type 0x0014 index 0 disagrees with body type 0x001 | base: ImageError: cfg 0 type 0x0014 index 0 ha
+PASS  mixed-length-runs-second-run-mismatch      head: cfg 0 directory key type 0x0005 index 2 disagrees with body type 0x000 | base: packed 512 bytes
+PASS  second-config-mismatch                     head: cfg 2 directory key type 0x0014 index 0 disagrees with body type 0x002 | base: packed 104 bytes
+PASS  entity-body-index-mismatch                 head: cfg 0 directory key type 0x0000 index 0 disagrees with body type 0x000 | base: packed 488 bytes
+PASS  entity-legal                               head: packed 488 bytes | base: packed 488 bytes
+PASS  duplicate-mismatch-refused-by-body-first   head: cfg 0 directory key type 0x0014 index 0 disagrees with body type 0x001 | base: ImageError: duplicate descriptor cfg 0 t
+PASS  key-type-over-16-bit                       head: cfg 0 directory key type 0x10014 index 0 disagrees with body type 0x00 | base: OverflowError: int too big to convert
+PASS  key-index-over-16-bit                      head: cfg 0 directory key type 0x0014 index 65536 disagrees with body type 0 | base: ImageError: cfg 0 type 0x0014 indices ar
+PASS  key-index-negative                         head: cfg 0 directory key type 0x0014 index -1 disagrees with body type 0x00 | base: ImageError: cfg 0 type 0x0014 indices ar
+PASS  key-type-hex-with-space                    head: packed 56 bytes | base: packed 56 bytes
+PASS  line-bytes-small-still-body-first          head: cfg 0 directory key type 0x0014 index 0 disagrees with body type 0x001 | base: ImageError: cfg 0 type 0x0014 index 0 is
+PASS  mismatch-in-first-of-many                  head: cfg 0 directory key type 0x0014 index 0 disagrees with body type 0x001 | base: packed 80 bytes
+21/21 probes as expected
+rc=0

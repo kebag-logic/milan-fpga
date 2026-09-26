@@ -1,0 +1,566 @@
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_legal_fields  (cwd mut-M0-remove-check/tb/desc_store)
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.185s
+
+OK
+rc=0
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_legal_bytes  (cwd mut-M0-remove-check/tb/desc_store)
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.182s
+
+OK
+rc=0
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_type_mismatch_fields  (cwd mut-M0-remove-check/tb/desc_store)
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER') ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20) ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014') ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660) ... FAIL
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_type_mismatch_bytes  (cwd mut-M0-remove-check/tb/desc_store)
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER') ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20) ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014') ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660) ... FAIL
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_index_mismatch_fields  (cwd mut-M0-remove-check/tb/desc_store)
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER') ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20) ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014') ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660) ... FAIL
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_index_mismatch_bytes  (cwd mut-M0-remove-check/tb/desc_store)
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER') ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20) ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014') ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660) ... FAIL
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=4)
+rc=1
+
+$ make generator-check  (cwd mut-M0-remove-check/tb/desc_store)
+python3 -B test_gen_desc_image.py
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER') ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20) ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014') ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660) ... FAIL
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER') ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20) ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014') ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660) ... FAIL
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) ... ok
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields) ... ok
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER') ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20) ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014') ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660) ... FAIL
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER') ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20) ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014') ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660) ... FAIL
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.368s
+
+FAILED (failures=16)
+make: *** [Makefile:32: generator-check] Error 1
+rc=2
+
+$ make  (cwd mut-M0-remove-check/tb/desc_store)
+python3 -B test_gen_desc_image.py
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER') ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20) ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014') ... FAIL
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660) ... FAIL
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER') ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20) ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014') ... FAIL
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660) ... FAIL
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) ... ok
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields) ... ok
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER') ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20) ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014') ... FAIL
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660) ... FAIL
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER') ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20) ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014') ... FAIL
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660) ... FAIL
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M0-remove-check/tb/desc_store/test_gen_desc_image.py", line 92, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.367s
+
+FAILED (failures=16)
+make: *** [Makefile:32: generator-check] Error 1
+rc=2
+

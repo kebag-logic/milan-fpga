@@ -1,0 +1,31 @@
+HEAD eb734969154d5a75ff84b2779ff6088a2f4311a5 tree 66f2b9733acc16a2e4588178e4582d62ce7f84fb
+== make check
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+wavedrom: 18 blocks checked, OK
+links: 915 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (92 rows, 0 untested)
+parameters: top 24, guide 24, diagram 24, OK
+rc=0
+== python3 scripts/check-links.py
+links: 915 checked, OK
+rc=0
+== python3 scripts/check-matrix.py
+matrix: 115 REQ rows, 17 GAP findings, OK
+rc=0
+== python3 scripts/check-integrator-params.py
+parameters: top 24, guide 24, diagram 24, OK
+rc=0
+== python3 scripts/render-wavedrom.py --check
+wavedrom: 18 blocks checked, OK
+rc=0
+== make stale
+rc=0
+== python3 scripts/gen_matrix.py --check
+matrix: OK (92 rows, 0 untested)
+rc=0
+== python3 scripts/check_upc_map.py
+UPC MAP GATE: PASS (56 engine constants, 80 entry points, all agree)
+rc=0
+== git diff --check 870ff88ad35bbd532244e4c7e6d7661b9f6e1366 eb734969154d5a75ff84b2779ff6088a2f4311a5
+rc=0

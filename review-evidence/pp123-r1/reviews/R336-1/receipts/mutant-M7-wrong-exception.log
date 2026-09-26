@@ -1,0 +1,902 @@
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_legal_fields  (cwd mut-M7-wrong-exception/tb/desc_store)
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.183s
+
+OK
+rc=0
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_legal_bytes  (cwd mut-M7-wrong-exception/tb/desc_store)
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.188s
+
+OK
+rc=0
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_type_mismatch_fields  (cwd mut-M7-wrong-exception/tb/desc_store)
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER') ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20) ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014') ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660) ... ERROR
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_type_mismatch_bytes  (cwd mut-M7-wrong-exception/tb/desc_store)
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER') ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20) ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014') ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660) ... ERROR
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_index_mismatch_fields  (cwd mut-M7-wrong-exception/tb/desc_store)
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER') ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20) ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014') ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660) ... ERROR
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=4)
+rc=1
+
+$ /usr/bin/python3 -B test_gen_desc_image.py BodyKeyTest.test_index_mismatch_bytes  (cwd mut-M7-wrong-exception/tb/desc_store)
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER') ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20) ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014') ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660) ... ERROR
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=4)
+rc=1
+
+$ make generator-check  (cwd mut-M7-wrong-exception/tb/desc_store)
+python3 -B test_gen_desc_image.py
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER') ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20) ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014') ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660) ... ERROR
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER') ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20) ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014') ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660) ... ERROR
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) ... ok
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields) ... ok
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER') ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20) ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014') ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660) ... ERROR
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER') ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20) ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014') ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660) ... ERROR
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.380s
+
+FAILED (errors=16)
+make: *** [Makefile:32: generator-check] Error 1
+rc=2
+
+$ make  (cwd mut-M7-wrong-exception/tb/desc_store)
+python3 -B test_gen_desc_image.py
+test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) ... 
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER') ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20) ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014') ... ERROR
+  test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660) ... ERROR
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) ... 
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER') ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20) ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014') ... ERROR
+  test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660) ... ERROR
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes) ... ok
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields) ... ok
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) ... 
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER') ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20) ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014') ... ERROR
+  test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660) ... ERROR
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) ... 
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER') ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20) ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014') ... ERROR
+  test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660) ... ERROR
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_bytes (__main__.BodyKeyTest.test_index_mismatch_bytes) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0014 index 257
+
+======================================================================
+ERROR: test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1234 index 257
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='AUDIO_CLUSTER')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=20)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key='0x0014')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x0014 index 1 disagrees with body type 0x0114 index 1
+
+======================================================================
+ERROR: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/tb/desc_store/test_gen_desc_image.py", line 93, in refused
+    gen_desc_image.build(model)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 446, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+                             ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/pp123-r336-1-packet/scratch/mut-M7-wrong-exception/hdl/aecp/desc/gen_desc_image.py", line 218, in _grouped_descriptors
+    raise ValueError(
+    ...<2 lines>...
+        f"index {body_index}")
+ValueError: cfg 1 directory key type 0x1234 index 1 disagrees with body type 0x1334 index 1
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.369s
+
+FAILED (errors=16)
+make: *** [Makefile:32: generator-check] Error 1
+rc=2
+
