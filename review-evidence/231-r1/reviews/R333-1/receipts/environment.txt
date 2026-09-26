@@ -1,0 +1,11 @@
+clean clone head: af6d19c553ad8c445a80528344baf2273b41ad46 tree abdc83b490114b217f40951173d637cbe2ba7dcf
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (5dce647)
+ 990f96526bb89356c963a260ebbdcf2a77e6623a protocol-processor (v2.0-262-g990f965)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+vivado: vivado v2026.1 (64-bit)
+yosys: Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+sv2v: sv2v v0.0.13
+sdk archive sha256: d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f (verified by scripts/ci_rv32_sdk.py --verify-only)
+litex patch series 0002/0004/0005: reverse-check applies (series applied)
+deviation: --vivado-max-threads 8 and general.maxThreads 8 instead of 32 (CPU allocation); integrated 1x1 run stopped at synthesis (--synthesis-only), no placement/route reproduced
