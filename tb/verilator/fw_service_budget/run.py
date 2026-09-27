@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
 SHAPES = ('endstation_ax7101_1x1_tdm8', 'endstation_ax7101_8x8')
 CPU_HZ = 50_000_000
-PLANS = ('all', 'queued-input', 'uart-paced', 'device-wait')
+PLANS = ('all', 'queued-input', 'queued-short', 'uart-paced', 'device-wait')
 SYS_HZ = 100_000_000
 # Cover every command registered by the product translation unit, plus
 # normal, boundary and refused parameter paths. BIOS maintenance is separate.
@@ -42,7 +42,9 @@ def command_plan(plan: str, shape: str = SHAPES[0]) -> tuple[str, ...]:
     """Name the finite schedule; queued-input repeats the public 133-byte P3."""
     require(plan in PLANS, 'unknown command plan')
     if plan == 'queued-input':
-        return ('milan_nvm',) * (3 if shape == SHAPES[1] else 12) + ('milan_status',)
+        return ('milan_nvm',) * 12 + ('milan_status',)
+    if plan == 'queued-short':
+        return ('milan_status',) * 350
     if plan == 'device-wait':
         return ('milan_nvm commit', 'milan_status')
     return COMMANDS
@@ -339,6 +341,37 @@ def grade(raw: str, media: dict) -> dict:
                 heartbeat=heartbeat, liveness=liveness_report(raw))
 
 
+def service_findings(result: dict, raw: str) -> list[str]:
+    """Apply the assigned service rule to opportunities, deadlines and backing."""
+    findings = []
+    for row in result['rows']:
+        # Ordinary console response time has no protocol deadline. Its shared
+        # heartbeat deadline applies to opportunities inside the handler.
+        if row['duty'] in ('boot_to_entity_enabled', 'restore_walk',
+                           'journal_commit_bracket', 'erase_enclosed_to_first_program',
+                           'wipe_erase_envelope', 'maximum_heartbeat_gap'):
+            findings.extend(budget_findings([row]))
+        if row['duty'] not in ('boot_to_entity_enabled', 'maximum_heartbeat_gap'):
+            if row['period_bound_ms'] > 500:
+                findings.append('over-budget tick stretch: ' + row['duty'])
+    backing = re.search(r'BACKING armed=(\d+) unbacked_cycles=(\d+)', raw)
+    require(backing is not None, 'no continuous backing observation')
+    if backing[1] != '1' or backing[2] != '0':
+        findings.append('continuous backing lost')
+    if any(sample['backed'] != 1 for sample in result['liveness']):
+        findings.append('console observed backing lost')
+    timing = re.search(r'PHY_TIMING transactions=(\d+) publications=(\d+) '
+                       r'max_transaction_cycles=(\d+) max_poll_cycles=(\d+) '
+                       r'down_edges=(\d+) up_edges=(\d+)', raw)
+    require(timing is not None, 'no target MDIO timing')
+    result['phy'] = dict(zip(('transactions', 'publications', 'max_transaction_sys_cycles',
+                             'max_poll_sys_cycles', 'down_edges', 'up_edges'), map(int, timing.groups())))
+    if result['media']['plan'] in ('queued-input', 'queued-short', 'device-wait'):
+        if (int(timing[5]), int(timing[6])) != (1, 1):
+            findings.append('PHY cycle did not reach both fabric counters exactly once')
+    return findings
+
+
 def trace_controls() -> int:
     """Pin both clock ratios, marker choices and deadlines against fixed traces."""
     controls = json.loads((HERE / 'oracle.json').read_text())
@@ -372,6 +405,29 @@ def trace_controls() -> int:
     return count + 2
 
 
+def service_controls() -> int:
+    """Pin the new service rule at its boundary and kill independent defects."""
+    row = dict(interval('milan_nvm', 1, 80_000_001, 500), period_bound_ms=500)
+    raw = ('BACKING armed=1 unbacked_cycles=0\n'
+           'PHY_TIMING transactions=8 publications=1 max_transaction_cycles=10 '
+           'max_poll_cycles=90 down_edges=1 up_edges=1\n')
+    result = dict(rows=[row], media=dict(plan='queued-input'), liveness=[dict(backed=1)])
+    require(service_findings(result, raw) == [], 'serviced long command must fit')
+    row['period_bound_ms'] = 500.00001
+    require(service_findings(result, raw) == ['over-budget tick stretch: milan_nvm'],
+            'one cycle past service allowance escaped')
+    row['period_bound_ms'] = 500
+    require(service_findings(result, raw.replace('unbacked_cycles=0', 'unbacked_cycles=1'))
+            == ['continuous backing lost'], 'single-cycle backing loss escaped')
+    require(service_findings(result, raw.replace('up_edges=1', 'up_edges=2'))
+            == ['PHY cycle did not reach both fabric counters exactly once'],
+            'duplicate fabric link edge escaped')
+    for shape in SHAPES:
+        require(sum(len(command) + 1 for command in command_plan('queued-input', shape)) == 133,
+                'queued plan is not the full 133-byte schedule')
+    return 6
+
+
 def self_test() -> None:
     """A legal boundary passes; one additional system cycle must be refused."""
     count = 0
@@ -399,7 +455,7 @@ def self_test() -> None:
                                (ROOT / 'sw/firmware/milan_baremetal/milan_baremetal.c').read_text()))
     require(registered == {command.split()[0] for command in COMMANDS}, 'product dispatch census changed')
     count += 1
-    count += trace_controls() + wait_controls() + tick_controls()
+    count += trace_controls() + wait_controls() + tick_controls() + service_controls()
     with tempfile.TemporaryDirectory(prefix='fw-service-budget-') as directory:
         executable = Path(directory) / 'flash-test'
         subprocess.run(['c++', '-std=c++17', '-Wall', '-Wextra', '-Werror',
@@ -422,6 +478,9 @@ def main() -> None:
     parser.add_argument('--record-budget-findings', action='store_true',
                         help='record budget refusals as findings; fail on invalid measurement evidence')
     parser.add_argument('--populated', action='store_true')
+    parser.add_argument('--enforce-service', action='store_true',
+                        help='grade duty tick stretches and continuous backing')
+    parser.add_argument('--mutation', choices=('none', 'remove-dispatch', 'no-publish'), default='none')
     parser.add_argument('--plan', choices=PLANS, default='all')
     parser.add_argument('--device-wait-us', type=int, default=0, help='erase WIP in microseconds')
     parser.add_argument('--program-wait-us', type=int, default=0, help='page-program WIP in microseconds')
@@ -431,6 +490,10 @@ def main() -> None:
         return
     if args.build_dir is None:
         parser.error('--build-dir is required for measurement')
+    if args.mutation == 'remove-dispatch' and args.plan != 'queued-short':
+        parser.error('dispatch control requires queued-short')
+    if args.mutation != 'none' and not args.enforce_service:
+        parser.error('mutation controls require --enforce-service')
     args.build_dir = args.build_dir.resolve()
     if args.regrade:
         require(not args.build_only, '--regrade and --build-only are incompatible')
@@ -440,7 +503,6 @@ def main() -> None:
     args.cpu_hz = CPU_HZ
     args.captures = 2
     args.traffic = 'off'
-    args.mutation = 'none'
     from build import build, compile_sim
     if not args.reuse_build:
         spec = build(args)
@@ -449,7 +511,8 @@ def main() -> None:
         (args.build_dir / 'service_spec.json').write_text(json.dumps(spec, indent=2) + '\n')
     else:
         spec = json.loads((args.build_dir / 'service_spec.json').read_text())
-        require(spec['shape'] == args.shape and spec['cpu_hz'] == CPU_HZ, 'build shape/clock mismatch')
+        require(spec['shape'] == args.shape and spec['cpu_hz'] == CPU_HZ
+                and spec['mutation'] == args.mutation, 'build shape/clock/mutation mismatch')
         require(spec.get('build_hashes') == build_hashes(args.build_dir, spec), 'stale or unbound build; rebuild')
     if args.build_only:
         return
@@ -468,7 +531,15 @@ def main() -> None:
             str(args.program_wait_us), str(int(args.plan == 'uart-paced'))]
     if not args.regrade:
         with (args.build_dir / (name + '.log')).open('w') as log:
-            subprocess.run(argv, cwd=args.build_dir / 'gateware', stdout=log, stderr=subprocess.STDOUT, check=True)
+            native = subprocess.run(argv, cwd=args.build_dir / 'gateware', stdout=log,
+                                    stderr=subprocess.STDOUT, check=False)
+        if args.mutation == 'no-publish':
+            raw = (args.build_dir / (name + '.log')).read_text()
+            require(native.returncode != 0 and 'missing MDIO/publication evidence' in raw,
+                    'missing publisher escaped its named simulation check')
+            print('PASS: missing publication caught by target simulation')
+            return
+        require(native.returncode == 0, 'native simulation failed')
     raw = (args.build_dir / (name + '.log')).read_bytes().decode()
     result = dict(media=media, shape=args.shape, cpu_hz=CPU_HZ, sys_hz=SYS_HZ, device_wait_us=args.device_wait_us,
                   program_wait_us=args.program_wait_us, raw_log=raw,
@@ -477,13 +548,20 @@ def main() -> None:
     # Keep the native evidence bound even if its analysis fails, for regrade.
     (args.build_dir / (name + '.json')).write_text(json.dumps(result, indent=2) + '\n')
     result.update(grade(raw, media))
+    if args.enforce_service:
+        result['service_findings'] = service_findings(result, raw)
     (args.build_dir / (name + '.json')).write_text(json.dumps(result, indent=2) + '\n')
     require(inputs() == hashes, 'measurement code changed during the run; receipt requires regrade')
     print(json.dumps(result['rows'], indent=2))
-    for finding in result['budget_findings']:
+    findings = result.get('service_findings', result['budget_findings'])
+    if args.mutation == 'remove-dispatch':
+        require('continuous backing lost' in findings, 'dispatch removal escaped backing check')
+        print('PASS: dispatch removal caught by continuous backing check')
+        return
+    for finding in findings:
         print('BUDGET FINDING: ' + finding)
-    require(args.record_budget_findings or not result['budget_findings'], 'budget findings require disposition')
-    print('PASS: measurement evidence; budget findings: ' + str(len(result['budget_findings'])))
+    require(args.record_budget_findings or not findings, 'budget findings require disposition')
+    print('PASS: measurement evidence; budget findings: ' + str(len(findings)))
 
 
 if __name__ == '__main__':

@@ -137,8 +137,12 @@ int main(void)
 	/* Negotiated 100/10, full/half; no extended-status register on MII. */
 	registers[1] = 0x24;
 	for (i = 0; i < 4; ++i) {
-		static const uint16_t peer_modes[4] = {0x101, 0x81, 0x41, 0x21};
-		static const unsigned int expected[4] = {11, 3, 9, 1};
+		static const uint16_t peer_modes[4] = {
+			0x101, 0x81, 0x41, 0x21
+		};
+		static const unsigned int expected[4] = {
+			11, 3, 9, 1
+		};
 
 		registers[5] = peer_modes[i];
 		now += 125000000u;

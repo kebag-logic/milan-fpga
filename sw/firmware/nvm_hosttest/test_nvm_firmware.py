@@ -583,6 +583,8 @@ def main() -> int:
                   f"{'OK' if not got else f'{len(got)} finding(s)'}")
         if a.self_test and not findings:
             findings += self_test(cfgs[0], Path(tmp) / "selftest", firmware_text)
+            subprocess.run([sys.executable, str(HERE / "test_phy_firmware.py")],
+                           check=True, timeout=180)
     for x in findings:
         print(f"FINDING: {x}")
     if findings:
