@@ -1,0 +1,58 @@
+{
+  "original_commit": "220c9d56d28073362c2e715b832482146f38e6b1",
+  "minimal_commit": "5d4cf33e3709c35d4f5bc90d3c5a2334ef3bfd8e",
+  "recipe": "syn/yosys/ooc.sh KL_pp_shadow milan_datapath",
+  "shape": "configs/generated/endstation_arty_current",
+  "mapping": "synth_xilinx -family xc7 -flatten",
+  "results": {
+    "original": [
+      {
+        "top": "KL_pp_shadow",
+        "LUT": 60846,
+        "LUTRAM": 6136,
+        "LUT_total": 66982,
+        "FF": 30187,
+        "RAMB36": 15,
+        "RAMB18": 4,
+        "DSP": 6,
+        "CARRY4": 2104
+      },
+      {
+        "top": "milan_datapath",
+        "LUT": 91376,
+        "LUTRAM": 6640,
+        "LUT_total": 98016,
+        "FF": 43475,
+        "RAMB36": 17,
+        "RAMB18": 20,
+        "DSP": 15,
+        "CARRY4": 3628
+      }
+    ],
+    "minimal": [
+      {
+        "top": "KL_pp_shadow",
+        "LUT": 60846,
+        "LUTRAM": 6136,
+        "LUT_total": 66982,
+        "FF": 30187,
+        "RAMB36": 15,
+        "RAMB18": 4,
+        "DSP": 6,
+        "CARRY4": 2104
+      },
+      {
+        "top": "milan_datapath",
+        "LUT": 89526,
+        "LUTRAM": 6640,
+        "LUT_total": 96166,
+        "FF": 43475,
+        "RAMB36": 17,
+        "RAMB18": 20,
+        "DSP": 15,
+        "CARRY4": 3629
+      }
+    ]
+  },
+  "decision": "Keep minimal: datapath LUT total 96166 versus 98016, saving 1850; shadow unchanged."
+}

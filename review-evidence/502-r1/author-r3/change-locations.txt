@@ -1,0 +1,21 @@
+hdl/milan/milan_datapath.sv:4248: logic amap_edit_beat_w;
+hdl/milan/milan_datapath.sv:4254: assign amap_edit_live_wr_p = axis_resetn && amap_edit_beat_w
+hdl/milan/milan_datapath.sv:4369: if (amap_edit_live_wr_p) begin
+hdl/milan/milan_datapath.sv:7497: .amap_live_wr_i    (amap_edit_live_wr_p),
+hdl/milan/KL_pp_shadow.sv:388: input  wire         amap_live_wr_i,
+hdl/milan/KL_pp_shadow.sv:945: assign aecp_live_wr_w = aecp_name_wr_w
+hdl/milan/KL_pp_shadow.sv:948: always_ff @(posedge clk_i) begin : latch_live_pending
+tb/verilator/pp_shadow/sim_main.cpp:266: struct PendingObs {
+tb/verilator/pp_shadow/sim_main.cpp:292: std::vector<uint8_t> pending_live_state() {
+tb/verilator/pp_shadow/sim_main.cpp:324: void pending_post_edge() {
+tb/verilator/pp_shadow/sim_main.cpp:1428: void pending_preload_map(uint16_t type) {
+tb/verilator/pp_shadow/sim_main.cpp:1442: void pending_map_commands(uint16_t type) {
+tb/verilator/pp_shadow/sim_main.cpp:1481: void grade_pending_live_writes() {
+tb/verilator/pp_shadow/pending_mutant.py:39: live = """  assign aecp_live_wr_w = aecp_name_wr_w
+tb/verilator/pp_shadow/pending_probes.vlt:11: public_flat_rd -module "KL_aecp_desc_store" -var "name_r"
+tb/verilator/pp_shadow/README.md:50: ## Pending from live writes
+docs/design/SAVED_STATE_MATERIALIZATION.md:128: parent's `pend_i` combines three sources in `KL_pp_shadow.sv`.
+docs/design/SAVED_STATE_MATERIALIZATION.md:224: Issue #502 implements that standalone reporting correction.
+docs/design/SAVED_STATE_MATERIALIZATION.md:485: - `pend_i = (|nvm_unflushed_o) | d3_unflushed_o`. The `aecp_live_pend_r` bit
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:941: ### 6.1 The pending bit (owner decision)
+docs/testing/TESTING.md:268: | #502 live-write pending, late-mark control | `make -C tb/verilator/pp_shadow pending-mutant` | Authors and reviewers changing `KL_pp_shadow.sv`, the map-edit owner in `milan_datapath.sv`, the processor name-write export, or `tb/verilator/pp_shadow/{sim_main.cpp,pending_probes.vlt,pending_mutant.py,Makefile}` |

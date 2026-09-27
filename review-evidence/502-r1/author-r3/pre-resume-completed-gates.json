@@ -1,0 +1,609 @@
+[
+  {
+    "label": "focused-dynamic",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow",
+      "run-pending"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 2,
+    "seconds": 13.7,
+    "log": "/tmp/502-a345/focused-dynamic.log",
+    "size": 51193,
+    "sha256": "4aba2bbfb2ffd8ece4bcfe022768784e74a0e8d14e363b8c8f6704c6faff53d9",
+    "log_matches_record": true,
+    "receipt": "receipts/focused-dynamic.log"
+  },
+  {
+    "label": "focused-dynamic-fixed",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow",
+      "run-pending"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 3.5,
+    "log": "/tmp/502-a345/focused-dynamic-fixed.log",
+    "size": 30718,
+    "sha256": "7ef747ee0b503f5588f5f7c7cbef41b93aa001555d18e5abce2ef9c45c512569",
+    "log_matches_record": true,
+    "receipt": "receipts/focused-dynamic-fixed.log"
+  },
+  {
+    "label": "lint",
+    "command": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 4.5,
+    "log": "/tmp/502-a345/lint.log",
+    "size": 14186,
+    "sha256": "d754295fe8f3aa2304724f7a1ef4fd1856a6a1ea7e766bc1fef86ccb764e6147",
+    "log_matches_record": true,
+    "receipt": "receipts/lint.log"
+  },
+  {
+    "label": "ports",
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 2.3,
+    "log": "/tmp/502-a345/ports.log",
+    "size": 421,
+    "sha256": "eed4188366eced1ee727819ad607f9af837b98bee5d2ec97d18f375cdb0b00fd",
+    "log_matches_record": true,
+    "receipt": "receipts/ports.log"
+  },
+  {
+    "label": "naming",
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.5,
+    "log": "/tmp/502-a345/naming.log",
+    "size": 36312,
+    "sha256": "ec6265f3e57951eb0efd29b1dffbc4e77db4b3c34fddcc3d0cf9e9816bc34182",
+    "log_matches_record": true,
+    "receipt": "receipts/naming.log"
+  },
+  {
+    "label": "test-evidence",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 5.3,
+    "log": "/tmp/502-a345/test-evidence.log",
+    "size": 10747,
+    "sha256": "b223ee28796bf8444bd48878486c98488eb191fe0502fa86ba4d8351cbabbcc3",
+    "log_matches_record": true,
+    "receipt": "receipts/test-evidence.log"
+  },
+  {
+    "label": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 4.3,
+    "log": "/tmp/502-a345/docs.log",
+    "size": 127,
+    "sha256": "7fc3a8fa476fd4939eb594f5c5d66110cbd92962112d19afa2e9d97cae685257",
+    "log_matches_record": true,
+    "receipt": "receipts/docs.log"
+  },
+  {
+    "label": "docs-no-git",
+    "command": [
+      "env",
+      "GIT_DIR=/dev/null",
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 4.2,
+    "log": "/tmp/502-a345/docs-no-git.log",
+    "size": 195,
+    "sha256": "74d7a7a058a47340709ae5d66126464cb0d4b66a9f9ca50437e7f0e98eb59b83",
+    "log_matches_record": true,
+    "receipt": "receipts/docs-no-git.log"
+  },
+  {
+    "label": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "831f94f4"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 3.1,
+    "log": "/tmp/502-a345/em-dash.log",
+    "size": 140,
+    "sha256": "0a7e5f10f0c9614dc81af2d98fe5efe899ecf95f8e400b8a313d5365cd8f42f9",
+    "log_matches_record": true,
+    "receipt": "receipts/em-dash.log"
+  },
+  {
+    "label": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.1,
+    "log": "/tmp/502-a345/doc-style.log",
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "log_matches_record": true,
+    "receipt": "receipts/doc-style.log"
+  },
+  {
+    "label": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 2.5,
+    "log": "/tmp/502-a345/toc.log",
+    "size": 94,
+    "sha256": "6642d3bdcd07879c0433c46345c63e0c307cefd933c2e526e11c570a3989bc1e",
+    "log_matches_record": true,
+    "receipt": "receipts/toc.log"
+  },
+  {
+    "label": "anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 1.6,
+    "log": "/tmp/502-a345/anchors.log",
+    "size": 64,
+    "sha256": "e482b00f6511f9c9d210a5de4332f7ae6689ff091af706e6c9cefae0970ae949",
+    "log_matches_record": true,
+    "receipt": "receipts/anchors.log"
+  },
+  {
+    "label": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.1,
+    "log": "/tmp/502-a345/doc-paths.log",
+    "size": 84,
+    "sha256": "c11e956b994e187832369fdd5719c8bff4a2373c284c2823cf17d76104e9c233",
+    "log_matches_record": true,
+    "receipt": "receipts/doc-paths.log"
+  },
+  {
+    "label": "nvm-capture",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.7,
+    "log": "/tmp/502-a345/nvm-capture.log",
+    "size": 324,
+    "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439",
+    "log_matches_record": true,
+    "receipt": "receipts/nvm-capture.log"
+  },
+  {
+    "label": "sv-idiom",
+    "command": [
+      "python3",
+      "scripts/check_sv_idiom.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.4,
+    "log": "/tmp/502-a345/sv-idiom.log",
+    "size": 218,
+    "sha256": "f593c2c09ec9ad3238b7154f82d9d04de4cfe8b623f8b5393dceb71e707be7d0",
+    "log_matches_record": true,
+    "receipt": "receipts/sv-idiom.log"
+  },
+  {
+    "label": "cpp-idiom",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 1.2,
+    "log": "/tmp/502-a345/cpp-idiom.log",
+    "size": 315,
+    "sha256": "5fcfda67372888f00805f233179b9a143d9d57a08d52639d1b1794f302886ca5",
+    "log_matches_record": true,
+    "receipt": "receipts/cpp-idiom.log"
+  },
+  {
+    "label": "py-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 3.3,
+    "log": "/tmp/502-a345/py-idiom.log",
+    "size": 461,
+    "sha256": "dc978947d64425aaa6fcd48882a9315e03b7d74d3dbad5ec22652e53b01e1015",
+    "log_matches_record": true,
+    "receipt": "receipts/py-idiom.log"
+  },
+  {
+    "label": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.1,
+    "log": "/tmp/502-a345/diff-check.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "log_matches_record": true,
+    "receipt": "receipts/diff-check.log"
+  },
+  {
+    "label": "pp-shadow-default",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 60.7,
+    "log": "/tmp/502-a345/pp-shadow-default.log",
+    "size": 268311,
+    "sha256": "80c8058fa612142f9f66c386b037f9f5595c5377b9626ed3e414e883de2e7cf0",
+    "log_matches_record": true,
+    "receipt": "Not copied: size exceeds output-directory limit; original path, size and digest retained."
+  },
+  {
+    "label": "pending-mutant",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow",
+      "pending-mutant"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 26.1,
+    "log": "/tmp/502-a345/pending-mutant.log",
+    "size": 3706,
+    "sha256": "00a10aea5bc95ed936fe88ab00d323ca527ab93fbdf9240896d7e398a9239ca8",
+    "log_matches_record": true,
+    "receipt": "receipts/pending-mutant.log"
+  },
+  {
+    "label": "r329-unchanged",
+    "command": [
+      "python3",
+      "/tmp/502-a345/r329_mutants.py",
+      "/tmp/502-a345/export",
+      "/tmp/502-a345/r329-unchanged"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 1,
+    "seconds": 0.1,
+    "log": "/tmp/502-a345/r329-unchanged.log",
+    "size": 633,
+    "sha256": "1c9b9ad970b8d573a5d411ab8df3cf695041910b9a77b0bff2494fb6c0a7e54d",
+    "log_matches_record": false,
+    "receipt": "Historical log was replaced by the subsequent run with the same label; original size and digest retained."
+  },
+  {
+    "label": "em-dash-final",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "831f94f4"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 3.1,
+    "log": "/tmp/502-a345/em-dash-final.log",
+    "size": 140,
+    "sha256": "5ef6edb0c08ccb5b1a12ead7c2ede367d29ee824ca90d66dd30ebf15fbb99a95",
+    "log_matches_record": true,
+    "receipt": "receipts/em-dash-final.log"
+  },
+  {
+    "label": "r329-unchanged",
+    "command": [
+      "python3",
+      "/tmp/502-a345/r329_mutants.py",
+      "/tmp/502-a345/export",
+      "/tmp/502-a345/r329-unchanged"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 78.6,
+    "log": "/tmp/502-a345/r329-unchanged.log",
+    "size": 3551,
+    "sha256": "55b49178daf6af836f2307af2e08a4de29a5d2922631907bce23504549f5df54",
+    "log_matches_record": true,
+    "receipt": "receipts/r329-unchanged.log"
+  },
+  {
+    "label": "r328-unchanged",
+    "command": [
+      "python3",
+      "/tmp/502-a345/reviewer_mutants.py",
+      "/tmp/502-a345/export",
+      "/tmp/502-a345/r328-unchanged"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 78.1,
+    "log": "/tmp/502-a345/r328-unchanged.log",
+    "size": 668,
+    "sha256": "56bdf2c214685eeee093db2499e83d4988f09654d17db23ce0256c6f7185d4cc",
+    "log_matches_record": true,
+    "receipt": "receipts/r328-unchanged.log"
+  },
+  {
+    "label": "r329-probe-unchanged",
+    "command": [
+      "python3",
+      "/tmp/502-a345/r329_probe.py",
+      "/tmp/502-a345/export",
+      "/tmp/502-a345/r329-probe"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 13.6,
+    "log": "/tmp/502-a345/r329-probe-unchanged.log",
+    "size": 1850,
+    "sha256": "91cd8e74af115f754c0bf53a613b084a7f8273504c10d195b7f5ed5c37d490bc",
+    "log_matches_record": true,
+    "receipt": "receipts/r329-probe-unchanged.log"
+  },
+  {
+    "label": "r329-reanchored",
+    "command": [
+      "python3",
+      "/tmp/502-a345/adapt-reviewers.py",
+      "/tmp/502-a345/r329_mutants.py",
+      "/tmp/502-a345/export",
+      "/tmp/502-a345/r329-reanchored",
+      "M1_drop_map",
+      "M2_drop_name",
+      "M4_wrong_phase_2",
+      "M5_early_phase_4",
+      "M6_add_only",
+      "M8_input_ports_only",
+      "M9_any_phase",
+      "M10_late_mark"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 203.6,
+    "log": "/tmp/502-a345/r329-reanchored.log",
+    "size": 9518,
+    "sha256": "42cd254bb903b0dab8fdc6e4462a8b9f35d01cfee9e1edb387ad32c5cb95b65f",
+    "log_matches_record": true,
+    "receipt": "receipts/r329-reanchored.log"
+  },
+  {
+    "label": "diff-check-final",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "831f94f4",
+      "HEAD"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.0,
+    "log": "/tmp/502-a345/diff-check-final.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "log_matches_record": true,
+    "receipt": "receipts/diff-check-final.log"
+  },
+  {
+    "label": "wire-accountability",
+    "command": [
+      "python3",
+      "scripts/check_wire_accountability.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.2,
+    "log": "/tmp/502-a345/wire-accountability.log",
+    "size": 4559,
+    "sha256": "bb4f0fb7d46f7632106bf643ac6ce0aff4cb8c5a742cac8c1164ae2eef111320",
+    "log_matches_record": true,
+    "receipt": "receipts/wire-accountability.log"
+  },
+  {
+    "label": "area-base",
+    "command": [
+      "env",
+      "OOC_TMP=/tmp/502-a345/area-base-results",
+      "bash",
+      "/tmp/502-a345/area-base/ooc.sh",
+      "KL_pp_shadow",
+      "milan_datapath"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 527.0,
+    "log": "/tmp/502-a345/area-base.log",
+    "size": 400,
+    "sha256": "e8a50b1c18a9d2335814bb0b8dce5e674fb935c8cd40c3938892e2844a76fef8",
+    "log_matches_record": true,
+    "receipt": "receipts/area-base.log"
+  },
+  {
+    "label": "r328-reanchored",
+    "command": [
+      "python3",
+      "/tmp/502-a345/adapt-reviewers.py",
+      "/tmp/502-a345/reviewer_mutants.py",
+      "/tmp/502-a345/export",
+      "/tmp/502-a345/r328-reanchored",
+      "drop_name",
+      "drop_map",
+      "phase4_validate",
+      "phase1_begin_commit",
+      "phase0_begin",
+      "phase2_finish",
+      "map_any_phase"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 180.9,
+    "log": "/tmp/502-a345/r328-reanchored.log",
+    "size": 639,
+    "sha256": "5103f0acb7a91c48c2c4a4afdc9489e3ab4c90af8f5d6c6ccf145e0cc24b4dee",
+    "log_matches_record": true,
+    "receipt": "receipts/r328-reanchored.log"
+  },
+  {
+    "label": "r328-oracle-static",
+    "command": [
+      "make",
+      "run-base",
+      "SIM_ARGS=--pending-only",
+      "BUILD_DIR=/tmp/502-a345/r328-oracle/static",
+      "CPP=r328_probe_main.cpp"
+    ],
+    "cwd": "/tmp/502-a345/export/tb/verilator/pp_shadow",
+    "rc": 0,
+    "seconds": 11.5,
+    "log": "/tmp/502-a345/r328-oracle-static.log",
+    "size": 40036,
+    "sha256": "13eb4a1c8e271b0d4198743b862ce8d9b30db48dbfb58f03f2303ee2885f95b2",
+    "log_matches_record": true,
+    "receipt": "receipts/r328-oracle-static.log"
+  },
+  {
+    "label": "r328-oracle-dynamic",
+    "command": [
+      "make",
+      "run-pending",
+      "PENDING_BUILD_DIR=/tmp/502-a345/r328-oracle/dynamic",
+      "CPP=r328_probe_main.cpp"
+    ],
+    "cwd": "/tmp/502-a345/export/tb/verilator/pp_shadow",
+    "rc": 0,
+    "seconds": 12.0,
+    "log": "/tmp/502-a345/r328-oracle-dynamic.log",
+    "size": 46310,
+    "sha256": "28d24b4983f495d704a41bfb9adb3839dfd582969286ea9f2289aa72199c1c48",
+    "log_matches_record": true,
+    "receipt": "receipts/r328-oracle-dynamic.log"
+  },
+  {
+    "label": "r328-oracle-driver",
+    "command": [
+      "python3",
+      "/tmp/502-a345/run-r328-oracle.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 23.7,
+    "log": "/tmp/502-a345/r328-oracle-driver.log",
+    "size": 4168,
+    "sha256": "a4f118b3d9da7f3d3a71a21cc4e773fec937360125a18f2739b0f5ec958e07ea",
+    "log_matches_record": true,
+    "receipt": "receipts/r328-oracle-driver.log"
+  },
+  {
+    "label": "area-head",
+    "command": [
+      "env",
+      "OOC_TMP=/tmp/502-a345/area-head-results",
+      "bash",
+      "syn/yosys/ooc.sh",
+      "KL_pp_shadow",
+      "milan_datapath"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 529.7,
+    "log": "/tmp/502-a345/area-head.log",
+    "size": 400,
+    "sha256": "f67b13510827fe076b512e4e47ed29696fe214e5aae43d935e766e514bca32b7",
+    "log_matches_record": true,
+    "receipt": "receipts/area-head.log"
+  },
+  {
+    "label": "builder-present",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/builder/test_builder.py",
+      "--require-rv32",
+      "--require-elaboration"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 684.3,
+    "log": "/tmp/502-a345/builder-present.log",
+    "size": 84772,
+    "sha256": "4acad5b2dbc323125f5aa066f3bda7ef94750ba1ce8f0242d29825faeb1837c9",
+    "log_matches_record": true,
+    "receipt": "receipts/builder-present.log"
+  },
+  {
+    "label": "builder-absent",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-u",
+      "/tmp/502-a345/full-builder-absent.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 467.2,
+    "log": "/tmp/502-a345/builder-absent.log",
+    "size": 86942,
+    "sha256": "a07e122ce241d2babc08af8af6470de6cdb875f582e828ac06426dd8c535db13",
+    "log_matches_record": true,
+    "receipt": "receipts/builder-absent.log"
+  }
+]

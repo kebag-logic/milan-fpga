@@ -1,0 +1,550 @@
+[
+  {
+    "label": "lint",
+    "command": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 4.1,
+    "log": "/tmp/502-a345/lint.log",
+    "size": 14186,
+    "sha256": "d754295fe8f3aa2304724f7a1ef4fd1856a6a1ea7e766bc1fef86ccb764e6147"
+  },
+  {
+    "label": "ports",
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 2.3,
+    "log": "/tmp/502-a345/ports.log",
+    "size": 421,
+    "sha256": "eed4188366eced1ee727819ad607f9af837b98bee5d2ec97d18f375cdb0b00fd"
+  },
+  {
+    "label": "naming",
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.5,
+    "log": "/tmp/502-a345/naming.log",
+    "size": 36312,
+    "sha256": "ec6265f3e57951eb0efd29b1dffbc4e77db4b3c34fddcc3d0cf9e9816bc34182"
+  },
+  {
+    "label": "test-evidence",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 5.3,
+    "log": "/tmp/502-a345/test-evidence.log",
+    "size": 10747,
+    "sha256": "b223ee28796bf8444bd48878486c98488eb191fe0502fa86ba4d8351cbabbcc3"
+  },
+  {
+    "label": "sv-idiom",
+    "command": [
+      "python3",
+      "scripts/check_sv_idiom.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.4,
+    "log": "/tmp/502-a345/sv-idiom.log",
+    "size": 218,
+    "sha256": "f593c2c09ec9ad3238b7154f82d9d04de4cfe8b623f8b5393dceb71e707be7d0"
+  },
+  {
+    "label": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 4.2,
+    "log": "/tmp/502-a345/docs.log",
+    "size": 127,
+    "sha256": "7fc3a8fa476fd4939eb594f5c5d66110cbd92962112d19afa2e9d97cae685257"
+  },
+  {
+    "label": "pp-shadow-default",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 72.4,
+    "log": "/tmp/502-a345/pp-shadow-default.log",
+    "size": 289581,
+    "sha256": "a9caf4caf0889b55216decee560d0a9338b6b537456edd5fbf19fbad02922f56"
+  },
+  {
+    "label": "r329-unchanged",
+    "command": [
+      "python3",
+      "/tmp/502-a345/r329_mutants.py",
+      "/tmp/502-a345/export",
+      "/tmp/502-a345/r329-unchanged"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 74.2,
+    "log": "/tmp/502-a345/r329-unchanged.log",
+    "size": 3551,
+    "sha256": "55b49178daf6af836f2307af2e08a4de29a5d2922631907bce23504549f5df54"
+  },
+  {
+    "label": "docs-no-git",
+    "command": [
+      "env",
+      "GIT_DIR=/dev/null",
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 4.2,
+    "log": "/tmp/502-a345/docs-no-git.log",
+    "size": 195,
+    "sha256": "74d7a7a058a47340709ae5d66126464cb0d4b66a9f9ca50437e7f0e98eb59b83"
+  },
+  {
+    "label": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.1,
+    "log": "/tmp/502-a345/doc-style.log",
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+    "label": "pending-mutant",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow",
+      "pending-mutant"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 25.9,
+    "log": "/tmp/502-a345/pending-mutant.log",
+    "size": 3706,
+    "sha256": "00a10aea5bc95ed936fe88ab00d323ca527ab93fbdf9240896d7e398a9239ca8"
+  },
+  {
+    "label": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 2.5,
+    "log": "/tmp/502-a345/toc.log",
+    "size": 94,
+    "sha256": "6642d3bdcd07879c0433c46345c63e0c307cefd933c2e526e11c570a3989bc1e"
+  },
+  {
+    "label": "anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 1.6,
+    "log": "/tmp/502-a345/anchors.log",
+    "size": 64,
+    "sha256": "e482b00f6511f9c9d210a5de4332f7ae6689ff091af706e6c9cefae0970ae949"
+  },
+  {
+    "label": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.1,
+    "log": "/tmp/502-a345/doc-paths.log",
+    "size": 84,
+    "sha256": "c11e956b994e187832369fdd5719c8bff4a2373c284c2823cf17d76104e9c233"
+  },
+  {
+    "label": "nvm-capture",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.7,
+    "log": "/tmp/502-a345/nvm-capture.log",
+    "size": 324,
+    "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439"
+  },
+  {
+    "label": "cpp-idiom",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 1.2,
+    "log": "/tmp/502-a345/cpp-idiom.log",
+    "size": 315,
+    "sha256": "5fcfda67372888f00805f233179b9a143d9d57a08d52639d1b1794f302886ca5"
+  },
+  {
+    "label": "py-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 3.2,
+    "log": "/tmp/502-a345/py-idiom.log",
+    "size": 461,
+    "sha256": "dc978947d64425aaa6fcd48882a9315e03b7d74d3dbad5ec22652e53b01e1015"
+  },
+  {
+    "label": "wire-accountability",
+    "command": [
+      "python3",
+      "scripts/check_wire_accountability.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.2,
+    "log": "/tmp/502-a345/wire-accountability.log",
+    "size": 4559,
+    "sha256": "bb4f0fb7d46f7632106bf643ac6ce0aff4cb8c5a742cac8c1164ae2eef111320"
+  },
+  {
+    "label": "r328-unchanged",
+    "command": [
+      "python3",
+      "/tmp/502-a345/reviewer_mutants.py",
+      "/tmp/502-a345/export",
+      "/tmp/502-a345/r328-unchanged"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 75.4,
+    "log": "/tmp/502-a345/r328-unchanged.log",
+    "size": 668,
+    "sha256": "56bdf2c214685eeee093db2499e83d4988f09654d17db23ce0256c6f7185d4cc"
+  },
+  {
+    "label": "r329-probe-unchanged",
+    "command": [
+      "python3",
+      "/tmp/502-a345/r329_probe.py",
+      "/tmp/502-a345/export",
+      "/tmp/502-a345/r329-probe"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 13.2,
+    "log": "/tmp/502-a345/r329-probe-unchanged.log",
+    "size": 1850,
+    "sha256": "91cd8e74af115f754c0bf53a613b084a7f8273504c10d195b7f5ed5c37d490bc"
+  },
+  {
+    "label": "priority-static",
+    "command": [
+      "make",
+      "run-base",
+      "CPP=priority_probe_main.cpp",
+      "VERILATOR=verilator /tmp/502-a345/priority_probes.vlt",
+      "SIM_ARGS=--pending-only",
+      "BUILD_DIR=/tmp/502-a345/priority-static"
+    ],
+    "cwd": "/tmp/502-a345/export/tb/verilator/pp_shadow",
+    "rc": 0,
+    "seconds": 12.1,
+    "log": "/tmp/502-a345/priority-static.log",
+    "size": 42400,
+    "sha256": "d1b5b81218f42428c10d023726521e69680c86273fd11253fa029b801f184a75"
+  },
+  {
+    "label": "priority-dynamic",
+    "command": [
+      "make",
+      "run-pending",
+      "CPP=priority_probe_main.cpp",
+      "VERILATOR=verilator /tmp/502-a345/priority_probes.vlt",
+      "PENDING_BUILD_DIR=/tmp/502-a345/priority-dynamic",
+      "CXXFLAGS=-DPRIORITY_DYNAMIC=1"
+    ],
+    "cwd": "/tmp/502-a345/export/tb/verilator/pp_shadow",
+    "rc": 0,
+    "seconds": 13.1,
+    "log": "/tmp/502-a345/priority-dynamic.log",
+    "size": 51881,
+    "sha256": "1941208a52c633a081c83effafabc1e08e37e08591253c1753177da8b73af6a6"
+  },
+  {
+    "label": "minimal-equivalence",
+    "command": [
+      "python3",
+      "/tmp/502-a345/verify-minimal.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.1,
+    "log": "/tmp/502-a345/minimal-equivalence.log",
+    "size": 348,
+    "sha256": "f581bda44593b1a876c6d5ba5663b89c0a27cf4d4cd447157174f3de91f1e4db"
+  },
+  {
+    "label": "r329-reanchored",
+    "command": [
+      "python3",
+      "/tmp/502-a345/adapt-reviewers.py",
+      "/tmp/502-a345/r329_mutants.py",
+      "/tmp/502-a345/export",
+      "/tmp/502-a345/r329-reanchored",
+      "M1_drop_map",
+      "M2_drop_name",
+      "M4_wrong_phase_2",
+      "M5_early_phase_4",
+      "M6_add_only",
+      "M8_input_ports_only",
+      "M9_any_phase",
+      "M10_late_mark"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 202.2,
+    "log": "/tmp/502-a345/r329-reanchored.log",
+    "size": 9518,
+    "sha256": "42cd254bb903b0dab8fdc6e4462a8b9f35d01cfee9e1edb387ad32c5cb95b65f"
+  },
+  {
+    "label": "area-original",
+    "command": [
+      "env",
+      "OOC_TMP=/tmp/502-a345/area-original-results",
+      "bash",
+      "/tmp/502-a345/area-original/ooc.sh",
+      "KL_pp_shadow",
+      "milan_datapath"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 514.8,
+    "log": "/tmp/502-a345/area-original.log",
+    "size": 400,
+    "sha256": "f67b13510827fe076b512e4e47ed29696fe214e5aae43d935e766e514bca32b7"
+  },
+  {
+    "label": "area-minimal",
+    "command": [
+      "env",
+      "OOC_TMP=/tmp/502-a345/area-minimal-results",
+      "bash",
+      "syn/yosys/ooc.sh",
+      "KL_pp_shadow",
+      "milan_datapath"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 513.3,
+    "log": "/tmp/502-a345/area-minimal.log",
+    "size": 400,
+    "sha256": "d2c94c99b9ec5a36b624aa71f993f68b1ba3fd35ba43ee9790a284b3b133bf62"
+  },
+  {
+    "label": "em-dash-final",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "831f94f4"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 3.0,
+    "log": "/tmp/502-a345/em-dash-final.log",
+    "size": 140,
+    "sha256": "166ff134b1cf47231649d54d270a9aa6f5cfb296517e58a80369a47908b6d659"
+  },
+  {
+    "label": "diff-check-final",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "831f94f4",
+      "HEAD"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.0,
+    "log": "/tmp/502-a345/diff-check-final.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "r328-reanchored",
+    "command": [
+      "python3",
+      "/tmp/502-a345/adapt-reviewers.py",
+      "/tmp/502-a345/reviewer_mutants.py",
+      "/tmp/502-a345/export",
+      "/tmp/502-a345/r328-reanchored",
+      "drop_name",
+      "drop_map",
+      "phase4_validate",
+      "phase1_begin_commit",
+      "phase0_begin",
+      "phase2_finish",
+      "map_any_phase"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 171.8,
+    "log": "/tmp/502-a345/r328-reanchored.log",
+    "size": 639,
+    "sha256": "5103f0acb7a91c48c2c4a4afdc9489e3ab4c90af8f5d6c6ccf145e0cc24b4dee"
+  },
+  {
+    "label": "r328-oracle-static",
+    "command": [
+      "make",
+      "run-base",
+      "SIM_ARGS=--pending-only",
+      "BUILD_DIR=/tmp/502-a345/r328-oracle/static",
+      "CPP=r328_probe_main.cpp"
+    ],
+    "cwd": "/tmp/502-a345/export/tb/verilator/pp_shadow",
+    "rc": 0,
+    "seconds": 11.1,
+    "log": "/tmp/502-a345/r328-oracle-static.log",
+    "size": 40036,
+    "sha256": "14f4d9de891b044ff966c4387bfbed4230406e7fc07020df3ca6c513b7b10d0c"
+  },
+  {
+    "label": "r328-oracle-dynamic",
+    "command": [
+      "make",
+      "run-pending",
+      "PENDING_BUILD_DIR=/tmp/502-a345/r328-oracle/dynamic",
+      "CPP=r328_probe_main.cpp"
+    ],
+    "cwd": "/tmp/502-a345/export/tb/verilator/pp_shadow",
+    "rc": 0,
+    "seconds": 12.1,
+    "log": "/tmp/502-a345/r328-oracle-dynamic.log",
+    "size": 46310,
+    "sha256": "dad885b7844358cbe5110df53b70cf5a8585102fddf94d34b7f24aafcbb79cbe"
+  },
+  {
+    "label": "r328-oracle-driver",
+    "command": [
+      "python3",
+      "/tmp/502-a345/run-r328-oracle.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 23.4,
+    "log": "/tmp/502-a345/r328-oracle-driver.log",
+    "size": 4168,
+    "sha256": "caaeb46cb8d48d0c3c82744c1e54160ccf0f9d431d508822df8f8cddebc47f66"
+  },
+  {
+    "label": "builder-present",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/builder/test_builder.py",
+      "--require-rv32",
+      "--require-elaboration"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 662.9,
+    "log": "/tmp/502-a345/builder-present.log",
+    "size": 84772,
+    "sha256": "279f563f773bd819fd77339f661d364f3450e7c9a5377de8c153e55eba718e6a"
+  },
+  {
+    "label": "builder-absent",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-u",
+      "/tmp/502-a345/full-builder-absent.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 461.3,
+    "log": "/tmp/502-a345/builder-absent.log",
+    "size": 86942,
+    "sha256": "3193e0f304b806682ac74aa682d6d2149d0d42e988fa9ec712a7dc59f65976d0"
+  },
+  {
+    "label": "reviewer-results-audit",
+    "command": [
+      "python3",
+      "/tmp/502-a345/verify-reviewer-results.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.0,
+    "log": "/tmp/502-a345/reviewer-results-audit.log",
+    "size": 428,
+    "sha256": "c8db15c2b2c463af1bf23a9a2db9f2c610275b19bc71de3b6dc96231fcf75b74"
+  },
+  {
+    "label": "default-sweep",
+    "command": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "/tmp/502-a345/sweep"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 4493.3,
+    "log": "/tmp/502-a345/default-sweep.log",
+    "size": 1835,
+    "sha256": "89bb8c819b193230f695f85035e71d93e07347f369add82152fe1f4daccd6406"
+  },
+  {
+    "label": "final-tree-integrity",
+    "command": [
+      "python3",
+      "/tmp/502-a345/verify-final-tree.py"
+    ],
+    "cwd": "$LANES/502-pending-live-write",
+    "rc": 0,
+    "seconds": 0.2,
+    "log": "/tmp/502-a345/final-tree-integrity.log",
+    "size": 726,
+    "sha256": "d40061cd0e6bdf8b2361a715d21a7403ca11eb548a262d9435a2e1a13f6a113f"
+  }
+]
