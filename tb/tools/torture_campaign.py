@@ -3389,10 +3389,13 @@ SOAK_ASSERTS = (
                "publication reads and transition evidence prove no asCapable loss"),
     AssertSpec("soak.tu-within-holdover", RELEASE_CLAUSE +
                "; Milan v1.2 Annex B.1/B.1.1 / IEEE 1722-2016 4.4.4.7: "
-               "each tu interval begins with a recorded GM change or timing "
-               "discontinuity and clears within 0.5 s of that event plus "
+               "each tu interval contains at least one recorded discontinuity: "
+               "PHC settime/adjtime, fabric discontinuity, or GM-identity edge; "
+               "measure from the last recorded discontinuity before tu clears; "
+               "it clears within 0.5 s plus "
                "the stated observation resolution; uncorrelated tu fails; "
-               "B.1.1 supplies the 0.25 s minimum, while clock validity "
+               "resolution comes from wire capture and correlated event timestamps; "
+               "B.1.1 states 0.25 s, read by the project as a minimum; clock validity "
                "implements 0.25-0.5 s; B.1's 5 s media-clock holdover is "
                "not a tu bound; "
                "periodic healthy samples alone cannot prove this"),
@@ -3528,6 +3531,33 @@ def check_release_boot(boot_passes: int | None, restarts: int | None, *,
              "why": "exactly one BIOS pass and no additional restart per cold cut"})
 
 
+def check_release_tu(interval_s: tuple[float, float], discontinuities_s: list[float], *,
+                     holdover_bound_s: float, observation_resolution_s: float | None,
+                     capture_complete: bool) -> tuple[str, dict]:
+    """L3 #396 round 4: grade one complete interval against the emitted bound.
+
+    The caller supplies only recorded PHC settime/adjtime, fabric discontinuity,
+    or GM-identity events, on the same clock as the wire interval. Missing
+    evidence cannot pass; a complete interval with no such event fails.
+    """
+    import math
+    values = (*interval_s, *discontinuities_s, holdover_bound_s, observation_resolution_s)
+    if (capture_complete is not True or len(interval_s) != 2
+            or any(type(value) not in (int, float) or not math.isfinite(value) for value in values)):
+        return "SKIP", {"why": "complete finite interval, events and resolution required"}
+    start_s, clear_s = interval_s
+    if clear_s < start_s or holdover_bound_s <= 0 or observation_resolution_s < 0:
+        return "SKIP", {"why": "ordered interval, positive bound and nonnegative resolution required"}
+    events_s = [event_s for event_s in discontinuities_s if start_s <= event_s < clear_s]
+    if not events_s:
+        return "FAIL", {"why": "uncorrelated tu fails"}
+    last_discontinuity_s = max(events_s)
+    deadline_s = last_discontinuity_s + holdover_bound_s + observation_resolution_s
+    return ("PASS" if clear_s <= deadline_s else "FAIL",
+            {"last_discontinuity_s": last_discontinuity_s, "deadline_s": deadline_s,
+             "clear_s": clear_s})
+
+
 def plan_soak(dut: Device = ARTY, peer: Device = PEER,
               settings: ReleaseSettings = ReleaseSettings()) -> list[Step]:
     """One continuous repeat operation, with baseline and final counter walks."""
@@ -3542,8 +3572,9 @@ def plan_soak(dut: Device = ARTY, peer: Device = PEER,
                 continuous_evidence=["asCapable_transitions", "tu_intervals",
                                      "stream_flow", "uptime"],
                 tu_holdover_bound_s=0.5,
-                tu_time_origin="recorded GM change or timing discontinuity",
-                tu_observation_resolution="record measured resolution in seconds with event evidence",
+                tu_time_origin="last recorded discontinuity before tu clears",
+                tu_discontinuity_kinds=["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"],
+                tu_observation_resolution="record wire-capture and correlated event-timestamp resolution in seconds",
                 tu_uncorrelated="fail",
                 timestamp_margin={"register": "AVTPRX_TSD", "offset": 0x6EC,
                                   "stream_input": 0, "units": "signed ns"})
@@ -4954,6 +4985,20 @@ class _ReleasePlanChecks:
             main()
         self.assertEqual(failure.exception.code, 2)
 
+    def test_release_cli_power_hold_default(self) -> None:
+        """L3 #396: an omitted CLI hold retains the decided eight seconds."""
+        import contextlib
+        import io
+        from unittest.mock import patch
+        output = io.StringIO()
+        argv = ["torture_campaign.py", "--plan", "--areas", "power", "--json"]
+        with patch.object(sys, "argv", argv), contextlib.redirect_stdout(output):
+            self.assertEqual(main(), 0)
+        steps = json.loads(output.getvalue())
+        self.assertEqual(len(steps), 2)
+        for step in steps:
+            self.assertEqual(step["args"]["power_off_hold_s"], 8)
+
     def test_release_timing_and_snapshot_contract(self) -> None:
         """L3 #396 round 3 pins T0 origins, separate off time, and phase policies."""
         settings = ReleaseSettings(restore_bound_s=19, boot_margin_s=11, power_off_hold_s=17)
@@ -5090,13 +5135,58 @@ class _ReleasePlanChecks:
         self.assertFalse(_release_topology_explicit(dut.replace("entity=", "entity_id="), peer))
 
     def test_release_tu_contract(self) -> None:
-        """L3 #396 round 3 uses the implemented bound, with event resolution."""
+        """L3 #396 round 4 anchors each interval at its last discontinuity."""
         soak = build_plan(["soak"])[0]
         self.assertEqual(soak.args["tu_holdover_bound_s"], 0.5)
-        self.assertEqual(soak.args["tu_time_origin"], "recorded GM change or timing discontinuity")
+        self.assertEqual(soak.args["tu_time_origin"], "last recorded discontinuity before tu clears")
+        self.assertEqual(soak.args["tu_discontinuity_kinds"],
+                         ["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"])
         self.assertEqual(soak.args["tu_observation_resolution"],
-                         "record measured resolution in seconds with event evidence")
+                         "record wire-capture and correlated event-timestamp resolution in seconds")
         self.assertEqual(soak.args["tu_uncorrelated"], "fail")
+
+    def test_release_tu_chained_discontinuities(self) -> None:
+        """L3 #396 round 4 examples independently pin passing and late clears."""
+        bound_s = build_plan(["soak"])[0].args["tu_holdover_bound_s"]
+        for clear_s, events_s, resolution_s, expected in (
+                (0.62, [0, 0.2], 0.001, "PASS"),
+                (0.8, [0, 0.2], 0.001, "FAIL"),
+                (0.62, [], 0.001, "FAIL"),
+                (0.62, [-0.1, 0.62, 0.7], 0.001, "FAIL"),
+                (0.62, [0.2, 0, 0.9], 0.001, "PASS"),
+                (0.75, [0, 0.25], 0, "PASS"),
+                (0.751, [0, 0.25], 0, "FAIL"),
+                (0.76, [0, 0.25], 0.01, "PASS"),
+                (0.761, [0, 0.25], 0.01, "FAIL")):
+            with self.subTest(clear_s=clear_s, events_s=events_s, resolution_s=resolution_s):
+                verdict, evidence = check_release_tu(
+                    (0, clear_s), events_s, holdover_bound_s=bound_s,
+                    observation_resolution_s=resolution_s, capture_complete=True)
+                self.assertEqual(verdict, expected, evidence)
+        for interval_s, events_s, resolution_s, complete in (
+                ((0, 0.62), [0, 0.2], None, True),
+                ((0, 0.62), [0, 0.2], 0.001, False),
+                ((0.62, 0), [0.2], 0.001, True),
+                ((0, 0.62), [float("nan")], 0.001, True),
+                ((0, 0.62), [0.2], -1, True),
+                ((0, 0.62), [0.2], True, True)):
+            self.assertEqual(check_release_tu(
+                interval_s, events_s, holdover_bound_s=bound_s,
+                observation_resolution_s=resolution_s, capture_complete=complete)[0], "SKIP")
+
+    def test_release_assertion_text(self) -> None:
+        """L3 #396: operator-facing instructions must preserve the decided rules."""
+        specs = {spec.name: spec.clause for step in build_plan(["soak", "power"])
+                 for spec in step.asserts}
+        for phrase in ("contains at least one recorded discontinuity",
+                       "PHC settime/adjtime, fabric discontinuity, or GM-identity edge",
+                       "last recorded discontinuity before tu clears", "within 0.5 s plus",
+                       "uncorrelated tu fails", "wire capture and correlated event timestamps"):
+            self.assertIn(phrase, specs["soak.tu-within-holdover"])
+        for phrase in ("valid_time measured from T0", "require valid_time=10 (20 s)",
+                       "pre-cut advertisement age are provenance, " "not charged to",
+                       "missing capture or a missed deadline fails"):
+            self.assertIn(phrase, specs["power.adp-valid-time"])
 
     def test_release_crf_overlap_refused(self) -> None:
         """An AAF range or explicit set cannot also designate the CRF stream."""

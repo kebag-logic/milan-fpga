@@ -259,13 +259,16 @@ verified blocks outside the shipping datapath; the station-address rules
   No unexplained `MEDIA_UNLOCKED` increase is permitted.
   No `asCapable` loss is permitted.
   `asCapable` authority: Milan v1.2 4.2.6.2.4.
-  Each `tu` interval begins with a recorded discontinuity.
-  This must be a GM change or timing discontinuity.
+  Each `tu` interval contains at least one recorded discontinuity.
+  Accepted kinds: PHC settime/adjtime, fabric discontinuity, or GM-identity edge.
+  Measure from the last recorded discontinuity before `tu` clears.
   It clears within 0.5 seconds plus stated observation resolution.
-  Measure that interval from the recorded discontinuity.
   Any `tu` without a recorded discontinuity fails.
+  Resolution comes from wire capture and correlated event timestamps.
+  Periodic counter-read cadence cannot supply that resolution.
+  The [round-4 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855792297) defines this anchor.
   Uncertainty authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1/B.1.1.
-  B.1.1 provides the 0.25-second minimum.
+  B.1.1 states 0.25 seconds; the project reads this as a minimum.
   Clock validity implements 0.25-0.5 seconds of discontinuity holdover.
   B.1's five-second media-clock holdover never bounds `tu`.
   Observe gPTP publication, `AVTPRX_TSD` margin, and monotonic uptime.

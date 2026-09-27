@@ -411,6 +411,13 @@ Feature: The torture campaign's own coverage is auditable at a desk
     Then uncertainty is correlated and bounded by half a second plus observation resolution
 
   @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: the last discontinuity anchors a chained uncertainty interval
+    When the soak release area is planned
+    Then a chained discontinuity clearing at 0.62 seconds is PASS
+    And a chained discontinuity clearing at 0.8 seconds is FAIL
+    And an uncertainty interval without a discontinuity fails
+
+  @class:release @clause:REQ-VER-06 @negative-control
   Scenario: a second successful boot cannot hide the first-boot restart
     Then the first-boot restart control fails the release boot assertion
 

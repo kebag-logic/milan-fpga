@@ -260,9 +260,29 @@ def step_tp_release_eligible(context: Context, eligibility: str) -> None:
 
 @then("uncertainty is correlated and bounded by half a second plus observation resolution")
 def step_tp_release_tu_bound(context: Context) -> None:
-    """L3 #396 round 3 distinguishes discontinuity holdover from media holdover."""
+    """L3 #396 round 4 measures holdover from the interval's last event."""
     args = context.tp_plan[0].args
     assert args["tu_holdover_bound_s"] == 0.5
-    assert args["tu_time_origin"] == "recorded GM change or timing discontinuity"
+    assert args["tu_time_origin"] == "last recorded discontinuity before tu clears"
+    assert args["tu_discontinuity_kinds"] == ["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"]
     assert args["tu_uncorrelated"] == "fail"
-    assert args["tu_observation_resolution"] == "record measured resolution in seconds with event evidence"
+    assert args["tu_observation_resolution"] == \
+        "record wire-capture and correlated event-timestamp resolution in seconds"
+
+
+@then("a chained discontinuity clearing at {seconds:g} seconds is {verdict}")
+def step_tp_release_tu_chain(context: Context, seconds: float, verdict: str) -> None:
+    """L3 #396 round 4: GM edge at zero, followed by PHC step at 0.2 s."""
+    actual, evidence = tp.check_release_tu(
+        (0, seconds), [0, 0.2], holdover_bound_s=context.tp_plan[0].args["tu_holdover_bound_s"],
+        observation_resolution_s=0.001, capture_complete=True)
+    assert actual == verdict, evidence
+
+
+@then("an uncertainty interval without a discontinuity fails")
+def step_tp_release_tu_no_event(context: Context) -> None:
+    """L3 #396 round 4: complete capture cannot excuse uncorrelated tu."""
+    actual, evidence = tp.check_release_tu(
+        (0, 0.62), [], holdover_bound_s=context.tp_plan[0].args["tu_holdover_bound_s"],
+        observation_resolution_s=0.001, capture_complete=True)
+    assert actual == "FAIL", evidence

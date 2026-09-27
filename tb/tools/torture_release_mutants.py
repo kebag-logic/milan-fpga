@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""L3 #396 round-3 controls: the unchanged self-test must reject each defect.
+"""L3 #396 release controls: the unchanged self-test must reject each defect.
 
 Run from any directory with the same interpreter as the planner self-test.
 Only a temporary planner copy changes. A timeout or parser error is no kill;
@@ -44,6 +44,37 @@ MUTANTS = (
      'boot_evidence="complete UART/reset observation from T0 through next cut or campaign end; "',
      'boot_evidence="complete UART/reset observation from T0 through boot_observation_s; "',
      "test_release_boot_negative_control"),
+    ("tu anchor uses the first discontinuity",
+     "last_discontinuity_s = max(events_s)", "last_discontinuity_s = min(events_s)",
+     "test_release_tu_chained_discontinuities"),
+    ("tu clearing deadline ignores observation resolution",
+     "last_discontinuity_s + holdover_bound_s + observation_resolution_s",
+     "last_discontinuity_s + holdover_bound_s",
+     "test_release_tu_chained_discontinuities"),
+    ("tu oracle accepts an uncorrelated interval",
+     'return "FAIL", {"why": "uncorrelated tu fails"}',
+     'return "PASS", {"why": "uncorrelated tu fails"}',
+     "test_release_tu_chained_discontinuities"),
+    ("tu plan uses the first discontinuity",
+     'tu_time_origin="last recorded discontinuity before tu clears",',
+     'tu_time_origin="first recorded discontinuity",', "test_release_tu_contract"),
+    ("tu plan drops capture resolution",
+     'tu_observation_resolution="record wire-capture and correlated event-timestamp resolution in seconds",',
+     'tu_observation_resolution="optional",', "test_release_tu_contract"),
+    ("tu assertion allows five seconds",
+     '"it clears within 0.5 s plus "', '"it clears within 5 s plus "', "test_release_assertion_text"),
+    ("tu assertion drops uncorrelated failure",
+     '"the stated observation resolution; uncorrelated tu fails; "',
+     '"the stated observation resolution; "', "test_release_assertion_text"),
+    ("ADP assertion uses the pre-cut anchor",
+     "valid_time measured from T0, the host-timestamped power-strip ",
+     "valid_time measured from the last pre-cut advertisement, the host-timestamped power-strip ",
+     "test_release_assertion_text"),
+    ("ADP assertion charges the off time",
+     "pre-cut advertisement age are provenance, not charged to",
+     "pre-cut advertisement age are charged to", "test_release_assertion_text"),
+    ("CLI power hold default changes",
+     "default=ReleaseSettings.power_off_hold_s", "default=5", "test_release_cli_power_hold_default"),
 )
 
 

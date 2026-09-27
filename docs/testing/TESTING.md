@@ -912,7 +912,7 @@ Teardown follows the final snapshot.
 | `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED`; IEEE 1722-2016 4.4.4.6 | Zero growth throughout the soak |
 | `MEDIA_UNLOCKED` | Every increase explained with retained evidence |
 | Coherent fabric gPTP publication and transition history | No `asCapable` loss; Milan 4.2.6.2.4 |
-| Timestamped discontinuities and wire `tu` intervals | Begin with a recorded GM change or timing discontinuity; clear within 0.5 seconds of that event plus stated observation resolution; uncorrelated `tu` fails |
+| Timestamped discontinuities and wire `tu` intervals | Contain at least one recorded discontinuity: PHC settime/adjtime, fabric discontinuity, or GM-identity edge; measure from the last recorded discontinuity before `tu` clears; clear within 0.5 seconds plus stated observation resolution; uncorrelated `tu` fails |
 | `AVTPRX_TSD`, signed nanoseconds | Fresh margin observations for `STREAM_INPUT[0]` only |
 | DUT uptime | Monotonic advance, with no reboot |
 
@@ -920,11 +920,27 @@ Periodic healthy reads cannot prove that intermediate transitions never happened
 Retain continuous transition, streaming, and uncertainty evidence too.
 Unavailable event evidence leaves the release gate unsatisfied.
 The single-index timestamp register cannot prove other streams' margins.
-Record measured event/capture resolution in seconds with the evidence.
+Record wire-capture and correlated event-timestamp resolution in seconds.
+Periodic counter-read cadence cannot supply that resolution.
 The bound is 0.5 seconds plus that recorded resolution.
 Missing resolution or discontinuity evidence cannot pass.
+Each `tu` interval contains at least one recorded discontinuity.
+Accepted kinds: PHC settime/adjtime, fabric discontinuity, or GM-identity edge.
+Measure from the last recorded discontinuity before `tu` clears.
+The [round-4 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855792297) defines this anchor.
+Every discontinuity reloads the implemented holdover.
+Sync requalification must finish within the same clearing deadline.
+Use `check_release_tu` with complete interval and discontinuity evidence.
+Supply the plan's `tu_holdover_bound_s` and measured observation resolution.
+Its timestamps share the capture's correlated host clock.
+Include only recorded discontinuities of the accepted kinds.
+For example, a GM edge occurs at zero seconds.
+A PHC step follows at 0.2 seconds.
+Clearing at 0.62 seconds passes with 0.001-second resolution.
+Clearing at 0.8 seconds fails under that same resolution.
+An interval without a recorded discontinuity fails.
 Authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1.1.
-B.1.1 supplies the 0.25-second minimum.
+B.1.1 states 0.25 seconds; the project reads this as a minimum.
 [`KL_ptp_clock_validity.sv`](../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv) implements 0.25-0.5 seconds.
 B.1's recommended five-second media-clock holdover never bounds `tu`.
 
@@ -936,6 +952,8 @@ Record `power_off_hold_s` and the actual power-OFF/ON timestamps.
 Its eight-second default follows `phys.dut-cycle.power-cycle`.
 Hold power off for at least that configured duration.
 Discharge must still be verified before applying power.
+The effective minimum is the longer of hold and discharge.
+Elapsed hold alone never proves a cold cut.
 The [round-3 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855515133) defines post-cut timing.
 T0 is the power-strip ON command's host monotonic timestamp.
 Correlate capture timestamps with that same clock.
