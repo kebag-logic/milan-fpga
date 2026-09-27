@@ -1,0 +1,14 @@
+== environment
+SDK: fresh install from the pinned archive (sha256 d42680e9...), verify-only rc 0, GCC 14.3.0
+LiteX interpreter 3.14.7
+private liteeth copy at 276c9e37fb4d92a5c0f30d39a51c20f42a59cf93 carries 0002-liteeth-gmii-tx-clk-invert
+private litex copy at a1e1c3652ec2f1346ebaea7663d2867f393ae2c4 carries 0004-vexiiriscv-baremetal-variant
+private pythondata-cpu-vexiiriscv copy at 15cfab529a17c473d0fc75edf3f409eb374cef35 with only the cached netlist VexiiRiscvLitex_f5f08b17...v (generator sources excluded, so a cache miss would fail rather than regenerate)
+== work-alpha
+milan-clk-freq 50e6
+elaboration log lines: 1182
+argv 54 args; --build absent: True ; clk 50e6
+== wk/beta-build-root
+milan-clk-freq 50e6
+elaboration log lines: 1182
+argv 54 args; --build absent: True ; clk 50e6

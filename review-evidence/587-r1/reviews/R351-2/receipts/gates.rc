@@ -1,0 +1,17 @@
+python3 -B scripts/docs_check.py rc=0
+env GIT_DIR=/dev/null python3 -B scripts/docs_check.py rc=0
+python3 -B scripts/check_doc_style.py rc=0
+python3 -B scripts/check_doc_paths.py rc=0
+git diff --check 63fe4fb0164d798d44a6476001dc8b887cdd4609 HEAD rc=0
+git diff --check 55079500483970ee244f12fa4c94401783f3df6f HEAD rc=0
+<scratch>/mdvenv/bin/python -B scripts/check_em_dash.py --base 63fe4fb0164d798d44a6476001dc8b887cdd4609 rc=0
+<scratch>/mdvenv/bin/python -B scripts/check_em_dash.py --base 55079500483970ee244f12fa4c94401783f3df6f rc=0
+<scratch>/mdvenv/bin/python -B scripts/gen_toc.py --check rc=0
+<scratch>/mdvenv/bin/python -B scripts/gen_toc.py --verify-anchors rc=0
+python3 -B syn/ooc/pp_baseline.py --selftest rc=0
+python3 -B syn/ooc/pp_baseline_mutants.py rc=0
+python3 -B syn/ooc/pp_baseline_reports_selftest.py rc=0
+python3 -B scripts/pp_srcs.py --check rc=0
+python3 -B scripts/check_baremetal_only.py --check rc=0
+python3 -B scripts/check_baremetal_only.py --selftest rc=0
+python3 -B scripts/check_entity_shape.py rc=0

@@ -1,0 +1,4 @@
+gamma probe: checkout copy exported through a symlinked path (REPO=$PWD=<link>).
+Result: the launcher preview refuses (export rc=1, no Verilog produced):
+refusing to build: <scratch>/ck/gamma-link/sw/builder/out/endstation_ax7101_8x8/soc_params.json was generated from '<scratch>/ck/gamma-link/configs/endstation_ax7101_8x8.yaml', not 'configs/endstation_ax7101_8x8.yaml', so it belongs to another config
+Conclusion: a logical-versus-physical checkout-root ambiguity cannot enter a recipe export; the pre-existing launcher guard is out of this PR's scope.
