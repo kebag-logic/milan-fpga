@@ -1193,6 +1193,8 @@ BASE_RATE_HZ = {48000: (0x5, 6), 96000: (0x7, 12), 192000: (0x9, 24)}
 #: Processor walk bound: protocol-processor/docs/architecture/07_memory_maps.md
 #: section 3.1, L10 (AUDIO_UNIT sampling_rates at offset 144).
 MAX_AUDIO_UNIT_RATES = 8
+#: IEEE 1722.1-2021 Table 7-8, independent of descriptor line-buffer size.
+MAX_STREAM_FORMATS = 47
 #: Milan v1.2 6.2 / Table 6.1 - the ONLY channel counts that are Base formats.
 BASE_CHANNELS = (1, 2, 4, 6, 8)
 
@@ -1388,6 +1390,30 @@ def _stream_buffer_ns(stream: dict[str, Any], ctx: str, direction: str) -> int:
     return length_ns
 
 
+def _validate_stream_formats(formats: Sequence[str], ctx: str, family: str) -> None:
+    """Validate the final list, including derived listener family entries."""
+    if len(formats) > MAX_STREAM_FORMATS:
+        raise ConfigError(
+            f"{ctx}: format count {len(formats)} exceeds {MAX_STREAM_FORMATS} "
+            "(IEEE 1722.1-2021 Table 7-8)")
+    family_word = int(CRF_FORMAT_DEFAULT, 16) if family == "CRF" else aaf_pcm32(0)
+    if any(int(word, 16) >> 56 != family_word >> 56 for word in formats):
+        raise ConfigError(
+            f"{ctx}: must contain only {family} formats "
+            "(Milan v1.2 5.3.3.4; AAF/CRF families must not mix)")
+    if family == "CRF" and any(word != CRF_FORMAT_DEFAULT for word in formats):
+        raise ConfigError(
+            f"{ctx}: CRF format must be {CRF_FORMAT_DEFAULT} "
+            "(Milan v1.2 7.3.2 Table 7.1)")
+
+
+def _crf_format(value: Any, ctx: str) -> str:
+    """A declared CRF input or output uses the one Milan format word."""
+    word = _fmt64(value, ctx)
+    _validate_stream_formats([word], ctx, "CRF")
+    return word
+
+
 def _streams(lst, ctx, direction, rate_hz=48000):
     if not isinstance(lst, list) or not lst:
         raise ConfigError(f"{ctx}: needs at least one {direction} stream")
@@ -1431,6 +1457,7 @@ def _streams(lst, ctx, direction, rate_hz=48000):
                         f"that goes stale, since only the config half can be "
                         f"written with the wrong channel count")
             fmts = base_format_complete(fmts)
+        _validate_stream_formats(fmts, f"{sctx}.formats", "AAF")
         clusters = s.get("clusters", ch)
         if not (isinstance(clusters, int) and 1 <= clusters <= 32):
             raise ConfigError(f"{sctx}: clusters {clusters} outside 1..32")
@@ -3839,10 +3866,10 @@ def _load_clocking(cfg, path):
         media_clock_sources=list(srcs),
         default_source=dflt,
         crf_sink=bool(clk.get("crf_sink", True)),
-        crf_format=_fmt64(clk.get("crf_format", CRF_FORMAT_DEFAULT),
+        crf_format=_crf_format(clk.get("crf_format", CRF_FORMAT_DEFAULT),
                           "clocking.crf_format"),
         crf_output=bool(co.get("enabled", False)),
-        crf_output_format=_fmt64(co.get("format", CRF_FORMAT_DEFAULT),
+        crf_output_format=_crf_format(co.get("format", CRF_FORMAT_DEFAULT),
                                  "clocking.crf_output.format"),
         crf_output_presentation_time_offset_ns=_factory_offset(
             co, "clocking.crf_output"),

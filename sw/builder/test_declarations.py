@@ -87,6 +87,56 @@ def test_listener_buffer_contract() -> None:
     print("[F2] eight listener indices: floor/above accepted, below/noninteger refused")
 
 
+def test_stream_format_contract() -> None:
+    """Table 7-8 count after Milan 6.4 completion; 5.3.3.4 family separation."""
+    base = yaml.safe_load((ROOT / "configs/endstation_arty_4x4.yaml").read_text())
+    # Independent format strings and cap from AVTP I.2.4 and Table 7-8.
+    aaf = "0x0205022000806000"
+    crf = "0x041060010000BB80"
+    with tempfile.TemporaryDirectory(prefix="stream-format-contract.") as tmp:
+        directory = Path(tmp)
+        for direction in ("listeners", "talkers"):
+            for index in range(len(base["streams"][direction])):
+                raw = copy.deepcopy(base)
+                stream = raw["streams"][direction][index]
+                field = f"streams.{direction}[{index}].formats"
+                derived = int(direction == "listeners")
+                for count in (1, 47 - derived):
+                    stream["formats"] = [aaf] * count
+                    cfg = _load(raw, directory)
+                    assert len(cfg[direction][index]["formats"]) == count + derived
+                for count in (48 - derived, 48):
+                    stream["formats"] = [aaf] * count
+                    _refused(raw, directory, field, "format count")
+                for formats in ([aaf, crf], [crf, aaf], [crf],
+                                [aaf, "0x0000000000000000"], ["0x8205022000806000"]):
+                    stream["formats"] = formats
+                    _refused(raw, directory, field, "must contain only AAF formats")
+    print("[F3] each AAF input/output: 47 final entries accepted; count/family refusals")
+
+
+def test_crf_format_contract() -> None:
+    """Milan 7.3.2 Table 7.1 independently fixes both CRF direction words."""
+    base = yaml.safe_load((ROOT / "configs/endstation_arty_4x4.yaml").read_text())
+    with tempfile.TemporaryDirectory(prefix="crf-format-contract.") as tmp:
+        directory = Path(tmp)
+        for output in (False, True):
+            raw = copy.deepcopy(base)
+            node = raw["clocking"]["crf_output"] if output else raw["clocking"]
+            key = "format" if output else "crf_format"
+            field = "clocking.crf_output.format" if output else "clocking.crf_format"
+            node[key] = "0x041060010000bb80"
+            cfg = _load(raw, directory)
+            resolved = "crf_output_format" if output else "crf_format"
+            assert cfg["clocking"][resolved] == "0x041060010000BB80"
+            node[key] = "0x041060010000BB81"
+            _refused(raw, directory, field, "CRF format must be")
+            for value in ("0x0205022000806000", "0x0000000000000000", "0x841060010000BB80"):
+                node[key] = value
+                _refused(raw, directory, field, "must contain only CRF formats")
+    print("[F3] both CRF directions: Milan word accepted; altered word/wrong family refused")
+
+
 def _code(text):
     return re.sub(r"/\*.*?\*/|//[^\n]*", "", text, flags=re.S)
 
@@ -127,6 +177,8 @@ def test_declaration_contracts() -> None:
     """Declaration refusals, generated rows, real bindings and mutation controls."""
     test_model_id_contract()
     test_listener_buffer_contract()
+    test_stream_format_contract()
+    test_crf_format_contract()
     base = yaml.safe_load((ROOT / "configs/endstation_arty_current.yaml").read_text())
     with tempfile.TemporaryDirectory(prefix="declarations.") as tmp:
         directory = Path(tmp)
