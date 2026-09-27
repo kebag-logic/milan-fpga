@@ -1,0 +1,12 @@
+## non-Markdown paths changed 054e59b4..7c63e453 (expect none):
+## end
+## RTL derivation quoted by README-parameters.md:37
+7c63e453:hdl/milan/milan_datapath.sv:656:  localparam int MCLK_DIV_LOG2_C = $clog2(MILAN_CLK_FREQ_HZ / 12_500_000);
+50000000 clog2(4)=2
+100000000 clog2(8)=3
+## 8x8 and 1x1 declared milan_clk_hz at head
+7c63e453:configs/endstation_arty_4x4.yaml:67:    milan_clk_hz: 50000000
+7c63e453:configs/endstation_arty_8ch.yaml:102:    milan_clk_hz: 50000000
+7c63e453:configs/endstation_arty_current.yaml:101:    milan_clk_hz: 50000000           # dense datapath in its own 50 MHz domain
+7c63e453:configs/endstation_ax7101_1x1_tdm8.yaml:44:    milan_clk_hz: 50000000   # 64-bit plane still carries 3.2 Gb/s; the
+7c63e453:configs/endstation_ax7101_8x8.yaml:56:    milan_clk_hz: 50000000           # BAREMETAL_FIRMWARE.md build contract (#565)

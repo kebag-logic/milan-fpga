@@ -1,0 +1,17 @@
+baseline_50MHz               rc=0 
+milan_75MHz                  rc=0 
+milan_100MHz                 rc=0 
+milan_33MHz                  rc=0 
+milan_62p5MHz                rc=0 
+milan_gt_sys_150MHz          rc=1 CONFIG ERROR: milan_clk_hz must not exceed sys_clk_hz
+milan_12p345678MHz           rc=0 
+milan_1MHz                   rc=0 
+flashboot_linux              rc=1 CONFIG ERROR: flashboot 'linux' not none|baremetal
+flashboot_none               rc=0 
+l2_4096                      rc=1 CONFIG ERROR: baremetal SoC requires l2_bytes: 0 and no cache/prefetch scala_args
+soc_scala_noncache           rc=1 CONFIG ERROR: baremetal SoC requires l2_bytes: 0 and no cache/prefetch scala_args
+soc_scala_cache              rc=1 CONFIG ERROR: baremetal SoC requires l2_bytes: 0 and no cache/prefetch scala_args
+soc_with_fpu_key             rc=1 CONFIG ERROR: soc: unknown key(s) ['with_fpu']
+soc_xlen64                   rc=1 CONFIG ERROR: baremetal SoC requires VexiiRiscv RV32 and one hart
+soc_cpu_count2               rc=1 CONFIG ERROR: baremetal SoC requires VexiiRiscv RV32 and one hart
+soc_naxriscv                 rc=1 CONFIG ERROR: baremetal SoC requires VexiiRiscv RV32 and one hart

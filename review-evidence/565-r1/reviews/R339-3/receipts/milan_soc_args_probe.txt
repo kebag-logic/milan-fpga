@@ -1,0 +1,17 @@
+executed main() prefix ends at source line 3686 -> args.with_fpu or args.l2_bytes or args.scala_args
+top-level statements skipped (need LiteX or unavailable): 23
+baseline_50e6          ACCEPTED milan_clk_freq=50000000.0 sys_clk_freq=100000000.0
+milan_75e6             ACCEPTED milan_clk_freq=75000000.0 sys_clk_freq=100000000.0
+milan_100e6            ACCEPTED milan_clk_freq=100000000.0 sys_clk_freq=100000000.0
+milan_200e6_gt_sys     ACCEPTED milan_clk_freq=200000000.0 sys_clk_freq=100000000.0
+milan_absent           ACCEPTED milan_clk_freq=None sys_clk_freq=100000000.0
+sys_150e6              ACCEPTED milan_clk_freq=50000000.0 sys_clk_freq=150000000.0
+with_fpu               REFUSED rc=2 milan_soc.py: error: --software-profile baremetal requires no FPU, --l2-bytes 0, and no --scala-args overrides
+scala_noncache         REFUSED rc=2 milan_soc.py: error: --software-profile baremetal requires no FPU, --l2-bytes 0, and no --scala-args overrides
+l2_4096                REFUSED rc=2 milan_soc.py: error: --software-profile baremetal requires no FPU, --l2-bytes 0, and no --scala-args overrides
+xlen_64                REFUSED rc=2 milan_soc.py: error: --software-profile baremetal requires --cpu vexiiriscv --xlen 32 --cpu-count 1
+cpu_count_2            REFUSED rc=2 milan_soc.py: error: --software-profile baremetal requires --cpu vexiiriscv --xlen 32 --cpu-count 1
+naxriscv               REFUSED rc=2 milan_soc.py: error: --software-profile baremetal requires --cpu vexiiriscv --xlen 32 --cpu-count 1
+flashboot_linux        REFUSED rc=2 milan_soc.py: error: argument --flashboot: invalid choice: 'linux' (choose from 'none', 'baremetal')
+flashboot_none         ACCEPTED milan_clk_freq=50000000.0 sys_clk_freq=100000000.0
+profile_linux          REFUSED rc=2 milan_soc.py: error: argument --software-profile: invalid choice: 'linux' (choose from 'baremetal')
