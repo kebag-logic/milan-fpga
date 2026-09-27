@@ -1,0 +1,49 @@
+[
+  {
+    "command": "python3 scripts/check_doc_style.py",
+    "rc": 0,
+    "output": "documentation style: OK (22 current documents)\n"
+  },
+  {
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 0,
+    "output": "TOC gate: OK (108 page(s) carry an annotated contents list, 17 below the 3-section threshold)\n"
+  },
+  {
+    "command": "python3 scripts/gen_toc.py --verify-anchors",
+    "rc": 0,
+    "output": "anchor check: 177 existing cross-page fragment links reproduced\n"
+  },
+  {
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0,
+    "output": "doc path gate: OK (846 cited paths all resolve; 0 line anchor(s) within their file)\n"
+  },
+  {
+    "command": "git diff --check",
+    "rc": 0,
+    "output": ""
+  },
+  {
+    "command": "python3 scripts/docs_check.py",
+    "rc": 0,
+    "output": "docs_check: 0 finding(s) across 166 md files + 887 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]\n"
+  },
+  {
+    "command": "env GIT_DIR=/dev/null python3 scripts/docs_check.py",
+    "rc": 0,
+    "output": "docs_check: 0 finding(s) across 166 md files + 901 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]\n"
+  },
+  {
+    "command": "python3 scripts/check_em_dash.py --base 831f94f4",
+    "rc": 0,
+    "head": "90ab4a3da5b676f90b768b4f22b77ce7d0bd911d",
+    "output": "check_em_dash: 0 findings over 292 added lines in 7 changed Markdown pages; 339/339 controls"
+  },
+  {
+    "command": "git diff --check 92c6154a HEAD",
+    "rc": 0,
+    "head": "90ab4a3da5b676f90b768b4f22b77ce7d0bd911d",
+    "output": ""
+  }
+]
