@@ -1,0 +1,51 @@
+## SUBMODULES.md:57-62
+Issue #502 advances the current pin to `870ff88a`.
+
+- PR 121 exports each accepted live name write.
+- `KL_pp_shadow` connects that pulse to saved-state pending.
+- The parent's actual-write enable supplies the map trigger.
+- Later marks retain their command-completion meaning.
+## CHANGELOG.md:39-40
+- Actual parent phase-5 map writes raise the same sticky source.
+- Unchanged map records raise nothing.
+## OWN:1266
+| 0x60 to 0x7F | channel maps in and out | milan_datapath and KL_chan_map_capture | actual phase-5 map write enable (#502) | NONE | nvm_pend 1 from the first actual write until reset; never durable, a
+## TESTING.md:268
+| #502 live-write pending, late-mark control | `make -C tb/verilator/pp_shadow pending-mutant` | Authors and reviewers changing `KL_pp_shadow.sv`, the map-edit owner in `milan_datapath.sv`, the proces
+## MAT:485 register
+- `pend_i = (|nvm_unflushed_o) | d3_unflushed_o`. The `aecp_live_pend_r` bit
+938:  logic                     aecp_live_pend_r;
+957:                    | aecp_live_wr_w | aecp_live_pend_r;
+## PR body stale sentence
+0
+## harness controls at head (pending leg)
+      4   [PASS] K12 duplicate input live_state_changed     got=0x00000000 exp=0x00000000
+      4   [PASS] K12 duplicate input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+      4   [PASS] K12 duplicate input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+      4   [PASS] K12 duplicate input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+      1   [PASS] K12 duplicate output live_state_changed    got=0x00000000 exp=0x00000000
+      1   [PASS] K12 duplicate output no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+      1   [PASS] K12 duplicate output pending_from_accepting_edge got=0x00000000 exp=0x00000000
+      1   [PASS] K12 duplicate output sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+      4   [PASS] K12 remove input live_state_changed        got=0x00000001 exp=0x00000001
+      4   [PASS] K12 remove input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+      4   [PASS] K12 remove input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+      4   [PASS] K12 remove input sticky_pending_PP_STAT    got=0x00000001 exp=0x00000001
+      1   [PASS] K12 remove output live_state_changed       got=0x00000001 exp=0x00000001
+      1   [PASS] K12 remove output no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+      1   [PASS] K12 remove output pending_from_accepting_edge got=0x00000000 exp=0x00000000
+      1   [PASS] K12 remove output sticky_pending_PP_STAT   got=0x00000001 exp=0x00000001
+0
+            }
+            if (dut->m_axis_mac_tx_tlast) tx_open = false;
+        }
+    }
+
+    //! K10/K12 use real microprograms and real parent map storage. The
+    //! observer runs on every accepting edge, including the program tail.
+    //! No sampled RTL value supplies an expected value.
+    struct PendingObs {
+        bool armed = false;
+        bool unsaved = false;
+        bool watching = false;
+        std::vector<uint8_t> before;
