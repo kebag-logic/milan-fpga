@@ -1,0 +1,146 @@
+[
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r362-2-packet/probes/r362_2_behaviour.py",
+      "$LANES/593-mr-tu-soak"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "rc": 0,
+    "seconds": 0.14,
+    "bytes": 7774,
+    "sha256": "a86c8df8de63809e7bb5e44697817546b4ead686cd180c99e29cbab826874aba",
+    "log": "internal-probe.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r363-2-packet/scripts/probe_r2.py",
+      "$LANES/593-mr-tu-soak/tb/tools/torture_campaign.py"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "rc": 1,
+    "seconds": 0.136,
+    "bytes": 7914,
+    "sha256": "d17bb6d51efce1deef378e4b50d1105d7173a71f84cb7c9556e7051ff9070989",
+    "log": "external-probe.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r362-2-packet/probes/r362_2_mutants.py",
+      "$LANES/593-mr-tu-soak",
+      "/tmp/593-a384-review/internal"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "rc": 0,
+    "seconds": 24.179,
+    "bytes": 7231,
+    "sha256": "67c09df1a2397258158a22b769b22109dd1fc44588285b170ed76a848f53af8a",
+    "log": "internal-mutants.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r363-2-packet/scripts/reviewer_mutants.py",
+      "$LANES/593-mr-tu-soak",
+      "/tmp/593-a384-review/external",
+      "$REVIEWS/593-r363-2-packet/scripts/probe_r2.py"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "rc": 2,
+    "seconds": 1.703,
+    "bytes": 9724,
+    "sha256": "a34ee2b5bdc6e41a8dedd9ebd57a8bffe77c63a173f8c75500168fa9bab50299",
+    "log": "external-mutants.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r363-2-packet/scripts/round1_reanchored.py",
+      "$LANES/593-mr-tu-soak",
+      "/tmp/593-a384-review/round1",
+      "$REVIEWS/593-r363-2-packet/scripts/probe_r2.py"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "rc": 0,
+    "seconds": 0.608,
+    "bytes": 3558,
+    "sha256": "e5e7ee62a4723ff32363f8a4721be7901521fb4814ee74db72de2ff9315c0e1b",
+    "log": "external-round1-reanchored.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r363-2-packet/scripts/witness_survivors.py",
+      "$LANES/593-mr-tu-soak/tb/tools/torture_campaign.py",
+      "/tmp/593-a384-review/external/m01/torture_campaign.py",
+      "/tmp/593-a384-review/external/m04/torture_campaign.py"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "rc": 0,
+    "seconds": 0.185,
+    "bytes": 178,
+    "sha256": "589c80bfb151b2255233f75559188d684f1ceed27de1a266b6a4f9e199f5baec",
+    "log": "external-witnesses.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r363-2-packet/scripts/residual_probe.py",
+      "$LANES/593-mr-tu-soak/tb/tools/torture_campaign.py"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "rc": 0,
+    "seconds": 0.103,
+    "bytes": 647,
+    "sha256": "bd289ad7f22a27a36d0a15d74f33285b488a6bbb65c8276fa6caf926877d5ad9",
+    "log": "external-residual.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r363-2-packet/scripts/check586_mutants.py",
+      "6d5ebd73",
+      "HEAD"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "rc": 0,
+    "seconds": 0.073,
+    "bytes": 1267,
+    "sha256": "2848b979cc5b9bcb5bf68059e9c0d8a4159adbba9c37a7cc74f1258a5c8392f0",
+    "log": "base-mutants-retained.log"
+  }
+]

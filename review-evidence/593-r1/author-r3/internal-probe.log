@@ -1,0 +1,44 @@
+PROBE I1a OK expected=FAIL actual=FAIL rise at 0, lone event at 10 (R347-5 S1 case) {'why': 'tu rises before its first recorded discontinuity', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE I1b OK expected=FAIL actual=FAIL same case through the planned history oracle {'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE I1c OK expected=PASS actual=PASS first event exactly R after rise {'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE I1d OK expected=FAIL actual=FAIL first event just beyond R after rise {'why': 'tu rises before its first recorded discontinuity', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE I1e OK expected=FAIL actual=FAIL unordered event list; earliest still beyond R {'why': 'tu rises before its first recorded discontinuity', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE I2a OK expected=FAIL actual=FAIL GM change, tu never set {'why': 'GM change lacks a covering tu minimum', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE I2b OK expected=FAIL actual=FAIL second GM change exactly at clear {'why': 'GM change lacks a covering tu minimum', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE I2c OK expected=FAIL actual=FAIL tu clears 0.5 ms after GM change {'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE I2d OK expected=FAIL actual=FAIL later GM change with no interval {'why': 'GM change lacks a covering tu minimum', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE I2e OK expected=PASS actual=PASS two covered GM changes {'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE I2f OK expected=FAIL actual=FAIL second hold 0.2 s {'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE I3a OK expected=NOT RUN actual=NOT RUN tu single-interval at R = 0.25 {'why': 'resolution cannot decide the tu timing limits', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.25}
+PROBE I3b OK expected=NOT RUN actual=NOT RUN history at R = 0.25 with no intervals {'why': 'complete history and deciding resolution required', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.25}
+PROBE I3c OK expected=NOT RUN actual=NOT RUN mr at R = 0.5 {'why': 'resolution cannot decide the mr cause window', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.5}
+PROBE I3d OK expected=PASS actual=PASS mr at R = 0.499 {'resolution_limit_s': 0.5, 'observation_resolution_s': 0.499}
+PROBE I3e UNEXPECTED expected=FAIL actual=NOT RUN 2 ms observed hold after GM, R = 0.249 {'why': 'complete history and deciding resolution required', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.249}
+PROBE I3f UNEXPECTED expected=FAIL actual=NOT RUN 60 ms observed hold after GM, R = 0.2 {'why': 'complete history and deciding resolution required', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.2}
+PROBE I3g UNEXPECTED expected=FAIL actual=NOT RUN hold observed = R, R = 0.125 (true hold may be 0) {'why': 'complete history and deciding resolution required', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.125}
+PROBE I3h OK expected=FAIL actual=FAIL hold observed = R, R = 0.124 (true hold may be 0) {'resolution_limit_s': 0.125, 'observation_resolution_s': 0.124}
+PROBE I3i UNEXPECTED expected=PASS actual=NOT RUN compliant-looking 0.3 s hold at R = 0.2 {'why': 'complete history and deciding resolution required', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.2}
+STATED history resolution_limit_s=0.125
+PROBE I4a OK expected=FAIL actual=FAIL one cause, three toggles {'why': 'mr toggle without a recorded media-clock cause', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I4b OK expected=FAIL actual=FAIL two causes, three toggles {'why': 'mr toggle without a recorded media-clock cause', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I4c OK expected=PASS actual=PASS three causes, three toggles {'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I4d OK expected=PASS actual=PASS per-stream causes, stream a {'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I4e OK expected=PASS actual=PASS per-stream causes, stream b {'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I6-PHC_settime/adjtime OK expected=FAIL actual=FAIL toggle with only 'PHC settime/adjtime' cause {'why': 'mr toggle without a recorded media-clock cause', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I6-PHC_step OK expected=FAIL actual=FAIL toggle with only 'PHC step' cause {'why': 'mr toggle without a recorded media-clock cause', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I6-media_re-base OK expected=FAIL actual=FAIL toggle with only 'media re-base' cause {'why': 'mr toggle without a recorded media-clock cause', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I6-GM-identity_edge OK expected=FAIL actual=FAIL toggle with only 'GM-identity edge' cause {'why': 'mr toggle without a recorded media-clock cause', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I6-GM_time-source_change OK expected=FAIL actual=FAIL toggle with only 'GM time-source change' cause {'why': 'mr toggle without a recorded media-clock cause', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I7a OK expected=NOT RUN actual=NOT RUN capture starts after first read - 1 s - R {'why': 'capture does not span the counter-read window and PDUs', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I7b OK expected=NOT RUN actual=NOT RUN boolean completeness, PDUs start at first read {'why': 'capture does not span the counter-read window and PDUs', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I7c OK expected=NOT RUN actual=NOT RUN capture ends before last read {'why': 'capture does not span the counter-read window and PDUs', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE I7d OK expected=FAIL actual=FAIL MEDIA_RESET 5 -> 0 {'why': 'MEDIA_RESET decreased: counter reset; check talker start evidence', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+  why: MEDIA_RESET decreased: counter reset; check talker start evidence
+PROBE I7e OK expected=FAIL actual=FAIL MEDIA_RESET max -> 0, no toggle {'why': 'MEDIA_RESET decreased: counter reset; check talker start evidence', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE S-C06 OK expected=FAIL actual=FAIL GM inside start allowance, 10 ms hold (C06 mutant would PASS) {'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE S-C07 OK expected=PASS actual=PASS GM at clear of #1, covered by #2's start allowance (C07 mutant would FAIL) {'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE S-C09 OK expected=NOT RUN actual=NOT RUN touching intervals (C09 mutant grades them instead of refusing) {'why': 'ordered, separate positive intervals required', 'resolution_limit_s': 0.125, 'observation_resolution_s': 0.001}
+PROBE S-C10 OK expected=NOT RUN actual=NOT RUN negative resolution, empty history (C10 mutant would PASS) {'why': 'complete history and deciding resolution required', 'resolution_limit_s': 0.125, 'observation_resolution_s': -1.0}
+PROBE S-C34 OK expected=NOT RUN actual=NOT RUN empty stream_id record (C34 mutant would PASS) {'why': 'invalid recorded evidence', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+PROBE S-C35 OK expected=NOT RUN actual=NOT RUN negative pdu_index (C35 mutant would PASS) {'why': 'invalid recorded evidence', 'resolution_limit_s': 0.5, 'observation_resolution_s': 0.001}
+SUMMARY ok=37 unexpected=4 total=41

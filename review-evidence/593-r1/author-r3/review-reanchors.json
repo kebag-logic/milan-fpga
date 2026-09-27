@@ -1,0 +1,1533 @@
+[
+  {
+    "id": "internal-C01",
+    "description": "rise allowance doubled",
+    "old": "if min(events_s) > observed_start_s + observation_resolution_s:",
+    "new": "if min(events_s) > observed_start_s + 2 * observation_resolution_s:",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_rise_boundary"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C02",
+    "description": "rise allowance dropped (stricter)",
+    "old": "if min(events_s) > observed_start_s + observation_resolution_s:",
+    "new": "if min(events_s) > observed_start_s:",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_rise_boundary"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C03",
+    "description": "rise judged on the last event",
+    "old": "if min(events_s) > observed_start_s + observation_resolution_s:",
+    "new": "if max(events_s) > observed_start_s + observation_resolution_s + 10:",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_before_first_discontinuity",
+      "test_release_tu_rise_boundary"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C04",
+    "description": "coverage loop drops start allowance",
+    "old": "        if not any(start_s - resolution_s <= gm_s < clear_s\n",
+    "new": "        if not any(start_s <= gm_s < clear_s\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history",
+      "test_release_tu_history_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C05",
+    "description": "coverage loop includes clear instant",
+    "old": "        if not any(start_s - resolution_s <= gm_s < clear_s\n",
+    "new": "        if not any(start_s - resolution_s <= gm_s <= clear_s\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C06",
+    "description": "covered GM window drops start allowance",
+    "old": "if start_s - resolution_s <= Decimal(str(event)) < clear_s]",
+    "new": "if start_s <= Decimal(str(event)) < clear_s]",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C07",
+    "description": "covered GM window includes clear instant",
+    "old": "if start_s - resolution_s <= Decimal(str(event)) < clear_s]",
+    "new": "if start_s - resolution_s <= Decimal(str(event)) <= clear_s]",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C08",
+    "description": "history passes all GM changes to every interval",
+    "old": "            gm_changes_s=covered_gm_s)",
+    "new": "            gm_changes_s=gm_changes_s)",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history",
+      "test_release_tu_history_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C09",
+    "description": "history allows touching intervals",
+    "old": "if clear_s <= start_s or (intervals and start_s <= intervals[-1][1]):",
+    "new": "if clear_s <= start_s or (intervals and start_s < intervals[-1][1]):",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C10",
+    "description": "history accepts negative resolution",
+    "old": "or not 0 <= observation_resolution_s < RELEASE_TU_RESOLUTION_LIMIT_S):",
+    "new": "or not observation_resolution_s < RELEASE_TU_RESOLUTION_LIMIT_S):",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_resolution_evidence",
+      "test_release_tu_history_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C11",
+    "description": "single-interval minimum uses first covered GM",
+    "old": "gm_events_s = gm_changes_s\n",
+    "new": "gm_events_s = sorted(gm_changes_s)[:1]\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_gm_minimum",
+      "test_release_tu_history"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C12",
+    "description": "single-interval minimum 0.25 -> 0.2",
+    "old": "max(gm_events_s) + Decimal(\"0.25\")",
+    "new": "max(gm_events_s) + Decimal(\"0.2\")",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_gm_minimum",
+      "test_release_tu_history",
+      "test_release_tu_two_sided_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C13",
+    "description": "tu limit admits equality",
+    "old": "    if observation_resolution_s >= resolution_limit_s:\n        return \"NOT RUN\", dict(detail, why=\"resolution cannot decide the tu timing limits\")",
+    "new": "    if observation_resolution_s > resolution_limit_s:\n        return \"NOT RUN\", dict(detail, why=\"resolution cannot decide the tu timing limits\")",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_deciding_resolution",
+      "test_release_resolution_evidence",
+      "test_release_tu_two_sided_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C14",
+    "description": "mr limit admits equality",
+    "old": "    if observation_resolution_s >= resolution_limit_s:\n        return \"NOT RUN\", dict(detail, why=\"resolution cannot decide the mr cause window\")",
+    "new": "    if observation_resolution_s > resolution_limit_s:\n        return \"NOT RUN\", dict(detail, why=\"resolution cannot decide the mr cause window\")",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_deciding_resolution"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C15",
+    "description": "tu limit derived from 0.5 s only",
+    "old": "    resolution_limit_s = RELEASE_TU_RESOLUTION_LIMIT_S\n",
+    "new": "    resolution_limit_s = holdover_bound_s\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_deciding_resolution",
+      "test_release_resolution_evidence",
+      "test_release_tu_two_sided_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C16",
+    "description": "mr limit is the full 1 s ceiling",
+    "old": "    resolution_limit_s = MILAN_MAX_OBSERVATION_INTERVAL_S / 2\n",
+    "new": "    resolution_limit_s = MILAN_MAX_OBSERVATION_INTERVAL_S\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_deciding_resolution",
+      "test_release_resolution_evidence"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C17",
+    "description": "tu verdict omits stated limit",
+    "old": "              \"resolution_limit_s\": resolution_limit_s}\n",
+    "new": "              }\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_deciding_resolution",
+      "test_release_resolution_evidence",
+      "test_release_tu_two_sided_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C18",
+    "description": "mr verdict omits stated limit",
+    "old": "              \"resolution_limit_s\": resolution_limit_s,\n",
+    "new": "",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_deciding_resolution",
+      "test_release_resolution_evidence"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C19",
+    "description": "history verdict omits stated limit",
+    "old": "              \"resolution_limit_s\": RELEASE_TU_RESOLUTION_LIMIT_S}",
+    "new": "              }",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_resolution_evidence",
+      "test_release_tu_history_boundaries",
+      "test_release_tu_two_sided_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C20",
+    "description": "history limit admits equality",
+    "old": "or not 0 <= observation_resolution_s < RELEASE_TU_RESOLUTION_LIMIT_S):",
+    "new": "or not 0 <= observation_resolution_s <= RELEASE_TU_RESOLUTION_LIMIT_S):",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_resolution_evidence",
+      "test_release_tu_two_sided_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C21",
+    "description": "history limit relaxed to 0.5",
+    "old": "or not 0 <= observation_resolution_s < RELEASE_TU_RESOLUTION_LIMIT_S):",
+    "new": "or not 0 <= observation_resolution_s < 0.5):",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_resolution_evidence",
+      "test_release_tu_history",
+      "test_release_tu_two_sided_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C22",
+    "description": "latest eligible cause consumed",
+    "old": "        causes.remove(matches[0])",
+    "new": "        causes.remove(matches[-1])",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_distinct_causes"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C23",
+    "description": "capture start drops 1 s term",
+    "old": "    required_start_s = (Decimal(str(reads[0][\"timestamp_s\"]))\n                        - Decimal(str(MILAN_MAX_OBSERVATION_INTERVAL_S))\n",
+    "new": "    required_start_s = (Decimal(str(reads[0][\"timestamp_s\"]))\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_capture_span"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C24",
+    "description": "capture start drops R term",
+    "old": "                        - Decimal(str(MILAN_MAX_OBSERVATION_INTERVAL_S))\n                        - Decimal(str(observation_resolution_s)))\n",
+    "new": "                        - Decimal(str(MILAN_MAX_OBSERVATION_INTERVAL_S)))\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_capture_span"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C25",
+    "description": "capture end judged at first read",
+    "old": "or capture_end_s < Decimal(str(reads[-1][\"timestamp_s\"]))",
+    "new": "or capture_end_s < Decimal(str(reads[0][\"timestamp_s\"]))",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_capture_span"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C26",
+    "description": "PDU-endpoint fallback removed",
+    "old": "    if capture_window_s is None and stream_pdus:\n",
+    "new": "    if False:\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_capture_span"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C27",
+    "description": "decrease treated as no change",
+    "old": "    if after[\"value\"] < before[\"value\"]:\n            return \"FAIL\", {\"why\": \"MEDIA_RESET decreased: counter reset; check talker start evidence\",",
+    "new": "    if after[\"value\"] < before[\"value\"]:\n            continue\n            return \"FAIL\", {\"why\": \"MEDIA_RESET decreased: counter reset; check talker start evidence\",",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_media_reset_decrease",
+      "test_release_media_reset_intervals"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C28",
+    "description": "decrease decoded as 32-bit wrap",
+    "old": "        if after[\"value\"] < before[\"value\"]:\n",
+    "new": "        if after[\"value\"] < before[\"value\"] and False:\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_media_reset_decrease",
+      "test_release_media_reset_intervals"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C29",
+    "description": "MEDIA_RESET lower edge drops R",
+    "old": "                   - Decimal(str(resolution_s)))\n        upper_s",
+    "new": ")\n        upper_s",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_media_reset_intervals"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C30",
+    "description": "eight-PDU hold -> seven",
+    "old": "if current[\"pdu_index\"] - previous[\"pdu_index\"] < 8:",
+    "new": "if current[\"pdu_index\"] - previous[\"pdu_index\"] < 7:",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_eight_pdus",
+      "test_release_mr_stream_scope"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C31",
+    "description": "eight-PDU hold -> nine",
+    "old": "if current[\"pdu_index\"] - previous[\"pdu_index\"] < 8:",
+    "new": "if current[\"pdu_index\"] - previous[\"pdu_index\"] < 9:",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_media_reset_intervals",
+      "test_release_media_reset_window_edges",
+      "test_release_mr_distinct_causes",
+      "test_release_mr_eight_pdus"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C32",
+    "description": "terminal hold -> seven",
+    "old": "if toggles and pdus[-1][\"pdu_index\"] - toggles[-1][\"pdu_index\"] + 1 < 8:",
+    "new": "if toggles and pdus[-1][\"pdu_index\"] - toggles[-1][\"pdu_index\"] + 1 < 7:",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_eight_pdus"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C33",
+    "description": "PDU contiguity ignored",
+    "old": "if (current[\"pdu_index\"] != previous[\"pdu_index\"] + 1\n",
+    "new": "if (False\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_missing_evidence"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C34",
+    "description": "empty stream id accepted",
+    "old": "        if (not isinstance(record, dict) or not isinstance(record.get(\"stream_id\"), str)\n                or not record[\"stream_id\"] or",
+    "new": "        if (not isinstance(record, dict) or not isinstance(record.get(\"stream_id\"), str)\n                or",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_record_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C35",
+    "description": "negative pdu index accepted",
+    "old": " or pdu[\"pdu_index\"] < 0\n",
+    "new": "\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_record_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C36",
+    "description": "mr bit range ignored",
+    "old": " or pdu[\"mr\"] not in (0, 1)):",
+    "new": "):",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_missing_evidence"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C37",
+    "description": "tu negative resolution accepted",
+    "old": "holdover_bound_s != 0.5 or observation_resolution_s < 0:",
+    "new": "holdover_bound_s != 0.5:",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_resolution_evidence",
+      "test_release_tu_chained_discontinuities"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C38",
+    "description": "cause window text in verdict changed",
+    "old": "\"cause_window\": \"toggle timestamp +/- observation_resolution_s\",",
+    "new": "\"cause_window\": \"fixed\",",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_resolution_evidence"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C39",
+    "description": "plan cause window arg weakened",
+    "old": "mr_cause_window=\"toggle timestamp +/- observation_resolution_s\",",
+    "new": "mr_cause_window=\"fixed 10 ms\",",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C40",
+    "description": "plan tu_gm_minimum_check weakened",
+    "old": "tu_gm_minimum_check=\"clear + observation_resolution_s >= GM change + 0.25 s\",",
+    "new": "tu_gm_minimum_check=\"optional\",",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C41",
+    "description": "plan evidence list drops gm_changes",
+    "old": "\"MEDIA_RESET_reads\", \"gptp_discontinuities\", \"gm_changes\"],",
+    "new": "\"MEDIA_RESET_reads\", \"gptp_discontinuities\"],",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C42",
+    "description": "plan tu kinds drop GM time-source change",
+    "old": "\"GM time-source change\", \"other detected gPTP discontinuity\"],",
+    "new": "\"other detected gPTP discontinuity\"],",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-C43",
+    "description": "exit code ignores NOT RUN",
+    "old": "soft = any(r[\"verdict\"] in (\"FAIL\", \"NEEDS-HUMAN\", \"NOT RUN\") for r in records)",
+    "new": "soft = any(r[\"verdict\"] in (\"FAIL\", \"NEEDS-HUMAN\") for r in records)",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_missing_gm_history"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T01",
+    "description": "assertion text deleted: \"; IEEE 1722-2016 4.4.4.3; Milan v1.2 Annex B.1.2, Tables 5.4/5.6: \"",
+    "old": "\"; IEEE 1722-2016 4.4.4.3; Milan v1.2 Annex B.1.2, Tables 5.4/5.6: \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T02",
+    "description": "assertion text deleted: \"every mr toggle and MEDIA_RESET increment needs a recorded \"",
+    "old": "\"every mr toggle and MEDIA_RESET increment needs a recorded \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T03",
+    "description": "assertion text deleted: \"media-clock-source change, CRF disruption, or received CRF mr toggle \"",
+    "old": "\"media-clock-source change, CRF disruption, or received CRF mr toggle \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T04",
+    "description": "assertion text deleted: \"mapped to that stream's clock source; GM change alone fails; \"",
+    "old": "\"mapped to that stream's clock source; GM change alone fails; \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T05",
+    "description": "assertion text deleted: \"match causes within +/- observation_resolution_s of the toggle; \"",
+    "old": "\"match causes within +/- observation_resolution_s of the toggle; \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T06",
+    "description": "assertion text deleted: \"hold each new value for at least 8 AVTPDUs of that stream; \"",
+    "old": "\"hold each new value for at least 8 AVTPDUs of that stream; \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T07",
+    "description": "assertion text deleted: \"MEDIA_RESET counts observation intervals, not packets; \"",
+    "old": "\"MEDIA_RESET counts observation intervals, not packets; \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T08",
+    "description": "assertion text deleted: \"missing packet, cause, counter or resolution evidence is NOT RUN; \"",
+    "old": "\"missing packet, cause, counter or resolution evidence is NOT RUN; \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T09",
+    "description": "assertion text deleted: \"each cause excuses at most one toggle per stream; \"",
+    "old": "\"each cause excuses at most one toggle per stream; \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T10",
+    "description": "assertion text deleted: \"2 * observation_resolution_s must be less than the 1 s counter interval ceiling; \"",
+    "old": "\"2 * observation_resolution_s must be less than the 1 s counter interval ceiling; \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T11",
+    "description": "assertion text deleted: \"capture must span [first read - 1 s - observation_resolution_s, last read]; \"",
+    "old": "\"capture must span [first read - 1 s - observation_resolution_s, last read]; \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T12",
+    "description": "assertion text deleted: \"GM-identity edge, GM time-source change, or other detected gPTP discontinuity \"",
+    "old": "\"GM-identity edge, GM time-source change, or other detected gPTP discontinuity \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_assertion_text"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T13",
+    "description": "assertion text deleted: \"(including PHC settime/adjtime and fabric discontinuity); \"",
+    "old": "\"(including PHC settime/adjtime and fabric discontinuity); \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_assertion_text"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T14",
+    "description": "assertion text deleted: \"after each GM change, clear + observation_resolution_s must be at least \"",
+    "old": "\"after each GM change, clear + observation_resolution_s must be at least \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_assertion_text"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T15",
+    "description": "assertion text deleted: \"GM change + 0.25 s (Annex B.1.1 minimum); missing GM history is NOT RUN; clock validity \"",
+    "old": "\"GM change + 0.25 s (Annex B.1.1 minimum); missing GM history is NOT RUN; clock validity \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_assertion_text"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T16",
+    "description": "assertion text deleted: \"first discontinuity must be within observation_resolution_s of the rise; \"",
+    "old": "\"first discontinuity must be within observation_resolution_s of the rise; \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_assertion_text"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T17",
+    "description": "assertion text deleted: \"grade every GM change against the complete tu interval history; \"",
+    "old": "\"grade every GM change against the complete tu interval history; \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_assertion_text"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T18",
+    "description": "assertion text deleted: \"a GM change with no covering interval fails; \"",
+    "old": "\"a GM change with no covering interval fails; \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_assertion_text"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T19",
+    "description": "assertion text deleted: \"observation_resolution_s must be less than min(0.25 s, 0.5 s); \"",
+    "old": "\"require 2 * R < 0.25 s so an instant clear fails; \"",
+    "new": "\"\"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_assertion_text"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T20",
+    "description": "mr text: 8 -> 7 AVTPDUs",
+    "old": "at least 8 AVTPDUs of that stream",
+    "new": "at least 7 AVTPDUs of that stream",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T21",
+    "description": "mr text: +/- window made one-sided",
+    "old": "match causes within +/- observation_resolution_s of the toggle",
+    "new": "match causes within observation_resolution_s after the toggle",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T22",
+    "description": "tu text: 0.25 s -> 0.2 s",
+    "old": "GM change + 0.25 s (Annex B.1.1 minimum)",
+    "new": "GM change + 0.2 s (Annex B.1.1 minimum)",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_assertion_text"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T23",
+    "description": "tu text: min(0.25 s, 0.5 s) -> 0.5 s",
+    "old": "require 2 * R < 0.25 s so an instant clear fails; ",
+    "new": "observation_resolution_s must be less than 0.5 s; ",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_assertion_text"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T24",
+    "description": "mr text: GM change alone fails -> passes",
+    "old": "GM change alone fails",
+    "new": "GM change alone passes",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_plan_contract"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M01",
+    "description": "M01 history coverage drops the R allowance for interval grading",
+    "old": "        covered_gm_s = [event for event in gm_changes_s\n                        if start_s - resolution_s <= Decimal(str(event)) < clear_s]",
+    "new": "        covered_gm_s = [event for event in gm_changes_s\n                        if start_s <= Decimal(str(event)) < clear_s]",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M02",
+    "description": "M02 history final coverage includes the clear instant",
+    "old": "        if not any(start_s - resolution_s <= gm_s < clear_s",
+    "new": "        if not any(start_s - resolution_s <= gm_s <= clear_s",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M03",
+    "description": "M03 history final coverage widened to 2R",
+    "old": "        if not any(start_s - resolution_s <= gm_s < clear_s",
+    "new": "        if not any(start_s - 2 * resolution_s <= gm_s < clear_s",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M04",
+    "description": "M04 history allows touching intervals",
+    "old": "if clear_s <= start_s or (intervals and start_s <= intervals[-1][1]):",
+    "new": "if clear_s <= start_s or (intervals and start_s < intervals[-1][1]):",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M05",
+    "description": "M05 history grades interval against every GM change",
+    "old": "            gm_changes_s=covered_gm_s)",
+    "new": "            gm_changes_s=gm_changes_s)",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history",
+      "test_release_tu_history_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M06",
+    "description": "M06 history grades no GM minimum inside intervals",
+    "old": "            gm_changes_s=covered_gm_s)",
+    "new": "            gm_changes_s=[])",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history",
+      "test_release_tu_history_boundaries",
+      "test_release_tu_two_sided_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M07",
+    "description": "M07 history resolution ceiling raised to 0.5",
+    "old": "or not 0 <= observation_resolution_s < RELEASE_TU_RESOLUTION_LIMIT_S):",
+    "new": "or not 0 <= observation_resolution_s < 0.5):",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_resolution_evidence",
+      "test_release_tu_history",
+      "test_release_tu_two_sided_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M08",
+    "description": "M08 rise check drops the R allowance",
+    "old": "if min(events_s) > observed_start_s + observation_resolution_s:",
+    "new": "if min(events_s) > observed_start_s:",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_rise_boundary"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M09",
+    "description": "M09 rise check widened to 2R",
+    "old": "if min(events_s) > observed_start_s + observation_resolution_s:",
+    "new": "if min(events_s) > observed_start_s + 2 * observation_resolution_s:",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_rise_boundary"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M10",
+    "description": "M10 rise check uses the last event",
+    "old": "if min(events_s) > observed_start_s + observation_resolution_s:",
+    "new": "if max(events_s) > observed_start_s + observation_resolution_s:",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_chained_discontinuities",
+      "test_release_tu_gm_minimum"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M11",
+    "description": "M11 tu resolution limit uses the 0.5 s bound only",
+    "old": "resolution_limit_s = RELEASE_TU_RESOLUTION_LIMIT_S",
+    "new": "resolution_limit_s = holdover_bound_s",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_deciding_resolution",
+      "test_release_resolution_evidence",
+      "test_release_tu_two_sided_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M12",
+    "description": "M12 tu resolution limit equality accepted",
+    "old": "    if observation_resolution_s >= resolution_limit_s:\n        return \"NOT RUN\", dict(detail, why=\"resolution cannot decide the tu timing limits\")",
+    "new": "    if observation_resolution_s > resolution_limit_s:\n        return \"NOT RUN\", dict(detail, why=\"resolution cannot decide the tu timing limits\")",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_deciding_resolution",
+      "test_release_resolution_evidence",
+      "test_release_tu_two_sided_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M13",
+    "description": "M13 mr resolution limit is the full second",
+    "old": "resolution_limit_s = MILAN_MAX_OBSERVATION_INTERVAL_S / 2\n",
+    "new": "resolution_limit_s = MILAN_MAX_OBSERVATION_INTERVAL_S\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_deciding_resolution",
+      "test_release_resolution_evidence"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M14",
+    "description": "M14 mr resolution limit equality accepted",
+    "old": "    if observation_resolution_s >= resolution_limit_s:\n        return \"NOT RUN\", dict(detail, why=\"resolution cannot decide the mr cause window\")",
+    "new": "    if observation_resolution_s > resolution_limit_s:\n        return \"NOT RUN\", dict(detail, why=\"resolution cannot decide the mr cause window\")",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_deciding_resolution"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M15",
+    "description": "M15 mr consumes the latest eligible cause",
+    "old": "        causes.remove(matches[0])",
+    "new": "        causes.remove(matches[-1])",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_distinct_causes"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M16",
+    "description": "M16 mr causes sorted latest first",
+    "old": "causes = sorted(causes, key=lambda event: event[\"timestamp_s\"])",
+    "new": "causes = sorted(causes, key=lambda event: -event[\"timestamp_s\"])",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_distinct_causes"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M17",
+    "description": "M17 mr PHC step accepted as a cause (#602 ruling reversed)",
+    "old": "allowed = {\"media-clock-source change\", \"CRF disruption\", \"CRF mr toggle\"}",
+    "new": "allowed = {\"media-clock-source change\", \"CRF disruption\", \"CRF mr toggle\", \"PHC settime/adjtime\"}",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_gm_only"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M18",
+    "description": "M18 capture start requirement drops R",
+    "old": "                        - Decimal(str(MILAN_MAX_OBSERVATION_INTERVAL_S))\n                        - Decimal(str(observation_resolution_s)))\n    detail.update(capture_window_s",
+    "new": "                        - Decimal(str(MILAN_MAX_OBSERVATION_INTERVAL_S)))\n    detail.update(capture_window_s",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_capture_span"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M19",
+    "description": "M19 capture start requirement drops the 1 s update ceiling",
+    "old": "    required_start_s = (Decimal(str(reads[0][\"timestamp_s\"]))\n                        - Decimal(str(MILAN_MAX_OBSERVATION_INTERVAL_S))\n",
+    "new": "    required_start_s = (Decimal(str(reads[0][\"timestamp_s\"]))\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_capture_span"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M20",
+    "description": "M20 capture start anchored at the last read",
+    "old": "required_start_s = (Decimal(str(reads[0][\"timestamp_s\"]))",
+    "new": "required_start_s = (Decimal(str(reads[-1][\"timestamp_s\"]))",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_capture_span"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M21",
+    "description": "M21 capture PDU containment excludes the window end",
+    "old": "or any(not capture_start_s <= Decimal(str(pdu[\"timestamp_s\"])) <= capture_end_s",
+    "new": "or any(not capture_start_s <= Decimal(str(pdu[\"timestamp_s\"])) < capture_end_s",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_capture_span"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M22",
+    "description": "M22 boolean capture silently accepted without PDUs",
+    "old": "    if capture_window_s is None and stream_pdus:\n",
+    "new": "    if capture_window_s is None and not stream_pdus:\n        capture_window_s = (-1e9, 1e9)\n    if capture_window_s is None and stream_pdus:\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_capture_span"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M23",
+    "description": "M23 counter decrease decoded as a wrap again",
+    "old": "        if after[\"value\"] < before[\"value\"]:\n            return \"FAIL\", {\"why\": \"MEDIA_RESET decreased: counter reset; check talker start evidence\",\n                            \"before\": before[\"value\"], \"after\": after[\"value\"]}\n        delta = after[\"value\"] - before[\"value\"]",
+    "new": "        delta = (after[\"value\"] - before[\"value\"]) % 2**32",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_media_reset_decrease",
+      "test_release_media_reset_intervals"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M24",
+    "description": "M24 counter decrease reported NOT RUN",
+    "old": "            return \"FAIL\", {\"why\": \"MEDIA_RESET decreased: counter reset; check talker start evidence\",",
+    "new": "            return \"NOT RUN\", {\"why\": \"MEDIA_RESET decreased: counter reset; check talker start evidence\",",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_media_reset_decrease",
+      "test_release_media_reset_intervals"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M25",
+    "description": "M25 ReleaseCapture defaults to incomplete",
+    "old": "    window_s: tuple[float, float]\n    complete: bool = True",
+    "new": "    window_s: tuple[float, float]\n    complete: bool = False",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_deciding_resolution",
+      "test_release_media_reset_decrease",
+      "test_release_media_reset_intervals",
+      "test_release_media_reset_no_cause",
+      "test_release_media_reset_window_edges",
+      "test_release_mr_allowed_causes",
+      "test_release_mr_capture_span",
+      "test_release_mr_distinct_causes",
+      "test_release_mr_eight_pdus",
+      "test_release_mr_gm_only",
+      "test_release_mr_missing_evidence",
+      "test_release_mr_no_cause",
+      "test_release_mr_record_boundaries",
+      "test_release_mr_resolution",
+      "test_release_mr_stream_scope"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M26",
+    "description": "M26 single-interval entry drops GM changes before the rise",
+    "old": "    gm_events_s = gm_changes_s\n",
+    "new": "    gm_events_s = [event_s for event_s in gm_changes_s if event_s >= start_s]\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_gm_minimum"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M27",
+    "description": "M27 history uncovered GM reported NOT RUN",
+    "old": "return \"FAIL\", dict(detail, why=\"GM change lacks a covering tu minimum\", gm_change_s=event)",
+    "new": "return \"NOT RUN\", dict(detail, why=\"GM change lacks a covering tu minimum\", gm_change_s=event)",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history"
+    ],
+    "errors": []
+  },
+  {
+    "id": "external-M28",
+    "description": "M28 history empty-interval coarse-resolution guard removed",
+    "old": "            or not 0 <= observation_resolution_s < RELEASE_TU_RESOLUTION_LIMIT_S):",
+    "new": "            or not 0 <= observation_resolution_s):",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_resolution_evidence",
+      "test_release_tu_history",
+      "test_release_tu_two_sided_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "previous-R1-M01r",
+    "description": "R1-M01r mr cause check skipped",
+    "old": "        if not matches:\n            return \"FAIL\", {\"why\": \"mr toggle without a recorded media-clock cause\", \"toggle\": toggle}",
+    "new": "        if False:\n            return \"FAIL\", {\"why\": \"mr toggle without a recorded media-clock cause\", \"toggle\": toggle}",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "CRASH-ONLY",
+    "rc": 1,
+    "failures": [],
+    "errors": [
+      "test_release_mr_distinct_causes",
+      "test_release_mr_gm_only",
+      "test_release_mr_no_cause",
+      "test_release_mr_resolution",
+      "test_release_mr_stream_scope"
+    ],
+    "reason": "Removing the guard indexes matches[0] on an empty list; the safe replacement preserves verdict evaluation."
+  },
+  {
+    "id": "previous-R1-M14r",
+    "description": "R1-M14r counter decrease decoded as wrap (superseded by reset classification)",
+    "old": "        if after[\"value\"] < before[\"value\"]:\n            return \"FAIL\", {\"why\": \"MEDIA_RESET decreased: counter reset; check talker start evidence\",\n                            \"before\": before[\"value\"], \"after\": after[\"value\"]}\n        delta = after[\"value\"] - before[\"value\"]",
+    "new": "        delta = (after[\"value\"] - before[\"value\"]) % 2**32",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_media_reset_decrease",
+      "test_release_media_reset_intervals"
+    ],
+    "errors": []
+  },
+  {
+    "id": "previous-R1-M26r",
+    "description": "R1-M26r history interval-grading list counts a GM change at the clear instant (verdict-equivalent: the uncovered-GM loop still fails it; that loop's own <= is round-2 M02)",
+    "old": "if start_s - resolution_s <= Decimal(str(event)) < clear_s]",
+    "new": "if start_s - resolution_s <= Decimal(str(event)) <= clear_s]",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "previous-R1-M40r",
+    "description": "R1-M40r first toggle exempt from cause",
+    "old": "    for toggle in toggles:\n        matches =",
+    "new": "    for toggle in toggles[1:]:\n        matches =",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_distinct_causes",
+      "test_release_mr_gm_only",
+      "test_release_mr_no_cause",
+      "test_release_mr_resolution",
+      "test_release_mr_stream_scope"
+    ],
+    "errors": []
+  },
+  {
+    "id": "previous-R1-M41r",
+    "description": "R1-M41r last toggle exempt from cause",
+    "old": "    for toggle in toggles:\n        matches =",
+    "new": "    for toggle in toggles[:-1]:\n        matches =",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_distinct_causes",
+      "test_release_mr_gm_only",
+      "test_release_mr_no_cause",
+      "test_release_mr_resolution",
+      "test_release_mr_stream_scope"
+    ],
+    "errors": []
+  },
+  {
+    "id": "previous-R1-M48r",
+    "description": "R1-M48r single entry ignores GM before observed start",
+    "old": "    gm_events_s = gm_changes_s\n",
+    "new": "    gm_events_s = [event_s for event_s in gm_changes_s if observed_start_s <= event_s]\n",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_gm_minimum",
+      "test_release_tu_history_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "previous-R1-M48h",
+    "description": "R1-M48h history ignores GM before observed start when grading an interval",
+    "old": "        covered_gm_s = [event for event in gm_changes_s\n                        if start_s - resolution_s <= Decimal(str(event)) < clear_s]",
+    "new": "        covered_gm_s = [event for event in gm_changes_s\n                        if start_s <= Decimal(str(event)) < clear_s]",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_tu_history_boundaries"
+    ],
+    "errors": []
+  },
+  {
+    "id": "internal-T25",
+    "description": "PHC/fabric examples negated",
+    "old": "\"(including PHC settime/adjtime and fabric discontinuity); \"",
+    "new": "\"(excluding PHC settime/adjtime and fabric discontinuity); \"",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_assertion_text"
+    ],
+    "errors": []
+  },
+  {
+    "id": "previous-R1-M01r-safe",
+    "description": "Accept an uncaused toggle without indexing an empty match list",
+    "old": "return \"FAIL\", {\"why\": \"mr toggle without a recorded media-clock cause\", \"toggle\": toggle}",
+    "new": "return \"PASS\", {\"toggles_s\": [toggle[\"timestamp_s\"] for toggle in toggles]}",
+    "count": 1,
+    "head": "7a051e618677ecd907ed04b086afbdfe374b4336",
+    "verdict": "KILLED",
+    "rc": 1,
+    "failures": [
+      "test_release_mr_distinct_causes",
+      "test_release_mr_gm_only",
+      "test_release_mr_no_cause",
+      "test_release_mr_resolution",
+      "test_release_mr_stream_scope"
+    ],
+    "errors": []
+  }
+]

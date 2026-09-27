@@ -1,0 +1,13 @@
+WITNESS C06 DISTINGUISHED pristine='FAIL' mutant='PASS' (covered GM window drops start allowance)
+WITNESS C07 DISTINGUISHED pristine='PASS' mutant='FAIL' (covered GM window includes clear instant)
+WITNESS C09 DISTINGUISHED pristine='NOT RUN' mutant='FAIL' (history allows touching intervals)
+WITNESS C10 DISTINGUISHED pristine='NOT RUN' mutant='PASS' (history accepts negative resolution)
+WITNESS C19 DISTINGUISHED pristine='0.125' mutant='None' (history verdict omits stated limit)
+WITNESS C34 DISTINGUISHED pristine='NOT RUN' mutant='PASS' (empty stream id accepted)
+WITNESS C35 DISTINGUISHED pristine='NOT RUN' mutant='PASS' (negative pdu index accepted)
+WITNESS C38 DISTINGUISHED pristine='toggle timestamp +/- observation_resolution_s' mutant='fixed' (cause window text in verdict changed)
+TEXT T20 KILLED test_release_mr_plan_contract :: "hold each new value for at least 8 AVTPDUs of that stream; " -> "hold each new value for at least 7 AVTPDUs of that stream; "
+TEXT T22 KILLED test_release_assertion_text :: "GM change + 0.25 s (Annex B.1.1 minimum); missing GM history is NOT RUN; clock validity " -> "GM change + 0.2 s (Annex B.1.1 minimum); missing GM history is NOT RUN; clock validity "
+TEXT T23 KILLED test_release_assertion_text :: "require 2 * R < 0.25 s so an instant clear fails; " -> "observation_resolution_s must be less than 0.5 s; "
+TEXT T24 KILLED test_release_mr_plan_contract :: "mapped to that stream's clock source; GM change alone fails; " -> "mapped to that stream's clock source; GM change alone passes; "
+TEXT T25 KILLED test_release_assertion_text :: "(including PHC settime/adjtime and fabric discontinuity); " -> "(excluding PHC settime/adjtime and fabric discontinuity); "

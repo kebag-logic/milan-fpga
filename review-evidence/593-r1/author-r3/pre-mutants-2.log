@@ -1,0 +1,134 @@
+PASS: pristine planner self-test
+KILLED: restore eligibility check removed: test_release_eligibility_boundaries
+KILLED: restore ceiling relaxed: test_release_eligibility_boundaries
+KILLED: power-off hold hardcoded: test_release_timing_and_snapshot_contract
+KILLED: power-off CLI value discarded: test_release_cli_parameters
+KILLED: ADP window charged for pre-cut time: test_release_timing_and_snapshot_contract
+KILLED: missing ADP evidence skipped: test_release_timing_and_snapshot_contract
+KILLED: tu bound uses media-clock holdover: test_release_tu_contract
+KILLED: uncorrelated tu ignored: test_release_tu_contract
+KILLED: boot evidence ends before the next cut: test_release_boot_negative_control
+KILLED: tu anchor uses the first discontinuity: test_release_tu_chained_discontinuities
+KILLED: tu clearing deadline ignores observation resolution: test_release_tu_chained_discontinuities
+KILLED: tu oracle accepts an uncorrelated interval: test_release_tu_chained_discontinuities
+KILLED: tu plan uses the first discontinuity: test_release_tu_contract
+KILLED: tu plan drops capture resolution: test_release_tu_contract
+KILLED: tu assertion allows five seconds: test_release_assertion_text
+KILLED: tu assertion drops uncorrelated failure: test_release_assertion_text
+KILLED: ADP assertion uses the pre-cut anchor: test_release_assertion_text
+KILLED: ADP assertion charges the off time: test_release_assertion_text
+KILLED: CLI power hold default changes: test_release_cli_power_hold_default
+KILLED: tu containment drops the start allowance: test_release_tu_start_resolution
+KILLED: tu containment doubles the start allowance: test_release_tu_start_resolution
+KILLED: tu containment excludes its inclusive start: test_release_tu_start_resolution
+KILLED: tu containment includes the clear instant: test_release_tu_start_resolution
+KILLED: tu assertion drops the event window: test_release_assertion_text
+KILLED: tu plan drops the start allowance: test_release_tu_contract
+KILLED: mr clock-source cause removed: test_release_mr_allowed_causes
+KILLED: mr CRF disruption cause removed: test_release_mr_allowed_causes
+KILLED: mr received CRF toggle cause removed: test_release_mr_allowed_causes
+KILLED: mr uncorrelated toggle accepted: test_release_mr_no_cause
+KILLED: mr GM-only toggle accepted: test_release_mr_gm_only
+KILLED: mr cause time window removed: test_release_mr_resolution
+KILLED: mr foreign-stream cause accepted: test_release_mr_stream_scope
+KILLED: mr eight-PDU minimum removed: test_release_mr_eight_pdus
+KILLED: mr terminal hold evidence ignored: test_release_mr_eight_pdus
+KILLED: MEDIA_RESET cause check removed: test_release_media_reset_no_cause
+KILLED: MEDIA_RESET reuses a toggle for two increments: test_release_media_reset_intervals
+KILLED: MEDIA_RESET interval update allowance removed: test_release_media_reset_intervals
+KILLED: tu GM minimum removed: test_release_tu_gm_minimum
+KILLED: tu GM minimum anchored at the first GM change: test_release_tu_gm_minimum
+KILLED: tu GM minimum drops recorded resolution: test_release_tu_gm_minimum
+KILLED: tu missing GM history accepted: test_release_tu_missing_gm_history
+KILLED: mr missing evidence accepted: test_release_mr_missing_evidence
+KILLED: mr plan hold weakened: test_release_mr_plan_contract
+KILLED: tu plan GM minimum removed: test_release_mr_plan_contract
+KILLED: tu rise correlation removed: test_release_tu_before_first_discontinuity
+KILLED: tu rise correlation made exclusive: test_release_tu_rise_boundary
+KILLED: tu resolution ceiling removed: test_release_deciding_resolution
+KILLED: mr resolution ceiling removed: test_release_deciding_resolution
+KILLED: GM history coverage removed: test_release_tu_history
+KILLED: GM history check skips interval verdict: test_release_tu_history
+KILLED: history coarse resolution accepted: test_release_tu_history
+KILLED: history interval order ignored: test_release_tu_history
+KILLED: single interval drops future GM changes: test_release_tu_history
+KILLED: mr reuses one cause: test_release_mr_distinct_causes
+KILLED: mr cause order ignored: test_release_mr_distinct_causes
+KILLED: mr cause window doubled: test_release_mr_resolution
+KILLED: mr cause window strict: test_release_mr_resolution
+KILLED: mr cause first toggle skipped: test_release_mr_no_cause
+KILLED: mr cause last toggle skipped: test_release_mr_no_cause
+KILLED: mr PDU time order ignored: test_release_mr_record_boundaries
+KILLED: counter stream filter removed: test_release_mr_record_boundaries
+KILLED: counter endpoint optional: test_release_mr_record_boundaries
+KILLED: counter read order ignored: test_release_mr_record_boundaries
+KILLED: counter reset ignored: test_release_media_reset_decrease
+KILLED: counter upper window drops resolution: test_release_media_reset_window_edges
+KILLED: counter upper window widened: test_release_media_reset_window_edges
+KILLED: counter consumes latest toggle: test_release_media_reset_window_edges
+KILLED: counter range ignored: test_release_mr_record_boundaries
+KILLED: cause kind type ignored: test_release_mr_record_boundaries
+KILLED: tu bound guard removed: test_release_deciding_resolution
+KILLED: tu zero interval accepted: test_release_deciding_resolution
+KILLED: capture start check removed: test_release_mr_capture_span
+KILLED: capture endpoint check removed: test_release_mr_capture_span
+KILLED: capture guard removed: test_release_mr_capture_span
+KILLED: tu minimum sentence: test_release_assertion_text
+KILLED: tu minimum and missing history: test_release_assertion_text
+KILLED: mr cause kinds: test_release_mr_plan_contract
+KILLED: mr toggle and counter scope: test_release_mr_plan_contract
+KILLED: mr counter intervals: test_release_mr_plan_contract
+KILLED: missing evidence verdict: test_release_assertion_text
+KILLED: mr distinct causes: test_release_mr_plan_contract
+KILLED: mr deciding resolution: test_release_mr_plan_contract
+KILLED: mr capture span: test_release_mr_plan_contract
+KILLED: mr reset classification: test_release_mr_plan_contract
+KILLED: tu rise text: test_release_assertion_text
+KILLED: tu history text: test_release_assertion_text
+KILLED: tu uncovered GM text: test_release_assertion_text
+KILLED: tu deciding resolution text: test_release_assertion_text
+KILLED: tu coarse resolution text: test_release_assertion_text
+KILLED: plan mr_distinct_causes weakened: test_release_round2_plan_contract
+KILLED: plan tu_oracle weakened: test_release_round2_plan_contract
+KILLED: plan tu_resolution_limit_s weakened: test_release_round2_plan_contract
+KILLED: plan mr_resolution_limit_s weakened: test_release_round2_plan_contract
+KILLED: plan mr_capture_window weakened: test_release_round2_plan_contract
+KILLED: plan tu_rise_check weakened: test_release_round2_plan_contract
+KILLED: capture metadata completeness ignored: test_release_mr_capture_span
+KILLED: capture metadata window ignored: test_release_mr_capture_span
+KILLED: history evidence refusal accepted: test_release_tu_history
+KILLED: history nonfinite event accepted: test_release_tu_history
+KILLED: history invalid interval accepted: test_release_tu_history
+KILLED: history invalid order accepted: test_release_tu_history
+KILLED: missing capture extent accepted: test_release_mr_capture_span
+KILLED: invalid mr records accepted: test_release_mr_record_boundaries
+KILLED: capture PDU extent check removed: test_release_mr_capture_span
+KILLED: mr completeness guard removed: test_release_mr_missing_evidence
+KILLED: mr negative resolution guard removed: test_release_mr_missing_evidence
+KILLED: tu resolution restored to one-sided limit: test_release_tu_two_sided_boundaries
+KILLED: tu upper bound ignores possible late true clear: test_release_tu_two_sided_boundaries
+KILLED: tu upper bound excludes equality: test_release_tu_two_sided_boundaries
+KILLED: tu upper bound bypasses latest clear: test_release_tu_two_sided_boundaries
+KILLED: tu resolution boundary admits equality: test_release_tu_two_sided_boundaries
+KILLED: history resolution boundary admits equality: test_release_tu_two_sided_boundaries
+KILLED: history negative resolution accepted: test_release_tu_history_boundaries
+KILLED: history GM assignment drops start allowance: test_release_tu_history_boundaries
+KILLED: history GM assignment excludes start boundary: test_release_tu_history_boundaries
+KILLED: history GM assignment includes clear boundary: test_release_tu_history_boundaries
+KILLED: history accepts touching intervals: test_release_tu_history_boundaries
+KILLED: history omits resolution limit: test_release_resolution_evidence
+KILLED: single tu omits resolution limit: test_release_resolution_evidence
+KILLED: mr omits resolution limit: test_release_resolution_evidence
+KILLED: mr record accepts empty stream ID: test_release_mr_record_boundaries
+KILLED: mr record accepts negative PDU index: test_release_mr_record_boundaries
+KILLED: mr verdict cause window altered: test_release_resolution_evidence
+KILLED: mr cause window text: test_release_mr_plan_contract
+KILLED: mr stream mapping text: test_release_mr_plan_contract
+KILLED: mr missing evidence text: test_release_mr_plan_contract
+KILLED: tu detected discontinuity kinds text: test_release_assertion_text
+KILLED: tu PHC and fabric examples text: test_release_assertion_text
+KILLED: tu two-sided model text: test_release_assertion_text
+KILLED: tu minimum derivation text: test_release_assertion_text
+KILLED: tu upper derivation text: test_release_assertion_text
+KILLED: tu numeric resolution limit text: test_release_assertion_text
+PASS: 132 mutations killed; source unchanged
