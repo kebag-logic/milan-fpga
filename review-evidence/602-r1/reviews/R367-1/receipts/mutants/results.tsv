@@ -1,0 +1,25 @@
+clean	gmstep	pass
+clean	option-off	pass
+author0	the policy level is tied low at the servo	gmstep	caught	slew path: the actual servo receives the level; slew path: every staged sample covers the PHC tail
+author1	the policy level omits the applied-rate tail	gmstep	caught	slew path: every staged sample covers the PHC tail
+author2	the policy level misses an extra addend stage	gmstep	caught	slew path: every staged sample covers the PHC tail
+author3	the PHC re-base restart term is restored	gmstep	caught	restart: a PHC-only step leaves outgoing mr unchanged; restart: a PHC-only step adds no MEDIA_RESET
+author4	the source-change term is removed	gmstep	caught	source control: a real source change toggles mr once
+author5	selected CRF mr propagation is removed	gmstep	caught	CRF control: selected CRF mr propagates exactly once
+author6	the grandmaster identity re-bases the render stage as well as the step	gmstep	caught	render: the GM change is one counted re-base event; render: every counted re-base lands at a PDU end right after the step
+author7	the step does not re-centre the render stage	gmstep	caught	render: the GM change is one counted re-base event
+author8	the render re-base is keyed to the identity, not the step	gmstep	caught	render: every counted re-base lands at a PDU end right after the step
+author9	tu reaches the talkers four cycles late	gmstep	caught	tu: set in the first cycle the bank names GM B
+author10	the plane's step does not re-arm the holdover	gmstep	caught	tu: held at least the 0.25 s holdover after the step
+author11	tu stops the talker	gmstep	caught	tu: talker PDUs graded inside the hold; licence: the talker never pauses beyond four of its intervals; licence: the talker keeps its baseline rate within 1%; restart: a PHC-only step adds no MEDIA_RESET
+author12	the grandmaster change stops the talker for good	gmstep	caught	tu: talker PDUs graded inside the hold; tu: talker PDUs graded after tu clears; licence: the talker never pauses beyond four of its intervals; licence: the talker keeps its baseline rate within 1%; CRF control: outgoing PDUs bracket the received toggle; CRF control: selected CRF mr propagates exactly once
+author13	the step's re-centre snaps one event off the setpoint	gmstep	caught	render: every PDU push leaves the target fill across the event
+author14	software settime is restored as an mr cause	option-off	caught	CLKV: the settime leaves mr unchanged (#602); CLKV: settime adds no MEDIA_RESET (#602)
+author15	PHC adjtime is restored as an mr cause	option-off	caught	CLKV: PHC-only steps leave INTERNAL mr unchanged (#602); CLKV: the settime leaves mr unchanged (#602)
+reviewer0	RV1 restored term gated by CRF selection	gmstep	caught	restart: a PHC-only step leaves outgoing mr unchanged; restart: a PHC-only step adds no MEDIA_RESET
+reviewer1	RV2 plane/adjtime strobe alone restored on the gmstep leg	gmstep	caught	restart: a PHC-only step leaves outgoing mr unchanged; restart: a PHC-only step adds no MEDIA_RESET
+reviewer2	RV3 GM identity change requests a restart	gmstep	caught	restart: a PHC-only step leaves outgoing mr unchanged; restart: MEDIA_RESET does not move between the commit and the step; restart: a PHC-only step adds no MEDIA_RESET
+reviewer3	RV4 tu level requests a restart	gmstep	caught	restart: a PHC-only step leaves outgoing mr unchanged; restart: MEDIA_RESET does not move between the commit and the step; restart: a PHC-only step adds no MEDIA_RESET
+reviewer4	RV5 a coincident PHC re-base suppresses genuine CRF restarts (gap probe)	gmstep	pass	
+reviewer5	RV6 full re-base term restored, graded on the option-off leg	option-off	caught	CLKV: PHC-only steps leave INTERNAL mr unchanged (#602); CLKV: settime adds no MEDIA_RESET (#602)
+reviewer6	RV7 CRF propagation fires regardless of clock-source selection	gmstep	pass	

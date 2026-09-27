@@ -1,0 +1,1149 @@
+{
+ "_schema": "kebag-logic/aem-overlay",
+ "_schema_version": "2.2.0",
+ "_generated_by": "sw/builder/endstation_builder.py",
+ "_source_config": "configs/endstation_ax7101_8x8.yaml",
+ "entity": {
+  "name": "Milan FPGA 8x8",
+  "vendor_name": "Kebag Logic",
+  "firmware_version": "2.96.0",
+  "firmware_rev": 0,
+  "serial_number": "<device-serial>",
+  "group_name": "",
+  "entity_id": "mac-derived",
+  "entity_model_id": "0x001BC572F79BC5D1"
+ },
+ "model_id": {
+  "value": "0x001BC572F79BC5D1",
+  "source": "hash",
+  "hash": "0x001BC572F79BC5D1"
+ },
+ "adp": {
+  "entity_id": "0x020000FFFE000001",
+  "mac_address": "02:00:00:00:00:01",
+  "talker_stream_sources": 9,
+  "listener_stream_sinks": 9,
+  "talker_capabilities": "0x4801",
+  "listener_capabilities": "0x4801"
+ },
+ "gptp": {
+  "port_number": 1,
+  "priority1": 248,
+  "priority2": 248,
+  "clock_class": 248,
+  "clock_accuracy": 254,
+  "offset_scaled_log_variance": 17258,
+  "domain": 0,
+  "log_sync_interval": -3,
+  "log_announce_interval": 0,
+  "log_pdelay_interval": 0
+ },
+ "sampling_rates_hz": [
+  48000
+ ],
+ "current_sampling_rate_hz": 48000,
+ "entity_counts": {
+  "talker_stream_sources": 9,
+  "listener_stream_sinks": 9
+ },
+ "descriptor_counts": {
+  "ENTITY": 1,
+  "CONFIGURATION": 1,
+  "AUDIO_UNIT": 1,
+  "STREAM_INPUT": 9,
+  "STREAM_OUTPUT": 9,
+  "AVB_INTERFACE": 1,
+  "CLOCK_SOURCE": 2,
+  "CLOCK_DOMAIN": 1,
+  "CONTROL": 1,
+  "LOCALE": 1,
+  "STRINGS": 1,
+  "STREAM_PORT_INPUT": 8,
+  "STREAM_PORT_OUTPUT": 8,
+  "AUDIO_CLUSTER": 72,
+  "AUDIO_MAP": 0
+ },
+ "stream_inputs": [
+  {
+   "index": 0,
+   "name": "Stream In 0",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 1,
+   "name": "Stream In 1",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 2,
+   "name": "Stream In 2",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 3,
+   "name": "Stream In 3",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 4,
+   "name": "Stream In 4",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 5,
+   "name": "Stream In 5",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 6,
+   "name": "Stream In 6",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 7,
+   "name": "Stream In 7",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000",
+    "0x0215022002006000"
+   ],
+   "buffer_length_ns": 2126000
+  },
+  {
+   "index": 8,
+   "name": "CRF",
+   "kind": "crf",
+   "channels": 0,
+   "formats": [
+    "0x041060010000BB80"
+   ],
+   "buffer_length_ns": 2126000
+  }
+ ],
+ "stream_outputs": [
+  {
+   "index": 0,
+   "name": "Stream Out 0",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000"
+   ],
+   "presentation_time_offset_ns": 2000000
+  },
+  {
+   "index": 1,
+   "name": "Stream Out 1",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000"
+   ],
+   "presentation_time_offset_ns": 2000000
+  },
+  {
+   "index": 2,
+   "name": "Stream Out 2",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000"
+   ],
+   "presentation_time_offset_ns": 2000000
+  },
+  {
+   "index": 3,
+   "name": "Stream Out 3",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000"
+   ],
+   "presentation_time_offset_ns": 2000000
+  },
+  {
+   "index": 4,
+   "name": "Stream Out 4",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000"
+   ],
+   "presentation_time_offset_ns": 2000000
+  },
+  {
+   "index": 5,
+   "name": "Stream Out 5",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000"
+   ],
+   "presentation_time_offset_ns": 2000000
+  },
+  {
+   "index": 6,
+   "name": "Stream Out 6",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000"
+   ],
+   "presentation_time_offset_ns": 2000000
+  },
+  {
+   "index": 7,
+   "name": "Stream Out 7",
+   "kind": "aaf",
+   "channels": 8,
+   "formats": [
+    "0x0205022002006000"
+   ],
+   "presentation_time_offset_ns": 2000000
+  },
+  {
+   "index": 8,
+   "name": "CRF",
+   "kind": "crf",
+   "channels": 0,
+   "formats": [
+    "0x041060010000BB80"
+   ],
+   "presentation_time_offset_ns": 2000000
+  }
+ ],
+ "clock_sources": [
+  {
+   "index": 0,
+   "name": "Internal",
+   "type": "internal",
+   "location_type": "CLOCK_SOURCE",
+   "location_index": 0
+  },
+  {
+   "index": 1,
+   "name": "CRF Clock",
+   "type": "crf",
+   "location_type": "STREAM_INPUT",
+   "location_index": 8
+  }
+ ],
+ "stream_ports": {
+  "input": [
+   {
+    "index": 0,
+    "stream_index": 0,
+    "clusters": 0,
+    "base_cluster": 0,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 1,
+    "pool": [],
+    "primary_role": null
+   },
+   {
+    "index": 1,
+    "stream_index": 1,
+    "clusters": 0,
+    "base_cluster": 0,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 1,
+    "pool": [],
+    "primary_role": null
+   },
+   {
+    "index": 2,
+    "stream_index": 2,
+    "clusters": 0,
+    "base_cluster": 0,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 1,
+    "pool": [],
+    "primary_role": null
+   },
+   {
+    "index": 3,
+    "stream_index": 3,
+    "clusters": 0,
+    "base_cluster": 0,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 1,
+    "pool": [],
+    "primary_role": null
+   },
+   {
+    "index": 4,
+    "stream_index": 4,
+    "clusters": 0,
+    "base_cluster": 0,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 1,
+    "pool": [],
+    "primary_role": null
+   },
+   {
+    "index": 5,
+    "stream_index": 5,
+    "clusters": 0,
+    "base_cluster": 0,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 1,
+    "pool": [],
+    "primary_role": null
+   },
+   {
+    "index": 6,
+    "stream_index": 6,
+    "clusters": 0,
+    "base_cluster": 0,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 1,
+    "pool": [],
+    "primary_role": null
+   },
+   {
+    "index": 7,
+    "stream_index": 7,
+    "clusters": 0,
+    "base_cluster": 0,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "map_page": 1,
+    "pool": [],
+    "primary_role": null
+   }
+  ],
+  "output": [
+   {
+    "index": 0,
+    "stream_index": 0,
+    "clusters": 9,
+    "base_cluster": 0,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "pool": [
+     {
+      "role": "pilot",
+      "offset": 0,
+      "width": 1
+     },
+     {
+      "role": "loopback",
+      "offset": 1,
+      "width": 8
+     }
+    ],
+    "primary_role": "pilot"
+   },
+   {
+    "index": 1,
+    "stream_index": 1,
+    "clusters": 9,
+    "base_cluster": 9,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "pool": [
+     {
+      "role": "pilot",
+      "offset": 0,
+      "width": 1
+     },
+     {
+      "role": "loopback",
+      "offset": 1,
+      "width": 8
+     }
+    ],
+    "primary_role": "pilot"
+   },
+   {
+    "index": 2,
+    "stream_index": 2,
+    "clusters": 9,
+    "base_cluster": 18,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "pool": [
+     {
+      "role": "pilot",
+      "offset": 0,
+      "width": 1
+     },
+     {
+      "role": "loopback",
+      "offset": 1,
+      "width": 8
+     }
+    ],
+    "primary_role": "pilot"
+   },
+   {
+    "index": 3,
+    "stream_index": 3,
+    "clusters": 9,
+    "base_cluster": 27,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "pool": [
+     {
+      "role": "pilot",
+      "offset": 0,
+      "width": 1
+     },
+     {
+      "role": "loopback",
+      "offset": 1,
+      "width": 8
+     }
+    ],
+    "primary_role": "pilot"
+   },
+   {
+    "index": 4,
+    "stream_index": 4,
+    "clusters": 9,
+    "base_cluster": 36,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "pool": [
+     {
+      "role": "pilot",
+      "offset": 0,
+      "width": 1
+     },
+     {
+      "role": "loopback",
+      "offset": 1,
+      "width": 8
+     }
+    ],
+    "primary_role": "pilot"
+   },
+   {
+    "index": 5,
+    "stream_index": 5,
+    "clusters": 9,
+    "base_cluster": 45,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "pool": [
+     {
+      "role": "pilot",
+      "offset": 0,
+      "width": 1
+     },
+     {
+      "role": "loopback",
+      "offset": 1,
+      "width": 8
+     }
+    ],
+    "primary_role": "pilot"
+   },
+   {
+    "index": 6,
+    "stream_index": 6,
+    "clusters": 9,
+    "base_cluster": 54,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "pool": [
+     {
+      "role": "pilot",
+      "offset": 0,
+      "width": 1
+     },
+     {
+      "role": "loopback",
+      "offset": 1,
+      "width": 8
+     }
+    ],
+    "primary_role": "pilot"
+   },
+   {
+    "index": 7,
+    "stream_index": 7,
+    "clusters": 9,
+    "base_cluster": 63,
+    "maps": 0,
+    "base_map": 0,
+    "map_mode": "dynamic",
+    "pool": [
+     {
+      "role": "pilot",
+      "offset": 0,
+      "width": 1
+     },
+     {
+      "role": "loopback",
+      "offset": 1,
+      "width": 8
+     }
+    ],
+    "primary_role": "pilot"
+   }
+  ]
+ },
+ "audio_maps": [],
+ "audio_clusters": [
+  {
+   "index": 0,
+   "name": "Pilot Tone",
+   "direction": "output",
+   "role": "pilot",
+   "port_index": 0,
+   "offset": 0
+  },
+  {
+   "index": 1,
+   "name": "Loopback S0 ch 0",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 1
+  },
+  {
+   "index": 2,
+   "name": "Loopback S0 ch 1",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 2
+  },
+  {
+   "index": 3,
+   "name": "Loopback S0 ch 2",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 3
+  },
+  {
+   "index": 4,
+   "name": "Loopback S0 ch 3",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 4
+  },
+  {
+   "index": 5,
+   "name": "Loopback S0 ch 4",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 5
+  },
+  {
+   "index": 6,
+   "name": "Loopback S0 ch 5",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 6
+  },
+  {
+   "index": 7,
+   "name": "Loopback S0 ch 6",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 7
+  },
+  {
+   "index": 8,
+   "name": "Loopback S0 ch 7",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 0,
+   "offset": 8
+  },
+  {
+   "index": 9,
+   "name": "Pilot Tone",
+   "direction": "output",
+   "role": "pilot",
+   "port_index": 1,
+   "offset": 0
+  },
+  {
+   "index": 10,
+   "name": "Loopback S1 ch 0",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 1,
+   "offset": 1
+  },
+  {
+   "index": 11,
+   "name": "Loopback S1 ch 1",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 1,
+   "offset": 2
+  },
+  {
+   "index": 12,
+   "name": "Loopback S1 ch 2",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 1,
+   "offset": 3
+  },
+  {
+   "index": 13,
+   "name": "Loopback S1 ch 3",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 1,
+   "offset": 4
+  },
+  {
+   "index": 14,
+   "name": "Loopback S1 ch 4",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 1,
+   "offset": 5
+  },
+  {
+   "index": 15,
+   "name": "Loopback S1 ch 5",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 1,
+   "offset": 6
+  },
+  {
+   "index": 16,
+   "name": "Loopback S1 ch 6",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 1,
+   "offset": 7
+  },
+  {
+   "index": 17,
+   "name": "Loopback S1 ch 7",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 1,
+   "offset": 8
+  },
+  {
+   "index": 18,
+   "name": "Pilot Tone",
+   "direction": "output",
+   "role": "pilot",
+   "port_index": 2,
+   "offset": 0
+  },
+  {
+   "index": 19,
+   "name": "Loopback S2 ch 0",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 2,
+   "offset": 1
+  },
+  {
+   "index": 20,
+   "name": "Loopback S2 ch 1",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 2,
+   "offset": 2
+  },
+  {
+   "index": 21,
+   "name": "Loopback S2 ch 2",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 2,
+   "offset": 3
+  },
+  {
+   "index": 22,
+   "name": "Loopback S2 ch 3",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 2,
+   "offset": 4
+  },
+  {
+   "index": 23,
+   "name": "Loopback S2 ch 4",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 2,
+   "offset": 5
+  },
+  {
+   "index": 24,
+   "name": "Loopback S2 ch 5",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 2,
+   "offset": 6
+  },
+  {
+   "index": 25,
+   "name": "Loopback S2 ch 6",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 2,
+   "offset": 7
+  },
+  {
+   "index": 26,
+   "name": "Loopback S2 ch 7",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 2,
+   "offset": 8
+  },
+  {
+   "index": 27,
+   "name": "Pilot Tone",
+   "direction": "output",
+   "role": "pilot",
+   "port_index": 3,
+   "offset": 0
+  },
+  {
+   "index": 28,
+   "name": "Loopback S3 ch 0",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 3,
+   "offset": 1
+  },
+  {
+   "index": 29,
+   "name": "Loopback S3 ch 1",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 3,
+   "offset": 2
+  },
+  {
+   "index": 30,
+   "name": "Loopback S3 ch 2",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 3,
+   "offset": 3
+  },
+  {
+   "index": 31,
+   "name": "Loopback S3 ch 3",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 3,
+   "offset": 4
+  },
+  {
+   "index": 32,
+   "name": "Loopback S3 ch 4",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 3,
+   "offset": 5
+  },
+  {
+   "index": 33,
+   "name": "Loopback S3 ch 5",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 3,
+   "offset": 6
+  },
+  {
+   "index": 34,
+   "name": "Loopback S3 ch 6",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 3,
+   "offset": 7
+  },
+  {
+   "index": 35,
+   "name": "Loopback S3 ch 7",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 3,
+   "offset": 8
+  },
+  {
+   "index": 36,
+   "name": "Pilot Tone",
+   "direction": "output",
+   "role": "pilot",
+   "port_index": 4,
+   "offset": 0
+  },
+  {
+   "index": 37,
+   "name": "Loopback S4 ch 0",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 4,
+   "offset": 1
+  },
+  {
+   "index": 38,
+   "name": "Loopback S4 ch 1",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 4,
+   "offset": 2
+  },
+  {
+   "index": 39,
+   "name": "Loopback S4 ch 2",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 4,
+   "offset": 3
+  },
+  {
+   "index": 40,
+   "name": "Loopback S4 ch 3",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 4,
+   "offset": 4
+  },
+  {
+   "index": 41,
+   "name": "Loopback S4 ch 4",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 4,
+   "offset": 5
+  },
+  {
+   "index": 42,
+   "name": "Loopback S4 ch 5",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 4,
+   "offset": 6
+  },
+  {
+   "index": 43,
+   "name": "Loopback S4 ch 6",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 4,
+   "offset": 7
+  },
+  {
+   "index": 44,
+   "name": "Loopback S4 ch 7",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 4,
+   "offset": 8
+  },
+  {
+   "index": 45,
+   "name": "Pilot Tone",
+   "direction": "output",
+   "role": "pilot",
+   "port_index": 5,
+   "offset": 0
+  },
+  {
+   "index": 46,
+   "name": "Loopback S5 ch 0",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 5,
+   "offset": 1
+  },
+  {
+   "index": 47,
+   "name": "Loopback S5 ch 1",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 5,
+   "offset": 2
+  },
+  {
+   "index": 48,
+   "name": "Loopback S5 ch 2",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 5,
+   "offset": 3
+  },
+  {
+   "index": 49,
+   "name": "Loopback S5 ch 3",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 5,
+   "offset": 4
+  },
+  {
+   "index": 50,
+   "name": "Loopback S5 ch 4",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 5,
+   "offset": 5
+  },
+  {
+   "index": 51,
+   "name": "Loopback S5 ch 5",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 5,
+   "offset": 6
+  },
+  {
+   "index": 52,
+   "name": "Loopback S5 ch 6",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 5,
+   "offset": 7
+  },
+  {
+   "index": 53,
+   "name": "Loopback S5 ch 7",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 5,
+   "offset": 8
+  },
+  {
+   "index": 54,
+   "name": "Pilot Tone",
+   "direction": "output",
+   "role": "pilot",
+   "port_index": 6,
+   "offset": 0
+  },
+  {
+   "index": 55,
+   "name": "Loopback S6 ch 0",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 6,
+   "offset": 1
+  },
+  {
+   "index": 56,
+   "name": "Loopback S6 ch 1",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 6,
+   "offset": 2
+  },
+  {
+   "index": 57,
+   "name": "Loopback S6 ch 2",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 6,
+   "offset": 3
+  },
+  {
+   "index": 58,
+   "name": "Loopback S6 ch 3",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 6,
+   "offset": 4
+  },
+  {
+   "index": 59,
+   "name": "Loopback S6 ch 4",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 6,
+   "offset": 5
+  },
+  {
+   "index": 60,
+   "name": "Loopback S6 ch 5",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 6,
+   "offset": 6
+  },
+  {
+   "index": 61,
+   "name": "Loopback S6 ch 6",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 6,
+   "offset": 7
+  },
+  {
+   "index": 62,
+   "name": "Loopback S6 ch 7",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 6,
+   "offset": 8
+  },
+  {
+   "index": 63,
+   "name": "Pilot Tone",
+   "direction": "output",
+   "role": "pilot",
+   "port_index": 7,
+   "offset": 0
+  },
+  {
+   "index": 64,
+   "name": "Loopback S7 ch 0",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 7,
+   "offset": 1
+  },
+  {
+   "index": 65,
+   "name": "Loopback S7 ch 1",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 7,
+   "offset": 2
+  },
+  {
+   "index": 66,
+   "name": "Loopback S7 ch 2",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 7,
+   "offset": 3
+  },
+  {
+   "index": 67,
+   "name": "Loopback S7 ch 3",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 7,
+   "offset": 4
+  },
+  {
+   "index": 68,
+   "name": "Loopback S7 ch 4",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 7,
+   "offset": 5
+  },
+  {
+   "index": 69,
+   "name": "Loopback S7 ch 5",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 7,
+   "offset": 6
+  },
+  {
+   "index": 70,
+   "name": "Loopback S7 ch 6",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 7,
+   "offset": 7
+  },
+  {
+   "index": 71,
+   "name": "Loopback S7 ch 7",
+   "direction": "output",
+   "role": "loopback",
+   "port_index": 7,
+   "offset": 8
+  }
+ ],
+ "cluster_format": "MBLA-mono",
+ "cluster_policy": "role-pools",
+ "cluster_pools": {
+  "pilot": true,
+  "loopback": 8
+ },
+ "cluster_fabric": {
+  "loopback_lane": false
+ },
+ "physical_binding": {
+  "interface": "tdm32",
+  "channels_per_direction": 32,
+  "physical_channels": {
+   "capture": 0,
+   "render": 0
+  },
+  "rule": "first-N-clusters-per-direction; extra stream channels virtual, missing physical channels render 0 (USER wire-truth 1-to-1 rule)"
+ }
+}

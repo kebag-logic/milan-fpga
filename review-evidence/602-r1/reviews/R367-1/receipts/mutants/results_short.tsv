@@ -1,0 +1,25 @@
+clean	gmstep	pass
+clean	option-off	pass
+author0	the policy level is tied low at the servo	gmstep	caught
+author1	the policy level omits the applied-rate tail	gmstep	caught
+author2	the policy level misses an extra addend stage	gmstep	caught
+author3	the PHC re-base restart term is restored	gmstep	caught
+author4	the source-change term is removed	gmstep	caught
+author5	selected CRF mr propagation is removed	gmstep	caught
+author6	the grandmaster identity re-bases the render stage as well as the step	gmstep	caught
+author7	the step does not re-centre the render stage	gmstep	caught
+author8	the render re-base is keyed to the identity, not the step	gmstep	caught
+author9	tu reaches the talkers four cycles late	gmstep	caught
+author10	the plane's step does not re-arm the holdover	gmstep	caught
+author11	tu stops the talker	gmstep	caught
+author12	the grandmaster change stops the talker for good	gmstep	caught
+author13	the step's re-centre snaps one event off the setpoint	gmstep	caught
+author14	software settime is restored as an mr cause	option-off	caught
+author15	PHC adjtime is restored as an mr cause	option-off	caught
+reviewer0	RV1 restored term gated by CRF selection	gmstep	caught
+reviewer1	RV2 plane/adjtime strobe alone restored on the gmstep leg	gmstep	caught
+reviewer2	RV3 GM identity change requests a restart	gmstep	caught
+reviewer3	RV4 tu level requests a restart	gmstep	caught
+reviewer4	RV5 a coincident PHC re-base suppresses genuine CRF restarts (gap probe)	gmstep	pass
+reviewer5	RV6 full re-base term restored, graded on the option-off leg	option-off	caught
+reviewer6	RV7 CRF propagation fires regardless of clock-source selection	gmstep	pass

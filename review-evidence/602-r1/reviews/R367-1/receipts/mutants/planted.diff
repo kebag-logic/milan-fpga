@@ -1,0 +1,201 @@
+### author0_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author0_milan_datapath.sv
+@@ -5578,3 +5578,3 @@
+     .ptp_now_i     (ptp_now_w),
+-    .phc_slew_active_i (gptp_slew_eff_w),
++    .phc_slew_active_i (1'b0),
+     //! servo_sel_w is (clk_src_i == crf_src_idx_i) INSIDE the servo, and
+### author10_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author10_milan_datapath.sv
+@@ -1952,3 +1952,3 @@
+     .phc_adj_p_i  ((GPTP_PLANE_EN_P != 1'b0)
+-                   ? gptp_step_we_w : cfg_ptp_cmd_adjust),
++                   ? 1'b0 : cfg_ptp_cmd_adjust),
+     .gm_id_i      (cfg_adp_gptp_gm),
+### author11_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author11_milan_datapath.sv
+@@ -2028,3 +2028,3 @@
+   assign aaf_stream_en_raw_w[0] = aaf_gate;
+-  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;
++  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r & ~clkv_tu_w;
+   generate
+### author12_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author12_milan_datapath.sv
+@@ -2028,3 +2028,8 @@
+   assign aaf_stream_en_raw_w[0] = aaf_gate;
+-  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;
++  logic gm_stop_r;
++  always_ff @(posedge axis_clk) begin : p_gm_stop
++    if (!axis_resetn) gm_stop_r <= 1'b0;
++    else if (gm_recentre_p_r) gm_stop_r <= 1'b1;
++  end : p_gm_stop
++  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r & ~gm_stop_r;
+   generate
+### author13_KL_render_setpoint.sv (vs hdl/.../KL_render_setpoint.sv)
+--- head/KL_render_setpoint.sv
++++ planted/author13_KL_render_setpoint.sv
+@@ -587,3 +587,3 @@
+               if (enough_w) begin
+-                rptr_r[s]    <= snap_rptr_w;
++                rptr_r[s]    <= prefill_r[s] ? snap_rptr_w : snap_rptr_w - 1'b1;
+                 prefill_r[s] <= 1'b0;
+### author14_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author14_milan_datapath.sv
+@@ -3133,3 +3133,3 @@
+   wire mcr_restart_p_w = crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) | cfg_ptp_cmd_load;
+ 
+### author15_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author15_milan_datapath.sv
+@@ -3133,3 +3133,3 @@
+   wire mcr_restart_p_w = crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) | eff_ptp_adjust_w;
+ 
+### author1_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author1_milan_datapath.sv
+@@ -2770,3 +2770,3 @@
+   logic [3:0] gptp_slew_tail_r;
+-  wire gptp_slew_eff_w = gptp_slew_active_w || (|gptp_slew_tail_r);
++  wire gptp_slew_eff_w = gptp_slew_active_w;
+   always_ff @(posedge axis_clk) begin : slew_rate_alignment
+### author2_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author2_milan_datapath.sv
+@@ -2839,2 +2839,7 @@
+   //! instantiation, which is what lets ptp_now_w be read synchronously
++  logic [31:0] probe_adj_r;
++  always_ff @(posedge gtx_clk) begin : probe_addend_delay
++    if (!gtx_resetn) probe_adj_r <= '0;
++    else probe_adj_r <= phc_adj_ts_w;
++  end : probe_addend_delay
+   timestamp_counter #(
+@@ -2850,3 +2855,3 @@
+     .incr_i               (phc_incr_ts_w),
+-    .adj_i                (phc_adj_ts_w),
++    .adj_i                (probe_adj_r),
+     .tod_wr_i             (phc_tod_wr_ts_w),
+### author3_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author3_milan_datapath.sv
+@@ -3133,3 +3133,3 @@
+   wire mcr_restart_p_w = crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) | media_rebase_p_w;
+ 
+### author4_KL_media_clock_restart.sv (vs hdl/.../KL_media_clock_restart.sv)
+--- head/KL_media_clock_restart.sv
++++ planted/author4_KL_media_clock_restart.sv
+@@ -212,3 +212,3 @@
+   logic [15:0]              clk_src_q_r;
+-  wire                      src_change_w = (clk_src_q_r != clk_src_i);
++  wire                      src_change_w = 1'b0;
+   //! per-talker transmitted-PDU count since this talker's level last changed
+### author5_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author5_milan_datapath.sv
+@@ -3133,3 +3133,3 @@
+   wire mcr_restart_p_w = crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++                          & (tkd_crflk_q_r & ~crf_locked_w);
+ 
+### author6_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author6_milan_datapath.sv
+@@ -6053,3 +6053,3 @@
+   wire render_recentre_p_w /* verilator public_flat_rd */ =
+-       media_rebase_p_w
++       gm_recentre_p_r | media_rebase_p_w
+        | src_recentre_p_r;
+### author7_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author7_milan_datapath.sv
+@@ -6053,3 +6053,3 @@
+   wire render_recentre_p_w /* verilator public_flat_rd */ =
+-       media_rebase_p_w
++       1'b0
+        | src_recentre_p_r;
+### author8_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/author8_milan_datapath.sv
+@@ -6053,3 +6053,3 @@
+   wire render_recentre_p_w /* verilator public_flat_rd */ =
+-       media_rebase_p_w
++       gm_recentre_p_r
+        | src_recentre_p_r;
+### author9_KL_ptp_clock_validity.sv (vs hdl/.../KL_ptp_clock_validity.sv)
+--- head/KL_ptp_clock_validity.sv
++++ planted/author9_KL_ptp_clock_validity.sv
+@@ -210,3 +210,7 @@
+   //! this term lets that edge capture tu=0 before hold_r becomes visible.
+-  assign ts_uncertain_o = (~sync_ok_w) | hold_w | disc_p_w;
++  logic [3:0] tu_late_r;
++  always_ff @(posedge clk_i) begin : p_tu_late
++    tu_late_r <= {tu_late_r[2:0], (~sync_ok_w) | hold_w | disc_p_w};
++  end : p_tu_late
++  assign ts_uncertain_o = tu_late_r[3];
+ 
+### reviewer0_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/reviewer0_milan_datapath.sv
+@@ -3133,3 +3133,3 @@
+   wire mcr_restart_p_w = crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) | (crf_clk_selected_r & media_rebase_p_w);
+ 
+### reviewer1_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/reviewer1_milan_datapath.sv
+@@ -3133,3 +3133,3 @@
+   wire mcr_restart_p_w = crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) | eff_ptp_adjust_w;
+ 
+### reviewer2_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/reviewer2_milan_datapath.sv
+@@ -3133,3 +3133,3 @@
+   wire mcr_restart_p_w = crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) | gm_recentre_p_r;
+ 
+### reviewer3_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/reviewer3_milan_datapath.sv
+@@ -3133,3 +3133,3 @@
+   wire mcr_restart_p_w = crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) | clkv_tu_w;
+ 
+### reviewer4_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/reviewer4_milan_datapath.sv
+@@ -3133,3 +3133,3 @@
+   wire mcr_restart_p_w = crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) & ~media_rebase_p_w;
+ 
+### reviewer5_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/reviewer5_milan_datapath.sv
+@@ -3133,3 +3133,3 @@
+   wire mcr_restart_p_w = crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) | media_rebase_p_w;
+ 
+### reviewer6_milan_datapath.sv (vs hdl/.../milan_datapath.sv)
+--- head/milan_datapath.sv
++++ planted/reviewer6_milan_datapath.sv
+@@ -3132,3 +3132,3 @@
+   wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
+-  wire mcr_restart_p_w = crf_clk_selected_r
++  wire mcr_restart_p_w = 1'b1
+                           & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);

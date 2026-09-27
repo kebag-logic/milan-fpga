@@ -1,0 +1,55 @@
+diff --git a/hdl/ieee1722/avtp/KL_media_clock_restart.sv b/hdl/ieee1722/avtp/KL_media_clock_restart.sv
+index 11425d65d..c0b5efc24 100644
+--- a/hdl/ieee1722/avtp/KL_media_clock_restart.sv
++++ b/hdl/ieee1722/avtp/KL_media_clock_restart.sv
+@@ -63,2 +63,2 @@
+-                second request landing anywhere in the window (a PHC step on
+-                top of a CRF disruption, say) asks for what the first
++                second request landing anywhere in the window (a source
++                change after a CRF disruption, say) asks for what the first
+@@ -104,0 +105,6 @@
++                #602 ruling 5859297355: a PHC-only render re-base is not
++                a restart request in the INTERNAL/CRF architecture. The
++                integration signals it through tu and holdover instead.
++                Only genuine source changes and selected-CRF causes reach
++                this engine; a coincident PHC step does not alter them.
++
+@@ -165,2 +171,2 @@ module KL_media_clock_restart #(
+-  //! toggle, and a PHC step (#387); the source-change trigger has its own
+-  //! clk_src_i below.
++  //! toggle. PHC-only steps are excluded by #602; the source-change
++  //! trigger has its own clk_src_i below.
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 16a36b902..1137c3412 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3097,2 +3097,2 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+-  //  toggling mr would be a false alarm to every listener. A PHC step is not
+-  //  a CRF request and is not gated (#387, below).
++  //  toggling mr would be a false alarm to every listener. A PHC-only
++  //  re-base is not a restart request (#602, below).
+@@ -3124,10 +3124,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+-  //! #387: a PHC step is ONE counted media event (decision 5606198212 part
+-  //! b, restated by the owner in 5794731090): the plane's phase write (CLKV
+-  //! software's adjtime when the plane is off) or a software settime moves
+-  //! every presentation time this talker stamps, so it restarts the media
+-  //! clock on the wire once (4.4.4.3) - whichever clock source is selected -
+-  //! and Milan Table 5.4 MEDIA_RESET counts that toggle. A step that lands
+-  //! while another restart is still pending (a CRF disruption, say) merges
+-  //! with it inside KL_media_clock_restart: one toggle, never a cancellation
+-  //! (ruling 5802264260 item 2). The same pulse re-centres the render stage
+-  //! below.
++  //! #602 ruling 5859297355 supersedes #387's PHC-step restart cause.
++  //! A PHC-only re-base changes presentation time, not the INTERNAL/CRF
++  //! media-clock source. It keeps mr and MEDIA_RESET unchanged; tu and
++  //! its holdover still signal the gPTP discontinuity (4.4.4.7/10.4.5).
++  //! Keep the re-base pulse for the render recentre below. Real source
++  //! changes and selected-CRF disruption/mr propagation still request a
++  //! restart (4.4.4.3/10.4.3), even alongside a PHC step. The restart
++  //! engine retains its per-stream eight-PDU hold and pending merge.
+@@ -3135,3 +3133,2 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+-  wire mcr_restart_p_w = (crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+-                       | media_rebase_p_w;
++  wire mcr_restart_p_w = crf_clk_selected_r
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);

@@ -1,0 +1,7 @@
+review checkout $REVIEWS/r367-1-602 after all probes:
+HEAD 49012143b335ea48d6a71c441a05d0c1796887ff tree 8b45256c51568c953830ae49e6e24139152ee70d
+status --porcelain=v2 --ignored --untracked-files=all: empty
+index == HEAD (diff --cached --quiet), worktree == index (diff --quiet after really-refresh)
+index (mode,blob,path) sha256 == HEAD tree sha256: 0afc8b8d65a6f2db78e3c4b6dce509095c18ffcefd67a47e0abee080c8588023
+tracked non-gitlink files: 930, blob mismatches 0, mode mismatches 0
+gitlinks: gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d, protocol-processor 870ff88ad35bbd532244e4c7e6d7661b9f6e1366, third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce (worktrees clean), external efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 (not initialised, as found)

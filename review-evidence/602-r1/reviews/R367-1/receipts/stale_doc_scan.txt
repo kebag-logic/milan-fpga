@@ -1,0 +1,27 @@
+./CHANGELOG.md:16:- **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
+./CHANGELOG.md:119:- Every step now toggles `mr` once, on every running stream.
+./CHANGELOG.md:126:- A step on a pending `mr` restart merges with it.
+./CHANGELOG.md:135:- Two of them grade the option-off leg's settime and INTERNAL-source `mr`.
+./docs/reference/REGISTER_MAP.md:128:   received toggle). A PHC step toggles `mr` on every running Stream
+./docs/testing/TESTING.md:273:| #387 GM step re-base and #545 slew coverage: twelve gmstep controls and two option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the medi
+./docs/design/TIME_SYNC.md:261:A coincident step never suppresses a required media-clock restart.
+./docs/design/GM_LOSS_RECOVERY.md:263:| `milan_dp` gmstep | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, stable `mr` and MEDIA_RESET, stream continuity; five negative controls in the sweep |
+./docs/fpga/FPGA_DESIGN.md:178:A PHC step toggles `mr` whatever the clock-source selection.
+./docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:325:| Listener playback buffer/render: 512-pair elasticity FIFO, clean MMCM I2S serializer, free-run rate matching, symmetric rails, GM-step recenter (honest media_reset), converged observer, wire-truth chan
+./docs/MILAN_V12_ROADMAP.md:360:> A PHC step toggles `mr` whatever the clock-source selection.
+./tb/verilator/milan_dp/gmstep_mutants.py:128:            "restart: a PHC-only step leaves outgoing mr unchanged", True),
+./tb/verilator/milan_dp/gmstep_mutants.py:180:    Control("software settime is restored as an mr cause", "datapath",
+./tb/verilator/milan_dp/gmstep_mutants.py:184:    Control("PHC adjtime is restored as an mr cause", "datapath",
+./tb/verilator/milan_dp/README.md:657:| GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear, with talker PDUs graded both inside the hold and after it; 
+./tb/verilator/milan_dp/README.md:658:| Selected CRF restart | a received CRF `mr` toggle propagates exactly once; the sink stays locked; no PHC step supplies the restart |
+./tb/verilator/milan_dp/README.md:662:plane's step pulse. Outgoing `mr` stays unchanged throughout the window.
+./tb/verilator/milan_dp/README.md:690:| the PHC re-base restart term is restored | datapath | restart: a PHC-only step leaves outgoing mr unchanged | the sweep |
+./tb/verilator/milan_dp/README.md:717:settime: neither changes `mr`, and settime adds no MEDIA_RESET. The runner
+./tb/verilator/milan_dp/README.md:736:Render re-base and media-clock restart remain separate events.
+./tb/verilator/milan_dp/README.md:969:| `obj_dir` (`sim_main`) | 273 checks / 75 fail | **231 / 0** (2026-09-24 UTC) | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU | **233 / 0** (2026-09-24 UTC); #387 adds the PHC-step `mr` c
+./tb/verilator/milan_dp/README.md:976:| `obj_nolpf` (`sim_main`) | 273 / 75 | **231 / 0** (2026-09-24 UTC) | re-run current (the old "not rerun after the `tu` assertion" caveat is retired) | **233 / 0** (2026-09-24 UTC); #387 adds the PHC-step `mr` checks, inc
+./tb/verilator/milan_dp/README.md:978:| `obj_ax1x1` (`sim_main`) | 273 / 73 | **228 / 0** (2026-09-24 UTC) | 5 sections guarded out on this shape | **230 / 0** (2026-09-24 UTC); #387 adds the PHC-step `mr` checks, including settime toggle and MEDIA_RESET |
+./tb/verilator/milan_dp/Makefile:399:# re-base leaves mr and MEDIA_RESET unchanged).
+./tb/verilator/milan_dp/sim_gmstep.cpp:1047:    check_.dec("restart: a PHC-only step leaves outgoing mr unchanged",
+./tb/verilator/milan_dp/sim_gmstep.cpp:1057:    check_.dec("restart: a PHC-only step adds no MEDIA_RESET",
+./tb/verilator/tkdiag/sim_main.cpp:662://     so the step merges there too: one toggle, one MEDIA_RESET.

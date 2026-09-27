@@ -1,0 +1,14 @@
+-                second request landing anywhere in the window (a PHC step on
+-                top of a CRF disruption, say) asks for what the first
++                second request landing anywhere in the window (a source
++                change after a CRF disruption, say) asks for what the first
++                #602 ruling 5859297355: a PHC-only render re-base is not
++                a restart request in the INTERNAL/CRF architecture. The
++                integration signals it through tu and holdover instead.
++                Only genuine source changes and selected-CRF causes reach
++                this engine; a coincident PHC step does not alter them.
+-  wire mcr_restart_p_w = (crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+-                       | media_rebase_p_w;
++  wire mcr_restart_p_w = crf_clk_selected_r
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
