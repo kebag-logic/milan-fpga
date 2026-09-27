@@ -1,0 +1,65 @@
+## la_avdecc public source fetched at (tag v4.3.1.1 peeled 6d61a92e7f264c69f23cdc38f50d31114e567aa0)
+6d61a92e7f264c69f23cdc38f50d31114e567aa0
+## CMakeLists.txt version and compatibility-option defaults
+13:set(LA_AVDECC_VERSION 4.3.1.1)
+14:set(LA_AVDECC_CONTROLLER_VERSION 4.3.1.1)
+47:option(ENABLE_AVDECC_FEATURE_REDUNDANCY "Enable 'Network Redundancy' feature as defined by AVnu Alliance." TRUE)
+48:option(ENABLE_AVDECC_FEATURE_JSON "Enable read/write files in JSON format." TRUE)
+49:option(ENABLE_AVDECC_FEATURE_CBR "Enable ChannelBasedRouting monitoring." TRUE)
+52:option(ENABLE_AVDECC_STRICT_2018_REDUNDANCY "Be strict about 'Network Redundancy' feature, using AVnu 2018 specifications." TRUE)
+53:option(IGNORE_INVALID_CONTROL_DATA_LENGTH "Allow messages with an invalid advertised 'Control Data Length' field (not matching data in buffer)." TRUE)
+54:option(IGNORE_INVALID_NON_SUCCESS_AEM_RESPONSES "Allow invalid AEM non-success responses messages." TRUE)
+55:option(IGNORE_NEITHER_STATIC_NOR_DYNAMIC_MAPPINGS "Allow Entities not supporting Dynamic Mapping and not adversiting AUDIO_MAP." TRUE)
+56:option(CONTINUE_MISBEHAVE_AEM_RESPONSES "Continue entity enumeration when receiving an AEM ENTITY_MISBEHAVE response status." TRUE)
+57:option(ALLOW_GET_AUDIO_MAP_UNSOL "Allow receiving GetAudioMap unsolicited notifications." TRUE)
+58:option(ALLOW_RECV_BIG_AECP_PAYLOADS "Allow receiving AECP payloads bigger than the allowed 524 bytes." TRUE)
+59:option(ALLOW_SEND_BIG_AECP_PAYLOADS "Allow sending AECP payloads bigger than the allowed 524 bytes." FALSE)
+## runtime options printed by the probe (run-1.log)
+LIB la_avdecc 4.3.1-beta1, controller 4.3.1-beta1
+LIB option Ignore Invalid Control Data Length
+LIB option Ignore Invalid Non Success AEM Responses
+LIB option Allow Get Audio Map Unsolicited Notifications
+LIB option Allow Recv Big AECP payloads
+LIB option Redundancy
+LIB option JSON
+LIB controller-option Ignore Neither Static Nor Dynamic Mappings
+LIB controller-option Continue Misbehave AEM Responses
+LIB controller-option Redundancy
+LIB controller-option Strict 2018 Redundancy
+LIB controller-option JSON
+LIB controller-option Channel Based Routing
+## CompatibilityFlag enum (probe flags() covers every member)
+	enum class CompatibilityFlag : std::uint8_t
+	{
+		None = 0, /** Not fully IEEE1722.1 compliant entity */
+
+		IEEE17221 = 1u << 0, /** Classic IEEE1722.1 entity */
+		Milan = 1u << 1, /** MILAN compatible entity */
+
+		IEEE17221Warning = 1u << 5, /** IEEE17221 compatible entity but with minor warnings in the model/behavior that do not retrograde a IEEE17221 entity (this flag it additive with IEEE17221 flag) */
+		MilanWarning = 1u << 6, /** MILAN compatible entity but with minor warnings in the model/behavior that do not retrograde a Milan entity (this flag it additive with Milan flag) */
+		Misbehaving = 1u << 7, /** Entity is sending correctly formed messages but with incoherent values that can cause undefined behavior. */
+	};
+## IGNORE_INVALID_CONTROL_DATA_LENGTH demotes a WARN to DEBUG (src/protocol/protocolAemAecpdu.cpp:141-151)
+	if (_controlDataLength < minCDL)
+	{
+#if defined(IGNORE_INVALID_CONTROL_DATA_LENGTH)
+		// Allow this packet to go through, the ControlData specific unpacker will trap any error if the message is further ill-formed
+		LOG_SERIALIZATION_DEBUG(_srcAddress, "AemAecpdu::deserialize error: ControlDataLength field minimum value for AEM-AECPDU is {}. AemCommandType {} ({}) only advertise {} bytes", minCDL, std::string(_commandType), utils::toHexString(_commandType.getValue()), _controlDataLength);
+		_commandSpecificDataLength = 0u;
+#else // !IGNORE_INVALID_CONTROL_DATA_LENGTH
+		LOG_SERIALIZATION_WARN(_srcAddress, "AemAecpdu::deserialize error: ControlDataLength field minimum value for AEM-AECPDU is {}. AemCommandType {} ({}) only advertise {} bytes", minCDL, std::string(_commandType), utils::toHexString(_commandType.getValue()), _controlDataLength);
+		throw std::invalid_argument("ControlDataLength field value too small for AEM-AECPDU");
+#endif // IGNORE_INVALID_CONTROL_DATA_LENGTH
+	}
+## MisbehaveContinue still sets the Misbehaving flag (src/controller/avdeccControllerImpl.cpp:6343-6346)
+		case FailureAction::MisbehaveContinue:
+			// Flag the entity as "Misbehaving"
+			addCompatibilityFlag(this, *entity, ControlledEntity::CompatibilityFlag::Misbehaving);
+			return true;
+## published packet: MANIFEST.json
+files 50 published mismatches []
+path_redacted ['author/HANDOFF.md', 'author/gate-1.txt', 'author/gate-2.txt', 'author/gate-3.txt', 'author/gate-4.txt', 'author/gate-5.txt', 'author/gate-6.txt', 'author/gate-7.txt', 'author/gate-8.txt', 'author/run-1.entity.json', 'author/run-2.entity.json', 'author/run-3.entity.json', 'author/tools/run_gates.py']
+evidence commit 89aa9f94ffe46cf7fa9df54376d26771e118f103
+## probe source sha256
+ac552f67c8b769e0cfc46d0b80c4e9ece0c9da1811020d2c497e2f904749a623

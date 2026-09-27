@@ -1,0 +1,52 @@
+evidence commit 89aa9f94ffe46cf7fa9df54376d26771e118f103 path review-evidence/117-hive-r1/author
+## sha256sum -c MANIFEST.sha256 (author, as-recorded hashes)
+HANDOFF.md: FAILED
+PR-BODY.md: OK
+README.md: OK
+REVIEW-READY.md: OK
+TAKEN.md: OK
+VALIDATION-NOTES.md: OK
+build-provenance.txt: OK
+cleanup.txt: OK
+enumeration-summary.txt: OK
+expected-crc.txt: OK
+final-uart.txt: OK
+gate-1.txt: FAILED
+gate-2.txt: FAILED
+gate-3.txt: FAILED
+gate-4.txt: FAILED
+gate-5.txt: FAILED
+gate-6.txt: FAILED
+gate-7.txt: FAILED
+gate-8.txt: FAILED
+gate-initial-attempt.json: OK
+gates.json: OK
+identity-aecp-comparison.txt: OK
+identity-aecp.jsonl: OK
+identity-uart.txt: OK
+image-to-base-diff.txt: OK
+link-selection.json: OK
+redaction.json: OK
+review-ready-readback.md: OK
+review-ready-url.txt: OK
+run-1.entity.json: FAILED
+run-1.inventory.json: OK
+run-1.log: OK
+run-2.entity.json: FAILED
+run-2.inventory.json: OK
+run-2.log: OK
+run-3.entity.json: FAILED
+run-3.inventory.json: OK
+run-3.log: OK
+scope-check.txt: OK
+tools/avdecc_ro.py: OK
+tools/build_probe.py: OK
+tools/console_read.py: OK
+tools/enum_probe.cpp: OK
+tools/enumerate_once.py: OK
+tools/expected_crc.py: OK
+tools/run_gates.py: FAILED
+tools/summarize.py: OK
+validation-head.txt: OK
+sha256sum: WARNING: 13 computed checksums did NOT match
+## expected: the 13 FAILED are exactly the MANIFEST.json path_redacted set

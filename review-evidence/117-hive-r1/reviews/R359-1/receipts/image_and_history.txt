@@ -1,0 +1,20 @@
+## issue 529 state
+CLOSED 2026-09-24T03:38:14Z CRF Stream Input serves no AECP counters, so controllers downgrade the entity from Milan
+## PR 534 merge commit in product image 9e9954e9
+50e780975 (Merge PR #534) is an ancestor of 9e9954e96: yes
+## image-to-base diff 9e9954e9..2a2a7bb6
+ docs/design/AREA_BUDGET.md                         |    1 +
+ docs/findings/PP_SHADOW_BASELINE.md                |  273 +-
+ docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json | 3141 ++++++++++++++++++++
+ docs/findings/PP_SHADOW_BASELINE_50MHZ_RANKING.tsv |   83 +
+ 4 files changed, 3454 insertions(+), 44 deletions(-)
+## gitlinks equal at 9e9954e9 and head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+## run STREAM_INPUT 1 counters present in dump (CRF input)
+0 ['EARLY_TIMESTAMP', 'FRAMES_RX', 'LATE_TIMESTAMP', 'MEDIA_LOCKED', 'MEDIA_RESET', 'MEDIA_UNLOCKED', 'SEQ_NUM_MISMATCH', 'STREAM_INTERRUPTED', 'TIMESTAMP_NOT_VALID', 'TIMESTAMP_UNCERTAIN', 'TIMESTAMP_VALID', 'UNSUPPORTED_FORMAT']
+1 ['EARLY_TIMESTAMP', 'FRAMES_RX', 'LATE_TIMESTAMP', 'MEDIA_LOCKED', 'MEDIA_RESET', 'MEDIA_UNLOCKED', 'SEQ_NUM_MISMATCH', 'STREAM_INTERRUPTED', 'TIMESTAMP_UNCERTAIN', 'UNSUPPORTED_FORMAT']

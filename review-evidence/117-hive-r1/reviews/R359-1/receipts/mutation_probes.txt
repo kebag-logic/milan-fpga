@@ -1,0 +1,13 @@
+CONTROL rc=0 STABLE: all static descriptor trees, descriptor inventories and compatibility verdicts are identical across three fresh 
+PROBE m_flags_ieee_only KILLED rc=1 AssertionError
+PROBE m_flags_milan_warning KILLED rc=1 AssertionError
+PROBE m_compat_event KILLED rc=1 AssertionError
+PROBE m_complaint KILLED rc=1 AssertionError
+PROBE m_query_error KILLED rc=1 AssertionError
+PROBE m_rc KILLED rc=1 AssertionError
+PROBE m_static_drift KILLED rc=1 AssertionError
+PROBE m_drop_cluster KILLED rc=1 AssertionError
+PROBE m_wrong_entity KILLED rc=1 AssertionError
+PROBE m_diagnostics KILLED rc=1 AssertionError
+PROBE m_diagnostics_all_runs SURVIVED rc=0 STABLE: all static descriptor trees, descriptor inventories and compatibility verdicts are identical across three fresh controller instances
+SUMMARY control_rc=0 survived=1 of 11

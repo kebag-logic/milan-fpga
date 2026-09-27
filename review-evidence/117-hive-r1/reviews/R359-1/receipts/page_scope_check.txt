@@ -1,0 +1,22 @@
+replace base[54:54] head[54:54]
+  - | | Hive | NOT RUN: needs an interactive desktop |
+  + 1 line(s), first: | | Headless la_avdecc, replacing Hive by the [2026-09-27 owner decision](https://github.com/kebag-logic/milan-fpga/issu
+replace base[464:464] head[464:464]
+  - | Hive | NOT RUN: needs an interactive desktop |
+  + 1 line(s), first: | Headless la_avdecc, Hive replacement (2026-09-27) | PASS, three runs: `IEEE17221` and `MILAN`; 41 descriptors across 1
+replace base[536:536] head[536:649]
+  - - **B4. Hive needs an interactive desktop session on the controller host.**
+  + 114 line(s), first: - **B4. Interactive Hive replaced by headless la_avdecc enumeration.** RESOLVED by the [2026-09-27 owner decision](https
+base NOT RUN lines 11
+  KEPT - **[Result per acceptance box](#result-per-acceptance-box)** -- PASS, FAIL or NOT RUN for every part of the f
+  KEPT Every row states what was measured. A row that was not measured says NOT RUN.
+  KEPT | | reference peer's recovery against the bound | NOT RUN: the peer's own link is not tapped, so the switch's 
+  REMOVED | | Hive | NOT RUN: needs an interactive desktop |
+  KEPT | | behave against hardware | NOT RUN: the suite has no hardware tier |
+  KEPT | | latency (#64, #213) | NOT RUN: outside this assignment |
+  KEPT | | audio continuity | NOT RUN: deferred to 2026-12-31 |
+  KEPT link is not recorded, so its recovery time against the bound is NOT RUN. Its
+  KEPT - Reference peer's recovery time: NOT RUN; the switch's return on the peer's link is not observable on this be
+  REMOVED | Hive | NOT RUN: needs an interactive desktop |
+  KEPT | behave against hardware | NOT RUN: [tests/README.md](../../tests/README.md) defines the suite as offline onl
+owner decision link in added text: 2
