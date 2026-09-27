@@ -1,0 +1,14 @@
+{"name": "pp-shadow", "command": ["make", "-C", "tb/verilator/pp_shadow"], "rc": 2, "seconds": 21.61}
+{"name": "docs-git", "command": ["python3", "scripts/docs_check.py"], "rc": 0, "seconds": 4.17}
+{"name": "doc-style", "command": ["python3", "scripts/check_doc_style.py"], "rc": 0, "seconds": 0.06}
+{"name": "toc-check", "command": ["python3", "scripts/gen_toc.py", "--check"], "rc": 0, "seconds": 2.52}
+{"name": "docs-no-git", "command": ["env", "GIT_DIR=/dev/null", "python3", "scripts/docs_check.py"], "rc": 0, "seconds": 4.17}
+{"name": "doc-paths", "command": ["python3", "scripts/check_doc_paths.py"], "rc": 0, "seconds": 0.06}
+{"name": "anchors", "command": ["python3", "scripts/gen_toc.py", "--verify-anchors"], "rc": 0, "seconds": 1.62}
+{"name": "pp-shadow-final", "command": ["make", "-C", "tb/verilator/pp_shadow"], "rc": 0, "seconds": 67.64}
+{"name": "diff-worktree", "command": ["git", "diff", "--check"], "rc": 0, "seconds": 0.03}
+{"name": "pending-mutant", "command": ["make", "-C", "tb/verilator/pp_shadow", "pending-mutant"], "rc": 0, "seconds": 29.93}
+{"name": "docs-git-final", "command": ["python3", "scripts/docs_check.py"], "rc": 0, "seconds": 4.17}
+{"name": "diff-commit", "command": ["git", "diff", "--check", "867a2e38", "HEAD"], "rc": 0, "seconds": 0.02}
+{"name": "diff-base", "command": ["git", "diff", "--check", "831f94f4", "HEAD"], "rc": 0, "seconds": 0.03}
+{"name": "em-dash", "command": ["python3", "scripts/check_em_dash.py", "--base", "831f94f4"], "rc": 0, "seconds": 3.02}
