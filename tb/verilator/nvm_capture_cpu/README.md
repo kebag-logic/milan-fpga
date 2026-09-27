@@ -42,7 +42,11 @@ done
 
 The 100 MHz runs are labelled non-contract comparisons.
 The explicit override defaults to the contract's 50 MHz.
-It leaves shape configurations untouched; [#565](https://github.com/kebag-logic/milan-fpga/issues/565) owns reconciliation.
+Both shapes declare that contract clock after [#565](https://github.com/kebag-logic/milan-fpga/issues/565).
+The override retains the labelled 100 MHz comparison.
+Generated ROM contents still follow the selected configuration.
+The comparison therefore retains the configuration's 50 MHz gPTP ROM.
+It measures capture timing, without establishing gPTP behavior.
 Run inside a network namespace with networking disabled.
 Set `COURSIER_MODE=offline` and `SBT_OPTS=-Dsbt.offline=true`.
 Missing prerequisites are environment failures, never permission to download.
@@ -130,7 +134,7 @@ Substitutions and limits:
   These all precede measurement.
 
 The [receipt](measurements.json) identifies simulator version and input hashes.
-The round-2 measurements use Verilator 5.052.
+The recorded measurements use Verilator 5.052.
 These are simulation measurements, with physical timing still unmeasured.
 They do not establish silicon memory ordering.
 

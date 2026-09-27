@@ -1554,16 +1554,16 @@ Memory shape: the stage holds one container.
 [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
 derives 3264 bytes at 1x1 and 12680 at 8x8.
 
-Timing. MEASURED on 2026-09-25 in the
+Timing. MEASURED on 2026-09-26 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs this measurement.
-The [composition assignment](https://github.com/kebag-logic/milan-fpga/issues/400#issuecomment-5838671391) requires this firmware remeasurement.
+The [clock assignment](https://github.com/kebag-logic/milan-fpga/issues/565#issuecomment-5848231174) requires this configuration remeasurement.
 **Hold sizing uses the writer's actual clock.**
 The [bare-metal contract](../integration/BAREMETAL_FIRMWARE.md#build-contract) specifies a 50 MHz CPU.
 Both shapes use that clock, with aligned system rising edges.
 The system timer remains at 100 MHz.
-The harness overrides the stale 8x8 configuration explicitly.
-[#565](https://github.com/kebag-logic/milan-fpga/issues/565) owns that configuration's reconciliation.
+Both configurations now declare the contract clock after
+[#565](https://github.com/kebag-logic/milan-fpga/issues/565).
 The 100 MHz 8x8 point is a non-contract comparison.
 
 The backend retains its nominal 50 ms hold.
@@ -1574,7 +1574,7 @@ The acceptance limit is therefore 24.5 ms, half that floor.
 This gives 2.0163x margin against the guaranteed floor.
 It leaves 0.19754 ms below the assigned limit.
 The first remedy applies only while measured inputs remain unchanged.
-The composed product firmware is pinned in the refreshed receipt.
+The product firmware is pinned in the refreshed receipt.
 Firmware and hold behavior are unchanged by this remeasurement.
 
 Each point contains 16 captures per traffic arm.
@@ -1737,7 +1737,7 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    [Section 18](#18-cost) replaces the copy model with product-CPU measurements.
    Both shapes use the contract's 50 MHz CPU and aligned edges.
    Each has 16 captures per traffic arm, ON and OFF.
-   The [composition remeasurement](#18-cost) covers the declaration changes.
+   The [configuration remeasurement](#18-cost) covers the declared clock change.
    The worst 8x8 copy is 24.30246 ms across both arms.
    It covers 12,634 bytes and 156 records, including output maps.
    Its margin against the guaranteed 49 ms floor is 2.0163x.
@@ -1746,7 +1746,7 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    The 1x1 maximum is 6.60642 ms (7.4170x floor margin).
    Both intervals include the complete record walk and attestation.
    The 100 MHz 8x8 comparison is non-contract: 19.79024 ms maximum.
-   [#565](https://github.com/kebag-logic/milan-fpga/issues/565) owns the stale configuration clock.
+   [#565](https://github.com/kebag-logic/milan-fpga/issues/565) reconciles the configured clock with the contract.
    Hold sizing still uses the writer's actual clock.
    The hosted input gate requires unchanged census and clock values.
    Changed product firmware also forces new measurements.
