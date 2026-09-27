@@ -1,0 +1,3141 @@
+{
+  "measurement_date": "2026-09-27",
+  "issue": 587,
+  "measured_commit": "63fe4fb0164d798d44a6476001dc8b887cdd4609",
+  "historical_commit": "7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a",
+  "clock_hz": 50000000,
+  "part": "xc7a100tfgg484-2",
+  "synthesis_directive": "AreaOptimized_high",
+  "threads": 32,
+  "seed": "default",
+  "submodules": {
+    "protocol_processor": "0922e43408f891fc0b84a84691df86b4fd0f1c0d",
+    "gptp_processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+    "axis_library": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+  },
+  "tools": {
+    "python": "Python 3.14.7",
+    "vivado": "vivado v2026.1 (64-bit)\nTool Version Limit: 2026.06\nSW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026\nIP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026\nSharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026\nCopyright 1986-2022 Xilinx, Inc. All Rights Reserved.\nCopyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.",
+    "sdk_archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f",
+    "gcc": "14.3.0"
+  },
+  "dependency_revisions": {
+    "litex": "a1e1c3652ec2f1346ebaea7663d2867f393ae2c4",
+    "liteeth": "276c9e37fb4d92a5c0f30d39a51c20f42a59cf93",
+    "litedram": "f9b75e0347fc43267d083f7ff5965170fe8f9a58",
+    "litex-boards": "9ac53c7a11f2571ba2c9f165f468ae021a4f9bda",
+    "pythondata-cpu-vexiiriscv": "15cfab529a17c473d0fc75edf3f409eb374cef35"
+  },
+  "export_comparison": {
+    "normalized_verilog_sha256": "3d371f2da7fd185b474e97681a337b061028afd9e73b0bd11a031832e06d22b1",
+    "normalization": "Replace each absolute build root with $BUILD; strip block and line comments from generated Verilog. Tcl and XDC compare after build-root replacement only.",
+    "equal": true
+  },
+  "roots": {
+    "repository": "measured superproject checkout",
+    "protocol_processor": "protocol-processor submodule",
+    "gptp_processor": "gptp-processor submodule",
+    "axis_library": "third_party/verilog-axis submodule",
+    "work": "external measurement directory",
+    "cpu_package": "installed pythondata-cpu-vexiiriscv source package"
+  },
+  "historical_processor_hdl_identical": true,
+  "source_reads_per_export": 118,
+  "recipe_inputs": [
+    {
+      "path": "syn/ooc/pp_baseline.py",
+      "bytes": 26768,
+      "sha256": "8d3123e27d965b75b655715a3cc9de38e607062a05e4f8a99ff98dfaee158177"
+    },
+    {
+      "path": "sw/litex/build.sh",
+      "bytes": 29733,
+      "sha256": "334076317acfe2fcd8cc9c7afcf03a6911e8b7108964a2068865556764d6bcae"
+    },
+    {
+      "path": "sw/litex/milan_soc.py",
+      "bytes": 250647,
+      "sha256": "b3662e2b54beb6f6a59faea338453d832b992c1b27c597c662a92a388d85bbcf"
+    },
+    {
+      "path": "scripts/ci_rv32_sdk.py",
+      "bytes": 8402,
+      "sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4"
+    },
+    {
+      "path": "sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch",
+      "bytes": 4060,
+      "sha256": "eb44cc0365eb2f20b8c76412032b080242c7daca2e67ac84f166976e5dd8018a"
+    },
+    {
+      "path": "sw/litex/patches/0004-vexiiriscv-baremetal-variant.patch",
+      "bytes": 1706,
+      "sha256": "cfbd904607759b1effec0705bcc501d821684c6cdddf4cedb2dd2c14eafa9ea8"
+    },
+    {
+      "path": "sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch",
+      "bytes": 3287,
+      "sha256": "e464f6a7adf5c643961808f2dfadd00e4c431caf613bb9d71ab3be90f98dcab0"
+    }
+  ],
+  "probe_source_commit": "e21bc530eb89f7bd325f8d774aad5b5d95c70c1c",
+  "probe_sources": [
+    {
+      "path": "boundary.tcl",
+      "bytes": 1674,
+      "sha256": "45debf2947b8f91378a892e5e6826dc27ea9492d63662010ee3e1df1105f55ed"
+    },
+    {
+      "path": "loads.tcl",
+      "bytes": 1121,
+      "sha256": "a1a9097c2f59c27a7e37ac577a84898cc2084905af21a36341255fc1efe228e5"
+    }
+  ],
+  "measurements": {
+    "default": {
+      "clock_hz": 50000000,
+      "wrapper_parameters": {
+        "TDATA_WIDTH_P": 64,
+        "CLK_HZ_P": 50000000,
+        "N_STREAM_IN_P": 9,
+        "N_STREAM_OUT_P": 9,
+        "SRP_DOM_DEF_VID_P": 2,
+        "TIM_DIV_US_P": 50,
+        "TIM_DIV_MS_P": 1000,
+        "TROM_HEX_P": {
+          "root": "repository",
+          "path": "configs/generated/ltn_rom.hex"
+        },
+        "UCODE_HEX_P": {
+          "root": "repository",
+          "path": "configs/generated/ucode.hex"
+        },
+        "DESC_BASE_P": 2138046464,
+        "DESC_LINE_BYTES_P": 576,
+        "DESC_IDX_ENTRIES_P": 32,
+        "DESC_NAME_ENTRIES_P": 99,
+        "DESC_MEM_TMO_CYC_P": 4096,
+        "RESP_BASE_P": 2139090944,
+        "N_SPORT_IN_P": 8,
+        "N_SPORT_OUT_P": 8,
+        "N_AUDIO_UNIT_P": 1,
+        "N_CLK_DOM_P": 1,
+        "RX_FIFO_BYTES_P": 4096
+      },
+      "images": [
+        {
+          "path": "default/ax8x8/gateware/alinx_ax7101_rom.init",
+          "bytes": 116811,
+          "words": 12979,
+          "digits": [
+            8
+          ],
+          "sha256": "c05e5c24ed202eee530f6dcd44585eafca46e74d94d82865bbf404e03cd964dd",
+          "root": "work"
+        },
+        {
+          "path": "default/ax8x8/gateware/alinx_ax7101_sram.init",
+          "bytes": 0,
+          "words": 0,
+          "digits": [],
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "root": "work"
+        },
+        {
+          "path": "default/ax8x8/gateware/alinx_ax7101_mem.init",
+          "bytes": 147,
+          "words": 49,
+          "digits": [
+            2
+          ],
+          "sha256": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335",
+          "root": "work"
+        },
+        {
+          "path": "configs/generated/ltn_rom.hex",
+          "bytes": 6138,
+          "words": 128,
+          "digits": [
+            8
+          ],
+          "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956",
+          "root": "repository"
+        },
+        {
+          "path": "configs/generated/ucode.hex",
+          "bytes": 26624,
+          "words": 2048,
+          "digits": [
+            12
+          ],
+          "sha256": "23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144",
+          "root": "repository"
+        },
+        {
+          "path": "sw/builder/out/endstation_ax7101_8x8/gptp_ucode.hex",
+          "bytes": 13312,
+          "words": 1024,
+          "digits": [
+            12
+          ],
+          "sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+          "root": "repository"
+        }
+      ],
+      "source_inputs": [
+        {
+          "path": "hdl/acmp/pp_acmp_pkg.sv",
+          "bytes": 10022,
+          "sha256": "b504951db8c81134ef54030e37879431f84ea8005e38c46479c8f66dcc4bbb85",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/adp/pp_adp_pkg.sv",
+          "bytes": 3635,
+          "sha256": "5e396186e1b2495c73fe3d4d09fcdc388b7ce24048cb60f80b4c74da390f2ed2",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/ucpu_pkg.sv",
+          "bytes": 5250,
+          "sha256": "cb8b925f1d5332f9ac90f09c73b18e401a7428f6e66119a53c7850537280f01d",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/common/pp_pkg.sv",
+          "bytes": 16950,
+          "sha256": "2ffdc53a71bc0ec45a15eeb9625a9a2a05ef9f17f9dd3fcd530a14eaea41ba9a",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/srp_pkg.sv",
+          "bytes": 4228,
+          "sha256": "d96fab2df62a69669b4c6121423b4a6a018478f26f1ce5a35ad646467aa4e192",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/acmp/KL_acmp_nvm_shadow.sv",
+          "bytes": 41364,
+          "sha256": "aa74527e290c9ef88deb2ba7183416a6a2c9a171e6247bb082c12152575ffc3e",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/acmp/KL_acmp_talker.sv",
+          "bytes": 60983,
+          "sha256": "5d3e25d37a70066c5a66002a77c7d7b3c20e0680717a39686fc15a177504f29a",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "bytes": 69886,
+          "sha256": "5394089126ea62d13f24ad73d6b2ae278b6f5cd32ac8c9d310e507e286189f9d",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/acmp/KL_pp_acmp_lsn_admit.sv",
+          "bytes": 9935,
+          "sha256": "5b7ef405f9e78c6fae2ea476a595ce64abdb619cf7957c4b6096ea36fb76a965",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/adp/KL_adp_engine.sv",
+          "bytes": 45356,
+          "sha256": "0465bf1af9e107e9aefed8ec34ab91e604179ea919394a48a13308746e5d36c0",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_ca_originator.sv",
+          "bytes": 7781,
+          "sha256": "524570696cdf2c8c6874e8b015d3e8624fc17a77ebf4a86ae848feceb7129131",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_desc_mem_guard.sv",
+          "bytes": 3984,
+          "sha256": "73548ebd8fe513bfdac2ef1de2e89e2c7d9d54acd0375d8706e680049b0777dc",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_desc_store.sv",
+          "bytes": 49342,
+          "sha256": "c472477c80d960d987cc2780f478ab5e630cf1dcb640bb2389923461ad64ab60",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_dyn_state.sv",
+          "bytes": 18456,
+          "sha256": "c0916f98d71691f72b880b5332157beafbfe9b9dd5dc64bd351294d6edbee099",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_engine.sv",
+          "bytes": 178365,
+          "sha256": "4278ea7baabb746c1cd7759c028c379b225167e4291522989b1d759f9f12db92",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "bytes": 52305,
+          "sha256": "10ac645beb27c2b46579e8922a608e7b9ee282486166c1a827d329e4d54845f3",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_resp_buf.sv",
+          "bytes": 26711,
+          "sha256": "c2321d3eeee0934d84cc470b4cc7b10dca5495000ae7c23f0f04243a9badc04e",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_ucpu.sv",
+          "bytes": 26593,
+          "sha256": "6eb9f0a537d747685fbd2ac36d6cee6566f8cbf7725c4853435cfe74925fac62",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/common/KL_pp_prng.sv",
+          "bytes": 9230,
+          "sha256": "e44e469b9c3dfac811b7e17b08092b974941946df8308485e3f75d11a61015fd",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/common/KL_pp_timer_service.sv",
+          "bytes": 9155,
+          "sha256": "8214f9db0dea43942eca9cb057bd80c993c9eaad0ab65124e58fb05578f5d69c",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/maap/KL_pp_maap.sv",
+          "bytes": 42435,
+          "sha256": "4611c8bf8f25a07d31dc622537b886c294d975ca1f8b2c9e2e762c6bc77a2d68",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_dispatch.sv",
+          "bytes": 14339,
+          "sha256": "da2322019be49129a6ea088933e650ef377a80ddd578a4dd741d0533f3f858a4",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_event_router.sv",
+          "bytes": 8680,
+          "sha256": "ca47734f0a12f524fab9386362ae4f0edf4008097bd72fda04ae6e4ed8d979b4",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_normalizer.sv",
+          "bytes": 10725,
+          "sha256": "b3e36db689572c27f2d4d343fa804dfb3fa835e3db0eaa488679cc9eb386bd32",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_nvm_mgr_arb.sv",
+          "bytes": 9835,
+          "sha256": "8d9c47f199bc571ff875b633d5f0334203c5164e18c68f619c16956f06400fb0",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_nvm_port.sv",
+          "bytes": 20114,
+          "sha256": "fca2f007611f1983fd6bb5711631e94d3e60ff0d96026812d7e1b72925cf35f0",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_originator.sv",
+          "bytes": 23703,
+          "sha256": "3037627e73f92001a83c83f692b0a2ae34d0bcdafd19ed83a4fb66ec9cb8b114",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_release_merge.sv",
+          "bytes": 2647,
+          "sha256": "146b5f7cd13aaddc2ff1035f7c8e26c324e30a0a6500050ed4142d44322f0832",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_rx_slots.sv",
+          "bytes": 9742,
+          "sha256": "6d7418e4ddf91a0c519a0ee4f4013ef18e2985459d99ab57c302a173205d756f",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_rx_validator.sv",
+          "bytes": 32973,
+          "sha256": "03cf23357ff90f78b4889e4ae99d241c5ec5ca38a56f8c3763d2d88597984845",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_scoreboard.sv",
+          "bytes": 11421,
+          "sha256": "1f74700603bbd2d512f66e8b115bc59417db4fbc3ceb32787807df282aaf8588",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_side_port.sv",
+          "bytes": 10049,
+          "sha256": "ebe824f1e2780a1fecc66bd6e1f3bbe95c3c997f0a1b7ec3be96ffd15ca2a31d",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_trace_ring.sv",
+          "bytes": 4948,
+          "sha256": "0af244999fae86465701024c3824e7f2174b7b150e9b356562ec11f34451433c",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_tx_arbiter.sv",
+          "bytes": 14421,
+          "sha256": "3a73fac524bee3ee335aae4cdc3ef6e7911a38d25cdca137dbb774f24217f922",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_tx_slots.sv",
+          "bytes": 14217,
+          "sha256": "66ee2a24465d0141ccd560f8bd099e09c4d0e2a0d415d43a776c81721dc90134",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_admission.sv",
+          "bytes": 13594,
+          "sha256": "0fa5cd77e6c4afc6ca9315d0f38f4edf68d87819b3a5dc3bbc776e5d812363d5",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_decoder.sv",
+          "bytes": 27129,
+          "sha256": "255adc30e55463a874f38b2c64d4f494896b1b7c114ea5cfa474f1dd77641bd0",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_domain.sv",
+          "bytes": 9362,
+          "sha256": "db2ab8a2f5bee7dd69b54e42fc3f05cfee07bfe6df76788b8e1e5c5e3f1b03bb",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_encoder.sv",
+          "bytes": 32543,
+          "sha256": "f02e844c8ae0e6fb9663775e415b82c1cd0e47573a6ab063a5718a94a603378e",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_listener_fsm.sv",
+          "bytes": 37991,
+          "sha256": "79b1a760aa51b01b39d358d06680cd7403f81063b2d2a59d7051c733e078cb47",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_talker_fsm.sv",
+          "bytes": 36142,
+          "sha256": "a51aea18c7009dad9c3c34f36a31bd038f16c8bf2bf91fff00734fc2b9678e9d",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_top.sv",
+          "bytes": 51778,
+          "sha256": "afb3a5b5eb5459f8654a332aebe6417beec237f018187b432c46e12493143ad8",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_vlan.sv",
+          "bytes": 11772,
+          "sha256": "6a640fa98b0ac96c71db0cce65cc6dc525233480875418e37956677b6f69d300",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/top/KL_mrp_strip.sv",
+          "bytes": 7989,
+          "sha256": "0a238b74de2f1621afffeb10b631f6d9433380e0c0fa507fcf4233291f5828cb",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/top/protocol_processor_top.sv",
+          "bytes": 210431,
+          "sha256": "921b449189cc81478ca9be987f2073e675568803405a29b293bcd3ca384fcef3",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/milan/KL_pp_shadow.sv",
+          "bytes": 80239,
+          "sha256": "455c6d63d99de143de8756de21dc1dbaa2b17ee16c0787b5b70498aa9c34b34c",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/milan/KL_pp_maap_shim.sv",
+          "bytes": 14354,
+          "sha256": "965fbee050c985f767423bf63f2c0f0a507faf5ede7cc81e3a939bee963ba98e",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/milan/KL_nvm_backend.sv",
+          "bytes": 57630,
+          "sha256": "d651d148f933d90dec5d8633c58adc86717bd8c8785b1c2edaf3ce5e9b9480a0",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ucpu/gptp_ucpu_pkg.sv",
+          "bytes": 6602,
+          "sha256": "f9e43432d8d121a27b15544d8e33e3d8f85fa05432399e7b75d5e6c4125d7b35",
+          "root": "gptp_processor"
+        },
+        {
+          "path": "hdl/ucpu/KL_gptp_ucpu.sv",
+          "bytes": 26775,
+          "sha256": "fa4d9ffd04ab68f24a77aa08c7e7f3b98f0015bc97e11d7f3969bb3d79df8647",
+          "root": "gptp_processor"
+        },
+        {
+          "path": "hdl/wire/KL_gptp_rx_parser.sv",
+          "bytes": 29553,
+          "sha256": "f8ed0a2d0901391aafc96611488a91919e3f2d385b5c96d20b0799508e4d714b",
+          "root": "gptp_processor"
+        },
+        {
+          "path": "hdl/wire/KL_gptp_tx_slot.sv",
+          "bytes": 4754,
+          "sha256": "f5d1dbf6acafa6197d7afd7830f920b0c324f0628738deabc5af92fbca7dbdc1",
+          "root": "gptp_processor"
+        },
+        {
+          "path": "hdl/common/KL_gptp_timer.sv",
+          "bytes": 4471,
+          "sha256": "0cd54f1303e521a7a83f0e6db0fdafbe2c14db2a2277ae032d333c36fd7c0e38",
+          "root": "gptp_processor"
+        },
+        {
+          "path": "hdl/top/KL_gptp_engine.sv",
+          "bytes": 43156,
+          "sha256": "51642d60f680a168c9f767fd74ce0157a3fda7b2feaf578b2f69456afb7077ac",
+          "root": "gptp_processor"
+        },
+        {
+          "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+          "bytes": 12641,
+          "sha256": "90fdcfa69e62abb2a377156f99d4065ba0748d1d4b6b76e9e53b8233f4cba184",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+          "bytes": 46673,
+          "sha256": "84fafe6dedec86f293f054d0aefed2b0466aa38e0e4fb12be7c042fbd4a5f259",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+          "bytes": 24154,
+          "sha256": "191a8e3a39cefcd68586f78c41b2eecd1063a58fac29334f6ecb9fd83eb2da29",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+          "bytes": 49534,
+          "sha256": "477aa966a7119cf94148a5c92186c42a86668c80cac97a750dee14f5f0330e5f",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/ethernet_packet_pkg.sv",
+          "bytes": 17691,
+          "sha256": "91c82f1696af7e46518deec7247c683cd13a8dc482fc957e3f0775549dc64713",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/axi_stream_if.sv",
+          "bytes": 1845,
+          "sha256": "f3787e00690a6182572af8817b1fe19d7b8abb7215cd51cc8ce43f9770d91c6c",
+          "root": "repository"
+        },
+        {
+          "path": "rtl/axis_fifo.v",
+          "bytes": 21692,
+          "sha256": "aefddc67fc3552d919280424606fc6b048e61d7df9ee7ee0f8801c082c1cfc39",
+          "root": "axis_library"
+        },
+        {
+          "path": "rtl/axis_arb_mux.v",
+          "bytes": 11633,
+          "sha256": "bee8d11f32f7fb1c5afdd6cdad872cd7de9dc94bcb4787f9aa119f2ebbc489a6",
+          "root": "axis_library"
+        },
+        {
+          "path": "rtl/arbiter.v",
+          "bytes": 4993,
+          "sha256": "d54d337db4812f927b2e9b5788dfa39f9bd578ad01b7846c5fa7f2610b0923fa",
+          "root": "axis_library"
+        },
+        {
+          "path": "rtl/priority_encoder.v",
+          "bytes": 3253,
+          "sha256": "df28220d95b47df349a72803a9751aad331eb8e1435416e8686d00572a974dd5",
+          "root": "axis_library"
+        },
+        {
+          "path": "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+          "bytes": 14007,
+          "sha256": "89813f3420f7aa4ea80aee478b25ca6a9fa562572025447fc07b1c949bda1a33",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv",
+          "bytes": 14060,
+          "sha256": "fac8feb49e61cf946a215162f4694935d75a9bc24e09240a2d44635ef1ec91cc",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/cdc_pulse.sv",
+          "bytes": 1814,
+          "sha256": "abcbeb59c175b7fbc8de5555474146bfb4e426d086c4b68f915c148e9c677ad3",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/cdc_handshake.sv",
+          "bytes": 3435,
+          "sha256": "047bad93e2c1507798ce9617ff7f8413e163edb786e4b1371d2219a146096c79",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+          "bytes": 12919,
+          "sha256": "af8dc99c4da6a0f1709fb91803474e430e283fa265750597728b58f8a9107cee",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021q/filtering/tcam.sv",
+          "bytes": 5520,
+          "sha256": "2fb50884ba72fefc8f0c4be096513b49ffe71f1d4635c58eaa6cfd1d88c77e8b",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021q/filtering/rx_mac_filter.sv",
+          "bytes": 15751,
+          "sha256": "c14536e3bbe679f7979dcdae81b080ba770a5c69e442be7d8b1eb638eb52b11e",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/tx_ifg_gasket.sv",
+          "bytes": 3304,
+          "sha256": "c2038c55d20a01b22c1e8c71a2238a0cdb430db2a53a3ea01b660a8b2c955ac8",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_pcm_lpf.sv",
+          "bytes": 8553,
+          "sha256": "de148eea2d2e298cb7ead685e133eebd745ec5f7192ce41877cacde9b2cdb121",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/KL_link_guard.sv",
+          "bytes": 15700,
+          "sha256": "85c716fdbf90f92bece9c11e81d3704c4b3aaea935c50e9f9a2733208da73a53",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee17221/adp/adp_tx_arbiter.sv",
+          "bytes": 10017,
+          "sha256": "3a7e171107c0f5554b5f76721ada4f972378e5c829700b16c323cfede4ec3b5f",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/aaf_talker_i2s.sv",
+          "bytes": 12738,
+          "sha256": "bf33bb22c1b9d2aa62e71b8b157a565413e6d76c60042c81935ff71e4b1b81aa",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv",
+          "bytes": 17039,
+          "sha256": "0a885054146a04e95add3bb8bbe28aa80e7fe6c1f447ce000816f923560b05fc",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_i2s_playback.sv",
+          "bytes": 23259,
+          "sha256": "f79b1ff10545c2a18e6af8637ad31ff50cce0e1654f2fb06305507afc301cd11",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_tone_gen.sv",
+          "bytes": 4671,
+          "sha256": "b8b83919ff2f92da3e9de81de80c2c8714d544b4bc1d54c8ea57baf7e1884a3b",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_i2s_feed_mux.sv",
+          "bytes": 7687,
+          "sha256": "721ce0c974668d062d5d6b099454e2218ea85be4515fb34996e4e1c11a5784e4",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_aaf_latency_taps.sv",
+          "bytes": 14760,
+          "sha256": "2fb2ecb429b1125d368f61dd36c131302da136bfb41603346e9ac084a9441e8e",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv",
+          "bytes": 10610,
+          "sha256": "5aa7571a27cee85f6ae2c39cb58332886b6c7063ceda502c233af7b04306e144",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_media_adv.sv",
+          "bytes": 2650,
+          "sha256": "65029f520cb945ba679e872c9b60580342ebb6ccfd002a31400b4aec2b68ae99",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/cdc_pair_fifo.sv",
+          "bytes": 3929,
+          "sha256": "d6c043df6e2c99e00cb5dd5a9595c459351133968229e4ad7f6246824c61c025",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/avtp_subtype_pkg.sv",
+          "bytes": 1060,
+          "sha256": "6442ccd6a6ac6071b558b7d37a063e50638b976f390112ba6189351c0ae105b9",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/avtp_stream_parser.sv",
+          "bytes": 12712,
+          "sha256": "43d3a69b6be07d82b4082131de03525078fe4562139135fd837a1dc735ee6a58",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/KL_stream_table.sv",
+          "bytes": 7431,
+          "sha256": "cebf68fe297a46c0825b5bcb0ab7b231e881be65ebda1d6c27cbaa5b393da7cc",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
+          "bytes": 17951,
+          "sha256": "4f4372952e5d08b003cb35c588a370bc471f96a960a830e8172eb43d86c6ed05",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
+          "bytes": 56088,
+          "sha256": "7407649412d5cce3b80b66c46b734f2530dac4b7e6e4f4dec7c0be94791eef13",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv",
+          "bytes": 14522,
+          "sha256": "6b2ca279ba258c3ed6c264e6c1c02947af2e6f4997ec3c4b9dd138a02aa6280d",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+          "bytes": 14571,
+          "sha256": "d527f42c2b76d60b0d73d3d5888f62b4657a4b85867fd790bbf157e4ea1b3dfe",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_pcm_route.sv",
+          "bytes": 4018,
+          "sha256": "696979b3075883e293825974f347fc36119515dd6c73aa65ef63a4cd347177b6",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv",
+          "bytes": 5827,
+          "sha256": "8931009ce7d06c16ad2a39d7ce7069d9aa807b74fb035ef9b54a7672d80461c3",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_tdm_capture.sv",
+          "bytes": 10281,
+          "sha256": "ec077533729fe07f60df4d7e777ce4fa74bb893d03e2a1f530908e40eb89cd60",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_tdm_capture_master.sv",
+          "bytes": 21492,
+          "sha256": "b4a4b7f7487499153b64553d36e34011cfab0bdbc47cbd0c40a7ed457e821ffc",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_pair_blend.sv",
+          "bytes": 6248,
+          "sha256": "7b10ab08be2722970674eb959d7b65d60f327153e60e0ca72f6d4d0181b1591a",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_pair_zero_fill.sv",
+          "bytes": 9356,
+          "sha256": "3a0b8adef03b9373d66426d88cc49c0989258007020276a7ff78e03051116acd",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_tdm_render.sv",
+          "bytes": 13521,
+          "sha256": "2e155f55c8c0e00099c028520fe19517373bbcbbe0ad998272fdf5ab66ede46b",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_tdm_render_master.sv",
+          "bytes": 29316,
+          "sha256": "abdb08d03210316872077d7a67ea9417b6860b5af12afad4a07cb21fdc24d951",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_render_setpoint.sv",
+          "bytes": 36548,
+          "sha256": "54b6a23336dcbef53a50482749b42a081365754017d2fb94fdc705772c9ba200",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_chan_map_render.sv",
+          "bytes": 16274,
+          "sha256": "d645deb04c8d5554f013a43e2de6b7a4b2e1a3538e65cde0dda725a2e392e5fe",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+          "bytes": 56926,
+          "sha256": "206e297d16272470409157ca557d76be52e3b5684daae4a5657ed7abd72d47d7",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_aaf_packetizer.sv",
+          "bytes": 34870,
+          "sha256": "05f58ca91d7b0e4158e68c37cac79c9c65dc8a8b403df91419e150de3a9d75ca",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/crf/KL_crf_rx.sv",
+          "bytes": 35762,
+          "sha256": "3cc824af3473f0f399db61466ce2e5fcfc07911eb219d48e24ed243ebcafdbb6",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/crf/KL_crf_tx.sv",
+          "bytes": 27196,
+          "sha256": "ac31366daa6c88e82eb739880834325ce5a97badce4e247489f2bbe71bfabe43",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/maap/KL_maap.sv",
+          "bytes": 16127,
+          "sha256": "566b88228f6cc1c84de307e770122f37eecabdc6c49a36ea7ea56e33552e261d",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv",
+          "bytes": 46197,
+          "sha256": "c0edc68e3b2846c9bba5f8b884fe21e6d8d4ec4a507861f48fd63c632329e6e0",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/crf/KL_media_nco.sv",
+          "bytes": 12453,
+          "sha256": "66cabab2d0ee7a155023bd6f972215492e4dd2e8f92bea7ac535aee6118eab10",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/crf/KL_media_grid_align.sv",
+          "bytes": 16272,
+          "sha256": "1ef493a3c7a7c4bf308a1c3edd49546cd8635b18ca16a4b6fec5eb3123b4b192",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/eth_event_counter/ethernet_events.sv",
+          "bytes": 4488,
+          "sha256": "e7b87c05dc031981db1bd1ce012761a8c043a2598855fdbcf8e2c7d1baaa99b6",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/eth_event_counter/event_counter.sv",
+          "bytes": 2078,
+          "sha256": "564927ba2161ccf445a63ba60af214e34d2d4ec0068a80833dd80ac79f08a466",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/eth_event_counter/KL_mac_rmon_events.sv",
+          "bytes": 11161,
+          "sha256": "9b45703f19dd59656107ed11d619bfe1a2b6d232d160faf20f3fe5a1b0355f4b",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/csr/milan_csr.sv",
+          "bytes": 190231,
+          "sha256": "0baec8701f35725a069ddf1ab398b63e345fdad3643932a3cc73ddc14e69aea2",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/milan/milan_datapath.sv",
+          "bytes": 423839,
+          "sha256": "0b310f6b95cc7b79341b164c8b03eaf12ee9980ddd19eceff73114ee70540394",
+          "root": "repository"
+        },
+        {
+          "path": "pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+          "bytes": 1580,
+          "sha256": "c319d54c5a0bbe20a72ab9b394a3a1e57ef34866ae2478c5caed50e064a72523",
+          "root": "cpu_package"
+        },
+        {
+          "path": "pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+          "bytes": 1068,
+          "sha256": "c8361e5fd0bc23be5f91cb2b63a091ab41bcdd857cc1c97f6e7e4ef8b6f61626",
+          "root": "cpu_package"
+        },
+        {
+          "path": "pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v",
+          "bytes": 1575730,
+          "sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+          "root": "cpu_package"
+        },
+        {
+          "path": "default/ax8x8/gateware/alinx_ax7101.v",
+          "bytes": 1764728,
+          "sha256": "6eca0c20bb18d331d0394de4bd551a97fb395c91346914b49fcf8036bd6a811b",
+          "root": "work"
+        },
+        {
+          "path": "default/ax8x8/gateware/alinx_ax7101.tcl",
+          "bytes": 29686,
+          "sha256": "ce14fb89947b70d27fc7cfb88af21f8d711aaf38d25eab883ef0985eb647a3a1",
+          "root": "work"
+        },
+        {
+          "path": "default/ax8x8/gateware/alinx_ax7101.xdc",
+          "bytes": 21076,
+          "sha256": "28fae38e8ef8e1d4288289943424d023f04e996bcc4a9058f4e36e6214ce71a1",
+          "root": "work"
+        },
+        {
+          "path": "default/ax8x8/gateware/baseline_integrated.tcl",
+          "bytes": 30195,
+          "sha256": "6f8e1d4432915eab5fffe2c7bdb8c1a55e029f4a72cd67534af796229c454192",
+          "root": "work"
+        },
+        {
+          "path": "configs/endstation_ax7101_8x8.yaml",
+          "bytes": 19799,
+          "sha256": "ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e",
+          "root": "repository"
+        },
+        {
+          "path": "configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh",
+          "bytes": 8449,
+          "sha256": "26a61e545097a577f1b6bae2e15e92c867e4143a8f8ceb13e2abc21d03279333",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/csr/gen/lwsrp_csr_defaults.svh",
+          "bytes": 2187,
+          "sha256": "d10ce5559b108f54800b8432b672a0d33379721bf2a4edf0058e185484f3881d",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/eth_event_counter/ethernet_events.svh",
+          "bytes": 1155,
+          "sha256": "4901b9e672250b4cd36e17edce5a8c13f501bfe37169bc5c52ae5c95224cd3d3",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/gen/adp_shape_defaults.svh",
+          "bytes": 7199,
+          "sha256": "eb03dfaa2f914f49b07c31ddcc62ebc4a64e839a466a3387650f25823afb1020",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/parameters.svh",
+          "bytes": 516,
+          "sha256": "1165574103364b5ad360b34751f5ac1fa6adf67a81326885c42fb35979c397fc",
+          "root": "repository"
+        }
+      ],
+      "reports": [
+        {
+          "root": "work",
+          "path": "default/ax8x8/gateware/baseline_integrated.tcl",
+          "bytes": 30195,
+          "sha256": "6f8e1d4432915eab5fffe2c7bdb8c1a55e029f4a72cd67534af796229c454192"
+        },
+        {
+          "root": "work",
+          "path": "default/ax8x8/gateware/baseline_hierarchy.rpt",
+          "bytes": 44240,
+          "sha256": "47eda29573892da3c70ce5e2f21502120b10af03c41dffcfe5c55905fedf60c7"
+        },
+        {
+          "root": "work",
+          "path": "default/ax8x8/gateware/baseline_utilization.rpt",
+          "bytes": 10786,
+          "sha256": "bfeace2ddd271ec3770f737caeb19f2213ec16d44169accae8d1a01d37b3cc13"
+        },
+        {
+          "root": "work",
+          "path": "default/ax8x8/gateware/baseline_pp_utilization.rpt",
+          "bytes": 7725,
+          "sha256": "82dd59effd4483bdf27801afbc51030befc5b2d2c1b23c119db80b816eeb3079"
+        },
+        {
+          "root": "work",
+          "path": "default/ax8x8/gateware/baseline_timing.rpt",
+          "bytes": 1499337,
+          "sha256": "fd26a927e6297ff32eb3c692d3fed99b3d7af44874b5dc3edd84030d1128c01b"
+        },
+        {
+          "root": "work",
+          "path": "default/ax8x8/gateware/baseline_pp_boundary_timing.rpt",
+          "bytes": 170004,
+          "sha256": "9117c26d960c0f6b6dd5d97575050830c44b7a33d975e04d80d8638f09aa08b7"
+        },
+        {
+          "root": "work",
+          "path": "default/ax8x8/gateware/baseline_scope_timing.tsv",
+          "bytes": 414,
+          "sha256": "f18a2bbac167ae1ac55d864b658e1bc4a2903db334b0d214d7b000efbb0e6c4d"
+        },
+        {
+          "root": "work",
+          "path": "default/ax8x8/gateware/baseline_cells.tsv",
+          "bytes": 10521434,
+          "sha256": "1d73331b12a8421b46d4bc75891affa4e954d7b70e0c042d20097b1c7b26ab86"
+        },
+        {
+          "root": "work",
+          "path": "default/ax8x8/gateware/baseline.log",
+          "bytes": 508730,
+          "sha256": "d3c448245b20dfd2a1384171d4dedf8de0895f45c9afc15899699128cd52be97"
+        },
+        {
+          "root": "work",
+          "path": "default/ax8x8/gateware/alinx_ax7101_synth.dcp",
+          "bytes": 104691265,
+          "sha256": "67d36626bc08275f0b2ec9070492236eb8b1432925120092629b160c13bb4369"
+        },
+        {
+          "root": "work",
+          "path": "default/probes/boundary.tsv",
+          "bytes": 436,
+          "sha256": "6098fc759c30d43eda9349b256e7228fe861c276d4055c52dbcd1c5b62ee7b0e"
+        },
+        {
+          "root": "work",
+          "path": "default/probes/loads.tsv",
+          "bytes": 707,
+          "sha256": "946653900dfc152fd6c41310a230838181bb52222158dca373cb643120a42470"
+        },
+        {
+          "root": "work",
+          "path": "default/probes/wrapper-loads.tsv",
+          "bytes": 5879,
+          "sha256": "dada51532e0717e7be05a9377da9923ce0a70292d52384dec35b1d83446450f9"
+        }
+      ],
+      "metrics": {
+        "alinx_ax7101": {
+          "LUT": 68047,
+          "logic_LUT": 65956,
+          "LUTRAM": 2086,
+          "SRL": 5,
+          "FF": 70744,
+          "RAMB36": 80,
+          "RAMB18": 29,
+          "DSP": 11,
+          "CARRY4": 3913,
+          "WNS_ns": -1.708
+        },
+        "milan_datapath/pp_shadow": {
+          "LUT": 38351,
+          "logic_LUT": 37485,
+          "LUTRAM": 866,
+          "SRL": 0,
+          "FF": 31374,
+          "RAMB36": 26,
+          "RAMB18": 5,
+          "DSP": 5,
+          "CARRY4": 1829,
+          "internal_WNS_ns": -1.708
+        },
+        "milan_datapath/pp_shadow/u_pp": {
+          "LUT": 37657,
+          "logic_LUT": 36791,
+          "LUTRAM": 866,
+          "SRL": 0,
+          "FF": 29999,
+          "RAMB36": 25,
+          "RAMB18": 4,
+          "DSP": 4,
+          "CARRY4": 1784,
+          "internal_WNS_ns": -1.708
+        },
+        "milan_datapath/pp_shadow/u_pp/u_aecp": {
+          "LUT": 15660,
+          "logic_LUT": 15440,
+          "LUTRAM": 220,
+          "SRL": 0,
+          "FF": 4171,
+          "RAMB36": 7,
+          "RAMB18": 0,
+          "DSP": 1,
+          "CARRY4": 411,
+          "internal_WNS_ns": 0.609
+        },
+        "milan_datapath/pp_shadow/u_pp/u_aecp/u_dyn": {
+          "LUT": 7544,
+          "logic_LUT": 7544,
+          "LUTRAM": 0,
+          "SRL": 0,
+          "FF": 1609,
+          "RAMB36": 0,
+          "RAMB18": 0,
+          "DSP": 0,
+          "CARRY4": 56
+        },
+        "milan_datapath/pp_shadow/u_pp/u_srp": {
+          "LUT": 8193,
+          "logic_LUT": 8011,
+          "LUTRAM": 182,
+          "SRL": 0,
+          "FF": 10393,
+          "RAMB36": 0,
+          "RAMB18": 1,
+          "DSP": 2,
+          "CARRY4": 416,
+          "internal_WNS_ns": 9.946
+        },
+        "milan_datapath/pp_shadow/u_pp/u_notify": {
+          "LUT": 3237,
+          "logic_LUT": 3141,
+          "LUTRAM": 96,
+          "SRL": 0,
+          "FF": 3799,
+          "RAMB36": 0,
+          "RAMB18": 0,
+          "DSP": 0,
+          "CARRY4": 108,
+          "internal_WNS_ns": 11.314
+        },
+        "milan_datapath/pp_shadow/u_pp/u_listener": {
+          "LUT": 1635,
+          "logic_LUT": 1635,
+          "LUTRAM": 0,
+          "SRL": 0,
+          "FF": 1124,
+          "RAMB36": 5,
+          "RAMB18": 0,
+          "DSP": 0,
+          "CARRY4": 30,
+          "internal_WNS_ns": 8.63
+        },
+        "milan_datapath/pp_shadow/u_pp/u_talker": {
+          "LUT": 965,
+          "logic_LUT": 965,
+          "LUTRAM": 0,
+          "SRL": 0,
+          "FF": 473,
+          "RAMB36": 1,
+          "RAMB18": 1,
+          "DSP": 0,
+          "CARRY4": 18,
+          "internal_WNS_ns": 6.999
+        },
+        "milan_datapath/pp_shadow/u_nvm": {
+          "LUT": 619,
+          "logic_LUT": 619,
+          "LUTRAM": 0,
+          "SRL": 0,
+          "FF": 1023,
+          "RAMB36": 0,
+          "RAMB18": 0,
+          "DSP": 1,
+          "CARRY4": 36,
+          "internal_WNS_ns": 13.058
+        }
+      },
+      "boundary_probe": [
+        {
+          "scope": "milan_datapath/pp_shadow/u_pp/u_aecp/u_dyn",
+          "LUT": 9010,
+          "LUT_all_loads_outside_wrapper": 5824,
+          "LUT_any_load_outside_wrapper": 5884,
+          "LUT_any_input_from_outside_wrapper": 4615,
+          "LUT_outside_input_and_only_outside_loads": 3098
+        },
+        {
+          "scope": "milan_datapath/pp_shadow/u_pp/u_aecp",
+          "LUT": 17923,
+          "LUT_all_loads_outside_wrapper": 6075,
+          "LUT_any_load_outside_wrapper": 6165,
+          "LUT_any_input_from_outside_wrapper": 6921,
+          "LUT_outside_input_and_only_outside_loads": 3284
+        },
+        {
+          "scope": "milan_datapath/pp_shadow/u_pp/u_srp",
+          "LUT": 9134,
+          "LUT_all_loads_outside_wrapper": 57,
+          "LUT_any_load_outside_wrapper": 96,
+          "LUT_any_input_from_outside_wrapper": 937,
+          "LUT_outside_input_and_only_outside_loads": 48
+        },
+        {
+          "scope": "milan_datapath/pp_shadow/u_pp/u_notify",
+          "LUT": 3528,
+          "LUT_all_loads_outside_wrapper": 3,
+          "LUT_any_load_outside_wrapper": 15,
+          "LUT_any_input_from_outside_wrapper": 239,
+          "LUT_outside_input_and_only_outside_loads": 3
+        },
+        {
+          "scope": "milan_datapath/pp_shadow",
+          "LUT": 43110,
+          "LUT_all_loads_outside_wrapper": 6276,
+          "LUT_any_load_outside_wrapper": 6451,
+          "LUT_any_input_from_outside_wrapper": 9179,
+          "LUT_outside_input_and_only_outside_loads": 3440
+        }
+      ],
+      "load_histograms": {
+        "loads": [
+          {
+            "load_references": 2048,
+            "stem": "milan_datapath/amap_edit_oclaim_cluster_r_reg[]"
+          },
+          {
+            "load_references": 1622,
+            "stem": "milan_datapath/amap_edit_oclaim_expect_r_reg[]"
+          },
+          {
+            "load_references": 1622,
+            "stem": "milan_datapath/amap_edit_oclaim_word_r_reg[]"
+          },
+          {
+            "load_references": 2048,
+            "stem": "milan_datapath/amap_out_cluster_r_reg[]"
+          },
+          {
+            "load_references": 1920,
+            "stem": "milan_datapath/amap_out_owner_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/avtp_rx_monitor/cur_r[early]_i_*"
+          },
+          {
+            "load_references": 30,
+            "stem": "milan_datapath/avtp_rx_monitor/lctx_r_reg_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/avtp_rx_monitor/pq_r[][early]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/avtp_rx_monitor/pq_r_reg[][early]"
+          },
+          {
+            "load_references": 2,
+            "stem": "milan_datapath/crf_tx/mtt_seen_r_reg[]"
+          },
+          {
+            "load_references": 66,
+            "stem": "milan_datapath/csr/amap_out_cluster_r[]_i_*"
+          },
+          {
+            "load_references": 8,
+            "stem": "milan_datapath/csr/amap_out_owner_r[]_i_*"
+          },
+          {
+            "load_references": 16,
+            "stem": "milan_datapath/csr/amap_out_owner_v_r[]_i_*"
+          },
+          {
+            "load_references": 41,
+            "stem": "milan_datapath/gsi_data_r_reg[]"
+          },
+          {
+            "load_references": 32,
+            "stem": "milan_datapath/ts_counter/tsw_val_r_reg[]_i_*"
+          }
+        ],
+        "wrapper-loads": [
+          {
+            "load_references": 15,
+            "stem": "milan_datapath/aaf_packetizer/nsamp_r_reg[][]"
+          },
+          {
+            "load_references": 5,
+            "stem": "milan_datapath/aaf_packetizer/pend_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/aaf_packetizer/stg_r_reg"
+          },
+          {
+            "load_references": 10,
+            "stem": "milan_datapath/aaf_packetizer/storage_25_reg_0_i_*"
+          },
+          {
+            "load_references": 16,
+            "stem": "milan_datapath/amap_cnt_r_reg[]"
+          },
+          {
+            "load_references": 39,
+            "stem": "milan_datapath/amap_data_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_done_r_reg"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_changed_r_reg"
+          },
+          {
+            "load_references": 16,
+            "stem": "milan_datapath/amap_edit_count_r_reg[]"
+          },
+          {
+            "load_references": 16,
+            "stem": "milan_datapath/amap_edit_index_r_reg[]"
+          },
+          {
+            "load_references": 2048,
+            "stem": "milan_datapath/amap_edit_oclaim_cluster_r_reg[]"
+          },
+          {
+            "load_references": 1662,
+            "stem": "milan_datapath/amap_edit_oclaim_expect_r_reg[]"
+          },
+          {
+            "load_references": 64,
+            "stem": "milan_datapath/amap_edit_oclaim_v_r_reg[]"
+          },
+          {
+            "load_references": 1662,
+            "stem": "milan_datapath/amap_edit_oclaim_word_r_reg[]"
+          },
+          {
+            "load_references": 16,
+            "stem": "milan_datapath/amap_edit_out_resv_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_owr_p_r_reg"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_remove_r_reg"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_remove_r_reg_rep"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_remove_r_reg_rep__0"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_remove_r_reg_rep__1"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_remove_r_reg_rep__2"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_remove_r_reg_rep__3"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_remove_r_reg_rep__4"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_remove_r_reg_rep__5"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_remove_r_reg_rep__6"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_remove_r_reg_rep__7"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_remove_r_reg_rep__8"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/amap_edit_seen_phase_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_seen_r_reg"
+          },
+          {
+            "load_references": 8,
+            "stem": "milan_datapath/amap_edit_seen_rec_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_txn_active_r_reg"
+          },
+          {
+            "load_references": 16,
+            "stem": "milan_datapath/amap_edit_type_r_reg[]"
+          },
+          {
+            "load_references": 16,
+            "stem": "milan_datapath/amap_out_cluster_q_r_reg[]"
+          },
+          {
+            "load_references": 2048,
+            "stem": "milan_datapath/amap_out_cluster_r_reg[]"
+          },
+          {
+            "load_references": 16,
+            "stem": "milan_datapath/amap_out_owner_q_r_reg[]"
+          },
+          {
+            "load_references": 1920,
+            "stem": "milan_datapath/amap_out_owner_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_out_owner_v_q_r_reg"
+          },
+          {
+            "load_references": 46,
+            "stem": "milan_datapath/amap_rec_r2_reg[]"
+          },
+          {
+            "load_references": 16,
+            "stem": "milan_datapath/amap_seen_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_srv_r_reg"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_stageb_v_r_reg"
+          },
+          {
+            "load_references": 14,
+            "stem": "milan_datapath/amap_walk_j_r_reg[]"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/amap_walk_j_r_reg[]_rep"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/amap_walk_j_r_reg[]_rep__0"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/amap_walk_j_r_reg[]_rep__1"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/amap_walk_j_r_reg[]_rep__2"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/amap_walk_j_r_reg[]_rep__3"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/amap_walk_j_r_reg[]_rep__4"
+          },
+          {
+            "load_references": 14,
+            "stem": "milan_datapath/amap_walk_jq_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amapq_sel_r_reg[]"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/asp_resp_count_r_reg[]"
+          },
+          {
+            "load_references": 64,
+            "stem": "milan_datapath/asp_resp_gm_r_reg[]"
+          },
+          {
+            "load_references": 448,
+            "stem": "milan_datapath/asp_resp_path_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/avtp_rx_monitor/cur_r[early]_i_*"
+          },
+          {
+            "load_references": 30,
+            "stem": "milan_datapath/avtp_rx_monitor/lctx_r_reg_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/avtp_rx_monitor/pq_r[][early]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/avtp_rx_monitor/pq_r_reg[][early]"
+          },
+          {
+            "load_references": 2,
+            "stem": "milan_datapath/avtp_rx_monitor/tl_idx_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/chan_map_capture/gsi_data_r[]_i_*"
+          },
+          {
+            "load_references": 32,
+            "stem": "milan_datapath/crf_rx/delta_o_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/crf_rx/dirty_p_o_i_*"
+          },
+          {
+            "load_references": 8,
+            "stem": "milan_datapath/crf_rx/exp_seq_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/crf_rx/have_seq_r_reg"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/crf_rx/hfill_r_reg[]"
+          },
+          {
+            "load_references": 8,
+            "stem": "milan_datapath/crf_rx/hidx_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/crf_rx/iv_uf_r_reg"
+          },
+          {
+            "load_references": 32,
+            "stem": "milan_datapath/crf_rx/late_cnt_o_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/crf_rx/prev_mr_r_reg"
+          },
+          {
+            "load_references": 64,
+            "stem": "milan_datapath/crf_rx/prev_ts_ns_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/crf_rx/prev_tu_r_reg"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/crf_rx/rate_pend_r_reg"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/crf_rx/rate_valid_r_reg"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/crf_rx/settle_r_reg[]"
+          },
+          {
+            "load_references": 23,
+            "stem": "milan_datapath/crf_rx/tout_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/crf_rx/ts_hist_r_reg"
+          },
+          {
+            "load_references": 32,
+            "stem": "milan_datapath/crf_rx/tu_cnt_o_reg[]"
+          },
+          {
+            "load_references": 2,
+            "stem": "milan_datapath/crf_tx/mtt_seen_r_reg[]"
+          },
+          {
+            "load_references": 3,
+            "stem": "milan_datapath/crf_tx/vpcp_r_reg[]"
+          },
+          {
+            "load_references": 7,
+            "stem": "milan_datapath/crf_tx/vvid_r_reg[]"
+          },
+          {
+            "load_references": 66,
+            "stem": "milan_datapath/csr/amap_out_cluster_r[]_i_*"
+          },
+          {
+            "load_references": 8,
+            "stem": "milan_datapath/csr/amap_out_owner_r[]_i_*"
+          },
+          {
+            "load_references": 64,
+            "stem": "milan_datapath/csr/amap_out_owner_v_r[]_i_*"
+          },
+          {
+            "load_references": 2,
+            "stem": "milan_datapath/csr/backed_r_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/csr/cap_att_r_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/csr/cap_hold_r_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/csr/cap_id_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/csr/chmap_refused[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/csr/chmap_wr_p_reg"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/csr/commit_busy_r_i_*"
+          },
+          {
+            "load_references": 32,
+            "stem": "milan_datapath/csr/g_pp_csr.pp_sprdata_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/csr/lfsr_r[]_i_*"
+          },
+          {
+            "load_references": 68,
+            "stem": "milan_datapath/csr/live_mux_q[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/csr/live_mux_q_reg[]_i_*"
+          },
+          {
+            "load_references": 5,
+            "stem": "milan_datapath/csr/snap_shadow_r[][]_i_*"
+          },
+          {
+            "load_references": 84,
+            "stem": "milan_datapath/csr/st_tk_r[sid][]_i_*"
+          },
+          {
+            "load_references": 3,
+            "stem": "milan_datapath/csr/strm_mux_q[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/ctr_srv1_r_reg"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/ctr_srv2_r_reg"
+          },
+          {
+            "load_references": 2,
+            "stem": "milan_datapath/ctrq_word_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/g_gptp_plane.u_gptp_shadow/pe_asp_r_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/gsi_ascap_snap_r_reg"
+          },
+          {
+            "load_references": 64,
+            "stem": "milan_datapath/gsi_data_r_reg[]"
+          },
+          {
+            "load_references": 64,
+            "stem": "milan_datapath/gsi_gm_snap_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/gsi_link_snap_r_reg"
+          },
+          {
+            "load_references": 32,
+            "stem": "milan_datapath/gsi_pdelay_snap_r_reg[]"
+          },
+          {
+            "load_references": 3,
+            "stem": "milan_datapath/gsi_prio_snap_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/gsi_srv1_r_reg"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/gsi_srv2_r_reg"
+          },
+          {
+            "load_references": 12,
+            "stem": "milan_datapath/gsi_vid_snap_r_reg[]"
+          },
+          {
+            "load_references": 16,
+            "stem": "milan_datapath/pp_maap_shim/rsp_da_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/pp_maap_shim/rsp_ok_r_reg"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/pp_maap_shim/rsp_valid_r_reg"
+          },
+          {
+            "load_references": 160,
+            "stem": "milan_datapath/talker_diag/ftx_r_reg[][]"
+          },
+          {
+            "load_references": 160,
+            "stem": "milan_datapath/talker_diag/mreset_r_reg[][]"
+          },
+          {
+            "load_references": 160,
+            "stem": "milan_datapath/talker_diag/tuiv_r_reg[][]"
+          },
+          {
+            "load_references": 32,
+            "stem": "milan_datapath/ts_counter/tsw_val_r_reg[]_i_*"
+          },
+          {
+            "load_references": 4,
+            "stem": "milansoc_milannic_d_req_cdc_graycounter0_q_binary_reg[]"
+          },
+          {
+            "load_references": 5,
+            "stem": "milansoc_milannic_d_req_cdc_graycounter0_q_reg[]"
+          },
+          {
+            "load_references": 4,
+            "stem": "milansoc_milannic_n_req_cdc_graycounter0_q_binary_reg[]"
+          },
+          {
+            "load_references": 5,
+            "stem": "milansoc_milannic_n_req_cdc_graycounter0_q_reg[]"
+          },
+          {
+            "load_references": 5,
+            "stem": "milansoc_milannic_n_rsp_cdc_graycounter1_q_binary_reg[]"
+          },
+          {
+            "load_references": 5,
+            "stem": "milansoc_milannic_n_rsp_cdc_graycounter1_q_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milansoc_milannic_n_rsp_cdc_readable_reg"
+          },
+          {
+            "load_references": 4,
+            "stem": "milansoc_milannic_n_wr_cdc_graycounter0_q_binary_reg[]"
+          },
+          {
+            "load_references": 5,
+            "stem": "milansoc_milannic_n_wr_cdc_graycounter0_q_reg[]"
+          },
+          {
+            "load_references": 4,
+            "stem": "milansoc_milannic_r_req_cdc_graycounter0_q_binary_reg[]"
+          },
+          {
+            "load_references": 5,
+            "stem": "milansoc_milannic_r_req_cdc_graycounter0_q_reg[]"
+          },
+          {
+            "load_references": 5,
+            "stem": "milansoc_milannic_r_rsp_cdc_graycounter1_q_binary_reg[]"
+          },
+          {
+            "load_references": 5,
+            "stem": "milansoc_milannic_r_rsp_cdc_graycounter1_q_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milansoc_milannic_r_rsp_cdc_readable_reg"
+          },
+          {
+            "load_references": 4,
+            "stem": "milansoc_milannic_r_wr_cdc_graycounter0_q_binary_reg[]"
+          },
+          {
+            "load_references": 5,
+            "stem": "milansoc_milannic_r_wr_cdc_graycounter0_q_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "storage_32_reg"
+          },
+          {
+            "load_references": 8,
+            "stem": "storage_34_reg"
+          },
+          {
+            "load_references": 4,
+            "stem": "storage_35_reg"
+          },
+          {
+            "load_references": 4,
+            "stem": "storage_39_reg"
+          },
+          {
+            "load_references": 8,
+            "stem": "storage_40_reg_0"
+          },
+          {
+            "load_references": 16,
+            "stem": "storage_40_reg_1"
+          },
+          {
+            "load_references": 5,
+            "stem": "u_listener/arm_deadline_ms_o_reg[]_i_*"
+          },
+          {
+            "load_references": 5,
+            "stem": "u_talker/arm_deadline_ms_o_reg[]_i_*"
+          }
+        ]
+      },
+      "validation": {
+        "synthesis_rc": 0,
+        "missing_rom_diagnostics": 0,
+        "post_synthesis_input_rehash": "matched",
+        "boundary_probe_rc": 0,
+        "dynamic_load_probe_rc": 0,
+        "wrapper_load_probe_rc": 0
+      }
+    },
+    "attribution": {
+      "clock_hz": 50000000,
+      "wrapper_parameters": {
+        "TDATA_WIDTH_P": 64,
+        "CLK_HZ_P": 50000000,
+        "N_STREAM_IN_P": 9,
+        "N_STREAM_OUT_P": 9,
+        "SRP_DOM_DEF_VID_P": 2,
+        "TIM_DIV_US_P": 50,
+        "TIM_DIV_MS_P": 1000,
+        "TROM_HEX_P": {
+          "root": "repository",
+          "path": "configs/generated/ltn_rom.hex"
+        },
+        "UCODE_HEX_P": {
+          "root": "repository",
+          "path": "configs/generated/ucode.hex"
+        },
+        "DESC_BASE_P": 2138046464,
+        "DESC_LINE_BYTES_P": 576,
+        "DESC_IDX_ENTRIES_P": 32,
+        "DESC_NAME_ENTRIES_P": 99,
+        "DESC_MEM_TMO_CYC_P": 4096,
+        "RESP_BASE_P": 2139090944,
+        "N_SPORT_IN_P": 8,
+        "N_SPORT_OUT_P": 8,
+        "N_AUDIO_UNIT_P": 1,
+        "N_CLK_DOM_P": 1,
+        "RX_FIFO_BYTES_P": 4096
+      },
+      "images": [
+        {
+          "path": "attribution/ax8x8/gateware/alinx_ax7101_rom.init",
+          "bytes": 116811,
+          "words": 12979,
+          "digits": [
+            8
+          ],
+          "sha256": "c05e5c24ed202eee530f6dcd44585eafca46e74d94d82865bbf404e03cd964dd",
+          "root": "work"
+        },
+        {
+          "path": "attribution/ax8x8/gateware/alinx_ax7101_sram.init",
+          "bytes": 0,
+          "words": 0,
+          "digits": [],
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "root": "work"
+        },
+        {
+          "path": "attribution/ax8x8/gateware/alinx_ax7101_mem.init",
+          "bytes": 147,
+          "words": 49,
+          "digits": [
+            2
+          ],
+          "sha256": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335",
+          "root": "work"
+        },
+        {
+          "path": "configs/generated/ltn_rom.hex",
+          "bytes": 6138,
+          "words": 128,
+          "digits": [
+            8
+          ],
+          "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956",
+          "root": "repository"
+        },
+        {
+          "path": "configs/generated/ucode.hex",
+          "bytes": 26624,
+          "words": 2048,
+          "digits": [
+            12
+          ],
+          "sha256": "23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144",
+          "root": "repository"
+        },
+        {
+          "path": "sw/builder/out/endstation_ax7101_8x8/gptp_ucode.hex",
+          "bytes": 13312,
+          "words": 1024,
+          "digits": [
+            12
+          ],
+          "sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+          "root": "repository"
+        }
+      ],
+      "source_inputs": [
+        {
+          "path": "hdl/acmp/pp_acmp_pkg.sv",
+          "bytes": 10022,
+          "sha256": "b504951db8c81134ef54030e37879431f84ea8005e38c46479c8f66dcc4bbb85",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/adp/pp_adp_pkg.sv",
+          "bytes": 3635,
+          "sha256": "5e396186e1b2495c73fe3d4d09fcdc388b7ce24048cb60f80b4c74da390f2ed2",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/ucpu_pkg.sv",
+          "bytes": 5250,
+          "sha256": "cb8b925f1d5332f9ac90f09c73b18e401a7428f6e66119a53c7850537280f01d",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/common/pp_pkg.sv",
+          "bytes": 16950,
+          "sha256": "2ffdc53a71bc0ec45a15eeb9625a9a2a05ef9f17f9dd3fcd530a14eaea41ba9a",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/srp_pkg.sv",
+          "bytes": 4228,
+          "sha256": "d96fab2df62a69669b4c6121423b4a6a018478f26f1ce5a35ad646467aa4e192",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/acmp/KL_acmp_nvm_shadow.sv",
+          "bytes": 41364,
+          "sha256": "aa74527e290c9ef88deb2ba7183416a6a2c9a171e6247bb082c12152575ffc3e",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/acmp/KL_acmp_talker.sv",
+          "bytes": 60983,
+          "sha256": "5d3e25d37a70066c5a66002a77c7d7b3c20e0680717a39686fc15a177504f29a",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/acmp/KL_pp_acmp_listener.sv",
+          "bytes": 69886,
+          "sha256": "5394089126ea62d13f24ad73d6b2ae278b6f5cd32ac8c9d310e507e286189f9d",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/acmp/KL_pp_acmp_lsn_admit.sv",
+          "bytes": 9935,
+          "sha256": "5b7ef405f9e78c6fae2ea476a595ce64abdb619cf7957c4b6096ea36fb76a965",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/adp/KL_adp_engine.sv",
+          "bytes": 45356,
+          "sha256": "0465bf1af9e107e9aefed8ec34ab91e604179ea919394a48a13308746e5d36c0",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_ca_originator.sv",
+          "bytes": 7781,
+          "sha256": "524570696cdf2c8c6874e8b015d3e8624fc17a77ebf4a86ae848feceb7129131",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_desc_mem_guard.sv",
+          "bytes": 3984,
+          "sha256": "73548ebd8fe513bfdac2ef1de2e89e2c7d9d54acd0375d8706e680049b0777dc",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_desc_store.sv",
+          "bytes": 49342,
+          "sha256": "c472477c80d960d987cc2780f478ab5e630cf1dcb640bb2389923461ad64ab60",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_dyn_state.sv",
+          "bytes": 18456,
+          "sha256": "c0916f98d71691f72b880b5332157beafbfe9b9dd5dc64bd351294d6edbee099",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_engine.sv",
+          "bytes": 178365,
+          "sha256": "4278ea7baabb746c1cd7759c028c379b225167e4291522989b1d759f9f12db92",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "bytes": 52305,
+          "sha256": "10ac645beb27c2b46579e8922a608e7b9ee282486166c1a827d329e4d54845f3",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_resp_buf.sv",
+          "bytes": 26711,
+          "sha256": "c2321d3eeee0934d84cc470b4cc7b10dca5495000ae7c23f0f04243a9badc04e",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_ucpu.sv",
+          "bytes": 26593,
+          "sha256": "6eb9f0a537d747685fbd2ac36d6cee6566f8cbf7725c4853435cfe74925fac62",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/common/KL_pp_prng.sv",
+          "bytes": 9230,
+          "sha256": "e44e469b9c3dfac811b7e17b08092b974941946df8308485e3f75d11a61015fd",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/common/KL_pp_timer_service.sv",
+          "bytes": 9155,
+          "sha256": "8214f9db0dea43942eca9cb057bd80c993c9eaad0ab65124e58fb05578f5d69c",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/maap/KL_pp_maap.sv",
+          "bytes": 42435,
+          "sha256": "4611c8bf8f25a07d31dc622537b886c294d975ca1f8b2c9e2e762c6bc77a2d68",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_dispatch.sv",
+          "bytes": 14339,
+          "sha256": "da2322019be49129a6ea088933e650ef377a80ddd578a4dd741d0533f3f858a4",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_event_router.sv",
+          "bytes": 8680,
+          "sha256": "ca47734f0a12f524fab9386362ae4f0edf4008097bd72fda04ae6e4ed8d979b4",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_normalizer.sv",
+          "bytes": 10725,
+          "sha256": "b3e36db689572c27f2d4d343fa804dfb3fa835e3db0eaa488679cc9eb386bd32",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_nvm_mgr_arb.sv",
+          "bytes": 9835,
+          "sha256": "8d9c47f199bc571ff875b633d5f0334203c5164e18c68f619c16956f06400fb0",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_nvm_port.sv",
+          "bytes": 20114,
+          "sha256": "fca2f007611f1983fd6bb5711631e94d3e60ff0d96026812d7e1b72925cf35f0",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_originator.sv",
+          "bytes": 23703,
+          "sha256": "3037627e73f92001a83c83f692b0a2ae34d0bcdafd19ed83a4fb66ec9cb8b114",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_release_merge.sv",
+          "bytes": 2647,
+          "sha256": "146b5f7cd13aaddc2ff1035f7c8e26c324e30a0a6500050ed4142d44322f0832",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_rx_slots.sv",
+          "bytes": 9742,
+          "sha256": "6d7418e4ddf91a0c519a0ee4f4013ef18e2985459d99ab57c302a173205d756f",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_rx_validator.sv",
+          "bytes": 32973,
+          "sha256": "03cf23357ff90f78b4889e4ae99d241c5ec5ca38a56f8c3763d2d88597984845",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_scoreboard.sv",
+          "bytes": 11421,
+          "sha256": "1f74700603bbd2d512f66e8b115bc59417db4fbc3ceb32787807df282aaf8588",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_side_port.sv",
+          "bytes": 10049,
+          "sha256": "ebe824f1e2780a1fecc66bd6e1f3bbe95c3c997f0a1b7ec3be96ffd15ca2a31d",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_trace_ring.sv",
+          "bytes": 4948,
+          "sha256": "0af244999fae86465701024c3824e7f2174b7b150e9b356562ec11f34451433c",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_tx_arbiter.sv",
+          "bytes": 14421,
+          "sha256": "3a73fac524bee3ee335aae4cdc3ef6e7911a38d25cdca137dbb774f24217f922",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/packet_engine/KL_pp_tx_slots.sv",
+          "bytes": 14217,
+          "sha256": "66ee2a24465d0141ccd560f8bd099e09c4d0e2a0d415d43a776c81721dc90134",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_admission.sv",
+          "bytes": 13594,
+          "sha256": "0fa5cd77e6c4afc6ca9315d0f38f4edf68d87819b3a5dc3bbc776e5d812363d5",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_decoder.sv",
+          "bytes": 27129,
+          "sha256": "255adc30e55463a874f38b2c64d4f494896b1b7c114ea5cfa474f1dd77641bd0",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_domain.sv",
+          "bytes": 9362,
+          "sha256": "db2ab8a2f5bee7dd69b54e42fc3f05cfee07bfe6df76788b8e1e5c5e3f1b03bb",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_encoder.sv",
+          "bytes": 32543,
+          "sha256": "f02e844c8ae0e6fb9663775e415b82c1cd0e47573a6ab063a5718a94a603378e",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_listener_fsm.sv",
+          "bytes": 37991,
+          "sha256": "79b1a760aa51b01b39d358d06680cd7403f81063b2d2a59d7051c733e078cb47",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_talker_fsm.sv",
+          "bytes": 36142,
+          "sha256": "a51aea18c7009dad9c3c34f36a31bd038f16c8bf2bf91fff00734fc2b9678e9d",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_top.sv",
+          "bytes": 51778,
+          "sha256": "afb3a5b5eb5459f8654a332aebe6417beec237f018187b432c46e12493143ad8",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/srp/KL_srp_vlan.sv",
+          "bytes": 11772,
+          "sha256": "6a640fa98b0ac96c71db0cce65cc6dc525233480875418e37956677b6f69d300",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/top/KL_mrp_strip.sv",
+          "bytes": 7989,
+          "sha256": "0a238b74de2f1621afffeb10b631f6d9433380e0c0fa507fcf4233291f5828cb",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/top/protocol_processor_top.sv",
+          "bytes": 210431,
+          "sha256": "921b449189cc81478ca9be987f2073e675568803405a29b293bcd3ca384fcef3",
+          "root": "protocol_processor"
+        },
+        {
+          "path": "hdl/milan/KL_pp_shadow.sv",
+          "bytes": 80239,
+          "sha256": "455c6d63d99de143de8756de21dc1dbaa2b17ee16c0787b5b70498aa9c34b34c",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/milan/KL_pp_maap_shim.sv",
+          "bytes": 14354,
+          "sha256": "965fbee050c985f767423bf63f2c0f0a507faf5ede7cc81e3a939bee963ba98e",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/milan/KL_nvm_backend.sv",
+          "bytes": 57630,
+          "sha256": "d651d148f933d90dec5d8633c58adc86717bd8c8785b1c2edaf3ce5e9b9480a0",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ucpu/gptp_ucpu_pkg.sv",
+          "bytes": 6602,
+          "sha256": "f9e43432d8d121a27b15544d8e33e3d8f85fa05432399e7b75d5e6c4125d7b35",
+          "root": "gptp_processor"
+        },
+        {
+          "path": "hdl/ucpu/KL_gptp_ucpu.sv",
+          "bytes": 26775,
+          "sha256": "fa4d9ffd04ab68f24a77aa08c7e7f3b98f0015bc97e11d7f3969bb3d79df8647",
+          "root": "gptp_processor"
+        },
+        {
+          "path": "hdl/wire/KL_gptp_rx_parser.sv",
+          "bytes": 29553,
+          "sha256": "f8ed0a2d0901391aafc96611488a91919e3f2d385b5c96d20b0799508e4d714b",
+          "root": "gptp_processor"
+        },
+        {
+          "path": "hdl/wire/KL_gptp_tx_slot.sv",
+          "bytes": 4754,
+          "sha256": "f5d1dbf6acafa6197d7afd7830f920b0c324f0628738deabc5af92fbca7dbdc1",
+          "root": "gptp_processor"
+        },
+        {
+          "path": "hdl/common/KL_gptp_timer.sv",
+          "bytes": 4471,
+          "sha256": "0cd54f1303e521a7a83f0e6db0fdafbe2c14db2a2277ae032d333c36fd7c0e38",
+          "root": "gptp_processor"
+        },
+        {
+          "path": "hdl/top/KL_gptp_engine.sv",
+          "bytes": 43156,
+          "sha256": "51642d60f680a168c9f767fd74ce0157a3fda7b2feaf578b2f69456afb7077ac",
+          "root": "gptp_processor"
+        },
+        {
+          "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+          "bytes": 12641,
+          "sha256": "90fdcfa69e62abb2a377156f99d4065ba0748d1d4b6b76e9e53b8233f4cba184",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+          "bytes": 46673,
+          "sha256": "84fafe6dedec86f293f054d0aefed2b0466aa38e0e4fb12be7c042fbd4a5f259",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+          "bytes": 24154,
+          "sha256": "191a8e3a39cefcd68586f78c41b2eecd1063a58fac29334f6ecb9fd83eb2da29",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+          "bytes": 49534,
+          "sha256": "477aa966a7119cf94148a5c92186c42a86668c80cac97a750dee14f5f0330e5f",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/ethernet_packet_pkg.sv",
+          "bytes": 17691,
+          "sha256": "91c82f1696af7e46518deec7247c683cd13a8dc482fc957e3f0775549dc64713",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/axi_stream_if.sv",
+          "bytes": 1845,
+          "sha256": "f3787e00690a6182572af8817b1fe19d7b8abb7215cd51cc8ce43f9770d91c6c",
+          "root": "repository"
+        },
+        {
+          "path": "rtl/axis_fifo.v",
+          "bytes": 21692,
+          "sha256": "aefddc67fc3552d919280424606fc6b048e61d7df9ee7ee0f8801c082c1cfc39",
+          "root": "axis_library"
+        },
+        {
+          "path": "rtl/axis_arb_mux.v",
+          "bytes": 11633,
+          "sha256": "bee8d11f32f7fb1c5afdd6cdad872cd7de9dc94bcb4787f9aa119f2ebbc489a6",
+          "root": "axis_library"
+        },
+        {
+          "path": "rtl/arbiter.v",
+          "bytes": 4993,
+          "sha256": "d54d337db4812f927b2e9b5788dfa39f9bd578ad01b7846c5fa7f2610b0923fa",
+          "root": "axis_library"
+        },
+        {
+          "path": "rtl/priority_encoder.v",
+          "bytes": 3253,
+          "sha256": "df28220d95b47df349a72803a9751aad331eb8e1435416e8686d00572a974dd5",
+          "root": "axis_library"
+        },
+        {
+          "path": "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+          "bytes": 14007,
+          "sha256": "89813f3420f7aa4ea80aee478b25ca6a9fa562572025447fc07b1c949bda1a33",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv",
+          "bytes": 14060,
+          "sha256": "fac8feb49e61cf946a215162f4694935d75a9bc24e09240a2d44635ef1ec91cc",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/cdc_pulse.sv",
+          "bytes": 1814,
+          "sha256": "abcbeb59c175b7fbc8de5555474146bfb4e426d086c4b68f915c148e9c677ad3",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/cdc_handshake.sv",
+          "bytes": 3435,
+          "sha256": "047bad93e2c1507798ce9617ff7f8413e163edb786e4b1371d2219a146096c79",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+          "bytes": 12919,
+          "sha256": "af8dc99c4da6a0f1709fb91803474e430e283fa265750597728b58f8a9107cee",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021q/filtering/tcam.sv",
+          "bytes": 5520,
+          "sha256": "2fb50884ba72fefc8f0c4be096513b49ffe71f1d4635c58eaa6cfd1d88c77e8b",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee8021q/filtering/rx_mac_filter.sv",
+          "bytes": 15751,
+          "sha256": "c14536e3bbe679f7979dcdae81b080ba770a5c69e442be7d8b1eb638eb52b11e",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/tx_ifg_gasket.sv",
+          "bytes": 3304,
+          "sha256": "c2038c55d20a01b22c1e8c71a2238a0cdb430db2a53a3ea01b660a8b2c955ac8",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_pcm_lpf.sv",
+          "bytes": 8553,
+          "sha256": "de148eea2d2e298cb7ead685e133eebd745ec5f7192ce41877cacde9b2cdb121",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/KL_link_guard.sv",
+          "bytes": 15700,
+          "sha256": "85c716fdbf90f92bece9c11e81d3704c4b3aaea935c50e9f9a2733208da73a53",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee17221/adp/adp_tx_arbiter.sv",
+          "bytes": 10017,
+          "sha256": "3a7e171107c0f5554b5f76721ada4f972378e5c829700b16c323cfede4ec3b5f",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/aaf_talker_i2s.sv",
+          "bytes": 12738,
+          "sha256": "bf33bb22c1b9d2aa62e71b8b157a565413e6d76c60042c81935ff71e4b1b81aa",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv",
+          "bytes": 17039,
+          "sha256": "0a885054146a04e95add3bb8bbe28aa80e7fe6c1f447ce000816f923560b05fc",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_i2s_playback.sv",
+          "bytes": 23259,
+          "sha256": "f79b1ff10545c2a18e6af8637ad31ff50cce0e1654f2fb06305507afc301cd11",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_tone_gen.sv",
+          "bytes": 4671,
+          "sha256": "b8b83919ff2f92da3e9de81de80c2c8714d544b4bc1d54c8ea57baf7e1884a3b",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_i2s_feed_mux.sv",
+          "bytes": 7687,
+          "sha256": "721ce0c974668d062d5d6b099454e2218ea85be4515fb34996e4e1c11a5784e4",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_aaf_latency_taps.sv",
+          "bytes": 14760,
+          "sha256": "2fb2ecb429b1125d368f61dd36c131302da136bfb41603346e9ac084a9441e8e",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv",
+          "bytes": 10610,
+          "sha256": "5aa7571a27cee85f6ae2c39cb58332886b6c7063ceda502c233af7b04306e144",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_media_adv.sv",
+          "bytes": 2650,
+          "sha256": "65029f520cb945ba679e872c9b60580342ebb6ccfd002a31400b4aec2b68ae99",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/cdc_pair_fifo.sv",
+          "bytes": 3929,
+          "sha256": "d6c043df6e2c99e00cb5dd5a9595c459351133968229e4ad7f6246824c61c025",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/avtp_subtype_pkg.sv",
+          "bytes": 1060,
+          "sha256": "6442ccd6a6ac6071b558b7d37a063e50638b976f390112ba6189351c0ae105b9",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/avtp_stream_parser.sv",
+          "bytes": 12712,
+          "sha256": "43d3a69b6be07d82b4082131de03525078fe4562139135fd837a1dc735ee6a58",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/KL_stream_table.sv",
+          "bytes": 7431,
+          "sha256": "cebf68fe297a46c0825b5bcb0ab7b231e881be65ebda1d6c27cbaa5b393da7cc",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
+          "bytes": 17951,
+          "sha256": "4f4372952e5d08b003cb35c588a370bc471f96a960a830e8172eb43d86c6ed05",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
+          "bytes": 56088,
+          "sha256": "7407649412d5cce3b80b66c46b734f2530dac4b7e6e4f4dec7c0be94791eef13",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv",
+          "bytes": 14522,
+          "sha256": "6b2ca279ba258c3ed6c264e6c1c02947af2e6f4997ec3c4b9dd138a02aa6280d",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+          "bytes": 14571,
+          "sha256": "d527f42c2b76d60b0d73d3d5888f62b4657a4b85867fd790bbf157e4ea1b3dfe",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_pcm_route.sv",
+          "bytes": 4018,
+          "sha256": "696979b3075883e293825974f347fc36119515dd6c73aa65ef63a4cd347177b6",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv",
+          "bytes": 5827,
+          "sha256": "8931009ce7d06c16ad2a39d7ce7069d9aa807b74fb035ef9b54a7672d80461c3",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_tdm_capture.sv",
+          "bytes": 10281,
+          "sha256": "ec077533729fe07f60df4d7e777ce4fa74bb893d03e2a1f530908e40eb89cd60",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_tdm_capture_master.sv",
+          "bytes": 21492,
+          "sha256": "b4a4b7f7487499153b64553d36e34011cfab0bdbc47cbd0c40a7ed457e821ffc",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_pair_blend.sv",
+          "bytes": 6248,
+          "sha256": "7b10ab08be2722970674eb959d7b65d60f327153e60e0ca72f6d4d0181b1591a",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_pair_zero_fill.sv",
+          "bytes": 9356,
+          "sha256": "3a0b8adef03b9373d66426d88cc49c0989258007020276a7ff78e03051116acd",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_tdm_render.sv",
+          "bytes": 13521,
+          "sha256": "2e155f55c8c0e00099c028520fe19517373bbcbbe0ad998272fdf5ab66ede46b",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_tdm_render_master.sv",
+          "bytes": 29316,
+          "sha256": "abdb08d03210316872077d7a67ea9417b6860b5af12afad4a07cb21fdc24d951",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_render_setpoint.sv",
+          "bytes": 36548,
+          "sha256": "54b6a23336dcbef53a50482749b42a081365754017d2fb94fdc705772c9ba200",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_chan_map_render.sv",
+          "bytes": 16274,
+          "sha256": "d645deb04c8d5554f013a43e2de6b7a4b2e1a3538e65cde0dda725a2e392e5fe",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+          "bytes": 56926,
+          "sha256": "206e297d16272470409157ca557d76be52e3b5684daae4a5657ed7abd72d47d7",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/aaf/KL_aaf_packetizer.sv",
+          "bytes": 34870,
+          "sha256": "05f58ca91d7b0e4158e68c37cac79c9c65dc8a8b403df91419e150de3a9d75ca",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/crf/KL_crf_rx.sv",
+          "bytes": 35762,
+          "sha256": "3cc824af3473f0f399db61466ce2e5fcfc07911eb219d48e24ed243ebcafdbb6",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/crf/KL_crf_tx.sv",
+          "bytes": 27196,
+          "sha256": "ac31366daa6c88e82eb739880834325ce5a97badce4e247489f2bbe71bfabe43",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/maap/KL_maap.sv",
+          "bytes": 16127,
+          "sha256": "566b88228f6cc1c84de307e770122f37eecabdc6c49a36ea7ea56e33552e261d",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv",
+          "bytes": 46197,
+          "sha256": "c0edc68e3b2846c9bba5f8b884fe21e6d8d4ec4a507861f48fd63c632329e6e0",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/crf/KL_media_nco.sv",
+          "bytes": 12453,
+          "sha256": "66cabab2d0ee7a155023bd6f972215492e4dd2e8f92bea7ac535aee6118eab10",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/ieee1722/crf/KL_media_grid_align.sv",
+          "bytes": 16272,
+          "sha256": "1ef493a3c7a7c4bf308a1c3edd49546cd8635b18ca16a4b6fec5eb3123b4b192",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/eth_event_counter/ethernet_events.sv",
+          "bytes": 4488,
+          "sha256": "e7b87c05dc031981db1bd1ce012761a8c043a2598855fdbcf8e2c7d1baaa99b6",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/eth_event_counter/event_counter.sv",
+          "bytes": 2078,
+          "sha256": "564927ba2161ccf445a63ba60af214e34d2d4ec0068a80833dd80ac79f08a466",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/eth_event_counter/KL_mac_rmon_events.sv",
+          "bytes": 11161,
+          "sha256": "9b45703f19dd59656107ed11d619bfe1a2b6d232d160faf20f3fe5a1b0355f4b",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/csr/milan_csr.sv",
+          "bytes": 190231,
+          "sha256": "0baec8701f35725a069ddf1ab398b63e345fdad3643932a3cc73ddc14e69aea2",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/milan/milan_datapath.sv",
+          "bytes": 423839,
+          "sha256": "0b310f6b95cc7b79341b164c8b03eaf12ee9980ddd19eceff73114ee70540394",
+          "root": "repository"
+        },
+        {
+          "path": "pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+          "bytes": 1580,
+          "sha256": "c319d54c5a0bbe20a72ab9b394a3a1e57ef34866ae2478c5caed50e064a72523",
+          "root": "cpu_package"
+        },
+        {
+          "path": "pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+          "bytes": 1068,
+          "sha256": "c8361e5fd0bc23be5f91cb2b63a091ab41bcdd857cc1c97f6e7e4ef8b6f61626",
+          "root": "cpu_package"
+        },
+        {
+          "path": "pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v",
+          "bytes": 1575730,
+          "sha256": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d",
+          "root": "cpu_package"
+        },
+        {
+          "path": "attribution/ax8x8/gateware/alinx_ax7101.v",
+          "bytes": 1764728,
+          "sha256": "7e520482344c0e61a9620f642b4f72712d543f113015be4dd06500e35e10ce57",
+          "root": "work"
+        },
+        {
+          "path": "attribution/ax8x8/gateware/alinx_ax7101.tcl",
+          "bytes": 29690,
+          "sha256": "0e879ce8937e2e73d80220d65e5b92a62612a4dd120e65ff8d643c1795c97cc5",
+          "root": "work"
+        },
+        {
+          "path": "attribution/ax8x8/gateware/alinx_ax7101.xdc",
+          "bytes": 21076,
+          "sha256": "28fae38e8ef8e1d4288289943424d023f04e996bcc4a9058f4e36e6214ce71a1",
+          "root": "work"
+        },
+        {
+          "path": "attribution/ax8x8/gateware/baseline_integrated.tcl",
+          "bytes": 30230,
+          "sha256": "208fbdf33e2fab0ba6d60056783489ffb7c27f0bd8cf34ca9e649739a84f9559",
+          "root": "work"
+        },
+        {
+          "path": "configs/endstation_ax7101_8x8.yaml",
+          "bytes": 19799,
+          "sha256": "ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e",
+          "root": "repository"
+        },
+        {
+          "path": "attribution/ax8x8/gateware/baseline_boundary.xdc",
+          "bytes": 70,
+          "sha256": "b3bb069080bfb807aee1b9db2d5cec35e1991356ef96856c5b03f9593607e368",
+          "root": "work"
+        },
+        {
+          "path": "configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh",
+          "bytes": 8449,
+          "sha256": "26a61e545097a577f1b6bae2e15e92c867e4143a8f8ceb13e2abc21d03279333",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/csr/gen/lwsrp_csr_defaults.svh",
+          "bytes": 2187,
+          "sha256": "d10ce5559b108f54800b8432b672a0d33379721bf2a4edf0058e185484f3881d",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/eth_event_counter/ethernet_events.svh",
+          "bytes": 1155,
+          "sha256": "4901b9e672250b4cd36e17edce5a8c13f501bfe37169bc5c52ae5c95224cd3d3",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/gen/adp_shape_defaults.svh",
+          "bytes": 7199,
+          "sha256": "eb03dfaa2f914f49b07c31ddcc62ebc4a64e839a466a3387650f25823afb1020",
+          "root": "repository"
+        },
+        {
+          "path": "hdl/common/parameters.svh",
+          "bytes": 516,
+          "sha256": "1165574103364b5ad360b34751f5ac1fa6adf67a81326885c42fb35979c397fc",
+          "root": "repository"
+        }
+      ],
+      "reports": [
+        {
+          "root": "work",
+          "path": "attribution/ax8x8/gateware/baseline_integrated.tcl",
+          "bytes": 30230,
+          "sha256": "208fbdf33e2fab0ba6d60056783489ffb7c27f0bd8cf34ca9e649739a84f9559"
+        },
+        {
+          "root": "work",
+          "path": "attribution/ax8x8/gateware/baseline_hierarchy.rpt",
+          "bytes": 44240,
+          "sha256": "5513f907959b81e3f1c93033c6c3e33f65dcd3535ec892a782a61954d96fa8cb"
+        },
+        {
+          "root": "work",
+          "path": "attribution/ax8x8/gateware/baseline_utilization.rpt",
+          "bytes": 10786,
+          "sha256": "58e2b4563b5f15bb083825b71ff64ea6faabd50b1f1330b6c1a082a36c74d192"
+        },
+        {
+          "root": "work",
+          "path": "attribution/ax8x8/gateware/baseline_pp_utilization.rpt",
+          "bytes": 7725,
+          "sha256": "74692598361a465d7e58ea36ef1924c05f75996279076f9db128e759837dcbec"
+        },
+        {
+          "root": "work",
+          "path": "attribution/ax8x8/gateware/baseline_timing.rpt",
+          "bytes": 1499802,
+          "sha256": "3f596494368b7bf59dd1fd325b988c78d71d46b20b43679beb81f06f804647d6"
+        },
+        {
+          "root": "work",
+          "path": "attribution/ax8x8/gateware/baseline_pp_boundary_timing.rpt",
+          "bytes": 153018,
+          "sha256": "5498d30cd18c2d8efb950b35e60ec79cd6024fee68f261df369003e8af4d3ebd"
+        },
+        {
+          "root": "work",
+          "path": "attribution/ax8x8/gateware/baseline_scope_timing.tsv",
+          "bytes": 415,
+          "sha256": "de362b55b1c9cee4cd6936338423a3544cba05becb782a5869d24840ee3499c7"
+        },
+        {
+          "root": "work",
+          "path": "attribution/ax8x8/gateware/baseline_cells.tsv",
+          "bytes": 10420116,
+          "sha256": "fdf43643ccdad5763c77d7f0e3aa3e67eae3d6a4793a0d5352c2381f827d1867"
+        },
+        {
+          "root": "work",
+          "path": "attribution/ax8x8/gateware/baseline.log",
+          "bytes": 510957,
+          "sha256": "d98d40cc4bc01eaba98bb18769a24821006d45a83c5ca4fdf6554227c1b1267c"
+        },
+        {
+          "root": "work",
+          "path": "attribution/ax8x8/gateware/alinx_ax7101_synth.dcp",
+          "bytes": 104467811,
+          "sha256": "01d0461da79da1b4e01d1b001ea01655b2283eda6b54036fb57fdcb9b9f0dce6"
+        },
+        {
+          "root": "work",
+          "path": "attribution/probes/boundary.tsv",
+          "bytes": 412,
+          "sha256": "cd680a6c5b46baba43b81fdc69b01470d22f46e92eb0e0ab907f6ab281be1b04"
+        },
+        {
+          "root": "work",
+          "path": "attribution/probes/loads.tsv",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "root": "work",
+          "path": "attribution/probes/wrapper-loads.tsv",
+          "bytes": 2135,
+          "sha256": "fedccf497b29bb450eda869a8a66873d7d39369b2524d6db48a2742fde176d64"
+        }
+      ],
+      "metrics": {
+        "alinx_ax7101": {
+          "LUT": 69923,
+          "logic_LUT": 67704,
+          "LUTRAM": 2214,
+          "SRL": 5,
+          "FF": 72421,
+          "RAMB36": 80,
+          "RAMB18": 29,
+          "DSP": 11,
+          "CARRY4": 4013,
+          "WNS_ns": -1.7
+        },
+        "milan_datapath/pp_shadow": {
+          "LUT": 28955,
+          "logic_LUT": 27961,
+          "LUTRAM": 994,
+          "SRL": 0,
+          "FF": 32982,
+          "RAMB36": 26,
+          "RAMB18": 5,
+          "DSP": 5,
+          "CARRY4": 1774,
+          "internal_WNS_ns": -1.7
+        },
+        "milan_datapath/pp_shadow/u_pp": {
+          "LUT": 28123,
+          "logic_LUT": 27129,
+          "LUTRAM": 994,
+          "SRL": 0,
+          "FF": 31599,
+          "RAMB36": 25,
+          "RAMB18": 4,
+          "DSP": 4,
+          "CARRY4": 1712,
+          "internal_WNS_ns": -1.7
+        },
+        "milan_datapath/pp_shadow/u_pp/u_aecp": {
+          "LUT": 5022,
+          "logic_LUT": 4802,
+          "LUTRAM": 220,
+          "SRL": 0,
+          "FF": 4155,
+          "RAMB36": 7,
+          "RAMB18": 0,
+          "DSP": 1,
+          "CARRY4": 264,
+          "internal_WNS_ns": 0.609
+        },
+        "milan_datapath/pp_shadow/u_pp/u_aecp/u_dyn": {
+          "LUT": 574,
+          "logic_LUT": 574,
+          "LUTRAM": 0,
+          "SRL": 0,
+          "FF": 1609,
+          "RAMB36": 0,
+          "RAMB18": 0,
+          "DSP": 0,
+          "CARRY4": 0
+        },
+        "milan_datapath/pp_shadow/u_pp/u_srp": {
+          "LUT": 8359,
+          "logic_LUT": 8173,
+          "LUTRAM": 186,
+          "SRL": 0,
+          "FF": 11130,
+          "RAMB36": 0,
+          "RAMB18": 1,
+          "DSP": 2,
+          "CARRY4": 429,
+          "internal_WNS_ns": 10.005
+        },
+        "milan_datapath/pp_shadow/u_pp/u_notify": {
+          "LUT": 2917,
+          "logic_LUT": 2821,
+          "LUTRAM": 96,
+          "SRL": 0,
+          "FF": 3799,
+          "RAMB36": 0,
+          "RAMB18": 0,
+          "DSP": 0,
+          "CARRY4": 68,
+          "internal_WNS_ns": 11.314
+        },
+        "milan_datapath/pp_shadow/u_pp/u_listener": {
+          "LUT": 1626,
+          "logic_LUT": 1626,
+          "LUTRAM": 0,
+          "SRL": 0,
+          "FF": 1124,
+          "RAMB36": 5,
+          "RAMB18": 0,
+          "DSP": 0,
+          "CARRY4": 30,
+          "internal_WNS_ns": 7.647
+        },
+        "milan_datapath/pp_shadow/u_pp/u_talker": {
+          "LUT": 1402,
+          "logic_LUT": 1402,
+          "LUTRAM": 0,
+          "SRL": 0,
+          "FF": 522,
+          "RAMB36": 1,
+          "RAMB18": 1,
+          "DSP": 0,
+          "CARRY4": 19,
+          "internal_WNS_ns": 6.673
+        },
+        "milan_datapath/pp_shadow/u_nvm": {
+          "LUT": 752,
+          "logic_LUT": 752,
+          "LUTRAM": 0,
+          "SRL": 0,
+          "FF": 1023,
+          "RAMB36": 0,
+          "RAMB18": 0,
+          "DSP": 1,
+          "CARRY4": 37,
+          "internal_WNS_ns": 13.058
+        }
+      },
+      "boundary_probe": [
+        {
+          "scope": "milan_datapath/pp_shadow/u_pp/u_aecp/u_dyn",
+          "LUT": 607,
+          "LUT_all_loads_outside_wrapper": 0,
+          "LUT_any_load_outside_wrapper": 0,
+          "LUT_any_input_from_outside_wrapper": 0,
+          "LUT_outside_input_and_only_outside_loads": 0
+        },
+        {
+          "scope": "milan_datapath/pp_shadow/u_pp/u_aecp",
+          "LUT": 5616,
+          "LUT_all_loads_outside_wrapper": 18,
+          "LUT_any_load_outside_wrapper": 29,
+          "LUT_any_input_from_outside_wrapper": 414,
+          "LUT_outside_input_and_only_outside_loads": 0
+        },
+        {
+          "scope": "milan_datapath/pp_shadow/u_pp/u_srp",
+          "LUT": 9457,
+          "LUT_all_loads_outside_wrapper": 442,
+          "LUT_any_load_outside_wrapper": 512,
+          "LUT_any_input_from_outside_wrapper": 727,
+          "LUT_outside_input_and_only_outside_loads": 432
+        },
+        {
+          "scope": "milan_datapath/pp_shadow/u_pp/u_notify",
+          "LUT": 3058,
+          "LUT_all_loads_outside_wrapper": 0,
+          "LUT_any_load_outside_wrapper": 0,
+          "LUT_any_input_from_outside_wrapper": 42,
+          "LUT_outside_input_and_only_outside_loads": 0
+        },
+        {
+          "scope": "milan_datapath/pp_shadow",
+          "LUT": 32303,
+          "LUT_all_loads_outside_wrapper": 518,
+          "LUT_any_load_outside_wrapper": 601,
+          "LUT_any_input_from_outside_wrapper": 2841,
+          "LUT_outside_input_and_only_outside_loads": 467
+        }
+      ],
+      "load_histograms": {
+        "loads": [],
+        "wrapper-loads": [
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_oclaim_cluster_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_oclaim_v_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_oclaim_word_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_seen_phase_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_seen_phase_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_txn_active_r_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_edit_type_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amap_stageb_v_r_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/amapq_sel_r_reg[]"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/asp_resp_count_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/chan_map_capture/amap_edit_changed_r_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/chan_map_capture/amap_edit_oclaim_v_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/chan_map_capture/amap_edit_owr_p_r_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/chan_map_capture/amap_edit_owr_slot_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/chan_map_capture/amap_out_owner_v_r[]_i_*"
+          },
+          {
+            "load_references": 8,
+            "stem": "milan_datapath/csr/amap_edit_out_resv_r[]_i_*"
+          },
+          {
+            "load_references": 37,
+            "stem": "milan_datapath/csr/live_mux_q[]_i_*"
+          },
+          {
+            "load_references": 2,
+            "stem": "milan_datapath/csr/pp_shadow_i_*"
+          },
+          {
+            "load_references": 9,
+            "stem": "milan_datapath/csr/snap_shadow_r[][]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/csr/strm_mux_q[]_i_*"
+          },
+          {
+            "load_references": 2,
+            "stem": "milan_datapath/csr/vln_r_i_*"
+          },
+          {
+            "load_references": 2,
+            "stem": "milan_datapath/ctl_tx_mux/flush_r_i_*"
+          },
+          {
+            "load_references": 2,
+            "stem": "milan_datapath/ctl_tx_mux/pp_shadow_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/ctl_tx_mux/tx_beat_r[]_i_*"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/ctrq_word_r_reg[]"
+          },
+          {
+            "load_references": 2,
+            "stem": "milan_datapath/ctrq_word_r_reg[]_rep"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/ctrq_word_r_reg[]_rep__0"
+          },
+          {
+            "load_references": 55,
+            "stem": "milan_datapath/g_maap.maap_engine/gsi_data_r[]_i_*"
+          },
+          {
+            "load_references": 389,
+            "stem": "milan_datapath/gsi_data_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/gsi_gm_snap_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/gsi_req_q_r_reg"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/gsi_srv1_r_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/gsi_srv2_r_i_*"
+          },
+          {
+            "load_references": 3,
+            "stem": "milan_datapath/milansoc_milannic_d_req_cdc_graycounter0_q[]_i_*"
+          },
+          {
+            "load_references": 3,
+            "stem": "milan_datapath/milansoc_milannic_d_req_cdc_graycounter0_q_binary[]_i_*"
+          },
+          {
+            "load_references": 3,
+            "stem": "milan_datapath/milansoc_milannic_n_req_cdc_graycounter0_q[]_i_*"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/milansoc_milannic_n_req_cdc_graycounter0_q_binary[]_i_*"
+          },
+          {
+            "load_references": 3,
+            "stem": "milan_datapath/milansoc_milannic_n_wr_cdc_graycounter0_q[]_i_*"
+          },
+          {
+            "load_references": 4,
+            "stem": "milan_datapath/milansoc_milannic_n_wr_cdc_graycounter0_q_binary[]_i_*"
+          },
+          {
+            "load_references": 5,
+            "stem": "milan_datapath/pp_maap_shim/confl_pend_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/pp_maap_shim/rsp_valid_r_i_*"
+          },
+          {
+            "load_references": 6,
+            "stem": "milan_datapath/pp_shadow_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "milan_datapath/storage_35_reg_i_*"
+          },
+          {
+            "load_references": 2,
+            "stem": "milan_datapath/talker_diag/strm_q_r[]_i_*"
+          },
+          {
+            "load_references": 1,
+            "stem": "storage_32_reg"
+          },
+          {
+            "load_references": 8,
+            "stem": "storage_34_reg"
+          },
+          {
+            "load_references": 1,
+            "stem": "storage_38_reg"
+          },
+          {
+            "load_references": 9,
+            "stem": "storage_40_reg_0"
+          },
+          {
+            "load_references": 17,
+            "stem": "storage_40_reg_1"
+          }
+        ]
+      },
+      "validation": {
+        "synthesis_rc": 0,
+        "missing_rom_diagnostics": 0,
+        "post_synthesis_input_rehash": "matched",
+        "boundary_probe_rc": 0,
+        "dynamic_load_probe_rc": 0,
+        "wrapper_load_probe_rc": 0
+      }
+    }
+  }
+}
