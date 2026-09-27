@@ -1,0 +1,26 @@
+BUILD_FLAGS ["g++", "-std=c++17", "-O2", "-Wall", "-DNDEBUG", "-DIGNORE_NEITHER_STATIC_NOR_DYNAMIC_MAPPINGS", "-DCONTINUE_MISBEHAVE_AEM_RESPONSES", "-DENABLE_AVDECC_FEATURE_REDUNDANCY", "-DENABLE_AVDECC_STRICT_2018_REDUNDANCY", "-DENABLE_AVDECC_FEATURE_JSON", "-DENABLE_AVDECC_FEATURE_CBR", "-DHAVE_FMT", "-DALLOW_RECV_BIG_AECP_PAYLOADS", "-I$HOME/la_avdecc-src/include", "-I$HOME/la_avdecc-src/externals/3rdparty/json/include", "-I$HOME/la_avdecc-probe/include", "/tmp/117-a373/enum_probe.cpp", "-L$HOME/la_avdecc-build/src", "-L$HOME/la_avdecc-build/src/controller", "-lla_avdecc_controller_cxx", "-lla_avdecc_cxx", "-lpthread", "-Wl,-rpath,$HOME/la_avdecc-build/src:$HOME/la_avdecc-build/src/controller", "-o", "/tmp/117-a373/enum_probe"]
+
+v4.3.1.1
+
+6d61a92e7f264c69f23cdc38f50d31114e567aa0
+
+
+g++ (GCC) 16.1.1 20260728
+Copyright (C) 2026 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+	linux-vdso.so.1 (0x00007f1edfda6000)
+	libla_avdecc_controller_cxx.so.4 => $HOME/la_avdecc-build/src/controller/libla_avdecc_controller_cxx.so.4 (0x00007f1edfa00000)
+	libla_avdecc_cxx.so.4 => $HOME/la_avdecc-build/src/libla_avdecc_cxx.so.4 (0x00007f1edf600000)
+	libstdc++.so.6 => /usr/lib/libstdc++.so.6 (0x00007f1edf200000)
+	libm.so.6 => /usr/lib/libm.so.6 (0x00007f1edf0c9000)
+	libgcc_s.so.1 => /usr/lib/libgcc_s.so.1 (0x00007f1edfd37000)
+	libc.so.6 => /usr/lib/libc.so.6 (0x00007f1edee00000)
+	/lib64/ld-linux-x86-64.so.2 => /usr/lib64/ld-linux-x86-64.so.2 (0x00007f1edfda8000)
+
+{"artifact": "enum_probe.cpp", "size": 8805, "sha256": "ac552f67c8b769e0cfc46d0b80c4e9ece0c9da1811020d2c497e2f904749a623"}
+{"artifact": "enum_probe", "size": 133448, "sha256": "f5f4a142dd31e5f3828ec82f3e286222c9e045133cc1de401d99d9565b301073"}
+{"artifact": "libla_avdecc_cxx.so.4.3.1.1", "size": 85362288, "sha256": "95d64fd50715a5170b5a71d8018510d580d12cfce3c0a7b1b389b87a1ce55982"}
+{"artifact": "libla_avdecc_controller_cxx.so.4.3.1.1", "size": 52434480, "sha256": "8ef4b00829b9f1baf602e67fdd750302b0bf452db569e660dfde4f72041bbc32"}
