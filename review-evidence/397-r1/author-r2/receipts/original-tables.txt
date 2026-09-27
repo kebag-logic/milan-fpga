@@ -1,0 +1,39 @@
+1x1 OK  Boot to entity enabled                   sys=31097023 cpu=15548512 ms=310.97023 n=1
+1x1 OK  AEM copy/CRC, enclosed by boot           sys=31097023 cpu=15548512 ms=310.97023 n=1
+1x1 OK  Binding restore walk                     sys=2276 cpu=1138 ms=0.02276 n=1
+1x1 OK  Journal erase envelope                   sys=2013657 cpu=1006829 ms=20.13657 n=2
+1x1 OK  Journal START-to-ACK                     sys=15652910 cpu=7826455 ms=156.52910 n=2
+1x1 OK  Maximum heartbeat gap                    sys=43062305 cpu=21531153 ms=430.62305 n=1
+1x1 OK  `milan_status`                           sys=777759 cpu=388880 ms=7.77759 n=2
+1x1 OK  `milan_gettime`                          sys=231391 cpu=115696 ms=2.31391 n=1
+1x1 OK  `milan_settime`, maximum tested case     sys=517229 cpu=258615 ms=5.17229 n=4
+1x1 OK  `milan_utc`, maximum tested case         sys=597003 cpu=298502 ms=5.97003 n=3
+1x1 OK  `milan_nvm` status                       sys=20850329 cpu=10425165 ms=208.50329 n=3
+1x1 OK  `milan_nvm commit`                       sys=27477117 cpu=13738559 ms=274.77117 n=2
+1x1 OK  `milan_nvm wipe`, whole command          sys=4034359 cpu=2017180 ms=40.34359 n=1
+1x1 OK  Wipe erase envelope, maximum of two      sys=2011022 cpu=1005511 ms=20.11022 n=2
+1x1 OK  `milan_nvm invalid`                      sys=196577 cpu=98289 ms=1.96577 n=1
+8x8 OK  Boot to entity enabled                   sys=103143961 cpu=51571981 ms=1031.43961 n=1
+8x8 OK  AEM copy/CRC, enclosed by boot           sys=103143961 cpu=51571981 ms=1031.43961 n=1
+8x8 OK  Binding restore walk                     sys=5400 cpu=2700 ms=0.05400 n=1
+8x8 OK  Journal erase envelope                   sys=7551143 cpu=3775572 ms=75.51143 n=2
+8x8 OK  Journal START-to-ACK                     sys=65819782 cpu=32909891 ms=658.19782 n=2
+8x8 OK  Maximum heartbeat gap                    sys=144977764 cpu=72488882 ms=1449.77764 n=1
+8x8 OK  `milan_status`                           sys=777759 cpu=388880 ms=7.77759 n=2
+8x8 OK  `milan_gettime`                          sys=232535 cpu=116268 ms=2.32535 n=1
+8x8 OK  `milan_settime`, maximum tested case     sys=517229 cpu=258615 ms=5.17229 n=4
+8x8 OK  `milan_utc`, maximum tested case         sys=597003 cpu=298502 ms=5.97003 n=3
+8x8 OK  `milan_nvm` status                       sys=78887705 cpu=39443853 ms=788.87705 n=3
+8x8 OK  `milan_nvm commit`                       sys=110915735 cpu=55457868 ms=1109.15735 n=2
+8x8 OK  `milan_nvm wipe`, whole command          sys=15109423 cpu=7554712 ms=151.09423 n=1
+8x8 OK  Wipe erase envelope, maximum of two      sys=7548514 cpu=3774257 ms=75.48514 n=2
+8x8 OK  `milan_nvm invalid`                      sys=196577 cpu=98289 ms=1.96577 n=1
+1x1 OK  projection journal START-to-ACK     svc=156.52910 wip=0.0 devmax=3065
+1x1 OK  projection whole console commit     svc=274.77117 wip=0.0 devmax=3065
+1x1 OK  projection journal erase envelope   svc=20.13657 wip=0.0 devmax=3000
+1x1 OK  projection whole wipe               svc=40.34359 wip=0.0 devmax=6000
+8x8 OK  projection journal START-to-ACK     svc=607.19782 wip=51.0 devmax=3250
+8x8 OK  projection whole console commit     svc=1058.15735 wip=51.0 devmax=3250
+8x8 OK  projection journal erase envelope   svc=74.51143 wip=1.0 devmax=3000
+8x8 OK  projection whole wipe               svc=149.09423 wip=2.0 devmax=6000
+mismatches: 0

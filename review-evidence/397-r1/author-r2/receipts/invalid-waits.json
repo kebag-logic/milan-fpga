@@ -1,0 +1,54 @@
+[
+  {
+    "args": [
+      "python3",
+      "-B",
+      "tb/verilator/fw_service_budget/run.py",
+      "--build-dir",
+      "/tmp/a363-refused-wait-build",
+      "--device-wait-us",
+      "-1"
+    ],
+    "rc": 1,
+    "expected": "refused before build"
+  },
+  {
+    "args": [
+      "python3",
+      "-B",
+      "tb/verilator/fw_service_budget/run.py",
+      "--build-dir",
+      "/tmp/a363-refused-wait-build",
+      "--device-wait-us",
+      "3000001"
+    ],
+    "rc": 1,
+    "expected": "refused before build"
+  },
+  {
+    "args": [
+      "python3",
+      "-B",
+      "tb/verilator/fw_service_budget/run.py",
+      "--build-dir",
+      "/tmp/a363-refused-wait-build",
+      "--program-wait-us",
+      "-1"
+    ],
+    "rc": 1,
+    "expected": "refused before build"
+  },
+  {
+    "args": [
+      "python3",
+      "-B",
+      "tb/verilator/fw_service_budget/run.py",
+      "--build-dir",
+      "/tmp/a363-refused-wait-build",
+      "--program-wait-us",
+      "5001"
+    ],
+    "rc": 1,
+    "expected": "refused before build"
+  }
+]

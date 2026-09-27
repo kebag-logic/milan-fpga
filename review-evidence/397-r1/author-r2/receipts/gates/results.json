@@ -1,0 +1,205 @@
+[
+  {
+    "gate": "service-selftest",
+    "command": [
+      "python3",
+      "-B",
+      "tb/verilator/fw_service_budget/run.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.62
+  },
+  {
+    "gate": "host-model",
+    "command": [
+      "python3",
+      "-B",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 39.28
+  },
+  {
+    "gate": "capture",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_nvm_capture.py"
+    ],
+    "rc": 0,
+    "seconds": 0.72
+  },
+  {
+    "gate": "feature",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.67
+  },
+  {
+    "gate": "pp-srcs",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/pp_srcs.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.21
+  },
+  {
+    "gate": "baremetal",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 14.84
+  },
+  {
+    "gate": "entity-shape",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 40.69
+  },
+  {
+    "gate": "docs",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 4.27
+  },
+  {
+    "gate": "paths",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.06
+  },
+  {
+    "gate": "style",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.06
+  },
+  {
+    "gate": "archive",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_archive.py"
+    ],
+    "rc": 0,
+    "seconds": 0.31
+  },
+  {
+    "gate": "toc",
+    "command": [
+      "/tmp/a363-markdown/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 2.62
+  },
+  {
+    "gate": "em-dash",
+    "command": [
+      "/tmp/a363-markdown/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "ac18b50968b12efe4d15c0a06301264b35656b31"
+    ],
+    "rc": 0,
+    "seconds": 3.12
+  },
+  {
+    "gate": "python-idiom",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 3.32
+  },
+  {
+    "gate": "cpp-idiom",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.22
+  },
+  {
+    "gate": "hygiene",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.36
+  },
+  {
+    "gate": "test-evidence",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.77
+  },
+  {
+    "gate": "whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "ac18b50968b12efe4d15c0a06301264b35656b31"
+    ],
+    "rc": 0,
+    "seconds": 0.03
+  },
+  {
+    "gate": "builder-bank",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python",
+      "-B",
+      "sw/builder/test_builder.py",
+      "--require-elaboration"
+    ],
+    "rc": 0,
+    "seconds": 764.56
+  }
+]

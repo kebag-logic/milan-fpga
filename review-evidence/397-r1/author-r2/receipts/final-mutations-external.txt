@@ -1,0 +1,214 @@
+mutant                           selftest_rc  regrade_rc
+none                                  0          0       selftest: PASS: over-budget duty, marker integrity and product dispatch census
+      regrade| 1X1: digest_ok=True rows_identical=True findings_identical=True findings=[]
+      regrade| 8X8: digest_ok=True rows_identical=True findings_identical=True findings=['over-budget duty: milan_nvm', 'over-budget duty: milan_nvm', 'over-budget duty: maximum_heartbeat_gap']
+heartbeat_marker_ack                  1          1       selftest: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+      regrade| 1X1: digest_ok=True rows_identical=False findings_identical=True findings=[]
+      regrade|    maximum_heartbeat_gap: cpu_cycles: got 14714343 committed 21531153, liveness_bound_margin_ms: got 1455.71315 committed 1334.51874, margin_ms: got 205.71314999999998 committed 69.37695000000002, ms:
+      regrade| 8X8: digest_ok=True rows_identical=False findings_identical=True findings=['over-budget duty: milan_nvm', 'over-budget duty: milan_nvm', 'over-budget duty: maximum_heartbeat_gap']
+      regrade|    maximum_heartbeat_gap: cpu_cycles: got 55457876 committed 72488882, device_wait_ms: got 51.0 committed 51.0002, end_sys_cycle: got 404878113 committed 484041511, liveness_bound_margin_ms: got 1279.
+enable_marker_walk_bit                1          1       selftest: RuntimeError: invalid interval: aem_copy_crc
+      regrade| 1X1: digest_ok=True GRADE-ERROR RuntimeError: invalid interval: aem_copy_crc
+      regrade| 8X8: digest_ok=True GRADE-ERROR RuntimeError: invalid interval: aem_copy_crc
+ms_clock_ratio_cpu                    1          1       selftest: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+      regrade| 1X1: digest_ok=True rows_identical=False findings_identical=True findings=[]
+      regrade|    boot_to_entity_enabled: ms: got 621.94046 committed 310.97023
+      regrade|    aem_copy_crc: ms: got 111.54068 committed 55.77034
+      regrade|    restore_walk: ms: got 0.04552 committed 0.02276
+      regrade|    milan_status: ms: got 15.41562 committed 7.70781
+      regrade|    milan_gettime: ms: got 4.62782 committed 2.31391
+      regrade|    milan_nvm: ms: got 416.97014 committed 208.48507
+      regrade|    milan_nvm commit: ms: got 549.54026 committed 274.77013
+      regrade|    milan_nvm commit: ms: got 549.54234 committed 274.77117
+      regrade|    milan_nvm: ms: got 417.00658 committed 208.50329
+      regrade|    milan_nvm wipe: ms: got 80.68718 committed 40.34359
+      regrade|    wipe_erase_envelope: ms: got 37.80936 committed 18.90468
+      regrade|    wipe_erase_envelope: ms: got 40.22044 committed 20.11022
+      regrade|    milan_nvm: ms: got 14.9907 committed 7.49535
+      regrade|    milan_nvm invalid: ms: got 3.93154 committed 1.96577
+      regrade|    milan_settime 0 0: ms: got 4.8927 committed 2.44635
+      regrade|    milan_settime 18446744073 709551615: ms: got 10.34458 committed 5.17229
+      regrade|    milan_settime 18446744073 709551616: ms: got 9.93822 committed 4.96911
+      regrade|    milan_settime invalid: ms: got 4.82846 committed 2.41423
+      regrade|    milan_utc 0 0 37: ms: got 6.73546 committed 3.36773
+      regrade|    milan_utc 18446744073709551615 0 1: ms: got 11.94006 committed 5.97003
+      regrade|    milan_utc invalid 0 0: ms: got 5.04438 committed 2.52219
+      regrade|    milan_status: ms: got 15.55518 committed 7.77759
+      regrade|    journal_commit_bracket: ms: got 313.0582 committed 156.5291
+      regrade|    erase_enclosed_to_first_program: ms: got 40.27314 committed 20.13657
+      regrade|    journal_commit_bracket: ms: got 313.0582 committed 156.5291
+      regrade|    erase_enclosed_to_first_program: ms: got 40.27314 committed 20.13657
+      regrade|    maximum_heartbeat_gap: ms: got 861.2461 committed 430.62305
+      regrade| 8X8: digest_ok=True rows_identical=False findings_identical=True findings=['over-budget duty: milan_nvm', 'over-budget duty: milan_nvm', 'over-budget duty: maximum_heartbeat_gap']
+      regrade|    boot_to_entity_enabled: ms: got 2062.87922 committed 1031.43961
+      regrade|    aem_copy_crc: ms: got 269.53588 committed 134.76794
+      regrade|    restore_walk: ms: got 0.108 committed 0.054
+      regrade|    milan_status: ms: got 15.4385 committed 7.71925
+      regrade|    milan_gettime: ms: got 4.6507 committed 2.32535
+      regrade|    milan_nvm: ms: got 1577.71766 committed 788.85883
+      regrade|    milan_nvm commit: ms: got 2218.31418 committed 1109.15709
+      regrade|    milan_nvm commit: ms: got 2218.3147 committed 1109.15735
+      regrade|    milan_nvm: ms: got 1577.7541 committed 788.87705
+      regrade|    milan_nvm wipe: ms: got 302.18846 committed 151.09423
+      regrade|    wipe_erase_envelope: ms: got 148.5608 committed 74.2804
+      regrade|    wipe_erase_envelope: ms: got 150.97028 committed 75.48514
+      regrade|    milan_nvm: ms: got 15.21766 committed 7.60883
+      regrade|    milan_nvm invalid: ms: got 3.93154 committed 1.96577
+      regrade|    milan_settime 0 0: ms: got 4.8927 committed 2.44635
+      regrade|    milan_settime 18446744073 709551615: ms: got 10.34458 committed 5.17229
+      regrade|    milan_settime 18446744073 709551616: ms: got 9.93822 committed 4.96911
+      regrade|    milan_settime invalid: ms: got 4.82846 committed 2.41423
+      regrade|    milan_utc 0 0 37: ms: got 6.73546 committed 3.36773
+      regrade|    milan_utc 18446744073709551615 0 1: ms: got 11.94006 committed 5.97003
+      regrade|    milan_utc invalid 0 0: ms: got 5.04438 committed 2.52219
+      regrade|    milan_status: ms: got 15.55518 committed 7.77759
+      regrade|    journal_commit_bracket: ms: got 1316.39564 committed 658.19782
+      regrade|    erase_enclosed_to_first_program: ms: got 151.02286 committed 75.51143
+      regrade|    journal_commit_bracket: ms: got 1316.39564 committed 658.19782
+      regrade|    erase_enclosed_to_first_program: ms: got 151.02286 committed 75.51143
+      regrade|    maximum_heartbeat_gap: ms: got 2899.55528 committed 1449.77764
+cpu_cycles_unhalved                   1          1       selftest: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+      regrade| 1X1: digest_ok=True rows_identical=False findings_identical=True findings=[]
+      regrade|    boot_to_entity_enabled: cpu_cycles: got 31097023 committed 15548512
+      regrade|    aem_copy_crc: cpu_cycles: got 5577034 committed 2788517
+      regrade|    restore_walk: cpu_cycles: got 2276 committed 1138
+      regrade|    milan_status: cpu_cycles: got 770781 committed 385391
+      regrade|    milan_gettime: cpu_cycles: got 231391 committed 115696
+      regrade|    milan_nvm: cpu_cycles: got 20848507 committed 10424254
+      regrade|    milan_nvm commit: cpu_cycles: got 27477013 committed 13738507
+      regrade|    milan_nvm commit: cpu_cycles: got 27477117 committed 13738559
+      regrade|    milan_nvm: cpu_cycles: got 20850329 committed 10425165
+      regrade|    milan_nvm wipe: cpu_cycles: got 4034359 committed 2017180
+      regrade|    wipe_erase_envelope: cpu_cycles: got 1890468 committed 945234
+      regrade|    wipe_erase_envelope: cpu_cycles: got 2011022 committed 1005511
+      regrade|    milan_nvm: cpu_cycles: got 749535 committed 374768
+      regrade|    milan_nvm invalid: cpu_cycles: got 196577 committed 98289
+      regrade|    milan_settime 0 0: cpu_cycles: got 244635 committed 122318
+      regrade|    milan_settime 18446744073 709551615: cpu_cycles: got 517229 committed 258615
+      regrade|    milan_settime 18446744073 709551616: cpu_cycles: got 496911 committed 248456
+      regrade|    milan_settime invalid: cpu_cycles: got 241423 committed 120712
+      regrade|    milan_utc 0 0 37: cpu_cycles: got 336773 committed 168387
+      regrade|    milan_utc 18446744073709551615 0 1: cpu_cycles: got 597003 committed 298502
+      regrade|    milan_utc invalid 0 0: cpu_cycles: got 252219 committed 126110
+      regrade|    milan_status: cpu_cycles: got 777759 committed 388880
+      regrade|    journal_commit_bracket: cpu_cycles: got 15652910 committed 7826455
+      regrade|    erase_enclosed_to_first_program: cpu_cycles: got 2013657 committed 1006829
+      regrade|    journal_commit_bracket: cpu_cycles: got 15652910 committed 7826455
+      regrade|    erase_enclosed_to_first_program: cpu_cycles: got 2013657 committed 1006829
+      regrade|    maximum_heartbeat_gap: cpu_cycles: got 43062305 committed 21531153
+      regrade| 8X8: digest_ok=True rows_identical=False findings_identical=True findings=['over-budget duty: milan_nvm', 'over-budget duty: milan_nvm', 'over-budget duty: maximum_heartbeat_gap']
+      regrade|    boot_to_entity_enabled: cpu_cycles: got 103143961 committed 51571981
+      regrade|    aem_copy_crc: cpu_cycles: got 13476794 committed 6738397
+      regrade|    restore_walk: cpu_cycles: got 5400 committed 2700
+      regrade|    milan_status: cpu_cycles: got 771925 committed 385963
+      regrade|    milan_gettime: cpu_cycles: got 232535 committed 116268
+      regrade|    milan_nvm: cpu_cycles: got 78885883 committed 39442942
+      regrade|    milan_nvm commit: cpu_cycles: got 110915709 committed 55457855
+      regrade|    milan_nvm commit: cpu_cycles: got 110915735 committed 55457868
+      regrade|    milan_nvm: cpu_cycles: got 78887705 committed 39443853
+      regrade|    milan_nvm wipe: cpu_cycles: got 15109423 committed 7554712
+      regrade|    wipe_erase_envelope: cpu_cycles: got 7428040 committed 3714020
+      regrade|    wipe_erase_envelope: cpu_cycles: got 7548514 committed 3774257
+      regrade|    milan_nvm: cpu_cycles: got 760883 committed 380442
+      regrade|    milan_nvm invalid: cpu_cycles: got 196577 committed 98289
+      regrade|    milan_settime 0 0: cpu_cycles: got 244635 committed 122318
+      regrade|    milan_settime 18446744073 709551615: cpu_cycles: got 517229 committed 258615
+      regrade|    milan_settime 18446744073 709551616: cpu_cycles: got 496911 committed 248456
+      regrade|    milan_settime invalid: cpu_cycles: got 241423 committed 120712
+      regrade|    milan_utc 0 0 37: cpu_cycles: got 336773 committed 168387
+      regrade|    milan_utc 18446744073709551615 0 1: cpu_cycles: got 597003 committed 298502
+      regrade|    milan_utc invalid 0 0: cpu_cycles: got 252219 committed 126110
+      regrade|    milan_status: cpu_cycles: got 777759 committed 388880
+      regrade|    journal_commit_bracket: cpu_cycles: got 65819782 committed 32909891
+      regrade|    erase_enclosed_to_first_program: cpu_cycles: got 7551143 committed 3775572
+      regrade|    journal_commit_bracket: cpu_cycles: got 65819782 committed 32909891
+      regrade|    erase_enclosed_to_first_program: cpu_cycles: got 7551143 committed 3775572
+      regrade|    maximum_heartbeat_gap: cpu_cycles: got 144977764 committed 72488882
+grade_threshold_cpu_clock             1          1       selftest: RuntimeError: over-budget duty escaped
+      regrade| 1X1: digest_ok=True rows_identical=True findings_identical=True findings=[]
+      regrade| 8X8: digest_ok=True rows_identical=True findings_identical=False findings=['over-budget duty: maximum_heartbeat_gap']
+command_budget_1000                   1          1       selftest: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+      regrade| 1X1: digest_ok=True rows_identical=False findings_identical=True findings=[]
+      regrade|    milan_status: budget_ms: got 1000 committed 500, margin_ms: got 992.29219 committed 492.29219
+      regrade|    milan_gettime: budget_ms: got 1000 committed 500, margin_ms: got 997.68609 committed 497.68609
+      regrade|    milan_nvm: budget_ms: got 1000 committed 500, margin_ms: got 791.51493 committed 291.51493
+      regrade|    milan_nvm: budget_ms: got 1000 committed 500, margin_ms: got 791.49671 committed 291.49671
+      regrade|    milan_nvm: budget_ms: got 1000 committed 500, margin_ms: got 992.50465 committed 492.50465
+      regrade|    milan_nvm invalid: budget_ms: got 1000 committed 500, margin_ms: got 998.03423 committed 498.03423
+      regrade|    milan_settime 0 0: budget_ms: got 1000 committed 500, margin_ms: got 997.55365 committed 497.55365
+      regrade|    milan_settime 18446744073 709551615: budget_ms: got 1000 committed 500, margin_ms: got 994.82771 committed 494.82771
+      regrade|    milan_settime 18446744073 709551616: budget_ms: got 1000 committed 500, margin_ms: got 995.03089 committed 495.03089
+      regrade|    milan_settime invalid: budget_ms: got 1000 committed 500, margin_ms: got 997.58577 committed 497.58577
+      regrade|    milan_utc 0 0 37: budget_ms: got 1000 committed 500, margin_ms: got 996.63227 committed 496.63227
+      regrade|    milan_utc 18446744073709551615 0 1: budget_ms: got 1000 committed 500, margin_ms: got 994.02997 committed 494.02997
+      regrade|    milan_utc invalid 0 0: budget_ms: got 1000 committed 500, margin_ms: got 997.47781 committed 497.47781
+      regrade|    milan_status: budget_ms: got 1000 committed 500, margin_ms: got 992.22241 committed 492.22241
+      regrade| 8X8: digest_ok=True rows_identical=False findings_identical=False findings=['over-budget duty: maximum_heartbeat_gap']
+      regrade|    milan_status: budget_ms: got 1000 committed 500, margin_ms: got 992.28075 committed 492.28075
+      regrade|    milan_gettime: budget_ms: got 1000 committed 500, margin_ms: got 997.67465 committed 497.67465
+      regrade|    milan_nvm: budget_ms: got 1000 committed 500, margin_ms: got 211.14117 committed -288.85883
+      regrade|    milan_nvm: budget_ms: got 1000 committed 500, margin_ms: got 211.12294999999995 committed -288.87705000000005
+      regrade|    milan_nvm: budget_ms: got 1000 committed 500, margin_ms: got 992.39117 committed 492.39117
+      regrade|    milan_nvm invalid: budget_ms: got 1000 committed 500, margin_ms: got 998.03423 committed 498.03423
+      regrade|    milan_settime 0 0: budget_ms: got 1000 committed 500, margin_ms: got 997.55365 committed 497.55365
+      regrade|    milan_settime 18446744073 709551615: budget_ms: got 1000 committed 500, margin_ms: got 994.82771 committed 494.82771
+      regrade|    milan_settime 18446744073 709551616: budget_ms: got 1000 committed 500, margin_ms: got 995.03089 committed 495.03089
+      regrade|    milan_settime invalid: budget_ms: got 1000 committed 500, margin_ms: got 997.58577 committed 497.58577
+      regrade|    milan_utc 0 0 37: budget_ms: got 1000 committed 500, margin_ms: got 996.63227 committed 496.63227
+      regrade|    milan_utc 18446744073709551615 0 1: budget_ms: got 1000 committed 500, margin_ms: got 994.02997 committed 494.02997
+      regrade|    milan_utc invalid 0 0: budget_ms: got 1000 committed 500, margin_ms: got 997.47781 committed 497.47781
+      regrade|    milan_status: budget_ms: got 1000 committed 500, margin_ms: got 992.22241 committed 492.22241
+heartbeat_budget_2000                 1          1       selftest: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+      regrade| 1X1: digest_ok=True rows_identical=False findings_identical=True findings=[]
+      regrade|    maximum_heartbeat_gap: budget_ms: got 2000 committed 500, margin_ms: got 1569.37695 committed 69.37695000000002
+      regrade| 8X8: digest_ok=True rows_identical=False findings_identical=False findings=['over-budget duty: milan_nvm', 'over-budget duty: milan_nvm']
+      regrade|    maximum_heartbeat_gap: budget_ms: got 2000 committed 500, margin_ms: got 550.22236 committed -949.77764
+heartbeat_no_tail                     1          1       selftest: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+      regrade| 1X1: digest_ok=True rows_identical=False findings_identical=True findings=[]
+      regrade|    maximum_heartbeat_gap: cpu_cycles: got 20775619 committed 21531153, end_sys_cycle: got 66809553 committed 137348992, liveness_bound_margin_ms: got 1334.49862 committed 1334.51874, margin_ms: got 84
+      regrade| 8X8: digest_ok=True rows_identical=True findings_identical=True findings=['over-budget duty: milan_nvm', 'over-budget duty: milan_nvm', 'over-budget duty: maximum_heartbeat_gap']
+boot_start_zero                       1          1       selftest: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+      regrade| 1X1: digest_ok=True rows_identical=False findings_identical=True findings=[]
+      regrade|    boot_to_entity_enabled: cpu_cycles: got 15548544 committed 15548512, liveness_bound_margin_ms: got 1497.42182 committed 1497.42246, margin_ms: got 19689.02913 committed 19689.02977, ms: got 310.970
+      regrade| 8X8: digest_ok=True rows_identical=False findings_identical=True findings=['over-budget duty: milan_nvm', 'over-budget duty: milan_nvm', 'over-budget duty: maximum_heartbeat_gap']
+      regrade|    boot_to_entity_enabled: cpu_cycles: got 51572013 committed 51571981, liveness_bound_margin_ms: got 856.0424 committed 856.04304, margin_ms: got 18968.55975 committed 18968.56039, ms: got 1031.44025
+status_end_marker_first_byte          1          1       selftest: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+      regrade| 1X1: digest_ok=True rows_identical=False findings_identical=True findings=[]
+      regrade|    milan_status: cpu_cycles: got 1 committed 385391, end_sys_cycle: got 31249416 committed 32020196, liveness_bound_margin_ms: got 1721.5277677777779 committed 1713.8199677777777, margin_ms: got 499.9
+      regrade|    milan_gettime: cpu_cycles: got 1 committed 115696, end_sys_cycle: got 32020198 committed 32251588, liveness_bound_margin_ms: got 1744.7916566666668 committed 1742.4777566666667, margin_ms: got 499.
+      regrade|    milan_nvm: cpu_cycles: got 1 committed 10424254, end_sys_cycle: got 32251590 committed 53100096, liveness_bound_margin_ms: got 1717.96874 committed 1509.48368, margin_ms: got 499.99999 committed 29
+      regrade|    milan_nvm commit: cpu_cycles: got 1 committed 13738507, end_sys_cycle: got 53100098 committed 80577110, liveness_bound_margin_ms: got 1740.1041566666668 committed 1603.0151566666666, margin_ms: got
+      regrade|    milan_nvm commit: cpu_cycles: got 1 committed 13738559, end_sys_cycle: got 80577112 committed 108054228, liveness_bound_margin_ms: got 1740.1041566666668 committed 1603.0139566666667, margin_ms: go
+      regrade|    milan_nvm: cpu_cycles: got 1 committed 10425165, end_sys_cycle: got 108054230 committed 128904558, liveness_bound_margin_ms: got 1717.96874 committed 1509.46546, margin_ms: got 499.99999 committed 
+      regrade|    milan_nvm wipe: cpu_cycles: got 1 committed 2017180, end_sys_cycle: got 128904560 committed 132938918, liveness_bound_margin_ms: got 1738.454851111111 committed 1698.1112711111111, ms: got 1e-05 co
+      regrade|    milan_nvm: cpu_cycles: got 1 committed 374768, end_sys_cycle: got 132938920 committed 133688454, liveness_bound_margin_ms: got 1717.4479066666668 committed 1709.9525666666668, margin_ms: got 499.99
+      regrade|    milan_nvm invalid: cpu_cycles: got 1 committed 98289, end_sys_cycle: got 133688456 committed 133885032, liveness_bound_margin_ms: got 1744.6180455555555 committed 1742.6522855555556, margin_ms: got
+      regrade|    milan_settime 0 0: cpu_cycles: got 1 committed 122318, end_sys_cycle: got 133885034 committed 134129668, liveness_bound_margin_ms: got 1744.4444344444444 committed 1741.9980944444444, margin_ms: go
+      regrade|    milan_settime 18446744073 709551615: cpu_cycles: got 1 committed 258615, end_sys_cycle: got 134129670 committed 134646898, liveness_bound_margin_ms: got 1742.8819344444444 committed 1737.7096544444
+      regrade|    milan_settime 18446744073 709551616: cpu_cycles: got 1 committed 248456, end_sys_cycle: got 134646900 committed 135143810, liveness_bound_margin_ms: got 1741.4930455555555 committed 1736.5239455555
+      regrade|    milan_settime invalid: cpu_cycles: got 1 committed 120712, end_sys_cycle: got 135143812 committed 135385234, liveness_bound_margin_ms: got 1742.7083233333333 committed 1740.2941033333334, margin_ms
+      regrade|    milan_utc 0 0 37: cpu_cycles: got 1 committed 168387, end_sys_cycle: got 135385236 committed 135722008, liveness_bound_margin_ms: got 1741.8402677777779 committed 1738.472547777778, margin_ms: got 
+      regrade|    milan_utc 18446744073709551615 0 1: cpu_cycles: got 1 committed 298502, end_sys_cycle: got 135722010 committed 136319012, liveness_bound_margin_ms: got 1740.5381844444444 committed 1734.56816444444
+      regrade|    milan_utc invalid 0 0: cpu_cycles: got 1 committed 126110, end_sys_cycle: got 136319014 committed 136571232, liveness_bound_margin_ms: got 1741.6666566666668 committed 1739.1444766666666, margin_ms
+      regrade|    milan_status: cpu_cycles: got 1 committed 388880, end_sys_cycle: got 136571234 committed 137348992, liveness_bound_margin_ms: got 1721.5277677777779 committed 1713.7501877777777, margin_ms: got 499
+      regrade| 8X8: digest_ok=True rows_identical=False findings_identical=False findings=['over-budget duty: maximum_heartbeat_gap']
+      regrade|    milan_status: cpu_cycles: got 1 committed 385963, end_sys_cycle: got 103296354 committed 104068278, liveness_bound_margin_ms: got 1721.5277677777779 committed 1713.8085277777777, margin_ms: got 499
+      regrade|    milan_gettime: cpu_cycles: got 1 committed 116268, end_sys_cycle: got 104068280 committed 104300814, liveness_bound_margin_ms: got 1744.7916566666668 committed 1742.4663166666667, margin_ms: got 49
+      regrade|    milan_nvm: cpu_cycles: got 1 committed 39442942, end_sys_cycle: got 104300816 committed 183186698, liveness_bound_margin_ms: got 1717.795128888889 committed 928.9363088888888, margin_ms: got 499.99
+      regrade|    milan_nvm commit: cpu_cycles: got 1 committed 55457855, device_wait_ms: got 0.0 committed 51.0, end_sys_cycle: got 183186700 committed 294102408, liveness_bound_margin_ms: got 1740.017351111111 com
+      regrade|    milan_nvm commit: cpu_cycles: got 1 committed 55457868, device_wait_ms: got 0.0 committed 51.0, end_sys_cycle: got 294102410 committed 405018144, liveness_bound_margin_ms: got 1740.017351111111 com
+      regrade|    milan_nvm: cpu_cycles: got 1 committed 39443853, end_sys_cycle: got 405018146 committed 483905850, liveness_bound_margin_ms: got 1717.795128888889 committed 928.9180888888889, margin_ms: got 499.99
+      regrade|    milan_nvm wipe: cpu_cycles: got 1 committed 7554712, device_wait_ms: got 0.0 committed 2.0, end_sys_cycle: got 483905852 committed 499015274, liveness_bound_margin_ms: got 1738.454851111111 committ
+      regrade|    milan_nvm: cpu_cycles: got 1 committed 380442, end_sys_cycle: got 499015276 committed 499776158, liveness_bound_margin_ms: got 1717.2742955555555 committed 1709.6654755555555, margin_ms: got 499.99
+      regrade|    milan_nvm invalid: cpu_cycles: got 1 committed 98289, end_sys_cycle: got 499776160 committed 499972736, liveness_bound_margin_ms: got 1744.6180455555555 committed 1742.6522855555556, margin_ms: got
+      regrade|    milan_settime 0 0: cpu_cycles: got 1 committed 122318, end_sys_cycle: got 499972738 committed 500217372, liveness_bound_margin_ms: got 1744.4444344444444 committed 1741.9980944444444, margin_ms: go
+      regrade|    milan_settime 18446744073 709551615: cpu_cycles: got 1 committed 258615, end_sys_cycle: got 500217374 committed 500734602, liveness_bound_margin_ms: got 1742.8819344444444 committed 1737.7096544444
+      regrade|    milan_settime 18446744073 709551616: cpu_cycles: got 1 committed 248456, end_sys_cycle: got 500734604 committed 501231514, liveness_bound_margin_ms: got 1741.4930455555555 committed 1736.5239455555
+      regrade|    milan_settime invalid: cpu_cycles: got 1 committed 120712, end_sys_cycle: got 501231516 committed 501472938, liveness_bound_margin_ms: got 1742.7083233333333 committed 1740.2941033333334, margin_ms
+      regrade|    milan_utc 0 0 37: cpu_cycles: got 1 committed 168387, end_sys_cycle: got 501472940 committed 501809712, liveness_bound_margin_ms: got 1741.8402677777779 committed 1738.472547777778, margin_ms: got 
+      regrade|    milan_utc 18446744073709551615 0 1: cpu_cycles: got 1 committed 298502, end_sys_cycle: got 501809714 committed 502406716, liveness_bound_margin_ms: got 1740.5381844444444 committed 1734.56816444444
+      regrade|    milan_utc invalid 0 0: cpu_cycles: got 1 committed 126110, end_sys_cycle: got 502406718 committed 502658936, liveness_bound_margin_ms: got 1741.6666566666668 committed 1739.1444766666666, margin_ms
+      regrade|    milan_status: cpu_cycles: got 1 committed 388880, end_sys_cycle: got 502658938 committed 503436696, liveness_bound_margin_ms: got 1721.5277677777779 committed 1713.7501877777777, margin_ms: got 499
+grade_rows_noop                       1          1       selftest: RuntimeError: over-budget duty escaped
+      regrade| 1X1: digest_ok=True rows_identical=True findings_identical=True findings=[]
+      regrade| 8X8: digest_ok=True rows_identical=True findings_identical=False findings=[]
