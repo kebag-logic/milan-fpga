@@ -595,6 +595,59 @@ def _prove_config_defects(builder: ModuleType, base_cfg: str) -> None:
                     lambda: gate.check_config(builder, p))
 
 
+def _prove_unit_counts(builder: ModuleType, cfg_path: Path) -> None:
+    """Kill omissions, literals and swaps at both hops, and emitter drift."""
+    dp = gate.read_text(gate.RTL.datapath)
+    shadow = gate.read_text(gate.PP_SHADOW)
+    # Independent oracle: distinct fixture counts expose a copied constant
+    # or a cross-wired emitter despite the equal counts of shipping models.
+    cfg = builder.load_config(cfg_path)
+    overlay = builder.emit_aem_overlay(cfg)
+    overlay["descriptor_counts"].update(AUDIO_UNIT=2, CLOCK_DOMAIN=3, CONTROL=4)
+    header = builder.emit_adp_shape_svh(cfg, overlay)
+    gate.check_unit_header(header, overlay["descriptor_counts"], "distinct census")
+    for kind, _dtype, symbol, _wrapper, _processor in gate.UNIT_COUNTS:
+        broken = re.sub(rf"({symbol}\s*=\s*)\d+", r"\g<1>1", header)
+        expect_fail(f"{symbol} emitted literal", lambda: gate.check_unit_header(
+            broken, overlay["descriptor_counts"], "mutant census"), symbol)
+        counts = dict(overlay["descriptor_counts"], **{kind: 0})
+        expect_fail(f"{kind} zero census", lambda: gate.check_unit_header(
+            builder.emit_adp_shape_svh(cfg, dict(overlay, descriptor_counts=counts)),
+            counts, "zero census"), f"{kind} has at least one descriptor")
+
+    for hop, source in enumerate((dp, shadow)):
+        pairs = [(row[3], row[2]) if hop == 0 else (row[4], row[3])
+                 for row in gate.UNIT_COUNTS]
+        for index, (parameter, value) in enumerate(pairs):
+            pattern = rf"\.{parameter}\s*\(\s*{value}\s*\)"
+            # The wrapper source also binds the NVM backend. Limit mutations
+            # to u_pp so only the assigned integration boundary is tested.
+            start = source.index("protocol_processor_top #(") if hop else 0
+            prefix, body = source[:start], source[start:]
+            for label, replacement in (("unbound", ""), ("literal", f".{parameter}(1)")):
+                # Drop the separator too when omitting a named parameter;
+                # the mutant must remain a valid default-inheriting map.
+                missing = pattern
+                if label == "unbound":
+                    trailing = pattern + r"\s*,"
+                    missing = (trailing if re.search(trailing, body) else
+                               r",\s*(?://[^\n]*\n\s*)*" + pattern)
+                broken, hits = re.subn(missing, replacement, body, count=1)
+                if hits != 1:
+                    raise SystemExit(f"SELF-TEST SETUP: missing {parameter}")
+                args = (dp, prefix + broken) if hop else (prefix + broken, shadow)
+                expect_fail(f"hop {hop} {parameter} {label}",
+                            lambda: gate.check_unit_bindings(*args), f".{parameter} derives")
+            other, other_value = pairs[(index + 1) % len(pairs)]
+            swapped = re.sub(pattern, f".{parameter}({other_value})", body, count=1)
+            swapped = re.sub(rf"\.{other}\s*\(\s*{other_value}\s*\)",
+                             f".{other}({value})", swapped, count=1)
+            args = (dp, prefix + swapped) if hop else (prefix + swapped, shadow)
+            expect_fail(f"hop {hop} {parameter}/{other} swapped",
+                        lambda: gate.check_unit_bindings(*args),
+                        (f".{parameter} derives", f".{other} derives"))
+
+
 def self_test() -> None:
     """Mutation proof: every planted shape disagreement must FAIL."""
     print("\n== self-test: a disagreeing shape must be REJECTED ==")
@@ -608,6 +661,7 @@ def self_test() -> None:
     _prove_frozen_expansion(original, stale)
     _prove_make_filenames(original, stale)
     src_cfg = gate.CONFIG_DIR / "endstation_ax7101_8x8.yaml"
+    _prove_unit_counts(builder, src_cfg)
     base_cfg = gate.read_text(src_cfg)
     base_dp = gate.read_text(gate.RTL.datapath)
     base_csr = gate.read_text(gate.RTL.csr)

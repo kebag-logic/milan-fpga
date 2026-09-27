@@ -46,6 +46,29 @@ It emits one AVB_INTERFACE, CLOCK_DOMAIN and AUDIO_UNIT.
 Five product configurations do not make one five-configuration entity.
 Cross-configuration claims require separate fixtures and implementation.
 
+Processor dynamic-state counts come from that same descriptor census.
+The builder emits them in `gen/adp_shape_defaults.svh`.
+`milan_datapath.pp_shadow` forwards them through `KL_pp_shadow.u_pp`.
+The [processor parameter inventory][integration-parameters] defines their consumers.
+
+| Descriptor count | Generated constant | Parent parameter | Processor parameter |
+|---|---|---|---|
+| AUDIO_UNIT | `AEM_N_AUDIO_UNIT_C` | `N_AUDIO_UNIT_P` | `N_AUDIO_UNIT_P` |
+| CLOCK_DOMAIN | `AEM_N_CLKDOM_C` | `N_CLK_DOM_P` | `N_CLK_DOMAIN_P` |
+| CONTROL | `AEM_N_CONTROL_C` | `N_CONTROL_P` | `N_CONTROL_P` |
+
+These parameters are explicitly bound, including CONTROL for IDENTIFY.
+Milan v1.2 Section 5.3.3 requires these descriptor classes.
+`B._overlay_document` constructs one of each unconditionally.
+`A._entity_descriptors` emits their descriptor bytes unconditionally.
+No configuration input removes them; zero is unreachable.
+Therefore no new configuration refusal is needed for these counts.
+The shape gate checks header, descriptor bytes and both bindings.
+Its self-test rejects unbound, literal and swapped bindings.
+Distinct synthetic counts also test the header derivation.
+
+[integration-parameters]: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/870ff88ad35bbd532244e4c7e6d7661b9f6e1366/docs/guides/integrator.md#integration-parameters
+
 ## Rule matrix
 
 Rule labels refer to [processor memory-map section 3.1][memory-map].
