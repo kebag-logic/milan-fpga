@@ -3620,7 +3620,9 @@ def main() -> None:
                          "item 5). Default 2 = today's stereo framer, byte-identical.")
     ap.add_argument("--main-ram-size", default=0x8000, type=lambda x: int(x, 0),
                     help="integrated main RAM size (bytes)")
-    ap.add_argument("--no-milan", action="store_true", help="bare SoC, no NIC (bring-up smoke test)")
+    ap.add_argument("--no-milan", action="store_true",
+                    help="CLI smoke path only; cannot finish a bare-metal image "
+                         "because firmware requires the Milan entity")
     ap.add_argument("--with-mac", action="store_true",
                     help="attach the 1G MAC + RGMII PHY (§A.7) at the datapath MAC boundary")
     ap.add_argument("--with-dram", action="store_true",

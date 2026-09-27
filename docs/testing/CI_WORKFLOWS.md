@@ -61,17 +61,19 @@ catalogue generator's `--check` compares
 [TRACE_EVENTS.md](../reference/TRACE_EVENTS.md).
 `sw/builder/test_clock_contract.py` checks [AAF_LATENCY_TAPS.md](../AAF_LATENCY_TAPS.md).
 Its tap table follows the configured clocks and features.
+The tap page remains relevant under the #582 decision.
+Its reader is absent from `DOCS_JOB_PY`.
+`docs-check` also runs it through the builder bank.
 The classifier's
 self-test, `scripts/ci_scope.py --selftest`, derives that list from the
 Python, the Makefiles and the shell under `tests/`, `tb/`, `syn/`, `sw/`,
-`hdl/` and `avdecc/` and refuses a table that differs from it. A page
-that a skipped gate reads stays documentation only when an always-run
-`docs-check` step runs the same check on it:
+`hdl/` and `avdecc/` and refuses a table that differs from it.
+The following pages stay documentation only.
+Their readers run identical checks in always-run `docs-check`:
 
 | Reader | Skipped job that runs it | `docs-check` runs it too |
 |---|---|---|
 | `sw/builder/test_builder.py`: six pages under `docs/` | `elaborate` (`--require-elaboration` grades only the LiteX arms) | yes, every arm that reads a page |
-| `sw/builder/test_clock_contract.py`: [AAF_LATENCY_TAPS.md](../AAF_LATENCY_TAPS.md) | `elaborate`, through `test_builder.py` | yes, through the same builder bank |
 | `docs/traceability/gen_module_matrix.py --check`: the matrix artifacts | the `tsn_fuzz` suite | yes, the same command |
 | `scripts/ci_events.py --check`: this page | none, it runs in `full-ci-gate` before the decision | yes, the same command |
 

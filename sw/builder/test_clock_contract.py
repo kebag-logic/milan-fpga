@@ -90,12 +90,18 @@ def test_gptp_rom_clock() -> None:
                            check=True, capture_output=True, text=True, timeout=60)
             expected = expected_path.read_bytes()
             assert actual == expected, f"{path.stem}: gPTP ROM does not use configured Milan clock"
-            # Both reviewer defects must change bytes, not merely the argv.
-            for wrong_args in ([], ["--clk-hz", str(clocks["sys_clk_hz"])]):
+            # Controls must change bytes, not merely the argv.
+            wrong_clocks = [[]]
+            if clocks["sys_clk_hz"] == clocks["milan_clk_hz"]:
+                print(f"[clock contract] {path.stem}: SKIP system-clock control: "
+                      "sys_clk_hz == milan_clk_hz")
+            else:
+                wrong_clocks.append(["--clk-hz", str(clocks["sys_clk_hz"])])
+            for wrong_args in wrong_clocks:
                 subprocess.run(command + wrong_args, check=True, capture_output=True, text=True, timeout=60)
                 assert expected_path.read_bytes() != expected, f"{path.stem}: ROM clock control is insensitive"
     print(f"[clock contract] {len(CONFIGS)} ROMs match configured Milan clocks; "
-          "default-clock and system-clock controls differ")
+          "applicable default-clock and system-clock controls differ")
 
 
 def _soc_clock_case(soc, argv: list[str], refused: bool) -> None:
@@ -124,7 +130,7 @@ def test_soc_clock_contract() -> None:
 
     for path in CONFIGS:
         cfg = eb.load_config(path)
-        argv = eb.emit_soc_argv(cfg)
+        argv = eb.emit_soc_argv(cfg) + ["--entity-gen-dir", str(ROOT / "configs/generated" / path.stem)]
         _soc_clock_case(milan_soc, argv, False)
         for bad in (eb.BAREMETAL_CLK_HZ - 1, eb.BAREMETAL_CLK_HZ + 1, 80_000_000, 100_000_000):
             bad_argv = list(argv)
