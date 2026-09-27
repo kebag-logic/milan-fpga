@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -87,11 +89,38 @@ def compile_sim(build_dir: Path, spec: dict) -> None:
     for name in ('sys_hz', 'cpu_hz', 'tdm_hz'):
         header += f'constexpr std::uint64_t {name} = {spec[name]};\n'
     (build_dir / 'probe_config.hpp').write_text(header)
+    retirement_header(build_dir, spec)
     argv = ['verilator', '--cc', '--exe', '--build', '-j', '8', '-Wno-fatal', '-Werror-USERERROR',
             '-Wno-BLKANDNBLK', '-Wno-WIDTH', '-Wno-COMBDLY', '-Wno-CASEINCOMPLETE',
             '--top-module', 'sim', '--Mdir', str(build_dir / 'native'), '-O3',
             '--output-split', '5000', '--output-split-cfuncs', '500',
             '-CFLAGS', f'-O3 -std=c++17 -Wall -Wextra -I{ROOT}/tb/common -I{build_dir}',
-            *['-I' + str(i) for i in spec['includes']], *spec['sources'],
+            *['-I' + str(i) for i in spec['includes']], str(Path(__file__).with_name('observe.vlt')),
+            *spec['sources'],
             str(Path(__file__).with_name('sim_main.cpp'))]
     subprocess.run(argv, cwd=build_dir / 'gateware', check=True)
+
+
+def retirement_header(build_dir: Path, spec: dict) -> None:
+    """Bind passive retirement observation to the linked ELF and CPU instance."""
+    triple = os.environ['LITEX_ENV_CC_TRIPLE']
+    symbols = subprocess.check_output([triple + '-nm', str(build_dir / 'software/bios/bios.elf')], text=True)
+    matches = re.findall(r'^([0-9a-f]+) t nvm_heartbeat_tick$', symbols, re.M)
+    if len(matches) != 1:
+        raise RuntimeError('heartbeat entry must have exactly one linked symbol')
+    wrappers = [Path(p).stem for p in spec['sources'] if Path(p).stem.startswith('VexiiRiscvLitex_')]
+    if len(wrappers) != 1:
+        raise RuntimeError('expected one shipping CPU wrapper')
+    wrapper = wrappers[0]
+    header = f'''#pragma once
+#include "Vsim___024root.h"
+#include "Vsim_sim.h"
+#include "Vsim_{wrapper}.h"
+#include "Vsim_VexiiRiscv.h"
+inline bool heartbeat_entry(const Vsim& dut) {{
+    const auto& cpu = *dut.rootp->sim->{wrapper}->vexiis_0_logic_core;
+    return cpu.WhiteboxerPlugin_logic_commits_ports_0_valid
+        && cpu.WhiteboxerPlugin_logic_commits_ports_0_pc == 0x{matches[0]}u;
+}}
+'''
+    (build_dir / 'retirement.hpp').write_text(header)

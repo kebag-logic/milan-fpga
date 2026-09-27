@@ -98,6 +98,11 @@ public:
         return accepted;
     }
 
+    bool aem_read() const {
+        return (command_ == 0x03 || command_ == 0x0b) && address_bytes_ == 3
+            && address_ == 0x400000;
+    }
+
     std::uint64_t busy_until() const { return busy_until_; }
     std::uint8_t byte(std::uint32_t address) const { return bytes_.at(address); }
     unsigned erases = 0;

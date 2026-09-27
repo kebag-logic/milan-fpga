@@ -68,7 +68,9 @@ int main() {
         Flash device(0, 20);
         write_enable(device, 0);
         program(device, journal, 1, 0);
-        write_enable(device, 1);
+        // Prepare WEL after completion, then exercise the earlier busy time.
+        // This isolates the WIP predicate; it is not a physical sequence.
+        write_enable(device, 20);
         program(device, journal + 1, 1, 1);
     }));
     check.that("unknown opcode refused", refused([] {

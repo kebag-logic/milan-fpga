@@ -1,0 +1,4 @@
+`verilator_config
+// Passive committed-PC observation; no source or firmware instrumentation.
+public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_valid"
+public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_pc"
