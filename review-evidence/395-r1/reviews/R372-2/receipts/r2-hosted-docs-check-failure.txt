@@ -1,0 +1,10 @@
+# Hosted docs-check job 108727991180 (run 36357487267, attempt 1) at head 3a0cb4cf4fed2d71436a43f4b96cb375f9178342
+# conclusion: failure; failed step 23 'Bare-metal scope gate'; steps 24-51 skipped
+2026-09-27T23:06:23.3734848Z ##[group]Run python3 scripts/check_baremetal_only.py --check
+2026-09-27T23:06:23.3735610Z ^[[36;1mpython3 scripts/check_baremetal_only.py --check^[[0m
+2026-09-27T23:06:23.3736286Z ^[[36;1mpython3 scripts/check_baremetal_only.py --selftest^[[0m
+2026-09-27T23:06:23.3817717Z shell: /usr/bin/bash -e {0}
+2026-09-27T23:06:23.3818160Z ##[endgroup]
+2026-09-27T23:06:42.4266165Z   - docs/findings/COMMERCIAL_TIMING_395.md:115: [R] prohibited target runtime/service surface '/sys': 'Ethernet/sys crossings remain **unbounded false paths**, in both directions.' (#259: no target OS or retired helper-service plane)
+2026-09-27T23:06:42.4267903Z baremetal-only: FAIL (1 finding(s) across 919 scanned file(s))
+2026-09-27T23:06:42.4382225Z ##[error]Process completed with exit code 1.

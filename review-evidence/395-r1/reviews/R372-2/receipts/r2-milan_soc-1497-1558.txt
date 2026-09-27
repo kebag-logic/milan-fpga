@@ -1,0 +1,126 @@
+== 66001a307
+1497:         # clock + false-path sections (vivado.py build_io_constraints).
+1498:         #
+1499:         # USER 2026-08-06 (the t522-eppo placement-lottery postmortem): a
+1500:         # blanket `set_clock_groups -asynchronous` FALSE-PATHS every eth
+1501:         # crossing, so the gray-pointer/synchronizer skew into sys+milan was
+1502:         # bounded by nothing but placement luck - the eppo seed shipped a
+1503:         # bitstream whose CPU-bound RX/ARP died as the die warmed while
+1504:         # the fabric plane stayed healthy. GMII boards now get BOUNDED
+1505:         # crossings instead: hold analysis is meaningless across async
+1506:         # domains (false_path -hold), and setup becomes a real 8 ns
+1507:         # datapath-only budget (min of the two periods) that every seed
+1508:         # must MEET - the lottery becomes an STA failure the sweep gate can
+1509:         # see. MII (arty, retired) keeps the legacy groups.
+1510:         if phy_model == "mii":
+1511:             for eth_clk_pad in eth_clk_groups:
+1512:                 platform.toolchain.additional_xdc_commands.add(
+1513:                     "set_clock_groups -asynchronous -group "
+1514:                     "[get_clocks -of_objects [get_ports %s]]" % eth_clk_pad)
+1515:         else:
+1516:             eth_ck = ("[get_clocks -of_objects [get_ports %s]]"
+1517:                       % eth_clk_groups[0])
+1518:             # LiteX templates additional_xdc_commands through str.format -
+1519:             # literal TCL braces must be doubled or they parse as format keys
+1520:             part_cks = "[get_clocks {{crg_clkout0 crg_clkout1}}]"
+1521:             for a, b in ((eth_ck, part_cks), (part_cks, eth_ck)):
+1522:                 platform.toolchain.additional_xdc_commands.add(
+1523:                     "set_false_path -hold -from %s -to %s" % (a, b))
+1524:                 platform.toolchain.additional_xdc_commands.add(
+1525:                     "set_max_delay -datapath_only -from %s -to %s 8.000"
+1526:                     % (a, b))
+1527:             # the audio/idelay clocks have no real eth crossings - keep them
+1528:             # formally asynchronous so nothing accidental gets timed as
+1529:             # PLL-related
+1530:             platform.toolchain.additional_xdc_commands.add(
+1531:                 "set_clock_groups -asynchronous -group %s -group "
+1532:                 "[get_clocks {{crg_audio_ref_raw crg_audio_mclk_raw "
+1533:                 "crg_pll_audio_fb crg_clkout2 crg_clkout3 crg_clkout4}}]"
+1534:                 % eth_ck)
+1535: 
+1536:         # QUASI-STATIC CLASS RELAXATION (USER 2026-08-15: constrain by CLASS,
+1537:         # never by per-endpoint analysis). Registers tagged
+1538:         # (* quasi_static = "yes" *) in the RTL (the tagging rules live at the
+1539:         # tag site in milan_csr.sv) are boot-written levels whose whole
+1540:         # fan-out cone is legitimately multi-cycle: one rule here prunes
+1541:         # every tagged cone from the single-cycle graph, and a register
+1542:         # tagged in any FUTURE round inherits the relaxation with no XDC
+1543:         # edit. Guarded so a build with zero tagged cells (or a synthesis
+1544:         # that dropped the attribute) degrades to full-strictness rather
+1545:         # than a Tcl error - the constraint can only ever RELAX known-safe
+1546:         # paths, never mask an untagged one. Hold 3 accompanies setup 4 per
+1547:         # the standard multicycle pairing, so hold analysis does not move to
+1548:         # the wrong capture edge. (Doubled braces: LiteX templates these
+1549:         # lines through str.format.)
+1550:         platform.toolchain.additional_xdc_commands.add(
+1551:             "set qs_cells [get_cells -hierarchical -quiet "
+1552:             "-filter {{quasi_static == \"yes\"}}]")
+1553:         platform.toolchain.additional_xdc_commands.add(
+1554:             "if {{[llength $qs_cells] > 0}} {{ "
+1555:             "set_multicycle_path 4 -setup -from $qs_cells ; "
+1556:             "set_multicycle_path 3 -hold  -from $qs_cells }}")
+1557: 
+1558:         # MAC-path supervised reset (link-bounce wedge, 2026-07-19): the eth
+== 3a0cb4cf4
+1497:         # clock + false-path sections (vivado.py build_io_constraints).
+1498:         #
+1499:         # USER 2026-08-06 (the t522-eppo placement-lottery postmortem): a
+1500:         # blanket `set_clock_groups -asynchronous` FALSE-PATHS every eth
+1501:         # crossing, so the gray-pointer/synchronizer skew into sys+milan was
+1502:         # bounded by nothing but placement luck - the eppo seed shipped a
+1503:         # bitstream whose CPU-bound RX/ARP died as the die warmed while
+1504:         # the fabric plane stayed healthy. GMII boards now get BOUNDED
+1505:         # crossings instead: hold analysis is meaningless across async
+1506:         # domains (false_path -hold), and setup becomes a real 8 ns
+1507:         # datapath-only budget (min of the two periods) that every seed
+1508:         # must MEET - the lottery becomes an STA failure the sweep gate can
+1509:         # see. MII (arty, retired) keeps the legacy groups.
+1510:         if phy_model == "mii":
+1511:             for eth_clk_pad in eth_clk_groups:
+1512:                 platform.toolchain.additional_xdc_commands.add(
+1513:                     "set_clock_groups -asynchronous -group "
+1514:                     "[get_clocks -of_objects [get_ports %s]]" % eth_clk_pad)
+1515:         else:
+1516:             eth_ck = ("[get_clocks -of_objects [get_ports %s]]"
+1517:                       % eth_clk_groups[0])
+1518:             # LiteX templates additional_xdc_commands through str.format -
+1519:             # literal TCL braces must be doubled or they parse as format keys
+1520:             part_cks = "[get_clocks {{crg_clkout0 crg_clkout1}}]"
+1521:             for a, b in ((eth_ck, part_cks), (part_cks, eth_ck)):
+1522:                 platform.toolchain.additional_xdc_commands.add(
+1523:                     "set_false_path -hold -from %s -to %s" % (a, b))
+1524:                 platform.toolchain.additional_xdc_commands.add(
+1525:                     "set_max_delay -datapath_only -from %s -to %s 8.000"
+1526:                     % (a, b))
+1527:             # the audio/idelay clocks have no real eth crossings - keep them
+1528:             # formally asynchronous so nothing accidental gets timed as
+1529:             # PLL-related
+1530:             platform.toolchain.additional_xdc_commands.add(
+1531:                 "set_clock_groups -asynchronous -group %s -group "
+1532:                 "[get_clocks {{crg_audio_ref_raw crg_audio_mclk_raw "
+1533:                 "crg_pll_audio_fb crg_clkout2 crg_clkout3 crg_clkout4}}]"
+1534:                 % eth_ck)
+1535: 
+1536:         # QUASI-STATIC CLASS RELAXATION (USER 2026-08-15: constrain by CLASS,
+1537:         # never by per-endpoint analysis). Registers tagged
+1538:         # (* quasi_static = "yes" *) in the RTL (the tagging rules live at the
+1539:         # tag site in milan_csr.sv) are boot-written levels whose whole
+1540:         # fan-out cone is legitimately multi-cycle: one rule here prunes
+1541:         # every tagged cone from the single-cycle graph, and a register
+1542:         # tagged in any FUTURE round inherits the relaxation with no XDC
+1543:         # edit. Guarded so a build with zero tagged cells (or a synthesis
+1544:         # that dropped the attribute) degrades to full-strictness rather
+1545:         # than a Tcl error - the constraint can only ever RELAX known-safe
+1546:         # paths, never mask an untagged one. Hold 3 accompanies setup 4 per
+1547:         # the standard multicycle pairing, so hold analysis does not move to
+1548:         # the wrong capture edge. (Doubled braces: LiteX templates these
+1549:         # lines through str.format.)
+1550:         platform.toolchain.additional_xdc_commands.add(
+1551:             "set qs_cells [get_cells -hierarchical -quiet "
+1552:             "-filter {{quasi_static == \"yes\"}}]")
+1553:         platform.toolchain.additional_xdc_commands.add(
+1554:             "if {{[llength $qs_cells] > 0}} {{ "
+1555:             "set_multicycle_path 4 -setup -from $qs_cells ; "
+1556:             "set_multicycle_path 3 -hold  -from $qs_cells }}")
+1557: 
+1558:         # MAC-path supervised reset (link-bounce wedge, 2026-07-19): the eth

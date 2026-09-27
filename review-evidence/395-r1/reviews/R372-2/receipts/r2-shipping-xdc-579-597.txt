@@ -1,0 +1,17 @@
+579: ################################################################################
+580: # Additional XDC constraints
+581: ################################################################################
+582: 
+583: set_false_path -hold -from [get_clocks -of_objects [get_ports eth_clocks0_rx]] -to [get_clocks {crg_clkout0 crg_clkout1}]
+584: 
+585: set_max_delay -datapath_only -from [get_clocks -of_objects [get_ports eth_clocks0_rx]] -to [get_clocks {crg_clkout0 crg_clkout1}] 8.000
+586: 
+587: set_false_path -hold -from [get_clocks {crg_clkout0 crg_clkout1}] -to [get_clocks -of_objects [get_ports eth_clocks0_rx]]
+588: 
+589: set_max_delay -datapath_only -from [get_clocks {crg_clkout0 crg_clkout1}] -to [get_clocks -of_objects [get_ports eth_clocks0_rx]] 8.000
+590: 
+591: set_clock_groups -asynchronous -group [get_clocks -of_objects [get_ports eth_clocks0_rx]] -group [get_clocks {crg_audio_ref_raw crg_audio_mclk_raw crg_pll_audio_fb crg_clkout2 crg_clkout3 crg_clkout4}]
+592: 
+593: set qs_cells [get_cells -hierarchical -quiet -filter {quasi_static == "yes"}]
+594: 
+595: if {[llength $qs_cells] > 0} { set_multicycle_path 4 -setup -from $qs_cells ; set_multicycle_path 3 -hold  -from $qs_cells }

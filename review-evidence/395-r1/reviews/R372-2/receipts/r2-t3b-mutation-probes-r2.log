@@ -1,0 +1,61 @@
+control-none [focused]: rc=0 SURVIVE expected=SURVIVE as-expected | [timing grade] declaration pinned; 19 wrong-condition refusa / [timing grade] platform declaration reaches the part, pre-pl
+control-none [builder]: rc=0 SURVIVE expected=SURVIVE as-expected | [timing grade] declaration pinned; 19 wrong-condition refusa / [timing grade] platform declaration reaches the part, pre-pl / [timing grade] declared part reaches the AX7101 PLL speed gr
+decl-max-100C [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: #395 commercial release declaration changed
+decl-max-100C [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: #395 commercial release declaration changed
+decl-grade-industrial [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: #395 commercial release declaration changed
+decl-grade-industrial [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: #395 commercial release declaration changed
+decl-part-speed-1 [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: #395 commercial release declaration changed
+decl-part-speed-1 [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: #395 commercial release declaration changed
+check-skip-grade-compare [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: ('grade', 'kl_timing_grade_check', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+check-skip-grade-compare [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: ('grade', 'kl_timing_grade_check', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+check-skip-temp-compare [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: ('temperature', 'kl_timing_grade_check', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+check-skip-temp-compare [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: ('temperature', 'kl_timing_grade_check', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+check-corner-one-yes [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: ('Slow max', 'kl_timing_grade_check', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+check-corner-one-yes [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: ('Slow max', 'kl_timing_grade_check', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+configure-skip-part-check [focused]: rc=1 KILL expected=KILL as-expected | AssertionError
+configure-skip-part-check [builder]: rc=1 KILL expected=KILL as-expected | AssertionError
+configure-no-min-max [focused]: rc=1 KILL expected=KILL as-expected | Fast Yes No
+configure-no-min-max [builder]: rc=1 KILL expected=KILL as-expected | Fast Yes No
+reports-no-leading-check [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: ('part', 'kl_timing_grade_reports {/tmp/timing-grade-12gabhb4/candidate}', 'SUMMARY 0 Slow min_max Fast none -delay_type min_max -report_unconstrained -ma
+reports-no-leading-check [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: ('part', 'kl_timing_grade_reports {/tmp/timing-grade-mkshray7/candidate}', 'SUMMARY 0 Slow min_max Fast none -delay_type min_max -report_unconstrained -ma
+reports-no-other-corner-off [focused]: rc=1 KILL expected=KILL as-expected | REPORT check_timing -verbose -file /tmp/timing-grade-73htbiha/candidate_check_timing.rpt
+reports-no-other-corner-off [builder]: rc=1 KILL expected=KILL as-expected | REPORT check_timing -verbose -file /tmp/timing-grade-lml689v_/candidate_check_timing.rpt
+reports-no-finally-restore [focused]: rc=1 KILL expected=KILL as-expected | Junction Temp = 0 (C)
+reports-no-finally-restore [builder]: rc=1 KILL expected=KILL as-expected | Junction Temp = 0 (C)
+reports-single-endpoint [focused]: rc=1 KILL expected=KILL as-expected | REPORT check_timing -verbose -file /tmp/timing-grade-sqdvbixo/candidate_check_timing.rpt
+reports-single-endpoint [builder]: rc=1 KILL expected=KILL as-expected | REPORT check_timing -verbose -file /tmp/timing-grade-raw2wy07/candidate_check_timing.rpt
+reports-drop-negative [focused]: rc=1 KILL expected=KILL as-expected | REPORT check_timing -verbose -file /tmp/timing-grade-c_66xx_u/candidate_check_timing.rpt
+reports-drop-negative [builder]: rc=1 KILL expected=KILL as-expected | REPORT check_timing -verbose -file /tmp/timing-grade-8zg4xsi6/candidate_check_timing.rpt
+reports-drop-cdc [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: ('report_cdc', [])
+reports-drop-cdc [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: ('report_cdc', [])
+reports-corner-setup-only [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: SUMMARY 0 Slow min_max Fast none -delay_type max -report_unconstrained -max_paths 5 -file /tmp/timing-grade-_r7lmaeu/candidate_Slow_0C_timing.rpt
+reports-corner-setup-only [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: SUMMARY 0 Slow min_max Fast none -delay_type max -report_unconstrained -max_paths 5 -file /tmp/timing-grade-0nxlaak2/candidate_Slow_0C_timing.rpt
+reports-corner-no-unconstrained [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: SUMMARY 0 Slow min_max Fast none -delay_type min_max -max_paths 5 -file /tmp/timing-grade-7lavv2d8/candidate_Slow_0C_timing.rpt
+reports-corner-no-unconstrained [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: SUMMARY 0 Slow min_max Fast none -delay_type min_max -max_paths 5 -file /tmp/timing-grade-qvg72k9j/candidate_Slow_0C_timing.rpt
+reports-all-no-check-verbose [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: SUMMARY 85 Slow min_max Fast min_max -delay_type min_max -report_unconstrained -max_paths 5 -file /tmp/timing-grade-h4jwd8pj/candidate_all_timing.rpt
+reports-all-no-check-verbose [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: SUMMARY 85 Slow min_max Fast min_max -delay_type min_max -report_unconstrained -max_paths 5 -file /tmp/timing-grade-uj8bc7jf/candidate_all_timing.rpt
+reports-clock-interaction-setup-only [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: ('report_clock_interaction', ['REPORT report_clock_interaction -delay_type max -file /tmp/timing-grade-e_bn9_uo/candidate_clock_interaction.rpt'])
+reports-clock-interaction-setup-only [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: ('report_clock_interaction', ['REPORT report_clock_interaction -delay_type max -file /tmp/timing-grade-1ibr28zc/candidate_clock_interaction.rpt'])
+platform-no-preplacement [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: []
+platform-no-preplacement [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: []
+platform-no-signoff-report [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: ['set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]', 'set_property CONFIG_MODE SPIx4 [current_design]', 'set_property BITSTREAM.CONFIG.CONFIG
+platform-no-signoff-report [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: ['set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]', 'set_property CONFIG_MODE SPIx4 [current_design]', 'set_property BITSTREAM.CONFIG.CONFIG
+platform-literal-part-1 [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: xc7a100t-fgg484-1
+platform-literal-part-1 [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: xc7a100t-fgg484-1
+pll-literal-restored [focused]: rc=0 SURVIVE expected=SURVIVE as-expected | [timing grade] declaration pinned; 19 wrong-condition refusa / [timing grade] platform declaration reaches the part, pre-pl
+pll-literal-restored [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: call(speedgrade=-2)
+reports-all-setup-only [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: SUMMARY 85 Slow min_max Fast min_max -delay_type max -report_unconstrained -check_timing_verbose -max_paths 5 -file /tmp/timing-grade-my9f9f_6/candidate_a
+reports-all-setup-only [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: SUMMARY 85 Slow min_max Fast min_max -delay_type max -report_unconstrained -check_timing_verbose -max_paths 5 -file /tmp/timing-grade-8fty3l2a/candidate_a
+reports-all-no-unconstrained [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: SUMMARY 85 Slow min_max Fast min_max -delay_type min_max -check_timing_verbose -max_paths 5 -file /tmp/timing-grade-b6478ec_/candidate_all_timing.rpt
+reports-all-no-unconstrained [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: SUMMARY 85 Slow min_max Fast min_max -delay_type min_max -check_timing_verbose -max_paths 5 -file /tmp/timing-grade-sax2sm73/candidate_all_timing.rpt
+reports-cdc-no-details [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: ('report_cdc', ['REPORT report_cdc -file /tmp/timing-grade-p2aab_e6/candidate_cdc.rpt'])
+reports-cdc-no-details [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: ('report_cdc', ['REPORT report_cdc -file /tmp/timing-grade-gd9m2oui/candidate_cdc.rpt'])
+reports-check-timing-no-verbose [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: ('check_timing', ['REPORT check_timing -file /tmp/timing-grade-3wc9dwnc/candidate_check_timing.rpt'])
+reports-check-timing-no-verbose [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: ('check_timing', ['REPORT check_timing -file /tmp/timing-grade-wbor5pa1/candidate_check_timing.rpt'])
+reports-negative-setup-only [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: REPORT report_timing -delay_type max -slack_lesser_than 0 -max_paths 100 -file /tmp/timing-grade-nnil77xk/candidate_Slow_0C_negative.rpt
+reports-negative-setup-only [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: REPORT report_timing -delay_type max -slack_lesser_than 0 -max_paths 100 -file /tmp/timing-grade-9ch456ql/candidate_Slow_0C_negative.rpt
+reports-negative-no-slack-filter [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: REPORT report_timing -delay_type min_max -max_paths 100 -file /tmp/timing-grade-kdkn_d4f/candidate_Slow_0C_negative.rpt
+reports-negative-no-slack-filter [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: REPORT report_timing -delay_type min_max -max_paths 100 -file /tmp/timing-grade-kqq7k7f_/candidate_Slow_0C_negative.rpt
+reports-write-before-check [focused]: rc=1 KILL expected=KILL as-expected | AssertionError: ('part', 'kl_timing_grade_reports {/tmp/timing-grade-yjualzoc/candidate}', 'wrote before refusal')
+reports-write-before-check [builder]: rc=1 KILL expected=KILL as-expected | AssertionError: ('part', 'kl_timing_grade_reports {/tmp/timing-grade-xb_p0cu1/candidate}', 'wrote before refusal')
+plants=30 entries=60 unexpected=0
