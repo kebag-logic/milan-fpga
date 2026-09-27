@@ -1,0 +1,19 @@
+rule	expect	control	mutant	detail	note	verdict
+configuration index gap	refuse	accepted	refused	configuration indices are not dense from 0	descriptor in cfg 2 with no cfg 1	OK
+per-type index gap (L2)	refuse	accepted	refused	cfg 0 type 0x000A indices are not dense from 0: [1] (07 §3.1 rule L2)	CLOCK_SOURCE indices [1] instead of [0]	OK
+duplicate directory key	refuse	accepted	refused	duplicate descriptor cfg 0 type 0x0009 index 0	second AVB_INTERFACE index 0	OK
+name binding	refuse	accepted	refused	cfg 0 ENTITY entity_name differs from name-table entry 0	ENTITY inline entity_name differs from name-table entry	OK
+line-buffer bound	refuse	accepted	refused	cfg 0 type 0x1234 index 0 is 577 bytes, over the 576-byte store line buffer — the store would answer NO_SUCH_DESCRIPTOR for it	opaque descriptor 576 B control, 577 B mutant, --line-bytes 576	OK
+body/key type (fields input)	refuse	accepted	accepted		AVB_INTERFACE body type disagrees with directory key	MISMATCH
+body/key index (fields input)	refuse	accepted	accepted		AVB_INTERFACE body index disagrees with directory key	MISMATCH
+body/key type (bytes input)	refuse	accepted	accepted		AVB_INTERFACE body type disagrees with directory key	MISMATCH
+body/key index (bytes input)	refuse	accepted	accepted		AVB_INTERFACE body index disagrees with directory key	MISMATCH
+L10 offset 143	accept	accepted	accepted	packed; mutated 152-byte body found in image: True	AUDIO_UNIT semantic rule; control offset/count/length 144/8/176	OK
+L10 count 9 (180 B)	accept	accepted	accepted	packed; mutated 180-byte body found in image: True	AUDIO_UNIT semantic rule; control offset/count/length 144/8/176	OK
+L10 count 2, one word (length 148)	accept	accepted	accepted	packed; mutated 148-byte body found in image: True	AUDIO_UNIT semantic rule; control offset/count/length 144/8/176	OK
+L10 count 1, two words (length 152)	accept	accepted	accepted	packed; mutated 152-byte body found in image: True	AUDIO_UNIT semantic rule; control offset/count/length 144/8/176	OK
+L6 clock_sources [1,0]	accept	accepted	accepted	packed; mutated 80-byte body found in image: True	non-identity list shape	OK
+L1/F07.2 STREAM_PORT_INPUT number_of_clusters 0	accept	accepted	accepted	packed; mutated 20-byte body found in image: True	Milan 5.3.3.8 minimum; packing is not a waiver	OK
+L9 entity_model_id 0	accept	accepted	accepted	packed; mutated 312-byte body found in image: True	integrator guide 6 obligation; tracked by #38	OK
+L9 entity_model_id all-ones	accept	accepted	accepted	packed; mutated 312-byte body found in image: True	integrator guide 6 obligation; tracked by #38	OK
+L4 STREAM_INPUT buffer_length 2125999	accept	accepted	accepted	packed; mutated 152-byte body found in image: True	no processor L4 check; parent-owned semantic	OK
