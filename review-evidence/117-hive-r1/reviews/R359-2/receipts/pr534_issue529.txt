@@ -1,0 +1,30 @@
+## #529 timeline close/cross-reference events
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-23T13:28:09Z","event":"cross-referenced","src":531,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-23T14:30:40Z","event":"cross-referenced","src":530,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-23T15:39:52Z","event":"cross-referenced","src":534,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-23T16:19:11Z","event":"cross-referenced","src":117,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-23T18:37:16Z","event":"cross-referenced","src":387,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-23T20:19:07Z","event":"cross-referenced","src":540,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-23T21:16:34Z","event":"cross-referenced","src":541,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-23T23:53:30Z","event":"cross-referenced","src":542,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-24T01:03:58Z","event":"cross-referenced","src":539,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-24T03:38:13Z","event":"cross-referenced","src":548,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-24T03:38:14Z","event":"closed","src":null,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-24T03:49:07Z","event":"cross-referenced","src":537,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-24T04:31:17Z","event":"cross-referenced","src":549,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-24T07:10:15Z","event":"cross-referenced","src":547,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-25T08:23:04Z","event":"cross-referenced","src":562,"state_reason":null}
+{"actor":"Mister-M-alt","commit_id":null,"created_at":"2026-09-27T19:04:13Z","event":"cross-referenced","src":598,"state_reason":null}
+## #534 body lines naming 529
+dev
+for R268-2 F1 and R269-2 F1. `529-crf-input-counters` -> `dev`. Hosted and `act` evidence
+Relates to #529 (it stays open until the manager's silicon re-flash and la_avdecc Milan confirmation)
+git fetch origin 529-crf-input-counters
+git switch 529-crf-input-counters        # 31e62ffead16e43d648993278b0ab9190d99b672
+  relates to #529, which stays open until the manager's silicon re-flash and the
+## last #529 comments mentioning close
+2026-09-24T03:36:04Z [A231] RESULT: #529 silicon confirmation on the dev `50e78097` image. **PASS: the controller no longer downgrades the DUT from Milan.**
+
+**Identity: PASS.** The console read `ID=MILN` and `VERSION=0x00020060`, and the UART grader passed 10 of 10 before and after the run. The bench lock was held for every console, bind and enumeration window.
+- The CRC readback names the image: the QSPI bitstream p
+2026-09-24T03:38:13Z [A10] CLOSING: acceptance met on silicon. PR #534 merged as 50e78097. On that image (flash-pair write+verify, clean cold boot, VERSION 0x0002_0060), the #117 step 5 enumeration re-run with the same tools classifies the DUT as Milan in all three full enumerations, with no compatibility event. In #117 it was downgraded to IEEE 1722.1 over the Stream Input counters. The CRF Stream Input answers GET_C

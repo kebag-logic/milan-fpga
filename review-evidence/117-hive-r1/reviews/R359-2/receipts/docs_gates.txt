@@ -1,0 +1,39 @@
+$ <packet>/scratch/mdvenv/bin/python scripts/docs_check.py
+docs_check: 0 finding(s) across 169 md files + 904 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+
+$ <packet>/scratch/mdvenv/bin/python scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+
+$ <packet>/scratch/mdvenv/bin/python scripts/gen_toc.py --check
+TOC gate: OK (111 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+
+$ <packet>/scratch/mdvenv/bin/python scripts/check_em_dash.py --base 2a2a7bb655e528edc3087c88033cd3a47546feb4
+check_em_dash: 0 finding(s) over 161 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [2a2a7bb6..HEAD]
+rc=0
+
+$ <packet>/scratch/mdvenv/bin/python scripts/check_doc_paths.py
+doc path gate: OK (849 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+
+$ <packet>/scratch/mdvenv/bin/python scripts/ci_scope.py --selftest
+  ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+rc=0
+
+$ <packet>/scratch/mdvenv/bin/python scripts/check_baremetal_only.py --check
+baremetal-only: FATAL: pyyaml is unavailable and the parsed YAML class is load-bearing
+rc=2
+
+$ git diff --check 2a2a7bb655e528edc3087c88033cd3a47546feb4 ecd36018a29f605efe790d33dd50382aec9c1201
+warning: unable to find all commit-graph files
+rc=0
+
+$ python3 scripts/check_baremetal_only.py --check   (system interpreter with pyyaml; the scratch venv lacked pyyaml, environment rc=2 above)
+baremetal-only: OK (0 findings across 902 tracked first-party file(s))
+rc=0

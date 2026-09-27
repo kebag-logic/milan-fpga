@@ -1,0 +1,23 @@
+## library runtime option self-report (LIB option / controller-option lines), per published run log
+111bcf287686d4c1f39329becd4f995b6d82562ec2479630c670d42e304b8425  run-1 option block
+111bcf287686d4c1f39329becd4f995b6d82562ec2479630c670d42e304b8425  run-2 option block
+111bcf287686d4c1f39329becd4f995b6d82562ec2479630c670d42e304b8425  run-3 option block
+3:LIB option Ignore Invalid Control Data Length
+4:LIB option Ignore Invalid Non Success AEM Responses
+5:LIB option Allow Get Audio Map Unsolicited Notifications
+6:LIB option Allow Recv Big AECP payloads
+7:LIB option Redundancy
+8:LIB option JSON
+9:LIB controller-option Ignore Neither Static Nor Dynamic Mappings
+10:LIB controller-option Continue Misbehave AEM Responses
+11:LIB controller-option Redundancy
+12:LIB controller-option Strict 2018 Redundancy
+13:LIB controller-option JSON
+14:LIB controller-option Channel Based Routing
+## mapping to page :640-646 enabled list
+Ignore Invalid Control Data Length -> IGNORE_INVALID_CONTROL_DATA_LENGTH (private define; self-reported)
+Ignore Invalid Non Success AEM Responses -> IGNORE_INVALID_NON_SUCCESS_AEM_RESPONSES (private; self-reported)
+Allow Get Audio Map Unsolicited Notifications -> ALLOW_GET_AUDIO_MAP_UNSOL (private; self-reported)
+Allow Recv Big AECP payloads -> ALLOW_RECV_BIG_AECP_PAYLOADS; Redundancy/JSON -> ENABLE_AVDECC_FEATURE_*
+controller: Ignore Neither Static Nor Dynamic Mappings, Continue Misbehave AEM Responses, Redundancy, Strict 2018 Redundancy, JSON, Channel Based Routing
+not self-reported: ENABLE_AVDECC_USE_FMTLIB (build-only; no bearing on compatibility flags); ALLOW_SEND_BIG_AECP_PAYLOADS absent = disabled, as the page says

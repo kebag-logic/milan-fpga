@@ -1,0 +1,25 @@
+## M1: Contents link for step 5 retargeted to a missing anchor
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+gen_toc --check rc=1 (expect nonzero)
+## M2: em dash inserted into the B4 supersession sentence
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+check_em_dash rc=0 (expect nonzero)
+## M3: B4 anchor link broken
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+check_doc_paths rc=0
+docs_check rc=0
+## restore
+page bytes restored
+status rc=0
+## note: M2 is not a valid probe of check_em_dash, which judges committed lines HEAD adds since --base, not the working tree; no commit is made in this clone. Substitutes:
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+check_em_dash --selftest rc=2
+## direct: U+2014 count in lines added by 2a2a7bb6..ecd36018 and bcba79a5..ecd36018
+0
+0
+## note: M3 shows neither check_doc_paths nor docs_check validates in-page anchors; the delta's anchors (#owner-blockers, #step-5-controller-discovery-and-enumeration) are the same targets the Contents block uses, which gen_toc --check verifies (M1 shows it fails on a wrong one)
+456:## Step 5: controller discovery and enumeration
+530:## Owner blockers
+## rerun with the scratch venv that holds the pinned renderer
+check_em_dash selftest: PASS (339 arm(s))
+check_em_dash --selftest rc=0

@@ -1,0 +1,6 @@
+## grep for stale claims (no output above rc=1 means none)
+grep rc=1
+## mutation probes of check_b4_hashes.py
+m1 corrupt unredacted hash: rc=1 (expect 1)
+m2 drop one redacted listing: rc=1 (expect 1)
+unmutated: rc=0 (expect 0)

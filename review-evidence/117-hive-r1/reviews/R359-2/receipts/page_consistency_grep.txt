@@ -1,0 +1,36 @@
+## lines naming FAIL / #529 / downgrad / Milan compat / pending / blockers that remain, at ecd36018
+22:- **[Result per acceptance box](#result-per-acceptance-box)** -- PASS, FAIL or NOT RUN for every part of the five acceptance boxes, and why the asCapable partner is the bench switch.
+30:- **[Step 5: controller discovery and enumeration](#step-5-controller-discovery-and-enumeration)** -- Counters-probe parity, the dated Milan FAIL, and its superseding PASS.
+55:| | la_avdecc full enumeration, Milan compatibility | PASS on `9e9954e9`; see [B4 evidence](#owner-blockers). The 2026-09-23 FAIL on `ede8d48e` is superseded and retained as a dated [Step 5 record](#step-5-controller-discovery-and-enumeration) |
+464:| la_avdecc Milan compatibility, DUT (2026-09-23, `ede8d48e`) | Dated FAIL, superseded by the `9e9954e9` PASS in [B4](#owner-blockers): flags `IEEE17221` only; the library logged "[Milan 1.3 - 5.3.8.10] Milan mandatory counters missing for STREAM_INPUT des
+469:- **Why Milan was downgraded on 2026-09-23 (`ede8d48e`).** Stream Input 1, the CRF media-clock input, returned `counters_valid` 0. [#534](https://github.com/kebag-logic/milan-fpga/pull/534) closed that counter gap and [#529](https://github.com/kebag-logic/
+488:2. **The first CRF burst started before any reservation existed.** The DUT answered the first probe with TALKER_DEST_MAC_FAIL (status 3) and began emitting 0.18 ms later. The first Listener Ready reached it 4.7 s after that. Tracked in [#530](https://githu
+517:- **Hosts.** The multicast memberships ended with their processes. Every temporary file on the controller host and the capture server was copied, verified by SHA-256, and removed. No capture or probe process remains, and the bench lock is free.
+527:- **Hosts.** The watcher, census and power-strip scripts were removed from the controller host and the power-strip host; the captures were copied, their SHA-256 checked against the remote copy, and removed. No process of the runs remains, and the bench loc
+538:- **B4. Interactive Hive replaced by headless la_avdecc enumeration.** RESOLVED by the [2026-09-27 owner decision](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5858063707). The replacement ran three times on 2026-09-27. Each reports IE
+541:Its Milan PASS supersedes Step 5's 2026-09-23 FAIL on `ede8d48e`.
+542:That FAIL remains a dated record.
+544:[#529](https://github.com/kebag-logic/milan-fpga/issues/529);
+550:Box 4's remaining non-PASS rows are NOT RUN:
+552:Audio continuity remains deferred to 2026-12-31.
+683:No enumeration process remains; temporary controller files were removed.
+698:- `MANIFEST.json` at the same commit gives each file's original and published SHA-256. A packet's `MANIFEST.sha256` lists the files as recorded, so `sha256sum -c` reports the redacted ones (20 in the A200 packet, 57 in the A202 packet) as FAILED by design;
+709:| Run A tap capture | `26c4529a7d0dd4e335af3073aa8080072dfbb4642042c5de66f487fafb56fc43` |
+744:| attempt 1: tap capture | `7f4b2bd3cbad5d7bdf7bc5297c7eb761da855209bd7d416758e7a173ab82b83e` |
+
+## round-1 lines 460-470 at bcba79a5 (the :462/:467 the assignment names)
+   458	| ADP discovery from the controller host | two entities: the DUT (`020000fffe000001`, model `0x001BC5C40236BA0E`, firmware `2.96.0`) and the reference peer; bot
+   459	| la_avdecc counters probe, DUT | CLEAN, rc 0, complaints 0: GET_COUNTERS ENTITY NOT_SUPPORTED, STREAM_INPUT 0 SUCCESS (`0x00000FFF`), STREAM_INPUT 999 NO_SUCH_
+   460	| la_avdecc counters probe, reference peer | the same transcript line for line: PASS by parity, the bar [TESTING.md](../testing/TESTING.md) sets |
+   461	| la_avdecc full enumeration, DUT | enumeration time 164 ms (library statistic), 0 query errors, 0 AECP retries, timeouts or unexpected responses, average respo
+   462	| la_avdecc Milan compatibility, DUT | FAIL: flags `IEEE17221` only; the library logged "[Milan 1.3 - 5.3.8.10] Milan mandatory counters missing for STREAM_INPU
+   463	| la_avdecc full enumeration, reference peer | online, 0 query errors, flags `IEEE17221` and `MILAN` |
+   464	| Headless la_avdecc, Hive replacement (2026-09-27) | PASS, three runs: `IEEE17221` and `MILAN`; 41 descriptors across 14 types; zero complaints, warnings, quer
+   465	| behave against hardware | NOT RUN: [tests/README.md](../../tests/README.md) defines the suite as offline only, with no hardware tier |
+       
+   466	- **Why Milan was downgraded.** The failing descriptor is Stream Input 1, the CRF media-clock input: its GET_COUNTERS returns `counters_valid` 0. The register m
+   467	- **Controller registration.** The controller registered for unsolicited notifications
+## other docs naming 117_GPTP_SILICON_EVIDENCE or #529 Milan status
+./docs/design/GM_LOSS_RECOVERY.md:118:The [#117 findings](../findings/117_GPTP_SILICON_EVIDENCE.md#step-3-gm-loss-and-return) record six measured cycles.
+./docs/design/GM_LOSS_RECOVERY.md:243:Its switch-cycle measurements are in the [findings](../findings/117_GPTP_SILICON_EVIDENCE.md).
+./docs/findings/README.md:11:| [117_GPTP_SILICON_EVIDENCE.md](117_GPTP_SILICON_EVIDENCE.md) | One AX7101 against the reference peer on dev `ede8d48e`: asCapable, cadence, turnaround, GM loss and return over six switch po

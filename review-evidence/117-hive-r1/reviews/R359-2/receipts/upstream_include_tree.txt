@@ -1,0 +1,36 @@
+## upstream 6d61a92e7f264c69f23cdc38f50d31114e567aa0 tree facts
+truncated False
+include/ blobs 63
+include/la/avdecc blobs 63
+include/la/networkInterfaceHelper present: False
+non-header files under include/la/avdecc: ['include/la/avdecc/avdecc.i', 'include/la/avdecc/controller/avdeccController.i', 'include/la/avdecc/internals/chrono.i', 'include/la/avdecc/internals/entityModel.i', 'include/la/avdecc/internals/std_function.i', 'include/la/avdecc/internals/std_tuple.i', 'include/la/avdecc/internals/std_unordered_map.i', 'include/la/avdecc/internals/swig_foreach.i', 'include/la/avdecc/logger.i', 'include/la/avdecc/memoryBuffer.i', 'include/la/avdecc/utils.i']
+headers under include/la/avdecc: 52
+submodule Docker/dockerHelper ecd70e667147e4a969d5ae833b78421b914fdf50
+submodule cmake/cmakeUtils c0a60b2081798c29eca01c4f0999dfa572fef340
+submodule externals/3rdparty/fmtlib f5e54359df4c26b6230fc61d38aa294581393084
+submodule externals/3rdparty/gtest 52eb8108c5bdec04579160ae17225d66034bd723
+submodule externals/3rdparty/json 9cca280a4d0ccf0c08f47a99aa71d1b0e52f8d03
+submodule externals/nih d777db8b4d1947b1c63f4cb8aab03b0bec5f7e22
+submodule scripts/bashUtils 86bd20ecd118a13620ec121ccfa4ba286f47d1fc
+top-level of include/la/avdecc headers (for omitted-file review):
+   include/la/avdecc/avdecc.h
+   include/la/avdecc/avdecc.hpp
+   include/la/avdecc/executor.hpp
+   include/la/avdecc/logger.hpp
+   include/la/avdecc/memoryBuffer.hpp
+   include/la/avdecc/utils.hpp
+   include/la/avdecc/watchDog.hpp
+## candidate omitted headers (names matching the addendum description)
+   include/la/avdecc/avdecc.h
+   include/la/avdecc/controller/internals/avdeccVirtualControlledEntityInterface.hpp
+   include/la/avdecc/controller/internals/virtualEntityBuilder.hpp
+   include/la/avdecc/internals/exports.h
+   include/la/avdecc/internals/typedefs.h
+## header-install lists (library src/ + src/controller/ CMakeLists) vs upstream la/avdecc headers
+upstream la/avdecc .h/.hpp headers: 52
+named in the install lists: 48 (addendum: 48 la/avdecc files)
+upstream la/avdecc headers outside the install lists: ['la/avdecc/avdecc.h', 'la/avdecc/controller/internals/avdeccVirtualControlledEntityInterface.hpp', 'la/avdecc/internals/exports.h', 'la/avdecc/internals/typedefs.h']
+nih PUBLIC_HEADER_FILES: networkInterfaceHelper.hpp (src/CMakeLists.txt:21); windowsHelper.hpp is appended only on Windows (src/CMakeLists.txt:43) (addendum: 1 nih file)
+nih upstream include/ files: internals/exports.h, networkInterfaceHelper.h, networkInterfaceHelper.hpp, networkInterfaceHelper.i, windowsHelper.hpp
+addendum names as omitted: SWIG .i files, avdecc.h, networkInterfaceHelper.h, the Windows helper, one internal virtual-entity header
+omissions implied by the counts but not named: la/avdecc/internals/exports.h, la/avdecc/internals/typedefs.h, la/networkInterfaceHelper/internals/exports.h

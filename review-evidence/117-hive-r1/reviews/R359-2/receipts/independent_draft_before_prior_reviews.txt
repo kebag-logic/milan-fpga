@@ -1,0 +1,37 @@
+[R359] round R359-2 independent draft, written before reading any prior review report on PR #598.
+Head ecd36018a29f605efe790d33dd50382aec9c1201 (tree 505fb4868a1b7a8808ca813e4b668582fe72cf11).
+
+Delta bcba79a5..ecd36018: one file, docs/findings/117_GPTP_SILICON_EVIDENCE.md, +53/-15.
+Base..head 2a2a7bb6..ecd36018: the same single file.
+
+Assigned checks:
+(1) B4 packet locator and hashes: page :652-667 names branch 117-hive-review-evidence at 557087b3,
+    review-evidence/117-hive-r1. All ten B4 table hashes resolve (receipts/b4_hashes_557087b.txt):
+    seven match published bytes; the three entity dumps are listed as redacted and MANIFEST.json maps
+    original->published. Probe source ac552f67 matches the published tools/enum_probe.cpp. "recorded
+    bytes" / "publication is pending" no longer appear. author/ and its MANIFEST.json entries are
+    identical at 89aa9f94, 557087b3 and the branch head 34c3b1d6. PASS.
+(2) Step-5 Milan FAIL dated to 2026-09-23 / ede8d48e (:464, :469), superseded by the 9e9954e9 PASS
+    (:55, :540-548). 50e78097 (#534 merge) is an ancestor of 9e9954e9 and not of ede8d48e. Published
+    dumps show Stream Input 1 with ten counters (the register map's 0x00000F3F set). Causal link
+    stated as observational (:547). Header :6-9, Contents :30/:33 and box-4 remaining rows (:550-552)
+    agree with the table (:53-58). PASS, with one wording point: "#534 closed #529" (:469, :543-544)
+    is not what the record shows; #534 says "Relates to #529 (it stays open until ...)", has no
+    closing reference, and #529 was closed by hand on 2026-09-24 after a silicon Milan PASS on the
+    50e78097 image. Candidate SUGGESTION (Docs): loose attribution, the material fact is true.
+(3) Build sentence :634-648: nine probe defines equal BUILD_FLAGS; enabled/disabled lists equal the
+    upstream CMake behaviour-option defaults at 6d61a92e; "no warnings" conditioned on that set incl.
+    IGNORE_INVALID_CONTROL_DATA_LENGTH. PASS. Candidate SUGGESTION (Docs): the private-only options
+    (IGNORE_INVALID_CONTROL_DATA_LENGTH, IGNORE_INVALID_NON_SUCCESS_AEM_RESPONSES,
+    ALLOW_GET_AUDIO_MAP_UNSOL) are asserted as the built library's state with no published configure
+    receipt; the conditioning is conservative (defaults are the permissive set).
+(4) author-r2/PACKET-ADDENDUM.md: include order matches build-provenance.txt (library include/, json
+    include/, probe include/); library include/ has no la/networkInterfaceHelper; submodule pins
+    nih d777db8b and json 9cca280a match the upstream tree at 6d61a92e; 48 la/avdecc headers equals
+    the library+controller header-install lists. Candidate SUGGESTION (Docs): the omitted-file list
+    is incomplete (52 upstream la/avdecc headers, 48 present, only two la/avdecc omissions named;
+    install lists also omit internals/exports.h and internals/typedefs.h, and nih internals/exports.h).
+
+Gates at head: docs_check, check_doc_style, gen_toc --check, check_em_dash --base 2a2a7bb6,
+check_doc_paths, ci_scope --selftest, check_baremetal_only --check, git diff --check: all rc 0.
+No BLOCKER/MAJOR/MINOR found in the independent pass. Draft verdict: POSITIVE.

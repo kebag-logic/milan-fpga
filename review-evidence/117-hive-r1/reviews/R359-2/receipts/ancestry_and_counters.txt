@@ -1,0 +1,22 @@
+## #534/#529 and ancestry
+50e78097564244c124e1ec30dd8821f83951ab06 Merge PR #534: Serve the CRF Stream Input counters on GET_COUNTERS and notif...
+warning: unable to find all commit-graph files
+50e78097 is ancestor of 9e9954e9: yes
+warning: unable to find all commit-graph files
+50e78097 ancestor of ede8d48e: NO
+ede8d48ecd7c7f589a14b957951f040d92c99c70 2026-09-23 13:11:52 +0200 Merge PR #522: bind Yosys cache evidence to genera...
+9e9954e96bf55181edb9949ae94c9abd4ab6aaf5 2026-09-27 16:54:23 +0200 Merge PR #585: Refuse invalid shipping-model decla...
+{"closes":[],"merge":"50e78097564244c124e1ec30dd8821f83951ab06","mergedAt":"2026-09-24T02:23:41Z","number":534,"state":"MERGED","title":"Serve the CRF Stream Input counters on GET_COUNTERS and notify their changes"}
+{"closedAt":"2026-09-24T03:38:14Z","state":"CLOSED","title":"CRF Stream Input serves no AECP counters, so controllers downgrade the entity from Milan"}
+## Stream Input 1 counters in published dumps
+run-1 SI1 counters 10 ['EARLY_TIMESTAMP', 'FRAMES_RX', 'LATE_TIMESTAMP', 'MEDIA_LOCKED', 'MEDIA_RESET', 'MEDIA_UNLOCKED', 'SEQ_NUM_MISMATCH', 'STREAM_INTERRUPTED', 'TIMESTAMP_UNCERTAIN', 'UNSUPPORTED_FORMAT']
+run-2 SI1 counters 10 ['EARLY_TIMESTAMP', 'FRAMES_RX', 'LATE_TIMESTAMP', 'MEDIA_LOCKED', 'MEDIA_RESET', 'MEDIA_UNLOCKED', 'SEQ_NUM_MISMATCH', 'STREAM_INTERRUPTED', 'TIMESTAMP_UNCERTAIN', 'UNSUPPORTED_FORMAT']
+run-3 SI1 counters 10 ['EARLY_TIMESTAMP', 'FRAMES_RX', 'LATE_TIMESTAMP', 'MEDIA_LOCKED', 'MEDIA_RESET', 'MEDIA_UNLOCKED', 'SEQ_NUM_MISMATCH', 'STREAM_INTERRUPTED', 'TIMESTAMP_UNCERTAIN', 'UNSUPPORTED_FORMAT']
+## 9e9954e9 -> 2a2a7bb6 diff names
+docs/design/AREA_BUDGET.md
+docs/findings/PP_SHADOW_BASELINE.md
+docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json
+docs/findings/PP_SHADOW_BASELINE_50MHZ_RANKING.tsv
+
+Changes:
+
