@@ -1,0 +1,79 @@
+--- scratch/sim_main_head.cpp	2026-09-26 19:30:35.335000000 +0200
++++ scratch/oracle/probe_main.cpp	2026-09-26 19:17:20.479210148 +0200
+@@ -101,7 +101,7 @@
+ #include "Vmilan_datapath.h"
+ #include "Vmilan_datapath___024root.h"
+ #include "verilated.h"
+-#include "../../common/verilator_harness.hpp"
++#include "$REVIEWS/r328-1-502/tb/common/verilator_harness.hpp"
+ #include <cstdio>
+ #include <cstring>
+ #include <cstdint>
+@@ -277,7 +277,33 @@
+         unsigned durable_cycles = 0;
+         unsigned missing_pending = 0;
+         unsigned mark_group = 0;
++        bool have_snap = false;
++        std::vector<uint8_t> snap;
++        unsigned oracle_changes = 0;
++        unsigned oracle_missing = 0;
++        long oracle_first = -1;
+     };
++    template <class T> static void app(std::vector<uint8_t>& v, const T& x) {
++        const auto* p = reinterpret_cast<const uint8_t*>(&x);
++        v.insert(v.end(), p, p + sizeof(T));
++    }
++    void oracle_edge() {
++        const auto* rp = dut->rootp;
++        std::vector<uint8_t> now;
++        app(now, rp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_store__DOT__name_r);
++        app(now, rp->milan_datapath__DOT__amap_in_store_r);
++        app(now, rp->milan_datapath__DOT__amap_out_owner_v_r);
++        app(now, rp->milan_datapath__DOT__amap_out_owner_r);
++        app(now, rp->milan_datapath__DOT__amap_out_cluster_r);
++        app(now, rp->milan_datapath__DOT__cmap_flat_w);
++        if (pending.have_snap && now != pending.snap) {
++            ++pending.oracle_changes;
++            if (pending.oracle_first < 0) pending.oracle_first = pending.cycle;
++            pending.oracle_missing += !rp->milan_datapath__DOT__pp_nvm_pend_w;
++        }
++        pending.snap = std::move(now);
++        pending.have_snap = true;
++    }
+     PendingObs pending;
+ 
+     void pending_pre_edge() {
+@@ -304,6 +330,7 @@
+     }
+ 
+     void pending_post_edge() {
++        if (pending.armed && dut->axis_resetn) oracle_edge();
+         if (!pending.armed || !pending.unsaved || !dut->axis_resetn) return;
+         const auto* rp = dut->rootp;
+         const bool pend = rp->milan_datapath__DOT__pp_nvm_pend_w;
+@@ -1353,6 +1380,10 @@
+         ck("K accepted map records", pending.maps, maps);
+         ck("K command marks", pending.marks, marks);
+         ck("K mark group", pending.wrong_group, 0);
++        snprintf(label, sizeof label, "ORACLE %s live change without pending", tag);
++        ck(label, pending.oracle_missing, 0);
++        printf("  [o] %s oracle changes %u, first change %ld, first trigger %ld\n",
++               tag, pending.oracle_changes, pending.oracle_first, pending.first_write);
+         if (marks != 0) {
+             ck("K real program tail separates first write and mark",
+                pending.first_write >= 0 && pending.first_mark > pending.first_write, 1);
+@@ -1415,6 +1446,14 @@
+             put16be(map.data(), type);
+             pending_command(0x002c, map, static_cast<uint16_t>(0x5030 + type));
+             pending_report("K12 zero records", 0, 0, 0);
++            {
++                std::vector<uint8_t> bad(16, 0);
++                put16be(bad.data(), type);
++                put16be(bad.data() + 4, 1);
++                put16be(bad.data() + 8, 0x7fff); // stream_index out of range
++                pending_command(0x002c, bad, static_cast<uint16_t>(0x5038 + type), 7);
++                pending_report("PROBE refused record", 0, 0, 0);
++            }
+             map.resize(16, 0);
+             put16be(map.data() + 4, 1); // one mapping: stream 0/channel 0/cluster 0
+             pending_command(0x002c, map, static_cast<uint16_t>(0x5040 + type));

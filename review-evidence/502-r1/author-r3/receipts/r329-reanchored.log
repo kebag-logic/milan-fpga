@@ -1,0 +1,171 @@
+M1_drop_map            dyn    FAIL             pp_shadow: 263 checks, 20 failures
+    [FAIL] K commit preserves unmaterialized pending
+    [FAIL] K12 input no_durable_claim_over_unsaved
+    [FAIL] K12 input pending_from_accepting_edge
+    [FAIL] K12 input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 input sticky_pending_PP_STAT
+    [FAIL] K12 no_durable_claim_over_unsaved
+    [FAIL] K12 pending_from_accepting_edge
+    [FAIL] K12 remove input no_durable_claim_over_unsaved
+    [FAIL] K12 remove input pending_from_accepting_edge
+    [FAIL] K12 remove input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 remove input sticky_pending_PP_STAT
+    [FAIL] K12 remove output no_durable_claim_over_unsaved
+    [FAIL] K12 remove output pending_from_accepting_edge
+    [FAIL] K12 remove output sticky_pending_PP_NVM_STAT
+    [FAIL] K12 remove output sticky_pending_PP_STAT
+    [FAIL] K12 sticky_pending_PP_NVM_STAT
+    [FAIL] K12 sticky_pending_PP_STAT
+M1_drop_map            static FAIL             pp_shadow: 173 checks, 10 failures
+    [FAIL] K commit preserves unmaterialized pending
+    [FAIL] K12 input no_durable_claim_over_unsaved
+    [FAIL] K12 input pending_from_accepting_edge
+    [FAIL] K12 input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 input sticky_pending_PP_STAT
+    [FAIL] K12 remove input no_durable_claim_over_unsaved
+    [FAIL] K12 remove input pending_from_accepting_edge
+    [FAIL] K12 remove input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 remove input sticky_pending_PP_STAT
+M2_drop_name           dyn    FAIL             pp_shadow: 263 checks, 13 failures
+    [FAIL] K commit preserves unmaterialized pending
+    [FAIL] K10 no_durable_claim_over_unsaved
+    [FAIL] K10 pending_from_accepting_edge
+    [FAIL] K10 repeat no_durable_claim_over_unsaved
+    [FAIL] K10 repeat pending_from_accepting_edge
+    [FAIL] K10 repeat sticky_pending_PP_NVM_STAT
+    [FAIL] K10 repeat sticky_pending_PP_STAT
+    [FAIL] K10 sticky_pending_PP_NVM_STAT
+    [FAIL] K10 sticky_pending_PP_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_STAT
+    [FAIL] K12 duplicate output sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate output sticky_pending_PP_STAT
+M2_drop_name           static FAIL             pp_shadow: 173 checks, 11 failures
+    [FAIL] K commit preserves unmaterialized pending
+    [FAIL] K10 no_durable_claim_over_unsaved
+    [FAIL] K10 pending_from_accepting_edge
+    [FAIL] K10 repeat no_durable_claim_over_unsaved
+    [FAIL] K10 repeat pending_from_accepting_edge
+    [FAIL] K10 repeat sticky_pending_PP_NVM_STAT
+    [FAIL] K10 repeat sticky_pending_PP_STAT
+    [FAIL] K10 sticky_pending_PP_NVM_STAT
+    [FAIL] K10 sticky_pending_PP_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_STAT
+M4_wrong_phase_2       dyn    FAIL             pp_shadow: 263 checks, 16 failures
+    [FAIL] K12 duplicate input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_STAT
+    [FAIL] K12 duplicate output sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate output sticky_pending_PP_STAT
+    [FAIL] K12 input no_durable_claim_over_unsaved
+    [FAIL] K12 input pending_from_accepting_edge
+    [FAIL] K12 no_durable_claim_over_unsaved
+    [FAIL] K12 pending_from_accepting_edge
+    [FAIL] K12 remove input no_durable_claim_over_unsaved
+    [FAIL] K12 remove input pending_from_accepting_edge
+    [FAIL] K12 remove output no_durable_claim_over_unsaved
+    [FAIL] K12 remove output pending_from_accepting_edge
+    [FAIL] K12 zero records sticky_pending_PP_NVM_STAT
+    [FAIL] K12 zero records sticky_pending_PP_STAT
+M4_wrong_phase_2       static FAIL             pp_shadow: 173 checks, 8 failures
+    [FAIL] K12 duplicate input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_STAT
+    [FAIL] K12 input no_durable_claim_over_unsaved
+    [FAIL] K12 input pending_from_accepting_edge
+    [FAIL] K12 remove input no_durable_claim_over_unsaved
+    [FAIL] K12 remove input pending_from_accepting_edge
+    [FAIL] K12 zero records sticky_pending_PP_NVM_STAT
+    [FAIL] K12 zero records sticky_pending_PP_STAT
+M5_early_phase_4       dyn    FAIL             pp_shadow: 263 checks, 8 failures
+    [FAIL] K12 duplicate input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_STAT
+    [FAIL] K12 duplicate output sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate output sticky_pending_PP_STAT
+    [FAIL] K12 refused record input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 refused record input sticky_pending_PP_STAT
+    [FAIL] K12 refused record output sticky_pending_PP_NVM_STAT
+    [FAIL] K12 refused record output sticky_pending_PP_STAT
+M5_early_phase_4       static FAIL             pp_shadow: 173 checks, 4 failures
+    [FAIL] K12 duplicate input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_STAT
+    [FAIL] K12 refused record input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 refused record input sticky_pending_PP_STAT
+M6_add_only            dyn    FAIL             pp_shadow: 263 checks, 14 failures
+    [FAIL] K commit preserves unmaterialized pending
+    [FAIL] K12 duplicate input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_STAT
+    [FAIL] K12 duplicate output sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate output sticky_pending_PP_STAT
+    [FAIL] K12 remove input no_durable_claim_over_unsaved
+    [FAIL] K12 remove input pending_from_accepting_edge
+    [FAIL] K12 remove input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 remove input sticky_pending_PP_STAT
+    [FAIL] K12 remove output no_durable_claim_over_unsaved
+    [FAIL] K12 remove output pending_from_accepting_edge
+    [FAIL] K12 remove output sticky_pending_PP_NVM_STAT
+    [FAIL] K12 remove output sticky_pending_PP_STAT
+M6_add_only            static FAIL             pp_shadow: 173 checks, 7 failures
+    [FAIL] K commit preserves unmaterialized pending
+    [FAIL] K12 duplicate input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_STAT
+    [FAIL] K12 remove input no_durable_claim_over_unsaved
+    [FAIL] K12 remove input pending_from_accepting_edge
+    [FAIL] K12 remove input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 remove input sticky_pending_PP_STAT
+M8_input_ports_only    dyn    FAIL             pp_shadow: 263 checks, 12 failures
+    [FAIL] K commit preserves unmaterialized pending
+    [FAIL] K12 duplicate input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_STAT
+    [FAIL] K12 no_durable_claim_over_unsaved
+    [FAIL] K12 pending_from_accepting_edge
+    [FAIL] K12 remove output no_durable_claim_over_unsaved
+    [FAIL] K12 remove output pending_from_accepting_edge
+    [FAIL] K12 remove output sticky_pending_PP_NVM_STAT
+    [FAIL] K12 remove output sticky_pending_PP_STAT
+    [FAIL] K12 sticky_pending_PP_NVM_STAT
+    [FAIL] K12 sticky_pending_PP_STAT
+M8_input_ports_only    static FAIL             pp_shadow: 173 checks, 2 failures
+    [FAIL] K12 duplicate input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_STAT
+M9_any_phase           dyn    FAIL             pp_shadow: 263 checks, 12 failures
+    [FAIL] K12 duplicate input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_STAT
+    [FAIL] K12 duplicate output sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate output sticky_pending_PP_STAT
+    [FAIL] K12 refused record input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 refused record input sticky_pending_PP_STAT
+    [FAIL] K12 refused record output sticky_pending_PP_NVM_STAT
+    [FAIL] K12 refused record output sticky_pending_PP_STAT
+    [FAIL] K12 zero records sticky_pending_PP_NVM_STAT
+    [FAIL] K12 zero records sticky_pending_PP_STAT
+M9_any_phase           static FAIL             pp_shadow: 173 checks, 8 failures
+    [FAIL] K12 duplicate input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 duplicate input sticky_pending_PP_STAT
+    [FAIL] K12 refused record input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 refused record input sticky_pending_PP_STAT
+    [FAIL] K12 static output refused sticky_pending_PP_NVM_STAT
+    [FAIL] K12 static output refused sticky_pending_PP_STAT
+    [FAIL] K12 zero records sticky_pending_PP_NVM_STAT
+    [FAIL] K12 zero records sticky_pending_PP_STAT
+M10_late_mark          dyn    FAIL             pp_shadow: 263 checks, 12 failures
+    [FAIL] K10 no_durable_claim_over_unsaved
+    [FAIL] K10 pending_from_accepting_edge
+    [FAIL] K10 repeat no_durable_claim_over_unsaved
+    [FAIL] K10 repeat pending_from_accepting_edge
+    [FAIL] K12 input no_durable_claim_over_unsaved
+    [FAIL] K12 input pending_from_accepting_edge
+    [FAIL] K12 no_durable_claim_over_unsaved
+    [FAIL] K12 pending_from_accepting_edge
+    [FAIL] K12 remove input no_durable_claim_over_unsaved
+    [FAIL] K12 remove input pending_from_accepting_edge
+    [FAIL] K12 remove output no_durable_claim_over_unsaved
+    [FAIL] K12 remove output pending_from_accepting_edge
+M10_late_mark          static FAIL             pp_shadow: 173 checks, 8 failures
+    [FAIL] K10 no_durable_claim_over_unsaved
+    [FAIL] K10 pending_from_accepting_edge
+    [FAIL] K10 repeat no_durable_claim_over_unsaved
+    [FAIL] K10 repeat pending_from_accepting_edge
+    [FAIL] K12 input no_durable_claim_over_unsaved
+    [FAIL] K12 input pending_from_accepting_edge
+    [FAIL] K12 remove input no_durable_claim_over_unsaved
+    [FAIL] K12 remove input pending_from_accepting_edge
