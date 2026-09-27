@@ -121,6 +121,8 @@ and build refusal on these warnings.
 The [internal review](https://github.com/kebag-logic/milan-fpga/pull/605#issuecomment-5860399025)
 measured the intended bound on the read-only checkpoint.
 Its receipts are `v2-probe-results.txt` and `v3-crossings-results.txt`.
+Round 2 repeats its reset-based probe across all four directions.
+The retained script and receipt are `crossings.tcl` and `crossings-results.txt`.
 The probe clears timing constraints only in memory.
 It recreates the 200 MHz and Ethernet primary clocks.
 Generated sys/milan clocks propagate from the existing clock primitives.
@@ -132,9 +134,15 @@ This exposes crossings hidden by the original false paths.
 | Ethernet to sys | 2.179 | 5.746 | 1.240 | 6.717 |
 | Sys to Ethernet | 3.395 | 4.313 | 1.979 | 5.895 |
 | Ethernet to milan | 5.373 | 2.560 | 3.092 | 4.823 |
-| Milan to Ethernet | 0.875 | 7.066 | 0.432 | 7.538 |
+| Milan to Ethernet | 3.652 | 4.056 | 1.996 | 5.878 |
 
 Slack includes endpoint checks; it is not simply 8 minus delay.
+Removing all false paths exposes fourteen milan-to-Ethernet endpoints.
+The worst endpoint is the reset input `FDPE_18/PRE`.
+The review's narrower measurement retained generic false paths there.
+Its six visible endpoints gave Slow/Fast slack +7.066/+7.538 ns.
+Their maximum datapath delays were 0.875/0.432 ns, respectively.
+The other three directions reproduce the review's numbers exactly.
 Both models meet the intended bound for this placement.
 This diagnostic does not repair the shipping constraint set.
 It neither proves CDC correctness nor protects future sweep seeds.
