@@ -3,18 +3,66 @@
 import copy
 from pathlib import Path
 import re
+import sys
 import tempfile
 
 import yaml
 import endstation_builder as eb
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "sw/litex"))
+from boot_policy import fabric_constants  # noqa: E402
 
 
 def _load(raw, directory):
     path = directory / "case.yaml"
     path.write_text(yaml.safe_dump(raw))
     return eb.load_config(path)
+
+
+
+def _refused(raw, directory, field, rule):
+    """Require the owning refusal, never an unrelated exception or guard."""
+    try:
+        _load(raw, directory)
+    except eb.ConfigError as exc:
+        assert field in str(exc) and rule in str(exc), (field, rule, str(exc))
+    else:
+        raise AssertionError(f"accepted invalid {field}: {rule}")
+
+
+def test_model_id_contract() -> None:
+    """Milan 5.3.1 endpoints; Table 7-2 ENTITY and ADP identity equality."""
+    import gen_aemi_image as join
+
+    base = yaml.safe_load((ROOT / "configs/endstation_arty_current.yaml").read_text())
+    with tempfile.TemporaryDirectory(prefix="model-id-contract.") as tmp:
+        directory = Path(tmp)
+        for key in ("entity_model_id", "model_id_pin"):
+            raw = copy.deepcopy(base)
+            raw["entity"].pop("model_id_pin", None)
+            # Independent EUI-64 endpoints and adjacent legal values, per
+            # Milan 5.3.1. Importing the guard's bounds would hide drift.
+            for value in ("0x0000000000000001", "0xFFFFFFFFFFFFFFFE", "0x001BC50AC1000005"):
+                raw["entity"][key] = value
+                cfg = _load(raw, directory)
+                assert cfg["entity"]["entity_model_id"] == value
+                overlay = eb.emit_aem_overlay(cfg)
+                document = join.model_to_document(
+                    join.aem.build_model(join.aem.spec_from_overlay(overlay)),
+                    join.identity_from_overlay(overlay))
+                blob, _ = join.image.build(document, 576)
+                row = int.from_bytes(blob[12:16], "big")
+                assert blob[row:row + 4] == bytes(4), "first row must be ENTITY[0]"
+                offset = int.from_bytes(blob[row + 8:row + 12], "big")
+                assert blob[offset + 12:offset + 20] == int(value, 16).to_bytes(8, "big")
+                constants = fabric_constants(overlay, eb.emit_lwsrp_table(cfg))
+                assert (constants["MILAN_MODEL_ID_HI"] << 32
+                        | constants["MILAN_MODEL_ID_LO"]) == int(value, 16)
+            for value in ("0x0000000000000000", "0xFFFFFFFFFFFFFFFF"):
+                raw["entity"][key] = value
+                _refused(raw, directory, f"entity.{key}", "must not be zero or all ones")
+    print("[F1] literal/pinned legal IDs, ENTITY/ADP equality, four endpoint refusals")
 
 
 def _code(text):
@@ -55,6 +103,7 @@ def assert_header(header: str, n: int) -> None:
 
 def test_declaration_contracts() -> None:
     """Declaration refusals, generated rows, real bindings and mutation controls."""
+    test_model_id_contract()
     base = yaml.safe_load((ROOT / "configs/endstation_arty_current.yaml").read_text())
     with tempfile.TemporaryDirectory(prefix="declarations.") as tmp:
         directory = Path(tmp)

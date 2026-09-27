@@ -68,6 +68,7 @@ ROOT = HERE.parent.parent
 
 SCHEMA_ID = "kebag-logic/milan-endstation-config"
 SCHEMA_MAJOR = "1"
+EUI64_MAX = (1 << 64) - 1
 
 
 def _repo_relative(path: Path) -> str:
@@ -1329,9 +1330,19 @@ def _eui64(v, ctx):
         n = int(str(v), 16)
     except ValueError:
         raise ConfigError(f"{ctx}: '{v}' is not a hex EUI-64")
-    if not 0 <= n <= 0xFFFFFFFFFFFFFFFF:
+    if not 0 <= n <= EUI64_MAX:
         raise ConfigError(f"{ctx}: '{v}' out of EUI-64 range")
     return n
+
+
+def _model_id(value: Any, ctx: str) -> int:
+    """Reject reserved model identities before OUI or descriptor processing."""
+    number = _eui64(value, ctx)
+    if number in (0, EUI64_MAX):
+        raise ConfigError(
+            f"{ctx}: entity_model_id must not be zero or all ones "
+            "(Milan v1.2 5.3.1; IEEE 1722.1-2021 6.2.2.8)")
+    return number
 
 
 def _fmt64(v, ctx):
@@ -4305,11 +4316,11 @@ def load_config(path: str) -> dict[str, Any]:
     raw = _req(ent, "entity_model_id", "entity")
     pin = ent.get("model_id_pin")
     if pin is not None:
-        mid, src = _eui64(pin, "entity.model_id_pin"), "pin"
+        mid, src = _model_id(pin, "entity.model_id_pin"), "pin"
     elif raw == "hash-derived":
         mid, src = hashed, "hash"
     else:
-        mid, src = _eui64(raw, "entity.entity_model_id"), "literal"
+        mid, src = _model_id(raw, "entity.entity_model_id"), "literal"
     if src != "hash" and "vendor_oui" in ent \
             and (mid >> MODEL_ID_HASH_BITS) != oui:
         raise ConfigError(

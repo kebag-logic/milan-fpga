@@ -128,6 +128,9 @@ AAF_CTRL and MAAP_CTRL reset neutral; firmware supplies active values.
 under the vendor OUI, `entity.vendor_oui`. Instance-only fields such as the
 station MAC, serial, and display name do not affect a hash-derived model ID.
 
+Literal and pinned model IDs reject zero and all ones.
+Milan v1.2 5.3.1 reserves both endpoint values.
+
 The descriptor image bakes the derived entity ID, resolved model ID, stream
 counts, capabilities, MAC, and clock identity. No runtime companion file
 restates those values.

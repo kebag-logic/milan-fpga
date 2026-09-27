@@ -1,7 +1,7 @@
 # Processor descriptor ownership and evidence
 
 This is the parent contract allocation for [#509][coordination].
-It records measurements at `7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a`.
+Original measurements were recorded at `7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a`.
 The processor pin is `990f96526bb89356c963a260ebbdcf2a77e6623a`.
 
 The [assignment decision][decision] settles ownership, not implementation completeness.
@@ -63,7 +63,7 @@ The consumer names identify the boundary relying on each rule.
 | L6: one INPUT_STREAM per CRF input (or sole AAF input without CRF), INTERNAL with outputs, at least one source per domain, identity list, restricted gPTP chain; Milan 5.3.3.6, 7.5; IEEE 7.4.23.1 | Parent source rows/domain -> processor SET_CLOCK_SOURCE range check | Parent **C**: `B._overlay_clock_sources`, `D.d_clock_domain` produce `[0,1]`. **R/T**: `_load_clocking`, gate 33 reject retired AAF-derived sources and CRF without its sink. These do not grade an arbitrary packed list. Empty source lists fail with `IndexError`, not a named refusal. | INTERNAL plus one CRF input source ships. AAF-derived sources are unsupported. The loader admits only INTERNAL/CRF, so the non-redundant single-interface gPTP-as-media-clock arm is unreachable. Reversed packed lists pass; a CRF-only configuration with outputs builds. [PP60][pp60], [PP89][pp89], [F4/F6](#follow-up-allocation). |
 | L7: dynamic input maps, output uniqueness, mono clusters; Milan 5.3.3.7-.9; IEEE 7.2.19 | Parent ports/maps/clusters -> processor maps and media crossbars | Parent **R**: `B._streams` rejects static listener maps; `M._map_duplicate_rule` rejects duplicate output stream/channel targets. **C**: `D.d_audio_cluster` fixes channel_count=1. Generator self-test supplies negative controls. | Parent checks map indices and cluster bounds before packing. Stream-channel width deviations are recorded, not refused (`M._map_row_bounds`); shipping arty_current carries six, owned by [F8](#follow-up-allocation). Packer accepts static input-map fields, duplicate mapping bytes and channel_count=2. Generic semantic coverage remains [PP60][pp60]; repaired self-test belongs to [#464][selftest]. |
 | L8: IDENTIFY at one stable index; Milan 5.3.3.10 | Parent CONTROL/ADP CSR -> processor control lookup | Parent **C**: `D.d_control_identify`, `A._entity_descriptors` emit IDENTIFY[0]. `milan_csr.sv` resets ADP_IDX0 to zero; its upper half drives `identify_index_i`. **T**: gate 37 grades reset_time, not general IDENTIFY/CSR consistency. | Single configuration; no general missing/wrong CONTROL refusal. Packer accepts control_type=0. [PP60][pp60]; closed reset-time repair stays closed. |
-| L9: valid model identity and evolution; Milan 5.3.1/5.6.2; IEEE 6.2.2.8, Table 7-2 | Parent model hash/identity join -> ENTITY bytes, firmware and ADP inputs | Parent **C**: `B.model_shape`, `derive_model_id`, `J.identity_from_overlay`, `apply_identity`. **T**: gates 8/28 compare hashes and packed identity. `_eui64` checks numeric width only. | Zero/all-ones pins still build; generator-only reset_time changes retain a hash-derived ID. Evolution belongs to [#495][residue]/[PP38][pp38]; validity needs [F1](#follow-up-allocation). |
+| L9: valid model identity and evolution; Milan 5.3.1/5.6.2; IEEE 6.2.2.8, Table 7-2 | Parent model hash/identity join -> ENTITY bytes, firmware and ADP inputs | Parent **C**: `B.model_shape`, `derive_model_id`, `J.identity_from_overlay`, `apply_identity`. **T**: gates 8/28 compare hashes and packed identity. `B._model_id` refuses zero/all-ones literal and pinned identities; declaration tests compare packed ENTITY and ADP firmware constants. | Zero/all-ones declarations are refused; generator-only reset_time changes retain a hash-derived ID. Evolution belongs to [#495][residue]/[PP38][pp38]; validity is enforced by [F1](#follow-up-allocation). |
 | L10: offset 144, count <=8, full words, length=144+4N; IEEE 7.2.3/7.4.21.1; Milan 5.3.3.3 | Parent AUDIO_UNIT -> processor SET_SAMPLING_RATE immediate-address walk | Parent **R**: `B._load_clocking` rejects >8 and duplicates; gate 36a proves distinct ninth-entry refusal. **C**: `D.d_audio_unit` emits offset/length. **T**: `test_audio_unit_shipping_rates` checks offset/count/words, not exact length. | Shipped N=1 or 3. Eight-entry loader acceptance does not widen `S.spec_from_overlay`'s 48/96/192 kHz restriction. Packer accepts wrong offset, count/length mismatch and ninth entry. [#478][rate-bound] remains closed; [PP89][pp89]/[F6](#follow-up-allocation) retain the rest. |
 | ADP maxima; Milan 5.3.3.1, IEEE Table 7-2 | Parent `B.adp_shape`/overlay -> generated header, ENTITY bytes and processor ADP | Parent **C**: common stream counts feed all three paths. **T**: `scripts/check_entity_shape.py --self-test` and builder gate 28 compare artifacts. `J` bakes the same metadata into ENTITY. | One configuration, so its count is its maximum. Packer accepts incorrect ENTITY counts. No two-configuration maximum calculation/refusal is claimed. [PP39][pp39]; future parent multi-configuration delivery remains a prerequisite. |
 
@@ -178,7 +178,7 @@ Reachable parent YAML probes also expose missing validation:
 | L4 | 48 AAF output format entries | accepted / accepted |
 | L4 | AAF output list also contains CRF | accepted / accepted |
 | L6 | Sources `[crf]`, default_source=crf, outputs retained | accepted / accepted |
-| L9 | model_id_pin=0 or all ones | accepted / accepted |
+| L9 | model_id_pin=0 or all ones | refused by `_model_id` / not generated (#573) |
 
 These variants are not the five tracked shipping inputs.
 Their acceptance is a product validation gap, not shipping-image conformity.
@@ -188,7 +188,8 @@ Their acceptance is a product validation gap, not shipping-image conformity.
 `model_shape()` hashes configuration fields with `AEM_LAYOUT_REV`.
 The default vendor prefix is `0x001BC5`.
 An explicit pin overrides that hash without model-history validation.
-`_eui64()` accepts both forbidden endpoint values within its numeric range.
+`_model_id()` now rejects both endpoint values after numeric-width validation.
+Literal and pinned declarations receive the same refusal (#573).
 
 | Configuration | ENTITY entity_model_id | Source |
 |---|---|---|
@@ -233,7 +234,7 @@ Existing processor issues retain their published scope and acceptance criteria.
 
 | Record | Owner and bounded remaining work | Required discriminating evidence |
 |---|---|---|
-| F1 | Parent validity follow-up; coordinate [PP38][pp38]. Refuse zero/all-ones literal and pinned model IDs. Keep model evolution with #495. | Legal ID accepted; both endpoint values refused on both input forms; generated ENTITY/ADP equality retained. |
+| F1 (#573) | Enforced by `B._model_id` for literal and pinned IDs. Evolution remains with #495 and [PP38][pp38]. | Declaration tests accept legal IDs, refuse both endpoints on both inputs, and compare packed ENTITY/ADP identity. Removing the endpoint guard fails the tests. |
 | F2 | Parent buffer-floor follow-up; coordinate [PP60][pp60] L4. Validate every declared listener buffer. | 2126000 accepted, 2125999 refused; all five images unchanged. |
 | F3 | Parent stream-format follow-up; coordinate [PP60][pp60] L3/L4. Bound format count and validate AAF/CRF family and Milan CRF word. | Legal family controls; independently refuse 48 entries, mixed family and altered CRF word; test inputs and outputs. |
 | F4 | Parent source-construction follow-up; coordinate [PP60][pp60] L6. Outputs must have INTERNAL available. | INTERNAL+CRF accepted; outputs with only CRF refused; preserve applicable input-only behavior. |
