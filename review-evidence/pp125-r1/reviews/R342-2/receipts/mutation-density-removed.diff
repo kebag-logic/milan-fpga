@@ -1,0 +1,11 @@
+--- /dev/fd/63	2026-09-27 10:18:12.249000000 +0200
++++ $REVIEWS/pp125-r342-2-packet/scratch/mut-density-removed/hdl/aecp/desc/gen_desc_image.py	2026-09-27 10:18:12.244705866 +0200
+@@ -341,7 +341,7 @@
+     for (cfg, typ) in sorted(groups):
+         members = groups[(cfg, typ)]
+         want = sorted(members)
+-        if want != list(range(len(want))):
++        if False and want != list(range(len(want))):
+             raise ImageError(f"cfg {cfg} type 0x{typ:04X} indices are not "
+                              f"dense from 0: {want} (07 §3.1 rule L2)")
+         _check_name_binding(cfg, typ, want, members, names)

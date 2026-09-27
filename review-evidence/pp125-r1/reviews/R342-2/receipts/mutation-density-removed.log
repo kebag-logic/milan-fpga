@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "$REVIEWS/pp125-r342-2-packet/scripts/probe_packer_claims.py", line 136, in <module>
+    row("per-type index gap (L2)", "refuse", (base(),), (idx_gap,),
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "CLOCK_SOURCE indices [1] instead of [0]")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/pp125-r342-2-packet/scripts/probe_packer_claims.py", line 106, in row
+    m_ok, m_img, m_err = packs(mutant[0], *mutant[1:])
+                         ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/pp125-r342-2-packet/scripts/probe_packer_claims.py", line 49, in packs
+    img, _ = gdi.build(m, line_bytes)
+             ~~~~~~~~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/pp125-r342-2-packet/scratch/mut-density-removed/hdl/aecp/desc/gen_desc_image.py", line 447, in build
+    entries = _index_entries(_grouped_descriptors(model), names, line_bytes)
+  File "$REVIEWS/pp125-r342-2-packet/scratch/mut-density-removed/hdl/aecp/desc/gen_desc_image.py", line 347, in _index_entries
+    _check_name_binding(cfg, typ, want, members, names)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/pp125-r342-2-packet/scratch/mut-density-removed/hdl/aecp/desc/gen_desc_image.py", line 272, in _check_name_binding
+    base = members[0][1]
+           ~~~~~~~^^^
+KeyError: 0
+rc=1

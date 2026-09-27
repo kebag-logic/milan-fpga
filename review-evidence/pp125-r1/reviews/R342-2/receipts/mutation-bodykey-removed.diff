@@ -1,0 +1,11 @@
+--- /dev/fd/63	2026-09-27 10:18:12.366000000 +0200
++++ $REVIEWS/pp125-r342-2-packet/scratch/mut-bodykey-removed/hdl/aecp/desc/gen_desc_image.py	2026-09-27 10:18:12.245452005 +0200
+@@ -215,7 +215,7 @@
+         body = descriptor_bytes(desc)
+         body_type = int.from_bytes(body[0:2], "big")
+         body_index = int.from_bytes(body[2:4], "big")
+-        if (body_type, body_index) != (typ, idx):
++        if False and (body_type, body_index) != (typ, idx):
+             raise ImageError(
+                 f"cfg {cfg} directory key type 0x{typ:04X} index {idx} "
+                 f"disagrees with body type 0x{body_type:04X} "

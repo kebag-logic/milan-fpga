@@ -1,0 +1,38 @@
+## milan-fpga#584
+584 OPEN 8x8 stream input ports own no AUDIO_CLUSTER, against Milan 5.3.3.8 https://github.com/kebag-logic/milan-fpga/issues/584
+[A10] Found by processor #122's clause disposition (Mister-M-alt/protocol-processor-control-plane-avb-milan#122, issuecomment-5853884588, by [A348]).
+
+## Observed
+
+- Milan v1.2 §5.3.3.8 (printed p. 27): each Stream Port Input of a Configuration shall contain at least one AUDIO_CLUSTER descriptor. The same clause sets the output minimum.
+- IEEE 1722.1-2021 §7.2.13 (Table 7-23) keeps `number_of_clusters` separate from `number_of_maps`. Dynamic mapping zeroes the latter, not the former.
+- The ALINX 8x8 shape (`configs/endstation_ax7101_8x8.yaml`) declares `physical_channels: {capture: 0, render: 0}`, because the AX7101 has no audio I/O. Following D8 (`docs/ENDSTATION_BUILDER.md`, "D8 — role-named 8×8 port model"), its 8 STREAM_PORT_INPUTs therefore own **zero** clusters. That model is non-conforming.
+- D8's goal of advertising no capability the fabric cannot back is right, but it cannot be met by breaking §5.3.3.8.
+- The shipping 1x1 TDM8 is conforming: its input port owns its 8 backed render clusters.
+
+## Objective
+
+Every STREAM_PORT_INPUT of every tracked configuration owns at least one AUDIO_CLUSTER. Each cluster's meaning is stated in the model and backed by fabric behaviour wherever the configuration provides a sink.
+
+## Decision first
+
+The author publishes a DECISION comment here before any dependent edit, and the manager approves it. The comment:
+- lists the sinks the 8x8 fabric actually offers for received audio (for example the loopback lane when it is built, or the RX monitor / PCM path) and which of them the shipping 8x8 build selects;
+- proposes the cluster pool for input ports, derived from the configuration and never hardcoded;
+- states what a mapping to each cluster does on the wire and in the fabric.
+
+If no backed sink exists in a configuration, the decision states how the model stays conforming without claiming a capability it lacks (a documented unrouted cluster), and why.
+
+## Acceptance
+
+1. The builder emits conforming input ports for all tracked configurations. The builder refuses a configuration whose STREAM_PORT_INPUT or STREAM_PORT_OUTPUT would own zero clusters, with a named refusal and a test.
+2. D8 and `docs/reference/PP_DESCRIPTOR_OWNERSHIP.md` are updated, with the processor #122 disposition linked.
+3. The 8x8 image grows within the store and line-buffer bounds; report the sizes. The model identity rotates as the #495 evolution rules require.
+4. The 1x1 TDM8 artifacts are byte-identical. The Arty configurations keep building (#583).
+
+## processor #122 comment 5853884588
+5853884588 Mister-M-alt https://api.github.com/repos/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/122
+#38 OPEN Implement model-lint rule L9: reject invalid entity_model_id and tie it to the static model (REQ-ADP-003)
+#39 OPEN Derive or lint ADPDU stream counts as the maximum across all configurations (REQ-ADP-004)
+#60 OPEN Entity-model lint L1-L8 (07 section 3.1) does not exist: add it to gen_desc_image.py or re-scope (REQ-MDL-001 to 011)
+#89 OPEN gen_desc_image.py packs an AUDIO_UNIT that breaks the SET_SAMPLING_RATE image contract (rule L10) without a word
