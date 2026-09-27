@@ -252,23 +252,55 @@ verified blocks outside the shipping datapath; the station-address rules
   Streams remain bound in both directions with the reference peer.
   CRF participates alongside AAF.
   Every declared stream index receives periodic counter observations.
+  The sampling interval must not exceed 60 seconds.
+  Counter authority: Milan v1.2 5.3.7.7/5.3.8.10, Tables 5.4/5.6.
   `SEQ_NUM_MISMATCH` and `STREAM_INTERRUPTED` must never increase.
+  Sequence authority: IEEE 1722-2016 4.4.4.6.
   No unexplained `MEDIA_UNLOCKED` increase is permitted.
   No `asCapable` loss is permitted.
+  `asCapable` authority: Milan v1.2 4.2.6.2.4.
   `tu` must not persist beyond the applicable holdover.
+  Uncertainty authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1/B.1.1.
+  GM-change `tu` lasts 0.25 seconds under B.1.1.
+  B.1's recommended media-clock holdover is separately five seconds.
   Observe gPTP publication, `AVTPRX_TSD` margin, and monotonic uptime.
   The power campaign completes 200 unattended cold cuts.
   Of these, 160 occur idle; 40 interrupt journal commits.
   Warm resets do not count.
   Every cycle restores the shipping image's persisted state items.
   Currently that list contains stream binding.
+  Binding authority: Milan v1.2 5.3.8.2/5.3.8.3.
   All eight Milan items become mandatory when #70 lands.
   The plan receives that inventory as data.
+  Remaining authority: Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6,
+  5.3.8.1/5.3.8.7, 5.3.9.1, 5.3.10.1, 5.3.11.1, and 5.3.13.
+  Any additional declared state follows the project persistence inventory.
   Commit cuts recover complete old or new committed snapshots.
-  Re-advertisement meets the decoded ADP valid time after network readiness.
-  Binding restoration is automatic; controller repair cannot satisfy restoration.
-  Reconnect timing follows #75: successful `CONNECT_RX` to valid AVTP.
+  T0 is the host-timestamped power-strip ON command.
+  Capture the last pre-cut `ENTITY_AVAILABLE`, including its timestamp.
+  Its decoded `valid_time` determines that cycle's absolute expiry.
+  Express the remaining window relative to T0.
+  The first post-cut advertisement must precede that expiry.
+  An expired window or missing capture fails the cycle.
+  ADP authority: IEEE 1722.1-2021 6.2.2.5 and 6.2.4/6.2.5;
+  Milan v1.2 5.6.3 defines the profile's advertiser.
+  Restoration is automatic; controller repair cannot satisfy it.
+  Each persisted binding must resume valid AVTP within `restore_bound_s`.
+  Measure from T0, including both directions and CRF.
+  The bound is provisionally 30 seconds; overruns fail.
+  The manager ratifies it using #397 and #75 measurements.
+  These measure boot-to-entity-enabled and restart latency, respectively.
+  Auto Connect authority: Milan v1.2 5.5.1.4/5.5.2.6.
+  After restoration succeeds, run #75's additional controller reconnect check.
+  Measure successful `CONNECT_RX` to first valid AVTP.
   That interval must remain below one second.
+  Controller Bind authority: Milan v1.2 5.5.2.4.
+  Observe boot for `restore_bound_s + boot_margin_s` from T0.
+  The margin defaults to five seconds, without relaxing deadlines.
+  Require one BIOS pass and no additional restart.
+  These timing rules follow the
+  [round-2 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5854930205).
+  Release planning requires explicit topology and the stream-binding inventory.
   Both campaigns use one DUT and the reference peer.
   Retain exact-image evidence under [TESTING.md 6b](docs/testing/TESTING.md#6b-bench-evidence-retention).
   Execute the plan contract in [TESTING.md 6d](docs/testing/TESTING.md#6d-unattended-campaign-vehicle).

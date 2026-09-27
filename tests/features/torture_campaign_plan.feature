@@ -338,6 +338,54 @@ Feature: The torture campaign's own coverage is auditable at a desk
     And power repeats 160 idle and 40 journal-commit cold cuts
     And release assertions require complete measured evidence
 
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides
+    When release repeat <repeat> loses <role> <missing>
+    Then that release area fails its own audit
+    And the complete matrix still passes its audit
+
+    Examples:
+      | repeat               | role | missing        |
+      | soak.continuous      | DUT  | talker index   |
+      | soak.continuous      | DUT  | listener index |
+      | soak.continuous      | DUT  | CRF sink       |
+      | soak.continuous      | DUT  | AAF direction  |
+      | soak.continuous      | DUT  | CRF direction  |
+      | soak.continuous      | peer | talker index   |
+      | soak.continuous      | peer | listener index |
+      | soak.continuous      | peer | CRF sink       |
+      | soak.continuous      | peer | AAF direction  |
+      | soak.continuous      | peer | CRF direction  |
+      | power.idle           | DUT  | talker index   |
+      | power.idle           | DUT  | listener index |
+      | power.idle           | DUT  | CRF sink       |
+      | power.idle           | DUT  | AAF direction  |
+      | power.idle           | DUT  | CRF direction  |
+      | power.idle           | peer | talker index   |
+      | power.idle           | peer | listener index |
+      | power.idle           | peer | CRF sink       |
+      | power.idle           | peer | AAF direction  |
+      | power.idle           | peer | CRF direction  |
+      | power.journal_commit | DUT  | talker index   |
+      | power.journal_commit | DUT  | listener index |
+      | power.journal_commit | DUT  | CRF sink       |
+      | power.journal_commit | DUT  | AAF direction  |
+      | power.journal_commit | DUT  | CRF direction  |
+      | power.journal_commit | peer | talker index   |
+      | power.journal_commit | peer | listener index |
+      | power.journal_commit | peer | CRF sink       |
+      | power.journal_commit | peer | AAF direction  |
+      | power.journal_commit | peer | CRF direction  |
+
+  @class:release @clause:REQ-VER-06
+  Scenario: release timing and totals are parameterized
+    When a diagnostic release profile uses non-default timing and counts
+    Then every release repeat preserves those parameters and its timing origins
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a second successful boot cannot hide the first-boot restart
+    Then the first-boot restart control fails the release boot assertion
+
   @class:runner
   Scenario: areas can be selected, and an unknown area is refused
     Then selecting the audio area yields only audio steps

@@ -124,7 +124,14 @@ def step_tp_release_power_defaults(context: Context) -> None:
         assert step.args["cold"] and not step.args["count_resets"]
         assert step.args["total_cycles"] == 200
         assert step.args["persisted_items"] == ["stream_binding"]
-        assert step.args["boot_observation_s"] >= 480
+        assert step.args["restore_bound_s"] == 30
+        assert step.args["boot_margin_s"] == 5
+        assert step.args["boot_observation_s"] == 35
+        assert step.args["restore_start"] == "T0"
+        assert step.args["restore_end"] == "first valid AVTP PDU of each persisted binding"
+        assert step.args["rebind_limit_s"] == 1 and step.args["rebind_limit_exclusive"]
+    assert steps[0].args["snapshot_policy"] == "exact pre-cut committed snapshot"
+    assert steps[1].args["snapshot_policy"] == "complete old or new committed snapshot"
     assert steps[1].args["cut_requires"] == "journal_commit_window"
 
 
@@ -140,3 +147,64 @@ def step_tp_release_evidence(context: Context) -> None:
         assert "SKIP" in specs["release.complete-evidence"].clause
         assert {"image_hashes", "uart_transcript", "wire_captures",
                 "verdict_jsonl", "temperature_log"} <= set(step.args["evidence"])
+
+
+@when("release repeat {repeat} loses {role} {missing}")
+def step_tp_release_repeat_omission(context: Context, repeat: str, role: str, missing: str) -> None:
+    """L3: each repeat owns both devices' counters and both traffic directions."""
+    area = repeat.split(".")[0]
+    _plan(context, ["matrix", area])
+    context.tp_release_area = area
+    step = next(s for s in context.tp_plan if s.sid == repeat)
+    device = context.tp_dut if role == "DUT" else context.tp_peer
+    if missing in ("AAF direction", "CRF direction"):
+        step.args["pairs"] = [
+            pair for pair in step.args["pairs"]
+            if not (pair["talker"] == device.entity_id and
+                    (pair["talker_index"] == device.crf_out) == (missing == "CRF direction"))]
+    else:
+        descriptor = "stream_output" if missing == "talker index" else "stream_input"
+        index = (device.talker_indices(False)[-1] if missing == "talker index"
+                 else device.crf_in if missing == "CRF sink"
+                 else device.listener_indices(False)[-1])
+        step.args["counter_targets"] = [
+            target for target in step.args["counter_targets"]
+            if not (target["entity"] == device.entity_id and
+                    target["descriptor"] == descriptor and target["index"] == index)]
+
+
+@when("a diagnostic release profile uses non-default timing and counts")
+def step_tp_release_parameters(context: Context) -> None:
+    """Non-default inputs are an independent oracle for the emitted parameters."""
+    settings = tp.ReleaseSettings(125, 17, 10, 8, 2, ("stream_binding", "clock_source"),
+                                  restore_bound_s=23, boot_margin_s=7)
+    context.tp_plan = tp.build_plan(["soak", "power"], release=settings)
+
+
+@then("every release repeat preserves those parameters and its timing origins")
+def step_tp_release_parameter_results(context: Context) -> None:
+    """L3 #396 round 2, including the derived pre-cut ADP expiry and T0."""
+    soak, idle, commit = context.tp_plan
+    assert (soak.args["duration_s"], soak.args["interval_s"]) == (125, 17)
+    assert (idle.args["cycles"], commit.args["cycles"]) == (8, 2)
+    for step in (idle, commit):
+        args = step.args
+        assert args["total_cycles"] == 10
+        assert args["restore_bound_s"] == 23 and args["boot_margin_s"] == 7
+        assert args["boot_observation_s"] == 30
+        assert args["time_origin"] == "T0: power-strip ON command, host monotonic clock"
+        assert args["adp_deadline"] == "pre_cut_last_available_host_s + 2 * pre_cut_valid_time - t0_host_s"
+        assert args["adp_elapsed"] == "first_post_cut_available_host_s - t0_host_s"
+        assert args["adp_limit_exclusive"]
+        assert args["rebind_requires"] == "automatic restoration passed for every persisted binding"
+        assert {"power.automatic-restore-bound", "power.rebind-bound", "power.single-boot"} <= {
+            spec.name for spec in step.asserts}
+    assert all(not step.args["release_eligible"] for step in context.tp_plan)
+
+
+@then("the first-boot restart control fails the release boot assertion")
+def step_tp_release_boot_control(context: Context) -> None:
+    """L3 #366: a later healthy prompt cannot erase an earlier BIOS restart."""
+    assert tp.check_release_boot(1, 0, capture_complete=True)[0] == "PASS"
+    assert tp.check_release_boot(2, 1, capture_complete=True)[0] == "FAIL"
+    assert tp.check_release_boot(1, 0, capture_complete=False)[0] == "SKIP"

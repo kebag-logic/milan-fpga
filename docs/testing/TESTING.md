@@ -853,7 +853,7 @@ python3 -B tb/tools/torture_campaign.py --plan --areas soak,power --json \
   --dut "$DUT_SPEC" --peer "$PEER_SPEC" \
   --soak-duration-s 604800 --soak-interval-s 60 \
   --power-cycles 200 --idle-cycles 160 --commit-cycles 40 \
-  --persisted-items stream_binding
+  --persisted-items stream_binding --restore-bound-s 30 --boot-margin-s 5
 python3 -B tb/tools/torture_campaign.py --coverage-by-area --areas soak,power \
   --dut "$DUT_SPEC" --peer "$PEER_SPEC"
 python3 -B tb/tools/torture_campaign.py --self-test
@@ -864,10 +864,29 @@ Set both topology specifications from the candidate's served descriptors.
 The built-in topologies are desk fixtures, not discovered hardware.
 Use the existing `--dut` and `--peer` key/value format.
 Include actual identities, AAF indices, and separate CRF indices.
+AAF index sets or ranges overlapping CRF are refused.
 Set `--persisted-items` from the shipping image's persistence inventory.
 It currently contains stream binding; #70 expands it to eight items.
-Reduced profiles remain diagnostic and emit `release_eligible: false`.
-They cannot qualify a release.
+
+`release_eligible` judges configured prerequisites for each area only.
+Both areas require the stream-binding inventory and explicit topology.
+Both require `soak_interval_s <= 60`, the sampling ceiling.
+This ceiling retains the existing minute counter-walk cadence.
+It is project policy, separate from device counter-update intervals.
+The soak additionally requires at least 604800 continuous seconds.
+Power additionally requires 200 cuts, including 160 idle/40 commit.
+Larger profiles must still meet both phase minimums.
+Failure of any prerequisite emits `release_eligible: false`.
+It cannot qualify a release.
+
+Each CLI topology must explicitly provide `entity`, `mac`, and CRF indices.
+It also provides both AAF counts or both index sets.
+Mixing a count and an index set is supported.
+Partial overrides remain diagnostic because they inherit fixture data.
+API callers supply both devices and attest `topology_explicit=True`.
+The flag cannot verify descriptor provenance or physical capabilities.
+It proves neither actual coverage nor completed campaign evidence.
+The bench must validate these independently on the exact image.
 
 Each emitted operation is a repeat contract for workstation tooling.
 `release_soak` binds compatible pairs before starting its observation window.
@@ -881,11 +900,11 @@ Teardown follows the final snapshot.
 
 | Soak evidence | Required result |
 |---|---|
-| Table 5.4/5.6 counters, every index | Valid masks and invariants; no unexplained resets |
-| `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED` | Zero growth throughout the soak |
+| Milan 5.3.7.7/5.3.8.10, Tables 5.4/5.6 counters | Every index; valid masks/invariants; no unexplained resets |
+| `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED`; IEEE 1722-2016 4.4.4.6 | Zero growth throughout the soak |
 | `MEDIA_UNLOCKED` | Every increase explained with retained evidence |
-| Coherent fabric gPTP publication and transition history | No `asCapable` loss |
-| Timestamped discontinuities and wire `tu` intervals | No uncertainty beyond Milan Annex B.1.1 holdover |
+| Coherent fabric gPTP publication and transition history | No `asCapable` loss; Milan 4.2.6.2.4 |
+| Timestamped discontinuities and wire `tu` intervals | IEEE 1722-2016 4.4.4.7; Milan Annex B.1/B.1.1 |
 | `AVTPRX_TSD`, signed nanoseconds | Fresh margin observations for `STREAM_INPUT[0]` only |
 | DUT uptime | Monotonic advance, with no reboot |
 
@@ -893,21 +912,57 @@ Periodic healthy reads cannot prove that intermediate transitions never happened
 Retain continuous transition, streaming, and uncertainty evidence too.
 Unavailable event evidence leaves the release gate unsatisfied.
 The single-index timestamp register cannot prove other streams' margins.
+GM-change `tu` lasts 0.25 seconds under Annex B.1.1.
+B.1 separately recommends five seconds of media-clock holdover.
 
 `release_power_cycles` emits separate idle and journal-commit repeat groups.
 Each cycle establishes bindings and snapshots committed state first.
 Record phase evidence before removing DUT power.
 Confirm discharge; a reset command cannot satisfy a cold cut.
-Allow at least eight minutes for boot observation.
-Then verify automatic restore before any controller-assisted reconnect test.
+The [round-2 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5854930205) defines post-cut timing.
+T0 is the power-strip ON command's host monotonic timestamp.
+Correlate capture timestamps with that same clock.
+No network-readiness event starts or restarts a deadline.
+Verify automatic restoration before any controller-assisted reconnect test.
 Compare every configured persisted item before and after each cut.
 Idle cuts require the exact pre-cut committed snapshot.
 Commit cuts permit complete old or new committed snapshots.
 Mixed or unreadable state cannot pass.
-Measure advertisements against decoded ADP valid time after network readiness.
-Measure reconnect from `CONNECT_RX` success to first valid AVTP.
-Require less than one second, as #75 specifies.
-These deadlines do not replace the separate cold-boot observation window.
+
+| Measurement | Origin and required bound |
+|---|---|
+| First post-cut DUT `ENTITY_AVAILABLE` | Before expiry of the last pre-cut advertisement |
+| Each persisted binding's first valid AVTP, both directions/CRF | T0 through `restore_bound_s`, inclusive; provisional default 30 seconds |
+| Additional controller reconnect, after every automatic restoration passes | Successful `CONNECT_RX` through first valid AVTP; strictly below one second (#75) |
+| Complete UART/reset observation | T0 through `restore_bound_s + boot_margin_s`; margin defaults to five seconds |
+
+Retain the last pre-cut advertisement's raw PDU and host timestamp.
+Decode its own `valid_time` in two-second units.
+Never substitute a configured literal or a later advertisement.
+The plan expresses the remaining window from T0:
+
+```text
+adp_deadline = pre_cut_last_available_host_s + 2 * pre_cut_valid_time - t0_host_s
+adp_elapsed = first_post_cut_available_host_s - t0_host_s
+pass requires 0 <= adp_elapsed < adp_deadline
+```
+
+Missing capture or an already expired window fails the cycle.
+Authority: IEEE 1722.1-2021 6.2.2.5 and 6.2.4/6.2.5; Milan 5.6.3.
+Automatic restoration follows Milan 5.5.1.4/5.5.2.6.
+Controller reconnect follows Milan 5.5.2.4 and #75's project bound.
+The manager ratifies `restore_bound_s` from #397/#75 measurements.
+Those measure boot-to-entity-enabled and restart latency, respectively.
+A restore-bound overrun fails, even during the observation margin.
+The margin never extends the ADP or reconnect deadline either.
+Parameters permit diagnostic measurement without changing the provisional default.
+
+`power.single-boot` requires exactly one BIOS pass without additional restart.
+Use `check_release_boot` with complete UART/reset observations per cycle.
+A repeated BIOS pass fails even if streaming subsequently recovers.
+This deliberately rejects #366's documented first-boot behavior for release.
+The per-flash UART smoke check only grades the resulting console.
+Its narrower acceptance cannot satisfy this release assertion.
 Walk every input/output counter, including CRF, after each cycle.
 Finish verification before beginning the next cut.
 
@@ -930,7 +985,9 @@ Link dated evidence from `docs/findings/` on the exact candidate.
 File a finding for every failed assertion.
 Acceptance items 3 and 4 remain later bench work.
 They require both campaigns and a known-defect negative control.
-Use the first-boot defect or disabled persistence to demonstrate failure.
+The #366 first-boot control must fail `power.single-boot`.
+Retain its flash-to-first-cold-boot provenance and uninterrupted UART capture.
+Disabled persistence must instead fail `power.state-restored`.
 Desk mutation controls prove plan coverage, not physical failure detection.
 Neither this plan nor its self-test closes #70 or #117.
 
