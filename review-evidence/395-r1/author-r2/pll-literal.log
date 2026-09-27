@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,"sw/builder"); from test_timing_grade import test_pll_grade; test_pll_grade('$WORKSPACE_HOME/litex-milan/venv/bin/python')
+                                                                                               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/395-a390-work/pll-literal/sw/builder/test_timing_grade.py", line 182, in test_pll_grade
+    assert result.returncode == 0, result.stdout + result.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Traceback (most recent call last):
+  File "<string>", line 10, in <module>
+    assert pll.call_args.kwargs["speedgrade"] == expected, pll.call_args
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: call(speedgrade=-2)
+
