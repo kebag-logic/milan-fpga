@@ -1,0 +1,41 @@
+planner sha256 594f852cd7bb4d6610d0d6e6925a33c66ef790aac69f3ba98ed52d5e7e678dc9
+baseline rc=0
+R01 | INVALID(anchor x0) | mr cause window doubled | 
+R02 | INVALID(anchor x0) | mr cause window made exclusive | 
+R03 | KILLED | mr cause window one-sided (cause must precede toggle) | test_release_mr_resolution
+R04 | KILLED | mr hold threshold 7 | test_release_mr_eight_pdus,test_release_mr_stream_scope
+R05 | KILLED | mr hold threshold 9 | test_release_media_reset_intervals,test_release_media_reset_window_edges,test_release_mr_distinct_causes,test_release_mr_eight_pdus
+R06 | KILLED | mr tail off by one | test_release_mr_eight_pdus
+R07 | KILLED | mr contiguity check removed | test_release_mr_missing_evidence
+R08 | KILLED | mr PDU timestamp order check removed | test_release_mr_record_boundaries
+R09 | KILLED | mr PDU stream filter removed | test_release_mr_stream_scope
+R10 | KILLED | MEDIA_RESET read stream filter removed | test_release_mr_record_boundaries
+R11 | KILLED | MEDIA_RESET endpoint requirement relaxed to one read | test_release_mr_record_boundaries
+R12 | KILLED | MEDIA_RESET read order check removed | test_release_mr_record_boundaries
+R13 | INVALID(anchor x0) | MEDIA_RESET wrap decode removed | 
+R14 | KILLED | MEDIA_RESET lower window drops R | test_release_media_reset_intervals
+R15 | KILLED | MEDIA_RESET upper window drops R | test_release_media_reset_window_edges
+R16 | KILLED | MEDIA_RESET upper window widened by 1 s | test_release_media_reset_window_edges
+R17 | KILLED | MEDIA_RESET consumes latest matches | test_release_media_reset_window_edges
+R18 | KILLED | MEDIA_RESET check skipped after toggle pass | test_release_media_reset_decrease,test_release_media_reset_intervals,test_release_media_reset_no_cause,test_release_media_reset_window_edges,test_release_mr_allowed_causes,test_release_mr_record_boundaries
+R19 | KILLED | mr record validation bypassed | test_release_mr_missing_evidence,test_release_mr_record_boundaries
+R20 | KILLED | mr capture_complete ignored | test_release_mr_capture_span,test_release_mr_missing_evidence
+R21 | KILLED | mr negative resolution accepted | test_release_mr_missing_evidence
+R22 | KILLED | tu GM changes not counted as discontinuities | test_release_tu_gm_minimum,test_release_tu_history
+R23 | KILLED | tu GM minimum 0.24 s | test_release_tu_gm_minimum,test_release_tu_history
+R24 | INVALID(anchor x0) | tu GM minimum considers GM changes at or after clear | 
+R25 | KILLED | tu GM minimum strict comparison | test_release_tu_gm_minimum
+R26 | KILLED | tu 0.5 s bound guard removed | test_release_deciding_resolution
+R27 | KILLED | tu zero-length interval accepted | test_release_deciding_resolution
+R28 | KILLED | NOT RUN no longer outstanding in exit code | test_release_tu_missing_gm_history
+R29 | KILLED | tu assertion drops the GM minimum text | test_release_assertion_text
+R30 | KILLED | mr assertion drops MEDIA_RESET interval semantics | test_release_mr_plan_contract
+R31 | KILLED | release evidence text drops NOT RUN | test_release_assertion_text
+R32 | KILLED | plan cause kinds drop CRF mr toggle | test_release_mr_plan_contract
+R33 | KILLED | plan cause window becomes a literal | test_release_mr_plan_contract
+R34 | KILLED | plan continuous evidence drops gm_changes | test_release_mr_plan_contract
+R35 | KILLED | mr GM time-source change accepted as cause | test_release_mr_gm_only
+R36 | KILLED | mr PHC step accepted as cause | test_release_mr_gm_only
+SUMMARY {'INVALID': 4, 'KILLED': 32}
+checkout planner unchanged
+rc=0

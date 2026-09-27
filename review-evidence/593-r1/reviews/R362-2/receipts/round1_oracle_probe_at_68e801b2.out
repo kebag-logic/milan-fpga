@@ -1,0 +1,66 @@
+A1 toggle + clock-source change | NOT-MET | PASS | NOT RUN | item 2 arm 1
+A2 toggle + CRF disruption | NOT-MET | PASS | NOT RUN | item 2 arm 2
+A2b toggle + received CRF mr toggle | NOT-MET | PASS | NOT RUN | item 1 cause 3
+A3 toggle without cause | NOT-MET | FAIL | NOT RUN | item 2 arm 3
+A4 toggle on GM change alone | NOT-MET | FAIL | NOT RUN | item 2 arm 4
+A4b toggle on PHC step alone | NOT-MET | FAIL | NOT RUN | corrected rule
+A5 toggle held 7 PDUs | NOT-MET | FAIL | NOT RUN | item 2 arm 5
+A5b toggle held 8 PDUs | NOT-MET | PASS | NOT RUN | boundary
+A6 MEDIA_RESET increment without cause | NOT-MET | FAIL | NOT RUN | item 2 arm 6
+A7 tu 0.24 s after GM change | MET | FAIL | FAIL | item 2 arm 7
+A7b tu 0.25 s after GM change | MET | PASS | PASS | boundary
+W1 cause at +R (R=0.0001) | NOT-MET | PASS | NOT RUN | window scales with R
+W2 cause at +1.5R (R=0.0001) | NOT-MET | FAIL | NOT RUN | window scales with R
+W3 cause at -R (R=0.0001) | NOT-MET | PASS | NOT RUN | symmetric
+W1 cause at +R (R=0.001) | NOT-MET | PASS | NOT RUN | window scales with R
+W2 cause at +1.5R (R=0.001) | NOT-MET | FAIL | NOT RUN | window scales with R
+W3 cause at -R (R=0.001) | NOT-MET | PASS | NOT RUN | symmetric
+W1 cause at +R (R=0.01) | NOT-MET | PASS | NOT RUN | window scales with R
+W2 cause at +1.5R (R=0.01) | NOT-MET | FAIL | NOT RUN | window scales with R
+W3 cause at -R (R=0.01) | NOT-MET | PASS | NOT RUN | symmetric
+W1 cause at +R (R=0.1) | NOT-MET | PASS | NOT RUN | window scales with R
+W2 cause at +1.5R (R=0.1) | NOT-MET | FAIL | NOT RUN | window scales with R
+W3 cause at -R (R=0.1) | NOT-MET | PASS | NOT RUN | symmetric
+H1 5-PDU hold with foreign PDUs interleaved | NOT-MET | FAIL | NOT RUN | only stream a PDUs count
+H2 toggle on foreign stream only | NOT-MET | PASS | NOT RUN | b's toggle is not a's
+H3 foreign-stream cause | NOT-MET | FAIL | NOT RUN | cause scoped to stream
+M1 two toggles one interval, one increment | NOT-MET | PASS | NOT RUN | Tables 5.4/5.6
+M2 one toggle two increments | NOT-MET | FAIL | NOT RUN | distinct
+M3 increment with delayed update 0.9 s | NOT-MET | PASS | NOT RUN | update lag <= 1 s
+M4 increment whose only toggle is 1.2 s before the prior read | NOT-MET | FAIL | NOT RUN | outside [before-1-R, after+R]
+M5 single MEDIA_RESET read | MET | NOT RUN | NOT RUN | baseline and endpoint required
+M6 foreign-stream counter reads only | MET | NOT RUN | NOT RUN | reads scoped to stream
+M7 unordered reads | MET | NOT RUN | NOT RUN | ordered reads
+M8 wrap 2^32-1 -> 0 with one toggle | NOT-MET | PASS | NOT RUN | 32-bit wrap
+N-mr pdus=None | MET | NOT RUN | NOT RUN | item 3
+N-mr causes=None | MET | NOT RUN | NOT RUN | item 3
+N-mr media_reset_reads=None | MET | NOT RUN | NOT RUN | item 3
+N-mr capture_complete=False | MET | NOT RUN | NOT RUN | item 3
+N-mr capture_complete=1 | MET | NOT RUN | NOT RUN | item 3
+N-mr observation_resolution_s=None | MET | NOT RUN | NOT RUN | item 3
+N-mr observation_resolution_s=inf | MET | NOT RUN | NOT RUN | item 3
+N-mr stream_id='' | MET | NOT RUN | NOT RUN | item 3
+N-mr tail 7 PDUs after final toggle | MET | NOT RUN | NOT RUN | unfinished tail
+N-mr packet gap | MET | NOT RUN | NOT RUN | gap
+N-tu interval None | MET | NOT RUN | NOT RUN | item 3
+N-tu events None | MET | NOT RUN | NOT RUN | item 3
+N-tu gm None | MET | NOT RUN | NOT RUN | item 3
+N-tu resolution None | MET | NOT RUN | NOT RUN | item 3
+N-tu incomplete capture | MET | NOT RUN | NOT RUN | item 3
+N-mr fuzz 2000 corrupted inputs | MET | no PASS | 0 PASS | item 3
+S-R347-5-S1 tu rises 10 s before its first discontinuity | MET | FAIL | FAIL | scope note 5858887057: must fail the containment check
+S-R347-5-S1b tu rises 1 s before its first discontinuity | MET | FAIL | FAIL | scope note 5858887057
+S-R347-5-S1c GM change 5 s after tu rose, clear 0.3 s later | MET | FAIL | FAIL | scope note 5858887057
+S-R346-3-S1 60 s periodic cadence used as resolution; tu held 60 s | MET | {'NOT RUN', 'FAIL'} | NOT RUN | resolution must be wire/event, not the periodic read
+S-R346-3-S1b resolution 0.3 s; tu 0.01 s after GM change | MET | {'NOT RUN', 'FAIL'} | NOT RUN | coarse resolution makes the 0.25 s minimum vacuous
+S-R346-3-S1c mr cause 0.9 s away, R=1 s | MET | {'NOT RUN', 'FAIL'} | NOT RUN | coarse resolution widens the cause window to +/-1 s
+S-R346-3-S2 tu 0.2 s after GM change, R=0.001 | MET | FAIL | FAIL | 0.25 s lower bound
+B1 GM change after tu cleared, no new tu interval (interval graded) | MET | {'NOT RUN', 'FAIL'} | FAIL | a GM change at 0.5 s with no tu after it is never graded
+B2 GM edge supplied only as a discontinuity, gm history [] | NOT-MET | {'NOT RUN', 'FAIL'} | PASS | unkinded discontinuities bypass the GM minimum if history omits the edge
+E1 one cause explains two toggles (net level unchanged) | MET | {'NOT RUN', 'FAIL'} | NOT RUN | one restart per cause
+E2 caused toggle with no MEDIA_RESET increment | MET | {'NOT RUN', 'FAIL'} | NOT RUN | counter under-count
+E3 talker restart resets MEDIA_RESET to 0 (Table 5.4) | MET | {'NOT RUN', 'FAIL'} | NOT RUN | reported cause label checked in report
+E3-detail | INFO | - | NOT RUN | {'why': 'capture does not span the counter-read window and PDUs', 'delta': None}
+E4 verdict carries R | MET | R in detail | 0.001 | decision: resolution part of verdict
+TOTAL 64 MET 33 NOT-MET 30
+rc=0

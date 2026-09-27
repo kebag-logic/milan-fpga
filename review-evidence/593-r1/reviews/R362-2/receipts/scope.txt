@@ -1,0 +1,32 @@
+# git diff --raw 6d5ebd73..68e801b2 (mode/status/path)
+:100644 100644 9a244676c 83f0920e3 M	REQUIREMENTS.md
+:100644 100644 f7f7324b5 c2cc3225e M	docs/design/GM_LOSS_RECOVERY.md
+:100644 100644 7dfc90ce2 12126e680 M	docs/testing/TESTING.md
+:100644 100644 275f02f60 7c3f9648a M	tb/tools/torture_campaign.py
+:100644 100644 a022a8713 bf95e12c4 M	tb/tools/torture_release_mutants.py
+:100644 100644 e1ced39c4 bb7688e97 M	tests/features/torture_campaign_plan.feature
+:100644 100644 e1bef6ce5 25a166d35 M	tests/steps/torture_release_steps.py
+# gitlinks at base
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+# gitlinks at head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+# head / tree
+68e801b2823f75e037152f7eb2ac4c5dcda5d919
+d385f231213eda4bb52414ef09cb3eaf8d663097
+# commit subjects (one line, no trailers)
+68e801b2823f75e037152f7eb2ac4c5dcda5d919 Close release soak timing and evidence gaps from round two
+[body:]
+95bea7cf82fcf7cf034c156ef7aa6800ee769e05 Enforce recorded mr causes and tu hold timing in release soak
+[body:]
+# RTL line cited by GM_LOSS_RECOVERY.md:155
+  wire mcr_restart_p_w = (crf_clk_selected_r
+                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+                       | media_rebase_p_w;
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis

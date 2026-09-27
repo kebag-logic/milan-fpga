@@ -1,0 +1,410 @@
+{
+ "baseline": {
+  "selftest_rc": 0,
+  "behave_rc": 0
+ },
+ "mutants": [
+  {
+   "id": "C01",
+   "description": "rise allowance doubled",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_rise_boundary"
+  },
+  {
+   "id": "C02",
+   "description": "rise allowance dropped (stricter)",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_rise_boundary"
+  },
+  {
+   "id": "C03",
+   "description": "rise judged on the last event",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_before_first_discontinuity,test_release_tu_rise_boundary"
+  },
+  {
+   "id": "C04",
+   "description": "coverage loop drops start allowance",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_history"
+  },
+  {
+   "id": "C05",
+   "description": "coverage loop includes clear instant",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_history"
+  },
+  {
+   "id": "C06",
+   "description": "covered GM window drops start allowance",
+   "verdict": "SURVIVED",
+   "evidence": "self-test rc=0, behave rc=0"
+  },
+  {
+   "id": "C07",
+   "description": "covered GM window includes clear instant",
+   "verdict": "SURVIVED",
+   "evidence": "self-test rc=0, behave rc=0"
+  },
+  {
+   "id": "C08",
+   "description": "history passes all GM changes to every interval",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_history"
+  },
+  {
+   "id": "C09",
+   "description": "history allows touching intervals",
+   "verdict": "SURVIVED",
+   "evidence": "self-test rc=0, behave rc=0"
+  },
+  {
+   "id": "C10",
+   "description": "history accepts negative resolution",
+   "verdict": "SURVIVED",
+   "evidence": "self-test rc=0, behave rc=0"
+  },
+  {
+   "id": "C11",
+   "description": "single-interval minimum uses first covered GM",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_gm_minimum,test_release_tu_history"
+  },
+  {
+   "id": "C12",
+   "description": "single-interval minimum 0.25 -> 0.2",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_gm_minimum,test_release_tu_history"
+  },
+  {
+   "id": "C13",
+   "description": "tu limit admits equality",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_deciding_resolution"
+  },
+  {
+   "id": "C14",
+   "description": "mr limit admits equality",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_deciding_resolution"
+  },
+  {
+   "id": "C15",
+   "description": "tu limit derived from 0.5 s only",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_deciding_resolution"
+  },
+  {
+   "id": "C16",
+   "description": "mr limit is the full 1 s ceiling",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_deciding_resolution"
+  },
+  {
+   "id": "C17",
+   "description": "tu verdict omits stated limit",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_deciding_resolution"
+  },
+  {
+   "id": "C18",
+   "description": "mr verdict omits stated limit",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_deciding_resolution"
+  },
+  {
+   "id": "C19",
+   "description": "history verdict omits stated limit",
+   "verdict": "SURVIVED",
+   "evidence": "self-test rc=0, behave rc=0"
+  },
+  {
+   "id": "C20",
+   "description": "history limit admits equality",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_history"
+  },
+  {
+   "id": "C21",
+   "description": "history limit relaxed to 0.5",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_history"
+  },
+  {
+   "id": "C22",
+   "description": "latest eligible cause consumed",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_distinct_causes"
+  },
+  {
+   "id": "C23",
+   "description": "capture start drops 1 s term",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_capture_span"
+  },
+  {
+   "id": "C24",
+   "description": "capture start drops R term",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_capture_span"
+  },
+  {
+   "id": "C25",
+   "description": "capture end judged at first read",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_capture_span"
+  },
+  {
+   "id": "C26",
+   "description": "PDU-endpoint fallback removed",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_capture_span"
+  },
+  {
+   "id": "C27",
+   "description": "decrease treated as no change",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_media_reset_decrease,test_release_media_reset_intervals"
+  },
+  {
+   "id": "C28",
+   "description": "decrease decoded as 32-bit wrap",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_media_reset_decrease,test_release_media_reset_intervals"
+  },
+  {
+   "id": "C29",
+   "description": "MEDIA_RESET lower edge drops R",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_media_reset_intervals"
+  },
+  {
+   "id": "C30",
+   "description": "eight-PDU hold -> seven",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_eight_pdus,test_release_mr_stream_scope"
+  },
+  {
+   "id": "C31",
+   "description": "eight-PDU hold -> nine",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_media_reset_intervals,test_release_media_reset_window_edges,test_release_mr_distinct_causes,test_release_mr_eight_pdus"
+  },
+  {
+   "id": "C32",
+   "description": "terminal hold -> seven",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_eight_pdus"
+  },
+  {
+   "id": "C33",
+   "description": "PDU contiguity ignored",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_missing_evidence"
+  },
+  {
+   "id": "C34",
+   "description": "empty stream id accepted",
+   "verdict": "SURVIVED",
+   "evidence": "self-test rc=0, behave rc=0"
+  },
+  {
+   "id": "C35",
+   "description": "negative pdu index accepted",
+   "verdict": "SURVIVED",
+   "evidence": "self-test rc=0, behave rc=0"
+  },
+  {
+   "id": "C36",
+   "description": "mr bit range ignored",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_missing_evidence"
+  },
+  {
+   "id": "C37",
+   "description": "tu negative resolution accepted",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_chained_discontinuities"
+  },
+  {
+   "id": "C38",
+   "description": "cause window text in verdict changed",
+   "verdict": "SURVIVED",
+   "evidence": "self-test rc=0, behave rc=0"
+  },
+  {
+   "id": "C39",
+   "description": "plan cause window arg weakened",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "C40",
+   "description": "plan tu_gm_minimum_check weakened",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "C41",
+   "description": "plan evidence list drops gm_changes",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "C42",
+   "description": "plan tu kinds drop GM time-source change",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_contract"
+  },
+  {
+   "id": "C43",
+   "description": "exit code ignores NOT RUN",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_tu_missing_gm_history"
+  },
+  {
+   "id": "T01",
+   "description": "assertion text deleted: \"; IEEE 1722-2016 4.4.4.3; Milan v1.2 Annex B.1.2, Tables 5.4/5.6: \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "T02",
+   "description": "assertion text deleted: \"every mr toggle and MEDIA_RESET increment needs a recorded \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "T03",
+   "description": "assertion text deleted: \"media-clock-source change, CRF disruption, or received CRF mr toggle \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "T04",
+   "description": "assertion text deleted: \"mapped to that stream's clock source; GM change alone fails; \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "T05",
+   "description": "assertion text deleted: \"match causes within +/- observation_resolution_s of the toggle; \"",
+   "verdict": "SURVIVED",
+   "evidence": "self-test rc=0, behave rc=0"
+  },
+  {
+   "id": "T06",
+   "description": "assertion text deleted: \"hold each new value for at least 8 AVTPDUs of that stream; \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "T07",
+   "description": "assertion text deleted: \"MEDIA_RESET counts observation intervals, not packets; \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "T08",
+   "description": "assertion text deleted: \"missing packet, cause, counter or resolution evidence is NOT RUN; \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "T09",
+   "description": "assertion text deleted: \"each cause excuses at most one toggle per stream; \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "T10",
+   "description": "assertion text deleted: \"2 * observation_resolution_s must be less than the 1 s counter interval ceiling; \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "T11",
+   "description": "assertion text deleted: \"capture must span [first read - 1 s - observation_resolution_s, last read]; \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_mr_plan_contract"
+  },
+  {
+   "id": "T12",
+   "description": "assertion text deleted: \"GM-identity edge, GM time-source change, or other detected gPTP discontinuity \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_assertion_text"
+  },
+  {
+   "id": "T13",
+   "description": "assertion text deleted: \"(including PHC settime/adjtime and fabric discontinuity); \"",
+   "verdict": "SURVIVED",
+   "evidence": "self-test rc=0, behave rc=0"
+  },
+  {
+   "id": "T14",
+   "description": "assertion text deleted: \"after each GM change, clear + observation_resolution_s must be at least \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_assertion_text"
+  },
+  {
+   "id": "T15",
+   "description": "assertion text deleted: \"GM change + 0.25 s (Annex B.1.1 minimum); missing GM history is NOT RUN; clock validity \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_assertion_text"
+  },
+  {
+   "id": "T16",
+   "description": "assertion text deleted: \"first discontinuity must be within observation_resolution_s of the rise; \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_assertion_text"
+  },
+  {
+   "id": "T17",
+   "description": "assertion text deleted: \"grade every GM change against the complete tu interval history; \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_assertion_text"
+  },
+  {
+   "id": "T18",
+   "description": "assertion text deleted: \"a GM change with no covering interval fails; \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_assertion_text"
+  },
+  {
+   "id": "T19",
+   "description": "assertion text deleted: \"observation_resolution_s must be less than min(0.25 s, 0.5 s); \"",
+   "verdict": "KILLED",
+   "evidence": "self-test: test_release_assertion_text"
+  },
+  {
+   "id": "T20",
+   "description": "mr text: 8 -> 7 AVTPDUs",
+   "verdict": "ANCHOR-ERROR",
+   "evidence": "count=2"
+  },
+  {
+   "id": "T21",
+   "description": "mr text: +/- window made one-sided",
+   "verdict": "SURVIVED",
+   "evidence": "self-test rc=0, behave rc=0"
+  },
+  {
+   "id": "T22",
+   "description": "tu text: 0.25 s -> 0.2 s",
+   "verdict": "ANCHOR-ERROR",
+   "evidence": "count=2"
+  },
+  {
+   "id": "T23",
+   "description": "tu text: min(0.25 s, 0.5 s) -> 0.5 s",
+   "verdict": "ANCHOR-ERROR",
+   "evidence": "count=2"
+  },
+  {
+   "id": "T24",
+   "description": "mr text: GM change alone fails -> passes",
+   "verdict": "ANCHOR-ERROR",
+   "evidence": "count=2"
+  }
+ ]
+}
