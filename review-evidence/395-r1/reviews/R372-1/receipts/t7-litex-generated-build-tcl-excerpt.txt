@@ -1,0 +1,52 @@
+# Lines 40-90 of a LiteX build script generated from the real AX7101 Platform at 66001a30 (build(run=False), trivial top); cited line numbers refer to the generated script: 44 opt_design, 48-49 hook configure, 53 place_design, 79 report_power, 80 kl_timing_grade_reports, 89 write_bitstream
+
+
+# Optimize design
+
+opt_design -directive default
+
+# Add pre-placement commands
+
+source {$CLONE/sw/litex/timing_grade.tcl}
+kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}
+
+# Placement
+
+place_design -directive default
+
+# Placement report
+
+report_utilization -hierarchical -file probe_utilization_hierarchical_place.rpt
+report_utilization -file probe_utilization_place.rpt
+report_io -file probe_io.rpt
+report_control_sets -verbose -file probe_control_sets.rpt
+report_clock_utilization -file probe_clock_utilization.rpt
+write_checkpoint -force probe_place.dcp
+
+# Add pre-routing commands
+
+
+# Routing
+
+route_design -directive default
+phys_opt_design -directive default
+write_checkpoint -force probe_route.dcp
+
+# Routing report
+
+report_timing_summary -no_header -no_detailed_paths
+report_route_status -file probe_route_status.rpt
+report_drc -file probe_drc.rpt
+report_timing_summary -datasheet -max_paths 10 -file probe_timing.rpt
+report_power -file probe_power.rpt
+kl_timing_grade_reports probe_signoff
+set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
+set_property CONFIG_MODE SPIx4 [current_design]
+set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]
+set_property CFGBVS VCCO [current_design]
+set_property CONFIG_VOLTAGE 3.3 [current_design]
+
+# Bitstream generation
+
+write_bitstream -force probe.bit 
+

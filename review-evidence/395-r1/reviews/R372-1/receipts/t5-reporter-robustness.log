@@ -1,0 +1,19 @@
+--- missing checkpoint
+FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/rob/none.dcp'
+rc=1
+--- output == checkpoint dir
+report_timing_grade.py: error: reports must be outside the input checkpoint directory
+--- output via symlink into checkpoint dir
+report_timing_grade.py: error: reports must be outside the input checkpoint directory
+a.dcp  0B
+--- output with brace
+ValueError: unsupported Tcl literal: '$PACKET/scratch/rob/o{x/signoff'
+$PACKET/scratch/rob/o{x/
+--- space and dollar and bracket in paths
+open_checkpoint {$PACKET/scratch/rob/ck dir/a.dcp}
+source {$CLONE/sw/litex/timing_grade.tcl}
+kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}
+kl_timing_grade_reports {$PACKET/scratch/rob/o $HOME [x]/signoff}
+--- tclsh parses those words literally
+<$PACKET/scratch/rob/ck dir/a.dcp>
+</x/o $HOME [x]/signoff>

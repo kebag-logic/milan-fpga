@@ -1,0 +1,23 @@
+control-none: rc=0 SURVIVE expected=SURVIVE as-expected | 
+decl-max-100C: rc=1 KILL expected=KILL as-expected | AssertionError: #395 commercial release declaration changed
+decl-grade-industrial: rc=1 KILL expected=KILL as-expected | AssertionError: #395 commercial release declaration changed
+decl-part-speed-1: rc=1 KILL expected=KILL as-expected | AssertionError: #395 commercial release declaration changed
+check-skip-grade-compare: rc=1 KILL expected=KILL as-expected | AssertionError: ('grade', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+check-skip-temp-compare: rc=1 KILL expected=KILL as-expected | AssertionError: ('temperature', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+check-corner-one-yes: rc=1 KILL expected=KILL as-expected | AssertionError: ('Slow max', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+configure-skip-part-check: rc=1 KILL expected=KILL as-expected | AssertionError
+configure-no-min-max: rc=1 KILL expected=KILL as-expected | Fast Yes No
+reports-no-leading-check: rc=0 SURVIVE expected=KILL UNEXPECTED | 
+reports-no-other-corner-off: rc=1 KILL expected=KILL as-expected | REPORT check_timing -verbose -file /tmp/timing-grade-wv51kqcj/candidate_check_timing.rpt
+reports-no-finally-restore: rc=1 KILL expected=KILL as-expected | Junction Temp = 0 (C)
+reports-single-endpoint: rc=1 KILL expected=KILL as-expected | REPORT check_timing -verbose -file /tmp/timing-grade-wi0tp5bf/candidate_check_timing.rpt
+reports-drop-negative: rc=1 KILL expected=KILL as-expected | AssertionError
+reports-drop-cdc: rc=1 KILL expected=KILL as-expected | AssertionError
+reports-corner-setup-only: rc=0 SURVIVE expected=KILL UNEXPECTED | 
+reports-corner-no-unconstrained: rc=0 SURVIVE expected=KILL UNEXPECTED | 
+reports-all-no-check-verbose: rc=0 SURVIVE expected=KILL UNEXPECTED | 
+reports-clock-interaction-setup-only: rc=0 SURVIVE expected=KILL UNEXPECTED | 
+platform-no-preplacement: rc=1 KILL expected=KILL as-expected | AssertionError: []
+platform-no-signoff-report: rc=1 KILL expected=KILL as-expected | AssertionError: ['set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]', 'set_property CONFIG_MODE SPIx4 [current_design]', 'set_property BITSTREAM.CON
+platform-literal-part-1: rc=1 KILL expected=KILL as-expected | AssertionError: xc7a100t-fgg484-1
+unexpected=5
