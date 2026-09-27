@@ -1,0 +1,82 @@
+[
+  {
+    "command": "rtk proxy python3 -B tb/tools/torture_campaign.py --self-test",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 0.432,
+    "bytes": 12369,
+    "sha256": "d633ed33624e5c988fa58e4a53bbf5d8c32edf0cc80090bbe897df79d37d2b8a",
+    "log": "behavior-01.log"
+  },
+  {
+    "command": "rtk proxy python3 -B tb/tools/torture_release_mutants.py",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 18.812,
+    "bytes": 3374,
+    "sha256": "0f74e5078462880a0fe5937f5600f66bbcf93353e9c1c05192fba496c10287e5",
+    "log": "behavior-02.log"
+  },
+  {
+    "command": "rtk proxy python3 -B -m behave tests/features/torture_campaign_plan.feature -f progress",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 0.859,
+    "bytes": 303,
+    "sha256": "849de25f61be16caef814ed6da4b8cc7a418b9315da8dc3a0ea167ade1b2c16c",
+    "log": "behavior-03.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/ci_scope.py --selftest",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 2.032,
+    "bytes": 5513,
+    "sha256": "e68ee3140c59bc8ba4fb1692e69f94086c627ec95883fbd0b08506a885d9113e",
+    "log": "behavior-04.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/check_baremetal_only.py --check",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 14.925,
+    "bytes": 71,
+    "sha256": "3655a4730d7e28d3fcad06fd531d762d27eae7b2313aabdeb754830d88e22690",
+    "log": "behavior-05.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/check_baremetal_only.py --selftest",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 5.465,
+    "bytes": 43,
+    "sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8",
+    "log": "behavior-06.log"
+  },
+  {
+    "command": "rtk proxy git diff --check",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 0.029,
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "log": "behavior-07.log"
+  },
+  {
+    "command": "rtk proxy git diff 6d5ebd7357c1e468e446f18a61527c5be6118a04 HEAD --check",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 0.021,
+    "bytes": 47,
+    "sha256": "ed658cc2701b76b948a5c9308b123bc927a68ee04fbe54746d47d779d0d14f7c",
+    "log": "behavior-08.log"
+  }
+]

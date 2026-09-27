@@ -1,0 +1,122 @@
+[
+  {
+    "command": "rtk proxy python3 scripts/docs_check.py",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 4.317,
+    "bytes": 127,
+    "sha256": "d14cd817984a172045f326b1f8efdd4783d0e3b61dfa0b69328ff6d693940999",
+    "log": "docs-01.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/check_em_dash.py --base 6d5ebd7357c1e468e446f18a61527c5be6118a04",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 3.147,
+    "bytes": 139,
+    "sha256": "fd0b22d64ae9ede7ec699dfe70fcecbb34af5bf3806ad1f76821d35982ea19fa",
+    "log": "docs-02.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/check_em_dash.py --selftest",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 3.12,
+    "bytes": 42,
+    "sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a",
+    "log": "docs-03.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/check_doc_style.py",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 0.063,
+    "bytes": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "log": "docs-04.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/check_doc_style.py --selftest",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 0.049,
+    "bytes": 33,
+    "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+    "log": "docs-05.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/check_feature_status.py --self-test",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 0.667,
+    "bytes": 1500,
+    "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+    "log": "docs-06.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/check_doc_paths.py",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 0.085,
+    "bytes": 99,
+    "sha256": "4ebaebbedf0cbab5aa5ed81133d1bd138d7d8f8d184f2c2fc2d4c8e3383bf0a1",
+    "log": "docs-07.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/check_archive.py",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 0.3,
+    "bytes": 93,
+    "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c",
+    "log": "docs-08.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/check_archive.py --selftest",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 0.078,
+    "bytes": 35,
+    "sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a",
+    "log": "docs-09.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/gen_toc.py --selftest",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 0.835,
+    "bytes": 38,
+    "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+    "log": "docs-10.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/gen_toc.py --verify-anchors",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 1.658,
+    "bytes": 64,
+    "sha256": "8c94f4f257033ef0bce7e7981c553234c8de646f14fbe546a9f10497e33287f9",
+    "log": "docs-11.log"
+  },
+  {
+    "command": "rtk proxy python3 scripts/gen_toc.py --check",
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "95bea7cf82fcf7cf034c156ef7aa6800ee769e05",
+    "rc": 0,
+    "elapsed_s": 2.729,
+    "bytes": 94,
+    "sha256": "809c4d1d747037e3abf90b86d58f95a8830965a48f302e5107fde95e0bbea028",
+    "log": "docs-12.log"
+  }
+]
