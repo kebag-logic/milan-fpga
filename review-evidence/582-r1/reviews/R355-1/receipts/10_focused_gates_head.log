@@ -1,0 +1,42 @@
+=== clock-contract: python3 sw/builder/test_clock_contract.py --soc
+[clock contract] 5 configured positives; 25 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+[clock contract] extra sweep: defaults, all configurations, changed system clock, board mismatch, invalid clock and missing configuration pass
+[clock contract] 5 tap conversions and presence declarations match configurations
+Traceback (most recent call last):
+  File "$REVIEWS/582-r355-1-packet/scratch/head/sw/builder/test_clock_contract.py", line 173, in <module>
+    test_soc_clock_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/582-r355-1-packet/scratch/head/sw/builder/test_clock_contract.py", line 88, in test_soc_clock_contract
+    import milan_soc
+  File "$REVIEWS/582-r355-1-packet/scratch/head/sw/litex/milan_soc.py", line 36, in <module>
+    from migen import (ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal,
+                       Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue,
+                       NextState, Memory, Module, Record)
+ModuleNotFoundError: No module named 'migen'
+=== clock-contract rc=1
+=== declarations: python3 sw/builder/test_declarations.py
+[F1] literal/pinned legal IDs, ENTITY/ADP equality, four endpoint refusals
+[F1] shadowed literals and derived endpoints refused
+[F1] eight hex fields: strings preserve digits; non-strings receive named quote refusals
+[u32] zero/maximum pack unchanged; negative and overflowing fields refuse
+[F2] eight listeners: floor/uint32 maximum pack equal; underflow/overflow refused
+[F3] each AAF input/output: 46 final entries accepted; count/family refusals
+[F3] both CRF directions: Milan word accepted; altered word/wrong family refused
+[F4] INTERNAL+CRF accepted; AAF/CRF outputs refused without INTERNAL; input-only unchanged
+[gate 40] endstation_arty_4x4.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_8ch.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_current.yaml: 1 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_1x1_tdm8.yaml: 2 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_8x8.yaml: 9 output factory rows, VID 2, promiscuous
+[gate 40] 9 binding/reset mutants; donor timer profile
+[gate 40] 26 refusals; 3 header mutants per config
+=== declarations rc=0
+=== capture: python3 scripts/check_nvm_capture.py
+git ls-files failed in $REVIEWS/582-r355-1-packet/scratch/head/protocol-processor/hdl: fatal: not a git repository: (null)
+=== capture rc=1
+=== pp-mem-bridge: python3 test_pp_mem_bridge.py
+Traceback (most recent call last):
+  File "$REVIEWS/582-r355-1-packet/scratch/head/sw/litex/test_pp_mem_bridge.py", line 89, in <module>
+    from migen import *
+ModuleNotFoundError: No module named 'migen'
+=== pp-mem-bridge rc=1

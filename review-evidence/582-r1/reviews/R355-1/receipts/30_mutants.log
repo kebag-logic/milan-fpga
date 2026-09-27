@@ -1,0 +1,157 @@
+CONTROL-PASS C0 control builder test: rc 0; [clock contract] 5 configured positives; 25 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+CONTROL-PASS C1 control SoC test: rc 0; [clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass
+CONTROL-PASS C2 control sweep test: rc 0; [clock contract] extra sweep: defaults, all configurations, changed system clock, board mismatch, invalid clock and missing configuration pass
+CONTROL-PASS C3 control memory-bridge test: rc 0; RESULT: PASS
+KILLED B1 builder guard reads sys_clk_hz: rc 1; endstation_builder.ConfigError: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+KILLED B2 builder guard tolerates +-1 kHz: rc 1; AssertionError: accepted invalid input: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+SURVIVED B3 builder guard only for flashboot baremetal: rc 0; [clock contract] 5 configured positives; 25 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+KILLED B4 builder refusal drops the contract citation: rc 1; AssertionError: baremetal clock: milan_clk_hz must be 50000000 Hz (see docs)
+SURVIVED B5 builder mirrors the literal instead of importing: rc 0; [clock contract] 5 configured positives; 25 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+SURVIVED B6 builder guard only below 60 MHz window: rc 0; [clock contract] 5 configured positives; 25 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+SURVIVED S1 SoC guard exempts --no-milan: rc 0; [clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass
+SURVIVED S2 SoC guard exempts --full product argv: rc 0; [clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass
+SURVIVED S3 SoC guard exempts the arty board: rc 0; [clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass
+SURVIVED S4 SoC guard exempts --with-spiflash: rc 0; [clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass
+KILLED S5 SoC guard only when --build: rc 1; AssertionError: clock accepted before platform: ['--milan-clk-freq', '49999999']
+KILLED S6 SoC guard ignores sys fallback: rc 1; AssertionError: clock accepted before platform: ['--sys-clk-freq', '80000000']
+SURVIVED S7 SoC mirrors the literal instead of importing: rc 0; [clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass
+KILLED W1 sweep falls back to a literal clock: rc 1; AssertionError
+KILLED W2 sweep ignores SWEEP_CFG: rc 1; AssertionError: ('--sys-clk-freq', ['python3', '$REVIEWS/582-r355-1-packet/scratch/mut/sw/litex/milan_soc.py', '--board', 'arty', '--sys-clk-freq', '
+KILLED W3 sweep drops the board check: rc 1; AssertionError
+SURVIVED P1 precedence loop drops configured pairs: rc 0; RESULT: PASS
+KILLED P2 configured pairs keep only the first config: rc 1; AssertionError: configuration clock pairs not preserved
+RESTORED: work copy sources equal the pristine head copy
+[
+ {
+  "mutant": "C0 control builder test",
+  "status": "CONTROL-PASS",
+  "returncode": 0,
+  "last_line": "[clock contract] 5 configured positives; 25 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure"
+ },
+ {
+  "mutant": "C1 control SoC test",
+  "status": "CONTROL-PASS",
+  "returncode": 0,
+  "last_line": "[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass"
+ },
+ {
+  "mutant": "C2 control sweep test",
+  "status": "CONTROL-PASS",
+  "returncode": 0,
+  "last_line": "[clock contract] extra sweep: defaults, all configurations, changed system clock, board mismatch, invalid clock and missing configuration pass"
+ },
+ {
+  "mutant": "C3 control memory-bridge test",
+  "status": "CONTROL-PASS",
+  "returncode": 0,
+  "last_line": "RESULT: PASS"
+ },
+ {
+  "mutant": "B1 builder guard reads sys_clk_hz",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "endstation_builder.ConfigError: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)"
+ },
+ {
+  "mutant": "B2 builder guard tolerates +-1 kHz",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: accepted invalid input: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)"
+ },
+ {
+  "mutant": "B3 builder guard only for flashboot baremetal",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "[clock contract] 5 configured positives; 25 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure"
+ },
+ {
+  "mutant": "B4 builder refusal drops the contract citation",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: baremetal clock: milan_clk_hz must be 50000000 Hz (see docs)"
+ },
+ {
+  "mutant": "B5 builder mirrors the literal instead of importing",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "[clock contract] 5 configured positives; 25 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure"
+ },
+ {
+  "mutant": "B6 builder guard only below 60 MHz window",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "[clock contract] 5 configured positives; 25 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure"
+ },
+ {
+  "mutant": "S1 SoC guard exempts --no-milan",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass"
+ },
+ {
+  "mutant": "S2 SoC guard exempts --full product argv",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass"
+ },
+ {
+  "mutant": "S3 SoC guard exempts the arty board",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass"
+ },
+ {
+  "mutant": "S4 SoC guard exempts --with-spiflash",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass"
+ },
+ {
+  "mutant": "S5 SoC guard only when --build",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: clock accepted before platform: ['--milan-clk-freq', '49999999']"
+ },
+ {
+  "mutant": "S6 SoC guard ignores sys fallback",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: clock accepted before platform: ['--sys-clk-freq', '80000000']"
+ },
+ {
+  "mutant": "S7 SoC mirrors the literal instead of importing",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass"
+ },
+ {
+  "mutant": "W1 sweep falls back to a literal clock",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError"
+ },
+ {
+  "mutant": "W2 sweep ignores SWEEP_CFG",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: ('--sys-clk-freq', ['python3', '$REVIEWS/582-r355-1-packet/scratch/mut/sw/litex/milan_soc.py', '--board', 'arty', '--sys-clk-freq', '83333000', '--milan-clk-freq', '50000000"
+ },
+ {
+  "mutant": "W3 sweep drops the board check",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError"
+ },
+ {
+  "mutant": "P1 precedence loop drops configured pairs",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "RESULT: PASS"
+ },
+ {
+  "mutant": "P2 configured pairs keep only the first config",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: configuration clock pairs not preserved"
+ }
+]

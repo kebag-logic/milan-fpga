@@ -1,0 +1,13 @@
+[base] BAD rc=0 wrote=True fragment-changed=True expect=refuse 8x8 at 100 MHz (#565 observation) ::   wrote $REVIEWS/582-r355-1-packet/scratch/builder-cli/base-00-out/base-00/aecp_aem_rom.svh
+[base] BAD rc=0 wrote=True fragment-changed=True expect=refuse 1x1 at 80 MHz (former ROM variant) ::   wrote $REVIEWS/582-r355-1-packet/scratch/builder-cli/base-01-out/base-01/aecp_aem_rom.svh
+[base] BAD rc=0 wrote=True fragment-changed=True expect=refuse arty_4x4 at 50000001 ::   wrote $REVIEWS/582-r355-1-packet/scratch/builder-cli/base-02-out/base-02/aecp_aem_rom.svh
+[base] BAD rc=0 wrote=True fragment-changed=True expect=refuse arty_current at 49999999 ::   wrote $REVIEWS/582-r355-1-packet/scratch/builder-cli/base-03-out/base-03/aecp_aem_rom.svh
+[base] BAD rc=0 wrote=True fragment-changed=True expect=refuse arty_8ch at 25 MHz ::   wrote $REVIEWS/582-r355-1-packet/scratch/builder-cli/base-04-out/base-04/aecp_aem_rom.svh
+[base] BAD rc=0 wrote=True fragment-changed=True expect=refuse 1x1 flashboot none at 100 MHz ::   wrote $REVIEWS/582-r355-1-packet/scratch/builder-cli/base-05-out/base-05/aecp_aem_rom.svh
+[base] BAD rc=0 wrote=True fragment-changed=True expect=refuse 1x1 milan equals sys at 100 MHz ::   wrote $REVIEWS/582-r355-1-packet/scratch/builder-cli/base-06-out/base-06/aecp_aem_rom.svh
+[base] ok  rc=0 wrote=True fragment-changed=True expect=record 1x1 milan and sys both 50 MHz ::   wrote $REVIEWS/582-r355-1-packet/scratch/builder-cli/base-07-out/base-07/aecp_aem_rom.svh
+[base] ok  rc=0 wrote=True fragment-changed=True expect=record 1x1 milan as float 50000000.0 ::   wrote $REVIEWS/582-r355-1-packet/scratch/builder-cli/base-08-out/base-08/aecp_aem_rom.svh
+[base] ok  rc=0 wrote=True fragment-changed=True expect=record 1x1 milan as float 50000000.9 ::   wrote $REVIEWS/582-r355-1-packet/scratch/builder-cli/base-09-out/base-09/aecp_aem_rom.svh
+[base] ok  rc=1 wrote=False fragment-changed=False expect=refuse-any 1x1 milan omitted :: CONFIG ERROR: board.constraints: missing required key 'milan_clk_hz'
+[base] ok  rc=0 wrote=True fragment-changed=True expect=accept 1x1 unchanged ::   wrote $REVIEWS/582-r355-1-packet/scratch/builder-cli/base-11-out/base-11/aecp_aem_rom.svh
+[base] 12 cases, 7 unexpected

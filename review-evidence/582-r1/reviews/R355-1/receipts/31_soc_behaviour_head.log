@@ -1,0 +1,76 @@
+[head] ok  ACCEPTED         endstation_arty_4x4 configured argv :: 
+[head] ok  REFUSED rc=2     endstation_arty_4x4 product argv --milan-clk-freq 100e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_4x4 product argv --milan-clk-freq 80e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_4x4 product argv --milan-clk-freq 49999999 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_4x4 product argv --milan-clk-freq 50000001 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_4x4 product argv --milan-clk-freq 25e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_4x4 product argv without --milan-clk-freq (system fallback) :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_4x4 product argv --milan-clk-freq 0 (disabled domain) :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_arty_4x4 product argv + --no-milan :: 
+[head] ok  REFUSED rc=2     endstation_arty_4x4 product argv + --no-milan at 100e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_arty_4x4 product argv --sys 50e6 no milan domain :: 
+[head] ok  REFUSED rc=2     endstation_arty_4x4 product argv duplicate --milan-clk-freq 100e6 last :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_arty_4x4 product argv duplicate --milan-clk-freq 50e6 last after 100e6 :: 
+[head] ok  ACCEPTED         endstation_arty_8ch configured argv :: 
+[head] ok  REFUSED rc=2     endstation_arty_8ch product argv --milan-clk-freq 100e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_8ch product argv --milan-clk-freq 80e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_8ch product argv --milan-clk-freq 49999999 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_8ch product argv --milan-clk-freq 50000001 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_8ch product argv --milan-clk-freq 25e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_8ch product argv without --milan-clk-freq (system fallback) :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_8ch product argv --milan-clk-freq 0 (disabled domain) :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_arty_8ch product argv + --no-milan :: 
+[head] ok  REFUSED rc=2     endstation_arty_8ch product argv + --no-milan at 100e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_arty_8ch product argv --sys 50e6 no milan domain :: 
+[head] ok  REFUSED rc=2     endstation_arty_8ch product argv duplicate --milan-clk-freq 100e6 last :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_arty_8ch product argv duplicate --milan-clk-freq 50e6 last after 100e6 :: 
+[head] ok  ACCEPTED         endstation_arty_current configured argv :: 
+[head] ok  REFUSED rc=2     endstation_arty_current product argv --milan-clk-freq 100e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_current product argv --milan-clk-freq 80e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_current product argv --milan-clk-freq 49999999 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_current product argv --milan-clk-freq 50000001 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_current product argv --milan-clk-freq 25e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_current product argv without --milan-clk-freq (system fallback) :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_arty_current product argv --milan-clk-freq 0 (disabled domain) :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_arty_current product argv + --no-milan :: 
+[head] ok  REFUSED rc=2     endstation_arty_current product argv + --no-milan at 100e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_arty_current product argv --sys 50e6 no milan domain :: 
+[head] ok  REFUSED rc=2     endstation_arty_current product argv duplicate --milan-clk-freq 100e6 last :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_arty_current product argv duplicate --milan-clk-freq 50e6 last after 100e6 :: 
+[head] ok  ACCEPTED         endstation_ax7101_1x1_tdm8 configured argv :: 
+[head] ok  REFUSED rc=2     endstation_ax7101_1x1_tdm8 product argv --milan-clk-freq 100e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_ax7101_1x1_tdm8 product argv --milan-clk-freq 80e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_ax7101_1x1_tdm8 product argv --milan-clk-freq 49999999 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_ax7101_1x1_tdm8 product argv --milan-clk-freq 50000001 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_ax7101_1x1_tdm8 product argv --milan-clk-freq 25e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_ax7101_1x1_tdm8 product argv without --milan-clk-freq (system fallback) :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_ax7101_1x1_tdm8 product argv --milan-clk-freq 0 (disabled domain) :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_ax7101_1x1_tdm8 product argv + --no-milan :: 
+[head] ok  REFUSED rc=2     endstation_ax7101_1x1_tdm8 product argv + --no-milan at 100e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_ax7101_1x1_tdm8 product argv --sys 50e6 no milan domain :: 
+[head] ok  REFUSED rc=2     endstation_ax7101_1x1_tdm8 product argv duplicate --milan-clk-freq 100e6 last :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_ax7101_1x1_tdm8 product argv duplicate --milan-clk-freq 50e6 last after 100e6 :: 
+[head] ok  ACCEPTED         endstation_ax7101_8x8 configured argv :: 
+[head] ok  REFUSED rc=2     endstation_ax7101_8x8 product argv --milan-clk-freq 100e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_ax7101_8x8 product argv --milan-clk-freq 80e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_ax7101_8x8 product argv --milan-clk-freq 49999999 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_ax7101_8x8 product argv --milan-clk-freq 50000001 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_ax7101_8x8 product argv --milan-clk-freq 25e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_ax7101_8x8 product argv without --milan-clk-freq (system fallback) :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  REFUSED rc=2     endstation_ax7101_8x8 product argv --milan-clk-freq 0 (disabled domain) :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_ax7101_8x8 product argv + --no-milan :: 
+[head] ok  REFUSED rc=2     endstation_ax7101_8x8 product argv + --no-milan at 100e6 :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_ax7101_8x8 product argv --sys 50e6 no milan domain :: 
+[head] ok  REFUSED rc=2     endstation_ax7101_8x8 product argv duplicate --milan-clk-freq 100e6 last :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         endstation_ax7101_8x8 product argv duplicate --milan-clk-freq 50e6 last after 100e6 :: 
+[head] ok  REFUSED rc=2     header usage: milan_soc.py  :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         header usage + --milan-clk-freq 50e6:  :: 
+[head] ok  REFUSED rc=2     header usage: milan_soc.py --full :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         header usage + --milan-clk-freq 50e6: --full :: 
+[head] ok  REFUSED rc=2     header usage: milan_soc.py --with-mac :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         header usage + --milan-clk-freq 50e6: --with-mac :: 
+[head] ok  REFUSED rc=2     header usage: milan_soc.py --no-milan :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         header usage + --milan-clk-freq 50e6: --no-milan :: 
+[head] ok  REFUSED rc=2     header usage: milan_soc.py --software-profile baremetal --cpu vexiiriscv --xlen 32 --with-spiflash --flashboot baremetal :: milan_soc.py: error: baremetal clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without 
+[head] ok  ACCEPTED         header usage + --milan-clk-freq 50e6: --software-profile baremetal --cpu vexiiriscv --xlen 32 --with-spiflash --flashboot baremetal :: 
+[head] 75 cases, 0 unexpected
