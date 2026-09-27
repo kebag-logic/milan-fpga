@@ -1,0 +1,25 @@
+target sha256 0cedf3a3d89f38551ceb899e1737623cad73f1bd94ad7b7ec3562799ecfb85fd
+baseline self-test rc=0 behave rc=0
+KILLED   self-test rc=1 behave rc=1  R01 eligibility ignores topology_explicit
+KILLED   self-test rc=1 behave rc=0  R02 eligibility ignores the stream-binding inventory
+KILLED   self-test rc=1 behave rc=1  R03 interval ceiling made exclusive
+KILLED   self-test rc=1 behave rc=1  R04 power repeats skip the common prerequisites
+KILLED   self-test rc=1 behave rc=1  R05 boot observation drops the margin
+KILLED   self-test rc=1 behave rc=0  R06 restore bound made exclusive
+KILLED   self-test rc=1 behave rc=1  R07 ADP limit made inclusive
+KILLED   self-test rc=1 behave rc=0  R08 CLI --restore-bound-s not threaded
+KILLED   self-test rc=1 behave rc=0  R09 CLI --boot-margin-s not threaded
+KILLED   self-test rc=1 behave rc=1  R10 topology check reads the DUT spec only
+KILLED   self-test rc=1 behave rc=1  R11 topology check does not require CRF keys
+KILLED   self-test rc=1 behave rc=1  R12 topology check does not require listener shape
+KILLED   self-test rc=1 behave rc=0  R13 CRF overlap check covers talkers only
+KILLED   self-test rc=1 behave rc=0  R14 CRF overlap check removed
+KILLED   self-test rc=1 behave rc=0  R15 boot oracle ignores restarts
+KILLED   self-test rc=1 behave rc=1  R16 boot oracle ignores capture completeness
+KILLED   self-test rc=1 behave rc=0  R17 boot oracle accepts zero passes
+KILLED   self-test rc=1 behave rc=0  R18 restore_bound_s positive-integer validation dropped
+KILLED   self-test rc=1 behave rc=0  R19 topology_explicit type check dropped
+KILLED   self-test rc=1 behave rc=1  R20 power.single-boot assertion dropped from POWER_ASSERTS
+KILLED   self-test rc=1 behave rc=0  R21 restore bound marked not provisional
+KILLED   self-test rc=1 behave rc=0  R22 soak eligibility ignores duration (common prerequisites only)
+restored target sha256 0cedf3a3d89f38551ceb899e1737623cad73f1bd94ad7b7ec3562799ecfb85fd; survivors 0

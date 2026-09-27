@@ -1,0 +1,155 @@
+[
+  {
+    "name": "internal-r1-mutants",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R346-1/planner_mutants.py",
+      "$LANES/396-release-gates",
+      "/tmp/396-a361-internal-r1"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "internal-r1-omissions",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R346-1/plan_omission_probe.py",
+      "$LANES/396-release-gates"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "internal-r2-prior-mutants",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R346-2/planner_mutants.py",
+      "$LANES/396-release-gates",
+      "/tmp/396-a361-internal-r2-prior"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "internal-r2-omissions",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R346-2/plan_omission_probe.py",
+      "$LANES/396-release-gates"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "internal-r2-mutants",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R346-2/planner_mutants_r2.py",
+      "$LANES/396-release-gates",
+      "/tmp/396-a361-internal-r2"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "internal-r2-eligibility",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R346-2/eligibility_probe.py",
+      "$LANES/396-release-gates"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "external-r1-mutants",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R347-1/mutants.py",
+      "/tmp/396-a361-external-export"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "external-r1-audit",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R347-1/audit_probe.py",
+      "/tmp/396-a361-external-export"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "external-r2-prior-mutants",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R347-2/mutants.py",
+      "/tmp/396-a361-external-export"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "external-r2-audit",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R347-2/audit_probe.py",
+      "/tmp/396-a361-external-export"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "external-r2-mutants",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R347-2/mutants_r2.py",
+      "/tmp/396-a361-external-export"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "external-r2-probe",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R347-2/probe_r2.py",
+      "/tmp/396-a361-external-export"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "external-r2-attribution",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R347-2/kill_attribution.py",
+      "/tmp/396-a361-external-export"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "external-r2-internal-attribution",
+    "command": [
+      "python3",
+      "-B",
+      "/tmp/396-a361-review/R347-2/r346_attribution.py",
+      "/tmp/396-a361-review/R346-2/planner_mutants.py",
+      "/tmp/396-a361-external-export"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "round3-mutants",
+    "command": [
+      "python3",
+      "-B",
+      "$LANES/396-release-gates/tb/tools/torture_release_mutants.py"
+    ],
+    "rc": 0
+  }
+]
