@@ -1,0 +1,68 @@
+[
+  {
+    "name": "r328-p4",
+    "script": "review-evidence/502-r1/reviews/R328-2/scripts/r328_2_dp_mutants.py",
+    "args": [
+      "/tmp/502-a349-eq2yv5on/archive",
+      "/tmp/502-a349-eq2yv5on/r328-mutants",
+      "P4_no_phase5"
+    ],
+    "sha256": "5f933518342ba92708d25c2f1fb4057ba2f511f302fb5351b7e549420dad7d47",
+    "rc": 0,
+    "seconds": 33.1
+  },
+  {
+    "name": "r328-other",
+    "script": "review-evidence/502-r1/reviews/R328-2/scripts/r328_2_dp_mutants.py",
+    "args": [
+      "/tmp/502-a349-eq2yv5on/archive",
+      "/tmp/502-a349-eq2yv5on/r328-mutants",
+      "P1_in_only",
+      "P2_out_only",
+      "P3_unqualified",
+      "P5_no_context",
+      "P6_tied_low",
+      "E1_no_beat",
+      "E2_priority_dropped",
+      "S1_shadow_ignores_input"
+    ],
+    "sha256": "5f933518342ba92708d25c2f1fb4057ba2f511f302fb5351b7e549420dad7d47",
+    "rc": 0,
+    "seconds": 231.7
+  },
+  {
+    "name": "r329-dp",
+    "script": "review-evidence/502-r1/reviews/R329-2/scripts/r329_dp_mutants.py",
+    "args": [
+      "/tmp/502-a349-eq2yv5on/archive",
+      "/tmp/502-a349-eq2yv5on/r329-mutants"
+    ],
+    "sha256": "480c9a24a985e018f022bd1b1232f8304a9477cbeea2b9f9e37aa9cab854fd9c",
+    "rc": 0,
+    "seconds": 87.9
+  },
+  {
+    "name": "r328-probe",
+    "script": "review-evidence/502-r1/reviews/R328-2/scripts/r328_2_multirec_probe.py",
+    "args": [
+      "/tmp/502-a349-eq2yv5on/archive",
+      "/tmp/502-a349-eq2yv5on/r328-probe"
+    ],
+    "sha256": "d58c9a1a1b296afca1c531077fd4d7d38098d98f1b1737478ec4535adac702a4",
+    "rc": 0,
+    "seconds": 15.2
+  },
+  {
+    "name": "r328-probe-p4",
+    "script": "review-evidence/502-r1/reviews/R328-2/scripts/r328_2_multirec_probe.py",
+    "args": [
+      "/tmp/502-a349-eq2yv5on/archive",
+      "/tmp/502-a349-eq2yv5on/r328-probe",
+      "/tmp/502-a349-eq2yv5on/r328-mutants/mut/P4_no_phase5/hdl/milan/milan_datapath.sv",
+      "P4"
+    ],
+    "sha256": "d58c9a1a1b296afca1c531077fd4d7d38098d98f1b1737478ec4535adac702a4",
+    "rc": 0,
+    "seconds": 15.1
+  }
+]

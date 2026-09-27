@@ -1,0 +1,20 @@
+  [FAIL] K12 partial refusal input sticky_pending_PP_STAT got=0x00000001 exp=0x00000000
+  [FAIL] K12 partial refusal input sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000000
+  [FAIL] K12 partial refusal output sticky_pending_PP_STAT got=0x00000001 exp=0x00000000
+  [FAIL] K12 partial refusal output sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000000
+[R328-2] two-record command refused at record 1 (reviewer-derived)
+  [R328-2-obs] type 0xe phase-5 records 0 marks 0 storage changes 0 PP_STAT[11] 1
+  [PASS] R328-2 Q1 input refused at record 1 no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] R328-2 Q1 input refused at record 1 pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] R328-2 Q1 input refused at record 1 live_state_changed got=0x00000000 exp=0x00000000
+  [FAIL] R328-2 Q1 input refused at record 1 sticky_pending_PP_STAT got=0x00000001 exp=0x00000000
+  [FAIL] R328-2 Q1 input refused at record 1 sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000000
+  [R328-2-obs] type 0xf phase-5 records 0 marks 0 storage changes 0 PP_STAT[11] 1
+  [PASS] R328-2 Q2 output refused at record 1 no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] R328-2 Q2 output refused at record 1 pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] R328-2 Q2 output refused at record 1 live_state_changed got=0x00000000 exp=0x00000000
+  [FAIL] R328-2 Q2 output refused at record 1 sticky_pending_PP_STAT got=0x00000001 exp=0x00000000
+  [FAIL] R328-2 Q2 output refused at record 1 sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000000
+pp_shadow: 327 checks, 8 failures
+RESULT: FAIL
+P4: rc=2
