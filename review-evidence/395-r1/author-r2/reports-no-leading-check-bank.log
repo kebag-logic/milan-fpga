@@ -1,0 +1,12 @@
+test_commercial_timing_grade:
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/395-a390-work/bank-mutants/reports-no-leading-check/sw/builder/test_builder.py", line 27649, in <module>
+    fn()
+    ~~^^
+  File "$VALIDATION_STORAGE/395-a390-work/bank-mutants/reports-no-leading-check/sw/builder/test_builder.py", line 27560, in test_commercial_timing_grade
+    test_timing_grade_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/395-a390-work/bank-mutants/reports-no-leading-check/sw/builder/test_timing_grade.py", line 126, in test_timing_grade_contract
+    assert not result.stdout, (label, entry, result.stdout)
+           ^^^^^^^^^^^^^^^^^
+AssertionError: ('part', 'kl_timing_grade_reports {$VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate}', 'SUMMARY 0 Slow min_max Fast none -delay_type min_max -report_unconstrained -max_paths 5 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Slow_0C_timing.rpt\nREPORT report_timing -delay_type min_max -slack_lesser_than 0 -max_paths 100 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Slow_0C_negative.rpt\nSUMMARY 0 Slow none Fast min_max -delay_type min_max -report_unconstrained -max_paths 5 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Fast_0C_timing.rpt\nREPORT report_timing -delay_type min_max -slack_lesser_than 0 -max_paths 100 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Fast_0C_negative.rpt\nSUMMARY 85 Slow min_max Fast none -delay_type min_max -report_unconstrained -max_paths 5 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Slow_85C_timing.rpt\nREPORT report_timing -delay_type min_max -slack_lesser_than 0 -max_paths 100 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Slow_85C_negative.rpt\nSUMMARY 85 Slow none Fast min_max -delay_type min_max -report_unconstrained -max_paths 5 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Fast_85C_timing.rpt\nREPORT report_timing -delay_type min_max -slack_lesser_than 0 -max_paths 100 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Fast_85C_negative.rpt\n')

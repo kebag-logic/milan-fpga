@@ -1,0 +1,95 @@
+[
+  {
+    "gate": "timing-script",
+    "head": "09de469c7defb8a88bd0a6f0c7a3ddc6558f1280",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "python3",
+      "-B",
+      "sw/litex/report_timing_grade.py",
+      "$WORKSPACE_HOME/litex-milan/work/build_ax7101_eto_tdm8dev9e9954e9/gateware/alinx_ax7101_route.dcp",
+      "$VALIDATION_STORAGE/395-a390-work/final-09de469c7"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:35:58.171855+00:00",
+    "seconds": 0.04,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a390-work/gates-09de469c7/timing-script.log",
+    "bytes": 53,
+    "sha256": "5c2efab3805f632df2604eb39d8b5357ae2dffb55953c6a818f766ae499678fa"
+  },
+  {
+    "gate": "timing",
+    "head": "09de469c7defb8a88bd0a6f0c7a3ddc6558f1280",
+    "command": [
+      "timeout",
+      "--foreground",
+      "1800",
+      "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-nojournal",
+      "-notrace",
+      "-log",
+      "$VALIDATION_STORAGE/395-a390-work/final-09de469c7/vivado.log",
+      "-source",
+      "$VALIDATION_STORAGE/395-a390-work/final-09de469c7/report.tcl"
+    ],
+    "cwd": "$VALIDATION_STORAGE/395-a390-work/final-09de469c7",
+    "started": "2026-09-27T22:35:58.217776+00:00",
+    "seconds": 57.29,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a390-work/gates-09de469c7/timing.log",
+    "bytes": 9295,
+    "sha256": "4d702aa548b7e624d5404935d304d96e66c798898974a8b1add39ea7694d3224"
+  },
+  {
+    "gate": "crossings",
+    "head": "09de469c7defb8a88bd0a6f0c7a3ddc6558f1280",
+    "command": [
+      "timeout",
+      "--foreground",
+      "1800",
+      "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-nojournal",
+      "-notrace",
+      "-log",
+      "$VALIDATION_STORAGE/395-a390-work/final-09de469c7/crossings.log",
+      "-source",
+      "$VALIDATION_STORAGE/395-a390-work/crossings.tcl",
+      "-tclargs",
+      "$WORKSPACE_HOME/litex-milan/work/build_ax7101_eto_tdm8dev9e9954e9/gateware/alinx_ax7101_route.dcp",
+      "$VALIDATION_STORAGE/395-a390-work/final-09de469c7"
+    ],
+    "cwd": "$VALIDATION_STORAGE/395-a390-work/final-09de469c7",
+    "started": "2026-09-27T22:36:55.508822+00:00",
+    "seconds": 41.39,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a390-work/gates-09de469c7/crossings.log",
+    "bytes": 6536,
+    "sha256": "e137f66084273d3ff242cace72627d0333fe9f7d32bb130f84565945b715344c"
+  },
+  {
+    "gate": "mutations",
+    "head": "09de469c7defb8a88bd0a6f0c7a3ddc6558f1280",
+    "command": [
+      "timeout",
+      "--foreground",
+      "1800",
+      "python3",
+      "-B",
+      "$VALIDATION_STORAGE/395-a390-work/run_mutations.py"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:37:36.904224+00:00",
+    "seconds": 6.26,
+    "returncode": 1,
+    "log": "$VALIDATION_STORAGE/395-a390-work/gates-09de469c7/mutations.log",
+    "bytes": 5728,
+    "sha256": "5c95f9fb47a9983b90ab1ebb5a0f2c3dec719c2898ab0b723f2e01ed1fee2da0"
+  }
+]

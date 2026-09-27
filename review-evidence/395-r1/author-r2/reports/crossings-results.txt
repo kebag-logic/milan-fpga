@@ -1,0 +1,9 @@
+clocks after reset: clk200_p eth_clocks0_rx milansoc_crg_audio_mclk_raw milansoc_crg_audio_ref_raw milansoc_crg_clkout0 milansoc_crg_clkout1 milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 milansoc_crg_mmcm_audio_fb milansoc_crg_pll_audio_fb subfragments_pll_fb
+Slow eth_clocks0_rx->milansoc_crg_clkout0 paths=13 worst_slack=5.746 req=8.000 datapath_max=2.179 worst_end=impl_xilinxmultiregimpl140_reg/D
+Slow milansoc_crg_clkout0->eth_clocks0_rx paths=16 worst_slack=4.313 req=8.000 datapath_max=3.395 worst_end=FDPE_14/PRE
+Slow eth_clocks0_rx->milansoc_crg_clkout1 paths=50 worst_slack=2.560 req=8.000 datapath_max=5.373 worst_end=KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[23]/D
+Slow milansoc_crg_clkout1->eth_clocks0_rx paths=14 worst_slack=4.056 req=8.000 datapath_max=3.652 worst_end=FDPE_18/PRE
+Fast eth_clocks0_rx->milansoc_crg_clkout0 paths=13 worst_slack=6.717 req=8.000 datapath_max=1.240 worst_end=impl_xilinxmultiregimpl140_reg/D
+Fast milansoc_crg_clkout0->eth_clocks0_rx paths=16 worst_slack=5.895 req=8.000 datapath_max=1.979 worst_end=FDPE_14/PRE
+Fast eth_clocks0_rx->milansoc_crg_clkout1 paths=50 worst_slack=4.823 req=8.000 datapath_max=3.092 worst_end=KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[23]/D
+Fast milansoc_crg_clkout1->eth_clocks0_rx paths=14 worst_slack=5.878 req=8.000 datapath_max=1.996 worst_end=FDPE_18/PRE

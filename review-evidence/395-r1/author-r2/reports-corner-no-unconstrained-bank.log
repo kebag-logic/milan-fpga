@@ -1,0 +1,15 @@
+test_commercial_timing_grade:
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/395-a390-work/bank-mutants/reports-corner-no-unconstrained/sw/builder/test_builder.py", line 27649, in <module>
+    fn()
+    ~~^^
+  File "$VALIDATION_STORAGE/395-a390-work/bank-mutants/reports-corner-no-unconstrained/sw/builder/test_builder.py", line 27560, in test_commercial_timing_grade
+    test_timing_grade_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/395-a390-work/bank-mutants/reports-corner-no-unconstrained/sw/builder/test_timing_grade.py", line 134, in test_timing_grade_contract
+    _check_report_content(result.stdout)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/395-a390-work/bank-mutants/reports-corner-no-unconstrained/sw/builder/test_timing_grade.py", line 79, in _check_report_content
+    assert "-report_unconstrained" in line.split(), line
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: SUMMARY 0 Slow min_max Fast none -delay_type min_max -max_paths 5 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-4mhqsvmz/candidate_Slow_0C_timing.rpt

@@ -1,0 +1,27 @@
+[
+  {
+    "fault": "reports-no-leading-check",
+    "returncode": 1,
+    "reason": "AssertionError: ('part', 'kl_timing_grade_reports {$VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate}', 'SUMMARY 0 Slow min_max Fast none -delay_type min_max -report_unconstrained -max_paths 5 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Slow_0C_timing.rpt\\nREPORT report_timing -delay_type min_max -slack_lesser_than 0 -max_paths 100 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Slow_0C_negative.rpt\\nSUMMARY 0 Slow none Fast min_max -delay_type min_max -report_unconstrained -max_paths 5 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Fast_0C_timing.rpt\\nREPORT report_timing -delay_type min_max -slack_lesser_than 0 -max_paths 100 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Fast_0C_negative.rpt\\nSUMMARY 85 Slow min_max Fast none -delay_type min_max -report_unconstrained -max_paths 5 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Slow_85C_timing.rpt\\nREPORT report_timing -delay_type min_max -slack_lesser_than 0 -max_paths 100 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Slow_85C_negative.rpt\\nSUMMARY 85 Slow none Fast min_max -delay_type min_max -report_unconstrained -max_paths 5 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Fast_85C_timing.rpt\\nREPORT report_timing -delay_type min_max -slack_lesser_than 0 -max_paths 100 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-s32f883c/candidate_Fast_85C_negative.rpt\\n')"
+  },
+  {
+    "fault": "reports-corner-setup-only",
+    "returncode": 1,
+    "reason": "AssertionError: SUMMARY 0 Slow min_max Fast none -delay_type max -report_unconstrained -max_paths 5 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-txeiplo_/candidate_Slow_0C_timing.rpt"
+  },
+  {
+    "fault": "reports-corner-no-unconstrained",
+    "returncode": 1,
+    "reason": "AssertionError: SUMMARY 0 Slow min_max Fast none -delay_type min_max -max_paths 5 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-4mhqsvmz/candidate_Slow_0C_timing.rpt"
+  },
+  {
+    "fault": "reports-all-no-check-verbose",
+    "returncode": 1,
+    "reason": "AssertionError: SUMMARY 85 Slow min_max Fast min_max -delay_type min_max -report_unconstrained -max_paths 5 -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-k5lnf5em/candidate_all_timing.rpt"
+  },
+  {
+    "fault": "reports-clock-interaction-setup-only",
+    "returncode": 1,
+    "reason": "AssertionError: ('report_clock_interaction', ['REPORT report_clock_interaction -delay_type max -file $VALIDATION_STORAGE/395-a390-work/tmp/timing-grade-l95by7z2/candidate_clock_interaction.rpt'])"
+  }
+]
