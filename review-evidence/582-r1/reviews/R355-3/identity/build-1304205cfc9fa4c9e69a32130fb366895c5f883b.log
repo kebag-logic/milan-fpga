@@ -1,0 +1,75 @@
+submodule external efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 not checked out in clone; skipped
+submodule gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d exported
+submodule protocol-processor 16be6768f710e79450aace277abacd6c2c3336e5 exported
+submodule third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce exported
+[endstation_builder] endstation_arty_4x4: 4x4 AAF + CRF, tdm8, 32 clusters (cap-at-interface), model_id 0x001BC557FC6ABBC8 (hash); 4 planned element(s); resources OVER (worst LUT 84.9%)
+  wrote sw/builder/out/endstation_arty_4x4/soc_params.json
+  wrote sw/builder/out/endstation_arty_4x4/aem_overlay.json
+  wrote sw/builder/out/endstation_arty_4x4/build_plan.md
+  wrote sw/builder/out/endstation_arty_4x4/lwsrp_table.json
+  wrote sw/builder/out/endstation_arty_4x4/lwsrp_table.svh
+  wrote sw/builder/out/endstation_arty_4x4/lwsrp_csr_defaults.svh
+  wrote sw/builder/out/endstation_arty_4x4/adp_shape_defaults.svh
+  wrote configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+  wrote sw/builder/out/endstation_arty_4x4/platform_shape.json
+  wrote configs/generated/sweep_opts_arty.sh
+  wrote sw/builder/out/endstation_arty_4x4/gptp_ucode.hex
+  wrote sw/builder/out/endstation_arty_4x4/aecp_aem_rom.svh
+build endstation_arty_4x4.yaml rc=0
+[endstation_builder] endstation_arty_8ch: 4x4 AAF + CRF, tdm8, 64 clusters (cap-at-interface), model_id 0x001BC507C86F4172 (hash); 4 planned element(s); resources OVER (worst LUT 84.9%)
+  wrote sw/builder/out/endstation_arty_8ch/soc_params.json
+  wrote sw/builder/out/endstation_arty_8ch/aem_overlay.json
+  wrote sw/builder/out/endstation_arty_8ch/build_plan.md
+  wrote sw/builder/out/endstation_arty_8ch/lwsrp_table.json
+  wrote sw/builder/out/endstation_arty_8ch/lwsrp_table.svh
+  wrote sw/builder/out/endstation_arty_8ch/lwsrp_csr_defaults.svh
+  wrote sw/builder/out/endstation_arty_8ch/adp_shape_defaults.svh
+  wrote configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+  wrote sw/builder/out/endstation_arty_8ch/platform_shape.json
+  wrote configs/generated/sweep_opts_arty.sh
+  wrote sw/builder/out/endstation_arty_8ch/gptp_ucode.hex
+  wrote sw/builder/out/endstation_arty_8ch/aecp_aem_rom.svh
+build endstation_arty_8ch.yaml rc=0
+[endstation_builder] endstation_arty_current: 1x1 AAF + CRF, i2s_philips, 16 clusters (cluster-per-stream-channel), model_id 0x001BC50AC1000005 (pin); 3 planned element(s); resources OVER (worst LUT 81.7%)
+  wrote sw/builder/out/endstation_arty_current/soc_params.json
+  wrote sw/builder/out/endstation_arty_current/aem_overlay.json
+  wrote sw/builder/out/endstation_arty_current/build_plan.md
+  wrote sw/builder/out/endstation_arty_current/lwsrp_table.json
+  wrote sw/builder/out/endstation_arty_current/lwsrp_table.svh
+  wrote sw/builder/out/endstation_arty_current/lwsrp_csr_defaults.svh
+  wrote sw/builder/out/endstation_arty_current/adp_shape_defaults.svh
+  wrote configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+  wrote sw/builder/out/endstation_arty_current/platform_shape.json
+  wrote configs/generated/sweep_opts_arty.sh
+  wrote sw/builder/out/endstation_arty_current/gptp_ucode.hex
+  wrote hdl/common/csr/gen/lwsrp_csr_defaults.svh
+  wrote sw/builder/out/endstation_arty_current/aecp_aem_rom.svh
+build endstation_arty_current.yaml rc=0
+[endstation_builder] endstation_ax7101_1x1_tdm8: 1x1 AAF + CRF, tdm8, 25 clusters (role-pools), model_id 0x001BC5C40236BA0E (hash); 3 planned element(s); resources TIGHT (worst LUT 79.4%)
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/aem_overlay.json
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/build_plan.md
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/lwsrp_table.json
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/lwsrp_table.svh
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+  wrote configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+  wrote sw/builder/out/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh
+build endstation_ax7101_1x1_tdm8.yaml rc=0
+[endstation_builder] endstation_ax7101_8x8: 8x8 AAF + CRF, tdm32, 72 clusters (role-pools), model_id 0x001BC572F79BC5D1 (hash); 5 planned element(s); resources OVER (worst LUT 85.4%)
+  wrote sw/builder/out/endstation_ax7101_8x8/soc_params.json
+  wrote sw/builder/out/endstation_ax7101_8x8/aem_overlay.json
+  wrote sw/builder/out/endstation_ax7101_8x8/build_plan.md
+  wrote sw/builder/out/endstation_ax7101_8x8/lwsrp_table.json
+  wrote sw/builder/out/endstation_ax7101_8x8/lwsrp_table.svh
+  wrote sw/builder/out/endstation_ax7101_8x8/lwsrp_csr_defaults.svh
+  wrote sw/builder/out/endstation_ax7101_8x8/adp_shape_defaults.svh
+  wrote configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  wrote sw/builder/out/endstation_ax7101_8x8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote sw/builder/out/endstation_ax7101_8x8/gptp_ucode.hex
+  wrote sw/builder/out/endstation_ax7101_8x8/aecp_aem_rom.svh
+build endstation_ax7101_8x8.yaml rc=0

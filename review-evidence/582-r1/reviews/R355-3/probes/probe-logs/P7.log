@@ -1,0 +1,3 @@
+planted in scratch/probe-tree/configs/endstation_ax7101_8x8.yaml: '    milan_clk_hz: 50000000 ' -> '    milan_clk_hz: 100000000 '
+$ python3 sw/builder/endstation_builder.py configs/endstation_ax7101_8x8.yaml
+CONFIG ERROR: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)

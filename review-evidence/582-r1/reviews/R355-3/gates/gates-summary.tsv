@@ -1,0 +1,41 @@
+n	rc	command
+01	0	git rev-parse HEAD HEAD^{tree}
+02	0	git diff --check b468a56d9e3ed9c10e4e41503c446dd6b242b9f8 HEAD
+03	0	python3 scripts/docs_check.py
+04	0	python3 scripts/docs_check.py --selftest
+05	2	python3 scripts/check_em_dash.py --base b468a56d9e3ed9c10e4e41503c446dd6b242b9f8
+06	2	python3 scripts/check_em_dash.py --base 9e9954e96bf55181edb9949ae94c9abd4ab6aaf5
+07	2	python3 scripts/check_em_dash.py --selftest
+08	2	python3 scripts/gen_toc.py --selftest
+09	2	python3 scripts/gen_toc.py --verify-anchors
+10	2	python3 scripts/gen_toc.py --check
+11	0	python3 scripts/check_doc_style.py
+12	0	python3 scripts/check_doc_style.py --selftest
+13	0	python3 docs/DOC_MAP.gen.py --check
+14	0	python3 docs/DOC_MAP.gen.py --selftest
+15	0	python3 scripts/check_doc_paths.py
+16	0	python3 scripts/check_solution_docs.py
+17	0	python3 scripts/check_solution_docs.py --selftest
+18	0	python3 scripts/check_baremetal_only.py --check
+19	0	python3 scripts/check_baremetal_only.py --selftest
+20	0	python3 scripts/ci_scope.py --selftest
+21	0	python3 scripts/ci_events.py --check
+22	0	python3 scripts/ci_events.py --selftest
+23	0	python3 scripts/check_nvm_capture.py
+24	0	python3 scripts/check_nvm_record_space.py
+25	0	python3 scripts/check_entity_shape.py
+26	0	python3 scripts/check_entity_shape.py --self-test
+27	0	python3 scripts/check_sweep_shape.py --self-test
+28	0	python3 scripts/check_deploy_shape.py --self-test
+29	0	python3 scripts/measure_test_evidence.py --check
+30	0	python3 scripts/measure_test_evidence.py --selftest
+31	0	python3 scripts/check_py_idiom.py
+32	0	python3 scripts/check_sh_idiom.py
+33	0	python3 scripts/check_hygiene.py --check
+34	0	python3 scripts/check_todo_ownership.py
+35	0	python3 scripts/check_feature_status.py
+36	0	python3 sw/builder/test_clock_contract.py
+37	0	python3 sw/builder/test_declarations.py
+38	0	git status --porcelain --ignored=matching
+39	0	python3 scripts/pp_srcs.py --check
+40	0	python3 -B tb/verilator/fw_service_budget/run.py --self-test

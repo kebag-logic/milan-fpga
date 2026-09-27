@@ -1,0 +1,14 @@
+probe	expect	rc	verdict	restored	description
+C0	pass	0	PASS	yes	control: unmodified clock-contract test
+C1	pass	0	PASS	yes	control: unmodified capture receipt gate
+C2	pass	0	PASS	yes	control: unmodified entity-shape gate (#571 unit counts)
+P1	fail	1	KILLED	yes	recipe clock moved: builder refuses a tracked config
+P2	fail	1	KILLED	yes	recipe clock moved: #580 capture receipt refuses
+P3	fail	1	KILLED	yes	builder clock guard removed
+P4	pass	0	PASS	yes	builder clock guard removed: #571 unit-count gate independent
+P5	fail	1	KILLED	yes	#571 AEM_N_CONTROL_C emission removed
+P6	pass	0	PASS	yes	#571 emission removed: #582 clock contract independent
+P7	fail	1	KILLED	yes	8x8 declares 100 MHz: builder refuses
+P8	fail	1	KILLED	yes	8x8 declares 100 MHz: capture receipt refuses
+P9	fail	1	KILLED	yes	tap presence row altered
+P10	fail	1	KILLED	yes	tap clock row restated at 100 MHz

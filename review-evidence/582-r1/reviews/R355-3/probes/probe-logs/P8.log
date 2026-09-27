@@ -1,0 +1,23 @@
+planted in scratch/probe-tree/configs/endstation_ax7101_8x8.yaml: '    milan_clk_hz: 50000000 ' -> '    milan_clk_hz: 100000000 '
+$ python3 scripts/check_nvm_capture.py
+CONFIG ERROR: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+Traceback (most recent call last):
+  File "$REVIEWS/582-r355-3-packet/scratch/probe-tree/scripts/check_nvm_capture.py", line 177, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/582-r355-3-packet/scratch/probe-tree/scripts/check_nvm_capture.py", line 159, in main
+    actual = current_inputs()
+  File "$REVIEWS/582-r355-3-packet/scratch/probe-tree/scripts/check_nvm_capture.py", line 38, in current_inputs
+    names, dc, spi, spo = nvm_shape.build(cfg, Path(tmp))
+                          ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$REVIEWS/582-r355-3-packet/scratch/probe-tree/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(cfg), "-o", str(out)],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '$REVIEWS/582-r355-3-packet/scratch/probe-tree/sw/builder/endstation_builder.py', '$REVIEWS/582-r355-3-packet/scratch/probe-tree/configs/endstation_ax7101_8x8.yaml', '-o', '/tmp/nvm-capture-census-af8fyjhz']' returned non-zero exit status 1.

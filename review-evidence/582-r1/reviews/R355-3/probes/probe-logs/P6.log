@@ -1,0 +1,6 @@
+planted in scratch/probe-tree/sw/builder/endstation_builder.py: '    a(f"  localparam int AEM_N_CONTROL_C    = {int(dc[\'CONTROL\'])};")' -> '    pass'
+$ python3 sw/builder/test_clock_contract.py
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+[clock contract] 5 tap conversions and presence declarations match configurations

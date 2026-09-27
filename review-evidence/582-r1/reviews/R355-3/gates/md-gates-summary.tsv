@@ -1,0 +1,10 @@
+n	rc	command
+md01	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -c from importlib.metadata import version as v; print(v("cmarkgfm"), v("html5lib"))
+md02	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_em_dash.py --base b468a56d9e3ed9c10e4e41503c446dd6b242b9f8
+md03	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_em_dash.py --base 9e9954e96bf55181edb9949ae94c9abd4ab6aaf5
+md04	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_em_dash.py --selftest
+md05	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --selftest
+md06	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --verify-anchors
+md07	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --check
+md08	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/docs_check.py
+md09	0	git status --porcelain --ignored=matching

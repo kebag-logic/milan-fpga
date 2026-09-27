@@ -1,0 +1,33 @@
+candidate parents: b468a56d9e3ed9c10e4e41503c446dd6b242b9f8 aafcae59732c0a12333b73d82d5cdcbcbf90c47f
+merge-base(parent, pr_head): 9e9954e96bf55181edb9949ae94c9abd4ab6aaf5
+recomputed merge tree: 28c36c12cf459020de252185dbdb14ea508724d2
+candidate tree:        28c36c12cf459020de252185dbdb14ea508724d2
+patch-id source (base..pr_head): 32b34a818b7c6c38b6ecdcb828fe1593c83430e1
+patch-id composed (parent..cand): 32b34a818b7c6c38b6ecdcb828fe1593c83430e1
+PR files: 13; train files: 50
+files changed by both the PR and a train predecessor:
+  docs/integration/BAREMETAL_FIRMWARE.md
+    train commit ff75a7080 fix: qualify service-budget timing and liveness evidence
+    PR changed lines 6a4cad696535246b; composed changed lines 6a4cad696535246b
+  sw/builder/endstation_builder.py
+    train commit f8a52f919 Bind processor unit counts from the generated entity model
+    PR changed lines a4407df74a556ca8; composed changed lines a4407df74a556ca8
+PR-file blob identity, candidate vs source head:
+  SAME docs/AAF_LATENCY_TAPS.md
+  SAME docs/ENDSTATION_BUILDER.md
+  DIFFERS docs/integration/BAREMETAL_FIRMWARE.md
+  SAME docs/testing/CI_WORKFLOWS.md
+  SAME scripts/check_solution_docs.py
+  SAME scripts/ci_scope.py
+  SAME sw/builder/README-parameters.md
+  DIFFERS sw/builder/endstation_builder.py
+  SAME sw/builder/test_builder.py
+  SAME sw/builder/test_clock_contract.py
+  SAME sw/litex/milan_soc.py
+  SAME sw/litex/sweep_extra.sh
+  SAME sw/litex/test_pp_mem_bridge.py
+submodule gitlinks:
+  9e9954e96b gptp-processor=5dce647ab5 protocol-processor=870ff88ad3 third_party/verilog-axis=48ff7a7e2e 
+  aafcae5973 gptp-processor=5dce647ab5 protocol-processor=870ff88ad3 third_party/verilog-axis=48ff7a7e2e 
+  b468a56d9e gptp-processor=5dce647ab5 protocol-processor=16be6768f7 third_party/verilog-axis=48ff7a7e2e 
+  1304205cfc gptp-processor=5dce647ab5 protocol-processor=16be6768f7 third_party/verilog-axis=48ff7a7e2e 

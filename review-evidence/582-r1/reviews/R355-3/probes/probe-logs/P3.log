@@ -1,0 +1,14 @@
+planted in scratch/probe-tree/sw/builder/endstation_builder.py: '        if cons["milan_clk_hz"] != BAREMETAL_CLK_HZ:' -> '        if False:'
+$ python3 sw/builder/test_clock_contract.py
+Traceback (most recent call last):
+  File "$REVIEWS/582-r355-3-packet/scratch/probe-tree/sw/builder/test_clock_contract.py", line 223, in <module>
+    test_baremetal_clock_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/582-r355-3-packet/scratch/probe-tree/sw/builder/test_clock_contract.py", line 57, in test_baremetal_clock_contract
+    _refused(bad, directory, "baremetal clock: milan_clk_hz must be "
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             f"{clock} Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/582-r355-3-packet/scratch/probe-tree/sw/builder/test_clock_contract.py", line 32, in _refused
+    raise AssertionError(f"accepted invalid input: {reason}")
+AssertionError: accepted invalid input: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
