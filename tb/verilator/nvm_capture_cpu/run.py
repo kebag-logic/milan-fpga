@@ -36,7 +36,7 @@ def _grade(build_dir: Path, spec: dict, returncode: int) -> None:
             for line in raw.splitlines() if line.startswith('CAPTURE index=')]
     if len(rows) != spec['captures'] or 'CAPTURE_DONE' not in raw:
         raise RuntimeError('not every requested capture completed')
-    if spec['mutation'] != 'none':
+    if spec['mutation'] in ('skip-copy', 'no-traffic'):
         _grade_mutation(rows, spec['mutation'], returncode)
         if spec['mutation'] == 'skip-copy':
             return
@@ -108,7 +108,7 @@ def main() -> None:
     parser.add_argument('--cpu-hz', type=int, choices=[CPU_HZ, 100_000_000], default=CPU_HZ,
                         help='explicit contract clock; 100 MHz is a non-contract comparison')
     parser.add_argument('--traffic', choices=['on', 'off'], default='on')
-    parser.add_argument('--mutation', choices=['none', 'skip-copy', 'no-traffic'], default='none')
+    parser.add_argument('--mutation', choices=['none', 'skip-copy', 'no-traffic', 'byte-only'], default='none')
     args = parser.parse_args()
     if args.mutation != 'none' and args.traffic != 'on':
         parser.error('mutation controls require --traffic on')

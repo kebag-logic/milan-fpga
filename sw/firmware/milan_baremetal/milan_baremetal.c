@@ -444,6 +444,7 @@ static uint64_t nvm_dirty_since;
  */
 #define NVM_IMG ((volatile uint8_t *)MILAN_NVM_LIVE_BASE)
 #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
+typedef uint32_t nvm_word_t;
 
 static void nvm_heartbeat_tick(void);
 
@@ -1015,11 +1016,23 @@ static struct nvm_cap nvm_capture(void)
 		copy = !((own[rec.id >> 5] >> (rec.id & 31u)) & 1u);
 		next = off + REC_HDR + rec.plen;
 		if (copy) {
-			for (i = off; i < NVM_AREA_RAW; ++i) {
+			for (i = off; i < NVM_AREA_RAW;) {
 				if (i >= next) {
 					break;
 				}
-				NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i];
+				/* Both windows and the header are word aligned. Never
+				 * cross a record edge: its neighbour may be open. */
+				if ((i & 3u) == 0 && next - i >= 4u &&
+				    i <= NVM_AREA_RAW - 4u) {
+					*(volatile nvm_word_t *)(MILAN_NVM_STAGE_BASE + KLJ2_HDR + i) =
+						*(const volatile nvm_word_t *)(MILAN_NVM_LIVE_BASE + KLJ2_HDR + i);
+					i += 4u;
+				} else {
+					if (i < NVM_AREA_RAW) {
+						NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i];
+					}
+					++i;
+				}
 			}
 		}
 		off = next;
