@@ -1,0 +1,55 @@
+# R346-2: planner_mutants_r2.py (new round-2 mutants, same harness) at 24d32d549fa7470318a93984403a92423a63fa25
+warning: unable to find all commit-graph files
+pristine: self-test rc=0 behave rc=0
+KILLED    R01 restore bound hardcoded 30                     self-test,behave
+KILLED    R02 boot margin arg hardcoded 5                    self-test,behave
+KILLED    R03 observation omits margin                       self-test,behave
+KILLED    R04 observation hardcoded 35                       self-test,behave
+KILLED    R05 CLI ignores --restore-bound-s                  self-test
+KILLED    R06 CLI ignores --boot-margin-s                    self-test
+KILLED    R07 restore bound not validated                    self-test
+KILLED    R08 margin not validated                           self-test
+KILLED    R09 restore bound not provisional                  self-test
+KILLED    R10 restore limit exclusive                        self-test
+KILLED    R11 ADP limit inclusive                            self-test,behave
+KILLED    R12 ADP unit 1 s                                   self-test
+KILLED    R13 ADP deadline literal                           self-test,behave
+KILLED    R14 rebind no longer after restore                 self-test,behave
+KILLED    R15 restore end first ADP                          self-test,behave
+SURVIVED  R16 restore requires dropped CRF                   -
+KILLED    R17 time origin network readiness                  self-test,behave
+KILLED    R18 automatic-restore assertion dropped            self-test,behave
+KILLED    R19 adp missing/expired policy weakened            self-test
+KILLED    R20 restore start not T0                           self-test,behave
+KILLED    E01 eligibility ignores topology                   self-test
+KILLED    E02 eligibility ignores binding inventory          self-test
+KILLED    E03 eligibility ignores interval                   self-test
+KILLED    E04 interval ceiling exclusive                     self-test
+KILLED    E05 interval ceiling 600                           self-test
+KILLED    E06 soak skips profile eligibility                 self-test
+KILLED    E07 power skips profile eligibility                self-test
+KILLED    E08 explicit check ignores peer                    self-test
+KILLED    E09 explicit check ignores dut                     self-test
+SURVIVED  E10 explicit check ignores mac                     -
+SURVIVED  E11 explicit check ignores crf                     -
+SURVIVED  E12 explicit check ignores listener shape          -
+SURVIVED  E13 explicit check ignores talker shape            -
+KILLED    E14 CLI always explicit                            self-test
+SURVIVED  E15 empty values count as explicit                 -
+KILLED    E16 topology_explicit type not validated           self-test
+KILLED    E17 default attests explicit                       self-test
+KILLED    O01 overlap refusal removed                        self-test
+KILLED    O02 overlap checks talker side only                self-test
+KILLED    O03 overlap checks listener side only              self-test
+KILLED    O04 overlap checks DUT only                        self-test
+KILLED    B01 boot oracle ignores restarts                   self-test
+KILLED    B02 boot oracle accepts two passes                 self-test
+KILLED    B03 boot oracle ignores capture completeness       self-test,behave
+SURVIVED  B04 boot oracle accepts bool                       -
+KILLED    B05 single-boot assertion dropped                  self-test,behave
+KILLED    B06 boot max passes 2                              self-test
+KILLED    B07 boot max restarts 1                            self-test
+KILLED    B08 boot oracle accepts zero passes                self-test
+SURVIVED  B09 boot oracle accepts negative restarts          -
+50 mutants: 42 killed, 8 survived, 0 invalid
+rc=0

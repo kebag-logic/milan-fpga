@@ -1,0 +1,47 @@
+# R346-2: R347-1 scripts/mutants.py run unchanged (sha256 1e8eaec5..., matches R347-1 MANIFEST at evidence commit 68de0cfe) on git archive of 24d32d549fa7470318a93984403a92423a63fa25
+target sha256 d7e994331546ebf06aeac1b6e190ed3fe139059d2e39df49056e0b23d58efb78
+baseline self-test rc=0 behave rc=0
+KILLED   self-test rc=1 behave rc=1  A1 audit checks only the first repeat group of an area
+KILLED   self-test rc=1 behave rc=1  A2 per-repeat observation audit checks the DUT only
+KILLED   self-test rc=1 behave rc=1  A3 direction audit checks the return direction only
+KILLED   self-test rc=1 behave rc=1  A4 direction audit checks the outbound direction only (control)
+KILLED   self-test rc=1 behave rc=1  A5 CRF binding audit skipped for the outbound direction
+KILLED   self-test rc=1 behave rc=1  A6 per-repeat observation audit checks listeners only
+KILLED   self-test rc=1 behave rc=0  A7 power phase-mix audit removed
+KILLED   self-test rc=1 behave rc=1  P1 soak interval hardcoded to 60 s
+KILLED   self-test rc=1 behave rc=1  P2 power total_cycles hardcoded to 200
+KILLED   self-test rc=1 behave rc=0  P3 power release_eligible ignores the idle/commit minimums
+KILLED   self-test rc=1 behave rc=0  P4 soak release_eligible always true
+KILLED   self-test rc=1 behave rc=1  P5 soak duration hardcoded
+KILLED   self-test rc=1 behave rc=0  P6 persisted items hardcoded
+KILLED   self-test rc=1 behave rc=0  P7 idle/commit sum check removed
+KILLED   self-test rc=1 behave rc=1  P8 rebind bound made inclusive
+KILLED   self-test rc=1 behave rc=1  P9 soak endpoint sample dropped
+KILLED   self-test rc=1 behave rc=1  T1 outbound CRF pair dropped
+KILLED   self-test rc=1 behave rc=1  T2 peer CRF sink counter target dropped
+KILLED   self-test rc=1 behave rc=1  T3 return AAF pairs dropped
+KILLED   self-test rc=1 behave rc=1  T4 AAF bound into the CRF sink
+KILLED   self-test rc=1 behave rc=1  T5 DUT talker counter targets dropped above index 0
+restored target sha256 d7e994331546ebf06aeac1b6e190ed3fe139059d2e39df49056e0b23d58efb78; survivors 0
+rc=0
+
+# R347-1 scripts/audit_probe.py run unchanged (sha256 add5732a...)
+reviewed audit (True = defect rejected):
+  REJECTS  D1 power.journal_commit misses DUT stream_input 1
+  REJECTS  D2 power.journal_commit misses peer stream_input 2
+  REJECTS  D3 power.journal_commit misses DUT stream_output 3
+  REJECTS  D4 soak loses the outbound (DUT->peer) direction
+  REJECTS  D5 power.idle loses the outbound CRF pair
+  REJECTS  D6 power.journal_commit loses the return CRF pair
+A1 audit checks only the first repeat group of an area: accepts ['D1', 'D2', 'D3', 'D6'] that the reviewed audit rejects
+A2 per-repeat observation audit checks the DUT only: accepts ['D2'] that the reviewed audit rejects
+A3 direction audit checks the return direction only: accepts ['D4', 'D5'] that the reviewed audit rejects
+A5 CRF binding audit skipped for the outbound direction: accepts ['D5'] that the reviewed audit rejects
+A6 per-repeat observation audit checks listeners only: accepts ['D3'] that the reviewed audit rejects
+A7 power phase-mix audit removed: accepts none that the reviewed audit rejects
+non-default threading: {'interval_s': 300, 'total_cycles': 10, 'cycles': [8, 2]}
+200 cuts split 199/1 release_eligible: [False, False]
+7-day soak sampled only at the endpoints release_eligible: False
+rc=0
+# extracted planner sha256 after runs:
+d7e994331546ebf06aeac1b6e190ed3fe139059d2e39df49056e0b23d58efb78  $REVIEWS/396-r346-2-packet/scratch/r347/tree/tb/tools/torture_campaign.py
