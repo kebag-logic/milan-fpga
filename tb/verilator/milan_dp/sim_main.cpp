@@ -571,10 +571,13 @@ class MilanDatapathHarness {
             uint64_t t4 = snap();
             axi_write(A_PTP_OFLO, 100000);
             axi_write(A_PTP_OFHI, 0);
+            const bool adjtime_mr_before = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
             axi_write(A_PTP_CMD2, 0x2);
             uint64_t t5 = snap();
             ck("PHC adjtime hops the counter",
                (t5 - t4 > 100000) && (t5 - t4 < 103000), 1);
+            ck("CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",
+               dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1, adjtime_mr_before);
             axi_write(A_PTP_ADJ, 0);
         }
     }
@@ -988,9 +991,6 @@ class MilanDatapathHarness {
         //! history below
         ck("CLKV: ownerless frame keeps tv=1",
            f.size() ? f[19] & 0xF7 : 0, 0x81);
-        ck("CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",
-           f.size() ? (f[19] >> 3) & 1 : 0xEE,
-           0);
         ck("CLKV: frame remains the full AAF PDU",
            static_cast<long>(f.size()), static_cast<long>(AAF_BYTES));
     }
@@ -1058,6 +1058,7 @@ class MilanDatapathHarness {
         constexpr int kCountSettleCyc = 4096;
         for (int c = 0; c < kCountSettleCyc; ++c) step();
         const uint32_t media_resets0 = talker0_media_resets();
+        const bool settime_mr_before = dut->rootp->milan_datapath__DOT__mcr_mr_v_w & 1;
         axi_write(A_PTP_CMD, 0x1);
         ck("CLKV: PHC step arms holdover",
            (axi_read(A_CLKV_STAT) >> 3) & 1, 1);
@@ -1079,7 +1080,7 @@ class MilanDatapathHarness {
            f.size() ? f[21] & 1 : 0xEE, 1);
         ck("CLKV: the settime leaves mr unchanged (#602)",
            f.size() ? (f[19] >> 3) & 1 : 0xEE,
-           0);
+           settime_mr_before);
         for (int c = 0; c < kCountSettleCyc; ++c) step();
         ck("CLKV: settime adds no MEDIA_RESET (#602)",
            talker0_media_resets() - media_resets0, 0);

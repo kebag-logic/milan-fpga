@@ -18,6 +18,8 @@ check: #387 ruling 5802264260 item 1 replaced the impossible drift claim for
 this accept-timed stage. The explicit --all campaign also grades the existing
 holdover, continuity, render-law and slew controls, and restores either PHC
 cause separately on the INTERNAL option-off leg.
+It also restores both PHC causes together and vetoes a genuine CRF request
+on the very cycle a software settime re-bases the PHC.
 
 What bounds a run. This driver sets no host-time deadline (rule 8's
 wall-clock ratchet, scripts/test_evidence.budget item 4). The leg is
@@ -88,6 +90,7 @@ class Control(NamedTuple):
     breaks: str                 #: the named check that must fail
     acceptance: bool            #: named by #387/#602 acceptance: runs by default
     leg: str = "gmstep"         #: a key of LEGS
+    stays_clean: tuple[str, ...] = ()  #: sibling checks this cause must not break
 
 
 # The counter input is delayed independently of the slew-level release.
@@ -180,12 +183,21 @@ CONTROLS = [
     Control("software settime is restored as an mr cause", "datapath",
             RESTART_TRIGGER,
             RESTART_TRIGGER[:-1] + " | cfg_ptp_cmd_load;",
-            "CLKV: the settime leaves mr unchanged (#602)", False, "option-off"),
+            "CLKV: the settime leaves mr unchanged (#602)", False, "option-off",
+            ("CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",)),
     Control("PHC adjtime is restored as an mr cause", "datapath",
             RESTART_TRIGGER,
             RESTART_TRIGGER[:-1] + " | eff_ptp_adjust_w;",
             "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)", False,
-            "option-off"),
+            "option-off", ("CLKV: the settime leaves mr unchanged (#602)",)),
+    Control("both PHC restart causes are restored", "datapath",
+            RESTART_TRIGGER,
+            RESTART_TRIGGER[:-1] + " | media_rebase_p_w;",
+            "CLKV: the settime leaves mr unchanged (#602)", False, "option-off"),
+    Control("a PHC step suppresses a coincident CRF restart", "datapath",
+            RESTART_TRIGGER,
+            RESTART_TRIGGER[:-1] + " & ~media_rebase_p_w;",
+            "coincident: a PHC step neither adds nor suppresses the CRF restart", False),
 ]
 
 
@@ -275,6 +287,9 @@ def run_control(control: Control, work: Path, tag: int) -> bool:
     answer = verdict(rc, out, control.breaks)
     if answer == "caught":
         broke = failed_checks(out)
+        if any(clean in failure for clean in control.stays_clean for failure in broke):
+            print(f"[FAIL] control {control.name!r} also broke an unrelated event check: {broke}")
+            return False
         print(f"[PASS] control caught: {control.name} - breaks \"{control.breaks}\"")
         print(f"    it broke {len(broke)} check(s): {'; '.join(broke)}")
         return True

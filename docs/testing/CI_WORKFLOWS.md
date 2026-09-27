@@ -202,7 +202,7 @@ The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
 That crossed [decision 5819379503](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5819379503)'s 10% trigger.
 The new budget leaves 1140.1 s: 31.7%, approximately 32%.
 These historical samples do not measure the corrected candidate.
-The three default gmstep controls remain in `run`.
+The five default gmstep controls remain in `run` (#602).
 The additional controls stay in the explicit `gmstep-mutants` campaign.
 The hosted shards allow 120 minutes, accommodating this one-hour deadline.
 If later exact-head margin falls below 10%, split further.

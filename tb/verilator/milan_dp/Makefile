@@ -17,7 +17,7 @@
 #                 (gsi_mutants.py), outside the sweep's deadline
 #   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
 #                 the acceptance's controls of it (gmstep_mutants.py)
-#   make gmstep-mutants - that leg's whole control inventory, with two
+#   make gmstep-mutants - that leg's whole control inventory, with three
 #                 controls of the option-off leg's #387 mr checks, outside
 #                 the sweep's deadline
 #   make clean  - remove build artifacts

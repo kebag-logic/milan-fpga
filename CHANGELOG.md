@@ -13,7 +13,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Unreleased - CRF servo holds through PHC slew](#unreleased---crf-servo-holds-through-phc-slew)** -- Holds lock.
 - **[Unreleased - render setpoint state](#unreleased---render-setpoint-state)** -- Publishes the selected listener's state.
 - **[Unreleased - processor pin 990f9652](#unreleased---processor-pin-990f9652)** -- Probing and failure fields move.
-- **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
+- **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Preserves `mr`.
 - **[Unreleased - licence and LeaveAll scope](#unreleased---licence-and-leaveall-scope)** -- No Listener Ready, no stream.
 - **[Unreleased - CRF input counters served](#unreleased---crf-input-counters-served)** -- The CRF input answers GET_COUNTERS.
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
@@ -116,23 +116,27 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Unreleased - one media event per PHC step
 
 - Issue #387 decided a PHC step's media reaction.
-- Every step now toggles `mr` once, on every running stream.
-- That holds whatever the media clock source.
-- Each talker's MEDIA_RESET counts the toggle it sends.
+- The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) reverses its PHC-only restart obligation.
+- A PHC-only re-base leaves `mr` and MEDIA_RESET unchanged.
+- That holds under INTERNAL and CRF selection.
+- `tu` and its holdover still signal the discontinuity.
+- Source changes and selected-CRF causes still request restarts.
 - The render stage re-centres once, on the step.
 - A grandmaster identity change no longer re-centres it.
 - So a change that steps counts one re-base, not two.
 - Software settime and plane-off adjtime are steps too.
-- A step on a pending `mr` restart merges with it.
+- A PHC-only step leaves any genuine pending restart alone.
+- A second genuine request merges with a pending restart.
 - A restart stays pending until its level is sent.
 - Exactly one toggle follows; nothing is cancelled.
 - Before, a second request flipped the target back.
 - Neither restart then reached the wire.
 - The restart target is therefore per stream.
-- The `milan_dp` gmstep leg joins the default sweep: 48/48.
-- Three negative controls run with it.
-- `make gmstep-mutants` plants all eleven.
-- Two of them grade the option-off leg's settime and INTERNAL-source `mr`.
+- The `milan_dp` gmstep leg grades exclusion and genuine restarts.
+- Five negative controls run in the default sweep.
+- `make gmstep-mutants` plants the full documented inventory.
+- Option-off checks compare `mr` across each PHC event.
+- Coincident CRF toggles still propagate during a PHC step.
 - `tkdiag` T17 grades the merge; T18 grades its end.
 - Four mutants must fail them.
 - No CSR moves.

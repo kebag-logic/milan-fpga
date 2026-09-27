@@ -204,6 +204,7 @@ It grades these rows:
 - Render law: every push leaves the #386 target fill.
 - `mr` and MEDIA_RESET: neither changes across the PHC-only step.
 - Source change and selected-CRF `mr`: each propagates one toggle.
+- Coincident settime and received CRF toggle: exactly one outgoing toggle.
 - Streams: the talker keeps streaming and the listener stays locked.
 
 It does not grade these:
@@ -232,9 +233,13 @@ The accept-timed buffer cannot exhibit PHC-step-induced fill drift.
 
 `make gmstep-mutants` plants the whole inventory.
 
-Two controls restore PHC-only causes on the INTERNAL option-off leg.
+Three controls restore PHC-only causes on the INTERNAL option-off leg.
 
-One restores settime; the other restores adjtime.
+They restore settime, adjtime, or both together.
+
+Another control suppresses a genuine restart during a PHC re-base.
+
+The coincidence phase must reject that suppression at run time.
 
 ## Option-off behavior
 

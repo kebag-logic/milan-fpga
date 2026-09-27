@@ -66,16 +66,16 @@ MUTATIONS = [
      MERGE_LINE,
      "      if ((restart_p_i | src_change_w) && !(|((tgt_r ^ mr_o) & streaming_i)))\n"
      "        tgt_r <= ~tgt_r;",
-     "T18 talker 0 had put the disruption on the wire: the step is its 2nd toggle"),
+     "T18 talker 0 had put the disruption on the wire: the request is its 2nd toggle"),
     ("the pending window ends at the adoption, not at the first PDU",
      WIRE_LINE,
      "        if (1'b0)",
-     "T17 talker 0 sent no PDU at the adopted level: the step merges, ONE toggle"),
+     "T17 talker 0 sent no PDU at the adopted level: the request merges, ONE toggle"),
     ("the pending window stays open for the whole hold, not until the first PDU",
      WIRE_LINE,
      "        if ((restart_p_i | src_change_w) && streaming_i[t] && (mr_o[t] == tgt_r[t])\n"
      "            && (hold_r[t] != HOLDW_C'(HOLD_PDU_P)))",
-     "T18 talker 0 had put the disruption on the wire: the step is its 2nd toggle"),
+     "T18 talker 0 had put the disruption on the wire: the request is its 2nd toggle"),
 ]
 
 

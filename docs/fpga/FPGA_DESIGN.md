@@ -175,8 +175,9 @@ Its registered verdict gates these CRF consumers:
 - the CRF triggers of IEEE 1722-2016 4.4.4.3 `mr`.
 
 At INTERNAL, those CRF consumers stay idle under free-run policy.
-A PHC step toggles `mr` whatever the clock-source selection.
-Every running Stream Output counts that toggle in MEDIA_RESET.
+A PHC-only re-base preserves `mr` ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)).
+It adds no MEDIA_RESET under INTERNAL or CRF selection.
+Source changes and selected-CRF causes still request restarts.
 Each remaining loss has a present but idle module:
 
 1. *(closed by #74 — see above.)*
