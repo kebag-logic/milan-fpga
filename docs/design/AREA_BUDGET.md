@@ -7,6 +7,7 @@ useful for refusing obviously oversized configurations. Neither is a placement
 result.
 
 The [protocol processor baseline](../findings/PP_SHADOW_BASELINE.md) records issue #231.
+It also records issue #587's 50 MHz 8x8 rerun.
 It separates standalone synthesis from integrated implementation.
 Its [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) binds both product geometries.
 
