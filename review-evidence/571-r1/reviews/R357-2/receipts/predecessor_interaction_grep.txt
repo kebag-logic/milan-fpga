@@ -1,0 +1,45 @@
+## grep of #571-touched paths/symbols in predecessor-changed files (2a2a7bb6..da3f492e)
+--- CHANGELOG.md
+207:- Generic synthesis of `milan_datapath` grows by 1,134 cells (0.07%).
+282:- `KL_pp_shadow` binds both in the one place reserved for them.
+354:- The digital distance inside `milan_datapath` measures zero both ways.
+462:- The CLOCK_SOURCE shape constants join `adp_shape_defaults.svh`, derived.
+482:- `milan_datapath` no longer instantiates classifier or queue stages.
+--- CONTRIBUTING.md
+188:   added the *same* six AECP settings-face pins to `KL_pp_shadow.sv` — one
+--- docs/design/SAVED_STATE_MATERIALIZATION.md
+130:parent's `pend_i` combines four terms in `KL_pp_shadow.sv`:
+152:| `0x60` to `0x7F` | channel maps in and out | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map 
+184:`KL_pp_shadow.sv` at the current source, transcribed, with no D3 writer, the
+234:`KL_pp_shadow` consumes `aecp_name_wr_o` and `amap_live_wr_i`.
+491:The proposed D3 glue changes `KL_pp_shadow.sv` without adding CSRs:
+--- docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+9:> `hdl/milan/KL_nvm_backend.sv`, `hdl/milan/KL_pp_shadow.sv`,
+28:> both of section 13, and `KL_pp_shadow.sv` binds all three ports at the one
+964:`KL_pp_shadow` combines these sources:
+1273:| 0x60 to 0x7F | channel maps in and out | milan_datapath and KL_chan_map_capture | actual phase-5 map write enable (#502) | NONE | nvm_pend 1 from the first actual write until reset; never durable, and never writte
+1324:   KL_pp_shadow.
+--- docs/findings/397_SERVICE_BUDGET.md
+389:python3 -B scripts/check_entity_shape.py --self-test
+--- docs/findings/README.md
+13:| [ADP shape (historical)](../history/v1/findings/ADP_SHAPE_STATIC_0727.md) | Generated ADP/AEM shape must match the instantiated stream geometry | Fixed; guarded by `scripts/check_entity_shape.py` |
+--- docs/integration/BAREMETAL_FIRMWARE.md
+33:[`endstation_builder.py`](../../sw/builder/endstation_builder.py) and
+246:`ptp_ts_top` record chain removed from `milan_datapath`), plus the
+254:the real `milan_csr` top or option-on `milan_datapath` source closure before it
+--- docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+50:The builder emits them in `gen/adp_shape_defaults.svh`.
+51:`milan_datapath.pp_shadow` forwards them through `KL_pp_shadow.u_pp`.
+56:| AUDIO_UNIT | `AEM_N_AUDIO_UNIT_C` | `N_AUDIO_UNIT_P` | `N_AUDIO_UNIT_P` |
+57:| CLOCK_DOMAIN | `AEM_N_CLKDOM_C` | `N_CLK_DOM_P` | `N_CLK_DOMAIN_P` |
+58:| CONTROL | `AEM_N_CONTROL_C` | `N_CONTROL_P` | `N_CONTROL_P` |
+--- docs/reference/SUBMODULES.md
+25:| `protocol-processor` | `16be6768f710e79450aace277abacd6c2c3336e5` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+60:- `KL_pp_shadow` connects that pulse to saved-state pending.
+--- docs/testing/TESTING.md
+20:> submodule, wrapped by [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv)
+22:> [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv). No
+115:    Q -->|"RTL crossing the LiteX boundary"| DP["Section 1 milan_dp<br/>drives the whole milan_datapath wrapper"]
+150:| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Suites that elaborate Forencich cores read `third_party/ve
+268:| #502 live-write pending, late-mark control | `make -C tb/verilator/pp_shadow pending-mutant` | Authors and reviewers changing `KL_pp_shadow.sv`, the map-edit owner in `milan_datapath.sv`, the processor name-write e
+## end

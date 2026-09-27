@@ -1,0 +1,13 @@
+ .../endstation_arty_4x4/gen/adp_shape_defaults.svh |  1 +
+ .../endstation_arty_8ch/gen/adp_shape_defaults.svh |  1 +
+ .../gen/adp_shape_defaults.svh                     |  1 +
+ .../gen/adp_shape_defaults.svh                     |  1 +
+ .../gen/adp_shape_defaults.svh                     |  1 +
+ docs/reference/PP_DESCRIPTOR_OWNERSHIP.md          | 23 +++++++++
+ hdl/common/gen/adp_shape_defaults.svh              |  1 +
+ hdl/milan/KL_pp_shadow.sv                          |  6 +++
+ hdl/milan/milan_datapath.sv                        |  4 +-
+ scripts/check_entity_shape.py                      | 44 ++++++++++++++++++
+ scripts/entity_shape_selftest.py                   | 54 ++++++++++++++++++++++
+ sw/builder/endstation_builder.py                   | 10 ++--
+ 12 files changed, 141 insertions(+), 6 deletions(-)

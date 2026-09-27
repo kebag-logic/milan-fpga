@@ -1,0 +1,8 @@
+== 870ff88a
+68:| `N_AUDIO_UNIT_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-N-AUDIO-UNITS` | Audio Unit rows in the AECP dynamic-state store, including sampling-rate settings; match the entity model |
+69:| `N_CLK_DOMAIN_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-N-CLOCK-DOMAINS` | Clock Domain rows in the AECP dynamic-state store, including clock-source selections; match the entity model |
+70:| `N_CONTROL_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [AECP dynamic-state store](../../hdl/aecp/KL_aecp_dyn_state.sv) | IDENTIFY CONTROL rows and identify settings; match the entity model. This counts CONTROL descriptors, not registered controllers (`P-N-CONTROLLERS`). |
+== 16be6768
+68:| `N_AUDIO_UNIT_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-N-AUDIO-UNITS` | Audio Unit rows in the AECP dynamic-state store, including sampling-rate settings; match the entity model |
+69:| `N_CLK_DOMAIN_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-N-CLOCK-DOMAINS` | Clock Domain rows in the AECP dynamic-state store, including clock-source selections; match the entity model |
+70:| `N_CONTROL_P` | [Top declaration and banner](../../hdl/top/protocol_processor_top.sv); [AECP dynamic-state store](../../hdl/aecp/KL_aecp_dyn_state.sv) | IDENTIFY CONTROL rows and identify settings; match the entity model. This counts CONTROL descriptors, not registered controllers (`P-N-CONTROLLERS`). |

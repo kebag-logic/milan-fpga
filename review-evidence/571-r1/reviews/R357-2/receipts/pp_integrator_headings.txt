@@ -1,0 +1,32 @@
+== 870ff88a
+2:# Integrator guide — dropping this processor into an SoC
+23:## 1. Clocking and reset
+46:## 2. Parameters — the shape is fixed when you build the bitstream
+48:<a id="integration-parameters"></a>
+109:## 3. The MAC faces
+125:## 4. The two main-memory masters
+136:### 4.1 `desc_mem_*` — read only
+172:### 4.2 `resp_mem_*` — read and write
+193:### 4.3 Why two masters and not one
+201:## 5. What you must reserve in your memory map
+226:## 6. Configuration and identity inputs
+262:## 7. The optional faces, and what a tie-off does
+297:## 8. The class-D status wires — read them every clock
+338:## 9. Bring-up order
+367:## 10. Consuming this repository
+== 16be6768
+2:# Integrator guide — dropping this processor into an SoC
+23:## 1. Clocking and reset
+46:## 2. Parameters — the shape is fixed when you build the bitstream
+48:<a id="integration-parameters"></a>
+109:## 3. The MAC faces
+125:## 4. The two main-memory masters
+136:### 4.1 `desc_mem_*` — read only
+172:### 4.2 `resp_mem_*` — read and write
+193:### 4.3 Why two masters and not one
+201:## 5. What you must reserve in your memory map
+226:## 6. Configuration and identity inputs
+279:## 7. The optional faces, and what a tie-off does
+314:## 8. The class-D status wires — read them every clock
+355:## 9. Bring-up order
+384:## 10. Consuming this repository

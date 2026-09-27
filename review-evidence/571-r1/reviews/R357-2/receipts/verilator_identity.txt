@@ -1,0 +1,11 @@
+designated path <designated-verilator-path>: ABSENT
+substitute: <substitute-pinned-verilator-wrapper>
+-rwxr-xr-x <owner> <group> 319 Sep 22 15:48 <substitute-pinned-verilator-wrapper>
+<substitute-pinned-verilator-wrapper>: POSIX shell script, ASCII text executable, with very long lines (308)
+#!/bin/sh
+exec env VERILATOR_ROOT=<container-image-overlay> <container-image-overlay>
+Verilator 5.050 2026-07-01 rev v5.050
+    SYSTEMC            = 
+    SYSTEMC_ARCH       = 
+    SYSTEMC_INCLUDE    = 
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  <substitute-pinned-verilator-wrapper>

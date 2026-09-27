@@ -1,0 +1,27 @@
+hdl/top/protocol_processor_top.sv:81:    parameter int unsigned N_AUDIO_UNIT_P      = 1,
+hdl/top/protocol_processor_top.sv:82:    parameter int unsigned N_CLK_DOMAIN_P      = 1,
+hdl/top/protocol_processor_top.sv:83:    parameter int unsigned N_CONTROL_P         = 1,
+hdl/top/protocol_processor_top.sv:3346:      .N_AUDIO_UNIT_P      (N_AUDIO_UNIT_P),
+hdl/top/protocol_processor_top.sv:3347:      .N_CLK_DOMAIN_P      (N_CLK_DOMAIN_P),
+hdl/top/protocol_processor_top.sv:3348:      .N_CONTROL_P         (N_CONTROL_P),
+hdl/aecp/KL_aecp_dyn_state.sv:80:    parameter int unsigned N_AUDIO_UNIT_P = 1,
+hdl/aecp/KL_aecp_dyn_state.sv:81:    parameter int unsigned N_CLK_DOMAIN_P = 1,
+hdl/aecp/KL_aecp_dyn_state.sv:82:    parameter int unsigned N_CONTROL_P    = 1
+hdl/aecp/KL_aecp_dyn_state.sv:154:  localparam int unsigned AUW_C = (N_AUDIO_UNIT_P > 1) ? $clog2(N_AUDIO_UNIT_P) : 1;
+hdl/aecp/KL_aecp_dyn_state.sv:155:  localparam int unsigned CDW_C = (N_CLK_DOMAIN_P > 1) ? $clog2(N_CLK_DOMAIN_P) : 1;
+hdl/aecp/KL_aecp_dyn_state.sv:158:  localparam int unsigned CTW_C = (N_CONTROL_P    > 1) ? $clog2(N_CONTROL_P)    : 1;
+hdl/aecp/KL_aecp_dyn_state.sv:164:  logic [31:0] rate_r   [N_AUDIO_UNIT_P];  logic [N_AUDIO_UNIT_P-1:0] rate_v_r;
+hdl/aecp/KL_aecp_dyn_state.sv:172:  logic [15:0] clksrc_r [N_CLK_DOMAIN_P] /* verilator public_flat_rw */;
+hdl/aecp/KL_aecp_dyn_state.sv:173:  logic [N_CLK_DOMAIN_P-1:0] clksrc_v_r;
+hdl/aecp/KL_aecp_dyn_state.sv:177:  logic  [7:0] ident_r  [N_CONTROL_P];     logic [N_CONTROL_P-1:0]    ident_v_r;
+hdl/aecp/KL_aecp_dyn_state.sv:193:      13'(SEL_RATE_C):   count_w = 16'(N_AUDIO_UNIT_P);
+hdl/aecp/KL_aecp_dyn_state.sv:194:      13'(SEL_CLKSRC_C): count_w = 16'(N_CLK_DOMAIN_P);
+hdl/aecp/KL_aecp_dyn_state.sv:198:      13'(SEL_IDENT_C):  count_w = 16'(N_CONTROL_P);
+hdl/aecp/KL_aecp_dyn_state.sv:269:      for (int unsigned i = 0; i < N_AUDIO_UNIT_P; i++) rate_r[i]   <= 32'd0;
+hdl/aecp/KL_aecp_dyn_state.sv:270:      for (int unsigned i = 0; i < N_CLK_DOMAIN_P; i++) clksrc_r[i] <= 16'd0;
+hdl/aecp/KL_aecp_dyn_state.sv:276:      for (int unsigned i = 0; i < N_CONTROL_P;    i++) ident_r[i]  <= 8'd0;
+hdl/aecp/desc/gen_desc_image.py
+
+Changes:
+
+all .sv/.svh incl protocol_processor_top.sv, KL_aecp_dyn_state.sv byte-identical between 870ff88a and 16be6768

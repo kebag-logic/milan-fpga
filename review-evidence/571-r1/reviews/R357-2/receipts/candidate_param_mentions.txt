@@ -1,0 +1,38 @@
+docs/design/SAVED_STATE_FASTCONNECT.md:981:             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_P=30" \
+docs/design/SAVED_STATE_FASTCONNECT.md:986:             N_AUDIO_UNIT_P=1 N_CLK_DOM_P=1 N_NAME_P=99" \
+docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json:121:        "N_AUDIO_UNIT_P": 1,
+docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json:1853:        "N_AUDIO_UNIT_P": 1,
+docs/findings/PP_SHADOW_BASELINE_INPUTS.json:24:        "N_AUDIO_UNIT_P": 1,
+docs/findings/PP_SHADOW_BASELINE_INPUTS.json:108:        "N_AUDIO_UNIT_P": 1,
+docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:56:| AUDIO_UNIT | `AEM_N_AUDIO_UNIT_C` | `N_AUDIO_UNIT_P` | `N_AUDIO_UNIT_P` |
+docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:57:| CLOCK_DOMAIN | `AEM_N_CLKDOM_C` | `N_CLK_DOM_P` | `N_CLK_DOMAIN_P` |
+docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:58:| CONTROL | `AEM_N_CONTROL_C` | `N_CONTROL_P` | `N_CONTROL_P` |
+hdl/milan/KL_nvm_backend.sv:137:    parameter int unsigned N_AUDIO_UNIT_P = 1,
+hdl/milan/KL_nvm_backend.sv:264:  localparam int unsigned B_CLKS_C = B_RATE_C + N_AUDIO_UNIT_P * SZ_RATE_C;
+hdl/milan/KL_nvm_backend.sv:285:  end else if (N_AUDIO_UNIT_P < 1 || N_AUDIO_UNIT_P > 8 || N_CLK_DOM_P < 1 || N_CLK_DOM_P > 8) begin : g_refuse_units
+hdl/milan/KL_nvm_backend.sv:286:    $error("KL_nvm_backend: N_AUDIO_UNIT_P=%0d / N_CLK_DOM_P=%0d outside 1..8: the RATE block (0x02) and the CLOCK_SOURCE block (0x0A) hold eight ids each.",
+hdl/milan/KL_nvm_backend.sv:287:           N_AUDIO_UNIT_P, N_CLK_DOM_P);
+hdl/milan/KL_nvm_backend.sv:362:              && region_w <  IDW_C'(ID_RATE_C + N_AUDIO_UNIT_P)) begin
+hdl/milan/KL_nvm_backend.sv:1062:        || (id >= ID_RATE_C && id < ID_RATE_C + N_AUDIO_UNIT_P)
+hdl/milan/KL_pp_shadow.sv:236:    parameter int unsigned N_AUDIO_UNIT_P      = 1,
+hdl/milan/KL_pp_shadow.sv:239:    parameter int unsigned N_CONTROL_P         = 1,
+hdl/milan/KL_pp_shadow.sv:980:      .N_AUDIO_UNIT_P  (N_AUDIO_UNIT_P),
+hdl/milan/KL_pp_shadow.sv:1060:      .N_AUDIO_UNIT_P (N_AUDIO_UNIT_P),
+hdl/milan/KL_pp_shadow.sv:1061:      .N_CLK_DOMAIN_P (N_CLK_DOM_P),
+hdl/milan/KL_pp_shadow.sv:1062:      .N_CONTROL_P    (N_CONTROL_P),
+hdl/milan/milan_datapath.sv:7426:      .N_AUDIO_UNIT_P      (AEM_N_AUDIO_UNIT_C),
+hdl/milan/milan_datapath.sv:7429:      .N_CONTROL_P         (AEM_N_CONTROL_C)
+scripts/check_entity_shape.py:172:    ("AUDIO_UNIT", 0x0002, "AEM_N_AUDIO_UNIT_C", "N_AUDIO_UNIT_P", "N_AUDIO_UNIT_P"),
+scripts/check_entity_shape.py:173:    ("CLOCK_DOMAIN", 0x0024, "AEM_N_CLKDOM_C", "N_CLK_DOM_P", "N_CLK_DOMAIN_P"),
+scripts/check_entity_shape.py:174:    ("CONTROL", 0x001A, "AEM_N_CONTROL_C", "N_CONTROL_P", "N_CONTROL_P"),
+sw/builder/endstation_builder.py:2790:    a(f"  localparam int AEM_N_CONTROL_C    = {int(dc['CONTROL'])};")
+tb/verilator/nvm_backend/Makefile:74:            -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=$(N_NAME_8X8)
+tb/verilator/nvm_backend/Makefile:79:            -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=$(N_NAME_1X1)
+tb/verilator/nvm_cosim/Makefile:87:	  -GN_SPORT_IN_P=8 -GN_SPORT_OUT_P=8 -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 \
+tb/verilator/nvm_cosim/Makefile:92:	  -GN_SPORT_IN_P=8 -GN_SPORT_OUT_P=8 -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 \
+tb/verilator/nvm_cosim/cosim_top.sv:62:    parameter int unsigned N_AUDIO_UNIT_P = 1,
+tb/verilator/nvm_cosim/cosim_top.sv:191:      .N_AUDIO_UNIT_P (N_AUDIO_UNIT_P),
+tb/verilator/nvm_cosim/cosim_top.sv:192:      .N_CLK_DOMAIN_P (N_CLK_DOM_P),
+tb/verilator/nvm_cosim/cosim_top.sv:193:      .N_CONTROL_P    (1)
+tb/verilator/nvm_cosim/cosim_top.sv:469:      .N_AUDIO_UNIT_P (N_AUDIO_UNIT_P),
+tb/verilator/nvm_cosim/run_cases.py:130:                  N_AUDIO_UNIT_P=dc["AUDIO_UNIT"], N_CLK_DOM_P=dc["CLOCK_DOMAIN"],

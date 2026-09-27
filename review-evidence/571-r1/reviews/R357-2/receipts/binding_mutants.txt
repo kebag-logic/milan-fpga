@@ -1,0 +1,52 @@
+### mutant=none numstat: 
+== shipping_arty_current: verilator rc=0, %Error lines=0
+   elaborated KL_aecp_dyn_state: {'N_AUDIO_UNIT_P': "32'h1", 'N_CLK_DOMAIN_P': "32'h1", 'N_CONTROL_P': "32'h1"}
+== synthetic_2_3_4: verilator rc=0, %Error lines=0
+   elaborated KL_aecp_dyn_state: {'N_AUDIO_UNIT_P': "32'h2", 'N_CLK_DOMAIN_P': "32'h3", 'N_CONTROL_P': "32'h4"}
+RESULT: PASS
+elab_probe rc=0
+check_entity_shape rc=0
+RESULT: PASS
+### mutant=swap_shadow_clk_ctl numstat: 2 2 hdl/milan/KL_pp_shadow.sv 
+== shipping_arty_current: verilator rc=0, %Error lines=0
+   elaborated KL_aecp_dyn_state: {'N_AUDIO_UNIT_P': "32'h1", 'N_CLK_DOMAIN_P': "32'h1", 'N_CONTROL_P': "32'h1"}
+== synthetic_2_3_4: verilator rc=0, %Error lines=0
+   elaborated KL_aecp_dyn_state: {'N_AUDIO_UNIT_P': "32'h2", 'N_CLK_DOMAIN_P': "32'h4", 'N_CONTROL_P': "32'h3"}
+RESULT: FAIL (inspect values above)
+elab_probe rc=1
+check_entity_shape rc=1
+  [FAIL] u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['N_CONTROL_P'], expected ['N_CLK_DOM_P']
+  [FAIL] u_pp.N_CONTROL_P derives from N_CONTROL_P: got ['N_CLK_DOM_P'], expected ['N_CONTROL_P']
+RESULT: FAIL
+### mutant=drop_shadow_control numstat: 0 1 hdl/milan/KL_pp_shadow.sv 
+== shipping_arty_current: verilator rc=0, %Error lines=0
+   elaborated KL_aecp_dyn_state: {'N_AUDIO_UNIT_P': "32'h1", 'N_CLK_DOMAIN_P': "32'h1", 'N_CONTROL_P': "32'h1"}
+== synthetic_2_3_4: verilator rc=0, %Error lines=0
+   elaborated KL_aecp_dyn_state: {'N_AUDIO_UNIT_P': "32'h2", 'N_CLK_DOMAIN_P': "32'h3", 'N_CONTROL_P': "32'h1"}
+RESULT: FAIL (inspect values above)
+elab_probe rc=1
+check_entity_shape rc=1
+  [FAIL] u_pp.N_CONTROL_P derives from N_CONTROL_P: got [], expected ['N_CONTROL_P']
+RESULT: FAIL
+### mutant=literal_shadow_audio numstat: 1 1 hdl/milan/KL_pp_shadow.sv 
+== shipping_arty_current: verilator rc=0, %Error lines=0
+   elaborated KL_aecp_dyn_state: {'N_AUDIO_UNIT_P': "32'h1", 'N_CLK_DOMAIN_P': "32'h1", 'N_CONTROL_P': "32'h1"}
+== synthetic_2_3_4: verilator rc=0, %Error lines=0
+   elaborated KL_aecp_dyn_state: {'N_AUDIO_UNIT_P': "32'h1", 'N_CLK_DOMAIN_P': "32'h3", 'N_CONTROL_P': "32'h4"}
+RESULT: FAIL (inspect values above)
+elab_probe rc=1
+check_entity_shape rc=1
+  [FAIL] u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['1'], expected ['N_AUDIO_UNIT_P']
+RESULT: FAIL
+### mutant=swap_datapath_au_ctl numstat: 2 2 hdl/milan/milan_datapath.sv 
+== shipping_arty_current: verilator rc=0, %Error lines=0
+   elaborated KL_aecp_dyn_state: {'N_AUDIO_UNIT_P': "32'h1", 'N_CLK_DOMAIN_P': "32'h1", 'N_CONTROL_P': "32'h1"}
+== synthetic_2_3_4: verilator rc=0, %Error lines=0
+   elaborated KL_aecp_dyn_state: {'N_AUDIO_UNIT_P': "32'h4", 'N_CLK_DOMAIN_P': "32'h3", 'N_CONTROL_P': "32'h2"}
+RESULT: FAIL (inspect values above)
+elab_probe rc=1
+check_entity_shape rc=1
+  [FAIL] pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_AUDIO_UNIT_C']
+  [FAIL] pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['AEM_N_AUDIO_UNIT_C'], expected ['AEM_N_CONTROL_C']
+RESULT: FAIL
+### after restore: status lines 0
