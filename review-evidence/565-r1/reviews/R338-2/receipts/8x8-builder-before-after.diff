@@ -1,0 +1,60 @@
+--- gen_base/endstation_ax7101_8x8/soc_params.json	2026-09-27 07:46:46.528457195 +0200
++++ gen_head/endstation_ax7101_8x8/soc_params.json	2026-09-27 07:46:47.579095641 +0200
+@@ -4,7 +4,7 @@
+   "--board",
+   "ax7101",
+   "--milan-clk-freq",
+-  "100e6",
++  "50e6",
+   "--gtx-tx-invert",
+   "--floorplan",
+   "--eth-port",
+--- gen_base/endstation_ax7101_8x8/build_plan.md	2026-09-27 07:46:46.585040859 +0200
++++ gen_head/endstation_ax7101_8x8/build_plan.md	2026-09-27 07:46:47.637733928 +0200
+@@ -10,7 +10,7 @@
+ 
+ ## Board
+ 
+-- target: ax7101 (gmii-1g), sys 100e6 Hz / milan 100e6 Hz, L2 0 B, flashboot baremetal, eth port e1
++- target: ax7101 (gmii-1g), sys 100e6 Hz / milan 50e6 Hz, L2 0 B, flashboot baremetal, eth port e1
+ 
+ ## Optional blocks (docs/design/AREA_BUDGET.md tier 1)
+ 
+@@ -103,7 +103,7 @@
+ ## milan_soc.py parameter set
+ 
+ ```
+-python3 sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1
++python3 sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1
+ ```
+ 
+ (design flags only - --build / --vivado-max-threads / --place-directive stay in sw/litex/sweep.sh; sweep.sh sources the generated configs/generated/sweep_opts_ax7101.sh for OPTS/L2)
+--- gen_base/endstation_ax7101_8x8/lwsrp_table.json	2026-09-27 07:46:46.585362872 +0200
++++ gen_head/endstation_ax7101_8x8/lwsrp_table.json	2026-09-27 07:46:47.638018324 +0200
+@@ -50,13 +50,13 @@
+   "LWSRP_LATENCY": "0x6A0"
+  },
+  "module_params": {
+-  "KL_lwsrp_top.CLK_FREQ_HZ_P": 100000000,
++  "KL_lwsrp_top.CLK_FREQ_HZ_P": 50000000,
+   "KL_lwsrp_top.N_CTX_P": 17,
+   "KL_lwsrp_top.N_LISTENERS_P": 8,
+   "KL_lwsrp_top.N_TALKERS_P": 9,
+   "KL_lwsrp_bw_gate.N_STREAMS_P": 9,
+   "milan_datapath.N_STREAMS": 8,
+-  "milan_datapath.MILAN_CLK_FREQ_HZ": 100000000,
++  "milan_datapath.MILAN_CLK_FREQ_HZ": 50000000,
+   "milan_csr.N_LISTENERS_P": 8,
+   "milan_csr.N_TALKERS_P": 8,
+   "milan_csr.NUM_QUEUES": 5
+--- gen_base/endstation_ax7101_8x8/lwsrp_table.svh	2026-09-27 07:46:46.585413929 +0200
++++ gen_head/endstation_ax7101_8x8/lwsrp_table.svh	2026-09-27 07:46:47.638070813 +0200
+@@ -54,7 +54,7 @@
+ 
+   //! Elaboration parameters milan_datapath passes to the engine
+   localparam int unsigned LWSRP_N_CTX_C      = 17;
+-  localparam int unsigned LWSRP_CLK_FREQ_C   = 100000000;
++  localparam int unsigned LWSRP_CLK_FREQ_C   = 50000000;
+ 
+   //! Reservation table: one entry per stream, TALKERS FIRST then
+   //! listeners. The 0x800 window row map is listener k -> ctx row k,

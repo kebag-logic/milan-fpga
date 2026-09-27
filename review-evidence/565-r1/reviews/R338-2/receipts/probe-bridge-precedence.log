@@ -1,0 +1,23 @@
+derived watchdog at 100/50: 6144 sys cycles
+derived watchdog at 100/100: 3072 sys cycles
+  [ok]   the processor's DESC_MEM_TMO_CYC_P is readable from its own RTL
+  [ok]   milan_soc.py's mirror of it has not drifted
+  [ok]   ax7101 shipping: the bridge watchdog expires before the processor's (30720 ns vs 40960 ns)
+  [ok]   ax7101 shipping: the bridge leaves the processor real headroom
+  [ok]   ax7101 shipping: the watchdog clears the worst-case memory-port wait (3072 vs 137 sys cycles)
+  [ok]   ax7101 shipping: on a dead bus the bridge's err beat lands first (cycle 3075 of 4096)
+  [ok]   arty shipping: the bridge watchdog expires before the processor's (61428 ns vs 81920 ns)
+  [ok]   arty shipping: the bridge leaves the processor real headroom
+  [ok]   arty shipping: the watchdog clears the worst-case memory-port wait (5119 vs 137 sys cycles)
+  [ok]   arty shipping: on a dead bus the bridge's err beat lands first (cycle 5122 of 6827)
+  [ok]   ax7101 fp 112.5: the bridge watchdog expires before the processor's (30720 ns vs 40960 ns)
+  [ok]   ax7101 fp 112.5: the bridge leaves the processor real headroom
+  [ok]   ax7101 fp 112.5: the watchdog clears the worst-case memory-port wait (3456 vs 137 sys cycles)
+  [ok]   ax7101 fp 112.5: on a dead bus the bridge's err beat lands first (cycle 3459 of 4608)
+  [ok]   ax7101 declared sys 100 / milan 50 (probe): the bridge watchdog expires before the processor's (61440 ns vs 81920 ns)
+  [ok]   ax7101 declared sys 100 / milan 50 (probe): the bridge leaves the processor real headroom
+  [ok]   ax7101 declared sys 100 / milan 50 (probe): the watchdog clears the worst-case memory-port wait (6144 vs 137 sys cycles)
+  [ok]   ax7101 declared sys 100 / milan 50 (probe): on a dead bus the bridge's err beat lands first (cycle 6147 of 8192)
+  [ok]   a build with milan 3400 MHz against sys 100 MHz is refused, not silently narrowed
+  [ok]   a build with milan 4000 MHz against sys 100 MHz is refused, not silently narrowed
+probe precedence: 20 checks, 0 FAIL

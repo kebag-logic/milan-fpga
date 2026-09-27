@@ -1,0 +1,141 @@
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:configs/endstation_arty_4x4.yaml:67:    milan_clk_hz: 50000000
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:configs/endstation_arty_8ch.yaml:102:    milan_clk_hz: 50000000
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:configs/endstation_arty_current.yaml:101:    milan_clk_hz: 50000000           # dense datapath in its own 50 MHz domain
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:configs/endstation_ax7101_1x1_tdm8.yaml:44:    milan_clk_hz: 50000000   # 64-bit plane still carries 3.2 Gb/s; the
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:configs/endstation_ax7101_8x8.yaml:56:    milan_clk_hz: 50000000           # BAREMETAL_FIRMWARE.md build contract (#565)
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:configs/generated/sweep_opts_arty.sh:15:OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --fabric-gptp --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cp
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:configs/generated/sweep_opts_ax7101.sh:15:OPTS="--board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cp
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:docs/AAF_LATENCY_TAPS.md:119:A per-stage timeout (`MILAN_CLK_FREQ_HZ/2000` ≈ 0.5 ms) aborts and re-arms a
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:docs/ENDSTATION_BUILDER.md:957:| 5a | `board.constraints.{sys_clk_hz,milan_clk_hz,l2_bytes,gtx_tx_invert,floorplan,flashboot,uart_baudrate,eth_port}` | `--sys-clk-freq` (only off the board default), `--milan-clk-freq`, `--l2-bytes` (and the fragment's `L2=`), `--gtx-tx-invert`, `--floorplan`, `--with-spiflash --flashboot`, `--uart-baudrate`, `--eth-port` (`
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:docs/development/CODE_QUALITY.md:884:recorded `MILAN_CLK_FREQ_HZ_P` because "ns" appears in the second sentence of
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:docs/limitations/TROUBLESHOOTING.md:87:- **[Section 16: clean 100 MHz  -  run the dense datapath in its own clock domain](#section-16-clean-100-mhz-----run-the-dense-datapath-in-its-own-clock-domain)** -- The residual `WNS ≈ -1 to -2 ns` is routing congestion, not logic depth -- a CSR read-mux pipeline made it *worse*. The structural answer: `--milan-clk-fr
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:docs/limitations/TROUBLESHOOTING.md:488:- `milan_soc.py --milan-clk-freq 50e6` adds `cd_milan` (50 MHz) in `_CRG`, drives the
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:docs/reference/REGISTER_MAP.md:661:| `0x504` | `PTP_INCR` | RW | derived | nominal increment per tick, **Q8.24** ns: `[31:24]` integer ns, `[23:0]` fractional ns. Reset value = the true PHC clock period, derived from `MILAN_CLK_FREQ_HZ_P` (`0x14000000` = 20.0 ns in the shipping 50 MHz Milan domain; `0x0A000000` = 10.0 ns in the 100 MHz AX bring-up shape; th
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/common/csr/milan_csr.sv:120:  //! MILAN_CLK_FREQ_HZ so the two can never disagree.
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/common/csr/milan_csr.sv:121:  parameter int unsigned MILAN_CLK_FREQ_HZ_P = 125_000_000,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/common/csr/milan_csr.sv:1182:      32'((64'd1_000_000_000 << 24) / 64'(MILAN_CLK_FREQ_HZ_P));
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/common/csr/milan_csr.sv:1538:      //! free-run increment = the TRUE clock period (see MILAN_CLK_FREQ_HZ_P)
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/common/csr/milan_csr.sv:1972:      //! passed MILAN_CLK_FREQ_HZ_P, so it elaborated at the 125 MHz
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/ieee1722/aaf/KL_chan_map_capture.sv:235:                1 + 33 + 32*26 = 866 against MILAN_CLK_FREQ_HZ/48000 (2083
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/ieee1722/aaf/README-parameters.md:28:| `MCLK_DIV_LOG2` | int >= 0 | 2 | `milan_datapath.sv:i2s_player`, `MCLK_DIV_LOG2_C = $clog2(MILAN_CLK_FREQ_HZ / 12_500_000)` | `board.constraints.milan_clk_hz` (via `--milan-clk-freq` -> `p_MILAN_CLK_FREQ_HZ`) | LEGACY: unused by the clean-clock path (serializer runs on `clk_audio_i` dividers); kept only for the ins
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/ieee1722/aaf/README-parameters.md:29:| `CLK_FREQ_HZ` | int, = the real `clk_i` frequency from the selected shape | 50_000_000 | `milan_datapath.sv:i2s_player`, `.CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ)` | `board.constraints.milan_clk_hz` | Derives the per-ms servo/convergence tick. Wrong value skews the 100 ms converged window (media-lock condition), not the aud
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/ieee1722/aaf/README-parameters.md:37:| `MCLK_DIV_LOG2_C` (parent) | `$clog2(MILAN_CLK_FREQ_HZ / 12_500_000)` | Shared with `KL_tone_gen` / `aaf_talker_i2s` (their MCLK dividers ARE still sys-clock derived); the 100 MHz AX build needs it re-derived — the un-parameterized value sampled wrong there. |
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/ieee1722/aaf/README-parameters.md:61:| `CLK_FREQ_HZ` | actual `--milan-clk-freq` of the build | ms-tick off by the ratio → convergence window / media-lock timing wrong (silent). |
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/ieee1722/aaf/README-parameters.md:67:- `board.constraints.milan_clk_hz`, `clocking.audio_pll_hz`: checked by
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv:99:    //! fabric clock period, nanoseconds: MILAN_CLK_FREQ_HZ = 50 MHz
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:87:                (milan_datapath derives it as MILAN_CLK_FREQ_HZ / 1000). 1 ms
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:67:  parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:80:  //! increment is derived from MILAN_CLK_FREQ_HZ, so in the product these
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:210:  //! real value is MILAN_CLK_FREQ_HZ/4; simulation shapes shrink it so a
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:214:  parameter int CLKV_QTICK_CYC_P = MILAN_CLK_FREQ_HZ / 4,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:240:  parameter int DIAG_TICK_CYC_P = MILAN_CLK_FREQ_HZ,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:245:  parameter int LDIAG_IVAL_CYC_P = MILAN_CLK_FREQ_HZ,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:257:  parameter int PPS_WIDTH_CYC_P = MILAN_CLK_FREQ_HZ / 1000,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:284:  parameter int MAAP_CLK_HZ_P = MILAN_CLK_FREQ_HZ,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:314:  parameter int PP_TIM_DIV_US_P = MILAN_CLK_FREQ_HZ / 1_000_000,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:656:  localparam int MCLK_DIV_LOG2_C = $clog2(MILAN_CLK_FREQ_HZ / 12_500_000);
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:764:    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:2367:    .MILAN_CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:5481:    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:5567:  KL_mmcm_drp_servo #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) mmcm_servo (
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:5647:    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:5747:    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:5990:  localparam int unsigned SRC_SETTLE_ERR_C   = (MILAN_CLK_FREQ_HZ / 48_000) / 64;
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:6053:                    .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:6192:    .CLK_FREQ_HZ_P    (MILAN_CLK_FREQ_HZ)
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:6886:        .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:7119:    .TIMEOUT_C (MILAN_CLK_FREQ_HZ / 2000)   //! ~0.5 ms per-stage re-arm guard
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:hdl/milan/milan_datapath.sv:7386:      .CLK_HZ_P       (MILAN_CLK_FREQ_HZ),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:scripts/check_deploy_shape.py:89:    "--software-profile baremetal --full --milan-clk-freq 50e6 "
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:scripts/check_nvm_capture.py:46:                                configured_cpu_hz=clocks['milan_clk_hz'],
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:scripts/check_solution_docs.py:46:    "--milan-clk-freq",
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:scripts/check_solution_docs.py:57:    "--milan-clk-freq": "unset",
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:scripts/check_solution_docs.py:62:    "--milan-clk-freq": "50000000",
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:scripts/check_solution_docs.py:400:            f"`{clock_label(values['--milan-clk-freq'])}` |"
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:scripts/check_solution_docs.py:626:        f"{clock_label(deploy['--milan-clk-freq'])} for `axis_clk`."
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:scripts/check_solution_docs.py:634:        f"{clock_label(deploy['--milan-clk-freq'])} deployed;"
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:scripts/check_solution_docs.py:787:        "--milan-clk-freq 50e6",
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:scripts/check_solution_docs.py:788:        "--milan-clk-freq 100e6",
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:scripts/check_solution_docs.py:801:        "--milan-clk-freq 50e6",
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:scripts/check_solution_docs.py:802:        "--sys-clk-freq 80e6 --milan-clk-freq 50e6",
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/builder/endstation_builder.py:2326:        "KL_lwsrp_top.CLK_FREQ_HZ_P": cfg["constraints"]["milan_clk_hz"],
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/builder/endstation_builder.py:2336:        "milan_datapath.MILAN_CLK_FREQ_HZ": cfg["constraints"]["milan_clk_hz"],
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/builder/endstation_builder.py:3728:        "sys_clk_hz", "milan_clk_hz", "l2_bytes", "phy",
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/builder/endstation_builder.py:3737:        milan_clk_hz=int(_req(c, "milan_clk_hz", "board.constraints")),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/builder/endstation_builder.py:3772:    if not cons["milan_clk_hz"] <= cons["sys_clk_hz"]:
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/builder/endstation_builder.py:3773:        raise ConfigError("milan_clk_hz must not exceed sys_clk_hz")
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/builder/endstation_builder.py:4649:    opts += ["--milan-clk-freq", _freq(c["milan_clk_hz"])]
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/builder/endstation_builder.py:5342:      f" / milan {_freq(c['milan_clk_hz'])} Hz, L2 {c['l2_bytes']} B,"
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/builder/endstation_builder.py:5626:             "--clk-hz", str(cfg["constraints"]["milan_clk_hz"])],
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/builder/test_builder.py:17110:            "milan_clk_hz", 80_000_000)),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/builder/test_builder.py:19883:            cfg["constraints"]["milan_clk_hz"] == \
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/builder/test_builder.py:19884:            mp["milan_datapath.MILAN_CLK_FREQ_HZ"]
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:203:                 milan_clk_freq=None, board="ax7101", audio_tdm_hz=None):
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:238:        if milan_clk_freq:
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:247:            # base is CYCLE arithmetic on MILAN_CLK_FREQ_HZ - the PHC advances
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:251:            pll.create_clkout(self.cd_milan, milan_clk_freq, margin=0)
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:459:                 milan_clk_hz=100_000_000, num_streams=1,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:476:                           milan_clk_hz=milan_clk_hz, num_streams=num_streams,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:742:                       milan_clk_hz: float = 100_000_000,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:863:    # MILAN_CLK_FREQ_HZ drives the ADP/ACMP 1 s tick divider and the AECP
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:891:    dp_params = dict(p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:902:    # The pulse width is DERIVED from the same milan_clk_hz the PHC increment
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:907:        dp_params["p_PPS_WIDTH_CYC_P"] = int(milan_clk_hz) // 1000
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:2164:def pp_mem_timeout_cycles(sys_clk_hz: float, milan_clk_hz: float,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:2194:    cyc = int(proc_tmo_cyc * num * int(sys_clk_hz) // (den * int(milan_clk_hz)))
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:2198:    if cyc * int(milan_clk_hz) >= proc_tmo_cyc * int(sys_clk_hz):
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:2203:            f"{milan_clk_hz/1e6:g} MHz: the bridge would not report first")
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:2213:            f"milan_clk {milan_clk_hz/1e6:g} MHz is too fast against sys")
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:2510:                 main_ram_size=0x8000, milan_clk_freq=None,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:2565:            _vex_args.with_cpu_clk = bool(milan_clk_freq)
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:2692:                        milan_clk_freq=milan_clk_freq, board=board,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:2762:            milan_cd = "milan" if milan_clk_freq else "sys"
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:2945:                                  milan_clk_hz=int(milan_clk_freq or sys_clk_freq),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:3006:                                            milan_clk_freq or sys_clk_freq)
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:3385:    ap.add_argument("--milan-clk-freq", default=None, type=float,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/milan_soc.py:3807:                   milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/sweep.sh:47:      arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --fabric-gptp --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-cou
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/sweep.sh:48:      ax7101) OPTS="--board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexii
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/sweep_extra.sh:12:  arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6";;
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/sweep_extra.sh:13:  ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan";;
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:sw/litex/test_pp_mem_bridge.py:385:# it. ax7101 from sweep.sh:41 (--milan-clk-freq 100e6, --sys-clk-freq default
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:syn/yosys/param_sweep.py:88:    "MILAN_CLK_FREQ_HZ": [50_000_000, 100_000_000],
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:syn/yosys/param_sweep.py:95:                    MILAN_CLK_FREQ_HZ=100_000_000),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:syn/yosys/param_sweep.py:97:                        MILAN_CLK_FREQ_HZ=100_000_000),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:syn/yosys/param_sweep.py:99:                          MILAN_CLK_FREQ_HZ=50_000_000),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:syn/yosys/param_sweep.py:103:                MILAN_CLK_FREQ_HZ=50_000_000),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:syn/yosys/param_sweep.py:105:                MILAN_CLK_FREQ_HZ=100_000_000),
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/chmap_capture/sim_main.cpp:317://! the real grid, which is MILAN_CLK_FREQ_HZ/48000 = 2083 cycles at 100 MHz
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/chmap_capture/sim_main.cpp:552:  // compared to the tightest real grid, MILAN_CLK_FREQ_HZ/48000 at 50 MHz.  //
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/csr/Makefile:88:	  -GMILAN_CLK_FREQ_HZ_P=100000000 \
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/csr/sim_main.cpp:94://! simulates. Keep this in step with -GMILAN_CLK_FREQ_HZ_P.
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/csr/sim_main.cpp:419:  // MILAN_CLK_FREQ_HZ_P, so on the shipping 100 MHz milan domain the PHC
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/Makefile:334:	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/Makefile:354:	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/Makefile:384:	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/Makefile:465:	  -GMILAN_CLK_FREQ_HZ=$(AX_GPTP_HZ) -GGPTP_PLANE_EN_P=1 \
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/README.md:489:(`DIAG_TICK_CYC_P` = `MILAN_CLK_FREQ_HZ`), and `tb/verilator/tkdiag` grades
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/README.md:717:   `MILAN_CLK_FREQ_HZ`), so its Annex B claim walk — 3 probes × ~500 ms plus
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_gptp.cpp:16:// MILAN_CLK_FREQ_HZ=2 MHz for this leg so the 1200 ms boot cadence
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_main.cpp:627:        // SILICON rate (MAAP_CLK_HZ_P defaults to MILAN_CLK_FREQ_HZ = 100 MHz), so
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_main.cpp:858:    // walk drains on the axis-domain media_tick (MILAN_CLK_FREQ_HZ/48k):
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:235:    // 1,424 ns and milan_dp elaborates the processor at MILAN_CLK_FREQ_HZ =
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:1116:    #define MS_CYC_TB 100000     // MILAN_CLK_FREQ_HZ / 1000 at the real timebase
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:3282:    //  defaults to MILAN_CLK_FREQ_HZ = 100 MHz), so its Annex B claim walk
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:3311:    //  defaults to MILAN_CLK_FREQ_HZ = 100 MHz), so its Annex B claim walk
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:4347:        static constexpr uint32_t kFabricMsCyc = 100000;      // MILAN_CLK_FREQ_HZ / 1000
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:4788:    //  defaults to MILAN_CLK_FREQ_HZ = 100 MHz), so its Annex B claim walk
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:6022:    //  defaults to MILAN_CLK_FREQ_HZ = 100 MHz), so its Annex B claim walk
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:6051:    //  defaults to MILAN_CLK_FREQ_HZ = 100 MHz), so its Annex B claim walk
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:6080:    //  defaults to MILAN_CLK_FREQ_HZ = 100 MHz), so its Annex B claim walk
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:6109:    //  defaults to MILAN_CLK_FREQ_HZ = 100 MHz), so its Annex B claim walk
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:6350:        //! MILAN_CLK_FREQ_HZ), so ANNOUNCE is ~1.5e8 cycles away - measured
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:7542:        //      8 x MILAN_CLK_FREQ_HZ x 6/48000 within the 50 ppm class bound
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp/sim_nxn.cpp:7555:        //      i.e. MILAN_CLK_FREQ_HZ / 48000 = 2083.333 axis cycles per sample
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/milan_dp_render/sim_tdm8_render.cpp:68:// one. The shipping AX7101 image clocks axis_clk at 50 MHz (`--milan-clk-freq
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/nvm_capture_cpu/soc.py:119:    configured_cpu_hz = clocks['milan_clk_hz']
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/nvm_capture_cpu/soc.py:121:    clocks['milan_clk_hz'] = args.cpu_hz
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/nvm_capture_cpu/soc.py:138:            flashboot=clocks['flashboot'], milan_clk_freq=clocks['milan_clk_hz'],
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/nvm_capture_cpu/soc.py:166:        sim_config.add_clocker('milan_clk', freq_hz=clocks['milan_clk_hz'])
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/nvm_capture_cpu/soc.py:175:            'sys_hz': clocks['sys_clk_hz'], 'cpu_hz': clocks['milan_clk_hz'],
+054e59b41471ffbb3b4999a60c4cb04abcfc895f:tb/verilator/pp_shadow/README.md:305:own arithmetic. `MAAP_CLK_HZ_P` defaults to `MILAN_CLK_FREQ_HZ`, so silicon and

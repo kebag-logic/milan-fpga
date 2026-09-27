@@ -1,0 +1,30 @@
+== python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 884 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== python3 -B scripts/check_em_dash.py --base 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+== python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== python3 -B scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+== python3 -B scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+== python3 -B scripts/check_doc_paths.py
+doc path gate: OK (847 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+== git diff --check 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf 054e59b41471ffbb3b4999a60c4cb04abcfc895f
+rc=0
+(pinned-renderer interpreter: an existing environment carrying cmarkgfm==2025.10.22; the scripts refuse any other release)
+== <existing-env>/bin/python3 -B scripts/check_em_dash.py --base 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf
+check_em_dash: 0 finding(s) over 18 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [831f94f4..HEAD]
+rc=0
+== <existing-env>/bin/python3 -B scripts/gen_toc.py --check
+TOC gate: OK (108 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+== <existing-env>/bin/python3 -B scripts/gen_toc.py --verify-anchors
+anchor check: 176 existing cross-page fragment links reproduced
+rc=0

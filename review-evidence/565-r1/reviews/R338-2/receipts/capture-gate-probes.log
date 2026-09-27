@@ -1,0 +1,11 @@
+== probe A: head tree, base (pre-#565) receipt
+FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 50000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_td
+rc=1
+== probe B: head receipt, 8x8 config reverted to 100 MHz
+ configs/endstation_ax7101_8x8.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+FAIL: capture inputs changed; remeasure both arms: current={'endstation_ax7101_8x8': {'raw_bytes': 12634, 'records': 156, 'cpu_hz': 50000000, 'configured_cpu_hz': 100000000, 'sys_hz': 100000000}, 'endstation_ax7101_1x1_t
+rc=1
+== probe C: restored probe copy
+PASS: capture census, clocks, both timing arms and receipt agree
+rc=0

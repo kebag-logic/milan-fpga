@@ -1,0 +1,17 @@
+reproduced: {"shape": "endstation_ax7101_8x8", "captures": 16, "sys_hz": 100000000, "cpu_hz": 50000000, "configured_cpu_hz": 50000000, "phase": "aligned rising edges", "traffic": "on", "minimum_ms": 24.2929, "maximum_ms": 24.30246, "hold_ms": 50, "hold_floor_ms": 49, "margin": 2.0162567904648334}
+  shape: reproduced='endstation_ax7101_8x8' receipt='endstation_ax7101_8x8' EQUAL
+  captures: reproduced=16 receipt=16 EQUAL
+  sys_hz: reproduced=100000000 receipt=100000000 EQUAL
+  cpu_hz: reproduced=50000000 receipt=50000000 EQUAL
+  configured_cpu_hz: reproduced=50000000 receipt=50000000 EQUAL
+  phase: reproduced='aligned rising edges' receipt='aligned rising edges' EQUAL
+  traffic: reproduced='on' receipt='on' EQUAL
+  minimum_ms: reproduced=24.2929 receipt=24.2929 EQUAL
+  maximum_ms: reproduced=24.30246 receipt=24.30246 EQUAL
+  hold_ms: reproduced=50 receipt=50 EQUAL
+  hold_floor_ms: reproduced=49 receipt=49 EQUAL
+  margin: reproduced=2.0162567904648334 receipt=2.0162567904648334 EQUAL
+rows: 16 reproduced, 16 in receipt, 16 identical
+regraded maximum_ms: 24.30246 under 24.5 ms: True
+RESULT: IDENTICAL TO RECEIPT
+gptp_ucode consumed by reproduction: 78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b; bios.bin: f8aad0a03fd0cde792c307c0e7b42afab85b1ff462931a3854d668a605bb8e83
