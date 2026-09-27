@@ -1,0 +1,27 @@
+CHANGELOG.md:45:- A late-mark mutant must fail both durability checks.
+CHANGELOG.md:258:The original mark trigger left the later-discovered program-tail window.
+docs/design/SAVED_STATE_MATERIALIZATION.md:132:`pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_live_wr_w | aecp_live_pend_r`.
+docs/design/SAVED_STATE_MATERIALIZATION.md:220:It used class-6/7 commit marks as pending triggers.
+docs/design/SAVED_STATE_MATERIALIZATION.md:252:The late-mark mutant must fail both durability checks.
+docs/design/SAVED_STATE_MATERIALIZATION.md:467:| Map trigger | `amap_edit_req_o AND amap_edit_phase_o == 5`, with `amap_edit_desc_type_o` and `amap_edit_desc_index_o` | the commit-one-record beat, after phase 1's point of no return; it sets the port's record |
+docs/design/SAVED_STATE_MATERIALIZATION.md:486:says what the mark trigger would need.
+docs/design/SAVED_STATE_MATERIALIZATION.md:493:  `pend_i = (|nvm_unflushed_o) | d3_unflushed_o`.
+docs/design/SAVED_STATE_MATERIALIZATION.md:614:pend_i      = (OR of the binding manager's unflushed sinks) OR d3_unflushed
+docs/design/SAVED_STATE_MATERIALIZATION.md:1698:| 3. channel maps | 2 at 1x1, 16 at 8x8 | Requires donor adoption of the decided #501 allocation: the edit-face trigger, the GET_AUDIO_MAP latch, the framing rule, the coupled restore, the map plane's roll-back, #501's capacity decision; the sticky live-name/map bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T3, T4, #501 |
+docs/design/SAVED_STATE_MATERIALIZATION.md:1794:product could narrow to a sticky bit. The rows marked + are INCREMENTS: the
+docs/design/SAVED_STATE_MATERIALIZATION.md:2072:     records D2's original mark-based pending as history.
+docs/design/SAVED_STATE_MATERIALIZATION.md:2086:   amendment: the pre-#502 mark trigger falsely read durable during
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:981:The later class-6/7 marks retain their command-completion meaning.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1362:  `pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_live_wr_w | aecp_live_pend_r`.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1388:- Original parent use: a class-6/7 mark set sticky pending until
+docs/testing/TESTING.md:268:| #502 live-write pending, late-mark control | `make -C tb/verilator/pp_shadow pending-mutant` | Authors and reviewers changing `KL_pp_shadow.sv`, the map-edit owner in `milan_datapath.sv`, the processor name-write export, or `tb/verilator/pp_shadow/{sim_main.cpp,pending_probes.vlt,pending_mutant.py,Makefile}` |
+hdl/milan/KL_pp_shadow.sv:927:  //! at reset. The later class-6/7 marks still delimit command completion;
+scripts/measure_test_evidence.py:601:        "mutation campaign; restores the late mark trigger in a copy and "
+tb/verilator/milan_dp/sim_nxn.cpp:574:    //! The width of the two sticky bitmaps above: an index at or past it has
+tb/verilator/nvm_backend/sim_main.cpp:441:  dut_->pend_i = 0;
+tb/verilator/nvm_backend/sim_main.cpp:857:  dut_->pend_i = level;
+tb/verilator/pp_shadow/README.md:101:Restoring the late-mark trigger must fail both K10 and K12.
+tb/verilator/pp_shadow/pending_mutant.py:4:"""Require the historical late-mark trigger to fail both durability checks."""
+tb/verilator/pp_shadow/pending_mutant.py:60:        rc, text = run_build(directory, "late-mark", sources)
+tb/verilator/pp_shadow/pending_mutant.py:64:            raise SystemExit("FAIL: late-mark mutant missed a named K10/K12 failure")
+tb/verilator/pp_shadow/pending_mutant.py:67:        print("PASS: late-mark mutant killed by K10 and K12; clean control passes")
