@@ -1,0 +1,14 @@
+$ report_timing_grade.py <scratch>/nope.dcp <scratch>/rob/a
+FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/nope.dcp'
+rc=1
+$ report_timing_grade.py <scratch>/dcp/alinx_ax7101_route.dcp <scratch>/dcp
+report_timing_grade.py: error: reports must be outside the input checkpoint directory
+rc=2
+$ report_timing_grade.py <scratch>/dcp/alinx_ax7101_route.dcp <scratch>/dcp/sub/x
+report_timing_grade.py: error: reports must be outside the input checkpoint directory
+rc=2
+$ report_timing_grade.py <scratch>/dcp/alinx_ax7101_route.dcp <scratch>/rob/br{ace}
+ValueError: unsupported Tcl literal: '<scratch>/rob/br{ace}/signoff'
+rc=1
+alinx_ax7101_route.dcp  110.4M
+br{ace}/

@@ -1,0 +1,743 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Mon Sep 28 00:10:01 2026
+# Process ID         : 1793485
+# Current directory  : $PACKET/scratch/help
+# Command line       : vivado -mode batch -nojournal -notrace -log help.log -source ../../scripts/help_probe.tcl
+# Log file           : $PACKET/scratch/help/help.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 63067 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source ../../scripts/help_probe.tcl -notrace
+===== HELP set_operating_conditions
+set_operating_conditions
+
+Description: 
+Set operating conditions for power estimation
+
+Syntax: 
+set_operating_conditions  [-voltage <args>] [-grade <arg>] [-process <arg>]
+                          [-junction_temp <arg>] [-ambient_temp <arg>]
+                          [-thetaja <arg>] [-thetasa <arg>] [-airflow <arg>]
+                          [-heatsink <arg>] [-thetajb <arg>] [-board <arg>]
+                          [-board_temp <arg>] [-board_layers <arg>]
+                          [-design_power_budget <arg>]
+                          [-supply_current_budget <args>] [-quiet] [-verbose]
+
+Usage: 
+  Name                      Description
+  -------------------------------------
+  [-voltage]                List of voltage pairs, e.g., {name value}.  
+                            Supported voltage supplies vary by family.
+  [-grade]                  Temperature grade.  Supported values vary by 
+                            family.
+                            Default: commercial
+  [-process]                Process data: typical or maximum
+                            Default: typical
+  [-junction_temp]          Junction Temperature (C): auto|degC
+                            Default: auto
+  [-ambient_temp]           Ambient Temperature (C): default|degC
+                            Default: default
+  [-thetaja]                ThetaJA (C/W): auto|degC/W
+                            Default: auto
+  [-thetasa]                ThetaSA (C/W): auto|degC/W
+                            Default: auto
+  [-airflow]                Airflow (LFM): 0 to 750
+                            Default: varies by family
+  [-heatsink]               Dimensions of heatsink: none, low, medium, high, 
+                            custom
+                            Default: medium
+  [-thetajb]                ThetaJB (C/W): auto|degC/W
+                            Default: auto
+  [-board]                  Board type: jedec, small, medium, large, custom
+                            Default: medium
+  [-board_temp]             Board Temperature degC
+  [-board_layers]           Board layers: 4to7, 8to11, 12to15, 16+
+                            Default: 8to11
+  [-design_power_budget]    Design Power Budget (W)
+                            Default: Unspecified
+  [-supply_current_budget]  Sets list of supply current budget 'name value' 
+                            pairs.  Supported voltage supplies vary by 
+                            family.
+  [-quiet]                  Ignore command errors
+  [-verbose]                Suspend message limits during command execution
+
+Categories: 
+SDC, XDC, Power
+
+Description:
+
+  Sets the real-world operating conditions that are used when performing
+  analysis of the design. The environmental operating conditions of the
+  device are used for power analysis when running the report_power command.
+
+  Note: This command operates silently and does not return direct feedback of
+  its operation.
+
+  Operating conditions can be restored to their default values with the use
+  of the reset_operating_conditions command.
+
+  Current operating conditions can be reported with the
+  report_operating_conditions command.
+
+Arguments:
+
+  -voltage <arg> - (Optional) List of voltage supply names and their values
+  specified in pairs. Supported voltage supply names and their values vary by
+  family. For example if a family supports a voltage supply named Vccint, you
+  can set the supply voltage to 0.8 with the following argument and value:
+  -voltage {Vccint 0.8}
+
+  Note: If you specify a voltage that is outside the valid operating range
+  for the target device, the set_operating_conditions command can change the
+  device speedgrade to match the specified voltage. This can have an affect
+  on timing analysis. For UltraScale devices, when changing the Vccint
+  voltage, the Vivado tool will automatically change the device to or from a
+  low-voltage device as indicated by the voltage level specified.
+
+  -grade <arg> - (Optional) The temperature grade of the target device.
+  Supported values vary by family. The default value is "commercial".
+
+  -process <arg> - (Optional) The manufacturing process characteristics to
+  assume. Valid values are "typical" or "maximum". The default value is
+  "typical".
+
+  -junction_temp <arg> - (Optional) The device junction temperature used for
+  modeling. Valid values are "auto" or an actual temperature specified in
+  degrees C. The default value is "auto".
+
+  -ambient_temp <arg> - (Optional) The environment ambient temperature in
+  degrees C. The default setting is "default".
+
+  -thetaja <arg> - (Optional) The Theta-JA thermal resistance used for
+  modeling in degrees C/W. The default setting is "auto".
+
+  -thetasa <arg> - (Optional) The Theta-SA thermal resistance used during
+  modeling in degrees C/W. The default setting is "auto".
+
+  -airflow <[0:750]> - (Optional) Linear Feet Per Minute (LFM) airflow to be
+  used for modeling. The default setting varies by device family.
+
+  -heatsink <arg> - (Optional) The heatsink profile to be used during
+  modeling. Valid values are: none, low, medium, high, custom. The default
+  setting is "medium".
+
+  -thetajb <arg> - (Optional) The Theta-JB thermal resistance used for
+  modeling in degrees C/W. The default setting is "auto".
+
+  -board <arg> - (Optional) The board size to be used for modeling. The valid
+  values are: jedec, small, medium, large, custom. The default value is
+  "medium".
+
+  -board_temp <arg> - (Optional) The board temperature in degrees Centigrade
+  to be used for modeling.
+
+  -board_layers <arg> - (Optional) The number of board layers to be used for
+  modeling. Valid values are: "4to7" for boards with 4 to 7 layers, "8to11"
+  for boards with 8 to 11 layers, "12to15" for boards with 12 to 15 layers,
+  and "16+" for boards with 16 or more layers. The default setting is
+  "12to15".
+
+  -design_power_budget <arg> - (Optional) The design power budget in Watts.
+  This value is used by the report_power command to report the difference
+  between the calculated on-chip power and the design power budget. When
+  unspecified, the difference is not reported. The default is "unspecified".
+
+  -supply_current_budget <arg> - (Optional) List of voltage supply names and
+  their current budget values specified in pairs. Supported voltage supply
+  names vary by family. For example if a family supports a voltage supply
+  named Vccint, you can set the supply current budget to 10 A with the
+  following argument and value: -supply_current_budget {Vccint 10}
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example specifies an industrial grade device with an ambient
+  operating temperature of 75 degrees C:
+
+    set_operating_conditions -grade industrial -ambient_temp 75 
+    
+
+  The following example sets the supply voltage Vccaux to a value of 1.9:
+
+    set_operating_conditions  -voltage {Vccaux 1.89} 
+    
+
+  The following example sets the manufacturing process corner to maximum:
+
+    set_operating_conditions -process maximum 
+    
+
+  The following example sets the manufacturing process corner to maximum and
+  the voltage supply Vccint to 0.875:
+
+    set_operating_conditions -process maximum -voltage {Vccint 0.875} 
+    
+
+See Also:
+
+   *  report_operating_conditions
+   *  report_power
+   *  reset_operating_conditions
+
+===== HELP report_operating_conditions
+report_operating_conditions
+
+Description: 
+Get operating conditions values for power estimation
+
+Syntax: 
+report_operating_conditions  [-voltage <args>] [-voltage_range <args>] [-grade]
+                             [-process] [-junction_temp] [-ambient_temp]
+                             [-thetaja] [-thetasa] [-airflow] [-heatsink]
+                             [-thetajb] [-board] [-board_temp] [-board_layers]
+                             [-design_power_budget] [-all] [-file <arg>]
+                             [-return_string] [-append]
+                             [-supply_current_budget <args>] [-quiet]
+                             [-verbose]
+
+Usage: 
+  Name                      Description
+  -------------------------------------
+  [-voltage]                Gets voltage value.  Supported voltage supplies 
+                            vary by family.
+  [-voltage_range]          Gets voltage range.  Supported voltage supplies 
+                            vary by family.
+  [-grade]                  Temperature grade.  Supported values vary by 
+                            family.
+  [-process]                Gets process
+  [-junction_temp]          Junction Temperature (C): auto|degC
+  [-ambient_temp]           Ambient Temperature (C): default|degC
+  [-thetaja]                ThetaJA (C/W): auto|degC/W
+  [-thetasa]                Gets ThetaSA
+  [-airflow]                Airflow (LFM): 0 to 750
+  [-heatsink]               Gets dimensions of heatsink
+  [-thetajb]                Gets ThetaJB
+  [-board]                  Board type: jedec, small, medium, large, custom
+  [-board_temp]             Board Temperature degC
+  [-board_layers]           Board layers: 4to7, 8to11, 12to15, 16+
+  [-design_power_budget]    Design Power Budget (W)
+  [-all]                    Gets all operating conditions listed in this help
+                            message
+  [-file]                   Filename to output results to. (send output to 
+                            console if -file is not used)
+  [-return_string]          Return operating conditions as string
+  [-append]                 Append operating conditions to end of file
+  [-supply_current_budget]  Reports a list of supply current budget 'name 
+                            value' pairs.  Supported voltage supplies vary by
+                            family.
+  [-quiet]                  Ignore command errors
+  [-verbose]                Suspend message limits during command execution
+
+Categories: 
+Report
+
+Description:
+
+  Displays the real-world operating conditions that are used when performing
+  analysis of the design. The reported values of operating conditions can be
+  defined by the set_operating_conditions command.
+
+  The environmental operating conditions of the device are used for power
+  analysis when running the report_power command, but are not used during
+  timing analysis.
+
+  Note: By default the report is written to the Tcl console or STD output.
+  However, the results can also be written to a file or returned as a string
+  if desired.
+
+Arguments:
+
+  -voltage - (Optional) Report the list of voltage pairs. Supported voltage
+  supplies vary by family.
+
+  -voltage_range - (Optional) Report the list of voltage ranges. Supported
+  voltage supplies vary by family.
+
+  -grade - (Optional) Report the temperature grade of the target device
+
+  -process - (Optional) Report the manufacturing process characteristics to
+  be assumed.
+
+  -junction_temp - (Optional) Report the device junction temperature used for
+  modeling
+
+  -ambient_temp - (Optional) Reports the environment ambient temperature
+
+  -thetaja - (Optional) Report the Theta-JA thermal resistance used for
+  modeling
+
+  -thetasa - (Optional) Report the Theta-SA thermal resistance used for
+  modeling
+
+  -airflow - (Optional) Report the Linear Feet Per Minute (LFM) airflow to be
+  used for modeling.
+
+  -heatsink - (Optional) Report the heatsink type to be used for modeling.
+
+  -thetajb - (Optional) Report the Theta-JB thermal resistance used for
+  modeling
+
+  -board - (Optional) Report the board size to be used for modeling.
+
+  -board_temp - (Optional) Report the board temperature in degrees Centigrade
+  to be used for modeling.
+
+  -board_layers - (Optional) Report the number of board layers to be used for
+  modeling
+
+  -design_power_budget - (Optional) Report the design power budget in Watts.
+  This value is used by the report_power command to report the difference
+  between the calculated on-chip power and the design power budget.
+
+  -all - (Optional) Report the current values of all operating conditions.
+  Use this to avoid having to report each condition separately.
+
+  -file <arg> - (Optional) Write the report into the specified file. This
+  will overwrite an existing file of the same name, unless the -append option
+  is also used.
+
+  Note: If the path is not specified as part of the file name, the file will
+  be written into the current working directory, or the directory from which
+  the tool was launched.
+
+  -append - (Optional) Append the output of the command to the specified file
+  rather than overwriting it.
+
+  Note: The -append option can only be used with the -file option.
+
+  -return_string - (Optional) Directs the output to a Tcl string rather than
+  to the standard output. The Tcl string can be captured by a variable
+  definition and parsed or otherwise processed.
+
+  Note: This argument cannot be used with the -file option.
+
+  -supply_current_budget - (Optional) Report the list of supply name and
+  current budget pairs. Supported voltage supplies vary by family.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  Specify an industrial temperature grade device with an ambient temperature
+  of 75 degrees C and then write those settings to a file on disk.
+
+    set_operating_conditions -grade industrial -junction_temp 75  
+    report_operating_conditions -grade -junction_temp -return_string -file \  
+    ~/conditions.txt 
+    
+
+  Get voltage ranges of VCCINT and VCCAUX for the target device.
+
+    report_operating_conditions -voltage_range {VCCINT VCCAUX}
+
+See Also:
+
+   *  set_operating_conditions
+
+===== HELP config_timing_corners
+config_timing_corners
+
+Description: 
+Configure single / multi corner timing analysis settings
+
+Syntax: 
+config_timing_corners  [-corner <arg>] [-delay_type <arg>] [-setup] [-hold]
+                       [-quiet] [-verbose]
+
+Usage: 
+  Name           Description
+  --------------------------
+  [-corner]      Name of the timing corner to be modified : Values: Slow, 
+                 Fast
+  [-delay_type]  Type of path delays to be analyzed for specified timing 
+                 corner: Values: none, max, min, min_max
+  [-setup]       Enable timing corner for setup analysis (equivalent to 
+                 -delay_type max)
+  [-hold]        Enable timing corner for hold analysis (equivalent to 
+                 -delay_type min)
+  [-quiet]       Ignore command errors
+  [-verbose]     Suspend message limits during command execution
+
+Categories: 
+Timing
+
+Description:
+
+  This command configures the Slow and Fast timing corners in the current
+  design for single or multi-corner timing analysis. A synthesized or
+  implemented design must be opened when running this command.
+
+  The variation in the manufacturing process of the physical device, and the
+  voltage and temperature at which the device is operating, combine to create
+  a timing corner. These three variables (PVT) determine the delay across the
+  device. The fast corner represents a device operating with the smallest
+  manufacturing process tolerances, the highest voltage, and the lowest
+  temperature. The slow corner represents a device operating with the
+  greatest manufacturing tolerances, the lowest voltage, and the highest
+  temperature. By default the AMD Vivado Design Suite performs both a setup
+  and hold analysis for both slow and fast process corners, also known as
+  quad analysis:
+
+    config_timing_corners -corner Slow -setup -hold
+    config_timing_corners -corner Fast -setup -hold
+
+  The config_timing_corners command can be used to limit the default four
+  corner analysis performed by the Vivado timing engine as appropriate to the
+  design, to improve timing performance. To change or disable the default
+  analysis for both corners, you must configure both the Fast and Slow
+  corners:
+
+    config_timing_corners -corner Slow -delay_type max
+    config_timing_corners -corner Fast -delay_type none
+
+  Note: This command returns nothing if successful, or returns an error if it
+  fails.
+
+Arguments:
+
+  -corner [ slow | fast ] - (Optional) Specifies the timing corner to be
+  configured. Valid values are "slow" and "fast". If -corner is not
+  specified, the -delay_type applies to both corners.
+
+  -delay_type <value> - (Optional) Specify the type of path delays to be
+  analyzed for the specified timing corner. Valid values are "none", "max",
+  "min" and "min_max". A -delay_type of "none" excludes the specified -corner
+  from timing analysis.
+
+  Tip: Although -delay_type and -setup/-hold are both optional, one of these
+  options are required to configure the specified corner.
+
+  -setup - (Optional) Specifies setup analysis for the specified timing
+  corner. This is the same as -delay_type max.
+
+  -hold - (Optional) Specifies hold analysis for the timing corner. This is
+  the same as -delay_type min.
+
+  Tip: You can specify both -setup and -hold which is the same as -delay_type
+  min_max.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example configures the Slow timing corner for both setup and
+  hold analysis:
+
+    config_timing_corners -corner slow -setup -hold
+    config_timing_corners -corner slow -delay_type min_max
+
+  Note: The two preceding examples have the same effect.
+
+  The following example configures the Fast corner for min delay analysis,
+  and disables the Slow corner analysis:
+
+    config_timing_corners -corner fast -delay_type min
+    config_timing_corners -corner slow -delay_type none
+
+See Also:
+
+   *  config_timing_analysis
+   *  report_config_timing
+   *  report_timing
+
+===== HELP config_timing_analysis
+config_timing_analysis
+
+Description: 
+Configure timing analysis general settings
+
+Syntax: 
+config_timing_analysis  [-enable_input_delay_default_clock <arg>]
+                        [-enable_preset_clear_arcs <arg>]
+                        [-ignore_io_paths <arg>] [-disable_flight_delays <arg>]
+                        [-merge_exceptions <arg>]
+                        [-timing_early_launch_at_borrowing_latches <arg>]
+                        [-enable_time_borrowing_for_max_delay_exceptions <arg>]
+                        [-inter_slr_compensation <arg>] [-quiet] [-verbose]
+
+Usage: 
+  Name                                               Description
+  --------------------------------------------------------------
+  [-enable_input_delay_default_clock]                Launch SDC unclocked 
+                                                     input delays from an 
+                                                     internally defined 
+                                                     clock: Values: true, 
+                                                     false; This option is 
+                                                     not supported for UCF 
+                                                     constraints
+  [-enable_preset_clear_arcs]                        Time paths through 
+                                                     asynchronous preset or 
+                                                     clear timing arcs: true,
+                                                     false; 
+  [-ignore_io_paths]                                 Ignore paths from 
+                                                     primary inputs and paths
+                                                     to primary outputs: 
+                                                     Values: true, false
+  [-disable_flight_delays]                           Disable adding package 
+                                                     times to IO Calculations
+                                                     : Values: true, false; 
+  [-merge_exceptions]                                Allow/Prevent the timing
+                                                     engine from merging 
+                                                     timing exceptions : 
+                                                     Values: true, false; 
+  [-timing_early_launch_at_borrowing_latches]        Remove clock latency 
+                                                     pessimism from the 
+                                                     launching enable of 
+                                                     paths through 
+                                                     transparent latches. 
+                                                     Values: auto, true, 
+                                                     false
+                                                     Default: auto
+  [-enable_time_borrowing_for_max_delay_exceptions]  Allow timing paths 
+                                                     covered by set_max_delay
+                                                     timing exceptions to 
+                                                     borrow time. Values: 
+                                                     true, false
+  [-inter_slr_compensation]                          Allow a choice of 
+                                                     inter-SLR compensation 
+                                                     between a conservative 
+                                                     mode with runtime/memory
+                                                     advantages or a relaxed 
+                                                     mode with qor 
+                                                     advantages. Values: 
+                                                     conservative, relaxed
+  [-quiet]                                           Ignore command errors
+  [-verbose]                                         Suspend message limits 
+                                                     during command execution
+
+Categories: 
+Timing
+
+Description:
+
+  This command configures general features of timing analysis.
+
+  Note: This command returns nothing if successful, or returns an error if it
+  fails.
+
+Arguments:
+
+  -enable_input_delay_default_clock [ true | false ] - (Optional) Launch
+  un-clocked input delays from an internally defined clock for timing
+  analysis. The valid values are true or false, with a default setting of
+  false.
+
+  -enable_preset_clear_arcs [ true | false ] - (Optional) Enable timing paths
+  through asynchronous preset or clear timing arcs. The valid values are true
+  or false, with a default setting of false. By default the timing arcs of
+  asynchronous resets are disabled in the AMD Vivado timing engine. This
+  option lets you enable them for timing analysis to see if problems caused
+  by the assertion of the asynchronous reset exist in the design.
+
+  -ignore_io_paths [ true | false ] - (Optional) Ignore paths from primary
+  inputs and paths to primary outputs. This lets you eliminate the net delay
+  from the input port and to the output port as part of the timing path.
+
+  -disable_flight_delays [ true | false ] - (Optional) Do not add package
+  delays to I/O calculations when this option is true.
+
+  -timing_early_launch_at_borrowing_latches [ auto | true | false ] -
+  (Optional) Remove clock latency pessimism from the launching enable of
+  paths through transparent latches. In an enabled latch the timing path for
+  setup/hold calculations originates from the D pin of the latch instead of G
+  pin. This option affects those timing paths. This option can be set to true
+  to compensate for timing optimism when CRPR is not enabled, the Vivado
+  timing engine uses the early launch edge from when the latch opens to
+  calculate the launch clock latency. However, when CRPR is enabled, which is
+  the default in the Vivado timer, this option is too conservative and should
+  be set to false. The default setting is auto which lets the Vivado timing
+  engine determine when to eliminate CRPR from paths through enabled latches.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example ignores the package delays during timing analysis:
+
+    config_timing_analysis -disable_flight_delays true
+
+See Also:
+
+   *  report_config_timing
+   *  config_timing_corners
+   *  report_timing
+   *  report_timing_summary
+
+===== HELP report_config_timing
+report_config_timing
+
+Description: 
+Report settings affecting timing analysis
+
+Syntax: 
+report_config_timing  [-file <arg>] [-append] [-name <arg>] [-return_string]
+                      [-all] [-no_header] [-rpx <arg>] [-quiet] [-verbose]
+
+Usage: 
+  Name              Description
+  -----------------------------
+  [-file]           Output the results to file
+  [-append]         Append the results to file, don't overwrite the results 
+                    file
+  [-name]           Output the results to GUI panel with this name
+  [-return_string]  Return report as string
+  [-all]            Report all configuration settings (by default, only the 
+                    typically important settings are reported
+  [-no_header]      Do not generate a report header
+  [-rpx]            Filename to output interactive results to.
+  [-quiet]          Ignore command errors
+  [-verbose]        Suspend message limits during command execution
+
+Categories: 
+Report, Timing
+
+Description:
+
+  Report the configuration of timing constraints of the current design.
+
+  By default the report is abbreviated, containing only a few key timing
+  constraints. Use the -all argument to return all timing related
+  configuration.
+
+Arguments:
+
+  -file <arg> - (Optional) Write the timing constraints configuration report
+  into the specified file. The specified file will be overwritten if one
+  already exists, unless -append is also specified.
+
+  Note: If the path is not specified as part of the file name, the file will
+  be written into the current working directory, or the directory from which
+  the tool was launched.
+
+  -append - (Optional) Append the output of the command to the specified file
+  rather than overwriting it.
+
+  Note: The -append option can only be used with the -file option.
+
+  -name <arg> - (Optional) The name of the results to output to the GUI.
+
+  -return_string - (Optional) Directs the output to a Tcl string rather than
+  to the standard output. The Tcl string can be captured by a variable
+  definition and parsed or otherwise processed.
+
+  Note: This argument cannot be used with the -file option.
+
+  -all - (Optional) Reports the state of all timing related attributes and
+  constraints in the design. By default, only a limited set of important
+  timing attributes is reported.
+
+  -no_header - (Optional) Disables the report header. By default the report
+  includes a header that lists:
+
+   *  Report Type - timer_configuration.
+
+   *  Design - The top module of the design.
+
+   *  Part - The device, package, and speed grade of the target part.
+
+   *  Version - The version of software used to create the report
+
+   *  Date - The date of the report.
+
+   *  Command - The command options used to create the report.
+
+  -rpx <arg> - (Optional) Specify the file name and path of the report file
+  (RPX) to write. This is different from writing the report results to a file
+  using the -file argument. The RPX file is an interactive report that
+  contains all the report information and can be reloaded into memory in the
+  AMD Vivado Design Suite using the open_report command. You should add a
+  .rpx file extension to the specified file name, as the Vivado tool will not
+  automatically assign a file extension.
+
+  Note: If the path is not specified as part of the file name, the file will
+  be written into the current working directory, or the directory from which
+  the tool was launched.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example reports the current timing configuration, returns the
+  information as a string, and sets that string into the specified Tcl
+  variable:
+
+    set timeConfig [report_config_timing -all -no_header -return_string]
+    puts $timeConfig
+
+See Also:
+
+   *  delete_timing_results
+
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 00:10:04 2026...

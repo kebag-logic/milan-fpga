@@ -1,0 +1,217 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Mon Sep 28 00:10:44 2026
+# Process ID         : 1796417
+# Current directory  : $PACKET/scratch/probe
+# Command line       : vivado -mode batch -nojournal -notrace -log probe.log -source ../../scripts/independent_probe.tcl -tclargs $PACKET/scratch/dcp/alinx_ax7101_route.dcp $CLONE/sw/litex/timing_grade.tcl
+# Log file           : $PACKET/scratch/probe/probe.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 62269 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source ../../scripts/independent_probe.tcl -notrace
+Command: open_checkpoint $PACKET/scratch/dcp/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1448.152 ; gain = 7.938 ; free physical = 7967 ; free virtual = 59536
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.26 ; elapsed = 00:00:00.27 . Memory (MB): peak = 1981.137 ; gain = 0.000 ; free physical = 6735 ; free virtual = 58574
+INFO: [Netlist 29-17] Analyzing 5506 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.12 . Memory (MB): peak = 2134.324 ; gain = 0.000 ; free physical = 6048 ; free virtual = 58048
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.1 . Memory (MB): peak = 2814.402 ; gain = 11.383 ; free physical = 6528 ; free virtual = 58543
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2814.402 ; gain = 0.000 ; free physical = 6522 ; free virtual = 58536
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2814.402 ; gain = 0.000 ; free physical = 6522 ; free virtual = 58536
+Read placeStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2892.691 ; gain = 78.289 ; free physical = 5423 ; free virtual = 57618
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2892.691 ; gain = 0.000 ; free physical = 5395 ; free virtual = 57591
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:00.56 . Memory (MB): peak = 2916.691 ; gain = 24.000 ; free physical = 5000 ; free virtual = 57196
+Read Physdb Files: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2916.691 ; gain = 113.672 ; free physical = 4959 ; free virtual = 57159
+Restored from archive | CPU: 3.680000 secs | Memory: 85.994194 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2916.691 ; gain = 113.672 ; free physical = 4959 ; free virtual = 57161
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2945.746 ; gain = 0.000 ; free physical = 5515 ; free virtual = 57883
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 686 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM16X1S => RAM32X1S (RAMS32): 48 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 443 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 26 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 2 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:26 ; elapsed = 00:00:19 . Memory (MB): peak = 2949.781 ; gain = 1511.566 ; free physical = 5379 ; free virtual = 57747
+PROBE part.NAME=xc7a100tfgg484-2
+PROBE part.SPEED=-2
+PROBE part.TEMPERATURE_GRADE_LETTER=
+get_timing_paths: Time (s): cpu = 00:00:28 ; elapsed = 00:00:06 . Memory (MB): peak = 3126.465 ; gain = 176.684 ; free physical = 6554 ; free virtual = 58926
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE as_opened Slow setup=0.123 Slow 9.639 tns=0.000 0 hold=0.101 Slow 0.681 ths=0.000 0 | Device Grade = commercial; Junction Temp = 25.2 (C); 
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE as_opened Fast setup=1.429 Fast 0.432 tns=0.000 0 hold=0.036 Fast 0.196 ths=0.000 0 | Device Grade = commercial; Junction Temp = 25.2 (C); 
+PROBE as_opened Both setup=0.123 Slow 9.639 hold=0.036 Fast 0.196
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE commercial/0 Slow setup=0.123 Slow 9.639 tns=0.000 0 hold=0.101 Slow 0.681 ths=0.000 0 | Device Grade = commercial; Junction Temp = 0.0 (C); 
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE commercial/0 Fast setup=1.429 Fast 0.432 tns=0.000 0 hold=0.036 Fast 0.196 ths=0.000 0 | Device Grade = commercial; Junction Temp = 0.0 (C); 
+PROBE commercial/0 Both setup=0.123 Slow 9.639 hold=0.036 Fast 0.196
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE commercial/85 Slow setup=0.123 Slow 9.639 tns=0.000 0 hold=0.101 Slow 0.681 ths=0.000 0 | Device Grade = commercial; Junction Temp = 85.0 (C); 
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE commercial/85 Fast setup=1.429 Fast 0.432 tns=0.000 0 hold=0.036 Fast 0.196 ths=0.000 0 | Device Grade = commercial; Junction Temp = 85.0 (C); 
+PROBE commercial/85 Both setup=0.123 Slow 9.639 hold=0.036 Fast 0.196
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE industrial/-40 Slow setup=0.123 Slow 9.639 tns=0.000 0 hold=0.101 Slow 0.681 ths=0.000 0 | Device Grade = industrial; Junction Temp = -40.0 (C); 
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE industrial/-40 Fast setup=1.429 Fast 0.432 tns=0.000 0 hold=0.036 Fast 0.196 ths=0.000 0 | Device Grade = industrial; Junction Temp = -40.0 (C); 
+PROBE industrial/-40 Both setup=0.123 Slow 9.639 hold=0.036 Fast 0.196
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE industrial/100 Slow setup=0.123 Slow 9.639 tns=0.000 0 hold=0.101 Slow 0.681 ths=0.000 0 | Device Grade = industrial; Junction Temp = 100.0 (C); 
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE industrial/100 Fast setup=1.429 Fast 0.432 tns=0.000 0 hold=0.036 Fast 0.196 ths=0.000 0 | Device Grade = industrial; Junction Temp = 100.0 (C); 
+PROBE industrial/100 Both setup=0.123 Slow 9.639 hold=0.036 Fast 0.196
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE extended/100 Slow setup=0.123 Slow 9.639 tns=0.000 0 hold=0.101 Slow 0.681 ths=0.000 0 | Device Grade = extended; Junction Temp = 100.0 (C); 
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE extended/100 Fast setup=1.429 Fast 0.432 tns=0.000 0 hold=0.036 Fast 0.196 ths=0.000 0 | Device Grade = extended; Junction Temp = 100.0 (C); 
+PROBE extended/100 Both setup=0.123 Slow 9.639 hold=0.036 Fast 0.196
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE process-maximum Slow setup=0.123 Slow 9.639 tns=0.000 0 hold=0.101 Slow 0.681 ths=0.000 0 | Device Grade = extended; Junction Temp = 100.0 (C); 
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE process-maximum Fast setup=1.429 Fast 0.432 tns=0.000 0 hold=0.036 Fast 0.196 ths=0.000 0 | Device Grade = extended; Junction Temp = 100.0 (C); 
+PROBE process-maximum Both setup=0.123 Slow 9.639 hold=0.036 Fast 0.196
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE vccint-0.95 Slow setup=0.123 Slow 9.639 tns=0.000 0 hold=0.101 Slow 0.681 ths=0.000 0 | Device Grade = extended; Junction Temp = 100.0 (C); 
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE vccint-0.95 Fast setup=1.429 Fast 0.432 tns=0.000 0 hold=0.036 Fast 0.196 ths=0.000 0 | Device Grade = extended; Junction Temp = 100.0 (C); 
+PROBE vccint-0.95 Both setup=0.123 Slow 9.639 hold=0.036 Fast 0.196
+CRITICAL WARNING: [Designutils 20-2264] The voltage setting of 0.900 V for Vccint is outside the valid range for the current part xc7a100tfgg484-2. The valid operating range is 0.950 to 1.050 V. Voltage Vccint has been set to 1.000 V.
+PROBE after-vccint-0.90 part=xc7a100tfgg484-2
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE vccint-0.90 Slow setup=0.123 Slow 9.639 tns=0.000 0 hold=0.101 Slow 0.681 ths=0.000 0 | Device Grade = extended; Junction Temp = 100.0 (C); 
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type max -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Vivado 12-975] No timing paths matched 'get_timing_paths -delay_type min -max_paths 100000 -nworst 1 -slack_lesser_than 0'.
+PROBE vccint-0.90 Fast setup=1.429 Fast 0.432 tns=0.000 0 hold=0.036 Fast 0.196 ths=0.000 0 | Device Grade = extended; Junction Temp = 100.0 (C); 
+PROBE vccint-0.90 Both setup=0.123 Slow 9.639 hold=0.036 Fast 0.196
+PROBE after-reset part=xc7a100tfgg484-2
+CONTROL other-device refused: TIMING-GRADE part mismatch: expected xc7a35t-fgg484-2, found xc7a100tfgg484-2
+WARNING: [Coretcl 2-179] No part matched the expression you provided ("xc7a100t-nope-9").
+CONTROL nonexistent-part WRONG-REFUSAL: ERROR: [Common 17-55] 'get_property' expects at least one object.
+Resolution: If [get_<value>] was used to populate the object, check to make sure this command returns at least one valid object.
+
+CONTROL baseline-check accepted
+CONTROL grade-extended refused: TIMING-GRADE operating conditions changed: Device Grade = extended Junction Temp = 85.0 (C) 
+CONTROL temp-84.9 refused: TIMING-GRADE operating conditions changed: Device Grade = commercial Junction Temp = 84.9 (C) 
+CONTROL temp-100 refused: TIMING-GRADE operating conditions changed: Device Grade = commercial Junction Temp = 100.0 (C) 
+CONTROL temp-minus-40 refused: TIMING-GRADE operating conditions changed: Device Grade = commercial Junction Temp = -40.0 (C) 
+CONTROL temp-auto refused: TIMING-GRADE operating conditions changed: Device Grade = commercial Junction Temp = 25.2 (C) 
+CONTROL both-setup-only refused: TIMING-GRADE requires setup and hold at Slow: Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 A
+CONTROL fast-hold-flag refused: TIMING-GRADE requires setup and hold at Fast: Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 A
+CONTROL slow-setup-flag refused: TIMING-GRADE requires setup and hold at Slow: Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 A
+CONTROL reset-conditions refused: TIMING-GRADE operating conditions changed: Device Grade = commercial Junction Temp = 25.2 (C) 
+CONTROL equivalent-85.0 accepted
+CONTROL ignore-io-paths ACCEPTED (outside hook scope)
+PROBE FINISHED
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 00:13:15 2026...
