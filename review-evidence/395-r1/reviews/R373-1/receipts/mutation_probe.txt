@@ -1,0 +1,27 @@
+OK  control-unmodified               expect=survive  SURVIVED  
+OK  check-drops-grade                expect=kill     KILLED    AssertionError: ('grade', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+OK  check-drops-temp                 expect=kill     KILLED    AssertionError: ('temperature', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+OK  check-drops-part                 expect=kill     KILLED    AssertionError: ('part', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+OK  check-setup-only-accepted        expect=kill     KILLED    AssertionError: ('Slow max', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+OK  check-skips-fast                 expect=kill     KILLED    AssertionError: ('Fast none', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+OK  configure-no-part-check          expect=kill     KILLED    AssertionError
+OK  configure-min-temp               expect=kill     KILLED    Junction Temp = 0 (C)
+OK  configure-no-corners             expect=kill     KILLED    Fast No No
+OK  reports-no-finally               expect=kill     KILLED    Fast Yes Yes
+OK  reports-only-max-temp            expect=kill     KILLED    REPORT check_timing -verbose -file /tmp/timing-grade-n4zjrywx/candidate_check_timing.rpt
+OK  reports-no-other-disable         expect=kill     KILLED    REPORT check_timing -verbose -file /tmp/timing-grade-j5dq071k/candidate_check_timing.rpt
+OK  reports-no-cdc                   expect=kill     KILLED    AssertionError
+OK  reports-no-clock-interaction     expect=kill     KILLED    AssertionError
+OK  reports-no-negative-paths        expect=kill     KILLED    AssertionError
+OK  reports-no-final-check           expect=report   SURVIVED  
+OK  reports-no-unconstrained         expect=report   SURVIVED  
+OK  reports-cdc-no-details           expect=report   SURVIVED  
+OK  decl-industrial                  expect=kill     KILLED    AssertionError: #395 commercial release declaration changed
+OK  decl-max-100                     expect=kill     KILLED    AssertionError: #395 commercial release declaration changed
+OK  decl-part-minus1                 expect=kill     KILLED    AssertionError: #395 commercial release declaration changed
+OK  decl-configure-literal-grade     expect=kill     KILLED    AssertionError: ('grade', CompletedProcess(args=['tclsh'], returncode=0, stdout='', stderr=''))
+OK  platform-literal-part            expect=kill     KILLED    AssertionError: xc7a100t-fgg484-1
+OK  platform-no-preplacement         expect=kill     KILLED    AssertionError: []
+OK  platform-no-signoff              expect=kill     KILLED    AssertionError: ['set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]', 'set_property CONFIG_MODE SPIx4 [current_design]', 'set_property BITSTREAM.CON
+OK  platform-signoff-last            expect=report   KILLED    AssertionError: ['set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]', 'set_property CONFIG_MODE SPIx4 [current_design]', 'set_property BITSTREAM.CON
+MUTATION SUMMARY: 26 mutants, 0 unexpected
