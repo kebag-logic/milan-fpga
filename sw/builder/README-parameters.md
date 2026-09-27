@@ -128,6 +128,8 @@ The limit includes derived listener family entries (Milan 6.4).
 
 Every listener `buffer_length_ns` must be an integer, at least `2126000`.
 The default equals this Milan v1.2 5.3.3.4 floor.
+Values above `0xFFFFFFFF` exceed Table 7-8 and refuse.
+Accepted values reach the descriptor without truncation.
 
 Every Stream Output declares `presentation_time_offset_ns`, defaulting to `2000000`.
 AAF uses `streams.talkers[]`; CRF uses `clocking.crf_output`.

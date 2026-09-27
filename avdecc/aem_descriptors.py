@@ -179,9 +179,14 @@ def be16(v: int) -> bytes:
     return struct.pack(">H", v & 0xFFFF)
 
 
+#: The STREAM buffer_length field uses this four-octet unsigned encoding.
+AEM_U32 = struct.Struct(">I")
+UINT32_MAX = (1 << (8 * AEM_U32.size)) - 1
+
+
 def be32(v: int) -> bytes:
     """`v` as the four-octet network-order field every AEM u32 is on the wire."""
-    return struct.pack(">I", v & 0xFFFFFFFF)
+    return AEM_U32.pack(v & UINT32_MAX)
 
 
 def be64(v: int) -> bytes:

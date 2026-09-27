@@ -121,7 +121,7 @@ MODEL_ID_HASH_BITS = 40              # EUI-64 bits taken from the sha256
 #: the descriptor layer that writes them, so the accepted keys and their
 #: defaults have one owner (avdecc/aem_descriptors.py).
 sys.path.insert(0, str(ROOT / "avdecc"))
-from aem_descriptors import MAX_STREAM_FORMATS, OBJECT_NAMES  # noqa: E402
+from aem_descriptors import MAX_STREAM_FORMATS, OBJECT_NAMES, UINT32_MAX  # noqa: E402
 
 #: CLOCK_SOURCE object_name by source type, and the `names.clock_sources`
 #: keys a config may declare (schema 1.2). This builder owns these literals:
@@ -1378,13 +1378,17 @@ def _factory_offset(raw, ctx):
 
 
 def _stream_buffer_ns(stream: dict[str, Any], ctx: str, direction: str) -> int:
-    """Every declared listener must meet the Milan buffer floor."""
+    """Every listener must meet the floor without truncation during packing."""
     length_ns = stream.get("buffer_length_ns", BUFLEN_DEFAULT_NS)
     if direction == "listener" and (
             type(length_ns) is not int or length_ns < BUFLEN_DEFAULT_NS):
         raise ConfigError(
             f"{ctx}.buffer_length_ns: must be an integer >= {BUFLEN_DEFAULT_NS} ns "
             "(Milan v1.2 5.3.3.4 listener buffer floor)")
+    if direction == "listener" and length_ns > UINT32_MAX:
+        raise ConfigError(
+            f"{ctx}.buffer_length_ns: must be <= {UINT32_MAX} ns "
+            "(IEEE 1722.1-2021 Table 7-8 listener buffer width)")
     return length_ns
 
 

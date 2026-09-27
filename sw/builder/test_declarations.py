@@ -66,7 +66,9 @@ def test_model_id_contract() -> None:
 
 
 def test_listener_buffer_contract() -> None:
-    """Milan 5.3.3.4: every listener, including nonzero indices, meets the floor."""
+    """Milan 5.3.3.4 floor and Table 7-8 width survive descriptor packing."""
+    import gen_aemi_image as join
+
     base = yaml.safe_load((ROOT / "configs/endstation_ax7101_8x8.yaml").read_text())
     with tempfile.TemporaryDirectory(prefix="listener-buffer-contract.") as tmp:
         directory = Path(tmp)
@@ -74,17 +76,43 @@ def test_listener_buffer_contract() -> None:
             raw = copy.deepcopy(base)
             stream = raw["streams"]["listeners"][index]
             # Independent clause boundary, not the implementation's constant.
-            for value in (2126000, 2126001):
+            for value in (2126000, 2126001, 0xFFFFFFFF):
                 stream["buffer_length_ns"] = value
                 cfg = _load(raw, directory)
                 assert cfg["listeners"][index]["buffer_length_ns"] == value
                 overlay = eb.emit_aem_overlay(cfg)
                 assert overlay["stream_inputs"][index]["buffer_length_ns"] == value
+                document = join.model_to_document(
+                    join.aem.build_model(join.aem.spec_from_overlay(overlay)),
+                    join.identity_from_overlay(overlay))
+                blob, _ = join.image.build(document, 576)
+                # Read the packed image directory and the independent Table 7-8
+                # field at offset 128, rather than the overlay's declared value.
+                start = int.from_bytes(blob[12:16], "big")
+                entries = int.from_bytes(blob[8:10], "big")
+                for row in range(start, start + 16 * entries, 16):
+                    if blob[row:row + 4] == b"\x00\x00\x00\x05":
+                        assert int.from_bytes(blob[row + 4:row + 6], "big") > index
+                        stride = int.from_bytes(blob[row + 14:row + 16], "big")
+                        offset = int.from_bytes(blob[row + 8:row + 12], "big") + index * stride
+                        assert int.from_bytes(blob[offset + 128:offset + 132], "big") == value
+                        break
+                else:
+                    raise AssertionError(f"missing packed STREAM_INPUT[{index}]")
             for value in (2125999, 0, -1, 2126000.5, "2126000", True):
                 stream["buffer_length_ns"] = value
                 _refused(raw, directory, f"streams.listeners[{index}].buffer_length_ns",
                          "listener buffer floor")
-    print("[F2] eight listener indices: floor/above accepted, below/noninteger refused")
+            for value in (1 << 32, (1 << 32) + 2125999):
+                stream["buffer_length_ns"] = value
+                _refused(raw, directory, f"streams.listeners[{index}].buffer_length_ns",
+                         "listener buffer width")
+        for value in (0, -5, 1 << 32, "unused"):
+            raw = copy.deepcopy(base)
+            raw["streams"]["talkers"][0]["buffer_length_ns"] = value
+            cfg = _load(raw, directory)
+            assert "buffer_length_ns" not in eb.emit_aem_overlay(cfg)["stream_outputs"][0]
+    print("[F2] eight listeners: floor/uint32 maximum pack equal; underflow/overflow refused")
 
 
 def test_stream_format_contract() -> None:
