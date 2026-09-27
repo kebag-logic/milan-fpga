@@ -1,0 +1,107 @@
+[
+  {
+    "run": "baseline",
+    "head": "base 8bc97021, external probe",
+    "returncode": 0,
+    "foreground": true,
+    "threads": 16,
+    "artifacts": [
+      {
+        "path": "$VALIDATION_STORAGE/395-a387-work/probe.tcl",
+        "bytes": 593,
+        "sha256": "d07ce84df41a64e5eb21c5f1f09e1f920572936635ccaed404057f0b20fa3a27",
+        "small_copy": "timing-runs/baseline/probe.tcl"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/395-a387-work/probe.log",
+        "bytes": 16553,
+        "sha256": "5b58abc35584dfd053c0b9f6d48cadbda55e96134ef2bc9d145b2fadda3398a5",
+        "small_copy": "timing-runs/baseline/probe.log"
+      }
+    ]
+  },
+  {
+    "run": "command-help",
+    "head": "base 8bc97021, external probe",
+    "returncode": 0,
+    "foreground": true,
+    "threads": 16,
+    "artifacts": [
+      {
+        "path": "$VALIDATION_STORAGE/395-a387-work/help.tcl",
+        "bytes": 236,
+        "sha256": "c11e380dfb8ac373814ac916df6294968e4f08a121a3a95df82b79b62b7cb1b9",
+        "small_copy": "timing-runs/command-help/help.tcl"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/395-a387-work/help.log",
+        "bytes": 83718,
+        "sha256": "78602ee1c837e815381dce6ea66741edf18de3af06451abc6c5c0994478262b5",
+        "small_copy": "timing-runs/command-help/help.log"
+      }
+    ]
+  },
+  {
+    "run": "initial-reports",
+    "head": "uncommitted implementation",
+    "returncode": 0,
+    "foreground": true,
+    "threads": 16,
+    "artifacts": [
+      {
+        "path": "$VALIDATION_STORAGE/395-a387-work/signoff/report.tcl",
+        "bytes": 366,
+        "sha256": "c1f2540c97f588dcb0d10269bd23e893277cbfbf8adb3ab84d53eddba92964bb",
+        "small_copy": "timing-runs/initial-reports/report.tcl"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/395-a387-work/signoff/vivado.log",
+        "bytes": 10665,
+        "sha256": "1d5eb7969cf09fa99af02bb4aea467e27c03f7ba970f9cc042707b3ad1c4fae9",
+        "small_copy": "timing-runs/initial-reports/vivado.log"
+      }
+    ]
+  },
+  {
+    "run": "committed-reports",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "returncode": 0,
+    "foreground": true,
+    "threads": 16,
+    "artifacts": [
+      {
+        "path": "$VALIDATION_STORAGE/395-a387-work/final-66001a307/report.tcl",
+        "bytes": 374,
+        "sha256": "d74a8353e6168518af2c7b42a226f257cc306c8bdcc643234def3c3a48c0dac1",
+        "small_copy": "timing-runs/committed-reports/report.tcl"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/395-a387-work/final-66001a307/vivado.log",
+        "bytes": 10017,
+        "sha256": "acfeb614e017ca61ad46319455caf3719684a8e93ed9c517407282fc6e6f3bc6",
+        "small_copy": "timing-runs/committed-reports/vivado.log"
+      }
+    ]
+  },
+  {
+    "run": "live-controls",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "returncode": 0,
+    "foreground": true,
+    "threads": 1,
+    "artifacts": [
+      {
+        "path": "$VALIDATION_STORAGE/395-a387-work/live-controls.tcl",
+        "bytes": 1431,
+        "sha256": "327a41eded32cfd21c9e133d492d8bcd6c4bfc54f56d2799bd02ffb82bc10767",
+        "small_copy": "timing-runs/live-controls/live-controls.tcl"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/395-a387-work/controls-66001a307/vivado.log",
+        "bytes": 15666,
+        "sha256": "8e5f310d678bb4306ec0c212c9b6f90e98403cdcc4bcc4bbd739d776c57865e9",
+        "small_copy": "timing-runs/live-controls/vivado.log"
+      }
+    ]
+  }
+]
