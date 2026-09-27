@@ -1,0 +1,10 @@
+$ python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 172 md files + 921 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ python3 -B scripts/check_doc_paths.py
+doc path gate: OK (850 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+$ git diff --check 8bc97021f28fb7f729418d3a00851c84ea0b50fd 3a0cb4cf4fed2d71436a43f4b96cb375f9178342
+rc=0
+$ git diff --check
+rc=0

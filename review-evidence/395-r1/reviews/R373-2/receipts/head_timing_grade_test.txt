@@ -1,0 +1,16 @@
+$ git rev-parse HEAD -> 3a0cb4cf4fed2d71436a43f4b96cb375f9178342
+$ python3 -B sw/builder/test_timing_grade.py <litex-venv-python>
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+rc=0
+$ builder entry arm in isolation: test_builder.test_commercial_timing_grade() with MILAN_LITEX_PYTHON=<litex-venv-python>
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+  [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+SKIPS n/a
+rc=0
+$ builder entry arm, LiteX hidden (MILAN_LITEX_PYTHON unset, HOME=/nonexistent)
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade platform] SKIP: no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+rc=0
+tclsh 8.6.16
