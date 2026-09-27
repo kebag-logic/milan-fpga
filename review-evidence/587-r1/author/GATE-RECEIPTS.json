@@ -1,0 +1,136 @@
+[
+  {
+    "label": "baseline-selftest",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_baseline.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/587-8x8-baseline-50mhz",
+    "rc": 0,
+    "seconds": 0.11,
+    "head": "55079500483970ee244f12fa4c94401783f3df6f"
+  },
+  {
+    "label": "baseline-mutants",
+    "argv": [
+      "python3",
+      "syn/ooc/pp_baseline_mutants.py"
+    ],
+    "cwd": "$LANES/587-8x8-baseline-50mhz",
+    "rc": 0,
+    "seconds": 1.97,
+    "head": "55079500483970ee244f12fa4c94401783f3df6f"
+  },
+  {
+    "label": "docs-git",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/587-8x8-baseline-50mhz",
+    "rc": 0,
+    "seconds": 4.37,
+    "head": "55079500483970ee244f12fa4c94401783f3df6f"
+  },
+  {
+    "label": "docs-no-git",
+    "argv": [
+      "env",
+      "GIT_DIR=/dev/null",
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/587-8x8-baseline-50mhz",
+    "rc": 0,
+    "seconds": 4.27,
+    "head": "55079500483970ee244f12fa4c94401783f3df6f"
+  },
+  {
+    "label": "em-dash",
+    "argv": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "63fe4fb0"
+    ],
+    "cwd": "$LANES/587-8x8-baseline-50mhz",
+    "rc": 0,
+    "seconds": 3.02,
+    "head": "55079500483970ee244f12fa4c94401783f3df6f"
+  },
+  {
+    "label": "doc-style",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$LANES/587-8x8-baseline-50mhz",
+    "rc": 0,
+    "seconds": 0.06,
+    "head": "55079500483970ee244f12fa4c94401783f3df6f"
+  },
+  {
+    "label": "contents",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$LANES/587-8x8-baseline-50mhz",
+    "rc": 0,
+    "seconds": 2.57,
+    "head": "55079500483970ee244f12fa4c94401783f3df6f"
+  },
+  {
+    "label": "anchors",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "cwd": "$LANES/587-8x8-baseline-50mhz",
+    "rc": 0,
+    "seconds": 1.62,
+    "head": "55079500483970ee244f12fa4c94401783f3df6f"
+  },
+  {
+    "label": "doc-paths",
+    "argv": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$LANES/587-8x8-baseline-50mhz",
+    "rc": 0,
+    "seconds": 0.11,
+    "head": "55079500483970ee244f12fa4c94401783f3df6f"
+  },
+  {
+    "label": "whitespace",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "$LANES/587-8x8-baseline-50mhz",
+    "rc": 0,
+    "seconds": 0.02,
+    "head": "55079500483970ee244f12fa4c94401783f3df6f"
+  },
+  {
+    "label": "committed-whitespace",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "63fe4fb0",
+      "HEAD"
+    ],
+    "cwd": "$LANES/587-8x8-baseline-50mhz",
+    "rc": 0,
+    "seconds": 0.0,
+    "head": "55079500483970ee244f12fa4c94401783f3df6f"
+  }
+]
