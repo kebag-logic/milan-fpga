@@ -1,0 +1,47 @@
+== 1. ADP window from the emitted plan expressions
+  power_off_hold_s=8 in_window=False start=T0 required_valid_time=10 deadline='2 * pre_cut_valid_time' elapsed='first_post_cut_available_host_s - t0_host_s' exclusive=True
+    pre-cut ad age  0.0 s, boot-to-first-ad 12.0 s: deadline 20.0 s, elapsed 12.0 s -> PASS
+    pre-cut ad age  0.0 s, boot-to-first-ad 19.9 s: deadline 20.0 s, elapsed 19.9 s -> PASS
+    pre-cut ad age  0.0 s, boot-to-first-ad 20.0 s: deadline 20.0 s, elapsed 20.0 s -> FAIL
+    pre-cut ad age  4.9 s, boot-to-first-ad 12.0 s: deadline 20.0 s, elapsed 12.0 s -> PASS
+    pre-cut ad age  4.9 s, boot-to-first-ad 19.9 s: deadline 20.0 s, elapsed 19.9 s -> PASS
+    pre-cut ad age  4.9 s, boot-to-first-ad 20.0 s: deadline 20.0 s, elapsed 20.0 s -> FAIL
+  power_off_hold_s=13 in_window=False start=T0 required_valid_time=10 deadline='2 * pre_cut_valid_time' elapsed='first_post_cut_available_host_s - t0_host_s' exclusive=True
+    pre-cut ad age  0.0 s, boot-to-first-ad 12.0 s: deadline 20.0 s, elapsed 12.0 s -> PASS
+    pre-cut ad age  0.0 s, boot-to-first-ad 19.9 s: deadline 20.0 s, elapsed 19.9 s -> PASS
+    pre-cut ad age  0.0 s, boot-to-first-ad 20.0 s: deadline 20.0 s, elapsed 20.0 s -> FAIL
+    pre-cut ad age  4.9 s, boot-to-first-ad 12.0 s: deadline 20.0 s, elapsed 12.0 s -> PASS
+    pre-cut ad age  4.9 s, boot-to-first-ad 19.9 s: deadline 20.0 s, elapsed 19.9 s -> PASS
+    pre-cut ad age  4.9 s, boot-to-first-ad 20.0 s: deadline 20.0 s, elapsed 20.0 s -> FAIL
+  power_off_hold_s=60 in_window=False start=T0 required_valid_time=10 deadline='2 * pre_cut_valid_time' elapsed='first_post_cut_available_host_s - t0_host_s' exclusive=True
+    pre-cut ad age  0.0 s, boot-to-first-ad 12.0 s: deadline 20.0 s, elapsed 12.0 s -> PASS
+    pre-cut ad age  0.0 s, boot-to-first-ad 19.9 s: deadline 20.0 s, elapsed 19.9 s -> PASS
+    pre-cut ad age  0.0 s, boot-to-first-ad 20.0 s: deadline 20.0 s, elapsed 20.0 s -> FAIL
+    pre-cut ad age  4.9 s, boot-to-first-ad 12.0 s: deadline 20.0 s, elapsed 12.0 s -> PASS
+    pre-cut ad age  4.9 s, boot-to-first-ad 19.9 s: deadline 20.0 s, elapsed 19.9 s -> PASS
+    pre-cut ad age  4.9 s, boot-to-first-ad 20.0 s: deadline 20.0 s, elapsed 20.0 s -> FAIL
+== 2. release_eligible [soak, power.idle, power.journal_commit]
+  restore_bound_s=29: API [True, True, True]; CLI rc 0 [True, True, True]
+  restore_bound_s=30: API [True, True, True]; CLI rc 0 [True, True, True]
+  restore_bound_s=31: API [False, False, False]; CLI rc 0 [False, False, False]
+  restore_bound_s=3600: API [False, False, False]; CLI rc 0 [False, False, False]
+  power_off_hold_s=1 (recorded only): API [True, True, True]
+  power_off_hold_s=8 (recorded only): API [True, True, True]
+  power_off_hold_s=600 (recorded only): API [True, True, True]
+  CLI default --power-off-hold-s: [None, 8, 8]
+== 3. topology_explicit from CLI specs
+  dut missing CRF keys: rc 0; topology_explicit [False, False, False]; release_eligible [False, False, False]
+  dut missing listener shape: rc 0; topology_explicit [False, False, False]; release_eligible [False, False, False]
+  dut missing crf_in only: rc 0; topology_explicit [False, False, False]; release_eligible [False, False, False]
+  dut missing talker shape: rc 0; topology_explicit [False, False, False]; release_eligible [False, False, False]
+  peer missing CRF keys: rc 0; topology_explicit [False, False, False]; release_eligible [False, False, False]
+  peer missing listener shape: rc 0; topology_explicit [False, False, False]; release_eligible [False, False, False]
+  peer missing crf_in only: rc 0; topology_explicit [False, False, False]; release_eligible [False, False, False]
+  peer missing talker shape: rc 0; topology_explicit [False, False, False]; release_eligible [False, False, False]
+  dut spells entity_id: rc 0; topology_explicit [False, False, False]
+== 4. stale round-2 release strings
+  REQUIREMENTS.md: none
+  docs/testing/TESTING.md: none
+  tb/tools/torture_campaign.py: none
+  tests/features/torture_campaign_plan.feature: none
+  tests/steps/torture_release_steps.py: none

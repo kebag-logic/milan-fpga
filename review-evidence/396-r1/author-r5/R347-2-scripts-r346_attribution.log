@@ -1,0 +1,37 @@
+script sha256 d26698bcdae5836941ef82c6fc3ad213f8da3dd22e18ff8e828895e4073fddc0
+P01 soak interval hardcoded 60
+  self-test: test_release_cli_parameters, test_release_settings_validation
+  behave: tests/features/torture_campaign_plan.feature:381  release timing and totals are parameterized
+P03 total cycles hardcoded 200
+  self-test: test_release_cli_parameters, test_release_settings_validation
+  behave: tests/features/torture_campaign_plan.feature:381  release timing and totals are parameterized
+P07 CLI ignores --soak-interval-s
+  self-test: test_release_cli_parameters
+  behave: none
+C01 snapshot policies swapped
+  self-test: test_release_timing_and_snapshot_contract
+  behave: tests/features/torture_campaign_plan.feature:335  release defaults encode the decided soak and cold-cut mix
+C08 power eligibility ignores commit count
+  self-test: test_release_eligibility_boundaries
+  behave: none
+A04 audit drops AAF binding check
+  self-test: test_release_binding_omissions_in_every_repeat
+  behave: tests/features/torture_campaign_plan.feature:352  each repeat detects omissions on both sides -- @1.4
+  behave: tests/features/torture_campaign_plan.feature:357  each repeat detects omissions on both sides -- @1.9
+  behave: tests/features/torture_campaign_plan.feature:362  each repeat detects omissions on both sides -- @1.14
+  behave: tests/features/torture_campaign_plan.feature:367  each repeat detects omissions on both sides -- @1.19
+  behave: tests/features/torture_campaign_plan.feature:372  each repeat detects omissions on both sides -- @1.24
+  behave: tests/features/torture_campaign_plan.feature:377  each repeat detects omissions on both sides -- @1.29
+A05 audit only first repeat
+  self-test: test_release_binding_omissions_in_every_repeat, test_release_counter_omissions_in_every_repeat
+  behave: tests/features/torture_campaign_plan.feature:369  each repeat detects omissions on both sides -- @1.21
+  behave: tests/features/torture_campaign_plan.feature:370  each repeat detects omissions on both sides -- @1.22
+  behave: tests/features/torture_campaign_plan.feature:371  each repeat detects omissions on both sides -- @1.23
+  behave: tests/features/torture_campaign_plan.feature:372  each repeat detects omissions on both sides -- @1.24
+  behave: tests/features/torture_campaign_plan.feature:373  each repeat detects omissions on both sides -- @1.25
+  behave: tests/features/torture_campaign_plan.feature:374  each repeat detects omissions on both sides -- @1.26
+  behave: tests/features/torture_campaign_plan.feature:375  each repeat detects omissions on both sides -- @1.27
+  behave: tests/features/torture_campaign_plan.feature:376  each repeat detects omissions on both sides -- @1.28
+  behave: tests/features/torture_campaign_plan.feature:377  each repeat detects omissions on both sides -- @1.29
+  behave: tests/features/torture_campaign_plan.feature:378  each repeat detects omissions on both sides -- @1.30
+restored target sha256 a7d3c13d5e249ed01db451ae90c25c8f1958ec692247e37ca306e4a42374a901

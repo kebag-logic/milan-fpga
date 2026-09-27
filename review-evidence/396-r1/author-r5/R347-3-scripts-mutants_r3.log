@@ -1,0 +1,32 @@
+target sha256 a7d3c13d5e249ed01db451ae90c25c8f1958ec692247e37ca306e4a42374a901
+baseline self-test rc=0 behave rc=0
+KILLED   self-test rc=1 behave rc=1  M01 restore eligibility check removed  failing=test_release_eligibility_boundaries
+KILLED   self-test rc=1 behave rc=1  M02 restore ceiling made exclusive  failing=test_release_defaults_and_assertions,test_release_eligibility_boundaries,test_release_topology_provenance_cli
+KILLED   self-test rc=1 behave rc=1  M03 restore ceiling relaxed to 31  failing=test_release_defaults_and_assertions,test_release_eligibility_boundaries
+KILLED   self-test rc=1 behave rc=1  M04 soak repeat skips the shared profile checks  failing=test_release_eligibility_boundaries,test_release_topology_each_key,test_release_topology_provenance_cli
+KILLED   self-test rc=1 behave rc=1  M05 restore default decoupled from the ceiling (31)  failing=test_release_defaults_and_assertions,test_release_eligibility_boundaries,test_release_topology_provenance_cli
+KILLED   self-test rc=1 behave rc=1  M06 tu bound set to the B.1.1 nominal 0.25 s  failing=test_release_tu_chained_discontinuities,test_release_tu_contract
+UNAPPLIED (0 matches)  M07 tu origin loosened to any tu edge
+UNAPPLIED (0 matches)  M08 tu observation resolution not required
+UNAPPLIED (0 matches)  M09 soak assertion text states a 5 s tu bound
+KILLED   self-test rc=1 behave rc=0  M10 soak assertion text drops the uncorrelated-tu failure  failing=test_release_assertion_text
+KILLED   self-test rc=1 behave rc=1  M11 off time charged to the ADP window  failing=test_release_timing_and_snapshot_contract
+KILLED   self-test rc=1 behave rc=1  M12 required valid_time changed to 5  failing=test_release_timing_and_snapshot_contract
+KILLED   self-test rc=1 behave rc=1  M13 ADP start moved to the pre-cut advertisement  failing=test_release_timing_and_snapshot_contract
+KILLED   self-test rc=1 behave rc=1  M14 ADP deadline charged for the power-off hold  failing=test_release_timing_and_snapshot_contract
+KILLED   self-test rc=1 behave rc=0  M15 power assertion text measures from the pre-cut advertisement  failing=test_release_assertion_text
+KILLED   self-test rc=1 behave rc=0  M16 power assertion text charges the off time  failing=test_release_assertion_text
+KILLED   self-test rc=1 behave rc=0  M17 power_off_hold_s validation dropped  failing=test_release_eligibility_boundaries
+KILLED   self-test rc=1 behave rc=1  M18 power_off_hold_s default 5  failing=test_release_cli_power_hold_default,test_release_defaults_and_assertions
+KILLED   self-test rc=1 behave rc=0  M19 CLI --power-off-hold-s default 5  failing=test_release_cli_power_hold_default
+KILLED   self-test rc=1 behave rc=0  M20 topology accepts the entity_id alias  failing=test_release_topology_each_key
+KILLED   self-test rc=1 behave rc=0  M21 topology accepts empty values  failing=test_release_topology_each_key
+KILLED   self-test rc=1 behave rc=0  M22 topology requires crf_out only  failing=test_release_topology_each_key
+KILLED   self-test rc=1 behave rc=0  M23 topology requires crf_in only  failing=test_release_topology_each_key
+KILLED   self-test rc=1 behave rc=0  M24 topology accepts a missing mac  failing=test_release_topology_each_key
+KILLED   self-test rc=1 behave rc=1  M25 topology requires a talker shape only  failing=test_release_topology_each_key
+KILLED   self-test rc=1 behave rc=0  M26 boot oracle accepts a bool restart count  failing=test_release_boot_negative_control
+restored target sha256 a7d3c13d5e249ed01db451ae90c25c8f1958ec692247e37ca306e4a42374a901; survivors 3
+  survivor: M07 tu origin loosened to any tu edge
+  survivor: M08 tu observation resolution not required
+  survivor: M09 soak assertion text states a 5 s tu bound

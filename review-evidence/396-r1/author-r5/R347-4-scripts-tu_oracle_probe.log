@@ -1,0 +1,22 @@
+bound=0.5 resolution=0.001
+Part A: DUT-side interval, GM edge at 0 plus step at d
+  d=0.000 worst_clear=0.500 verdicts=['PASS']
+  d=0.020 worst_clear=0.519 verdicts=['PASS']
+  d=0.050 worst_clear=0.549 verdicts=['PASS']
+  d=0.100 worst_clear=0.600 verdicts=['PASS']
+  d=0.125 worst_clear=0.624 verdicts=['PASS']
+  d=0.200 worst_clear=0.699 verdicts=['PASS']
+Part B: wire-observed interval, lone discontinuity at t_e
+  period=125us lag=1.25us start-event=0.000001s <= res: True -> PASS {'last_discontinuity_s': 10.0, 'deadline_s': 10.501, 'clear_s': 10.5}
+  period=125us lag=62.50us start-event=0.000063s <= res: True -> PASS {'last_discontinuity_s': 10.0, 'deadline_s': 10.501, 'clear_s': 10.5}
+  period=125us lag=125.00us start-event=0.000125s <= res: True -> PASS {'last_discontinuity_s': 10.0, 'deadline_s': 10.501, 'clear_s': 10.5}
+  period=1000us lag=10.00us start-event=0.000010s <= res: True -> PASS {'last_discontinuity_s': 10.0, 'deadline_s': 10.501, 'clear_s': 10.5}
+  period=1000us lag=500.00us start-event=0.000500s <= res: True -> PASS {'last_discontinuity_s': 10.0, 'deadline_s': 10.501, 'clear_s': 10.5}
+  period=1000us lag=1000.00us start-event=0.001000s <= res: True -> PASS {'last_discontinuity_s': 10.0, 'deadline_s': 10.501, 'clear_s': 10.5}
+Part B': same lag, GM edge before start and step inside
+  -> PASS {'last_discontinuity_s': 10.2, 'deadline_s': 10.700999999999999, 'clear_s': 10.45}
+Part C: event recorded exactly at the observed start (self-test shape)
+  -> PASS {'last_discontinuity_s': 10.0, 'deadline_s': 10.501, 'clear_s': 10.45}
+Part D: tu raised long before its only discontinuity
+  -> PASS {'last_discontinuity_s': 10.0, 'deadline_s': 10.501, 'clear_s': 10.4}
+Part A all PASS: True
