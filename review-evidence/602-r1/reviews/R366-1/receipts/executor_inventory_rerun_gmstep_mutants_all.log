@@ -1,0 +1,38 @@
+[INFO] obj_gmstep/Vmilan_dp_gmstep is missing or older than its sources: the positive control is rebuilt
+[PASS] the unmutated gateware still passes the gmstep leg
+[INFO] obj_dir/Vmilan_dp_sim is missing or older than its sources: the positive control is rebuilt
+[PASS] the unmutated gateware still passes the option-off leg
+[PASS] control caught: the policy level is tied low at the servo - breaks "slew path: the actual servo receives the level"
+    it broke 2 check(s): slew path: the actual servo receives the level; slew path: every staged sample covers the PHC tail
+[PASS] control caught: the policy level omits the applied-rate tail - breaks "slew path: every staged sample covers the PHC tail"
+    it broke 1 check(s): slew path: every staged sample covers the PHC tail
+[PASS] control caught: the policy level misses an extra addend stage - breaks "slew path: every staged sample covers the PHC tail"
+    it broke 1 check(s): slew path: every staged sample covers the PHC tail
+[PASS] control caught: the PHC re-base restart term is restored - breaks "restart: a PHC-only step leaves outgoing mr unchanged"
+    it broke 2 check(s): restart: a PHC-only step leaves outgoing mr unchanged; restart: a PHC-only step adds no MEDIA_RESET
+[PASS] control caught: the source-change term is removed - breaks "source control: a real source change toggles mr once"
+    it broke 1 check(s): source control: a real source change toggles mr once
+[PASS] control caught: selected CRF mr propagation is removed - breaks "CRF control: selected CRF mr propagates exactly once"
+    it broke 1 check(s): CRF control: selected CRF mr propagates exactly once
+[PASS] control caught: the grandmaster identity re-bases the render stage as well as the step - breaks "render: the GM change is one counted re-base event"
+    it broke 2 check(s): render: the GM change is one counted re-base event; render: every counted re-base lands at a PDU end right after the step
+[PASS] control caught: the step does not re-centre the render stage - breaks "render: the GM change is one counted re-base event"
+    it broke 1 check(s): render: the GM change is one counted re-base event
+[PASS] control caught: the render re-base is keyed to the identity, not the step - breaks "render: every counted re-base lands at a PDU end right after the step"
+    it broke 1 check(s): render: every counted re-base lands at a PDU end right after the step
+[PASS] control caught: tu reaches the talkers four cycles late - breaks "tu: set in the first cycle the bank names GM B"
+    it broke 1 check(s): tu: set in the first cycle the bank names GM B
+[PASS] control caught: the plane's step does not re-arm the holdover - breaks "tu: held at least the 0.25 s holdover after the step"
+    it broke 1 check(s): tu: held at least the 0.25 s holdover after the step
+[PASS] control caught: tu stops the talker - breaks "licence: the talker never pauses beyond four of its intervals"
+    it broke 4 check(s): tu: talker PDUs graded inside the hold; licence: the talker never pauses beyond four of its intervals; licence: the talker keeps its baseline rate within 1%; restart: a PHC-only step adds no MEDIA_RESET
+[PASS] control caught: the grandmaster change stops the talker for good - breaks "licence: the talker never pauses beyond four of its intervals"
+    it broke 6 check(s): tu: talker PDUs graded inside the hold; tu: talker PDUs graded after tu clears; licence: the talker never pauses beyond four of its intervals; licence: the talker keeps its baseline rate within 1%; CRF control: outgoing PDUs bracket the received toggle; CRF control: selected CRF mr propagates exactly once
+[PASS] control caught: the step's re-centre snaps one event off the setpoint - breaks "render: every PDU push leaves the target fill across the event"
+    it broke 1 check(s): render: every PDU push leaves the target fill across the event
+[PASS] control caught: software settime is restored as an mr cause - breaks "CLKV: the settime leaves mr unchanged (#602)"
+    it broke 2 check(s): CLKV: the settime leaves mr unchanged (#602); CLKV: settime adds no MEDIA_RESET (#602)
+[PASS] control caught: PHC adjtime is restored as an mr cause - breaks "CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)"
+    it broke 2 check(s): CLKV: PHC-only steps leave INTERNAL mr unchanged (#602); CLKV: the settime leaves mr unchanged (#602)
+
+18 checks: 18 PASS, 0 FAIL

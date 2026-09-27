@@ -1,0 +1,12 @@
+## hdl/milan/milan_datapath.sv: CODE DIFFERS
+--- 6d5ebd735:hdl/milan/milan_datapath.sv
++++ 49012143b:hdl/milan/milan_datapath.sv
+@@ -1525,5 +1525,4 @@
+   wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
+-  wire mcr_restart_p_w = (crf_clk_selected_r
+-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+-                       | media_rebase_p_w;
++  wire mcr_restart_p_w = crf_clk_selected_r
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
+   localparam int MCR_CTX_C = N_STREAMS + 1;
+## hdl/ieee1722/avtp/KL_media_clock_restart.sv: IDENTICAL CODE

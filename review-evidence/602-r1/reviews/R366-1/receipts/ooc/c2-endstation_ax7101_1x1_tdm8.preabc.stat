@@ -1,0 +1,78 @@
+
+3. Printing statistics.
+
+=== milan_datapath ===
+
+        +----------Local Count, excluding submodules.
+        | 
+   109702 wires
+  1331869 wire bits
+    11364 public wires
+   197906 public wire bits
+      136 ports
+     1093 port bits
+   360732 cells
+    28706   $_AND_
+     2674   $_DFFE_PP0P_
+        2   $_DFFE_PP1P_
+   183075   $_MUX_
+    49510   $_NOT_
+     4964   $_ORNOT_
+    34081   $_OR_
+    43067   $_SDFFE_PP0P_
+      291   $_SDFFE_PP1P_
+      918   $_XNOR_
+    12115   $_XOR_
+      119   $scopeinfo
+       17   DSP48E1
+      461   IBUF
+      632   OBUF
+       64   RAM64X1S
+       20   RAMB18E1
+       16   RAMB36E1
+     5414 submodules
+     3739   CARRY4
+     1601   RAM32M
+       74   RAM64M
+
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        | 
+   360732 milan_datapath
+
+        +----------Count including submodules.
+        | 
+   109702 wires
+  1331869 wire bits
+    11364 public wires
+   197906 public wire bits
+      136 ports
+     1093 port bits
+        - memories
+        - memory bits
+        - processes
+   360732 cells
+    28706   $_AND_
+     2674   $_DFFE_PP0P_
+        2   $_DFFE_PP1P_
+   183075   $_MUX_
+    49510   $_NOT_
+     4964   $_ORNOT_
+    34081   $_OR_
+    43067   $_SDFFE_PP0P_
+      291   $_SDFFE_PP1P_
+      918   $_XNOR_
+    12115   $_XOR_
+      119   $scopeinfo
+       17   DSP48E1
+      461   IBUF
+      632   OBUF
+       64   RAM64X1S
+       20   RAMB18E1
+       16   RAMB36E1
+     5414 submodules
+     3739   CARRY4
+     1601   RAM32M
+       74   RAM64M
+

@@ -1,0 +1,32 @@
+P1_restore_rebase_term_verbatim_base_expr        gmstep  CAUGHT           as_expected=True fail: restart: a PHC-only step leaves outgoing mr unchanged
+      [FAIL] restart: a PHC-only step leaves outgoing mr unchanged got=1 exp=0
+      [FAIL] restart: a PHC-only step adds no MEDIA_RESET got=1 exp=0
+P1_restore_rebase_term_verbatim_base_expr        optoff  CAUGHT           as_expected=True fail: CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)
+      [FAIL] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000001 exp=0x00000000
+      [FAIL] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000001 exp=0x00000000
+P2_restore_rebase_term_gated_by_crf_selection    gmstep  CAUGHT           as_expected=True fail: restart: a PHC-only step leaves outgoing mr unchanged
+      [FAIL] restart: a PHC-only step leaves outgoing mr unchanged got=1 exp=0
+      [FAIL] restart: a PHC-only step adds no MEDIA_RESET got=1 exp=0
+P2_restore_rebase_term_gated_by_crf_selection    optoff  SURVIVED(pass)   as_expected=True pass (informational)
+P3_gm_identity_change_requests_restart           gmstep  CAUGHT           as_expected=True fail: restart: a PHC-only step leaves outgoing mr unchanged
+      [FAIL] restart: a PHC-only step leaves outgoing mr unchanged got=1 exp=0
+      [FAIL] restart: MEDIA_RESET does not move between the commit and the step got=1 exp=0
+      [FAIL] restart: a PHC-only step adds no MEDIA_RESET got=1 exp=0
+P4_phc_step_suppresses_genuine_restart           gmstep  SURVIVED(pass)   as_expected=True pass (informational)
+P5_settime_only_restored_graded_on_gmstep        gmstep  SURVIVED(pass)   as_expected=True pass (informational)
+P5_settime_only_restored_graded_on_gmstep        optoff  CAUGHT           as_expected=True fail: CLKV: the settime leaves mr unchanged (#602)
+      [FAIL] CLKV: the settime leaves mr unchanged (#602) got=0x00000001 exp=0x00000000
+      [FAIL] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000001 exp=0x00000000
+P6_source_change_detector_never_updates          gmstep  CAUGHT           as_expected=True fail: source control: a real source change toggles mr once
+      [FAIL] source control: a real source change toggles mr once got=0 exp=1
+P7_crf_disruption_term_removed                   gmstep  SURVIVED(pass)   as_expected=True pass (informational)
+P8_crf_mr_echo_removed                           gmstep  CAUGHT           as_expected=True fail: CRF control: selected CRF mr propagates exactly once
+      [FAIL] CRF control: selected CRF mr propagates exactly once got=0 exp=1
+P9_whole_base_datapath_under_head_tests          gmstep  CAUGHT           as_expected=True fail: restart: a PHC-only step leaves outgoing mr unchanged
+      [FAIL] restart: a PHC-only step leaves outgoing mr unchanged got=1 exp=0
+      [FAIL] restart: a PHC-only step adds no MEDIA_RESET got=1 exp=0
+P9_whole_base_datapath_under_head_tests          optoff  FAILED-OTHER     as_expected=False fail: CLKV: the settime leaves mr unchanged (#602)
+      [FAIL] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000001 exp=0x00000000
+      [FAIL] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000001 exp=0x00000000
+P10_render_rebase_dropped_restart_intact         gmstep  CAUGHT           as_expected=True fail: render: the GM change is one counted re-base event
+      [FAIL] render: the GM change is one counted re-base event got=0 exp=1

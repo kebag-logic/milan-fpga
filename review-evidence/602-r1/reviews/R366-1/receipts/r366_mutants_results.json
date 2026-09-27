@@ -1,0 +1,226 @@
+[
+  {
+    "probe": "P1_restore_rebase_term_verbatim_base_expr",
+    "leg": "gmstep",
+    "expected": "fail: restart: a PHC-only step leaves outgoing mr unchanged",
+    "verdict": "CAUGHT",
+    "as_expected": true,
+    "run_rc": 1,
+    "failed_checks": [
+      "[FAIL] restart: a PHC-only step leaves outgoing mr unchanged got=1 exp=0",
+      "[FAIL] restart: a PHC-only step adds no MEDIA_RESET got=1 exp=0"
+    ],
+    "tally": [
+      "== gmstep: checks: 64   failures: 2 =="
+    ],
+    "seconds": 64.5,
+    "mutated_sha256": "710d7d5c48668ad7e09f75733aff2831b862260003a12f6ab00349fb7e6b1da9"
+  },
+  {
+    "probe": "P1_restore_rebase_term_verbatim_base_expr",
+    "leg": "optoff",
+    "expected": "fail: CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)",
+    "verdict": "CAUGHT",
+    "as_expected": true,
+    "run_rc": 1,
+    "failed_checks": [
+      "[FAIL] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000001 exp=0x00000000",
+      "[FAIL] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000001 exp=0x00000000"
+    ],
+    "tally": [
+      "milan_datapath: 234 checks, 2 failures"
+    ],
+    "seconds": 36.1,
+    "mutated_sha256": "710d7d5c48668ad7e09f75733aff2831b862260003a12f6ab00349fb7e6b1da9"
+  },
+  {
+    "probe": "P2_restore_rebase_term_gated_by_crf_selection",
+    "leg": "gmstep",
+    "expected": "fail: restart: a PHC-only step leaves outgoing mr unchanged",
+    "verdict": "CAUGHT",
+    "as_expected": true,
+    "run_rc": 1,
+    "failed_checks": [
+      "[FAIL] restart: a PHC-only step leaves outgoing mr unchanged got=1 exp=0",
+      "[FAIL] restart: a PHC-only step adds no MEDIA_RESET got=1 exp=0"
+    ],
+    "tally": [
+      "== gmstep: checks: 64   failures: 2 =="
+    ],
+    "seconds": 64.2,
+    "mutated_sha256": "04776ccaf7cdb7ba3f98e0f44804640596576ca22d29813a91bfdcf72ff178e3"
+  },
+  {
+    "probe": "P2_restore_rebase_term_gated_by_crf_selection",
+    "leg": "optoff",
+    "expected": "pass (informational)",
+    "verdict": "SURVIVED(pass)",
+    "as_expected": true,
+    "run_rc": 0,
+    "failed_checks": [],
+    "tally": [
+      "milan_datapath: 234 checks, 0 failures"
+    ],
+    "seconds": 36.5,
+    "mutated_sha256": "04776ccaf7cdb7ba3f98e0f44804640596576ca22d29813a91bfdcf72ff178e3"
+  },
+  {
+    "probe": "P3_gm_identity_change_requests_restart",
+    "leg": "gmstep",
+    "expected": "fail: restart: a PHC-only step leaves outgoing mr unchanged",
+    "verdict": "CAUGHT",
+    "as_expected": true,
+    "run_rc": 1,
+    "failed_checks": [
+      "[FAIL] restart: a PHC-only step leaves outgoing mr unchanged got=1 exp=0",
+      "[FAIL] restart: MEDIA_RESET does not move between the commit and the step got=1 exp=0",
+      "[FAIL] restart: a PHC-only step adds no MEDIA_RESET got=1 exp=0"
+    ],
+    "tally": [
+      "== gmstep: checks: 64   failures: 3 =="
+    ],
+    "seconds": 62.8,
+    "mutated_sha256": "a5aac03a7ae5b1897027edd90d09d38c59d3648e30a6def4faffdb54556bd3cf"
+  },
+  {
+    "probe": "P4_phc_step_suppresses_genuine_restart",
+    "leg": "gmstep",
+    "expected": "pass (informational)",
+    "verdict": "SURVIVED(pass)",
+    "as_expected": true,
+    "run_rc": 0,
+    "failed_checks": [],
+    "tally": [
+      "== gmstep: checks: 64   failures: 0 =="
+    ],
+    "seconds": 64.1,
+    "mutated_sha256": "66b7e8f0adce6b109dcff1060b5d7ba71015231312fa9b9f5e103a798be72400"
+  },
+  {
+    "probe": "P5_settime_only_restored_graded_on_gmstep",
+    "leg": "gmstep",
+    "expected": "pass (informational)",
+    "verdict": "SURVIVED(pass)",
+    "as_expected": true,
+    "run_rc": 0,
+    "failed_checks": [],
+    "tally": [
+      "== gmstep: checks: 64   failures: 0 =="
+    ],
+    "seconds": 63.3,
+    "mutated_sha256": "d5ccfe9ebde3d40b3b0c40baa028530c46da0f6681f88042ccbe05e8a831f6a1"
+  },
+  {
+    "probe": "P5_settime_only_restored_graded_on_gmstep",
+    "leg": "optoff",
+    "expected": "fail: CLKV: the settime leaves mr unchanged (#602)",
+    "verdict": "CAUGHT",
+    "as_expected": true,
+    "run_rc": 1,
+    "failed_checks": [
+      "[FAIL] CLKV: the settime leaves mr unchanged (#602) got=0x00000001 exp=0x00000000",
+      "[FAIL] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000001 exp=0x00000000"
+    ],
+    "tally": [
+      "milan_datapath: 234 checks, 2 failures"
+    ],
+    "seconds": 36.4,
+    "mutated_sha256": "d5ccfe9ebde3d40b3b0c40baa028530c46da0f6681f88042ccbe05e8a831f6a1"
+  },
+  {
+    "probe": "P6_source_change_detector_never_updates",
+    "leg": "gmstep",
+    "expected": "fail: source control: a real source change toggles mr once",
+    "verdict": "CAUGHT",
+    "as_expected": true,
+    "run_rc": 1,
+    "failed_checks": [
+      "[FAIL] source control: a real source change toggles mr once got=0 exp=1"
+    ],
+    "tally": [
+      "== gmstep: checks: 64   failures: 1 =="
+    ],
+    "seconds": 62.9,
+    "mutated_sha256": "99974ca055aa0936f4baf2a0a282e7c66ff688b69ef4504b9e2e87f33f89dec7"
+  },
+  {
+    "probe": "P7_crf_disruption_term_removed",
+    "leg": "gmstep",
+    "expected": "pass (informational)",
+    "verdict": "SURVIVED(pass)",
+    "as_expected": true,
+    "run_rc": 0,
+    "failed_checks": [],
+    "tally": [
+      "== gmstep: checks: 64   failures: 0 =="
+    ],
+    "seconds": 62.5,
+    "mutated_sha256": "cf083e343dbb185ca912c5ff852f1ee2261da7c0115641477c0c81ac8edb3555"
+  },
+  {
+    "probe": "P8_crf_mr_echo_removed",
+    "leg": "gmstep",
+    "expected": "fail: CRF control: selected CRF mr propagates exactly once",
+    "verdict": "CAUGHT",
+    "as_expected": true,
+    "run_rc": 1,
+    "failed_checks": [
+      "[FAIL] CRF control: selected CRF mr propagates exactly once got=0 exp=1"
+    ],
+    "tally": [
+      "== gmstep: checks: 64   failures: 1 =="
+    ],
+    "seconds": 62.9,
+    "mutated_sha256": "21d077a06b2670ccaa2e63e8afa78d57b8edda7d32397ba8d3bb8c8c2624d291"
+  },
+  {
+    "probe": "P9_whole_base_datapath_under_head_tests",
+    "leg": "gmstep",
+    "expected": "fail: restart: a PHC-only step leaves outgoing mr unchanged",
+    "verdict": "CAUGHT",
+    "as_expected": true,
+    "run_rc": 1,
+    "failed_checks": [
+      "[FAIL] restart: a PHC-only step leaves outgoing mr unchanged got=1 exp=0",
+      "[FAIL] restart: a PHC-only step adds no MEDIA_RESET got=1 exp=0"
+    ],
+    "tally": [
+      "== gmstep: checks: 64   failures: 2 =="
+    ],
+    "seconds": 63.6,
+    "mutated_sha256": "ba1c8b6c375c38fa0d3902cd22fe9c11fe710c42bb834f87e24978298c164e55"
+  },
+  {
+    "probe": "P9_whole_base_datapath_under_head_tests",
+    "leg": "optoff",
+    "expected": "fail: CLKV: the settime leaves mr unchanged (#602)",
+    "verdict": "FAILED-OTHER",
+    "as_expected": false,
+    "run_rc": 1,
+    "failed_checks": [
+      "[FAIL] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000001 exp=0x00000000",
+      "[FAIL] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000001 exp=0x00000000"
+    ],
+    "tally": [
+      "milan_datapath: 234 checks, 2 failures"
+    ],
+    "seconds": 34.9,
+    "mutated_sha256": "ba1c8b6c375c38fa0d3902cd22fe9c11fe710c42bb834f87e24978298c164e55"
+  },
+  {
+    "probe": "P10_render_rebase_dropped_restart_intact",
+    "leg": "gmstep",
+    "expected": "fail: render: the GM change is one counted re-base event",
+    "verdict": "CAUGHT",
+    "as_expected": true,
+    "run_rc": 1,
+    "failed_checks": [
+      "[FAIL] render: the GM change is one counted re-base event got=0 exp=1"
+    ],
+    "tally": [
+      "== gmstep: checks: 64   failures: 1 =="
+    ],
+    "seconds": 62.3,
+    "mutated_sha256": "b04e8c0966d686b79bf7d774681468c9619ed2fba66306e7dc6e8d6c932e9d2d"
+  }
+]

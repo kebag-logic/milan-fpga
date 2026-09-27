@@ -1,0 +1,23 @@
+ACCEPTED  $CLONE/hdl/milan/milan_datapath.sv
+REJECTED  scratch/mut/P10_render_rebase_dropped_restart_intact/milan_datapath.sv
+          census media_rebase_p_w: 1 != 2
+REJECTED  scratch/mut/P1_restore_rebase_term_verbatim_base_expr/milan_datapath.sv
+          census media_rebase_p_w: 3 != 2
+          initializer RHS differs: (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | media_rebase_p_w
+REJECTED  scratch/mut/P2_restore_rebase_term_gated_by_crf_selection/milan_datapath.sv
+          census media_rebase_p_w: 3 != 2
+          initializer RHS differs: crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w | media_rebase_p_w)
+REJECTED  scratch/mut/P3_gm_identity_change_requests_restart/milan_datapath.sv
+          initializer RHS differs: crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) | gm_rst_probe_w
+REJECTED  scratch/mut/P4_phc_step_suppresses_genuine_restart/milan_datapath.sv
+          census media_rebase_p_w: 3 != 2
+          initializer RHS differs: crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w) & ~media_rebase_p_w
+REJECTED  scratch/mut/P5_settime_only_restored_graded_on_gmstep/milan_datapath.sv
+          initializer RHS differs: (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | cfg_ptp_cmd_load
+REJECTED  scratch/mut/P7_crf_disruption_term_removed/milan_datapath.sv
+          initializer RHS differs: crf_clk_selected_r & (crf_mr_toggle_p_w | 1'b0)
+REJECTED  scratch/mut/P8_crf_mr_echo_removed/milan_datapath.sv
+          initializer RHS differs: crf_clk_selected_r & (tkd_crflk_q_r & ~crf_locked_w)
+REJECTED  scratch/mut/P9_whole_base_datapath_under_head_tests/milan_datapath.sv
+          census media_rebase_p_w: 3 != 2
+          initializer RHS differs: (crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w)) | media_rebase_p_w
