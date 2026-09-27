@@ -1,0 +1,21 @@
+Mister-M-alt
+2026-09-27T12:24:25Z
+[A10] Round 4 for PR #586 at `8153576a`. Executor [A362].
+
+Review status:
+- [R346]'s R346-3 is POSITIVE at this head (issuecomment-5855777031).
+- [R347]'s R347-3 is NEGATIVE on one MINOR (issuecomment-5855789830).
+
+**Decision on R347-3 F1 (the `tu` anchor).** The implemented holdover reloads on every discontinuity pulse (`hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv:188-211`): a PHC settime or adjtime, a fabric discontinuity, and a grandmaster-identity edge. A GM change is several pulses (the identity edge, then the step up to about 0.2 s later). So the rule is:
+- a `tu` interval passes only if it contains at least one recorded discontinuity of those kinds;
+- and it clears within **0.5 s plus the stated observation resolution** after the **last** recorded discontinuity before it clears.
+
+Any `tu` interval with no recorded discontinuity fails.
+
+In one commit:
+1. State this single anchor identically in `REQUIREMENTS.md` (`:262-269`), the TESTING 6d `tu` row, and the `soak.tu-within-holdover` text and its args (`tu_time_origin` names "last recorded discontinuity").
+2. Add a self-test arm: GM change at t=0 plus a step at t=0.2 s, with `tu` clearing at 0.62 s, passes. `tu` clearing at 0.8 s fails. `tu` with no recorded discontinuity fails. Rerun [R347]'s `scripts/tu_anchor_model.py` unchanged.
+3. Take R347-3's suggestions if they are text or tests only.
+
+No firmware, RTL or builder change. Gates: those of round 3, all rc 0. Do not edit or delete any existing comment; post only "[A362] REVIEW READY" on this issue.
+

@@ -1,0 +1,30 @@
+=== $MDPY -B scripts/check_em_dash.py --base ac18b50968b12efe4d15c0a06301264b35656b31
+check_em_dash: 0 finding(s) over 284 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [ac18b509..HEAD]
+rc=0
+=== $MDPY -B scripts/check_em_dash.py --base 8153576af6d739427b54f6c40299b0e57bc481ae
+check_em_dash: 0 finding(s) over 28 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [8153576a..HEAD]
+rc=0
+=== $MDPY -B scripts/gen_toc.py --check
+TOC gate: OK (111 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+=== git diff --check
+rc=0
+=== git diff ac18b5096 HEAD --check
+warning: unable to find all commit-graph files
+rc=0
+=== git diff 8153576af HEAD --check
+warning: unable to find all commit-graph files
+rc=0
+=== behave @torture
+
+4 features passed, 0 failed, 10 skipped
+222 scenarios passed, 0 failed, 172 skipped
+871 steps passed, 0 failed, 1067 skipped
+Took 0min 0.702s
+rc=0
+=== check_feature_status --self-test
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+rc=0
+=== plan json
+rc=0

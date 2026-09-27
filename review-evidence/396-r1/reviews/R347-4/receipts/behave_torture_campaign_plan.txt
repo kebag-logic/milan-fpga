@@ -1,0 +1,41 @@
+  Scenario Outline: restoration eligibility honors the provisional release ceiling -- @1.3 
+    Given the campaign plan is importable ... passed in 0.000s
+    When an explicit release profile uses a restoration bound of 31 seconds ... passed in 0.000s
+    Then every release repeat is ineligible for release ... passed in 0.000s
+
+  Scenario: uncertainty intervals need a recorded event and the implemented bound
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then uncertainty is correlated and bounded by half a second plus observation resolution ... passed in 0.000s
+
+  Scenario: the last discontinuity anchors a chained uncertainty interval
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then a chained discontinuity clearing at 0.62 seconds is PASS ... passed in 0.000s
+    And a chained discontinuity clearing at 0.8 seconds is FAIL ... passed in 0.000s
+    And an uncertainty interval without a discontinuity fails ... passed in 0.000s
+
+  Scenario: a second successful boot cannot hide the first-boot restart
+    Given the campaign plan is importable ... passed in 0.000s
+    Then the first-boot restart control fails the release boot assertion ... passed in 0.000s
+
+  Scenario: areas can be selected, and an unknown area is refused
+    Given the campaign plan is importable ... passed in 0.000s
+    Then selecting the audio area yields only audio steps ... passed in 0.000s
+    And selecting an unknown area raises ... passed in 0.000s
+    And selecting nothing yields all configured areas ... passed in 0.001s
+
+  Scenario: the verdict record shape is stable and the exit codes are graded
+    Given the campaign plan is importable ... passed in 0.000s
+    Then a verdict record carries schema, step, assertion, verdict, severity and clause ... passed in 0.000s
+    And a SHALL failure exits 1 ... passed in 0.000s
+    And a RECOMMENDED failure exits 2 ... passed in 0.000s
+    And an outstanding human entry exits 2 ... passed in 0.000s
+    And a SKIP alone exits 0 ... passed in 0.000s
+    And the summary counts every verdict kind ... passed in 0.000s
+
+1 feature passed, 0 failed, 0 skipped
+77 scenarios passed, 0 failed, 0 skipped
+326 steps passed, 0 failed, 0 skipped
+Took 0min 0.412s
+rc=0
