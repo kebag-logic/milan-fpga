@@ -1,0 +1,25 @@
+head=10a5bf59a6a73e9b6487d9ea6f42669ce142ae25 tree=747d5ea4b35f449454034d190257b2a67c7a9ab4
+docs_check rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/docs_check.py
+docs_check_selftest rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/docs_check.py --selftest
+check_doc_paths rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/check_doc_paths.py
+gen_toc_check rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/gen_toc.py --check
+gen_toc_verify_anchors rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/gen_toc.py --verify-anchors
+em_dash_parent rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/check_em_dash.py --base a054172abc5c1b6bce5d4c3f06830b603f37b157
+em_dash_srcbase rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/check_em_dash.py --base ac18b50968b12efe4d15c0a06301264b35656b31
+em_dash_selftest rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/check_em_dash.py --selftest
+doc_style rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/check_doc_style.py
+py_idiom rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/check_py_idiom.py
+feature_status rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/check_feature_status.py
+feature_status_selftest rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/check_feature_status.py --self-test
+ci_events_check rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/ci_events.py --check
+ci_events_selftest rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B scripts/ci_events.py --selftest
+torture_selftest rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B tb/tools/torture_campaign.py --self-test
+torture_release_mutants rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B tb/tools/torture_release_mutants.py
+torture_plan_6d rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B tb/tools/torture_campaign.py --plan --areas soak,power --json --dut entity=0011223344556677,mac=001122334455,talkers=8,listeners=8,crf_out=8,crf_in=8 --peer entity=8899aabbccddeeff,mac=8899aabbccdd,talkers=8,listeners=8,crf_out=8,crf_in=8 --soak-duration-s 604800 --soak-interval-s 60 --power-cycles 200 --idle-cycles 160 --commit-cycles 40 --persisted-items stream_binding --restore-bound-s 30 --boot-margin-s 5 --power-off-hold-s 8
+torture_coverage_6d rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B tb/tools/torture_campaign.py --coverage-by-area --areas soak,power --dut entity=0011223344556677,mac=001122334455,talkers=8,listeners=8,crf_out=8,crf_in=8 --peer entity=8899aabbccddeeff,mac=8899aabbccdd,talkers=8,listeners=8,crf_out=8,crf_in=8
+torture_coverage_default rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B tb/tools/torture_campaign.py --coverage-by-area --areas soak,power
+behave_plan_feature rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B -m behave tests/features/torture_campaign_plan.feature -f plain
+behave_torture_tier rc=0 cmd=$REVIEWS/396-r346-4-packet/scratch/mdenv/bin/python -B -m behave tests/features --tags=@torture -f progress
+diff_check_parent rc=0 cmd=git diff --check a054172abc5c1b6bce5d4c3f06830b603f37b157 HEAD
+diff_check_srcbase rc=0 cmd=git diff --check ac18b50968b12efe4d15c0a06301264b35656b31 HEAD
+status_clean rc=0 cmd=git status --porcelain --untracked-files=all

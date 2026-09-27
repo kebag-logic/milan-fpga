@@ -1,0 +1,533 @@
+USING RUNNER: behave.runner:Runner
+Feature: The torture campaign's own coverage is auditable at a desk
+  Background: 
+
+  Scenario: the matrix walks every talker and listener index in both directions
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix area is planned ... passed in 0.001s
+    Then the plan covers every DUT talker index ... passed in 0.000s
+    And the plan covers every DUT listener index ... passed in 0.000s
+    And the plan covers every peer talker index ... passed in 0.000s
+    And the plan covers every peer listener index ... passed in 0.000s
+    And the plan contains outbound, return and loopback pair sets ... passed in 0.000s
+
+  Scenario: the index audit can say no
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix area is planned for a device with 1 talker and 1 listener ... passed in 0.000s
+    Then the plan covers only index 0 ... passed in 0.000s
+    And that is fewer indices than the real DUT shape ... passed in 0.000s
+
+  Scenario: the CRF media clock stream is part of the matrix, not an extra
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix area is planned ... passed in 0.000s
+    Then the CRF talker index is in the plan ... passed in 0.000s
+    And the CRF listener index is in the plan ... passed in 0.000s
+    And the CRF pair steps are marked as the media clock pair ... passed in 0.000s
+
+  Scenario: every bind step owes the whole bound-and-streaming assertion set
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix and churn areas are planned ... passed in 0.001s
+    Then every connect step carries the full bound-streaming assertion set ... passed in 0.000s
+    And that includes the rebind steps ... passed in 0.000s
+    And no bind step grades whether frames are advancing ... passed in 0.000s
+
+  Scenario: the licence is measured BEFORE any START_STREAMING is sent
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix and churn areas are planned ... passed in 0.001s
+    Then every bind is followed by a measure-before-start step ... passed in 0.000s
+    And that step asserts the stream starts on the bind alone ... passed in 0.000s
+    And that step measures before it sends anything ... passed in 0.000s
+    And that step asks the SRP licence before it grades any silence ... passed in 0.000s
+
+  Scenario: the licence-owning step measures every participant, not only the DUT
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix area is planned ... passed in 0.000s
+    Then every bind is followed by a measure-before-start step ... passed in 0.000s
+    And the licence-owning step carries the cross-participant invariants ... passed in 0.000s
+
+  Scenario: every unbind VERIFIES the stop, so the next pair can still be measured
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix and churn areas are planned ... passed in 0.001s
+    Then every unbind verifies the stop took effect ... passed in 0.000s
+
+  Scenario: the growth assertions can actually fail
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then the whole campaign has no assertion that can only be INFO at SHALL severity ... passed in 0.000s
+
+  Scenario: coverage is audited PER AREA, because the whole-plan audit is blind
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then coverage is audited per area ... passed in 0.003s
+    And the per-area audit can say no about one area while another is complete ... passed in 0.001s
+
+  Scenario: the topology is configuration, not a source edit
+    Given the campaign plan is importable ... passed in 0.000s
+    When the matrix area is planned ... passed in 0.001s
+    Then the topology is configuration and a typo is refused ... passed in 0.001s
+
+  Scenario: every assertion in the whole campaign names a clause and a severity
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then every assertion carries a non-empty clause ... passed in 0.000s
+    And every assertion severity is SHALL or RECOMMENDED or INFO ... passed in 0.000s
+
+  Scenario: every step id in the campaign is unique, so two mornings can be diffed
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then no two steps share an id ... passed in 0.001s
+    And every step serialises to JSON with its clauses attached ... passed in 0.009s
+
+  Scenario: the churn area reaches the implicit rebind a bind/unbind loop cannot
+    Given the campaign plan is importable ... passed in 0.000s
+    When the churn area is planned ... passed in 0.000s
+    Then there is a rebind step that does not unbind first ... passed in 0.000s
+    And each rebind moves to a DIFFERENT talker index than its first bind ... passed in 0.000s
+    And the rebind step asserts the counter reset on not-bound to bound ... passed in 0.000s
+
+  Scenario: the churn area binds a second listener while the first is streaming
+    Given the campaign plan is importable ... passed in 0.000s
+    When the churn area is planned ... passed in 0.000s
+    Then there is a bind-while-streaming step ... passed in 0.000s
+
+  Scenario: the rebind storm is auditable by an invariant, not by guessing the winner
+    Given the campaign plan is importable ... passed in 0.000s
+    When the churn area is planned ... passed in 0.000s
+    Then there is a rebind storm step with at least 20 iterations ... passed in 0.000s
+    And the rebind storm asserts the lock invariant and ADP liveness ... passed in 0.000s
+
+  Scenario: storm entries are RECOMMENDED, and control responsiveness is INFO
+    Given the campaign plan is importable ... passed in 0.000s
+    When the torture area is planned ... passed in 0.000s
+    Then every storm step marks stream continuity as RECOMMENDED ... passed in 0.000s
+    And every storm step marks control responsiveness as INFO ... passed in 0.000s
+    And the storm steps cover non-priority broadcast, unicast to our own MAC, AVDECC and AVB management ... passed in 0.000s
+
+  Scenario: malformed-frame entries do NOT cite the adverse-conditions document
+    Given the campaign plan is importable ... passed in 0.000s
+    When the torture area is planned ... passed in 0.000s
+    Then no malformed-frame step cites the adverse-conditions recommendation ... passed in 0.000s
+    And every malformed-frame step cites IEEE 1722.1 or IEEE 1722 ... passed in 0.000s
+    And every malformed-frame step asserts the entity does not wedge ... passed in 0.000s
+
+  Scenario: no clause in the campaign carries a draft version number
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then no clause in the campaign carries a draft version number ... passed in 0.010s
+
+  Scenario: the malformed matrix fuzzes the length fields in both directions
+    Given the campaign plan is importable ... passed in 0.000s
+    When the torture area is planned ... passed in 0.000s
+    Then the malformed matrix includes an overstated control_data_length ... passed in 0.000s
+    And the malformed matrix includes an understated control_data_length ... passed in 0.000s
+    And the malformed matrix includes a truncated AECP payload ... passed in 0.000s
+    And the malformed matrix includes an AAF stream_data_length that overstates the payload ... passed in 0.000s
+
+  Scenario: the MAAP conflict entry asserts the withdraw-wait-reallocate sequence
+    Given the campaign plan is importable ... passed in 0.000s
+    When the torture area is planned ... passed in 0.000s
+    Then the MAAP conflict step asserts a withdraw and reallocate ... passed in 0.000s
+    And the MAAP conflict clause mentions the LeaveAll wait ... passed in 0.000s
+
+  Scenario: VLAN misconfiguration covers the wrong SR VID and VID zero separately
+    Given the campaign plan is importable ... passed in 0.000s
+    When the torture area is planned ... passed in 0.000s
+    Then there is a wrong-SR-VID step ... passed in 0.000s
+    And there is a VID-zero step ... passed in 0.000s
+    And the VID-zero step asserts no untagged stream frames ... passed in 0.000s
+
+  Scenario: starvation asserts silence-with-frames, and stream loss asserts the interrupt counter
+    Given the campaign plan is importable ... passed in 0.000s
+    When the torture area is planned ... passed in 0.000s
+    Then the source-starvation step asserts the talker keeps framing ... passed in 0.000s
+    And the stream-stop step asserts STREAM_INTERRUPTED advances ... passed in 0.000s
+
+  Scenario: entries a human must perform are printed as a checklist, never skipped
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then at least 3 steps need a human ... passed in 0.000s
+    And the checklist names every human step with its action and its clause ... passed in 0.000s
+    And an empty plan produces a checklist that says so ... passed in 0.000s
+
+  Scenario: the physical conditions are still covered - by strip or by hand
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then the human entries include a cable pull ... passed in 0.000s
+    And the human entries include a grandmaster change ... passed in 0.000s
+    And the human entries include a grandmaster loss ... passed in 0.000s
+    And the human entries include a power cycle ... passed in 0.000s
+    And the power-cycle step asserts the non-volatile state is restored ... passed in 0.000s
+
+  Scenario: the physical family is powerstrip-automatable, serialized, and runs last
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then the physical area is the last thing the campaign runs ... passed in 0.000s
+    And every physical cycle step is still a human entry in the plan ... passed in 0.000s
+    And the physical cycle steps name the outlet role they need ... passed in 0.000s
+    And the physical recovery budgets respect the bench floors ... passed in 0.000s
+    And the partition window is asserted as the condition, not a failure ... passed in 0.000s
+    And each physical family ends with a full proof pair at a non-zero index ... passed in 0.000s
+
+  Scenario Outline: release areas observe every index and bind both directions -- @1.1 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then the plan covers every DUT talker index ... passed in 0.000s
+    And the plan covers every DUT listener index ... passed in 0.000s
+    And the plan covers every peer talker index ... passed in 0.000s
+    And the plan covers every peer listener index ... passed in 0.000s
+    And every release repeat observes every index including each CRF sink ... passed in 0.000s
+    And every release repeat binds compatible AAF and CRF in both directions ... passed in 0.000s
+
+  Scenario Outline: release areas observe every index and bind both directions -- @1.2 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the power release area is planned ... passed in 0.000s
+    Then the plan covers every DUT talker index ... passed in 0.000s
+    And the plan covers every DUT listener index ... passed in 0.000s
+    And the plan covers every peer talker index ... passed in 0.000s
+    And the plan covers every peer listener index ... passed in 0.000s
+    And every release repeat observes every index including each CRF sink ... passed in 0.000s
+    And every release repeat binds compatible AAF and CRF in both directions ... passed in 0.000s
+
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.1 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release plan loses its index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.2 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release plan loses its direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.3 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release plan loses its CRF sink ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.4 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the power release plan loses its index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.5 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the power release plan loses its direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.6 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the power release plan loses its CRF sink ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario: release defaults encode the decided soak and cold-cut mix
+    Given the campaign plan is importable ... passed in 0.000s
+    When the whole campaign is planned ... passed in 0.001s
+    Then the soak lasts seven days with periodic and endpoint observations ... passed in 0.000s
+    And power repeats 160 idle and 40 journal-commit cold cuts ... passed in 0.000s
+    And release assertions require complete measured evidence ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.1 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat soak.continuous loses DUT talker index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.2 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat soak.continuous loses DUT listener index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.3 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat soak.continuous loses DUT CRF sink ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.4 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat soak.continuous loses DUT AAF direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.5 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat soak.continuous loses DUT CRF direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.6 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat soak.continuous loses peer talker index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.7 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat soak.continuous loses peer listener index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.8 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat soak.continuous loses peer CRF sink ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.9 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat soak.continuous loses peer AAF direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.10 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat soak.continuous loses peer CRF direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.11 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.idle loses DUT talker index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.12 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.idle loses DUT listener index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.13 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.idle loses DUT CRF sink ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.14 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.idle loses DUT AAF direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.15 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.idle loses DUT CRF direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.16 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.idle loses peer talker index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.17 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.idle loses peer listener index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.18 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.idle loses peer CRF sink ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.19 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.idle loses peer AAF direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.20 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.idle loses peer CRF direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.21 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.journal_commit loses DUT talker index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.22 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.journal_commit loses DUT listener index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.23 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.journal_commit loses DUT CRF sink ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.24 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.journal_commit loses DUT AAF direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.25 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.journal_commit loses DUT CRF direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.26 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.journal_commit loses peer talker index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.27 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.journal_commit loses peer listener index ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.28 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.journal_commit loses peer CRF sink ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.29 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.journal_commit loses peer AAF direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario Outline: each repeat detects omissions on both sides -- @1.30 
+    Given the campaign plan is importable ... passed in 0.000s
+    When release repeat power.journal_commit loses peer CRF direction ... passed in 0.001s
+    Then that release area fails its own audit ... passed in 0.000s
+    And the complete matrix still passes its audit ... passed in 0.000s
+
+  Scenario: release timing and totals are parameterized
+    Given the campaign plan is importable ... passed in 0.000s
+    When a diagnostic release profile uses non-default timing and counts ... passed in 0.000s
+    Then every release repeat preserves those parameters and its timing origins ... passed in 0.000s
+
+  Scenario Outline: partial CLI topology never qualifies the release profile -- @1.1 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the release CLI omits only CRF keys from the DUT topology ... passed in 0.101s
+    Then every release repeat reports diagnostic topology ... passed in 0.000s
+
+  Scenario Outline: partial CLI topology never qualifies the release profile -- @1.2 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the release CLI omits only listener from the DUT topology ... passed in 0.082s
+    Then every release repeat reports diagnostic topology ... passed in 0.000s
+
+  Scenario Outline: partial CLI topology never qualifies the release profile -- @1.3 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the release CLI omits only CRF keys from the peer topology ... passed in 0.078s
+    Then every release repeat reports diagnostic topology ... passed in 0.000s
+
+  Scenario Outline: partial CLI topology never qualifies the release profile -- @1.4 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the release CLI omits only listener from the peer topology ... passed in 0.080s
+    Then every release repeat reports diagnostic topology ... passed in 0.000s
+
+  Scenario Outline: restoration eligibility honors the provisional release ceiling -- @1.1 
+    Given the campaign plan is importable ... passed in 0.000s
+    When an explicit release profile uses a restoration bound of 29 seconds ... passed in 0.000s
+    Then every release repeat is eligible for release ... passed in 0.000s
+
+  Scenario Outline: restoration eligibility honors the provisional release ceiling -- @1.2 
+    Given the campaign plan is importable ... passed in 0.000s
+    When an explicit release profile uses a restoration bound of 30 seconds ... passed in 0.000s
+    Then every release repeat is eligible for release ... passed in 0.000s
+
+  Scenario Outline: restoration eligibility honors the provisional release ceiling -- @1.3 
+    Given the campaign plan is importable ... passed in 0.000s
+    When an explicit release profile uses a restoration bound of 31 seconds ... passed in 0.000s
+    Then every release repeat is ineligible for release ... passed in 0.000s
+
+  Scenario: uncertainty intervals need a recorded event and the implemented bound
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then uncertainty is correlated and bounded by half a second plus observation resolution ... passed in 0.000s
+
+  Scenario: the last discontinuity anchors a chained uncertainty interval
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then a chained discontinuity clearing at 0.62 seconds is PASS ... passed in 0.000s
+    And a chained discontinuity clearing at 0.8 seconds is FAIL ... passed in 0.000s
+    And an uncertainty interval without a discontinuity fails ... passed in 0.000s
+
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.1 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then a lone discontinuity at -0.0005 seconds with 0.001 second resolution is PASS ... passed in 0.000s
+
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.2 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then a lone discontinuity at -0.002 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.3 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then a lone discontinuity at 0 seconds with 0.001 second resolution is PASS ... passed in 0.000s
+
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.4 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then a lone discontinuity at 0 seconds with 0 second resolution is PASS ... passed in 0.000s
+
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.5 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then a lone discontinuity at -0.1 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.6 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then a lone discontinuity at -0.001 seconds with 0.001 second resolution is PASS ... passed in 0.000s
+
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.7 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then a lone discontinuity at -0.001001 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.8 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then a lone discontinuity at 0.4 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.9 
+    Given the campaign plan is importable ... passed in 0.000s
+    When the soak release area is planned ... passed in 0.000s
+    Then a lone discontinuity at 0.401 seconds with 0.001 second resolution is FAIL ... passed in 0.000s
+
+  Scenario: a second successful boot cannot hide the first-boot restart
+    Given the campaign plan is importable ... passed in 0.000s
+    Then the first-boot restart control fails the release boot assertion ... passed in 0.000s
+
+  Scenario: areas can be selected, and an unknown area is refused
+    Given the campaign plan is importable ... passed in 0.000s
+    Then selecting the audio area yields only audio steps ... passed in 0.000s
+    And selecting an unknown area raises ... passed in 0.000s
+    And selecting nothing yields all configured areas ... passed in 0.001s
+
+  Scenario: the verdict record shape is stable and the exit codes are graded
+    Given the campaign plan is importable ... passed in 0.000s
+    Then a verdict record carries schema, step, assertion, verdict, severity and clause ... passed in 0.000s
+    And a SHALL failure exits 1 ... passed in 0.000s
+    And a RECOMMENDED failure exits 2 ... passed in 0.000s
+    And an outstanding human entry exits 2 ... passed in 0.000s
+    And a SKIP alone exits 0 ... passed in 0.000s
+    And the summary counts every verdict kind ... passed in 0.000s
+
+1 feature passed, 0 failed, 0 skipped
+86 scenarios passed, 0 failed, 0 skipped
+353 steps passed, 0 failed, 0 skipped
+Took 0min 0.433s

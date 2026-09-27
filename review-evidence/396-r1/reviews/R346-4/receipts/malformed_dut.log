@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "$REVIEWS/r346-4-396/tb/tools/torture_campaign.py", line 5644, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/r346-4-396/tb/tools/torture_campaign.py", line 5600, in main
+    dut = parse_device_spec(a.dut, ARTY) if a.dut else ARTY
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/r346-4-396/tb/tools/torture_campaign.py", line 1980, in parse_device_spec
+    raise ValueError(f"device spec field {part!r} is not key=value")
+ValueError: device spec field 'entity' is not key=value

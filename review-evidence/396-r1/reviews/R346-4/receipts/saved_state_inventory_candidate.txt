@@ -1,0 +1,18 @@
+docs/design/SAVED_STATE_FASTCONNECT.md:1376:Neither group has a record writer yet.
+docs/design/SAVED_STATE_FASTCONNECT.md:1393:- **Only binding records reach the store.** Other groups need materialization.
+docs/design/SAVED_STATE_FASTCONNECT.md:1394:  Their record writer remains proposed in
+docs/design/SAVED_STATE_FASTCONNECT.md:1396:  Until adoption, accepted images contain bindings and erased spans.
+docs/design/SAVED_STATE_MATERIALIZATION.md:127:The seven other Milan items have no record writer. The
+docs/design/SAVED_STATE_MATERIALIZATION.md:240:Neither group gains a record writer in this correction.
+docs/design/SAVED_STATE_MATERIALIZATION.md:259:**One processor-side record writer materializes every non-binding group.
+docs/design/SAVED_STATE_MATERIALIZATION.md:1710:Stage 2 transfers name reporting to its record writer.
+docs/design/SAVED_STATE_MATERIALIZATION.md:2102:   Pending stays sticky until reset; neither group gains materialization.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:36:> than a defect of this contract, is MATERIALIZATION: no record writer exists
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:179:- **[11. Persistent-field materialization](#11-persistent-field-materialization)** -- Which field groups have a record writer.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:203:  the dynamic-state fields it reports have no record writer at all.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:992:Names, maps and dynamic fields still lack record writers.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1262:| Ids | Group | Live value held by | Change indication reaching the parent | Record writer | What this contract publishes |
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1269:| 0x20 to 0x2F | binding, parameters and started state | KL_acmp_nvm_shadow | the manager's per-sink dirty on nvm_unflushed_o (donor scope D1, landed
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1286:PROPOSED): one processor-side record writer behind the same port, so this
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1405:only an interface: a record writer must exist for every NONE row of section
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1750:   channel maps or names at the current source; only bindings have a writer.

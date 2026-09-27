@@ -1,0 +1,87 @@
+5:+  The cut mix is 160 idle and 40 journal-commit cuts.
+10:+  Keep timestamped state snapshots and the temperature log too.
+44:+  Of these, 160 occur idle; 40 interrupt journal commits.
+46:+  Every cycle restores the shipping image's persisted state items.
+53:+  Any additional declared state follows the project persistence inventory.
+54:+  Commit cuts recover complete old or new committed snapshots.
+69:+  Each persisted binding must resume valid AVTP within `restore_bound_s`.
+100:+Complete 200 unattended cold cuts: 160 idle, 40 journal-commit.
+111:+  --persisted-items stream_binding --restore-bound-s 30 --boot-margin-s 5 \
+125:+Set `--persisted-items` from the shipping image's persistence inventory.
+162:+Teardown follows the final snapshot.
+222:+`release_power_cycles` emits separate idle and journal-commit repeat groups.
+223:+Each cycle establishes bindings and snapshots committed state first.
+237:+Compare every configured persisted item before and after each cut.
+238:+Idle cuts require the exact pre-cut committed snapshot.
+239:+Commit cuts permit complete old or new committed snapshots.
+245:+| Each persisted binding's first valid AVTP, both directions/CRF | T0 through `restore_bound_s`, inclusive; provisional default 30 seconds |
+292:+`SKIP`, `INFO`, `KNOWN-PENDING`, and `INSTRUMENT-SUSPECT` do not qualify.
+298:+- serialized plan, topology, persistence inventory, and verdict JSONL;
+299:+- timestamped snapshots, controller exchanges, and power-cut phase evidence;
+308:+Disabled persistence must instead fail `power.state-restored`.
+330:+    persisted_items: tuple[str, ...] = ("stream_binding",)
+352:+        items = self.persisted_items
+357:+            raise ValueError("persisted items must be nonempty, unique names")
+364:+    "KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release")
+409:+               ": 200 confirmed cold cuts, 160 idle and 40 inside a journal "
+410:+               "commit window; resets never count; preserve cut timestamps "
+416:+               "compare each persisted item against the pre-cut snapshot; "
+418:+               "snapshot, never mixed state; missing readback cannot pass"),
+429:+               "PDU of EACH persisted binding in both directions, including "
+445:+               "REQ-VER-06: snapshot every declared stream index, both "
+495:+                         "timestamped_snapshots", "temperature_log"],
+502:+            and "stream_binding" in settings.persisted_items
+589:+                      "streams owe traffic. Teardown after the final snapshot.")]
+597:+                         ("journal_commit", settings.commit_cycles)):
+613:+                    restore_end="first valid AVTP PDU of each persisted binding",
+619:+                    persisted_items=list(settings.persisted_items),
+623:+                    cut_requires=("journal_commit_window" if phase == "journal_commit"
+624:+                                  else "journal_idle"),
+637:+                    rebind_requires="automatic restoration passed for every persisted binding",
+638:+                    snapshot_policy=("complete old or new committed snapshot"
+639:+                                     if phase == "journal_commit"
+640:+                                     else "exact pre-cut committed snapshot"))
+648:+            note="Each cycle: establish pairs and saved state, snapshot, prove "
+652:+                 "Missing journal instrumentation leaves qualification open."))
+717:+                "idle", "journal_commit"}:
+718:+            missing["phases"] = "idle and journal_commit are both required"
+733:+                         ["idle", "journal_commit"])
+740:+            self.assertEqual(step.args["persisted_items"], ["stream_binding"])
+748:+        self.assertEqual(commit.args["cut_requires"], "journal_commit_window")
+832:+                        {"persisted_items": ()}, {"persisted_items": ("",)},
+833:+                        {"persisted_items": ("binding", "binding")}):
+844:+        self.assertEqual(commit.args["persisted_items"],
+862:+                "--persisted-items", "stream_binding,clock_source",
+878:+        self.assertEqual(commit["args"]["persisted_items"],
+900:+    def test_release_timing_and_snapshot_contract(self) -> None:
+904:+        self.assertEqual(idle.args["snapshot_policy"], "exact pre-cut committed snapshot")
+905:+        self.assertEqual(commit.args["snapshot_policy"], "complete old or new committed snapshot")
+906:+        self.assertEqual(idle.args["cut_requires"], "journal_idle")
+920:+            self.assertEqual(args["restore_end"], "first valid AVTP PDU of each persisted binding")
+941:+                             "automatic restoration passed for every persisted binding")
+954:+                 ({"persisted_items": ("clock_source",)}, (False, False)),
+1162:+    ap.add_argument("--persisted-items", default=",".join(ReleaseSettings.persisted_items),
+1163:+                    help="comma-separated items persisted by the shipping image")
+1173:+                                  tuple(a.persisted_items.split(",")))
+1211:+     "test_release_timing_and_snapshot_contract"),
+1218:+     "test_release_timing_and_snapshot_contract"),
+1221:+     'adp_missing_or_expired="skip",', "test_release_timing_and_snapshot_contract"),
+1350:+    And power repeats 160 idle and 40 journal-commit cold cuts
+1381:+      | power.journal_commit | DUT  | talker index   |
+1382:+      | power.journal_commit | DUT  | listener index |
+1383:+      | power.journal_commit | DUT  | CRF sink       |
+1384:+      | power.journal_commit | DUT  | AAF direction  |
+1385:+      | power.journal_commit | DUT  | CRF direction  |
+1386:+      | power.journal_commit | peer | talker index   |
+1387:+      | power.journal_commit | peer | listener index |
+1388:+      | power.journal_commit | peer | CRF sink       |
+1389:+      | power.journal_commit | peer | AAF direction  |
+1390:+      | power.journal_commit | peer | CRF direction  |
+1575:+@then("power repeats 160 idle and 40 journal-commit cold cuts")
+1580:+        ("idle", 160), ("journal_commit", 40)]
+1584:+        assert step.args["persisted_items"] == ["stream_binding"]
+1590:+        assert step.args["restore_end"] == "first valid AVTP PDU of each persisted binding"
+1592:+    assert steps[0].args["snapshot_policy"] == "exact pre-cut committed snapshot"
+1593:+    assert steps[1].args["snapshot_policy"] == "complete old or new committed snapshot"
+1594:+    assert steps[1].args["cut_requires"] == "journal_commit_window"
+1662:+        assert args["rebind_requires"] == "automatic restoration passed for every persisted binding"
