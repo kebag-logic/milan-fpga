@@ -1,0 +1,454 @@
+[endstation_builder] endstation_arty_4x4: 4x4 AAF + CRF, tdm8, 32 clusters (cap-at-interface), model_id 0x001BC557FC6ABBC8 (hash); 4 planned element(s); resources OVER (worst LUT 84.9%)
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_4x4/builder/endstation_arty_4x4/soc_params.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_4x4/builder/endstation_arty_4x4/aem_overlay.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_4x4/builder/endstation_arty_4x4/build_plan.md
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_4x4/builder/endstation_arty_4x4/lwsrp_table.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_4x4/builder/endstation_arty_4x4/lwsrp_table.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_4x4/builder/endstation_arty_4x4/lwsrp_csr_defaults.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_4x4/builder/endstation_arty_4x4/adp_shape_defaults.svh
+  wrote configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_4x4/builder/endstation_arty_4x4/platform_shape.json
+  wrote configs/generated/sweep_opts_arty.sh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_4x4/builder/endstation_arty_4x4/gptp_ucode.hex
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_4x4/builder/endstation_arty_4x4/aecp_aem_rom.svh
+[gen_aemi_image] $VALIDATION_STORAGE/580-a366/old/endstation_arty_4x4/builder/endstation_arty_4x4/aem_overlay.json: 64 descriptors -> $VALIDATION_STORAGE/580-a366/old/endstation_arty_4x4/aem.bin, 10112 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 16  names 51
+index_off 0x000020  names_off 0x001AC0  image_bytes 10112  desc_max_len 452
+checksum 0xBCE57022
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000120          0
+    0  0x0001      0      1       106     112  0x000258          2
+    0  0x0002      0      1       148     152  0x0002C8          3
+    0  0x0005      0      4       154     160  0x000360          4
+    0  0x0005      4      1       146     152  0x0005E0          8
+    0  0x0006      0      5       146     152  0x000678          9
+    0  0x0009      0      1       102     104  0x000970         14
+    0  0x000A      0      2        86      88  0x0009D8         15
+    0  0x000C      0      1        72      72  0x000A88          -
+    0  0x000D      0      1       452     456  0x000AD0          -
+    0  0x000E      0      4        20      24  0x000C98          -
+    0  0x000F      0      4        20      24  0x000CF8          -
+    0  0x0014      0     32        90      96  0x000D58         17
+    0  0x0017      0      4        40      40  0x001958          -
+    0  0x001A      0      1       113     120  0x0019F8         49
+    0  0x0024      0      1        80      80  0x001A70         50
+[endstation_builder] endstation_arty_8ch: 4x4 AAF + CRF, tdm8, 64 clusters (cap-at-interface), model_id 0x001BC507C86F4172 (hash); 4 planned element(s); resources OVER (worst LUT 84.9%)
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_8ch/builder/endstation_arty_8ch/soc_params.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_8ch/builder/endstation_arty_8ch/aem_overlay.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_8ch/builder/endstation_arty_8ch/build_plan.md
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_8ch/builder/endstation_arty_8ch/lwsrp_table.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_8ch/builder/endstation_arty_8ch/lwsrp_table.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_8ch/builder/endstation_arty_8ch/lwsrp_csr_defaults.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_8ch/builder/endstation_arty_8ch/adp_shape_defaults.svh
+  wrote configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_8ch/builder/endstation_arty_8ch/platform_shape.json
+  wrote configs/generated/sweep_opts_arty.sh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_8ch/builder/endstation_arty_8ch/gptp_ucode.hex
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_8ch/builder/endstation_arty_8ch/aecp_aem_rom.svh
+[gen_aemi_image] $VALIDATION_STORAGE/580-a366/old/endstation_arty_8ch/builder/endstation_arty_8ch/aem_overlay.json: 96 descriptors -> $VALIDATION_STORAGE/580-a366/old/endstation_arty_8ch/aem.bin, 15360 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 16  names 83
+index_off 0x000020  names_off 0x002740  image_bytes 15360  desc_max_len 452
+checksum 0xBCE54F02
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000120          0
+    0  0x0001      0      1       106     112  0x000258          2
+    0  0x0002      0      1       148     152  0x0002C8          3
+    0  0x0005      0      4       154     160  0x000360          4
+    0  0x0005      4      1       146     152  0x0005E0          8
+    0  0x0006      0      5       146     152  0x000678          9
+    0  0x0009      0      1       102     104  0x000970         14
+    0  0x000A      0      2        86      88  0x0009D8         15
+    0  0x000C      0      1        72      72  0x000A88          -
+    0  0x000D      0      1       452     456  0x000AD0          -
+    0  0x000E      0      4        20      24  0x000C98          -
+    0  0x000F      0      4        20      24  0x000CF8          -
+    0  0x0014      0     64        90      96  0x000D58         17
+    0  0x0017      0      4        72      72  0x002558          -
+    0  0x001A      0      1       113     120  0x002678         81
+    0  0x0024      0      1        80      80  0x0026F0         82
+[endstation_builder] endstation_arty_current: 1x1 AAF + CRF, i2s_philips, 16 clusters (cluster-per-stream-channel), model_id 0x001BC50AC1000005 (pin); 3 planned element(s); resources OVER (worst LUT 81.7%)
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_current/builder/endstation_arty_current/soc_params.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_current/builder/endstation_arty_current/aem_overlay.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_current/builder/endstation_arty_current/build_plan.md
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_current/builder/endstation_arty_current/lwsrp_table.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_current/builder/endstation_arty_current/lwsrp_table.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_current/builder/endstation_arty_current/lwsrp_csr_defaults.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_current/builder/endstation_arty_current/adp_shape_defaults.svh
+  wrote configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_current/builder/endstation_arty_current/platform_shape.json
+  wrote configs/generated/sweep_opts_arty.sh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_current/builder/endstation_arty_current/gptp_ucode.hex
+  wrote hdl/common/csr/gen/lwsrp_csr_defaults.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_arty_current/builder/endstation_arty_current/aecp_aem_rom.svh
+[gen_aemi_image] $VALIDATION_STORAGE/580-a366/old/endstation_arty_current/builder/endstation_arty_current/aem_overlay.json: 32 descriptors -> $VALIDATION_STORAGE/580-a366/old/endstation_arty_current/aem.bin, 5792 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 16  names 28
+index_off 0x000020  names_off 0x000FA0  image_bytes 5792  desc_max_len 452
+checksum 0xBCE58C39
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000120          0
+    0  0x0001      0      1       106     112  0x000258          2
+    0  0x0002      0      1       156     160  0x0002C8          3
+    0  0x0005      0      1       154     160  0x000368          4
+    0  0x0005      1      1       146     152  0x000408          5
+    0  0x0006      0      1       146     152  0x0004A0          6
+    0  0x0009      0      1       102     104  0x000538          7
+    0  0x000A      0      2        86      88  0x0005A0          8
+    0  0x000C      0      1        72      72  0x000650          -
+    0  0x000D      0      1       452     456  0x000698          -
+    0  0x000E      0      1        20      24  0x000860          -
+    0  0x000F      0      1        20      24  0x000878          -
+    0  0x0014      0     16        90      96  0x000890         10
+    0  0x0017      0      1        72      72  0x000E90          -
+    0  0x001A      0      1       113     120  0x000ED8         26
+    0  0x0024      0      1        80      80  0x000F50         27
+[endstation_builder] endstation_ax7101_1x1_tdm8: 1x1 AAF + CRF, tdm8, 25 clusters (role-pools), model_id 0x001BC5C40236BA0E (hash); 3 planned element(s); resources TIGHT (worst LUT 79.4%)
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_1x1_tdm8/builder/endstation_ax7101_1x1_tdm8/soc_params.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_1x1_tdm8/builder/endstation_ax7101_1x1_tdm8/aem_overlay.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_1x1_tdm8/builder/endstation_ax7101_1x1_tdm8/build_plan.md
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_1x1_tdm8/builder/endstation_ax7101_1x1_tdm8/lwsrp_table.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_1x1_tdm8/builder/endstation_ax7101_1x1_tdm8/lwsrp_table.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_1x1_tdm8/builder/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_1x1_tdm8/builder/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+  wrote configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_1x1_tdm8/builder/endstation_ax7101_1x1_tdm8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_1x1_tdm8/builder/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_1x1_tdm8/builder/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh
+[gen_aemi_image] $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_1x1_tdm8/builder/endstation_ax7101_1x1_tdm8/aem_overlay.json: 41 descriptors -> $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_1x1_tdm8/aem.bin, 7352 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 38
+index_off 0x000020  names_off 0x001338  image_bytes 7352  desc_max_len 452
+checksum 0xBCE6827F
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      1       154     160  0x000350          4
+    0  0x0005      1      1       146     152  0x0003F0          5
+    0  0x0006      0      2       146     152  0x000488          6
+    0  0x0009      0      1       102     104  0x0005B8          8
+    0  0x000A      0      2        86      88  0x000620          9
+    0  0x000C      0      1        72      72  0x0006D0          -
+    0  0x000D      0      1       452     456  0x000718          -
+    0  0x000E      0      1        20      24  0x0008E0          -
+    0  0x000F      0      1        20      24  0x0008F8          -
+    0  0x0014      0     25        90      96  0x000910         11
+    0  0x001A      0      1       113     120  0x001270         36
+    0  0x0024      0      1        80      80  0x0012E8         37
+[endstation_builder] endstation_ax7101_8x8: 8x8 AAF + CRF, tdm32, 72 clusters (role-pools), model_id 0x001BC572F79BC5D1 (hash); 5 planned element(s); resources OVER (worst LUT 85.4%)
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_8x8/builder/endstation_ax7101_8x8/soc_params.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_8x8/builder/endstation_ax7101_8x8/aem_overlay.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_8x8/builder/endstation_ax7101_8x8/build_plan.md
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_8x8/builder/endstation_ax7101_8x8/lwsrp_table.json
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_8x8/builder/endstation_ax7101_8x8/lwsrp_table.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_8x8/builder/endstation_ax7101_8x8/lwsrp_csr_defaults.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_8x8/builder/endstation_ax7101_8x8/adp_shape_defaults.svh
+  wrote configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_8x8/builder/endstation_ax7101_8x8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_8x8/builder/endstation_ax7101_8x8/gptp_ucode.hex
+  wrote $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_8x8/builder/endstation_ax7101_8x8/aecp_aem_rom.svh
+[gen_aemi_image] $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_8x8/builder/endstation_ax7101_8x8/aem_overlay.json: 116 descriptors -> $VALIDATION_STORAGE/580-a366/old/endstation_ax7101_8x8/aem.bin, 18288 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 99
+index_off 0x000020  names_off 0x002EB0  image_bytes 18288  desc_max_len 452
+checksum 0xBCE63C12
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      8       154     160  0x000350          4
+    0  0x0005      8      1       146     152  0x000850         12
+    0  0x0006      0      9       146     152  0x0008E8         13
+    0  0x0009      0      1       102     104  0x000E40         22
+    0  0x000A      0      2        86      88  0x000EA8         23
+    0  0x000C      0      1        72      72  0x000F58          -
+    0  0x000D      0      1       452     456  0x000FA0          -
+    0  0x000E      0      8        20      24  0x001168          -
+    0  0x000F      0      8        20      24  0x001228          -
+    0  0x0014      0     72        90      96  0x0012E8         25
+    0  0x001A      0      1       113     120  0x002DE8         97
+    0  0x0024      0      1        80      80  0x002E60         98
+{
+  "pin": "870ff88ad35bbd532244e4c7e6d7661b9f6e1366",
+  "configs": {
+    "endstation_arty_4x4": {
+      "aem.bin": {
+        "bytes": 10112,
+        "sha256": "1b288e13ccbf03410c593a53bc22f4a68e3d289eef8a7f907e63bc98a51415ff"
+      },
+      "aem.json": {
+        "bytes": 20716,
+        "sha256": "0ea2e47927e0a0eff12d781d979a255c39a935b7f06e07366d9ab3ff368d4e3e"
+      },
+      "aem.map": {
+        "bytes": 1311,
+        "sha256": "09cf3da5a39730c1acedae4f09474c2d98d1aa17d8fa36f0238adc210fdaa571"
+      },
+      "builder/endstation_arty_4x4/adp_shape_defaults.svh": {
+        "bytes": 7562,
+        "sha256": "f5539f2c29b0ab0440be88f5985ba41bebb508bede7095e5387a03721e50a418"
+      },
+      "builder/endstation_arty_4x4/aecp_aem_rom.svh": {
+        "bytes": 52444,
+        "sha256": "1cd6c92190c1b4f8c14783423a1618328e2fbefe286ab78edb00f96adb45f59d"
+      },
+      "builder/endstation_arty_4x4/aem_overlay.json": {
+        "bytes": 11920,
+        "sha256": "a9b9d900fb425e95e2b3728b47bc5c10b7d7f6b1027be1758f27b01b00b8f98c"
+      },
+      "builder/endstation_arty_4x4/build_plan.md": {
+        "bytes": 11000,
+        "sha256": "c040b872fa0102576fccf0f235cd9436722efd9f66cf885b220a5dfcd502d722"
+      },
+      "builder/endstation_arty_4x4/gptp_ucode.hex": {
+        "bytes": 13312,
+        "sha256": "09f5d05defa759905f23630affc619d6af658e4c5f20aa0f63cc65f41317e651"
+      },
+      "builder/endstation_arty_4x4/lwsrp_csr_defaults.svh": {
+        "bytes": 2183,
+        "sha256": "90d4615e95883d5c1fdf5ce4eb8e716ac655114d8f0eb9e5579ec8e671bbfa88"
+      },
+      "builder/endstation_arty_4x4/lwsrp_table.json": {
+        "bytes": 4084,
+        "sha256": "90e1aa992317980e97ec42768d524e9b8af65e2279a31e1696f5f68254f05221"
+      },
+      "builder/endstation_arty_4x4/lwsrp_table.svh": {
+        "bytes": 4288,
+        "sha256": "36331d96c16b57ba3660a3183af58752195d94f2681d03ccfcf50003f227b222"
+      },
+      "builder/endstation_arty_4x4/platform_shape.json": {
+        "bytes": 246,
+        "sha256": "bbd040ba298a66ff0bd856f8f0b4e75c04c1831ba635a5b3ad756625ab8b0a28"
+      },
+      "builder/endstation_arty_4x4/soc_params.json": {
+        "bytes": 589,
+        "sha256": "fe552b1ec220f349b55cd499bc62680e9f7abf28397125cc457fd7cf63f61fb8"
+      }
+    },
+    "endstation_arty_8ch": {
+      "aem.bin": {
+        "bytes": 15360,
+        "sha256": "2b5c008cf3a2ff1eca11ef5e24c5a2e391e97f25435854430e563758de516b9b"
+      },
+      "aem.json": {
+        "bytes": 31200,
+        "sha256": "22d2815009a4d468faf1d48322b57e5ef2f6260d34219299810b7e5aafaced18"
+      },
+      "aem.map": {
+        "bytes": 1311,
+        "sha256": "163d5a414e34591ad639c3682747a35c43db64dcb3d46cb06c77d4c33edb634a"
+      },
+      "builder/endstation_arty_8ch/adp_shape_defaults.svh": {
+        "bytes": 7836,
+        "sha256": "41c02ad55f431ac15262d8a5db8e4a24945d375f217f7f0e552cd0b3f18cdd89"
+      },
+      "builder/endstation_arty_8ch/aecp_aem_rom.svh": {
+        "bytes": 71921,
+        "sha256": "19dd262b93e56aeab1641f3d3e534fc7af372f1c2f8c1801e5a7895d1982ae34"
+      },
+      "builder/endstation_arty_8ch/aem_overlay.json": {
+        "bytes": 16978,
+        "sha256": "87fc3c51e2fc5a49b91d67e05ea621449391619430ecfaef4cac5422b5b4b94e"
+      },
+      "builder/endstation_arty_8ch/build_plan.md": {
+        "bytes": 11003,
+        "sha256": "1a93c95f35d176c5b52e03c1f0d5ccea7726c682a803948a5763029a509edf76"
+      },
+      "builder/endstation_arty_8ch/gptp_ucode.hex": {
+        "bytes": 13312,
+        "sha256": "09f5d05defa759905f23630affc619d6af658e4c5f20aa0f63cc65f41317e651"
+      },
+      "builder/endstation_arty_8ch/lwsrp_csr_defaults.svh": {
+        "bytes": 2183,
+        "sha256": "f2519804843397b4bde6393e3be67f348e3b3ef6e73e62fef22b3a71b4ecf87f"
+      },
+      "builder/endstation_arty_8ch/lwsrp_table.json": {
+        "bytes": 4084,
+        "sha256": "0e151e2854b3799281d19d01e67c27b04a53ca470a672ad27bc48f93ea840987"
+      },
+      "builder/endstation_arty_8ch/lwsrp_table.svh": {
+        "bytes": 4288,
+        "sha256": "c7189e2e3dcf79a7fcd6c204674fca581d89aea327c77b65ea7aa57f38aa3e19"
+      },
+      "builder/endstation_arty_8ch/platform_shape.json": {
+        "bytes": 246,
+        "sha256": "b818b72a035c5f73870925ffe208eda20292bedc629a399d5d31aa14160242ce"
+      },
+      "builder/endstation_arty_8ch/soc_params.json": {
+        "bytes": 589,
+        "sha256": "7a10be52746259e11e1c43402cb8097ca5234e9b358fd6160af5c5e42673faff"
+      }
+    },
+    "endstation_arty_current": {
+      "aem.bin": {
+        "bytes": 5792,
+        "sha256": "ac833c3ccde42a2d9a78b517d660b9f7da03c4b3d31227aa65dcaf9e8def6192"
+      },
+      "aem.json": {
+        "bytes": 11356,
+        "sha256": "3c4b9440bccdc59198dacbc073fbb01671dec866d5adcf1b98225c8b6f822057"
+      },
+      "aem.map": {
+        "bytes": 1310,
+        "sha256": "77dad531965096987d682f77e93f81e5b6f182eaae879fb43b084be8570bec4c"
+      },
+      "builder/endstation_arty_current/adp_shape_defaults.svh": {
+        "bytes": 7089,
+        "sha256": "54f350a99a0e6883f394858fe12457cffb4a1fea08ae23f5ba42c02636a46c98"
+      },
+      "builder/endstation_arty_current/aecp_aem_rom.svh": {
+        "bytes": 33428,
+        "sha256": "d8365928caecf01dc79b3d9a75a6c56573669ad121d8cc04b42f44820601c999"
+      },
+      "builder/endstation_arty_current/aem_overlay.json": {
+        "bytes": 6238,
+        "sha256": "12f48ab98be36408d6090158d5fc27341ca72d53217fcf892e097fbadab4e70e"
+      },
+      "builder/endstation_arty_current/build_plan.md": {
+        "bytes": 9105,
+        "sha256": "4eb5e433433f1c3af1311a4585c9a80101178766c8aa9f7573a75d3e034167bf"
+      },
+      "builder/endstation_arty_current/gptp_ucode.hex": {
+        "bytes": 13312,
+        "sha256": "09f5d05defa759905f23630affc619d6af658e4c5f20aa0f63cc65f41317e651"
+      },
+      "builder/endstation_arty_current/lwsrp_csr_defaults.svh": {
+        "bytes": 2187,
+        "sha256": "d10ce5559b108f54800b8432b672a0d33379721bf2a4edf0058e185484f3881d"
+      },
+      "builder/endstation_arty_current/lwsrp_table.json": {
+        "bytes": 2274,
+        "sha256": "dc4a200fa4dae047598419a78713677aefeab85b957808b9ec7284f2411a668f"
+      },
+      "builder/endstation_arty_current/lwsrp_table.svh": {
+        "bytes": 3826,
+        "sha256": "df3c4fa0289d23deea8f8e688573faa1adbb12f8485a7b5613bd30b8b288f8e4"
+      },
+      "builder/endstation_arty_current/platform_shape.json": {
+        "bytes": 250,
+        "sha256": "03328f238565f45f775a8fb17921a20ac4172d864b218e3703c23e185e678c99"
+      },
+      "builder/endstation_arty_current/soc_params.json": {
+        "bytes": 498,
+        "sha256": "696350eee365adb614b78e445d6522569e73d0eaa555b4de6603319d45da59cb"
+      }
+    },
+    "endstation_ax7101_1x1_tdm8": {
+      "aem.bin": {
+        "bytes": 7352,
+        "sha256": "9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d16214404"
+      },
+      "aem.json": {
+        "bytes": 14387,
+        "sha256": "679d8286a0151b921aa1c6d38370c7c231020f1a5c75a85e565fce9fe1ba0c17"
+      },
+      "aem.map": {
+        "bytes": 1243,
+        "sha256": "07151f7c4b493da8e1d3fea32a7e9755951d8e97e021e040ef2a9f3899cb7ede"
+      },
+      "builder/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh": {
+        "bytes": 7199,
+        "sha256": "eb03dfaa2f914f49b07c31ddcc62ebc4a64e839a466a3387650f25823afb1020"
+      },
+      "builder/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh": {
+        "bytes": 40979,
+        "sha256": "deea618d789b235c532edc47db08838afc7ffc2f74953f1a117d1fb2c7bd5d33"
+      },
+      "builder/endstation_ax7101_1x1_tdm8/aem_overlay.json": {
+        "bytes": 7196,
+        "sha256": "e148841ac36dbf3e6d6729c49c7c944ed5194adc75941ceb69e3af80b11e3621"
+      },
+      "builder/endstation_ax7101_1x1_tdm8/build_plan.md": {
+        "bytes": 10825,
+        "sha256": "203c4859f9557b4a250454fe9e0561706cc581708811988cd926edda9b942858"
+      },
+      "builder/endstation_ax7101_1x1_tdm8/gptp_ucode.hex": {
+        "bytes": 13312,
+        "sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b"
+      },
+      "builder/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh": {
+        "bytes": 2190,
+        "sha256": "0e9df2d455d90782c87546dab4dd1fe7b5fb7f4bc81074e910ba71ddc7016d74"
+      },
+      "builder/endstation_ax7101_1x1_tdm8/lwsrp_table.json": {
+        "bytes": 2289,
+        "sha256": "61b2e71d9a40c61bfb0eaf884af6257b1b030e441c5f507f99720d0c18dad47d"
+      },
+      "builder/endstation_ax7101_1x1_tdm8/lwsrp_table.svh": {
+        "bytes": 3832,
+        "sha256": "8209fdee3cd744d24a066b76017f71f16d87f636c4470eb95e9f986dce550522"
+      },
+      "builder/endstation_ax7101_1x1_tdm8/platform_shape.json": {
+        "bytes": 253,
+        "sha256": "0325a3cc988f7f97b34997ef3ac53c6624edfc62b0bd4b5ffb42dc72894ddae7"
+      },
+      "builder/endstation_ax7101_1x1_tdm8/soc_params.json": {
+        "bytes": 799,
+        "sha256": "d5ec9866f86c339dc1c178c31c7800a359813660d9cbcc95e242e1e29b13c516"
+      }
+    },
+    "endstation_ax7101_8x8": {
+      "aem.bin": {
+        "bytes": 18288,
+        "sha256": "193bf18736d23256c1b25d9af1bddb0721d95780fb36a14cf5f91476aff1a2d4"
+      },
+      "aem.json": {
+        "bytes": 37534,
+        "sha256": "50eaefa69bcad009479d1d7df3ced08f26b319d1a91dfe2ce659ef97c53620ad"
+      },
+      "aem.map": {
+        "bytes": 1244,
+        "sha256": "14d38a422d09d4b729032b19cfeb515756b30156c22f65df842184956ffd989f"
+      },
+      "builder/endstation_ax7101_8x8/adp_shape_defaults.svh": {
+        "bytes": 8449,
+        "sha256": "26a61e545097a577f1b6bae2e15e92c867e4143a8f8ceb13e2abc21d03279333"
+      },
+      "builder/endstation_ax7101_8x8/aecp_aem_rom.svh": {
+        "bytes": 86567,
+        "sha256": "9f6963190256809964376e8747ebc3465d4b4831df01ec3d91c7e8892e46d755"
+      },
+      "builder/endstation_ax7101_8x8/aem_overlay.json": {
+        "bytes": 20163,
+        "sha256": "baef8bb15a57606b047e657c8ba50460d7f806983a0e08bf24432fc32435fb0c"
+      },
+      "builder/endstation_ax7101_8x8/build_plan.md": {
+        "bytes": 15175,
+        "sha256": "2d303d06c5fc2f13648734ea1cb9660963bf745e73ee312476cc3a10c914a20e"
+      },
+      "builder/endstation_ax7101_8x8/gptp_ucode.hex": {
+        "bytes": 13312,
+        "sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b"
+      },
+      "builder/endstation_ax7101_8x8/lwsrp_csr_defaults.svh": {
+        "bytes": 2185,
+        "sha256": "c9849c561b9aab3f682e2974ce1ba81443c2696a0c1a4e53d3975f2557c159c4"
+      },
+      "builder/endstation_ax7101_8x8/lwsrp_table.json": {
+        "bytes": 6496,
+        "sha256": "b525824ef9b4a7c52bc99946b08807708f5c7a0ac9087d20a0cc62f3b5e95266"
+      },
+      "builder/endstation_ax7101_8x8/lwsrp_table.svh": {
+        "bytes": 4917,
+        "sha256": "eed72271ec9a0e3d68b8ca9f367d83251140c5464272a65ef0843a00ce95525e"
+      },
+      "builder/endstation_ax7101_8x8/platform_shape.json": {
+        "bytes": 248,
+        "sha256": "a08aef1e775ecd345a7f87157f4bf3eed28306250d49003d0c5231e714e6cf17"
+      },
+      "builder/endstation_ax7101_8x8/soc_params.json": {
+        "bytes": 786,
+        "sha256": "41763d46738df0e907116212b9bedb85beebba34f6a66057bee0d921321ef823"
+      }
+    }
+  }
+}
