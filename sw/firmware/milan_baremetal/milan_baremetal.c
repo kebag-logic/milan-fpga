@@ -445,6 +445,8 @@ static uint64_t nvm_dirty_since;
 #define NVM_IMG ((volatile uint8_t *)MILAN_NVM_LIVE_BASE)
 #define NVM_STG ((volatile uint8_t *)MILAN_NVM_STAGE_BASE)
 
+static void nvm_heartbeat_tick(void);
+
 static const volatile uint8_t *nvm_slot(uint32_t offset)
 {
 	return (const volatile uint8_t *)(SPIFLASH_BASE + offset);
@@ -464,6 +466,10 @@ static uint32_t nvm_crc32(const volatile uint8_t *p, uint32_t len)
 	unsigned int bit;
 
 	for (i = 0; i < len; ++i) {
+		/* A slot CRC can exceed the service window on the largest shape.
+		 * Boot validation precedes writer arming; runtime validation does not. */
+		if (nvm_ready && (i & 255u) == 0)
+			nvm_heartbeat_tick();
 		crc ^= p[i];
 		for (bit = 0; bit < 8; ++bit)
 			crc = (crc >> 1) ^ (0xedb88320u & (0u - (crc & 1u)));
@@ -624,6 +630,9 @@ static unsigned int nvm_validate(const volatile uint8_t *img)
 	for (i = 0; i < nrec; ++i) {
 		struct nvm_rec rec;
 
+		/* Bound the record-validation walk independently of the slot CRC. */
+		if (nvm_ready && (i & 15u) == 0)
+			nvm_heartbeat_tick();
 		if (pos + REC_HDR > end)
 			return VD_LEN;
 		if (nvm_all_erased(img + pos, REC_HDR)) {
@@ -1459,6 +1468,7 @@ define_init_func(milan_init);
 
 static void milan_status_handler(int nb_params, char **params)
 {
+	nvm_heartbeat_tick();
 	uint32_t gm_lo;
 	uint32_t gm_hi;
 	uint32_t parent_lo;
@@ -1560,6 +1570,7 @@ static void nvm_print_status(void)
 
 static void milan_nvm_handler(int nb_params, char **params)
 {
+	nvm_heartbeat_tick();
 	if (nb_params == 0) {
 		nvm_print_status();
 		return;
@@ -1588,6 +1599,7 @@ define_command(milan_nvm, milan_nvm_handler,
 
 static void milan_gettime_handler(int nb_params, char **params)
 {
+	nvm_heartbeat_tick();
 	(void)nb_params;
 	(void)params;
 	print_tod(gettime_ns());
@@ -1598,6 +1610,7 @@ define_command(milan_gettime, milan_gettime_handler,
 
 static void milan_settime_handler(int nb_params, char **params)
 {
+	nvm_heartbeat_tick();
 	uint64_t seconds;
 	uint64_t nanoseconds = 0;
 	uint64_t value;
@@ -1618,6 +1631,7 @@ define_command(milan_settime, milan_settime_handler,
 
 static void milan_utc_handler(int nb_params, char **params)
 {
+	nvm_heartbeat_tick();
 	uint64_t utc;
 	uint64_t nanoseconds;
 	uint64_t tai_minus_utc;
