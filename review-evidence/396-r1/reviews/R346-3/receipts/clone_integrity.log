@@ -1,0 +1,42 @@
+HEAD 8153576af6d739427b54f6c40299b0e57bc481ae
+warning: unable to find all commit-graph files
+tree 1d174c6a4b647e00456846623993a658e894b716
+== status (porcelain, untracked+ignored)
+warning: unable to find all commit-graph files
+status end
+== index vs HEAD tree
+warning: unable to find all commit-graph files
+index == HEAD
+== worktree vs index
+worktree == index
+== assume-unchanged / skip-worktree flags (expect none)
+0
+== index stage/mode/blob digest vs ls-tree
+warning: unable to find all commit-graph files
+index 415c431f60e791e9fb2b9ee4c194cebcda8ef6d5e00a79d4c00c54b6a6c8c8a0  -
+tree  415c431f60e791e9fb2b9ee4c194cebcda8ef6d5e00a79d4c00c54b6a6c8c8a0  -
+index records == HEAD tree records
+== byte check of every tracked regular file (hash-object vs HEAD blob)
+warning: unable to find all commit-graph files
+byte mismatches: 0
+== modes of the changed files
+warning: unable to find all commit-graph files
+100644 blob a787c2ded3cc208e13c5ecd026728e2c5674dd51	CONTRIBUTING.md
+100644 blob 8760e6786cccfdbd17bdfa28e84467aab0b6630f	REQUIREMENTS.md
+100644 blob 8e227be26ac7e347f5916cd385b9df40e5100291	docs/testing/TESTING.md
+100644 blob 712ed090208ef2d3530cf44ff48b0703d5d0fc60	tb/tools/torture_campaign.py
+100644 blob 25fd3d9e70ecebfaa02645bf6e64c4a8a95a0445	tb/tools/torture_release_mutants.py
+100644 blob 399a7b4d19865731d4d9621708e72e2f0a1c809d	tests/features/torture_campaign_plan.feature
+100644 blob ef832d1b612f82eb3a790a874e214536416b5517	tests/steps/torture_plan_steps.py
+100644 blob fec7519c1cf7e1f9cecb6f8319e8904f857f9500	tests/steps/torture_release_steps.py
+644 tb/tools/torture_campaign.py
+644 tb/tools/torture_release_mutants.py
+== gitlinks
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+160000 0922e43408f891fc0b84a84691df86b4fd0f1c0d 0	protocol-processor
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ 0922e43408f891fc0b84a84691df86b4fd0f1c0d protocol-processor (v2.0-271-g0922e43)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)

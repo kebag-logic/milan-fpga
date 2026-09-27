@@ -1,0 +1,160 @@
+$ python3 -B scripts/adp_hold_probe.py <clone>
+OK  hold=None two power repeats: got=2 want=2
+OK  hold=None power.idle recorded hold: got=8 want=8
+OK  hold=None power.idle hold not in window: got=False want=False
+OK  hold=None power.idle adp_start: got='T0' want='T0'
+OK  hold=None power.idle required valid_time: got=10 want=10
+OK  hold=None power.idle eligible (hold is provenance only): got=True want=True
+OK  hold=None power.idle boot=5.0 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=None power.idle boot=5.0 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=None power.idle boot=19.99 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=None power.idle boot=19.99 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=None power.idle boot=20.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=None power.idle boot=20.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=None power.idle boot=25.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=None power.idle boot=25.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=None power.idle boot=-0.1 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=None power.idle boot=-0.1 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=None power.journal_commit recorded hold: got=8 want=8
+OK  hold=None power.journal_commit hold not in window: got=False want=False
+OK  hold=None power.journal_commit adp_start: got='T0' want='T0'
+OK  hold=None power.journal_commit required valid_time: got=10 want=10
+OK  hold=None power.journal_commit eligible (hold is provenance only): got=True want=True
+OK  hold=None power.journal_commit boot=5.0 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=None power.journal_commit boot=5.0 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=None power.journal_commit boot=19.99 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=None power.journal_commit boot=19.99 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=None power.journal_commit boot=20.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=None power.journal_commit boot=20.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=None power.journal_commit boot=25.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=None power.journal_commit boot=25.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=None power.journal_commit boot=-0.1 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=None power.journal_commit boot=-0.1 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=1 two power repeats: got=2 want=2
+OK  hold=1 power.idle recorded hold: got=1 want=1
+OK  hold=1 power.idle hold not in window: got=False want=False
+OK  hold=1 power.idle adp_start: got='T0' want='T0'
+OK  hold=1 power.idle required valid_time: got=10 want=10
+OK  hold=1 power.idle eligible (hold is provenance only): got=True want=True
+OK  hold=1 power.idle boot=5.0 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=1 power.idle boot=5.0 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=1 power.idle boot=19.99 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=1 power.idle boot=19.99 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=1 power.idle boot=20.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=1 power.idle boot=20.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=1 power.idle boot=25.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=1 power.idle boot=25.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=1 power.idle boot=-0.1 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=1 power.idle boot=-0.1 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=1 power.journal_commit recorded hold: got=1 want=1
+OK  hold=1 power.journal_commit hold not in window: got=False want=False
+OK  hold=1 power.journal_commit adp_start: got='T0' want='T0'
+OK  hold=1 power.journal_commit required valid_time: got=10 want=10
+OK  hold=1 power.journal_commit eligible (hold is provenance only): got=True want=True
+OK  hold=1 power.journal_commit boot=5.0 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=1 power.journal_commit boot=5.0 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=1 power.journal_commit boot=19.99 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=1 power.journal_commit boot=19.99 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=1 power.journal_commit boot=20.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=1 power.journal_commit boot=20.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=1 power.journal_commit boot=25.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=1 power.journal_commit boot=25.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=1 power.journal_commit boot=-0.1 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=1 power.journal_commit boot=-0.1 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=8 two power repeats: got=2 want=2
+OK  hold=8 power.idle recorded hold: got=8 want=8
+OK  hold=8 power.idle hold not in window: got=False want=False
+OK  hold=8 power.idle adp_start: got='T0' want='T0'
+OK  hold=8 power.idle required valid_time: got=10 want=10
+OK  hold=8 power.idle eligible (hold is provenance only): got=True want=True
+OK  hold=8 power.idle boot=5.0 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=8 power.idle boot=5.0 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=8 power.idle boot=19.99 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=8 power.idle boot=19.99 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=8 power.idle boot=20.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=8 power.idle boot=20.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=8 power.idle boot=25.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=8 power.idle boot=25.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=8 power.idle boot=-0.1 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=8 power.idle boot=-0.1 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=8 power.journal_commit recorded hold: got=8 want=8
+OK  hold=8 power.journal_commit hold not in window: got=False want=False
+OK  hold=8 power.journal_commit adp_start: got='T0' want='T0'
+OK  hold=8 power.journal_commit required valid_time: got=10 want=10
+OK  hold=8 power.journal_commit eligible (hold is provenance only): got=True want=True
+OK  hold=8 power.journal_commit boot=5.0 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=8 power.journal_commit boot=5.0 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=8 power.journal_commit boot=19.99 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=8 power.journal_commit boot=19.99 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=8 power.journal_commit boot=20.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=8 power.journal_commit boot=20.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=8 power.journal_commit boot=25.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=8 power.journal_commit boot=25.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=8 power.journal_commit boot=-0.1 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=8 power.journal_commit boot=-0.1 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=60 two power repeats: got=2 want=2
+OK  hold=60 power.idle recorded hold: got=60 want=60
+OK  hold=60 power.idle hold not in window: got=False want=False
+OK  hold=60 power.idle adp_start: got='T0' want='T0'
+OK  hold=60 power.idle required valid_time: got=10 want=10
+OK  hold=60 power.idle eligible (hold is provenance only): got=True want=True
+OK  hold=60 power.idle boot=5.0 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=60 power.idle boot=5.0 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=60 power.idle boot=19.99 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=60 power.idle boot=19.99 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=60 power.idle boot=20.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=60 power.idle boot=20.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=60 power.idle boot=25.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=60 power.idle boot=25.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=60 power.idle boot=-0.1 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=60 power.idle boot=-0.1 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=60 power.journal_commit recorded hold: got=60 want=60
+OK  hold=60 power.journal_commit hold not in window: got=False want=False
+OK  hold=60 power.journal_commit adp_start: got='T0' want='T0'
+OK  hold=60 power.journal_commit required valid_time: got=10 want=10
+OK  hold=60 power.journal_commit eligible (hold is provenance only): got=True want=True
+OK  hold=60 power.journal_commit boot=5.0 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=60 power.journal_commit boot=5.0 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=60 power.journal_commit boot=19.99 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=60 power.journal_commit boot=19.99 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=60 power.journal_commit boot=20.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=60 power.journal_commit boot=20.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=60 power.journal_commit boot=25.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=60 power.journal_commit boot=25.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=60 power.journal_commit boot=-0.1 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=60 power.journal_commit boot=-0.1 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=3600 two power repeats: got=2 want=2
+OK  hold=3600 power.idle recorded hold: got=3600 want=3600
+OK  hold=3600 power.idle hold not in window: got=False want=False
+OK  hold=3600 power.idle adp_start: got='T0' want='T0'
+OK  hold=3600 power.idle required valid_time: got=10 want=10
+OK  hold=3600 power.idle eligible (hold is provenance only): got=True want=True
+OK  hold=3600 power.idle boot=5.0 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=3600 power.idle boot=5.0 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=3600 power.idle boot=19.99 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=3600 power.idle boot=19.99 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=3600 power.idle boot=20.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=3600 power.idle boot=20.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=3600 power.idle boot=25.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=3600 power.idle boot=25.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=3600 power.idle boot=-0.1 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=3600 power.idle boot=-0.1 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=3600 power.journal_commit recorded hold: got=3600 want=3600
+OK  hold=3600 power.journal_commit hold not in window: got=False want=False
+OK  hold=3600 power.journal_commit adp_start: got='T0' want='T0'
+OK  hold=3600 power.journal_commit required valid_time: got=10 want=10
+OK  hold=3600 power.journal_commit eligible (hold is provenance only): got=True want=True
+OK  hold=3600 power.journal_commit boot=5.0 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=3600 power.journal_commit boot=5.0 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=3600 power.journal_commit boot=19.99 precut_age=0.0: got='PASS' want='PASS'
+OK  hold=3600 power.journal_commit boot=19.99 precut_age=4.9: got='PASS' want='PASS'
+OK  hold=3600 power.journal_commit boot=20.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=3600 power.journal_commit boot=20.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=3600 power.journal_commit boot=25.0 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=3600 power.journal_commit boot=25.0 precut_age=4.9: got='FAIL' want='FAIL'
+OK  hold=3600 power.journal_commit boot=-0.1 precut_age=0.0: got='FAIL' want='FAIL'
+OK  hold=3600 power.journal_commit boot=-0.1 precut_age=4.9: got='FAIL' want='FAIL'
+OK  contrast: superseded formula, hold=8, age=4.9, boot=7.2: got='FAIL' want='FAIL'
+OK  contrast: superseded formula, hold=8, age=0, boot=13: got='FAIL' want='FAIL'
+PASS: 0 unexpected result(s)
+rc=0
