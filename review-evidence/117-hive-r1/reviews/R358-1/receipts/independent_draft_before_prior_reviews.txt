@@ -1,0 +1,6 @@
+Draft written before reading any other review on PR #598 (independent pass complete).
+Verdict: NEGATIVE at bcba79a50ecd2eca99db91c4f3802d888eaac7e4
+F1 MINOR Docs+Conformance - docs/findings/117_GPTP_SILICON_EVIDENCE.md:629-632 - no public locator for the B4 packet; "publication is pending"; "Entity dumps ... retain their recorded bytes" false for published copies (serial masked; MANIFEST.json maps original->published).
+S1 SUGGESTION Docs+Conformance - :53-54, :462-468, :536-541 - adjacent FAIL (#529) and new PASS rows with same library binaries and same enumerator; flip unexplained on the page (image carries PR #534; dump shows Stream Input 1 counters served).
+S2 SUGGESTION Docs - :31 Contents "two blockers that remain" with B1-B4 all RESOLVED (pre-existing ambiguity, outside frozen edit set).
+Ledger draft: Conformance UNCLEAN (F1), RTL CLEAN (no RTL in diff; image-to-base diff docs-only; AEM regenerated), Robustness CLEAN, Tests CLEAN, Docs UNCLEAN (F1).

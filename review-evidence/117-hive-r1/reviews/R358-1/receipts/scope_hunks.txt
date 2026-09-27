@@ -1,0 +1,15 @@
+Hunks of base..head (-U0):
+@@ -54 +54 @@ Every row states what was measured. A row that was not measured says NOT RUN.
+-| | Hive | NOT RUN: needs an interactive desktop |
+@@ -464 +464 @@ are seconds after the outlet-off command, as in
+-| Hive | NOT RUN: needs an interactive desktop |
+@@ -536 +536,114 @@ The Run B timeline with tap-clock times is in the A200 packet (`bench/runB/strea
+
+NOT RUN lines at base vs head (text identical apart from the two Hive lines):
+4d3
+< | | Hive | NOT RUN: needs an interactive desktop |
+10d8
+< | Hive | NOT RUN: needs an interactive desktop |
+11a10
+> It does not clear acceptance box 4's remaining NOT RUN rows.
+diff rc=1

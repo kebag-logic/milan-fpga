@@ -1,0 +1,24 @@
+config configs/endstation_ax7101_1x1_tdm8.yaml aem bytes=7352 sha256=9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d16214404
+OK   builder AEM image equals the cited 7,352-byte image
+image inventory {"AUDIO_CLUSTER": 25, "AUDIO_UNIT": 1, "AVB_INTERFACE": 1, "CLOCK_DOMAIN": 1, "CLOCK_SOURCE": 2, "CONFIGURATION": 1, "CONTROL": 1, "ENTITY": 1, "LOCALE": 1, "STREAM_INPUT": 2, "STREAM_OUTPUT": 2, "STREAM_PORT_INPUT": 1, "STREAM_PORT_OUTPUT": 1, "STRINGS": 1} total 41 types 14
+OK   image declares 41 descriptors across 14 types
+OK   run-1.inventory.json equals the image inventory (types and indices)
+OK   run-2.inventory.json equals the image inventory (types and indices)
+OK   run-3.inventory.json equals the image inventory (types and indices)
+OK   AECP ENTITY (312 B) equals the image descriptor row
+OK   AECP ENTITY equals image bytes at 0x110
+OK   AECP CONFIGURATION (106 B) equals the image descriptor row
+OK   AECP CONFIGURATION equals image bytes at 0x248
+entity_id 020000fffe000001 model 001bc5c40236ba0e
+OK   entity and model IDs as cited
+OK   run-1 library flags exactly IEEE17221+MILAN, no compatibility events
+OK   run-1 dump inventory recomputed equals the image inventory
+OK   run-1 AECP retries/timeouts/unexpected all zero
+OK   run-2 library flags exactly IEEE17221+MILAN, no compatibility events
+OK   run-2 dump inventory recomputed equals the image inventory
+OK   run-2 AECP retries/timeouts/unexpected all zero
+OK   run-3 library flags exactly IEEE17221+MILAN, no compatibility events
+OK   run-3 dump inventory recomputed equals the image inventory
+OK   run-3 AECP retries/timeouts/unexpected all zero
+RESULT PASS 0
+rc=0

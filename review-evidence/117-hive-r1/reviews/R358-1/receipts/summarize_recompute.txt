@@ -1,0 +1,10 @@
+summarize.py rerun on the published dumps (disposable copy): rc=0
+recomputed summary byte-identical to published enumeration-summary.txt
+run-1.inventory.json recomputed byte-identical
+run-2.inventory.json recomputed byte-identical
+run-3.inventory.json recomputed byte-identical
+published packet: publisher MANIFEST.json published_sha256 verified for all 50 listed files; unlisted files: none
+run-N.entity.json: replacing the publisher's "<device-serial>" with the DUT's configured serial string reproduces the findings-page SHA-256 for all three:
+2c4c801c447e97ba06869fd81f89fc2e7e40c5993d322e50f5942a317c1b16c1  run-1.entity.json (reconstructed)
+11c4bca35efa5c1bf1525caca020ddc4444a9a683a92673a7795b4c8135121a9  run-2.entity.json (reconstructed)
+3fd1d58c2fbba1ccec2273ee6bc806f3262cb666fcf4883239b07f9b2ab3cd13  run-3.entity.json (reconstructed)

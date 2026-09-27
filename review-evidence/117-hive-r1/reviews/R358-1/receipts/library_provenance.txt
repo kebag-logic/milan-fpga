@@ -1,0 +1,32 @@
+Upstream library source at 6d61a92e7f264c69f23cdc38f50d31114e567aa0 (tag v4.3.1.1 -> tag object 080ab851ba558e8502c5d44522a3012bee007440 -> commit 6d61a92e7f264c69f23cdc38f50d31114e567aa0)
+CMakeLists.txt option defaults (lines 47-59):
+option(ENABLE_AVDECC_FEATURE_REDUNDANCY "Enable 'Network Redundancy' feature as defined by AVnu Alliance." TRUE)
+option(ENABLE_AVDECC_FEATURE_JSON "Enable read/write files in JSON format." TRUE)
+option(ENABLE_AVDECC_FEATURE_CBR "Enable ChannelBasedRouting monitoring." TRUE)
+# Compatibility options
+option(ENABLE_AVDECC_USE_FMTLIB "Use fmtlib" TRUE)
+option(ENABLE_AVDECC_STRICT_2018_REDUNDANCY "Be strict about 'Network Redundancy' feature, using AVnu 2018 specifications." TRUE)
+option(IGNORE_INVALID_CONTROL_DATA_LENGTH "Allow messages with an invalid advertised 'Control Data Length' field (not matching data in buffer)." TRUE) # Required for Motu devices sending invalid response messages
+option(IGNORE_INVALID_NON_SUCCESS_AEM_RESPONSES "Allow invalid AEM non-success responses messages." TRUE) # Required for Motu/Tesira devices sending invalid error response messages
+option(IGNORE_NEITHER_STATIC_NOR_DYNAMIC_MAPPINGS "Allow Entities not supporting Dynamic Mapping and not adversiting AUDIO_MAP." TRUE) # Required for Tesira devices not implementing Dynamic Mappings and not advertising any static map
+option(CONTINUE_MISBEHAVE_AEM_RESPONSES "Continue entity enumeration when receiving an AEM ENTITY_MISBEHAVE response status." TRUE) # Required for macOS Sequoia Virtual Entity sending ENTITY_MISBEHAVE response status for some commands (instead of NOT_SUPPORTED)
+option(ALLOW_GET_AUDIO_MAP_UNSOL "Allow receiving GetAudioMap unsolicited notifications." TRUE) # Required for L-Acoustics older devices, when changing dynamic mappings from the front panel
+option(ALLOW_RECV_BIG_AECP_PAYLOADS "Allow receiving AECP payloads bigger than the allowed 524 bytes." TRUE) # Required for Q6 Core devices not splitting AudioMaps into smaller ones, and for Milan devices
+option(ALLOW_SEND_BIG_AECP_PAYLOADS "Allow sending AECP payloads bigger than the allowed 524 bytes." FALSE)
+
+Run logs report library compile options: Ignore Invalid Control Data Length, Ignore Invalid Non Success AEM Responses, Allow Get Audio Map Unsolicited Notifications, Allow Recv Big AECP payloads, Redundancy, JSON; controller: Ignore Neither Static Nor Dynamic Mappings, Continue Misbehave AEM Responses, Redundancy, Strict 2018 Redundancy, JSON, Channel Based Routing -> exactly the TRUE defaults above (ALLOW_SEND_BIG_AECP_PAYLOADS FALSE, absent).
+
+src/controller/avdeccControllerImpl.cpp:6336-6346 (MisbehaveContinue still raises the Misbehaving compatibility flag):
+bool ControllerImpl::processEmptyGetDynamicInfoFailureStatus(entity::ControllerEntity::AemCommandStatus const status, ControlledEntityImpl* const entity, MilanRequirements const& milanRequirements) noexcept
+{
+	AVDECC_ASSERT(!status, "Should not call this method with a SUCCESS status");
+
+	auto const action = getFailureActionForAemCommandStatus(status);
+	switch (action)
+	{
+		case FailureAction::MisbehaveContinue:
+			// Flag the entity as "Misbehaving"
+			addCompatibilityFlag(this, *entity, ControlledEntity::CompatibilityFlag::Misbehaving);
+			return true;
+
+Library binary SHA-256 in build-provenance.txt equal the 2026-09-23 Tool revisions row prefixes (95d64fd5..., 8ef4b008...), i.e. the same binaries that returned Milan FAIL on the earlier image.

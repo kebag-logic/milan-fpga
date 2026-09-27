@@ -1,0 +1,20 @@
+1c1
+< // Issue 117 (A200): non-interactive la_avdecc discovery and full enumeration.
+---
+> // Issue 117 (A373): non-interactive la_avdecc discovery and full enumeration.
+14c14
+< // usage: a200_enum <interface> <seconds> <json_out_dir>
+---
+> // usage: enum_probe <interface> <seconds> <json_out_dir>
+142c142
+< 		auto controller = ctl::Controller::create(la::avdecc::protocol::ProtocolInterface::Type::PCap, argv[1], 0x0A20, la::avdecc::UniqueIdentifier{ 0x001BC50000000A20ull }, "en", nullptr, std::nullopt, nullptr);
+---
+> 		auto controller = ctl::Controller::create(la::avdecc::protocol::ProtocolInterface::Type::PCap, argv[1], 0x0A37, la::avdecc::UniqueIdentifier{ 0x001BC50000000A37ull }, "en", nullptr, std::nullopt, nullptr);
+153a154
+> 			if (id.getValue() != 0x020000fffe000001ull) continue;
+175c176
+< 			auto const [err, msg] = controller->serializeControlledEntityAsJson(id, path, jflags, "issue 117 A200 enumeration");
+---
+> 			auto const [err, msg] = controller->serializeControlledEntityAsJson(id, path, jflags, "issue 117 A373 enumeration");
+177a179
+> 		if (ids.count(la::avdecc::UniqueIdentifier{0x020000fffe000001ull}) == 0) rc = 5;

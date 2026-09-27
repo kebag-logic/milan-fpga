@@ -1,0 +1,34 @@
+PR #598 head/base (read-only query):
+{"baseRefOid":"2a2a7bb655e528edc3087c88033cd3a47546feb4","headRefOid":"bcba79a50ecd2eca99db91c4f3802d888eaac7e4","isDraft":false}
+Issue #529 state:
+{"closedAt":"2026-09-24T03:38:14Z","state":"CLOSED","title":"CRF Stream Input serves no AECP counters, so controllers downgrade the entity from Milan"}
+Commits in ede8d48e..9e9954e9 touching the CRF Stream Input counters:
+50e780975 Merge PR #534: Serve the CRF Stream Input counters on GET_COUNTERS and notify their changes
+535701a06 Narrow the CRF counter evidence to what the root-wire tests prove and clear the stale REGISTER_MAP opening gap
+f81557755 Log the CRF input counters as an unreleased product change
+d8340bd55 Record the CRF Stream Input counter gap as closed by #529 with its root-wire evidence
+2a798d191 Grade the CRF input's counters row, wrap, isolation and one-second push at the root in sim_nxn
+869da89e5 Serve the CRF Media Clock Input's Table 5.16 bank on GET_COUNTERS and deliver its dirty pulse to the Table 5.22 arbiter
+Image-to-base diff 9e9954e9..2a2a7bb6:
+ docs/design/AREA_BUDGET.md                         |    1 +
+ docs/findings/PP_SHADOW_BASELINE.md                |  273 +-
+ docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json | 3141 ++++++++++++++++++++
+ docs/findings/PP_SHADOW_BASELINE_50MHZ_RANKING.tsv |   83 +
+ 4 files changed, 3454 insertions(+), 44 deletions(-)
+(no submodule gitlink change in that range)
+Hosted check-runs on bcba79a5 at 2026-09-27T17:50:50Z:
+yosys-portability | completed | skipped
+verilator-suites | completed | skipped
+Yosys shard ${{ matrix.shard }}/${{ matrix.total }} | completed | skipped
+Physical gPTP (nightly and manual) | completed | skipped
+Verilator shard ${{ matrix.shard }}/${{ matrix.total }} | completed | skipped
+verilator-lint | completed | skipped
+yosys-elaboration | completed | skipped
+rtl-fast | completed | success
+changes | completed | success
+wire-accountability | completed | success
+docs-check | in_progress | null
+elaborate | completed | success
+bdd-conformance | completed | success
+docs-check-no-git | completed | success
+full-ci-gate | completed | success

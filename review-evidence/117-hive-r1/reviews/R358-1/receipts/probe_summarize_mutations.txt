@@ -1,0 +1,14 @@
+OK   baseline (no change): rc=0 expected=pass | STABLE: all static descriptor trees, descriptor inventories and compatibility verdicts are identical across th
+OK   run-2 library drops MILAN: rc=1 expected=fail | AssertionError
+OK   run-3 library adds MILAN_WARNING: rc=1 expected=fail | AssertionError
+OK   run-1 library flags MISBEHAVING: rc=1 expected=fail | AssertionError
+OK   all runs library drops MILAN: rc=1 expected=fail | AssertionError
+OK   run-1 compatibility event recorded: rc=1 expected=fail | AssertionError
+OK   run-2 one AUDIO_CLUSTER missing: rc=1 expected=fail | AssertionError
+OK   run-3 static field differs: rc=1 expected=fail | AssertionError
+OK   run-1 log complaints=1: rc=1 expected=fail | AssertionError
+OK   run-2 log query-errors 1: rc=1 expected=fail | AssertionError
+OK   run-3 log rc=5: rc=1 expected=fail | AssertionError
+OK   run-1 wrong entity: rc=1 expected=fail | AssertionError
+RESULT PASS 0
+rc=0
