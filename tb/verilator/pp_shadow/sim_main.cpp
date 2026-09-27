@@ -1457,6 +1457,18 @@ class PpShadowHarness {
                                   : "K12 refused record output", 0, 0, 0);
 
         pending_boot(6);
+        auto partial = map;
+        partial.resize(24, 0);
+        put16be(partial.data() + 4, 2);
+        // Record 0 claims key 0. Record 1 conflicts with that claim:
+        // input changes the channel; output changes the cluster.
+        put16be(partial.data() + (type == 0xe ? 18 : 20), 1);
+        pending_command(0x002c, partial, static_cast<uint16_t>(0x5048 + type), 7);
+        pending_map_value(type, 0, 0x5049);
+        pending_report(type == 0xe ? "K12 partial refusal input"
+                                  : "K12 partial refusal output", 0, 0, 0);
+
+        pending_boot(6);
         pending_command(0x002c, map, static_cast<uint16_t>(0x5040 + type));
         pending_commit_control();
         pending_map_value(type, 1, 0x5050);

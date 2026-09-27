@@ -36,7 +36,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 - Issue #502 advances the processor pin to `870ff88a`.
 - Accepted name writes now raise saved-state pending immediately.
-- Accepted map commit beats raise the same sticky source.
+- Actual parent phase-5 map writes raise the same sticky source.
+- Unchanged map records raise nothing.
 - The backend samples each pulse on its accepting edge.
 - Command marks retain their later completion meaning.
 - Neither group has a record writer; pending clears at reset.

@@ -58,7 +58,7 @@ Issue #502 advances the current pin to `870ff88a`.
 
 - PR 121 exports each accepted live name write.
 - `KL_pp_shadow` connects that pulse to saved-state pending.
-- Map phase 5 supplies the corresponding map trigger.
+- The parent's actual-write enable supplies the map trigger.
 - Later marks retain their command-completion meaning.
 
 The ROM ledger retains both adopted pins' rows.

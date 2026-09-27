@@ -88,6 +88,10 @@ Controls exercise unchanged names and zero-record map commands.
 The default static output refuses edits before record validation.
 Dynamic input/output controls refuse an out-of-range stream at record validation.
 Both refusal paths require pending to stay clear.
+Two-record controls refuse after the first record claims a key.
+The second record conflicts with that claim in each direction.
+Each starts durable and requires status 7 without storage changes.
+Both pending status bits must remain clear through the abort.
 Reset separates the groups and restores the clean baseline.
 A permanently asserted pending bit fails that baseline.
 
