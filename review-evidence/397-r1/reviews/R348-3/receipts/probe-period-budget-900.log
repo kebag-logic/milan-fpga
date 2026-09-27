@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "$REVIEWS/397-r348-3-packet/scratch/probe-base/tb/verilator/fw_service_budget/run.py", line 490, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEWS/397-r348-3-packet/scratch/probe-base/tb/verilator/fw_service_budget/run.py", line 430, in main
+    self_test()
+    ~~~~~~~~~^^
+  File "$REVIEWS/397-r348-3-packet/scratch/probe-base/tb/verilator/fw_service_budget/run.py", line 402, in self_test
+    count += trace_controls() + wait_controls() + tick_controls()
+             ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/397-r348-3-packet/scratch/probe-base/tb/verilator/fw_service_budget/run.py", line 351, in trace_controls
+    require(got[key] == receipt[key], 'control trace changed: ' + receipt['shape'] + ' ' + key)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/397-r348-3-packet/scratch/probe-base/tb/verilator/fw_service_budget/run.py", line 38, in require
+    raise RuntimeError(message)
+RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows

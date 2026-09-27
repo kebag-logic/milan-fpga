@@ -1,0 +1,24 @@
+=== build_plan.md
+build_plan.md → $REVIEWS/397-r348-3-packet/scratch/aem-3ef7ed1b/endstation_ax7101_8x8/endstation_ax7101_8x8/build_plan.md
+   +0 added, -0 removed, ~2 modified
+
+~  13 - target: ax7101 (gmii-1g), sys 100e6 Hz / milan 100e6 Hz, L2 0 B, flashboot baremetal, eth port e1 → - target: ax7101 (gmii-1g), sys 100e6 Hz / milan 50e6 Hz, L2 0 B, flashboot baremetal, eth port e1
+~ 106 python3 sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 → python3 sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1
+=== lwsrp_table.json
+lwsrp_table.json → $REVIEWS/397-r348-3-packet/scratch/aem-3ef7ed1b/endstation_ax7101_8x8/endstation_ax7101_8x8/lwsrp_table.json
+   +0 added, -0 removed, ~2 modified
+
+~  53   "KL_lwsrp_top.CLK_FREQ_HZ_P": 100000000, →   "KL_lwsrp_top.CLK_FREQ_HZ_P": 50000000,
+~  59   "milan_datapath.MILAN_CLK_FREQ_HZ": 100000000, →   "milan_datapath.MILAN_CLK_FREQ_HZ": 50000000,
+=== lwsrp_table.svh
+lwsrp_table.svh → $REVIEWS/397-r348-3-packet/scratch/aem-3ef7ed1b/endstation_ax7101_8x8/endstation_ax7101_8x8/lwsrp_table.svh
+   +0 added, -0 removed, ~1 modified
+
+~  57   localparam int unsigned LWSRP_CLK_FREQ_C   = 100000000; →   localparam int unsigned LWSRP_CLK_FREQ_C   = 50000000;
+=== soc_params.json
+soc_params.json → $REVIEWS/397-r348-3-packet/scratch/aem-3ef7ed1b/endstation_ax7101_8x8/endstation_ax7101_8x8/soc_params.json
+   +0 added, -0 removed, ~1 modified
+
+~   7   "100e6", →   "50e6",
+=== gptp_ucode.hex
+11

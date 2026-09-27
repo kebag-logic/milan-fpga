@@ -1,0 +1,42 @@
+== pending-mutant
+268:| #502 live-write pending, late-mark control | `make -C tb/verilator/pp_shadow pending-mutant` | Authors and reviewers changing `KL_pp_shadow.sv`, the map-edit owner in `milan_datapath.sv`, the processor name-write export, or `tb/verilator/pp_shadow/{sim_main.cpp,pending_probes.vlt,pending_mutant.py,Makefile}` |
+== #396 standing release
+846:**Standing release campaigns (#396, REQ-VER-06).**
+== fw_service_budget
+404:The [firmware service-budget sibling](../../tb/verilator/fw_service_budget/README.md)
+== headings near 6d
+1:88:## Contents
+3:146:## 0. Prerequisites
+6:339:### 1.0 `tb/verilator/tsn_fuzz/` — the field-validation campaign (AAF only since 2026-08-13)
+7:396:### 1.1 Suite index — reconciled against the tree 2026-08-13
+10:600:## 4. Device-portability check - `syn/yosys/`
+11:620:## 4b. RTL lint - `scripts/lint_rtl.py` (the ratcheted gate)
+12:693:## 5. Legacy / auxiliary testbenches
+13:702:## 6. On-silicon validation
+14:729:## 6c. Controller-side validation -- la_avdecc and Hive
+18:811:## 6b. Bench evidence retention
+19:828:## 6d. Unattended campaign vehicle
+20:1062:## 7. Known gaps (kept honest)
+== links into TESTING.md anchors from repo
+      1 ./tests/README.md:171:TESTING.md#4b-rtl-lint---scriptslint
+      1 ./tests/README.md:108:TESTING.md#6d-unattended-campaign-vehicle
+      1 ./tb/verilator/README.md:13:TESTING.md#0-prerequisites
+      1 ./tb/verilator/milan_dp/README.md:713:TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression
+      1 ./REQUIREMENTS.md:327:TESTING.md#6d-unattended-campaign-vehicle
+      1 ./REQUIREMENTS.md:326:TESTING.md#6b-bench-evidence-retention
+      1 ./README.md:190:TESTING.md#7-known-gaps-kept-honest
+      1 ./QUICKSTART.md:85:TESTING.md#7-known-gaps-kept-honest
+      1 ./QUICKSTART.md:128:TESTING.md#4b-rtl-lint---scriptslint
+      1 ./docs/testing/SIMULATION.md:71:TESTING.md#0-prerequisites
+      1 ./docs/testing/CI_WORKFLOWS.md:1090:TESTING.md#2-litex-integration-checks---swlitextest
+      1 ./docs/development/CODE_QUALITY.md:1759:TESTING.md#5-legacy--auxiliary-testbenches
+      1 ./CONTRIBUTING.md:423:TESTING.md#6d-unattended-campaign-vehicle
+== BAREMETAL links/anchors
+      1 build-contract
+      1 editing-contract-for-this-firmware
+      1 saved-state-the-flash-writer
+      1 what-step-2-writes-and-who-owns-each-word
+== 397 page inbound links
+./docs/integration/BAREMETAL_FIRMWARE.md:1895:[The service-budget measurements](../findings/397_SERVICE_BUDGET.md) reproduce this at both shapes.
+./docs/findings/README.md:11:| [397_SERVICE_BUDGET.md](397_SERVICE_BUDGET.md) | Product-CPU firmware service intervals at 50 MHz, using unchanged firmware and e
+./tb/verilator/fw_service_budget/README.md:6:[Findings](../../../docs/findings/397_SERVICE_BUDGET.md) separate duties, schedules and liveness.

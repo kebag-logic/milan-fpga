@@ -1,0 +1,39 @@
+0	head	git rev-parse HEAD HEAD^{tree}
+0	tool-python	python3 -c import sys;print(sys.version)
+0	tool-verilator	verilator --version
+0	fsb-make	make -C tb/verilator/fw_service_budget
+0	fsb-selftest	python3 -B tb/verilator/fw_service_budget/run.py --self-test
+0	nvm-hosttest	python3 -B sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+0	check-nvm-capture	python3 -B scripts/check_nvm_capture.py
+0	feature-status	python3 -B scripts/check_feature_status.py
+0	feature-status-self	python3 -B scripts/check_feature_status.py --self-test
+0	pp-srcs	python3 -B scripts/pp_srcs.py --check --selftest
+0	baremetal-only	python3 -B scripts/check_baremetal_only.py --check
+0	baremetal-only-self	python3 -B scripts/check_baremetal_only.py --selftest
+0	entity-shape-self	python3 -B scripts/check_entity_shape.py --self-test
+0	docs-check	python3 -B scripts/docs_check.py
+0	doc-paths	python3 -B scripts/check_doc_paths.py
+0	doc-style	python3 -B scripts/check_doc_style.py
+0	archive	python3 -B scripts/check_archive.py
+0	toc-check	python3 -B scripts/gen_toc.py --check
+0	toc-anchors	python3 -B scripts/gen_toc.py --verify-anchors
+0	em-dash-parent	python3 -B scripts/check_em_dash.py --base 10a5bf59a6a73e9b6487d9ea6f42669ce142ae25
+0	em-dash-srcbase	python3 -B scripts/check_em_dash.py --base ac18b50968b12efe4d15c0a06301264b35656b31
+0	em-dash-self	python3 -B scripts/check_em_dash.py --selftest
+0	solution-docs	python3 -B scripts/check_solution_docs.py
+0	submodule-docs	python3 -B scripts/check_submodule_docs.py
+0	todo-ownership	python3 -B scripts/check_todo_ownership.py
+0	py-idiom	python3 -B scripts/check_py_idiom.py
+0	cpp-idiom	python3 -B scripts/check_cpp_idiom.py
+0	sh-idiom	python3 -B scripts/check_sh_idiom.py
+0	hygiene	python3 -B scripts/check_hygiene.py --check
+0	naming	python3 -B scripts/measure_naming.py --check
+0	fail-fast	python3 -B scripts/measure_fail_fast.py --check
+0	test-evidence	python3 -B scripts/measure_test_evidence.py --check
+0	suite-shards-self	python3 -B scripts/suite_shards.py --selftest
+0	ci-events-check	python3 -B scripts/ci_events.py --check
+0	ci-events-self	python3 -B scripts/ci_events.py --selftest
+0	ci-scope-self	python3 -B scripts/ci_scope.py --selftest
+0	diff-check-parent	git diff --check 10a5bf59a6a73e9b6487d9ea6f42669ce142ae25 HEAD
+0	diff-check-srcbase	git diff --check ac18b50968b12efe4d15c0a06301264b35656b31 HEAD
+0	status	git status --porcelain --untracked-files=all

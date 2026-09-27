@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "$REVIEWS/397-r348-3-packet/scratch/probe-base/tb/verilator/fw_service_budget/run.py", line 490, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEWS/397-r348-3-packet/scratch/probe-base/tb/verilator/fw_service_budget/run.py", line 430, in main
+    self_test()
+    ~~~~~~~~~^^
+  File "$REVIEWS/397-r348-3-packet/scratch/probe-base/tb/verilator/fw_service_budget/run.py", line 400, in self_test
+    require(registered == {command.split()[0] for command in COMMANDS}, 'product dispatch census changed')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/397-r348-3-packet/scratch/probe-base/tb/verilator/fw_service_budget/run.py", line 38, in require
+    raise RuntimeError(message)
+RuntimeError: product dispatch census changed
