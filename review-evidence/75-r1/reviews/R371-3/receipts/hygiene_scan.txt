@@ -1,0 +1,55 @@
+== round-3 addendum (all 99 files), new identifiers compared against the round-1 public talker records
+TOTAL distinct hits: 168
+BASELINE identifiers: 64
+NOT-IN-BASELINE author-r3/recomputed-summary.json: ['090541841418407e', '140544271908276e', '385137825793929e', '568323694495977e', '649195277075345e', '8560745599999997', '9540530604999997', '970005335245279e', '978771624362436e', '9844674371935078', '9852509838946182', '9855234214067372'] (12)
+NOT-IN-BASELINE author-r3/talker-013/analysis.json: ['6754237435658073', '8752070712580375', '9985341990597324', '9986550479987072'] (4)
+NOT-IN-BASELINE author-r3/talker-013/console-after.txt: ['00000a6e31620d3f'] (1)
+NOT-IN-BASELINE author-r3/talker-013/console-before.txt: ['00000a6c311f3c7e'] (1)
+NOT-IN-BASELINE author-r3/talker-024/analysis.json: ['0110329253596675', '2224774835348033', '6668059001098928', '7582746940197507', '7583315786172548', '9891634669289269'] (6)
+NOT-IN-BASELINE author-r3/talker-024/console-after.txt: ['00000a88c6b96f9a'] (1)
+NOT-IN-BASELINE author-r3/talker-024/console-before.txt: ['00000a8687fa12a7'] (1)
+NOT-IN-BASELINE author-r3/talker-024/integrity.json: ['0981147289276123'] (1)
+NOT-IN-BASELINE author-r3/talker-075/analysis.json: ['0131925358296365', '0136711578712119', '3152774046066331', '3288193511516583', '3336118171157296', '7598944018722275', '7779402266508424'] (7)
+NOT-IN-BASELINE author-r3/talker-075/console-after.txt: ['00000b0644f27c14'] (1)
+NOT-IN-BASELINE author-r3/talker-075/console-before.txt: ['00000b040714c557'] (1)
+NOT-IN-BASELINE files: 11
+  (per-file hex hits omitted above; every NOT-IN-BASELINE value is listed)
+== page, findings index and live PR body at the exact head
+## docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md
+  hex64: 1 distinct: ['041060010000bb80']
+TOTAL distinct hits: 1
+== positive control: round-1 tools directory (expected: wrapper name, lane-root variable, temporary paths)
+## author/tools/action.py
+  wrapper-name: 1 distinct: ['<name hash 3dc0deea30053c57>']
+  abs-or-tmp-path: 3 distinct: (values withheld)
+  hex64: 2 distinct: ['0200000000010001', '3cc0c60102034000']
+## author/tools/analyze.py
+  abs-or-tmp-path: 1 distinct: (values withheld)
+## author/tools/avdecc_ro.py
+  mac-colon: 1 distinct: ['91:E0:F0:01:00:00']
+  hex48: 1 distinct: ['91e0f0010000']
+## author/tools/cleanup.py
+  abs-or-tmp-path: 4 distinct: (values withheld)
+## author/tools/controller.py
+  hex48: 2 distinct: ['020000000001', '3cc0c6010203']
+  hex64: 2 distinct: ['020000fffe000001', '3cc0c60102030000']
+## author/tools/integrity.py
+  abs-or-tmp-path: 1 distinct: (values withheld)
+## author/tools/ledger.py
+  abs-or-tmp-path: 1 distinct: (values withheld)
+## author/tools/record.py
+  wrapper-name: 1 distinct: ['<name hash 3dc0deea30053c57>']
+  abs-or-tmp-path: 1 distinct: (values withheld)
+## author/tools/report.py
+  lane-root-var: 1 distinct: ['<variable hash 2ff22bcc1f6d88c5>']
+  hex64: 1 distinct: ['041060010000bb80']
+## author/tools/restore_check.py
+  hex64: 2 distinct: ['0000000000000000', '3cc0c6fffefe0210']
+## author/tools/run_gates.py
+  wrapper-name: 1 distinct: ['<name hash 3dc0deea30053c57>']
+  lane-root-var: 1 distinct: ['<variable hash 2ff22bcc1f6d88c5>']
+## author/tools/seal.py
+  abs-or-tmp-path: 1 distinct: (values withheld)
+## author/tools/series.py
+  wrapper-name: 1 distinct: ['<name hash 3dc0deea30053c57>']
+  abs-or-tmp-path: 1 distinct: (values withheld)

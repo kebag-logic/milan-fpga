@@ -1,0 +1,105 @@
+== A. provenance of the published non-stop records (talker 13, 24, 75)
+PASS publication ledger lists 48 records, all in the three non-stop directories
+PASS talker-013: local MANIFEST covers exactly the 16 published files and verifies
+PASS talker-013: every published file matches its publication-ledger hash
+PASS talker-013: only raw-artifacts.json is transformed (['talker-013/raw-artifacts.json'])
+PASS talker-013: result/analysis/snapshots/cycle equal the round-2 input-hash ledger (published before round 3)
+PASS talker-013: raw-artifacts.json is relative and agrees with the round-1 raw index and round-2 ledger
+PASS talker-013: result.json anchors equal the round-2 stop ledger
+PASS talker-013: DUT STREAM_START/STOP unchanged in the published snapshots (30, 29)->(30, 29); ledger NOT_RESTART
+PASS talker-024: local MANIFEST covers exactly the 16 published files and verifies
+PASS talker-024: every published file matches its publication-ledger hash
+PASS talker-024: only raw-artifacts.json is transformed (['talker-024/raw-artifacts.json'])
+PASS talker-024: result/analysis/snapshots/cycle equal the round-2 input-hash ledger (published before round 3)
+PASS talker-024: raw-artifacts.json is relative and agrees with the round-1 raw index and round-2 ledger
+PASS talker-024: result.json anchors equal the round-2 stop ledger
+PASS talker-024: DUT STREAM_START/STOP unchanged in the published snapshots (40, 39)->(40, 39); ledger NOT_RESTART
+PASS talker-075: local MANIFEST covers exactly the 16 published files and verifies
+PASS talker-075: every published file matches its publication-ledger hash
+PASS talker-075: only raw-artifacts.json is transformed (['talker-075/raw-artifacts.json'])
+PASS talker-075: result/analysis/snapshots/cycle equal the round-2 input-hash ledger (published before round 3)
+PASS talker-075: raw-artifacts.json is relative and agrees with the round-1 raw index and round-2 ledger
+PASS talker-075: result.json anchors equal the round-2 stop ledger
+PASS talker-075: DUT STREAM_START/STOP unchanged in the published snapshots (90, 89)->(90, 89); ledger NOT_RESTART
+== B. hold declaration census (New/JoinIn/JoinMt only; window [disconnect response, connect command))
+PASS census has talker holds 1..100, each once
+PASS every hold event belongs to a census hold
+PASS hold windows equal the stop ledger and every event lies inside [dr, cc) []
+PASS is_declaration column agrees with the New/JoinIn/JoinMt predicate []
+PASS per-hold declaration/Lv/Mt counts re-derived from events equal the census rows []
+INFO event kinds present in DUT Talker Advertise hold events: ['JoinMt', 'Lv', 'Mt']; holds with a non-declaration event: [1, 61]
+INFO my census: 99/100 holds carry a DUT Talker Advertise declaration; without: [1]
+PASS declarations-summary.json census equals my derivation
+PASS page states the derived census (99/100) and names the exception cycle [1]
+PASS talker-001: hold events from the public msrp.tsv equal hold-events.csv (3 events, 0 declarations)
+PASS talker-002: hold events from the public msrp.tsv equal hold-events.csv (4 events, 4 declarations)
+PASS talker-003: hold events from the public msrp.tsv equal hold-events.csv (4 events, 4 declarations)
+PASS talker-004: hold events from the public msrp.tsv equal hold-events.csv (3 events, 3 declarations)
+PASS talker-005: hold events from the public msrp.tsv equal hold-events.csv (2 events, 2 declarations)
+PASS talker-013: hold events from the public msrp.tsv equal hold-events.csv (3 events, 3 declarations)
+PASS talker-024: hold events from the public msrp.tsv equal hold-events.csv (3 events, 3 declarations)
+PASS talker-075: hold events from the public msrp.tsv equal hold-events.csv (3 events, 3 declarations)
+== C. talker cycle 1 exception, from the public cycle-1 record
+INFO cycle-1 hold events (s after disconnect response): [('0.120687323', 'Lv'), ('0.520682079', 'Mt'), ('1.720684762', 'Mt')]
+PASS cycle 1: DUT withdraws (Lv) then sends only Mt; no declaration from disconnect response to reconnect response
+PASS cycle 1: Lv 0.120687323 s appears on the page
+PASS cycle 1: Mt 0.520682079 s appears on the page
+PASS cycle 1: Mt 1.720684762 s appears on the page
+PASS cycle 1: first declaration after response 0.111313165 s appears on the page
+PASS cycle 1: Ready after that declaration 0.006299407 s appears on the page
+PASS cycle 1: CRF after Ready 0.000123512 s appears on the page
+PASS cycle 1: latency 0.117736084 s appears on the page
+PASS cycle 1 latency 0.117736084 s equals the ledger and is the talker restart maximum
+PASS initial bind: no DUT declaration before its response; first at +0.079237250 s (summary agrees)
+PASS page qualifies the inference: "That shared absence alone cannot explain the initial-bind delay."
+PASS page qualifies the inference: "causal attribution remains open"
+PASS page qualifies the inference: "[#606](https://github.com/kebag-logic/milan-fpga/issues/606) must consider cycle 1"
+PASS withdrawn universal claim absent: "Numbered reconnects instead retain DUT Talker Advertise through the hold"
+PASS withdrawn universal claim absent: "The initial bind therefore differs in DUT-side state"
+== D. non-stop Listener chronology (talker 13, 24, 75), from the published records
+INFO talker-013: bridge Listener events after disconnect: [('Lv', '2', '0.009770679', '-1.999613038'), ('New', '2', '2.083160130', '0.073776413'), ('New', '2', '2.182730731', '0.173347014'), ('JoinMt', '2', '2.280863937', '0.271480220')]
+INFO talker-013: bridge LeaveAll between disconnect and reconnect response: 0; DUT Talker Advertise events in that span: ['JoinMt', 'JoinMt', 'JoinMt']; ACMP wire counts {'DUT': {'1': 1}, 'bridge': {'10': 1, '11': 1, '8': 1, '9': 1, '6': 1, '7': 1, '0': 1}}
+PASS talker-013: exactly one bridge Listener Lv, no Listener declaration until after the reconnect response
+PASS talker-013: every bridge Listener event carries value 2 (Ready)
+PASS talker-013: no ACMP DISCONNECT_TX_COMMAND (message type 2) on the tap
+PASS talker-013: ledger shows 1000 hold PDUs and max gap 0.002000053 s
+PASS talker-013: page event row | 13 | Lv | +0.009770679 | -1.999613038 |
+PASS talker-013: page event row | 13 | New | +2.083160130 | +0.073776413 |
+PASS talker-013: page event row | 13 | New | +2.182730731 | +0.173347014 |
+PASS talker-013: page event row | 13 | JoinMt | +2.280863937 | +0.271480220 |
+PASS talker-013: page summary row starts | 13 | 0.009770679 | 2.009383717 | 2.083160130 | 0.073776413 |
+PASS talker-013: 1036 CRF PDUs from Lv to re-declaration is consistent with the 2 ms cadence over 2.073389 s and with the page
+INFO talker-024: bridge Listener events after disconnect: [('Lv', '2', '0.010356881', '-1.998548223'), ('New', '2', '2.027609644', '0.018704540'), ('New', '2', '2.121717417', '0.112812313'), ('JoinMt', '2', '2.221744020', '0.212838916')]
+INFO talker-024: bridge LeaveAll between disconnect and reconnect response: 0; DUT Talker Advertise events in that span: ['JoinMt', 'JoinMt', 'JoinMt']; ACMP wire counts {'DUT': {'1': 1}, 'bridge': {'10': 1, '11': 1, '8': 1, '9': 1, '6': 1, '7': 1, '0': 1}}
+PASS talker-024: exactly one bridge Listener Lv, no Listener declaration until after the reconnect response
+PASS talker-024: every bridge Listener event carries value 2 (Ready)
+PASS talker-024: no ACMP DISCONNECT_TX_COMMAND (message type 2) on the tap
+PASS talker-024: ledger shows 1000 hold PDUs and max gap 0.002000053 s
+PASS talker-024: page event row | 24 | Lv | +0.010356881 | -1.998548223 |
+PASS talker-024: page event row | 24 | New | +2.027609644 | +0.018704540 |
+PASS talker-024: page event row | 24 | New | +2.121717417 | +0.112812313 |
+PASS talker-024: page event row | 24 | JoinMt | +2.221744020 | +0.212838916 |
+PASS talker-024: page summary row starts | 24 | 0.010356881 | 2.008905104 | 2.027609644 | 0.018704540 |
+PASS talker-024: 1009 CRF PDUs from Lv to re-declaration is consistent with the 2 ms cadence over 2.017253 s and with the page
+INFO talker-075: bridge Listener events after disconnect: [('Lv', '2', '0.025307595', '-1.983712523'), ('New', '2', '2.027707850', '0.018687732'), ('New', '2', '2.122542224', '0.113522106'), ('JoinMt', '2', '2.222919836', '0.213899718')]
+INFO talker-075: bridge LeaveAll between disconnect and reconnect response: 0; DUT Talker Advertise events in that span: ['JoinMt', 'JoinMt', 'JoinMt']; ACMP wire counts {'DUT': {'1': 1}, 'bridge': {'10': 1, '11': 1, '8': 1, '9': 1, '6': 1, '7': 1, '0': 1}}
+PASS talker-075: exactly one bridge Listener Lv, no Listener declaration until after the reconnect response
+PASS talker-075: every bridge Listener event carries value 2 (Ready)
+PASS talker-075: no ACMP DISCONNECT_TX_COMMAND (message type 2) on the tap
+PASS talker-075: ledger shows 1000 hold PDUs and max gap 0.002000053 s
+PASS talker-075: page event row | 75 | Lv | +0.025307595 | -1.983712523 |
+PASS talker-075: page event row | 75 | New | +2.027707850 | +0.018687732 |
+PASS talker-075: page event row | 75 | New | +2.122542224 | +0.113522106 |
+PASS talker-075: page event row | 75 | JoinMt | +2.222919836 | +0.213899718 |
+PASS talker-075: page summary row starts | 75 | 0.025307595 | 2.009020118 | 2.027707850 | 0.018687732 |
+PASS talker-075: 1001 CRF PDUs from Lv to re-declaration is consistent with the 2 ms cadence over 2.002400 s and with the page
+PASS page event table has 12 rows; the records give 12
+PASS listener-events.csv equals the events decoded from the published msrp.tsv
+PASS every Listener event is bracketed by CRF PDUs no more than 0.002000053 s apart
+== E. owners and links
+PASS Stop checks section links #608 before its table
+PASS acceptance row links #608 and names cycles 13, 24, 75
+PASS findings index row links #608 and names #606
+PASS stop-check section states the supported attribution and its limit
+== RESULT PASS (0 failing checks)
+rc=0

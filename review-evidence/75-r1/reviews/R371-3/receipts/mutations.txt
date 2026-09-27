@@ -1,0 +1,25 @@
+hold_declaration_probe PASS lines: 89
+hold_declaration_probe --mutate declare-cycle-1: rc=1; failing checks: 5
+    FAIL is_declaration column agrees with the New/JoinIn/JoinMt predicate [1]
+    FAIL per-hold declaration/Lv/Mt counts re-derived from events equal the census rows [(1, (1, 1, 1))]
+    FAIL declarations-summary.json census equals my derivation
+    FAIL page states the derived census (100/100) and names the exception cycle []
+    FAIL talker-001: hold events from the public msrp.tsv equal hold-events.csv (3 events, 0 declarations)
+hold_declaration_probe --mutate drop-declared-hold: rc=1; failing checks: 3
+    FAIL per-hold declaration/Lv/Mt counts re-derived from events equal the census rows [(50, (0, 0, 0))]
+    FAIL declarations-summary.json census equals my derivation
+    FAIL page states the derived census (98/100) and names the exception cycle [1, 50]
+hold_declaration_probe --mutate redeclare-in-hold: rc=1; failing checks: 6
+    FAIL talker-024: exactly one bridge Listener Lv, no Listener declaration until after the reconnect response
+    FAIL talker-024: page event row | 24 | JoinIn | +1.000000000 | -1.008905104 |
+    FAIL talker-024: page summary row starts | 24 | 0.010356881 | 2.008905104 | 1.000000000 | -1.008905104 |
+    FAIL talker-024: 1009 CRF PDUs from Lv to re-declaration is consistent with the 2 ms cadence over 0.989643 s and with the page
+    FAIL page event table has 12 rows; the records give 13
+    FAIL listener-events.csv equals the events decoded from the published msrp.tsv
+hold_declaration_probe --mutate cycle1-declares: rc=1; failing checks: 3
+    FAIL talker-001: hold events from the public msrp.tsv equal hold-events.csv (4 events, 1 declarations)
+    FAIL cycle 1: DUT withdraws (Lv) then sends only Mt; no declaration from disconnect response to reconnect response
+    FAIL cycle 1: Mt 1.000000000 s appears on the page
+stop_probe --addendum author-r3 --mutate one-pdu-in-hold: rc=1; failing checks: 9
+stop_probe --addendum author-r3 --mutate counter-on-nonrestart: rc=1; failing checks: 3
+stop_probe --addendum author-r3 --mutate latency-shift: rc=1; failing checks: 6

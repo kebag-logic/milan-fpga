@@ -1,0 +1,27 @@
+== AST scan: assert statements / AssertionError handlers
+recompute.py: assert statements []; except AssertionError []
+declarations.py: assert statements []; except AssertionError []
+check_controls.py: assert statements []; except AssertionError []
+publish_records.py: assert statements []; except AssertionError []
+render_tables.py: assert statements [38, 42, 45, 29, 32, 50]; except AssertionError []
+run_gates.py: assert statements [22, 27, 78, 24, 47, 71, 72, 73]; except AssertionError []
+check_packet.py: assert statements []; except AssertionError []
+classify_stop body: ['If', 'If', 'Return']
+module statement index of optimize refusal: 9 ; statements before it: ['Expr', 'Import', 'Import', 'Import', 'Import', 'ImportFrom', 'Import', 'Import', 'Import']
+== optimize refusal (inputs are nonexistent paths, so a refusal must come before any read)
+recompute.py -O: rc=1 stderr=REFUSED: optimized execution disables evidence checks
+recompute.py -OO: rc=1 stderr=REFUSED: optimized execution disables evidence checks
+recompute.py PYTHONOPTIMIZE=1: rc=1 stderr=REFUSED: optimized execution disables evidence checks
+declarations.py PYTHONOPTIMIZE=1: rc=1 stderr=REFUSED: optimized execution disables evidence checks
+check_controls.py -O: rc=1 stderr=REFUSED: optimized execution disables evidence checks
+recompute.py unoptimized, missing inputs (control): rc=1 stderr=FileNotFoundError: [Errno 2] No such file or directory: '/nonexistent/a/RAW-ARTIFACTS.json
+== classification and printed outcome derived from the published ledger
+classify_stop over the 200 ledger rows disagrees with the ledger on: []
+outcome_lines(ledger) == replay-receipt outcome: True
+boundary: count 0, first post == response -> RESTART ; first post = response - 1 -> NOT_RESTART ; count 1 -> NOT_RESTART
+outcome after removing talker 24 and failing listener 1: Stop checks: 196 PASS; 3 FAIL, excluded as NOT_RESTART: listener-001, talker-013, talker-075.
+== pinned literals remaining in recompute.py
+259:        why = 'Continuous hold; shorter tail' if r['cycle'] == 13 else ('Continuous hold' if r['classification'] == 'NOT_RESTART' else 'Longer capture tail')
+== author controls rerun in a copy
+check_controls.py rc=0 (14 PASS lines)
+regenerated controls.json byte-identical to published
