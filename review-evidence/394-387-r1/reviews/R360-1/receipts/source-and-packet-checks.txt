@@ -1,0 +1,28 @@
+== link_status definition (milan_soc.py) ==
+sw/litex/milan_soc.py:1782:        self.link_status = CSRStorage(fields=[
+sw/litex/milan_soc.py:1783:            CSRField("link_up", size=1, offset=0, reset=1,
+sw/litex/milan_soc.py:1794:            CSRField("full_duplex", size=1, offset=3, reset=1,
+== any writer of link_status / MAC_STATUS outside milan_soc.py (C, headers, Python, asm) ==
+sw/litex/gen_mac_tx_model.py:80:REGION_END = "        # ---- PHY/MAC link status (MAC_STATUS 0x110 / REQ-MAC-03) ---"
+== firmware MDIO use (C/headers under sw) ==
+  none
+== MAC_STATUS reset composition: link_up=1 | speed=2<<1 | full_duplex=1<<3 ==
+0xd
+== author MANIFEST.sha256 against the published files ==
+PR-BODY.md: FAILED
+gate-1.txt: FAILED
+gate-2.txt: FAILED
+gate-3.txt: FAILED
+gate-4.txt: FAILED
+gate-5.txt: FAILED
+gate-6.txt: FAILED
+gate-7.txt: FAILED
+gate-8.txt: FAILED
+gate-9.txt: FAILED
+tools/report.py: FAILED
+tools/run_gates.py: FAILED
+validation-preflight.txt: FAILED
+  entries: 163
+== publisher MANIFEST.json ==
+  entries 165 ; published-hash mismatches 0 ; files altered at publication 12
+  altered: gate-1.txt gate-2.txt gate-3.txt gate-4.txt gate-5.txt gate-6.txt gate-7.txt gate-8.txt gate-9.txt report.py run_gates.py validation-preflight.txt

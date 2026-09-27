@@ -1,0 +1,26 @@
+$ <venv python> -B scripts/gen_toc.py --check
+rc=0 elapsed=3s
+TOC gate: OK (112 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+
+$ <venv python> -B scripts/gen_toc.py --verify-anchors
+rc=0 elapsed=1s
+anchor check: 186 existing cross-page fragment links reproduced
+
+$ <venv python> -B scripts/check_em_dash.py --base 2a2a7bb655e528edc3087c88033cd3a47546feb4
+rc=0 elapsed=3s
+check_em_dash: 0 finding(s) over 416 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [2a2a7bb6..HEAD]
+
+$ <venv python> -B scripts/docs_check.py
+rc=0 elapsed=4s
+docs_check: 0 finding(s) across 170 md files + 905 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+
+$ <venv python> -B scripts/check_doc_style.py
+rc=0 elapsed=1s
+documentation style: OK (22 current documents)
+
+$ <venv python> -B scripts/check_doc_paths.py
+rc=0 elapsed=0s
+doc path gate: OK (847 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+
+pinned cmark-gfm tables: 5
+per-cycle header rendered as table header: False

@@ -1,0 +1,45 @@
+$ python3 -B scripts/docs_check.py
+rc=0 elapsed=4s
+docs_check: 0 finding(s) across 170 md files + 905 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+
+$ python3 -B scripts/check_doc_style.py
+rc=0 elapsed=0s
+documentation style: OK (22 current documents)
+
+$ python3 -B scripts/gen_toc.py --check
+rc=2 elapsed=0s
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+
+$ python3 -B scripts/gen_toc.py --verify-anchors
+rc=2 elapsed=0s
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+
+$ python3 -B scripts/check_em_dash.py --base 2a2a7bb655e528edc3087c88033cd3a47546feb4
+rc=2 elapsed=1s
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+
+$ python3 -B scripts/check_doc_paths.py
+rc=0 elapsed=0s
+doc path gate: OK (847 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+
+$ python3 -B scripts/check_feature_status.py --self-test
+rc=0 elapsed=1s
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+
+$ python3 -B scripts/check_baremetal_only.py --check
+rc=0 elapsed=14s
+baremetal-only: OK (0 findings across 903 tracked first-party file(s))
+
+$ git diff --check 2a2a7bb655e528edc3087c88033cd3a47546feb4 fddc58e43733afd90d6222e58999e0f416a30df9
+rc=0 elapsed=0s
+warning: unable to find all commit-graph files
+
+$ python3 -B scripts/ci_scope.py --selftest
+rc=0 elapsed=2s
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+

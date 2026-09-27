@@ -1,0 +1,616 @@
+<div id="file" class="md" data-path="docs/findings/394_387_E1_SWITCH_CYCLES.md"><article class="markdown-body entry-content container-lg" itemprop="text">
+
+<div class="markdown-heading" dir="auto"><h1 class="heading-element" dir="auto">Ten e1 switch power cycles</h1><a id="user-content-ten-e1-switch-power-cycles" class="anchor" aria-label="Permalink: Ten e1 switch power cycles" href="#ten-e1-switch-power-cycles"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Measured on 2026-09-27, under the <a href="https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5858215210" data-hovercard-type="issue" data-hovercard-url="/kebag-logic/milan-fpga/issues/394/hovercard">bench assignment</a>.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Acceptance</th>
+<th>Verdict</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#394 acceptance 2, e1 only</td>
+<td>FAIL</td>
+<td>Recovery succeeded, but LINK_UP and LINK_DOWN never advanced. DUT link-edge timestamps therefore remain unavailable.</td>
+</tr>
+<tr>
+<td>#387 acceptance 4, assigned CRF measurement</td>
+<td>PASS</td>
+<td>Ten PHC steps were bracketed. Each recovered gPTP and locked media automatically, within one further stream restart. Raw observations are retained.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">This evidence leaves #394 open.</p>
+<p dir="auto">It does not close #75 or grade #593.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Contents</h2><a id="user-content-contents" class="anchor" aria-label="Permalink: Contents" href="#contents"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<ul dir="auto">
+<li><strong><a href="#identity-and-setup">Identity and setup</a></strong> -- Identify the image, port, streams and starting state.</li>
+<li><strong><a href="#method-and-limits">Method and limits</a></strong> -- Define capture boundaries, timing uncertainty and observable quantities.</li>
+<li><strong><a href="#per-cycle-results">Per-cycle results</a></strong> -- Record each outage, recovery and media transition.</li>
+<li><strong><a href="#counter-and-restart-findings">Counter and restart findings</a></strong> -- Separate the failed link counters from measured media behavior.</li>
+<li><strong><a href="#restore-and-validation">Restore and validation</a></strong> -- Record the restored bench and local gates.</li>
+<li><strong><a href="#artifact-hashes">Artifact hashes</a></strong> -- Locate retained raw evidence through its hashes and sizes.</li>
+</ul>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Identity and setup</h2><a id="user-content-identity-and-setup" class="anchor" aria-label="Permalink: Identity and setup" href="#identity-and-setup"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The assigned image derives from <code>9e9954e96bf55181edb9949ae94c9abd4ab6aaf5</code>.</p>
+<p dir="auto">The lane base is <code>2a2a7bb655e528edc3087c88033cd3a47546feb4</code>.</p>
+<p dir="auto">Only documentation and evidence differ between those commits.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Identity check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VERSION</td>
+<td><code>0x00020060</code></td>
+</tr>
+<tr>
+<td>ROM CRC32, 52,216 bytes</td>
+<td><code>9b6576a9</code></td>
+</tr>
+<tr>
+<td>QSPI payload CRC32, 3,825,788 bytes</td>
+<td><code>3c18c276</code></td>
+</tr>
+<tr>
+<td>AEM CRC32, 7,352 bytes</td>
+<td><code>93742dd2</code></td>
+</tr>
+<tr>
+<td>Bitstream SHA-256, 3,825,992 bytes</td>
+<td><code>1696d1ea7568b2cf3cd536b1d34488e1ce7702e4a79e7cf3aca2c6ed6a54d2c7</code></td>
+</tr>
+<tr>
+<td>AEM SHA-256</td>
+<td><code>9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d16214404</code></td>
+</tr>
+<tr>
+<td>CSR map SHA-256, 9033 bytes</td>
+<td><code>92981a367616f79dc5d5382257afdb0aeff211845f86ea3b322102292c562e35</code></td>
+</tr>
+<tr>
+<td>Live ENTITY and CONFIGURATION</td>
+<td>Exact matches to the assigned AEM descriptors</td>
+</tr>
+<tr>
+<td>e1 constraints</td>
+<td>RX clock K18, MDIO L16; match the <a href="../../sw/litex/platforms/alinx_ax7101.py">platform</a></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">Readback proves CRC consistency, not configuration SHA-256.</p>
+<p dir="auto">The existing <a href="117_GPTP_SILICON_EVIDENCE.md#candidate-image-and-identity-proof">identity method</a> was repeated.</p>
+<p dir="auto">All seven outlets initially read ON.</p>
+<p dir="auto">All eighteen queried stream states were unbound.</p>
+<p dir="auto">The DUT initially selected INTERNAL, source 0.</p>
+<p dir="auto">The reference peer retained INTERNAL and its original sampling rate.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Direction</th>
+<th>Binding</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DUT to reference peer</td>
+<td>Output 1 to input 8</td>
+<td>CRF, <code>041060010000bb80</code></td>
+</tr>
+<tr>
+<td>Reference peer to DUT</td>
+<td>Output 2 to input 1</td>
+<td>Same CRF format</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">DUT source 1 selected the bound CRF input.</p>
+<p dir="auto">Both listeners reported MEDIA_LOCKED before the first outage.</p>
+<p dir="auto">The DUT reported <code>SYNC=1</code>, <code>ASCAPABLE=1</code>, <code>TU=0</code>.</p>
+<p dir="auto">Its media servo reported LOCKED.</p>
+<p dir="auto">The 12-second baseline captured 6,000 PDUs in each direction.</p>
+<p dir="auto">All carried <code>tu=0</code>.</p>
+<p dir="auto">AAF render timing was not measured by this CRF run.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Method and limits</h2><a id="user-content-method-and-limits" class="anchor" aria-label="Permalink: Method and limits" href="#method-and-limits"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">Only OUT4, the bench AVB switch, was cycled.</p>
+<p dir="auto">Cycle 1 repeated the earlier <a href="117_GPTP_SILICON_EVIDENCE.md#out4-is-the-switch">OUT4 proof</a>.</p>
+<p dir="auto">Switch messages stopped, and the controller port lost carrier.</p>
+<p dir="auto">DUT console replies continued; its reset epoch remained 1.</p>
+<p dir="auto">The reference peer's advertisement index continued increasing.</p>
+<p dir="auto">Its grandmaster-change counter also continued, without resetting.</p>
+<p dir="auto">Every other outlet remained ON.</p>
+<p dir="auto">No later cycle started before this proof passed.</p>
+<p dir="auto">Every action held the bench lock for its own duration.</p>
+<p dir="auto">All commands and captures ran in bounded foreground processes.</p>
+<p dir="auto">The DUT was never rebooted, flashed or power-cycled.</p>
+<p dir="auto">No controller re-bind occurred during any cycle.</p>
+<p dir="auto">The console sampled every 250 ms.</p>
+<p dir="auto">Each cycle retained these independent observations:</p>
+<ul dir="auto">
+<li>DUT console health, PHC time, reset epoch and MAC status.</li>
+<li><code>CLKV_STAT</code>, <code>CLKV_TUCNT</code>, <code>A_MCSRV_STAT</code> and CRF emission words.</li>
+<li>Controller GET_COUNTERS and retained ACMP bindings, approximately every second.</li>
+<li>Inline capture on the DUT link, including both CRF directions.</li>
+<li>Controller-port capture, carrier edges, and timed outlet commands.</li>
+</ul>
+<p dir="auto">Counter snapshots cover AVB_INTERFACE, STREAM_INPUT, STREAM_OUTPUT and CLOCK_DOMAIN.</p>
+<p dir="auto">The <a href="../reference/REGISTER_MAP.md">register map</a> defines the sampled fields.</p>
+<p dir="auto">Captures use the earlier tap envelope and timestamp decoder.</p>
+<p dir="auto">Within-capture intervals use unwrapped hardware timestamps.</p>
+<p dir="auto">Cross-host comparisons use three clock probes before and after.</p>
+<p dir="auto">The quickest round trip supplies each clock-offset estimate.</p>
+<p dir="auto">Those estimates and their half-round-trip bounds remain in every analysis.</p>
+<p dir="auto">Console resolution is 250 ms; controller observations are coarser.</p>
+<p dir="auto">Table decimals identify estimates, not matching absolute accuracy.</p>
+<p dir="auto">The console and controller record request-observation times.</p>
+<p dir="auto">Clock-probe half-round-trip bounds were approximately 0.15 s and 0.07 s.</p>
+<p dir="auto">The tap anchor spread was approximately plus or minus 0.05 s.</p>
+<p dir="auto">USB acquisition latency was not independently calibrated.</p>
+<p dir="auto">PHC steps are inferred from discontinuous UART PHC readings.</p>
+<p dir="auto">Each recorded bracket spans the final pre-step and first post-step reads.</p>
+<p dir="auto">No hardware step strobe or exact step counter was available.</p>
+<p dir="auto">The large observed steps cannot be explained by UART sampling jitter.</p>
+<p dir="auto">Valid CRF PDUs match the bound stream and advertised format.</p>
+<p dir="auto">The checks include subtype, version, length, frequency and timestamp interval.</p>
+<p dir="auto">They also require the expected VLAN and priority.</p>
+<p dir="auto">Every resumed PDU carried <code>tu=0</code>.</p>
+<p dir="auto">The recovery clock starts at the first returning Announce or Sync.</p>
+<p dir="auto">It ends when asCapable, sync and <code>tu=0</code> coexist.</p>
+<p dir="auto">The <a href="../design/GM_LOSS_RECOVERY.md#recovery-bound">documented bound</a> is five seconds.</p>
+<p dir="auto">That contract permits one further stream restart for media recovery.</p>
+<p dir="auto">The <a href="../design/TIME_SYNC.md#step-policy">step policy</a> supplies the media context.</p>
+<p dir="auto">DUT MAC_STATUS stayed <code>0x0d</code> throughout each outage.</p>
+<p dir="auto">Thus no DUT link-down or link-up timestamp was observable.</p>
+<p dir="auto">Controller carrier edges describe another switch port, not DUT edges.</p>
+<p dir="auto">Cycle 1 carrier loss was delayed by blocking controller queries.</p>
+<p dir="auto">Later cycles used a separate 100 ms carrier sampler.</p>
+<p dir="auto">Both carrier methods and their raw records are retained.</p>
+<p dir="auto">The first returning tapped frame supplies a separate wire landmark.</p>
+<p dir="auto">The requested one-second restart comparison uses that observable landmark.</p>
+<p dir="auto">It cannot replace an exact physical link-up measurement.</p>
+<p dir="auto">Issue <a href="https://github.com/kebag-logic/milan-fpga/issues/75" data-hovercard-type="issue" data-hovercard-url="/kebag-logic/milan-fpga/issues/75/hovercard">#75</a> separately starts timing at CONNECT_RX success.</p>
+<p dir="auto">These automatic returns issued no CONNECT_RX from the controller.</p>
+<p dir="auto">They do not satisfy that issue's hundred-reconnect experiment.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Per-cycle results</h2><a id="user-content-per-cycle-results" class="anchor" aria-label="Permalink: Per-cycle results" href="#per-cycle-results"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">All table times are seconds.</p>
+<p dir="auto">Carrier edges, GM return, PHC step brackets and first PDUs are relative to OFF.</p>
+<p dir="auto">Recovery is measured from the first returning GM message.</p>
+<p dir="auto">Step-to-media uses the measured step bracket.</p>
+<p dir="auto">Its endpoint requires DUT MEDIA_LOCKED, <code>tu=0</code> and servo LOCKED.</p>
+<p dir="auto">The raw analysis separately records each contributing observation.</p>
+<p dir="auto">It also retains every GM, health and servo-state transition.</p>
+<p dir="auto">The range brackets step timing; polling adds observation latency.</p>
+<p dir="auto">The final two columns report observations without applying #593.</p>
+<p dir="auto">| Cycle | OFF duration | Controller down / up | GM return / PHC step | gPTP recovery | First DUT / peer PDU | Step to media | DUT / peer mr changes | DUT MEDIA_RESET sequence |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | 21.09 | 10.74 / 34.94 | 39.99 / 41.02-41.30 | 1.56 | 43.99 / 46.52 | 8.00-8.28 | 2 / 0 | 1 &gt; 2 &gt; 0 &gt; 1 |
+| 2 | 20.89 | 1.38 / 34.88 | 39.87 / 39.77-40.05 | 0.68 | 46.77 / 47.55 | 10.25-10.54 | 2 / 0 | 1 &gt; 2 &gt; 0 &gt; 1 |
+| 3 | 20.96 | 1.45 / 34.83 | 39.93 / 41.02-41.30 | 1.62 | 45.24 / 45.74 | 7.50-7.78 | 2 / 0 | 1 &gt; 2 &gt; 1 |
+| 4 | 20.92 | 1.37 / 34.86 | 41.74 / 42.77-43.05 | 1.81 | 51.18 / 47.83 | 7.50-7.79 | 2 / 0 | 1 &gt; 2 &gt; 1 |
+| 5 | 20.90 | 1.38 / 34.87 | 39.92 / 39.77-40.05 | 0.63 | 48.52 / 48.44 | 11.25-11.54 | 2 / 0 | 1 &gt; 2 &gt; 1 |
+| 6 | 20.94 | 1.45 / 34.94 | 39.92 / 39.77-40.05 | 0.64 | 52.60 / 48.05 | 10.75-11.04 | 2 / 0 | 1 &gt; 2 &gt; 0 &gt; 1 |
+| 7 | 21.05 | 1.48 / 35.06 | 40.11 / 40.02-40.30 | 0.44 | 44.69 / 45.85 | 8.25-8.53 | 2 / 0 | 1 &gt; 2 &gt; 0 &gt; 1 |
+| 8 | 21.05 | 1.46 / 35.05 | 40.08 / 40.02-40.30 | 0.47 | 49.00 / 49.88 | 12.25-12.54 | 2 / 0 | 1 &gt; 2 &gt; 1 |
+| 9 | 21.02 | 1.37 / 34.89 | 39.99 / 41.02-41.30 | 1.82 | 44.20 / 46.75 | 8.50-8.78 | 2 / 0 | 1 &gt; 2 &gt; 1 |
+| 10 | 20.92 | 1.38 / 34.87 | 39.87 / 39.77-40.05 | 0.68 | 45.87 / 46.00 | 8.75-9.04 | 2 / 0 | 1 &gt; 2 &gt; 0 &gt; 1 |</p>
+<p dir="auto">All ten gPTP recoveries passed: 0.44 to 1.82 seconds.</p>
+<p dir="auto">The longest observed step-to-media endpoint was 12.54 seconds.</p>
+<p dir="auto">Every cycle regained both streams and retained both bindings.</p>
+<p dir="auto">Each talker counted one further STREAM_START and one STREAM_STOP.</p>
+<p dir="auto">No cycle approached the 180-second stop deadline.</p>
+<p dir="auto">The largest console sampling gap was 0.251 seconds.</p>
+<p dir="auto">DUT reset epoch remained 1 in every sample.</p>
+<p dir="auto">First valid PDUs followed wire return by 5.07-14.00 seconds.</p>
+<p dir="auto">Those observed restart intervals all exceed one second.</p>
+<p dir="auto">Exact DUT link-up-to-PDU delays remain unmeasured.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Counter and restart findings</h2><a id="user-content-counter-and-restart-findings" class="anchor" aria-label="Permalink: Counter and restart findings" href="#counter-and-restart-findings"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The link-counter failure reproduced in all ten cycles.</p>
+<p dir="auto">LINK_UP remained 1; LINK_DOWN remained 0.</p>
+<p dir="auto">Their valid-mask bits were present in every successful response.</p>
+<p dir="auto">This confirms the earlier <a href="117_GPTP_SILICON_EVIDENCE.md#return-and-recovery">flat-counter observation</a>.</p>
+<p dir="auto">The <a href="../../sw/litex/milan_soc.py">integration source</a> explains the status dependency.</p>
+<p dir="auto">It initializes software-published link status to up.</p>
+<p dir="auto">This run never wrote that status to manufacture edges.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>DUT observation</th>
+<th>Per-cycle result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AVB_INTERFACE LINK_UP / LINK_DOWN</td>
+<td><code>+0 / +0</code>, defect</td>
+</tr>
+<tr>
+<td>AVB_INTERFACE GPTP_GM_CHANGED</td>
+<td><code>+2</code>, selected itself and then the switch</td>
+</tr>
+<tr>
+<td>CRF STREAM_INPUT MEDIA_LOCKED / MEDIA_UNLOCKED</td>
+<td><code>+1 / +1</code></td>
+</tr>
+<tr>
+<td>CLOCK_DOMAIN LOCKED / UNLOCKED</td>
+<td><code>+1 / +1</code></td>
+</tr>
+<tr>
+<td>CRF STREAM_OUTPUT STREAM_START / STREAM_STOP</td>
+<td><code>+1 / +1</code></td>
+</tr>
+<tr>
+<td>Stream reservation and ACMP binding</td>
+<td>Recovered automatically; both bindings retained</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p dir="auto">The media servo moved LOCKED, HOLDOVER, ACQUIRE, then LOCKED.</p>
+<p dir="auto">One large PHC discontinuity accompanied each grandmaster return.</p>
+<p dir="auto">The first step was approximately minus 358,781 seconds.</p>
+<p dir="auto">Cycle 2 stepped approximately minus 162.46 seconds.</p>
+<p dir="auto">Cycles 3 to 10 stepped between minus 95.74 and minus 96.47 seconds.</p>
+<p dir="auto">The raw analysis records each measured amount and time bracket.</p>
+<p dir="auto">DUT outgoing <code>mr</code> changed at loss and on resumed transmission.</p>
+<p dir="auto">The reference peer's captured <code>mr</code> stayed unchanged.</p>
+<p dir="auto">No claim counts unseen toggles during the wire gap.</p>
+<p dir="auto">DUT MEDIA_RESET was observed at 2 after loss.</p>
+<p dir="auto">It returned to 1 after the new STREAM_START.</p>
+<p dir="auto">STREAM_START resets its observation-interval count to zero.</p>
+<p dir="auto">That reset follows the <a href="../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv">counter contract</a>.</p>
+<p dir="auto">Endpoint subtraction would incorrectly hide those increments.</p>
+<p dir="auto">The table therefore preserves each observed counter sequence.</p>
+<p dir="auto">Polling caught the intermediate zero in five of ten cycles.</p>
+<p dir="auto">The other five do not prove the timing of that reset.</p>
+<p dir="auto">The reference listener also reset counters on reacquisition.</p>
+<p dir="auto">Its raw trajectory records unlock before the reset.</p>
+<p dir="auto">This run reports these restart observations without grading #593.</p>
+<p dir="auto">The #387 verdict covers the assigned CRF recovery measurement.</p>
+<p dir="auto">It does not assert AAF render timing or waveform continuity.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Restore and validation</h2><a id="user-content-restore-and-validation" class="anchor" aria-label="Permalink: Restore and validation" href="#restore-and-validation"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">All seven outlets were restored ON, matching the starting census.</p>
+<p dir="auto">All eighteen stream states were unbound after both disconnections.</p>
+<p dir="auto">DUT clock source 0, INTERNAL, was restored.</p>
+<p dir="auto">Original configurations, clock sources, rates and descriptors compared equal.</p>
+<p dir="auto">Final UART health was sync 1, asCapable 1 and <code>tu=0</code>.</p>
+<p dir="auto">Reset epoch remained 1, and the media servo returned IDLE.</p>
+<p dir="auto">The final 12-second tap capture contained no CRF PDUs.</p>
+<p dir="auto">The bare-metal UART grader passed 10 of 10 checks.</p>
+<p dir="auto">The temporary capture driver was unloaded and its build removed.</p>
+<p dir="auto">Temporary controller files were removed, with no acquisition process remaining.</p>
+<p dir="auto">The bench lock was released and its availability verified.</p>
+<p dir="auto">The required documentation, scope, bare-metal and feature-status gates are recorded in the packet.</p>
+<p dir="auto">No RTL or firmware changed in this lane.</p>
+<div class="markdown-heading" dir="auto"><h2 class="heading-element" dir="auto">Artifact hashes</h2><a id="user-content-artifact-hashes" class="anchor" aria-label="Permalink: Artifact hashes" href="#artifact-hashes"><svg data-component="Octicon" class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a></div>
+<p dir="auto">The operator packet contains the scripts, transcripts and analyses.</p>
+<p dir="auto">The packet is identified as <code>2026-09-23/394-a375</code>.</p>
+<p dir="auto">Large raw captures remain under <code>/tmp/a375/cycleNN/</code>.</p>
+<p dir="auto">Each cycle's <code>raw-artifacts.json</code> lists paths, sizes and SHA-256.</p>
+<p dir="auto"><code>MANIFEST.sha256</code> covers retained packet files, excluding itself.</p>
+<p dir="auto">Raw retention follows <a href="../testing/TESTING.md#6b-bench-evidence-retention">TESTING section 6b</a>.</p>
+<p dir="auto">The assigned build and CSR map are identified by hashes.</p>
+<p dir="auto">The initial capture preflight failed before any outlet operation.</p>
+<p dir="auto">The tap was attached but lacked a matching capture driver.</p>
+<p dir="auto">A temporary rebuild restored the same capture interface.</p>
+<p dir="auto">No driver source change, permanent installation or wiring change occurred.</p>
+<p dir="auto">The successful baseline then proved both tapped directions.</p>
+<markdown-accessiblity-table><table>
+<thead>
+<tr>
+<th>Cycle</th>
+<th>Raw artifact</th>
+<th align="right">Bytes</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>console.jsonl</code></td>
+<td align="right">670801</td>
+<td><code>9aa7aa7d45d5ee5c56a412b5a94f4abebb12cde5fd8b12ac20eac5479ea315b5</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>controller-wire.pcap</code></td>
+<td align="right">156161</td>
+<td><code>0daed9832f9db5424b31b20e2f9a2c20a36b0f9c10b7a85146b1fc0bea61c61d</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>tap.pcap</code></td>
+<td align="right">5275332</td>
+<td><code>a83a8e769dcf0278f80f3738503f9c13a11253b109b80d31952d16d37e39bb31</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>controller.jsonl</code></td>
+<td align="right">287595</td>
+<td><code>71fc0b42ac7d3212f68fc87201ff2bb1780dd40d61893fa8ee077dab837aa3e1</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>events.jsonl</code></td>
+<td align="right">3887</td>
+<td><code>e116c2c5caa2fdaf0d9c2fd1602f6281b3d7402f9a42853e1f1dbc37443b7d9f</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>console.jsonl</code></td>
+<td align="right">670812</td>
+<td><code>ae882b1e0a7b0449f9cca6f1944148b122eb1338a4367a58c5b81e8f2f96eba3</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>controller-wire.pcap</code></td>
+<td align="right">159731</td>
+<td><code>946cda842af10b1354e795f21d120a6ad00d749afd8ec262510cf26e992f64a0</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>tap.pcap</code></td>
+<td align="right">5074088</td>
+<td><code>7c92949fef1f06b8b83c46d99c58706a9b44ec2d48575dfa54c7aca100589b84</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>controller.jsonl</code></td>
+<td align="right">286355</td>
+<td><code>54c0db499f631f4bd1eaebb25fd05fb1a87c1da768525e7b8d222f5819269868</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>events.jsonl</code></td>
+<td align="right">3881</td>
+<td><code>5302c99e4407c057dd787543a78ceb9efcbff85309864c71ea64f72e5d511cd1</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>console.jsonl</code></td>
+<td align="right">670807</td>
+<td><code>82b714f1645906184dd05ae4f546b785ffd65c5f59d0448001f257314ae7b8d9</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>controller-wire.pcap</code></td>
+<td align="right">159583</td>
+<td><code>7201ea8ff2c3c80c4e301aea2c9d3140d47b1fa710340358b9a4c1012e2abe9f</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>tap.pcap</code></td>
+<td align="right">5277766</td>
+<td><code>9ae8fa4f84afe9da7afbca6466d66b106263669b8b96eae1f7d684ba4c6487fa</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>controller.jsonl</code></td>
+<td align="right">286921</td>
+<td><code>ddcdd37e88ba61629366b771a336294bb14d4a6ed7940ca1c837c9d9d44a23bb</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>events.jsonl</code></td>
+<td align="right">3881</td>
+<td><code>6e3f1ae124361405ad2c8afa68117f32aa54a1e14ebc4bbbc15cc26dbe254b68</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>console.jsonl</code></td>
+<td align="right">670686</td>
+<td><code>2b71e7f8e5212d1c7cb3b9854cd74c09c0fdaae2929ed61058adaa4ad7eee205</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>controller-wire.pcap</code></td>
+<td align="right">153956</td>
+<td><code>8c098f56730eb85f72d672035f8c3e0c60bb12626ad4afcfa8ab78c55e065aad</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>tap.pcap</code></td>
+<td align="right">4795536</td>
+<td><code>8dda4b70e7959c3f410ca5696be2117aa4dc1c1868f26a4bc241d1e714d866a4</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>controller.jsonl</code></td>
+<td align="right">275660</td>
+<td><code>006b3aa5135b79b993f55153cc029b0c0abc1e7fbed5237939edd3204b3d0677</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>events.jsonl</code></td>
+<td align="right">3883</td>
+<td><code>9a9dda69954ba3095168452b48ea48243abbd761195e98c236b5eed43ab82978</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>console.jsonl</code></td>
+<td align="right">671084</td>
+<td><code>aef70b9c668bcf39728058f24c0f62093898c27bd58c42ed18990b1a3d4cda91</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>controller-wire.pcap</code></td>
+<td align="right">159450</td>
+<td><code>f84c7074fcc2f28167888740f5b3facdbbbbdd4ba1f2ed1997be95ccf097fbef</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>tap.pcap</code></td>
+<td align="right">4946420</td>
+<td><code>63439e6cca40d5a2772f54410d8016eb0747138b08bd3cbc8c9ea5bf3bdbd9b6</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>controller.jsonl</code></td>
+<td align="right">287006</td>
+<td><code>d71a5aaa5f40aec3993449b5176c60fc73b1a2798c8dac8d51c8d69f193cec74</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>events.jsonl</code></td>
+<td align="right">3888</td>
+<td><code>cf21b4ba4e374f80ef6258137130ef82870472bc790d5176226059e2b27b23b0</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>console.jsonl</code></td>
+<td align="right">671152</td>
+<td><code>5dc23a4e560ec9ff48feeb5018c656a87409a997c56fb7a3aa8efcccb98cbaf0</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>controller-wire.pcap</code></td>
+<td align="right">159604</td>
+<td><code>82b0b03712ab2406c0258b8bc1bbd997bde08bee9d5613566aa49fa3182a4ce7</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>tap.pcap</code></td>
+<td align="right">4733247</td>
+<td><code>f65263b93898c4d983058f7cf3d5aa90960bc99df9884559a51abdb95c1f21b3</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>controller.jsonl</code></td>
+<td align="right">287306</td>
+<td><code>625efc8f8731d1178a30ff45ad41aecdb945e1f7a45df2d8caa32f59a87d2912</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>events.jsonl</code></td>
+<td align="right">3891</td>
+<td><code>e4fa91e2906d185bdbe221a70a326e1e76c31d3760b28612709f981d0a869905</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>console.jsonl</code></td>
+<td align="right">671178</td>
+<td><code>389ed2744e8e25e60d2e962e8ac9aca54524dc0e2be041470cb9a207749b183f</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>controller-wire.pcap</code></td>
+<td align="right">156739</td>
+<td><code>6b227866f66673adf2f1eba40c72f56f96cad35e40f1e17ddadd8d76299a4a67</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>tap.pcap</code></td>
+<td align="right">5287813</td>
+<td><code>1af2faf1a481c11f8f24419eec8696741a5f07b942048211b3089054b462e307</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>controller.jsonl</code></td>
+<td align="right">281106</td>
+<td><code>66eb71c6eff6b2f49f3e9475c74015a91411de21322de1a388344c86421b8b5e</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>events.jsonl</code></td>
+<td align="right">3892</td>
+<td><code>ad4580f7be418269465dcb858f54c4812467feb830567f591673b55fc8613487</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>console.jsonl</code></td>
+<td align="right">670881</td>
+<td><code>48966b8361b954bd2f8caadbbf4c21c2c140e4982aa14fe1272b689fce33be54</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>controller-wire.pcap</code></td>
+<td align="right">157000</td>
+<td><code>64763dddacf5a5db665793d053dd3f34dae94caf920c9aa0e575364888c3214d</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>tap.pcap</code></td>
+<td align="right">4830829</td>
+<td><code>86ab2e1eb67bd9a0c337996ba72aae6932c8d1b051a93515b467ef662d32fe25</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>controller.jsonl</code></td>
+<td align="right">281128</td>
+<td><code>797fb5e349cde1aa9e92c382b68ef201b7de771e83b80d370da4f7bd4d22cb81</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>events.jsonl</code></td>
+<td align="right">3882</td>
+<td><code>a107ec7d3e47398a3d9c8022a69c23e7794e8ffe93f50a173e34d4ce8ea895d6</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>console.jsonl</code></td>
+<td align="right">670764</td>
+<td><code>9949305e413a6a6dd081ea5d312f6e180c31df3214b34fb2c97d82e23ebbced6</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>controller-wire.pcap</code></td>
+<td align="right">159414</td>
+<td><code>97a1b752df834c3d6619dce072fae54cc9696fcd36c38d059c409fb519b2ebba</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>tap.pcap</code></td>
+<td align="right">5278580</td>
+<td><code>812fe41ae2315b48ff3d5dc9954e33053c9dfb9c12534caf94a01e5ba3fed4fb</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>controller.jsonl</code></td>
+<td align="right">287169</td>
+<td><code>10998e5de9e183270526b974bc172602bbea37f75d9248e859235c1c73f3f7bb</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>events.jsonl</code></td>
+<td align="right">3886</td>
+<td><code>85e83423b1e1dbdfd90693a1d8b995fb12dda7dad7d1474ddc94eb09977ac42f</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>console.jsonl</code></td>
+<td align="right">670780</td>
+<td><code>7b810d605e9ac2359a0176a640429f537f817d6679ffbcae34d919fb1d45549b</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>controller-wire.pcap</code></td>
+<td align="right">159431</td>
+<td><code>f57b8046d6ddc81e098fbae90d2244b150624825c5a0e568d87da3609fed8b61</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>tap.pcap</code></td>
+<td align="right">5196824</td>
+<td><code>9a7eabdf2cad2feac2ec4ef714a64fad0104fc81304e3ae8e67a3ef4ce4c85e4</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>controller.jsonl</code></td>
+<td align="right">287092</td>
+<td><code>c060963359fe7b291b053b8ba3f73b1c3787b479deb221880cbd43a7ba9cc0a9</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>events.jsonl</code></td>
+<td align="right">3887</td>
+<td><code>f92f5e90aa425e015f90c83dc9a4bb47fb535299075a16f29bf845bf7fd90116</code></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+</article></div>
