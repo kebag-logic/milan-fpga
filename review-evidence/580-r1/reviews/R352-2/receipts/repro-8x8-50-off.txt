@@ -1,0 +1,19 @@
+# Reviewer reproduction, arm endstation_ax7101_8x8 cpu_hz=50000000 traffic=off, exact head d02db63c367daf9adc7d709840bd81077e781d80
+# build: repro_capture.sh build (run.py --captures 16 --build-only), rc 0
+# native run: VSIM_RC=124 (foreground time bound; partial rows only)
+## capture rows
+CAPTURE index=0 ok=1 sys_cycles=2426010 raw=12634 records=156 mismatches=0 open=0 requests=0 responses=0 reads=0
+CAPTURE index=1 ok=1 sys_cycles=2426154 raw=12634 records=156 mismatches=0 open=0 requests=0 responses=0 reads=0
+CAPTURE_DONE lines: 0
+## comparison with receipt
+endstation_ax7101_8x8 50000000 off: reproduced 2/16 rows; equal 2/2
+max reproduced sys_cycles 2426154 receipt arm max_ms 24.26154
+compare rc=0
+## build input hashes
+71aef8c36ebf5bf5d99bc4dc7f969b5b275c85ce6e2984dcc09723b508313917  measurement_firmware/milan_baremetal.c
+4c74bd59be9239d30adb07ad252c101a0d4c33e7922e7dea768ee110782971a8  software/bios/bios.bin
+78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b  generated/endstation_ax7101_8x8/gptp_ucode.hex
+ede309aa78d5eb566e9a3c93a0ef6c843cc181c1d3f2bbe32eda5db62961983e  configs/endstation_ax7101_8x8.yaml
+0bf43cd4fe02b110fb1ae4f051b3bc7baa6bb62c3769962520ed1f4bd12247a6  sw/firmware/milan_baremetal/milan_baremetal.c
+c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d  <cpu-cache>/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+sources 118 protocol-processor sources 45

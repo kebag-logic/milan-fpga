@@ -1,0 +1,16 @@
+docs_check	0	python3 scripts/docs_check.py
+check_doc_style	0	python3 scripts/check_doc_style.py
+check_submodule_docs	0	python3 scripts/check_submodule_docs.py
+check_doc_paths	0	python3 scripts/check_doc_paths.py
+check_archive	0	python3 scripts/check_archive.py
+check_nvm_capture	0	python3 scripts/check_nvm_capture.py
+measure_test_evidence	0	python3 scripts/measure_test_evidence.py --check
+check_port_contracts	0	python3 scripts/check_port_contracts.py
+diff-check-base	0	git diff --check 682ecf0cb995473b72d5b4921088053ba753fc93 d02db63c367daf9adc7d709840bd81077e781d80
+diff-check-delta	0	git diff --check 499b15f97eb0a469b7cd1308fbba7af3c64d1851 d02db63c367daf9adc7d709840bd81077e781d80
+check_diagram_pngs	0	python3 scripts/check_diagram_pngs.py
+submodule-boundaries-check	0	python3 docs/diagrams/submodule_boundaries.gen.py --check
+gen_toc-check	0	$MD_PYTHON scripts/gen_toc.py --check
+gen_toc-anchors	0	$MD_PYTHON scripts/gen_toc.py --verify-anchors
+check_em_dash-base	0	$MD_PYTHON scripts/check_em_dash.py --base 682ecf0cb995473b72d5b4921088053ba753fc93
+check_em_dash-delta	0	$MD_PYTHON scripts/check_em_dash.py --base 499b15f97eb0a469b7cd1308fbba7af3c64d1851

@@ -1,0 +1,33 @@
+# Reviewer reproduction, arm endstation_ax7101_1x1_tdm8 cpu_hz=50000000 traffic=on, exact head d02db63c367daf9adc7d709840bd81077e781d80
+# build: repro_capture.sh build (run.py --captures 16 --build-only), rc 0
+# native run: VSIM_RC=0
+## capture rows
+CAPTURE index=0 ok=1 sys_cycles=660422 raw=3218 records=53 mismatches=0 open=0 requests=41190 responses=40 reads=1586
+CAPTURE index=1 ok=1 sys_cycles=660430 raw=3218 records=53 mismatches=0 open=0 requests=41190 responses=41 reads=1570
+CAPTURE index=2 ok=1 sys_cycles=660286 raw=3218 records=53 mismatches=0 open=0 requests=41181 responses=40 reads=1562
+CAPTURE index=3 ok=1 sys_cycles=659822 raw=3218 records=53 mismatches=0 open=0 requests=41152 responses=41 reads=1599
+CAPTURE index=4 ok=1 sys_cycles=660298 raw=3218 records=53 mismatches=0 open=0 requests=41183 responses=40 reads=1560
+CAPTURE index=5 ok=1 sys_cycles=660590 raw=3218 records=53 mismatches=0 open=0 requests=41201 responses=41 reads=1599
+CAPTURE index=6 ok=1 sys_cycles=660430 raw=3218 records=53 mismatches=0 open=0 requests=41190 responses=41 reads=1570
+CAPTURE index=7 ok=1 sys_cycles=660286 raw=3218 records=53 mismatches=0 open=0 requests=41180 responses=40 reads=1562
+CAPTURE index=8 ok=1 sys_cycles=659822 raw=3218 records=53 mismatches=0 open=0 requests=41153 responses=41 reads=1599
+CAPTURE index=9 ok=1 sys_cycles=660480 raw=3218 records=53 mismatches=0 open=0 requests=41193 responses=40 reads=1560
+CAPTURE index=10 ok=1 sys_cycles=659814 raw=3218 records=53 mismatches=0 open=0 requests=41152 responses=41 reads=1599
+CAPTURE index=11 ok=1 sys_cycles=659986 raw=3218 records=53 mismatches=0 open=0 requests=41162 responses=41 reads=1593
+CAPTURE index=12 ok=1 sys_cycles=660642 raw=3218 records=53 mismatches=0 open=0 requests=41204 responses=41 reads=1582
+CAPTURE index=13 ok=1 sys_cycles=660430 raw=3218 records=53 mismatches=0 open=0 requests=41190 responses=41 reads=1570
+CAPTURE index=14 ok=1 sys_cycles=660480 raw=3218 records=53 mismatches=0 open=0 requests=41193 responses=40 reads=1560
+CAPTURE index=15 ok=1 sys_cycles=660430 raw=3218 records=53 mismatches=0 open=0 requests=41190 responses=40 reads=1560
+CAPTURE_DONE lines: 1
+## comparison with receipt
+endstation_ax7101_1x1_tdm8 50000000 on: reproduced 16/16 rows; equal 16/16
+max reproduced sys_cycles 660642 receipt arm max_ms 6.60642
+compare rc=0
+## build input hashes
+d82f1d404f7e00482e5104d986ef635dcb8c420ab139078871f9d8f18d704d56  measurement_firmware/milan_baremetal.c
+c1a8be054807fcc848fd69ffafe379a87971440f3dd754fec610b61f94de8399  software/bios/bios.bin
+78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b  generated/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+d2c757e2fcd24d3f494e8c3d2e9f798bf7eba9b7e201741e7125d4f27692c807  configs/endstation_ax7101_1x1_tdm8.yaml
+0bf43cd4fe02b110fb1ae4f051b3bc7baa6bb62c3769962520ed1f4bd12247a6  sw/firmware/milan_baremetal/milan_baremetal.c
+c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d  <cpu-cache>/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+sources 118 protocol-processor sources 45
