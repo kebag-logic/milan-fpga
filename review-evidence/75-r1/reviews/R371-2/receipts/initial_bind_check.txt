@@ -1,0 +1,16 @@
+PASS disclosure source hash talker-setup/analysis.json
+PASS disclosure source hash talker-setup/msrp.tsv
+PASS disclosure source hash census-start.jsonl
+PASS disclosure source hash census-end.jsonl
+PASS initial talker bind latency 6.889398468 s
+PASS no DUT Talker Advertise declaration before the response (0)
+PASS first DUT TA 0.079237250 s after the response
+INFO DUT TA declarations before first CRF: 9; spacing s: [0.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.2]
+PASS first bridge MSRP is LeaveAll at +6.080007742 s (capture time 8.800789 s)
+PASS Ready +6.888605306 s, CRF +0.000793162 s later
+INFO DUT TA declarations between the response and the bridge LeaveAll: 7; between LeaveAll and Ready: 2 at +[6.279249042, 6.479254992]
+PASS initial listener bind 0.198315713 s (< 1 s)
+PASS census start/end state key sets equal (18 keys)
+INFO differing fields ('dut', 'state-6-1'): ['dmac']; start dmac/conn all-zero/0 end MAAP-range/0
+INFO end-census states with conn_count 0: 18 of 18
+== RESULT PASS (0 failing checks)

@@ -1,0 +1,31 @@
+=== mutation one-pdu-in-hold
+FAIL my wire rule and the counter redundancy agree with the published classification [('talker', 12)]
+FAIL non-restarts are exactly talker 13, 24, 75: [('talker', 12), ('talker', 13), ('talker', 24), ('talker', 75)]
+FAIL talker: retained counters (18, 17) -> (115, 114) = +97/+97; ledger sum +97/+97; demonstrated restarts 96; claim 97
+FAIL talker: distribution ['96', '96', '0.017427', '0.019172', '0.042347', '0.117736'] == page ['97', '97', '0.017427', '0.019175', '0.042347', '0.117736']
+FAIL talker: growth row mine ['0.019894', '0.019818', '-0.000021758', '[-0.000136986, +0.000093470]'] (df 94) vs page ['0.019894', '0.019818', '-0.000019700', '[-0.000133251, +0.000093851]']
+FAIL talker slope without cycle 1 +0.000040503
+FAIL 20 ordered blocks: median and maximum over demonstrated restarts [['DUT talker', '11-20', '0.019175', '0.039614']]
+FAIL cycle-evidence table: 200 intervals and results match [['DUT talker', '12', '0.019536', 'PASS']]
+FAIL stop-check table: 200 rows match the ledger and my classification [['DUT talker', '12', '0', '0', '1 / 1', '1 / 1', 'PASS']]
+== RESULT FAIL (9 failing checks)
+rc=1
+=== mutation counter-on-nonrestart
+FAIL my wire rule and the counter redundancy agree with the published classification [('talker', 24)]
+FAIL talker: retained counters (18, 17) -> (115, 114) = +97/+97; ledger sum +98/+98; demonstrated restarts 97; claim 97
+FAIL stop-check table: 200 rows match the ledger and my classification [['DUT talker', '24', '754', '4', '0 / 0', '0 / 0', 'FAIL']]
+== RESULT FAIL (3 failing checks)
+rc=1
+=== mutation latency-shift
+FAIL every accepted restart shows a silent gap spanning settle->response [('talker', 72)]
+FAIL talker: distribution ['97', '97', '0.017428', '0.019175', '0.042347', '0.117736'] == page ['97', '97', '0.017427', '0.019175', '0.042347', '0.117736']
+FAIL stated effect: minimum 0.000297 -> 0.017427, maximum unchanged
+FAIL talker: growth row mine ['0.019894', '0.019818', '-0.000019700', '[-0.000133251, +0.000093852]'] (df 95) vs page ['0.019894', '0.019818', '-0.000019700', '[-0.000133251, +0.000093851]']
+FAIL talker slope without cycle 1 +0.000040906
+FAIL cycle-evidence table: 200 intervals and results match [['DUT talker', '72', '0.017427', 'PASS']]
+== RESULT FAIL (6 failing checks)
+rc=1
+=== author assert_stop negative controls
+(1, 10, 5) rejected: target PDUs during settled hold through response
+(0, 4, 5) rejected: resumed before response; needs censoring
+(0, 5, 5) accepted

@@ -1,0 +1,67 @@
+== 1. ledger shape
+PASS listener: 100 attempts, cycles 1..100, each once
+PASS talker: 100 attempts, cycles 1..100, each once
+== 2. independent stop classification (window arithmetic, wire rule, counter redundancy)
+PASS window arithmetic and latency identity hold for all 200 rows []
+PASS my wire rule and the counter redundancy agree with the published classification []
+PASS every accepted restart shows a silent gap spanning settle->response []
+PASS non-restarts are exactly talker 13, 24, 75: [('talker', 13), ('talker', 24), ('talker', 75)]
+INFO listener: last target PDU after the disconnect response, ms: min 0.940 median 96.985 max 189.486 (n=100)
+PASS listener: every accepted restart stopped well inside the 0.5 s settling allowance
+INFO talker: last target PDU after the disconnect response, ms: min 7.586 median 9.108 max 98.801 (n=97)
+PASS talker: every accepted restart stopped well inside the 0.5 s settling allowance
+PASS talker 13: 754 settled PDUs vs 754.7 expected at 500/s, 1000 hold PDUs vs 1000.1, max gap 0.002000053 s, DUT counters 0/0 -> continuous stream, no stop
+PASS talker 24: 754 settled PDUs vs 754.5 expected at 500/s, 1000 hold PDUs vs 1000.1, max gap 0.002000053 s, DUT counters 0/0 -> continuous stream, no stop
+PASS talker 75: 755 settled PDUs vs 754.5 expected at 500/s, 1000 hold PDUs vs 1000.1, max gap 0.002000053 s, DUT counters 0/0 -> continuous stream, no stop
+== 3. flags and capture-size identity
+PASS mr, fs, tu zero in every target PDU
+PASS bytes = 24 + 108 * CRF PDUs + other, all 200 captures
+PASS unwrap spread below half-wrap
+== 4. raw identity cross-check (ledger vs private-artifact index vs page)
+PASS 200 capture sha256 and sizes agree across ledger, RAW-ARTIFACTS.json and the page index
+== 5. public cycles 1-5: ledger vs retained per-cycle records, input hashes, counter continuity
+PASS input-hashes.csv lists 1000 source records (1000)
+PASS listener-001: hashes, anchors, latency, last-half count, PDU total, counter deltas, continuity
+PASS listener-002: hashes, anchors, latency, last-half count, PDU total, counter deltas, continuity
+PASS listener-003: hashes, anchors, latency, last-half count, PDU total, counter deltas, continuity
+PASS listener-004: hashes, anchors, latency, last-half count, PDU total, counter deltas, continuity
+PASS listener-005: hashes, anchors, latency, last-half count, PDU total, counter deltas, continuity
+PASS talker-001: hashes, anchors, latency, last-half count, PDU total, counter deltas, continuity
+PASS talker-002: hashes, anchors, latency, last-half count, PDU total, counter deltas, continuity
+PASS talker-003: hashes, anchors, latency, last-half count, PDU total, counter deltas, continuity
+PASS talker-004: hashes, anchors, latency, last-half count, PDU total, counter deltas, continuity
+PASS talker-005: hashes, anchors, latency, last-half count, PDU total, counter deltas, continuity
+PASS listener: retained counters (12, 11) -> (112, 111) = +100/+100; ledger sum +100/+100; demonstrated restarts 100; claim 100
+PASS talker: retained counters (18, 17) -> (115, 114) = +97/+97; ledger sum +97/+97; demonstrated restarts 97; claim 97
+PASS listener series: inactive DUT output counters unchanged in all 100 cycles
+== 6. distributions, blocks, slope intervals vs the page
+PASS listener: distribution ['100', '100', '0.006641', '0.110280', '0.188503', '0.204859'] == page ['100', '100', '0.006641', '0.110280', '0.188503', '0.204859']
+PASS talker: distribution ['97', '97', '0.017427', '0.019175', '0.042347', '0.117736'] == page ['97', '97', '0.017427', '0.019175', '0.042347', '0.117736']
+PASS stated effect: minimum 0.000297 -> 0.017427, maximum unchanged
+PASS listener: growth row mine ['0.122844', '0.118585', '-0.000099788', '[-0.000501182, +0.000301607]'] (df 98) vs page ['0.122844', '0.118585', '-0.000099788', '[-0.000501182, +0.000301607]']
+INFO listener: upper bound 30.161 ms/100 cycles
+PASS talker: growth row mine ['0.019894', '0.019818', '-0.000019700', '[-0.000133251, +0.000093851]'] (df 95) vs page ['0.019894', '0.019818', '-0.000019700', '[-0.000133251, +0.000093851]']
+INFO talker: upper bound 9.385 ms/100 cycles
+PASS talker slope without cycle 1 +0.000040905
+PASS 20 ordered blocks: median and maximum over demonstrated restarts []
+== 7. page per-cycle tables vs ledger
+PASS cycle-evidence table: 200 intervals and results match []
+PASS stop-check table: 200 rows match the ledger and my classification []
+PASS six largest talker captures table matches the ledger
+== 8. what the tapped MSRP record says about the three non-restarts
+INFO talker-001: bridge Listener Lv at disconnect+9.758 ms (count 1); last DUT PDU at disconnect+9.087 ms
+PASS talker-001: exactly one bridge Listener Lv, and the stream stops within one PDU period before it reaches the DUT side
+INFO talker-002: bridge Listener Lv at disconnect+9.495 ms (count 1); last DUT PDU at disconnect+9.278 ms
+PASS talker-002: exactly one bridge Listener Lv, and the stream stops within one PDU period before it reaches the DUT side
+INFO talker-003: bridge Listener Lv at disconnect+9.507 ms (count 1); last DUT PDU at disconnect+9.212 ms
+PASS talker-003: exactly one bridge Listener Lv, and the stream stops within one PDU period before it reaches the DUT side
+INFO talker-004: bridge Listener Lv at disconnect+10.005 ms (count 1); last DUT PDU at disconnect+8.529 ms
+PASS talker-004: exactly one bridge Listener Lv, and the stream stops within one PDU period before it reaches the DUT side
+INFO talker-005: bridge Listener Lv at disconnect+10.951 ms (count 1); last DUT PDU at disconnect+10.589 ms
+PASS talker-005: exactly one bridge Listener Lv, and the stream stops within one PDU period before it reaches the DUT side
+INFO talker 13: MSRP profile ('12 / 7', '4 / 4', '11 / 0', '0 / 4', '0 / 4') (PDUs, LeaveAll, TA, Listener, Ready) is identical to restart cycles [42, 54, 59, 90]
+INFO talker 24: MSRP profile ('11 / 6', '4 / 0', '10 / 0', '0 / 3', '0 / 3') (PDUs, LeaveAll, TA, Listener, Ready) is identical to restart cycles [36, 80]
+INFO talker 75: MSRP profile ('12 / 7', '4 / 4', '11 / 0', '0 / 4', '0 / 4') (PDUs, LeaveAll, TA, Listener, Ready) is identical to restart cycles [42, 54, 59, 90]
+INFO page attribution table: bridge Listener Lv total over the 100 talker captures = 100
+INFO page text mentions Listener leave for the non-restarts: False
+== RESULT PASS (0 failing checks)
