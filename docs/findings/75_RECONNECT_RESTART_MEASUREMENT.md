@@ -3,6 +3,7 @@
 Refs #75. Operator [A386], measured 2026-09-27.
 
 Round-2 analysis [A389], 2026-09-28, uses recorded data only.
+Round-3 corrections [A391], 2026-09-28, also use recorded data.
 
 Measured transport: CRF, one direction at a time.
 AAF restart timing remains unmeasured.
@@ -216,13 +217,42 @@ It then repeats every second while Ready remains absent.
 The bridge sends no MSRP until its LeaveAll.
 That arrives 6.080 seconds after the response.
 
-Numbered reconnects instead retain DUT Talker Advertise through the hold.
-The initial bind therefore differs in DUT-side state too.
+Declaration-only replay finds DUT Talker Advertise in 99/100 holds.
+Only `New`, `JoinIn`, and `JoinMt` count as declarations.
 
-The tapped segment locates convergence after the bridge LeaveAll.
+`In`, `Mt`, `Lv`, and `LeaveAll` do not count.
+The window spans disconnect response through the next connect command.
+
+It includes its start and excludes its end.
+All 100 retained talker `msrp.tsv` files supply the count.
+
+Talker cycle 1 withdraws and never declares during its hold.
+It sends `Lv` at +0.120687323 seconds after disconnect success.
+
+Only `Mt` follows, at +0.520682079 and +1.720684762 seconds.
+Nevertheless, cycle 1 restarts in 0.117736084 seconds.
+
+Its first declaration follows reconnect success by 0.111313165 seconds.
+Bridge Listener Ready follows that declaration by 0.006299407 seconds.
+
+CRF follows Ready another 0.000123512 seconds later.
+
+Cycle 1 remains undeclared until after reconnect success.
+The initial bind also lacks declarations before its response.
+
+That shared absence alone cannot explain the initial-bind delay.
+
+The other 99 holds carry declarations; causal attribution remains open.
+The tapped segment locates initial convergence after the bridge LeaveAll.
+
 It cannot attribute the entire wait to the peer.
+[#606](https://github.com/kebag-logic/milan-fpga/issues/606) must consider cycle 1 when investigating the first-bind path.
 
-Issue #606 owns causal attribution and the first-bind path.
+Round-3 `declarations.py` derives the census from declaration events.
+Its `hold-declarations.csv` and `hold-events.csv` retain every hold.
+
+Raw MSRP replay matches all 100 TSVs and the setup.
+A control rejects the old universal claim on cycle 1.
 
 ## Growth
 
@@ -581,9 +611,63 @@ Sequence and timestamp progression remain continuous throughout.
 No stopped stream, early resumption, or counter mismatch is demonstrated.
 
 These are non-restarts, excluded from the measured restart population.
-[#75](https://github.com/kebag-logic/milan-fpga/issues/75) retains this behavior and the missing three restarts.
 
-The follow-up must establish why transmission continued through disconnect.
+[#608](https://github.com/kebag-logic/milan-fpga/issues/608) owns the non-stop behavior in these three cycles.
+[#75](https://github.com/kebag-logic/milan-fpga/issues/75) retains the missing three demonstrated restarts.
+
+The bridge withdraws Listener on the tapped DUT segment.
+No target Listener re-declaration follows until after reconnect success.
+
+The following times use each capture's own disconnect-response origin.
+All events refer to the measured DUT CRF stream.
+
+| Talker cycle | Listener Lv after disconnect, s | Reconnect response after disconnect, s | First re-declaration after disconnect, s | First re-declaration after response, s | CRF PDUs from Lv to re-declaration |
+|---|---|---|---|---|---|
+| 13 | 0.009770679 | 2.009383717 | 2.083160130 | 0.073776413 | 1036 |
+| 24 | 0.010356881 | 2.008905104 | 2.027609644 | 0.018704540 | 1009 |
+| 75 | 0.025307595 | 2.009020118 | 2.027707850 | 0.018687732 | 1001 |
+
+The table lists every target bridge Listener event after disconnect.
+All carry Listener value 2; the MRP event distinguishes withdrawal.
+
+| Talker cycle | Bridge Listener event | After disconnect response, s | After reconnect response, s |
+|---|---|---|---|
+| 13 | Lv | +0.009770679 | -1.999613038 |
+| 13 | New | +2.083160130 | +0.073776413 |
+| 13 | New | +2.182730731 | +0.173347014 |
+| 13 | JoinMt | +2.280863937 | +0.271480220 |
+| 24 | Lv | +0.010356881 | -1.998548223 |
+| 24 | New | +2.027609644 | +0.018704540 |
+| 24 | New | +2.121717417 | +0.112812313 |
+| 24 | JoinMt | +2.221744020 | +0.212838916 |
+| 75 | Lv | +0.025307595 | -1.983712523 |
+| 75 | New | +2.027707850 | +0.018687732 |
+| 75 | New | +2.122542224 | +0.113522106 |
+| 75 | JoinMt | +2.222919836 | +0.213899718 |
+
+Each event lies between consecutive valid CRF PDUs.
+Their gaps never exceed 0.002000053 seconds.
+
+That maximum also covers withdrawal through the first re-declaration.
+DUT STREAM_START and STREAM_STOP increments remain zero throughout.
+
+No `DISCONNECT_TX` command crosses this tap in these captures.
+The withdrawal therefore reaches the segment while DUT transmission continues.
+
+This supports DUT-side non-stop behavior at the tapped boundary.
+It does not prove the DUT internally accepted that withdrawal.
+
+No upstream Listener re-declaration explains the intervening continuous traffic.
+The responsible internal state or timer remains undetermined under #608.
+
+The round-3 addendum includes all three cycles' small records.
+Directories `talker-013`, `talker-024`, and `talker-075` retain original observations.
+
+Raw capture paths become relative identifiers; manifests record that transformation.
+Original acquisition `PASS` labels remain historical, not restart verdicts.
+
+`listener-events.csv` retains exact timestamps and bracketing CRF times.
+`declarations-summary.json` records counts and the complete chronology.
 
 | Direction | Cycle | Settled PDUs | Command-response PDUs | DUT start/stop | Active talker start/stop | Stop check |
 |---|---|---|---|---|---|---|
@@ -872,10 +956,10 @@ Power, DUT firmware, wiring, and excluded equipment were untouched.
 
 | Issue criterion | Result | Evidence |
 |---|---|---|
-| First valid AVTP below one second | PASS for 100 listener and 97 talker restarts; talker count incomplete | Two CRF pairs above; `DISCONNECT_RX`, two-second hold, then `CONNECT_RX`; three talker non-restarts excluded |
+| First valid AVTP below one second | PASS for 100 listener and 97 talker restarts; talker count incomplete | Two CRF pairs above; `DISCONNECT_RX`, two-second hold, then `CONNECT_RX`; three talker non-restarts excluded, tracked by [#608](https://github.com/kebag-logic/milan-fpga/issues/608) |
 | Restart latency does not grow | No progressive growth observed within demonstrated restarts | Same two CRF pairs and disconnect/hold/reconnect sequence; 100 listener and 97 talker observations; intervals and ordered blocks |
 | Initial DUT-talker bind, outside criterion 1 | Open exception: 6.889398 s, exceeds one second; [#606](https://github.com/kebag-logic/milan-fpga/issues/606) | No preceding disconnect/hold; separate initial-bind population excluded by the recorded decision |
-| At least 100 physical restarts per direction | Listener 100/100; talker 97/100, NOT MET | Talker attempts 13, 24, and 75 continue transmitting through the hold; owned by [#75](https://github.com/kebag-logic/milan-fpga/issues/75) |
+| At least 100 physical restarts per direction | Listener 100/100; talker 97/100, NOT MET | Talker attempts 13, 24, and 75 continue transmitting through the hold; behavior owned by [#608](https://github.com/kebag-logic/milan-fpga/issues/608); missing restarts remain under #75 |
 | Firmware, topology, capture, distribution documented | PASS | Identity, method, full capture index, restore evidence |
 
 This is an operator measurement, not an independent review.
@@ -1129,9 +1213,23 @@ Round-2 addendum artifacts are separate from the original packet.
 | `recomputed-summary.json` | 23769 | `a21e78057783a99e39e97e375204b791dfef5c4bd349423e177a22de258edc1a` |
 | `input-hashes.csv` | 94219 | `a2cef220ae51fe4fcf063627cfa86f32cf0f7a906eccd29ffeedb0799e5d9971` |
 
+Round-3 corrections form a separate addendum.
+
+| Round-3 artifact | Bytes | SHA-256 |
+|---|---|---|
+| `recompute.py` | 16968 | `022d28965bfa977044f44171439e4e26f5a46c4a34d755d86f8ee26427080db2` |
+| `declarations.py` | 11985 | `d8e38668366bc5346fa7a2da98c6c3cb82c28d22aaff31d985869cdfdbf3084e` |
+| `hold-declarations.csv` | 4400 | `7158859d416d725165f71eac1b0267e0d126aee22279cdfd68177f919850896b` |
+| `hold-events.csv` | 9394 | `b25648a67cbbc0ffd65e254b342e86c737f0d49c438825b566d0c0a5e13bd938` |
+| `listener-events.csv` | 1076 | `21dc1b67af1d42cf76ee864f55adb58e982849649d97e80884148778765dbebe` |
+| `declarations-summary.json` | 3004 | `ac4a7c7f90ee8b5624d72f85564dac5b2f60718f7ed3c233401a77636f468983` |
+| `published-records.csv` | 8150 | `0bb6deffcaad1ecffb299fa4c35ab68b9fb0877ae9c9fa50356599325f6ef404` |
+| `check_controls.py` | 3922 | `cfa2a67fd74bc6bf796a36aed823ac21cc55b0eb39d6b7f383c6b9cfac11ce67` |
+| `controls.json` | 780 | `b1e4009ca5fbfdef31c91452be24bc22ea05c79d9065b67a81af59f4a61da972` |
+
 ## Validation
 
-All nine assigned gates return zero at the round-2 head.
+All nine assigned gates return zero at the round-3 head.
 Commands run from the physical candidate worktree without pipelines.
 
 The documentation check also runs without submodule contents.
@@ -1169,10 +1267,19 @@ It checks raw hashes, response anchors, validity, and counter continuity.
 Stop assertions pass 197 attempts and reject three non-restarts.
 It retains per-cycle results and recomputes distributions and slope intervals.
 
-The original packet remains unchanged.
+Round-3 replay preserves every round-2 stop result and quantile.
+It classifies with explicit conditions and refuses optimized execution.
+
+Consistency checks also use explicit conditions, preserving every original check.
+Printed totals and excluded cycles derive from computed rows.
+
+Controls exercise silent, continuous, and early-resumption inputs.
+They also verify changed outcome counts and both optimization refusals.
+
+The round-1 and round-2 packets remain unchanged.
 
 Reproduce round-1 timing with retained `analyze.py` and capture index.
-Use addendum `recompute.py` for round-2 classifications and statistics.
+Use round-3 `recompute.py` for current classifications and statistics.
 
 The original `report.py` generates only the superseded round-1 page.
 
