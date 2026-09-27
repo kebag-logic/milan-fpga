@@ -1,0 +1,133 @@
+=== PATTERN: aecp_mark_pend
+--- count: 0
+=== PATTERN: mark_pend
+--- count: 0
+=== PATTERN: every commit beat
+--- count: 0
+=== PATTERN: conservative duplicate
+--- count: 0
+=== PATTERN: [Cc]onservative
+.github/workflows/rtl-fast.yml:35:      - name: Classify the change conservatively
+configs/endstation_arty_current.yaml:139:                                     # hand-picked "conservative" value that
+docs/design/TIME_SYNC.md:280:Using 100 ppm therefore adds conservative margin.
+docs/fpga/FPGA_DESIGN.md:223:| `cdc_pair_fifo` | gray-pointer dual-clock FIFO, WIDTH × 2^LOG2D; flags are conservative |
+docs/history/v1/NXN_ARCHITECTURE.md:505:conservative, not permissive. Neither edge lets a stream transmit against an
+docs/history/v1/NXN_ARCHITECTURE.md:954:The model is deliberately conservative, and to first order N-independent
+docs/history/v1/findings/PP_SHADOW_AREA_0812.md:234:  mildly conservative rather than optimistic — the arithmetic above stands.
+docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:230:| Reservation gates tx; CBS from the grant; ≤75 % SR | MANDATES | FR-SRP-03, FR-QOS-02, FR-QOS-03 | **PP** — `srp_active_o` gates TX and `srp_granted_slope_bps_o` sets the slope. Honest ordering change: `KL_lwsrp_bw_gate` joined the slope into the sum *before* opening the gate and closed the gate *before* removing it, while the processor asserts both in the SAME cycle. Opening edge: at worst equal. Closing edge: the sum is briefly high for zero traffic — conservative, not permissive. Neither edge lets a stream transmit against an un-budgeted slope | Over-transmit breaks other streams' guarantees. | T,A  -  `tc cbs offload`; `vtb:cbs` (idleSlope/credit); no-tx-on-fail case |
+docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:376:| **Slope-versus-gate ordering** — the invariant that no stream ever transmits against an un-budgeted slope | the deleted bw-gate held an explicit two-sided hold: slope joins the running Σ **before** the gate opens, gate closes **before** the slope leaves. The processor's admission round latches grant, granted slope and Σ **together** at round end, and publishes `sr_admitted_o` as that grant ANDed with the live request | 802.1Q-2018 34.3 (operIdleSlope = Σ per-stream), 8.6.8.2; Milan v1.2 4.3.3.2 | reasoned from the RTL and recorded at the assignment in [hdl/milan/milan_datapath.sv](../../../../hdl/milan/milan_datapath.sv); no suite grades the edge ordering any more | verified-conformant, with an honest note: on the OPENING edge gate and Σ move on the same edge, which is at worst equal and never worse; on the CLOSING edge Σ is round-latched and briefly budgets a stream that has already stopped, which is conservative. What is genuinely LOST is the ordering as a **named, testable behaviour** — it is now a consequence of the admission round's structure rather than a sequencer anyone can point a bench at |
+docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:396:- The slope-versus-gate ordering invariant survives the substitution on both edges (equal on the opening edge, conservative on the closing one), but it stopped being a *testable* behaviour: no bench in this repo can point at it any more. That is a real loss of evidence, recorded here rather than absorbed.
+docs/integration/BAREMETAL_FIRMWARE.md:1466:| With the compiler: the automatic identity sample cannot escape | NEW (#544): the `identity-sample absence rule` reads the expanded unit. The production sample has automatic storage, without an explicit storage specifier. A diagnostic copy marks that declaration `register`. The compiler refuses its address anywhere in the unit, regardless of spelling. Unevaluated and read-only address-taking are refused too. Nonautomatic storage requires a separate lifetime and external-writer proof. The diagnostic copy blanks `__extension__` and enables the compiler's pedantic warning for nested functions, including old-style definitions. Expanded pragmas cannot override this diagnostic: they are refused. Every nested function in the unit is refused to exclude implicit capture; this also costs functions that do not capture the sample. Between the sampling read and guard, every asm statement is refused. Sample occurrences are limited to a complete `(unsigned long) id` call argument, delimited by the call's `(`/`,` and `,`/`)`, and the complete statement `(void)(id & <integer-literal>);`. The guard comparison may name the sample. All other rvalue reads, including reversed bitwise operands and extra parentheses, are conservatively refused. The diagnostic copy never replaces the original census input. The trusted census headers remain this instrument's boundary. |
+docs/integration/BAREMETAL_FIRMWARE.md:1467:| Without the compiler: no replacement list names the identity sample | NEW (#544): the `identity-sample macro replacement rule` reads phase-3 definitions. It includes object-like, function-like, continued and unused definitions. Comments and literal contents are excluded. Calls substituting the sample into a used parameter are refused too. This covers both published hostile macros before the guard. Unused parameters remain accepted. Read-only replacements and used-parameter reads are conservatively refused too. This checks local definitions and direct calls, without general expansion. **Remedy:** keep the identity sample out of macro replacements. |
+docs/integration/BAREMETAL_FIRMWARE.md:1815:The unchanged reviewer probes also measure conservative rvalue costs.
+docs/reference/EGRESS_QUEUE_MAP.md:74:could retain its slope until the next round, which is conservative: no stream
+docs/reference/REGISTER_MAP.md:190:  - [0x680  -  lwSRP engine  (802.1Q MSRP/MVRP, Milan v1.2 Section 5.6, FR-SRP-\*)](#0x680-----lwsrp-engine--8021q-msrpmvrp-milan-v12-section-56-fr-srp-) -- The SRP endpoint, now the protocol processor's. The state words (domain, granted slope, over-limit, declaration and registration levels) are live and repointed; the MRPDU counts and the row-shortfall bit are structural zeros; the provisioning words the deleted applicant read (DMAC, TSpec, declare bypass) are write-only scratch. Read the honest note on the CBS slope ordering change -- the slope now arrives with the gate rather than one cycle ahead of it, which is equal at worst and conservative on the closing edge.
+docs/testing/CI_WORKFLOWS.md:27:- conservative change classification;
+docs/testing/CI_WORKFLOWS.md:293:Every selected top uses this conservative three-image bundle.
+docs/testing/CI_WORKFLOWS.md:560:    conservative changed-file set, read the selector answer and publish that
+hdl/common/cdc_pair_fifo.sv:23://! Gray-pointer dual-clock FIFO, WIDTH x 2^LOG2D. Flags are conservative
+hdl/ieee1722/crf/KL_crf_rx.sv:282:  //! sources better than +/-50 ppm; 100 ppm is a conservative margin.
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:479:  //  frames too, which only makes the guard slightly conservative: they       //
+hdl/ieee8021q/ts/credit_based_shaper.sv:245:  //! slightly SLOW (harmless, conservative) while sendSlope - a NEGATIVE term -
+hdl/ieee8021q/ts/credit_based_shaper.sv:246:  //! debited slightly LESS than it should (not conservative: the queue keeps
+hdl/ieee8021q/ts/traffic_shaping_core.sv:165:  //  shaped rate (conservative; the old law handed it out twice).
+scripts/act_ci.py:176:#: interface-name limit and a conservative alphabet, so a route query can
+scripts/ci_events.py:2376:        {"name": "Classify the change conservatively",
+scripts/ci_scope.py:242:    # An empty diff is treated conservatively. A broken base selection must not
+scripts/merge_containment_selftest_content.py:163:         "...and the conservative proof is named")
+scripts/merge_containment_selftest_replay.py:4:conservative refusals and the unchanged linear historical policy. Builders
+sw/builder/endstation_builder.py:499:                       "interconnect; conservative because the aggregate "
+sw/builder/test_builder.py:1570:            #: way it judges a resolved number.  Conservative on both sides:
+sw/builder/test_builder.py:5132:        too, when the replacement uses the parameter. This is conservative
+sw/builder/test_builder.py:16283:        "and wrapped near misses are conservatively refused. The boot-unit "
+sw/litex/milan_soc.py:2148:    """Conservative arbitration floor for the protocol-memory masters.
+syn/ooc/dp_srcs.py:618:    # for the front end even conservatively: here the text carries no
+syn/yosys/README.md:117:Every selected top conservatively binds the whole bundle.
+syn/yosys/run.sh:506:  # One conservative bundle for every top and both modes (#520). Capture it
+tb/tools/torture_campaign.py:3107:    "the conservative QSPI-to-network-ready budget is 360 s, and a boot that "
+tb/tools/torture_campaign.py:3305:        it back, which is what makes it a true cold boot), a conservative
+tb/verilator/gptp_txts/sim_main.cpp:76://! is not a conservative model of that, it is a model in which the
+tb/verilator/milan_dp/README.md:256:The scheduling decision used that conservative, unbounded end.
+tb/verilator/milan_dp/README.md:292:The conservative, unbounded end therefore requires decision branch 2.
+--- count: 42
+=== PATTERN: late-mark|late mark|mark-tail|mark tail
+CHANGELOG.md:45:- A late-mark mutant must fail both durability checks.
+docs/design/SAVED_STATE_MATERIALIZATION.md:245:The late-mark mutant must fail both durability checks.
+docs/design/SAVED_STATE_MATERIALIZATION.md:1971:- Not modelled: the real microprograms' timing (the mark tail is DERIVED
+docs/design/SAVED_STATE_MATERIALIZATION.md:2081:3. **The mark-tail window of today's glue** (#502, open): the status reads
+docs/testing/TESTING.md:268:| #502 live-write pending, late-mark control | `make -C tb/verilator/pp_shadow pending-mutant` | Authors and reviewers changing `KL_pp_shadow.sv`, the map-edit owner in `milan_datapath.sv`, the processor name-write export, or `tb/verilator/pp_shadow/{sim_main.cpp,pending_probes.vlt,pending_mutant.py,Makefile}` |
+scripts/measure_test_evidence.py:601:        "mutation campaign; restores the late mark trigger in a copy and "
+tb/verilator/pp_shadow/README.md:100:Restoring the late-mark trigger must fail both K10 and K12.
+tb/verilator/pp_shadow/pending_mutant.py:4:"""Require the historical late-mark trigger to fail both durability checks."""
+tb/verilator/pp_shadow/pending_mutant.py:60:        rc, text = run_build(directory, "late-mark", sources)
+tb/verilator/pp_shadow/pending_mutant.py:64:            raise SystemExit("FAIL: late-mark mutant missed a named K10/K12 failure")
+tb/verilator/pp_shadow/pending_mutant.py:67:        print("PASS: late-mark mutant killed by K10 and K12; clean control passes")
+--- count: 11
+=== PATTERN: program's tail|program tail|programs' tail
+docs/design/SAVED_STATE_MATERIALIZATION.md:271:   trigger. The marks follow the write by a program tail (section 2), and
+docs/design/SAVED_STATE_MATERIALIZATION.md:1656:  materialized that reading can be false over them for a program's tail
+docs/design/SAVED_STATE_MATERIALIZATION.md:1717:| Triggering on the commit marks, as the tracked glue does | the marks follow the live write by the program's tail, so the status reads durable over an applied name or map | EXECUTED on the tracked glue, section 2 |
+docs/design/SAVED_STATE_MATERIALIZATION.md:2071:   program's tail (EXECUTED on today's glue, section 2), and the class-1
+docs/design/SAVED_STATE_MATERIALIZATION.md:2082:   durable over an applied name or map for a program's tail. Every stage
+tb/verilator/pp_shadow/sim_main.cpp:264:    //! observer runs on every accepting edge, including the program tail.
+tb/verilator/pp_shadow/sim_main.cpp:1386:            ck("K real program tail separates first write and mark",
+--- count: 7
+=== PATTERN: class-6/7|class 6 or( class)? 7|class-6 and class-7|class-6 or class-7|class-6 bit|class-7 bit|sticky class
+docs/design/SAVED_STATE_MATERIALIZATION.md:213:the gap. It takes the class-6 and class-7 COMMIT MARKS, and the programs
+docs/design/SAVED_STATE_MATERIALIZATION.md:297:   parent's sticky class-6/7 bit LEAVE `pend_i`: a per-record bit replaces
+docs/design/SAVED_STATE_MATERIALIZATION.md:732:cannot do this: `aecp_dyn_dirty_o` and the class-6/7 bit are one bit for
+docs/design/SAVED_STATE_MATERIALIZATION.md:1688:| 3. channel maps | 2 at 1x1, 16 at 8x8 | Requires donor adoption of the decided #501 allocation: the edit-face trigger, the GET_AUDIO_MAP latch, the framing rule, the coupled restore, the map plane's roll-back, #501's capacity decision; the sticky class-6/7 bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T3, T4, #501 |
+docs/design/SAVED_STATE_MATERIALIZATION.md:1697:3 the class-6 bit stays in `pend_i`, and until stage 2 the class-7 one,
+docs/design/SAVED_STATE_MATERIALIZATION.md:2056:     D2, "Parent use: a mark of class 6 or class 7 sets a sticky pend_i
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:973:The later class-6/7 marks retain their command-completion meaning.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1375:- Original parent use: a class-6/7 mark set sticky pending until
+hdl/milan/KL_pp_shadow.sv:927:  //! at reset. The later class-6/7 marks still delimit command completion;
+--- count: 9
+=== PATTERN: commit marks?\b.*(pend|trigger|sticky)|(pend|trigger|sticky).*commit marks?\b
+docs/design/SAVED_STATE_MATERIALIZATION.md:1612:| The IDENTIFY value | 5.3.12: "0 = not identifying" is the reset default (`KL_aecp_dyn_state`'s banner) | `KL_aecp_dyn_state` selector 7 | the trigger decodes selectors 0 to 5; the store raises no dirty for it; SET_CONTROL carries no commit mark; a roll-back resets it to 0 with the rest of the store | EXECUTED K14; M06 killed |
+tb/verilator/milan_dp/sim_nxn.cpp:2324:        ck("VERSION 0x0060 widens the saved-state pending bit to the binding manager's unflushed sinks and the AECP commit marks, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
+tb/verilator/nvm_cosim/cosim_top.sv:425:  //! The glue's THIRD term, the sticky bit an AECP commit mark of class 6 or
+--- count: 3
+=== PATTERN: NVM_MARK.*(pend|trigger|sticky|durable)|(pend|trigger|sticky|durable).*NVM_MARK
+--- count: 0
+=== PATTERN: #502|issue 502|issues/502
+CHANGELOG.md:37:- Issue #502 advances the processor pin to `870ff88a`.
+docs/design/SAVED_STATE_MATERIALIZATION.md:111:- **[10. Stages](#10-stages)** -- Three stages, their release conditions under #501 and #502, and the tickets.
+docs/design/SAVED_STATE_MATERIALIZATION.md:172:issues #501 and #502.
+docs/design/SAVED_STATE_MATERIALIZATION.md:221:issue #502, and section 10 makes its correction a condition of every stage
+docs/design/SAVED_STATE_MATERIALIZATION.md:224:Issue #502 implements that standalone reporting correction.
+docs/design/SAVED_STATE_MATERIALIZATION.md:1654:- **No stage is declared shippable before #502 is closed.** A shipped
+docs/design/SAVED_STATE_MATERIALIZATION.md:1657:  (section 2). The correction is #502's standalone one: the live-write
+docs/design/SAVED_STATE_MATERIALIZATION.md:1659:  for both classes. Filing #502 does not close it; the correction must land.
+docs/design/SAVED_STATE_MATERIALIZATION.md:1672:  implemented and merged, and released only after #502; #502's correction
+docs/design/SAVED_STATE_MATERIALIZATION.md:1676:  Release still requires donor adoption, #502, and silicon persistence proof.
+docs/design/SAVED_STATE_MATERIALIZATION.md:1686:| 1. the dynamic-state selectors | configuration index, sampling rate, clock source, stream formats, presentation offset: 9 records at 1x1, 30 at 8x8 | on the seams S1 to S4: the writer with the state-bus trigger, `own` from reset, the flush, the restore transaction from the binding walk's drained terminal with its deadline, its cause classification, its descriptor-fault aborts and the roll-back of BOTH stores (the dynamic-state store, and the descriptor store, whose reset re-arms its fetch watchdog and re-walks the image), held while the descriptor memory owes a burst (S2); the format rule on "supported"; the arbiter and its drain of either manager; the enable released by the restore; the exports; `pend_i` loses the dynamic-state level; the three firmware changes | SET_CLOCK_SOURCE 1, SET_STREAM_INFO, SET_STREAM_FORMAT on an unbound input; power cycle; GET_CLOCK_SOURCE, GET_STREAM_INFO, GET_STREAM_FORMAT, and the ADPDU's configuration index | T8, T9 (processor, prerequisites), T1 (processor), T4 (this repository); released after #502 |
+docs/design/SAVED_STATE_MATERIALIZATION.md:1687:| 2. names | 38 at 1x1, 99 at 8x8 | the name trigger, the eight-lane latch, the restore after the image walk; the names' roll-back rides stage 1's descriptor-store reset; `pend_i` stops taking class 7 | SET_NAME on the entity name, the group name and a stream name, one of them to the EMPTY name; power cycle; GET_NAME | T2, T4; released after #502 |
+docs/design/SAVED_STATE_MATERIALIZATION.md:1698:unless #502's correction has already replaced them.
+docs/design/SAVED_STATE_MATERIALIZATION.md:1704:Further tickets, not stages: T5 is #501; T6 is #502; T7, the saved-state
+docs/design/SAVED_STATE_MATERIALIZATION.md:2081:3. **The mark-tail window of today's glue** (#502, open): the status reads
+docs/design/SAVED_STATE_MATERIALIZATION.md:2223:| R217 F4, R218 F5: permanent pending is still an accepted Stage 3 outcome; the stage release conditions do not exclude the open defects | MAJOR; R217 Conformance, RTL, Robustness, Docs; R218 Conformance, Robustness, Tests, Docs | Stage 3 blocked on #501, every stage declared shippable after #502, pending-and-skip is containment only, the limited work named (3 rule 9, 10, 15 items 2 and 3; T3 to T6). #501 and #502 stay OPEN | K16 (containment only) |
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:955:Issue #502 aligns name/map reporting with live acceptance.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1263:| 0x60 to 0x7F | channel maps in and out | milan_datapath and KL_chan_map_capture | actual phase-5 map write enable (#502) | NONE | nvm_pend 1 from the first actual write until reset; never durable, and never written (UNRESOLVED 1) |
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1264:| 0x80 to 0xFF | user names | KL_aecp_desc_store (SET_NAME) | accepted aecp_name_wr_o pulse (#502) | NONE | as the maps row: reported from acceptance, never written (UNRESOLVED 1) |
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1271:scope D2 landed. Issue #502 makes accepted live writes sticky instead.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1380:- Issue #502 replaces that trigger with accepted live writes.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1740:   `aecp_nvm_mark_o`. Issue #502 uses live acceptance instead, so the status
+docs/reference/SUBMODULES.md:57:Issue #502 advances the current pin to `870ff88a`.
+docs/testing/TESTING.md:268:| #502 live-write pending, late-mark control | `make -C tb/verilator/pp_shadow pending-mutant` | Authors and reviewers changing `KL_pp_shadow.sv`, the map-edit owner in `milan_datapath.sv`, the processor name-write export, or `tb/verilator/pp_shadow/{sim_main.cpp,pending_probes.vlt,pending_mutant.py,Makefile}` |
+tb/verilator/pp_shadow/README.md:52:Issue #502 ports K10/K12 into the shipping datapath.
+tb/verilator/pp_shadow/sim_main.cpp:743:        // and control-face preloads establish the baseline outside #502.
+tb/verilator/pp_shadow/sim_main.cpp:1494:        printf("[K10/K12] pending from accepted live writes (#502)\n");
+--- count: 27
+=== PATTERN: reads? durable over
+docs/design/SAVED_STATE_FASTCONNECT.md:1118:status reads durable over a lost controller change. It is sticky in the donor
+docs/design/SAVED_STATE_MATERIALIZATION.md:218:Between the two, the status reads durable over an applied name or map: 7
+docs/design/SAVED_STATE_MATERIALIZATION.md:1124:  status can read durable over it, because every change a controller made is
+docs/design/SAVED_STATE_MATERIALIZATION.md:1717:| Triggering on the commit marks, as the tracked glue does | the marks follow the live write by the program's tail, so the status reads durable over an applied name or map | EXECUTED on the tracked glue, section 2 |
+docs/design/SAVED_STATE_MATERIALIZATION.md:2070:   amendment: a mark trigger reads durable over an applied change for the
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:599:no observation reads durable over an erased live record, and converged@end
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1741:   no longer reads durable over them. Making them durable still needs D3,
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1914:| A record closed across a refused load's fill is promoted by a re-attached writer, its work is retired by an accepted acknowledgement, and the status can read durable over it (K1, MAJOR) | Rule 9: no capture is armed until a RELOAD has been ACCEPTED since reset (one registered flag, one term). A boot that accepted no load opens no capture, so nothing in it can be captured, committed or retired; the record stays closed and REPORTED. The restarted writer does not re-attach in that state. The two sentences that claimed more (O3's second, and 5.3's "commits what the window holds") are corrected, and the residual is carried as UNRESOLVED 11 | 5.1, 5.2, 5.3 (rule 9 and the term table), 6, 7 (step 1.3, step 3.2, O3, O4), 15, 20 (item 11) | U11, W3, W4 (the reviewer's probes H1 and H2), W2 re-graded; R07 and F11 killed |
+tb/verilator/nvm_cosim/cosim_cases.cpp:1208:    // reporting and the status read durable over the lost change. Here the
+--- count: 9
+=== TOTAL hit lines (patterns overlap): 108

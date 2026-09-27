@@ -1,0 +1,41 @@
+### python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 887 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### env GIT_DIR=/dev/null python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 889 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+rc=0
+### python3 -B scripts/check_em_dash.py --base 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+### python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+### python3 -B scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+### python3 -B scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+### python3 -B scripts/check_doc_paths.py
+doc path gate: OK (846 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+### git diff --check 867a2e38 92c6154a
+rc=0
+### git diff --check 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf 92c6154a
+rc=0
+### python3 -B scripts/measure_test_evidence.py --check
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 75
+rc=0
+### python3 -B scripts/check_port_contracts.py
+port contract gate: OK (3682 first-party port(s): hdl 1908, gptp-processor 125, protocol-processor 1649; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 93 open and 58 literal-bound named connection(s), 62 without a local rationale (all recorded; none may be added); 118 test-only hierarchical observation(s)
+rc=0
+### python3 -B scripts/lint_rtl.py --check
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.
+  hdl/milan/KL_pp_shadow.sv:246:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:452:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+rc=0

@@ -1,0 +1,7 @@
+pp_shadow: 295 checks, 4 failures
+RESULT: FAIL
+[FAIL] K12 partial refusal input sticky_pending_PP_STAT got=0x00000001 exp=0x00000000
+[FAIL] K12 partial refusal input sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000000
+[FAIL] K12 partial refusal output sticky_pending_PP_STAT got=0x00000001 exp=0x00000000
+[FAIL] K12 partial refusal output sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000000
+make rc=2; P4 KILLED by the tagged partial-refusal checks

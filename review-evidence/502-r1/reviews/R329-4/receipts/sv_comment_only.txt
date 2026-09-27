@@ -1,0 +1,17 @@
+## delta 867a2e38..92c6154a
+hdl/common/csr/milan_csr.sv: raw_identical=False code_tokens_identical=True code_chars=65523
+hdl/milan/KL_nvm_backend.sv: raw_identical=False code_tokens_identical=True code_chars=24457
+tb/verilator/nvm_cosim/cosim_top.sv: raw_identical=False code_tokens_identical=True code_chars=12539
+RESULT COMMENT-ONLY
+rc=0
+## negative control: KL_pp_shadow.sv 831f94f4..92c6154a (known code change)
+hdl/milan/KL_pp_shadow.sv: raw_identical=False code_tokens_identical=False code_chars=25104
+RESULT CODE-CHANGED
+rc=1
+## all .sv/.svh/.v in delta
+hdl/common/csr/milan_csr.sv
+hdl/milan/KL_nvm_backend.sv
+tb/verilator/nvm_cosim/cosim_top.sv
+## unchanged trigger modules byte-identical 867a2e38 vs 92c6154a
+hdl/milan/KL_pp_shadow.sv 2098892e7feeba5c62ea9c8bfb52e5b6be313a5d 2098892e7feeba5c62ea9c8bfb52e5b6be313a5d
+hdl/milan/milan_datapath.sv 16a36b902d8f61347fb96921943cd5633e15496e 16a36b902d8f61347fb96921943cd5633e15496e
