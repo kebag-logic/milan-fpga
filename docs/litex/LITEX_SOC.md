@@ -141,3 +141,20 @@ and LiteEth revisions, CPU core revision, Python environment, FPGA part and
 speed grade, and synthesis-tool version with every candidate. Preserve the
 generated build plan, source manifest, timing/utilization reports, bitstream
 hash, AEM hash, UART transcript, and packet capture.
+
+The AX7101 dev-board release declares **commercial grade, 0 to 85 C junction**.
+[`TIMING_GRADE`](../../sw/litex/platforms/ax7101_timing.py) owns the matching
+part and operating conditions; the platform and saved-checkpoint reporter both
+derive their commands from it. The platform configures the conditions before
+placement and checks them again before its post-route signoff reports.
+
+Each candidate requires setup and hold analysis at both Slow and Fast corners.
+These are fixed Artix-7 speed models, without separate temperature-prorated
+timing tables. The minimum and maximum junction settings are recorded as power
+metadata; identical timing results at those endpoints are not independent models.
+Retain WNS, TNS, WHS, THS, the speed-file revision, clock interaction, CDC and
+unconstrained-path reports with the hashes and implementation recipe.
+See [BUILDING section 5](../integration/BUILDING.md#5-gates-before-a-build-is-good)
+for commands and the [shipping measurement](../findings/COMMERCIAL_TIMING_395.md)
+for the current evidence. The product PCB declares its own grade; #395 items
+3 and 4 still own physical temperature logging and oscillator measurements.

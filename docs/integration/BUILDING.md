@@ -514,6 +514,44 @@ are not required. Bench roles as of 2026-09-06:
 
 ## 5. Gates before a build is "good"
 
+The AX7101 dev-board release declares **commercial grade, 0 to 85 C junction**
+under the [owner decision on #395](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5789765635).
+The board's industrial marking does not expand this release claim.
+[`TIMING_GRADE`](../../sw/litex/platforms/ax7101_timing.py) is the executable
+declaration of the part, grade, temperature endpoints and timing models.
+The platform derives its part and pre-placement hook from that declaration.
+Before bitstream generation, the hook refuses a changed part, power condition
+or disabled setup/hold analysis, then writes `*_signoff_*` reports.
+
+Signoff analyses **both setup and hold at both Slow and Fast corners**.
+Artix-7 speed files bound process, voltage and temperature; they do not
+provide four separately selectable slow/fast-by-temperature models.
+`set_operating_conditions -junction_temp` selects a power-estimation condition,
+not a temperature-prorated timing model. Reports at both declared endpoints
+therefore repeat each fixed timing model; retain that distinction with the
+WNS, TNS, WHS and THS table. See
+[UG835 operating conditions](https://docs.amd.com/r/2021.1-English/ug835-vivado-tcl-commands/report_operating_conditions)
+and [UG906 max/min analysis](https://docs.amd.com/r/en-US/ug906-vivado-design-analysis/Max-and-Min-Delay-Analysis).
+
+For a saved routed checkpoint, generate the same report hook without rebuilding:
+
+```sh
+python3 -B sw/litex/report_timing_grade.py <routed.dcp> <report-dir>
+cd <report-dir>
+timeout --foreground 1800 vivado -mode batch -nojournal -notrace \
+  -log timing.log -source report.tcl
+```
+
+Use a report directory outside the candidate and a physical filesystem path.
+The script caps analysis at 16 threads and never writes a checkpoint or bitstream.
+Retain the input checkpoint and bitstream hashes, original implementation recipe,
+speed-file revision, all four slack metrics, clock interaction, CDC and verbose
+unconstrained-path reports. Negative slack is a finding with its paths;
+missing I/O constraints and CDC diagnostics remain visible even with positive WNS.
+The [shipping-candidate measurement](../findings/COMMERCIAL_TIMING_395.md)
+records these limits. Temperature logging and oscillator measurements remain
+separate work under #395 items 3 and 4.
+
 A build that reached a bitstream has already passed the IOB packing check
 (section 0). If it stopped before routing with `IOB-PACK FAIL`, the named
 port's row in `*_iob_pack.rpt` says what was found: a register in a slice or

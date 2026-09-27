@@ -157,6 +157,24 @@ utilization report. For AX7101 release candidates, retain comfortable timing
 margin and run the configured placement-directive sweep; an elaboration or
 out-of-context estimate is not a substitute for the placed design.
 
+The AX7101 dev-board release claims **commercial grade, 0 to 85 C junction**.
+The part and conditions come from
+[`TIMING_GRADE`](../../sw/litex/platforms/ax7101_timing.py); the full builder
+bank pins this declaration and exercises wrong-condition refusals.
+Every candidate enables setup and hold at both Slow and Fast timing corners.
+Artix-7 supplies fixed speed models, so the two temperature-endpoint reports
+repeat each model rather than represent four independent PVT models.
+Power-estimation junction temperature does not prorate timing delays.
+
+Use the saved-checkpoint command in
+[BUILDING section 5](../integration/BUILDING.md#5-gates-before-a-build-is-good)
+to retain WNS/TNS/WHS/THS per model and endpoint, clock interaction, CDC and
+unconstrained-path evidence. Record negative-slack paths without hiding them
+behind the command's exit status. Positive WNS does not discharge CDC findings,
+missing external I/O constraints, or #395's physical temperature and oscillator
+measurements. The [candidate record](../findings/COMMERCIAL_TIMING_395.md)
+contains the measured table and report limitations.
+
 ## 6. Silicon acceptance
 
 After flashing or JTAG-loading a candidate, run the UART grader from the build
