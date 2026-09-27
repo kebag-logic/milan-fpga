@@ -3321,6 +3321,8 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
 # Issue #396 round 2: retain the established minute counter-walk cadence as
 # the qualification ceiling. Continuous event evidence is still required.
 RELEASE_MAX_SOAK_INTERVAL_S = 60
+# Issue #396 round 3: provisional ceiling; ratification uses #397 and #75.
+RELEASE_RESTORE_BOUND_S = 30
 
 
 @dataclass(frozen=True)
@@ -3333,14 +3335,16 @@ class ReleaseSettings:
     commit_cycles: int = 40
     persisted_items: tuple[str, ...] = ("stream_binding",)
     # Provisional policy from #396 round 2; ratification uses #397 and #75.
-    restore_bound_s: int = 30
+    restore_bound_s: int = RELEASE_RESTORE_BOUND_S
     # Extra diagnostic observation never extends a pass deadline.
     boot_margin_s: int = 5
     # Caller attests that BOTH devices came from served descriptors.
     topology_explicit: bool = False
+    # Existing phys.dut-cycle.power-cycle discharge hold, recorded separately.
+    power_off_hold_s: int = 8
 
     def __post_init__(self) -> None:
-        for name in ("soak_duration_s", "soak_interval_s", "power_cycles",
+        for name in ("soak_duration_s", "soak_interval_s", "power_cycles", "power_off_hold_s",
                      "idle_cycles", "commit_cycles", "restore_bound_s", "boot_margin_s"):
             value = getattr(self, name)
             if type(value) is not int or value <= 0:
@@ -3385,9 +3389,12 @@ SOAK_ASSERTS = (
                "publication reads and transition evidence prove no asCapable loss"),
     AssertSpec("soak.tu-within-holdover", RELEASE_CLAUSE +
                "; Milan v1.2 Annex B.1/B.1.1 / IEEE 1722-2016 4.4.4.7: "
-               "correlate timestamped discontinuities and wire tu with the "
-               "applicable holdover; GM-change tu lasts 0.25 s per B.1.1, "
-               "distinct from B.1's recommended 5 s media-clock holdover; "
+               "each tu interval begins with a recorded GM change or timing "
+               "discontinuity and clears within 0.5 s of that event plus "
+               "the stated observation resolution; uncorrelated tu fails; "
+               "B.1.1 supplies the 0.25 s minimum, while clock validity "
+               "implements 0.25-0.5 s; B.1's 5 s media-clock holdover is "
+               "not a tu bound; "
                "periodic healthy samples alone cannot prove this"),
     AssertSpec("soak.timestamp-margin", "docs/reference/REGISTER_MAP.md "
                "AVTPRX_TSD (0x6EC): record signed ns presentation margin for "
@@ -3411,12 +3418,13 @@ POWER_ASSERTS = (
                "commit cuts must restore a complete old or new committed "
                "snapshot, never mixed state; missing readback cannot pass"),
     AssertSpec("power.adp-valid-time", RELEASE_CLAUSE +
-               "; IEEE 1722.1-2021 6.2.2.5, 6.2.4/6.2.5; Milan v1.2 5.6.3: "
-               "first post-cut ENTITY_AVAILABLE arrives before the last "
-               "pre-cut ENTITY_AVAILABLE expires; decode that PDU's valid_time "
-               "in two-second units; express its remaining window from T0, "
-               "the host-timestamped power-strip ON command; missing capture "
-               "or an already expired window cannot pass"),
+               "; IEEE 1722.1-2021 6.2.2.5, 6.2.4/6.2.5; Milan v1.2 5.6.2/5.6.3: "
+               "first post-cut ENTITY_AVAILABLE arrives within the advertised "
+               "valid_time measured from T0, the host-timestamped power-strip "
+               "ON command; decode the captured pre-cut PDU in two-second "
+               "units and require valid_time=10 (20 s); power_off_hold_s and "
+               "pre-cut advertisement age are provenance, not charged to "
+               "this window; missing capture or a missed deadline fails"),
     AssertSpec("power.automatic-restore-bound", RELEASE_CLAUSE +
                "; Milan v1.2 5.5.1.4 / 5.5.2.6: from T0 to first valid AVTP "
                "PDU of EACH persisted binding in both directions, including "
@@ -3430,7 +3438,8 @@ POWER_ASSERTS = (
                "both restoration and reconnect must pass"),
     AssertSpec("power.single-boot", RELEASE_CLAUSE +
                "; issue #366: complete UART/reset observation from T0 through "
-               "boot_observation_s records exactly one BIOS pass and no "
+               "the next cut or campaign end, at least boot_observation_s, "
+               "records exactly one BIOS pass and no "
                "additional restart; check_release_boot refuses the repeated "
                "BIOS pass even if the second pass restores streaming"),
     AssertSpec("power.counter-walk", "Milan v1.2 Table 5.4 / Table 5.6; "
@@ -3492,6 +3501,7 @@ def _release_profile_eligible(settings: ReleaseSettings) -> bool:
     """Common plan prerequisites; this judges no measured hardware evidence."""
     return (settings.topology_explicit
             and "stream_binding" in settings.persisted_items
+            and settings.restore_bound_s <= RELEASE_RESTORE_BOUND_S
             and settings.soak_interval_s <= RELEASE_MAX_SOAK_INTERVAL_S)
 
 
@@ -3531,6 +3541,10 @@ def plan_soak(dut: Device = ARTY, peer: Device = PEER,
                                   "sync", "asCapable", "tu"],
                 continuous_evidence=["asCapable_transitions", "tu_intervals",
                                      "stream_flow", "uptime"],
+                tu_holdover_bound_s=0.5,
+                tu_time_origin="recorded GM change or timing discontinuity",
+                tu_observation_resolution="record measured resolution in seconds with event evidence",
+                tu_uncorrelated="fail",
                 timestamp_margin={"register": "AVTPRX_TSD", "offset": 0x6EC,
                                   "stream_input": 0, "units": "signed ns"})
     args["release_eligible"] &= _release_profile_eligible(settings)
@@ -3554,6 +3568,9 @@ def plan_power(dut: Device = ARTY, peer: Device = PEER,
         args.update(cycles=count, total_cycles=settings.power_cycles,
                     phase=phase, cold=True, count_resets=False,
                     outlet_role="dut",
+                    power_off_hold_s=settings.power_off_hold_s,
+                    power_off_hold_origin="phys.dut-cycle.power-cycle: default 8 s; verify discharge",
+                    power_off_hold_in_adp_window=False,
                     boot_observation_s=settings.restore_bound_s + settings.boot_margin_s,
                     boot_margin_s=settings.boot_margin_s,
                     restore_bound_s=settings.restore_bound_s,
@@ -3566,7 +3583,8 @@ def plan_power(dut: Device = ARTY, peer: Device = PEER,
                     restore_limit_exclusive=False,
                     restore_requires="automatic; no controller repair; both directions and CRF",
                     boot_max_passes=1, boot_max_restarts=0,
-                    boot_evidence="complete UART/reset observation from T0 through boot_observation_s",
+                    boot_evidence="complete UART/reset observation from T0 through next cut or campaign end; "
+                                  "at least boot_observation_s",
                     persisted_items=list(settings.persisted_items),
                     release_eligible=(settings.power_cycles >= ReleaseSettings.power_cycles
                                       and settings.idle_cycles >= ReleaseSettings.idle_cycles
@@ -3576,10 +3594,12 @@ def plan_power(dut: Device = ARTY, peer: Device = PEER,
                     cold_confirmation="power removed; discharge verified",
                     adp_reference="last pre-cut DUT ENTITY_AVAILABLE, host timestamp and raw PDU",
                     adp_valid_time_unit_s=2,
-                    adp_deadline="pre_cut_last_available_host_s + 2 * pre_cut_valid_time - t0_host_s",
+                    adp_required_valid_time=10,
+                    adp_start="T0",
+                    adp_deadline="2 * pre_cut_valid_time",
                     adp_elapsed="first_post_cut_available_host_s - t0_host_s",
                     adp_limit_exclusive=True,
-                    adp_missing_or_expired="fail; never replace the pre-cut origin",
+                    adp_missing_or_expired="fail; require captured valid_time=10 and arrival before T0 deadline",
                     rebind_limit_s=1, rebind_limit_exclusive=True,
                     rebind_start="CONNECT_RX success",
                     rebind_end="first valid AVTP PDU",
@@ -4792,6 +4812,7 @@ class _ReleasePlanChecks:
             self.assertEqual(step.args["boot_observation_s"], 35)
             self.assertEqual(step.args["restore_bound_s"], 30)
             self.assertEqual(step.args["boot_margin_s"], 5)
+            self.assertEqual(step.args["power_off_hold_s"], 8)
             self.assertEqual(step.args["rebind_limit_s"], 1)
             self.assertTrue(step.args["rebind_limit_exclusive"])
             self.assertTrue(step.needs_human)
@@ -4910,7 +4931,8 @@ class _ReleasePlanChecks:
                 "--json", "--soak-duration-s", "125", "--soak-interval-s", "17",
                 "--power-cycles", "3", "--idle-cycles", "2", "--commit-cycles", "1",
                 "--persisted-items", "stream_binding,clock_source",
-                "--restore-bound-s", "23", "--boot-margin-s", "7"]
+                "--restore-bound-s", "23", "--boot-margin-s", "7",
+                "--power-off-hold-s", "13"]
         output = io.StringIO()
         with patch.object(sys, "argv", argv), contextlib.redirect_stdout(output):
             self.assertEqual(main(), 0)
@@ -4922,6 +4944,7 @@ class _ReleasePlanChecks:
             self.assertEqual(step["args"]["restore_bound_s"], 23)
             self.assertEqual(step["args"]["boot_margin_s"], 7)
             self.assertEqual(step["args"]["boot_observation_s"], 30)
+            self.assertEqual(step["args"]["power_off_hold_s"], 13)
         self.assertEqual([idle["args"]["cycles"], commit["args"]["cycles"]], [2, 1])
         self.assertEqual(commit["args"]["persisted_items"],
                          ["stream_binding", "clock_source"])
@@ -4932,8 +4955,8 @@ class _ReleasePlanChecks:
         self.assertEqual(failure.exception.code, 2)
 
     def test_release_timing_and_snapshot_contract(self) -> None:
-        """L3 #396 round 2 pins origins, non-default bounds, and both phase policies."""
-        settings = ReleaseSettings(restore_bound_s=19, boot_margin_s=11)
+        """L3 #396 round 3 pins T0 origins, separate off time, and phase policies."""
+        settings = ReleaseSettings(restore_bound_s=19, boot_margin_s=11, power_off_hold_s=17)
         idle, commit = build_plan(["power"], release=settings)
         self.assertEqual(idle.args["snapshot_policy"], "exact pre-cut committed snapshot")
         self.assertEqual(commit.args["snapshot_policy"], "complete old or new committed snapshot")
@@ -4953,15 +4976,22 @@ class _ReleasePlanChecks:
             self.assertEqual(args["restore_start"], "T0")
             self.assertEqual(args["restore_end"], "first valid AVTP PDU of each persisted binding")
             self.assertFalse(args["restore_limit_exclusive"])
+            self.assertEqual(args["restore_requires"],
+                             "automatic; no controller repair; both directions and CRF")
+            self.assertEqual(args["power_off_hold_s"], 17)
+            self.assertEqual(args["power_off_hold_origin"],
+                             "phys.dut-cycle.power-cycle: default 8 s; verify discharge")
+            self.assertFalse(args["power_off_hold_in_adp_window"])
             self.assertEqual(args["adp_reference"],
                              "last pre-cut DUT ENTITY_AVAILABLE, host timestamp and raw PDU")
             self.assertEqual(args["adp_valid_time_unit_s"], 2)
-            self.assertEqual(args["adp_deadline"],
-                             "pre_cut_last_available_host_s + 2 * pre_cut_valid_time - t0_host_s")
+            self.assertEqual(args["adp_required_valid_time"], 10)
+            self.assertEqual(args["adp_start"], "T0")
+            self.assertEqual(args["adp_deadline"], "2 * pre_cut_valid_time")
             self.assertEqual(args["adp_elapsed"], "first_post_cut_available_host_s - t0_host_s")
             self.assertTrue(args["adp_limit_exclusive"])
             self.assertEqual(args["adp_missing_or_expired"],
-                             "fail; never replace the pre-cut origin")
+                             "fail; require captured valid_time=10 and arrival before T0 deadline")
             self.assertEqual(args["rebind_start"], "CONNECT_RX success")
             self.assertEqual(args["rebind_end"], "first valid AVTP PDU")
             self.assertEqual(args["rebind_requires"],
@@ -4971,6 +5001,10 @@ class _ReleasePlanChecks:
         """Each prerequisite can independently refuse an otherwise eligible area."""
         settings = ReleaseSettings(topology_explicit=True)
         cases = [({}, (True, True)),
+                 ({"restore_bound_s": 29}, (True, True)),
+                 ({"restore_bound_s": 30}, (True, True)),
+                 ({"restore_bound_s": 31}, (False, False)),
+                 ({"restore_bound_s": 3600}, (False, False)),
                  ({"soak_duration_s": 604799}, (False, True)),
                  ({"soak_interval_s": 61}, (False, False)),
                  ({"soak_interval_s": 604800}, (False, False)),
@@ -4989,6 +5023,8 @@ class _ReleasePlanChecks:
             self.assertFalse(step.args["release_eligible"])
         for changes in ({"restore_bound_s": 0}, {"restore_bound_s": True},
                         {"restore_bound_s": float("nan")}, {"boot_margin_s": -1},
+                        {"power_off_hold_s": 0}, {"power_off_hold_s": -1},
+                        {"power_off_hold_s": True}, {"power_off_hold_s": float("nan")},
                         {"boot_margin_s": False}, {"topology_explicit": "yes"}):
             with self.subTest(changes=changes), self.assertRaises(ValueError):
                 ReleaseSettings(**changes)
@@ -5013,6 +5049,55 @@ class _ReleasePlanChecks:
                     self.assertEqual(step["args"]["topology_explicit"], expected)
                     self.assertEqual(step["args"]["release_eligible"], expected)
 
+    def test_release_topology_each_key(self) -> None:
+        """L3 explicit means each key on each role, not any partial override."""
+        import contextlib
+        import io
+        from unittest.mock import patch
+        # These shapes remain valid when fixture fields are inherited, so a
+        # missing-key case reaches eligibility instead of an overlap refusal.
+        dut = "entity=0011223344556677,mac=001122334455,talkers=2,listeners=2,crf_out=16,crf_in=16"
+        peer = ("entity=8899aabbccddeeff,mac=8899aabbccdd,talker_index_set=0|1,"
+                "listener_index_set=0|1,crf_out=16,crf_in=16")
+        for role in (0, 1):
+            fields = dict(part.split("=", 1) for part in (dut, peer)[role].split(","))
+            cases = [({key}, False) for key in fields]
+            cases += [({"crf_in", "crf_out"}, False), ({"mac"}, True)]
+            for omitted, empty in cases:
+                specs = [dut, peer]
+                specs[role] = ",".join(
+                    f"{key}={'' if key in omitted else value}"
+                    for key, value in fields.items() if empty or key not in omitted)
+                with self.subTest(role=role, omitted=omitted, empty=empty):
+                    output = io.StringIO()
+                    argv = ["torture_campaign.py", "--plan", "--areas", "soak,power", "--json",
+                            "--dut", specs[0], "--peer", specs[1]]
+                    with patch.object(sys, "argv", argv), contextlib.redirect_stdout(output):
+                        self.assertEqual(main(), 0)
+                    for step in json.loads(output.getvalue()):
+                        self.assertFalse(step["args"]["topology_explicit"])
+                        self.assertFalse(step["args"]["release_eligible"])
+            # Empty numeric/index-set values are refused by the parser;
+            # independently pin that none can attest explicit provenance.
+            for key in fields:
+                specs = [dut, peer]
+                specs[role] = ",".join(f"{k}={'' if k == key else v}" for k, v in fields.items())
+                self.assertFalse(_release_topology_explicit(*specs), (role, key))
+        for specs in ((dut, peer),
+                      (dut.replace("listeners=2", "listener_index_set=0|1"),
+                       peer.replace("talker_index_set=0|1", "talkers=2"))):
+            self.assertTrue(_release_topology_explicit(*specs))
+        self.assertFalse(_release_topology_explicit(dut.replace("entity=", "entity_id="), peer))
+
+    def test_release_tu_contract(self) -> None:
+        """L3 #396 round 3 uses the implemented bound, with event resolution."""
+        soak = build_plan(["soak"])[0]
+        self.assertEqual(soak.args["tu_holdover_bound_s"], 0.5)
+        self.assertEqual(soak.args["tu_time_origin"], "recorded GM change or timing discontinuity")
+        self.assertEqual(soak.args["tu_observation_resolution"],
+                         "record measured resolution in seconds with event evidence")
+        self.assertEqual(soak.args["tu_uncorrelated"], "fail")
+
     def test_release_crf_overlap_refused(self) -> None:
         """An AAF range or explicit set cannot also designate the CRF stream."""
         for base in (ARTY, PEER):
@@ -5035,7 +5120,8 @@ class _ReleasePlanChecks:
         self.assertEqual(check_release_boot(1, 0, capture_complete=True)[0], "PASS")
         for passes, restarts in ((2, 1), (2, 0), (1, 1), (0, 0)):
             self.assertEqual(check_release_boot(passes, restarts, capture_complete=True)[0], "FAIL")
-        for passes, restarts in ((None, 0), (1, None), (-1, 0), (True, 0)):
+        for passes, restarts in ((None, 0), (1, None), (-1, 0), (True, 0),
+                                (1, True), (1, False), (1, -1)):
             self.assertEqual(check_release_boot(passes, restarts, capture_complete=True)[0], "SKIP")
         self.assertEqual(check_release_boot(1, 0, capture_complete=False)[0], "SKIP")
         for step in build_plan(["power"]):
@@ -5043,7 +5129,8 @@ class _ReleasePlanChecks:
             self.assertEqual(step.args["boot_max_passes"], 1)
             self.assertEqual(step.args["boot_max_restarts"], 0)
             self.assertEqual(step.args["boot_evidence"],
-                             "complete UART/reset observation from T0 through boot_observation_s")
+                             "complete UART/reset observation from T0 through next cut or campaign end; "
+                             "at least boot_observation_s")
 
 
 class _ConcurrencyChecks:
@@ -5376,6 +5463,8 @@ def main() -> int:
                     help="provisional T0-to-automatic-AVTP bound; #396 round 2")
     ap.add_argument("--boot-margin-s", type=int, default=ReleaseSettings.boot_margin_s,
                     help="extra observation after the restore bound; never extends a pass deadline")
+    ap.add_argument("--power-off-hold-s", type=int, default=ReleaseSettings.power_off_hold_s,
+                    help="cold-cut discharge hold; recorded separately from T0 deadlines")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--self-test", action="store_true")
     a = ap.parse_args()
@@ -5390,6 +5479,7 @@ def main() -> int:
                                   tuple(a.persisted_items.split(",")))
         release = replace(release, restore_bound_s=a.restore_bound_s,
                           boot_margin_s=a.boot_margin_s,
+                          power_off_hold_s=a.power_off_hold_s,
                           topology_explicit=_release_topology_explicit(a.dut, a.peer))
         plan = build_plan(areas, dut, peer, release=release)
     except ValueError as error:

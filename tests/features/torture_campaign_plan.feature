@@ -383,6 +383,34 @@ Feature: The torture campaign's own coverage is auditable at a desk
     Then every release repeat preserves those parameters and its timing origins
 
   @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: partial CLI topology never qualifies the release profile
+    When the release CLI omits only <shape> from the <role> topology
+    Then every release repeat reports diagnostic topology
+
+    Examples:
+      | shape    | role |
+      | CRF keys | DUT  |
+      | listener | DUT  |
+      | CRF keys | peer |
+      | listener | peer |
+
+  @class:release @clause:REQ-VER-06
+  Scenario Outline: restoration eligibility honors the provisional release ceiling
+    When an explicit release profile uses a restoration bound of <seconds> seconds
+    Then every release repeat is <eligibility> for release
+
+    Examples:
+      | seconds | eligibility |
+      | 29      | eligible    |
+      | 30      | eligible    |
+      | 31      | ineligible  |
+
+  @class:release @clause:REQ-VER-06
+  Scenario: uncertainty intervals need a recorded event and the implemented bound
+    When the soak release area is planned
+    Then uncertainty is correlated and bounded by half a second plus observation resolution
+
+  @class:release @clause:REQ-VER-06 @negative-control
   Scenario: a second successful boot cannot hide the first-boot restart
     Then the first-boot restart control fails the release boot assertion
 

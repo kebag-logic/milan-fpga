@@ -5,6 +5,8 @@
 from __future__ import annotations
 
 import sys
+import json
+import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -127,6 +129,7 @@ def step_tp_release_power_defaults(context: Context) -> None:
         assert step.args["restore_bound_s"] == 30
         assert step.args["boot_margin_s"] == 5
         assert step.args["boot_observation_s"] == 35
+        assert step.args["power_off_hold_s"] == 8
         assert step.args["restore_start"] == "T0"
         assert step.args["restore_end"] == "first valid AVTP PDU of each persisted binding"
         assert step.args["rebind_limit_s"] == 1 and step.args["rebind_limit_exclusive"]
@@ -177,13 +180,13 @@ def step_tp_release_repeat_omission(context: Context, repeat: str, role: str, mi
 def step_tp_release_parameters(context: Context) -> None:
     """Non-default inputs are an independent oracle for the emitted parameters."""
     settings = tp.ReleaseSettings(125, 17, 10, 8, 2, ("stream_binding", "clock_source"),
-                                  restore_bound_s=23, boot_margin_s=7)
+                                  restore_bound_s=23, boot_margin_s=7, power_off_hold_s=13)
     context.tp_plan = tp.build_plan(["soak", "power"], release=settings)
 
 
 @then("every release repeat preserves those parameters and its timing origins")
 def step_tp_release_parameter_results(context: Context) -> None:
-    """L3 #396 round 2, including the derived pre-cut ADP expiry and T0."""
+    """L3 #396 round 3: T0 starts the ADP window after the recorded hold."""
     soak, idle, commit = context.tp_plan
     assert (soak.args["duration_s"], soak.args["interval_s"]) == (125, 17)
     assert (idle.args["cycles"], commit.args["cycles"]) == (8, 2)
@@ -192,8 +195,12 @@ def step_tp_release_parameter_results(context: Context) -> None:
         assert args["total_cycles"] == 10
         assert args["restore_bound_s"] == 23 and args["boot_margin_s"] == 7
         assert args["boot_observation_s"] == 30
+        assert args["power_off_hold_s"] == 13
+        assert args["power_off_hold_in_adp_window"] is False
         assert args["time_origin"] == "T0: power-strip ON command, host monotonic clock"
-        assert args["adp_deadline"] == "pre_cut_last_available_host_s + 2 * pre_cut_valid_time - t0_host_s"
+        assert args["adp_start"] == "T0"
+        assert args["adp_required_valid_time"] == 10
+        assert args["adp_deadline"] == "2 * pre_cut_valid_time"
         assert args["adp_elapsed"] == "first_post_cut_available_host_s - t0_host_s"
         assert args["adp_limit_exclusive"]
         assert args["rebind_requires"] == "automatic restoration passed for every persisted binding"
@@ -208,3 +215,54 @@ def step_tp_release_boot_control(context: Context) -> None:
     assert tp.check_release_boot(1, 0, capture_complete=True)[0] == "PASS"
     assert tp.check_release_boot(2, 1, capture_complete=True)[0] == "FAIL"
     assert tp.check_release_boot(1, 0, capture_complete=False)[0] == "SKIP"
+
+
+@when("the release CLI omits only {shape} from the {role} topology")
+def step_tp_release_partial_cli(context: Context, shape: str, role: str) -> None:
+    """L3 #396 round 3: valid inherited shapes must not attest provenance."""
+    specs = ["entity=0011223344556677,mac=001122334455,talkers=2,listeners=2,crf_out=16,crf_in=16",
+             "entity=8899aabbccddeeff,mac=8899aabbccdd,talkers=2,listeners=2,crf_out=16,crf_in=16"]
+    position = 0 if role == "DUT" else 1
+    missing = {"crf_in", "crf_out"} if shape == "CRF keys" else {"listeners"}
+    specs[position] = ",".join(part for part in specs[position].split(",")
+                               if part.split("=", 1)[0] not in missing)
+    root = Path(__file__).resolve().parents[2]
+    result = subprocess.run(
+        [sys.executable, "-B", "tb/tools/torture_campaign.py", "--plan", "--areas", "soak,power",
+         "--json", "--dut", specs[0], "--peer", specs[1]],
+        cwd=root, capture_output=True, text=True, check=True, timeout=600)
+    context.release_cli_steps = json.loads(result.stdout)
+
+
+@then("every release repeat reports diagnostic topology")
+def step_tp_release_partial_result(context: Context) -> None:
+    """Require all three emitted repeats to reject the partial CLI shape."""
+    assert len(context.release_cli_steps) == 3
+    for step in context.release_cli_steps:
+        assert step["args"]["topology_explicit"] is False
+        assert step["args"]["release_eligible"] is False
+
+
+@when("an explicit release profile uses a restoration bound of {seconds:d} seconds")
+def step_tp_release_restore_bound(context: Context, seconds: int) -> None:
+    """L3 #396 round 3 varies only restoration, keeping other prerequisites valid."""
+    context.tp_plan = tp.build_plan(
+        ["soak", "power"], release=tp.ReleaseSettings(topology_explicit=True, restore_bound_s=seconds))
+
+
+@then("every release repeat is {eligibility} for release")
+def step_tp_release_eligible(context: Context, eligibility: str) -> None:
+    """The independent 29/30/31-second examples pin the inclusive ceiling."""
+    assert len(context.tp_plan) == 3
+    for step in context.tp_plan:
+        assert step.args["release_eligible"] is (eligibility == "eligible")
+
+
+@then("uncertainty is correlated and bounded by half a second plus observation resolution")
+def step_tp_release_tu_bound(context: Context) -> None:
+    """L3 #396 round 3 distinguishes discontinuity holdover from media holdover."""
+    args = context.tp_plan[0].args
+    assert args["tu_holdover_bound_s"] == 0.5
+    assert args["tu_time_origin"] == "recorded GM change or timing discontinuity"
+    assert args["tu_uncorrelated"] == "fail"
+    assert args["tu_observation_resolution"] == "record measured resolution in seconds with event evidence"
