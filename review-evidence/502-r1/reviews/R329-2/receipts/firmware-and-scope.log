@@ -1,0 +1,28 @@
+## git diff --stat 104c8a54..5d4cf33e -- sw hdl/common/csr configs (expect empty)
+## git diff --stat 831f94f4..5d4cf33e -- sw hdl/common/csr configs (expect empty)
+## firmware blob at 831f94f4 / 104c8a54 / 5d4cf33e
+a4e560fbdbbed8f54c1e7e18a0dfe005bb050c06
+a4e560fbdbbed8f54c1e7e18a0dfe005bb050c06
+a4e560fbdbbed8f54c1e7e18a0dfe005bb050c06
+## firmware sha256 vs capture measurement
+0bf43cd4fe02b110fb1ae4f051b3bc7baa6bb62c3769962520ed1f4bd12247a6  sw/firmware/milan_baremetal/milan_baremetal.c
+"product_firmware_sha256": "0bf43cd4fe02b110fb1ae4f051b3bc7baa6bb62c3769962520ed1f4bd12247a6"
+## gitlinks 104c8a54 vs head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+## files changed 104c8a54..head
+docs/design/SAVED_STATE_MATERIALIZATION.md
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+docs/testing/TESTING.md
+hdl/milan/KL_pp_shadow.sv
+hdl/milan/milan_datapath.sv
+tb/verilator/pp_shadow/README.md
+tb/verilator/pp_shadow/pending_mutant.py
+tb/verilator/pp_shadow/pending_probes.vlt
+tb/verilator/pp_shadow/sim_main.cpp

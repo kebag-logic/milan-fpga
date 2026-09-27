@@ -1,0 +1,24 @@
+[R329] probes from a durable baseline (reviewer-derived)
+  [PASS] R329 P1 preload visible to GET_AUDIO_MAP   got=0x00000001 exp=0x00000001
+  [PASS] R329 P1 baseline durable after preload     got=0x00000040 exp=0x00000040
+  [PASS] R329 P1 REMOVE status SUCCESS              got=0x00000000 exp=0x00000000
+  [PASS] R329 P1 REMOVE took effect                 got=0x00000000 exp=0x00000000
+  [PASS] R329 P1 remove-from-durable no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] R329 P1 remove-from-durable pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [i] R329 P1 remove-from-durable first write 12765, mark 12780, tail 15 cycles
+  [PASS] R329 P1 remove-from-durable live_state_changed got=0x00000001 exp=0x00000001
+  [PASS] R329 P1 remove-from-durable sticky_pending_PP_STAT got=0x00000001 exp=0x00000001
+  [PASS] R329 P1 remove-from-durable sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000001
+  [R329-obs] P2 refused ADD status 7
+  [PASS] R329 P2 refused ADD is not SUCCESS         got=0x00000001 exp=0x00000001
+  [PASS] R329 P2 refused ADD leaves map empty       got=0x00000000 exp=0x00000000
+  [PASS] R329 P2 refused-at-validation no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] R329 P2 refused-at-validation pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] R329 P2 refused-at-validation live_state_changed got=0x00000000 exp=0x00000000
+  [PASS] R329 P2 refused-at-validation sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] R329 P2 refused-at-validation sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] R329 P3 preload visible to GET_AUDIO_MAP   got=0x00000001 exp=0x00000001
+  [R329-obs] P3 duplicate ADD status 0, phase-5 records 1, marks 0, mappings after 1, PP_STAT[11] pend 1, durable 0
+pp_shadow: 295 checks, 4 failures
+RESULT: FAIL
+rc=2

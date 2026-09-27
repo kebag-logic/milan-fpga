@@ -1,0 +1,158 @@
+### git diff --check 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf HEAD
+
+### rc=0 :: git diff --check 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf HEAD
+### git diff --check 104c8a54b183cd9215ed1e3a2e1be1634f48d33d HEAD
+
+### rc=0 :: git diff --check 104c8a54b183cd9215ed1e3a2e1be1634f48d33d HEAD
+### python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 887 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+### rc=0 :: python3 -B scripts/docs_check.py
+### $REVIEWS/502-r329-2-packet/scratch/venv/bin/python scripts/check_em_dash.py --base 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf
+check_em_dash: 0 finding(s) over 163 added line(s) in 6 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [831f94f4..HEAD]
+### rc=0 :: $REVIEWS/502-r329-2-packet/scratch/venv/bin/python scripts/check_em_dash.py --base 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf
+### python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+### rc=0 :: python3 scripts/check_doc_style.py
+### $REVIEWS/502-r329-2-packet/scratch/venv/bin/python scripts/gen_toc.py --check
+TOC gate: OK (108 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+### rc=0 :: $REVIEWS/502-r329-2-packet/scratch/venv/bin/python scripts/gen_toc.py --check
+### $REVIEWS/502-r329-2-packet/scratch/venv/bin/python scripts/gen_toc.py --verify-anchors
+anchor check: 176 existing cross-page fragment links reproduced
+### rc=0 :: $REVIEWS/502-r329-2-packet/scratch/venv/bin/python scripts/gen_toc.py --verify-anchors
+### python3 scripts/check_doc_paths.py
+doc path gate: OK (846 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+### rc=0 :: python3 scripts/check_doc_paths.py
+### $REVIEWS/502-r329-2-packet/scratch/venv/bin/python docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+### rc=0 :: $REVIEWS/502-r329-2-packet/scratch/venv/bin/python docs/traceability/gen_module_matrix.py --check
+### python3 scripts/check_rtl_source_lists.py
+protocol-processor native tops list (syn/yosys/run.sh): 35 top(s) for 41 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_processor_top
+RTL source-list gate: OK (106 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 35/41 tops, 6 recorded)
+### rc=0 :: python3 scripts/check_rtl_source_lists.py
+### python3 scripts/check_sv_idiom.py
+SystemVerilog idiom gate: OK (127 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+### rc=0 :: python3 scripts/check_sv_idiom.py
+### python3 scripts/lint_rtl.py --check
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:261:39: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:271:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:276:55: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:280:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:170:21: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:200:37: WIDTHEXPAND  Operator GTE expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:211:22: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's SEL generates 3 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:254:36: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:254:20: WIDTHTRUNC  Operator ASSIGNDLY expects 6 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+  hdl/ieee8021q/ts/traffic_queues.sv:150:24: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARREF 'gsel' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:103:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARXREF 'tdest' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.
+  hdl/milan/KL_pp_shadow.sv:246:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:452:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+### rc=0 :: python3 scripts/lint_rtl.py --check
+### python3 scripts/check_cpp_idiom.py
+cpp idiom: 156 first-party translation units, 22 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+### rc=0 :: python3 scripts/check_cpp_idiom.py
+### python3 scripts/check_py_idiom.py
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+### rc=0 :: python3 scripts/check_py_idiom.py
+### python3 scripts/check_port_contracts.py
+port contract gate: OK (3682 first-party port(s): hdl 1908, gptp-processor 125, protocol-processor 1649; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 93 open and 58 literal-bound named connection(s), 62 without a local rationale (all recorded; none may be added); 118 test-only hierarchical observation(s)
+### rc=0 :: python3 scripts/check_port_contracts.py
+### python3 scripts/measure_naming.py --check
+protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top: draw_kind_o — documented in ms, not named for it: constant 3 = 10000..15000 ms (F08.2)
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: DESC_BASE_P — documented in bytes, not named for it: ---- descriptor image in the integrator's MAIN MEMORY (07 §3.3) ------ The entity model does NOT live on chip: the reference consumer's is 22,561 bytes at the 8x8 shape and the reference part measured 131 of 135 block-RAM tiles used. It lives in DDR3 on the reference board, reached through the vendor-neutral read-only master below.  Every address is a COMPILE-TIME parameter — the DRAM map is fixed when the bitstream is built, so a runtime base would only buy a 32-bit port and the flops behind it. Software loads the image at DESC_BASE_P before entity_enable; if it has not (or loaded a truncated one), the store's magic + version + checksum header check fails and reports zero configurations. READ_DESCRIPTOR then answers BAD_ARGUMENTS before locate, never a garbage descriptor on the wire.
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: RESP_BASE_P — documented in bytes, not named for it: ---- AECP response buffer in the integrator's MAIN MEMORY (03 §7) --- The response an AECP command builds is up to 592 bytes and it does not live on chip either. Held as fabric state it measured 5,079 flip-flops on the reference part and was the state the placer could not pack on a die whose block RAM was already 100 % used. Same rule as the image above: a COMPILE-TIME base, never a register. UNLIKE the image this region is WRITTEN by the processor, so the integrator must reserve `16 + DESC_LINE_BYTES_P` bytes there that nothing else writes, and it must not overlap `DESC_BASE_P`.
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: nvm_unflushed_o — documented in cycles, not named for it: per-sink UNFLUSHED binding state, the manager's own dirty vector (KL_acmp_nvm_shadow dirty_r, a clk_i register read combinationally). Bit k rises on the cycle the manager ACCEPTS a changed persisted set for sink k — two clk_i cycles after cap_wr_i, because the capture is pipelined one stage and the accept is the compare against the shadow, so a write-back that changes no persisted field never raises it — and falls on the cycle its commit reports done, or, on retry exhaustion, on the same cycle nvm_alarm_o rises. A tainted commit (a capture that hit the sink mid-flush) holds it: the burst re-serializes fresh data. An integrator publishing a "saved state pending" bit ORs this vector with aecp_dyn_dirty_o; without it a binding taken inside the manager's debounce window reads durable.
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: srp_acc_latency_o — documented in ns, not named for it: per-sink registered accumulated_latency, ns, RAW — the consumer adds its own ingress delay
+
+tree                 files  ports params documented undocumented unit-named matches excluded mismatched candidates
+gptp-processor           6    125      6        107           24          7      26       25          0          1
+protocol-processor      45   1649    271       1800          120        101     212      190          1         22
+superproject            72   1908    317       1985          240        142     293      220          3         73
+total                  123   3682    594       3892          384        250     531      435          4         96
+
+96 candidate(s): 92 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3682 ports and 594 parameters scanned, 384 with no //! and so not judged here, 435 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+### rc=0 :: python3 scripts/measure_naming.py --check
+### python3 scripts/measure_test_evidence.py --check
+   tb/verilator/rx_filter/binding_mutant.py: mutation campaign; it ties a real named binding low and requires failure
+   tb/verilator/tcam/mutants.py: mutation campaign; it injects three RTL defects and requires failure
+   tb/verilator/tkdiag/mcr_mutants.py: mutation campaign; it plants one of four restart-engine defects against the #387 pending-restart merge and its wire boundary into a copy and requires a named failure
+
+suite files using host wall-clock/process deadlines (3):
+   tb/verilator/tcam/mutants.py
+   tb/verilator/tsn_fuzz/cosim.py
+   tb/verilator/tsn_fuzz/tsn_model.py
+
+Verilator scheduling: 55 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 75
+### rc=0 :: python3 scripts/measure_test_evidence.py --check
+### python3 scripts/ci_events.py --check
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (1655 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+### rc=0 :: python3 scripts/ci_events.py --check
+### python3 scripts/xvlog_gate.py --check
+xvlog gate: 4 finding(s) across 4 module(s)
+  analysed: 72 tracked .sv/.v file(s) under hdl/ and 51 under the pinned processors (protocol-processor/hdl, gptp-processor/hdl)
+  pinned at: protocol-processor@870ff88a; gptp-processor@5dce647a - the superproject gitlink, which each checkout was required to BE before anything was enumerated
+  NOT analysed: third_party/ and external/ (leaf IP this repo neither owns nor edits), and
+                any defect only ELABORATION rejects - xvlog analyses; the split-initialiser
+                class needs xelab, which nothing in this repo runs (#224)
+  hdl/: 0 finding(s)
+  pinned processors: 4 finding(s)
+    protocol-processor:hdl/aecp/KL_aecp_notify.sv:502  [VRFC 10-3380] 'pd_ix_w'  identifier 'pd_ix_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_originator.sv:194  [VRFC 10-3380] 'cancel_hit_w'  identifier 'cancel_hit_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv:364  [VRFC 10-3380] 'vd_push_w'  identifier 'vd_push_w' is used before its declaration
+    protocol-processor:hdl/top/protocol_processor_top.sv:821  [VRFC 10-3380] 'srp_class_a_prio_w'  identifier 'srp_class_a_prio_w' is used before its declaration
+xvlog gate: PASS (4 finding(s) == ratchet; 0 hdl/, 4 pinned processors)
+### rc=0 :: python3 scripts/xvlog_gate.py --check
+### python3 scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+### rc=0 :: python3 scripts/check_submodule_docs.py
+### python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+### rc=0 :: python3 scripts/check_diagram_pngs.py
+### python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (4 exact gitlinks, decoded PNG)
+### rc=0 :: python3 docs/diagrams/submodule_boundaries.gen.py --check
+### python3 scripts/check_nvm_capture.py
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+PASS: capture census, clocks, both timing arms and receipt agree
+### rc=0 :: python3 scripts/check_nvm_capture.py
