@@ -301,11 +301,48 @@ Feature: The torture campaign's own coverage is auditable at a desk
     And each physical family ends with a full proof pair at a non-zero index
 
   # ------------------------------------------------------ runner integration
+  @class:release @clause:REQ-VER-06
+  Scenario Outline: release areas observe every index and bind both directions
+    When the <area> release area is planned
+    Then the plan covers every DUT talker index
+    And the plan covers every DUT listener index
+    And the plan covers every peer talker index
+    And the plan covers every peer listener index
+    And every release repeat observes every index including each CRF sink
+    And every release repeat binds compatible AAF and CRF in both directions
+
+    Examples:
+      | area  |
+      | soak  |
+      | power |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: release coverage refuses omissions even with a complete matrix
+    When the <area> release plan loses its <missing>
+    Then that release area fails its own audit
+    And the complete matrix still passes its audit
+
+    Examples:
+      | area  | missing   |
+      | soak  | index     |
+      | soak  | direction |
+      | soak  | CRF sink  |
+      | power | index     |
+      | power | direction |
+      | power | CRF sink  |
+
+  @class:release @clause:REQ-VER-06
+  Scenario: release defaults encode the decided soak and cold-cut mix
+    When the whole campaign is planned
+    Then the soak lasts seven days with periodic and endpoint observations
+    And power repeats 160 idle and 40 journal-commit cold cuts
+    And release assertions require complete measured evidence
+
   @class:runner
   Scenario: areas can be selected, and an unknown area is refused
     Then selecting the audio area yields only audio steps
     And selecting an unknown area raises
-    And selecting nothing yields all five areas
+    And selecting nothing yields all configured areas
 
   @class:runner
   Scenario: the verdict record shape is stable and the exit codes are graded

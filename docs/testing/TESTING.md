@@ -838,6 +838,102 @@ bare-metal board exposes only the UART. What stands in its place:
   against the Milan-validated reference peer are #117's lane, and the
   power-cut soak is #70's.
 
+**Standing release campaigns (#396, REQ-VER-06).**
+Use one DUT and the reference peer.
+The soak lasts seven continuous days with bidirectional streams bound.
+Include AAF and CRF; observe every declared stream index.
+Complete 200 unattended cold cuts: 160 idle, 40 journal-commit.
+Warm resets contribute no cycles.
+These numbers are project release policy, not Milan-prescribed durations.
+
+Generate the plan without accessing hardware:
+
+```sh
+python3 -B tb/tools/torture_campaign.py --plan --areas soak,power --json \
+  --dut "$DUT_SPEC" --peer "$PEER_SPEC" \
+  --soak-duration-s 604800 --soak-interval-s 60 \
+  --power-cycles 200 --idle-cycles 160 --commit-cycles 40 \
+  --persisted-items stream_binding
+python3 -B tb/tools/torture_campaign.py --coverage-by-area --areas soak,power \
+  --dut "$DUT_SPEC" --peer "$PEER_SPEC"
+python3 -B tb/tools/torture_campaign.py --self-test
+python3 -B -m behave tests/features/torture_campaign_plan.feature -f plain
+```
+
+Set both topology specifications from the candidate's served descriptors.
+The built-in topologies are desk fixtures, not discovered hardware.
+Use the existing `--dut` and `--peer` key/value format.
+Include actual identities, AAF indices, and separate CRF indices.
+Set `--persisted-items` from the shipping image's persistence inventory.
+It currently contains stream binding; #70 expands it to eight items.
+Reduced profiles remain diagnostic and emit `release_eligible: false`.
+They cannot qualify a release.
+
+Each emitted operation is a repeat contract for workstation tooling.
+`release_soak` binds compatible pairs before starting its observation window.
+Every listener has one source; multicast handles unequal stream counts.
+Unbound outputs are observed but need not transmit.
+Counter targets enumerate all indices independently of those bindings.
+Sample at baseline, each interval, and the exact endpoint.
+Include the final partial interval when duration is indivisible.
+Never accumulate separate runs into seven continuous days.
+Teardown follows the final snapshot.
+
+| Soak evidence | Required result |
+|---|---|
+| Table 5.4/5.6 counters, every index | Valid masks and invariants; no unexplained resets |
+| `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED` | Zero growth throughout the soak |
+| `MEDIA_UNLOCKED` | Every increase explained with retained evidence |
+| Coherent fabric gPTP publication and transition history | No `asCapable` loss |
+| Timestamped discontinuities and wire `tu` intervals | No uncertainty beyond Milan Annex B.1.1 holdover |
+| `AVTPRX_TSD`, signed nanoseconds | Fresh margin observations for `STREAM_INPUT[0]` only |
+| DUT uptime | Monotonic advance, with no reboot |
+
+Periodic healthy reads cannot prove that intermediate transitions never happened.
+Retain continuous transition, streaming, and uncertainty evidence too.
+Unavailable event evidence leaves the release gate unsatisfied.
+The single-index timestamp register cannot prove other streams' margins.
+
+`release_power_cycles` emits separate idle and journal-commit repeat groups.
+Each cycle establishes bindings and snapshots committed state first.
+Record phase evidence before removing DUT power.
+Confirm discharge; a reset command cannot satisfy a cold cut.
+Allow at least eight minutes for boot observation.
+Then verify automatic restore before any controller-assisted reconnect test.
+Compare every configured persisted item before and after each cut.
+Idle cuts require the exact pre-cut committed snapshot.
+Commit cuts permit complete old or new committed snapshots.
+Mixed or unreadable state cannot pass.
+Measure advertisements against decoded ADP valid time after network readiness.
+Measure reconnect from `CONNECT_RX` success to first valid AVTP.
+Require less than one second, as #75 specifies.
+These deadlines do not replace the separate cold-boot observation window.
+Walk every input/output counter, including CRF, after each cycle.
+Finish verification before beginning the next cut.
+
+The bench executor supplies power-strip and commit-window instrumentation.
+Missing instrumentation leaves an explicit unmet obligation.
+Unsupported repeat operations must be refused, never silently skipped.
+The generic campaign exit status alone cannot qualify a release.
+Every required release assertion needs measured `PASS` evidence.
+`SKIP`, `INFO`, `KNOWN-PENDING`, and `INSTRUMENT-SUSPECT` do not qualify.
+Neither do `NEEDS-HUMAN` entries or missing records.
+
+Retain Section 6b artifacts plus these campaign-specific records:
+
+- exact bitstream, firmware, and AEM hashes;
+- serialized plan, topology, persistence inventory, and verdict JSONL;
+- timestamped snapshots, controller exchanges, and power-cut phase evidence;
+- complete UART transcripts, wire captures, and the temperature log.
+
+Link dated evidence from `docs/findings/` on the exact candidate.
+File a finding for every failed assertion.
+Acceptance items 3 and 4 remain later bench work.
+They require both campaigns and a known-defect negative control.
+Use the first-boot defect or disabled persistence to demonstrate failure.
+Desk mutation controls prove plan coverage, not physical failure detection.
+Neither this plan nor its self-test closes #70 or #117.
+
 ## 7. Known gaps (kept honest)
 
 * **AECP is partially implemented and graded.** The processor's AECP uCPU

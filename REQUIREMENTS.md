@@ -247,11 +247,38 @@ verified blocks outside the shipping datapath; the station-address rules
   The one AX7101 DUT against the Milan-validated reference peer additionally
   demonstrates asCapable, GM transition/recovery, publication/`tu` correlation,
   conformance, and latency (#117).
+- **REQ-VER-06 (MUST):** Each shipping candidate passes both release campaigns.
+  The soak lasts at least seven continuous days.
+  Streams remain bound in both directions with the reference peer.
+  CRF participates alongside AAF.
+  Every declared stream index receives periodic counter observations.
+  `SEQ_NUM_MISMATCH` and `STREAM_INTERRUPTED` must never increase.
+  No unexplained `MEDIA_UNLOCKED` increase is permitted.
+  No `asCapable` loss is permitted.
+  `tu` must not persist beyond the applicable holdover.
+  Observe gPTP publication, `AVTPRX_TSD` margin, and monotonic uptime.
+  The power campaign completes 200 unattended cold cuts.
+  Of these, 160 occur idle; 40 interrupt journal commits.
+  Warm resets do not count.
+  Every cycle restores the shipping image's persisted state items.
+  Currently that list contains stream binding.
+  All eight Milan items become mandatory when #70 lands.
+  The plan receives that inventory as data.
+  Commit cuts recover complete old or new committed snapshots.
+  Re-advertisement meets the decoded ADP valid time after network readiness.
+  Binding restoration is automatic; controller repair cannot satisfy restoration.
+  Reconnect timing follows #75: successful `CONNECT_RX` to valid AVTP.
+  That interval must remain below one second.
+  Both campaigns use one DUT and the reference peer.
+  Retain exact-image evidence under [TESTING.md 6b](docs/testing/TESTING.md#6b-bench-evidence-retention).
+  Execute the plan contract in [TESTING.md 6d](docs/testing/TESTING.md#6d-unattended-campaign-vehicle).
+  Missing measurements and desk-only passes cannot qualify a release.
 
 Release acceptance requires all requirements above or an explicit standards-
 cited deviation in the traceability table. At the current candidate, #70 and
 #117 remain hard blockers; desk checks cannot substitute for their power-cycle
-and physical measurements.
+and physical measurements. REQ-VER-05 also requires REQ-VER-06 campaign evidence.
+Issue #396's physical campaigns and negative control remain open.
 
 ## 9. Out of scope
 
