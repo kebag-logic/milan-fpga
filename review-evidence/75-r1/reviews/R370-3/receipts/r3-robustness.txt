@@ -1,0 +1,15 @@
+PASS well-formed Listener Lv/Ready vector decodes exactly
+PASS LeaveAll flag yields a LeaveAll row before the vector events
+PASS three-packed event order matches 802.1Q 10.8.2.10
+PASS each event code decodes to its standard name: ['New', 'JoinIn', 'In', 'JoinMt', 'Mt', 'Lv']
+PASS all 20 strict truncations refused with ValueError (20)
+PASS malformed input refused: version 1
+PASS malformed input refused: unknown attribute type 5
+PASS malformed input refused: wrong Listener width
+PASS malformed input refused: event byte >= 216
+PASS malformed input refused: count exceeds packed bytes
+PASS malformed input refused: missing PDU end mark
+PASS malformed input refused: attribute length overruns PDU
+PASS no published DUT Talker Advertise event within 1 ms of a hold boundary (closest 0.041521 s)
+RESULT PASS
+rc=0

@@ -1,0 +1,65 @@
+PASS stop-checks.csv has 200 attempt rows (200)
+PASS window arithmetic (settle = response + 0.5 s, hold >= 2 s, count sums, latency) on 200 rows; 0 bad
+PASS independent stop predicate agrees with published classification on 200/200
+INFO independent NOT_RESTART set: [('talker', 13), ('talker', 24), ('talker', 75)]
+PASS non-restarts are exactly talker 13, 24, 75
+INFO sub-PDU-period intervals: [('talker', 13, 0.000363568), ('talker', 24, 0.000296777), ('talker', 75, 0.001864076)]
+PASS every sub-PDU-period interval is a NOT_RESTART
+PASS every attempt carries a recorded stop check
+INFO listener restart silence gap min/max s: 2.000914 / 2.202419
+PASS listener: every accepted restart shows > 1.5 s recorded silence spanning the settled hold
+PASS listener: no accepted restart interval is below one PDU period
+INFO talker restart silence gap min/max s: 1.930026 / 2.118028
+PASS talker: every accepted restart shows > 1.5 s recorded silence spanning the settled hold
+PASS talker: no accepted restart interval is below one PDU period
+PASS talker 13: 1000 hold PDUs, 250 final-half PDUs, max gap 0.002000053 s
+PASS talker 24: 1000 hold PDUs, 250 final-half PDUs, max gap 0.002000053 s
+PASS talker 75: 1000 hold PDUs, 250 final-half PDUs, max gap 0.002000053 s
+PASS listener: active-talker start/stop delta is 1/1 for each restart and 0/0 for each non-restart
+INFO listener summed active deltas (100, 100)
+PASS listener: inactive DUT output deltas all zero
+PASS talker: active-talker start/stop delta is 1/1 for each restart and 0/0 for each non-restart
+INFO talker summed active deltas (97, 97)
+PASS talker counters 18/17 -> 115/114 in summary
+PASS listener counters 12/11 -> 112/111 in summary
+PASS talker +97 start increments equal the 97 demonstrated restarts
+PASS talker: public setup-after [18, 17] and restore-before [115, 114] snapshots
+PASS listener: public setup-after [12, 11] and restore-before [112, 111] snapshots
+PASS listener-001: public record timings, counters [12, 11]->[13, 12], continuity and input hashes match addendum
+PASS listener-002: public record timings, counters [13, 12]->[14, 13], continuity and input hashes match addendum
+PASS listener-003: public record timings, counters [14, 13]->[15, 14], continuity and input hashes match addendum
+PASS listener-004: public record timings, counters [15, 14]->[16, 15], continuity and input hashes match addendum
+PASS listener-005: public record timings, counters [16, 15]->[17, 16], continuity and input hashes match addendum
+PASS talker-001: public record timings, counters [18, 17]->[19, 18], continuity and input hashes match addendum
+PASS talker-002: public record timings, counters [19, 18]->[20, 19], continuity and input hashes match addendum
+PASS talker-003: public record timings, counters [20, 19]->[21, 20], continuity and input hashes match addendum
+PASS talker-004: public record timings, counters [21, 20]->[22, 21], continuity and input hashes match addendum
+PASS talker-005: public record timings, counters [22, 21]->[23, 22], continuity and input hashes match addendum
+PASS input-hashes.csv lists 1000 per-attempt source records (1000)
+PASS 200 capture sizes/SHA-256 agree across addendum, operator index and page (204 page capture rows)
+PASS page cycle table 200 rows, stop table 200 rows
+PASS page cycle and stop tables match addendum rows ([])
+INFO listener demonstrated n=100 min=0.006641168 median=0.1102795055 p95=0.188503018 max=0.204858977
+PASS listener: page distribution row ['100', '100', '0.006641', '0.110280', '0.188503', '0.204859']
+INFO listener original (all 100) min=0.006641168 median=0.110279505 p95=0.188503018 max=0.204858977
+INFO listener OLS n=100 slope=-0.000099787716 ci=[-0.000501182277, 0.000301606845] t975=1.984467455 df=98
+PASS listener: page slope -0.000099788
+PASS listener: page 95% slope interval [-0.000501182, +0.000301607] (exact t)
+PASS listener: first/last ten medians 0.122844 0.118585
+PASS listener: ten-cycle block medians and maxima checked against page
+INFO listener slope without cycle 1: -0.000095683
+INFO talker demonstrated n=97 min=0.017426921 median=0.0191746130 p95=0.042346644 max=0.117736084
+PASS talker: page distribution row ['97', '97', '0.017427', '0.019175', '0.042347', '0.117736']
+INFO talker original (all 100) min=0.000296777 median=0.019165141 p95=0.039613701 max=0.117736084
+INFO talker OLS n=97 slope=-0.000019700053 ci=[-0.000133251486, 0.000093851379] t975=1.985251004 df=95
+PASS talker: page slope -0.000019700
+PASS talker: page 95% slope interval [-0.000133251, +0.000093851] (exact t)
+PASS talker: first/last ten medians 0.019894 0.019818
+PASS talker: ten-cycle block medians and maxima checked against page
+INFO talker slope without cycle 1: 0.000040905
+PASS page addendum row for recompute.py
+PASS page addendum row for stop-checks.csv
+PASS page addendum row for recomputed-summary.json
+PASS page addendum row for input-hashes.csv
+RESULT PASS
+rc=0

@@ -1,0 +1,42 @@
+mode=full
+warning: unable to find all commit-graph files
+head=9c18068512dec844d24fdff7fe0a3eb0d63c14f5 tree=52012dcea83c4cd6a8b419eeeeffce89962ca526
+=== docs_check.py
+rc=0
+docs_check: 0 finding(s) across 172 md files + 917 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+=== check_feature_status.py
+rc=0
+feature_status: 0 finding(s)
+=== check_doc_style.py
+rc=0
+documentation style: OK (22 current documents)
+=== gen_toc.py --check
+rc=0
+TOC gate: OK (114 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+=== check_em_dash.py --base 8bc97021
+rc=0
+check_em_dash: 0 finding(s) over 1288 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [8bc97021..HEAD]
+=== check_doc_paths.py
+rc=0
+doc path gate: OK (850 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+=== ci_scope.py --selftest
+rc=0
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+=== check_baremetal_only.py --check
+rc=2
+baremetal-only: FATAL: pyyaml is unavailable and the parsed YAML class is load-bearing
+=== check_feature_status.py --self-test
+rc=0
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+=== git diff --check base..head
+rc=0
+warning: unable to find all commit-graph files
+=== git diff --check (worktree)
+rc=0
+

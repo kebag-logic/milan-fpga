@@ -1,0 +1,8 @@
+talker-001: latency 0.117736 s; hold DUT TA events [+0.121 Lv, +0.521 Mt, +1.721 Mt]; declarations in hold 0; addendum predicate TRUE; first DUT declaration after response +0.111313 s
+talker-002: latency 0.026166 s; hold DUT TA events [+0.333 JoinMt, +1.333 JoinMt, +1.733 JoinMt, +1.933 JoinMt]; declarations in hold 4; addendum predicate TRUE; first DUT declaration after response +0.123630 s
+talker-003: latency 0.018096 s; hold DUT TA events [+0.771 JoinMt, +1.371 JoinMt, +1.571 JoinMt, +1.771 JoinMt]; declarations in hold 4; addendum predicate TRUE; first DUT declaration after response +0.161451 s
+talker-004: latency 0.019959 s; hold DUT TA events [+0.242 JoinMt, +1.242 JoinMt, +1.842 JoinMt]; declarations in hold 3; addendum predicate TRUE; first DUT declaration after response +0.033198 s
+talker-005: latency 0.019830 s; hold DUT TA events [+0.710 JoinMt, +1.710 JoinMt]; declarations in hold 2; addendum predicate TRUE; first DUT declaration after response +0.700960 s
+talker-setup: latency 6.889398 s; DUT TA events before response 0; first declaration +0.079237 s
+CONCLUSION: talker cycle 1 holds no DUT Talker Advertise declaration (Lv then Mt only) yet the addendum predicate reports it as advertising; its first post-response declaration is later than the initial bind's, and it restarts in 0.117736 s.
+rc=0

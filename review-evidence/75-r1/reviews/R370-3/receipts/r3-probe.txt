@@ -1,0 +1,140 @@
+PASS hold-declarations.csv has exactly talker holds 1..100
+PASS hold-events.csv is_declaration flag agrees with the event name on all 241 rows
+PASS per-hold declaration counts re-derived from hold-events.csv event names equal hold-declarations.csv
+INFO derived census: 99/100 holds carry a DUT Talker Advertise declaration; without: [1]
+PASS declarations-summary.json census equals the re-derived census
+PASS page states the derived census (99/100)
+PASS page and summary state the same half-open hold window
+PASS talker-001: hold anchors equal result.json
+PASS talker-001: hold-events.csv rows equal the published msrp.tsv (3 events)
+PASS talker-001: declaration/withdrawal/empty counts equal the published msrp.tsv
+PASS talker-001/result.json: census input hash equals the published file
+PASS talker-001/msrp.tsv: census input hash equals the published file
+PASS talker-002: hold anchors equal result.json
+PASS talker-002: hold-events.csv rows equal the published msrp.tsv (4 events)
+PASS talker-002: declaration/withdrawal/empty counts equal the published msrp.tsv
+PASS talker-002/result.json: census input hash equals the published file
+PASS talker-002/msrp.tsv: census input hash equals the published file
+PASS talker-003: hold anchors equal result.json
+PASS talker-003: hold-events.csv rows equal the published msrp.tsv (4 events)
+PASS talker-003: declaration/withdrawal/empty counts equal the published msrp.tsv
+PASS talker-003/result.json: census input hash equals the published file
+PASS talker-003/msrp.tsv: census input hash equals the published file
+PASS talker-004: hold anchors equal result.json
+PASS talker-004: hold-events.csv rows equal the published msrp.tsv (3 events)
+PASS talker-004: declaration/withdrawal/empty counts equal the published msrp.tsv
+PASS talker-004/result.json: census input hash equals the published file
+PASS talker-004/msrp.tsv: census input hash equals the published file
+PASS talker-005: hold anchors equal result.json
+PASS talker-005: hold-events.csv rows equal the published msrp.tsv (2 events)
+PASS talker-005: declaration/withdrawal/empty counts equal the published msrp.tsv
+PASS talker-005/result.json: census input hash equals the published file
+PASS talker-005/msrp.tsv: census input hash equals the published file
+PASS talker-013: hold anchors equal result.json
+PASS talker-013: hold-events.csv rows equal the published msrp.tsv (3 events)
+PASS talker-013: declaration/withdrawal/empty counts equal the published msrp.tsv
+PASS talker-013/result.json: census input hash equals the published file
+PASS talker-013/msrp.tsv: census input hash equals the published file
+PASS talker-024: hold anchors equal result.json
+PASS talker-024: hold-events.csv rows equal the published msrp.tsv (3 events)
+PASS talker-024: declaration/withdrawal/empty counts equal the published msrp.tsv
+PASS talker-024/result.json: census input hash equals the published file
+PASS talker-024/msrp.tsv: census input hash equals the published file
+PASS talker-075: hold anchors equal result.json
+PASS talker-075: hold-events.csv rows equal the published msrp.tsv (3 events)
+PASS talker-075: declaration/withdrawal/empty counts equal the published msrp.tsv
+PASS talker-075/result.json: census input hash equals the published file
+PASS talker-075/msrp.tsv: census input hash equals the published file
+PASS initial bind: 0 DUT declarations before its response
+PASS initial bind: first DUT declaration +0.079237250 s after response, as the page states
+INFO cycle 1 hold DUT TA events: +0.120687323 Lv, +0.520682079 Mt, +1.720684762 Mt
+PASS cycle 1: hold carries Lv then Mt only (no declaration)
+PASS cycle 1: page Lv/Mt offsets equal the published msrp.tsv
+PASS cycle 1: no DUT declaration from disconnect response to reconnect response ("undeclared until after reconnect success")
+INFO cycle 1: first declaration +0.111313165 s after response; Ready +0.006299407; CRF +0.000123512; latency 0.117736084
+PASS cycle 1: page chronology equals the published records
+PASS old universal claim and its unqualified inference are gone from the page
+PASS page points #606 at cycle 1
+PASS declarations.py derives the census count from data with the declaration-only event set
+PASS talker-013: listener-events.csv equals every target bridge Listener event after disconnect in msrp.tsv (4)
+PASS talker-013: one Lv, then no Listener declaration until after reconnect response
+PASS talker-013: page chronology row '| 13 | 0.009770679 | 2.009383717 | 2.083160130 | 0.073776413 |' equals the published records
+PASS talker-013: page event row '| 13 | Lv | +0.009770679 | -1.999613038 |' present
+PASS talker-013: page event row '| 13 | New | +2.083160130 | +0.073776413 |' present
+PASS talker-013: page event row '| 13 | New | +2.182730731 | +0.173347014 |' present
+PASS talker-013: page event row '| 13 | JoinMt | +2.280863937 | +0.271480220 |' present
+PASS talker-013 Lv @2994090329: bracketed by CRF 2994040105..2996040126, gap <= 0.002000053 s
+PASS talker-013 New @5067479780: bracketed by CRF 5066067904..5068067941, gap <= 0.002000053 s
+PASS talker-013 New @5167050381: bracketed by CRF 5166069251..5168069280, gap <= 0.002000053 s
+PASS talker-013 JoinMt @5265183587: bracketed by CRF 5264070569..5266070590, gap <= 0.002000053 s
+PASS talker-013: NOT_RESTART, DUT start/stop +0/+0, 1000 PDUs in the hold (stop-checks.csv)
+PASS talker-013: PDU counts consistent with 2 ms period (1036 vs 1036.69)
+PASS talker-013: page PDU count equals declarations-summary.json
+INFO talker-013: DUT LeaveAll during hold at +0.040218046 s after the bridge Lv
+PASS talker-024: listener-events.csv equals every target bridge Listener event after disconnect in msrp.tsv (4)
+PASS talker-024: one Lv, then no Listener declaration until after reconnect response
+PASS talker-024: page chronology row '| 24 | 0.010356881 | 2.008905104 | 2.027609644 | 0.018704540 |' equals the published records
+PASS talker-024: page event row '| 24 | Lv | +0.010356881 | -1.998548223 |' present
+PASS talker-024: page event row '| 24 | New | +2.027609644 | +0.018704540 |' present
+PASS talker-024: page event row '| 24 | New | +2.121717417 | +0.112812313 |' present
+PASS talker-024: page event row '| 24 | JoinMt | +2.221744020 | +0.212838916 |' present
+PASS talker-024 Lv @3043222631: bracketed by CRF 3042040812..3044040841, gap <= 0.002000053 s
+PASS talker-024 New @5060475394: bracketed by CRF 5060067873..5062067902, gap <= 0.002000053 s
+PASS talker-024 New @5154583167: bracketed by CRF 5154069142..5156069171, gap <= 0.002000053 s
+PASS talker-024 JoinMt @5254609770: bracketed by CRF 5254070481..5256070502, gap <= 0.002000053 s
+PASS talker-024: NOT_RESTART, DUT start/stop +0/+0, 1000 PDUs in the hold (stop-checks.csv)
+PASS talker-024: PDU counts consistent with 2 ms period (1009 vs 1008.63)
+PASS talker-024: page PDU count equals declarations-summary.json
+INFO talker-024: DUT LeaveAll during hold at +0.089874323 s after the bridge Lv
+PASS talker-075: listener-events.csv equals every target bridge Listener event after disconnect in msrp.tsv (4)
+PASS talker-075: one Lv, then no Listener declaration until after reconnect response
+PASS talker-075: page chronology row '| 75 | 0.025307595 | 2.009020118 | 2.027707850 | 0.018687732 |' equals the published records
+PASS talker-075: page event row '| 75 | Lv | +0.025307595 | -1.983712523 |' present
+PASS talker-075: page event row '| 75 | New | +2.027707850 | +0.018687732 |' present
+PASS talker-075: page event row '| 75 | New | +2.122542224 | +0.113522106 |' present
+PASS talker-075: page event row '| 75 | JoinMt | +2.222919836 | +0.213899718 |' present
+PASS talker-075 Lv @3066491140: bracketed by CRF 3066041123..3068041136, gap <= 0.002000053 s
+PASS talker-075 New @5068891395: bracketed by CRF 5068067961..5070067989, gap <= 0.002000053 s
+PASS talker-075 New @5163725769: bracketed by CRF 5162069229..5164069250, gap <= 0.002000053 s
+PASS talker-075 JoinMt @5264103381: bracketed by CRF 5264070589..5266070617, gap <= 0.002000053 s
+PASS talker-075: NOT_RESTART, DUT start/stop +0/+0, 1000 PDUs in the hold (stop-checks.csv)
+PASS talker-075: PDU counts consistent with 2 ms period (1001 vs 1001.20)
+PASS talker-075: page PDU count equals declarations-summary.json
+INFO talker-075: DUT LeaveAll during hold at +0.062871172 s after the bridge Lv
+INFO talker-001 (restart): bridge Lv +0.009757863 s; DUT LeaveAll during hold at +1.510926110 s after the Lv
+INFO talker-002 (restart): bridge Lv +0.009495086 s; DUT LeaveAll during hold at +1.723276288 s after the Lv
+INFO talker-003 (restart): bridge Lv +0.009507287 s; DUT LeaveAll during hold at none s after the Lv
+INFO talker-004 (restart): bridge Lv +0.010005271 s; DUT LeaveAll during hold at none s after the Lv
+INFO talker-005 (restart): bridge Lv +0.010951482 s; DUT LeaveAll during hold at none s after the Lv
+PASS page links #608 from the stop-check section
+PASS page links #608 from the acceptance row
+PASS page links #608 from the acceptance restarts row
+PASS findings index row links #608
+PASS recompute.py: no assert statements
+PASS recompute.py: no exception-based classification
+PASS declarations.py: no assert statements
+PASS declarations.py: no exception-based classification
+PASS recompute.py -O: refused before reading inputs, rc 1
+PASS recompute.py -OO: refused before reading inputs, rc 1
+PASS recompute.py PYTHONOPTIMIZE=1: refused before reading inputs, rc 1
+PASS declarations.py -O: refused before reading inputs, rc 1
+PASS declarations.py -OO: refused before reading inputs, rc 1
+PASS declarations.py PYTHONOPTIMIZE=1: refused before reading inputs, rc 1
+PASS classify_stop truth table (count, early resumption, silence)
+INFO derived outcome: PASS: 200 raw hashes, ACMP anchors, CRF validity, original timings and counter continuity checked. | Stop checks: 197 PASS; 3 FAIL, excluded as NOT_RESTART: talker-013, talker-024, talker-075.
+PASS outcome lines equal counts computed independently from stop-checks.csv
+PASS outcome lines change with a mutated row
+PASS outcome_lines source pins no count or cycle literal
+PASS stop-checks.csv: round-3 bytes equal round-2 (stop results and quantiles unchanged)
+PASS recomputed-summary.json: round-3 bytes equal round-2 (stop results and quantiles unchanged)
+PASS input-hashes.csv: round-3 bytes equal round-2 (stop results and quantiles unchanged)
+PASS author-r3 MANIFEST.sha256: every listed file verifies
+PASS published-records.csv: 48 records, only raw-artifacts.json transformed, published hashes verify
+PASS talker-013: relative capture identifier; size and sha256 equal stop-checks.csv
+PASS talker-013: same record set as published cycle 1
+PASS talker-024: relative capture identifier; size and sha256 equal stop-checks.csv
+PASS talker-024: same record set as published cycle 1
+PASS talker-075: relative capture identifier; size and sha256 equal stop-checks.csv
+PASS talker-075: same record set as published cycle 1
+RESULT PASS
+rc=0

@@ -1,0 +1,19 @@
+OK  unmutated copy: probe rc 0; 
+OK  page census says 100/100: probe rc 1; FAIL page states the derived census (99/100)
+OK  cycle 1 hold event relabelled as declaration: probe rc 1; FAIL per-hold declaration counts re-derived from hold-events.csv event names equal hold-declarations.csv
+OK  summary census pinned to 100: probe rc 1; FAIL declarations-summary.json census equals the re-derived census
+OK  census counted with a literal: probe rc 1; FAIL declarations.py derives the census count from data with the declaration-only event set
+OK  old universal claim restored on page: probe rc 1; FAIL old universal claim and its unqualified inference are gone from the page
+OK  cycle 1 Lv offset wrong on page: probe rc 1; FAIL cycle 1: page Lv/Mt offsets equal the published msrp.tsv
+OK  non-stop Lv time wrong on page: probe rc 1; FAIL talker-024: page chronology row '| 24 | 0.010356881 | 2.008905104 | 2.027609644 | 0.018704540 |' equals the published records
+OK  non-stop event row dropped from page: probe rc 1; FAIL talker-075: page event row '| 75 | New | +2.122542224 | +0.113522106 |' present
+OK  listener-events.csv loses a row: probe rc 1; FAIL talker-013: listener-events.csv equals every target bridge Listener event after disconnect in msrp.tsv (4)
+OK  #608 link removed from index row: probe rc 1; FAIL findings index row links #608
+OK  #608 link removed from acceptance row: probe rc 1; FAIL page links #608 from the acceptance row
+OK  replay classifies by catching AssertionError: probe rc 1; FAIL recompute.py: no assert statements
+OK  optimisation guard removed: probe rc 1; FAIL recompute.py -O: refused before reading inputs, rc 1
+OK  outcome pinned to 197: probe rc 1; FAIL outcome_lines source pins no count or cycle literal
+OK  classify_stop ignores the settled count: probe rc 1; FAIL classify_stop truth table (count, early resumption, silence)
+OK  published record byte changed: probe rc 1; FAIL author-r3 MANIFEST.sha256: every listed file verifies
+RESULT PASS
+rc=0

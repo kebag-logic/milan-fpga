@@ -1,0 +1,18 @@
+PASS: silent hold
+PASS: one settled PDU
+PASS: early resumption
+PASS: continuous hold
+PASS: all replay consistency checks use explicit conditions
+PASS: optimization option: refused, rc 1
+PASS: optimization environment: refused, rc 1
+PASS: only New, JoinIn, JoinMt declare; In, Mt, Lv, LeaveAll excluded
+PASS: old universal declaration claim rejected on recorded cycle 1
+PASS: remaining declared holds pass the same predicate
+PASS: printed totals and rejected identities change with input; empty rejection set supported
+PASS: stop-checks.csv: byte-identical to round-2 numeric evidence
+PASS: recomputed-summary.json: byte-identical to round-2 numeric evidence
+PASS: input-hashes.csv: byte-identical to round-2 numeric evidence
+rc=0
+controls.json identical to published: yes
+REFUSED: optimized execution disables evidence checks
+rc under -O = 1
