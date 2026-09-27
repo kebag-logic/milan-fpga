@@ -1,0 +1,16 @@
+talker series, DUT Stream Output 1 (DUT talker):
+  after initial bind START=18 STOP=17; before restore START=115 STOP=114; after restore STOP=115
+  increments spanning numbered cycles 1..100: START +97, STOP +97 (100 expected for 100 stop/restart cycles)
+  public cycle 1: START +1 STOP +1
+  public cycle 2: START +1 STOP +1
+  public cycle 3: START +1 STOP +1
+  public cycle 4: START +1 STOP +1
+  public cycle 5: START +1 STOP +1
+listener series, reference Stream Output 2 (talker feeding the DUT):
+  after initial bind START=12 STOP=11; before restore START=112 STOP=111; after restore STOP=112
+  increments spanning numbered cycles 1..100: START +100, STOP +100 (100 expected for 100 stop/restart cycles)
+  public cycle 1: START +1 STOP +1
+  public cycle 2: START +1 STOP +1
+  public cycle 3: START +1 STOP +1
+  public cycle 4: START +1 STOP +1
+  public cycle 5: START +1 STOP +1

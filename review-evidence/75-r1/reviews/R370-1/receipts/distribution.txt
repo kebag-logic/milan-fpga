@@ -1,0 +1,37 @@
+== listener: page rows 100, handoff rows 100
+   min 0.006641168 median 0.110279505 p95(nearest rank) 0.188503018 max 0.204858977
+   below 1 s: 100; holds 2.000212..2.000603
+   first-ten median 0.122844 last-ten median 0.118585 OLS slope -0.000100 s/cycle
+   first-half median 0.107696 second-half median 0.110280 Spearman rho(cycle, latency) -0.0440
+   block 1-10: median 0.122844 max 0.178174
+   block 11-20: median 0.142162 max 0.191796
+   block 21-30: median 0.095617 max 0.171912
+   block 31-40: median 0.106201 max 0.191218
+   block 41-50: median 0.067111 max 0.177925
+   block 51-60: median 0.090436 max 0.203084
+   block 61-70: median 0.042417 max 0.153266
+   block 71-80: median 0.134288 max 0.204859
+   block 81-90: median 0.087061 max 0.180242
+   block 91-100: median 0.118585 max 0.178821
+   five smallest: [(61, 0.006641), (9, 0.00895), (38, 0.01092), (54, 0.011118), (51, 0.012018)]
+   five largest : [(17, 0.19052), (31, 0.191218), (20, 0.191796), (60, 0.203084), (73, 0.204859)]
+   latencies below one 2 ms CRF period: []
+== talker: page rows 100, handoff rows 100
+   min 0.000296777 median 0.019165141 p95(nearest rank) 0.039613701 max 0.117736084
+   below 1 s: 100; holds 2.000230..2.000403
+   first-ten median 0.019894 last-ten median 0.019818 OLS slope -0.000008 s/cycle
+   first-half median 0.019124 second-half median 0.019193 Spearman rho(cycle, latency) +0.0807
+   block 1-10: median 0.019894 max 0.117736
+   block 11-20: median 0.018978 max 0.039614
+   block 21-30: median 0.019365 max 0.020036
+   block 31-40: median 0.018961 max 0.020482
+   block 41-50: median 0.018974 max 0.082168
+   block 51-60: median 0.018862 max 0.066967
+   block 61-70: median 0.019376 max 0.042347
+   block 71-80: median 0.019060 max 0.020492
+   block 81-90: median 0.018913 max 0.116171
+   block 91-100: median 0.019818 max 0.021083
+   five smallest: [(24, 0.000297), (13, 0.000364), (75, 0.001864), (72, 0.017427), (14, 0.017658)]
+   five largest : [(63, 0.042347), (59, 0.066967), (44, 0.082168), (90, 0.116171), (1, 0.117736)]
+   latencies below one 2 ms CRF period: [(13, 0.000364), (24, 0.000297), (75, 0.001864)]
+MISMATCHES: 0

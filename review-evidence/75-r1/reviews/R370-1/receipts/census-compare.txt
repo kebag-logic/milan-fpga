@@ -1,0 +1,79 @@
+keys start 75 end 75 same key set True
+stream states: 18
+  dut:state-5-0 start conn=0 end conn=0
+  dut:state-5-1 start conn=0 end conn=0
+  dut:state-6-0 start conn=0 end conn=0
+  dut:state-6-1 start conn=0 end conn=0
+  peer:state-5-0 start conn=0 end conn=0
+  peer:state-5-1 start conn=0 end conn=0
+  peer:state-5-2 start conn=0 end conn=0
+  peer:state-5-3 start conn=0 end conn=0
+  peer:state-5-4 start conn=0 end conn=0
+  peer:state-5-5 start conn=0 end conn=0
+  peer:state-5-6 start conn=0 end conn=0
+  peer:state-5-7 start conn=0 end conn=0
+  peer:state-5-8 start conn=0 end conn=0
+  peer:state-5-9 start conn=0 end conn=0
+  peer:state-6-0 start conn=0 end conn=0
+  peer:state-6-1 start conn=0 end conn=0
+  peer:state-6-2 start conn=0 end conn=0
+  peer:state-6-3 start conn=0 end conn=0
+differing keys: 58
+  ('dut', 'avb') {'decoded': ({'gm': '<16-hex redacted>', 'pdelay_ns': 383, 'domain': 0, 'flags': '0x17', 'as_capable': 1, 'gptp_enabled': 1, 'srp_enabled': 1}, {'gm': '<16-hex redacted>', 'pdelay_ns': 385, 'domain': 0, 'flags': '0x17', 'as_capable': 1, 'gptp_enabled': 1, 'srp_enabled': 1}), 'payload': ('<48-hex redacted>', '<48-hex redacted>'), 'rtt_ms': (0.07, 0.059), 'seq': (21328, 29170)}
+  ('dut', 'clock') {'rtt_ms': (0.082, 0.058), 'seq': (21325, 29167)}
+  ('dut', 'config') {'rtt_ms': (0.107, 0.09), 'seq': (21326, 29168)}
+  ('dut', 'counter-36-0') {'rtt_ms': (0.103, 0.093), 'seq': (21341, 29183)}
+  ('dut', 'counter-5-0') {'rtt_ms': (0.115, 0.105), 'seq': (21337, 29179)}
+  ('dut', 'counter-5-1') {'counters': ({'0': 11, '1': 11, '2': 0, '3': 0, '4': 0, '5': 0, '8': 0, '9': 0, '10': 0, '11': 825}, {'0': 1, '1': 1, '2': 0, '3': 0, '4': 0, '5': 0, '8': 0, '9': 0, '10': 0, '11': 23}), 'payload': ('<272-hex redacted>', '<272-hex redacted>'), 'rtt_ms': (0.115, 0.103), 'seq': (21338, 29180)}
+  ('dut', 'counter-6-0') {'rtt_ms': (0.114, 0.104), 'seq': (21339, 29181)}
+  ('dut', 'counter-6-1') {'counters': ({'0': 17, '1': 17, '2': 0, '3': 0, '4': 73}, {'0': 115, '1': 115, '2': 0, '3': 0, '4': 29}), 'payload': ('<272-hex redacted>', '<272-hex redacted>'), 'rtt_ms': (0.114, 0.103), 'seq': (21340, 29182)}
+  ('dut', 'counter-9-0') {'rtt_ms': (0.105, 0.095), 'seq': (21336, 29178)}
+  ('dut', 'desc-10-0') {'rtt_ms': (0.089, 0.077), 'seq': (21334, 29176)}
+  ('dut', 'desc-10-1') {'rtt_ms': (0.087, 0.077), 'seq': (21335, 29177)}
+  ('dut', 'desc-36-0') {'rtt_ms': (0.087, 0.075), 'seq': (21333, 29175)}
+  ('dut', 'desc-5-0') {'rtt_ms': (0.141, 0.118), 'seq': (21329, 29171)}
+  ('dut', 'desc-5-1') {'rtt_ms': (0.129, 0.113), 'seq': (21330, 29172)}
+  ('dut', 'desc-6-0') {'rtt_ms': (0.118, 0.108), 'seq': (21331, 29173)}
+  ('dut', 'desc-6-1') {'rtt_ms': (0.119, 0.109), 'seq': (21332, 29174)}
+  ('dut', 'sample-rate') {'rtt_ms': (0.071, 0.08), 'seq': (21327, 29169)}
+  ('dut', 'state-6-1') {'dmac': ('all-zero', 'MAAP-range')}
+  ('peer', 'avb') {'rtt_ms': (0.101, 0.112), 'seq': (21359, 29201)}
+  ('peer', 'clock') {'rtt_ms': (0.094, 0.106), 'seq': (21356, 29198)}
+  ('peer', 'config') {'rtt_ms': (0.104, 0.109), 'seq': (21357, 29199)}
+  ('peer', 'counter-36-0') {'rtt_ms': (0.082, 0.109), 'seq': (21395, 29237)}
+  ('peer', 'counter-5-0') {'rtt_ms': (0.086, 0.106), 'seq': (21381, 29223)}
+  ('peer', 'counter-5-1') {'rtt_ms': (0.092, 0.107), 'seq': (21382, 29224)}
+  ('peer', 'counter-5-2') {'rtt_ms': (0.648, 0.108), 'seq': (21383, 29225)}
+  ('peer', 'counter-5-3') {'rtt_ms': (0.152, 0.109), 'seq': (21384, 29226)}
+  ('peer', 'counter-5-4') {'rtt_ms': (0.213, 0.11), 'seq': (21385, 29227)}
+  ('peer', 'counter-5-5') {'rtt_ms': (0.081, 0.107), 'seq': (21386, 29228)}
+  ('peer', 'counter-5-6') {'rtt_ms': (0.08, 0.106), 'seq': (21387, 29229)}
+  ('peer', 'counter-5-7') {'rtt_ms': (0.102, 0.112), 'seq': (21388, 29230)}
+  ('peer', 'counter-5-8') {'counters': ({'0': 1, '1': 1, '2': 0, '3': 0, '4': 1, '5': 0, '6': 405636, '7': 0, '8': 0, '9': 0, '10': 0, '11': 405636}, {'0': 1, '1': 1, '2': 0, '3': 0, '4': 0, '5': 0, '6': 13665, '7': 0, '8': 0, '9': 0, '10': 0, '11': 13665}), 'payload': ('<272-hex redacted>', '<272-hex redacted>'), 'rtt_ms': (0.088, 0.108), 'seq': (21389, 29231)}
+  ('peer', 'counter-5-9') {'rtt_ms': (0.095, 0.108), 'seq': (21390, 29232)}
+  ('peer', 'counter-6-0') {'rtt_ms': (0.107, 0.108), 'seq': (21391, 29233)}
+  ('peer', 'counter-6-1') {'rtt_ms': (0.084, 0.111), 'seq': (21392, 29234)}
+  ('peer', 'counter-6-2') {'counters': ({'0': 11, '1': 11, '2': 0, '3': 0, '4': 410552}, {'0': 112, '1': 112, '2': 0, '3': 0, '4': 980791}), 'payload': ('<272-hex redacted>', '<272-hex redacted>'), 'rtt_ms': (0.1, 0.114), 'seq': (21393, 29235)}
+  ('peer', 'counter-6-3') {'rtt_ms': (0.099, 0.106), 'seq': (21394, 29236)}
+  ('peer', 'counter-9-0') {'rtt_ms': (0.103, 0.113), 'seq': (21380, 29222)}
+  ('peer', 'desc-10-0') {'rtt_ms': (0.102, 0.112), 'seq': (21375, 29217)}
+  ('peer', 'desc-10-1') {'rtt_ms': (0.106, 0.112), 'seq': (21376, 29218)}
+  ('peer', 'desc-10-2') {'rtt_ms': (0.087, 0.116), 'seq': (21377, 29219)}
+  ('peer', 'desc-10-3') {'rtt_ms': (0.107, 0.113), 'seq': (21378, 29220)}
+  ('peer', 'desc-10-4') {'rtt_ms': (0.109, 0.113), 'seq': (21379, 29221)}
+  ('peer', 'desc-36-0') {'rtt_ms': (0.105, 0.112), 'seq': (21374, 29216)}
+  ('peer', 'desc-5-0') {'rtt_ms': (0.102, 0.121), 'seq': (21360, 29202)}
+  ('peer', 'desc-5-1') {'rtt_ms': (0.084, 0.11), 'seq': (21361, 29203)}
+  ('peer', 'desc-5-2') {'rtt_ms': (0.104, 0.113), 'seq': (21362, 29204)}
+  ('peer', 'desc-5-3') {'rtt_ms': (0.105, 0.112), 'seq': (21363, 29205)}
+  ('peer', 'desc-5-4') {'rtt_ms': (0.104, 0.116), 'seq': (21364, 29206)}
+  ('peer', 'desc-5-5') {'rtt_ms': (0.112, 0.111), 'seq': (21365, 29207)}
+  ('peer', 'desc-5-6') {'rtt_ms': (0.094, 0.113), 'seq': (21366, 29208)}
+  ('peer', 'desc-5-7') {'rtt_ms': (0.102, 0.115), 'seq': (21367, 29209)}
+  ('peer', 'desc-5-8') {'rtt_ms': (0.105, 0.112), 'seq': (21368, 29210)}
+  ('peer', 'desc-5-9') {'rtt_ms': (0.092, 0.118), 'seq': (21369, 29211)}
+  ('peer', 'desc-6-0') {'rtt_ms': (0.105, 0.112), 'seq': (21370, 29212)}
+  ('peer', 'desc-6-1') {'rtt_ms': (0.103, 0.111), 'seq': (21371, 29213)}
+  ('peer', 'desc-6-2') {'rtt_ms': (0.103, 0.115), 'seq': (21372, 29214)}
+  ('peer', 'desc-6-3') {'rtt_ms': (0.106, 0.113), 'seq': (21373, 29215)}
+  ('peer', 'sample-rate') {'rtt_ms': (0.107, 0.115), 'seq': (21358, 29200)}

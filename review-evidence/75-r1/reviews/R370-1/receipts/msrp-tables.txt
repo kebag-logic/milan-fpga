@@ -1,0 +1,20 @@
+per-cycle rows parsed: 200
+listener DUT: per-cycle PDU sum 1419 vs table 1419; LeaveAll sum 288 vs table 288; per-type LeaveAll {'TalkerAdvertise': 72, 'TalkerFailed': 72, 'Listener': 72, 'Domain': 72} -> OK
+   TA declarations per-cycle sum 0 vs attribute table 0; Listener declarations 1068 vs 1068
+listener bridge: per-cycle PDU sum 722 vs table 722; LeaveAll sum 284 vs table 284; per-type LeaveAll {'TalkerAdvertise': 71, 'TalkerFailed': 71, 'Listener': 71, 'Domain': 71} -> OK
+   TA declarations per-cycle sum 468 vs attribute table 468; Listener declarations 0 vs 0
+talker DUT: per-cycle PDU sum 1123 vs table 1123; LeaveAll sum 272 vs table 272; per-type LeaveAll {'TalkerAdvertise': 68, 'TalkerFailed': 68, 'Listener': 68, 'Domain': 68} -> OK
+   TA declarations per-cycle sum 1062 vs attribute table 1062; Listener declarations 0 vs 0
+talker bridge: per-cycle PDU sum 608 vs table 608; LeaveAll sum 280 vs table 280; per-type LeaveAll {'TalkerAdvertise': 70, 'TalkerFailed': 70, 'Listener': 70, 'Domain': 70} -> OK
+   TA declarations per-cycle sum 0 vs attribute table 0; Listener declarations 445 vs 445
+listener-001: recomputed {'ta': (0, 4), 'li': (10, 0), 'ready': (10, 0), 'la': (0, 4), 'pdus': (13, 6)} page MATCH distinct MSRP sources per sender {'DUT': 1, 'bridge': 1} parse_errors 0
+listener-002: recomputed {'ta': (0, 4), 'li': (9, 0), 'ready': (9, 0), 'la': (0, 0), 'pdus': (13, 6)} page MATCH distinct MSRP sources per sender {'DUT': 1, 'bridge': 1} parse_errors 0
+listener-003: recomputed {'ta': (0, 3), 'li': (9, 0), 'ready': (9, 0), 'la': (4, 0), 'pdus': (13, 7)} page MATCH distinct MSRP sources per sender {'DUT': 1, 'bridge': 1} parse_errors 0
+listener-004: recomputed {'ta': (0, 4), 'li': (11, 0), 'ready': (11, 0), 'la': (4, 4), 'pdus': (16, 8)} page MATCH distinct MSRP sources per sender {'DUT': 1, 'bridge': 1} parse_errors 0
+listener-005: recomputed {'ta': (0, 5), 'li': (10, 0), 'ready': (10, 0), 'la': (4, 4), 'pdus': (13, 8)} page MATCH distinct MSRP sources per sender {'DUT': 1, 'bridge': 1} parse_errors 0
+talker-001: recomputed {'ta': (7, 0), 'li': (0, 3), 'ready': (0, 3), 'la': (4, 4), 'pdus': (12, 8)} page MATCH distinct MSRP sources per sender {'DUT': 1, 'bridge': 1} parse_errors 0
+talker-002: recomputed {'ta': (12, 0), 'li': (0, 3), 'ready': (0, 3), 'la': (4, 4), 'pdus': (12, 7)} page MATCH distinct MSRP sources per sender {'DUT': 1, 'bridge': 1} parse_errors 0
+talker-003: recomputed {'ta': (12, 0), 'li': (0, 4), 'ready': (0, 4), 'la': (4, 4), 'pdus': (13, 7)} page MATCH distinct MSRP sources per sender {'DUT': 1, 'bridge': 1} parse_errors 0
+talker-004: recomputed {'ta': (12, 0), 'li': (0, 5), 'ready': (0, 5), 'la': (4, 4), 'pdus': (13, 8)} page MATCH distinct MSRP sources per sender {'DUT': 1, 'bridge': 1} parse_errors 0
+talker-005: recomputed {'ta': (11, 0), 'li': (0, 4), 'ready': (0, 4), 'la': (0, 4), 'pdus': (11, 6)} page MATCH distinct MSRP sources per sender {'DUT': 1, 'bridge': 1} parse_errors 0
+MISMATCHES: []
