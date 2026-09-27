@@ -146,7 +146,8 @@ under the vendor OUI, `entity.vendor_oui`. Instance-only fields such as the
 station MAC, serial, and display name do not affect a hash-derived model ID.
 
 Literal and pinned model IDs reject zero and all ones.
-Milan v1.2 5.3.1 reserves both endpoint values.
+Milan v1.2 5.3.3.1 reserves both endpoints for ENTITY.
+Section 5.6.2 repeats this rule for ADPDUs.
 
 The descriptor image bakes the derived entity ID, resolved model ID, stream
 counts, capabilities, MAC, and clock identity. No runtime companion file

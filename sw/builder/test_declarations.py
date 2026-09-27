@@ -32,7 +32,7 @@ def _refused(raw, directory, field, rule):
 
 
 def test_model_id_contract() -> None:
-    """Milan 5.3.1 endpoints; Table 7-2 ENTITY and ADP identity equality."""
+    """Milan 5.3.3.1/5.6.2 endpoints; Table 7-2 ENTITY and ADP identity equality."""
     import gen_aemi_image as join
 
     base = yaml.safe_load((ROOT / "configs/endstation_arty_current.yaml").read_text())
@@ -42,7 +42,7 @@ def test_model_id_contract() -> None:
             raw = copy.deepcopy(base)
             raw["entity"].pop("model_id_pin", None)
             # Independent EUI-64 endpoints and adjacent legal values, per
-            # Milan 5.3.1. Importing the guard's bounds would hide drift.
+            # Milan 5.3.3.1 (ENTITY) and 5.6.2 (ADPDU). Importing the guard's bounds would hide drift.
             for value in ("0x0000000000000001", "0xFFFFFFFFFFFFFFFE", "0x001BC50AC1000005"):
                 raw["entity"][key] = value
                 cfg = _load(raw, directory)

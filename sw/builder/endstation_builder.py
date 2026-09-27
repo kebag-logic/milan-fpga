@@ -1342,7 +1342,7 @@ def _model_id(value: Any, ctx: str) -> int:
     if number in (0, EUI64_MAX):
         raise ConfigError(
             f"{ctx}: entity_model_id must not be zero or all ones "
-            "(Milan v1.2 5.3.1; IEEE 1722.1-2021 6.2.2.8)")
+            "(Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)")
     return number
 
 
