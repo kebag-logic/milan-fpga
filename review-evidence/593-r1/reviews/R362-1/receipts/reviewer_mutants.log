@@ -1,0 +1,41 @@
+planner sha256 2857ccf2da66660c83176c0ced4d465c0ce8dacf07525a0e2ecab0b9ed12a67c
+baseline rc=0
+R01 | KILLED | mr cause window doubled | test_release_mr_resolution
+R02 | KILLED | mr cause window made exclusive | test_release_mr_resolution
+R03 | KILLED | mr cause window one-sided (cause must precede toggle) | test_release_mr_resolution
+R04 | KILLED | mr hold threshold 7 | test_release_mr_eight_pdus,test_release_mr_stream_scope
+R05 | KILLED | mr hold threshold 9 | test_release_media_reset_intervals,test_release_mr_eight_pdus
+R06 | KILLED | mr tail off by one | test_release_mr_eight_pdus
+R07 | KILLED | mr contiguity check removed | test_release_mr_missing_evidence
+R08 | SURVIVED | mr PDU timestamp order check removed | 
+R09 | KILLED | mr PDU stream filter removed | test_release_mr_stream_scope
+R10 | SURVIVED | MEDIA_RESET read stream filter removed | 
+R11 | SURVIVED | MEDIA_RESET endpoint requirement relaxed to one read | 
+R12 | SURVIVED | MEDIA_RESET read order check removed | 
+R13 | SURVIVED | MEDIA_RESET wrap decode removed | 
+R14 | KILLED | MEDIA_RESET lower window drops R | test_release_media_reset_intervals
+R15 | SURVIVED | MEDIA_RESET upper window drops R | 
+R16 | SURVIVED | MEDIA_RESET upper window widened by 1 s | 
+R17 | SURVIVED | MEDIA_RESET consumes latest matches | 
+R18 | KILLED | MEDIA_RESET check skipped after toggle pass | test_release_media_reset_intervals,test_release_media_reset_no_cause,test_release_mr_allowed_causes
+R19 | KILLED | mr record validation bypassed | test_release_mr_missing_evidence
+R20 | KILLED | mr capture_complete ignored | test_release_mr_missing_evidence
+R21 | KILLED | mr negative resolution accepted | test_release_mr_missing_evidence
+R22 | KILLED | tu GM changes not counted as discontinuities | test_release_tu_gm_minimum
+R23 | KILLED | tu GM minimum 0.24 s | test_release_tu_gm_minimum
+R24 | SURVIVED | tu GM minimum considers GM changes at or after clear | 
+R25 | KILLED | tu GM minimum strict comparison | test_release_tu_gm_minimum
+R26 | SURVIVED | tu 0.5 s bound guard removed | 
+R27 | SURVIVED | tu zero-length interval accepted | 
+R28 | KILLED | NOT RUN no longer outstanding in exit code | test_release_tu_missing_gm_history
+R29 | SURVIVED | tu assertion drops the GM minimum text | 
+R30 | SURVIVED | mr assertion drops MEDIA_RESET interval semantics | 
+R31 | SURVIVED | release evidence text drops NOT RUN | 
+R32 | KILLED | plan cause kinds drop CRF mr toggle | test_release_mr_plan_contract
+R33 | KILLED | plan cause window becomes a literal | test_release_mr_plan_contract
+R34 | KILLED | plan continuous evidence drops gm_changes | test_release_mr_plan_contract
+R35 | KILLED | mr GM time-source change accepted as cause | test_release_mr_gm_only
+R36 | KILLED | mr PHC step accepted as cause | test_release_mr_gm_only
+SUMMARY {'KILLED': 22, 'SURVIVED': 14}
+checkout planner unchanged
+rc=0

@@ -1,0 +1,36 @@
+steps base=312 head=312 changed=3
+CHANGED power.idle
+  assert_clauses differs
+CHANGED power.journal_commit
+  assert_clauses differs
+CHANGED soak.continuous
+  args.continuous_evidence: ['asCapable_transitions', 'tu_intervals', 'stream_flow', 'uptime'] -> ['asCapable_transitions', 'tu_intervals', 'stream_flow', 'uptime', 'mr_pdus', 'media_clock_events', 'MEDIA_RESET_reads', 'gptp_discontinuities', 'gm_changes']
+  args.missing_evidence: None -> 'NOT RUN'
+  args.mr_cause_kinds: None -> ['media-clock-source change', 'CRF disruption', 'CRF mr toggle']
+  args.mr_cause_window: None -> 'toggle timestamp +/- observation_resolution_s'
+  args.mr_counter_update_bound_s: None -> 1.0
+  args.mr_hold_pdus: None -> 8
+  args.mr_oracle: None -> 'check_release_mr'
+  args.mr_pdu_index: None -> 'unwrapped per-stream capture index'
+  args.tu_discontinuity_kinds: ['PHC settime/adjtime', 'fabric discontinuity', 'GM-identity edge'] -> ['PHC settime/adjtime', 'fabric discontinuity', 'GM-identity edge', 'GM time-source change', 'other detected gPTP discontinuity']
+  args.tu_gm_minimum_check: None -> 'clear + observation_resolution_s >= GM change + 0.25 s'
+  args.tu_gm_minimum_s: None -> 0.25
+  assert_clauses differs
+  assert_severity differs
+  asserts differs
+rc=0
+power.idle release.complete-evidence 
+  - REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release 
+  + REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release
+power.journal_commit release.complete-evidence 
+  - REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release 
+  + REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release
+soak.continuous release.complete-evidence 
+  - REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release 
+  + REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release
+soak.continuous soak.mr-causes-and-hold 
+  - None 
+  + REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; IEEE 1722-2016 4.4.4.3; Milan v1.2 Annex B.1.2, Tables 5.4/5.6: every mr toggle and MEDIA_RESET increment needs a recorded media-clock-source change, CRF disruption, or received CRF mr toggle mapped to that stream's clock source; GM change alone fails; match causes within +/- observation_resolution_s of the toggle; hold each new value for at least 8 AVTPDUs of that stream; MEDIA_RESET counts observation intervals, not packets; missing packet, cause, counter or resolution evidence is NOT RUN
+soak.continuous soak.tu-within-holdover 
+  - REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 Annex B.1/B.1.1 / IEEE 1722-2016 4.4.4.7: each tu interval contains at least one recorded discontinuity: PHC settime/adjtime, fabric discontinuity, or GM-identity edge; containment uses [observed_start - observation_resolution_s, clear); measure from the last recorded discontinuity before tu clears; it clears within 0.5 s plus the stated observation resolution; uncorrelated tu fails; resolution comes from wire capture and correlated event timestamps; it includes launch-to-capture latency and event-to-capture correlation error; B.1.1 states 0.25 s, read by the project as a minimum; clock validity implements 0.25-0.5 s; B.1's 5 s media-clock holdover is not a tu bound; periodic healthy samples alone cannot prove this 
+  + REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 Annex B.1/B.1.1 / IEEE 1722-2016 4.4.4.7: each tu interval contains at least one recorded discontinuity: GM-identity edge, GM time-source change, or other detected gPTP discontinuity (including PHC settime/adjtime and fabric discontinuity); containment uses [observed_start - observation_resolution_s, clear); measure from the last recorded discontinuity before tu clears; it clears within 0.5 s plus the stated observation resolution; uncorrelated tu fails; resolution comes from wire capture and correlated event timestamps; it includes launch-to-capture latency and event-to-capture correlation error; after each GM change, clear + observation_resolution_s must be at least GM change + 0.25 s (Annex B.1.1 minimum); missing GM history is NOT RUN; clock validity implements 0.25-0.5 s; B.1's 5 s media-clock holdover is not a tu bound; periodic healthy samples alone cannot prove this
