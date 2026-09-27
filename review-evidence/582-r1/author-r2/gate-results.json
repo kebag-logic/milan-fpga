@@ -1,0 +1,910 @@
+[
+  {
+    "gate": "builder-rv32",
+    "command": [
+      "timeout",
+      "14400",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-u",
+      "sw/builder/test_builder.py",
+      "--require-rv32"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 768.81,
+    "log": "/tmp/582-a374-validation/builder-rv32.log",
+    "size": 85803,
+    "sha256": "62d07c3cdd6495dcad39438cb7497c4ca9803e635fcc7b9f541f0ca55b546dbe",
+    "packet_log": "gates/builder-rv32.log"
+  },
+  {
+    "gate": "builder-absent",
+    "command": [
+      "timeout",
+      "14400",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-u",
+      "$MANAGEMENT/2026-09-23/582-a374/builder-absent.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 566.26,
+    "log": "/tmp/582-a374-validation/builder-absent.log",
+    "size": 87914,
+    "sha256": "8530368771429031a57186ef7b4c844ba3bf6f38aed869164a7701d5815b5610",
+    "packet_log": "gates/builder-absent.log"
+  },
+  {
+    "gate": "clock-contract",
+    "command": [
+      "timeout",
+      "1800",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/builder/test_clock_contract.py",
+      "--soc"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 3.82,
+    "log": "/tmp/582-a374-validation/clock-contract.log",
+    "size": 641,
+    "sha256": "df075bee70101b6b7fa6c448058ebaf34cea207407a37635e55b4336cfdd3b67",
+    "packet_log": "gates/clock-contract.log"
+  },
+  {
+    "gate": "declarations",
+    "command": [
+      "timeout",
+      "1800",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/builder/test_declarations.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 3.17,
+    "log": "/tmp/582-a374-validation/declarations.log",
+    "size": 1131,
+    "sha256": "337c677612f1fb6beeb1ca673a344035e8313dc97f2625d2ed00c0b8727bd035",
+    "packet_log": "gates/declarations.log"
+  },
+  {
+    "gate": "capture",
+    "command": [
+      "timeout",
+      "1800",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.82,
+    "log": "/tmp/582-a374-validation/capture.log",
+    "size": 324,
+    "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439",
+    "packet_log": "gates/capture.log"
+  },
+  {
+    "gate": "pp-mem",
+    "command": [
+      "timeout",
+      "1800",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/litex/test_pp_mem_bridge.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 11.94,
+    "log": "/tmp/582-a374-validation/pp-mem.log",
+    "size": 8712,
+    "sha256": "dea4080c261a6281771e3ed10160b6c5b5eaa17d076d283394673342d66b142e",
+    "packet_log": "gates/pp-mem.log"
+  },
+  {
+    "gate": "identity",
+    "command": [
+      "timeout",
+      "1800",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$MANAGEMENT/2026-09-23/582-a374/identity.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.67,
+    "log": "/tmp/582-a374-validation/identity.log",
+    "size": 672,
+    "sha256": "29b992fe93d109f8d3cd2613fa7b8828f8727e3367a0c4bbfe5c1a41e2c5c2e7",
+    "packet_log": "gates/identity.log"
+  },
+  {
+    "gate": "reviewer-mutants",
+    "command": [
+      "timeout",
+      "7200",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-u",
+      "$MANAGEMENT/2026-09-23/582-a374/reviewer-probes.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 26.11,
+    "log": "/tmp/582-a374-validation/reviewer-mutants.log",
+    "size": 3073,
+    "sha256": "2a35725f2f5ef0a2daed12b5bb836b6bf872b263ddb40398e1c1f89e4ed02996",
+    "packet_log": "gates/reviewer-mutants.log"
+  },
+  {
+    "gate": "R354-bypass",
+    "command": [
+      "timeout",
+      "1800",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$REVIEWS/582-r354-1-packet/scripts/bypass_probe.py",
+      "$LANES/582-baremetal-clock"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.57,
+    "log": "/tmp/582-a374-validation/R354-bypass.log",
+    "size": 1493,
+    "sha256": "236c3e5241a532e036b178aa85245bdd81c92a276ee3687f6fe6dc8ddbbf3996",
+    "packet_log": "gates/R354-bypass.log"
+  },
+  {
+    "gate": "R355-soc",
+    "command": [
+      "timeout",
+      "1800",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$REVIEWS/582-r355-1-packet/scripts/31_soc_behaviour.py",
+      "$LANES/582-baremetal-clock",
+      "round2"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.36,
+    "log": "/tmp/582-a374-validation/R355-soc.log",
+    "size": 14724,
+    "sha256": "f0ac7a3ca064f4053c559937227d42bd21ab20ceb6795d79c73b0ebc06a5648d",
+    "packet_log": "gates/R355-soc.log"
+  },
+  {
+    "gate": "usage",
+    "command": [
+      "timeout",
+      "1800",
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$MANAGEMENT/2026-09-23/582-a374/usage-probe.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.31,
+    "log": "/tmp/582-a374-validation/usage.log",
+    "size": 344,
+    "sha256": "b0e2cc4c5b24efe65edf4ef52f63faf69bcd4e8091bf6272df8b5a92efff1ebb",
+    "packet_log": "gates/usage.log"
+  },
+  {
+    "gate": "docs-00-docs_check",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 4.22,
+    "log": "/tmp/582-a374-validation/docs-00-docs_check.log",
+    "size": 127,
+    "sha256": "109655d83c5e8432277f604b3dc2886f1154b7558ac1b390627da9e7d3129086",
+    "packet_log": "gates/docs-00-docs_check.log"
+  },
+  {
+    "gate": "docs-01-check_em_dash",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "9e9954e96bf55181edb9949ae94c9abd4ab6aaf5"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 3.12,
+    "log": "/tmp/582-a374-validation/docs-01-check_em_dash.log",
+    "size": 139,
+    "sha256": "0b5166f78909cedc7f73b5a6b7c892642e7bb8a9d3b859473d77b900f2facca4",
+    "packet_log": "gates/docs-01-check_em_dash.log"
+  },
+  {
+    "gate": "docs-02-check_doc_style",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.06,
+    "log": "/tmp/582-a374-validation/docs-02-check_doc_style.log",
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "packet_log": "gates/docs-02-check_doc_style.log"
+  },
+  {
+    "gate": "docs-03-check_doc_paths",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.06,
+    "log": "/tmp/582-a374-validation/docs-03-check_doc_paths.log",
+    "size": 84,
+    "sha256": "cd50d342bd45ca670f10f5206a5884bd6f87349e02da772d539c99d41ade535b",
+    "packet_log": "gates/docs-03-check_doc_paths.log"
+  },
+  {
+    "gate": "docs-04-check_archive",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_archive.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.31,
+    "log": "/tmp/582-a374-validation/docs-04-check_archive.log",
+    "size": 93,
+    "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c",
+    "packet_log": "gates/docs-04-check_archive.log"
+  },
+  {
+    "gate": "docs-05-check_archive",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_archive.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.06,
+    "log": "/tmp/582-a374-validation/docs-05-check_archive.log",
+    "size": 35,
+    "sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a",
+    "packet_log": "gates/docs-05-check_archive.log"
+  },
+  {
+    "gate": "docs-06-gen_toc",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.87,
+    "log": "/tmp/582-a374-validation/docs-06-gen_toc.log",
+    "size": 38,
+    "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+    "packet_log": "gates/docs-06-gen_toc.log"
+  },
+  {
+    "gate": "docs-07-gen_toc",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 1.62,
+    "log": "/tmp/582-a374-validation/docs-07-gen_toc.log",
+    "size": 64,
+    "sha256": "f06944107d85564cb11bb5da8e7bae4313631a6599d1f0d826eee6e1b8d9def6",
+    "packet_log": "gates/docs-07-gen_toc.log"
+  },
+  {
+    "gate": "docs-08-gen_toc",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 2.57,
+    "log": "/tmp/582-a374-validation/docs-08-gen_toc.log",
+    "size": 94,
+    "sha256": "809c4d1d747037e3abf90b86d58f95a8830965a48f302e5107fde95e0bbea028",
+    "packet_log": "gates/docs-08-gen_toc.log"
+  },
+  {
+    "gate": "docs-09-check_feature_status",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.67,
+    "log": "/tmp/582-a374-validation/docs-09-check_feature_status.log",
+    "size": 1500,
+    "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+    "packet_log": "gates/docs-09-check_feature_status.log"
+  },
+  {
+    "gate": "docs-10-check_solution_docs",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_solution_docs.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.11,
+    "log": "/tmp/582-a374-validation/docs-10-check_solution_docs.log",
+    "size": 87,
+    "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42",
+    "packet_log": "gates/docs-10-check_solution_docs.log"
+  },
+  {
+    "gate": "docs-11-check_solution_docs",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_solution_docs.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 2.37,
+    "log": "/tmp/582-a374-validation/docs-11-check_solution_docs.log",
+    "size": 59,
+    "sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30",
+    "packet_log": "gates/docs-11-check_solution_docs.log"
+  },
+  {
+    "gate": "docs-12-check_submodule_docs",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.52,
+    "log": "/tmp/582-a374-validation/docs-12-check_submodule_docs.log",
+    "size": 47,
+    "sha256": "dffc750855c2574e23bad0174564fcde9dc0d351b65e2f5e954f2dc64e894835",
+    "packet_log": "gates/docs-12-check_submodule_docs.log"
+  },
+  {
+    "gate": "docs-13-check_submodule_docs",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.06,
+    "log": "/tmp/582-a374-validation/docs-13-check_submodule_docs.log",
+    "size": 66,
+    "sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b",
+    "packet_log": "gates/docs-13-check_submodule_docs.log"
+  },
+  {
+    "gate": "docs-14-check_gptp_docs",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.16,
+    "log": "/tmp/582-a374-validation/docs-14-check_gptp_docs.log",
+    "size": 66,
+    "sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41",
+    "packet_log": "gates/docs-14-check_gptp_docs.log"
+  },
+  {
+    "gate": "docs-15-gen_module_matrix",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.97,
+    "log": "/tmp/582-a374-validation/docs-15-gen_module_matrix.log",
+    "size": 118,
+    "sha256": "cc9edd89394353084471aad6ea6b5f2e292b331712a07fa90ca9beb934a0e2d7",
+    "packet_log": "gates/docs-15-gen_module_matrix.log"
+  },
+  {
+    "gate": "docs-16-check_baremetal_only",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 14.69,
+    "log": "/tmp/582-a374-validation/docs-16-check_baremetal_only.log",
+    "size": 71,
+    "sha256": "2404d476a5d6cc1bd6707256476f7f0d5f3cab6c539d5787f5be21a17b7b31e9",
+    "packet_log": "gates/docs-16-check_baremetal_only.log"
+  },
+  {
+    "gate": "docs-17-check_baremetal_only",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 5.33,
+    "log": "/tmp/582-a374-validation/docs-17-check_baremetal_only.log",
+    "size": 43,
+    "sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8",
+    "packet_log": "gates/docs-17-check_baremetal_only.log"
+  },
+  {
+    "gate": "docs-18-check_soc_sources",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_soc_sources.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.11,
+    "log": "/tmp/582-a374-validation/docs-18-check_soc_sources.log",
+    "size": 85,
+    "sha256": "136eb537ae03b4d52fc917125d95083776d5de54fba79a68ecc4e045f561b43f",
+    "packet_log": "gates/docs-18-check_soc_sources.log"
+  },
+  {
+    "gate": "docs-19-check_soc_sources",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.21,
+    "log": "/tmp/582-a374-validation/docs-19-check_soc_sources.log",
+    "size": 1501,
+    "sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0",
+    "packet_log": "gates/docs-19-check_soc_sources.log"
+  },
+  {
+    "gate": "docs-20-check_rtl_source_lists",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 1.37,
+    "log": "/tmp/582-a374-validation/docs-20-check_rtl_source_lists.log",
+    "size": 390,
+    "sha256": "1dd83081ba29241f1333d9dba1ab448b1d8512840a6449eaf3515bfe751f2e14",
+    "packet_log": "gates/docs-20-check_rtl_source_lists.log"
+  },
+  {
+    "gate": "docs-21-check_rtl_source_lists",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 2.62,
+    "log": "/tmp/582-a374-validation/docs-21-check_rtl_source_lists.log",
+    "size": 3189,
+    "sha256": "fc558c5b2dfb3009f27cead55634312dee0a13c3ccba3da5705542a1103b4eb2",
+    "packet_log": "gates/docs-21-check_rtl_source_lists.log"
+  },
+  {
+    "gate": "docs-22-check_hygiene",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.36,
+    "log": "/tmp/582-a374-validation/docs-22-check_hygiene.log",
+    "size": 1896,
+    "sha256": "6a6c125619b3dec7f651d57c074413c64a3e08adab74fc70563b24bbf41dfc95",
+    "packet_log": "gates/docs-22-check_hygiene.log"
+  },
+  {
+    "gate": "docs-23-check_hygiene",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.31,
+    "log": "/tmp/582-a374-validation/docs-23-check_hygiene.log",
+    "size": 1847,
+    "sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8",
+    "packet_log": "gates/docs-23-check_hygiene.log"
+  },
+  {
+    "gate": "docs-24-check_py_idiom",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 3.37,
+    "log": "/tmp/582-a374-validation/docs-24-check_py_idiom.log",
+    "size": 461,
+    "sha256": "fe5fb2a2dd00a9de8a66129ba10101b360f07be5c704da91ef62a187134d4831",
+    "packet_log": "gates/docs-24-check_py_idiom.log"
+  },
+  {
+    "gate": "docs-25-check_py_idiom",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 3.37,
+    "log": "/tmp/582-a374-validation/docs-25-check_py_idiom.log",
+    "size": 2531,
+    "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "packet_log": "gates/docs-25-check_py_idiom.log"
+  },
+  {
+    "gate": "docs-26-check_sh_idiom",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.26,
+    "log": "/tmp/582-a374-validation/docs-26-check_sh_idiom.log",
+    "size": 235,
+    "sha256": "6562e98a67676ec422c2e0ba00613886c2b71a60e1b391268ccf74ac202482ec",
+    "packet_log": "gates/docs-26-check_sh_idiom.log"
+  },
+  {
+    "gate": "docs-27-check_sh_idiom",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.27,
+    "log": "/tmp/582-a374-validation/docs-27-check_sh_idiom.log",
+    "size": 2461,
+    "sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57",
+    "packet_log": "gates/docs-27-check_sh_idiom.log"
+  },
+  {
+    "gate": "docs-28-check_sweep_shape",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 11.95,
+    "log": "/tmp/582-a374-validation/docs-28-check_sweep_shape.log",
+    "size": 19714,
+    "sha256": "cb09ce0eb26ff822ce43f0b3e11fe3c078178606a1faf28685884ab5f7847b45",
+    "packet_log": "gates/docs-28-check_sweep_shape.log"
+  },
+  {
+    "gate": "docs-29-check_deploy_shape",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_deploy_shape.py",
+      "--self-test"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.42,
+    "log": "/tmp/582-a374-validation/docs-29-check_deploy_shape.log",
+    "size": 9286,
+    "sha256": "932b1ccf1a24d64d8d1c3791fa28f4290b4c37acc8c38b5edde463bd49c50b87",
+    "packet_log": "gates/docs-29-check_deploy_shape.log"
+  },
+  {
+    "gate": "docs-30-check_entity_shape",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 41.35,
+    "log": "/tmp/582-a374-validation/docs-30-check_entity_shape.log",
+    "size": 16250,
+    "sha256": "bb5a70f1f05f797a61efef12233b171ed953788a378b8480428b5acc0071b62f",
+    "packet_log": "gates/docs-30-check_entity_shape.log"
+  },
+  {
+    "gate": "docs-31-ci_scope",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 2.47,
+    "log": "/tmp/582-a374-validation/docs-31-ci_scope.log",
+    "size": 5845,
+    "sha256": "0f7ebd7f5449ce20cd3087b704368937155652997728d2f01d0e54dc3cd25fde",
+    "packet_log": "gates/docs-31-ci_scope.log"
+  },
+  {
+    "gate": "docs-32-check_em_dash",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 3.12,
+    "log": "/tmp/582-a374-validation/docs-32-check_em_dash.log",
+    "size": 42,
+    "sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a",
+    "packet_log": "gates/docs-32-check_em_dash.log"
+  },
+  {
+    "gate": "docs-33-docs_check",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/docs_check.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.16,
+    "log": "/tmp/582-a374-validation/docs-33-docs_check.log",
+    "size": 56,
+    "sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339",
+    "packet_log": "gates/docs-33-docs_check.log"
+  },
+  {
+    "gate": "docs-34-check_doc_style",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.06,
+    "log": "/tmp/582-a374-validation/docs-34-check_doc_style.log",
+    "size": 33,
+    "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+    "packet_log": "gates/docs-34-check_doc_style.log"
+  },
+  {
+    "gate": "docs-35-check_gptp_docs",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.16,
+    "log": "/tmp/582-a374-validation/docs-35-check_gptp_docs.log",
+    "size": 46,
+    "sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e",
+    "packet_log": "gates/docs-35-check_gptp_docs.log"
+  },
+  {
+    "gate": "docs-36-ci_events",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.21,
+    "log": "/tmp/582-a374-validation/docs-36-ci_events.log",
+    "size": 167,
+    "sha256": "2c2f0fa6752c33d64eeb3b91e978d427669eeaf29ed34b779f8894e5a8d10d08",
+    "packet_log": "gates/docs-36-ci_events.log"
+  },
+  {
+    "gate": "docs-37-ci_events",
+    "command": [
+      "timeout",
+      "1800",
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 14.94,
+    "log": "/tmp/582-a374-validation/docs-37-ci_events.log",
+    "size": 141657,
+    "sha256": "886bef0d386f45de9913929a5c8ead76b3da7569499f7f8b36720f05642fe4bf",
+    "packet_log": "gates/docs-37-ci_events.log"
+  },
+  {
+    "gate": "diff-worktree",
+    "command": [
+      "timeout",
+      "600",
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.03,
+    "log": "/tmp/582-a374-validation/diff-worktree.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "packet_log": "gates/diff-worktree.log"
+  },
+  {
+    "gate": "diff-base",
+    "command": [
+      "timeout",
+      "600",
+      "git",
+      "diff",
+      "--check",
+      "9e9954e96bf55181edb9949ae94c9abd4ab6aaf5",
+      "HEAD"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "head": "77998f14b16bf7605956332d0f0ac8af0cecab5a",
+    "returncode": 0,
+    "seconds": 0.06,
+    "log": "/tmp/582-a374-validation/diff-base.log",
+    "size": 47,
+    "sha256": "ed658cc2701b76b948a5c9308b123bc927a68ee04fbe54746d47d779d0d14f7c",
+    "packet_log": "gates/diff-base.log"
+  }
+]

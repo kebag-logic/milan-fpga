@@ -1,0 +1,34 @@
+Traceback (most recent call last):
+  File "$LANES/582-baremetal-clock/sw/builder/test_clock_contract.py", line 109, in _soc_clock_case
+    soc.main()
+    ~~~~~~~~^^
+  File "$LANES/582-baremetal-clock/sw/litex/milan_soc.py", line 3734, in main
+    board_audio_routing.assert_front_end_routed(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        args.board, args.audio_interface,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        audio_if_master=getattr(args, "audio_interface_master", False))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+test_clock_contract._soc_clock_case.<locals>.BeforePlatform
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_soc_clock_contract()
+                                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/582-baremetal-clock/sw/builder/test_clock_contract.py", line 147, in test_soc_clock_contract
+    _soc_clock_case(milan_soc, ["--no-milan", option, str(bad)], True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/582-baremetal-clock/sw/builder/test_clock_contract.py", line 111, in _soc_clock_case
+    assert not refused, f"clock accepted before platform: {argv}"
+           ^^^^^^^^^^^
+AssertionError: clock accepted before platform: ['--no-milan', '--milan-clk-freq', '49999999']

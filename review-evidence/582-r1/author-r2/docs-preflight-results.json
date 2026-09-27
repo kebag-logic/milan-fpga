@@ -1,0 +1,320 @@
+[
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/12-check_submodule_docs.log",
+    "size": 47,
+    "sha256": "dffc750855c2574e23bad0174564fcde9dc0d351b65e2f5e954f2dc64e894835",
+    "packet_log": "docs-preflight-logs/12-check_submodule_docs.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/13-check_submodule_docs.log",
+    "size": 66,
+    "sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b",
+    "packet_log": "docs-preflight-logs/13-check_submodule_docs.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/14-check_gptp_docs.log",
+    "size": 66,
+    "sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41",
+    "packet_log": "docs-preflight-logs/14-check_gptp_docs.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/15-gen_module_matrix.log",
+    "size": 118,
+    "sha256": "cc9edd89394353084471aad6ea6b5f2e292b331712a07fa90ca9beb934a0e2d7",
+    "packet_log": "docs-preflight-logs/15-gen_module_matrix.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/16-check_baremetal_only.log",
+    "size": 71,
+    "sha256": "2404d476a5d6cc1bd6707256476f7f0d5f3cab6c539d5787f5be21a17b7b31e9",
+    "packet_log": "docs-preflight-logs/16-check_baremetal_only.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/17-check_baremetal_only.log",
+    "size": 43,
+    "sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8",
+    "packet_log": "docs-preflight-logs/17-check_baremetal_only.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_soc_sources.py"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/18-check_soc_sources.log",
+    "size": 85,
+    "sha256": "136eb537ae03b4d52fc917125d95083776d5de54fba79a68ecc4e045f561b43f",
+    "packet_log": "docs-preflight-logs/18-check_soc_sources.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/19-check_soc_sources.log",
+    "size": 1501,
+    "sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0",
+    "packet_log": "docs-preflight-logs/19-check_soc_sources.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/20-check_rtl_source_lists.log",
+    "size": 390,
+    "sha256": "1dd83081ba29241f1333d9dba1ab448b1d8512840a6449eaf3515bfe751f2e14",
+    "packet_log": "docs-preflight-logs/20-check_rtl_source_lists.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/21-check_rtl_source_lists.log",
+    "size": 3189,
+    "sha256": "fc558c5b2dfb3009f27cead55634312dee0a13c3ccba3da5705542a1103b4eb2",
+    "packet_log": "docs-preflight-logs/21-check_rtl_source_lists.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/22-check_hygiene.log",
+    "size": 1896,
+    "sha256": "6a6c125619b3dec7f651d57c074413c64a3e08adab74fc70563b24bbf41dfc95",
+    "packet_log": "docs-preflight-logs/22-check_hygiene.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/23-check_hygiene.log",
+    "size": 1847,
+    "sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8",
+    "packet_log": "docs-preflight-logs/23-check_hygiene.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/24-check_py_idiom.log",
+    "size": 461,
+    "sha256": "fe5fb2a2dd00a9de8a66129ba10101b360f07be5c704da91ef62a187134d4831",
+    "packet_log": "docs-preflight-logs/24-check_py_idiom.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/25-check_py_idiom.log",
+    "size": 2531,
+    "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "packet_log": "docs-preflight-logs/25-check_py_idiom.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/26-check_sh_idiom.log",
+    "size": 235,
+    "sha256": "6562e98a67676ec422c2e0ba00613886c2b71a60e1b391268ccf74ac202482ec",
+    "packet_log": "docs-preflight-logs/26-check_sh_idiom.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/27-check_sh_idiom.log",
+    "size": 2461,
+    "sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57",
+    "packet_log": "docs-preflight-logs/27-check_sh_idiom.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/28-check_sweep_shape.log",
+    "size": 19714,
+    "sha256": "8dd40a6c6e7f55ad2c3da92a702f7f9ad7fb600475e82759728f46e9a2e3996c",
+    "packet_log": "docs-preflight-logs/28-check_sweep_shape.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_deploy_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/29-check_deploy_shape.log",
+    "size": 9286,
+    "sha256": "932b1ccf1a24d64d8d1c3791fa28f4290b4c37acc8c38b5edde463bd49c50b87",
+    "packet_log": "docs-preflight-logs/29-check_deploy_shape.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/30-check_entity_shape.log",
+    "size": 16250,
+    "sha256": "bb5a70f1f05f797a61efef12233b171ed953788a378b8480428b5acc0071b62f",
+    "packet_log": "docs-preflight-logs/30-check_entity_shape.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/31-ci_scope.log",
+    "size": 5845,
+    "sha256": "0f7ebd7f5449ce20cd3087b704368937155652997728d2f01d0e54dc3cd25fde",
+    "packet_log": "docs-preflight-logs/31-ci_scope.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_baremetal_only.py"
+    ],
+    "rc": 2,
+    "log": "/tmp/582-a374-docs-preflight/32-check_baremetal_only.log",
+    "size": 142,
+    "sha256": "5df446e115d1f17fda333980e9644cc8dbacc6280eca9920563c96c6dc7b5359",
+    "packet_log": "docs-preflight-logs/32-check_baremetal_only.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/33-check_em_dash.log",
+    "size": 42,
+    "sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a",
+    "packet_log": "docs-preflight-logs/33-check_em_dash.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/docs_check.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/34-docs_check.log",
+    "size": 56,
+    "sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339",
+    "packet_log": "docs-preflight-logs/34-docs_check.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/35-check_doc_style.log",
+    "size": 33,
+    "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+    "packet_log": "docs-preflight-logs/35-check_doc_style.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/36-check_gptp_docs.log",
+    "size": 46,
+    "sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e",
+    "packet_log": "docs-preflight-logs/36-check_gptp_docs.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/37-ci_events.log",
+    "size": 167,
+    "sha256": "2c2f0fa6752c33d64eeb3b91e978d427669eeaf29ed34b779f8894e5a8d10d08",
+    "packet_log": "docs-preflight-logs/37-ci_events.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "log": "/tmp/582-a374-docs-preflight/38-ci_events.log",
+    "size": 141657,
+    "sha256": "886bef0d386f45de9913929a5c8ead76b3da7569499f7f8b36720f05642fe4bf",
+    "packet_log": "docs-preflight-logs/38-ci_events.log"
+  }
+]

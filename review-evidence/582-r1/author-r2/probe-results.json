@@ -1,0 +1,211 @@
+[
+  {
+    "probe": "R355-C0",
+    "status": "CONTROL-PASS",
+    "returncode": 0,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_baremetal_clock_contract()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "log": "probes/R355-C0.log",
+    "sha256": "5dfd96db8dba3cb79b08da718464a268b0f8f27582f19c425c8bf179089251fd",
+    "size": 139
+  },
+  {
+    "probe": "R355-C1",
+    "status": "CONTROL-PASS",
+    "returncode": 0,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_soc_clock_contract()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "log": "probes/R355-C1.log",
+    "sha256": "9a5d348f17c99a1fc7e706e83e131250ba7e5a9cc8c4bd5f556e349083877b5e",
+    "size": 153
+  },
+  {
+    "probe": "R355-C2",
+    "status": "CONTROL-PASS",
+    "returncode": 0,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_extra_sweep_clocks()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "log": "probes/R355-C2.log",
+    "sha256": "b8bcf0dc26c280e7a847e15f521b69c9915ee3e5d72acbb684f4f7474ae5f7e9",
+    "size": 165
+  },
+  {
+    "probe": "R355-C3",
+    "status": "CONTROL-PASS",
+    "returncode": 0,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "test_pp_mem_bridge.py"
+    ],
+    "cwd": "$LANES/582-baremetal-clock/sw/litex",
+    "log": "probes/R355-C3.log",
+    "sha256": "dea4080c261a6281771e3ed10160b6c5b5eaa17d076d283394673342d66b142e",
+    "size": 8712
+  },
+  {
+    "probe": "R355-B3",
+    "status": "KILLED",
+    "returncode": 1,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_baremetal_clock_contract()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "log": "probes/R355-B3.log",
+    "sha256": "3ab126dc9e2de96f0901a0c50ad713086d2f5abd7e242db80c4fa46ebd0bbc4b",
+    "size": 1049
+  },
+  {
+    "probe": "R355-S1",
+    "status": "KILLED",
+    "returncode": 1,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_soc_clock_contract()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "log": "probes/R355-S1.log",
+    "sha256": "86b249a7f9ff88b3fd21f6bfda636f4d194b13a1429b6ae6de656e6610cb26f3",
+    "size": 2002
+  },
+  {
+    "probe": "R355-S2",
+    "status": "KILLED",
+    "returncode": 1,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_soc_clock_contract()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "log": "probes/R355-S2.log",
+    "sha256": "ed138389fed0bfa32d86ba652374142d2ad261d8d70461af09992d8e7ac54acc",
+    "size": 2328
+  },
+  {
+    "probe": "R355-S3",
+    "status": "KILLED",
+    "returncode": 1,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_soc_clock_contract()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "log": "probes/R355-S3.log",
+    "sha256": "ed138389fed0bfa32d86ba652374142d2ad261d8d70461af09992d8e7ac54acc",
+    "size": 2328
+  },
+  {
+    "probe": "R355-S4",
+    "status": "KILLED",
+    "returncode": 1,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_soc_clock_contract()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock",
+    "log": "probes/R355-S4.log",
+    "sha256": "ed138389fed0bfa32d86ba652374142d2ad261d8d70461af09992d8e7ac54acc",
+    "size": 2328
+  },
+  {
+    "probe": "R354-M16",
+    "status": "KILLED",
+    "returncode": 1,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import test_pp_mem_bridge as t; t.test_configured_clock_pairs()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock/sw/litex",
+    "log": "probes/R354-M16.log",
+    "sha256": "5ad90b90a7a801c2d9bd78de5ae8dc635897fd36bde066efdca8ef8f1adbf752",
+    "size": 525
+  },
+  {
+    "probe": "R354-M17",
+    "status": "KILLED",
+    "returncode": 1,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import test_pp_mem_bridge as t; t.test_configured_clock_pairs()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock/sw/litex",
+    "log": "probes/R354-M17.log",
+    "sha256": "5ad90b90a7a801c2d9bd78de5ae8dc635897fd36bde066efdca8ef8f1adbf752",
+    "size": 525
+  },
+  {
+    "probe": "R354-M18",
+    "status": "KILLED",
+    "returncode": 1,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import test_pp_mem_bridge as t; t.test_configured_clock_pairs()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock/sw/litex",
+    "log": "probes/R354-M18.log",
+    "sha256": "5ad90b90a7a801c2d9bd78de5ae8dc635897fd36bde066efdca8ef8f1adbf752",
+    "size": 525
+  },
+  {
+    "probe": "R354-M21-control",
+    "status": "CONTROL-PASS",
+    "returncode": 0,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import test_clock_contract as t; t.test_gptp_rom_clock()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock/sw/builder",
+    "log": "probes/R354-M21-control.log",
+    "sha256": "93ece07c93f5142a4007bbbd8a39796553a6140143a0b454fbb1058dd8a3163b",
+    "size": 102
+  },
+  {
+    "probe": "R354-M21",
+    "status": "KILLED",
+    "returncode": 1,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import test_clock_contract as t; t.test_gptp_rom_clock()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock/sw/builder",
+    "log": "probes/R354-M21.log",
+    "sha256": "54cd6fcf5b59952e01049aa4f436d21a79bf962c636e71911cc7de7b1705605b",
+    "size": 514
+  },
+  {
+    "probe": "R355-probe36",
+    "status": "KILLED",
+    "returncode": 1,
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import test_clock_contract as t; t.test_gptp_rom_clock()"
+    ],
+    "cwd": "$LANES/582-baremetal-clock/sw/builder",
+    "log": "probes/R355-probe36.log",
+    "sha256": "54cd6fcf5b59952e01049aa4f436d21a79bf962c636e71911cc7de7b1705605b",
+    "size": 514
+  }
+]

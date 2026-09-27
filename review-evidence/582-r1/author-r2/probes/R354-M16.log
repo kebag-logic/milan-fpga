@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import test_pp_mem_bridge as t; t.test_configured_clock_pairs()
+                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/582-baremetal-clock/sw/litex/test_pp_mem_bridge.py", line 414, in test_configured_clock_pairs
+    assert configured_clock_pairs() == expected, "configuration clock pairs not preserved"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: configuration clock pairs not preserved

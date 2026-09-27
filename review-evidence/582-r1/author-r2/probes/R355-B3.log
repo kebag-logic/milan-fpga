@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_baremetal_clock_contract()
+                                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/582-baremetal-clock/sw/builder/test_clock_contract.py", line 61, in test_baremetal_clock_contract
+    _refused(bad, directory, "baremetal clock: milan_clk_hz must be "
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             f"{clock} Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/582-baremetal-clock/sw/builder/test_clock_contract.py", line 32, in _refused
+    raise AssertionError(f"accepted invalid input: {reason}")
+AssertionError: accepted invalid input: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)

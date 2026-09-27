@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import test_clock_contract as t; t.test_gptp_rom_clock()
+                                     ~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/582-baremetal-clock/sw/builder/test_clock_contract.py", line 92, in test_gptp_rom_clock
+    assert actual == expected, f"{path.stem}: gPTP ROM does not use configured Milan clock"
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock
