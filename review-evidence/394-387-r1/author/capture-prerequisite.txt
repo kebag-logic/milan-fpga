@@ -1,0 +1,16 @@
+The approved tap was USB-visible without a network interface.
+The running kernel was 7.0.0-34-generic.
+The existing capture driver builds targeted older kernels.
+A temporary copy of the existing three build inputs was compiled.
+No source change, permanent installation, firmware write or wiring change occurred.
+The temporary module loaded successfully and restored the same interface.
+Temporary build directory on the capture host: /tmp/a375-tap-driver.
+Restore completed: module unloaded and temporary directory removed; see capture-cleanup.txt.
+Inputs, bytes, SHA-256:
+Makefile 1389 98a10075c483b74894f4e097032466070fa0776610c63dc903c017744a2233db
+capture source 59840 0e3130d872c0ffabbb1e19b6f5ecbc97ace9d35921daf037d28b60496c7b5b6b
+capture header 27248 3ab62ff395ad5182d22ea51d72bf16a6bdf0d7e11adf96cf8d91aeb130d806cb
+module 962744 78f14da8578d518a5e0b1745b9930c4346725207c1b18dab926c37e2aff2c4db
+Build return code 0; module-load return code 0.
+Warnings: compiler executable naming, absent BTF input.
+No driver source, binaries or dependency trees are retained in this packet.

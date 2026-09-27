@@ -1,0 +1,116 @@
+[
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "90s",
+      "/tmp/a375-docs-env/bin/python",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "90s",
+      "/tmp/a375-docs-env/bin/python",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "90s",
+      "/tmp/a375-docs-env/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "90s",
+      "/tmp/a375-docs-env/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "2a2a7bb6"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "90s",
+      "/tmp/a375-docs-env/bin/python",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "90s",
+      "/tmp/a375-docs-env/bin/python",
+      "-B",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "90s",
+      "python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "90s",
+      "/tmp/a375-docs-env/bin/python",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "timeout",
+      "90s",
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0
+  }
+]

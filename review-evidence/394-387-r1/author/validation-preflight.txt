@@ -1,0 +1,9 @@
+The initial bare-metal gate returned 2 because the isolated Markdown environment did not include PyYAML.
+The system Python already provides PyYAML 6.0.3, so the final runner uses it for this gate.
+No gate code was changed.
+
+COMMAND rtk proxy timeout 90s /tmp/a375-docs-env/bin/python -B scripts/check_baremetal_only.py --check
+CWD $LANES/394-387-e1-cycles
+baremetal-only: FATAL: pyyaml is unavailable and the parsed YAML class is load-bearing
+
+RC 2
