@@ -1,0 +1,21 @@
+PASS C1: rc 0; expected 0
+CONTROL-PASS C1 control SoC test
+PASS C4: rc 0; expected 0
+CONTROL-PASS C4 control ROM-clock test
+PASS C5: rc 0; expected 0
+CONTROL-PASS C5 control ci_scope selftest
+PASS R1: rc 1; expected 1
+KILLED R1 probe 36: ROM fed sys_clk_hz
+PASS R2: rc 1; expected 1
+KILLED R2 ROM --clk-hz dropped
+PASS S9: rc 1; expected 1
+KILLED S9 SoC guard exempts --entity-gen-dir product argv
+PASS equal-clocks: rc 0; expected 0
+PASS usage-defaults: rc 0; expected 0
+PASS no-milan-help: rc 0; expected 0
+PASS tap-classification: rc 0; expected 0
+PASS plain-doc-control: rc 0; expected 0
+FIXED F1/SG5: tap page is relevant, outside the documentation-only table; reader exclusion explicit
+FIXED SG1: help and documented smoke-path limitation agree; defaults unchanged
+FIXED SG7: accepted equal-clock variant passes and reports only the system-control skip
+PASS: mutation sources restored; all assigned probes meet their expected results

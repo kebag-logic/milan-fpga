@@ -1,0 +1,144 @@
+[
+  {
+    "name": "C1",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_soc_clock_contract()"
+    ],
+    "returncode": 0,
+    "expected": 0,
+    "size": 153,
+    "sha256": "9a5d348f17c99a1fc7e706e83e131250ba7e5a9cc8c4bd5f556e349083877b5e",
+    "log": "probes/C1.log"
+  },
+  {
+    "name": "C4",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_gptp_rom_clock()"
+    ],
+    "returncode": 0,
+    "expected": 0,
+    "size": 113,
+    "sha256": "e2552546736f02721a7145fa15ff3a7a8f83c6bd1012061bc99958a9d8141d7b",
+    "log": "probes/C4.log"
+  },
+  {
+    "name": "C5",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "expected": 0,
+    "size": 5845,
+    "sha256": "6de335b13be5f7928a1b13f3fcf9f8f965f24f68524429c4d0a2d2266450e8fa",
+    "log": "probes/C5.log"
+  },
+  {
+    "name": "R1",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_gptp_rom_clock()"
+    ],
+    "returncode": 1,
+    "expected": 1,
+    "size": 604,
+    "sha256": "49223c87a5787bc9f88ef7eca002c50f2ab20344598d97dd26da118dbf919937",
+    "log": "probes/R1.log"
+  },
+  {
+    "name": "R2",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_gptp_rom_clock()"
+    ],
+    "returncode": 1,
+    "expected": 1,
+    "size": 604,
+    "sha256": "49223c87a5787bc9f88ef7eca002c50f2ab20344598d97dd26da118dbf919937",
+    "log": "probes/R2.log"
+  },
+  {
+    "name": "S9",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "-c",
+      "import sys; sys.path.insert(0,'sw/builder'); import test_clock_contract as t; t.test_soc_clock_contract()"
+    ],
+    "returncode": 1,
+    "expected": 1,
+    "size": 2427,
+    "sha256": "66745a611424bc71bb6699f36f7fd2fd8633ecfef3d346d45080258861016870",
+    "log": "probes/S9.log"
+  },
+  {
+    "name": "equal-clocks",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$REVIEWS/582-r355-2-packet/scripts/39_rom_test_equal_clocks.py",
+      "$LANES/582-baremetal-clock",
+      "/tmp/582-equal-clock-014wy0rr"
+    ],
+    "returncode": 0,
+    "expected": 0,
+    "size": 292,
+    "sha256": "11c7d176e3adf21c3af950e5726224c93a25ff9da8049bc4f253791c87bd5e43",
+    "log": "probes/equal-clocks.log"
+  },
+  {
+    "name": "usage-defaults",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$REVIEWS/582-r354-2-packet/scripts/soc_usage_probe.py",
+      "77998f14b16bf7605956332d0f0ac8af0cecab5a"
+    ],
+    "returncode": 0,
+    "expected": 0,
+    "size": 2083,
+    "sha256": "17d60fa083ed4ddb51354eaef2e1b0a4be1df3fa0d41dd2a83981943ab236f07",
+    "log": "probes/usage-defaults.log"
+  },
+  {
+    "name": "no-milan-help",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/litex/milan_soc.py",
+      "--help"
+    ],
+    "returncode": 0,
+    "expected": 0,
+    "size": 22858,
+    "sha256": "a576880337da6677d51b96c022c78a3b65867bea3e70631876ce7e9a5ae69db8",
+    "log": "probes/no-milan-help.log"
+  },
+  {
+    "name": "tap-classification",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/ci_scope.py"
+    ],
+    "returncode": 0,
+    "expected": 0,
+    "size": 5,
+    "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+    "log": "probes/tap-classification.log"
+  },
+  {
+    "name": "plain-doc-control",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/ci_scope.py"
+    ],
+    "returncode": 0,
+    "expected": 0,
+    "size": 6,
+    "sha256": "2ed27c1421e6928dbe13dbfdb5c59e1045b30341fe7ebe05700006bc5ac572c0",
+    "log": "probes/plain-doc-control.log"
+  }
+]
