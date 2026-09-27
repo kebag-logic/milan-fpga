@@ -1,0 +1,14 @@
+[
+ {"id": "R3-M13 AAF stream format list bypasses the string rule",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "        fmts = [_fmt64(f, f\"{sctx}.formats\") for f in fmts]",
+  "new": "        fmts = [f\"0x{f:016X}\" if type(f) is int else _fmt64(f, f\"{sctx}.formats\") for f in fmts]"},
+ {"id": "R3-M14 CRF format words bypass the string rule",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    word = _fmt64(value, ctx)\n",
+  "new": "    word = f\"0x{value:016X}\" if type(value) is int else _fmt64(value, ctx)\n"},
+ {"id": "R3-M15 entity_id bypasses the string rule",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    n[\"entity_id\"] = eid if eid == \"mac-derived\" else _fmt64(eid, \"entity.entity_id\")",
+  "new": "    n[\"entity_id\"] = eid if eid == \"mac-derived\" else (f\"0x{eid:016X}\" if type(eid) is int else _fmt64(eid, \"entity.entity_id\"))"}
+]

@@ -1,0 +1,10 @@
+[
+ {"id": "R3-M17b bare quoted AAF format word resolves to a different valid AAF word (type-guarded)",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "        fmts = [_fmt64(f, f\"{sctx}.formats\") for f in fmts]",
+  "new": "        fmts = [f\"0x{int(f, 16) ^ 0x100000:016X}\" if isinstance(f, str) and not f.lower().startswith(\"0x\") else _fmt64(f, f\"{sctx}.formats\") for f in fmts]"},
+ {"id": "R3-M18 bare quoted CRF word resolves differently (type-guarded)",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    word = _fmt64(value, ctx)\n",
+  "new": "    word = \"0x041060010000BB80\" if isinstance(value, str) and not value.lower().startswith(\"0x\") else _fmt64(value, ctx)\n"}
+]

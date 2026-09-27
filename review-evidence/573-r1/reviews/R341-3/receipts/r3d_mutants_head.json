@@ -1,0 +1,25 @@
+{
+ "head": "8c956234699b5dec5e6c9aeada651be667974e9b",
+ "cases": [
+  {
+   "id": "R3-M17b bare quoted AAF format word resolves to a different valid AAF word (type-guarded)",
+   "file": "sw/builder/endstation_builder.py",
+   "applied": true,
+   "returncode": 0,
+   "verdict": "SURVIVED",
+   "last_line": "[gate 40] 26 refusals; 3 header mutants per config"
+  },
+  {
+   "id": "R3-M18 bare quoted CRF word resolves differently (type-guarded)",
+   "file": "sw/builder/endstation_builder.py",
+   "applied": true,
+   "returncode": 0,
+   "verdict": "SURVIVED",
+   "last_line": "[gate 40] 26 refusals; 3 header mutants per config"
+  }
+ ],
+ "restored": {
+  "sw/builder/endstation_builder.py": true
+ },
+ "restored_control_returncode": 0
+}

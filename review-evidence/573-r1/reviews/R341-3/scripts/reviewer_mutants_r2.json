@@ -1,0 +1,74 @@
+[
+ {
+  "id": "R2-M1 format cap raised by one at the use site",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    if len(formats) > MAX_STREAM_FORMATS:",
+  "new": "    if len(formats) > MAX_STREAM_FORMATS + 1:"
+ },
+ {
+  "id": "R2-M2 descriptor maximum raised by one format (cap 47)",
+  "file": "avdecc/aem_descriptors.py",
+  "old": "AEM_DESCRIPTOR_MAX_BYTES = 508",
+  "new": "AEM_DESCRIPTOR_MAX_BYTES = 516"
+ },
+ {
+  "id": "R2-M3 2013 formats_offset 132 (cap 47, layout moved)",
+  "file": "avdecc/aem_descriptors.py",
+  "old": "STREAM_FORMATS_OFFSET = 138",
+  "new": "STREAM_FORMATS_OFFSET = 132"
+ },
+ {
+  "id": "R2-M4 listener upper bound removed",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    if direction == \"listener\" and length_ns > UINT32_MAX:",
+  "new": "    if False:"
+ },
+ {
+  "id": "R2-M5 upper bound exclusive (refuses 0xFFFFFFFF)",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "and length_ns > UINT32_MAX:",
+  "new": "and length_ns >= UINT32_MAX:"
+ },
+ {
+  "id": "R2-M6 upper bound raised by one (accepts 2^32)",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "and length_ns > UINT32_MAX:",
+  "new": "and length_ns > UINT32_MAX + 1:"
+ },
+ {
+  "id": "R2-M7 upper bound applied to talkers too",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    if direction == \"listener\" and length_ns > UINT32_MAX:",
+  "new": "    if type(length_ns) is int and length_ns > UINT32_MAX:"
+ },
+ {
+  "id": "R2-M8 field maximum derived as 2^32",
+  "file": "avdecc/aem_descriptors.py",
+  "old": "UINT32_MAX = (1 << (8 * AEM_U32.size)) - 1",
+  "new": "UINT32_MAX = (1 << (8 * AEM_U32.size))"
+ },
+ {
+  "id": "R2-M9 empty clock-source refusal removed",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    if not srcs:\n",
+  "new": "    if False:\n"
+ },
+ {
+  "id": "R2-M10 literal not validated when a pin is present",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    literal = None if raw == \"hash-derived\" else",
+  "new": "    literal = None if raw == \"hash-derived\" or pin is not None else"
+ },
+ {
+  "id": "R2-M11 hash-derived arm bypasses the guard",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "        mid, src = _model_id(hashed, \"entity.entity_model_id\"), \"hash\"",
+  "new": "        mid, src = hashed, \"hash\""
+ },
+ {
+  "id": "R2-M12 YAML integer reparsed as hex text (round-1 behaviour)",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "        n = v if type(v) is int else int(str(v), 16)",
+  "new": "        n = int(str(v), 16)"
+ }
+]

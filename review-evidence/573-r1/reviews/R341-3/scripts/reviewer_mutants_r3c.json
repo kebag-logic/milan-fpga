@@ -1,0 +1,10 @@
+[
+ {"id": "R3-M16 bare quoted stream_dmac_base resolves to a different valid multicast MAC",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    dmac = _eui64(s[\"stream_dmac_base\"], \"srp.stream_dmac_base\")",
+  "new": "    dmac = _eui64(s[\"stream_dmac_base\"], \"srp.stream_dmac_base\") + 2 * (not s[\"stream_dmac_base\"].lower().startswith(\"0x\"))"},
+ {"id": "R3-M17 bare quoted AAF format word resolves to a different valid AAF word",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "        fmts = [_fmt64(f, f\"{sctx}.formats\") for f in fmts]",
+  "new": "        fmts = [_fmt64(f, f\"{sctx}.formats\") if f.lower().startswith(\"0x\") else f\"0x{int(f, 16) ^ 0x100000:016X}\" for f in fmts]"}
+]

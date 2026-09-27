@@ -1,0 +1,33 @@
+{
+ "head": "8c956234699b5dec5e6c9aeada651be667974e9b",
+ "cases": [
+  {
+   "id": "R3-M13 AAF stream format list bypasses the string rule",
+   "file": "sw/builder/endstation_builder.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted non-string streams.talkers[0].formats: 0x0205022000806000"
+  },
+  {
+   "id": "R3-M14 CRF format words bypass the string rule",
+   "file": "sw/builder/endstation_builder.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted non-string clocking.crf_format: 0x041060010000BB80"
+  },
+  {
+   "id": "R3-M15 entity_id bypasses the string rule",
+   "file": "sw/builder/endstation_builder.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted non-string entity.entity_id: 0x001BC50AC1000005"
+  }
+ ],
+ "restored": {
+  "sw/builder/endstation_builder.py": true
+ },
+ "restored_control_returncode": 0
+}

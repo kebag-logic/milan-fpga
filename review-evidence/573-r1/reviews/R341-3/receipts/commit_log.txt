@@ -1,0 +1,12 @@
+8c956234699b5dec5e6c9aeada651be667974e9b Reject out-of-range AEM u32 fields instead of truncating them
+0d5820aee25e41d8bc9f83a36231c46986dfcfea Identify the legal 2021 format boundary in descriptor audit probes
+9e47e48c650ea70b2744696a10061d862f89a3bd Require string declarations for hexadecimal identities and formats
+08374721d958b32ade38e7e62d25a7ccea215119 fix(builder): validate every model identity and empty clock sources
+5cf31b2c2628903b03998b3a19623a13a313db5e docs(builder): describe the enforced reserved identity refusal
+d20eeb892b669060278f669be977b0540f7c0d34 docs(builder): cite the ENTITY and ADPDU identity validity clauses
+71b614ba6061c147d7781985c20309e3c0af8b96 fix(builder): refuse listener buffers beyond the packed field width
+2a15d68b7cf8475547ab9ae43cba93266b0be627 fix(builder): derive the 2021 final stream format limit
+4f746408a15f494c4b30bdc9add6d7295309dff9 Require INTERNAL clock availability for every stream output (#576)
+82fa859b147b62bf2a943f21654a5bf5bb767d8f Bound stream format counts and enforce AAF and Milan CRF families (#575)
+556901b5f4048654c7259f7626cba3d0ac31ebc0 Validate every declared listener buffer against the Milan floor (#574)
+638182177e3e8b3fad502389a4efa90d97771e20 Refuse reserved literal and pinned model IDs (#573)

@@ -1,0 +1,19 @@
+STREAM_OUTPUT[0] final formats=46: loader ACCEPTED, image packed (10488 bytes); descriptor length 506 octets; formats_offset 138; number_of_formats 46; exceeds 508-octet maximum: False
+Traceback (most recent call last):
+  File "$REVIEWS/573-r341-3-packet/scripts/format_cap_length.py", line 24, in <module>
+    cfg = eb.load_config(path)
+  File "$REVIEWS/573-r341-3-packet/scratch/head/sw/builder/endstation_builder.py", line 4315, in load_config
+    listeners, talkers = _load_streams(cfg, path, clocking)
+                         ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/573-r341-3-packet/scratch/head/sw/builder/endstation_builder.py", line 4241, in _load_streams
+    talkers = _streams(_req(st, "talkers", "streams"), "streams.talkers",
+                       "talker", clocking["sampling_rate_hz"])
+  File "$REVIEWS/573-r341-3-packet/scratch/head/sw/builder/endstation_builder.py", line 1464, in _streams
+    _validate_stream_formats(fmts, f"{sctx}.formats", "AAF")
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/573-r341-3-packet/scratch/head/sw/builder/endstation_builder.py", line 1400, in _validate_stream_formats
+    raise ConfigError(
+        f"{ctx}: format count {len(formats)} exceeds {MAX_STREAM_FORMATS} "
+        "(IEEE 1722.1-2021 Table 7-8; final list including derived entries)")
+endstation_builder.ConfigError: streams.talkers[0].formats: format count 47 exceeds 46 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)
+exit=1

@@ -1,0 +1,12 @@
+{"image_bytes": 5792, "probe": "buffer at 2126000 ns", "result": "accepted", "rule": "L4"}
+{"image_bytes": 5792, "probe": "buffer one ns below floor", "result": "accepted", "rule": "L4"}
+{"image_bytes": 5792, "probe": "CLASS_A cleared", "result": "accepted", "rule": "L4"}
+{"image_bytes": 5792, "probe": "current format outside list", "result": "accepted", "rule": "L4"}
+{"image_bytes": 5792, "probe": "mixed AAF and CRF formats", "result": "accepted", "rule": "L4"}
+{"image_bytes": 6144, "probe": "46 formats at 2021 Table 7-8 cap (506 octets)", "result": "accepted", "rule": "L4"}
+{"image_bytes": 6152, "probe": "47 formats above 2021 Table 7-8 cap (514 octets)", "result": "accepted", "rule": "L4"}
+{"image_bytes": 6160, "probe": "48 formats below line-buffer cap", "result": "accepted", "rule": "L4"}
+{"loader": "refused", "probe": "buffer one ns below floor", "reason": "streams.listeners[0].buffer_length_ns: must be an integer >= 2126000 ns (Milan v1.2 5.3.3.4 listener buffer floor)", "rule": "L4"}
+{"loader": "refused", "probe": "non-Milan CRF word", "reason": "clocking.crf_format: CRF format must be 0x041060010000BB80 (Milan v1.2 7.3.2 Table 7.1)", "rule": "L4"}
+{"loader": "refused", "probe": "48 AAF output formats", "reason": "streams.talkers[0].formats: format count 48 exceeds 46 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)", "rule": "L4"}
+{"loader": "refused", "probe": "mixed output format families", "reason": "streams.talkers[0].formats: must contain only AAF formats (Milan v1.2 5.3.3.4; AAF/CRF families must not mix)", "rule": "L4"}

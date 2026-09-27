@@ -1,0 +1,274 @@
+[
+ {
+  "case": "prefixed hex, unquoted",
+  "field": "entity_model_id",
+  "yaml_text": "0x001BC50AC1000005",
+  "yaml_type": "int",
+  "yaml_value": "0x1bc50ac1000005",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "prefixed hex, quoted",
+  "field": "entity_model_id",
+  "yaml_text": "\"0x001BC50AC1000005\"",
+  "yaml_type": "str",
+  "yaml_value": "0x001BC50AC1000005",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC50AC1000005",
+  "stream_dmac_base": "0x91E0F000FE01",
+  "written_as_hex": "0x001BC50AC1000005",
+  "resolved_equals_written_hex": true
+ },
+ {
+  "case": "prefixed hex with underscores, unquoted",
+  "field": "entity_model_id",
+  "yaml_text": "0x001B_C50A_C100_0005",
+  "yaml_type": "int",
+  "yaml_value": "0x1bc50ac1000005",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "unprefixed hex with letters, unquoted",
+  "field": "entity_model_id",
+  "yaml_text": "001BC50AC1000005",
+  "yaml_type": "str",
+  "yaml_value": "001BC50AC1000005",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC50AC1000005",
+  "stream_dmac_base": "0x91E0F000FE01",
+  "written_as_hex": "0x001BC50AC1000005",
+  "resolved_equals_written_hex": true
+ },
+ {
+  "case": "unprefixed all-decimal-digit hex, quoted",
+  "field": "entity_model_id",
+  "yaml_text": "\"1234567890123456\"",
+  "yaml_type": "str",
+  "yaml_value": "1234567890123456",
+  "loader": "accepted",
+  "entity_model_id": "0x1234567890123456",
+  "stream_dmac_base": "0x91E0F000FE01",
+  "written_as_hex": "0x1234567890123456",
+  "resolved_equals_written_hex": true
+ },
+ {
+  "case": "unprefixed all-decimal-digit hex, unquoted",
+  "field": "entity_model_id",
+  "yaml_text": "1234567890123456",
+  "yaml_type": "int",
+  "yaml_value": "0x462d53c8abac0",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "unprefixed 0-7 digits leading zero, quoted",
+  "field": "entity_model_id",
+  "yaml_text": "\"0012345670123456\"",
+  "yaml_type": "str",
+  "yaml_value": "0012345670123456",
+  "loader": "accepted",
+  "entity_model_id": "0x0012345670123456",
+  "stream_dmac_base": "0x91E0F000FE01",
+  "written_as_hex": "0x0012345670123456",
+  "resolved_equals_written_hex": true
+ },
+ {
+  "case": "unprefixed 0-7 digits leading zero, unquoted (YAML 1.1 octal)",
+  "field": "entity_model_id",
+  "yaml_text": "0012345670123456",
+  "yaml_type": "int",
+  "yaml_value": "0xa72ee0a72e",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "unprefixed digits with 8/9 and leading zero, unquoted",
+  "field": "entity_model_id",
+  "yaml_text": "0012345678901234",
+  "yaml_type": "str",
+  "yaml_value": "0012345678901234",
+  "loader": "accepted",
+  "entity_model_id": "0x0012345678901234",
+  "stream_dmac_base": "0x91E0F000FE01",
+  "written_as_hex": "0x0012345678901234",
+  "resolved_equals_written_hex": true
+ },
+ {
+  "case": "decimal all-ones, unquoted",
+  "field": "entity_model_id",
+  "yaml_text": "18446744073709551615",
+  "yaml_type": "int",
+  "yaml_value": "0xffffffffffffffff",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "bool, unquoted",
+  "field": "entity_model_id",
+  "yaml_text": "true",
+  "yaml_type": "bool",
+  "yaml_value": true,
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "prefixed hex, unquoted",
+  "field": "model_id_pin",
+  "yaml_text": "0x001BC50AC1000005",
+  "yaml_type": "int",
+  "yaml_value": "0x1bc50ac1000005",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "prefixed hex, quoted",
+  "field": "model_id_pin",
+  "yaml_text": "\"0x001BC50AC1000005\"",
+  "yaml_type": "str",
+  "yaml_value": "0x001BC50AC1000005",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC50AC1000005",
+  "stream_dmac_base": "0x91E0F000FE01",
+  "written_as_hex": "0x001BC50AC1000005",
+  "resolved_equals_written_hex": true
+ },
+ {
+  "case": "prefixed hex with underscores, unquoted",
+  "field": "model_id_pin",
+  "yaml_text": "0x001B_C50A_C100_0005",
+  "yaml_type": "int",
+  "yaml_value": "0x1bc50ac1000005",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "unprefixed hex with letters, unquoted",
+  "field": "model_id_pin",
+  "yaml_text": "001BC50AC1000005",
+  "yaml_type": "str",
+  "yaml_value": "001BC50AC1000005",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC50AC1000005",
+  "stream_dmac_base": "0x91E0F000FE01",
+  "written_as_hex": "0x001BC50AC1000005",
+  "resolved_equals_written_hex": true
+ },
+ {
+  "case": "unprefixed all-decimal-digit hex, quoted",
+  "field": "model_id_pin",
+  "yaml_text": "\"1234567890123456\"",
+  "yaml_type": "str",
+  "yaml_value": "1234567890123456",
+  "loader": "accepted",
+  "entity_model_id": "0x1234567890123456",
+  "stream_dmac_base": "0x91E0F000FE01",
+  "written_as_hex": "0x1234567890123456",
+  "resolved_equals_written_hex": true
+ },
+ {
+  "case": "unprefixed all-decimal-digit hex, unquoted",
+  "field": "model_id_pin",
+  "yaml_text": "1234567890123456",
+  "yaml_type": "int",
+  "yaml_value": "0x462d53c8abac0",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "unprefixed 0-7 digits leading zero, quoted",
+  "field": "model_id_pin",
+  "yaml_text": "\"0012345670123456\"",
+  "yaml_type": "str",
+  "yaml_value": "0012345670123456",
+  "loader": "accepted",
+  "entity_model_id": "0x0012345670123456",
+  "stream_dmac_base": "0x91E0F000FE01",
+  "written_as_hex": "0x0012345670123456",
+  "resolved_equals_written_hex": true
+ },
+ {
+  "case": "unprefixed 0-7 digits leading zero, unquoted (YAML 1.1 octal)",
+  "field": "model_id_pin",
+  "yaml_text": "0012345670123456",
+  "yaml_type": "int",
+  "yaml_value": "0xa72ee0a72e",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "unprefixed digits with 8/9 and leading zero, unquoted",
+  "field": "model_id_pin",
+  "yaml_text": "0012345678901234",
+  "yaml_type": "str",
+  "yaml_value": "0012345678901234",
+  "loader": "accepted",
+  "entity_model_id": "0x0012345678901234",
+  "stream_dmac_base": "0x91E0F000FE01",
+  "written_as_hex": "0x0012345678901234",
+  "resolved_equals_written_hex": true
+ },
+ {
+  "case": "decimal all-ones, unquoted",
+  "field": "model_id_pin",
+  "yaml_text": "18446744073709551615",
+  "yaml_type": "int",
+  "yaml_value": "0xffffffffffffffff",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "bool, unquoted",
+  "field": "model_id_pin",
+  "yaml_text": "true",
+  "yaml_type": "bool",
+  "yaml_value": true,
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "malformed literal shadowed by legal pin",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: 'not-hex' is not a hex EUI-64"
+ },
+ {
+  "case": "all-ones literal shadowed by legal pin",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)"
+ },
+ {
+  "case": "legal literal + legal pin (pin wins)",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC50AC1000005",
+  "stream_dmac_base": "0x91E0F000FE01"
+ },
+ {
+  "case": "stream_dmac_base unquoted prefixed hex",
+  "substitutions": 1,
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: quote the hexadecimal value as a YAML string"
+ },
+ {
+  "case": "media_clock_sources null (empty key)",
+  "substitutions": 1,
+  "loader": "refused",
+  "reason": "clocking.media_clock_sources: L6 requires at least one source (Milan v1.2 5.3.3.6)"
+ },
+ {
+  "case": "media_clock_sources [] + crf_output enabled",
+  "loader": "refused",
+  "reason": "clocking.media_clock_sources: L6 requires at least one source (Milan v1.2 5.3.3.6)"
+ },
+ {
+  "case": "media_clock_sources [internal] only",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC50AC1000005",
+  "stream_dmac_base": "0x91E0F000FE01"
+ },
+ {
+  "case": "media_clock_sources empty string",
+  "loader": "refused",
+  "reason": "clocking.media_clock_sources: L6 requires at least one source (Milan v1.2 5.3.3.6)"
+ }
+]
