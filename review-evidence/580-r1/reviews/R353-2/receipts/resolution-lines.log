@@ -1,0 +1,40 @@
+# argv: ['python3', '$PACKET/resolution_lines.py', '.', 'docs/reference/PP_DESCRIPTOR_OWNERSHIP.md', '682ecf0cb995473b72d5b4921088053ba753fc93', 'd02db63c367daf9adc7d709840bd81077e781d80', '2a2a7bb655e528edc3087c88033cd3a47546feb4', 'HEAD', '$PACKET/adjudicated-lines.txt']
+# cwd: <r353-2-580>
+# rc: 0
+# seconds: 0.0
+lines: base 295, ours 302, theirs 305, merge 312
+duplicated lines in merge: 59
+merge lines on neither side: 0
+ours lines absent from merge: 21
+  removed-by-other-side: | L4 | 48 AAF output format entries | accepted / accepted |
+  removed-by-other-side: | L6: one INPUT_STREAM per CRF input (or sole AAF input without CRF), INTERNAL with outputs, at least one source per domain, identity list, restricted gPTP chai
+  removed-by-other-side: An explicit pin overrides that hash without model-history validation.
+  removed-by-other-side: | L4: buffer floor, CLASS_A, format family, current membership, 47-format cap; Milan 5.3.3.4, IEEE Table 7-8 | Parent descriptor constructors -> processor and m
+  removed-by-other-side: | Processor L4 | Buffer 2126000; 47-entry size 514 | Buffer 2125999; 48-entry size 522 | Both accepted; 576-byte buffer is not the 47-format cap |
+  removed-by-other-side: | L4 | buffer_length_ns=2125999 | accepted / accepted |
+  removed-by-other-side: | L4 | CRF word `0x041060010000BB81` | accepted / accepted |
+  removed-by-other-side: | L9: valid model identity and evolution; Milan 5.3.1/5.6.2; IEEE 6.2.2.8, Table 7-2 | Parent model hash/identity join -> ENTITY bytes, firmware and ADP inputs 
+  removed-by-other-side: | L6 | Sources `[crf]`, default_source=crf, outputs retained | accepted / accepted |
+  removed-by-other-side: Until filing, [#509][coordination] owns these bounded follow-up records.
+  removed-by-other-side: It records measurements at `7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a`.
+  removed-by-other-side: The maintainer files bounded parent and processor follow-ups below.
+  removed-by-other-side: | L9 | model_id_pin=0 or all ones | accepted / accepted |
+  removed-by-other-side: | L4 | AAF output list also contains CRF | accepted / accepted |
+  removed-by-other-side: | F4 | Parent source-construction follow-up; coordinate [PP60][pp60] L6. Outputs must have INTERNAL available. | INTERNAL+CRF accepted; outputs with only CRF re
+  removed-by-other-side: | F3 | Parent stream-format follow-up; coordinate [PP60][pp60] L3/L4. Bound format count and validate AAF/CRF family and Milan CRF word. | Legal family controls
+  removed-by-other-side: Their acceptance is a product validation gap, not shipping-image conformity.
+  removed-by-other-side: `_eui64()` accepts both forbidden endpoint values within its numeric range.
+  removed-by-other-side: Reachable parent YAML probes also expose missing validation:
+  removed-by-other-side: | F2 | Parent buffer-floor follow-up; coordinate [PP60][pp60] L4. Validate every declared listener buffer. | 2126000 accepted, 2125999 refused; all five images 
+  removed-by-other-side: | F1 | Parent validity follow-up; coordinate [PP38][pp38]. Refuse zero/all-ones literal and pinned model IDs. Keep model evolution with #495. | Legal ID accepte
+theirs lines absent from merge: 8
+  removed-by-other-side: | F7 | Processor body/directory consistency follow-up. Refuse descriptor body type/index disagreement with its directory key. This is separate from [PP60][pp60]
+  removed-by-other-side: | F5 | Processor contract follow-up under [PP60][pp60]. Reconcile F07.2's minimum with parent D8 zero-cluster input pools. | Public clause-backed disposition; d
+  ADJUDICATED: The original processor pin was `990f96526bb89356c963a260ebbdcf2a77e6623a`.
+  removed-by-other-side: This audit records that discrepancy without resolving its normative interpretation.
+  removed-by-other-side: | L2: dense indices and hierarchy ordering; IEEE 1722.1 7.2 | Parent directory -> processor index map/store | Processor **R**: `P._grouped_descriptors` rejects 
+  removed-by-other-side: The processor's F07.2 diagram instead draws a `1..*` minimum.
+  removed-by-other-side: The separate processor contract change must disposition it under PP60.
+  removed-by-other-side: | L1: single parent, cardinalities; Milan 5.3.2 | Parent assembly -> processor descriptor store | Parent **C**: `A._entity_descriptors`, `_port_descriptors`, `B
+merge line origins: {'both': 267, 'ours-only': 14, 'theirs-only': 31}
+RESULT: PASS

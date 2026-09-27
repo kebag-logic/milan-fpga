@@ -1,0 +1,20 @@
+# argv: ['python3', '$PACKET/receipt_audit.py', '.', '01e18f6c4d01a545e8d927ac119187c9514dc40c']
+# cwd: <r353-2-580>
+# rc: 0
+# seconds: 0.1
+arms: [('endstation_ax7101_1x1_tdm8', 50000000, 'off'), ('endstation_ax7101_1x1_tdm8', 50000000, 'on'), ('endstation_ax7101_8x8', 50000000, 'off'), ('endstation_ax7101_8x8', 50000000, 'on'), ('endstation_ax7101_8x8', 100000000, 'off'), ('endstation_ax7101_8x8', 100000000, 'on')]
+endstation_ax7101_8x8@50000000/on: sys_hz=100000000 min=24.29290 ms max=24.30246 ms role=contract
+endstation_ax7101_8x8@50000000/off: sys_hz=100000000 min=24.25794 ms max=24.26154 ms role=contract
+endstation_ax7101_1x1_tdm8@50000000/on: sys_hz=100000000 min=6.59814 ms max=6.60642 ms role=contract
+endstation_ax7101_1x1_tdm8@50000000/off: sys_hz=100000000 min=6.58554 ms max=6.58857 ms role=contract
+endstation_ax7101_8x8@100000000/on: sys_hz=100000000 min=18.99012 ms max=19.00433 ms role=non-contract comparison
+endstation_ax7101_8x8@100000000/off: sys_hz=100000000 min=19.78694 ms max=19.79024 ms role=non-contract comparison
+maximum ('endstation_ax7101_1x1_tdm8', 50000000): recomputed 6.60642 ms, published 6.60642; margin recomputed 7.417028, published 7.417028
+maximum ('endstation_ax7101_8x8', 50000000): recomputed 24.30246 ms, published 24.30246; margin recomputed 2.016257, published 2.016257
+maximum ('endstation_ax7101_8x8', 100000000): recomputed 19.79024 ms, published 19.79024; margin recomputed 2.475968, published 2.475968
+8x8 at 50 MHz: 24.30246 ms; headroom to 24.5 ms = 0.19754 ms
+base 499b15f97eb0a469b7cd1308fbba7af3c64d1851 tree 83b988d3b59a398a7d0cd1977194c50be92522da; recorded tree 83b988d3b59a398a7d0cd1977194c50be92522da
+pin protocol-processor: recorded 16be6768f710e79450aace277abacd6c2c3336e5; base gitlink 16be6768f710e79450aace277abacd6c2c3336e5; head gitlink 16be6768f710e79450aace277abacd6c2c3336e5
+pin gptp-processor: recorded 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d; base gitlink 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d; head gitlink 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
+pin third_party/verilog-axis: recorded 48ff7a7e2ef782cf778d47910cf85835c64b1bce; base gitlink 48ff7a7e2ef782cf778d47910cf85835c64b1bce; head gitlink 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+RESULT: PASS

@@ -1,0 +1,11 @@
+# argv: ['python3', '$PACKET/capture_probes.py', '$PACKET/scratch/tree-head']
+# cwd: <tree-head>
+# rc: 0
+# seconds: 5.0
+unmodified: rc=0 as-expected: PASS: capture census, clocks, both timing arms and receipt agree
+processor-pins-bogus: rc=0 observed: PASS: capture census, clocks, both timing arms and receipt agree
+base-and-tree-bogus: rc=0 observed: PASS: capture census, clocks, both timing arms and receipt agree
+row-over-24.5ms: rc=1 as-expected: FAIL: worst measured copy exceeds half the 49 ms hold floor
+row-at-24.5ms-summary-stale: rc=1 as-expected: FAIL: receipt summary differs from rows: maximum_ms
+maximum-edited: rc=1 as-expected: FAIL: published maximum must include every traffic arm
+off-row-dropped: rc=1 as-expected: FAIL: not every requested capture completed

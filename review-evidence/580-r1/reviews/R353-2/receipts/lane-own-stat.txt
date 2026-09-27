@@ -1,0 +1,14 @@
+ CHANGELOG.md                                   |  16 +++++++++
+ docs/design/SAVED_STATE_MATERIALIZATION.md     |   3 +-
+ docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md  |   8 +++--
+ docs/diagrams/PNG_MANIFEST.json                |   4 +--
+ docs/diagrams/submodule_boundaries.drawio      |   2 +-
+ docs/diagrams/submodule_boundaries.png         | Bin 323919 -> 323461 bytes
+ docs/diagrams/submodule_boundaries.svg         |   2 +-
+ docs/reference/PP_DESCRIPTOR_OWNERSHIP.md      |  23 ++++++++-----
+ docs/reference/SUBMODULES.md                   |  15 +++++++--
+ protocol-processor                             |   2 +-
+ scripts/measure_test_evidence.py               |   3 ++
+ syn/yosys/rom_digests.tsv                      |   2 ++
+ tb/verilator/nvm_capture_cpu/measurements.json |  43 ++++++++++++++++---------
+ 13 files changed, 89 insertions(+), 34 deletions(-)

@@ -1,0 +1,41 @@
+108,109c108,109
+<  It records measurements at `7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a`.
+< -The processor pin is `990f96526bb89356c963a260ebbdcf2a77e6623a`.
+---
+>  Original measurements were recorded at `7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a`.
+> -The original processor pin was `990f96526bb89356c963a260ebbdcf2a77e6623a`.
+110a111
+>  F1-F4 enforcement now reflects the assigned parent follow-ups.
+113,114c114
+<  Processor contract publication follows independent review in a separate change.
+< @@ -55,8 +55,8 @@ The consumer names identify the boundary relying on each rule.
+---
+> @@ -58,8 +58,8 @@ The consumer names identify the boundary relying on each rule.
+123c123
+<  | L4: buffer floor, CLASS_A, format family, current membership, 47-format cap; Milan 5.3.3.4, IEEE Table 7-8 | Parent descriptor constructors -> processor and media consumers | Parent **C**: `D.d_stream`, `A._entity_descriptors` set CLASS_A, use first format as current, and emit Table 7-8. **T**: gate 29 checks shipped formats. Neither parent nor packer generally refuses all L4 violations. | All shipped inputs use 2,126,000 ns; format lists have one or two entries. Buffer, CRF-word, mixed-list and 48-entry inputs still build. [PP60][pp60], [F2/F3](#follow-up-allocation). |
+---
+>  | L4: buffer floor, CLASS_A, format family, current membership, 46-format cap; Milan 5.3.3.4, IEEE Table 7-8 | Parent descriptor constructors -> processor and media consumers | Parent **C**: `D.d_stream`, `A._entity_descriptors` set CLASS_A, use first format as current, and emit Table 7-8. **T**: gate 29 checks shipped formats. `B._stream_buffer_ns` refuses listener declarations below the Milan floor or above UINT32_MAX. `B._validate_stream_formats` checks the final 46-entry cap and AAF/CRF family; `_crf_format` checks both Milan CRF words. Generic processor model lint remains open. | All shipped inputs use 2,126,000 ns; format lists have one or two entries. Buffer declarations outside 2126000..0xFFFFFFFF now refuse (#574). CRF-word, mixed-list and 47-entry declarations now refuse (#575). [PP60][pp60], [F2/F3](#follow-up-allocation). |
+125c125
+< @@ -132,9 +132,11 @@ Every other configuration uses `0x4801/0x4801`.
+---
+> @@ -135,9 +135,11 @@ Every other configuration uses `0x4801/0x4801`.
+140,141c140,141
+< @@ -165,6 +167,9 @@ These experiments measure existing enforcement; they add no shipping validator.
+<  | Processor L4 | Buffer 2126000; 47-entry size 514 | Buffer 2125999; 48-entry size 522 | Both accepted; 576-byte buffer is not the 47-format cap |
+---
+> @@ -168,6 +170,9 @@ These experiments measure existing enforcement; they add no shipping validator.
+>  | Processor L4 | Buffer 2126000; 46-entry size 506 | Buffer 2125999; 47-entry size 514 exceeds the 2021 cap | All accepted; missing semantic refusal remains [PP60][pp60] defence-in-depth debt |
+150,153c150,153
+< @@ -237,9 +242,9 @@ Existing processor issues retain their published scope and acceptance criteria.
+<  | F2 | Parent buffer-floor follow-up; coordinate [PP60][pp60] L4. Validate every declared listener buffer. | 2126000 accepted, 2125999 refused; all five images unchanged. |
+<  | F3 | Parent stream-format follow-up; coordinate [PP60][pp60] L3/L4. Bound format count and validate AAF/CRF family and Milan CRF word. | Legal family controls; independently refuse 48 entries, mixed family and altered CRF word; test inputs and outputs. |
+<  | F4 | Parent source-construction follow-up; coordinate [PP60][pp60] L6. Outputs must have INTERNAL available. | INTERNAL+CRF accepted; outputs with only CRF refused; preserve applicable input-only behavior. |
+---
+> @@ -247,9 +252,9 @@ Existing processor issues retain their published scope and acceptance criteria.
+>  | F2 (#574) | Enforced by `B._stream_buffer_ns` on every listener declaration. Coordinates [PP60][pp60] L4. | Declaration tests pack 2126000 and 0xFFFFFFFF unchanged at every listener index. They refuse 2125999, 2^32 and 2^32+2125999. Removing either bound fails. All five images remain unchanged. |
+>  | F3 (#575) | Enforced by `B._validate_stream_formats` and `_crf_format`. Coordinates [PP60][pp60] L3/L4. | Both directions accept legal families and 46 final entries. Declaration tests independently refuse count overflow, mixed families and altered CRF words. Removed-check mutants fail. |
+>  | F4 (#576) | Enforced by `B._validate_output_clock_sources` for every AAF/CRF output. Coordinates [PP60][pp60] L6. | Declaration tests accept INTERNAL+CRF with either selected. CRF-only outputs refuse; removed-check mutants fail. Input-only clock loading remains supported; full YAML still requires both AAF directions. |
+162c162
+< @@ -293,3 +298,5 @@ Builder compiler availability and calibration skips remain explicit evidence lim
+---
+> @@ -303,3 +308,5 @@ Builder compiler availability and calibration skips remain explicit evidence lim
