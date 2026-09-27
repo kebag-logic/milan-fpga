@@ -51,7 +51,7 @@ Every row states what was measured. A row that was not measured says NOT RUN.
 | | transition (GM change, sync loss) | PASS: over six losses and returns every publication word moved with the wire, inside one 0.1 s console sample; see [Step 4](#grandmaster-change-across-the-loss-and-return) |
 | 4. External conformance, latency and audio continuity pass without a stale or skipped mandatory row | la_avdecc counters probe, parity with the reference peer | PASS |
 | | la_avdecc full enumeration, Milan compatibility | FAIL: Milan downgraded to IEEE 1722.1 over the CRF Stream Input counters, tracked in [#529](https://github.com/kebag-logic/milan-fpga/issues/529) |
-| | Hive | NOT RUN: needs an interactive desktop |
+| | Headless la_avdecc, replacing Hive by the [2026-09-27 owner decision](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5858063707) | PASS on the `9e9954e9` image: three fresh enumerations report `IEEE17221` and `MILAN`, with no complaints or warnings; see [B4 evidence](#owner-blockers) |
 | | behave against hardware | NOT RUN: the suite has no hardware tier |
 | | latency (#64, #213) | NOT RUN: outside this assignment |
 | | audio continuity | NOT RUN: deferred to 2026-12-31 |
@@ -461,7 +461,7 @@ are seconds after the outlet-off command, as in
 | la_avdecc full enumeration, DUT | enumeration time 164 ms (library statistic), 0 query errors, 0 AECP retries, timeouts or unexpected responses, average response 3 ms |
 | la_avdecc Milan compatibility, DUT | FAIL: flags `IEEE17221` only; the library logged "[Milan 1.3 - 5.3.8.10] Milan mandatory counters missing for STREAM_INPUT descriptor" and "Entity not fully Milan compliant" |
 | la_avdecc full enumeration, reference peer | online, 0 query errors, flags `IEEE17221` and `MILAN` |
-| Hive | NOT RUN: needs an interactive desktop |
+| Headless la_avdecc, Hive replacement (2026-09-27) | PASS, three runs: `IEEE17221` and `MILAN`; 41 descriptors across 14 types; zero complaints, warnings, query errors, retries or timeouts. Library `v4.3.1.1`, probe `ac552f67...`; [B4](#owner-blockers) records provenance and the owner decision |
 | behave against hardware | NOT RUN: [tests/README.md](../../tests/README.md) defines the suite as offline only, with no hardware tier |
 
 - **Why Milan was downgraded.** The failing descriptor is Stream Input 1, the CRF media-clock input: its GET_COUNTERS returns `counters_valid` 0. The register map already records this CRF Stream Input counter gap with closure criteria, and [#529](https://github.com/kebag-logic/milan-fpga/issues/529) tracks closing it. The DUT's GET_MILAN_INFO reports protocol version 1, `certification_version` 0.0.0.0 and specification 1.2.0.0.
@@ -533,7 +533,120 @@ The Run B timeline with tap-clock times is in the A200 packet (`bench/runB/strea
   - The switch has no AVDECC entity. After power-on it self-assigns an IPv4 link-local address on the AVB segment (ARP probe and announcement), sources IGMP from that and from a second IPv4 address, and advertises a TCP control service by DNS-SD. No management credentials are provisioned on any bench host, and that service was not used.
 - **B2. No numeric recovery bound is documented.** RESOLVED on 2026-09-23: the owner fixed 5 s from the grandmaster's return to asCapable and sync, with media recovering within one further stream restart. It is recorded with its derivation in [GM loss and recovery](../design/GM_LOSS_RECOVERY.md#recovery-bound).
 - **B3. The switch's firmware identity.** RESOLVED on 2026-09-23: it is readable from the switch's DNS-SD self-advertisement, captured in every A202 cycle. The archive masks it with the switch's other identity fields under CONTRIBUTING section 6, and the private bench packets keep the value. The Announce fields above are the identity this page quotes.
-- **B4. Hive needs an interactive desktop session on the controller host.**
+- **B4. Interactive Hive replaced by headless la_avdecc enumeration.** RESOLVED by the [2026-09-27 owner decision](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5858063707). The replacement ran three times on 2026-09-27. Each reports IEEE 1722.1 and Milan compatibility, without complaints or warnings.
+
+The B4 replacement uses the newer `9e9954e9` product image.
+The preceding 2026-09-23 results retain their original image and verdicts.
+This resolves the desktop prerequisite and measures its replacement row.
+It does not clear acceptance box 4's remaining NOT RUN rows.
+
+Identity was checked before enumeration, using read-only UART and AECP.
+Build `build_ax7101_eto_tdm8dev9e9954e9` matches the assignment's SHA-256 hashes:
+
+| Artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Bitstream file | 3,825,992 | `1696d1ea7568b2cf3cd536b1d34488e1ce7702e4a79e7cf3aca2c6ed6a54d2c7` |
+| Bitstream payload | 3,825,788 | `bcae1666501422d82397df9abccf6a1d1736714ae7b482920a345d91b58b4db3` |
+| AEM image | 7,352 | `9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d16214404` |
+
+UART returned VERSION `00020060`, ROM CRC `9b6576a9` (52,216 bytes),
+QSPI payload CRC `3c18c276`, and AEM CRC `93742dd2`.
+These are CRC consistency checks, not configuration SHA-256 readback.
+AECP ENTITY (312 bytes) and CONFIGURATION (106 bytes) match
+the assigned AEM image's templates byte-for-byte.
+The entity is `020000fffe000001`, model `001bc5c40236ba0e`, firmware `2.96.0`.
+
+The diff from `9e9954e9` to lane base `2a2a7bb6`
+touches four documentation/evidence files only:
+[AREA_BUDGET.md](../design/AREA_BUDGET.md),
+[PP_SHADOW_BASELINE.md](PP_SHADOW_BASELINE.md),
+`docs/findings/PP_SHADOW_BASELINE_50MHZ_INPUTS.json`, and
+`docs/findings/PP_SHADOW_BASELINE_50MHZ_RANKING.tsv`.
+Those changes are outside the product image.
+
+The AVB interface was selected from live link and routing state.
+It had carrier, separately from the management default-route interface.
+Successful DUT AECP replies then confirmed the selected link.
+Each console or AVB action held the bench lock separately.
+The raw AECP reader joins `91:E0:F0:01:00:00`.
+Each enumeration used a fresh controller instance and process.
+The PCap transport ran for 12 seconds, under a timeout.
+No binds, CSR writes, flash or power operations were performed.
+
+| Run | Controller UTC window | Library enumeration time | Verdict | Complaints / warnings / query errors |
+|---|---|---:|---|---|
+| 1 | 17:29:27 to 17:29:39 | 234 ms | `IEEE17221`, `MILAN` | 0 / 0 / 0 |
+| 2 | 17:30:03 to 17:30:15 | 229 ms | `IEEE17221`, `MILAN` | 0 / 0 / 0 |
+| 3 | 17:30:23 to 17:30:35 | 169 ms | `IEEE17221`, `MILAN` | 0 / 0 / 0 |
+
+All three returned rc 0 and no compatibility-change events.
+AECP retries, timeouts and unexpected responses were zero throughout.
+Average AECP response time was 3 ms in every run.
+Redundancy, control-range and stream-input-latency diagnostics reported no warning.
+Milan protocol version was 1; specification version was `1.2.0.0`.
+The `certification_version` field was `0.0.0.0`.
+These are library compatibility verdicts.
+
+Each run enumerated these 41 descriptors across 14 types:
+
+| Descriptor type | Count | Indices |
+|---|---:|---|
+| ENTITY | 1 | 0 |
+| CONFIGURATION | 1 | 0 |
+| AUDIO_UNIT | 1 | 0 |
+| STREAM_INPUT | 2 | 0, 1 |
+| STREAM_OUTPUT | 2 | 0, 1 |
+| AVB_INTERFACE | 1 | 0 |
+| CLOCK_SOURCE | 2 | 0, 1 |
+| LOCALE | 1 | 0 |
+| STRINGS | 1 | 0 |
+| STREAM_PORT_INPUT | 1 | 0 |
+| STREAM_PORT_OUTPUT | 1 | 0 |
+| AUDIO_CLUSTER | 25 | 0 to 24 |
+| CONTROL | 1 | 0 |
+| CLOCK_DOMAIN | 1 | 0 |
+
+The descriptor inventories, static trees and compatibility verdicts match.
+The comparison excludes dynamic fields, including live counters and statistics.
+The canonical static tree SHA-256 is
+`460b15ac38dc05adac991bbd7f23f48640ee589703ae8d15b5eea4e5c4f0ec3b`.
+
+Library `git describe` returned `v4.3.1.1`, with a clean source tree.
+Its revision is `6d61a92e7f264c69f23cdc38f50d31114e567aa0`.
+Both libraries report `4.3.1-beta1`; g++ reports `16.1.1`.
+The probe adapts the earlier full enumerator, retaining its diagnostics.
+It writes the DUT model only and fails if absent.
+Probe source SHA-256:
+`ac552f67c8b769e0cfc46d0b80c4e9ece0c9da1811020d2c497e2f904749a623`.
+
+`build-provenance.txt` records the complete build and linkage flags.
+The build uses `-std=c++17 -O2 -Wall` and the
+library's own `ENABLE_AVDECC_FEATURE_REDUNDANCY`, `ENABLE_AVDECC_FEATURE_JSON`,
+`ENABLE_AVDECC_FEATURE_CBR`, and `ENABLE_AVDECC_STRICT_2018_REDUNDANCY` defines.
+It links `libla_avdecc_controller_cxx` and `libla_avdecc_cxx` from that build.
+Library binaries are recorded by size and SHA-256 only.
+
+The coordinator's `117-a373` evidence packet contains the raw results.
+Its `MANIFEST.sha256` covers the retained files; publication is pending.
+`redaction.json` records the identity log's interface-name substitution.
+Entity dumps and enumeration logs retain their recorded bytes.
+
+| B4 artifact in packet | SHA-256 |
+|---|---|
+| `identity-uart.txt` | `8c6c07cf9b5ec54a87cfefb5bea83919b32b78c7c79213d3d8b96d74fd16e3ee` |
+| `identity-aecp.jsonl` | `47d165acb4ee958efa4cf013e51d20aac0fdc7d12e13401b64b9f48aaebc66b6` |
+| `run-1.log` | `a9d5aae77fddcdf0fb50fc8dedf2f54a9ab914c5bfdc63a88a14d3d7249110f8` |
+| `run-1.entity.json` | `2c4c801c447e97ba06869fd81f89fc2e7e40c5993d322e50f5942a317c1b16c1` |
+| `run-2.log` | `915452120fcd612d636c67d3cce5aa36cbd1122e1e47a40666ada479243e1646` |
+| `run-2.entity.json` | `11c4bca35efa5c1bf1525caca020ddc4444a9a683a92673a7795b4c8135121a9` |
+| `run-3.log` | `b6c7d3ea502f47d0978377b5b6a05e5e9ca9bc8a94afee59126e520f6d602888` |
+| `run-3.entity.json` | `3fd1d58c2fbba1ccec2273ee6bc806f3262cb666fcf4883239b07f9b2ab3cd13` |
+| `build-provenance.txt` | `1e8789686b293defcb9e22b4d57222889b17717db6ac68601fcfe17d8efcdd29` |
+| `enumeration-summary.txt` | `5c14e29b6e3a265458c646f3aa9744dd15812c4ff9a6fa9817122c7828770c52` |
+
+Final UART status still showed sync, asCapable and `tu=0`.
+No enumeration process remains; temporary controller files were removed.
+The bench lock availability check returned rc 0.
 
 ## Raw artifacts
 
