@@ -1,0 +1,28 @@
+# Short clause excerpts from a PDF text extraction of the locally held standards; line numbers refer to that extraction
+## Milan Specification Consolidated v1.2 (20231130)
+L1414: 5.3 Entity model
+L1416: 5.3.1 Introduction
+L1457: 5.3.3.1 ENTITY
+L1461:     • The entity_model_id field shall be a valid EUI-64 (neither all zeros nor all ones).
+L5365: 5.6.2 ADPDUs
+L5368:    • The entity_model_id field shall be a valid EUI-64 (neither all zeros nor all ones).
+1494:greater than or equal to 2126000 ns (2.126 ms), as per [AVTP, Clause 4.3.3, Equation (2)].
+1542:In addition, if the Configuration has at least one Stream Output, then there shall be at least one
+1500:If a Stream Input/Output supports the Avnu Pro Audio CRF Media Clock Stream Format, it shall not support
+5814:Table 6.2 lists all formats and the corresponding ATDECC format strings that are specified in this document.
+5816:in [AVTP, Annex I.2.4], to describe all the related formats using a single ATDECC format string.
+5828: type       v    subtype                  nsr        format         bd   ch   spf    ATDECC format string
+5954: ATDECC format string                    0x041060010000BB80
+479:Std 1722.1-2021 [ATDECC]) with additional specifications to guarantee deterministic transport of media and
+## IEEE 1722.1-2021
+L2399:    6.2.2.8. entity_model_id field
+L3221:          the ATDECC Entity model. The maximum length of a descriptor shall be 508 octets.
+L3808:                                                                                This field is 138 for this version of AEM.
+L3809:      84           2             number_of_formats                              The number of formats supported by this audio Stream. The value of this
+L3810:                                                                                field is referred to as N. The maximum value for this field is 46 for this
+L3811:                                                                                version of AEM.
+## IEEE 1722.1-2013 (for contrast)
+L3674:                                                                              octet of the formats. This field is 132 for this version of
+L3676:           84           2           number_of_formats                         The number of formats supported by this audio Stream.
+L3677:                                                                              The value of this field is referred to as N. The maximum
+L3678:                                                                              value for this field is 47 for this version of AEM.

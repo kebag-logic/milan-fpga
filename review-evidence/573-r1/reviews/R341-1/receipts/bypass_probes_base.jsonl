@@ -1,0 +1,22 @@
+{"probe": "F2 listener buffer_length_ns=2126000", "verdict": "ACCEPTED", "detail": {"declared": 2126000, "overlay": 2126000, "image_stream_inputs": [{"index": 0, "buffer_length": 2126000, "number_of_formats": 2}]}}
+{"probe": "F2 listener buffer_length_ns=2125999", "verdict": "ACCEPTED", "detail": {"declared": 2125999, "overlay": 2125999, "image_stream_inputs": [{"index": 0, "buffer_length": 2125999, "number_of_formats": 2}]}}
+{"probe": "F2 listener buffer_length_ns=4294967295", "verdict": "ACCEPTED", "detail": {"declared": 4294967295, "overlay": 4294967295, "image_stream_inputs": [{"index": 0, "buffer_length": 4294967295, "number_of_formats": 2}]}}
+{"probe": "F2 listener buffer_length_ns=4294967296", "verdict": "ACCEPTED", "detail": {"declared": 4294967296, "overlay": 4294967296, "image_stream_inputs": [{"index": 0, "buffer_length": 0, "number_of_formats": 2}]}}
+{"probe": "F2 listener buffer_length_ns=4294968296", "verdict": "ACCEPTED", "detail": {"declared": 4294968296, "overlay": 4294968296, "image_stream_inputs": [{"index": 0, "buffer_length": 1000, "number_of_formats": 2}]}}
+{"probe": "F2 listener buffer_length_ns=4297093296", "verdict": "ACCEPTED", "detail": {"declared": 4297093296, "overlay": 4297093296, "image_stream_inputs": [{"index": 0, "buffer_length": 2126000, "number_of_formats": 2}]}}
+{"probe": "F2 listener buffer_length_ns=8589934592", "verdict": "ACCEPTED", "detail": {"declared": 8589934592, "overlay": 8589934592, "image_stream_inputs": [{"index": 0, "buffer_length": 0, "number_of_formats": 2}]}}
+{"probe": "F2 talker buffer_length_ns=0 (talkers unaffected)", "verdict": "ACCEPTED", "detail": {"loaded": 0}}
+{"probe": "F2 talker buffer_length_ns=1 (talkers unaffected)", "verdict": "ACCEPTED", "detail": {"loaded": 1}}
+{"probe": "F2 talker buffer_length_ns=-5 (talkers unaffected)", "verdict": "ACCEPTED", "detail": {"loaded": -5}}
+{"probe": "F2 talker buffer_length_ns=4294968296 (talkers unaffected)", "verdict": "ACCEPTED", "detail": {"loaded": 4294968296}}
+{"probe": "F3 listener 45 declared AAF 48k 8ch formats", "verdict": "ACCEPTED", "detail": {"declared": 45, "final": 46, "image_stream_inputs": [{"index": 0, "buffer_length": 2126000, "number_of_formats": 46}]}}
+{"probe": "F3 listener 46 declared AAF 48k 8ch formats", "verdict": "ACCEPTED", "detail": {"declared": 46, "final": 47, "image_stream_inputs": [{"index": 0, "buffer_length": 2126000, "number_of_formats": 47}]}}
+{"probe": "F3 listener 47 declared AAF 48k 8ch formats", "verdict": "ACCEPTED", "detail": {"declared": 47, "final": 48, "image_stream_inputs": [{"index": 0, "buffer_length": 2126000, "number_of_formats": 48}]}}
+{"probe": "F3 CRF sink disabled, altered crf_format", "verdict": "ACCEPTED", "detail": {"loaded": "0x041060010000BB81"}}
+{"probe": "F4 sources omitted (default) with outputs", "verdict": "ACCEPTED", "detail": {"sources": ["internal", "crf"]}}
+{"probe": "F4 sources [crf, internal] with outputs", "verdict": "ACCEPTED", "detail": {"sources": ["internal", "crf"]}}
+{"probe": "F1 unquoted YAML entity_model_id 0x0000000000000000", "verdict": "ACCEPTED", "detail": {"yaml_text": "0x0000000000000000", "resolved": "0x0000000000000000"}}
+{"probe": "F1 unquoted YAML entity_model_id 0xFFFFFFFFFFFFFFFF", "verdict": "REFUSED", "detail": "entity.entity_model_id: '18446744073709551615' out of EUI-64 range"}
+{"probe": "F1 unquoted YAML entity_model_id 0", "verdict": "ACCEPTED", "detail": {"yaml_text": "0", "resolved": "0x0000000000000000"}}
+{"probe": "F1 unquoted YAML entity_model_id 0x001BC50AC1000005", "verdict": "ACCEPTED", "detail": {"yaml_text": "0x001BC50AC1000005", "resolved": "0x7816474349535237"}}
+{"probe": "F1 unquoted YAML entity_model_id '0x001BC50AC1000005'", "verdict": "ACCEPTED", "detail": {"yaml_text": "'0x001BC50AC1000005'", "resolved": "0x001BC50AC1000005"}}

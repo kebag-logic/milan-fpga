@@ -1,0 +1,100 @@
+[
+  {
+    "issue": "573",
+    "name": "zero guard removed",
+    "old": "if number in (0, EUI64_MAX):",
+    "new": "if number in (EUI64_MAX,):",
+    "failure": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+  },
+  {
+    "issue": "573",
+    "name": "all-ones guard removed",
+    "old": "if number in (0, EUI64_MAX):",
+    "new": "if number in (0,):",
+    "failure": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+  },
+  {
+    "issue": "573",
+    "name": "literal validation removed",
+    "old": "_model_id(raw, \"entity.entity_model_id\")",
+    "new": "_eui64(raw, \"entity.entity_model_id\")",
+    "failure": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+  },
+  {
+    "issue": "573",
+    "name": "pin validation removed",
+    "old": "_model_id(pin, \"entity.model_id_pin\")",
+    "new": "_eui64(pin, \"entity.model_id_pin\")",
+    "failure": "AssertionError: accepted invalid entity.model_id_pin: must not be zero or all ones"
+  },
+  {
+    "issue": "574",
+    "name": "listener floor guard removed",
+    "old": "if direction == \"listener\" and (\n            type(length_ns)",
+    "new": "if False and (\n            type(length_ns)",
+    "failure": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer floor"
+  },
+  {
+    "issue": "575",
+    "name": "format count guard removed",
+    "old": "if len(formats) > MAX_STREAM_FORMATS:",
+    "new": "if False:",
+    "failure": "AssertionError: accepted invalid streams.listeners[0].formats: format count"
+  },
+  {
+    "issue": "575",
+    "name": "AAF family guard removed",
+    "old": "if any(int(word, 16) >> 56 != family_word >> 56 for word in formats):",
+    "new": "if family != \"AAF\" and any(int(word, 16) >> 56 != family_word >> 56 for word in formats):",
+    "failure": "AssertionError: accepted invalid streams.listeners[0].formats: must contain only AAF formats"
+  },
+  {
+    "issue": "575",
+    "name": "output count guard removed",
+    "old": "if len(formats) > MAX_STREAM_FORMATS:",
+    "new": "if \"talkers\" not in ctx and len(formats) > MAX_STREAM_FORMATS:",
+    "failure": "AssertionError: accepted invalid streams.talkers[0].formats: format count"
+  },
+  {
+    "issue": "575",
+    "name": "output family guard removed",
+    "old": "if any(int(word, 16) >> 56 != family_word >> 56 for word in formats):",
+    "new": "if \"talkers\" not in ctx and any(int(word, 16) >> 56 != family_word >> 56 for word in formats):",
+    "failure": "AssertionError: accepted invalid streams.talkers[0].formats: must contain only AAF formats"
+  },
+  {
+    "issue": "575",
+    "name": "CRF word guard removed",
+    "old": "if family == \"CRF\" and any(word != CRF_FORMAT_DEFAULT for word in formats):",
+    "new": "if False:",
+    "failure": "AssertionError: accepted invalid clocking.crf_format: CRF format must be"
+  },
+  {
+    "issue": "575",
+    "name": "CRF output word guard removed",
+    "old": "if family == \"CRF\" and any(word != CRF_FORMAT_DEFAULT for word in formats):",
+    "new": "if \"crf_output\" not in ctx and family == \"CRF\" and any(word != CRF_FORMAT_DEFAULT for word in formats):",
+    "failure": "AssertionError: accepted invalid clocking.crf_output.format: CRF format must be"
+  },
+  {
+    "issue": "576",
+    "name": "INTERNAL guard removed",
+    "old": "if (talkers or clocking[\"crf_output\"]) and \"internal\" not in clocking[\"media_clock_sources\"]:",
+    "new": "if False:",
+    "failure": "AssertionError: accepted invalid clocking.media_clock_sources: requires INTERNAL"
+  },
+  {
+    "issue": "576",
+    "name": "AAF output arm removed",
+    "old": "if (talkers or clocking[\"crf_output\"]) and \"internal\" not in clocking[\"media_clock_sources\"]:",
+    "new": "if clocking[\"crf_output\"] and \"internal\" not in clocking[\"media_clock_sources\"]:",
+    "failure": "AssertionError: accepted invalid clocking.media_clock_sources: requires INTERNAL"
+  },
+  {
+    "issue": "576",
+    "name": "CRF output arm removed",
+    "old": "if (talkers or clocking[\"crf_output\"]) and \"internal\" not in clocking[\"media_clock_sources\"]:",
+    "new": "if talkers and \"internal\" not in clocking[\"media_clock_sources\"]:",
+    "failure": "AssertionError: ('clocking.media_clock_sources', 'requires INTERNAL', 'streams.talkers: needs at least one talker stream')"
+  }
+]

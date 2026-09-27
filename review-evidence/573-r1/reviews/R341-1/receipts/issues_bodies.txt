@@ -1,0 +1,60 @@
+=== ISSUE 573
+Refuse zero and all-ones entity model IDs in the builder
+OPEN
+[A10] Follow-up F1 from the reviewed descriptor ownership matrix (kebag-logic/milan-fpga#509, PR #568, section "Follow-up allocation" of `docs/reference/PP_DESCRIPTOR_OWNERSHIP.md`).
+
+## Scope
+
+Parent validity follow-up; coordinate processor issue 38. Refuse zero/all-ones literal and pinned model IDs. Keep model evolution with #495.
+
+## Required discriminating evidence
+
+Legal ID accepted; both endpoint values refused on both input forms; generated ENTITY/ADP equality retained.
+
+Ownership follows the #509 decision: the parent owns configuration-dependent shipping-model semantics; the processor keeps generic packed-image checks. Backlog.
+
+=== ISSUE 574
+Validate every declared listener buffer against the Milan floor
+OPEN
+[A10] Follow-up F2 from the reviewed descriptor ownership matrix (kebag-logic/milan-fpga#509, PR #568, section "Follow-up allocation" of `docs/reference/PP_DESCRIPTOR_OWNERSHIP.md`).
+
+## Scope
+
+Parent buffer-floor follow-up; coordinate processor issue 60 L4. Validate every declared listener buffer.
+
+## Required discriminating evidence
+
+2126000 accepted, 2125999 refused; all five images unchanged.
+
+Ownership follows the #509 decision: the parent owns configuration-dependent shipping-model semantics; the processor keeps generic packed-image checks. Backlog.
+
+=== ISSUE 575
+Bound the stream-format count and validate the AAF/CRF family and the Milan CRF word
+OPEN
+[A10] Follow-up F3 from the reviewed descriptor ownership matrix (kebag-logic/milan-fpga#509, PR #568, section "Follow-up allocation" of `docs/reference/PP_DESCRIPTOR_OWNERSHIP.md`).
+
+## Scope
+
+Parent stream-format follow-up; coordinate processor issue 60 L3/L4. Bound format count and validate AAF/CRF family and Milan CRF word.
+
+## Required discriminating evidence
+
+Legal family controls; independently refuse 48 entries, mixed family and altered CRF word; test inputs and outputs.
+
+Ownership follows the #509 decision: the parent owns configuration-dependent shipping-model semantics; the processor keeps generic packed-image checks. Backlog.
+
+=== ISSUE 576
+Require INTERNAL among the clock sources of every stream output
+OPEN
+[A10] Follow-up F4 from the reviewed descriptor ownership matrix (kebag-logic/milan-fpga#509, PR #568, section "Follow-up allocation" of `docs/reference/PP_DESCRIPTOR_OWNERSHIP.md`).
+
+## Scope
+
+Parent source-construction follow-up; coordinate processor issue 60 L6. Outputs must have INTERNAL available.
+
+## Required discriminating evidence
+
+INTERNAL+CRF accepted; outputs with only CRF refused; preserve applicable input-only behavior.
+
+Ownership follows the #509 decision: the parent owns configuration-dependent shipping-model semantics; the processor keeps generic packed-image checks. Backlog.
+
