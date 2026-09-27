@@ -1,0 +1,13 @@
+Head: 68e801b2823f75e037152f7eb2ac4c5dcda5d919
+Worktree clean.
+All three required documents reference public issue #602.
+Only seven authorized paths changed.
+No gitlink change.
+ REQUIREMENTS.md                              |  14 +
+ docs/design/GM_LOSS_RECOVERY.md              |   2 +-
+ docs/testing/TESTING.md                      |  58 ++++-
+ tb/tools/torture_campaign.py                 | 305 +++++++++++++++++++++-
+ tb/tools/torture_release_mutants.py          | 372 ++++++++++++++++++++++++++-
+ tests/features/torture_campaign_plan.feature |   5 +
+ tests/steps/torture_release_steps.py         |  15 ++
+ 7 files changed, 744 insertions(+), 27 deletions(-)

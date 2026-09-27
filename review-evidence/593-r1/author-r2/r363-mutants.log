@@ -1,0 +1,46 @@
+BASELINE rc=0 ok=True
+INVALID: M01 mr cause check skipped: anchor count 0
+KILLED: M02 mr cause window strict: rc=1 tests=['test_release_mr_resolution']
+KILLED: M03 mr cause window doubled: rc=1 tests=['test_release_mr_resolution']
+KILLED: M04 mr cause window one-sided: rc=1 tests=['test_release_mr_resolution']
+KILLED: M05 mr PDU stream filter removed: rc=1 tests=['test_release_mr_stream_scope']
+KILLED: M06 MEDIA_RESET read stream filter removed: rc=1 tests=['test_release_mr_record_boundaries']
+KILLED: M07 hold threshold 7: rc=1 tests=['test_release_mr_eight_pdus', 'test_release_mr_stream_scope']
+KILLED: M08 hold threshold 9: rc=1 tests=['test_release_media_reset_intervals', 'test_release_media_reset_window_edges', 'test_release_mr_distinct_causes', 'test_release_mr_eight_pdus']
+KILLED: M09 tail off-by-one strict: rc=1 tests=['test_release_mr_eight_pdus']
+KILLED: M10 tail threshold 7: rc=1 tests=['test_release_mr_eight_pdus']
+KILLED: M11 PDU contiguity check removed: rc=1 tests=['test_release_mr_missing_evidence']
+KILLED: M12 PDU timestamp order check removed: rc=1 tests=['test_release_mr_record_boundaries']
+KILLED: M13 read order check removed: rc=1 tests=['test_release_mr_record_boundaries']
+INVALID: M14 counter wrap decoding removed: anchor count 0
+KILLED: M15 single counter read accepted: rc=1 tests=['test_release_mr_record_boundaries']
+KILLED: M16 mr capture_complete ignored: rc=1 tests=['test_release_mr_capture_span', 'test_release_mr_missing_evidence']
+KILLED: M17 mr negative resolution accepted: rc=1 tests=['test_release_mr_missing_evidence']
+KILLED: M18 mr bit domain unchecked: rc=1 tests=['test_release_mr_missing_evidence']
+KILLED: M19 counter value range unchecked: rc=1 tests=['test_release_mr_record_boundaries']
+KILLED: M20 cause kind type unchecked: rc=1 tests=['test_release_mr_record_boundaries']
+KILLED: M21 record validation disabled: rc=1 tests=['test_release_mr_missing_evidence', 'test_release_mr_record_boundaries']
+KILLED: M22 MEDIA_RESET upper bound drops R: rc=1 tests=['test_release_media_reset_window_edges']
+KILLED: M23 MEDIA_RESET lower bound drops R: rc=1 tests=['test_release_media_reset_intervals']
+KILLED: M24 MEDIA_RESET consumes latest: rc=1 tests=['test_release_media_reset_window_edges']
+KILLED: M25 tu GM change not a discontinuity: rc=1 tests=['test_release_tu_gm_minimum', 'test_release_tu_history']
+INVALID: M26 tu GM change at clear counted: anchor count 0
+KILLED: M27 tu GM minimum 0.24: rc=1 tests=['test_release_tu_gm_minimum', 'test_release_tu_history']
+KILLED: M28 tu any holdover bound accepted: rc=1 tests=['test_release_deciding_resolution']
+KILLED: M29 tu zero-length interval accepted: rc=1 tests=['test_release_deciding_resolution']
+KILLED: M31 exit_code NOT RUN not soft: rc=1 tests=['test_release_tu_missing_gm_history']
+KILLED: M32 release evidence text drops NOT RUN: rc=1 tests=['test_release_assertion_text']
+KILLED: M33 mr assertion drops GM-alone: rc=1 tests=['test_release_mr_plan_contract']
+KILLED: M34 mr assertion drops interval counting: rc=1 tests=['test_release_mr_plan_contract']
+KILLED: M35 plan cause kinds drop CRF toggle: rc=1 tests=['test_release_mr_plan_contract']
+KILLED: M36 plan evidence drops gm_changes: rc=1 tests=['test_release_mr_plan_contract']
+KILLED: M37 plan counter bound 2 s: rc=1 tests=['test_release_mr_plan_contract']
+KILLED: M39 falling toggles ignored: rc=1 tests=['test_release_media_reset_window_edges', 'test_release_mr_distinct_causes', 'test_release_mr_eight_pdus', 'test_release_mr_stream_scope']
+INVALID: M40 first toggle exempt from cause: anchor count 0
+INVALID: M41 last toggle exempt from cause: anchor count 0
+KILLED: M43 one extra uncaused increment tolerated: rc=1 tests=['test_release_media_reset_intervals', 'test_release_media_reset_no_cause', 'test_release_media_reset_window_edges']
+KILLED: M45 counter check skipped without toggles: rc=1 tests=['test_release_media_reset_no_cause']
+KILLED: M46 tu verdict drops resolution field: rc=1 tests=['test_release_tu_gm_minimum']
+KILLED: M47 mr verdict drops resolution field: rc=1 tests=['test_release_mr_allowed_causes']
+INVALID: M48 tu GM minimum ignores GM before start: anchor count 0
+TALLY {'KILLED': 38, 'SURVIVED': 0, 'INVALID': 6} repository source unchanged

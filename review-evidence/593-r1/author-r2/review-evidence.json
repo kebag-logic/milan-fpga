@@ -1,0 +1,140 @@
+[
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r362-1-packet/scripts/oracle_probe.py",
+      "$LANES/593-mr-tu-soak"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "68e801b2823f75e037152f7eb2ac4c5dcda5d919",
+    "rc": 0,
+    "seconds": 0.13,
+    "bytes": 5287,
+    "sha256": "135f2872b22b449e0ece695f8a886cae6b9840572365f2cd3f338c2cca0b0d04",
+    "log": "r362-probe.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r362-1-packet/scripts/reviewer_mutants.py",
+      "$LANES/593-mr-tu-soak",
+      "/tmp/593-a380-final-r362"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "68e801b2823f75e037152f7eb2ac4c5dcda5d919",
+    "rc": 0,
+    "seconds": 2.272,
+    "bytes": 3500,
+    "sha256": "80b1eb93396d2cd113939a273d6760ea8249e10907bea59eafeb09293636d763",
+    "log": "r362-mutants.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/593-a380/r362_span_probe.py",
+      "$LANES/593-mr-tu-soak"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "68e801b2823f75e037152f7eb2ac4c5dcda5d919",
+    "rc": 0,
+    "seconds": 0.112,
+    "bytes": 5082,
+    "sha256": "3443de9366708a4215016dc2846e049b94679c332f0ad17c56bc734ad4b68daa",
+    "log": "r362-span-probe.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r363-1-packet/scripts/oracle_probe.py",
+      "$LANES/593-mr-tu-soak"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "68e801b2823f75e037152f7eb2ac4c5dcda5d919",
+    "rc": 0,
+    "seconds": 0.122,
+    "bytes": 8313,
+    "sha256": "f01dc429335c085d22426421fefc926c79db053e296c93c72ad43d180000f557",
+    "log": "r363-probe.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r363-1-packet/scripts/reviewer_mutants.py",
+      "$LANES/593-mr-tu-soak",
+      "/tmp/593-a380-final-r363"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "68e801b2823f75e037152f7eb2ac4c5dcda5d919",
+    "rc": 0,
+    "seconds": 16.502,
+    "bytes": 4251,
+    "sha256": "388e7a19b7bcb100cf0d581302d20a612cf8e23d5f3b13a2b01ff26d9ed7646c",
+    "log": "r363-mutants.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/593-a380/r363_span_probe.py",
+      "$LANES/593-mr-tu-soak"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "68e801b2823f75e037152f7eb2ac4c5dcda5d919",
+    "rc": 0,
+    "seconds": 0.107,
+    "bytes": 8812,
+    "sha256": "75a04675129219339d32bf8b81a9b87bbbf7ac711a164fdb4daae0486c99fdf0",
+    "log": "r363-span-probe.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$REVIEWS/593-r363-1-packet/scripts/survivor_recheck.py",
+      "$LANES/593-mr-tu-soak",
+      "/tmp/593-a380-final-survivors"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "68e801b2823f75e037152f7eb2ac4c5dcda5d919",
+    "rc": 0,
+    "seconds": 29.182,
+    "bytes": 2367,
+    "sha256": "0a30cfe8c784bf23cb4bc87f30c7cdb8ff26bb46105dd72839b28770e4c3837a",
+    "log": "r363-survivor-recheck.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$MANAGEMENT/2026-09-23/593-a380/retarget_review_mutants.py"
+    ],
+    "cwd": "$LANES/593-mr-tu-soak",
+    "head": "68e801b2823f75e037152f7eb2ac4c5dcda5d919",
+    "rc": 0,
+    "seconds": 3.859,
+    "bytes": 1061,
+    "sha256": "0853a514b4bc9e63572127fb0dcf11889375ae311014a7a2ada687c876d6b88d",
+    "log": "review-reanchors.log"
+  }
+]
