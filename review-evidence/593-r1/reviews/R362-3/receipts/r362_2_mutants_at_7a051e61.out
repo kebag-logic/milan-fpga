@@ -1,0 +1,70 @@
+BASELINE selftest rc=0 behave rc=0
+C01 KILLED: rise allowance doubled [self-test: test_release_tu_rise_boundary]
+C02 KILLED: rise allowance dropped (stricter) [self-test: test_release_tu_rise_boundary]
+C03 KILLED: rise judged on the last event [self-test: test_release_tu_before_first_discontinuity,test_release_tu_rise_boundary]
+C04 KILLED: coverage loop drops start allowance [self-test: test_release_tu_history,test_release_tu_history_boundaries]
+C05 KILLED: coverage loop includes clear instant [self-test: test_release_tu_history]
+C06 KILLED: covered GM window drops start allowance [self-test: test_release_tu_history_boundaries]
+C07 KILLED: covered GM window includes clear instant [self-test: test_release_tu_history_boundaries]
+C08 KILLED: history passes all GM changes to every interval [self-test: test_release_tu_history,test_release_tu_history_boundaries]
+C09 KILLED: history allows touching intervals [self-test: test_release_tu_history_boundaries]
+C10 ANCHOR-ERROR count=0: history accepts negative resolution
+C11 KILLED: single-interval minimum uses first covered GM [self-test: test_release_tu_gm_minimum,test_release_tu_history]
+C12 KILLED: single-interval minimum 0.25 -> 0.2 [self-test: test_release_tu_gm_minimum,test_release_tu_history,test_release_tu_two_sided_boundaries]
+C13 KILLED: tu limit admits equality [self-test: test_release_deciding_resolution,test_release_resolution_evidence,test_release_tu_two_sided_boundaries]
+C14 KILLED: mr limit admits equality [self-test: test_release_deciding_resolution]
+C15 ANCHOR-ERROR count=0: tu limit derived from 0.5 s only
+C16 KILLED: mr limit is the full 1 s ceiling [self-test: test_release_deciding_resolution,test_release_resolution_evidence]
+C17 ANCHOR-ERROR count=0: tu verdict omits stated limit
+C18 ANCHOR-ERROR count=0: mr verdict omits stated limit
+C19 ANCHOR-ERROR count=0: history verdict omits stated limit
+C20 ANCHOR-ERROR count=0: history limit admits equality
+C21 ANCHOR-ERROR count=0: history limit relaxed to 0.5
+C22 KILLED: latest eligible cause consumed [self-test: test_release_mr_distinct_causes]
+C23 KILLED: capture start drops 1 s term [self-test: test_release_mr_capture_span]
+C24 KILLED: capture start drops R term [self-test: test_release_mr_capture_span]
+C25 KILLED: capture end judged at first read [self-test: test_release_mr_capture_span]
+C26 KILLED: PDU-endpoint fallback removed [self-test: test_release_mr_capture_span]
+C27 KILLED: decrease treated as no change [self-test: test_release_media_reset_decrease,test_release_media_reset_intervals]
+C28 KILLED: decrease decoded as 32-bit wrap [self-test: test_release_media_reset_decrease,test_release_media_reset_intervals]
+C29 KILLED: MEDIA_RESET lower edge drops R [self-test: test_release_media_reset_intervals]
+C30 KILLED: eight-PDU hold -> seven [self-test: test_release_mr_eight_pdus,test_release_mr_stream_scope]
+C31 KILLED: eight-PDU hold -> nine [self-test: test_release_media_reset_intervals,test_release_media_reset_window_edges,test_release_mr_distinct_causes,test_release_mr_eight_pdus]
+C32 KILLED: terminal hold -> seven [self-test: test_release_mr_eight_pdus]
+C33 KILLED: PDU contiguity ignored [self-test: test_release_mr_missing_evidence]
+C34 KILLED: empty stream id accepted [self-test: test_release_mr_record_boundaries]
+C35 KILLED: negative pdu index accepted [self-test: test_release_mr_record_boundaries]
+C36 KILLED: mr bit range ignored [self-test: test_release_mr_missing_evidence]
+C37 KILLED: tu negative resolution accepted [self-test: test_release_resolution_evidence,test_release_tu_chained_discontinuities]
+C38 KILLED: cause window text in verdict changed [self-test: test_release_resolution_evidence]
+C39 KILLED: plan cause window arg weakened [self-test: test_release_mr_plan_contract]
+C40 KILLED: plan tu_gm_minimum_check weakened [self-test: test_release_mr_plan_contract]
+C41 KILLED: plan evidence list drops gm_changes [self-test: test_release_mr_plan_contract]
+C42 KILLED: plan tu kinds drop GM time-source change [self-test: test_release_tu_contract]
+C43 KILLED: exit code ignores NOT RUN [self-test: test_release_tu_missing_gm_history]
+T01 KILLED: assertion text deleted: "; IEEE 1722-2016 4.4.4.3; Milan v1.2 Annex B.1.2, Tables 5.4/5.6: " [self-test: test_release_mr_plan_contract]
+T02 KILLED: assertion text deleted: "every mr toggle and MEDIA_RESET increment needs a recorded " [self-test: test_release_mr_plan_contract]
+T03 KILLED: assertion text deleted: "media-clock-source change, CRF disruption, or received CRF mr toggle " [self-test: test_release_mr_plan_contract]
+T04 KILLED: assertion text deleted: "mapped to that stream's clock source; GM change alone fails; " [self-test: test_release_mr_plan_contract]
+T05 KILLED: assertion text deleted: "match causes within +/- observation_resolution_s of the toggle; " [self-test: test_release_mr_plan_contract]
+T06 KILLED: assertion text deleted: "hold each new value for at least 8 AVTPDUs of that stream; " [self-test: test_release_mr_plan_contract]
+T07 KILLED: assertion text deleted: "MEDIA_RESET counts observation intervals, not packets; " [self-test: test_release_mr_plan_contract]
+T08 KILLED: assertion text deleted: "missing packet, cause, counter or resolution evidence is NOT RUN; " [self-test: test_release_mr_plan_contract]
+T09 KILLED: assertion text deleted: "each cause excuses at most one toggle per stream; " [self-test: test_release_mr_plan_contract]
+T10 KILLED: assertion text deleted: "2 * observation_resolution_s must be less than the 1 s counter interval ceiling; " [self-test: test_release_mr_plan_contract]
+T11 KILLED: assertion text deleted: "capture must span [first read - 1 s - observation_resolution_s, last read]; " [self-test: test_release_mr_plan_contract]
+T12 KILLED: assertion text deleted: "GM-identity edge, GM time-source change, or other detected gPTP discontinuity " [self-test: test_release_assertion_text]
+T13 KILLED: assertion text deleted: "(including PHC settime/adjtime and fabric discontinuity); " [self-test: test_release_assertion_text]
+T14 KILLED: assertion text deleted: "after each GM change, clear + observation_resolution_s must be at least " [self-test: test_release_assertion_text]
+T15 KILLED: assertion text deleted: "GM change + 0.25 s (Annex B.1.1 minimum); missing GM history is NOT RUN; clock validity " [self-test: test_release_assertion_text]
+T16 KILLED: assertion text deleted: "first discontinuity must be within observation_resolution_s of the rise; " [self-test: test_release_assertion_text]
+T17 KILLED: assertion text deleted: "grade every GM change against the complete tu interval history; " [self-test: test_release_assertion_text]
+T18 KILLED: assertion text deleted: "a GM change with no covering interval fails; " [self-test: test_release_assertion_text]
+T19 ANCHOR-ERROR count=0: assertion text deleted: "observation_resolution_s must be less than min(0.25 s, 0.5 s); "
+T20 ANCHOR-ERROR count=2: mr text: 8 -> 7 AVTPDUs
+T21 ANCHOR-ERROR count=2: mr text: +/- window made one-sided
+T22 ANCHOR-ERROR count=2: tu text: 0.25 s -> 0.2 s
+T23 ANCHOR-ERROR count=0: tu text: min(0.25 s, 0.5 s) -> 0.5 s
+T24 ANCHOR-ERROR count=3: mr text: GM change alone fails -> passes
+SUMMARY killed=54 survived=0 anchor_errors=13 total=67
+rc=0

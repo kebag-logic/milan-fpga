@@ -1,0 +1,41 @@
+PROBE I3e OK expected={'NOT RUN', 'FAIL'} actual=NOT RUN GM 0, tu (0, 0.002), R=0.249 (must not PASS; I3h FAIL)
+PROBE I3f OK expected={'NOT RUN', 'FAIL'} actual=NOT RUN GM 0, tu (0, 0.06), R=0.2 (must not PASS; I3h FAIL)
+PROBE I3g OK expected={'NOT RUN', 'FAIL'} actual=NOT RUN GM 0, tu (0, 0.13), R=0.125 (must not PASS; I3h FAIL)
+PROBE I3h OK expected=FAIL actual=FAIL GM 0, tu (0, 0.124), R=0.124 (must not PASS; I3h FAIL)
+PROBE D0 OK expected=[] actual=[] instant true clear never PASSes; NOT RUN iff R >= 0.125
+PROBE D1 OK expected=[] actual=[] minimum decided exactly at h + R >= 0.25 (h <= 0.5)
+PROBE D2 OK expected=[] actual=[] upper: PASS iff observed hold h <= 0.5 s, so true d <= 0.5 + R
+PROBE D3 OK expected=FAIL actual=FAIL PR #586 arm now FAIL under the two-sided upper bound
+PROBE D3b OK expected=PASS actual=PASS h = 0.5 at R 0.01 passes
+PROBE D4a OK expected=PASS actual=PASS TESTING example: GM 0, step 0.2, clear 0.62
+PROBE D4b OK expected=FAIL actual=FAIL TESTING example: clear 0.8
+PROBE D4c OK expected=FAIL actual=FAIL TESTING: 0.24 s after GM fails at R 0.001
+PROBE D4d OK expected=PASS actual=PASS TESTING: 0.249 s meets minimum at R 0.001
+PROBE D5 OK expected=FAIL actual=FAIL GM at clear, no later interval
+PROBE D6 OK expected=FAIL actual=FAIL GM with tu never set
+PROBE D6b OK expected=NOT RUN actual=NOT RUN GM with tu never set at R = limit
+PROBE D7a OK expected=PASS actual=PASS empty history, R just below limit
+PROBE D7b OK expected=NOT RUN actual=NOT RUN empty history, R at limit
+PROBE N-mr-gap OK expected=True actual=True verdict=NOT RUN limit=0.5 R=0.001
+PROBE N-mr-tail OK expected=True actual=True verdict=NOT RUN limit=0.5 R=0.001
+PROBE N-mr-invalid OK expected=True actual=True verdict=NOT RUN limit=0.5 R=0.001
+PROBE N-mr-span OK expected=True actual=True verdict=NOT RUN limit=0.5 R=0.001
+PROBE N-mr-unordered-reads OK expected=True actual=True verdict=NOT RUN limit=0.5 R=0.001
+PROBE N-mr-one-read OK expected=True actual=True verdict=NOT RUN limit=0.5 R=0.001
+PROBE N-mr-coarse OK expected=True actual=True verdict=NOT RUN limit=0.5 R=0.5
+PROBE N-mr-none OK expected=True actual=True verdict=NOT RUN limit=0.5 R=0.001
+PROBE N-tu-coarse OK expected=True actual=True verdict=NOT RUN limit=0.125 R=0.2
+PROBE N-tu-none OK expected=True actual=True verdict=NOT RUN limit=0.125 R=0.001
+PROBE N-tu-nan OK expected=True actual=True verdict=NOT RUN limit=0.125 R=0.001
+PROBE N-tu-order OK expected=True actual=True verdict=NOT RUN limit=0.125 R=0.001
+PROBE N-hist-coarse OK expected=True actual=True verdict=NOT RUN limit=0.125 R=0.2
+PROBE N-hist-inf OK expected=True actual=True verdict=NOT RUN limit=0.125 R=0.001
+PROBE N-hist-bad-interval OK expected=True actual=True verdict=NOT RUN limit=0.125 R=0.001
+PROBE N-hist-touching OK expected=True actual=True verdict=NOT RUN limit=0.125 R=0.001
+PROBE F-tu-uncorrelated OK expected=True actual=True verdict=FAIL R-recorded=True limit=0.125
+PROBE F-tu-rise OK expected=True actual=True verdict=FAIL R-recorded=True limit=0.125
+PROBE F-tu-min OK expected=True actual=True verdict=FAIL R-recorded=True limit=0.125
+PROBE F-hist-uncovered OK expected=True actual=True verdict=FAIL R-recorded=True limit=0.125
+PROBE F-mr-uncaused OK expected=True actual=True verdict=FAIL R-recorded=True limit=0.5
+SUMMARY ok=39 unexpected=0 total=39
+rc=0

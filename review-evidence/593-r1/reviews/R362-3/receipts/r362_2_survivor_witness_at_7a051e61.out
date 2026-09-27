@@ -1,0 +1,12 @@
+WITNESS C06 DISTINGUISHED pristine='FAIL' mutant='PASS' (covered GM window drops start allowance)
+WITNESS C07 DISTINGUISHED pristine='PASS' mutant='FAIL' (covered GM window includes clear instant)
+WITNESS C09 DISTINGUISHED pristine='NOT RUN' mutant='FAIL' (history allows touching intervals)
+Traceback (most recent call last):
+  File "$REVIEWS/593-r362-3-packet/scripts/r2/r362_2_survivor_witness.py", line 100, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/593-r362-3-packet/scripts/r2/r362_2_survivor_witness.py", line 67, in main
+    assert text.count(old) == 1, mid
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: C10
+rc=1

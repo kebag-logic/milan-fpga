@@ -1,0 +1,35 @@
+HEAD 7a051e618677ecd907ed04b086afbdfe374b4336 tree 11b049b34313cb1a23a0a4578e3d77086e5413e4
+== files 6d5ebd73..HEAD (raw: modes, blobs)
+:100644 100644 9a244676c 4a94414d8 M	REQUIREMENTS.md
+:100644 100644 f7f7324b5 a5c363699 M	docs/design/GM_LOSS_RECOVERY.md
+:100644 100644 7dfc90ce2 7ed8cc33c M	docs/testing/TESTING.md
+:100644 100644 275f02f60 ecf857789 M	tb/tools/torture_campaign.py
+:100644 100644 a022a8713 64373b231 M	tb/tools/torture_release_mutants.py
+:100644 100644 e1ced39c4 bb7688e97 M	tests/features/torture_campaign_plan.feature
+:100644 100644 e1bef6ce5 25a166d35 M	tests/steps/torture_release_steps.py
+== files 68e801b2..HEAD
+:100644 100644 83f0920e3 4a94414d8 M	REQUIREMENTS.md
+:100644 100644 c2cc3225e a5c363699 M	docs/design/GM_LOSS_RECOVERY.md
+:100644 100644 12126e680 7ed8cc33c M	docs/testing/TESTING.md
+:100644 100644 7c3f9648a ecf857789 M	tb/tools/torture_campaign.py
+:100644 100644 bf95e12c4 64373b231 M	tb/tools/torture_release_mutants.py
+== gitlinks base vs head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+== commit
+7a051e618677ecd907ed04b086afbdfe374b4336 68e801b2823f75e037152f7eb2ac4c5dcda5d919
+hackerman-kl <hackerman-kl@kebag-logic.com>
+Tighten soak timing evidence and pin review boundaries
+--body--
+--end--
+== RTL claim
+3135:  wire mcr_restart_p_w = (crf_clk_selected_r
+3136-                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+3137-                       | media_rebase_p_w;
+3138-
