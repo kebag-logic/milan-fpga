@@ -1,0 +1,15 @@
+entries start/end: 75 75
+differs ('dut', 'state-6-1') fields ['dmac']
+differs ('dut', 'avb') fields ['decoded', 'payload']
+differs ('dut', 'counter-9-0') fields ['counters', 'payload']
+differs ('dut', 'counter-5-1') fields ['counters', 'payload']
+differs ('dut', 'counter-6-1') fields ['counters', 'payload']
+differs ('dut', 'counter-36-0') fields ['counters', 'payload']
+differs ('peer', 'state-6-2') fields ['dmac', 'stream_id', 'vlan']
+differs ('peer', 'counter-9-0') fields ['counters', 'payload']
+differs ('peer', 'counter-5-8') fields ['counters', 'payload']
+differs ('peer', 'counter-6-2') fields ['counters', 'payload']
+stream states 18 ; conn_count>0 at start [] ; at end []
+DUT clock source index start/end: 0000 0000
+peer clock source index start/end: 0000 0000
+non-state, non-counter, non-avb payloads equal: True

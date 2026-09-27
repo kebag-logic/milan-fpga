@@ -1,0 +1,16 @@
+mutant: s/| 39.92 \/ 39.77-40.05 | 0.63 |/| 39.92 \/ 39.77-40.05 | 0.73 |/
+cycle  5: DIFF [(4, '0.63', '0.73')] | steps=1 amount=-96.00 s | step_end-gm=0.13 rec-step
+table rows differing: 1
+mutant: s/| 12.25-12.54 |/| 12.25-12.55 |/
+cycle  8: DIFF [(6, '12.25-12.54', '12.25-12.55')] | steps=1 amount=-95.74 s | step_end-gm
+table rows differing: 1
+mutant: s/| 2 \/ 0 | 1 > 2 > 1 |$/| 2 \/ 0 | 1 > 2 > 0 > 1 |/
+cycle  3: DIFF [(8, '1 > 2 > 1', '1 > 2 > 0 > 1')] | steps=1 amount=-95.86 s | step_end-gm
+cycle  4: DIFF [(8, '1 > 2 > 1', '1 > 2 > 0 > 1')] | steps=1 amount=-95.91 s | step_end-gm
+cycle  5: DIFF [(8, '1 > 2 > 1', '1 > 2 > 0 > 1')] | steps=1 amount=-96.00 s | step_end-gm
+cycle  8: DIFF [(8, '1 > 2 > 1', '1 > 2 > 0 > 1')] | steps=1 amount=-95.74 s | step_end-gm
+cycle  9: DIFF [(8, '1 > 2 > 1', '1 > 2 > 0 > 1')] | steps=1 amount=-95.90 s | step_end-gm
+table rows differing: 5
+mutant: cycle 3 tap.pcap hash, last nibble
+MISMATCH cycle 3 tap.pcap {'path': '/tmp/a375/cycle03/tap.pcap', 'size': 5277766, 'sha256'
+mismatches: 1
