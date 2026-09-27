@@ -1,0 +1,13 @@
+#38 state=open title=Implement model-lint rule L9: reject invalid entity_model_id and tie it to the static model (REQ-ADP-003)
+#39 state=open title=Derive or lint ADPDU stream counts as the maximum across all configurations (REQ-ADP-004)
+#60 state=open title=Entity-model lint L1-L8 (07 section 3.1) does not exist: add it to gen_desc_image.py or re-scope (REQ-MDL-001 to 011)
+#89 state=open title=gen_desc_image.py packs an AUDIO_UNIT that breaks the SET_SAMPLING_RATE image contract (rule L10) without a word
+#122 state=open title=Reconcile the F07.2 minimum with parent zero-cluster input pools
+#123 state=closed title=Refuse a descriptor body whose type or index disagrees with its directory key
+#124 state=closed title=Refuse descriptor bodies that disagree with their directory keys
+#125 state=open title=State the parent/processor descriptor ownership contract (milan-fpga#509)
+#126 state=open title=State the descriptor ownership contract and keep the Milan cluster minimum
+comment 5853884588 issue_url=https://api.github.com/repos/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/122
+parent e0920d77 -> e0920d77162284d8da52ffaf13a973e451e44f90
+parent #584 state=open title=8x8 stream input ports own no AUDIO_CLUSTER, against Milan 5.3.3.8
+parent #577 (F6) state=open title=Check the L6 identity list and L10 AUDIO_UNIT offset/count/length at the shipping image boundary

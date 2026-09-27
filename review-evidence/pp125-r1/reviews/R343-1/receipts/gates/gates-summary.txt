@@ -1,0 +1,10 @@
+head 1d249e6e18a91c16a2620904483634548b0414a6 tree 13f98a7f404d96a78947f75c1a7ef2f30c8e8b26
+check-links            rc=0  python3 scripts/check-links.py
+check-matrix           rc=0  python3 scripts/check-matrix.py
+integrator-params      rc=0  python3 scripts/check-integrator-params.py
+wavedrom-check         rc=0  python3 scripts/render-wavedrom.py --check
+stale                  rc=0  make stale
+lint-diagrams          rc=0  make lint
+gen-matrix             rc=0  python3 scripts/gen_matrix.py --check
+diff-check             rc=0  git diff --check 493e5e4bf58a6146bf9310194d71c72e18610704 HEAD
+make-check             rc=0  make check

@@ -1,0 +1,29 @@
+Clause verification for PR #126 (short citations only; no standard text beyond one sentence per clause).
+Extraction: pdftotext -layout -f N -l N, one cited page at a time, into an unpublished scratch directory.
+
+Milan Specification v1.2 (Consolidated, Final Approved 2023-11-30); printed page = PDF page - 7.
+- §5.3.3.8 AUDIO_CLUSTER, PDF p. 34 = printed p. 27 (footer "5.3. Entity model 27" verified):
+  "Each Stream Port Input of a Configuration shall contain at least one AUDIO_CLUSTER descriptor."
+  The next sentence states the same minimum for each Stream Port Output. No exception or waiver in the clause.
+- §5.3.3.7 STREAM_PORT_INPUT/OUTPUT, same page: requires the [ATDECC, Clause 7.2.13] format and
+  "The STREAM_PORT_INPUT descriptors shall not have any attached AUDIO_MAP descriptors." (dynamic input mapping).
+- §5.3.3.9 AUDIO_MAP, same page: the Stream Port Input shall not contain any AUDIO_MAP descriptor.
+- §5.3.3.1 ENTITY, PDF p. 32 = printed p. 25:
+  "The entity_model_id field shall be a valid EUI-64 (neither all zeros nor all ones)."
+  talker_stream_sources / listener_stream_sinks: the maximum number of Streams, among all possible Configurations.
+- §5.3.3.10 "IDENTIFY" CONTROL, PDF p. 35: the primary IDENTIFY CONTROL "shall exist in all Configurations and
+  shall have always the same index".
+- §5.3.1 Introduction, PDF p. 31: only the note that a changed static model reports a different Entity Model ID;
+  the zero/all-ones prohibition is in §5.3.3.1, not §5.3.1.
+
+IEEE Std 1722.1-2021 (PDF page = printed page for pp. 50, 81, 82).
+- §7.2.13, p. 81 (heading) and p. 82 (Table 7-23): number_of_clusters at offset 12, "The number of clusters
+  within the Port."; number_of_maps at offset 16. The dynamic-mapping sentence on p. 82: entities that support
+  dynamic mapping "set the number_of_maps field to zero (0)". It says nothing about number_of_clusters.
+- §6.2.2.8 entity_model_id, p. 50: a firmware revision that changes the model structure "shall use a new unique
+  entity_model_id", with an enumerated list of excluded fields (object_name, current_* values, etc.).
+
+Reading: IEEE sets no cluster minimum and its dynamic-mapping rule zeroes number_of_maps only. Milan §5.3.3.8
+imposes >= 1 AUDIO_CLUSTER per Stream Port Input on top of the IEEE layout it adopts (§5.3.3.7), and the
+repository's convention is that Milan wins where it adds to IEEE (docs/README.md §4). A zero-cluster STREAM_PORT_INPUT is non-conforming; the STOP branch of the #122
+decision rule applies and F07.2's 1..* is correct.

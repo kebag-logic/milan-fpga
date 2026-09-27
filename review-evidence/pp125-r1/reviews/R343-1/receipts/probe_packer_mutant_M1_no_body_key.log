@@ -1,0 +1,21 @@
+PASS | control: pristine example | expect accepted | accepted
+PASS | control: AUDIO_UNIT bytes form, 144/2/152 | expect accepted | accepted
+PASS | boundary: AUDIO_UNIT padded to 576 (line buffer) | expect accepted | accepted
+PASS | enforced: descriptor 577 bytes > 576 line buffer | expect refused | refused: cfg 0 type 0x0002 index 0 is 577 bytes, over the 576-byte store line buffer — the store would answer NO_SUCH_DESCRIPTOR for it
+PASS | enforced: per-type index gap (CLOCK_SOURCE [1]) | expect refused | refused: cfg 0 type 0x000A indices are not dense from 0: [1] (07 §3.1 rule L2)
+PASS | enforced: configuration gap (cfg {0,2}) | expect refused | refused: configuration indices are not dense from 0
+PASS | enforced: duplicate (cfg,type,index) key | expect refused | refused: duplicate descriptor cfg 0 type 0x000A index 0
+PASS | enforced: inline object_name differs from name table | expect refused | refused: cfg 0 type 0x0002 index 0 object_name differs from name-table entry 3
+MISMATCH | enforced: body type != key, fields form | expect refused | accepted
+MISMATCH | enforced: body index != key, fields form | expect refused | accepted
+MISMATCH | enforced: body type != key, bytes form | expect refused | accepted
+MISMATCH | enforced: body index != key, bytes form | expect refused | accepted
+PASS | not enforced L10: sampling_rates_offset 143 | expect accepted | accepted
+PASS | not enforced L10: count 9, length 144+36 | expect accepted | accepted
+PASS | boundary L10: count 8, length 144+32 | expect accepted | accepted
+PASS | not enforced L10: count 3 but two words (length 152) | expect accepted | accepted
+PASS | not enforced L10: count 2, one byte short (length 151) | expect accepted | accepted
+PASS | not enforced L6: clock_sources list [1,0] | expect accepted | accepted
+PASS | not enforced L6: clock_sources list [1] count 1 | expect accepted | accepted
+PASS | info F07.2: STREAM_PORT_INPUT number_of_clusters=0 packs (no waiver) | expect accepted | accepted
+rows 20 mismatches 4
