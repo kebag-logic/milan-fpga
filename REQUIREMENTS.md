@@ -247,11 +247,91 @@ verified blocks outside the shipping datapath; the station-address rules
   The one AX7101 DUT against the Milan-validated reference peer additionally
   demonstrates asCapable, GM transition/recovery, publication/`tu` correlation,
   conformance, and latency (#117).
+- **REQ-VER-06 (MUST):** Each shipping candidate passes both release campaigns.
+  The soak lasts at least seven continuous days.
+  Streams remain bound in both directions with the reference peer.
+  CRF participates alongside AAF.
+  Every declared stream index receives periodic counter observations.
+  The sampling interval must not exceed 60 seconds.
+  Counter authority: Milan v1.2 5.3.7.7/5.3.8.10, Tables 5.4/5.6.
+  `SEQ_NUM_MISMATCH` and `STREAM_INTERRUPTED` must never increase.
+  Sequence authority: IEEE 1722-2016 4.4.4.6.
+  No unexplained `MEDIA_UNLOCKED` increase is permitted.
+  No `asCapable` loss is permitted.
+  `asCapable` authority: Milan v1.2 4.2.6.2.4.
+  Each `tu` interval contains at least one recorded discontinuity.
+  Containment uses `[observed_start - observation_resolution_s, clear)`.
+  The observed start is the first captured `tu=1` packet.
+  Accepted kinds: PHC settime/adjtime, fabric discontinuity, or GM-identity edge.
+  Measure from the last recorded discontinuity before `tu` clears.
+  It clears within 0.5 seconds plus stated observation resolution.
+  Any `tu` without a recorded discontinuity fails.
+  Resolution comes from wire capture and correlated event timestamps.
+  It includes launch-to-capture latency and event-to-capture correlation error.
+  Periodic counter-read cadence cannot supply that resolution.
+  The [round-4 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855792297) defines this anchor.
+  The [round-5 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5856062292) defines start-edge containment.
+  Uncertainty authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1/B.1.1.
+  B.1.1 states 0.25 seconds; the project reads this as a minimum.
+  Clock validity implements 0.25-0.5 seconds of discontinuity holdover.
+  B.1's five-second media-clock holdover never bounds `tu`.
+  Observe gPTP publication, `AVTPRX_TSD` margin, and monotonic uptime.
+  The power campaign completes 200 unattended cold cuts.
+  Of these, 160 occur idle; 40 interrupt journal commits.
+  Warm resets do not count.
+  Every cycle restores the shipping image's persisted state items.
+  Currently that list contains stream binding.
+  Binding authority: Milan v1.2 5.3.8.2/5.3.8.3.
+  All eight Milan items become mandatory when #70 lands.
+  The plan receives that inventory as data.
+  Remaining authority: Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6,
+  5.3.8.1/5.3.8.7, 5.3.9.1, 5.3.10.1, 5.3.11.1, and 5.3.13.
+  Any additional declared state follows the project persistence inventory.
+  Commit cuts recover complete old or new committed snapshots.
+  T0 is the host-timestamped power-strip ON command.
+  Record `power_off_hold_s`, default eight seconds, and verify discharge.
+  Its default follows the `phys.dut-cycle.power-cycle` contract.
+  Capture the last pre-cut `ENTITY_AVAILABLE`, including its timestamp.
+  Decode its `valid_time` in two-second units.
+  Milan 5.6.2 requires `valid_time=10`, giving twenty seconds.
+  The first post-cut advertisement must arrive before T0 plus twenty seconds.
+  Boot therefore counts against that entire window.
+  Power-off hold and pre-cut advertisement age do not count.
+  Retain them as provenance rather than subtracting them.
+  Missing capture, invalid `valid_time`, or deadline expiry fails.
+  ADP authority: IEEE 1722.1-2021 6.2.2.5 and 6.2.4/6.2.5;
+  Milan v1.2 5.6.2/5.6.3 defines its values and advertiser.
+  Restoration is automatic; controller repair cannot satisfy it.
+  Each persisted binding must resume valid AVTP within `restore_bound_s`.
+  Measure from T0, including both directions and CRF.
+  The bound is provisionally 30 seconds; overruns fail.
+  `RELEASE_RESTORE_BOUND_S = 30` is the release eligibility ceiling.
+  Larger `restore_bound_s` values make a plan ineligible.
+  Tighter bounds remain eligible when other prerequisites hold.
+  The manager ratifies it using #397 and #75 measurements.
+  These measure boot-to-entity-enabled and restart latency, respectively.
+  Auto Connect authority: Milan v1.2 5.5.1.4/5.5.2.6.
+  After restoration succeeds, run #75's additional controller reconnect check.
+  Measure successful `CONNECT_RX` to first valid AVTP.
+  That interval must remain below one second.
+  Controller Bind authority: Milan v1.2 5.5.2.4.
+  Observe boot for `restore_bound_s + boot_margin_s` from T0.
+  The margin defaults to five seconds, without relaxing deadlines.
+  Require one BIOS pass and no additional restart.
+  Continue observation until the next cut or campaign end.
+  These timing rules follow the
+  [round-3 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855515133).
+  Release planning requires explicit topology and the stream-binding inventory.
+  Both campaigns use one DUT and the reference peer.
+  Retain exact-image evidence under [TESTING.md 6b](docs/testing/TESTING.md#6b-bench-evidence-retention).
+  Execute the plan contract in [TESTING.md 6d](docs/testing/TESTING.md#6d-unattended-campaign-vehicle).
+  Missing measurements and desk-only passes cannot qualify a release.
 
 Release acceptance requires all requirements above or an explicit standards-
 cited deviation in the traceability table. At the current candidate, #70 and
 #117 remain hard blockers; desk checks cannot substitute for their power-cycle
-and physical measurements.
+and physical measurements. REQ-VER-05 also requires REQ-VER-06 campaign evidence.
+Issue #396's physical campaigns and negative control remain open.
 
 ## 9. Out of scope
 

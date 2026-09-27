@@ -415,6 +415,17 @@ Two board rules that go with it:
 
 ## 3. Verification bar
 
+- **Release campaigns:** [REQ-VER-06](REQUIREMENTS.md#8-verification-and-release-acceptance)
+  requires seven continuous days and 200 unattended cold cuts.
+  Both directions and CRF participate with the reference peer.
+  The cut mix is 160 idle and 40 journal-commit cuts.
+  Resets cannot replace cold cuts.
+  [TESTING.md 6d](docs/testing/TESTING.md#6d-unattended-campaign-vehicle)
+  defines the plan and per-cycle assertions.
+  Retain image hashes, verdicts, UART transcripts, and wire captures.
+  Keep timestamped state snapshots and the temperature log too.
+  Link dated findings and evidence from `docs/findings/`.
+  Desk gates never discharge these physical release obligations.
 - Every functional RTL change ships with a self-checking Verilator harness
   under `tb/verilator/<name>/` (`make` = build+run, exit code is the gate).
   See [`docs/testing/TESTING.md`](docs/testing/TESTING.md) for the suite index and tiers.

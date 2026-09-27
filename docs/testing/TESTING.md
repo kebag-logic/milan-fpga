@@ -839,6 +839,222 @@ bare-metal board exposes only the UART. What stands in its place:
   against the Milan-validated reference peer are #117's lane, and the
   power-cut soak is #70's.
 
+**Standing release campaigns (#396, REQ-VER-06).**
+Use one DUT and the reference peer.
+The soak lasts seven continuous days with bidirectional streams bound.
+Include AAF and CRF; observe every declared stream index.
+Complete 200 unattended cold cuts: 160 idle, 40 journal-commit.
+Warm resets contribute no cycles.
+These numbers are project release policy, not Milan-prescribed durations.
+
+Generate the plan without accessing hardware:
+
+```sh
+python3 -B tb/tools/torture_campaign.py --plan --areas soak,power --json \
+  --dut "$DUT_SPEC" --peer "$PEER_SPEC" \
+  --soak-duration-s 604800 --soak-interval-s 60 \
+  --power-cycles 200 --idle-cycles 160 --commit-cycles 40 \
+  --persisted-items stream_binding --restore-bound-s 30 --boot-margin-s 5 \
+  --power-off-hold-s 8
+python3 -B tb/tools/torture_campaign.py --coverage-by-area --areas soak,power \
+  --dut "$DUT_SPEC" --peer "$PEER_SPEC"
+python3 -B tb/tools/torture_campaign.py --self-test
+python3 -B tb/tools/torture_release_mutants.py
+python3 -B -m behave tests/features/torture_campaign_plan.feature -f plain
+```
+
+Set both topology specifications from the candidate's served descriptors.
+The built-in topologies are desk fixtures, not discovered hardware.
+Use the existing `--dut` and `--peer` key/value format.
+Include actual identities, AAF indices, and separate CRF indices.
+AAF index sets or ranges overlapping CRF are refused.
+Set `--persisted-items` from the shipping image's persistence inventory.
+It currently contains stream binding; #70 expands it to eight items.
+
+`release_eligible` judges configured prerequisites for each area only.
+Both areas require the stream-binding inventory and explicit topology.
+Both require `soak_interval_s <= 60`, the sampling ceiling.
+This ceiling retains the existing minute counter-walk cadence.
+It is project policy, separate from device counter-update intervals.
+Both require `restore_bound_s <= RELEASE_RESTORE_BOUND_S`, provisionally 30 seconds.
+Tighter restoration bounds remain eligible when other prerequisites hold.
+These shared prerequisites describe the paired release profile.
+Selecting only one area retains those shared profile checks.
+The soak additionally requires at least 604800 continuous seconds.
+Power additionally requires 200 cuts, including 160 idle/40 commit.
+Larger profiles must still meet both phase minimums.
+Failure of any prerequisite emits `release_eligible: false`.
+It cannot qualify a release.
+
+Each CLI topology must explicitly provide `entity`, `mac`, and CRF indices.
+The general parser's `entity_id` alias does not attest explicit provenance.
+Use `entity` for release eligibility.
+It also provides both AAF counts or both index sets.
+Mixing a count and an index set is supported.
+Partial overrides remain diagnostic because they inherit fixture data.
+API callers supply both devices and attest `topology_explicit=True`.
+The flag cannot verify descriptor provenance or physical capabilities.
+It proves neither actual coverage nor completed campaign evidence.
+The bench must validate these independently on the exact image.
+
+Each emitted operation is a repeat contract for workstation tooling.
+`release_soak` binds compatible pairs before starting its observation window.
+Every listener has one source; multicast handles unequal stream counts.
+Unbound outputs are observed but need not transmit.
+Counter targets enumerate all indices independently of those bindings.
+Sample at baseline, each interval, and the exact endpoint.
+Include the final partial interval when duration is indivisible.
+Never accumulate separate runs into seven continuous days.
+Teardown follows the final snapshot.
+
+| Soak evidence | Required result |
+|---|---|
+| Milan 5.3.7.7/5.3.8.10, Tables 5.4/5.6 counters | Every index; valid masks/invariants; no unexplained resets |
+| `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED`; IEEE 1722-2016 4.4.4.6 | Zero growth throughout the soak |
+| `MEDIA_UNLOCKED` | Every increase explained with retained evidence |
+| Coherent fabric gPTP publication and transition history | No `asCapable` loss; Milan 4.2.6.2.4 |
+| Timestamped discontinuities and wire `tu` intervals | Contain at least one recorded discontinuity in `[observed_start - observation_resolution_s, clear)`: PHC settime/adjtime, fabric discontinuity, or GM-identity edge; measure from the last recorded discontinuity before `tu` clears; clear within 0.5 seconds plus stated observation resolution; uncorrelated `tu` fails |
+| `AVTPRX_TSD`, signed nanoseconds | Fresh margin observations for `STREAM_INPUT[0]` only |
+| DUT uptime | Monotonic advance, with no reboot |
+
+Periodic healthy reads cannot prove that intermediate transitions never happened.
+Retain continuous transition, streaming, and uncertainty evidence too.
+Unavailable event evidence leaves the release gate unsatisfied.
+The single-index timestamp register cannot prove other streams' margins.
+Record wire-capture and correlated event-timestamp resolution in seconds.
+It includes launch-to-capture latency and event-to-capture correlation error.
+Periodic counter-read cadence cannot supply that resolution.
+The bound is 0.5 seconds plus that recorded resolution.
+Missing resolution or discontinuity evidence cannot pass.
+Each `tu` interval contains at least one recorded discontinuity.
+Containment uses `[observed_start - observation_resolution_s, clear)`.
+The observed start is the first captured `tu=1` packet.
+The clear is the first subsequent captured `tu=0` packet.
+AAF and CRF latch `tu` at frame launch.
+Their first observed packet can lag the causing discontinuity.
+Allow the stated resolution before the observed start, inclusive.
+An event exactly at clear remains excluded.
+The [round-5 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5856062292) defines this start-edge allowance.
+Accepted kinds: PHC settime/adjtime, fabric discontinuity, or GM-identity edge.
+Measure from the last recorded discontinuity before `tu` clears.
+The [round-4 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855792297) defines this anchor.
+Every discontinuity reloads the implemented holdover.
+Sync requalification must finish within the same clearing deadline.
+Use `check_release_tu` with complete interval and discontinuity evidence.
+Supply the plan's `tu_holdover_bound_s` and measured observation resolution.
+Its timestamps share the capture's correlated host clock.
+Include only recorded discontinuities of the accepted kinds.
+For example, a GM edge occurs at zero seconds.
+A PHC step follows at 0.2 seconds.
+Clearing at 0.62 seconds passes with 0.001-second resolution.
+Clearing at 0.8 seconds fails under that same resolution.
+An interval without a recorded discontinuity fails.
+With 0.001-second resolution, consider one event before observed start.
+An event 0.0005 seconds before start counts as contained.
+An event 0.002 seconds before start does not count.
+An event exactly at start counts, including with zero resolution.
+The clearing deadline still uses the recorded event timestamp.
+
+The decided rule permits uncertainty before its first recorded discontinuity.
+It adds no separate bound for that preceding duration.
+For example, an observed interval spans zero through 10.4 seconds.
+Its lone discontinuity at 10 seconds satisfies this uncertainty check.
+All other soak assertions still apply independently.
+Authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1.1.
+B.1.1 states 0.25 seconds; the project reads this as a minimum.
+[`KL_ptp_clock_validity.sv`](../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv) implements 0.25-0.5 seconds.
+B.1's recommended five-second media-clock holdover never bounds `tu`.
+
+`release_power_cycles` emits separate idle and journal-commit repeat groups.
+Each cycle establishes bindings and snapshots committed state first.
+Record phase evidence before removing DUT power.
+Confirm discharge; a reset command cannot satisfy a cold cut.
+Record `power_off_hold_s` and the actual power-OFF/ON timestamps.
+Its eight-second default follows `phys.dut-cycle.power-cycle`.
+Hold power off for at least that configured duration.
+Discharge must still be verified before applying power.
+The effective minimum is the longer of hold and discharge.
+Elapsed hold alone never proves a cold cut.
+The [round-3 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855515133) defines post-cut timing.
+T0 is the power-strip ON command's host monotonic timestamp.
+Correlate capture timestamps with that same clock.
+No network-readiness event starts or restarts a deadline.
+Verify automatic restoration before any controller-assisted reconnect test.
+Compare every configured persisted item before and after each cut.
+Idle cuts require the exact pre-cut committed snapshot.
+Commit cuts permit complete old or new committed snapshots.
+Mixed or unreadable state cannot pass.
+
+| Measurement | Origin and required bound |
+|---|---|
+| First post-cut DUT `ENTITY_AVAILABLE` | Before T0 plus decoded advertised `valid_time`; Milan requires twenty seconds |
+| Each persisted binding's first valid AVTP, both directions/CRF | T0 through `restore_bound_s`, inclusive; provisional default 30 seconds |
+| Additional controller reconnect, after every automatic restoration passes | Successful `CONNECT_RX` through first valid AVTP; strictly below one second (#75) |
+| Complete UART/reset observation | T0 until next cut or campaign end, at least `restore_bound_s + boot_margin_s`; margin defaults to five seconds |
+
+Retain the last pre-cut advertisement's raw PDU and host timestamp.
+Decode its own `valid_time` in two-second units.
+Never substitute a configured literal or a later advertisement.
+Require the captured field to equal 10 per Milan 5.6.2.
+The plan starts the complete twenty-second window at T0:
+
+```text
+adp_deadline = 2 * pre_cut_valid_time
+adp_elapsed = first_post_cut_available_host_s - t0_host_s
+pass requires 0 <= adp_elapsed < adp_deadline
+```
+
+Boot must therefore beat the ADP valid time.
+Power-off hold and pre-cut advertisement age are recorded provenance.
+Neither is charged against the T0-based window.
+Missing capture, invalid `valid_time`, or deadline expiry fails.
+Authority: IEEE 1722.1-2021 6.2.2.5 and 6.2.4/6.2.5; Milan 5.6.2/5.6.3.
+Automatic restoration follows Milan 5.5.1.4/5.5.2.6.
+Controller reconnect follows Milan 5.5.2.4 and #75's project bound.
+The manager ratifies `restore_bound_s` from #397/#75 measurements.
+Those measure boot-to-entity-enabled and restart latency, respectively.
+A restore-bound overrun fails, even during the observation margin.
+The margin never extends the ADP or reconnect deadline either.
+Bounds above the release ceiling permit diagnostic measurement only.
+They emit `release_eligible: false`; tighter bounds can remain eligible.
+
+`power.single-boot` requires exactly one BIOS pass without additional restart.
+Use `check_release_boot` with complete UART/reset observations per cycle.
+A repeated BIOS pass fails even if streaming subsequently recovers.
+Continue uninterrupted UART/reset capture through the post-cycle counter walk.
+Keep it until the next cut or final campaign completion.
+A restart after the minimum observation window still fails.
+This deliberately rejects #366's documented first-boot behavior for release.
+The per-flash UART smoke check only grades the resulting console.
+Its narrower acceptance cannot satisfy this release assertion.
+Walk every input/output counter, including CRF, after each cycle.
+Finish verification before beginning the next cut.
+
+The bench executor supplies power-strip and commit-window instrumentation.
+Missing instrumentation leaves an explicit unmet obligation.
+Unsupported repeat operations must be refused, never silently skipped.
+The generic campaign exit status alone cannot qualify a release.
+Every required release assertion needs measured `PASS` evidence.
+`SKIP`, `INFO`, `KNOWN-PENDING`, and `INSTRUMENT-SUSPECT` do not qualify.
+Neither do `NEEDS-HUMAN` entries or missing records.
+
+Retain Section 6b artifacts plus these campaign-specific records:
+
+- exact bitstream, firmware, and AEM hashes;
+- serialized plan, topology, persistence inventory, and verdict JSONL;
+- timestamped snapshots, controller exchanges, and power-cut phase evidence;
+- complete UART transcripts, wire captures, and the temperature log.
+
+Link dated evidence from `docs/findings/` on the exact candidate.
+File a finding for every failed assertion.
+Acceptance items 3 and 4 remain later bench work.
+They require both campaigns and a known-defect negative control.
+The #366 first-boot control must fail `power.single-boot`.
+Retain its flash-to-first-cold-boot provenance and uninterrupted UART capture.
+Disabled persistence must instead fail `power.state-restored`.
+Desk mutation controls prove plan coverage, not physical failure detection.
+Neither this plan nor its self-test closes #70 or #117.
+
 ## 7. Known gaps (kept honest)
 
 * **AECP is partially implemented and graded.** The processor's AECP uCPU

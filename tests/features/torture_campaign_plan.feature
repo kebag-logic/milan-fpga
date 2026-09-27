@@ -301,11 +301,148 @@ Feature: The torture campaign's own coverage is auditable at a desk
     And each physical family ends with a full proof pair at a non-zero index
 
   # ------------------------------------------------------ runner integration
+  @class:release @clause:REQ-VER-06
+  Scenario Outline: release areas observe every index and bind both directions
+    When the <area> release area is planned
+    Then the plan covers every DUT talker index
+    And the plan covers every DUT listener index
+    And the plan covers every peer talker index
+    And the plan covers every peer listener index
+    And every release repeat observes every index including each CRF sink
+    And every release repeat binds compatible AAF and CRF in both directions
+
+    Examples:
+      | area  |
+      | soak  |
+      | power |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: release coverage refuses omissions even with a complete matrix
+    When the <area> release plan loses its <missing>
+    Then that release area fails its own audit
+    And the complete matrix still passes its audit
+
+    Examples:
+      | area  | missing   |
+      | soak  | index     |
+      | soak  | direction |
+      | soak  | CRF sink  |
+      | power | index     |
+      | power | direction |
+      | power | CRF sink  |
+
+  @class:release @clause:REQ-VER-06
+  Scenario: release defaults encode the decided soak and cold-cut mix
+    When the whole campaign is planned
+    Then the soak lasts seven days with periodic and endpoint observations
+    And power repeats 160 idle and 40 journal-commit cold cuts
+    And release assertions require complete measured evidence
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides
+    When release repeat <repeat> loses <role> <missing>
+    Then that release area fails its own audit
+    And the complete matrix still passes its audit
+
+    Examples:
+      | repeat               | role | missing        |
+      | soak.continuous      | DUT  | talker index   |
+      | soak.continuous      | DUT  | listener index |
+      | soak.continuous      | DUT  | CRF sink       |
+      | soak.continuous      | DUT  | AAF direction  |
+      | soak.continuous      | DUT  | CRF direction  |
+      | soak.continuous      | peer | talker index   |
+      | soak.continuous      | peer | listener index |
+      | soak.continuous      | peer | CRF sink       |
+      | soak.continuous      | peer | AAF direction  |
+      | soak.continuous      | peer | CRF direction  |
+      | power.idle           | DUT  | talker index   |
+      | power.idle           | DUT  | listener index |
+      | power.idle           | DUT  | CRF sink       |
+      | power.idle           | DUT  | AAF direction  |
+      | power.idle           | DUT  | CRF direction  |
+      | power.idle           | peer | talker index   |
+      | power.idle           | peer | listener index |
+      | power.idle           | peer | CRF sink       |
+      | power.idle           | peer | AAF direction  |
+      | power.idle           | peer | CRF direction  |
+      | power.journal_commit | DUT  | talker index   |
+      | power.journal_commit | DUT  | listener index |
+      | power.journal_commit | DUT  | CRF sink       |
+      | power.journal_commit | DUT  | AAF direction  |
+      | power.journal_commit | DUT  | CRF direction  |
+      | power.journal_commit | peer | talker index   |
+      | power.journal_commit | peer | listener index |
+      | power.journal_commit | peer | CRF sink       |
+      | power.journal_commit | peer | AAF direction  |
+      | power.journal_commit | peer | CRF direction  |
+
+  @class:release @clause:REQ-VER-06
+  Scenario: release timing and totals are parameterized
+    When a diagnostic release profile uses non-default timing and counts
+    Then every release repeat preserves those parameters and its timing origins
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: partial CLI topology never qualifies the release profile
+    When the release CLI omits only <shape> from the <role> topology
+    Then every release repeat reports diagnostic topology
+
+    Examples:
+      | shape    | role |
+      | CRF keys | DUT  |
+      | listener | DUT  |
+      | CRF keys | peer |
+      | listener | peer |
+
+  @class:release @clause:REQ-VER-06
+  Scenario Outline: restoration eligibility honors the provisional release ceiling
+    When an explicit release profile uses a restoration bound of <seconds> seconds
+    Then every release repeat is <eligibility> for release
+
+    Examples:
+      | seconds | eligibility |
+      | 29      | eligible    |
+      | 30      | eligible    |
+      | 31      | ineligible  |
+
+  @class:release @clause:REQ-VER-06
+  Scenario: uncertainty intervals need a recorded event and the implemented bound
+    When the soak release area is planned
+    Then uncertainty is correlated and bounded by half a second plus observation resolution
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: the last discontinuity anchors a chained uncertainty interval
+    When the soak release area is planned
+    Then a chained discontinuity clearing at 0.62 seconds is PASS
+    And a chained discontinuity clearing at 0.8 seconds is FAIL
+    And an uncertainty interval without a discontinuity fails
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: wire observation resolution contains a lone discontinuity
+    When the soak release area is planned
+    Then a lone discontinuity at <event> seconds with <resolution> second resolution is <verdict>
+
+    Examples:
+      | event     | resolution | verdict |
+      | -0.0005   | 0.001      | PASS    |
+      | -0.002    | 0.001      | FAIL    |
+      | 0         | 0.001      | PASS    |
+      | 0         | 0          | PASS    |
+      | -0.1      | 0.001      | FAIL    |
+      | -0.001    | 0.001      | PASS    |
+      | -0.001001 | 0.001      | FAIL    |
+      | 0.4       | 0.001      | FAIL    |
+      | 0.401     | 0.001      | FAIL    |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a second successful boot cannot hide the first-boot restart
+    Then the first-boot restart control fails the release boot assertion
+
   @class:runner
   Scenario: areas can be selected, and an unknown area is refused
     Then selecting the audio area yields only audio steps
     And selecting an unknown area raises
-    And selecting nothing yields all five areas
+    And selecting nothing yields all configured areas
 
   @class:runner
   Scenario: the verdict record shape is stable and the exit codes are graded

@@ -135,7 +135,7 @@ import argparse
 import json
 import sys
 from collections.abc import Iterable, Sequence
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, replace
 from typing import Optional
 
 # ------------------------------------------------------- counter definitions --
@@ -3317,6 +3317,379 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
             + _physical_dut_cycle_steps(dut, peer, fmt, ti, li, dli))
 
 
+# --------------------------------------------------------- release campaigns --
+# Issue #396 round 2: retain the established minute counter-walk cadence as
+# the qualification ceiling. Continuous event evidence is still required.
+RELEASE_MAX_SOAK_INTERVAL_S = 60
+# Issue #396 round 3: provisional ceiling; ratification uses #397 and #75.
+RELEASE_RESTORE_BOUND_S = 30
+
+
+@dataclass(frozen=True)
+class ReleaseSettings:
+    """Issue #396's release profile; smaller profiles are diagnostic only."""
+    soak_duration_s: int = 7 * 24 * 60 * 60
+    soak_interval_s: int = 60
+    power_cycles: int = 200
+    idle_cycles: int = 160
+    commit_cycles: int = 40
+    persisted_items: tuple[str, ...] = ("stream_binding",)
+    # Provisional policy from #396 round 2; ratification uses #397 and #75.
+    restore_bound_s: int = RELEASE_RESTORE_BOUND_S
+    # Extra diagnostic observation never extends a pass deadline.
+    boot_margin_s: int = 5
+    # Caller attests that BOTH devices came from served descriptors.
+    topology_explicit: bool = False
+    # Existing phys.dut-cycle.power-cycle discharge hold, recorded separately.
+    power_off_hold_s: int = 8
+
+    def __post_init__(self) -> None:
+        for name in ("soak_duration_s", "soak_interval_s", "power_cycles", "power_off_hold_s",
+                     "idle_cycles", "commit_cycles", "restore_bound_s", "boot_margin_s"):
+            value = getattr(self, name)
+            if type(value) is not int or value <= 0:
+                raise ValueError(f"{name} must be a positive integer")
+        if self.soak_interval_s > self.soak_duration_s:
+            raise ValueError("soak interval exceeds duration")
+        if self.idle_cycles + self.commit_cycles != self.power_cycles:
+            raise ValueError("idle and commit cycles must sum to power cycles")
+        if type(self.topology_explicit) is not bool:
+            raise ValueError("topology_explicit must be a boolean")
+        items = self.persisted_items
+        if (not isinstance(items, tuple) or not items
+                or any(not isinstance(item, str) or not item.strip()
+                       or item != item.strip() for item in items)
+                or len(set(items)) != len(items)):
+            raise ValueError("persisted items must be nonempty, unique names")
+
+
+RELEASE_CLAUSE = "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions"
+A_RELEASE_EVIDENCE = AssertSpec(
+    "release.complete-evidence", RELEASE_CLAUSE + ": all required assertions "
+    "need measured PASS records on the exact image; missing, SKIP, INFO, "
+    "KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release")
+SOAK_ASSERTS = (
+    A_RELEASE_EVIDENCE,
+    AssertSpec("soak.continuous-duration", RELEASE_CLAUSE +
+               ": at least 604800 continuous seconds after all pairs flow; "
+               "no concatenating interrupted runs or counting setup time"),
+    AssertSpec("soak.bound-both-directions", RELEASE_CLAUSE +
+               ": keep the compatible AAF and CRF pairs bound and flowing "
+               "in both directions throughout the observation window"),
+    AssertSpec("soak.counter-walk", "Milan v1.2 Table 5.4 / Table 5.6; "
+               "REQ-VER-06: read every declared input and output, CRF included, "
+               "at baseline, each interval and the endpoint; validate masks "
+               "and lock/start-stop invariants; no unexplained counter reset"),
+    AssertSpec("soak.no-counter-errors", RELEASE_CLAUSE +
+               "; Milan v1.2 5.3.8.10 Table 5.6; IEEE 1722-2016 4.4.4.6: zero SEQ_NUM_MISMATCH and "
+               "STREAM_INTERRUPTED growth; no unexplained MEDIA_UNLOCKED; "
+               "record every delta and each unlock explanation"),
+    AssertSpec("soak.gptp-continuity", RELEASE_CLAUSE +
+               "; Milan v1.2 4.2.6.2.4: coherent fabric "
+               "publication reads and transition evidence prove no asCapable loss"),
+    AssertSpec("soak.tu-within-holdover", RELEASE_CLAUSE +
+               "; Milan v1.2 Annex B.1/B.1.1 / IEEE 1722-2016 4.4.4.7: "
+               "each tu interval contains at least one recorded discontinuity: "
+               "PHC settime/adjtime, fabric discontinuity, or GM-identity edge; "
+               "containment uses [observed_start - observation_resolution_s, clear); "
+               "measure from the last recorded discontinuity before tu clears; "
+               "it clears within 0.5 s plus "
+               "the stated observation resolution; uncorrelated tu fails; "
+               "resolution comes from wire capture and correlated event timestamps; "
+               "it includes launch-to-capture latency and event-to-capture correlation error; "
+               "B.1.1 states 0.25 s, read by the project as a minimum; clock validity "
+               "implements 0.25-0.5 s; B.1's 5 s media-clock holdover is "
+               "not a tu bound; "
+               "periodic healthy samples alone cannot prove this"),
+    AssertSpec("soak.timestamp-margin", "docs/reference/REGISTER_MAP.md "
+               "AVTPRX_TSD (0x6EC): record signed ns presentation margin for "
+               "the last accepted STREAM_INPUT[0] PDU, with freshness evidence; "
+               "never attribute this single-index register to other streams"),
+    AssertSpec("soak.uptime-monotonic", RELEASE_CLAUSE +
+               ": DUT uptime advances monotonically; reboot or unavailable "
+               "uptime evidence cannot pass the continuous soak"),
+)
+POWER_ASSERTS = (
+    A_RELEASE_EVIDENCE,
+    AssertSpec("power.cold-count-and-phase", RELEASE_CLAUSE +
+               ": 200 confirmed cold cuts, 160 idle and 40 inside a journal "
+               "commit window; resets never count; preserve cut timestamps "
+               "and commit-window evidence for each cycle"),
+    AssertSpec("power.state-restored", RELEASE_CLAUSE +
+               "; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, "
+               "5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, "
+               "5.3.11.1, 5.3.13; additional state per project inventory: "
+               "compare each persisted item against the pre-cut snapshot; "
+               "commit cuts must restore a complete old or new committed "
+               "snapshot, never mixed state; missing readback cannot pass"),
+    AssertSpec("power.adp-valid-time", RELEASE_CLAUSE +
+               "; IEEE 1722.1-2021 6.2.2.5, 6.2.4/6.2.5; Milan v1.2 5.6.2/5.6.3: "
+               "first post-cut ENTITY_AVAILABLE arrives within the advertised "
+               "valid_time measured from T0, the host-timestamped power-strip "
+               "ON command; decode the captured pre-cut PDU in two-second "
+               "units and require valid_time=10 (20 s); power_off_hold_s and "
+               "pre-cut advertisement age are provenance, not charged to "
+               "this window; missing capture or a missed deadline fails"),
+    AssertSpec("power.automatic-restore-bound", RELEASE_CLAUSE +
+               "; Milan v1.2 5.5.1.4 / 5.5.2.6: from T0 to first valid AVTP "
+               "PDU of EACH persisted binding in both directions, including "
+               "CRF, must be at most restore_bound_s; provisional 30 s, "
+               "ratified by the manager using #397 boot-to-entity-enabled "
+               "and #75 restart measurements; controller repair cannot count"),
+    AssertSpec("power.rebind-bound", RELEASE_CLAUSE +
+               "; Milan v1.2 5.5.2.4; issue #75: an additional per-cycle "
+               "controller reconnect after automatic restoration succeeds; "
+               "CONNECT_RX success to first valid AVTP PDU below 1 second; "
+               "both restoration and reconnect must pass"),
+    AssertSpec("power.single-boot", RELEASE_CLAUSE +
+               "; issue #366: complete UART/reset observation from T0 through "
+               "the next cut or campaign end, at least boot_observation_s, "
+               "records exactly one BIOS pass and no "
+               "additional restart; check_release_boot refuses the repeated "
+               "BIOS pass even if the second pass restores streaming"),
+    AssertSpec("power.counter-walk", "Milan v1.2 Table 5.4 / Table 5.6; "
+               "REQ-VER-06: snapshot every declared stream index, both "
+               "directions and CRF, before and after every cycle; validate "
+               "masks, supported formats, lock/start-stop invariants and flow"),
+)
+
+
+def _release_counter_targets(dut: Device, peer: Device) -> list[dict]:
+    """All readable stream counters, independently of simultaneous bindings."""
+    targets = []
+    for device in (dut, peer):
+        for descriptor, indices, crf_index in (
+                ("stream_output", device.talker_indices(), device.crf_out),
+                ("stream_input", device.listener_indices(), device.crf_in)):
+            targets.extend({"entity": device.entity_id, "descriptor": descriptor,
+                            "index": index, "crf": index == crf_index}
+                           for index in indices)
+    return targets
+
+
+def _release_pairs(dut: Device, peer: Device) -> list[dict]:
+    """Bind each reachable sink once; multicast sources where shapes differ."""
+    if not dut.entity_id or not peer.entity_id or dut.entity_id == peer.entity_id:
+        raise ValueError("release campaigns require a distinct DUT and peer")
+    for device in (dut, peer):
+        if (device.crf_out in device.talker_indices(False)
+                or device.crf_in in device.listener_indices(False)):
+            raise ValueError("release AAF indices must not include a CRF index")
+    pairs = []
+    for talker, listener in ((dut, peer), (peer, dut)):
+        outputs = talker.talker_indices(include_crf=False)
+        inputs = listener.listener_indices(include_crf=False)
+        if not outputs or not inputs:
+            raise ValueError("release campaigns require AAF in both directions")
+        if talker.crf_out is None or listener.crf_in is None:
+            raise ValueError("release campaigns require CRF in both directions")
+        for index, sink in enumerate(inputs):
+            pairs.append(_multi_pair(Endpoint(talker, outputs[index % len(outputs)]),
+                                     Endpoint(listener, sink), None))
+        pairs.append(_multi_pair(Endpoint(talker, talker.crf_out),
+                                 Endpoint(listener, listener.crf_in), None))
+    return pairs
+
+
+def _release_args(dut: Device, peer: Device) -> dict:
+    """Inputs a bench executor must resolve before any repeat operation."""
+    return {"pairs": _release_pairs(dut, peer),
+            "counter_targets": _release_counter_targets(dut, peer),
+            "format_policy": "read talker live format; match listener before bind",
+            "evidence": ["image_hashes", "manifest", "csr_map", "verdict_jsonl",
+                         "uart_transcript", "wire_captures", "controller_log",
+                         "timestamped_snapshots", "temperature_log"],
+            "unsupported_operation": "refuse; never skip or claim PASS"}
+
+
+def _release_profile_eligible(settings: ReleaseSettings) -> bool:
+    """Common plan prerequisites; this judges no measured hardware evidence."""
+    return (settings.topology_explicit
+            and "stream_binding" in settings.persisted_items
+            and settings.restore_bound_s <= RELEASE_RESTORE_BOUND_S
+            and settings.soak_interval_s <= RELEASE_MAX_SOAK_INTERVAL_S)
+
+
+def _release_topology_explicit(dut_spec: str | None, peer_spec: str | None) -> bool:
+    """Require identity and complete AAF/CRF shapes instead of fixture defaults."""
+    for spec in (dut_spec, peer_spec):
+        keys = {part.split("=", 1)[0].strip() for part in (spec or "").split(",")
+                if "=" in part and part.split("=", 1)[1].strip()}
+        if (not {"entity", "mac", "crf_in", "crf_out"} <= keys
+                or not {"talkers", "talker_index_set"} & keys
+                or not {"listeners", "listener_index_set"} & keys):
+            return False
+    return True
+
+
+def check_release_boot(boot_passes: int | None, restarts: int | None, *,
+                       capture_complete: bool) -> tuple[str, dict]:
+    """L3 #396/#366 oracle over a complete, per-cycle UART/reset observation."""
+    if (capture_complete is not True or type(boot_passes) is not int
+            or type(restarts) is not int or boot_passes < 0 or restarts < 0):
+        return "SKIP", {"why": "complete UART/reset observation required"}
+    return ("PASS" if boot_passes == 1 and restarts == 0 else "FAIL",
+            {"boot_passes": boot_passes, "restarts": restarts,
+             "why": "exactly one BIOS pass and no additional restart per cold cut"})
+
+
+def check_release_tu(interval_s: tuple[float, float], discontinuities_s: list[float], *,
+                     holdover_bound_s: float, observation_resolution_s: float | None,
+                     capture_complete: bool) -> tuple[str, dict]:
+    """L3 #396 round 5: grade one wire-observed interval with capture resolution.
+
+    The caller supplies only recorded PHC settime/adjtime, fabric discontinuity,
+    or GM-identity events, on the same clock as the wire interval. Missing
+    evidence cannot pass; a complete interval with no such event fails.
+    Events in [observed_start - observation_resolution_s, clear) are contained.
+    """
+    import math
+    values = (*interval_s, *discontinuities_s, holdover_bound_s, observation_resolution_s)
+    if (capture_complete is not True or len(interval_s) != 2
+            or any(type(value) not in (int, float) or not math.isfinite(value) for value in values)):
+        return "SKIP", {"why": "complete finite interval, events and resolution required"}
+    observed_start_s, clear_s = interval_s
+    if clear_s < observed_start_s or holdover_bound_s <= 0 or observation_resolution_s < 0:
+        return "SKIP", {"why": "ordered interval, positive bound and nonnegative resolution required"}
+    # Frame launch and capture can lag the event; include that measured allowance.
+    start_s = observed_start_s - observation_resolution_s
+    events_s = [event_s for event_s in discontinuities_s if start_s <= event_s < clear_s]
+    if not events_s:
+        return "FAIL", {"why": "uncorrelated tu fails"}
+    last_discontinuity_s = max(events_s)
+    deadline_s = last_discontinuity_s + holdover_bound_s + observation_resolution_s
+    return ("PASS" if clear_s <= deadline_s else "FAIL",
+            {"last_discontinuity_s": last_discontinuity_s, "deadline_s": deadline_s,
+             "clear_s": clear_s})
+
+
+def plan_soak(dut: Device = ARTY, peer: Device = PEER,
+              settings: ReleaseSettings = ReleaseSettings()) -> list[Step]:
+    """One continuous repeat operation, with baseline and final counter walks."""
+    args = _release_args(dut, peer)
+    args.update(duration_s=settings.soak_duration_s,
+                interval_s=settings.soak_interval_s,
+                release_eligible=(settings.soak_duration_s
+                                  >= ReleaseSettings.soak_duration_s),
+                sample_at_start=True, sample_at_end=True,
+                gptp_publication=["gm", "parent", "path", "pdelay_ns",
+                                  "sync", "asCapable", "tu"],
+                continuous_evidence=["asCapable_transitions", "tu_intervals",
+                                     "stream_flow", "uptime"],
+                tu_holdover_bound_s=0.5,
+                tu_time_origin="last recorded discontinuity before tu clears",
+                tu_event_window="[observed_start - observation_resolution_s, clear)",
+                tu_discontinuity_kinds=["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"],
+                tu_observation_resolution="record wire-capture and correlated event-timestamp resolution in seconds",
+                tu_uncorrelated="fail",
+                timestamp_margin={"register": "AVTPRX_TSD", "offset": 0x6EC,
+                                  "stream_input": 0, "units": "signed ns"})
+    args["release_eligible"] &= _release_profile_eligible(settings)
+    args["max_soak_interval_s"] = RELEASE_MAX_SOAK_INTERVAL_S
+    args["topology_explicit"] = settings.topology_explicit
+    return [Step("soak.continuous", "soak", "release_soak", args,
+                 asserts=SOAK_ASSERTS, clause=RELEASE_CLAUSE,
+                 note="Bind all pairs before timing; sample at each interval "
+                      "and the exact endpoint, including a partial final "
+                      "interval. Monitor unbound outputs too; only bound "
+                      "streams owe traffic. Teardown after the final snapshot.")]
+
+
+def plan_power(dut: Device = ARTY, peer: Device = PEER,
+               settings: ReleaseSettings = ReleaseSettings()) -> list[Step]:
+    """Serial cold cuts; each phase repeats the full before/after contract."""
+    steps = []
+    for phase, count in (("idle", settings.idle_cycles),
+                         ("journal_commit", settings.commit_cycles)):
+        args = _release_args(dut, peer)
+        args.update(cycles=count, total_cycles=settings.power_cycles,
+                    phase=phase, cold=True, count_resets=False,
+                    outlet_role="dut",
+                    power_off_hold_s=settings.power_off_hold_s,
+                    power_off_hold_origin="phys.dut-cycle.power-cycle: default 8 s; verify discharge",
+                    power_off_hold_in_adp_window=False,
+                    boot_observation_s=settings.restore_bound_s + settings.boot_margin_s,
+                    boot_margin_s=settings.boot_margin_s,
+                    restore_bound_s=settings.restore_bound_s,
+                    restore_bound_provisional=True,
+                    restore_bound_origin="issue #396 round 2; ratify with #397 and #75",
+                    boot_observation_origin="restore_bound_s + boot_margin_s from T0",
+                    time_origin="T0: power-strip ON command, host monotonic clock",
+                    restore_start="T0",
+                    restore_end="first valid AVTP PDU of each persisted binding",
+                    restore_limit_exclusive=False,
+                    restore_requires="automatic; no controller repair; both directions and CRF",
+                    boot_max_passes=1, boot_max_restarts=0,
+                    boot_evidence="complete UART/reset observation from T0 through next cut or campaign end; "
+                                  "at least boot_observation_s",
+                    persisted_items=list(settings.persisted_items),
+                    release_eligible=(settings.power_cycles >= ReleaseSettings.power_cycles
+                                      and settings.idle_cycles >= ReleaseSettings.idle_cycles
+                                      and settings.commit_cycles >= ReleaseSettings.commit_cycles),
+                    cut_requires=("journal_commit_window" if phase == "journal_commit"
+                                  else "journal_idle"),
+                    cold_confirmation="power removed; discharge verified",
+                    adp_reference="last pre-cut DUT ENTITY_AVAILABLE, host timestamp and raw PDU",
+                    adp_valid_time_unit_s=2,
+                    adp_required_valid_time=10,
+                    adp_start="T0",
+                    adp_deadline="2 * pre_cut_valid_time",
+                    adp_elapsed="first_post_cut_available_host_s - t0_host_s",
+                    adp_limit_exclusive=True,
+                    adp_missing_or_expired="fail; require captured valid_time=10 and arrival before T0 deadline",
+                    rebind_limit_s=1, rebind_limit_exclusive=True,
+                    rebind_start="CONNECT_RX success",
+                    rebind_end="first valid AVTP PDU",
+                    rebind_requires="automatic restoration passed for every persisted binding",
+                    snapshot_policy=("complete old or new committed snapshot"
+                                     if phase == "journal_commit"
+                                     else "exact pre-cut committed snapshot"))
+        args["release_eligible"] &= _release_profile_eligible(settings)
+        args["topology_explicit"] = settings.topology_explicit
+        steps.append(Step(
+            "power." + phase, "power", "release_power_cycles", args,
+            asserts=POWER_ASSERTS, clause=RELEASE_CLAUSE, needs_human=True,
+            human_action="Provide the bench power-strip hook and timestamped "
+                         "cut-phase evidence; then run unattended cold cuts.",
+            note="Each cycle: establish pairs and saved state, snapshot, prove "
+                 "cut phase, remove power, confirm discharge, restore power, "
+                 "observe boot, verify automatic restore, measure reconnect, "
+                 "walk all counters. No next cut before verification finishes. "
+                 "Missing journal instrumentation leaves qualification open."))
+    return steps
+
+
+def _release_coverage(step: Step, dut: Device, peer: Device) -> dict:
+    """Audit observations separately from bindings so neither masks the other."""
+    missing = {}
+    targets = step.args.get("counter_targets", [])
+    for role, device in (("dut", dut), ("peer", peer)):
+        for kind, descriptor, indices in (
+                ("talker", "stream_output", device.talker_indices()),
+                ("listener", "stream_input", device.listener_indices())):
+            seen = {t.get("index") for t in targets
+                    if t.get("entity") == device.entity_id
+                    and t.get("descriptor") == descriptor}
+            absent = sorted(set(indices) - seen)
+            if absent:
+                missing[role + "_" + kind] = absent
+    pairs = step.args.get("pairs", [])
+    for direction, talker, listener in (("outbound", dut, peer),
+                                        ("return", peer, dut)):
+        directional = [p for p in pairs if p.get("talker") == talker.entity_id
+                       and p.get("listener") == listener.entity_id]
+        if not any(p.get("talker_index") in talker.talker_indices(False)
+                   and p.get("listener_index") in listener.listener_indices(False)
+                   for p in directional):
+            missing[direction] = "missing AAF binding"
+        if (talker.crf_out is None or listener.crf_in is None
+                or not any(p.get("talker_index") == talker.crf_out
+                           and p.get("listener_index") == listener.crf_in
+                           for p in directional)):
+            missing[direction + "_crf"] = "missing CRF binding"
+    return missing
+
+
 AREAS = {
     "matrix": plan_matrix,
     "multi": plan_multi,
@@ -3324,6 +3697,8 @@ AREAS = {
     "payload": plan_payload,
     "audio": plan_audio,
     "torture": plan_torture,
+    "soak": plan_soak,
+    "power": plan_power,
     #: LAST on purpose, and load-bearing: build_plan() emits areas in THIS
     #: order, and a switch partition or a DUT power cycle mid-matrix would
     #: pollute every verdict that follows it.  The runner additionally never
@@ -3333,7 +3708,8 @@ AREAS = {
 
 
 def build_plan(areas: Iterable[str] | None = None, dut: Device = ARTY,
-               peer: Device = PEER) -> list[Step]:
+               peer: Device = PEER, *,
+               release: ReleaseSettings = ReleaseSettings()) -> list[Step]:
     """The whole campaign, or the named areas, in execution order."""
     want = list(AREAS) if not areas else list(areas)
     bad = [a for a in want if a not in AREAS]
@@ -3342,6 +3718,9 @@ def build_plan(areas: Iterable[str] | None = None, dut: Device = ARTY,
     out = []
     for a in want:
         fn = AREAS[a]
+        if a in ("soak", "power"):
+            out += fn(dut, peer, release)
+            continue
         try:
             out += fn(dut, peer)
         except TypeError:
@@ -3361,6 +3740,13 @@ def plan_covers_every_index(plan: Iterable[Step], dut: Device = ARTY,
             "peer_talker": set(), "peer_listener": set()}
     for s in plan:
         a = s.args
+        for target in a.get("counter_targets", []):
+            for role, device in (("dut", dut), ("peer", peer)):
+                if target.get("entity") == device.entity_id:
+                    kind = {"stream_input": "listener",
+                            "stream_output": "talker"}.get(target.get("descriptor"))
+                    if kind is not None:
+                        seen[role + "_" + kind].add(target["index"])
         t, ti = a.get("talker"), a.get("talker_index")
         l, li = a.get("listener"), a.get("listener_index")
         if t == dut.entity_id and ti is not None:
@@ -3464,6 +3850,14 @@ def area_index_expectations(dut: Device = ARTY, peer: Device = PEER) -> dict:
                                    dut.listener_indices(include_crf=False)
                                    if i < peer.listeners]},
         "torture": {},
+        "soak": {"dut_talker": dut.talker_indices(),
+                 "dut_listener": dut.listener_indices(),
+                 "peer_talker": peer.talker_indices(),
+                 "peer_listener": peer.listener_indices()},
+        "power": {"dut_talker": dut.talker_indices(),
+                  "dut_listener": dut.listener_indices(),
+                  "peer_talker": peer.talker_indices(),
+                  "peer_listener": peer.listener_indices()},
         # not per-index by nature either: the physical family's proof pair
         # deliberately walks ONE pair (the highest AAF indices - never the
         # index-0 alias path), and full per-index coverage already belongs to
@@ -3477,11 +3871,21 @@ def area_covers_every_index(plan: Iterable[Step], area: str,
                             expect: dict[str, list[int]] | None = None
                             ) -> tuple[bool, dict[str, object]]:
     """(ok, detail) for ONE area against that area's own expectation."""
+    plan = list(plan)
     cov = plan_coverage_by_area(plan, dut, peer).get(area, {})
     want = expect if expect is not None else \
         area_index_expectations(dut, peer).get(area, {})
     missing = {k: sorted(set(v) - set(cov.get(k, []))) for k, v in want.items()}
     missing = {k: v for k, v in missing.items() if v}
+    if area in ("soak", "power"):
+        steps = [s for s in plan if s.area == area]
+        for step in steps:
+            defects = _release_coverage(step, dut, peer)
+            if defects:
+                missing[step.sid] = defects
+        if area == "power" and {s.args.get("phase") for s in steps} != {
+                "idle", "journal_commit"}:
+            missing["phases"] = "idle and journal_commit are both required"
     return (not missing, {"area": area, "covered": cov, "expected": want,
                           "missing": missing})
 
@@ -4420,7 +4824,441 @@ class _AreaContractChecks:
             build_plan(["nope"])
         self.assertEqual({s.area for s in build_plan()},
                          {"matrix", "multi", "churn", "payload", "audio",
-                          "torture", "physical"})
+                          "torture", "soak", "power", "physical"})
+
+
+class _ReleasePlanChecks:
+    """L3: issue #396's decisions, independently enumerated and fault planted."""
+
+    def test_release_defaults_and_assertions(self) -> None:
+        """The seven-day and 160/40 cold-cut contracts survive serialization."""
+        soak, idle, commit = build_plan(
+            ["soak", "power"], release=ReleaseSettings(topology_explicit=True))
+        self.assertEqual((soak.args["duration_s"], soak.args["interval_s"]),
+                         (604800, 60))
+        self.assertEqual([s.args["cycles"] for s in (idle, commit)], [160, 40])
+        self.assertEqual([s.args["phase"] for s in (idle, commit)],
+                         ["idle", "journal_commit"])
+        self.assertEqual(soak.args["timestamp_margin"]["offset"], 0x6EC)
+        self.assertEqual(soak.args["timestamp_margin"]["stream_input"], 0)
+        for step in (idle, commit):
+            self.assertTrue(step.args["cold"])
+            self.assertFalse(step.args["count_resets"])
+            self.assertEqual(step.args["total_cycles"], 200)
+            self.assertEqual(step.args["persisted_items"], ["stream_binding"])
+            self.assertEqual(step.args["boot_observation_s"], 35)
+            self.assertEqual(step.args["restore_bound_s"], 30)
+            self.assertEqual(step.args["boot_margin_s"], 5)
+            self.assertEqual(step.args["power_off_hold_s"], 8)
+            self.assertEqual(step.args["rebind_limit_s"], 1)
+            self.assertTrue(step.args["rebind_limit_exclusive"])
+            self.assertTrue(step.needs_human)
+        self.assertEqual(commit.args["cut_requires"], "journal_commit_window")
+        expected = {
+            "soak": {"release.complete-evidence", "soak.continuous-duration",
+                     "soak.bound-both-directions", "soak.counter-walk",
+                     "soak.no-counter-errors", "soak.gptp-continuity",
+                     "soak.tu-within-holdover", "soak.timestamp-margin",
+                     "soak.uptime-monotonic"},
+            "power": {"release.complete-evidence", "power.cold-count-and-phase",
+                      "power.state-restored", "power.adp-valid-time",
+                      "power.rebind-bound", "power.automatic-restore-bound",
+                      "power.single-boot", "power.counter-walk"},
+        }
+        for step in (soak, idle, commit):
+            data = json.loads(json.dumps(step.as_dict()))
+            self.assertEqual(set(data["asserts"]), expected[step.area])
+            self.assertEqual(set(data["assert_severity"].values()), {"SHALL"})
+            self.assertTrue(data["args"]["release_eligible"])
+
+    def test_release_counter_omissions_in_every_repeat(self) -> None:
+        """L3 topology oracle: both devices, descriptor kinds, and all repeats."""
+        from copy import deepcopy
+        original = build_plan()
+        for source in (s for s in original if s.area in ("soak", "power")):
+            self.assertTrue(area_covers_every_index(original, source.area)[0])
+            for target in source.args["counter_targets"]:
+                with self.subTest(repeat=source.sid, target=target):
+                    broken = deepcopy(original)
+                    step = next(s for s in broken if s.sid == source.sid)
+                    step.args["counter_targets"].remove(target)
+                    ok, detail = area_covers_every_index(broken, source.area)
+                    self.assertFalse(ok, detail)
+                    self.assertIn(source.sid, detail["missing"])
+                    self.assertTrue(area_covers_every_index(broken, "matrix")[0])
+
+    def test_release_binding_omissions_in_every_repeat(self) -> None:
+        """AAF-only and CRF-only losses cannot mask one another in either direction."""
+        from copy import deepcopy
+        original = build_plan()
+        for source in (s for s in original if s.area in ("soak", "power")):
+            for talker in (ARTY, PEER):
+                for kind in ("all", "aaf", "crf"):
+                    with self.subTest(repeat=source.sid, talker=talker.name, kind=kind):
+                        broken = deepcopy(original)
+                        step = next(s for s in broken if s.sid == source.sid)
+                        step.args["pairs"] = [
+                            pair for pair in step.args["pairs"]
+                            if not (pair["talker"] == talker.entity_id and
+                                    (kind == "all" or
+                                     (pair["talker_index"] == talker.crf_out) == (kind == "crf")))]
+                        ok, detail = area_covers_every_index(broken, source.area)
+                        self.assertFalse(ok, detail)
+                        self.assertIn(source.sid, detail["missing"])
+                        self.assertTrue(area_covers_every_index(broken, "matrix")[0])
+        for source in (s for s in original if s.area in ("soak", "power")):
+            without_repeat = [s for s in original if s.sid != source.sid]
+            self.assertFalse(area_covers_every_index(without_repeat, source.area)[0])
+        for area in ("soak", "power"):
+            self.assertFalse(area_covers_every_index([], area)[0])
+
+    def test_release_sparse_shapes_and_compatible_pairs(self) -> None:
+        """Counter coverage follows sparse topology, never a baked index range."""
+        dut = parse_device_spec("talker_index_set=1|3,listener_index_set=2|5,"
+                                "crf_out=7,crf_in=8", ARTY)
+        for area in ("soak", "power"):
+            plan = build_plan([area], dut, PEER)
+            self.assertTrue(area_covers_every_index(plan, area, dut, PEER)[0])
+            cov = plan_covers_every_index(plan, dut, PEER)
+            self.assertEqual(cov["dut_talker"], [1, 3, 7])
+            self.assertEqual(cov["dut_listener"], [2, 5, 8])
+            for step in plan:
+                sinks = [(p["listener"], p["listener_index"])
+                         for p in step.args["pairs"]]
+                self.assertEqual(len(sinks), len(set(sinks)))
+                for pair in step.args["pairs"]:
+                    tk, ls = (dut, PEER) if pair["talker"] == dut.entity_id else (PEER, dut)
+                    self.assertEqual(tk.is_crf_talker(pair["talker_index"]),
+                                     ls.is_crf_listener(pair["listener_index"]))
+
+    def test_release_settings_validation(self) -> None:
+        """Bad repeat inputs refuse; diagnostic inputs cannot qualify a release."""
+        for changes in ({"soak_duration_s": 0}, {"soak_interval_s": -1},
+                        {"soak_interval_s": 604801}, {"power_cycles": 201},
+                        {"idle_cycles": 0}, {"commit_cycles": -1},
+                        {"power_cycles": True}, {"soak_duration_s": float("nan")},
+                        {"persisted_items": ()}, {"persisted_items": ("",)},
+                        {"persisted_items": ("binding", "binding")}):
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                ReleaseSettings(**changes)
+        settings = ReleaseSettings(125, 17, 3, 2, 1,
+                                   ("stream_binding", "clock_source"))
+        soak, idle, commit = build_plan(["soak", "power"], release=settings)
+        self.assertEqual(soak.args["duration_s"], 125)
+        self.assertEqual(soak.args["interval_s"], 17)
+        self.assertEqual([idle.args["total_cycles"], commit.args["total_cycles"]], [3, 3])
+        self.assertTrue(soak.args["sample_at_end"])
+        self.assertEqual([idle.args["cycles"], commit.args["cycles"]], [2, 1])
+        self.assertEqual(commit.args["persisted_items"],
+                         ["stream_binding", "clock_source"])
+        for step in (soak, idle, commit):
+            self.assertFalse(step.args["release_eligible"])
+        no_crf = Device("dut", "aa" * 8, "bb" * 6, 1, 1)
+        with self.assertRaisesRegex(ValueError, "CRF"):
+            build_plan(["soak"], no_crf, PEER)
+        with self.assertRaisesRegex(ValueError, "distinct"):
+            build_plan(["power"], ARTY, ARTY)
+
+    def test_release_cli_parameters(self) -> None:
+        """The actual CLI threads every parameter into emitted JSON."""
+        import contextlib
+        import io
+        from unittest.mock import patch
+        argv = ["torture_campaign.py", "--plan", "--areas", "soak,power",
+                "--json", "--soak-duration-s", "125", "--soak-interval-s", "17",
+                "--power-cycles", "3", "--idle-cycles", "2", "--commit-cycles", "1",
+                "--persisted-items", "stream_binding,clock_source",
+                "--restore-bound-s", "23", "--boot-margin-s", "7",
+                "--power-off-hold-s", "13"]
+        output = io.StringIO()
+        with patch.object(sys, "argv", argv), contextlib.redirect_stdout(output):
+            self.assertEqual(main(), 0)
+        soak, idle, commit = json.loads(output.getvalue())
+        self.assertEqual(soak["args"]["duration_s"], 125)
+        self.assertEqual(soak["args"]["interval_s"], 17)
+        for step in (idle, commit):
+            self.assertEqual(step["args"]["total_cycles"], 3)
+            self.assertEqual(step["args"]["restore_bound_s"], 23)
+            self.assertEqual(step["args"]["boot_margin_s"], 7)
+            self.assertEqual(step["args"]["boot_observation_s"], 30)
+            self.assertEqual(step["args"]["power_off_hold_s"], 13)
+        self.assertEqual([idle["args"]["cycles"], commit["args"]["cycles"]], [2, 1])
+        self.assertEqual(commit["args"]["persisted_items"],
+                         ["stream_binding", "clock_source"])
+        with patch.object(sys, "argv", argv + ["--power-cycles", "4"]), \
+                contextlib.redirect_stderr(io.StringIO()), \
+                self.assertRaises(SystemExit) as failure:
+            main()
+        self.assertEqual(failure.exception.code, 2)
+
+    def test_release_cli_power_hold_default(self) -> None:
+        """L3 #396: an omitted CLI hold retains the decided eight seconds."""
+        import contextlib
+        import io
+        from unittest.mock import patch
+        output = io.StringIO()
+        argv = ["torture_campaign.py", "--plan", "--areas", "power", "--json"]
+        with patch.object(sys, "argv", argv), contextlib.redirect_stdout(output):
+            self.assertEqual(main(), 0)
+        steps = json.loads(output.getvalue())
+        self.assertEqual(len(steps), 2)
+        for step in steps:
+            self.assertEqual(step["args"]["power_off_hold_s"], 8)
+
+    def test_release_timing_and_snapshot_contract(self) -> None:
+        """L3 #396 round 3 pins T0 origins, separate off time, and phase policies."""
+        settings = ReleaseSettings(restore_bound_s=19, boot_margin_s=11, power_off_hold_s=17)
+        idle, commit = build_plan(["power"], release=settings)
+        self.assertEqual(idle.args["snapshot_policy"], "exact pre-cut committed snapshot")
+        self.assertEqual(commit.args["snapshot_policy"], "complete old or new committed snapshot")
+        self.assertEqual(idle.args["cut_requires"], "journal_idle")
+        for step in (idle, commit):
+            args = json.loads(json.dumps(step.as_dict()))["args"]
+            self.assertEqual(args["restore_bound_s"], 19)
+            self.assertEqual(args["boot_margin_s"], 11)
+            self.assertEqual(args["boot_observation_s"], 30)
+            self.assertTrue(args["restore_bound_provisional"])
+            self.assertEqual(args["restore_bound_origin"],
+                             "issue #396 round 2; ratify with #397 and #75")
+            self.assertEqual(args["boot_observation_origin"],
+                             "restore_bound_s + boot_margin_s from T0")
+            self.assertEqual(args["time_origin"],
+                             "T0: power-strip ON command, host monotonic clock")
+            self.assertEqual(args["restore_start"], "T0")
+            self.assertEqual(args["restore_end"], "first valid AVTP PDU of each persisted binding")
+            self.assertFalse(args["restore_limit_exclusive"])
+            self.assertEqual(args["restore_requires"],
+                             "automatic; no controller repair; both directions and CRF")
+            self.assertEqual(args["power_off_hold_s"], 17)
+            self.assertEqual(args["power_off_hold_origin"],
+                             "phys.dut-cycle.power-cycle: default 8 s; verify discharge")
+            self.assertFalse(args["power_off_hold_in_adp_window"])
+            self.assertEqual(args["adp_reference"],
+                             "last pre-cut DUT ENTITY_AVAILABLE, host timestamp and raw PDU")
+            self.assertEqual(args["adp_valid_time_unit_s"], 2)
+            self.assertEqual(args["adp_required_valid_time"], 10)
+            self.assertEqual(args["adp_start"], "T0")
+            self.assertEqual(args["adp_deadline"], "2 * pre_cut_valid_time")
+            self.assertEqual(args["adp_elapsed"], "first_post_cut_available_host_s - t0_host_s")
+            self.assertTrue(args["adp_limit_exclusive"])
+            self.assertEqual(args["adp_missing_or_expired"],
+                             "fail; require captured valid_time=10 and arrival before T0 deadline")
+            self.assertEqual(args["rebind_start"], "CONNECT_RX success")
+            self.assertEqual(args["rebind_end"], "first valid AVTP PDU")
+            self.assertEqual(args["rebind_requires"],
+                             "automatic restoration passed for every persisted binding")
+
+    def test_release_eligibility_boundaries(self) -> None:
+        """Each prerequisite can independently refuse an otherwise eligible area."""
+        settings = ReleaseSettings(topology_explicit=True)
+        cases = [({}, (True, True)),
+                 ({"restore_bound_s": 29}, (True, True)),
+                 ({"restore_bound_s": 30}, (True, True)),
+                 ({"restore_bound_s": 31}, (False, False)),
+                 ({"restore_bound_s": 3600}, (False, False)),
+                 ({"soak_duration_s": 604799}, (False, True)),
+                 ({"soak_interval_s": 61}, (False, False)),
+                 ({"soak_interval_s": 604800}, (False, False)),
+                 ({"persisted_items": ("clock_source",)}, (False, False)),
+                 ({"topology_explicit": False}, (False, False)),
+                 ({"idle_cycles": 199, "commit_cycles": 1}, (True, False)),
+                 ({"idle_cycles": 159, "commit_cycles": 41}, (True, False)),
+                 ({"power_cycles": 199, "idle_cycles": 159}, (True, False)),
+                 ({"power_cycles": 201, "commit_cycles": 41}, (True, True))]
+        for changes, (soak_ok, power_ok) in cases:
+            with self.subTest(changes=changes):
+                plan = build_plan(["soak", "power"], release=replace(settings, **changes))
+                self.assertEqual([step.args["release_eligible"] for step in plan],
+                                 [soak_ok, power_ok, power_ok])
+        for step in build_plan(["soak", "power"]):
+            self.assertFalse(step.args["release_eligible"])
+        for changes in ({"restore_bound_s": 0}, {"restore_bound_s": True},
+                        {"restore_bound_s": float("nan")}, {"boot_margin_s": -1},
+                        {"power_off_hold_s": 0}, {"power_off_hold_s": -1},
+                        {"power_off_hold_s": True}, {"power_off_hold_s": float("nan")},
+                        {"boot_margin_s": False}, {"topology_explicit": "yes"}):
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                ReleaseSettings(**changes)
+
+    def test_release_topology_provenance_cli(self) -> None:
+        """Full explicit inputs qualify; missing or partial device specs do not."""
+        import contextlib
+        import io
+        from unittest.mock import patch
+        dut = "entity=0011223344556677,mac=001122334455,talkers=2,listeners=2,crf_out=2,crf_in=2"
+        peer = "entity=8899aabbccddeeff,mac=8899aabbccdd,talker_index_set=0|2,listener_index_set=0|2,crf_out=3,crf_in=3"
+        for flags, expected in (([], False), (["--dut", dut], False),
+                                (["--peer", peer], False),
+                                (["--dut", "name=dut", "--peer", peer], False),
+                                (["--dut", dut, "--peer", peer], True)):
+            with self.subTest(flags=flags):
+                output = io.StringIO()
+                argv = ["torture_campaign.py", "--plan", "--areas", "soak,power", "--json"] + flags
+                with patch.object(sys, "argv", argv), contextlib.redirect_stdout(output):
+                    self.assertEqual(main(), 0)
+                for step in json.loads(output.getvalue()):
+                    self.assertEqual(step["args"]["topology_explicit"], expected)
+                    self.assertEqual(step["args"]["release_eligible"], expected)
+
+    def test_release_topology_each_key(self) -> None:
+        """L3 explicit means each key on each role, not any partial override."""
+        import contextlib
+        import io
+        from unittest.mock import patch
+        # These shapes remain valid when fixture fields are inherited, so a
+        # missing-key case reaches eligibility instead of an overlap refusal.
+        dut = "entity=0011223344556677,mac=001122334455,talkers=2,listeners=2,crf_out=16,crf_in=16"
+        peer = ("entity=8899aabbccddeeff,mac=8899aabbccdd,talker_index_set=0|1,"
+                "listener_index_set=0|1,crf_out=16,crf_in=16")
+        for role in (0, 1):
+            fields = dict(part.split("=", 1) for part in (dut, peer)[role].split(","))
+            cases = [({key}, False) for key in fields]
+            cases += [({"crf_in", "crf_out"}, False), ({"mac"}, True)]
+            for omitted, empty in cases:
+                specs = [dut, peer]
+                specs[role] = ",".join(
+                    f"{key}={'' if key in omitted else value}"
+                    for key, value in fields.items() if empty or key not in omitted)
+                with self.subTest(role=role, omitted=omitted, empty=empty):
+                    output = io.StringIO()
+                    argv = ["torture_campaign.py", "--plan", "--areas", "soak,power", "--json",
+                            "--dut", specs[0], "--peer", specs[1]]
+                    with patch.object(sys, "argv", argv), contextlib.redirect_stdout(output):
+                        self.assertEqual(main(), 0)
+                    for step in json.loads(output.getvalue()):
+                        self.assertFalse(step["args"]["topology_explicit"])
+                        self.assertFalse(step["args"]["release_eligible"])
+            # Empty numeric/index-set values are refused by the parser;
+            # independently pin that none can attest explicit provenance.
+            for key in fields:
+                specs = [dut, peer]
+                specs[role] = ",".join(f"{k}={'' if k == key else v}" for k, v in fields.items())
+                self.assertFalse(_release_topology_explicit(*specs), (role, key))
+        for specs in ((dut, peer),
+                      (dut.replace("listeners=2", "listener_index_set=0|1"),
+                       peer.replace("talker_index_set=0|1", "talkers=2"))):
+            self.assertTrue(_release_topology_explicit(*specs))
+        self.assertFalse(_release_topology_explicit(dut.replace("entity=", "entity_id="), peer))
+
+    def test_release_tu_contract(self) -> None:
+        """L3 #396 round 4 anchors each interval at its last discontinuity."""
+        soak = build_plan(["soak"])[0]
+        self.assertEqual(soak.args["tu_holdover_bound_s"], 0.5)
+        self.assertEqual(soak.args["tu_time_origin"], "last recorded discontinuity before tu clears")
+        self.assertEqual(soak.args["tu_event_window"], "[observed_start - observation_resolution_s, clear)")
+        self.assertEqual(soak.args["tu_discontinuity_kinds"],
+                         ["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"])
+        self.assertEqual(soak.args["tu_observation_resolution"],
+                         "record wire-capture and correlated event-timestamp resolution in seconds")
+        self.assertEqual(soak.args["tu_uncorrelated"], "fail")
+
+    def test_release_tu_chained_discontinuities(self) -> None:
+        """L3 #396 round 4 examples independently pin passing and late clears."""
+        bound_s = build_plan(["soak"])[0].args["tu_holdover_bound_s"]
+        for clear_s, events_s, resolution_s, expected in (
+                (0.62, [0, 0.2], 0.001, "PASS"),
+                (0.8, [0, 0.2], 0.001, "FAIL"),
+                (0.62, [], 0.001, "FAIL"),
+                (0.62, [-0.1, 0.62, 0.7], 0.001, "FAIL"),
+                (0.62, [0.2, 0, 0.9], 0.001, "PASS"),
+                (0.75, [0, 0.25], 0, "PASS"),
+                (0.751, [0, 0.25], 0, "FAIL"),
+                (0.76, [0, 0.25], 0.01, "PASS"),
+                (0.761, [0, 0.25], 0.01, "FAIL")):
+            with self.subTest(clear_s=clear_s, events_s=events_s, resolution_s=resolution_s):
+                verdict, evidence = check_release_tu(
+                    (0, clear_s), events_s, holdover_bound_s=bound_s,
+                    observation_resolution_s=resolution_s, capture_complete=True)
+                self.assertEqual(verdict, expected, evidence)
+        for interval_s, events_s, resolution_s, complete in (
+                ((0, 0.62), [0, 0.2], None, True),
+                ((0, 0.62), [0, 0.2], 0.001, False),
+                ((0.62, 0), [0.2], 0.001, True),
+                ((0, 0.62), [float("nan")], 0.001, True),
+                ((0, 0.62), [0.2], -1, True),
+                ((0, 0.62), [0.2], True, True)):
+            self.assertEqual(check_release_tu(
+                interval_s, events_s, holdover_bound_s=bound_s,
+                observation_resolution_s=resolution_s, capture_complete=complete)[0], "SKIP")
+
+    def test_release_tu_start_resolution(self) -> None:
+        """L3 #396 round 5: lone events bracket the observed start independently."""
+        for event_s, resolution_s, expected in (
+                (-0.0005, 0.001, "PASS"),
+                (-0.002, 0.001, "FAIL"),
+                (0, 0.001, "PASS"),
+                (0, 0, "PASS"),
+                (-0.1, 0.001, "FAIL"),
+                (-0.001, 0.001, "PASS"),
+                (-0.001001, 0.001, "FAIL"),
+                (0.4, 0.001, "FAIL"),
+                (0.401, 0.001, "FAIL")):
+            with self.subTest(event_s=event_s, resolution_s=resolution_s):
+                verdict, evidence = check_release_tu(
+                    (0, 0.4), [event_s], holdover_bound_s=0.5,
+                    observation_resolution_s=resolution_s, capture_complete=True)
+                self.assertEqual(verdict, expected, evidence)
+                if expected == "PASS":
+                    self.assertEqual(evidence["last_discontinuity_s"], event_s)
+
+    def test_release_tu_before_first_discontinuity(self) -> None:
+        """L3 #396: containment adds no bound before the first recorded event."""
+        for clear_s, expected in ((10.4, "PASS"), (10.6, "FAIL")):
+            verdict, evidence = check_release_tu(
+                (0, clear_s), [10], holdover_bound_s=0.5,
+                observation_resolution_s=0.001, capture_complete=True)
+            self.assertEqual(verdict, expected, evidence)
+
+    def test_release_assertion_text(self) -> None:
+        """L3 #396: operator-facing instructions must preserve the decided rules."""
+        specs = {spec.name: spec.clause for step in build_plan(["soak", "power"])
+                 for spec in step.asserts}
+        for phrase in ("contains at least one recorded discontinuity",
+                       "PHC settime/adjtime, fabric discontinuity, or GM-identity edge",
+                       "containment uses [observed_start - observation_resolution_s, clear)",
+                       "launch-to-capture latency and event-to-capture correlation error",
+                       "last recorded discontinuity before tu clears", "within 0.5 s plus",
+                       "uncorrelated tu fails", "wire capture and correlated event timestamps"):
+            self.assertIn(phrase, specs["soak.tu-within-holdover"])
+        for phrase in ("valid_time measured from T0", "require valid_time=10 (20 s)",
+                       "pre-cut advertisement age are provenance, " "not charged to",
+                       "missing capture or a missed deadline fails"):
+            self.assertIn(phrase, specs["power.adp-valid-time"])
+
+    def test_release_crf_overlap_refused(self) -> None:
+        """An AAF range or explicit set cannot also designate the CRF stream."""
+        for base in (ARTY, PEER):
+            for field, index in (("talker_index_set", base.crf_out),
+                                 ("listener_index_set", base.crf_in)):
+                device = parse_device_spec(f"{field}=0|{index}", base)
+                dut, peer = (device, PEER) if base is ARTY else (ARTY, device)
+                with self.subTest(device=base.name, field=field), self.assertRaisesRegex(ValueError, "AAF"):
+                    build_plan(["soak", "power"], dut, peer)
+        with self.assertRaisesRegex(ValueError, "AAF"):
+            build_plan(["power"], replace(ARTY, crf_out=0), PEER)
+        for step in build_plan(["soak", "power"]):
+            for target in step.args["counter_targets"]:
+                device = ARTY if target["entity"] == ARTY.entity_id else PEER
+                crf = device.crf_in if target["descriptor"] == "stream_input" else device.crf_out
+                self.assertEqual(target["crf"], target["index"] == crf)
+
+    def test_release_boot_negative_control(self) -> None:
+        """L3 #366: two BIOS passes fail even when the second boot is healthy."""
+        self.assertEqual(check_release_boot(1, 0, capture_complete=True)[0], "PASS")
+        for passes, restarts in ((2, 1), (2, 0), (1, 1), (0, 0)):
+            self.assertEqual(check_release_boot(passes, restarts, capture_complete=True)[0], "FAIL")
+        for passes, restarts in ((None, 0), (1, None), (-1, 0), (True, 0),
+                                (1, True), (1, False), (1, -1)):
+            self.assertEqual(check_release_boot(passes, restarts, capture_complete=True)[0], "SKIP")
+        self.assertEqual(check_release_boot(1, 0, capture_complete=False)[0], "SKIP")
+        for step in build_plan(["power"]):
+            self.assertIn("power.single-boot", {spec.name for spec in step.asserts})
+            self.assertEqual(step.args["boot_max_passes"], 1)
+            self.assertEqual(step.args["boot_max_restarts"], 0)
+            self.assertEqual(step.args["boot_evidence"],
+                             "complete UART/reset observation from T0 through next cut or campaign end; "
+                             "at least boot_observation_s")
+
 
 class _ConcurrencyChecks:
     """The multi-stream concurrency sets and the audio family.
@@ -4697,7 +5535,7 @@ class _ConcurrencyChecks:
         self.assertTrue(any("coherent" in a.name for a in thdn.asserts))
 
 def self_test() -> int:
-    """The offline suite: every arm of the five mixins, exit 0 when all pass.
+    """The offline suite: every mixin's arms, exit 0 when all pass.
 
     Nothing here touches the wire.  What it audits is the PLAN and the
     GRADERS - the coverage each area owes, the assertion set each step
@@ -4707,7 +5545,8 @@ def self_test() -> int:
     import unittest
 
     class T(_CounterLawChecks, _StreamingLicenceChecks, _PlanContractChecks,
-            _AreaContractChecks, _ConcurrencyChecks, unittest.TestCase):
+            _AreaContractChecks, _ReleasePlanChecks, _ConcurrencyChecks,
+            unittest.TestCase):
         """Every arm of the offline suite, under the one name the report uses."""
 
     r = unittest.TextTestRunner(verbosity=2).run(
@@ -4740,6 +5579,19 @@ def main() -> int:
                     help="topology override, key=value,...: "
                          + ",".join(sorted(DEVICE_SPEC_FIELDS)))
     ap.add_argument("--peer", default=None, help="same, for the peer device")
+    ap.add_argument("--soak-duration-s", type=int, default=ReleaseSettings.soak_duration_s)
+    ap.add_argument("--soak-interval-s", type=int, default=ReleaseSettings.soak_interval_s)
+    ap.add_argument("--power-cycles", type=int, default=ReleaseSettings.power_cycles)
+    ap.add_argument("--idle-cycles", type=int, default=ReleaseSettings.idle_cycles)
+    ap.add_argument("--commit-cycles", type=int, default=ReleaseSettings.commit_cycles)
+    ap.add_argument("--persisted-items", default=",".join(ReleaseSettings.persisted_items),
+                    help="comma-separated items persisted by the shipping image")
+    ap.add_argument("--restore-bound-s", type=int, default=ReleaseSettings.restore_bound_s,
+                    help="provisional T0-to-automatic-AVTP bound; #396 round 2")
+    ap.add_argument("--boot-margin-s", type=int, default=ReleaseSettings.boot_margin_s,
+                    help="extra observation after the restore bound; never extends a pass deadline")
+    ap.add_argument("--power-off-hold-s", type=int, default=ReleaseSettings.power_off_hold_s,
+                    help="cold-cut discharge hold; recorded separately from T0 deadlines")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--self-test", action="store_true")
     a = ap.parse_args()
@@ -4748,7 +5600,17 @@ def main() -> int:
     dut = parse_device_spec(a.dut, ARTY) if a.dut else ARTY
     peer = parse_device_spec(a.peer, PEER) if a.peer else PEER
     areas = a.areas.split(",") if a.areas else None
-    plan = build_plan(areas, dut, peer)
+    try:
+        release = ReleaseSettings(a.soak_duration_s, a.soak_interval_s,
+                                  a.power_cycles, a.idle_cycles, a.commit_cycles,
+                                  tuple(a.persisted_items.split(",")))
+        release = replace(release, restore_bound_s=a.restore_bound_s,
+                          boot_margin_s=a.boot_margin_s,
+                          power_off_hold_s=a.power_off_hold_s,
+                          topology_explicit=_release_topology_explicit(a.dut, a.peer))
+        plan = build_plan(areas, dut, peer, release=release)
+    except ValueError as error:
+        ap.error(str(error))
     if a.checklist:
         print(checklist_text(plan))
         return 0
@@ -4770,6 +5632,8 @@ def main() -> int:
         flag = "HUMAN" if s.needs_human else "     "
         print(f"{flag} {s.area:8s} {s.op:22s} {s.sid}")
         print(f"           asserts: {', '.join(x.name for x in s.asserts)}")
+        if s.area in ("soak", "power"):
+            print(f"           args: {json.dumps(s.args, sort_keys=True)}")
     print(f"\n{len(plan)} steps, "
           f"{sum(len(s.asserts) for s in plan)} assertions, "
           f"{len(human_steps(plan))} need a human")

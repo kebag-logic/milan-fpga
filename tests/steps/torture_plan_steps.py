@@ -859,7 +859,7 @@ def step_tp_sel_bad(context: Context) -> None:
     raise AssertionError("an unknown area was accepted")
 
 
-@then("selecting nothing yields all five areas")
+@then("selecting nothing yields all configured areas")
 def step_tp_sel_all(context: Context) -> None:
     """Selecting nothing plans every declared area: the default is the whole campaign, never a subset that drifted."""
     assert {s.area for s in tp.build_plan()} == set(tp.AREAS), \
