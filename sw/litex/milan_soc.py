@@ -212,7 +212,7 @@ class _CRG(LiteXModule):
             self.pll = pll = S7PLL(speedgrade=-1)
         else:
             clkin, clkin_freq = platform.request("clk200"), 200e6
-            self.pll = pll = S7PLL(speedgrade=-2)
+            self.pll = pll = S7PLL(speedgrade=-int(platform.device.rsplit("-", 1)[1]))
         rst_n = platform.request("cpu_reset_n")
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clkin, clkin_freq)

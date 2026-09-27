@@ -70,6 +70,29 @@ def _run(body: str) -> subprocess.CompletedProcess:
                           check=False, timeout=30)
 
 
+def _check_report_content(output: str) -> None:
+    """Pin the setup, hold and diagnostic content required by #395 item 2."""
+    summaries = [line for line in output.splitlines() if line.startswith("SUMMARY ")]
+    assert len(summaries) == 5, output
+    for line in summaries:
+        assert "-delay_type min_max" in line, line
+        assert "-report_unconstrained" in line.split(), line
+    combined = [line for line in summaries if line.endswith("_all_timing.rpt")]
+    assert len(combined) == 1, output
+    assert "-check_timing_verbose" in combined[0].split(), combined[0]
+    for command, flags in (
+        ("report_clock_interaction", "-delay_type min_max"),
+        ("report_cdc", "-details"),
+        ("check_timing", "-verbose"),
+    ):
+        rows = [line for line in output.splitlines() if line.startswith(f"REPORT {command} ")]
+        assert len(rows) == 1 and flags in rows[0], (command, rows)
+    negative = [line for line in output.splitlines() if line.startswith("REPORT report_timing ")]
+    assert len(negative) == 4, output
+    for line in negative:
+        assert "-delay_type min_max" in line and "-slack_lesser_than 0" in line, line
+
+
 def test_timing_grade_contract() -> None:
     """The owner decision, each disabled analysis arm, and report failure are detectable."""
     # Independent acceptance oracle from #395, not imported expected values.
@@ -90,30 +113,34 @@ def test_timing_grade_contract() -> None:
             mutations[f"{corner} {delays}"] = (
                 f"config_timing_corners -corner {corner} -delay_type {delays}",
                 f"requires setup and hold at {corner}")
-    for label, (mutation, reason) in mutations.items():
-        result = _run(setup + "\n" + mutation + "\nkl_timing_grade_check")
-        assert result.returncode == 1 and reason in result.stderr, (label, result)
     wrong_part = _run("set part xc7a100tfgg484-1\n" + setup)
     assert wrong_part.returncode == 1 and "part mismatch" in wrong_part.stderr
     with tempfile.TemporaryDirectory(prefix="timing-grade-") as tmp:
         report = f"kl_timing_grade_reports {tcl_word(Path(tmp) / 'candidate')}"
+        # The platform calls the report hook. Its leading refusal must run
+        # before the report loop can overwrite a candidate's wrong conditions.
+        for label, (mutation, reason) in mutations.items():
+            for entry in ("kl_timing_grade_check", report):
+                result = _run(setup + "\n" + mutation + "\n" + entry)
+                assert result.returncode == 1 and reason in result.stderr, (label, entry, result)
+                assert not result.stdout, (label, entry, result.stdout)
+                assert not list(Path(tmp).iterdir()), (label, entry, "wrote before refusal")
         result = _run(setup + "\n" + report)
         assert result.returncode == 0, result.stderr
         for temp in (0, 85):
             for state in ("Slow min_max Fast none", "Slow none Fast min_max"):
                 assert f"SUMMARY {temp} {state} " in result.stdout, result.stdout
         assert "SUMMARY 85 Slow min_max Fast min_max " in result.stdout
-        for command in ("report_clock_interaction", "report_cdc", "check_timing"):
-            assert f"REPORT {command} " in result.stdout
-        assert result.stdout.count("REPORT report_timing ") == 4
+        _check_report_content(result.stdout)
         # An interrupted report propagates failure, but restores both timing models.
         result = _run(setup + "\nset fail_report 1\n" +
                       "if {![catch {" + report + "} msg]} {error {failure swallowed}}\n" +
                       "if {$msg ne {planted report failure}} {error $msg}\n" +
                       "kl_timing_grade_check")
         assert result.returncode == 0, result.stderr
-    print("  [timing grade] declaration pinned; 10 wrong-condition refusals; "
-          "four endpoint/model reports; complete analysis restored after success and failure")
+    print("  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; "
+          "four endpoint/model reports with setup, hold and diagnostics; "
+          "complete analysis restored after success and failure")
 
 
 def test_platform_hooks(python: str) -> None:
@@ -129,6 +156,26 @@ assert commands == configure_commands(), commands
 reports = [c.format(build_name="candidate") for c in p.toolchain.bitstream_commands]
 assert reports[0] == "kl_timing_grade_reports candidate_signoff", reports
 print("platform declaration reaches the part, pre-placement setup and post-route reports")
+'''
+    result = subprocess.run([python, "-B", "-c", probe], cwd=ROOT / "sw/litex",
+                            text=True, capture_output=True, check=False, timeout=60)
+    assert result.returncode == 0, result.stdout + result.stderr
+    print("  [timing grade] " + result.stdout.strip())
+
+
+def test_pll_grade(python: str) -> None:
+    """Changing the declared part must reach the real AX7101 PLL constructor."""
+    probe = r'''
+from unittest.mock import patch
+import milan_soc
+from platforms.ax7101_timing import TIMING_GRADE
+for part, expected in (("xc7a100t-fgg484-2", -2), ("xc7a100t-fgg484-1", -1)):
+    with patch.dict(TIMING_GRADE, part=part):
+        platform = milan_soc.alinx_ax7101.Platform()
+        with patch.object(milan_soc, "S7PLL", wraps=milan_soc.S7PLL) as pll:
+            milan_soc._CRG(platform, 100e6)
+        assert pll.call_args.kwargs["speedgrade"] == expected, pll.call_args
+print("declared part reaches the AX7101 PLL speed grade, including a changed-part control")
 '''
     result = subprocess.run([python, "-B", "-c", probe], cwd=ROOT / "sw/litex",
                             text=True, capture_output=True, check=False, timeout=60)

@@ -165,11 +165,15 @@ Every candidate enables setup and hold at both Slow and Fast timing corners.
 Artix-7 supplies fixed speed models, so the two temperature-endpoint reports
 repeat each model rather than represent four independent PVT models.
 Power-estimation junction temperature does not prorate timing delays.
+The [margin decision](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5860418611)
+requires WNS >= +0.03 ns and WHS >= 0.
+Apply both thresholds at every declared corner.
 
 Use the saved-checkpoint command in
 [BUILDING section 5](../integration/BUILDING.md#5-gates-before-a-build-is-good)
 to retain WNS/TNS/WHS/THS per model and endpoint, clock interaction, CDC and
-unconstrained-path evidence. Record negative-slack paths without hiding them
+unconstrained-path evidence. Retain the implementation log's CRITICAL WARNING census too.
+Record negative-slack paths without hiding them
 behind the command's exit status. Positive WNS does not discharge CDC findings,
 missing external I/O constraints, or #395's physical temperature and oscillator
 measurements. The [candidate record](../findings/COMMERCIAL_TIMING_395.md)

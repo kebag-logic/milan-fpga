@@ -58,7 +58,14 @@ UG835 documents that operating-condition temperature is not used for timing;
 UG906 requires both min and max analysis at both speed corners.
 [DS181](https://docs.amd.com/v/u/en-US/ds181_Artix_7_Data_Sheet)
 specifies the device operating ranges and speed characteristics.
-The result clears the existing WNS >= 0 rule, without inventing a new margin.
+The [margin decision](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5860418611)
+requires WNS >= +0.03 ns and WHS >= 0.
+Both thresholds apply at every declared corner.
+This formalizes BUILDING's AX7101 QSPI flashboot margin caveat.
+Every row meets both thresholds for the applied constraints.
+Worst WNS exceeds the required margin by 0.093 ns.
+Worst WHS is +0.036 ns; TNS and THS remain zero.
+Missing constraints still limit item 2's timing evidence, as below.
 
 ## Report findings and limits
 
@@ -67,6 +74,71 @@ and two No Common Clock. The two latter pairs connect `eth_clocks0_rx` and
 `milansoc_crg_clkout1` in opposite directions; their constraint classifications
 are `Timed (unsafe)` and `Partial False Path (unsafe)`.
 Their slacks are positive, but that does not establish CDC correctness.
+
+The shipping build rejected its intended clock-crossing exceptions.
+Its `alinx_ax7101.xdc:583-591` uses incomplete clock names.
+`crg_clkout0/1` should match `milansoc_crg_clkout0/1`; they match nothing.
+The audio clock group has the same missing prefix.
+The source is `sw/litex/milan_soc.py:1520-1534` at `66001a30`.
+Lines 1499-1509 explain the prior warm-die RX/ARP failure.
+That failure motivated the intended 8 ns crossing bound.
+
+The retained `vivado.log` census identifies each rejected exception:
+
+| Shipping XDC line | Intended constraint | Diagnostic | Build log lines |
+|---|---|---|---|
+| 583 | Ethernet to sys/milan hold false path | 12-4739 | 1705, 4118 |
+| 585 | Ethernet to sys/milan 8 ns maximum delay | 12-4739 | 4123 |
+| 587 | Sys/milan to Ethernet hold false path | 12-4739 | 1710, 4128 |
+| 589 | Sys/milan to Ethernet 8 ns maximum delay | 12-4739 | 4133 |
+| 591 | Asynchronous Ethernet/audio clock groups | 12-4739; 12-5201 | 1719, 1721, 1723; 4142, 4144, 4146 |
+| 595 | Quasi-static multicycle setup/hold relaxation | 20-1307 | 1724, 4147 |
+
+`Vivado 12-4739` reports no valid constraint objects.
+`12-5201` reports only one nonempty clock group.
+`Designutils 20-1307` rejects `if` inside the XDC file.
+That construct comes from `sw/litex/milan_soc.py:1550-1556` at `66001a30`.
+Its 112 tagged cells therefore lack the multicycle relaxation.
+That omission makes their analysis stricter.
+
+The log contains **14 emitted CRITICAL WARNING diagnostics**:
+ten 12-4739, two 12-5201 and two 20-1307.
+A substring search returns fifteen matches, including line 6400.
+That line echoes source text; it emits no diagnostic.
+The retained census preserves diagnostic text and original line numbers.
+The full log has 832920 bytes and SHA-256
+`4519c33a0dddc5967a4ac37c5f58324a3517315996ddd7291476726d32e160a6`.
+
+These rejections explain both unsafe Ethernet/milan clock-pair classifications.
+Ethernet to milan is timed against a 4 ns relationship.
+The reverse pair remains partially false-pathed.
+Ethernet/sys crossings remain **unbounded false paths**, in both directions.
+The generic LiteX MultiReg false path overrides maximum-delay constraints.
+Correcting clock names alone would not restore that bound.
+[Issue #607](https://github.com/kebag-logic/milan-fpga/issues/607) owns the constraint fix
+and build refusal on these warnings.
+
+The [internal review](https://github.com/kebag-logic/milan-fpga/pull/605#issuecomment-5860399025)
+measured the intended bound on the read-only checkpoint.
+Its receipts are `v2-probe-results.txt` and `v3-crossings-results.txt`.
+The probe clears timing constraints only in memory.
+It recreates the 200 MHz and Ethernet primary clocks.
+Generated sys/milan clocks propagate from the existing clock primitives.
+It then applies the intended 8 ns datapath-only bound.
+This exposes crossings hidden by the original false paths.
+
+| Crossing | Slow maximum datapath ns | Slow worst slack ns | Fast maximum datapath ns | Fast worst slack ns |
+|---|---:|---:|---:|---:|
+| Ethernet to sys | 2.179 | 5.746 | 1.240 | 6.717 |
+| Sys to Ethernet | 3.395 | 4.313 | 1.979 | 5.895 |
+| Ethernet to milan | 5.373 | 2.560 | 3.092 | 4.823 |
+| Milan to Ethernet | 0.875 | 7.066 | 0.432 | 7.538 |
+
+Slack includes endpoint checks; it is not simply 8 minus delay.
+Both models meet the intended bound for this placement.
+This diagnostic does not repair the shipping constraint set.
+It neither proves CDC correctness nor protects future sweep seeds.
+No timing or constraint fix is included in this lane.
 
 | CDC rule | Severity | Count |
 |---|---|---:|

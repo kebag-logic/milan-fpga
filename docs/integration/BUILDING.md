@@ -533,6 +533,11 @@ WNS, TNS, WHS and THS table. See
 [UG835 operating conditions](https://docs.amd.com/r/2021.1-English/ug835-vivado-tcl-commands/report_operating_conditions)
 and [UG906 max/min analysis](https://docs.amd.com/r/en-US/ug906-vivado-design-analysis/Max-and-Min-Delay-Analysis).
 
+The [margin decision on #395](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5860418611)
+requires WNS >= +0.03 ns and WHS >= 0.
+Apply both thresholds at every declared corner.
+This is the AX7101 margin required after QSPI flashboot corruption.
+
 For a saved routed checkpoint, generate the same report hook without rebuilding:
 
 ```sh
@@ -546,7 +551,11 @@ Use a report directory outside the candidate and a physical filesystem path.
 The script caps analysis at 16 threads and never writes a checkpoint or bitstream.
 Retain the input checkpoint and bitstream hashes, original implementation recipe,
 speed-file revision, all four slack metrics, clock interaction, CDC and verbose
-unconstrained-path reports. Negative slack is a finding with its paths;
+unconstrained-path reports. Retain the implementation log's CRITICAL WARNING census,
+including diagnostic codes, source locations and original log line numbers.
+An absent or rejected constraint limits the signoff claim.
+Positive slack cannot clear that missing coverage.
+Negative slack is a finding with its paths;
 missing I/O constraints and CDC diagnostics remain visible even with positive WNS.
 The [shipping-candidate measurement](../findings/COMMERCIAL_TIMING_395.md)
 records these limits. Temperature logging and oscillator measurements remain

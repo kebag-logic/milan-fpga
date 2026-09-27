@@ -154,6 +154,10 @@ timing tables. The minimum and maximum junction settings are recorded as power
 metadata; identical timing results at those endpoints are not independent models.
 Retain WNS, TNS, WHS, THS, the speed-file revision, clock interaction, CDC and
 unconstrained-path reports with the hashes and implementation recipe.
+Retain the implementation log's CRITICAL WARNING census too.
+The [margin decision](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5860418611)
+requires WNS >= +0.03 ns and WHS >= 0.
+Apply both thresholds at every declared corner.
 See [BUILDING section 5](../integration/BUILDING.md#5-gates-before-a-build-is-good)
 for commands and the [shipping measurement](../findings/COMMERCIAL_TIMING_395.md)
 for the current evidence. The product PCB declares its own grade; #395 items
