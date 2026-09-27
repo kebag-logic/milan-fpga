@@ -187,3 +187,4 @@ if __name__ == "__main__":
     test_timing_grade_contract()
     if len(sys.argv) == 2:
         test_platform_hooks(sys.argv[1])
+        test_pll_grade(sys.argv[1])

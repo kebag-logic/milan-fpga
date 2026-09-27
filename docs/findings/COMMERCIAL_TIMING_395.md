@@ -62,6 +62,8 @@ The [margin decision](https://github.com/kebag-logic/milan-fpga/issues/395#issue
 requires WNS >= +0.03 ns and WHS >= 0.
 Both thresholds apply at every declared corner.
 This formalizes BUILDING's AX7101 QSPI flashboot margin caveat.
+The [margin correction](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5860783553)
+confirms these thresholds are not automatically enforced; sweep seed selection is manual.
 Every row meets both thresholds for the applied constraints.
 Worst WNS exceeds the required margin by 0.093 ns.
 Worst WHS is +0.036 ns; TNS and THS remain zero.
@@ -112,17 +114,36 @@ The full log has 832920 bytes and SHA-256
 These rejections explain both unsafe Ethernet/milan clock-pair classifications.
 Ethernet to milan is timed against a 4 ns relationship.
 The reverse pair remains partially false-pathed.
-Ethernet/sys crossings remain **unbounded false paths**, in both directions.
-The generic LiteX MultiReg false path overrides maximum-delay constraints.
+Ethernet-to-system crossings remain **unbounded false paths**, in both directions.
+Two generic LiteX false paths override maximum-delay constraints.
+The MultiReg exception at shipping `alinx_ax7101.xdc:566` targets `mr_ff` cells.
+The AsyncResetSynchronizer exception at `:568` targets `ars_ff1`/`ars_ff2` PRE pins.
+The [round-2 internal review](https://github.com/kebag-logic/milan-fpga/pull/605#issuecomment-5860781374)
+classifies the endpoints in `r2-v1-crossings-r2-results.txt`:
+
+| Crossing | MultiReg D endpoints | AsyncResetSynchronizer PRE endpoints | Other D endpoints |
+|---|---:|---:|---:|
+| Ethernet to sys | 13 | 0 | 0 |
+| Sys to Ethernet | 12 | 4 | 0 |
+| Ethernet to milan | 0 | 0 | 50 |
+| Milan to Ethernet | 0 | 8 | 6 |
+
+Each exception masks its own endpoint class in the shipping constraints.
+The four system-to-Ethernet reset endpoints include worst endpoint `FDPE_14/PRE`.
+The eight milan-to-Ethernet reset endpoints include `FDPE_18/PRE`.
+The other D endpoints remain timed under the shipping constraints.
 Correcting clock names alone would not restore that bound.
 [Issue #607](https://github.com/kebag-logic/milan-fpga/issues/607) owns the constraint fix
-and build refusal on these warnings.
+and build refusal on these warnings, including the explicit decision on reset-assertion paths.
 
 The [internal review](https://github.com/kebag-logic/milan-fpga/pull/605#issuecomment-5860399025)
 measured the intended bound on the read-only checkpoint.
 Its receipts are `v2-probe-results.txt` and `v3-crossings-results.txt`.
 Round 2 repeats its reset-based probe across all four directions.
-The retained script and receipt are `crossings.tcl` and `crossings-results.txt`.
+The round-2 author packet at `fa9b0b5373abcb31b2ca6b20c3616b069d8672c4`
+retains both under `review-evidence/395-r1/author-r2`:
+[`crossings.tcl`](https://github.com/kebag-logic/milan-fpga/blob/fa9b0b5373abcb31b2ca6b20c3616b069d8672c4/review-evidence/395-r1/author-r2/crossings.tcl)
+and [`reports/crossings-results.txt`](https://github.com/kebag-logic/milan-fpga/blob/fa9b0b5373abcb31b2ca6b20c3616b069d8672c4/review-evidence/395-r1/author-r2/reports/crossings-results.txt).
 The probe clears timing constraints only in memory.
 It recreates the 200 MHz and Ethernet primary clocks.
 Generated sys/milan clocks propagate from the existing clock primitives.

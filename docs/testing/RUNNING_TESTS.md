@@ -152,10 +152,12 @@ The canonical launcher is:
 sw/litex/build.sh <config> [<config> ...] [--sweep]
 ```
 
-Gate the final candidate on non-negative post-route WNS and the placed
-utilization report. For AX7101 release candidates, retain comfortable timing
-margin and run the configured placement-directive sweep; an elaboration or
-out-of-context estimate is not a substitute for the placed design.
+Gate the final AX7101 candidate on WNS >= +0.03 ns and WHS >= 0
+at every declared corner, and on the placed utilization report.
+Run the configured placement-directive sweep and select its seed manually.
+The timing thresholds are **not automatically enforced**, as the
+[margin correction](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5860783553) confirms.
+An elaboration or out-of-context estimate is not a substitute for the placed design.
 
 The AX7101 dev-board release claims **commercial grade, 0 to 85 C junction**.
 The part and conditions come from

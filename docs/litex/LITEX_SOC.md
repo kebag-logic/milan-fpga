@@ -158,6 +158,9 @@ Retain the implementation log's CRITICAL WARNING census too.
 The [margin decision](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5860418611)
 requires WNS >= +0.03 ns and WHS >= 0.
 Apply both thresholds at every declared corner.
+They are not automatically enforced; sweep seed selection is manual.
+The [margin correction](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5860783553)
+records this enforcement limit.
 See [BUILDING section 5](../integration/BUILDING.md#5-gates-before-a-build-is-good)
 for commands and the [shipping measurement](../findings/COMMERCIAL_TIMING_395.md)
 for the current evidence. The product PCB declares its own grade; #395 items

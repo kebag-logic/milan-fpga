@@ -30,7 +30,7 @@ The shipping software-profile claims are checked against the
 - **[2. The named configurations](#2-the-named-configurations)** -- What each `cfg_*` recipe actually pins: part and speedgrade, DRAM, flash, fabric streams, and cache shape. Read the `--eth-port` sub-section before flashing an AX -- a bitstream is built for **one** port, a mismatch leaves the board with no network, and the recipe is verified by grepping the port back out of the build log rather than trusted.
 - **[3. The launch discipline (why the script is not just a for-loop)](#3-the-launch-discipline-why-the-script-is-not-just-a-for-loop)** -- Five rules, each paid for: Vivado *errors* above 32 threads, three concurrent builds maximum, a 90 s stagger because concurrent elaborations race on `.git/index.lock`, and detached process groups because a bulk task-kill once reaped four running builds mid-route. Section 3.1 adds the shape gates and the four separate times this class of drift reached silicon.
 - **[4. After the build: load, console and bench roles](#4-after-the-build-load-console-and-bench-roles)** -- The AX7101 JTAG and console invocations (select by serial -- `ttyUSB` numbers renumber on any replug), the bare-metal bitstream+AEM flash layout, the bench host roles with the one-DUT acceptance contract, and the UART smoke on the build box that is mandatory after every flash.
-- **[5. Gates before a build is "good"](#5-gates-before-a-build-is-good)** -- The three gates with their thresholds, including two hard-won caveats: keep AX margin above +0.03 because QSPI flashboot corrupted below it, and OOC-synth a module before believing its hierarchical utilization line.
+- **[5. Gates before a build is "good"](#5-gates-before-a-build-is-good)** -- The three gates with their thresholds: AX7101 WNS at least +0.03 ns and WHS at least 0 at every corner, manual seed selection, and OOC synthesis before relying on hierarchical utilization.
 
 ## 0. The pipeline, and where it can refuse you
 
@@ -46,7 +46,7 @@ flowchart LR
     LAUNCH --> SWEEP["--sweep<br/>3 place directives"]
     LAUNCH --> OUT["work/build_...<br/>+ .launch.log"]
     SWEEP --> OUT
-    OUT --> G1{"WNS &gt;= 0"}
+    OUT --> G1{"AX7101: WNS &gt;= +0.03 ns,<br/>WHS &gt;= 0 at every corner"}
     G1 -->|"pass"| G2{"utilization"}
     G1 -->|"fail"| RETRY["another seed,<br/>or an area lever"]
     G2 -->|"pass"| G3{"silicon checklist"}
@@ -69,7 +69,7 @@ flowchart LR
 | **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` flag for flag: `sweep.sh`'s effective OPTS, and the launch line `build.sh` prints in its dry run, read from the builder's artefact of the bound config | **yes for `sweep.sh`**, which runs it seconds before Vivado. `build.sh` does NOT run it: for the named recipes it is the CI and review gate (section 3.1) |
 | **deploy-shape gate** ([`scripts/check_deploy_shape.py`](../../scripts/check_deploy_shape.py)) | the launch line `deploy.sh build --dry-run` prints is the generated fragment's `OPTS` token for token, equals `configs/endstation_ax7101_1x1_tdm8.yaml` flag for flag, and does not park a declared TDM render lane | **yes in CI**: the `docs-check` job runs it and its self-test on every pull request and every push to `dev` and `main` (section 3.1). `deploy.sh` does NOT run it; by itself it refuses only a fragment that belongs to another config |
 | **IOB packing** ([`sw/litex/iob_pack_check.tcl`](../../sw/litex/iob_pack_check.tcl), issue #475) | after placement, every port constrained `IOB TRUE` (the TDM bclk, fsync and dout, the GMII TX and RX pins) has its register in the OLOGIC or ILOGIC of its own IOB. Vivado itself only raises the critical warning Place 30-722 and carries on | **yes, inside Vivado**: `milan_soc.py` runs it before routing, and one unpacked port fails the build naming the port, with no bitstream. `<outdir>/gateware/*_iob_pack.rpt` lists every checked port. Its offline self-test runs in the `docs-check` job |
-| **WNS ≥ 0** | Design Timing Summary row of `<outdir>/gateware/*_timing.rpt`. On the AX7101 keep margin: QSPI flashboot corrupted below +0.03 at 112.5 MHz | no — read it |
+| **AX7101 WNS >= +0.03 ns; WHS >= 0** | Every declared corner's Design Timing Summary in `<outdir>/gateware/*_signoff_*_timing.rpt`; see [section 5](#5-gates-before-a-build-is-good) | **no**: thresholds are not automatically enforced; read the reports and select the sweep seed manually |
 | **utilization** | `*_utilization_place.rpt` Slice LUTs / Slice / Block RAM Tile vs the area scoreboard. OOC-synth a module before believing its hierarchical line | no — read it |
 | **silicon checklist** | boot, UART `ID=MILN`/AEM/gPTP publication, advancing PHC, and external-host wire traffic | no — run it with the board |
 
@@ -537,6 +537,9 @@ The [margin decision on #395](https://github.com/kebag-logic/milan-fpga/issues/3
 requires WNS >= +0.03 ns and WHS >= 0.
 Apply both thresholds at every declared corner.
 This is the AX7101 margin required after QSPI flashboot corruption.
+These thresholds are **not automatically enforced**.
+The [margin correction](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5860783553)
+confirms that `sweep.sh` launches three placement directives; the seed pick is manual.
 
 For a saved routed checkpoint, generate the same report hook without rebuilding:
 
@@ -620,9 +623,10 @@ nothing back to it: connect a `LUT1` to an IOB flop's `Q`, `unplace_cell` the
 flop and `place_design`. Vivado then raises Place 30-722 and leaves it in a
 slice, and the check must `FAIL` naming that port.
 
-1. **WNS >= 0** in `<outdir>/gateware/*_timing.rpt` (Design Timing Summary
-   row). On the AX7101 keep comfortable margin  -  QSPI flashboot corrupted
-   below +0.03 at 112.5 MHz; the -1 arty die will run tighter at 100 MHz.
+1. **AX7101 WNS >= +0.03 ns and WHS >= 0 at every declared corner**, as
+   decided above. Read each `*_signoff_*_timing.rpt` Design Timing Summary.
+   The thresholds are not automatically enforced; select the sweep seed manually.
+   The retired Arty recipe retains its WNS >= 0 rule.
 2. **Utilization** vs the AREA-70 scoreboard (`*_utilization_place.rpt`:
    Slice LUTs / Slice / Block RAM Tile rows; hierarchical variants for
    attribution  -  but OOC-synth a module before believing its hierarchical
