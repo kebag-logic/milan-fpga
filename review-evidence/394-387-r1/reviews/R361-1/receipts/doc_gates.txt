@@ -1,0 +1,21 @@
+== $VENV_PY -B scripts/docs_check.py
+docs_check: 0 finding(s) across 170 md files + 905 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== $VENV_PY -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== $VENV_PY -B scripts/gen_toc.py --check
+TOC gate: OK (112 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+== $VENV_PY -B scripts/gen_toc.py --verify-anchors
+anchor check: 186 existing cross-page fragment links reproduced
+rc=0
+== $VENV_PY -B scripts/check_em_dash.py --base 2a2a7bb655e528edc3087c88033cd3a47546feb4
+check_em_dash: 0 finding(s) over 416 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [2a2a7bb6..HEAD]
+rc=0
+== $VENV_PY -B scripts/check_doc_paths.py
+doc path gate: OK (847 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+== git diff --check base..head
+warning: unable to find all commit-graph files
+rc=0

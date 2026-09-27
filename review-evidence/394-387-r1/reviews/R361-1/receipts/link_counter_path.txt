@@ -1,0 +1,80 @@
+== sw/litex/milan_soc.py:1782-1797 (link_status CSR, reset 1/2/1 -> MAC_STATUS 0x0d)
+        self.link_status = CSRStorage(fields=[
+            CSRField("link_up", size=1, offset=0, reset=1,
+                     description="PHY link is up (MAC_STATUS[0]). Software-published "
+                                 "from the MDIO autoneg result; reset 1 = the "
+                                 "pre-2026-07-26 hardwired constant."),
+            CSRField("speed", size=2, offset=1,
+                     reset=(0b01 if phy_model == "mii" else 0b10),
+                     description="Negotiated speed (MAC_STATUS[2:1]): 0=10, 1=100, "
+                                 "2=1000 Mb/s. Feeds milan_csr i_speed, hence "
+                                 "o_mac_is_1g (REQ-MAC-03) unless MAC_CTRL[5] "
+                                 "manual-override is set. Reset = the board's PHY "
+                                 "wiring (mii -> 100, gmii -> 1000)."),
+            CSRField("full_duplex", size=1, offset=3, reset=1,
+                     description="Full-duplex indication (MAC_STATUS[3])."),
+        ], description="PHY/MAC link status published by software (MDIO). See "
+                       "MAC_STATUS 0x110 in docs/reference/REGISTER_MAP.md.")
+== writers of link_status outside milan_soc.py (sw/, hdl/)
+(none above means no writer)
+== hdl/milan/milan_datapath.sv:2904-2914
+  assign eff_link_w = i_link_up & cfg_sw_link &
+                      (cfg_linkg_dis | linkg_est_w);
+  //! Counter-only link view: PHY + guard, without firmware qualification.
+  //! One physical flap = guard pair (DEAD_CYC_C = 4,096 axis_clk cycles to
+  //! detect, SETTLE_CYC_C = 2,097,152 to settle: 82 us and 41.94 ms at the
+  //! 50 MHz Milan clock of the AX7101 build, 41 us and 20.97 ms at 100 MHz)
+  //! + a second delayed firmware qualification pair (if any) -> the
+  //! Milan LINK_UP/LINK_DOWN counters read +2 per flap on eff_link. The
+  //! counters follow the physical event; eff_link keeps gating ADP/datapath.
+  wire cnt_link_w;
+  assign cnt_link_w = i_link_up & (cfg_linkg_dis | linkg_est_w);
+== hdl/milan/milan_datapath.sv:3472-3494
+  wire ctr_avb_link_edge_w = eff_link_w != ctr_link_q_r;
+  wire ctr_ckd_lock_edge_w = (~clkv_tu_w) != ctr_mclk_q_r;
+  wire ctr_avb_dirty_w = ctr_avb_link_edge_w || pp_gm_id_change_p_w;
+  wire ctr_ckd_dirty_w = ctr_ckd_lock_edge_w;
+  logic [31:0] ctr_linkup_r, ctr_linkdn_r;
+  logic [31:0] ctr_gmchg_r /* verilator public_flat_rd */;
+  logic [31:0] ctr_mlock_r, ctr_munlock_r;
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : itf_ctrs
+    if (!axis_resetn) begin
+      ctr_link_q_r <= 1'b0;
+      ctr_mclk_q_r <= 1'b0;
+      ctr_linkup_r <= 32'd0;
+      ctr_linkdn_r <= 32'd0;
+      ctr_gmchg_r  <= 32'd0;
+      ctr_mlock_r  <= 32'd0;
+      ctr_munlock_r<= 32'd0;
+    end else begin
+      ctr_link_q_r <= eff_link_w;
+      ctr_mclk_q_r <= ~clkv_tu_w;
+      //! 32-bit and wrapping, exactly as both clauses specify ("wraps over
+      //! to zero when it reaches the maximum value")
+      if (ctr_avb_link_edge_w &&  eff_link_w) ctr_linkup_r <= ctr_linkup_r + 32'd1;
+      if (ctr_avb_link_edge_w && !eff_link_w) ctr_linkdn_r <= ctr_linkdn_r + 32'd1;
+== hdl/common/KL_link_guard.sv:36-39,320
+                firmware-controlled fallback.
+
+                link_est_o = "eth RX clock alive" - the first hardware
+                link truth on boards whose MDIO is unusable (Arty
+  assign link_est_o = rx_alive_r;
+== docs/reference/REGISTER_MAP.md:734,736
+| `0x71C` | `LINK_CTRL` | RW | `0x0000_0001` | `[0]` firmware link qualification (assumed up at reset), `[1]` manual mac_reinit (hold MAC sys-side in reset), `[2]` linkg_dis (1 = guard disabled), `[3]` linkg_freeze (test hook: fake eth clock death drills the full FSM with no cable) |
+| `0x774` | `LINKG_STAT` | RO | -- | `KL_link_guard` `stat_o`: `[31:16]` bounce_cnt (saturating), `[9]` freeze, `[8]` dis, `[7]` act_recent (RX activity within the last 2^27 guard clock cycles: 2.7 s at the 50 MHz Milan clock, 1.3 s at 100 MHz), `[6]` guard_rst (reinit held), `[5:4]` state (0 RUN, 1 HOLD, 2 SETTLE), `[2]` eth_rst (sequenced eth-CDC reset, minor ≥ 0x0007), `[1]` tx_alive, `[0]` rx_alive |
+== docs/findings/117_GPTP_SILICON_EVIDENCE.md:340,501
+- `LINKG_STAT` went from `0x83` to `0x03` 2.73 s after the last received frame (RX activity clear, both clocks alive), and back to `0x83` within one sample of the first frame after the return. `RST_EPOCH` stayed 1.
+8. **Neither end station's AVB_INTERFACE LINK_UP or LINK_DOWN counter moved over seven switch outages.** The DUT read 1 and 0, and the peer 1 and 0, at both censuses, while GPTP_GM_CHANGED advanced by 14 on both. The tap showed the DUT link silent for 36 to 37 s each time; whether the DUT's PHY link dropped is not recorded.
+== console registers sampled per cycle (packet baseline-ready/console.jsonl)
+['mem_read 0x90000110 4', 'mem_read 0x90000720 4', 'mem_read 0x90000750 4', 'mem_read 0x90000764 4', 'mem_read 0x90000780 4', 'mem_read 0x900008f8 4', 'milan_status']
+== peer AVB_INTERFACE LINK_UP/LINK_DOWN delta per cycle
+cycle01 peer {'0': 0, '1': 0, '5': 2} last {'0': 1, '1': 0, '5': 17}
+cycle02 peer {'0': 0, '1': 0, '5': 2} last {'0': 1, '1': 0, '5': 19}
+cycle03 peer {'0': 0, '1': 0, '5': 2} last {'0': 1, '1': 0, '5': 21}
+cycle04 peer {'0': 0, '1': 0, '5': 2} last {'0': 1, '1': 0, '5': 23}
+cycle05 peer {'0': 0, '1': 0, '5': 2} last {'0': 1, '1': 0, '5': 25}
+cycle06 peer {'0': 0, '1': 0, '5': 2} last {'0': 1, '1': 0, '5': 27}
+cycle07 peer {'0': 0, '1': 0, '5': 2} last {'0': 1, '1': 0, '5': 29}
+cycle08 peer {'0': 0, '1': 0, '5': 2} last {'0': 1, '1': 0, '5': 31}
+cycle09 peer {'0': 0, '1': 0, '5': 2} last {'0': 1, '1': 0, '5': 33}
+cycle10 peer {'0': 0, '1': 0, '5': 2} last {'0': 1, '1': 0, '5': 35}
