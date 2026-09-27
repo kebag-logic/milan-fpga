@@ -1,0 +1,29 @@
+R347-2 citation check at 24d32d549fa7470318a93984403a92423a63fa25 (reviewer summary; clause headings and short facts only)
+Sources: Milan Specification Consolidated v1.2 (2023-11-30); IEEE Std 1722-2016; IEEE Std 1722.1-2021.
+Only the pages below were extracted (unpublished scratch, deleted after use); page numbers are PDF page indices.
+Milan printed page + 7 = PDF page (TOC p2-8 used to locate 5.5.2.x, 5.6.x, Annex B).
+
+Citation at head                                   | Where cited                                        | Standard text at that clause                                     | Result
+---------------------------------------------------|----------------------------------------------------|------------------------------------------------------------------|--------
+Milan 5.3.7.7 / Table 5.4 (p40)                     | REQUIREMENTS.md:256; TESTING.md:903                | Diagnostic counters for Stream Output                            | correct
+Milan 5.3.8.10 / Table 5.6 (p43-44)                 | REQUIREMENTS.md:256; torture_campaign.py:3380      | Diagnostic counters for Stream Input                             | correct
+IEEE 1722-2016 4.4.4.6 (p37)                        | REQUIREMENTS.md:258; torture_campaign.py:3380      | sequence_num field (now attached to SEQ_NUM_MISMATCH)             | correct
+Milan 4.2.6.2.4 (p24)                               | REQUIREMENTS.md:261; torture_campaign.py:3384      | asCapable                                                         | correct
+IEEE 1722-2016 4.4.4.7 (p37)                        | REQUIREMENTS.md:263; torture_campaign.py:3387      | tu (timestamp uncertain) field                                    | correct
+Milan Annex B.1 (p141, informative)                 | REQUIREMENTS.md:263,265; torture_campaign.py:3387  | Media clock holdover during GM change; recommends minimum 5 s     | correct as cited ("recommended ... five seconds")
+Milan Annex B.1.1 (p141)                            | REQUIREMENTS.md:263-264; torture_campaign.py:3389  | tu set to 1 for the duration of 0.25 s on a GM change             | correct as cited (see finding F2 on the pass bound)
+Milan 5.3.8.2 / 5.3.8.3 (p41)                       | REQUIREMENTS.md:272; torture_campaign.py:3408      | Bound state / Binding parameters saved and restored               | correct
+Milan 5.3.5.1, 5.3.7.1/5.3.7.6, 5.3.8.1/5.3.8.7,    | REQUIREMENTS.md:275-276; torture_campaign.py:3407  | Inventory clauses (round 1 verified 5.3.5.1, 5.3.7.1, 5.3.8.7,     | correct; matches docs/MILAN_V12_ROADMAP.md:400
+  5.3.9.1, 5.3.10.1, 5.3.11.1, 5.3.13               |                                                    | 5.3.11.1, 5.3.13; headings for the rest from the TOC)              |
+IEEE 1722.1-2021 6.2.2.5 (p49)                      | REQUIREMENTS.md:285; torture_campaign.py:3414      | valid_time field, two-second increments, 2..62 s                  | correct
+IEEE 1722.1-2021 6.2.4 (p55-56) / 6.2.5 (p56)       | REQUIREMENTS.md:285; torture_campaign.py:3414      | Advertising Entity SM (Figure 6-2) / Advertising Interface SM     | correct
+Milan 5.6.3 (p109-)                                 | REQUIREMENTS.md:286; torture_campaign.py:3414      | Advertise state machine                                           | correct ("defines the profile's advertiser")
+  (not cited) Milan 5.6.2 (p109)                    | -                                                  | valid_time shall be 10 in ENTITY_AVAILABLE (20 s; advertise every 5 s) | fixes the value the ADP rule decodes; see F3 and S3
+Milan 5.5.1.4 (p72)                                 | REQUIREMENTS.md:293; torture_campaign.py:3421      | Auto Connect (restart after power cycle; wait for talker ADP)      | correct
+Milan 5.5.2.6 (p76)                                 | REQUIREMENTS.md:293; torture_campaign.py:3421      | Auto Connect (persistent connections after power cycle)           | correct
+Milan 5.5.2.4 (p75)                                 | REQUIREMENTS.md:297; torture_campaign.py:3427      | Controller Bind; 5.5.2.2 (p73) renames CONNECT_RX to BIND_RX       | correct for the CONNECT_RX reconnect check
+
+Removed at head: 1722.1-2021 6.2.6 from power.adp-valid-time (correct removal); Milan 4.2.6.2.2/.3 from soak.gptp-continuity (acceptable: no assertion measures the tolerances).
+Pre-existing, outside the diff and unchanged: 1722.1-2021 6.2.6 still cited at torture_campaign.py:1456, :2769, :3096, :3104 (routed to a new Issue in round 1; manager duty).
+Related repository facts: docs/reference/REGISTER_MAP.md:996 (ADP valid_time constant 10 per Milan 5.6.2, 20 s);
+hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv:119-122 (tu holdover 0.25..0.5 s, read as B.1.1's 0.25 s minimum).

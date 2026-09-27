@@ -1,0 +1,9 @@
+R346-1 public scripts rerun unchanged at 24d32d549fa7470318a93984403a92423a63fa25 (read only after this reviewer's own pass over the diff)
+Source: branch 396-review-evidence at 68de0cfe2703a8fe2021a1ab23922da47278d95b, review-evidence/396-r1/reviews/R346-1/
+d26698bcdae5836941ef82c6fc3ad213f8da3dd22e18ff8e828895e4073fddc0  scripts/planner_mutants.py   (equals the R346-1 MANIFEST.sha256 entry)
+e1b0b026f1311b62294b3b82d5001ecf4a7dca1d683646f406a23f05b01bbe61  scripts/plan_omission_probe.py (equals the R346-1 MANIFEST.sha256 entry)
+Commands (foreground, disposable scratch; the clone is only read via git archive HEAD / import with -B):
+  python3 -B planner_mutants.py <clone> <scratch>/r346-run      -> receipts/r346-planner-mutants.log (rc 0; 44 mutants: 42 killed, 1 survived A08 informational, 1 invalid C13)
+  python3 -B plan_omission_probe.py <clone>                     -> receipts/r346-omission-probe.log (rc 0; 240 omissions over 3 topologies, 0 accepted)
+  python3 -B scripts/r346_attribution.py planner_mutants.py <tree> -> receipts/r346-kill-attribution.log (named killing tests for A04 A05 P01 P03 P07 C01 C08)
+The R346 scripts themselves are not republished in this packet.

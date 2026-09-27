@@ -1,0 +1,15 @@
+planner-self-test rc=0 :: python3 -B tb/tools/torture_campaign.py --self-test
+behave-plan rc=0 :: python3 -B -m behave tests/features/torture_campaign_plan.feature -f plain
+behave-torture-tier rc=0 :: python3 -B -m behave tests/features --tags=@torture -f progress
+feature-status-selftest rc=0 :: python3 -B scripts/check_feature_status.py --self-test
+feature-status rc=0 :: python3 -B scripts/check_feature_status.py
+docs-check rc=0 :: python3 -B scripts/docs_check.py
+doc-paths rc=0 :: python3 -B scripts/check_doc_paths.py
+doc-style rc=0 :: python3 -B scripts/check_doc_style.py
+py-idiom rc=0 :: python3 -B scripts/check_py_idiom.py
+em-dash rc=0 :: $MDPY -B scripts/check_em_dash.py --base ac18b50968b12efe4d15c0a06301264b35656b31
+gen-toc rc=0 :: $MDPY -B scripts/gen_toc.py --check
+diff-check-worktree rc=0 :: git diff --check
+diff-check-commit rc=0 :: git diff ac18b50968b12efe4d15c0a06301264b35656b31 HEAD --check
+coverage-by-area rc=0 :: python3 -B tb/tools/torture_campaign.py --coverage-by-area --areas soak,power
+plan-json rc=0 :: python3 -B tb/tools/torture_campaign.py --plan --areas soak,power --json
