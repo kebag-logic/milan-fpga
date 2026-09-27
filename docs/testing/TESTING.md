@@ -933,6 +933,11 @@ Cause kinds are `media-clock-source change`, `CRF disruption`, `CRF mr toggle`.
 Controller evidence must establish the affected stream's clock-source lineage.
 CRF causes require recorded derivation from that received CRF stream.
 A GM edge or PHC step alone is no cause.
+[Issue #602](https://github.com/kebag-logic/milan-fpga/issues/602) records the conflicting PHC-step design contract.
+Pending its decision, this gate keeps the owner's rule.
+A soak containing a PHC step fails on the current image.
+Each cause excuses at most one toggle per stream.
+Causes are consumed chronologically, preserving later matches.
 The check filters by stream before counting its PDUs.
 The first captured PDU establishes the prior `mr` level.
 Capture starts before the observation window and includes every PDU.
@@ -947,6 +952,11 @@ Include frame-launch latency and correlation error when deriving R.
 The cause window is `[toggle - R, toggle + R]`.
 No fixed coincidence window replaces that measured bound.
 Every verdict includes R, even when evidence is missing.
+Require `2 * R < 1 s`, the counter-update ceiling.
+The coincidence window must be narrower than that observation interval.
+Thus the deciding resolution limit is `1 s / 2`.
+Resolution at or above that limit yields NOT RUN.
+The verdict records this limit as `resolution_limit_s`.
 Counter intervals may finish after their causing wire toggle.
 Milan Tables 5.4/5.6 bound that delay by one second.
 For adjacent reads, match caused toggles in `[before - 1 - R, after + R]`.
@@ -955,9 +965,19 @@ Each increment consumes a distinct matching toggle within that window.
 The same toggle cannot explain two increments of one counter.
 Several toggles may contribute to a single device observation interval.
 Therefore, increment and toggle counts need not be equal.
-Unsigned 32-bit counter wrap is decoded before checking the delta.
-Counter resets remain subject to the separate counter-walk assertion.
+A MEDIA_RESET decrease is reported as a counter reset.
+Table 5.4 resets the counter when the talker starts.
+It is never decoded as billions of new increments.
+This fails the soak and requires counter-walk investigation.
+Retain the start evidence when interpreting the reset.
 Input and output counters are graded separately against their captures.
+Supply `capture_complete=ReleaseCapture((start, end), complete=True)` from capture metadata.
+The object records the window and completeness together.
+With boolean `True`, the first and last PDUs bound coverage.
+Silent captures require explicit endpoints; empty PDUs cannot prove duration.
+The span must cover `[first read - 1 - R, last read]`.
+It must also contain every supplied stream PDU.
+An insufficient span yields NOT RUN for the `mr` checks.
 Complete evidence must cover counter windows, including delayed updates.
 Missing records produce NOT RUN, which cannot qualify a release.
 
@@ -985,12 +1005,26 @@ Measure from the last recorded discontinuity before `tu` clears.
 The [round-4 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855792297) defines this anchor.
 Every discontinuity reloads the implemented holdover.
 Sync requalification must finish within the same clearing deadline.
-Use `check_release_tu` with complete interval and discontinuity evidence.
-Supply the plan's `tu_holdover_bound_s` and measured observation resolution.
+Use `check_release_tu_history` with complete interval and discontinuity evidence.
+Supply every `tu` interval and every recorded GM change.
+Grade each stream over the complete observation window.
+Capture boundary tails until all GM minimums can be judged.
+An explicit empty interval list records continuously clear `tu`.
+A missing list is NOT RUN; uncovered GM changes fail.
+Ordered intervals must be separate and have positive duration.
+`check_release_tu` remains the single-interval diagnostic entry.
+It grades every GM change supplied to that entry.
+Supply the measured observation resolution.
+The history check uses the fixed 0.5-second release bound.
 Supply `gm_changes_s` separately, including an explicit empty history.
 GM identity changes also count as discontinuities automatically.
 Missing GM history produces NOT RUN.
-Each verdict records the measured resolution and applicable deadlines.
+Require `R < min(0.25, 0.5)` seconds for both timing checks.
+Resolution must be smaller than each limit being decided.
+Thus `resolution_limit_s` is 0.25 seconds, with equality refused.
+Coarser resolution yields NOT RUN, even with no intervals.
+Each verdict records the measured resolution and applicable limits.
+Single-interval verdicts also record their deadlines.
 Its timestamps share the capture's correlated host clock.
 Include only recorded discontinuities of the accepted kinds.
 For example, a GM edge occurs at zero seconds.
@@ -1004,15 +1038,17 @@ An event 0.002 seconds before start does not count.
 An event exactly at start counts, including with zero resolution.
 The clearing deadline still uses the recorded event timestamp.
 
-The decided rule permits uncertainty before its first recorded discontinuity.
-It adds no separate bound for that preceding duration.
-For example, an observed interval spans zero through 10.4 seconds.
-Its lone discontinuity at 10 seconds satisfies this uncertainty check.
-All other soak assertions still apply independently.
+The first contained event must also satisfy `event <= observed_start + R`.
+Thus the rise itself must coincide with a recorded discontinuity.
+An interval spanning zero through 10.4 seconds fails this check.
+Its lone discontinuity at 10 seconds cannot justify its rise.
 Authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1.1.
 B.1.1 states 0.25 seconds; the project reads this as a minimum.
 Require `clear + observation_resolution_s >= last_GM_change + 0.25`.
-Use the latest recorded GM change before clear.
+Every recorded GM change must have a covering interval.
+A change at clear belongs to no preceding interval.
+A change with `tu` never set also fails.
+Use the latest covered GM change for each interval's minimum.
 A subsequent PHC step reloads only the upper-bound anchor.
 At 0.001-second resolution, clearing 0.24 seconds after GM fails.
 Clearing at 0.249 seconds meets the minimum with that resolution.

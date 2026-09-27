@@ -455,3 +455,8 @@ Feature: The torture campaign's own coverage is auditable at a desk
     And an outstanding human entry exits 2
     And a SKIP alone exits 0
     And the summary counts every verdict kind
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: every grandmaster change needs a following uncertainty hold
+    When the soak release area is planned
+    Then the planned uncertainty oracle rejects missing holds for every GM change

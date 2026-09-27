@@ -299,3 +299,18 @@ def step_tp_release_tu_start(context: Context, event_s: float, resolution_s: flo
         (0, 0.4), [event_s], holdover_bound_s=context.tp_plan[0].args["tu_holdover_bound_s"],
         observation_resolution_s=resolution_s, capture_complete=True, gm_changes_s=[])
     assert actual == verdict, evidence
+
+
+@then("the planned uncertainty oracle rejects missing holds for every GM change")
+def step_tp_release_tu_history(context: Context) -> None:
+    """A later unserved GM edge cannot hide behind an earlier valid interval."""
+    name = context.tp_plan[0].args["tu_oracle"]
+    assert name == "check_release_tu_history"
+    oracle = getattr(tp, name)
+    for intervals, gm, expected in (([], [0], "FAIL"), (None, [0], "NOT RUN"),
+                                    ([(0, 0.3)], [0, 0.3], "FAIL"),
+                                    ([(0, 0.3)], [0, 0.35], "FAIL"),
+                                    ([(0, 0.3), (1, 1.3)], [0, 1], "PASS")):
+        verdict, evidence = oracle(intervals, [], gm_changes_s=gm,
+                                   observation_resolution_s=0.001, capture_complete=True)
+        assert verdict == expected, evidence

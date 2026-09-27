@@ -264,16 +264,26 @@ verified blocks outside the shipping datapath; the station-address rules
   CRF causes apply only to streams deriving timestamps from it.
   GM change alone never excuses an `mr` toggle.
   Match each cause within the recorded relative timestamp resolution.
+  Each cause excuses at most one toggle per stream.
+  Its two-sided window must be shorter than one second.
+  Thus require resolution below half the counter-update ceiling.
+  Coarser resolution yields NOT RUN.
   Every toggle holds for at least eight AVTPDUs of its stream.
   Every MEDIA_RESET increment requires a distinct, cause-correlated wire toggle.
   Multiple toggles can share one device observation interval.
   Counter updates may lag toggles by at most one second.
   Authority: IEEE 1722-2016 4.4.4.3; Milan Tables 5.4/5.6, Annex B.1.2.
   Retain timestamped source events, packet indices, and counter reads.
+  Captures span the counter window, including delayed updates.
+  A MEDIA_RESET decrease is a reset, requiring counter-walk investigation.
   Missing evidence for these checks is NOT RUN.
+  [Issue #602](https://github.com/kebag-logic/milan-fpga/issues/602) records the PHC-step conflict.
+  Pending that decision, a PHC step alone remains no cause.
+  A soak containing one fails on the current image.
   Each `tu` interval contains at least one recorded discontinuity.
   Containment uses `[observed_start - observation_resolution_s, clear)`.
   The observed start is the first captured `tu=1` packet.
+  Its first discontinuity must occur within resolution of that rise.
   Accepted kinds include GM-identity and GM time-source changes.
   Other detected gPTP discontinuities include PHC settime/adjtime and fabric discontinuities.
   Measure from the last recorded discontinuity before `tu` clears.
@@ -288,7 +298,11 @@ verified blocks outside the shipping datapath; the station-address rules
   After every GM change, `tu` remains set for 0.25 seconds.
   The project treats that duration as a minimum.
   Require `clear + observation_resolution_s >= last_GM_change + 0.25`.
+  Grade every GM change against the complete interval history.
+  A GM change without a covering interval fails.
   Record GM history separately; missing history is NOT RUN.
+  Resolution must be below both timing limits: `min(0.25, 0.5)` seconds.
+  Coarser resolution yields NOT RUN.
   Resolution appears in every timing verdict.
   The [corrected decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5857765949) governs these `mr`/`tu` checks.
   Clock validity implements 0.25-0.5 seconds of discontinuity holdover.
