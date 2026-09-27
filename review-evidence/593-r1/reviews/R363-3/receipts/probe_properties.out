@@ -1,0 +1,62 @@
+PROBE P1 instant clear (d=0, h<=R) never PASS for R<0.125	expected={'FAIL'}	observed={'FAIL'}	OK
+PROBE P1b GM with no interval	expected=FAIL	observed=FAIL	OK
+PROBE P2a minimum PASS implies d >= 0.25-2R	expected=0	observed=0	OK
+PROBE P2b minimum FAIL implies d < 0.25	expected=0	observed=0	OK
+PROBE P3 upper PASS never admits d > 0.5+R	expected=0	observed=0	OK
+PROBE P3b h=0.5 R=0.1 PASS	expected=PASS	observed=PASS	OK
+PROBE P3c h=0.5000001 R=0.1 FAIL	expected=FAIL	observed=FAIL	OK
+PROBE P3d chained last disc 0.2, clear 0.7 PASS	expected=PASS	observed=PASS	OK
+PROBE P3e chained last disc 0.2, clear 0.701 FAIL	expected=FAIL	observed=FAIL	OK
+PROBE P4 empty history R=0.124999	expected=PASS	observed=PASS	OK
+PROBE P4 empty history R=0.125	expected=NOT RUN	observed=NOT RUN	OK
+PROBE P4 empty history R=0.2	expected=NOT RUN	observed=NOT RUN	OK
+PROBE P4 empty history R=0.25	expected=NOT RUN	observed=NOT RUN	OK
+PROBE P5 tu capture False [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu gm None [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu interval None [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu disc None [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu interval len1 [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu nonfinite event [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu zero interval [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu bound 5 [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu R=-1 [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu R=0.125 [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu R=None [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu uncorrelated FAIL [FAIL] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu rise FAIL [FAIL] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu min FAIL [FAIL] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu upper FAIL [FAIL] carries limit+R	expected=True	observed=True	OK
+PROBE P5 tu PASS [PASS] carries limit+R	expected=True	observed=True	OK
+PROBE P5 hist capture False [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 hist intervals None [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 hist disc None [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 hist gm None [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 hist R None [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 hist R 0.2 [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 hist nonfinite [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 hist bad interval [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 hist touching [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 hist nested FAIL [FAIL] carries limit+R	expected=True	observed=True	OK
+PROBE P5 hist uncovered GM FAIL [FAIL] carries limit+R	expected=True	observed=True	OK
+PROBE P5 hist PASS [PASS] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr capture False [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr empty stream [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr pdus None [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr causes None [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr reads None [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr R None [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr R 0.5 [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr invalid record [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr one read [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr bool capture no pdus [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr nonfinite window [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr short span [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr pdu gap [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr unfinished tail [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr unordered reads [NOT RUN] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr uncaused FAIL [FAIL] carries limit+R	expected=True	observed=True	OK
+PROBE P5 mr PASS [PASS] carries limit+R	expected=True	observed=True	OK
+PROBE P6a equal consecutive PDU timestamps accepted	expected=PASS	observed=PASS	OK
+PROBE P6b pdu_index -1 rejected (NOT RUN)	expected=NOT RUN	observed=NOT RUN	OK
+PROBE P6c GM exactly at start-R covered and graded (long hold PASS)	expected=PASS	observed=PASS	OK
+SUMMARY mismatches=0

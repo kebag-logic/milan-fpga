@@ -1,0 +1,55 @@
+$ git diff 6d5ebd7357c1e468e446f18a61527c5be6118a04 7a051e618677ecd907ed04b086afbdfe374b4336 --check
+rc=0
+warning: unable to find all commit-graph files
+
+$ git diff 68e801b2823f75e037152f7eb2ac4c5dcda5d919 7a051e618677ecd907ed04b086afbdfe374b4336 --check
+rc=0
+warning: unable to find all commit-graph files
+
+$ python3 scripts/docs_check.py
+rc=0
+docs_check: 0 finding(s) across 169 md files + 906 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+
+$ python3 scripts/check_doc_style.py
+rc=0
+documentation style: OK (22 current documents)
+
+$ python3 scripts/check_doc_paths.py
+rc=0
+doc path gate: OK (849 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+
+$ python3 scripts/check_feature_status.py --self-test
+rc=0
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+
+$ python3 scripts/check_em_dash.py --base 6d5ebd7357c1e468e446f18a61527c5be6118a04
+rc=2
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+
+$ python3 scripts/gen_toc.py --check
+rc=2
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+
+$ python3 scripts/gen_toc.py --verify-anchors
+rc=2
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+
+$ python3 scripts/check_py_idiom.py
+rc=0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+
+$ python3 scripts/check_hygiene.py
+rc=0
+  CRLF line ending                         0                   0                   0
+  UTF-8 BOM                                0                   0                   0
+  tab in SystemVerilog                     0                   0                   0
+
+$ python3 scripts/check_todo_ownership.py
+rc=0
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 845 first-party file(s) read)
+

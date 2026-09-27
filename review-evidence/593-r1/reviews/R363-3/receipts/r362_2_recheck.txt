@@ -1,0 +1,18 @@
+## Part 1: I3e-I3h (GM at 0, interval [0, clear), resolution R)
+I3e R=0.249 clear=0.002: history=NOT RUN single=NOT RUN required=['FAIL', 'NOT RUN'] MET
+I3f R=0.2 clear=0.06: history=NOT RUN single=NOT RUN required=['FAIL', 'NOT RUN'] MET
+I3g R=0.125 clear=0.13: history=NOT RUN single=NOT RUN required=['FAIL', 'NOT RUN'] MET
+I3h R=0.124 clear=0.124: history=FAIL single=FAIL required=['FAIL'] MET
+## Part 2: R362-2 counted survivors, my equivalent mutants
+KILLED C06 covered GM drops start allowance: ['test_release_tu_history_boundaries']
+KILLED C07 covered GM includes clear: ['test_release_tu_history_boundaries']
+KILLED C09 touching intervals accepted: ['test_release_tu_history_boundaries']
+KILLED C10 history negative resolution accepted: ['test_release_resolution_evidence', 'test_release_tu_history_boundaries']
+KILLED C19 history resolution_limit_s removed: ['test_release_resolution_evidence', 'test_release_tu_history_boundaries', 'test_release_tu_two_sided_boundaries']
+KILLED C34 empty stream_id accepted: ['test_release_mr_record_boundaries']
+KILLED C35 negative pdu_index accepted: ['test_release_mr_record_boundaries']
+KILLED T05 mr cause-window text deleted: ['test_release_mr_plan_contract']
+KILLED T21 mr cause-window text made one-sided: ['test_release_mr_plan_contract']
+KILLED T13 tu PHC/fabric examples text deleted: ['test_release_assertion_text']
+KILLED T25 tu PHC/fabric examples text negated: ['test_release_assertion_text']
+KILLED C38 mr verdict cause_window string altered: ['test_release_resolution_evidence']

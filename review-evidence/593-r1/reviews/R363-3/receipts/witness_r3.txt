@@ -1,0 +1,8 @@
+L3645 history zero-length guard <= -> <: verdict differences 0/108 (equivalent if 0)
+L3686 PDU timestamp order < -> <=: head=PASS mutant=NOT RUN -> DIFFERS
+L3793 capture window start >= end -> >: head=NOT RUN mutant=NOT RUN -> same
+L3793 capture window start >= end -> >: head=NOT RUN mutant=FAIL -> DIFFERS
+T18 pdu index floor -1: head=NOT RUN mutant=PASS -> DIFFERS
+T22 uncorrelated FAIL omits metadata: head=('FAIL', (True, True)) mutant=('FAIL', (False, False)) -> DIFFERS
+T23 mr capture-window NOT RUN omits metadata: head=('NOT RUN', (True, True)) mutant=('NOT RUN', (False, False)) -> DIFFERS
+T24 mr invalid-record NOT RUN omits metadata: head=('NOT RUN', (True, True)) mutant=('NOT RUN', (False, False)) -> DIFFERS
