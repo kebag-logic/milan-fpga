@@ -1,0 +1,45 @@
+[A347]
+
+Closes #573
+Closes #574
+Closes #575
+Closes #576
+
+## Status
+
+Implementation complete in four ordered commits. Independent review pending.
+All requested local gates returned zero. Both full builder modes passed.
+The calibration report was unavailable; compiler-absent mode recorded its expected skip.
+
+## Description
+
+Reject reserved entity identities, undersized listener buffers, oversized or
+mixed-family stream-format lists, altered CRF words, and outputs lacking INTERNAL.
+Each refusal names its field and governing rule.
+
+The format-count bound includes derived listener entries. Both CRF directions
+use the required Milan word. INTERNAL must be available; CRF may remain selected.
+Existing input-only clock loading remains supported.
+
+All five tracked configurations remain accepted. All 85 generated artifacts
+retain their original sizes and SHA-256 hashes. Evolution remains with #495.
+
+## How to reproduce
+
+Use any tracked end-station configuration as the legal control. Change one
+assigned field at a time to the invalid boundary described in the ownership
+matrix. Each change must receive its own named refusal before generation.
+
+## How to validate
+
+Run the complete builder bank in both compiler modes, declaration controls,
+descriptor audit, store self-test, and the required code and documentation gates.
+Compare all five configurations against the recorded pre-change artifact hashes.
+Detailed commands, gate results and removed-check evidence accompany the handoff.
+
+## Definition of done
+
+The four assigned rules have legal controls and discriminating refusals in the
+existing declaration entry point. The ownership matrix and parameter guide state
+the enforced boundaries. Fourteen removed-check mutations are detected.
+Independent review and publication remain with the assigned roles.

@@ -1,0 +1,100 @@
+[
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "573",
+    "mutation": "zero guard removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "573",
+    "mutation": "all-ones guard removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "573",
+    "mutation": "literal validation removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "573",
+    "mutation": "pin validation removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid entity.model_id_pin: must not be zero or all ones"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "574",
+    "mutation": "listener floor guard removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer floor"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "575",
+    "mutation": "format count guard removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid streams.listeners[0].formats: format count"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "575",
+    "mutation": "AAF family guard removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid streams.listeners[0].formats: must contain only AAF formats"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "575",
+    "mutation": "output count guard removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid streams.talkers[0].formats: format count"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "575",
+    "mutation": "output family guard removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid streams.talkers[0].formats: must contain only AAF formats"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "575",
+    "mutation": "CRF word guard removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid clocking.crf_format: CRF format must be"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "575",
+    "mutation": "CRF output word guard removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid clocking.crf_output.format: CRF format must be"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "576",
+    "mutation": "INTERNAL guard removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid clocking.media_clock_sources: requires INTERNAL"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "576",
+    "mutation": "AAF output arm removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: accepted invalid clocking.media_clock_sources: requires INTERNAL"
+  },
+  {
+    "head": "4f746408a15f494c4b30bdc9add6d7295309dff9",
+    "issue": "576",
+    "mutation": "CRF output arm removed",
+    "returncode": 1,
+    "diagnostic": "AssertionError: ('clocking.media_clock_sources', 'requires INTERNAL', 'streams.talkers: needs at least one talker stream')"
+  }
+]
