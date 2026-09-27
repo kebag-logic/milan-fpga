@@ -65,6 +65,28 @@ def test_model_id_contract() -> None:
     print("[F1] literal/pinned legal IDs, ENTITY/ADP equality, four endpoint refusals")
 
 
+def test_listener_buffer_contract() -> None:
+    """Milan 5.3.3.4: every listener, including nonzero indices, meets the floor."""
+    base = yaml.safe_load((ROOT / "configs/endstation_ax7101_8x8.yaml").read_text())
+    with tempfile.TemporaryDirectory(prefix="listener-buffer-contract.") as tmp:
+        directory = Path(tmp)
+        for index in range(len(base["streams"]["listeners"])):
+            raw = copy.deepcopy(base)
+            stream = raw["streams"]["listeners"][index]
+            # Independent clause boundary, not the implementation's constant.
+            for value in (2126000, 2126001):
+                stream["buffer_length_ns"] = value
+                cfg = _load(raw, directory)
+                assert cfg["listeners"][index]["buffer_length_ns"] == value
+                overlay = eb.emit_aem_overlay(cfg)
+                assert overlay["stream_inputs"][index]["buffer_length_ns"] == value
+            for value in (2125999, 0, -1, 2126000.5, "2126000", True):
+                stream["buffer_length_ns"] = value
+                _refused(raw, directory, f"streams.listeners[{index}].buffer_length_ns",
+                         "listener buffer floor")
+    print("[F2] eight listener indices: floor/above accepted, below/noninteger refused")
+
+
 def _code(text):
     return re.sub(r"/\*.*?\*/|//[^\n]*", "", text, flags=re.S)
 
@@ -104,6 +126,7 @@ def assert_header(header: str, n: int) -> None:
 def test_declaration_contracts() -> None:
     """Declaration refusals, generated rows, real bindings and mutation controls."""
     test_model_id_contract()
+    test_listener_buffer_contract()
     base = yaml.safe_load((ROOT / "configs/endstation_arty_current.yaml").read_text())
     with tempfile.TemporaryDirectory(prefix="declarations.") as tmp:
         directory = Path(tmp)

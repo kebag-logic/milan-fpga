@@ -114,6 +114,9 @@ actually routed by the board. Role-pool widths and the `loopback_lane` fabric
 fact are validated separately so the model cannot advertise a power-on source
 that the built datapath cannot provide.
 
+Every listener `buffer_length_ns` must be an integer, at least `2126000`.
+The default equals this Milan v1.2 5.3.3.4 floor.
+
 Every Stream Output declares `presentation_time_offset_ns`, defaulting to `2000000`.
 AAF uses `streams.talkers[]`; CRF uses `clocking.crf_output`.
 Other factory values refuse under Milan v1.2 5.3.7.6.

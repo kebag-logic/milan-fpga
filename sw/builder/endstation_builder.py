@@ -258,6 +258,7 @@ CRF_FORMAT_DEFAULT = "0x041060010000BB80"     # CRF AUDIO_SAMPLE 48k, gen_aem_st
 #   (CRF_AUDIO_SAMPLE), timestamp_interval 96, timestamps_per_pdu 1, pull 0,
 #   base_frequency 48000 -> ATDECC format string 0x041060010000BB80. Used for
 #   BOTH the CRF sink (Milan 7.2.2) and the CRF output (Milan 7.2.3).
+# Milan v1.2 5.3.3.4: the default is also the listener minimum.
 BUFLEN_DEFAULT_NS = 2126000
 
 # --------------------------------------------------------- lwSRP constants --
@@ -1376,6 +1377,17 @@ def _factory_offset(raw, ctx):
     return value
 
 
+def _stream_buffer_ns(stream: dict[str, Any], ctx: str, direction: str) -> int:
+    """Every declared listener must meet the Milan buffer floor."""
+    length_ns = stream.get("buffer_length_ns", BUFLEN_DEFAULT_NS)
+    if direction == "listener" and (
+            type(length_ns) is not int or length_ns < BUFLEN_DEFAULT_NS):
+        raise ConfigError(
+            f"{ctx}.buffer_length_ns: must be an integer >= {BUFLEN_DEFAULT_NS} ns "
+            "(Milan v1.2 5.3.3.4 listener buffer floor)")
+    return length_ns
+
+
 def _streams(lst, ctx, direction, rate_hz=48000):
     if not isinstance(lst, list) or not lst:
         raise ConfigError(f"{ctx}: needs at least one {direction} stream")
@@ -1459,7 +1471,7 @@ def _streams(lst, ctx, direction, rate_hz=48000):
             name=s.get("name", f"Stream {'In' if direction == 'listener' else 'Out'} {k}"),
             channels=ch, formats=fmts, clusters=clusters,
             map_mode=map_mode, map_page=map_page,
-            buffer_length_ns=s.get("buffer_length_ns", BUFLEN_DEFAULT_NS),
+            buffer_length_ns=_stream_buffer_ns(s, sctx, direction),
         ))
         if direction == "talker":
             out[-1]["presentation_time_offset_ns"] = _factory_offset(s, sctx)
