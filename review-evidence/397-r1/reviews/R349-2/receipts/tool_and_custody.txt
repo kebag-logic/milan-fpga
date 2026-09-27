@@ -1,0 +1,26 @@
+simulator: Verilator 5.052 2026-09-05 rev v5.052
+scoped 5.050 path from the brief: ls: cannot access '$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator': No such file or directory
+published receipt tool field: no tool_revisions key in round-2 receipts
+CPU netlist: c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d
+heartbeat entry symbol (1x1 bios.elf): 0x00006658u, 8x8: 0x000066ecu
+jal sites to nvm_heartbeat_tick in 1x1 bios.elf: 5 (source call sites: 5 at milan_baremetal.c:845,884,1120,1157,1173)
+commit ports in netlist: WhiteboxerPlugin_logic_commits_ports_0_valid 
+evidence branch commit holding the published receipts: bcc86c8dc (397-review-evidence), path review-evidence/397-r1/author-r2/receipts/
+published receipt sha256 (all 10 match the findings page table):
+7063dc22566acd341af23aab33efbc1aea1b20ab475dece30224fb90fde2b80f  round1-1X1.json
+d5f15a116e3037caec6b4601b6e810ba2927768f037e4d0fba4f8633dd296971  round1-8X8.json
+1839bb8ec891bcbfb7ebb83f78bf94ebdbd105aa4c99bd27f16479b2b03ea865  round2-1x1-all.json
+6f5e8816a592161fd54a07147bf9921434710b7c31a6bd1e69349867f2539025  round2-1x1-device-wait.json
+97b9ec9d89b56c5c90a301ec104fcad95cb3f40a32d8ef1f9162aca2b59717f5  round2-1x1-queued-input.json
+2c6202502147e2e12fe50afa6d78f814162c7e4f075c8400558c7a7f610f552f  round2-1x1-uart-paced.json
+b68a1c4cb31f17ed87a244817d10cebdda72eacc54fad152acaf17e1291b6467  round2-8x8-all.json
+aecbf0521ba19004c8c1c224a50d4d40e46c9ee0ff52aa94f41d447c29c63c2f  round2-8x8-device-wait.json
+231538aa71fb8f5af13e69988f338ed912ce97414bfdc069e71e1dd7218ae966  round2-8x8-queued-input.json
+8fa6a0be185b758b8fcb3e89b750a6b447dc9ea3886347e32f075bdeafc4b068  round2-8x8-uart-paced.json
+other reviewer's public scripts used unchanged (from bcc86c8dc:review-evidence/397-r1/reviews/R348-1/scripts/):
+60e53d1d2c3471f041c2564a2e66a55d88692d25c5164552bbfe2bc3db75cb1a  mutate_grader.py
+6280641b131d205ff39f127ff6c55a92e48e47f560181bd31fd9c72250a59fd0  compile_probe.py
+18fdad19fd91ca2b7735238efeedf1273385b4f1bb293e15db5c566b71e1e5ae  analyze_probe.py
+cd729a4121a68cb9036f76b672b653faafc785b26ecc3f37f8c293eb5f25a8e1  probe_sim_main.cpp
+3884c2568afa7c910be4e044eae90dbac41d0a0e57018b5c2c35ad42c7e1b7ad  probe_flash.hpp
+728077668229781377bad45efdce4e0f0e601ba664b6df65b64af877cd94b823  probe_public.vlt

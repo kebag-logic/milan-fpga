@@ -1,0 +1,122 @@
+{
+  "hb-marker-start": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows",
+    "receipt_regrade": {
+      "1X1": "DIFFERS(rows=False,findings=True)",
+      "8X8": "DIFFERS(rows=False,findings=True)"
+    }
+  },
+  "hb-marker-bitmask": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: combined control word was accepted as a standalone heartbeat",
+    "receipt_regrade": {
+      "1X1": "rows-identical",
+      "8X8": "rows-identical"
+    }
+  },
+  "hb-drop-final-tail": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows",
+    "receipt_regrade": {
+      "1X1": "DIFFERS(rows=False,findings=True)",
+      "8X8": "rows-identical"
+    }
+  },
+  "enable-marker-bit1": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: invalid interval: aem_copy_crc",
+    "receipt_regrade": {
+      "1X1": "REFUSED: invalid interval: aem_copy_crc",
+      "8X8": "REFUSED: invalid interval: aem_copy_crc"
+    }
+  },
+  "boot-start-zero": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows",
+    "receipt_regrade": {
+      "1X1": "DIFFERS(rows=False,findings=True)",
+      "8X8": "DIFFERS(rows=False,findings=True)"
+    }
+  },
+  "walk-end-first-write": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: restore interval contains no backend memory handshakes",
+    "receipt_regrade": {
+      "1X1": "REFUSED: restore interval contains no backend memory handshakes",
+      "8X8": "REFUSED: restore interval contains no backend memory handshakes"
+    }
+  },
+  "cpu-ratio-1to1": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows",
+    "receipt_regrade": {
+      "1X1": "DIFFERS(rows=False,findings=True)",
+      "8X8": "DIFFERS(rows=False,findings=True)"
+    }
+  },
+  "ms-at-50mhz": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows",
+    "receipt_regrade": {
+      "1X1": "DIFFERS(rows=False,findings=True)",
+      "8X8": "DIFFERS(rows=False,findings=True)"
+    }
+  },
+  "budget-at-50mhz": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: over-budget duty: planted-duty",
+    "receipt_regrade": {
+      "1X1": "DIFFERS(rows=False,findings=True)",
+      "8X8": "DIFFERS(rows=False,findings=True)"
+    }
+  },
+  "budget-at-200mhz": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: over-budget duty escaped",
+    "receipt_regrade": {
+      "1X1": "rows-identical",
+      "8X8": "DIFFERS(rows=True,findings=False)"
+    }
+  },
+  "command-end-shift": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows",
+    "receipt_regrade": {
+      "1X1": "DIFFERS(rows=False,findings=True)",
+      "8X8": "DIFFERS(rows=False,findings=False)"
+    }
+  },
+  "status-budget-8000": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows",
+    "receipt_regrade": {
+      "1X1": "DIFFERS(rows=False,findings=True)",
+      "8X8": "DIFFERS(rows=False,findings=False)"
+    }
+  },
+  "commit-budget-500": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows",
+    "receipt_regrade": {
+      "1X1": "DIFFERS(rows=False,findings=True)",
+      "8X8": "DIFFERS(rows=False,findings=False)"
+    }
+  },
+  "wait-not-subtracted": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: control trace changed: endstation_ax7101_8x8 rows",
+    "receipt_regrade": {
+      "1X1": "rows-identical",
+      "8X8": "DIFFERS(rows=False,findings=True)"
+    }
+  },
+  "erase-envelope-to-ack": {
+    "selftest_rc": 1,
+    "selftest_tail": "RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows",
+    "receipt_regrade": {
+      "1X1": "DIFFERS(rows=False,findings=True)",
+      "8X8": "DIFFERS(rows=False,findings=True)"
+    }
+  }
+}

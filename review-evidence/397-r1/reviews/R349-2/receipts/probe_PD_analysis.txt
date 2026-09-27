@@ -1,0 +1,75 @@
+{
+ "csr_write_addresses_seen": [
+  "0x90000920",
+  "0x90000934",
+  "0x9000093c"
+ ],
+ "boot": {
+  "enable_write_ms": 1031.44025,
+  "prev_uart_line_end_ms": 1031.4237,
+  "enable_uart_line_start_ms": 1031.4548,
+  "bracket_ok": true
+ },
+ "aem_copy_crc": {
+  "first_aem_flash_read_ms": 896.67788,
+  "last_aem_flash_read_ms": 1007.99006,
+  "aem_reads": 13721,
+  "first_read_to_enable_ms": 134.76237
+ },
+ "commands": [
+  {
+   "index": 0,
+   "command": "milan_nvm",
+   "ms": 788.85855,
+   "journal_reads": 52264,
+   "journal_read_span_ms": 781.77194,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 1,
+   "command": "milan_nvm",
+   "ms": 788.85883,
+   "journal_reads": 52264,
+   "journal_read_span_ms": 781.77194,
+   "erases": 0,
+   "programs": 0
+  },
+  {
+   "index": 2,
+   "command": "milan_nvm",
+   "ms": 788.85883,
+   "journal_reads": 52264,
+   "journal_read_span_ms": 781.77194,
+   "erases": 0,
+   "programs": 0
+  }
+ ],
+ "fabric_kicks": 1,
+ "csr_heartbeat_writes": 1,
+ "max_fabric_kick_gaps_ms": [
+  [
+   2505.57721,
+   893.96255,
+   3399.53976,
+   null
+  ]
+ ],
+ "min_alive_remaining_ms_at_kick": null,
+ "backed_lapses": [
+  {
+   "cycle_ms": 2893.00065,
+   "alive": 0,
+   "stale": 1,
+   "since_last_kick_ms": 1999.0381
+  }
+ ],
+ "commit_brackets_ms": [],
+ "final_uart_line": "\r\u001b[92;1mlitex\u001b[0m> ",
+ "backed_status_prints": [
+  "\rMilan NVM: slot A VD_OK seq 1, slot B VD_OK seq 1; offered  ... backed=1. @ 894.027 ms",
+  "\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1  ... backed=1 dirty=0 stale=0 v @ 1818.194 ms",
+  "\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1  ... backed=1 dirty=0 stale=0 v @ 2607.052 ms",
+  "\rNVM: PP_NVM_STAT=c30002a4 backed=0 dirty=0 stale=1 valid=1  ... backed=0 dirty=0 stale=1 v @ 3395.911 ms"
+ ]
+}

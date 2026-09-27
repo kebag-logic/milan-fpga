@@ -1,0 +1,21 @@
+mutant                             selftest_rc  result
+none                                    0       control: PASS: over-budget duty, marker integrity and product dispatch census
+liveness_ppstat_bit5                    1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 liveness
+liveness_backed_forced_1                0       ESCAPED: PASS: over-budget duty, marker integrity and product dispatch census
+period_phase_0                          1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+tx_allowance_8bit_frame                 1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+tx_allowance_zero                       1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+period_margin_1000                      1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+liveness_margin_4000                    1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+tick_drop_internal_gap                  1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+tick_drop_tail                          1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+tick_drop_head                          1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+aem_marker_walk_end                     1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+right_censored_false                    1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 heartbeat
+heartbeat_liveness_margin_2500          1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 heartbeat
+queued_1x1_count_11                     0       ESCAPED: PASS: over-budget duty, marker integrity and product dispatch census
+erase_limit_refuses_corner              1       CAUGHT: RuntimeError: erase wait must be 0..3000000 us
+program_limit_50ms                      1       CAUGHT: RuntimeError: unsupported device wait escaped
+boot_budget_n_a                         1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+wipe_erase_budget_8000                  1       CAUGHT: RuntimeError: control trace changed: endstation_ax7101_1x1_tdm8 rows
+heartbeat_500_met_flag                  0       ESCAPED: PASS: over-budget duty, marker integrity and product dispatch census

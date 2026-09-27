@@ -1,0 +1,5 @@
+args=[--device-wait-us -1] rc=1 build_dir=absent last='RuntimeError: erase wait must be 0..3000000 us'
+args=[--device-wait-us 3000001] rc=1 build_dir=absent last='RuntimeError: erase wait must be 0..3000000 us'
+args=[--program-wait-us -1] rc=1 build_dir=absent last='RuntimeError: program wait must be 0..5000 us'
+args=[--program-wait-us 5001] rc=1 build_dir=absent last='RuntimeError: program wait must be 0..5000 us'
+args=[--device-wait-us 3000001 --program-wait-us 5000] rc=1 build_dir=absent last='RuntimeError: erase wait must be 0..3000000 us'

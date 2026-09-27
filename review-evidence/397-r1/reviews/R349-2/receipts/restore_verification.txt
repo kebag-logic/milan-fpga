@@ -1,0 +1,25 @@
+HEAD=ff75a70807c151517860c73a06d7ea36e2a46008 expected=ff75a70807c151517860c73a06d7ea36e2a46008
+HEAD^{tree}=aa2fd7c8fe3499303efa316650e73b45b341dcf5 expected=aa2fd7c8fe3499303efa316650e73b45b341dcf5
+index tree=aa2fd7c8fe3499303efa316650e73b45b341dcf5
+diff-index (index+worktree vs HEAD, content and mode):
+(end)
+update-index --really-refresh rc=0
+status --porcelain --ignored:
+(end)
+gitlinks at HEAD:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 0922e43408f891fc0b84a84691df86b4fd0f1c0d	protocol-processor
+submodule checkouts:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ 0922e43408f891fc0b84a84691df86b4fd0f1c0d protocol-processor (v2.0-271-g0922e43)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor porcelain+ignored:
+(end)
+protocol-processor porcelain+ignored:
+(end)
+protected paths vs round-1 head 7f997b60 and base ac18b509:
+(end)
+(end)
+0bf43cd4fe02b110fb1ae4f051b3bc7baa6bb62c3769962520ed1f4bd12247a6  sw/firmware/milan_baremetal/milan_baremetal.c

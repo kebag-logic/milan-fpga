@@ -1,0 +1,26 @@
+run slot status (executed launcher):
+all1x1 rc=0 t=16:46:48
+paced1x1 rc=0 t=16:49:15
+queued1x1 rc=0 t=16:57:03
+P1 rc=0 t=16:58:13
+dev1x1 rc=0 t=17:03:59
+queued8x8 rc=0 t=17:12:01
+all8x8 rc=0 t=17:27:47
+paced8x8 rc=0 t=17:30:49
+dev8x8 rc=0 t=17:32:36
+P2 rc=0 t=17:35:29
+PD rc=0 t=17:45:01
+ALLDONE
+
+raw log sha256 of reviewer reruns (bodies are byte-identical to the published receipts' raw_log, see rerun_vs_published.txt):
+1397c7a1cf003220c7099d30a71162ed1700006b4b60a85606315de5932de4e2  b_endstation_ax7101_1x1_tdm8/service-all-1-0-0.log
+3cadd2c145196556a226556ac989594eac989409df24b0be0bc60ab16126b2db  runs/dev1x1/raw.log
+6806fb7ca48dd0e9f7c90161c55bf6eb4c3ebc115d565873ddaa22787c6b9a6e  runs/dev8x8/raw.log
+dd256344c67b02bf782f788f4f3dd10ad05d02922876be3fa93eeadf813e9161  runs/P1/raw.log
+8cfc9be6f2b5b346210399e784b69b6dd460e5753182d44bb41d666815d46b4f  runs/P2/raw.log
+bec1388167a67ea8e2975dc791041a7df6186c2d40bbd5490f1efee82df81527  runs/paced1x1/raw.log
+a140fcbc1826a5cda542cccf3778ed786d3232178d5df2def7ab8d1a61408d0c  runs/paced8x8/raw.log
+d466fddb254a65341df0929461a02b3b371056b4a5355c40fc0c4a0f8727aa44  runs/PD/raw.log
+7e89a6da44fa212d6caf802ba4eec971828000d2952929d23e9a163fa06d8374  runs/queued1x1/raw.log
+9d33bfc8a07455ded48827572b548baddcd1e68c9d34c08af55a398492d023b0  runs/queued8x8/raw.log
+06d13bcc341c3b3d3199987ed6a8c2fc1257464787b19e20afd348579a28190c  b_endstation_ax7101_8x8/service-all-1-1000-1000.log

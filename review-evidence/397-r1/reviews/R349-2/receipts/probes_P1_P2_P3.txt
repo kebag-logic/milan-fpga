@@ -1,0 +1,69 @@
+P1: round1 dd256344c67b02bf rerun dd256344c67b02bf identical=True bytes=10644/10644
+P2: round1 8cfc9be6f2b5b346 rerun 8cfc9be6f2b5b346 identical=True bytes=11778/11778
+P3: stripped head queued-input log identical to round-1 P3 log: False (round1 2bc156fc605cf791, stripped dda4c6b18c97a9fa)
+P3: head queued-input log equals published receipt log: True | rows/heartbeat/liveness/findings equal: True
+P3 heartbeat: {'plan': 'queued-input', 'start_sys_cycle': 25258315, 'end_sys_cycle': 282207516, 'right_censored': True, 'period_margin_ms': -2069.49201, 'liveness_margin_ms': -569.4920099999999}
+P3 liveness: [(0, 1, 520.97894), (1, 1, 729.46402), (2, 1, 937.9491), (3, 1, 1146.43418), (4, 1, 1354.91992), (5, 1, 1563.40504), (6, 1, 1771.89016), (7, 1, 1980.37528), (8, 1, 2188.8604), (9, 0, 2397.34614), (10, 0, 2605.83126), (11, 0, 2814.31638), (12, 0, 2822.07516)]
+line-based identity: False
+pre-existing EVENT lines identical: True 33 33
+UART text (newlines ignored) identical: True 6110
+--- P2 lapse analysis
+heartbeat strobes (ms): [252.583, 647.957, 897.957, 1147.958, 1397.959, 1668.096, 1987.578, 2237.578, 2487.579, 2737.58, 3007.717, 3420.096, 3670.097, 3920.098, 4170.098, 4438.992, 4688.993, 4938.994, 5188.994]
+max gap 412.37988 ms: 3007.717 -> 3420.096
+cmd[ 0]   312.494 ->   320.202 ms  PP_STAT[6]=1  (since last strobe at end: 67.619 ms)
+cmd[ 1]   320.202 ->   322.516 ms  -  (since last strobe at end: 69.933 ms)
+cmd[ 2]   322.516 ->   531.001 ms  backed=1  (since last strobe at end: 278.418 ms)
+cmd[ 3]   531.001 ->  1870.616 ms  -  (since last strobe at end: 202.520 ms)
+cmd[ 4]  1870.616 ->  3210.237 ms  -  (since last strobe at end: 202.520 ms)
+cmd[ 5]  3210.237 ->  3418.740 ms  backed=1  (since last strobe at end: 411.023 ms)
+cmd[ 6]  3418.740 ->  5459.077 ms  -  (since last strobe at end: 270.083 ms)
+cmd[ 7]  5459.077 ->  5466.573 ms  backed=1  (since last strobe at end: 277.579 ms)
+cmd[ 8]  5466.573 ->  5468.539 ms  -  (since last strobe at end: 279.544 ms)
+cmd[ 9]  5468.539 ->  5470.985 ms  -  (since last strobe at end: 281.991 ms)
+cmd[10]  5470.985 ->  5476.157 ms  -  (since last strobe at end: 287.163 ms)
+cmd[11]  5476.157 ->  5481.126 ms  -  (since last strobe at end: 292.132 ms)
+cmd[12]  5481.126 ->  5483.541 ms  -  (since last strobe at end: 294.546 ms)
+cmd[13]  5483.541 ->  5486.908 ms  -  (since last strobe at end: 297.914 ms)
+cmd[14]  5486.908 ->  5492.878 ms  -  (since last strobe at end: 303.884 ms)
+cmd[15]  5492.878 ->  5495.401 ms  -  (since last strobe at end: 306.406 ms)
+cmd[16]  5495.401 ->  5503.178 ms  PP_STAT[6]=1  (since last strobe at end: 314.184 ms)
+erase at 647.92908 ms, WIP 1000.000 ms: 4 strobes inside; max strobe spacing 250.00068 ms; erase->first 0.02771 ms; last->WIP end 249.97025 ms
+erase at 1987.54982 ms, WIP 1000.000 ms: 4 strobes inside; max strobe spacing 250.00068 ms; erase->first 0.02771 ms; last->WIP end 249.97025 ms
+erase at 3420.06870 ms, WIP 1000.000 ms: 4 strobes inside; max strobe spacing 250.00068 ms; erase->first 0.02771 ms; last->WIP end 249.97025 ms
+erase at 4438.96434 ms, WIP 1000.000 ms: 4 strobes inside; max strobe spacing 250.00068 ms; erase->first 0.02791 ms; last->WIP end 249.97005 ms
+--- P1 lapse analysis
+heartbeat strobes (ms): [312.757, 645.104, 932.944, 1214.941, 1496.084, 1546.116, 1555.115, 1579.833]
+max gap 332.34734 ms: 312.757 -> 645.104
+cmd[ 0]   389.648 ->   418.607 ms  PP_STAT[6]=1  (since last strobe at end: 105.850 ms)
+cmd[ 1]   418.607 ->   423.920 ms  -  (since last strobe at end: 111.163 ms)
+cmd[ 2]   423.920 ->   657.560 ms  backed=1  (since last strobe at end: 12.456 ms)
+cmd[ 3]   657.560 ->   939.557 ms  -  (since last strobe at end: 6.613 ms)
+cmd[ 4]   939.557 ->  1221.554 ms  -  (since last strobe at end: 6.613 ms)
+cmd[ 5]  1221.554 ->  1455.190 ms  backed=1  (since last strobe at end: 240.249 ms)
+cmd[ 6]  1455.190 ->  1504.648 ms  -  (since last strobe at end: 8.564 ms)
+cmd[ 7]  1504.648 ->  1537.775 ms  backed=1  (since last strobe at end: 41.691 ms)
+cmd[ 8]  1537.775 ->  1543.257 ms  -  (since last strobe at end: 47.173 ms)
+cmd[ 9]  1543.257 ->  1549.179 ms  -  (since last strobe at end: 3.063 ms)
+cmd[10]  1549.179 ->  1558.177 ms  -  (since last strobe at end: 3.063 ms)
+cmd[11]  1558.177 ->  1568.397 ms  -  (since last strobe at end: 13.282 ms)
+cmd[12]  1568.397 ->  1575.783 ms  -  (since last strobe at end: 20.668 ms)
+cmd[13]  1575.783 ->  1584.383 ms  -  (since last strobe at end: 4.550 ms)
+cmd[14]  1584.383 ->  1596.501 ms  -  (since last strobe at end: 16.668 ms)
+cmd[15]  1596.501 ->  1604.931 ms  -  (since last strobe at end: 25.098 ms)
+cmd[16]  1604.931 ->  1633.887 ms  PP_STAT[6]=1  (since last strobe at end: 54.054 ms)
+--- P3 (head queued-input) lapse analysis
+heartbeat strobes (ms): [252.583]
+max gap 2569.49201 ms: 252.583 -> 2822.075 (to final prompt)
+cmd[ 0]   312.494 ->   520.979 ms  backed=1  (since last strobe at end: 268.396 ms)
+cmd[ 1]   520.979 ->   729.464 ms  backed=1  (since last strobe at end: 476.881 ms)
+cmd[ 2]   729.464 ->   937.949 ms  backed=1  (since last strobe at end: 685.366 ms)
+cmd[ 3]   937.949 ->  1146.434 ms  backed=1  (since last strobe at end: 893.851 ms)
+cmd[ 4]  1146.434 ->  1354.920 ms  backed=1  (since last strobe at end: 1102.337 ms)
+cmd[ 5]  1354.920 ->  1563.405 ms  backed=1  (since last strobe at end: 1310.822 ms)
+cmd[ 6]  1563.405 ->  1771.890 ms  backed=1  (since last strobe at end: 1519.307 ms)
+cmd[ 7]  1771.890 ->  1980.375 ms  backed=1  (since last strobe at end: 1727.792 ms)
+cmd[ 8]  1980.375 ->  2188.860 ms  backed=1  (since last strobe at end: 1936.277 ms)
+cmd[ 9]  2188.860 ->  2397.346 ms  backed=0  (since last strobe at end: 2144.763 ms)
+cmd[10]  2397.346 ->  2605.831 ms  backed=0  (since last strobe at end: 2353.248 ms)
+cmd[11]  2605.831 ->  2814.316 ms  backed=0  (since last strobe at end: 2561.733 ms)
+cmd[12]  2814.316 ->  2822.075 ms  PP_STAT[6]=0  (since last strobe at end: 2569.492 ms)

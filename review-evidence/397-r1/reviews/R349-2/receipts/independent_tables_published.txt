@@ -1,0 +1,42 @@
+
+## endstation_ax7101_1x1_tdm8 duties: group | plan@max | CPU cycles | ms | span ms | plan@span | max TX ms | conditional ms
+Boot to entity enabled | uart-paced | 18,698,731 | 373.97461 | 312.73952 | uart-paced | 0.00000 | 562.73952
+AEM copy/CRC | uart-paced | 2,899,797 | 57.99594 | 57.99594 | uart-paced | 0.00000 | 307.99594
+Binding restore walk | all | 1,138 | 0.02276 | 0.01111 | all | 0.00000 | 250.01111
+Journal erase envelope | device-wait | 151,005,855 | 3020.11709 | 20.14069 | device-wait | 9.89583 | 280.03652
+Journal START-to-ACK | device-wait | 161,067,660 | 3221.35320 | 121.19479 | device-wait | 9.89583 | 381.09062
+`milan_status` | uart-paced | 1,448,542 | 28.97083 | 15.54534 | uart-paced | 28.47222 | 294.01756
+`milan_gettime` | uart-paced | 265,586 | 5.31171 | 2.31391 | all | 5.20833 | 257.52224
+`milan_settime`, maximum tested case | uart-paced | 510,995 | 10.21989 | 5.17229 | all | 8.50694 | 263.67923
+`milan_utc`, maximum tested case | uart-paced | 605,880 | 12.11759 | 5.97003 | all | 9.46181 | 265.43184
+`milan_nvm` status | uart-paced | 11,682,149 | 233.64297 | 220.48254 | uart-paced | 32.55208 | 503.03462
+`milan_nvm commit` | device-wait | 166,979,731 | 3339.59461 | 137.09021 | all | 9.89583 | 396.98604
+`milan_nvm wipe`, whole command | uart-paced | 2,472,810 | 49.45619 | 40.34359 | all | 11.54514 | 301.88873
+Wipe erase envelope, maximum of two | uart-paced | 1,448,160 | 28.96320 | 20.39232 | uart-paced | 11.54514 | 281.93746
+`milan_nvm invalid` | uart-paced | 273,914 | 5.47827 | 1.96577 | all | 5.38194 | 257.34771
+
+## endstation_ax7101_8x8 duties: group | plan@max | CPU cycles | ms | span ms | plan@span | max TX ms | conditional ms
+Boot to entity enabled | uart-paced | 54,724,259 | 1094.48517 | 954.12026 | uart-paced | 0.00000 | 1204.12026
+AEM copy/CRC | uart-paced | 6,850,696 | 137.01392 | 137.01392 | uart-paced | 0.00000 | 387.01392
+Binding restore walk | uart-paced | 2,706 | 0.05412 | 0.01111 | all | 0.00000 | 250.01111
+Journal erase envelope | device-wait | 153,725,874 | 3074.51747 | 74.51875 | device-wait | 9.98264 | 334.50139
+Journal START-to-ACK | device-wait | 192,836,355 | 3856.72710 | 470.23145 | device-wait | 9.98264 | 730.21409
+`milan_status` | uart-paced | 1,448,542 | 28.97083 | 15.54488 | uart-paced | 28.47222 | 294.01710
+`milan_gettime` | uart-paced | 265,595 | 5.31189 | 2.32535 | all | 5.20833 | 257.53368
+`milan_settime`, maximum tested case | uart-paced | 510,995 | 10.21989 | 5.17229 | all | 8.50694 | 263.67923
+`milan_utc`, maximum tested case | uart-paced | 605,880 | 12.11759 | 5.97003 | all | 9.46181 | 265.43184
+`milan_nvm` status | uart-paced | 40,703,945 | 814.07889 | 800.91654 | uart-paced | 32.72569 | 1083.64223
+`milan_nvm commit` | device-wait | 215,384,150 | 4307.68299 | 523.18408 | uart-paced | 9.98264 | 783.16672
+`milan_nvm wipe`, whole command | uart-paced | 7,910,620 | 158.21239 | 148.49474 | uart-paced | 11.54514 | 410.03988
+Wipe erase envelope, maximum of two | uart-paced | 4,167,030 | 83.34060 | 74.76972 | uart-paced | 11.54514 | 336.31486
+`milan_nvm invalid` | uart-paced | 273,914 | 5.47827 | 1.96577 | all | 5.38194 | 257.34771
+
+## schedules: shape | plan | gap ms | start ms | end ms | tail | samples | strobes
+endstation_ax7101_1x1_tdm8 | all | 430.62305 | 942.86687 | 1373.48992 | True | [1, 1, 1, 1, 1] | 3
+endstation_ax7101_1x1_tdm8 | device-wait | 250.00968 | 252.58315 | 502.59283 | False | [1] | 14
+endstation_ax7101_1x1_tdm8 | queued-input | 2569.49201 | 252.58315 | 2822.07516 | True | [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0] | 1
+endstation_ax7101_1x1_tdm8 | uart-paced | 332.34992 | 312.74513 | 645.09505 | False | [1, 1, 1, 1, 1] | 8
+endstation_ax7101_8x8 | all | 1449.77764 | 3390.63747 | 4840.41511 | False | [1, 1, 1, 1, 1] | 4
+endstation_ax7101_8x8 | device-wait | 588.61054 | 893.96257 | 1482.57311 | False | [1] | 15
+endstation_ax7101_8x8 | queued-input | 2513.33593 | 893.96257 | 3407.29850 | True | [1, 1, 0, 0] | 1
+endstation_ax7101_8x8 | uart-paced | 991.91598 | 954.12589 | 1946.04187 | False | [1, 1, 1, 1, 1] | 10

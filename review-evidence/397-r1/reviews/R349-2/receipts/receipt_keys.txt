@@ -1,0 +1,16 @@
+published keys ['budget_findings', 'build_hashes', 'cpu_hz', 'device_wait_us', 'events', 'heartbeat', 'heartbeat_500ms_met', 'heartbeat_max_gap_ms', 'input_hashes', 'liveness', 'log_sha256', 'media', 'program_wait_us', 'raw_log', 'rows', 'shape', 'sys_hz']
+run.py keys    ['budget_findings', 'build_hashes', 'cpu_hz', 'device_wait_us', 'events', 'heartbeat', 'heartbeat_500ms_met', 'heartbeat_max_gap_ms', 'input_hashes', 'liveness', 'log_sha256', 'media', 'program_wait_us', 'raw_log', 'rows', 'shape', 'sys_hz']
+identical key sets True
+differs: build_hashes
+differs: media
+media published {'image_bytes': 3264, 'records': 53, 'aem_bytes': 7352, 'populated': True, 'slots_sha256': '7e8bd158c7432eb9b1dce694d2b57f76f764e99cf392f7f35b22ce76a6de9f73', 'plan': 'all'}
+media run.py    {'image_bytes': 3264, 'records': 53, 'aem_bytes': 7352, 'populated': True, 'slots_sha256': '7e8bd158c7432eb9b1dce694d2b57f76f764e99cf392f7f35b22ce76a6de9f73', 'plan': 'all', 'shape': 'endstation_ax7101_1x1_tdm8'}
+build_hashes differing entries: ['build/gateware/sim.v', 'build/native/Vsim', 'build/software/bios/bios.elf', 'build/software/include/generated/csr.h', 'build/software/include/generated/git.h', 'build/software/include/generated/mem.h', 'build/software/include/generated/soc.h']
+round2-1x1-all.json media.shape <absent> plan all
+round2-1x1-device-wait.json media.shape <absent> plan device-wait
+round2-1x1-queued-input.json media.shape <absent> plan queued-input
+round2-1x1-uart-paced.json media.shape endstation_ax7101_1x1_tdm8 plan uart-paced
+round2-8x8-all.json media.shape <absent> plan all
+round2-8x8-device-wait.json media.shape <absent> plan device-wait
+round2-8x8-queued-input.json media.shape endstation_ax7101_8x8 plan queued-input
+round2-8x8-uart-paced.json media.shape <absent> plan uart-paced
