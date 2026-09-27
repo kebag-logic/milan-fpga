@@ -168,8 +168,8 @@ module KL_media_clock_restart #(
   //! media-clock restart request: one cycle per restart event. The
   //! integration ORs every trigger but the source change here: a disruption
   //! of the CRF stream our media clock is slaved to, that stream's own mr
-  //! toggle, and a PHC step (#387); the source-change trigger has its own
-  //! clk_src_i below.
+  //! toggle. PHC-only steps are excluded by #602; the source-change
+  //! trigger has its own clk_src_i below.
   input  wire                    restart_p_i,
   //! the live media clock SOURCE (SET_CLOCK_SOURCE / clock_source_index). A
   //! CHANGE of this value is 4.4.4.3's PRIMARY restart trigger (the clause's
