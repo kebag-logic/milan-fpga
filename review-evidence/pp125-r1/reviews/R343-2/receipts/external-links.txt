@@ -1,0 +1,9 @@
+# external link targets in delta 1d249e6..e04234e and section 3.1 (read-only API lookups)
+milan-fpga#584: open | 8x8 stream input ports own no AUDIO_CLUSTER, against Milan 5.3.3.8
+pp#122 comment 5853884588: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/122#issuecomment-5853884588 | [A348] STOP disposition: retain F07.2's STREAM_PORT_INPUT-to-AUDIO_CLUSTER_IN multiplicity `1..*`.  Milan Specification 
+pp#38: open | Implement model-lint rule L9: reject invalid entity_model_id and tie it to the static model (REQ-ADP-003)
+pp#39: open | Derive or lint ADPDU stream counts as the maximum across all configurations (REQ-ADP-004)
+pp#60: open | Entity-model lint L1-L8 (07 section 3.1) does not exist: add it to gen_desc_image.py or re-scope (REQ-MDL-001 to 011)
+pp#89: open | gen_desc_image.py packs an AUDIO_UNIT that breaks the SET_SAMPLING_RATE image contract (rule L10) without a word
+pp#122: open | Reconcile the F07.2 minimum with parent zero-cluster input pools
+parent page at e0920d77: ba9674d4b6c780e9358089910f0737218dcc61b5 25970 bytes

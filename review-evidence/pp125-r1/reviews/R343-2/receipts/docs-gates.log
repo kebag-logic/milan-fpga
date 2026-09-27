@@ -1,0 +1,24 @@
+### python3 scripts/check-links.py
+links: 917 checked, OK
+rc=0
+### python3 scripts/check-matrix.py
+matrix: 115 REQ rows, 17 GAP findings, OK
+rc=0
+### python3 scripts/check-integrator-params.py
+parameters: top 24, guide 24, diagram 24, OK
+rc=0
+### python3 scripts/render-wavedrom.py --check
+wavedrom: 18 blocks checked, OK
+rc=0
+### make stale
+rc=0
+### python3 scripts/gen_matrix.py --check
+matrix: OK (92 rows, 0 untested)
+rc=0
+### ./scripts/lint-diagrams.sh
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+rc=0
+### git diff --check 493e5e4bf58a6146bf9310194d71c72e18610704 e04234e115cfdcaace393ae62ba68562d47834c6
+rc=0
+### git diff --check 1d249e6e18a91c16a2620904483634548b0414a6 e04234e115cfdcaace393ae62ba68562d47834c6
+rc=0

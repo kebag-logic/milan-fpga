@@ -1,0 +1,21 @@
+Clause check for the round-2 citation (entity model ID validity)
+Source: local copy "Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf"
+  sha256 6bb902be1c1de8c44f4c4c583a645b0b37e0b2dac27870486ce229e68ce3bba8, 146 PDF pages.
+Extraction: pdftotext -layout -f 32 -l 32 (and pp. 31, 34 for context) into unpublished scratch.
+Only the short citation below is reproduced.
+
+Milan v1.2 §5.3.3.1 ENTITY - PDF p. 32, footer "5.3. Entity model  25" => printed p. 25
+(repository convention printed = PDF - 7, docs/00_MILAN_COMPLIANCE_REVIEW.md:50).
+  "The entity_model_id field shall be a valid EUI-64 (neither all zeros nor all ones)."
+The same clause also sets talker_stream_sources / listener_stream_sinks to the maximum
+over all Configurations (already cited as §5.3.3.1 at docs/guides/integrator.md:248).
+
+Milan v1.2 §5.3.1 Introduction - PDF p. 31 (printed p. 24): the note that a changed static
+model reports a different Entity Model ID. It carries the evolution half of L9 only.
+
+Result:
+- docs/guides/integrator.md:242 "(Milan v1.2 §5.3.3.1, printed p. 25)" - clause and page correct.
+- docs/architecture/07_memory_maps.md:132 L9 clause column "Milan v1.2 §5.3.1, §5.3.3.1" -
+  §5.3.3.1 carries validity, §5.3.1 carries evolution; both correct.
+- Milan v1.2 §5.3.3.8 (PDF p. 34, printed p. 27) still states the per-port AUDIO_CLUSTER
+  minimum cited at 07_memory_maps.md:78-79 (unchanged by the round-2 delta).
