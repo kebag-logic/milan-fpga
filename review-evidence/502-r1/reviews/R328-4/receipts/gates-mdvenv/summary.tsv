@@ -1,0 +1,23 @@
+docs_check	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/docs_check.py
+docs_check_nogit	0	env GIT_DIR=/dev/null $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/docs_check.py
+gen_toc_check	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --check
+gen_toc_anchors	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --verify-anchors
+em_dash_vs_train	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_em_dash.py --base dab01daf2c574727bd9b1a5ecc63a05538695b12
+em_dash_vs_prbase	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_em_dash.py --base 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf
+doc_style	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_doc_style.py
+doc_paths	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_doc_paths.py
+submodule_docs	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_submodule_docs.py
+ci_events_check	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/ci_events.py --check
+ci_events_selftest	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/ci_events.py --selftest
+nvm_capture	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_nvm_capture.py
+measure_test_evidence	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/measure_test_evidence.py --check
+rtl_source_lists	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_rtl_source_lists.py
+port_contracts	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/check_port_contracts.py
+lint_rtl	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/lint_rtl.py --check
+pp_srcs_check	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 scripts/pp_srcs.py --check
+dp_srcs_pp_shadow	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 syn/ooc/dp_srcs.py --top KL_pp_shadow
+dp_srcs_datapath	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 syn/ooc/dp_srcs.py --top milan_datapath
+pp_baseline_selftest	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 syn/ooc/pp_baseline.py --selftest
+pp_baseline_mutants	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 syn/ooc/pp_baseline_mutants.py
+pp_baseline_reports	0	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 syn/ooc/pp_baseline_reports_selftest.py
+diff_check_train	0	git diff --check dab01daf2c574727bd9b1a5ecc63a05538695b12 f80525e695ce7937ba1a2c1caa01ec9cdde93904

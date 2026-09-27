@@ -1,0 +1,188 @@
+
+== blob identity candidate vs source head for finding-bearing files
+EQ   CHANGELOG.md
+EQ   docs/reference/SUBMODULES.md
+EQ   docs/design/SAVED_STATE_MATERIALIZATION.md
+EQ   docs/design/SAVED_STATE_FASTCONNECT.md
+EQ   tb/verilator/pp_shadow/sim_main.cpp
+EQ   tb/verilator/pp_shadow/README.md
+EQ   hdl/milan/KL_pp_shadow.sv
+EQ   hdl/milan/milan_datapath.sv
+EQ   hdl/common/csr/milan_csr.sv
+DIFF docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md (predecessor overlap)
+DIFF docs/testing/TESTING.md (predecessor overlap)
+
+== R328-1 F1 = R329-1 F2: refused-at-validation control (harness log)
+      4   [PASS] K12 refused record input GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+      4   [PASS] K12 refused record input live_state_changed got=0x00000000 exp=0x00000000
+      4   [PASS] K12 refused record input no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+      4   [PASS] K12 refused record input pending_from_accepting_edge got=0x00000000 exp=0x00000000
+      4   [PASS] K12 refused record input: response status  got=0x00000000 exp=0x00000000
+      4   [PASS] K12 refused record input: response status  got=0x00000007 exp=0x00000007
+      4   [PASS] K12 refused record input sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+      4   [PASS] K12 refused record input sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+      1   [PASS] K12 refused record output GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+      1   [PASS] K12 refused record output live_state_changed got=0x00000000 exp=0x00000000
+      1   [PASS] K12 refused record output no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+      1   [PASS] K12 refused record output pending_from_accepting_edge got=0x00000000 exp=0x00000000
+      1   [PASS] K12 refused record output: response status got=0x00000000 exp=0x00000000
+      1   [PASS] K12 refused record output: response status got=0x00000007 exp=0x00000007
+      1   [PASS] K12 refused record output sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+      1   [PASS] K12 refused record output sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+
+== R328-1 F2: MATERIALIZATION section 1 current trigger
+The seven other Milan items have no record writer. The
+[snapshot-ownership page section 11](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#11-persistent-field-materialization)
+reads NONE for each, and the contract reports them honestly instead: the
+parent's `pend_i` combines four terms in `KL_pp_shadow.sv`:
+
+`pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_live_wr_w | aecp_live_pend_r`.
+
+The first two report dynamic-state dirtiness and unflushed bindings.
+Here `aecp_live_wr_w = aecp_name_wr_w | amap_live_wr_i`.
+Accepted name writes pulse `aecp_name_wr_o`.
+The parent's `amap_edit_live_wr_p` reports actual phase-5 map writes.
+It also drives the shadow's `amap_live_wr_i` input.
+`latch_live_pending` retains both live-write sources until reset.
+The live pulse also feeds `pend_i` directly, covering acceptance.
+No slot holds these unmaterialized name/map changes.
+
+Where each live value is held, read at the current source:
+
+== R328-1 F3: TESTING campaign row
+268:| #502 live-write pending, late-mark control | `make -C tb/verilator/pp_shadow pending-mutant` | Authors and reviewers changing `KL_pp_shadow.sv`, the map-edit owner in `milan_datapath.sv`, the processor name-write export, or `tb/verilator/pp_shadow/{sim_main.cpp,pending_probes.vlt,pending_mutant.py,Makefile}` |
+
+== R328-1 S1 = R329-1 F3: map pulse requires an actual change
+  assign amap_edit_live_wr_p = axis_resetn && amap_edit_beat_w
+      && (pp_amap_edit_phase_w == 3'd5) && amap_edit_context_w
+      && (amap_edit_in_change_w || amap_edit_out_change_w);
+      8   [PASS] K12 duplicate input GET_AUDIO_MAP exact record
+      8   [PASS] K12 duplicate input GET_AUDIO_MAP record count
+      4   [PASS] K12 duplicate input live_state_changed
+      4   [PASS] K12 duplicate input no_durable_claim_over_unsaved
+      4   [PASS] K12 duplicate input pending_from_accepting_edge
+      8   [PASS] K12 duplicate input: response status
+      4   [PASS] K12 duplicate input sticky_pending_PP_NVM_STAT
+      4   [PASS] K12 duplicate input sticky_pending_PP_STAT
+      2   [PASS] K12 duplicate output GET_AUDIO_MAP exact record
+      2   [PASS] K12 duplicate output GET_AUDIO_MAP record count
+      1   [PASS] K12 duplicate output live_state_changed
+      1   [PASS] K12 duplicate output no_durable_claim_over_unsaved
+      1   [PASS] K12 duplicate output pending_from_accepting_edge
+      2   [PASS] K12 duplicate output: response status
+      1   [PASS] K12 duplicate output sticky_pending_PP_NVM_STAT
+      1   [PASS] K12 duplicate output sticky_pending_PP_STAT
+warning: unable to find all commit-graph files
+tree hits for "conservative duplicate": 0
+
+== R328-1 S2: storage-anchored observer (harness unchanged vs source head: see blob identity)
+
+== R329-1 F1: REMOVE controls and mutant kills
+      4   [PASS] K12 remove input GET_AUDIO_MAP exact record
+      8   [PASS] K12 remove input GET_AUDIO_MAP record count
+      4   [PASS] K12 remove input live_state_changed
+      4   [PASS] K12 remove input no_durable_claim_over_unsaved
+      4   [PASS] K12 remove input pending_from_accepting_edge
+      8   [PASS] K12 remove input: response status
+      4   [PASS] K12 remove input sticky_pending_PP_NVM_STAT
+      4   [PASS] K12 remove input sticky_pending_PP_STAT
+      1   [PASS] K12 remove output GET_AUDIO_MAP exact record
+      2   [PASS] K12 remove output GET_AUDIO_MAP record count
+      1   [PASS] K12 remove output live_state_changed
+      1   [PASS] K12 remove output no_durable_claim_over_unsaved
+      1   [PASS] K12 remove output pending_from_accepting_edge
+      2   [PASS] K12 remove output: response status
+      1   [PASS] K12 remove output sticky_pending_PP_NVM_STAT
+      1   [PASS] K12 remove output sticky_pending_PP_STAT
+      1   [FAIL] K12 remove input no_durable_claim_over_unsaved
+      1   [FAIL] K12 remove input pending_from_accepting_edge
+      1   [FAIL] K12 remove output no_durable_claim_over_unsaved
+      1   [FAIL] K12 remove output pending_from_accepting_edge
+
+== R328-2 F1 = R329-2 F1: CHANGELOG and SUBMODULES trigger text
+
+- Issue #502 advances the processor pin to `870ff88a`.
+- Accepted name writes now raise saved-state pending immediately.
+- Actual parent phase-5 map writes raise the same sticky source.
+- Unchanged map records raise nothing.
+- The backend samples each pulse on its accepting edge.
+- Command marks retain their later completion meaning.
+- Neither group has a record writer; pending clears at reset.
+- K10/K12 run real commands through the shipping datapath.
+Issue #502 advances the current pin to `870ff88a`.
+
+- PR 121 exports each accepted live name write.
+- `KL_pp_shadow` connects that pulse to saved-state pending.
+- The parent's actual-write enable supplies the map trigger.
+- Later marks retain their command-completion meaning.
+warning: unable to find all commit-graph files
+tree hits for "every commit beat": 0
+
+== R328-2 S1: partial-refusal controls
+      4   [PASS] K12 partial refusal input GET_AUDIO_MAP record count
+      4   [PASS] K12 partial refusal input live_state_changed
+      4   [PASS] K12 partial refusal input no_durable_claim_over_unsaved
+      4   [PASS] K12 partial refusal input pending_from_accepting_edge
+      8   [PASS] K12 partial refusal input: response status
+      4   [PASS] K12 partial refusal input sticky_pending_PP_NVM_STAT
+      4   [PASS] K12 partial refusal input sticky_pending_PP_STAT
+      1   [PASS] K12 partial refusal output GET_AUDIO_MAP record count
+      1   [PASS] K12 partial refusal output live_state_changed
+      1   [PASS] K12 partial refusal output no_durable_claim_over_unsaved
+      1   [PASS] K12 partial refusal output pending_from_accepting_edge
+      2   [PASS] K12 partial refusal output: response status
+      1   [PASS] K12 partial refusal output sticky_pending_PP_NVM_STAT
+      1   [PASS] K12 partial refusal output sticky_pending_PP_STAT
+
+== R328-2 S2: SNAPSHOT section 11 map row wording
+1273:| 0x60 to 0x7F | channel maps in and out | milan_datapath and KL_chan_map_capture | actual phase-5 map write enable (#502) | NONE | nvm_pend 1 from the first actual write until reset; never durable, and never written (UNRESOLVED 1) |
+
+== R329-3 F1 / S1: MATERIALIZATION UNRESOLVED item and history labels
+56:Historical evidence source: dev `07294a76` (protocol-processor `424c688f`,
+58:VERSION `0x0002_0060`. Historical references to the current source mean that
+219:The K10/K12 failures describe the historical pre-#502 glue.
+225:That historical status falsely read durable during the program tail.
+254:The table above remains evidence at its stated historical source.
+1665:  Issue #502 corrects the historical reporting window (section 2).
+1679:  The historical K16 evidence below exercised the old allocation.
+1731:| Triggering on commit marks, as the pre-#502 glue did | Marks followed live writes. Historical status falsely read durable during that tail. | Historical EXECUTED evidence, section 2; corrected by #502 |
+2087:   the program tail (historical EXECUTED evidence, section 2). The class-1
+2094:   Its pending-and-skip result remains historical containment evidence.
+2097:3. **RESOLVED by #502: the historical mark-tail reporting window.**
+2238:These are historical answers at that head, including issue statuses.
+
+== R328-3 S1 / R329-4 S1: case-tagged refusal and exact-record diagnostics
+      8   [PASS] K12 duplicate input GET_AUDIO_MAP exact record
+      2   [PASS] K12 duplicate output GET_AUDIO_MAP exact record
+      4   [PASS] K12 input GET_AUDIO_MAP exact record
+      1   [PASS] K12 output GET_AUDIO_MAP exact record
+      4   [PASS] K12 remove input GET_AUDIO_MAP exact record
+      1   [PASS] K12 remove output GET_AUDIO_MAP exact record
+
+== R329-4 F1: SNAPSHOT section 13 current parent use
+1361:- Current parent use: `KL_pp_shadow` drives the backend's pending input.
+1362:  `pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_live_wr_w | aecp_live_pend_r`.
+1388:- Original parent use: a class-6/7 mark set sticky pending until
+warning: unable to find all commit-graph files
+f80525e695ce7937ba1a2c1caa01ec9cdde93904:docs/design/SAVED_STATE_MATERIALIZATION.md:132:`pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_live_wr_w | aecp_live_pend_r`.
+f80525e695ce7937ba1a2c1caa01ec9cdde93904:docs/design/SAVED_STATE_MATERIALIZATION.md:493:  `pend_i = (|nvm_unflushed_o) | d3_unflushed_o`.
+f80525e695ce7937ba1a2c1caa01ec9cdde93904:docs/design/SAVED_STATE_MATERIALIZATION.md:614:pend_i      = (OR of the binding manager's unflushed sinks) OR d3_unflushed
+f80525e695ce7937ba1a2c1caa01ec9cdde93904:docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1362:  `pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_live_wr_w | aecp_live_pend_r`.
+f80525e695ce7937ba1a2c1caa01ec9cdde93904:tb/verilator/nvm_backend/sim_main.cpp:441:  dut_->pend_i = 0;
+f80525e695ce7937ba1a2c1caa01ec9cdde93904:tb/verilator/nvm_backend/sim_main.cpp:857:  dut_->pend_i = level;
+
+== R329-4 S2: milan_csr.sv comment wrap
+  //! writes and actual parent phase-5 map writes now raise pending.
+  //! Unchanged maps raise nothing; marks still delimit command completion.
+  //! No CSR address, width, access or OTHER field moves. PP_NVM_STAT
+  //! 0x93C, PP_NVM_SEL 0x934 and 0x005C's SRP status words are unchanged.
+  //! The register occupies four bytes.
+
+== R329-5 S1-S4 (optional) at candidate
+| 2. names | 38 at 1x1, 99 at 8x8 | the name trigger, the eight-lane latch, the restore after the image walk; the names' roll-back rides stage 1's descriptor-store reset; the sticky pending source sto
+| 3. channel maps | 2 at 1x1, 16 at 8x8 | Requires donor adoption of the decided #501 allocation: the edit-face trigger, the GET_AUDIO_MAP latch, the framing rule, the coupled restore, the map plane's
+        ck("K12 preloaded baseline durable", axi_read(A_PP_STAT) & 0xb40u, 0x40u);
+defines the current pending sources.
+
+That manager is proposed in
+1280:UNRESOLVED 1. The channel-map and name rows are now REPORTED, because donor
