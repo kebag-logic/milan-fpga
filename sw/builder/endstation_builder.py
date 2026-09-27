@@ -68,6 +68,7 @@ ROOT = HERE.parent.parent
 
 SCHEMA_ID = "kebag-logic/milan-endstation-config"
 SCHEMA_MAJOR = "1"
+EUI64_MAX = (1 << 64) - 1
 
 
 def _repo_relative(path: Path) -> str:
@@ -120,7 +121,7 @@ MODEL_ID_HASH_BITS = 40              # EUI-64 bits taken from the sha256
 #: the descriptor layer that writes them, so the accepted keys and their
 #: defaults have one owner (avdecc/aem_descriptors.py).
 sys.path.insert(0, str(ROOT / "avdecc"))
-from aem_descriptors import OBJECT_NAMES  # noqa: E402
+from aem_descriptors import MAX_STREAM_FORMATS, OBJECT_NAMES, UINT32_MAX  # noqa: E402
 
 #: CLOCK_SOURCE object_name by source type, and the `names.clock_sources`
 #: keys a config may declare (schema 1.2). This builder owns these literals:
@@ -257,6 +258,7 @@ CRF_FORMAT_DEFAULT = "0x041060010000BB80"     # CRF AUDIO_SAMPLE 48k, gen_aem_st
 #   (CRF_AUDIO_SAMPLE), timestamp_interval 96, timestamps_per_pdu 1, pull 0,
 #   base_frequency 48000 -> ATDECC format string 0x041060010000BB80. Used for
 #   BOTH the CRF sink (Milan 7.2.2) and the CRF output (Milan 7.2.3).
+# Milan v1.2 5.3.3.4: the default is also the listener minimum.
 BUFLEN_DEFAULT_NS = 2126000
 
 # --------------------------------------------------------- lwSRP constants --
@@ -1325,13 +1327,25 @@ def _req(d, key, ctx):
 
 
 def _eui64(v, ctx):
+    if not isinstance(v, str):
+        raise ConfigError(f"{ctx}: quote the hexadecimal value as a YAML string")
     try:
-        n = int(str(v), 16)
+        n = int(v, 16)
     except ValueError:
         raise ConfigError(f"{ctx}: '{v}' is not a hex EUI-64")
-    if not 0 <= n <= 0xFFFFFFFFFFFFFFFF:
+    if not 0 <= n <= EUI64_MAX:
         raise ConfigError(f"{ctx}: '{v}' out of EUI-64 range")
     return n
+
+
+def _model_id(value: Any, ctx: str) -> int:
+    """Reject reserved model identities before OUI or descriptor processing."""
+    number = _eui64(value, ctx)
+    if number in (0, EUI64_MAX):
+        raise ConfigError(
+            f"{ctx}: entity_model_id must not be zero or all ones "
+            "(Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)")
+    return number
 
 
 def _fmt64(v, ctx):
@@ -1363,6 +1377,45 @@ def _factory_offset(raw, ctx):
             "5.3.7.6 requires a 2 ms factory default for every Stream Output. "
             "Use SET_STREAM_INFO for legal runtime offsets.")
     return value
+
+
+def _stream_buffer_ns(stream: dict[str, Any], ctx: str, direction: str) -> int:
+    """Every listener must meet the floor without truncation during packing."""
+    length_ns = stream.get("buffer_length_ns", BUFLEN_DEFAULT_NS)
+    if direction == "listener" and (
+            type(length_ns) is not int or length_ns < BUFLEN_DEFAULT_NS):
+        raise ConfigError(
+            f"{ctx}.buffer_length_ns: must be an integer >= {BUFLEN_DEFAULT_NS} ns "
+            "(Milan v1.2 5.3.3.4 listener buffer floor)")
+    if direction == "listener" and length_ns > UINT32_MAX:
+        raise ConfigError(
+            f"{ctx}.buffer_length_ns: must be <= {UINT32_MAX} ns "
+            "(IEEE 1722.1-2021 Table 7-8 listener buffer width)")
+    return length_ns
+
+
+def _validate_stream_formats(formats: Sequence[str], ctx: str, family: str) -> None:
+    """Validate the final list, including derived listener family entries."""
+    if len(formats) > MAX_STREAM_FORMATS:
+        raise ConfigError(
+            f"{ctx}: format count {len(formats)} exceeds {MAX_STREAM_FORMATS} "
+            "(IEEE 1722.1-2021 Table 7-8; final list including derived entries)")
+    family_word = int(CRF_FORMAT_DEFAULT, 16) if family == "CRF" else aaf_pcm32(0)
+    if any(int(word, 16) >> 56 != family_word >> 56 for word in formats):
+        raise ConfigError(
+            f"{ctx}: must contain only {family} formats "
+            "(Milan v1.2 5.3.3.4; AAF/CRF families must not mix)")
+    if family == "CRF" and any(word != CRF_FORMAT_DEFAULT for word in formats):
+        raise ConfigError(
+            f"{ctx}: CRF format must be {CRF_FORMAT_DEFAULT} "
+            "(Milan v1.2 7.3.2 Table 7.1)")
+
+
+def _crf_format(value: Any, ctx: str) -> str:
+    """A declared CRF input or output uses the one Milan format word."""
+    word = _fmt64(value, ctx)
+    _validate_stream_formats([word], ctx, "CRF")
+    return word
 
 
 def _streams(lst, ctx, direction, rate_hz=48000):
@@ -1408,6 +1461,7 @@ def _streams(lst, ctx, direction, rate_hz=48000):
                         f"that goes stale, since only the config half can be "
                         f"written with the wrong channel count")
             fmts = base_format_complete(fmts)
+        _validate_stream_formats(fmts, f"{sctx}.formats", "AAF")
         clusters = s.get("clusters", ch)
         if not (isinstance(clusters, int) and 1 <= clusters <= 32):
             raise ConfigError(f"{sctx}: clusters {clusters} outside 1..32")
@@ -1448,7 +1502,7 @@ def _streams(lst, ctx, direction, rate_hz=48000):
             name=s.get("name", f"Stream {'In' if direction == 'listener' else 'Out'} {k}"),
             channels=ch, formats=fmts, clusters=clusters,
             map_mode=map_mode, map_page=map_page,
-            buffer_length_ns=s.get("buffer_length_ns", BUFLEN_DEFAULT_NS),
+            buffer_length_ns=_stream_buffer_ns(s, sctx, direction),
         ))
         if direction == "talker":
             out[-1]["presentation_time_offset_ns"] = _factory_offset(s, sctx)
@@ -3786,6 +3840,10 @@ def _load_clocking(cfg, path):
         raise ConfigError(f"sampling_rate_hz {rate} not an AAF base rate "
                           f"(Milan v1.2 6.2: {sorted(BASE_RATE_HZ)})")
     srcs = clk.get("media_clock_sources", ["internal", "crf"])
+    if not srcs:
+        raise ConfigError(
+            "clocking.media_clock_sources: L6 requires at least one source "
+            "(Milan v1.2 5.3.3.6)")
     # #389: an INPUT_STREAM CLOCK_SOURCE on an AAF listener was advertised,
     # accepted and stored while nothing in the fabric followed it (the media
     # plane resolves the stored index against the CRF source alone, and
@@ -3816,10 +3874,10 @@ def _load_clocking(cfg, path):
         media_clock_sources=list(srcs),
         default_source=dflt,
         crf_sink=bool(clk.get("crf_sink", True)),
-        crf_format=_fmt64(clk.get("crf_format", CRF_FORMAT_DEFAULT),
+        crf_format=_crf_format(clk.get("crf_format", CRF_FORMAT_DEFAULT),
                           "clocking.crf_format"),
         crf_output=bool(co.get("enabled", False)),
-        crf_output_format=_fmt64(co.get("format", CRF_FORMAT_DEFAULT),
+        crf_output_format=_crf_format(co.get("format", CRF_FORMAT_DEFAULT),
                                  "clocking.crf_output.format"),
         crf_output_presentation_time_offset_ns=_factory_offset(
             co, "clocking.crf_output"),
@@ -4161,10 +4219,19 @@ def _load_interface(cfg, path, clocking):
     return interface
 
 
+def _validate_output_clock_sources(talkers: Sequence[Any], clocking: dict[str, Any]) -> None:
+    """The single shipping clock domain must offer INTERNAL to every output."""
+    if (talkers or clocking["crf_output"]) and "internal" not in clocking["media_clock_sources"]:
+        raise ConfigError(
+            "clocking.media_clock_sources: every Stream Output requires INTERNAL "
+            "among its clock sources (Milan v1.2 5.3.3.6)")
+
+
 def _load_streams(cfg, path, clocking):
     """The declared listener and talker streams, and the two shape
     rules that constrain the set as a whole."""
     st = _req(cfg, "streams", path)
+    _validate_output_clock_sources(st.get("talkers", []), clocking)
     # the AUDIO_UNIT's current rate is the one a stream's default Base format
     # is stated at: Milan 5.3.3.3 makes the AUDIO_UNIT list the Audio Unit's
     # truth, and 5.3.3.4 makes the formats list the Stream's - a stream
@@ -4304,12 +4371,14 @@ def load_config(path: str) -> dict[str, Any]:
     hashed = derive_model_id(shape, oui)
     raw = _req(ent, "entity_model_id", "entity")
     pin = ent.get("model_id_pin")
-    if pin is not None:
-        mid, src = _eui64(pin, "entity.model_id_pin"), "pin"
+    # A pin chooses the emitted identity, but cannot hide an invalid literal.
+    literal = None if raw == "hash-derived" else _model_id(raw, "entity.entity_model_id")
+    if "model_id_pin" in ent:
+        mid, src = _model_id(pin, "entity.model_id_pin"), "pin"
     elif raw == "hash-derived":
-        mid, src = hashed, "hash"
+        mid, src = _model_id(f"0x{hashed:016X}", "entity.entity_model_id"), "hash"
     else:
-        mid, src = _eui64(raw, "entity.entity_model_id"), "literal"
+        mid, src = literal, "literal"
     if src != "hash" and "vendor_oui" in ent \
             and (mid >> MODEL_ID_HASH_BITS) != oui:
         raise ConfigError(

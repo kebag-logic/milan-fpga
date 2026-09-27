@@ -114,6 +114,25 @@ actually routed by the board. Role-pool widths and the `loopback_lane` fabric
 fact are validated separately so the model cannot advertise a power-on source
 that the built datapath cannot provide.
 
+Every AAF or CRF output requires `internal` in `clocking.media_clock_sources`.
+Milan v1.2 5.3.3.6 requires its availability, not its selection.
+`default_source: crf` remains valid with both sources available.
+Input-only clock loading retains CRF-only support.
+Empty source lists raise a named L6 refusal.
+`[internal]` remains valid.
+Complete product configurations still require AAF listeners and talkers.
+
+AAF declarations accept only AAF formats; CRF declarations accept only CRF.
+Milan v1.2 5.3.3.4 forbids mixing these families.
+Both CRF directions require `0x041060010000BB80` (Milan 7.3.2, Table 7.1).
+IEEE 1722.1-2021 Table 7-8 limits each list to 46 formats.
+The limit includes derived listener family entries (Milan 6.4).
+
+Every listener `buffer_length_ns` must be an integer, at least `2126000`.
+The default equals this Milan v1.2 5.3.3.4 floor.
+Values above `0xFFFFFFFF` exceed Table 7-8 and refuse.
+Accepted values reach the descriptor without truncation.
+
 Every Stream Output declares `presentation_time_offset_ns`, defaulting to `2000000`.
 AAF uses `streams.talkers[]`; CRF uses `clocking.crf_output`.
 Other factory values refuse under Milan v1.2 5.3.7.6.
@@ -127,6 +146,18 @@ AAF_CTRL and MAAP_CTRL reset neutral; firmware supplies active values.
 `entity_model_id` is used or `hash-derived` folds the canonical model shape
 under the vendor OUI, `entity.vendor_oui`. Instance-only fields such as the
 station MAC, serial, and display name do not affect a hash-derived model ID.
+
+Literal, pinned and hash-derived IDs reject zero and all ones.
+A pin cannot hide an invalid literal.
+Hexadecimal identity, destination and format values require YAML strings.
+Quote `entity_id`, `entity_model_id`, `model_id_pin` and `srp.stream_dmac_base`.
+Also quote AAF `formats`, `clocking.crf_format` and `clocking.crf_output.format`.
+Hexadecimal text accepts an optional `0x` prefix and underscores.
+For example, `"1234567890123456"` retains those hexadecimal digits.
+YAML numbers and other non-strings receive a named quote instruction.
+The `hash-derived`, `mac-derived` and `maap` selectors remain supported.
+Milan v1.2 5.3.3.1 reserves both endpoints for ENTITY.
+Section 5.6.2 repeats this rule for ADPDUs.
 
 The descriptor image bakes the derived entity ID, resolved model ID, stream
 counts, capabilities, MAC, and clock identity. No runtime companion file
