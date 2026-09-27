@@ -1,0 +1,273 @@
+[
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/00-00-docs_check.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "9e9954e96bf55181edb9949ae94c9abd4ab6aaf5"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/01-em-dash.log",
+    "head": "3baff4411fd70aaccb066662628ff0b0a7d7c05d"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_doc_style.py"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/02-02-check_doc_style.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/03-03-check_doc_paths.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_archive.py"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/04-04-check_archive.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_archive.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/05-05-check_archive.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/06-06-gen_toc.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/07-07-gen_toc.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/08-08-gen_toc.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/09-09-check_feature_status.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_solution_docs.py"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/10-10-check_solution_docs.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_solution_docs.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/11-11-check_solution_docs.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/12-12-check_submodule_docs.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/13-13-check_submodule_docs.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/14-14-check_gptp_docs.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/15-15-gen_module_matrix.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/16-16-check_baremetal_only.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/17-17-check_baremetal_only.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_soc_sources.py"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/18-18-check_soc_sources.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/19-19-check_soc_sources.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/20-20-check_rtl_source_lists.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/21-21-check_rtl_source_lists.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/22-22-check_hygiene.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/23-23-check_hygiene.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/24-24-check_py_idiom.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/25-25-check_py_idiom.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/26-26-check_sh_idiom.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/27-27-check_sh_idiom.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/28-28-check_sweep_shape.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_deploy_shape.py",
+      "--self-test"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/29-29-check_deploy_shape.log"
+  },
+  {
+    "argv": [
+      "/tmp/582-a370-docs/bin/python3",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "returncode": 0,
+    "log": "docs-logs/30-30-check_entity_shape.log"
+  }
+]

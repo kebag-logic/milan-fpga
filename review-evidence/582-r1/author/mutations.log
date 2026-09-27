@@ -1,0 +1,79 @@
+KILLED builder guard removed: rc 1; accepted invalid input: baremetal clock
+KILLED builder equality becomes ceiling: rc 1; accepted invalid input: baremetal clock
+KILLED Scala message narrows to cache: rc 1; no cache/prefetch scala_args
+KILLED SoC guard removed: rc 1; clock accepted before platform
+KILLED SoC equality becomes ceiling: rc 1; clock accepted before platform
+KILLED SoC system fallback bypassed: rc 1; clock accepted before platform
+KILLED sweep Milan clock copied: rc 1; AssertionError
+KILLED sweep system clock copied: rc 1; AssertionError
+KILLED watchdog domains swapped: rc 1; configuration clock pairs not preserved
+KILLED watchdog clock copied: rc 1; configuration clock pairs not preserved
+KILLED tap conversion retains old clock: rc 1; tap clock table differs
+[
+  {
+    "mutant": "builder guard removed",
+    "test": "t.test_baremetal_clock_contract()",
+    "returncode": 1,
+    "diagnostic": "accepted invalid input: baremetal clock"
+  },
+  {
+    "mutant": "builder equality becomes ceiling",
+    "test": "t.test_baremetal_clock_contract()",
+    "returncode": 1,
+    "diagnostic": "accepted invalid input: baremetal clock"
+  },
+  {
+    "mutant": "Scala message narrows to cache",
+    "test": "t.test_baremetal_clock_contract()",
+    "returncode": 1,
+    "diagnostic": "no cache/prefetch scala_args"
+  },
+  {
+    "mutant": "SoC guard removed",
+    "test": "t.test_soc_clock_contract()",
+    "returncode": 1,
+    "diagnostic": "clock accepted before platform"
+  },
+  {
+    "mutant": "SoC equality becomes ceiling",
+    "test": "t.test_soc_clock_contract()",
+    "returncode": 1,
+    "diagnostic": "clock accepted before platform"
+  },
+  {
+    "mutant": "SoC system fallback bypassed",
+    "test": "t.test_soc_clock_contract()",
+    "returncode": 1,
+    "diagnostic": "clock accepted before platform"
+  },
+  {
+    "mutant": "sweep Milan clock copied",
+    "test": "t.test_extra_sweep_clocks()",
+    "returncode": 1,
+    "diagnostic": "AssertionError"
+  },
+  {
+    "mutant": "sweep system clock copied",
+    "test": "t.test_extra_sweep_clocks()",
+    "returncode": 1,
+    "diagnostic": "AssertionError"
+  },
+  {
+    "mutant": "watchdog domains swapped",
+    "test": "t.test_configured_clock_pairs()",
+    "returncode": 1,
+    "diagnostic": "configuration clock pairs not preserved"
+  },
+  {
+    "mutant": "watchdog clock copied",
+    "test": "t.test_configured_clock_pairs()",
+    "returncode": 1,
+    "diagnostic": "configuration clock pairs not preserved"
+  },
+  {
+    "mutant": "tap conversion retains old clock",
+    "test": "t.test_tap_clock_docs()",
+    "returncode": 1,
+    "diagnostic": "tap clock table differs"
+  }
+]

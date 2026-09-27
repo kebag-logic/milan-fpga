@@ -1,0 +1,127 @@
+[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, implicit system and disabled-domain paths pass
+[clock pairs] independent fixture clocks preserve every shape and domain
+test_behavioural:
+  [ok]   healthy bus: the burst delivers 2 beats
+  [ok]   healthy bus: no beat carries err
+  [ok]   healthy bus: the beat is the wire-order byte reversal
+  [ok]   healthy bus: the watchdog changes NOTHING that worked
+  [ok]   pre-fix FSM gives NO answer to the unacked access
+  [ok]   pre-fix FSM is STILL holding the bus at the end (the wedge)
+  [ok]   watchdog FSM answers the unacked access
+  [ok]   watchdog FSM reports it as err
+  [ok]   watchdog FSM ends the burst on that beat
+  [ok]   watchdog FSM ends the WISHBONE cycle it abandoned
+  [ok]   watchdog FSM marks the master poisoned (a stale ack is still owed)
+  [ok]   the watchdog changes behaviour (the fix is not a no-op)
+test_recovery:
+  [ok]   dead bus: the burst is answered with err (the timeout reports)
+  [ok]   dead bus: the master ends up poisoned and off the bus
+  [ok]   recovered bus: the bridge asks the bus for something again
+  [ok]   recovered bus: the poison flag clears, with no reset
+  [ok]   recovered bus: a later burst completes, 2 beats and no err
+  [ok]   recovered bus: the completed burst carries the fresh word, not the abandoned one
+test_precedence:
+  [ok]   the processor's DESC_MEM_TMO_CYC_P is readable from its own RTL
+  [ok]   milan_soc.py's mirror of it has not drifted
+  [ok]   endstation_arty_4x4: the bridge watchdog expires before the processor's (61428 ns vs 81920 ns)
+  [ok]   endstation_arty_4x4: the bridge leaves the processor real headroom
+  [ok]   endstation_arty_4x4: the watchdog clears the worst-case memory-port wait (5119 vs 137 sys cycles)
+  [ok]   endstation_arty_4x4: on a dead bus the bridge's err beat lands first (cycle 5122 of 6827)
+  [ok]   endstation_arty_8ch: the bridge watchdog expires before the processor's (61428 ns vs 81920 ns)
+  [ok]   endstation_arty_8ch: the bridge leaves the processor real headroom
+  [ok]   endstation_arty_8ch: the watchdog clears the worst-case memory-port wait (5119 vs 137 sys cycles)
+  [ok]   endstation_arty_8ch: on a dead bus the bridge's err beat lands first (cycle 5122 of 6827)
+  [ok]   endstation_arty_current: the bridge watchdog expires before the processor's (61428 ns vs 81920 ns)
+  [ok]   endstation_arty_current: the bridge leaves the processor real headroom
+  [ok]   endstation_arty_current: the watchdog clears the worst-case memory-port wait (5119 vs 137 sys cycles)
+  [ok]   endstation_arty_current: on a dead bus the bridge's err beat lands first (cycle 5122 of 6827)
+  [ok]   endstation_ax7101_1x1_tdm8: the bridge watchdog expires before the processor's (61440 ns vs 81920 ns)
+  [ok]   endstation_ax7101_1x1_tdm8: the bridge leaves the processor real headroom
+  [ok]   endstation_ax7101_1x1_tdm8: the watchdog clears the worst-case memory-port wait (6144 vs 137 sys cycles)
+  [ok]   endstation_ax7101_1x1_tdm8: on a dead bus the bridge's err beat lands first (cycle 6147 of 8192)
+  [ok]   endstation_ax7101_8x8: the bridge watchdog expires before the processor's (61440 ns vs 81920 ns)
+  [ok]   endstation_ax7101_8x8: the bridge leaves the processor real headroom
+  [ok]   endstation_ax7101_8x8: the watchdog clears the worst-case memory-port wait (6144 vs 137 sys cycles)
+  [ok]   endstation_ax7101_8x8: on a dead bus the bridge's err beat lands first (cycle 6147 of 8192)
+  [ok]   historical AX equal-clock control: the bridge watchdog expires before the processor's (30720 ns vs 40960 ns)
+  [ok]   historical AX equal-clock control: the bridge leaves the processor real headroom
+  [ok]   historical AX equal-clock control: the watchdog clears the worst-case memory-port wait (3072 vs 137 sys cycles)
+  [ok]   historical AX equal-clock control: on a dead bus the bridge's err beat lands first (cycle 3075 of 4096)
+  [ok]   historical AX floorplan control: the bridge watchdog expires before the processor's (30720 ns vs 40960 ns)
+  [ok]   historical AX floorplan control: the bridge leaves the processor real headroom
+  [ok]   historical AX floorplan control: the watchdog clears the worst-case memory-port wait (3456 vs 137 sys cycles)
+  [ok]   historical AX floorplan control: on a dead bus the bridge's err beat lands first (cycle 3459 of 4608)
+  [ok]   a build with milan 3400 MHz against sys 100 MHz is refused, not silently narrowed
+  [ok]   a build with milan 4000 MHz against sys 100 MHz is refused, not silently narrowed
+test_counters:
+  [ok]   healthy bus: ISSUED equals the accesses the memory saw
+  [ok]   healthy bus: ACKED equals the accesses the memory acked
+  [ok]   healthy bus: no fault is counted
+  [ok]   errored answer: ERRORED counts it
+  [ok]   errored answer: it is NOT counted as acked
+  [ok]   errored answer: the watchdog did not fire
+  [ok]   unanswered access, watchdog still running: ISSUED > 0
+  [ok]   unanswered access, watchdog still running: ACKED == 0
+  [ok]   unanswered access, watchdog still running: no fault counted YET (so the reading is 'outstanding', not 'failed')
+  [ok]   unanswered access: the live flag says it is ON THE BUS right now
+  [ok]   the hung access is counted ONCE, not once per held cycle
+  [ok]   after the watchdog: TIMED OUT counts it
+  [ok]   after the watchdog: it is not miscounted as an err answer
+  [ok]   after the watchdog: POISONED is live and set, and the bus is let go
+  [ok]   never issued: every counter reads 0
+  [ok]   never issued: the block still identifies itself, so 0 is a MEASUREMENT and not an absent register
+  [ok]   'never issued' and 'issued, never answered' are DISTINGUISHABLE
+  [ok]   bus dies mid-burst: ISSUED counts both accesses
+  [ok]   bus dies mid-burst: ACKED counts only the one that was answered
+  [ok]   bus dies mid-burst: TIMED OUT counts the one that was not
+test_counter_gating:
+  [ok]   an ack with this master off the bus counts nothing
+  [ok]   its own access is still counted, issued and acked
+test_counter_saturation:
+  [ok]   the counter reaches its full range (not truncated early)
+  [ok]   past the range it SATURATES at 0xFFFF rather than wrapping
+test_two_faces:
+  [ok]   descriptor traffic lands in the DESCRIPTOR counters
+  [ok]   and not one count of it reaches the RESPONSE counters
+  [ok]   the descriptor poison flag is stat[0], and stat[2] stays clear
+  [ok]   the response bridge is counted in ITS OWN registers
+  [ok]   and the descriptor counters do not move while it runs
+  [ok]   the response poison flag is stat[2], the position the map publishes
+  [ok]   the tag survives two faces (it is not overwritten by the flags)
+  [ok]   mid-access, the DESCRIPTOR bridge lights stat[1] and not stat[3]
+  [ok]   mid-access, the RESPONSE bridge lights stat[3] and not stat[1]
+test_counter_wiring:
+  [ok]   milan_soc.py instantiates _PPMemDiag
+  [ok]   both memory bridges are observed, descriptor face first
+  [ok]   the desc face watches that bridge's own bus, poison flag and watchdog pulse
+  [ok]   the resp face watches that bridge's own bus, poison flag and watchdog pulse
+  [ok]   the ppmem CSR bank is pinned to a fixed location
+test_structural:
+  [ok]   the split-word bus states are gone (one access per 64-bit beat)
+  [ok]   milan_soc.py has both bus states, act("RD") and act("WR")
+  [ok]   the poison flags reach the bus states through a loaded latch
+  [ok]   act("RD") still tests wb.err alongside wb.ack
+  [ok]   act("RD") exits on a TIMEOUT as well as on ack
+  [ok]   act("RD") poisons the master on that exit
+  [ok]   act("RD") cannot strand the flag it just set
+  [ok]   act("RD") still tests wb.err alongside wb.ack
+  [ok]   act("RD") exits on a TIMEOUT as well as on ack
+  [ok]   act("RD") poisons the master on that exit
+  [ok]   act("RD") cannot strand the flag it just set
+  [ok]   act("RD") still tests wb.err alongside wb.ack
+  [ok]   act("RD") exits on a TIMEOUT as well as on ack
+  [ok]   act("RD") poisons the master on that exit
+  [ok]   act("RD") cannot strand the flag it just set
+  [ok]   act("WR") still tests wb.err alongside wb.ack
+  [ok]   act("WR") exits on a TIMEOUT as well as on ack
+  [ok]   act("WR") poisons the master on that exit
+  [ok]   act("WR") cannot strand the flag it just set
+  [ok]   act("WR") still tests wb.err alongside wb.ack
+  [ok]   act("WR") exits on a TIMEOUT as well as on ack
+  [ok]   act("WR") poisons the master on that exit
+  [ok]   act("WR") cannot strand the flag it just set
+  [ok]   the watchdog is sized in the source, not left to a magic number
+  [ok]   both masters derive their address width from the data width
+
+test_pp_mem_bridge: 113 checks: 113 PASS, 0 FAIL
+RESULT: PASS

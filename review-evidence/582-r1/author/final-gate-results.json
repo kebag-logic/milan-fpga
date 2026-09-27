@@ -1,0 +1,77 @@
+[
+  {
+    "gate": "clock-contract",
+    "argv": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/builder/test_clock_contract.py",
+      "--soc"
+    ],
+    "returncode": 0,
+    "head": "3baff4411fd70aaccb066662628ff0b0a7d7c05d",
+    "cwd": "$LANES/582-baremetal-clock"
+  },
+  {
+    "gate": "declarations",
+    "argv": [
+      "/usr/bin/python3",
+      "sw/builder/test_declarations.py"
+    ],
+    "returncode": 0,
+    "head": "3baff4411fd70aaccb066662628ff0b0a7d7c05d",
+    "cwd": "$LANES/582-baremetal-clock"
+  },
+  {
+    "gate": "capture",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "returncode": 0,
+    "head": "3baff4411fd70aaccb066662628ff0b0a7d7c05d",
+    "cwd": "$LANES/582-baremetal-clock"
+  },
+  {
+    "gate": "pp-mem",
+    "argv": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "sw/litex/test_pp_mem_bridge.py"
+    ],
+    "returncode": 0,
+    "head": "3baff4411fd70aaccb066662628ff0b0a7d7c05d",
+    "cwd": "$LANES/582-baremetal-clock"
+  },
+  {
+    "gate": "identity",
+    "argv": [
+      "/usr/bin/python3",
+      "$MANAGEMENT/2026-09-23/582-a370/identity.py"
+    ],
+    "returncode": 0,
+    "head": "3baff4411fd70aaccb066662628ff0b0a7d7c05d",
+    "cwd": "$LANES/582-baremetal-clock"
+  },
+  {
+    "gate": "diff-worktree",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "returncode": 0,
+    "head": "3baff4411fd70aaccb066662628ff0b0a7d7c05d",
+    "cwd": "$LANES/582-baremetal-clock"
+  },
+  {
+    "gate": "diff-commit",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "9e9954e96bf55181edb9949ae94c9abd4ab6aaf5",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "head": "3baff4411fd70aaccb066662628ff0b0a7d7c05d",
+    "cwd": "$LANES/582-baremetal-clock"
+  }
+]
