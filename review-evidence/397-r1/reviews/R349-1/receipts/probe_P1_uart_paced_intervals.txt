@@ -1,0 +1,8 @@
+boot reset->PP_CTRL[0]=1: sys=37399019 cpu=18699510 ms=373.99019
+cmd[2] milan_nvm: sys=23364012 ms=233.64012
+cmd[5] milan_nvm: sys=23363599 ms=233.63599
+cmd[7] milan_nvm: sys=3312756 ms=33.12756
+heartbeat strobes (ms): [312.757, 645.104, 932.944, 1214.941, 1496.084, 1546.116, 1555.115, 1579.833]
+max gap: 332.34734 ms from 312.757 to 645.104
+  command intervals overlapped by the gap: ['0:milan_status', '1:milan_gettime', '2:milan_nvm']
+  console idle (prompt->next input) inside the gap: 2 sys cycles

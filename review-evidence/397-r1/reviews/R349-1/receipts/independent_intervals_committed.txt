@@ -1,0 +1,18 @@
+== 1X1
+boot reset->PP_CTRL[0]=1: sys=31097023 cpu=15548512 ms=310.97023
+cmd[2] milan_nvm: sys=20848507 ms=208.48507
+cmd[5] milan_nvm: sys=20850329 ms=208.50329
+cmd[7] milan_nvm: sys=749535 ms=7.49535
+heartbeat strobes (ms): [252.583, 668.096, 942.867]
+max gap: 430.62305 ms from 942.867 to 1373.490 (tail to final prompt)
+  command intervals overlapped by the gap: ['4:milan_nvm commit', '5:milan_nvm', '6:milan_nvm wipe', '7:milan_nvm', '8:milan_nvm invalid', '9:milan_settime 0 0', '10:milan_settime 18446744073 709551615', '11:milan_settime 18446744073 709551616', '12:milan_settime invalid', '13:milan_utc 0 0 37', '14:milan_utc 18446744073709551615 0 1', '15:milan_utc invalid 0 0', '16:milan_status']
+  console idle (prompt->next input) inside the gap: 12 sys cycles
+== 8X8
+boot reset->PP_CTRL[0]=1: sys=103143961 cpu=51571981 ms=1031.43961
+cmd[2] milan_nvm: sys=78885883 ms=788.85883
+cmd[5] milan_nvm: sys=78887705 ms=788.87705
+cmd[7] milan_nvm: sys=760883 ms=7.60883
+heartbeat strobes (ms): [893.963, 2281.48, 3390.637, 4840.415]
+max gap: 1449.77764 ms from 3390.637 to 4840.415
+  command intervals overlapped by the gap: ['4:milan_nvm commit', '5:milan_nvm', '6:milan_nvm wipe']
+  console idle (prompt->next input) inside the gap: 2 sys cycles

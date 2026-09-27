@@ -1,0 +1,255 @@
+
+[1m        __   _ __      _  __[0m
+[1m       / /  (_) /____ | |/_/[0m
+[1m      / /__/ / __/ -_)>  <[0m
+[1m     /____/_/\__/\__/_/|_|[0m
+[1m   Build your hardware, easily![0m
+
+ (c) Copyright 2012-2026 Enjoy-Digital
+ (c) Copyright 2007-2015 M-Labs
+
+
+ LiteX git sha1: a1e1c36
+
+--================ [1mSoC[0m =================--
+[1mCPU[0m:		VexiiRiscv (rv32i2p0__zicsr_zifencei) @ 100MHz
+[1mBUS[0m:		wishbone 32-bit data/32-bit addr
+[1mCSR[0m:		32-bit data big ordering
+[1mROM[0m:		128.0KiB
+[1mSRAM[0m:		8.0KiB
+[1mFLASH[0m:		16.0MiB
+[1mSDRAM[0m:		1.0GiB 32-bit @ 800MT/s (CL-7 CWL-5)
+[1mMAIN RAM[0m:	1.0GiB
+
+--=========== [1mInitialization[0m ===========--
+Initializing SDRAM @0x40000000...
+Switching SDRAM to software control.
+Switching SDRAM to hardware control.
+
+Initializing n25q128a13 SPI Flash @0x01000000...
+Memspeed at 0x1000000 (Sequential, 4.0KiB)...
+   Read speed: 1022.7KiB/s
+Memspeed at 0x1000000 (Random, 4.0KiB)...
+   Read speed: 353.9KiB
+EVENT cycle=8811911 kind=write address=2336 value=0 requests=0 responses=0 errors=0
+/s
+
+Milan baremetal: CSR ID=4d494c4e VERSION=00020060, RV32I machine mode, no MMU/cache.
+
+EVENT cycle=31274009 kind=write address=2364 value=64 requests=0 responses=0 errors=0
+
+EVENT cycle=31275069 kind=write address=2336 value=2 requests=0 responses=0 errors=0
+
+EVENT cycle=31275691 kind=write address=2364 value=1 requests=4 responses=4 errors=0
+
+EVENT cycle=31277343 kind=write address=2336 value=0 requests=8 responses=8 errors=0
+Milan NVM: slot A VD_OK seq 1, slot B VD_OK seq 1; offered A seq 1 (VD_OK), 3264 B at 0x7f7ef000; walk done=1 fail=0 blank=0 backed=1.
+Milan baremetal: AEM 7352 B copied QSP
+EVENT cycle=37399083 kind=write address=2336 value=1 requests=8 responses=8 errors=0
+I +0x00400000 -> 0x7f700000, CRC 93742dd2.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+--============== [1mConsole[0m ===============--
+
+[92;1mlitex[0m> 
+EVENT cycle=38964806 kind=boot_prompt
+
+EVENT cycle=38964807 kind=command_start index=0 tx_bytes=1457
+milan_status
+ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000a01 PP_CTRL=00000001 PP_STAT=5b000444 AEM=loaded
+GPTP_GM=0000000000000000 GPTP_PARENT=0000000000000000 PDELAY_NS=0 AS_PATH_COUNT=0 AS_PATH_GEN=0 CLKV_STAT=00000001 SYNC=0 ASCAPABLE=0 TU=1 GPTP_LAT=029000db
+TAI_NS=0x0000000017f988d4
+[92;1mlitex[0m> 
+EVENT cycle=41860720 kind=command_end index=0 erases=0 programs=0 bytes=0 tx_bytes=1785
+
+EVENT cycle=41860721 kind=command_start index=1 tx_bytes=1785
+milan_gettime
+TAI_NS=0x000000001909c4a0
+[92;1mlitex[0m> 
+EVENT cycle=42392000 kind=command_end index=1 erases=0 programs=0 bytes=0 tx_bytes=1845
+
+EVENT cycle=42392001 kind=command_start index=2 tx_bytes=1845
+milan_nvm
+NVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 53 records, 3264 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 u
+EVENT cycle=64510425 kind=write address=2364 value=1 requests=8 responses=8 errors=0
+nres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=65756013 kind=command_end index=2 erases=0 programs=0 bytes=0 tx_bytes=2214
+
+EVENT cycle=65756014 kind=command_start index=3 tx_bytes=2214
+milan_nvm commit
+
+EVENT cycle=67952293 kind=write address=2364 value=8 requests=8 responses=8 errors=0
+
+EVENT cycle=68610541 kind=write address=2364 value=16 requests=8 responses=8 errors=0
+
+EVENT cycle=77476649 kind=write address=2364 value=4 requests=8 responses=8 errors=0
+
+EVENT cycle=77479294 kind=flash opcode=216 wait_cycles=0
+
+EVENT cycle=79492951 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=79621725 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=79750535 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=79879305 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=80008115 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=80136889 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=80265695 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=80394469 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=80523279 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=80652049 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=80780859 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=80909633 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=81007639 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=93129483 kind=write address=2364 value=65538 requests=8 responses=8 errors=0
+Milan NVM: commit (
+EVENT cycle=93294391 kind=write address=2364 value=1 requests=8 responses=8 errors=0
+console) seq 2 -> slot B, 3264 B, capture 1 acknowledged.
+[92;1mlitex[0m> 
+EVENT cycle=93955711 kind=command_end index=3 erases=1 programs=13 bytes=3264 tx_bytes=2328
+
+EVENT cycle=93955712 kind=command_start index=4 tx_bytes=2328
+milan_nvm commit
+
+EVENT cycle=96151995 kind=write address=2364 value=8 requests=8 responses=8 errors=0
+
+EVENT cycle=96810243 kind=write address=2364 value=16 requests=8 responses=8 errors=0
+
+EVENT cycle=105676351 kind=write address=2364 value=4 requests=8 responses=8 errors=0
+
+EVENT cycle=105678996 kind=flash opcode=216 wait_cycles=0
+
+EVENT cycle=107692653 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=107821427 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=107950237 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=108079007 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=108207817 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=108336591 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=108465397 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=108594171 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=108722981 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=108851751 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=108980561 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=109109335 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=109207341 kind=flash opcode=2 wait_cycles=0
+
+EVENT cycle=121329185 kind=write address=2364 value=131074 requests=8 responses=8 errors=0
+Milan NVM: commit (
+EVENT cycle=121494085 kind=write address=2364 value=1 requests=8 responses=8 errors=0
+console) seq 3 -> slot A, 3264 B, capture 2 acknowledged.
+[92;1mlitex[0m> 
+EVENT cycle=122155413 kind=command_end index=4 erases=2 programs=26 bytes=6528 tx_bytes=2442
+
+EVENT cycle=122155414 kind=command_start index=5 tx_bytes=2442
+milan_nvm
+NVM: slot A VD_OK seq 3, slot B VD_OK seq 2, authoritative A, image seq 3, 53 records, 3264 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=145519013 kind=command_end index=5 erases=2 programs=26 bytes=6528 tx_bytes=2811
+
+EVENT cycle=145519014 kind=command_start index=6 tx_bytes=2811
+milan_nvm wipe
+
+EVENT cycle=145678116 kind=flash opcode=216 wait_cycles=0
+
+EVENT cycle=147568584 kind=flash opcode=216 wait_cycles=0
+NVM: slot A erased
+EVENT cycle=149608397 kind=write address=2364 value=1 requests=8 responses=8 errors=0
+, slot B erased; the staged image is unchanged, reboot to observe a blank boot.
+[92;1mlitex[0m> 
+EVENT cycle=150464788 kind=command_end index=6 erases=4 programs=26 bytes=6528 tx_bytes=2944
+
+EVENT cycle=150464789 kind=command_start index=7 tx_bytes=2944
+milan_nvm
+NVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0, authoritative -, image seq 3, 53 records, 3264 B at 0x7f7ef000, writer live
+NVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK
+[92;1mlitex[0m> 
+EVENT cycle=153777545 kind=command_end index=7 erases=4 programs=26 bytes=6528 tx_bytes=3319
+
+EVENT cycle=153777546 kind=command_start index=8 tx_bytes=3319
+milan_nvm invalid
+milan_nvm [commit|wipe]
+[92;1mlitex[0m> 
+EVENT cycle=154325658 kind=command_end index=8 erases=4 programs=26 bytes=6528 tx_bytes=3381
+
+EVENT cycle=154325659 kind=command_start index=9 tx_bytes=3381
+milan_settime 0 0
+TAI_NS=0x
+EVENT cycle=154611629 kind=write address=2364 value=1 requests=8 responses=8 errors=0
+0000000000000320
+[92;1mlitex[0m> 
+EVENT cycle=154917918 kind=command_end index=9 erases=4 programs=26 bytes=6528 tx_bytes=3445
+
+EVENT cycle=154917919 kind=command_start index=10 tx_bytes=3445
+milan_settime 18446744073 709551615
+TAI_NS=0x
+EVENT cycle=155511451 kind=write address=2364 value=1 requests=8 responses=8 errors=0
+000000000000031f
+[92;1mlitex[0m> 
+EVENT cycle=155817740 kind=command_end index=10 erases=4 programs=26 bytes=6528 tx_bytes=3527
+
+EVENT cycle=155817741 kind=command_start index=11 tx_bytes=3527
+milan_settime 18446744073 709551616
+milan_settime <tai-seconds> [nanoseconds]
+[92;1mlitex[0m> 
+EVENT cycle=156839658 kind=command_end index=11 erases=4 programs=26 bytes=6528 tx_bytes=3625
+
+EVENT cycle=156839659 kind=command_start index=12 tx_bytes=3625
+milan_settime invalid
+milan_settime <tai-seconds> [nanoseconds]
+[92;1mlitex[0m> 
+EVENT cycle=157578288 kind=command_end index=12 erases=4 programs=26 bytes=6528 tx_bytes=3709
+
+EVENT cycle=157578289 kind=command_start index=13 tx_bytes=3709
+milan_utc 0 0 37
+UTC applied with TAI-UT
+EVENT cycle=157983255 kind=write address=2364 value=1 requests=8 responses=8 errors=0
+C=37 s; TAI_NS=0x000000089d665954
+[92;1mlitex[0m> 
+EVENT cycle=158438297 kind=command_end index=13 erases=4 programs=26 bytes=6528 tx_bytes=3803
+
+EVENT cycle=158438298 kind=command_start index=14 tx_bytes=3803
+milan_utc 18446744073709551615 0 1
+milan_utc <utc-seconds> <nanoseconds> <tai-minus-utc>
+[92;1mlitex[0m> 
+EVENT cycle=159650056 kind=command_end index=14 erases=4 programs=26 bytes=6528 tx_bytes=3912
+
+EVENT cycle=159650057 kind=command_start index=15 tx_bytes=3912
+milan_utc invalid 0 0
+milan_utc <utc-seconds> <nanoseconds> <tai-minus-utc>
+[92;1mlitex[0m> 
+EVENT cycle=160493102 kind=command_end index=15 erases=4 programs=26 bytes=6528 tx_bytes=4008
+
+EVENT cycle=160493103 kind=command_start index=16 tx_bytes=4008
+milan_status
+ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000a01 PP_CTRL=00000001 PP_STAT=5b000444 AEM=loaded
+GPTP_GM=0000000000000000 GPTP_PARENT=0000000000000000 PDELAY_NS=0 AS_PATH_COUNT=0 AS_PATH_GEN=0 CLKV_STAT=00000009 SYNC=0 ASCAPABLE=0 TU=1 GPTP_LAT=029000db
+TAI_NS=0x000000089fbc3020
+[92;1mlitex[0m> 
+EVENT cycle=163388654 kind=command_end index=16 erases=4 programs=26 bytes=6528 tx_bytes=4336
+== fw_service_budget: checks: 1   failures: 0 ==
+RESULT: PASS

@@ -1,0 +1,11 @@
+rc=0 selftest: python3 -B tb/verilator/fw_service_budget/run.py --self-test
+rc=0 nvm_capture: python3 -B scripts/check_nvm_capture.py
+rc=0 feature_status: python3 -B scripts/check_feature_status.py --self-test
+rc=0 docs_check: python3 -B scripts/docs_check.py
+rc=0 doc_paths: python3 -B scripts/check_doc_paths.py
+rc=0 doc_style: python3 -B scripts/check_doc_style.py
+rc=0 archive: python3 -B scripts/check_archive.py
+rc=0 gen_toc: <pinned-markdown-venv>/bin/python -B scripts/gen_toc.py --check
+rc=0 em_dash: <pinned-markdown-venv>/bin/python -B scripts/check_em_dash.py --base ac18b50968b12efe4d15c0a06301264b35656b31
+rc=0 diff_check: git diff --check ac18b50968b12efe4d15c0a06301264b35656b31 HEAD
+rc=0 untouched: git diff --stat ac18b50968b12efe4d15c0a06301264b35656b31 HEAD -- tb/verilator/nvm_capture_cpu sw/firmware/milan_baremetal

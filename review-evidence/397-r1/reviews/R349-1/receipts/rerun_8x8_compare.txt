@@ -1,0 +1,13 @@
+log_sha256 rerun     c38caa7bbcc93c87a8a761bcd7cf2c0b1e9348530f0042627809f334bc466115
+log_sha256 committed c38caa7bbcc93c87a8a761bcd7cf2c0b1e9348530f0042627809f334bc466115
+raw log identical    True
+events identical     True
+rows identical       True
+findings             ['over-budget duty: milan_nvm', 'over-budget duty: milan_nvm', 'over-budget duty: maximum_heartbeat_gap']
+input_hashes equal   True
+build_hashes differing: ['build/gateware/sim.v', 'build/native/Vsim', 'build/software/include/generated/csr.h', 'build/software/include/generated/git.h', 'build/software/include/generated/mem.h', 'build/software/include/generated/soc.h']
+   boot_to_entity_enabled       cpu=51571981 ms=1031.43961 margin=None
+   milan_nvm                    cpu=39442942 ms=788.85883 margin=-288.85883
+   milan_nvm                    cpu=39443853 ms=788.87705 margin=-288.87705000000005
+   milan_nvm                    cpu=380442 ms=7.60883 margin=492.39117
+   maximum_heartbeat_gap        cpu=72488882 ms=1449.77764 margin=-949.77764
