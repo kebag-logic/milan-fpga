@@ -1,0 +1,20 @@
+@@ -10,2 +10,2 @@ Measured on 2026-09-27, under the [bench assignment](https://github.com/kebag-lo
+@@ -13 +13 @@ Measured on 2026-09-27, under the [bench assignment](https://github.com/kebag-lo
+@@ -161 +161 @@ The [documented bound](../design/GM_LOSS_RECOVERY.md#recovery-bound) is five sec
+@@ -163 +163 @@ That contract permits one further stream restart for media recovery.
+@@ -165 +165 @@ The [step policy](../design/TIME_SYNC.md#step-policy) supplies the media context
+@@ -167 +167,27 @@ DUT MAC_STATUS stayed `0x0d` throughout each outage.
+@@ -197 +223 @@ Recovery is measured from the first returning GM message.
+@@ -209,2 +235,2 @@ The final two columns report observations without applying #593.
+@@ -224 +250,3 @@ All ten gPTP recoveries passed: 0.44 to 1.82 seconds.
+@@ -244 +272 @@ Exact DUT link-up-to-PDU delays remain unmeasured.
+@@ -254 +282,9 @@ The [integration source](../../sw/litex/milan_soc.py) explains the status depend
+@@ -256 +292,3 @@ It initializes software-published link status to up.
+@@ -260 +298 @@ This run never wrote that status to manufacture edges.
+@@ -307 +345,5 @@ This run reports these restart observations without grading #593.
+@@ -309 +351 @@ The #387 verdict covers the assigned CRF recovery measurement.
+@@ -341 +383,7 @@ No RTL or firmware changed in this lane.
+@@ -343 +391 @@ The operator packet contains the scripts, transcripts and analyses.
+@@ -345 +393 @@ The packet is identified as `2026-09-23/394-a375`.
+@@ -347 +395 @@ Large raw captures remain under `/tmp/a375/cycleNN/`.
+@@ -349 +397 @@ Each cycle's `raw-artifacts.json` lists paths, sizes and SHA-256.
