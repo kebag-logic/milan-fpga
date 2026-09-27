@@ -1,0 +1,37 @@
+== shipping static: rc=0 PASS
+   [o] K10 unchanged oracle changes 0, first change -1, first trigger -1
+   [o] K10 oracle changes 8, first change 12965, first trigger 12965
+   [o] K10 repeat oracle changes 8, first change 12965, first trigger 12965
+   [o] K12 zero records oracle changes 0, first change -1, first trigger -1
+   [PASS] PROBE refused record no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+   [PASS] PROBE refused record pending_from_accepting_edge got=0x00000000 exp=0x00000000
+   [PASS] ORACLE PROBE refused record live change without pending got=0x00000000 exp=0x00000000
+   [o] PROBE refused record oracle changes 0, first change -1, first trigger -1
+   [o] K12 input oracle changes 1, first change 24973, first trigger 24973
+   [o] K12 duplicate oracle changes 1, first change 24973, first trigger 24973
+   [o] K12 remove oracle changes 2, first change 24973, first trigger 24973
+   [o] K12 static output refused oracle changes 0, first change -1, first trigger -1
+   [o] K reset oracle changes 0, first change -1, first trigger -1
+   pp_shadow: 138 checks, 0 failures
+== shipping dynamic: rc=0 PASS
+   [o] K10 unchanged oracle changes 0, first change -1, first trigger -1
+   [o] K10 oracle changes 8, first change 12965, first trigger 12965
+   [o] K10 repeat oracle changes 8, first change 12965, first trigger 12965
+   [o] K12 zero records oracle changes 0, first change -1, first trigger -1
+   [PASS] PROBE refused record no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+   [PASS] PROBE refused record pending_from_accepting_edge got=0x00000000 exp=0x00000000
+   [PASS] ORACLE PROBE refused record live change without pending got=0x00000000 exp=0x00000000
+   [o] PROBE refused record oracle changes 0, first change -1, first trigger -1
+   [o] K12 input oracle changes 1, first change 24973, first trigger 24973
+   [o] K12 duplicate oracle changes 1, first change 24973, first trigger 24973
+   [o] K12 remove oracle changes 2, first change 24973, first trigger 24973
+   [o] K12 zero records oracle changes 0, first change -1, first trigger -1
+   [PASS] PROBE refused record no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+   [PASS] PROBE refused record pending_from_accepting_edge got=0x00000000 exp=0x00000000
+   [PASS] ORACLE PROBE refused record live change without pending got=0x00000000 exp=0x00000000
+   [o] PROBE refused record oracle changes 0, first change -1, first trigger -1
+   [o] K12 oracle changes 2, first change 24974, first trigger 24974
+   [o] K12 duplicate oracle changes 2, first change 24974, first trigger 24974
+   [o] K12 remove oracle changes 4, first change 24974, first trigger 24974
+   [o] K reset oracle changes 0, first change -1, first trigger -1
+   pp_shadow: 193 checks, 0 failures
