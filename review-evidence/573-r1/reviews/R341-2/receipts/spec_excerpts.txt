@@ -1,0 +1,40 @@
+# Clause text re-extracted this round (pdftotext -layout); line numbers refer to that extraction
+## Milan Specification Consolidated v1.2 (20231130)
+L1416+: 5.3.1 Introduction
+L1416+: 
+L1416+: The Entity model is composed of static properties and dynamic properties. The static properties may not
+L1416+: change while the PAAD-AE is online. The dynamic properties may change due to controller requests or various
+L1416+: external events.
+L1416+: Note: the static properties of a PAAD-AE may be changed while the PAAD-AE is offline (due to a firmware upgrade
+L1416+: for example). In this case, the PAAD-AE reports a different Entity Model ID so that controllers do not mistakenly
+L1457+: 5.3.3.1 ENTITY
+L1457+: 
+L1457+: The PAAD-AE shall have exactly one ENTITY descriptor. This descriptor shall have the format specified in
+L1457+: [ATDECC, Clause 7.2.1], with the following clarifications:
+L1457+:     • The entity_model_id field shall be a valid EUI-64 (neither all zeros nor all ones).
+L1489+: 5.3.3.4 STREAM_INPUT and STREAM_OUTPUT
+L1489+: 
+L1489+: A Configuration shall contain at least one STREAM_INPUT or STREAM_OUTPUT descriptor. These descrip-
+L1489+: tors shall have the format specified in [ATDECC, Clause 7.2.6], with the following clarifications.
+L1489+: In a STREAM_INPUT descriptor, the buffer_length field shall contain a valid value and this value shall be
+L1489+: greater than or equal to 2126000 ns (2.126 ms), as per [AVTP, Clause 4.3.3, Equation (2)].
+L1524+: 5.3.3.6 CLOCK_SOURCE
+L1524+: 
+L1524+: Each Clock Domain of a Configuration shall have at least one associated CLOCK_SOURCE descriptor. Each
+L1542+: In addition, if the Configuration has at least one Stream Output, then there shall be at least one
+L1542+: CLOCK_SOURCE descriptor associated with an internal clock, with the following fields:
+L1542+:      • clock_source_type = INTERNAL
+L5365+: 5.6.2 ADPDUs
+L5365+: 
+L5365+: A PAAD-AE shall form ADPDUs as described in [ATDECC, Clause 6], with the following clarifications:
+L5365+:    • The entity_model_id field shall be a valid EUI-64 (neither all zeros nor all ones).
+## IEEE 1722.1-2021
+         An AEM descriptor is a fixed field structure followed by variable length data which describes an object in
+         the ATDECC Entity model. The maximum length of a descriptor shall be 508 octets.
+     82           2             formats_offset                                 The offset from the start of the descriptor for the first octet of the formats.
+                                                                               This field is 138 for this version of AEM.
+     84           2             number_of_formats                              The number of formats supported by this audio Stream. The value of this
+                                                                               field is referred to as N. The maximum value for this field is 46 for this
+                                                                               version of AEM.
+     128          4             buffer_length                                  The length in nanoseconds of the MAC’s ingress or egress buffer as
+                                                                               defined in IEEE Std 1722­2016 Figure 5.4. For a STREAM_INPUT this

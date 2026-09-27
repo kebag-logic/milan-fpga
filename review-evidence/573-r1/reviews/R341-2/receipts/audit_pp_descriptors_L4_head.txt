@@ -1,0 +1,22 @@
+5626-    {
+5627-      "rule": "L4",
+5628:      "probe": "47 formats at Table 7-8 cap",
+5629-      "result": "accepted",
+5630-      "image_bytes": 6152
+5631-    },
+5632-    {
+5633-      "rule": "L4",
+5634-      "probe": "48 formats below line-buffer cap",
+5635-      "result": "accepted",
+5636-      "image_bytes": 6160
+        ("L4", "buffer at 2126000 ns", lambda d: change_field(d, 5, 128, 2126000, 4)),
+        ("L4", "buffer one ns below floor", lambda d: change_field(d, 5, 128, 2125999, 4)),
+        ("L4", "CLASS_A cleared", lambda d: change_field(d, 5, 72, 1)),
+        ("L4", "current format outside list", lambda d: change_field(d, 5, 74, 0, 8)),
+        ("L4", "mixed AAF and CRF formats", lambda d: change_field(d, 5, 146, 0x041060010000BB80, 8)),
+        ("L4", "47 formats at Table 7-8 cap", lambda d: resize_list(d, 5, 47)),
+        ("L4", "48 formats below line-buffer cap", lambda d: resize_list(d, 5, 48)),
+        ("L6", "source list reversed", lambda d: document_row(d, 36).update(
+
+| Layer and rule | Accepted control or boundary | One invalid change | Measured result |
+| Processor L4 | Buffer 2126000; 47-entry size 514 | Buffer 2125999; 48-entry size 522 | Both accepted; 576-byte buffer is not the 46-format cap |
