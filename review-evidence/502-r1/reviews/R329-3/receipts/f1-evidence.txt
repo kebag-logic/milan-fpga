@@ -1,0 +1,39 @@
+## head 867a2e38 docs/design/SAVED_STATE_MATERIALIZATION.md:2024 (section heading) and :2081-2083
+## 15. UNRESOLVED
+3. **The mark-tail window of today's glue** (#502, open): the status reads
+   durable over an applied name or map for a program's tail. Every stage
+   declared shippable waits for its correction (section 10).
+## same page section 2 at head :224-235
+Issue #502 implements that standalone reporting correction.
+The processor pin is now `870ff88a`.
+`KL_pp_shadow` consumes `aecp_name_wr_o` and `amap_live_wr_i`.
+The parent derives `amap_live_wr_i` from its store-change conditions.
+Both sources share `clk_i` and `rst_n` with the backend.
+Their pulses and sticky history feed the registered pending input.
+Pending therefore rises on the accepting live-write edge.
+The later marks still delimit command completion.
+An unchanged duplicate map record raises neither pending nor mark.
+Neither group gains a record writer in this correction.
+Only reset retires their sticky source.
+
+## base 831f94f4 same item (unchanged by the PR)
+3. **The mark-tail window of today's glue** (#502, open): the status reads
+   durable over an applied name or map for a program's tail. Every stage
+   declared shippable waits for its correction (section 10).
+## PR diff touching the item (expect none)
+0
+## ownership page UNRESOLVED item 2 at head :1738-1742 (updated by this PR)
+2. CLOSED for reporting by donor scope D2 (issue 90): the channel-map and
+   name commit marks reach the parent on `aecp_nvm_stb_o` /
+   `aecp_nvm_mark_o`. Issue #502 uses live acceptance instead, so the status
+   no longer reads durable over them. Making them durable still needs D3,
+   which is item 1.
+## ownership page same item at base
+1720:2. CLOSED for reporting by donor scope D2 (issue 90): the channel-map and
+1721-   name commit marks reach the parent on `aecp_nvm_stb_o` /
+1722-   `aecp_nvm_mark_o`, and either sets a sticky pending source, so the status
+1723-   no longer reads durable over them. Making them durable still needs D3,
+## issue #502 title
+[Saved state] Assert pending from live name and map writes before their commit marks | OPEN
+## PR closes
+PR #579 body line: Closes #502.
