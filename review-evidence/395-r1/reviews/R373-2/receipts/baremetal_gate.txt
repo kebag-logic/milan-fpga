@@ -1,0 +1,7 @@
+$ python3 -B scripts/check_baremetal_only.py --check   (at 3a0cb4cf4fed2d71436a43f4b96cb375f9178342)
+  - docs/findings/COMMERCIAL_TIMING_395.md:115: [R] prohibited target runtime/service surface '/sys': 'Ethernet/sys crossings remain **unbounded false paths**, in both directions.' (#259: no target OS or retired helper-service plane)
+baremetal-only: FAIL (1 finding(s) across 919 scanned file(s))
+rc=1
+$ python3 -B scripts/check_baremetal_only.py --selftest
+baremetal-only selftest: PASS (700 arm(s))
+rc=0

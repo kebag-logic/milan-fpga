@@ -1,0 +1,196 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Mon Sep 28 01:15:54 2026
+# Process ID         : 2391576
+# Current directory  : $PACKET/scratch/crossing
+# Command line       : vivado -mode batch -nojournal -notrace -log crossing.log -source $PACKET/scripts/crossing_probe_r2.tcl -tclargs $PACKET/scratch/dcp/alinx_ax7101_route.dcp
+# Log file           : $PACKET/scratch/crossing/crossing.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 43555 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source $PACKET/scripts/crossing_probe_r2.tcl -notrace
+Command: open_checkpoint $PACKET/scratch/dcp/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1448.160 ; gain = 7.938 ; free physical = 6097 ; free virtual = 41936
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.27 ; elapsed = 00:00:00.26 . Memory (MB): peak = 1980.145 ; gain = 0.000 ; free physical = 6758 ; free virtual = 42627
+INFO: [Netlist 29-17] Analyzing 5506 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.11 . Memory (MB): peak = 2135.332 ; gain = 0.000 ; free physical = 6473 ; free virtual = 42350
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.09 . Memory (MB): peak = 2812.012 ; gain = 8.984 ; free physical = 6216 ; free virtual = 42105
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2814.012 ; gain = 2.000 ; free physical = 6214 ; free virtual = 42103
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2814.012 ; gain = 0.000 ; free physical = 6214 ; free virtual = 42103
+Read placeStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2892.301 ; gain = 78.289 ; free physical = 5953 ; free virtual = 41843
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2892.301 ; gain = 0.000 ; free physical = 5953 ; free virtual = 41843
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.96 . Memory (MB): peak = 2917.301 ; gain = 25.000 ; free physical = 6204 ; free virtual = 42094
+Read Physdb Files: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2917.301 ; gain = 114.273 ; free physical = 6197 ; free virtual = 42087
+Restored from archive | CPU: 3.070000 secs | Memory: 85.994194 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2917.301 ; gain = 114.273 ; free physical = 6198 ; free virtual = 42088
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2945.355 ; gain = 0.000 ; free physical = 6185 ; free virtual = 42076
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 686 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM16X1S => RAM32X1S (RAMS32): 48 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 443 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 26 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 2 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:24 ; elapsed = 00:00:21 . Memory (MB): peak = 2953.391 ; gain = 1515.168 ; free physical = 6171 ; free virtual = 42062
+R2 part=xc7a100tfgg484-2
+R2 quasi_static cells=112
+R2 get_clocks crg_clkout0 -> ''
+R2 get_clocks crg_clkout1 -> ''
+R2 get_clocks crg_audio_ref_raw -> ''
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+get_timing_paths: Time (s): cpu = 00:00:24 ; elapsed = 00:00:11 . Memory (MB): peak = 3128.074 ; gain = 174.684 ; free physical = 6106 ; free virtual = 41996
+R2 A_shipped Slow max eth_clocks0_rx->milansoc_crg_clkout0 endpoints=13 timed=0 falsepath=13 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Slow min eth_clocks0_rx->milansoc_crg_clkout0 endpoints=13 timed=0 falsepath=13 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Slow max milansoc_crg_clkout0->eth_clocks0_rx endpoints=16 timed=0 falsepath=16 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Slow min milansoc_crg_clkout0->eth_clocks0_rx endpoints=16 timed=0 falsepath=16 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Slow max eth_clocks0_rx->milansoc_crg_clkout1 endpoints=50 timed=50 falsepath=0 worst_slack=0.546 req=4.0 exception=<> datapath_max=5.373 worst_end=KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[23]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Slow min eth_clocks0_rx->milansoc_crg_clkout1 endpoints=50 timed=50 falsepath=0 worst_slack=1.095 req=0.0 exception=<> datapath_max=4.508 worst_end=KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[19]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Slow max milansoc_crg_clkout1->eth_clocks0_rx endpoints=6 timed=6 falsepath=0 worst_slack=0.203 req=4.0 exception=<> datapath_max=0.875 worst_end=KL_gptp_gmii_launch/u_rec_cdc/ack_sync_reg[0]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Slow min milansoc_crg_clkout1->eth_clocks0_rx endpoints=6 timed=6 falsepath=0 worst_slack=2.268 req=0.0 exception=<> datapath_max=0.722 worst_end=KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[3]/D
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+get_timing_paths: Time (s): cpu = 00:00:22 ; elapsed = 00:00:08 . Memory (MB): peak = 3139.074 ; gain = 11.000 ; free physical = 5473 ; free virtual = 41363
+R2 A_shipped Fast max eth_clocks0_rx->milansoc_crg_clkout0 endpoints=13 timed=0 falsepath=13 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Fast min eth_clocks0_rx->milansoc_crg_clkout0 endpoints=13 timed=0 falsepath=13 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Fast max milansoc_crg_clkout0->eth_clocks0_rx endpoints=16 timed=0 falsepath=16 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Fast min milansoc_crg_clkout0->eth_clocks0_rx endpoints=16 timed=0 falsepath=16 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Fast max eth_clocks0_rx->milansoc_crg_clkout1 endpoints=50 timed=50 falsepath=0 worst_slack=1.458 req=4.0 exception=<> datapath_max=3.092 worst_end=milan_datapath/link_guard/rx_sync_r_reg[0]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Fast min eth_clocks0_rx->milansoc_crg_clkout1 endpoints=50 timed=50 falsepath=0 worst_slack=0.182 req=0.0 exception=<> datapath_max=2.693 worst_end=KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[10]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Fast max milansoc_crg_clkout1->eth_clocks0_rx endpoints=6 timed=6 falsepath=0 worst_slack=1.429 req=4.0 exception=<> datapath_max=0.432 worst_end=KL_gptp_gmii_launch/u_seal_cdc/req_sync_reg[0]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 A_shipped Fast min milansoc_crg_clkout1->eth_clocks0_rx endpoints=6 timed=6 falsepath=0 worst_slack=0.796 req=0.0 exception=<> datapath_max=0.369 worst_end=KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[2]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+report_clock_interaction: Time (s): cpu = 00:00:30 ; elapsed = 00:00:11 . Memory (MB): peak = 3176.574 ; gain = 37.500 ; free physical = 5411 ; free virtual = 41523
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+get_timing_paths: Time (s): cpu = 00:00:24 ; elapsed = 00:00:09 . Memory (MB): peak = 3176.574 ; gain = 0.000 ; free physical = 5507 ; free virtual = 41620
+R2 B_intended_names Slow max eth_clocks0_rx->milansoc_crg_clkout0 endpoints=13 timed=0 falsepath=13 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 B_intended_names Slow min eth_clocks0_rx->milansoc_crg_clkout0 endpoints=13 timed=0 falsepath=13 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 B_intended_names Slow max milansoc_crg_clkout0->eth_clocks0_rx endpoints=16 timed=0 falsepath=16 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 B_intended_names Slow min milansoc_crg_clkout0->eth_clocks0_rx endpoints=16 timed=0 falsepath=16 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+R2 B_intended_names Slow max eth_clocks0_rx->milansoc_crg_clkout1 endpoints=50 timed=50 falsepath=0 worst_slack=2.560 req=8.0 exception=<MaxDelay Path 8.000ns -datapath_only> datapath_max=5.373 worst_end=KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[23]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 B_intended_names Slow min eth_clocks0_rx->milansoc_crg_clkout1 endpoints=50 timed=0 falsepath=50 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+R2 B_intended_names Slow max milansoc_crg_clkout1->eth_clocks0_rx endpoints=6 timed=6 falsepath=0 worst_slack=7.066 req=8.0 exception=<MaxDelay Path 8.000ns -datapath_only> datapath_max=0.875 worst_end=KL_gptp_gmii_launch/u_rec_cdc/ack_sync_reg[0]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 B_intended_names Slow min milansoc_crg_clkout1->eth_clocks0_rx endpoints=14 timed=0 falsepath=14 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+get_timing_paths: Time (s): cpu = 00:00:24 ; elapsed = 00:00:09 . Memory (MB): peak = 3184.574 ; gain = 8.000 ; free physical = 5588 ; free virtual = 41702
+R2 B_intended_names Fast max eth_clocks0_rx->milansoc_crg_clkout0 endpoints=13 timed=0 falsepath=13 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 B_intended_names Fast min eth_clocks0_rx->milansoc_crg_clkout0 endpoints=13 timed=0 falsepath=13 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 B_intended_names Fast max milansoc_crg_clkout0->eth_clocks0_rx endpoints=16 timed=0 falsepath=16 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 B_intended_names Fast min milansoc_crg_clkout0->eth_clocks0_rx endpoints=16 timed=0 falsepath=16 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+R2 B_intended_names Fast max eth_clocks0_rx->milansoc_crg_clkout1 endpoints=50 timed=50 falsepath=0 worst_slack=4.823 req=8.0 exception=<MaxDelay Path 8.000ns -datapath_only> datapath_max=3.092 worst_end=KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[23]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 B_intended_names Fast min eth_clocks0_rx->milansoc_crg_clkout1 endpoints=50 timed=0 falsepath=50 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+R2 B_intended_names Fast max milansoc_crg_clkout1->eth_clocks0_rx endpoints=6 timed=6 falsepath=0 worst_slack=7.538 req=8.0 exception=<MaxDelay Path 8.000ns -datapath_only> datapath_max=0.432 worst_end=KL_gptp_gmii_launch/u_seal_cdc/req_sync_reg[0]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 B_intended_names Fast min milansoc_crg_clkout1->eth_clocks0_rx endpoints=14 timed=0 falsepath=14 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+report_clock_interaction: Time (s): cpu = 00:00:31 ; elapsed = 00:00:11 . Memory (MB): peak = 3245.074 ; gain = 60.500 ; free physical = 5019 ; free virtual = 41205
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-2] Deriving generated clocks
+R2 clocks after reset: clk200_p eth_clocks0_rx milansoc_crg_audio_mclk_raw milansoc_crg_audio_ref_raw milansoc_crg_clkout0 milansoc_crg_clkout1 milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 milansoc_crg_mmcm_audio_fb milansoc_crg_pll_audio_fb subfragments_pll_fb
+get_timing_paths: Time (s): cpu = 00:00:25 ; elapsed = 00:00:09 . Memory (MB): peak = 3257.949 ; gain = 0.000 ; free physical = 1393 ; free virtual = 37833
+R2 C_all_exposed Slow max eth_clocks0_rx->milansoc_crg_clkout0 endpoints=13 timed=13 falsepath=0 worst_slack=5.746 req=8.0 exception=<MaxDelay Path 8.000ns -datapath_only> datapath_max=2.179 worst_end=impl_xilinxmultiregimpl140_reg/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 C_all_exposed Slow min eth_clocks0_rx->milansoc_crg_clkout0 endpoints=13 timed=0 falsepath=13 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+R2 C_all_exposed Slow max milansoc_crg_clkout0->eth_clocks0_rx endpoints=16 timed=16 falsepath=0 worst_slack=4.313 req=8.0 exception=<MaxDelay Path 8.000ns -datapath_only> datapath_max=3.395 worst_end=FDPE_14/PRE
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 C_all_exposed Slow min milansoc_crg_clkout0->eth_clocks0_rx endpoints=16 timed=0 falsepath=16 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+R2 C_all_exposed Slow max eth_clocks0_rx->milansoc_crg_clkout1 endpoints=50 timed=50 falsepath=0 worst_slack=2.560 req=8.0 exception=<MaxDelay Path 8.000ns -datapath_only> datapath_max=5.373 worst_end=KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[23]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 C_all_exposed Slow min eth_clocks0_rx->milansoc_crg_clkout1 endpoints=50 timed=0 falsepath=50 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+R2 C_all_exposed Slow max milansoc_crg_clkout1->eth_clocks0_rx endpoints=14 timed=14 falsepath=0 worst_slack=4.056 req=8.0 exception=<MaxDelay Path 8.000ns -datapath_only> datapath_max=3.652 worst_end=FDPE_18/PRE
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 C_all_exposed Slow min milansoc_crg_clkout1->eth_clocks0_rx endpoints=14 timed=0 falsepath=14 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+WARNING: [Timing 38-434] All timing corners have been disabled. Timing analysis will not produce any timing results
+get_timing_paths: Time (s): cpu = 00:00:24 ; elapsed = 00:00:09 . Memory (MB): peak = 3257.949 ; gain = 0.000 ; free physical = 4548 ; free virtual = 41140
+R2 C_all_exposed Fast max eth_clocks0_rx->milansoc_crg_clkout0 endpoints=13 timed=13 falsepath=0 worst_slack=6.717 req=8.0 exception=<MaxDelay Path 8.000ns -datapath_only> datapath_max=1.240 worst_end=impl_xilinxmultiregimpl140_reg/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 C_all_exposed Fast min eth_clocks0_rx->milansoc_crg_clkout0 endpoints=13 timed=0 falsepath=13 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+R2 C_all_exposed Fast max milansoc_crg_clkout0->eth_clocks0_rx endpoints=16 timed=16 falsepath=0 worst_slack=5.895 req=8.0 exception=<MaxDelay Path 8.000ns -datapath_only> datapath_max=1.979 worst_end=FDPE_14/PRE
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 C_all_exposed Fast min milansoc_crg_clkout0->eth_clocks0_rx endpoints=16 timed=0 falsepath=16 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+R2 C_all_exposed Fast max eth_clocks0_rx->milansoc_crg_clkout1 endpoints=50 timed=50 falsepath=0 worst_slack=4.823 req=8.0 exception=<MaxDelay Path 8.000ns -datapath_only> datapath_max=3.092 worst_end=KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[23]/D
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 C_all_exposed Fast min eth_clocks0_rx->milansoc_crg_clkout1 endpoints=50 timed=0 falsepath=50 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+R2 C_all_exposed Fast max milansoc_crg_clkout1->eth_clocks0_rx endpoints=14 timed=14 falsepath=0 worst_slack=5.878 req=8.0 exception=<MaxDelay Path 8.000ns -datapath_only> datapath_max=1.996 worst_end=FDPE_18/PRE
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+R2 C_all_exposed Fast min milansoc_crg_clkout1->eth_clocks0_rx endpoints=14 timed=0 falsepath=14 worst_slack= req=- exception=<-> datapath_max=0.000 worst_end=-
+get_timing_paths: Time (s): cpu = 00:00:24 ; elapsed = 00:00:09 . Memory (MB): peak = 3257.949 ; gain = 0.000 ; free physical = 4664 ; free virtual = 41257
+R2 C_endpoint Slow clkout1->eth slack=4.056 datapath=3.652 from=milan_datapath/link_guard/eth_rst_r_reg/C to=FDPE_18/PRE
+R2 C_endpoint Slow clkout1->eth slack=4.056 datapath=3.652 from=milan_datapath/link_guard/eth_rst_r_reg/C to=FDPE_19/PRE
+R2 C_endpoint Slow clkout1->eth slack=4.208 datapath=3.500 from=milan_datapath/link_guard/eth_rst_r_reg/C to=FDPE_14/PRE
+R2 C_endpoint Slow clkout1->eth slack=4.208 datapath=3.500 from=milan_datapath/link_guard/eth_rst_r_reg/C to=FDPE_15/PRE
+R2 C_endpoint Slow clkout1->eth slack=4.317 datapath=3.391 from=milan_datapath/link_guard/eth_rst_r_reg/C to=FDPE_12/PRE
+R2 C_endpoint Slow clkout1->eth slack=4.317 datapath=3.391 from=milan_datapath/link_guard/eth_rst_r_reg/C to=FDPE_13/PRE
+R2 C_endpoint Slow clkout1->eth slack=4.638 datapath=3.070 from=milan_datapath/link_guard/eth_rst_r_reg/C to=FDPE_20/PRE
+R2 C_endpoint Slow clkout1->eth slack=4.638 datapath=3.070 from=milan_datapath/link_guard/eth_rst_r_reg/C to=FDPE_21/PRE
+R2 C_endpoint Slow clkout1->eth slack=7.066 datapath=0.875 from=KL_gptp_gmii_launch/u_rec_cdc/ack_tog_reg/C to=KL_gptp_gmii_launch/u_rec_cdc/ack_sync_reg[0]/D
+R2 C_endpoint Slow clkout1->eth slack=7.149 datapath=0.788 from=KL_gptp_gmii_launch/u_seal_cdc/req_tog_reg/C to=KL_gptp_gmii_launch/u_seal_cdc/req_sync_reg[0]/D
+R2 C_endpoint Slow clkout1->eth slack=7.298 datapath=0.643 from=KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[1]/C to=KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[1]/D
+R2 C_endpoint Slow clkout1->eth slack=7.321 datapath=0.640 from=KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[3]/C to=KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[3]/D
+R2 C_endpoint Slow clkout1->eth slack=7.325 datapath=0.643 from=KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[0]/C to=KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[0]/D
+R2 C_endpoint Slow clkout1->eth slack=7.333 datapath=0.640 from=KL_gptp_gmii_launch/u_seal_cdc/data_hold_reg[2]/C to=KL_gptp_gmii_launch/u_seal_cdc/dest_out_r_reg[2]/D
+R2 FINISHED
+INFO: [Common 17-206] Exiting Vivado at Mon Sep 28 01:17:53 2026...
