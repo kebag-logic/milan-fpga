@@ -7,10 +7,10 @@ Measured on 2026-09-27, under the [bench assignment](https://github.com/kebag-lo
 
 | Acceptance | Verdict | Evidence |
 |---|---|---|
-| #394 acceptance 2, e1 only | FAIL | Recovery succeeded, but LINK_UP and LINK_DOWN never advanced. DUT link-edge timestamps therefore remain unavailable. |
-| #387 acceptance 4, assigned CRF measurement | PASS | Ten PHC steps were bracketed. Each recovered gPTP and locked media automatically, within one further stream restart. Raw observations are retained. |
+| #394 acceptance 2, e1 only | FAIL | Recovery succeeded, but expected LINK_UP/LINK_DOWN increments were absent. DUT PHY link loss and link-edge times were not observed. |
+| #387 acceptance 4 | NOT MET (not exercised) | Every step occurred during HOLDOVER with both streams absent. Needed: a grandmaster change while a locked CRF stream keeps running. |
 
-This evidence leaves #394 open.
+The [round-2 decision](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5859045504) leaves #394 and #387 open.
 
 It does not close #75 or grade #593.
 
@@ -158,13 +158,39 @@ It ends when asCapable, sync and `tu=0` coexist.
 
 The [documented bound](../design/GM_LOSS_RECOVERY.md#recovery-bound) is five seconds.
 
-That contract permits one further stream restart for media recovery.
+The media row permits recovery within one further stream restart.
 
-The [step policy](../design/TIME_SYNC.md#step-policy) supplies the media context.
+That row is #117 outage-recovery context, not #387's bound.
 
-DUT MAC_STATUS stayed `0x0d` throughout each outage.
+#387 item 2 records the [media re-base contract](../design/GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
 
-Thus no DUT link-down or link-up timestamp was observable.
+The [step policy](../design/TIME_SYNC.md#step-policy) identifies the triggering PHC steps.
+
+The contract requires one counted event per step.
+
+Licensed streams keep running.
+
+One `mr` toggle and one MEDIA_RESET record that event.
+
+It specifies no step-to-relocked-media time bound.
+
+Every observed step occurred while the servo was in HOLDOVER.
+
+Both CRF streams were absent from the wire.
+
+These intervals measure outage recovery, including stream return and acquisition.
+
+They do not measure a locked stream's step reaction.
+
+DUT MAC_STATUS stayed at its software-published reset value, `0x0d`.
+
+Nothing in this build writes it ([#599](https://github.com/kebag-logic/milan-fpga/issues/599)).
+
+Whether the DUT PHY link dropped was not observed.
+
+The inline capture point may hold that link up.
+
+DUT link-down and link-up timestamps therefore remain unavailable.
 
 Controller carrier edges describe another switch port, not DUT edges.
 
@@ -194,7 +220,7 @@ Carrier edges, GM return, PHC step brackets and first PDUs are relative to OFF.
 
 Recovery is measured from the first returning GM message.
 
-Step-to-media uses the measured step bracket.
+Outage media recovery is timed from the measured step bracket.
 
 Its endpoint requires DUT MEDIA_LOCKED, `tu=0` and servo LOCKED.
 
@@ -206,8 +232,8 @@ The range brackets step timing; polling adds observation latency.
 
 The final two columns report observations without applying #593.
 
-| Cycle | OFF duration | Controller down / up | GM return / PHC step | gPTP recovery | First DUT / peer PDU | Step to media | DUT / peer mr changes | DUT MEDIA_RESET sequence |
-|---|---|---|---|---|---|---|---|---|---|
+| Cycle | OFF duration | Controller down / up | GM return / PHC step | gPTP recovery | First DUT / peer PDU | Outage media recovery after step | DUT / peer mr changes | DUT MEDIA_RESET sequence |
+|---|---|---|---|---|---|---|---|---|
 | 1 | 21.09 | 10.74 / 34.94 | 39.99 / 41.02-41.30 | 1.56 | 43.99 / 46.52 | 8.00-8.28 | 2 / 0 | 1 > 2 > 0 > 1 |
 | 2 | 20.89 | 1.38 / 34.88 | 39.87 / 39.77-40.05 | 0.68 | 46.77 / 47.55 | 10.25-10.54 | 2 / 0 | 1 > 2 > 0 > 1 |
 | 3 | 20.96 | 1.45 / 34.83 | 39.93 / 41.02-41.30 | 1.62 | 45.24 / 45.74 | 7.50-7.78 | 2 / 0 | 1 > 2 > 1 |
@@ -221,7 +247,9 @@ The final two columns report observations without applying #593.
 
 All ten gPTP recoveries passed: 0.44 to 1.82 seconds.
 
-The longest observed step-to-media endpoint was 12.54 seconds.
+The longest outage media recovery interval was 12.54 seconds.
+
+This elapsed time starts at the measured step bracket.
 
 Every cycle regained both streams and retained both bindings.
 
@@ -241,7 +269,7 @@ Exact DUT link-up-to-PDU delays remain unmeasured.
 
 ## Counter and restart findings
 
-The link-counter failure reproduced in all ten cycles.
+The expected link-counter increments were absent in all ten cycles.
 
 LINK_UP remained 1; LINK_DOWN remained 0.
 
@@ -251,13 +279,23 @@ This confirms the earlier [flat-counter observation](117_GPTP_SILICON_EVIDENCE.m
 
 The [integration source](../../sw/litex/milan_soc.py) explains the status dependency.
 
-It initializes software-published link status to up.
+MAC_STATUS remains at its unwritten reset value, `0x0d` ([#599](https://github.com/kebag-logic/milan-fpga/issues/599)).
 
-This run never wrote that status to manufacture edges.
+Whatever the PHY did, this status cannot advance LINK_UP/LINK_DOWN.
+
+The counters also depend on the link guard's RX-clock-alive veto.
+
+Neither LINKG_STAT nor LINK_CTRL was sampled.
+
+No PHY-status read established whether the DUT link dropped.
+
+The reference peer's LINK_UP/LINK_DOWN also stayed flat at 1/0.
+
+The build defect is missing publication, not an observed missed edge.
 
 | DUT observation | Per-cycle result |
 |---|---|
-| AVB_INTERFACE LINK_UP / LINK_DOWN | `+0 / +0`, defect |
+| AVB_INTERFACE LINK_UP / LINK_DOWN | `+0 / +0`; expected increments absent; publication defect #599 |
 | AVB_INTERFACE GPTP_GM_CHANGED | `+2`, selected itself and then the switch |
 | CRF STREAM_INPUT MEDIA_LOCKED / MEDIA_UNLOCKED | `+1 / +1` |
 | CLOCK_DOMAIN LOCKED / UNLOCKED | `+1 / +1` |
@@ -304,9 +342,13 @@ Its raw trajectory records unlock before the reset.
 
 This run reports these restart observations without grading #593.
 
-The #387 verdict covers the assigned CRF recovery measurement.
+#387 acceptance 4 remains NOT MET: its condition was not exercised.
 
-It does not assert AAF render timing or waveform continuity.
+A grandmaster change must occur while locked CRF keeps running.
+
+That measurement must observe the step's counted media event.
+
+This run also leaves AAF render timing and waveform continuity unmeasured.
 
 ## Restore and validation
 
@@ -338,15 +380,21 @@ No RTL or firmware changed in this lane.
 
 ## Artifact hashes
 
-The operator packet contains the scripts, transcripts and analyses.
+The [public packet archive](https://github.com/kebag-logic/milan-fpga/tree/8f983d245a12e18a47ced37904d405b624c7e024/review-evidence/394-387-r1) contains scripts, transcripts and analyses.
 
-The packet is identified as `2026-09-23/394-a375`.
+Its branch is `394-387-review-evidence`; its path is `review-evidence/394-387-r1`.
 
-Large raw captures remain under `/tmp/a375/cycleNN/`.
+The archive commit is `8f983d245a12e18a47ced37904d405b624c7e024`.
 
-Each cycle's `raw-artifacts.json` lists paths, sizes and SHA-256.
+The publisher's [MANIFEST.json](https://github.com/kebag-logic/milan-fpga/blob/8f983d245a12e18a47ced37904d405b624c7e024/review-evidence/394-387-r1/MANIFEST.json) records the published files' SHA-256 values.
 
-`MANIFEST.sha256` covers retained packet files, excluding itself.
+Raw captures are retained in private cold storage.
+
+[RAW-ARTIFACTS.json](https://github.com/kebag-logic/milan-fpga/blob/8f983d245a12e18a47ced37904d405b624c7e024/review-evidence/394-387-r1/author/RAW-ARTIFACTS.json) indexes them by size and SHA-256.
+
+The per-cycle `author/cycleNN/raw-artifacts.json` indexes retain the same identifiers.
+
+Their temporary-directory paths are historical names, not current storage locators.
 
 Raw retention follows [TESTING section 6b](../testing/TESTING.md#6b-bench-evidence-retention).
 
