@@ -440,7 +440,8 @@ Hashing covers the fields selected by `model_shape()`.
 It does not automatically cover generator-owned descriptor fields.
 The pin override preserves an explicitly supplied identity.
 It currently performs no model-history comparison.
-Zero and all-ones identities also pass the numeric-width check.
+Zero and all-ones model identities now raise `ConfigError` (#573).
+Milan 5.3.3.1 and 5.6.2 require this validity check.
 
 The [identity audit](reference/PP_DESCRIPTOR_OWNERSHIP.md#identity-reconciliation)
 records these limits and their implementation owners.

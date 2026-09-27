@@ -1,13 +1,16 @@
 # Protocol processor area baseline
 
-Measured on 2026-09-26 for issue #231 and optimization epic #229.
-Measured RTL revision: `7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a`.
+Original measurements: 2026-09-26, issue #231, optimization epic #229.
+Original measured revision: `7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a`.
 This change modifies no RTL.
+Issue #587 repeats integrated 8x8 synthesis at 50 MHz.
+Its 2026-09-27 revision is `63fe4fb0164d798d44a6476001dc8b887cdd4609`.
 
 ## Contents
 
 - **[Provenance](#provenance)** -- Bind tools, configuration and processor revisions.
 - **[Measurements](#measurements)** -- Separate standalone and integrated results.
+- **[50 MHz 8x8 rerun](#50-mhz-8x8-rerun)** -- Compare the declared clock against history.
 - **[Hierarchical consumers](#hierarchical-consumers)** -- Attribute standalone and integrated resource use.
 - **[Integrated implementation](#integrated-implementation)** -- Compare the three placement directives.
 - **[Input integrity](#input-integrity)** -- Bind complete ROM images to their source revisions.
@@ -24,7 +27,11 @@ Default-flow totals remain the implementation baseline.
 The retired control planes have no current build.
 Current integrated measurements therefore replace a new substitution comparison.
 
-| Input | Revision or configuration |
+These are the original #231 inputs.
+Its 8x8 measurements use 100 MHz and processor pin `990f9652`.
+The #587 50 MHz rerun uses processor pin `0922e434`.
+
+| Original #231 input | Revision or configuration |
 |---|---|
 | Protocol processor | `990f96526bb89356c963a260ebbdcf2a77e6623a` |
 | gPTP processor | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` |
@@ -39,10 +46,10 @@ Current integrated measurements therefore replace a new substitution comparison.
 The Yosys revision string is the installed package's reported identity.
 Its figures describe that version, not a pinned portability result.
 
-| Product configuration | Processor inputs / outputs | Name entries | Ports in / out | Timer MHz | OOC MHz |
+| Original #231 product configuration | Processor inputs / outputs | Name entries | Ports in / out | Timer MHz | OOC MHz |
 |---|---:|---:|---:|---:|---:|
 | `endstation_ax7101_1x1_tdm8` | 2 / 2 | 38 | 1 / 1 | 50 | 100 |
-| `endstation_ax7101_8x8` | 9 / 9 | 99 | 8 / 8 | 100 | 100 |
+| `endstation_ax7101_8x8`, historical #231, pin `990f9652` | 9 / 9 | 99 | 8 / 8 | 100 | 100 |
 
 The extra processor contexts belong to CRF.
 The configuration names count audio streams.
@@ -66,11 +73,11 @@ Standalone WNS therefore measures internal paths only.
 
 | Measurement | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 | WNS ns |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Vivado OOC, product 1x1 | 22,350 | 24,533 | 21 | 3 | 5 | 1,415 | -6.180 |
-| Vivado OOC, product 8x8 | 28,992 | 32,984 | 26 | 5 | 5 | 1,775 | -10.987 |
-| Vivado integrated synthesis, whole 1x1 SoC | 51,125 | 58,006 | 79 | 27 | 11 | 3,214 | -1.201 |
-| Vivado integrated route, whole 1x1 SoC | 48,618 | 57,854 | 79 | 27 | 11 | 3,203 | +0.013 |
-| Vivado integrated synthesis, whole 8x8 SoC | 68,136 | 70,835 | 80 | 29 | 11 | 3,916 | -11.331 |
+| Vivado OOC, product 1x1, 100 MHz | 22,350 | 24,533 | 21 | 3 | 5 | 1,415 | -6.180 |
+| Vivado OOC, product 8x8, historical 100 MHz, pin `990f9652` | 28,992 | 32,984 | 26 | 5 | 5 | 1,775 | -10.987 |
+| Vivado integrated synthesis, whole 1x1 SoC, 50 MHz | 51,125 | 58,006 | 79 | 27 | 11 | 3,214 | -1.201 |
+| Vivado integrated route, whole 1x1 SoC, 50 MHz | 48,618 | 57,854 | 79 | 27 | 11 | 3,203 | +0.013 |
+| Vivado integrated synthesis, whole 8x8 SoC, historical 100 MHz, pin `990f9652` | 68,136 | 70,835 | 80 | 29 | 11 | 3,916 | -11.331 |
 
 The separate attribution variant preserves the protocol-wrapper boundary.
 It adds `KEEP_HIERARCHY TRUE` on `milan_datapath/pp_shadow`.
@@ -82,30 +89,194 @@ They cannot be subtracted from the default whole-design totals.
 
 | Attribution-only wrapper | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 | Internal WNS ns |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| 1x1 synthesis | 22,314 | 24,535 | 21 | 3 | 5 | 1,415 | -1.201 |
-| 1x1 route | 20,655 | 23,558 | 21 | 3 | 5 | 1,321 | +0.041 |
-| 8x8 synthesis | 29,489 | 32,991 | 26 | 5 | 8 | 1,809 | -10.846 |
+| 1x1 synthesis, 50 MHz | 22,314 | 24,535 | 21 | 3 | 5 | 1,415 | -1.201 |
+| 1x1 route, 50 MHz | 20,655 | 23,558 | 21 | 3 | 5 | 1,321 | +0.041 |
+| 8x8 synthesis, historical 100 MHz, pin `990f9652` | 29,489 | 32,991 | 26 | 5 | 8 | 1,809 | -10.846 |
 
-Standalone 1x1 consumes 22.5 BRAM tiles; 8x8 consumes 28.5.
+Standalone 1x1 consumes 22.5 BRAM tiles at 100 MHz.
+Historical 8x8 OOC uses 100 MHz and processor pin `990f9652`.
+It consumes 28.5 BRAM tiles.
 Both standalone WNS values are estimates, not closure verdicts.
 At 1x1, the worst path crosses notification logic into the transmit arbiter.
 The endpoints are `u_pp/u_notify/pend_r_reg[4]/C`
 and `u_pp/u_tx_arbiter/slot_r_reg[0]/D`.
-At 8x8, the source is `u_pp/u_notify/pend_r_reg[11]/C`.
+For historical 100 MHz 8x8, the processor pin is `990f9652`.
+Its source is `u_pp/u_notify/pend_r_reg[11]/C`.
 The destination remains the same; that path spans 41 logic levels.
 
-The integrated 1x1 processor runs at 50 MHz; 8x8 runs at 100 MHz.
+These original integrated clocks were 50 MHz and 100 MHz.
+The 100 MHz 8x8 measurements are retained as history.
 Whole-design WNS also includes the other clock domains.
 Wrapper WNS requires both endpoints inside `milan_datapath/pp_shadow`.
 It excludes paths entering or leaving that wrapper.
 
-Integrated 8x8 synthesis exceeds the device's 63,400 LUTs by 4,736.
+Historical 100 MHz 8x8 synthesis exceeded device capacity.
+That #231 run uses processor pin `990f9652`.
+Its 68,136 LUTs exceeded 63,400 by 4,736.
 Its utilization is 107.47 percent before placement.
 It has no placement or routing result.
 
+## 50 MHz 8x8 rerun
+
+The [assignment](https://github.com/kebag-logic/milan-fpga/issues/587#issuecomment-5855348441) repeats the two integrated synthesis variants.
+The configuration declares 50 MHz after issue #565.
+
+No recipe, RTL or configuration change was needed.
+The original 100 MHz results remain labelled history.
+
+Default synthesis measures 68,047 LUTs at 50 MHz.
+That is 89 fewer than the historical 68,136 LUTs.
+The historical 100 MHz processor pin is `990f9652`.
+The 50 MHz rerun's processor pin is `0922e434`.
+
+The total remains 4,647 above the device's 63,400 LUTs.
+Whole-design WNS is -1.708 ns at 50 MHz.
+
+These synthesis estimates establish neither placement nor timing closure.
+The 1x1 results remain unchanged.
+
+| Default integrated 8x8 synthesis | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 | Whole-design WNS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Historical 100 MHz, 2026-09-26 | 68,136 | 70,835 | 80 | 29 | 11 | 3,916 | -11.331 |
+| Declared 50 MHz, 2026-09-27 | 68,047 | 70,744 | 80 | 29 | 11 | 3,913 | -1.708 |
+| 50 MHz minus historical 100 MHz | -89 | -91 | 0 | 0 | 0 | -3 | +9.623 |
+
+The reported Milan clock has a 20.000 ns period.
+The worst default path crosses notification into event-router logic.
+
+Its endpoints are `u_pp/u_notify/ctr_pend_r_reg[3]/C`
+and `u_pp/u_event_router/sel_r_reg[3]/D` inside the wrapper.
+The path contains 43 logic levels.
+
+The current processor pin is `0922e43408f891fc0b84a84691df86b4fd0f1c0d`.
+Its HDL matches historical pin `990f96526bb89356c963a260ebbdcf2a77e6623a` byte-for-byte.
+
+The gPTP and AXIS pins remain unchanged.
+Only two wrapper parameters differ from the historical record:
+
+| Wrapper parameter | Historical 100 MHz, pin `990f9652` | Declared 50 MHz, pin `0922e434` |
+|---|---:|---:|
+| `CLK_HZ_P` | 100000000 | 50000000 |
+| `TIM_DIV_US_P` | 100 | 50 |
+| `TIM_DIV_MS_P` | 1000 | 1000 |
+
+The gPTP image changes with the declared clock.
+Firmware and both processor ROM hashes match the historical record.
+
+The attribution run preserves `milan_datapath/pp_shadow` with `KEEP_HIERARCHY TRUE`.
+It uses the same 50 MHz inputs and synthesis directive.
+
+Only the additional boundary constraint changes synthesis behavior.
+Generated comments and build-directory strings differ between exports.
+
+Both source lists contain 118 reads, in identical order.
+The normalized generated RTL and all image bytes match.
+Normalization replaces build roots with `$BUILD` and checkout with `$REPO`.
+It then strips block and line comments from generated Verilog.
+The [input manifest](PP_SHADOW_BASELINE_50MHZ_INPUTS.json) records the resulting SHA-256 digest.
+
+The following historical 100 MHz row uses processor pin `990f9652`.
+The 50 MHz row uses processor pin `0922e434`.
+
+| Attribution-only 8x8 wrapper synthesis | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 | Internal WNS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Historical 100 MHz, 2026-09-26 | 29,489 | 32,991 | 26 | 5 | 8 | 1,809 | -10.846 |
+| Declared 50 MHz, 2026-09-27 | 28,955 | 32,982 | 26 | 5 | 5 | 1,774 | -1.700 |
+| 50 MHz minus historical 100 MHz | -534 | -9 | 0 | 0 | -3 | -35 | +9.146 |
+
+The 50 MHz attribution whole-design total is 69,923 LUTs.
+It uses 72,421 FFs, 80 RAMB36s and 29 RAMB18s.
+
+It also uses 11 DSPs and 4,013 CARRY4s.
+Its whole-design WNS is -1.700 ns at 50 MHz.
+
+These attribution totals never replace the default fit baseline.
+At 50 MHz, NVM uses three fewer DSPs.
+
+| Integrated 8x8 endpoint | Whole LUT, default / attribution | Wrapper-name LUT, default / attribution | AECP LUT, default / attribution | Dynamic-state LUT, default / attribution |
+|---|---:|---:|---:|---:|
+| Historical 100 MHz synthesis, pin `990f9652` | 68,136 / 70,206 | 37,809 / 29,489 | 15,199 / 5,025 | 6,915 / 574 |
+| Declared 50 MHz synthesis | 68,047 / 69,923 | 38,351 / 28,955 | 15,660 / 5,022 | 7,544 / 574 |
+
+The [50 MHz ranking](PP_SHADOW_BASELINE_50MHZ_RANKING.tsv) includes both synthesis variants.
+Its zero threshold includes every direct child and own logic.
+
+Parent totals retain the report's LUT-sharing reconciliation.
+The following 50 MHz attribution table is a timing subset.
+
+It does not replace the complete consumer ranking.
+
+| Attribution scope at 50 MHz | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 | Internal WNS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `u_pp` | 28,123 | 31,599 | 25 | 4 | 4 | 1,712 | -1.700 |
+| `u_pp/u_aecp` | 5,022 | 4,155 | 7 | 0 | 1 | 264 | +0.609 |
+| `u_pp/u_srp` | 8,359 | 11,130 | 0 | 1 | 2 | 429 | +10.005 |
+| `u_pp/u_notify` | 2,917 | 3,799 | 0 | 0 | 0 | 68 | +11.314 |
+| `u_pp/u_listener` | 1,626 | 1,124 | 5 | 0 | 0 | 30 | +7.647 |
+| `u_pp/u_talker` | 1,402 | 522 | 1 | 1 | 0 | 19 | +6.673 |
+| `u_nvm` | 752 | 1,023 | 0 | 0 | 1 | 37 | +13.058 |
+
+Both 50 MHz checkpoints passed the unchanged public boundary probes.
+The table counts raw LUT cells, before utilization combining.
+
+| Scope at 50 MHz | Raw LUT cells, default / attribution | Only external loads, default / attribution | External input and only external loads, default / attribution |
+|---|---:|---:|---:|
+| `u_pp/u_aecp/u_dyn` | 9,010 / 607 | 5,824 / 0 | 3,098 / 0 |
+| `u_pp/u_aecp` | 17,923 / 5,616 | 6,075 / 18 | 3,284 / 0 |
+| `u_pp/u_srp` | 9,134 / 9,457 | 57 / 442 | 48 / 432 |
+| `u_pp/u_notify` | 3,528 / 3,058 | 3 / 0 | 3 / 0 |
+| `wrapper` | 43,110 / 32,303 | 6,276 / 518 | 3,440 / 467 |
+
+At 50 MHz, attribution removes dynamic-state external-only loads entirely.
+The corresponding load histogram is empty.
+Default dynamic-state loads include `amap_out_owner_r` and `amap_out_cluster_r`.
+Its `amap_edit_oclaim` cluster, expectation and word registers also appear.
+
+The attribution wrapper retains 518 external-only raw LUT cells.
+Residual stems include `gsi_data_r`, `csr/live_mux_q` and `ctl_tx_mux`.
+
+The manifest records every observed load stem and count.
+External loads can include legitimate exported signals.
+Internal child hierarchy remains rebuilt; reverse relocation is not measured.
+
+Both runs used Vivado 2026.1, build `6511674`.
+The part was `xc7a100tfgg484-2`; synthesis used `AreaOptimized_high`.
+
+Both used 32 threads and the default seed.
+Python was 3.14.7; the verified target compiler was GCC 14.3.0.
+
+The pinned SDK release was `riscv32-ilp32d--glibc--stable-2025.08-1`.
+The [50 MHz input manifest](PP_SHADOW_BASELINE_50MHZ_INPUTS.json) binds both runs.
+
+It records parameters, source hashes, image geometries and tool versions.
+Large reports and checkpoints remain outside the public packet.
+
+Their SHA-256 hashes and byte lengths are recorded instead.
+
+Reproduce only the recipe's `ax8x8` export and synthesis endpoints.
+Use separate work directories for default and attribution exports.
+
+The launcher derives `--milan-clk-freq 50e6` from the configuration.
+Retain every other emitted design argument and all constraints.
+
+Run both prepared scripts in their respective gateware directories.
+
+Both synthesis commands returned rc 0, without pipelines.
+Both logs contain zero `Synth 8-4445` diagnostics.
+
+Every recorded source and image hash matched after synthesis.
+Existing `12-4739`, `12-5201` and `20-1307` warnings remain.
+
+Both reports have zero unclocked or unconstrained internal endpoints.
+However, 46 inputs and 86 outputs lack I/O delays.
+
+No placement, routing, bitstream or hardware result is claimed.
+
 ## Hierarchical consumers
 
-The [complete resource ranking](PP_SHADOW_BASELINE_RANKING.tsv) covers eight measured endpoints.
+The [original resource ranking](PP_SHADOW_BASELINE_RANKING.tsv) covers eight measured endpoints.
+Its historical #231 8x8 rows use processor pin `990f9652`.
+Their clock and timer geometry are both 100 MHz.
 Its threshold is zero: every reported direct child appears.
 Wrapper and processor own-logic rows are included.
 LUT and FF ranks are independent, with lexical tie-breaking.
@@ -123,7 +294,7 @@ Do not add a parent row to its children.
 Internal WNS requires both endpoints inside that row's instance.
 Sibling crossings appear in the wrapper total, not individual children.
 
-**Vivado OOC, product 1x1**
+**Vivado OOC, product 1x1, 100 MHz**
 
 | Instance | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 | Internal WNS ns |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -135,7 +306,7 @@ Sibling crossings appear in the wrapper total, not individual children.
 | `u_pp/u_talker` | 860 | 514 | 0 | 0 | 0 | 18 | -1.773 |
 | `u_nvm` | 507 | 469 | 0 | 0 | 1 | 37 | +4.668 |
 
-**Vivado OOC, product 8x8**
+**Vivado OOC, product 8x8, historical 100 MHz, pin `990f9652`**
 
 | Instance | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 | Internal WNS ns |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -147,7 +318,7 @@ Sibling crossings appear in the wrapper total, not individual children.
 | `u_pp/u_talker` | 1,354 | 522 | 1 | 1 | 0 | 18 | -1.514 |
 | `u_nvm` | 745 | 1,024 | 0 | 0 | 1 | 38 | +4.219 |
 
-**Vivado attribution-only integrated synthesis, product 8x8**
+**Vivado attribution-only integrated synthesis, product 8x8, historical 100 MHz, pin `990f9652`**
 
 | Instance | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 | Internal WNS ns |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -159,7 +330,7 @@ Sibling crossings appear in the wrapper total, not individual children.
 | `u_pp/u_talker` | 1,350 | 522 | 1 | 1 | 0 | 19 | -2.315 |
 | `u_nvm` | 1,131 | 1,024 | 0 | 0 | 4 | 58 | +3.907 |
 
-**Vivado attribution-only integrated route, shipping product 1x1**
+**Vivado attribution-only integrated route, shipping product 1x1, 50 MHz**
 
 | Instance | LUT | FF | RAMB36 | RAMB18 | DSP | CARRY4 | Internal WNS ns |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -173,6 +344,9 @@ Sibling crossings appear in the wrapper total, not individual children.
 
 Integrated instance names are relative to `milan_datapath/pp_shadow`.
 Standalone names are relative to the OOC top.
+The following standalone growth compares the original #231 configurations.
+Both use a 100 MHz OOC clock and pin `990f9652`.
+Their timer geometries are 50 MHz and 100 MHz, respectively.
 The SRP engine drives most of the standalone growth: 4,006 LUTs.
 Its listener FSM grows from 451 to 2,109 LUTs.
 Its talker FSM grows from 679 to 1,905 LUTs.
@@ -182,33 +356,35 @@ Its names can therefore contain logic from neighboring modules.
 The boundary-preserving variant prevents that relocation across the wrapper.
 Internal child hierarchy remains rebuilt in both flows.
 Preserving the boundary also changes optimization and resource sharing.
-At 8x8, the attribution wrapper uses eight DSPs.
+Historical 100 MHz 8x8 attribution uses processor pin `990f9652`.
+It uses eight wrapper DSPs.
 The default reconstructed wrapper uses five DSPs.
 The three additional DSPs appear in `u_nvm`.
 
 | Endpoint | Whole LUT, default / attribution | Wrapper-name LUT, default / attribution | AECP LUT, default / attribution | Dynamic-state LUT, default / attribution |
 |---|---:|---:|---:|---:|
-| 1x1 synthesis | 51,125 / 52,210 | 23,272 / 22,314 | 6,639 / 4,678 | 1,296 / 111 |
-| 1x1 route | 48,618 / 48,825 | 22,441 / 20,655 | 6,428 / 4,504 | 1,299 / 111 |
-| 8x8 synthesis | 68,136 / 70,206 | 37,809 / 29,489 | 15,199 / 5,025 | 6,915 / 574 |
+| 1x1 synthesis, 50 MHz | 51,125 / 52,210 | 23,272 / 22,314 | 6,639 / 4,678 | 1,296 / 111 |
+| 1x1 route, 50 MHz | 48,618 / 48,825 | 22,441 / 20,655 | 6,428 / 4,504 | 1,299 / 111 |
+| 8x8 synthesis, historical 100 MHz, pin `990f9652` | 68,136 / 70,206 | 37,809 / 29,489 | 15,199 / 5,025 | 6,915 / 574 |
 
 The unchanged public boundary probe supplies a separate ownership check.
 These are raw LUT cells, not combined utilization LUTs.
 
 | Synthesis scope | Raw LUT cells, default / attribution | Only external loads, default / attribution | External input and only external loads, default / attribution |
 |---|---:|---:|---:|
-| 1x1 `u_pp/u_aecp/u_dyn` | 1,624 / 144 | 763 / 0 | 476 / 0 |
-| 1x1 `u_pp/u_aecp` | 7,649 / 5,269 | 903 / 18 | 574 / 0 |
-| 1x1 `u_pp/u_srp` | 4,960 / 4,947 | 87 / 96 | 86 / 96 |
-| 1x1 `u_pp/u_notify` | 3,419 / 3,361 | 0 / 0 | 0 / 0 |
-| 1x1 `wrapper` | 26,213 / 24,983 | 1,175 / 173 | 792 / 131 |
-| 8x8 `u_pp/u_aecp/u_dyn` | 8,817 / 607 | 5,922 / 0 | 3,108 / 0 |
-| 8x8 `u_pp/u_aecp` | 17,872 / 5,607 | 6,187 / 18 | 3,357 / 0 |
-| 8x8 `u_pp/u_srp` | 9,110 / 9,480 | 74 / 442 | 67 / 432 |
-| 8x8 `u_pp/u_notify` | 3,565 / 3,027 | 1 / 0 | 0 / 0 |
-| 8x8 `wrapper` | 42,962 / 32,833 | 6,397 / 519 | 3,499 / 467 |
+| 1x1, 50 MHz `u_pp/u_aecp/u_dyn` | 1,624 / 144 | 763 / 0 | 476 / 0 |
+| 1x1, 50 MHz `u_pp/u_aecp` | 7,649 / 5,269 | 903 / 18 | 574 / 0 |
+| 1x1, 50 MHz `u_pp/u_srp` | 4,960 / 4,947 | 87 / 96 | 86 / 96 |
+| 1x1, 50 MHz `u_pp/u_notify` | 3,419 / 3,361 | 0 / 0 | 0 / 0 |
+| 1x1, 50 MHz `wrapper` | 26,213 / 24,983 | 1,175 / 173 | 792 / 131 |
+| 8x8, historical 100 MHz, pin `990f9652`, `u_pp/u_aecp/u_dyn` | 8,817 / 607 | 5,922 / 0 | 3,108 / 0 |
+| 8x8, historical 100 MHz, pin `990f9652`, `u_pp/u_aecp` | 17,872 / 5,607 | 6,187 / 18 | 3,357 / 0 |
+| 8x8, historical 100 MHz, pin `990f9652`, `u_pp/u_srp` | 9,110 / 9,480 | 74 / 442 | 67 / 432 |
+| 8x8, historical 100 MHz, pin `990f9652`, `u_pp/u_notify` | 3,565 / 3,027 | 1 / 0 | 0 / 0 |
+| 8x8, historical 100 MHz, pin `990f9652`, `wrapper` | 42,962 / 32,833 | 6,397 / 519 | 3,499 / 467 |
 
-The default 8x8 dynamic-state loads name datapath audio-map registers.
+The following historical 8x8 probes use 100 MHz, pin `990f9652`.
+Their default dynamic-state loads name datapath audio-map registers.
 They include `amap_out_owner_r` and `amap_out_cluster_r`.
 The `amap_edit_oclaim` word, expectation and cluster registers also appear.
 The attribution dynamic-state probe has no external-only loads.
@@ -217,6 +393,9 @@ The routed attribution checkpoint is probed separately as well.
 Remaining wrapper-level external loads include legitimate exported signals.
 The probe classifies cell locations; reverse relocation is not measured.
 This evidence replaces the earlier AECP ownership interpretation.
+Historical #231 standalone growth uses a 100 MHz OOC clock.
+The processor pin is `990f9652` at both shapes.
+The 8x8 timer geometry is 100 MHz; 1x1 uses 50 MHz.
 The standalone timer grows by 758 LUTs, alongside SRP growth.
 
 ## Integrated implementation
@@ -261,6 +440,8 @@ No bitstream or hardware test was produced.
 ## Input integrity
 
 The [input manifest](PP_SHADOW_BASELINE_INPUTS.json) records every wrapper parameter.
+It describes original #231 inputs at processor pin `990f9652`.
+Its historical 8x8 clock and timer geometry are 100 MHz.
 It also records image geometries, byte lengths and SHA-256 hashes.
 Each image record names its path root: repository or external work directory.
 
@@ -290,13 +471,17 @@ All source and image hashes were checked again after measurement.
 ## Mapping differences
 
 Yosys uses flattened `synth_xilinx -family xc7` mapping.
-Its geometry matches the integrated wrapper's elaborated parameters.
+All mappings below describe historical #231, processor pin `990f9652`.
+These historical mappings retain 50/100 MHz timer parameters, respectively.
+Every 8x8 figure below uses the 100 MHz timer geometry.
+No timing constraint or WNS applies to these mappings.
+Its geometry matches the original integrated wrapper parameters.
 These counts have no placement or timing verdict.
 
 | Product | Logic LUT | LUTRAM equivalents | LUT total | FF | RAMB36 | RAMB18 | DSP | CARRY4 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | 1x1 | 41,258 | 5,972 | 47,230 | 23,041 | 15 | 4 | 5 | 1,813 |
-| 8x8 | 65,724 | 6,136 | 71,860 | 32,615 | 16 | 4 | 7 | 2,108 |
+| 8x8, historical 100 MHz timers, pin `990f9652` | 65,724 | 6,136 | 71,860 | 32,615 | 16 | 4 | 7 | 2,108 |
 
 The differences are 24,880 LUTs at 1x1 and 42,868 at 8x8.
 Both include distributed-memory LUT equivalents.
@@ -305,7 +490,7 @@ Its raw `LUT1` through `LUT6` census totals 24,941 and 32,350 cells.
 Its combined logic counts are 21,148 and 27,998 LUTs.
 These quantities reconcile the complete reported gap:
 
-| Contribution to Yosys minus Vivado LUT total | 1x1 | 8x8 |
+| Contribution to Yosys minus Vivado LUT total | 1x1 | Historical 8x8, 100 MHz timers, pin `990f9652` |
 |---|---:|---:|
 | Difference between raw logic-cell mappings | 16,317 | 33,374 |
 | Vivado LUT-combining adjustment | 3,793 | 4,352 |
@@ -322,7 +507,7 @@ Vivado's internal child hierarchy remains rebuilt.
 Child deltas include optimization and relocation across those boundaries.
 The [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#hierarchical-mapping-comparison) reproduces this accounting.
 
-| Raw logic contribution | Hierarchical Yosys 1x1 | Raw Vivado 1x1 | Difference 1x1 | Hierarchical Yosys 8x8 | Raw Vivado 8x8 | Difference 8x8 |
+| Raw logic contribution | Hierarchical Yosys 1x1 | Raw Vivado 1x1 | Difference 1x1 | Hierarchical Yosys 8x8, historical 100 MHz timers, pin `990f9652` | Raw Vivado 8x8, historical 100 MHz, pin `990f9652` | Difference 8x8 |
 |---|---:|---:|---:|---:|---:|---:|
 | `u_pp/u_srp` | 13,924 | 4,971 | 8,953 | 28,045 | 9,423 | 18,622 |
 | `u_pp` own logic | 7,075 | 628 | 6,447 | 11,381 | 505 | 10,876 |
@@ -348,7 +533,7 @@ An architectural lever needs a matched before/after implementation measurement.
 
 The flattened netlist also contains dedicated non-LUT primitives:
 
-| Primitive | 1x1 | 8x8 |
+| Primitive | 1x1 | Historical 8x8, 100 MHz timers, pin `990f9652` |
 |---|---:|---:|
 | `INV` | 14,204 | 17,624 |
 | `IBUF` | 1,283 | 1,741 |
@@ -378,7 +563,7 @@ The primitive inventories also account for the complete BRAM tile difference.
 Unlisted blocks use the same tile count in both mappings.
 One RAMB18 counts as half a tile.
 
-| Instance | Vivado tiles 1x1 / 8x8 | Yosys tiles 1x1 / 8x8 |
+| Instance | Historical Vivado tiles 1x1 / 8x8, 100 MHz OOC, pin `990f9652` | Historical Yosys tiles 1x1 / 8x8, 50/100 MHz timers, pin `990f9652` |
 |---|---:|---:|
 | `u_pp/u_listener` | 5 / 5 | 0 / 0 |
 | `u_pp/u_timer` | 1 / 1 | 0 / 0 |
