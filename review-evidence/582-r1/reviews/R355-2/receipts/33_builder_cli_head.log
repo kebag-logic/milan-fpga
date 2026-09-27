@@ -1,0 +1,13 @@
+[head] ok  rc=1 wrote=False fragment-changed=False expect=refuse 8x8 at 100 MHz (#565 observation) :: CONFIG ERROR: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+[head] ok  rc=1 wrote=False fragment-changed=False expect=refuse 1x1 at 80 MHz (former ROM variant) :: CONFIG ERROR: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+[head] ok  rc=1 wrote=False fragment-changed=False expect=refuse arty_4x4 at 50000001 :: CONFIG ERROR: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+[head] ok  rc=1 wrote=False fragment-changed=False expect=refuse arty_current at 49999999 :: CONFIG ERROR: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+[head] ok  rc=1 wrote=False fragment-changed=False expect=refuse arty_8ch at 25 MHz :: CONFIG ERROR: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+[head] ok  rc=1 wrote=False fragment-changed=False expect=refuse 1x1 flashboot none at 100 MHz :: CONFIG ERROR: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+[head] ok  rc=1 wrote=False fragment-changed=False expect=refuse 1x1 milan equals sys at 100 MHz :: CONFIG ERROR: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+[head] ok  rc=0 wrote=True fragment-changed=True expect=record 1x1 milan and sys both 50 MHz ::   wrote scratch/cli-head/head-07-out/head-07/aecp_aem_rom.svh
+[head] ok  rc=0 wrote=True fragment-changed=True expect=record 1x1 milan as float 50000000.0 ::   wrote scratch/cli-head/head-08-out/head-08/aecp_aem_rom.svh
+[head] ok  rc=0 wrote=True fragment-changed=True expect=record 1x1 milan as float 50000000.9 ::   wrote scratch/cli-head/head-09-out/head-09/aecp_aem_rom.svh
+[head] ok  rc=1 wrote=False fragment-changed=False expect=refuse-any 1x1 milan omitted :: CONFIG ERROR: board.constraints: missing required key 'milan_clk_hz'
+[head] ok  rc=0 wrote=True fragment-changed=True expect=accept 1x1 unchanged ::   wrote scratch/cli-head/head-11-out/head-11/aecp_aem_rom.svh
+[head] 12 cases, 0 unexpected

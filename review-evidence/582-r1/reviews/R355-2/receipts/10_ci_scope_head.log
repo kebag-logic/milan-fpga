@@ -1,0 +1,14 @@
+--- head 77998f14b16bf7605956332d0f0ac8af0cecab5a
+head selftest rc=0
+selftest: PASS
+--- classify PR files base..head
+true
+rc=0
+--- docs-only edit to the gate-read page
+true
+rc=0
+--- a plain docs page control
+false
+rc=0
+--- GATE_READ_DOCS
+['docs/AAF_LATENCY_TAPS.md', 'docs/reference/REGISTER_MAP.md', 'docs/reference/TRACE_EVENTS.md', 'docs/testing/MILAN_V12_AUDIT_2026-08-16.md']

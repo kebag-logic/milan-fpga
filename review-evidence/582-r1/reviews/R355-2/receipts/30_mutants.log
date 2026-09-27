@@ -1,0 +1,276 @@
+CONTROL-PASS C0 control builder test: rc 0; [clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+CONTROL-PASS C1 control SoC test: rc 0; [clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass
+CONTROL-PASS C2 control sweep test: rc 0; [clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration 
+CONTROL-PASS C3 control memory-bridge test: rc 0; RESULT: PASS
+CONTROL-PASS C4 control ROM-clock test: rc 0; [clock contract] 5 ROMs match configured Milan clocks; default-clock and system-clock controls differ
+CONTROL-PASS C5 control ci_scope selftest: rc 0; selftest: PASS
+CONTROL-PASS C6 control solution-docs gate: rc 0; solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+CONTROL-PASS C7 control solution-docs selftest: rc 0; solution documentation selftest: OK (43 mutation controls)
+KILLED B1 builder guard reads sys_clk_hz: rc 1; endstation_builder.ConfigError: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+KILLED B2 builder guard tolerates +-1 kHz: rc 1; AssertionError: accepted invalid input: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+KILLED B3 builder guard only for flashboot baremetal: rc 1; AssertionError: accepted invalid input: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+KILLED B4 builder refusal drops the contract citation: rc 1; AssertionError: baremetal clock: milan_clk_hz must be 50000000 Hz (see docs)
+SURVIVED B5 builder mirrors the literal instead of importing: rc 0; [clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+SURVIVED B6 builder guard only below 60 MHz window: rc 0; [clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+KILLED S1 SoC guard exempts --no-milan: rc 1; AssertionError: clock accepted before platform: ['--no-milan', '--milan-clk-freq', '49999999']
+KILLED S2 SoC guard exempts --full product argv: rc 1; AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio
+KILLED S3 SoC guard exempts the arty board: rc 1; AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio
+KILLED S4 SoC guard exempts --with-spiflash: rc 1; AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio
+KILLED S5 SoC guard only when --build: rc 1; AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio
+KILLED S6 SoC guard ignores sys fallback: rc 1; AssertionError: clock accepted before platform: ['--sys-clk-freq', '80000000']
+SURVIVED S7 SoC mirrors the literal instead of importing: rc 0; [clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass
+KILLED W1 sweep falls back to a literal clock: rc 1; AssertionError
+KILLED W2 sweep ignores SWEEP_CFG: rc 1; AssertionError: ('--sys-clk-freq', ['python3', 'scratch/work/sw/litex/milan_soc.py', '--board', 'arty', '--sys-clk-freq', 
+KILLED W3 sweep drops the board check: rc 1; AssertionError
+SURVIVED P1 precedence loop drops configured pairs: rc 0; RESULT: PASS
+KILLED P2 configured pairs keep only the first config: rc 1; AssertionError: configuration clock pairs not preserved
+KILLED R1 probe 36: ROM fed sys_clk_hz: rc 1; AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock
+KILLED R2 ROM --clk-hz dropped: rc 1; AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock
+KILLED R3 ROM fed the board default system clock: rc 1; AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock
+KILLED S8 SoC guard exempts --fabric-gptp product argv: rc 1; AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio
+SURVIVED S9 SoC guard exempts --entity-gen-dir product argv: rc 0; [clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass
+KILLED N1 configured_clock_pairs reads raw YAML: rc 1; TypeError: 'NoneType' object is not subscriptable
+KILLED N2 _assert_sweep_clocks reads raw YAML: rc 1; KeyError: 'sys_clk_hz'
+KILLED W4 sweep prints the board default system clock: rc 1; AssertionError: ('--sys-clk-freq', ['python3', 'scratch/work/sw/litex/milan_soc.py', '--board', 'arty', '--sys-clk-freq', 
+KILLED CI1 tap page dropped from GATE_READ_DOCS: rc 1; selftest: 2 FAILURE(S)
+KILLED CI2 tap page case dropped: rc 1; selftest: 1 FAILURE(S)
+KILLED D1 selftest arm reverted to the pre-help spelling: rc 1; solution documentation selftest: missing fixture for system clock default
+KILLED D2 SoC system-clock default changed to 80e6: rc 1; solution documentation: FAIL (2 findings)
+KILLED D3 SoC milan-clock default set to 50e6: rc 1; solution documentation: FAIL (4 findings)
+RESTORED: work copy sources equal the pristine head copy
+[
+ {
+  "mutant": "C0 control builder test",
+  "status": "CONTROL-PASS",
+  "returncode": 0,
+  "last_line": "[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure"
+ },
+ {
+  "mutant": "C1 control SoC test",
+  "status": "CONTROL-PASS",
+  "returncode": 0,
+  "last_line": "[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass"
+ },
+ {
+  "mutant": "C2 control sweep test",
+  "status": "CONTROL-PASS",
+  "returncode": 0,
+  "last_line": "[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass"
+ },
+ {
+  "mutant": "C3 control memory-bridge test",
+  "status": "CONTROL-PASS",
+  "returncode": 0,
+  "last_line": "RESULT: PASS"
+ },
+ {
+  "mutant": "C4 control ROM-clock test",
+  "status": "CONTROL-PASS",
+  "returncode": 0,
+  "last_line": "[clock contract] 5 ROMs match configured Milan clocks; default-clock and system-clock controls differ"
+ },
+ {
+  "mutant": "C5 control ci_scope selftest",
+  "status": "CONTROL-PASS",
+  "returncode": 0,
+  "last_line": "selftest: PASS"
+ },
+ {
+  "mutant": "C6 control solution-docs gate",
+  "status": "CONTROL-PASS",
+  "returncode": 0,
+  "last_line": "solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)"
+ },
+ {
+  "mutant": "C7 control solution-docs selftest",
+  "status": "CONTROL-PASS",
+  "returncode": 0,
+  "last_line": "solution documentation selftest: OK (43 mutation controls)"
+ },
+ {
+  "mutant": "B1 builder guard reads sys_clk_hz",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "endstation_builder.ConfigError: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)"
+ },
+ {
+  "mutant": "B2 builder guard tolerates +-1 kHz",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: accepted invalid input: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)"
+ },
+ {
+  "mutant": "B3 builder guard only for flashboot baremetal",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: accepted invalid input: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)"
+ },
+ {
+  "mutant": "B4 builder refusal drops the contract citation",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: baremetal clock: milan_clk_hz must be 50000000 Hz (see docs)"
+ },
+ {
+  "mutant": "B5 builder mirrors the literal instead of importing",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure"
+ },
+ {
+  "mutant": "B6 builder guard only below 60 MHz window",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure"
+ },
+ {
+  "mutant": "S1 SoC guard exempts --no-milan",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: clock accepted before platform: ['--no-milan', '--milan-clk-freq', '49999999']"
+ },
+ {
+  "mutant": "S2 SoC guard exempts --full product argv",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-"
+ },
+ {
+  "mutant": "S3 SoC guard exempts the arty board",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-"
+ },
+ {
+  "mutant": "S4 SoC guard exempts --with-spiflash",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-"
+ },
+ {
+  "mutant": "S5 SoC guard only when --build",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-"
+ },
+ {
+  "mutant": "S6 SoC guard ignores sys fallback",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: clock accepted before platform: ['--sys-clk-freq', '80000000']"
+ },
+ {
+  "mutant": "S7 SoC mirrors the literal instead of importing",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass"
+ },
+ {
+  "mutant": "W1 sweep falls back to a literal clock",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError"
+ },
+ {
+  "mutant": "W2 sweep ignores SWEEP_CFG",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: ('--sys-clk-freq', ['python3', 'scratch/work/sw/litex/milan_soc.py', '--board', 'arty', '--sys-clk-freq', '83333000', '--milan-clk-freq', '5000000"
+ },
+ {
+  "mutant": "W3 sweep drops the board check",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError"
+ },
+ {
+  "mutant": "P1 precedence loop drops configured pairs",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "RESULT: PASS"
+ },
+ {
+  "mutant": "P2 configured pairs keep only the first config",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: configuration clock pairs not preserved"
+ },
+ {
+  "mutant": "R1 probe 36: ROM fed sys_clk_hz",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock"
+ },
+ {
+  "mutant": "R2 ROM --clk-hz dropped",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock"
+ },
+ {
+  "mutant": "R3 ROM fed the board default system clock",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock"
+ },
+ {
+  "mutant": "S8 SoC guard exempts --fabric-gptp product argv",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-"
+ },
+ {
+  "mutant": "S9 SoC guard exempts --entity-gen-dir product argv",
+  "status": "SURVIVED",
+  "returncode": 0,
+  "last_line": "[clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass"
+ },
+ {
+  "mutant": "N1 configured_clock_pairs reads raw YAML",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "TypeError: 'NoneType' object is not subscriptable"
+ },
+ {
+  "mutant": "N2 _assert_sweep_clocks reads raw YAML",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "KeyError: 'sys_clk_hz'"
+ },
+ {
+  "mutant": "W4 sweep prints the board default system clock",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "AssertionError: ('--sys-clk-freq', ['python3', 'scratch/work/sw/litex/milan_soc.py', '--board', 'arty', '--sys-clk-freq', '100000000', '--milan-clk-freq', '500000"
+ },
+ {
+  "mutant": "CI1 tap page dropped from GATE_READ_DOCS",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "selftest: 2 FAILURE(S)"
+ },
+ {
+  "mutant": "CI2 tap page case dropped",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "selftest: 1 FAILURE(S)"
+ },
+ {
+  "mutant": "D1 selftest arm reverted to the pre-help spelling",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "solution documentation selftest: missing fixture for system clock default"
+ },
+ {
+  "mutant": "D2 SoC system-clock default changed to 80e6",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "solution documentation: FAIL (2 findings)"
+ },
+ {
+  "mutant": "D3 SoC milan-clock default set to 50e6",
+  "status": "KILLED",
+  "returncode": 1,
+  "last_line": "solution documentation: FAIL (4 findings)"
+ }
+]

@@ -1,0 +1,26 @@
+rc 0: scripts/docs_check.py :: docs_check: 0 finding(s) across 169 md files + 903 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc 2: scripts/check_em_dash.py --base 9e9954e96bf55181edb9949ae94c9abd4ab6aaf5 :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (cffi); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.t
+rc 0: scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+rc 0: scripts/check_doc_paths.py :: doc path gate: OK (849 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc 2: scripts/gen_toc.py --verify-anchors :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (cffi); run: python3 -m pip install --require-hashes -r tools/markdown/requirements
+rc 2: scripts/gen_toc.py --check :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (cffi); run: python3 -m pip install --require-hashes -r tools/markdown/requirements
+rc 0: scripts/check_solution_docs.py :: solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+rc 0: scripts/check_baremetal_only.py --check :: baremetal-only: OK (0 findings across 901 tracked first-party file(s))
+rc 0: scripts/check_soc_sources.py :: SoC source gate: OK (42 instantiated modules all registered, 69 sources all present)
+rc 0: scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 792 file(s))
+rc 0: scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+rc 0: scripts/check_sh_idiom.py ::   top-heavy long script: 0 <= 0
+rc 0: scripts/check_feature_status.py --self-test :: feature_status: 0 finding(s)
+rc 0: scripts/check_sweep_shape.py --self-test ::   [self-test] OK: 1 drift(s) reported
+rc 0: scripts/check_deploy_shape.py --self-test ::   [selftest] OK: 1 drift(s) reported
+rc 0: scripts/check_entity_shape.py --self-test :: RESULT: PASS
+rc 2: scripts/check_em_dash.py --selftest :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (cffi); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.t
+rc 0: scripts/docs_check.py --selftest :: docs_check selftest: PASS (23 scrub + 4 routing arm(s))
+rc 0: scripts/check_baremetal_only.py --selftest :: baremetal-only selftest: PASS (700 arm(s))
+rc 0: scripts/check_solution_docs.py --selftest :: solution documentation selftest: OK (43 mutation controls)
+rc 0: scripts/ci_scope.py --selftest :: selftest: PASS
+--- git diff --check base..head
+rc 0
+--- shellcheck-free bash -n
+rc 0
+overall rc=1

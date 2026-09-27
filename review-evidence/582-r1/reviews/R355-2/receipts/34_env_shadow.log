@@ -1,0 +1,11 @@
+--- clean environment
+builder BAREMETAL_CLK_HZ 50000000
+--- clock-like environment variables
+builder BAREMETAL_CLK_HZ 50000000
+--- PYTHONPATH with a regular tb package
+builder BAREMETAL_CLK_HZ 100000000
+--- the shipped 1x1 under that PYTHONPATH
+CONFIG ERROR: baremetal clock: milan_clk_hz must be 100000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+--- the capture gate's own import of recipe
+27:sys.path.insert(0, str(HARNESS))
+28:import recipe  # noqa: E402

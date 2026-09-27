@@ -1,0 +1,14 @@
+[arty default] rc=0 clocks: --sys-clk-freq 83333000 --milan-clk-freq 50000000  :: python3 scratch/work/sw/litex/milan_soc.py --board arty --sys-clk-freq 83333000 --milan-clk-freq 50000
+[ax7101 default] rc=0 clocks: --sys-clk-freq 100000000 --milan-clk-freq 50000000  :: python3 scratch/work/sw/litex/milan_soc.py --board ax7101 --gtx-tx-invert --floorplan --sys-clk-freq 1
+[SWEEP_CFG=endstation_arty_4x4.yaml board=arty] rc=0 clocks: --sys-clk-freq 83333000 --milan-clk-freq 50000000  :: python3 scratch/work/sw/litex/milan_soc.py --board arty --sys-clk-freq 83333000 --milan-clk-freq 50000
+[SWEEP_CFG=endstation_arty_8ch.yaml board=arty] rc=0 clocks: --sys-clk-freq 83333000 --milan-clk-freq 50000000  :: python3 scratch/work/sw/litex/milan_soc.py --board arty --sys-clk-freq 83333000 --milan-clk-freq 50000
+[SWEEP_CFG=endstation_arty_current.yaml board=arty] rc=0 clocks: --sys-clk-freq 83333000 --milan-clk-freq 50000000  :: python3 scratch/work/sw/litex/milan_soc.py --board arty --sys-clk-freq 83333000 --milan-clk-freq 50000
+[SWEEP_CFG=endstation_ax7101_1x1_tdm8.yaml board=ax7101] rc=0 clocks: --sys-clk-freq 100000000 --milan-clk-freq 50000000  :: python3 scratch/work/sw/litex/milan_soc.py --board ax7101 --gtx-tx-invert --floorplan --sys-clk-freq 1
+[SWEEP_CFG=endstation_ax7101_8x8.yaml board=ax7101] rc=0 clocks: --sys-clk-freq 100000000 --milan-clk-freq 50000000  :: python3 scratch/work/sw/litex/milan_soc.py --board ax7101 --gtx-tx-invert --floorplan --sys-clk-freq 1
+[SWEEP_CFG absolute path] rc=0 clocks: --sys-clk-freq 100000000 --milan-clk-freq 50000000  :: python3 scratch/work/sw/litex/milan_soc.py --board ax7101 --gtx-tx-invert --floorplan --sys-clk-freq 1
+[SWEEP_CFG wrong board] rc=1 clocks:  :: sweep_extra: configuration board does not match requested board
+[SWEEP_CFG missing] rc=1 clocks:  :: FileNotFoundError: [Errno 2] No such file or directory: 'scratch/work/configs/does_not_exist.yaml'
+[SWEEP_CFG empty (falls to default)] rc=0 clocks: --sys-clk-freq 100000000 --milan-clk-freq 50000000  :: python3 scratch/work/sw/litex/milan_soc.py --board ax7101 --gtx-tx-invert --floorplan --sys-clk-freq 1
+[SWEEP_CFG 100 MHz variant] rc=1 clocks:  :: endstation_builder.ConfigError: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+[unknown board] rc=2 clocks:  :: unknown board zynq
+[cwd=/ default ax7101] rc=0 clocks: --sys-clk-freq 100000000 --milan-clk-freq 50000000  :: python3 scratch/work/sw/litex/milan_soc.py --board ax7101 --gtx-tx-invert --floorplan --sys-clk-freq 1
