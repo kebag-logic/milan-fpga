@@ -114,6 +114,12 @@ actually routed by the board. Role-pool widths and the `loopback_lane` fabric
 fact are validated separately so the model cannot advertise a power-on source
 that the built datapath cannot provide.
 
+Every AAF or CRF output requires `internal` in `clocking.media_clock_sources`.
+Milan v1.2 5.3.3.6 requires its availability, not its selection.
+`default_source: crf` remains valid with both sources available.
+Input-only clock loading retains CRF-only support.
+Complete product configurations still require AAF listeners and talkers.
+
 AAF declarations accept only AAF formats; CRF declarations accept only CRF.
 Milan v1.2 5.3.3.4 forbids mixing these families.
 Both CRF directions require `0x041060010000BB80` (Milan 7.3.2, Table 7.1).

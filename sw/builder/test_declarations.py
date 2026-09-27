@@ -137,6 +137,37 @@ def test_crf_format_contract() -> None:
     print("[F3] both CRF directions: Milan word accepted; altered word/wrong family refused")
 
 
+def test_output_clock_source_contract() -> None:
+    """Milan 5.3.3.6: AAF and CRF outputs independently require INTERNAL."""
+    base = yaml.safe_load((ROOT / "configs/endstation_arty_current.yaml").read_text())
+    with tempfile.TemporaryDirectory(prefix="output-clock-contract.") as tmp:
+        directory = Path(tmp)
+        for crf_output in (False, True):
+            raw = copy.deepcopy(base)
+            raw["clocking"]["crf_output"] = dict(enabled=crf_output)
+            for default in ("internal", "crf"):
+                raw["clocking"].update(media_clock_sources=["internal", "crf"],
+                                       default_source=default)
+                cfg = _load(raw, directory)
+                overlay = eb.emit_aem_overlay(cfg)
+                assert [s["type"] for s in overlay["clock_sources"]] == ["internal", "crf"]
+                assert len(overlay["stream_outputs"]) == 1 + int(crf_output)
+            raw["clocking"].update(media_clock_sources=["crf"], default_source="crf")
+            _refused(raw, directory, "clocking.media_clock_sources", "requires INTERNAL")
+            if crf_output:
+                # Isolate the CRF-output obligation from the AAF-output arm.
+                raw["streams"]["talkers"] = []
+                _refused(raw, directory, "clocking.media_clock_sources", "requires INTERNAL")
+        # Input-only clock loading already supports CRF-only. Keep this narrow
+        # boundary; the complete YAML loader still requires an AAF talker.
+        raw["clocking"]["crf_output"]["enabled"] = False
+        clocking = eb._load_clocking(raw, "input-only control")
+        assert clocking["media_clock_sources"] == ["crf"]
+        eb._validate_output_clock_sources([], clocking)
+        _refused(raw, directory, "streams.talkers", "needs at least one talker stream")
+    print("[F4] INTERNAL+CRF accepted; AAF/CRF outputs refused without INTERNAL; input-only unchanged")
+
+
 def _code(text):
     return re.sub(r"/\*.*?\*/|//[^\n]*", "", text, flags=re.S)
 
@@ -179,6 +210,7 @@ def test_declaration_contracts() -> None:
     test_listener_buffer_contract()
     test_stream_format_contract()
     test_crf_format_contract()
+    test_output_clock_source_contract()
     base = yaml.safe_load((ROOT / "configs/endstation_arty_current.yaml").read_text())
     with tempfile.TemporaryDirectory(prefix="declarations.") as tmp:
         directory = Path(tmp)

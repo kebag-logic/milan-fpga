@@ -4211,10 +4211,19 @@ def _load_interface(cfg, path, clocking):
     return interface
 
 
+def _validate_output_clock_sources(talkers: Sequence[Any], clocking: dict[str, Any]) -> None:
+    """The single shipping clock domain must offer INTERNAL to every output."""
+    if (talkers or clocking["crf_output"]) and "internal" not in clocking["media_clock_sources"]:
+        raise ConfigError(
+            "clocking.media_clock_sources: every Stream Output requires INTERNAL "
+            "among its clock sources (Milan v1.2 5.3.3.6)")
+
+
 def _load_streams(cfg, path, clocking):
     """The declared listener and talker streams, and the two shape
     rules that constrain the set as a whole."""
     st = _req(cfg, "streams", path)
+    _validate_output_clock_sources(st.get("talkers", []), clocking)
     # the AUDIO_UNIT's current rate is the one a stream's default Base format
     # is stated at: Milan 5.3.3.3 makes the AUDIO_UNIT list the Audio Unit's
     # truth, and 5.3.3.4 makes the formats list the Stream's - a stream
