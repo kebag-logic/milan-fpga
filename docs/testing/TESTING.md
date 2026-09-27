@@ -933,9 +933,10 @@ Cause kinds are `media-clock-source change`, `CRF disruption`, `CRF mr toggle`.
 Controller evidence must establish the affected stream's clock-source lineage.
 CRF causes require recorded derivation from that received CRF stream.
 A GM edge or PHC step alone is no cause.
-[Issue #602](https://github.com/kebag-logic/milan-fpga/issues/602) records the conflicting PHC-step design contract.
-Pending its decision, this gate keeps the owner's rule.
-A soak containing a PHC step fails on the current image.
+The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes PHC-only re-bases as `mr` causes.
+The current image still toggles `mr` on PHC steps.
+A soak containing one therefore fails the step-only check.
+This remains until #602's RTL change lands.
 Each cause excuses at most one toggle per stream.
 Causes are consumed chronologically, preserving later matches.
 The check filters by stream before counting its PDUs.
@@ -969,6 +970,7 @@ A MEDIA_RESET decrease is reported as a counter reset.
 Table 5.4 resets the counter when the talker starts.
 It is never decoded as billions of new increments.
 This fails the soak and requires counter-walk investigation.
+Even an explained talker restart interrupts the continuous soak.
 Retain the start evidence when interpreting the reset.
 Input and output counters are graded separately against their captures.
 Supply `capture_complete=ReleaseCapture((start, end), complete=True)` from capture metadata.
@@ -1019,12 +1021,20 @@ The history check uses the fixed 0.5-second release bound.
 Supply `gm_changes_s` separately, including an explicit empty history.
 GM identity changes also count as discontinuities automatically.
 Missing GM history produces NOT RUN.
-Require `R < min(0.25, 0.5)` seconds for both timing checks.
-Resolution must be smaller than each limit being decided.
-Thus `resolution_limit_s` is 0.25 seconds, with equality refused.
+Let R be the recorded relative event/capture error bound.
+True hold d is observed as h within `d +/- R`.
+The minimum accepts `h + R >= 0.25 s`.
+Consequently, a PASS guarantees only `d >= 0.25 s - 2R`.
+Require `2R < 0.25 s` so an instant clear fails.
+Thus `resolution_limit_s` is 0.125 seconds, with equality refused.
+The upper check requires `h + R <= 0.5 s + R`.
+Equivalently, require `h <= 0.5 s`, guaranteeing `d <= 0.5 s + R`.
+No additional resolution ceiling applies.
 Coarser resolution yields NOT RUN, even with no intervals.
 Each verdict records the measured resolution and applicable limits.
-Single-interval verdicts also record their deadlines.
+Single-interval verdicts also record their deadlines and latest possible clears.
+`latest_clear_s` is the observed clear plus R.
+`deadline_s` is the last discontinuity plus `0.5 s + R`.
 Its timestamps share the capture's correlated host clock.
 Include only recorded discontinuities of the accepted kinds.
 For example, a GM edge occurs at zero seconds.

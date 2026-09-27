@@ -3324,6 +3324,8 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
 RELEASE_MAX_SOAK_INTERVAL_S = 60
 # Issue #396 round 3: provisional ceiling; ratification uses #397 and #75.
 RELEASE_RESTORE_BOUND_S = 30
+# With relative error +/-R, h + R >= 0.25 can admit d=0 iff 2R >= 0.25.
+RELEASE_TU_RESOLUTION_LIMIT_S = 0.25 / 2
 
 
 @dataclass(frozen=True)
@@ -3420,7 +3422,11 @@ SOAK_ASSERTS = (
                "first discontinuity must be within observation_resolution_s of the rise; "
                "grade every GM change against the complete tu interval history; "
                "a GM change with no covering interval fails; "
-               "observation_resolution_s must be less than min(0.25 s, 0.5 s); "
+               "true hold d is observed as h within +/- R, where R = observation_resolution_s; "
+               "minimum accepts h + R >= 0.25 s, so d >= 0.25 s - 2 * R; "
+               "require 2 * R < 0.25 s so an instant clear fails; "
+               "upper bound requires h + R <= 0.5 s + R, equivalently h <= 0.5 s; "
+               "resolution_limit_s is 0.125 s; "
                "coarser resolution is NOT RUN"),
     AssertSpec("soak.timestamp-margin", "docs/reference/REGISTER_MAP.md "
                "AVTPRX_TSD (0x6EC): record signed ns presentation margin for "
@@ -3569,7 +3575,9 @@ def check_release_tu(interval_s: tuple[float, float], discontinuities_s: list[fl
     an explicit empty list when none occurred. They also count as discontinuities.
     Resolution bounds the relative event/capture error, including frame launch.
     """
-    detail = {"observation_resolution_s": observation_resolution_s}
+    resolution_limit_s = RELEASE_TU_RESOLUTION_LIMIT_S
+    detail = {"observation_resolution_s": observation_resolution_s,
+              "resolution_limit_s": resolution_limit_s}
     if (capture_complete is not True or gm_changes_s is None
             or interval_s is None or discontinuities_s is None or len(interval_s) != 2):
         return "NOT RUN", dict(detail, why="complete interval, discontinuity and GM history required")
@@ -3579,9 +3587,6 @@ def check_release_tu(interval_s: tuple[float, float], discontinuities_s: list[fl
     observed_start_s, clear_s = (Decimal(str(value)) for value in interval_s)
     if clear_s <= observed_start_s or holdover_bound_s != 0.5 or observation_resolution_s < 0:
         return "NOT RUN", dict(detail, why="ordered interval, 0.5 s release bound and nonnegative resolution required")
-    # R must be smaller than both independently decided timing limits.
-    resolution_limit_s = min(0.25, holdover_bound_s)
-    detail["resolution_limit_s"] = resolution_limit_s
     if observation_resolution_s >= resolution_limit_s:
         return "NOT RUN", dict(detail, why="resolution cannot decide the tu timing limits")
     observation_resolution_s = Decimal(str(observation_resolution_s))
@@ -3597,15 +3602,18 @@ def check_release_tu(interval_s: tuple[float, float], discontinuities_s: list[fl
         return "FAIL", dict(detail, why="tu rises before its first recorded discontinuity")
     last_discontinuity_s = max(events_s)
     deadline_s = last_discontinuity_s + holdover_bound_s + observation_resolution_s
+    # Grade the latest possible true clear against the allowed true deadline.
+    latest_clear_s = clear_s + observation_resolution_s
     # This single-interval entry grades every supplied GM change. The history
     # entry below assigns each change to its covering interval first.
     gm_events_s = gm_changes_s
     minimum_clear_s = max(gm_events_s) + Decimal("0.25") if gm_events_s else None
     detail.update(last_discontinuity_s=float(last_discontinuity_s), deadline_s=float(deadline_s),
-                  clear_s=float(clear_s), minimum_clear_s=float(minimum_clear_s) if gm_events_s else None)
+                  clear_s=float(clear_s), latest_clear_s=float(latest_clear_s),
+                  minimum_clear_s=float(minimum_clear_s) if gm_events_s else None)
     if minimum_clear_s is not None and clear_s + observation_resolution_s < minimum_clear_s:
         return "FAIL", dict(detail, why="tu shorter than the GM minimum")
-    return ("PASS" if clear_s <= deadline_s else "FAIL", detail)
+    return ("PASS" if latest_clear_s <= deadline_s else "FAIL", detail)
 
 
 def check_release_tu_history(intervals_s: list[tuple[float, float]] | None,
@@ -3620,10 +3628,10 @@ def check_release_tu_history(intervals_s: list[tuple[float, float]] | None,
     """
     holdover_bound_s = 0.5
     detail = {"observation_resolution_s": observation_resolution_s,
-              "resolution_limit_s": min(0.25, holdover_bound_s)}
+              "resolution_limit_s": RELEASE_TU_RESOLUTION_LIMIT_S}
     if (capture_complete is not True or intervals_s is None or discontinuities_s is None
             or gm_changes_s is None or not _release_finite(observation_resolution_s)
-            or not 0 <= observation_resolution_s < 0.25):
+            or not 0 <= observation_resolution_s < RELEASE_TU_RESOLUTION_LIMIT_S):
         return "NOT RUN", dict(detail, why="complete history and deciding resolution required")
     if any(not _release_finite(event) for event in [*discontinuities_s, *gm_changes_s]):
         return "NOT RUN", dict(detail, why="finite event history required")
@@ -3752,16 +3760,16 @@ def check_release_mr(stream_id: str, pdus: list[dict] | None, causes: list[dict]
     if isinstance(capture_complete, ReleaseCapture):
         capture_window_s = capture_complete.window_s
         capture_complete = capture_complete.complete
+    # The two-sided cause window must be narrower than one counter interval.
+    resolution_limit_s = MILAN_MAX_OBSERVATION_INTERVAL_S / 2
     detail = {"stream_id": stream_id, "observation_resolution_s": observation_resolution_s,
+              "resolution_limit_s": resolution_limit_s,
               "cause_window": "toggle timestamp +/- observation_resolution_s",
               "counter_update_bound_s": MILAN_MAX_OBSERVATION_INTERVAL_S}
     if (capture_complete is not True or not stream_id or pdus is None or causes is None
             or media_reset_reads is None or not _release_finite(observation_resolution_s)
             or observation_resolution_s < 0):
         return "NOT RUN", dict(detail, why="complete packet, cause, counter and resolution evidence required")
-    # The two-sided cause window must be narrower than one counter interval.
-    resolution_limit_s = MILAN_MAX_OBSERVATION_INTERVAL_S / 2
-    detail["resolution_limit_s"] = resolution_limit_s
     if observation_resolution_s >= resolution_limit_s:
         return "NOT RUN", dict(detail, why="resolution cannot decide the mr cause window")
     if not _release_mr_records_valid(pdus, causes, media_reset_reads):
@@ -3815,7 +3823,7 @@ def plan_soak(dut: Device = ARTY, peer: Device = PEER,
                 mr_distinct_causes=True,
                 mr_resolution_limit_s=MILAN_MAX_OBSERVATION_INTERVAL_S / 2,
                 tu_oracle="check_release_tu_history",
-                tu_resolution_limit_s=min(0.25, 0.5),
+                tu_resolution_limit_s=RELEASE_TU_RESOLUTION_LIMIT_S,
                 tu_rise_check="first discontinuity <= observed_start + observation_resolution_s",
                 mr_cause_kinds=["media-clock-source change", "CRF disruption", "CRF mr toggle"],
                 mr_cause_window="toggle timestamp +/- observation_resolution_s",
@@ -5413,7 +5421,8 @@ class _ReleasePlanChecks:
                 (0.62, [0.2, 0, 0.9], 0.001, "PASS"),
                 (0.75, [0, 0.25], 0, "PASS"),
                 (0.751, [0, 0.25], 0, "FAIL"),
-                (0.76, [0, 0.25], 0.01, "PASS"),
+                (0.75, [0, 0.25], 0.01, "PASS"),
+                (0.76, [0, 0.25], 0.01, "FAIL"),
                 (0.761, [0, 0.25], 0.01, "FAIL")):
             with self.subTest(clear_s=clear_s, events_s=events_s, resolution_s=resolution_s):
                 verdict, evidence = check_release_tu(
@@ -5477,7 +5486,12 @@ class _ReleasePlanChecks:
                        "first discontinuity must be within observation_resolution_s of the rise",
                        "grade every GM change against the complete tu interval history",
                        "a GM change with no covering interval fails",
-                       "observation_resolution_s must be less than min(0.25 s, 0.5 s)",
+                       "(including PHC settime/adjtime and fabric discontinuity)",
+                       "true hold d is observed as h within +/- R, where R = observation_resolution_s",
+                       "minimum accepts h + R >= 0.25 s, so d >= 0.25 s - 2 * R",
+                       "require 2 * R < 0.25 s so an instant clear fails",
+                       "upper bound requires h + R <= 0.5 s + R, equivalently h <= 0.5 s",
+                       "resolution_limit_s is 0.125 s",
                        "coarser resolution is NOT RUN"):
             self.assertIn(phrase, specs["soak.tu-within-holdover"])
         self.assertIn("missing, NOT RUN, SKIP, INFO", specs["release.complete-evidence"])
@@ -5687,7 +5701,10 @@ class _ReleaseSoakChecks:
                         <= set(args["continuous_evidence"]))
         assertion = next(spec.clause for spec in step.asserts if spec.name == "soak.mr-causes-and-hold")
         for phrase in ("4.4.4.3", "B.1.2", "Tables 5.4/5.6", "GM change alone fails",
-                       "at least 8 AVTPDUs of that stream", "observation_resolution_s", "NOT RUN",
+                       "at least 8 AVTPDUs of that stream",
+                       "match causes within +/- observation_resolution_s of the toggle",
+                       "mapped to that stream's clock source; GM change alone fails",
+                       "missing packet, cause, counter or resolution evidence is NOT RUN",
                        "every mr toggle and MEDIA_RESET increment needs a recorded",
                        "media-clock-source change, CRF disruption, or received CRF mr toggle",
                        "MEDIA_RESET counts observation intervals, not packets",
@@ -5733,19 +5750,105 @@ class _ReleaseSoakChecks:
 
     def test_release_deciding_resolution(self) -> None:
         """An uncertainty as large as a decision limit cannot qualify evidence."""
-        for resolution, expected in ((0.249, "PASS"), (0.25, "NOT RUN"),
+        for resolution, expected in ((0.124999, "PASS"), (0.125, "NOT RUN"),
+                                     (0.125001, "NOT RUN"), (0.249, "NOT RUN"), (0.25, "NOT RUN"),
                                      (0.3, "NOT RUN"), (0.5, "NOT RUN"), (60, "NOT RUN")):
             verdict, detail = check_release_tu((0, 0.3), [0], gm_changes_s=[0],
                 holdover_bound_s=0.5, observation_resolution_s=resolution, capture_complete=True)
             self.assertEqual(verdict, expected, detail)
-            self.assertEqual(detail["resolution_limit_s"], 0.25)
+            self.assertEqual(detail.get("resolution_limit_s"), 0.125)
         for resolution, expected in ((0.499, "PASS"), (0.5, "NOT RUN"), (1, "NOT RUN")):
             verdict, detail = self._mr_grade(resolution_s=resolution)
             self.assertEqual(verdict, expected, detail)
-            self.assertEqual(detail["resolution_limit_s"], 0.5)
+            self.assertEqual(detail.get("resolution_limit_s"), 0.5)
         for interval, bound in (((0, 0), 0.5), ((0, 0.3), 5)):
             self.assertEqual(check_release_tu(interval, [-0.0005], gm_changes_s=[],
                 holdover_bound_s=bound, observation_resolution_s=0.001, capture_complete=True)[0], "NOT RUN")
+
+    def test_release_tu_two_sided_boundaries(self) -> None:
+        """Instant clears fail below the derived limit; coarse evidence is refused."""
+        for resolution, clear, expected in (
+                (0.249, 0.002, "NOT RUN"), (0.2, 0.06, "NOT RUN"),
+                (0.125, 0.13, "NOT RUN"), (0.124, 0.124, "FAIL"),
+                (0.124999, 0.124999, "FAIL"), (0.125, 0.125, "NOT RUN"),
+                (0.125001, 0.125001, "NOT RUN"),
+                (0.124999, 0.125001, "PASS"), (0.124999, 0.125000, "FAIL"),
+                (0, 0.25, "PASS"), (0, 0.249999, "FAIL")):
+            with self.subTest(resolution=resolution, clear=clear):
+                single = check_release_tu((0, clear), [], gm_changes_s=[0],
+                    holdover_bound_s=0.5, observation_resolution_s=resolution, capture_complete=True)
+                history = check_release_tu_history([(0, clear)], [], gm_changes_s=[0],
+                    observation_resolution_s=resolution, capture_complete=True)
+                for verdict, detail in (single, history):
+                    self.assertEqual(verdict, expected, detail)
+                    self.assertEqual(detail.get("resolution_limit_s"), 0.125)
+        for resolution in (0, 0.001, 0.124999):
+            for clear, expected in ((0.499999, "PASS"), (0.5, "PASS"), (0.500001, "FAIL")):
+                # A true hold up to h + R is possible. h > 0.5 cannot pass.
+                with self.subTest(resolution=resolution, clear=clear):
+                    verdict, detail = check_release_tu((0, clear), [0], gm_changes_s=[],
+                        holdover_bound_s=0.5, observation_resolution_s=resolution, capture_complete=True)
+                    self.assertEqual(verdict, expected, detail)
+                    self.assertAlmostEqual(detail["latest_clear_s"], clear + resolution)
+                    self.assertAlmostEqual(detail["deadline_s"], 0.5 + resolution)
+                    self.assertEqual(check_release_tu_history([(0, clear)], [0], gm_changes_s=[],
+                        observation_resolution_s=resolution, capture_complete=True)[0], expected)
+        for resolution, expected in ((0.124999, "PASS"), (0.125, "NOT RUN"), (0.125001, "NOT RUN")):
+            self.assertEqual(check_release_tu_history([], [], gm_changes_s=[],
+                observation_resolution_s=resolution, capture_complete=True)[0], expected)
+
+    def test_release_tu_history_boundaries(self) -> None:
+        """Both GM assignment edges and interval separateness affect real verdicts."""
+        for intervals, events, gm, expected in (
+                ([(0, 0.01)], [0], [-0.0005], "FAIL"),
+                ([(0, 0.01)], [0], [-0.001], "FAIL"),
+                ([(0, 0.3), (0.3005, 0.6)], [], [0, 0.3], "PASS"),
+                ([(0, 0.3), (0.3, 0.6)], [0, 0.3], [0], "NOT RUN"),
+                ([(0, 0.3), (0.300001, 0.6)], [0, 0.3], [0], "PASS")):
+            with self.subTest(intervals=intervals, gm=gm):
+                verdict, detail = check_release_tu_history(intervals, events, gm_changes_s=gm,
+                    observation_resolution_s=0.001, capture_complete=True)
+                self.assertEqual(verdict, expected, detail)
+                self.assertEqual(detail.get("resolution_limit_s"), 0.125)
+        self.assertEqual(check_release_tu_history([], [], gm_changes_s=[],
+            observation_resolution_s=-1, capture_complete=True)[0], "NOT RUN")
+
+    def test_release_resolution_evidence(self) -> None:
+        """Every refusal path retains the measured resolution and deciding limit."""
+        single = dict(interval_s=(0, 0.3), discontinuities_s=[0], gm_changes_s=[0],
+                      holdover_bound_s=0.5, observation_resolution_s=0.001, capture_complete=True)
+        history = dict(intervals_s=[], discontinuities_s=[], gm_changes_s=[],
+                       observation_resolution_s=0.001, capture_complete=True)
+        for oracle, args, cases in (
+                (check_release_tu, single,
+                 (("capture_complete", False), ("gm_changes_s", None), ("interval_s", None),
+                  ("interval_s", (0,)), ("interval_s", (0, 0)), ("holdover_bound_s", 5),
+                  ("observation_resolution_s", None), ("observation_resolution_s", -1),
+                  ("observation_resolution_s", float("inf")), ("observation_resolution_s", 0.125))),
+                (check_release_tu_history, history,
+                 (("capture_complete", False), ("intervals_s", None), ("gm_changes_s", None),
+                  ("discontinuities_s", [float("inf")]), ("intervals_s", [(0,)]),
+                  ("intervals_s", [(0, 0)]), ("observation_resolution_s", None),
+                  ("observation_resolution_s", -1), ("observation_resolution_s", 0.125)))):
+            for key, value in cases:
+                with self.subTest(oracle=oracle.__name__, key=key, value=value):
+                    verdict, detail = oracle(**dict(args, **{key: value}))
+                    self.assertEqual(verdict, "NOT RUN", detail)
+                    self.assertEqual(detail.get("resolution_limit_s"), 0.125)
+                    self.assertEqual(detail["observation_resolution_s"], value if
+                                     key == "observation_resolution_s" else 0.001)
+        args = dict(stream_id="s", pdus=[], causes=[], media_reset_reads=[],
+                    observation_resolution_s=0.001, capture_complete=ReleaseCapture((-2, 2)))
+        for key, value in (("capture_complete", False), ("pdus", None),
+                           ("observation_resolution_s", None), ("observation_resolution_s", -1),
+                           ("observation_resolution_s", 0.5), ("media_reset_reads", [])):
+            verdict, detail = check_release_mr(**dict(args, **{key: value}))
+            self.assertEqual(verdict, "NOT RUN", detail)
+            self.assertEqual(detail.get("resolution_limit_s"), 0.5)
+            self.assertEqual(detail["observation_resolution_s"], value if
+                             key == "observation_resolution_s" else 0.001)
+        self.assertEqual(self._mr_grade()[1]["cause_window"],
+                         "toggle timestamp +/- observation_resolution_s")
 
     def test_release_mr_distinct_causes(self) -> None:
         """One cause cannot excuse a run of eight-PDU-spaced toggles."""
@@ -5771,6 +5874,10 @@ class _ReleaseSoakChecks:
         pdus = self._mr_trace()
         pdus[3] = dict(pdus[3], timestamp_s=0.015)
         self.assertEqual(self._mr_grade(pdus=pdus)[0], "NOT RUN")
+        self.assertEqual(self._mr_grade(pdus=[dict(pdu, pdu_index=pdu["pdu_index"] - 5)
+                                            for pdu in self._mr_trace()])[0], "NOT RUN")
+        valid_cause = {"stream_id": "stream-a", "timestamp_s": 0.01, "kind": "CRF disruption"}
+        self.assertEqual(self._mr_grade(causes=[valid_cause, dict(valid_cause, stream_id="")])[0], "NOT RUN")
         causes = [{"stream_id": "stream-a", "timestamp_s": 0.01, "kind": "CRF disruption"},
                   {"stream_id": "stream-a", "timestamp_s": 0.02, "kind": 1}]
         self.assertEqual(self._mr_grade(causes=causes)[0], "NOT RUN")
@@ -5834,7 +5941,7 @@ class _ReleaseSoakChecks:
     def test_release_round2_plan_contract(self) -> None:
         """The plan selects the history oracle and states evidence limits."""
         args = build_plan(["soak"])[0].args
-        expected = {"tu_oracle": "check_release_tu_history", "tu_resolution_limit_s": 0.25,
+        expected = {"tu_oracle": "check_release_tu_history", "tu_resolution_limit_s": 0.125,
                     "tu_rise_check": "first discontinuity <= observed_start + observation_resolution_s",
                     "mr_capture_window": "[first read - 1 s - observation_resolution_s, last read]",
                     "mr_distinct_causes": True, "mr_resolution_limit_s": 0.5}

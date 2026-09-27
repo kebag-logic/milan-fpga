@@ -277,9 +277,10 @@ verified blocks outside the shipping datapath; the station-address rules
   Captures span the counter window, including delayed updates.
   A MEDIA_RESET decrease is a reset, requiring counter-walk investigation.
   Missing evidence for these checks is NOT RUN.
-  [Issue #602](https://github.com/kebag-logic/milan-fpga/issues/602) records the PHC-step conflict.
-  Pending that decision, a PHC step alone remains no cause.
-  A soak containing one fails on the current image.
+  The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes PHC-only re-bases as `mr` causes.
+  The current image still toggles `mr` on PHC steps.
+  A soak containing one therefore fails the step-only check.
+  This remains until #602's RTL change lands.
   Each `tu` interval contains at least one recorded discontinuity.
   Containment uses `[observed_start - observation_resolution_s, clear)`.
   The observed start is the first captured `tu=1` packet.
@@ -301,8 +302,16 @@ verified blocks outside the shipping datapath; the station-address rules
   Grade every GM change against the complete interval history.
   A GM change without a covering interval fails.
   Record GM history separately; missing history is NOT RUN.
-  Resolution must be below both timing limits: `min(0.25, 0.5)` seconds.
-  Coarser resolution yields NOT RUN.
+  Let R be the recorded relative event/capture error bound.
+  True hold d is observed as h within `d +/- R`.
+  The minimum accepts `h + R >= 0.25 s`.
+  Consequently, a PASS guarantees only `d >= 0.25 s - 2R`.
+  Require `2R < 0.25 s` so an instant clear fails.
+  Thus `resolution_limit_s` is 0.125 seconds, with equality refused.
+  The upper check requires `h + R <= 0.5 s + R`.
+  Equivalently, require `h <= 0.5 s`, guaranteeing `d <= 0.5 s + R`.
+  No additional resolution ceiling applies.
+  Coarser resolution yields NOT RUN, even with no intervals.
   Resolution appears in every timing verdict.
   The [corrected decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5857765949) governs these `mr`/`tu` checks.
   Clock validity implements 0.25-0.5 seconds of discontinuity holdover.
