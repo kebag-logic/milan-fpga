@@ -1,0 +1,9 @@
+$ python3 -B sw/builder/test_timing_grade.py <litex-python>
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+rc=0
+$ MILAN_LITEX_PYTHON=<litex-python> python3 -B -c "...test_builder.test_commercial_timing_grade(); assert not SKIPPED"
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+  [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+rc=0

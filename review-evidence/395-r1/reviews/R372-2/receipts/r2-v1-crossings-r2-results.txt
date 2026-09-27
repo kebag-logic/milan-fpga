@@ -1,0 +1,20 @@
+A clocks: clk200_p eth_clocks0_rx milansoc_crg_audio_mclk_raw milansoc_crg_audio_ref_raw milansoc_crg_clkout0 milansoc_crg_clkout1 milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 milansoc_crg_mmcm_audio_fb milansoc_crg_pll_audio_fb subfragments_pll_fb
+A crg_clkout0 matches: 0
+A quasi_static cells: 112
+A Slow eth_clocks0_rx->milansoc_crg_clkout0 paths=13 worst_slack=UNCONSTRAINED datapath_max=2.179 exceptions={{False Path} 13} endpoints={mr_ff:D 13}
+A Slow milansoc_crg_clkout0->eth_clocks0_rx paths=16 worst_slack=UNCONSTRAINED datapath_max=3.395 exceptions={{False Path} 16} endpoints={ars_ff1:PRE 2 ars_ff2:PRE 2 mr_ff:D 12}
+A Slow eth_clocks0_rx->milansoc_crg_clkout1 paths=50 worst_slack=0.546 req=4.000 datapath_max=5.373 worst_end=KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[23]/D exceptions={{} 50} endpoints={untagged:D 50}
+A Slow milansoc_crg_clkout1->eth_clocks0_rx paths=6 worst_slack=0.203 req=4.000 datapath_max=0.875 worst_end=KL_gptp_gmii_launch/u_rec_cdc/ack_sync_reg[0]/D exceptions={{} 6} endpoints={untagged:D 6}
+A Fast eth_clocks0_rx->milansoc_crg_clkout0 paths=13 worst_slack=UNCONSTRAINED datapath_max=1.240 exceptions={{False Path} 13} endpoints={mr_ff:D 13}
+A Fast milansoc_crg_clkout0->eth_clocks0_rx paths=16 worst_slack=UNCONSTRAINED datapath_max=1.979 exceptions={{False Path} 16} endpoints={ars_ff1:PRE 2 ars_ff2:PRE 2 mr_ff:D 12}
+A Fast eth_clocks0_rx->milansoc_crg_clkout1 paths=50 worst_slack=1.458 req=4.000 datapath_max=3.092 worst_end=milan_datapath/link_guard/rx_sync_r_reg[0]/D exceptions={{} 50} endpoints={untagged:D 50}
+A Fast milansoc_crg_clkout1->eth_clocks0_rx paths=6 worst_slack=1.429 req=4.000 datapath_max=0.432 worst_end=KL_gptp_gmii_launch/u_seal_cdc/req_sync_reg[0]/D exceptions={{} 6} endpoints={untagged:D 6}
+B clocks after reset: clk200_p eth_clocks0_rx milansoc_crg_audio_mclk_raw milansoc_crg_audio_ref_raw milansoc_crg_clkout0 milansoc_crg_clkout1 milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 milansoc_crg_mmcm_audio_fb milansoc_crg_pll_audio_fb subfragments_pll_fb
+B Slow eth_clocks0_rx->milansoc_crg_clkout0 paths=13 worst_slack=5.746 req=8.000 datapath_max=2.179 worst_end=impl_xilinxmultiregimpl140_reg/D exceptions={{MaxDelay Path 8.000ns -datapath_only} 13} endpoints={mr_ff:D 13}
+B Slow milansoc_crg_clkout0->eth_clocks0_rx paths=16 worst_slack=4.313 req=8.000 datapath_max=3.395 worst_end=FDPE_14/PRE exceptions={{MaxDelay Path 8.000ns -datapath_only} 16} endpoints={ars_ff1:PRE 2 ars_ff2:PRE 2 mr_ff:D 12}
+B Slow eth_clocks0_rx->milansoc_crg_clkout1 paths=50 worst_slack=2.560 req=8.000 datapath_max=5.373 worst_end=KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[23]/D exceptions={{MaxDelay Path 8.000ns -datapath_only} 50} endpoints={untagged:D 50}
+B Slow milansoc_crg_clkout1->eth_clocks0_rx paths=14 worst_slack=4.056 req=8.000 datapath_max=3.652 worst_end=FDPE_18/PRE exceptions={{MaxDelay Path 8.000ns -datapath_only} 14} endpoints={ars_ff1:PRE 4 ars_ff2:PRE 4 untagged:D 6}
+B Fast eth_clocks0_rx->milansoc_crg_clkout0 paths=13 worst_slack=6.717 req=8.000 datapath_max=1.240 worst_end=impl_xilinxmultiregimpl140_reg/D exceptions={{MaxDelay Path 8.000ns -datapath_only} 13} endpoints={mr_ff:D 13}
+B Fast milansoc_crg_clkout0->eth_clocks0_rx paths=16 worst_slack=5.895 req=8.000 datapath_max=1.979 worst_end=FDPE_14/PRE exceptions={{MaxDelay Path 8.000ns -datapath_only} 16} endpoints={ars_ff1:PRE 2 ars_ff2:PRE 2 mr_ff:D 12}
+B Fast eth_clocks0_rx->milansoc_crg_clkout1 paths=50 worst_slack=4.823 req=8.000 datapath_max=3.092 worst_end=KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[23]/D exceptions={{MaxDelay Path 8.000ns -datapath_only} 50} endpoints={untagged:D 50}
+B Fast milansoc_crg_clkout1->eth_clocks0_rx paths=14 worst_slack=5.878 req=8.000 datapath_max=1.996 worst_end=FDPE_18/PRE exceptions={{MaxDelay Path 8.000ns -datapath_only} 14} endpoints={ars_ff1:PRE 4 ars_ff2:PRE 4 untagged:D 6}
