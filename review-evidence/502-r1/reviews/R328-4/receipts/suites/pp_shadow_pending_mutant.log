@@ -1,0 +1,57 @@
+$ env TMPDIR=$REVIEWS/502-r328-4-packet/scratch/tmp make -C tb/verilator/pp_shadow pending-mutant
+start 2026-09-27T09:49:23Z
+verilator Verilator 5.050 2026-07-01 rev v5.050
+head f80525e695ce7937ba1a2c1caa01ec9cdde93904 tree 20b9e49f38cf575cb9980c5c49d4b6af89310b42
+make: Entering directory '$REVIEWS/r328-4-502/tb/verilator/pp_shadow'
+python3 pending_mutant.py
+  [PASS] K reset pending_from_accepting_edge        got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K reset live_state_changed                 got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_STAT             got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_NVM_STAT         got=0x00000000 exp=0x00000000
+----------------------------------------------------------------
+pp_shadow: 295 checks, 0 failures
+RESULT: PASS
+make[1]: Leaving directory '$REVIEWS/r328-4-502/tb/verilator/pp_shadow'
+  [i] K10 first write 12965, mark 14846, tail 1881 cycles
+  [i] K10 repeat first write 12965, mark 14846, tail 1881 cycles
+  [i] K12 input first write 144, mark 159, tail 15 cycles
+  [i] K12 remove input first write 12765, mark 12780, tail 15 cycles
+  [i] K12 first write 145, mark 160, tail 15 cycles
+  [i] K12 remove output first write 12766, mark 12781, tail 15 cycles
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K reset live_state_changed                 got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_STAT             got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_NVM_STAT         got=0x00000000 exp=0x00000000
+----------------------------------------------------------------
+pp_shadow: 295 checks, 12 failures
+RESULT: FAIL
+make[1]: *** [Makefile:166: run-pending] Error 1
+make[1]: Leaving directory '$REVIEWS/r328-4-502/tb/verilator/pp_shadow'
+  [FAIL] K10 no_durable_claim_over_unsaved          got=0x00000759 exp=0x00000000
+  [FAIL] K10 pending_from_accepting_edge            got=0x00000759 exp=0x00000000
+  [i] K10 first write 12965, mark 14846, tail 1881 cycles
+  [FAIL] K10 repeat no_durable_claim_over_unsaved   got=0x00000759 exp=0x00000000
+  [FAIL] K10 repeat pending_from_accepting_edge     got=0x00000759 exp=0x00000000
+  [i] K10 repeat first write 12965, mark 14846, tail 1881 cycles
+  [FAIL] K12 input no_durable_claim_over_unsaved    got=0x0000000F exp=0x00000000
+  [FAIL] K12 input pending_from_accepting_edge      got=0x0000000F exp=0x00000000
+  [i] K12 input first write 144, mark 159, tail 15 cycles
+  [FAIL] K12 remove input no_durable_claim_over_unsaved got=0x0000000F exp=0x00000000
+  [FAIL] K12 remove input pending_from_accepting_edge got=0x0000000F exp=0x00000000
+  [i] K12 remove input first write 12765, mark 12780, tail 15 cycles
+  [FAIL] K12 no_durable_claim_over_unsaved          got=0x0000000F exp=0x00000000
+  [FAIL] K12 pending_from_accepting_edge            got=0x0000000F exp=0x00000000
+  [i] K12 first write 145, mark 160, tail 15 cycles
+  [FAIL] K12 remove output no_durable_claim_over_unsaved got=0x0000000F exp=0x00000000
+  [FAIL] K12 remove output pending_from_accepting_edge got=0x0000000F exp=0x00000000
+  [i] K12 remove output first write 12766, mark 12781, tail 15 cycles
+PASS: late-mark mutant killed by K10 and K12; clean control passes
+make: Leaving directory '$REVIEWS/r328-4-502/tb/verilator/pp_shadow'
+end 2026-09-27T09:50:03Z wall_s 40 rc 0

@@ -1,0 +1,15 @@
+docs-check	Install the pinned sv2v release	﻿2026-09-27T09:23:58.2313696Z ##[group]Run set -euo pipefail
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.2314024Z ^[[36;1mset -euo pipefail^[[0m
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.2314573Z ^[[36;1mver=v0.0.12^[[0m
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.2314960Z ^[[36;1msha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00^[[0m
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.2315561Z ^[[36;1murl="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"^[[0m
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.2316027Z ^[[36;1mcurl -fsSL "$url" -o /tmp/sv2v.zip^[[0m
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.2316390Z ^[[36;1mecho "${sha256}  /tmp/sv2v.zip" | sha256sum -c -^[[0m
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.2316763Z ^[[36;1munzip -q -o /tmp/sv2v.zip -d /tmp/sv2v^[[0m
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.2317172Z ^[[36;1msudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \^[[0m
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.2317567Z ^[[36;1m  /usr/local/bin/sv2v^[[0m
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.2317820Z ^[[36;1msv2v --version^[[0m
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.2381327Z shell: /usr/bin/bash -e {0}
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.2381612Z ##[endgroup]
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.4763793Z curl: (22) The requested URL returned error: 500
+docs-check	Install the pinned sv2v release	2026-09-27T09:23:58.4798966Z ##[error]Process completed with exit code 22.
