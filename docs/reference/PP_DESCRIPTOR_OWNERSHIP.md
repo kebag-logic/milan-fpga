@@ -35,6 +35,8 @@ An allocated duty does not establish an implemented check.
 The matrix identifies existing enforcement and remaining gaps separately.
 
 Parent shipping checks are authoritative for generated model content.
+Every parent AEM u32 pack rejects negative or overflowing values.
+The shared `D.be32` encoder cannot silently truncate these fields.
 Retained processor semantic checks provide defence in depth.
 Generic packer checks remain authoritative for packed-image acceptance.
 Neither layer's passing result proves every rule below.

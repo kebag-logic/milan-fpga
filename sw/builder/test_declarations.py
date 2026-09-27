@@ -3,6 +3,7 @@
 import copy
 from pathlib import Path
 import re
+import struct
 import sys
 import tempfile
 from unittest.mock import patch
@@ -144,6 +145,22 @@ def test_hex_scalar_contract() -> None:
                 else:
                     raise AssertionError(f"accepted non-string {field}: {spelling}")
     print("[F1] eight hex fields: strings preserve digits; non-strings receive named quote refusals")
+
+
+def test_aem_u32_contract() -> None:
+    """Every AEM u32 preserves legal values and refuses unsigned overflow."""
+    from aem_descriptors import be32
+
+    for value in (0, 1, 2126000, 0xFFFFFFFF):
+        assert be32(value) == value.to_bytes(4, "big")
+    for value in (-1, -(1 << 32), 1 << 32, (1 << 32) + 2125999, 1 << 64):
+        try:
+            be32(value)
+        except struct.error:
+            pass
+        else:
+            raise AssertionError(f"AEM u32 silently truncated {value}")
+    print("[u32] zero/maximum pack unchanged; negative and overflowing fields refuse")
 
 
 def test_listener_buffer_contract() -> None:
@@ -349,6 +366,7 @@ def test_declaration_contracts() -> None:
     test_model_id_contract()
     test_model_id_resolution_contract()
     test_hex_scalar_contract()
+    test_aem_u32_contract()
     test_listener_buffer_contract()
     test_stream_format_contract()
     test_crf_format_contract()

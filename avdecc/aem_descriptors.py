@@ -185,8 +185,8 @@ UINT32_MAX = (1 << (8 * AEM_U32.size)) - 1
 
 
 def be32(v: int) -> bytes:
-    """`v` as the four-octet network-order field every AEM u32 is on the wire."""
-    return AEM_U32.pack(v & UINT32_MAX)
+    """Pack a network-order AEM u32; reject values outside its unsigned range."""
+    return AEM_U32.pack(v)
 
 
 def be64(v: int) -> bytes:
