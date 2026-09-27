@@ -1,0 +1,42 @@
+# protected paths, base ac18b50968b12efe4d15c0a06301264b35656b31 -> head ff75a70807c151517860c73a06d7ea36e2a46008 (and round-1 7f997b60d5a74d46beca5c263d27496ccce0ae4f -> head)
+files changed base..head:
+A	docs/findings/397_SERVICE_BUDGET.md
+M	docs/findings/README.md
+M	docs/integration/BAREMETAL_FIRMWARE.md
+M	docs/testing/TESTING.md
+A	tb/verilator/fw_service_budget/Makefile
+A	tb/verilator/fw_service_budget/README.md
+A	tb/verilator/fw_service_budget/build.py
+A	tb/verilator/fw_service_budget/flash.hpp
+A	tb/verilator/fw_service_budget/flash_test.cpp
+A	tb/verilator/fw_service_budget/observe.vlt
+A	tb/verilator/fw_service_budget/oracle.json
+A	tb/verilator/fw_service_budget/run.py
+A	tb/verilator/fw_service_budget/sim_main.cpp
+files changed round1..head:
+M	docs/findings/397_SERVICE_BUDGET.md
+D	docs/findings/397_SERVICE_BUDGET_1X1.json
+D	docs/findings/397_SERVICE_BUDGET_8X8.json
+M	docs/integration/BAREMETAL_FIRMWARE.md
+M	tb/verilator/fw_service_budget/README.md
+M	tb/verilator/fw_service_budget/build.py
+M	tb/verilator/fw_service_budget/flash.hpp
+M	tb/verilator/fw_service_budget/flash_test.cpp
+A	tb/verilator/fw_service_budget/observe.vlt
+A	tb/verilator/fw_service_budget/oracle.json
+M	tb/verilator/fw_service_budget/run.py
+M	tb/verilator/fw_service_budget/sim_main.cpp
+sw/firmware/milan_baremetal/milan_baremetal.c base=a4e560fbdbbed8f54c1e7e18a0dfe005bb050c06 head=a4e560fbdbbed8f54c1e7e18a0dfe005bb050c06 SAME
+tb/verilator/nvm_capture_cpu base=bf797d3e68d2b8e48ac4ecc5ee2351f215596b88 head=bf797d3e68d2b8e48ac4ecc5ee2351f215596b88 SAME
+hdl base=e0b4a30562b7f3fda274b8147441c15126670f30 head=e0b4a30562b7f3fda274b8147441c15126670f30 SAME
+sw/litex base=a67d75240c4c7c961608d3b88df00fc7818150c5 head=a67d75240c4c7c961608d3b88df00fc7818150c5 SAME
+protocol-processor base=0922e43408f891fc0b84a84691df86b4fd0f1c0d head=0922e43408f891fc0b84a84691df86b4fd0f1c0d SAME
+gptp-processor base=5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d head=5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d SAME
+external base=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 head=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 SAME
+third_party/verilog-axis base=48ff7a7e2ef782cf778d47910cf85835c64b1bce head=48ff7a7e2ef782cf778d47910cf85835c64b1bce SAME
+configs base=292383abb3333e5974c0e2b59f15860a7f0b8cd6 head=292383abb3333e5974c0e2b59f15860a7f0b8cd6 SAME
+0bf43cd4fe02b110fb1ae4f051b3bc7baa6bb62c3769962520ed1f4bd12247a6  sw/firmware/milan_baremetal/milan_baremetal.c
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 0922e43408f891fc0b84a84691df86b4fd0f1c0d	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis

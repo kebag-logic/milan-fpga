@@ -1,0 +1,65 @@
+== python3 -B tb/verilator/fw_service_budget/run.py --self-test
+RESULT: PASS
+fw_service_budget_oracle: checks: 30 failures: 0
+PASS: over-budget duty, marker integrity and product dispatch census
+rc=0
+== make -C tb/verilator/fw_service_budget
+fw_service_budget_oracle: checks: 30 failures: 0
+PASS: over-budget duty, marker integrity and product dispatch census
+make: Leaving directory '<clone>/tb/verilator/fw_service_budget'
+rc=0
+== python3 -B sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+  self-test OK: verify_skipped         caught by 3 finding(s); first: endstation_arty_4x4: a failed verify was not published as VD_VERIFY unacknowledged: {'hb': 37, 'acks': 1, 'starts': 1, 'erases': 1, 'programs': 18, 'max_hb_gap_ms': 250, 'pagewrap': 0, 'backed': 1, 'dirty': 0, 'stale': 0, 'valid': 1, 'verdict': 0, 'blank': 1, 'fail': 0, 'done': 1, 'seq': 1, 'base_ok': 1, 'img_len': 4476, 'losses': 0, 'arms': 1, 'reloads': 1, 'ld_acc': 1, 'ld_pend': 0, 'rl_ref': 0, 'unres': 0, 'ack_ref': 0, 'arm_ref': 0, 'cap_id': 1, 'now_ms': 9056}
+  self-test OK: erased_header_only     caught by 1 finding(s); first: endstation_arty_4x4: parity: erased header, live payload: firmware VD_OK, klj2_decode VD_REC
+saved-state writer gate: OK across 5 shape(s), and every planted defect reddened
+rc=0
+== python3 -B scripts/check_nvm_capture.py
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+PASS: capture census, clocks, both timing arms and receipt agree
+rc=0
+== python3 -B scripts/check_feature_status.py --self-test
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+rc=0
+== python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 171 md files + 909 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== python3 -B scripts/check_doc_paths.py
+doc path gate: OK (849 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+== python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== python3 -B scripts/check_archive.py
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+rc=0
+== <markdown-venv>/python -B scripts/gen_toc.py --check
+TOC gate: OK (113 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+== <markdown-venv>/python -B scripts/check_em_dash.py --base ac18b50968b12efe4d15c0a06301264b35656b31
+check_em_dash: 0 finding(s) over 575 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [ac18b509..HEAD]
+rc=0
+== git diff --check ac18b50968b12efe4d15c0a06301264b35656b31 ff75a70807c151517860c73a06d7ea36e2a46008
+rc=0
+== python3 -B scripts/check_py_idiom.py
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+== python3 -B scripts/check_cpp_idiom.py
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0
+== python3 -B scripts/check_hygiene.py --check
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 794 file(s))
+rc=0
+== python3 -B scripts/measure_test_evidence.py --check
+
+TEST-EVIDENCE RATCHET: PASS (76 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 76
+rc=0

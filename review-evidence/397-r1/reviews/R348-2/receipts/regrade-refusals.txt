@@ -1,0 +1,10 @@
+== all, default mode, untampered
+rc=0 PASS: measurement evidence; budget findings: 0
+== queued-input, default mode (budget finding present)
+rc=1 RuntimeError: budget findings require disposition
+== queued-input, --record-budget-findings
+rc=0 PASS: measurement evidence; budget findings: 1
+== all, one byte appended to bound log
+rc=1 RuntimeError: recorded log changed
+== all, restored log
+rc=0 PASS: measurement evidence; budget findings: 0

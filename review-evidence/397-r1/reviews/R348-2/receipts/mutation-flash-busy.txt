@@ -1,0 +1,16 @@
+== unmutated
+control rc=0
+== fw_service_budget_flash: checks: 14   failures: 0 ==
+RESULT: PASS
+72:            if (!wel_ || address_bytes_ != 3)
+== busy predicate deleted (flash.hpp:72)
+nobusy rc=1
+  [FAIL] program while busy refused
+== fw_service_budget_flash: checks: 14   failures: 1 ==
+RESULT: FAIL
+70:        if (operation == 0x06) wel_ = true;
+== WREN-while-busy accepted (flash.hpp:70)
+wrenbusy rc=0
+== fw_service_budget_flash: checks: 14   failures: 0 ==
+RESULT: PASS
+restored-identical

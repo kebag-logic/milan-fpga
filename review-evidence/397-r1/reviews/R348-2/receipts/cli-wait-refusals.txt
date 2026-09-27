@@ -1,0 +1,6 @@
+--device-wait-us 3000001: rc=1; last='RuntimeError: erase wait must be 0..3000000 us'; build dir created: no
+--device-wait-us -1: rc=1; last='RuntimeError: erase wait must be 0..3000000 us'; build dir created: no
+--program-wait-us 5001: rc=1; last='RuntimeError: program wait must be 0..5000 us'; build dir created: no
+--program-wait-us -1: rc=1; last='RuntimeError: program wait must be 0..5000 us'; build dir created: no
+--device-wait-us 4294967296: rc=1; last='RuntimeError: erase wait must be 0..3000000 us'; build dir created: no
+--device-wait-us 3000000 --program-wait-us 5000 --regrade: rc=1; last='FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/cli-refusal-30757/service_spec.json''; build dir created: no

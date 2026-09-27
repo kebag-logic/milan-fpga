@@ -1,0 +1,15 @@
+== python3 -B scripts/pp_srcs.py --check
+  prose    sw/builder/test_declarations.py: declaration gate reads the authorized donor bindings and fixed timer profile; these are assertions, not compile source entries
+  prose    sw/litex/milan_soc.py: a comment citing a submodule line number, not a source entry
+  prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+rc=0
+== python3 -B scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 907 tracked first-party file(s))
+rc=0
+== python3 -B scripts/check_entity_shape.py --self-test
+         (rejected by: short_listener: configs/generated copy is current: got False, expected True)
+----------------------------------------------------------------------
+checks: 136   failures: 0
+RESULT: PASS
+rc=0
