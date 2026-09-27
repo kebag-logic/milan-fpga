@@ -1,0 +1,18 @@
+### git diff 6d5ebd7357c1e468e446f18a61527c5be6118a04 68e801b2823f75e037152f7eb2ac4c5dcda5d919 --check
+warning: unable to find all commit-graph files
+rc=0
+### python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 169 md files + 906 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### python3 scripts/check_em_dash.py --base 6d5ebd7357c1e468e446f18a61527c5be6118a04
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+### python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+### python3 scripts/check_doc_paths.py
+doc path gate: OK (849 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+### python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2

@@ -1,0 +1,8 @@
+S2 tu minimum: R=0.001 GM at 0, tu cleared at 0.249 s -> PASS
+S2 tu minimum: R=0.1 GM at 0, tu cleared at 0.15 s -> PASS
+S2 tu minimum: R=0.24 GM at 0, tu cleared at 0.01 s -> PASS
+S2 tu minimum: R=0.24 GM at 0, tu cleared at 0.0099 s -> FAIL
+R362-1 S4 (retained): GM edge supplied only as a discontinuity, gm_changes_s=[], tu held 0.1 s -> PASS
+R362-1 S2 (retained): caused toggle, MEDIA_RESET flat 0 -> 0 -> PASS
+S1 limit field on early NOT RUN: check_release_tu missing GM history -> NOT RUN; resolution_limit_s present=False
+S1 limit field on early NOT RUN: check_release_mr incomplete capture -> NOT RUN; resolution_limit_s present=False

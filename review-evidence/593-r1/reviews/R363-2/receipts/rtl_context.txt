@@ -1,0 +1,14 @@
+## mcr_restart_p_w and media_rebase_p_w at head (GM_LOSS_RECOVERY.md:155 claim: restart takes the PHC step)
+3134:  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
+3135:  wire mcr_restart_p_w = (crf_clk_selected_r
+3137:                       | media_rebase_p_w;
+6057:       media_rebase_p_w
+## clock validity holdover (0.25-0.5 s) cited by REQ-VER-06/TESTING 6d
+76:                The last two arm a holdover of HOLD_QTICK_P quarter-
+116:  //! cycles per 250 ms quarter-tick (= CLK_FREQ_HZ / 4). Simulation shapes
+117:  //! override this so a holdover and an observation interval are reachable.
+119:  //! discontinuity holdover in quarter-ticks. 2 => 0.25..0.5 s against the
+149:  //  250 ms prescaler - the single time base for the holdover and the
+174:  //  Discontinuity holdover: PHC step or a fabric-owner change of
+186:  //! publication of a real grandmaster id IS a change and arms the holdover.
+246:  //! holdover, [16] effective asCapable. Compatibility fields [2] and

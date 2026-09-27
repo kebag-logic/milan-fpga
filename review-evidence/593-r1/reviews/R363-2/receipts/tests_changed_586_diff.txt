@@ -1,0 +1,93 @@
+--- base:test_release_assertion_text
++++ head:test_release_assertion_text
+@@ -3,12 +3,20 @@
+         specs = {spec.name: spec.clause for step in build_plan(["soak", "power"])
+                  for spec in step.asserts}
+         for phrase in ("contains at least one recorded discontinuity",
+-                       "PHC settime/adjtime, fabric discontinuity, or GM-identity edge",
++                       "GM-identity edge, GM time-source change, or other detected gPTP discontinuity",
+                        "containment uses [observed_start - observation_resolution_s, clear)",
+                        "launch-to-capture latency and event-to-capture correlation error",
+                        "last recorded discontinuity before tu clears", "within 0.5 s plus",
+-                       "uncorrelated tu fails", "wire capture and correlated event timestamps"):
++                       "uncorrelated tu fails", "wire capture and correlated event timestamps",
++                       "after each GM change, clear + observation_resolution_s must be at least",
++                       "GM change + 0.25 s (Annex B.1.1 minimum); missing GM history is NOT RUN",
++                       "first discontinuity must be within observation_resolution_s of the rise",
++                       "grade every GM change against the complete tu interval history",
++                       "a GM change with no covering interval fails",
++                       "observation_resolution_s must be less than min(0.25 s, 0.5 s)",
++                       "coarser resolution is NOT RUN"):
+             self.assertIn(phrase, specs["soak.tu-within-holdover"])
++        self.assertIn("missing, NOT RUN, SKIP, INFO", specs["release.complete-evidence"])
+         for phrase in ("valid_time measured from T0", "require valid_time=10 (20 s)",
+                        "pre-cut advertisement age are provenance, " "not charged to",
+                        "missing capture or a missed deadline fails"):
+
+--- base:test_release_defaults_and_assertions
++++ head:test_release_defaults_and_assertions
+@@ -25,7 +25,7 @@
+         expected = {
+             "soak": {"release.complete-evidence", "soak.continuous-duration",
+                      "soak.bound-both-directions", "soak.counter-walk",
+-                     "soak.no-counter-errors", "soak.gptp-continuity",
++                     "soak.no-counter-errors", "soak.gptp-continuity", "soak.mr-causes-and-hold",
+                      "soak.tu-within-holdover", "soak.timestamp-margin",
+                      "soak.uptime-monotonic"},
+             "power": {"release.complete-evidence", "power.cold-count-and-phase",
+
+--- base:test_release_tu_before_first_discontinuity
++++ head:test_release_tu_before_first_discontinuity
+@@ -1,7 +1,7 @@
+ def test_release_tu_before_first_discontinuity(self) -> None:
+-        """L3 #396: containment adds no bound before the first recorded event."""
+-        for clear_s, expected in ((10.4, "PASS"), (10.6, "FAIL")):
++        """L3 #593: the rise must coincide with its first recorded event."""
++        for clear_s, expected in ((10.4, "FAIL"), (10.6, "FAIL")):
+             verdict, evidence = check_release_tu(
+                 (0, clear_s), [10], holdover_bound_s=0.5,
+-                observation_resolution_s=0.001, capture_complete=True)
++                observation_resolution_s=0.001, capture_complete=True, gm_changes_s=[])
+             self.assertEqual(verdict, expected, evidence)
+--- base:test_release_tu_chained_discontinuities
++++ head:test_release_tu_chained_discontinuities
+@@ -14,7 +14,7 @@
+             with self.subTest(clear_s=clear_s, events_s=events_s, resolution_s=resolution_s):
+                 verdict, evidence = check_release_tu(
+                     (0, clear_s), events_s, holdover_bound_s=bound_s,
+-                    observation_resolution_s=resolution_s, capture_complete=True)
++                    observation_resolution_s=resolution_s, capture_complete=True, gm_changes_s=[])
+                 self.assertEqual(verdict, expected, evidence)
+         for interval_s, events_s, resolution_s, complete in (
+                 ((0, 0.62), [0, 0.2], None, True),
+@@ -25,4 +25,4 @@
+                 ((0, 0.62), [0.2], True, True)):
+             self.assertEqual(check_release_tu(
+                 interval_s, events_s, holdover_bound_s=bound_s,
+-                observation_resolution_s=resolution_s, capture_complete=complete)[0], "SKIP")+                observation_resolution_s=resolution_s, capture_complete=complete, gm_changes_s=[])[0], "NOT RUN")
+--- base:test_release_tu_contract
++++ head:test_release_tu_contract
+@@ -5,7 +5,8 @@
+         self.assertEqual(soak.args["tu_time_origin"], "last recorded discontinuity before tu clears")
+         self.assertEqual(soak.args["tu_event_window"], "[observed_start - observation_resolution_s, clear)")
+         self.assertEqual(soak.args["tu_discontinuity_kinds"],
+-                         ["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"])
++                         ["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge",
++                          "GM time-source change", "other detected gPTP discontinuity"])
+         self.assertEqual(soak.args["tu_observation_resolution"],
+                          "record wire-capture and correlated event-timestamp resolution in seconds")
+         self.assertEqual(soak.args["tu_uncorrelated"], "fail")
+--- base:test_release_tu_start_resolution
++++ head:test_release_tu_start_resolution
+@@ -13,7 +13,10 @@
+             with self.subTest(event_s=event_s, resolution_s=resolution_s):
+                 verdict, evidence = check_release_tu(
+                     (0, 0.4), [event_s], holdover_bound_s=0.5,
+-                    observation_resolution_s=resolution_s, capture_complete=True)
++                    observation_resolution_s=resolution_s, capture_complete=True, gm_changes_s=[])
+                 self.assertEqual(verdict, expected, evidence)
+                 if expected == "PASS":
+-                    self.assertEqual(evidence["last_discontinuity_s"], event_s)+                    self.assertEqual(evidence["last_discontinuity_s"], event_s)
++
++        self.assertEqual(check_release_tu((0, 0.0005), [0.0005], gm_changes_s=[],
++            holdover_bound_s=0.5, observation_resolution_s=0.001, capture_complete=True)[0], "FAIL")

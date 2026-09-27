@@ -1,0 +1,61 @@
+UNMET I1a rise 10 s before lone event (single entry): expected FAIL, got PASS {}
+UNMET I1b rise 10 s before lone event (history): expected FAIL, got PASS {}
+MET   I1c first event at start+R passes: expected PASS, got PASS {}
+UNMET I1d first event just after start+R fails: expected FAIL, got PASS {}
+MET   I1e event R before observed start passes: expected PASS, got PASS {}
+MET   I1f GM change is the rise event (history): expected PASS, got PASS {}
+UNMET I1g second interval rising early fails (history): expected FAIL, got PASS {}
+MET   I1h rise explained, later chained PHC in bound: expected PASS, got PASS {}
+UNMET I2a GM change with tu never set: expected FAIL, got PASS {}
+UNMET I2b GM change at the clear instant: expected FAIL, got PASS {}
+MET   I2c GM change held 0.3 s: expected PASS, got PASS {}
+MET   I2d GM change held 0.2 s: expected FAIL, got FAIL {'why': 'tu shorter than the GM minimum'}
+UNMET I2e third GM change uncovered: expected FAIL, got PASS {}
+MET   I2f GM mid-interval after PHC rise, clears 0.2 s later: expected FAIL, got FAIL {'why': 'tu shorter than the GM minimum'}
+UNMET I2g GM 2R before rise is uncovered: expected FAIL, got PASS {}
+MET   I2h missing GM history: expected NOT RUN, got NOT RUN {'why': 'complete interval, discontinuity and GM history required'}
+MET   I2i missing interval list: expected NOT RUN, got NOT RUN {}
+MET   I2j lists as intervals: expected PASS, got PASS {}
+MET   I2k clear within R of minimum: expected PASS, got PASS {}
+MET   I2l clear beyond R of minimum: expected FAIL, got FAIL {'why': 'tu shorter than the GM minimum'}
+UNMET I2m single entry grades GM at clear: expected FAIL, got PASS {}
+UNMET I3a tu R = 0.25: expected NOT RUN, got PASS {}
+UNMET I3b tu R just below 0.25 decides: expected PASS, got PASS {}
+UNMET I3c history R = 0.25, no intervals: expected NOT RUN, got PASS {}
+UNMET I3d history R = 60 (periodic read cadence): expected NOT RUN, got PASS {}
+UNMET I3e mr R = 0.5: expected NOT RUN, got PASS {}
+UNMET I3f mr R just below 0.5 decides: expected PASS, got PASS {}
+MET   I3g tu NaN R: expected NOT RUN, got NOT RUN {'why': 'finite interval, events and resolution required'}
+MET   I3h mr NaN R: expected NOT RUN, got NOT RUN {'why': 'complete packet, cause, counter and resolution evidence required'}
+UNMET I4a one cause, two toggles 9 PDUs apart: expected FAIL, got PASS {}
+MET   I4b two causes, two toggles: expected PASS, got PASS {}
+MET   I4c causes recorded out of order: expected PASS, got PASS {}
+MET   I4d earliest-feasible choice keeps later-only cause: expected PASS, got PASS {}
+MET   I4e foreign-stream second cause does not count: expected FAIL, got FAIL {'why': 'mr toggle without a recorded media-clock cause'}
+MET   I4f GM record inside window is not consumed as cause: expected PASS, got PASS {}
+MET   I6 PHC settime/adjtime alone is no mr cause: expected FAIL, got FAIL {'why': 'mr toggle without a recorded media-clock cause'}
+MET   I6 PHC step alone is no mr cause: expected FAIL, got FAIL {'why': 'mr toggle without a recorded media-clock cause'}
+MET   I6 GM-identity edge alone is no mr cause: expected FAIL, got FAIL {'why': 'mr toggle without a recorded media-clock cause'}
+MET   I6 GM time-source change alone is no mr cause: expected FAIL, got FAIL {'why': 'mr toggle without a recorded media-clock cause'}
+MET   I6 presentation-time re-base alone is no mr cause: expected FAIL, got FAIL {'why': 'mr toggle without a recorded media-clock cause'}
+UNMET I7a window starts at first read - 1 s (no R): expected NOT RUN, got PASS {}
+MET   I7b window starts at first read - 1 s - R: expected PASS, got PASS {}
+UNMET I7c window ends before last read: expected NOT RUN, got PASS {}
+UNMET I7d boolean capture, PDUs start after required start: expected NOT RUN, got FAIL {'why': 'MEDIA_RESET increment without a distinct caused toggle'}
+MET   I7e boolean capture, PDUs span the window: expected PASS, got PASS {}
+MET   I7f silent capture with explicit window and flat counter: expected PASS, got PASS {}
+MET   I7g silent capture with counter increase: expected FAIL, got FAIL {'why': 'MEDIA_RESET increment without a distinct caused toggle'}
+UNMET I7h silent capture without window: expected NOT RUN, got PASS {}
+MET   I7i incomplete capture metadata: expected NOT RUN, got NOT RUN {'why': 'complete packet, cause, counter and resolution evidence required'}
+UNMET I7j inverted window: expected NOT RUN, got PASS {}
+UNMET I7k decrease 5 -> 2 is reported as a reset: expected FAIL, got FAIL {'why': 'MEDIA_RESET increment without a distinct caused toggle'}
+UNMET I7l decrease 2^32-1 -> 0 is reported as a reset: expected FAIL, got PASS {}
+MET   I7m increase with caused toggle: expected PASS, got PASS {}
+UNMET I7n PDU outside explicit window: expected NOT RUN, got PASS {}
+MET   C1 hold of 7 PDUs fails: expected FAIL, got FAIL {'why': 'mr held for fewer than 8 stream PDUs'}
+MET   C2 unfinished tail is NOT RUN: expected NOT RUN, got NOT RUN {'why': "capture ends before the final toggle's eighth PDU"}
+MET   C3 increment without toggle fails: expected FAIL, got FAIL {'why': 'MEDIA_RESET increment without a distinct caused toggle'}
+MET   C4 tu chained events clear at 0.62 passes: expected PASS, got PASS {}
+MET   C5 tu chained events clear at 0.8 fails: expected FAIL, got FAIL {}
+probe: 35/59 met
+rc=1
