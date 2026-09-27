@@ -79,9 +79,13 @@ Run: cd sw/litex && python3 test_pp_mem_bridge.py
 
 import importlib.util
 import sys
+import tempfile
 from collections.abc import Callable, Generator
+from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
+import yaml
 from migen import *
 
 # The parsed half of this evidence, and the tally both halves count into.
@@ -379,17 +383,38 @@ def test_recovery() -> None:
 # ---------------------------------------------------------------------------
 #  4. PRECEDENCE
 # ---------------------------------------------------------------------------
-# Every shape this tree actually builds. The pair matters, not either value:
-# the bridge counts sys cycles and the processor counts milan_clk cycles, so
-# the relation is a race in TIME and a build that changes one clock can invert
-# it. ax7101 from sweep.sh:41 (--milan-clk-freq 100e6, --sys-clk-freq default
-# 100e6); arty from sweep.sh:40; the 112.5 MHz floorplan build is the shape the
-# perf campaign closed timing on and is kept here because it is the one pair in
-# the tree's history where the two clocks DIFFER on the AX.
-SHAPES = [
-    ("ax7101 shipping", 100e6,    100e6),
-    ("arty shipping",    83.333e6, 50e6),
-    ("ax7101 fp 112.5", 112.5e6,  100e6),
+def configured_clock_pairs() -> list[tuple[str, int, int]]:
+    """Read every tracked shape's declared clocks, independently of the SoC."""
+    paths = sorted((HERE.parents[1] / "configs").glob("endstation_*.yaml"))
+    assert paths, "no end-station configurations found"
+    pairs = []
+    for path in paths:
+        clocks = yaml.safe_load(path.read_text())["board"]["constraints"]
+        pairs.append((path.stem, clocks["sys_clk_hz"], clocks["milan_clk_hz"]))
+    return pairs
+
+
+def test_configured_clock_pairs() -> None:
+    """Non-product fixture clocks detect copied, omitted or swapped pairs."""
+    with tempfile.TemporaryDirectory(prefix="pp-clock-pairs-") as tmp:
+        root = Path(tmp)
+        configs = root / "configs"
+        configs.mkdir()
+        expected = [("endstation_a", 73_000_000, 41_000_000),
+                    ("endstation_b", 97_000_000, 53_000_000)]
+        for name, sys_hz, milan_hz in expected:
+            (configs / f"{name}.yaml").write_text(yaml.safe_dump(
+                {"board": {"constraints": {"sys_clk_hz": sys_hz, "milan_clk_hz": milan_hz}}}))
+        with patch.dict(configured_clock_pairs.__globals__, HERE=root / "sw/litex"):
+            assert configured_clock_pairs() == expected, "configuration clock pairs not preserved"
+    print("[clock pairs] independent fixture clocks preserve every shape and domain")
+
+
+# Non-configured historical clock pairs remain watchdog stress controls.
+# They are not accepted bare-metal product profiles (issue #582).
+HISTORICAL_CLOCK_PAIRS = [
+    ("historical AX equal-clock control", 100e6, 100e6),
+    ("historical AX floorplan control", 112.5e6, 100e6),
 ]
 
 
@@ -459,7 +484,7 @@ def test_precedence() -> None:
           f"RTL says {rtl}, milan_soc.py says {milan_soc.PP_PROC_MEM_TMO_CYC}")
     proc_tmo = rtl or milan_soc.PP_PROC_MEM_TMO_CYC
 
-    for name, sys_hz, milan_hz in SHAPES:
+    for name, sys_hz, milan_hz in configured_clock_pairs() + HISTORICAL_CLOCK_PAIRS:
         tmo   = milan_soc.pp_mem_timeout_cycles(sys_hz, milan_hz)
         worst = milan_soc.pp_mem_bus_worst_cycles(sys_hz)
         # in nanoseconds, because the two counters do not share a clock
@@ -903,6 +928,10 @@ def test_two_faces() -> None:
 
 
 if __name__ == "__main__":
+    sys.path.insert(0, str(HERE.parents[1] / "sw/builder"))
+    from test_clock_contract import test_soc_clock_contract
+    test_soc_clock_contract()
+    test_configured_clock_pairs()
     print("test_behavioural:")
     test_behavioural()
     print("test_recovery:")

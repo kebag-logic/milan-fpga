@@ -59,6 +59,10 @@ from litex.soc.integration.builder import Builder, builder_args, builder_argdict
 SOC_DIR = Path(__file__).parent                 # sw/litex/
 REPO_ROOT = SOC_DIR.parent.parent               # milan-fpga/
 
+# Import the measured contract clock without changing the hashed recipe.
+sys.path.insert(0, str(REPO_ROOT))
+from tb.verilator.nvm_capture_cpu.recipe import CPU_HZ as BAREMETAL_CLK_HZ
+
 # Local platform (not in upstream litex_boards).
 sys.path.insert(0, str(SOC_DIR / "platforms"))
 import alinx_ax7101
@@ -3686,6 +3690,10 @@ def main() -> None:
     if args.with_fpu or args.l2_bytes or args.scala_args:
         ap.error("--software-profile baremetal requires no FPU, --l2-bytes 0, "
                  "and no --scala-args overrides")
+    if (args.milan_clk_freq or args.sys_clk_freq) != BAREMETAL_CLK_HZ:
+        ap.error(f"baremetal clock: effective --milan-clk-freq must be {BAREMETAL_CLK_HZ} Hz "
+                 "(docs/integration/BAREMETAL_FIRMWARE.md build contract); "
+                 "without a Milan clock domain, --sys-clk-freq supplies that clock")
     if args.fabric_gptp is None:
         args.fabric_gptp = not args.no_milan
     if args.fabric_gptp and args.no_milan:
