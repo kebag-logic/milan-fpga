@@ -1,0 +1,55 @@
+KILLED/OK: baseline RTL (must PASS)
+KILLED/OK: baseline header (must PASS)
+KILLED/OK: MUTANT h0 CONTROL unbound (last entry, comma fixed)
+      pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got [], expected ['AEM_N_CONTROL_C']
+KILLED/OK: MUTANT h0 AUDIO_UNIT unbound
+      pp_shadow.N_AUDIO_UNIT_P derives from AEM_N_AUDIO_UNIT_C: got [], expected ['AEM_N_AUDIO_UNIT_C']
+KILLED/OK: MUTANT h0 CLK_DOM literal 1
+      pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['1'], expected ['AEM_N_CLKDOM_C']
+KILLED/OK: MUTANT h0 CONTROL literal 32'd1
+      pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ["32'd1"], expected ['AEM_N_CONTROL_C']
+KILLED/OK: MUTANT h0 CONTROL bound to wrong generated constant AEM_NAME_ENTRIES_C
+      pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['AEM_NAME_ENTRIES_C'], expected ['AEM_N_CONTROL_C']
+KILLED/OK: MUTANT h0 CONTROL expression AEM_N_CONTROL_C*0+1
+      pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['AEM_N_CONTROL_C*0+1'], expected ['AEM_N_CONTROL_C']
+KILLED/OK: MUTANT h0 swap CONTROL/CLK_DOM
+      pp_shadow.N_CLK_DOM_P derives from AEM_N_CLKDOM_C: got ['AEM_N_CONTROL_C'], expected ['AEM_N_CLKDOM_C']
+      pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['AEM_N_CLKDOM_C'], expected ['AEM_N_CONTROL_C']
+KILLED/OK: MUTANT h0 one-sided CONTROL<-AEM_N_AUDIO_UNIT_C
+      pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['AEM_N_AUDIO_UNIT_C'], expected ['AEM_N_CONTROL_C']
+KILLED/OK: MUTANT h0 CONTROL bound only inside a comment
+      pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got [], expected ['AEM_N_CONTROL_C']
+KILLED/OK: MUTANT h0 duplicate CONTROL binding
+      pp_shadow.N_CONTROL_P derives from AEM_N_CONTROL_C: got ['1', 'AEM_N_CONTROL_C'], expected ['AEM_N_CONTROL_C']
+KILLED/OK: MUTANT h1 CLK_DOMAIN unbound
+      u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got [], expected ['N_CLK_DOM_P']
+KILLED/OK: MUTANT h1 all three unbound (base shape)
+      u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got [], expected ['N_AUDIO_UNIT_P']
+      u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got [], expected ['N_CLK_DOM_P']
+      u_pp.N_CONTROL_P derives from N_CONTROL_P: got [], expected ['N_CONTROL_P']
+KILLED/OK: MUTANT h1 AUDIO_UNIT literal 1
+      u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['1'], expected ['N_AUDIO_UNIT_P']
+KILLED/OK: MUTANT h1 CONTROL literal 1
+      u_pp.N_CONTROL_P derives from N_CONTROL_P: got ['1'], expected ['N_CONTROL_P']
+KILLED/OK: MUTANT h1 swap AUDIO_UNIT/CONTROL
+      u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CONTROL_P'], expected ['N_AUDIO_UNIT_P']
+      u_pp.N_CONTROL_P derives from N_CONTROL_P: got ['N_AUDIO_UNIT_P'], expected ['N_CONTROL_P']
+KILLED/OK: MUTANT h1 CLK_DOMAIN bound to N_AUDIO_UNIT_P (one-sided)
+      u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['N_AUDIO_UNIT_P'], expected ['N_CLK_DOM_P']
+KILLED/OK: MUTANT h1 CLK_DOMAIN bound to processor-side name N_CLK_DOMAIN_P
+      u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['N_CLK_DOMAIN_P'], expected ['N_CLK_DOM_P']
+KILLED/OK: MUTANT h1 CONTROL moved from u_pp to u_nvm map
+      u_pp.N_CONTROL_P derives from N_CONTROL_P: got [], expected ['N_CONTROL_P']
+KILLED/OK: MUTANT h1 AUDIO_UNIT bound through a local alias
+      u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['PP_AU_C'], expected ['N_AUDIO_UNIT_P']
+KILLED/OK: MUTANT hdr CONTROL line removed
+      mutant: AEM_N_CONTROL_C == CONTROL census: got [], expected [1]
+KILLED/OK: MUTANT hdr CONTROL zero
+      mutant: AEM_N_CONTROL_C == CONTROL census: got [0], expected [1]
+KILLED/OK: MUTANT hdr CONTROL two
+      mutant: AEM_N_CONTROL_C == CONTROL census: got [2], expected [1]
+KILLED/OK: MUTANT hdr CONTROL duplicated
+      mutant: AEM_N_CONTROL_C == CONTROL census: got [1, 1], expected [1]
+KILLED/OK: MUTANT hdr CLKDOM zero
+      mutant: AEM_N_CLKDOM_C == CLOCK_DOMAIN census: got [0], expected [1]
+reviewer mutants killed: 24/24

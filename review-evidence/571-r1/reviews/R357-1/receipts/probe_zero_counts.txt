@@ -1,0 +1,10 @@
+baseline (unedited): ACCEPTED; AUDIO_UNIT: census=1 header=['1'] dir=1; CLOCK_DOMAIN: census=1 header=['1'] dir=1; CONTROL: census=1 header=['1'] dir=1
+top-level descriptor_counts all zero: ACCEPTED; AUDIO_UNIT: census=1 header=['1'] dir=1; CLOCK_DOMAIN: census=1 header=['1'] dir=1; CONTROL: census=1 header=['1'] dir=1
+top-level controls: []: ACCEPTED; AUDIO_UNIT: census=1 header=['1'] dir=1; CLOCK_DOMAIN: census=1 header=['1'] dir=1; CONTROL: census=1 header=['1'] dir=1
+top-level audio_units: []: ACCEPTED; AUDIO_UNIT: census=1 header=['1'] dir=1; CLOCK_DOMAIN: census=1 header=['1'] dir=1; CONTROL: census=1 header=['1'] dir=1
+top-level clock_domains: []: ACCEPTED; AUDIO_UNIT: census=1 header=['1'] dir=1; CLOCK_DOMAIN: census=1 header=['1'] dir=1; CONTROL: census=1 header=['1'] dir=1
+names.control_identify: null: REFUSED ConfigError: names.control_identify: must be a non-empty string
+names.control_identify: '': REFUSED ConfigError: names.control_identify: must be a non-empty string
+names.controls: []: REFUSED ConfigError: names: must be a mapping with keys among ['audio_unit', 'avb_interface', 'clock_domain', 'configuration', 'control_identify', 'clock_sources'] (unknown ['contro
+entity.controls: []: ACCEPTED; AUDIO_UNIT: census=1 header=['1'] dir=1; CLOCK_DOMAIN: census=1 header=['1'] dir=1; CONTROL: census=1 header=['1'] dir=1
+entity.identify: false: ACCEPTED; AUDIO_UNIT: census=1 header=['1'] dir=1; CLOCK_DOMAIN: census=1 header=['1'] dir=1; CONTROL: census=1 header=['1'] dir=1

@@ -1,0 +1,11 @@
+rc=0 python3 scripts/docs_check.py :: docs_check: 0 finding(s) across 169 md files + 904 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0 python3 scripts/check_doc_paths.py :: doc path gate: OK (847 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=2 python3 scripts/gen_toc.py --check :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirem
+rc=0 python3 scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+rc=2 python3 scripts/check_em_dash.py --base 2a2a7bb655e528edc3087c88033cd3a47546feb4 :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requiremen
+rc=0 python3 scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+rc=0 python3 scripts/check_feature_status.py :: feature_status: 0 finding(s)
+rc=0 python3 scripts/check_nvm_capture.py :: PASS: capture census, clocks, both timing arms and receipt agree
+git diff --check base..head rc=0
+rc=0 md-venv python3 scripts/gen_toc.py --check :: TOC gate: OK (111 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0 md-venv python3 scripts/check_em_dash.py --base 2a2a7bb655e528edc3087c88033cd3a47546feb4 :: check_em_dash: 0 finding(s) over 23 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [2a2a7bb6..HEAD]

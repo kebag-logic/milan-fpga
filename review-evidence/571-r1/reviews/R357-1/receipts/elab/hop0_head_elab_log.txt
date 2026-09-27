@@ -1,0 +1,613 @@
+%Warning-PINMISSING: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/milan_datapath.sv:630:48: Instance has missing pin: 'clk'
+  630 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
+      |                                                ^~~~~~~~~~~~~~
+                     $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/common/axi_stream_if.sv:28:15: ... Location of port declaration
+   28 |     input bit clk,
+      |               ^~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/milan_datapath.sv:630:48: Instance has missing pin: 'rst_n'
+  630 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
+      |                                                ^~~~~~~~~~~~~~
+                     $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/common/axi_stream_if.sv:29:15: ... Location of port declaration
+   29 |     input bit rst_n
+      |               ^~~~~
+%Warning-PINMISSING: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/milan_datapath.sv:631:48: Instance has missing pin: 'clk'
+  631 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_from_mac();
+      |                                                ^~~~~~~~~~~~~~~~
+                     $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/common/axi_stream_if.sv:28:15: ... Location of port declaration
+   28 |     input bit clk,
+      |               ^~~
+%Warning-PINMISSING: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/milan_datapath.sv:631:48: Instance has missing pin: 'rst_n'
+  631 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_from_mac();
+      |                                                ^~~~~~~~~~~~~~~~
+                     $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/common/axi_stream_if.sv:29:15: ... Location of port declaration
+   29 |     input bit rst_n
+      |               ^~~~~
+%Warning-PINMISSING: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/milan_datapath.sv:632:48: Instance has missing pin: 'clk'
+  632 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_fabric();
+      |                                                ^~~~~~~~~~~~~~
+                     $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/common/axi_stream_if.sv:28:15: ... Location of port declaration
+   28 |     input bit clk,
+      |               ^~~
+%Warning-PINMISSING: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/milan_datapath.sv:632:48: Instance has missing pin: 'rst_n'
+  632 |   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_fabric();
+      |                                                ^~~~~~~~~~~~~~
+                     $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/common/axi_stream_if.sv:29:15: ... Location of port declaration
+   29 |     input bit rst_n
+      |               ^~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/acmp/pp_acmp_pkg.sv:31:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | package pp_acmp_pkg;
+      |         ^~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/adp/pp_adp_pkg.sv:23:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   23 | package pp_adp_pkg;
+      |         ^~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/aecp/ucpu_pkg.sv:32:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   32 | package ucpu_pkg;
+      |         ^~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/common/pp_pkg.sv:31:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | package pp_pkg;
+      |         ^~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/srp/srp_pkg.sv:28:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | package srp_pkg;
+      |         ^~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:100:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  100 | module KL_acmp_nvm_shadow
+      |        ^~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/acmp/KL_acmp_talker.sv:112:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  112 | module KL_acmp_talker
+      |        ^~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:54:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   54 | module KL_pp_acmp_listener
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv:83:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   83 | module KL_pp_acmp_lsn_admit #(
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/adp/KL_adp_engine.sv:62:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   62 | module KL_adp_engine
+      |        ^~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv:15:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   15 | module KL_aecp_ca_originator #(
+      |        ^~~~~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv:30:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   30 | module KL_aecp_desc_mem_guard (
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv:151:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  151 | module KL_aecp_desc_store #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:75:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   75 | module KL_aecp_dyn_state #(
+      |        ^~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/aecp/KL_aecp_engine.sv:252:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  252 | module KL_aecp_engine
+      |        ^~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/aecp/KL_aecp_notify.sv:149:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  149 | module KL_aecp_notify
+      |        ^~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv:96:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   96 | module KL_aecp_resp_buf #(
+      |        ^~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv:37:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   37 | module KL_aecp_ucpu
+      |        ^~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/common/KL_pp_prng.sv:63:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   63 | module KL_pp_prng (
+      |        ^~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/common/KL_pp_timer_service.sv:43:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   43 | module KL_pp_timer_service #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/maap/KL_pp_maap.sv:132:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  132 | module KL_pp_maap
+      |        ^~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:48:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   48 | module KL_pp_dispatch
+      |        ^~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:224:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  224 | module KL_pp_dispatch_fifo
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv:48:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   48 | module KL_pp_event_router #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv:46:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   46 | module KL_pp_normalizer
+      |        ^~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv:58:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   58 | module KL_pp_nvm_mgr_arb (
+      |        ^~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:66:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   66 | module KL_pp_nvm_port #(
+      |        ^~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_originator.sv:53:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   53 | module KL_pp_originator #(
+      |        ^~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv:22:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   22 | module KL_pp_release_merge #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv:42:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   42 | module KL_pp_rx_slots #(
+      |        ^~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv:71:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   71 | module KL_pp_rx_validator
+      |        ^~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv:66:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   66 | module KL_pp_scoreboard #(
+      |        ^~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_side_port.sv:42:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   42 | module KL_pp_side_port #(
+      |        ^~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv:39:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   39 | module KL_pp_trace_ring #(
+      |        ^~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv:52:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   52 | module KL_pp_tx_arbiter
+      |        ^~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv:42:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   42 | module KL_pp_tx_slots #(
+      |        ^~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/srp/KL_srp_admission.sv:62:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   62 | module KL_srp_admission #(
+      |        ^~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/srp/KL_srp_decoder.sv:65:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   65 | module KL_srp_decoder
+      |        ^~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/srp/KL_srp_domain.sv:38:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   38 | module KL_srp_domain #(
+      |        ^~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/srp/KL_srp_encoder.sv:63:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   63 | module KL_srp_encoder #(
+      |        ^~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/srp/KL_srp_listener_fsm.sv:74:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   74 | module KL_srp_listener_fsm
+      |        ^~~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:73:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   73 | module KL_srp_talker_fsm
+      |        ^~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/srp/KL_srp_top.sv:79:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   79 | module KL_srp_top
+      |        ^~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/srp/KL_srp_vlan.sv:38:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   38 | module KL_srp_vlan #(
+      |        ^~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/top/KL_mrp_strip.sv:38:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   38 | module KL_mrp_strip #(
+      |        ^~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/571-r357-1-packet/scratch/hop0-head/protocol-processor/hdl/top/protocol_processor_top.sv:71:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   71 | module protocol_processor_top
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/milan/KL_pp_shadow.sv:180:8: ... Location of module with timescale
+  180 | module KL_pp_shadow #(
+      |        ^~~~~~~~~~~~
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv:297:35: Logical operator LOGOR expects 1 bit on the RHS, but RHS's SEL generates 3 bits.
+                                                                                                                                : ... note: In instance 'milan_datapath.g_gptp_plane.u_gptp_shadow.u_engine.u_parser'
+  297 |         ((ann_tlv_len_w == 16'd0) || ann_tlv_len_w[2:0] || pt_seen_r ||
+      |                                   ^~
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.050
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv:298:39: Operator NEQ expects 17 bits on the LHS, but LHS's REPLICATE generates 14 bits.
+                                                                                                                                 : ... note: In instance 'milan_datapath.g_gptp_plane.u_gptp_shadow.u_engine.u_parser'
+  298 |          ({1'b0, ann_tlv_len_w[15:3]} !=
+      |                                       ^~
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.050
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-SELRANGE: $REVIEWS/571-r357-1-packet/scratch/hop0-head/third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                                          : ... note: In instance 'milan_datapath.pp_shadow.ctl_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: $REVIEWS/571-r357-1-packet/scratch/hop0-head/third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                                          : ... note: In instance 'milan_datapath.pp_shadow.ctl_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/third_party/verilog-axis/rtl/axis_fifo.v:254:55: Operator COND expects 13 bits on the Conditional False, but Conditional False's VARREF 'depth_reg' generates 10 bits.
+                                                                                                                             : ... note: In instance 'milan_datapath.pp_shadow.ctl_fifo'
+  254 | assign status_depth = (KEEP_ENABLE && KEEP_WIDTH > 1) ? {depth_reg, {CL_KEEP_WDITH{1'b0}}} : depth_reg;
+      |                                                       ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/third_party/verilog-axis/rtl/axis_fifo.v:255:62: Operator COND expects 13 bits on the Conditional False, but Conditional False's VARREF 'depth_commit_reg' generates 10 bits.
+                                                                                                                             : ... note: In instance 'milan_datapath.pp_shadow.ctl_fifo'
+  255 | assign status_depth_commit = (KEEP_ENABLE && KEEP_WIDTH > 1) ? {depth_commit_reg, {CL_KEEP_WDITH{1'b0}}} : depth_commit_reg;
+      |                                                              ^
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/third_party/verilog-axis/rtl/axis_fifo.v:382:32: Logical operator LOGOR expects 1 bit on the RHS, but RHS's SHIFTR generates 2 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.pp_shadow.ctl_fifo'
+  382 |         if (m_axis_tready_pipe || ((~m_axis_tvalid_pipe_reg) >> j)) begin
+      |                                ^~
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/third_party/verilog-axis/rtl/axis_fifo.v:390:28: Logical operator LOGOR expects 1 bit on the RHS, but RHS's NOT generates 2 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.pp_shadow.ctl_fifo'
+  390 |     if (m_axis_tready_pipe || ~m_axis_tvalid_pipe_reg) begin
+      |                            ^~
+%Warning-SELRANGE: $REVIEWS/571-r357-1-packet/scratch/hop0-head/third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 72:0
+                                                                                                                          : ... note: In instance 'milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-SELRANGE: $REVIEWS/571-r357-1-packet/scratch/hop0-head/third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 72:0
+                                                                                                                          : ... note: In instance 'milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-SELRANGE: $REVIEWS/571-r357-1-packet/scratch/hop0-head/third_party/verilog-axis/rtl/axis_fifo.v:240:65: Selection index out of range: 73:73 outside 72:0
+                                                                                                                          : ... note: In instance 'milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  240 | wire [USER_WIDTH-1:0]  m_axis_tuser_pipe  = USER_ENABLE ? m_axis[USER_OFFSET +: USER_WIDTH] : {USER_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/third_party/verilog-axis/rtl/axis_fifo.v:254:55: Operator COND expects 12 bits on the Conditional False, but Conditional False's VARREF 'depth_reg' generates 9 bits.
+                                                                                                                             : ... note: In instance 'milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  254 | assign status_depth = (KEEP_ENABLE && KEEP_WIDTH > 1) ? {depth_reg, {CL_KEEP_WDITH{1'b0}}} : depth_reg;
+      |                                                       ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/third_party/verilog-axis/rtl/axis_fifo.v:255:62: Operator COND expects 12 bits on the Conditional False, but Conditional False's VARREF 'depth_commit_reg' generates 9 bits.
+                                                                                                                             : ... note: In instance 'milan_datapath.g_gptp_plane.u_gptp_shadow.tx_fifo'
+  255 | assign status_depth_commit = (KEEP_ENABLE && KEEP_WIDTH > 1) ? {depth_commit_reg, {CL_KEEP_WDITH{1'b0}}} : depth_commit_reg;
+      |                                                              ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/gptp-processor/hdl/top/KL_gptp_engine.sv:290:43: Operator SUB expects 32 or 7 bits on the LHS, but LHS's VARREF 'bank_addr_w' generates 5 bits.
+                                                                                                                             : ... note: In instance 'milan_datapath.g_gptp_plane.u_gptp_shadow.u_engine'
+  290 |             ann_pub_tail_r[64*(bank_addr_w-5'd17) +: 64] <= bank_wdata_w;
+      |                                           ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/gptp-processor/hdl/top/KL_gptp_engine.sv:290:43: Operator SUB expects 32 or 7 bits on the RHS, but RHS's CONST '5'h11' generates 5 bits.
+                                                                                                                             : ... note: In instance 'milan_datapath.g_gptp_plane.u_gptp_shadow.u_engine'
+  290 |             ann_pub_tail_r[64*(bank_addr_w-5'd17) +: 64] <= bank_wdata_w;
+      |                                           ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/gptp-processor/hdl/top/KL_gptp_engine.sv:754:56: Operator SUB expects 32 or 7 bits on the LHS, but LHS's SEL generates 4 bits.
+                                                                                                                             : ... note: In instance 'milan_datapath.g_gptp_plane.u_gptp_shadow.u_engine'
+  754 |             st_rd_mux_w = pub_path_r[64*(st_addr_w[3:0]-4'd8) +: 64];
+      |                                                        ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/gptp-processor/hdl/top/KL_gptp_engine.sv:754:56: Operator SUB expects 32 or 7 bits on the RHS, but RHS's CONST '4'h8' generates 4 bits.
+                                                                                                                             : ... note: In instance 'milan_datapath.g_gptp_plane.u_gptp_shadow.u_engine'
+  754 |             st_rd_mux_w = pub_path_r[64*(st_addr_w[3:0]-4'd8) +: 64];
+      |                                                        ^
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/maap/KL_maap.sv:278:21: Operator ASSIGNDLY expects 4 bits on the Assign RHS, but Assign RHS's AND generates 8 bits.
+                                                                                                                : ... note: In instance 'milan_datapath.g_maap.maap_engine'
+  278 |           rx_msg_r  <= lane(rx_tdata_i, 3'd7) & 8'h0F;
+      |                     ^~
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/aaf/KL_chan_map_render.sv:207:39: Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+                                                                                                                          : ... note: In instance 'milan_datapath.chan_map_render'
+  207 |         if (32'(ch0_w) < N_CH_P) cur_r[s_tuser_i[2:0]][ch0_w[2:0]] <= smp0_w;
+      |                                       ^
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/aaf/KL_chan_map_render.sv:208:39: Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+                                                                                                                          : ... note: In instance 'milan_datapath.chan_map_render'
+  208 |         if (32'(ch1_w) < N_CH_P) cur_r[s_tuser_i[2:0]][ch1_w[2:0]] <= smp1_w;
+      |                                       ^
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/aaf/KL_chan_map_render.sv:256:23: Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+                                                                                                                          : ... note: In instance 'milan_datapath.chan_map_render'
+  256 |                ? cur_r[a[5:3]][a[2:0]] : 24'd0;
+      |                       ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/aaf/KL_i2s_playback.sv:317:29: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'ms_div_r' generates 17 bits.
+                                                                                                                        : ... note: In instance 'milan_datapath.g_i2s_player.i2s_player'
+  317 |       ms_div_r <= (ms_div_r == MS_DIV_C - 1) ? '0 : ms_div_r + 1'b1;
+      |                             ^~
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/aaf/KL_i2s_playback.sv:318:20: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'ms_div_r' generates 17 bits.
+                                                                                                                        : ... note: In instance 'milan_datapath.g_i2s_player.i2s_player'
+  318 |       if (ms_div_r == MS_DIV_C - 1) begin
+      |                    ^~
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:150:35: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'bytes_in' generates 7 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  150 |   wire  hdr_full_next = (bytes_in + BPW) >= HDR_BYTES;
+      |                                   ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:162:27: Operator FUNCREF 'hbyte' expects 32 bits on the Function Argument, but Function Argument's VARREF 'et_off' generates 5 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  162 |   wire        is_avtp  = (hbyte(et_off)   == ETH_TYPE_AVTP[15:8]) &&
+      |                           ^~~~~
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:163:39: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'et_off' generates 5 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  163 |                          (hbyte(et_off+1) == ETH_TYPE_AVTP[7:0]);
+      |                                       ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:165:26: Operator FUNCREF 'hbyte' expects 32 bits on the Function Argument, but Function Argument's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  165 |   wire [7:0]  subtype  = hbyte(o);
+      |                          ^~~~~
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:166:33: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  166 |   wire [7:0]  b1       = hbyte(o+1);
+      |                                 ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:171:34: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  171 |   wire [63:0] sid      = {hbyte(o+4), hbyte(o+5), hbyte(o+6),  hbyte(o+7),
+      |                                  ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:171:46: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  171 |   wire [63:0] sid      = {hbyte(o+4), hbyte(o+5), hbyte(o+6),  hbyte(o+7),
+      |                                              ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:171:58: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  171 |   wire [63:0] sid      = {hbyte(o+4), hbyte(o+5), hbyte(o+6),  hbyte(o+7),
+      |                                                          ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:171:71: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  171 |   wire [63:0] sid      = {hbyte(o+4), hbyte(o+5), hbyte(o+6),  hbyte(o+7),
+      |                                                                       ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:172:34: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  172 |                           hbyte(o+8), hbyte(o+9), hbyte(o+10), hbyte(o+11)};
+      |                                  ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:172:46: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  172 |                           hbyte(o+8), hbyte(o+9), hbyte(o+10), hbyte(o+11)};
+      |                                              ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:172:58: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  172 |                           hbyte(o+8), hbyte(o+9), hbyte(o+10), hbyte(o+11)};
+      |                                                          ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:172:71: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  172 |                           hbyte(o+8), hbyte(o+9), hbyte(o+10), hbyte(o+11)};
+      |                                                                       ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:173:34: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  173 |   wire [31:0] ats      = {hbyte(o+12), hbyte(o+13), hbyte(o+14), hbyte(o+15)};
+      |                                  ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:173:47: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  173 |   wire [31:0] ats      = {hbyte(o+12), hbyte(o+13), hbyte(o+14), hbyte(o+15)};
+      |                                               ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:173:60: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  173 |   wire [31:0] ats      = {hbyte(o+12), hbyte(o+13), hbyte(o+14), hbyte(o+15)};
+      |                                                            ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:173:73: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  173 |   wire [31:0] ats      = {hbyte(o+12), hbyte(o+13), hbyte(o+14), hbyte(o+15)};
+      |                                                                         ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:174:33: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  174 |   wire [7:0]  seq      = hbyte(o+2);
+      |                                 ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:175:33: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  175 |   wire        tu       = hbyte(o+3) & 8'h01 ? 1'b1 : 1'b0;
+      |                                 ^
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:175:45: Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's AND generates 8 bits.
+                                                                                                                           : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  175 |   wire        tu       = hbyte(o+3) & 8'h01 ? 1'b1 : 1'b0;
+      |                                             ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:176:34: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  176 |   wire [63:0] fsh      = {hbyte(o+16), hbyte(o+17), hbyte(o+18), hbyte(o+19),
+      |                                  ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:176:47: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  176 |   wire [63:0] fsh      = {hbyte(o+16), hbyte(o+17), hbyte(o+18), hbyte(o+19),
+      |                                               ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:176:60: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  176 |   wire [63:0] fsh      = {hbyte(o+16), hbyte(o+17), hbyte(o+18), hbyte(o+19),
+      |                                                            ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:176:73: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  176 |   wire [63:0] fsh      = {hbyte(o+16), hbyte(o+17), hbyte(o+18), hbyte(o+19),
+      |                                                                         ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:177:34: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  177 |                           hbyte(o+20), hbyte(o+21), hbyte(o+22), hbyte(o+23)};
+      |                                  ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:177:47: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  177 |                           hbyte(o+20), hbyte(o+21), hbyte(o+22), hbyte(o+23)};
+      |                                               ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:177:60: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  177 |                           hbyte(o+20), hbyte(o+21), hbyte(o+22), hbyte(o+23)};
+      |                                                            ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:177:73: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  177 |                           hbyte(o+20), hbyte(o+21), hbyte(o+22), hbyte(o+23)};
+      |                                                                         ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:180:34: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  180 |   wire [63:0] fsh2     = {hbyte(o+24), hbyte(o+25), hbyte(o+26), hbyte(o+27),
+      |                                  ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:180:47: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  180 |   wire [63:0] fsh2     = {hbyte(o+24), hbyte(o+25), hbyte(o+26), hbyte(o+27),
+      |                                               ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:180:60: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  180 |   wire [63:0] fsh2     = {hbyte(o+24), hbyte(o+25), hbyte(o+26), hbyte(o+27),
+      |                                                            ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:180:73: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  180 |   wire [63:0] fsh2     = {hbyte(o+24), hbyte(o+25), hbyte(o+26), hbyte(o+27),
+      |                                                                         ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:181:34: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  181 |                           hbyte(o+28), hbyte(o+29), hbyte(o+30), hbyte(o+31)};
+      |                                  ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:181:47: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  181 |                           hbyte(o+28), hbyte(o+29), hbyte(o+30), hbyte(o+31)};
+      |                                               ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:181:60: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  181 |                           hbyte(o+28), hbyte(o+29), hbyte(o+30), hbyte(o+31)};
+      |                                                            ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:181:73: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  181 |                           hbyte(o+28), hbyte(o+29), hbyte(o+30), hbyte(o+31)};
+      |                                                                         ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:206:30: Operator GTE expects 32 bits on the LHS, but LHS's VARREF 'bytes_in' generates 7 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  206 |   wire hdr_ready = (bytes_in >= HDR_BYTES);
+      |                              ^~
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:239:32: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'bytes_in' generates 7 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  239 |           bytes_in <= bytes_in + BPW;
+      |                                ^
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:239:20: Operator ASSIGNDLY expects 7 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+                                                                                                                           : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  239 |           bytes_in <= bytes_in + BPW;
+      |                    ^~
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/avtp_stream_parser.sv:255:38: Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+                                                                                                                            : ... note: In instance 'milan_datapath.avtp_rx_parser'
+  255 |           b3_o             <= hbyte(o+3);
+      |                                      ^
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/aaf/KL_pcm_route.sv:73:14: Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+                                                                                                                   : ... note: In instance 'milan_datapath.pcm_route'
+   73 |       route_r[route_wr_idx_i] <= {route_wr_val_i[ROUTE_RENDER_B_C], 1'b0};
+      |              ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/crf/KL_crf_tx.sv:481:54: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+                                                                                                                  : ... note: In instance 'milan_datapath.crf_tx'
+  481 |   assign m_axis_tlast  = (st_r == SEND_S) && (beat_r == NUM_BEATS-1);
+      |                                                      ^~
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/crf/KL_crf_tx.sv:482:34: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+                                                                                                                  : ... note: In instance 'milan_datapath.crf_tx'
+  482 |   assign m_axis_tkeep  = (beat_r == NUM_BEATS-1) ? 8'((1 << LAST_KEEP) - 1) : 8'hFF;
+      |                                  ^~
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/crf/KL_crf_tx.sv:515:22: Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+                                                                                                                  : ... note: In instance 'milan_datapath.crf_tx'
+  515 |           if (beat_r == NUM_BEATS-1) begin
+      |                      ^~
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/KL_stream_table.sv:109:16: Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+                                                                                                                        : ... note: In instance 'milan_datapath.stream_table'
+  109 |       ovr_sid_r[wr_idx_i]   <= wr_sid_i;
+      |                ^
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/KL_stream_table.sv:110:15: Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+                                                                                                                        : ... note: In instance 'milan_datapath.stream_table'
+  110 |       ovr_en_r[wr_idx_i]    <= wr_valid_i;
+      |               ^
+%Warning-WIDTHTRUNC: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/avtp/KL_stream_table.sv:119:18: Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+                                                                                                                        : ... note: In instance 'milan_datapath.stream_table'
+  119 |       ovr_armed_r[wr_idx_i] <= !(!wr_valid_i && (wr_sid_i == 64'd0));
+      |                  ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/aaf/KL_pcm_lpf.sv:172:36: Operator NEGATE expects 44 bits on the LHS, but LHS's VARREF 'prod_w' generates 41 bits.
+                                                                                                                   : ... note: In instance 'milan_datapath.g_pcm_lpf.pcm_lpf'
+  172 |           acc_r     <= 44'(sub_w ? -prod_w : prod_w);
+      |                                    ^
+%Warning-WIDTHEXPAND: $REVIEWS/571-r357-1-packet/scratch/hop0-head/hdl/ieee1722/aaf/KL_pcm_lpf.sv:186:41: Operator NEGATE expects 44 bits on the LHS, but LHS's VARREF 'prod_w' generates 41 bits.
+                                                                                                                   : ... note: In instance 'milan_datapath.g_pcm_lpf.pcm_lpf'
+  186 |           acc_r  <= acc_r + 44'(sub_w ? -prod_w : prod_w);
+      |                                         ^
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 133.927 MB sources in 116 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 1.040 s (elab=0.405, cvt=0.099, bld=0.000); cpu 1.035 s on 1 threads; allocated 115.953 MB

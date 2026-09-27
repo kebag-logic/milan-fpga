@@ -1,0 +1,10 @@
+== base (forced AUDIO_UNIT=2 CLK_DOM=3)
+KL_aecp_dyn_state        KL_aecp_dyn_state__N2_NB2                                    {'N_CONTROL_P': "32'h1", 'N_CLK_DOMAIN_P': "32'h1", 'N_AUDIO_UNIT_P': "32'h1"}
+KL_aecp_engine           KL_aecp_engine__N26_NB2_NC2                                  {'N_CONTROL_P': "32'h1", 'N_CLK_DOMAIN_P': "32'h1", 'N_AUDIO_UNIT_P': "32'h1"}
+KL_pp_shadow             KL_pp_shadow                                                 {'N_CLK_DOM_P': "32'h3", 'N_AUDIO_UNIT_P': "32'h2"}
+protocol_processor_top   protocol_processor_top__pi3                                  {'N_CONTROL_P': "32'sh1", 'N_CLK_DOMAIN_P': "32'sh1", 'N_AUDIO_UNIT_P': "32'sh1"}
+== head (forced AUDIO_UNIT=2 CLK_DOM=3 CONTROL=4)
+KL_aecp_dyn_state        KL_aecp_dyn_state__pi11                                      {'N_CONTROL_P': "32'h4", 'N_CLK_DOMAIN_P': "32'h3", 'N_AUDIO_UNIT_P': "32'h2"}
+KL_aecp_engine           KL_aecp_engine__pi8                                          {'N_CONTROL_P': "32'h4", 'N_CLK_DOMAIN_P': "32'h3", 'N_AUDIO_UNIT_P': "32'h2"}
+KL_pp_shadow             KL_pp_shadow                                                 {'N_CONTROL_P': "32'h4", 'N_CLK_DOM_P': "32'h3", 'N_AUDIO_UNIT_P': "32'h2"}
+protocol_processor_top   protocol_processor_top__pi3                                  {'N_CONTROL_P': "32'h4", 'N_CLK_DOMAIN_P': "32'h3", 'N_AUDIO_UNIT_P': "32'h2"}
