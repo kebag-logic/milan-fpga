@@ -1,0 +1,239 @@
+== talker-setup (talker), latency 6.889398468 s
+   response_ns                            2.720781 s
+   first_advertise_since_connect_ns       2.800019 s
+   first_ready_since_connect_ns           9.609387 s
+   first_avtp_ns                          9.610180 s
+       2.800019 DUT    TalkerAdvertise JoinMt   target-stream None
+       3.000010 DUT    TalkerAdvertise JoinMt   target-stream None
+       4.000013 DUT    TalkerAdvertise JoinMt   target-stream None
+       5.000015 DUT    TalkerAdvertise JoinMt   target-stream None
+       6.000018 DUT    TalkerAdvertise JoinMt   target-stream None
+       7.000021 DUT    TalkerAdvertise JoinMt   target-stream None
+       8.000024 DUT    TalkerAdvertise JoinMt   target-stream None
+       8.800789 bridge TalkerAdvertise LeaveAll - None
+       8.800789 bridge Listener        LeaveAll - None
+       8.901061 bridge TalkerAdvertise Mt       target-stream None
+       9.000031 DUT    TalkerAdvertise JoinMt   target-stream None
+       9.200036 DUT    TalkerAdvertise JoinMt   target-stream None
+       9.609387 bridge Listener        New      target-stream 2
+       9.700755 bridge Listener        New      target-stream 2
+       9.800832 bridge Listener        JoinMt   target-stream 2
+      10.000029 DUT    TalkerAdvertise JoinMt   target-stream None
+      11.000032 DUT    TalkerAdvertise JoinMt   target-stream None
+      11.200044 DUT    TalkerAdvertise LeaveAll - None
+      11.200044 DUT    TalkerAdvertise JoinMt   target-stream None
+      11.200044 DUT    Listener        LeaveAll - None
+      11.203930 bridge Listener        JoinMt   target-stream 2
+      11.300755 bridge Listener        JoinMt   target-stream 2
+      12.000035 DUT    TalkerAdvertise JoinMt   target-stream None
+   first bridge MSRP event of any type: 8.800789214 s
+   MSRP PDUs before the response window by sender: {'DUT': 3, 'bridge': 0}
+   decomposition: response->bridge Ready 6888.605 ms; bridge Ready->first CRF 0.793 ms
+== talker-001 (talker), latency 0.117736084 s
+   disconnect_response_ns                 2.714949 s
+   connect_command_ns                     4.715194 s
+   response_ns                            4.724329 s
+   first_advertise_since_connect_ns       4.835642 s
+   first_ready_since_connect_ns           4.841941 s
+   first_avtp_ns                          4.842065 s
+       0.835621 DUT    TalkerAdvertise JoinMt   target-stream None
+       1.835624 DUT    TalkerAdvertise JoinMt   target-stream None
+       2.724707 bridge Listener        Lv       target-stream 2
+       2.835636 DUT    TalkerAdvertise Lv       target-stream None
+       2.837593 bridge TalkerAdvertise Mt       target-stream None
+       3.039284 bridge TalkerAdvertise LeaveAll - None
+       3.039284 bridge Listener        LeaveAll - None
+       3.235631 DUT    TalkerAdvertise Mt       target-stream None
+       4.235633 DUT    TalkerAdvertise LeaveAll - None
+       4.235633 DUT    Listener        LeaveAll - None
+       4.435634 DUT    TalkerAdvertise Mt       target-stream None
+       4.835642 DUT    TalkerAdvertise JoinMt   target-stream None
+       4.841941 bridge Listener        New      target-stream 2
+       4.936508 bridge Listener        New      target-stream 2
+       5.035642 DUT    TalkerAdvertise JoinMt   target-stream None
+       5.039521 bridge Listener        JoinMt   target-stream 2
+       5.835635 DUT    TalkerAdvertise JoinMt   target-stream None
+       6.835638 DUT    TalkerAdvertise JoinMt   target-stream None
+       7.835641 DUT    TalkerAdvertise JoinMt   target-stream None
+   first bridge MSRP event of any type: 2.724707038 s
+   MSRP PDUs before the response window by sender: {'DUT': 2, 'bridge': 0}
+   decomposition: response->bridge Ready 117.613 ms; bridge Ready->first CRF 0.124 ms
+== talker-002 (talker), latency 0.026165878 s
+   disconnect_response_ns                 3.002762 s
+   connect_command_ns                     5.003078 s
+   response_ns                            5.011902 s
+   first_advertise_since_connect_ns       5.135531 s
+   first_ready_since_connect_ns           5.036651 s
+   first_avtp_ns                          5.038068 s
+       0.335519 DUT    TalkerAdvertise JoinMt   target-stream None
+       1.335522 DUT    TalkerAdvertise JoinMt   target-stream None
+       2.335524 DUT    TalkerAdvertise JoinMt   target-stream None
+       3.012257 bridge Listener        Lv       target-stream 2
+       3.335527 DUT    TalkerAdvertise JoinMt   target-stream None
+       4.335530 DUT    TalkerAdvertise JoinMt   target-stream None
+       4.735534 DUT    TalkerAdvertise LeaveAll - None
+       4.735534 DUT    TalkerAdvertise JoinMt   target-stream None
+       4.735534 DUT    Listener        LeaveAll - None
+       4.738427 bridge TalkerAdvertise LeaveAll - None
+       4.738427 bridge Listener        LeaveAll - None
+       4.935535 DUT    TalkerAdvertise JoinMt   target-stream None
+       5.036651 bridge Listener        New      target-stream 2
+       5.135531 DUT    TalkerAdvertise JoinMt   target-stream None
+       5.136477 bridge Listener        New      target-stream 2
+       5.236746 bridge Listener        JoinMt   target-stream 2
+       5.335533 DUT    TalkerAdvertise JoinMt   target-stream None
+       6.335535 DUT    TalkerAdvertise JoinMt   target-stream None
+       7.335538 DUT    TalkerAdvertise JoinMt   target-stream None
+       8.335541 DUT    TalkerAdvertise JoinMt   target-stream None
+   first bridge MSRP event of any type: 3.012257258 s
+   MSRP PDUs before the response window by sender: {'DUT': 3, 'bridge': 0}
+   decomposition: response->bridge Ready 24.749 ms; bridge Ready->first CRF 1.417 ms
+== listener-001 (listener), latency 0.112517232 s
+   disconnect_response_ns                 2.739820 s
+   connect_command_ns                     4.740067 s
+   response_ns                            4.740075 s
+   first_advertise_since_connect_ns       4.743472 s
+   first_ready_since_connect_ns           4.846614 s
+   first_avtp_ns                          4.852592 s
+       0.646593 DUT    Listener        JoinMt   target-stream 2
+       1.646596 DUT    Listener        JoinMt   target-stream 2
+       2.646598 DUT    Listener        JoinMt   target-stream 2
+       2.846609 DUT    Listener        Lv       target-stream 2
+       2.850443 bridge Listener        Mt       target-stream 2
+       2.950825 bridge TalkerAdvertise Lv       target-stream None
+       4.743472 bridge TalkerAdvertise New      target-stream None
+       4.841516 bridge TalkerAdvertise New      target-stream None
+       4.846614 DUT    Listener        New      target-stream 2
+       4.941485 bridge TalkerAdvertise JoinMt   target-stream None
+       5.046604 DUT    Listener        New      target-stream 2
+       5.246605 DUT    Listener        JoinMt   target-stream 2
+       5.646617 DUT    Listener        JoinMt   target-stream 2
+       6.441381 bridge TalkerAdvertise LeaveAll - None
+       6.441381 bridge TalkerAdvertise JoinMt   target-stream None
+       6.441381 bridge Listener        LeaveAll - None
+       6.446613 DUT    Listener        JoinMt   target-stream 2
+       6.646609 DUT    Listener        JoinMt   target-stream 2
+       7.646612 DUT    Listener        JoinMt   target-stream 2
+   first bridge MSRP event of any type: 2.850443432 s
+   MSRP PDUs before the response window by sender: {'DUT': 3, 'bridge': 0}
+   decomposition: response->bridge TA 3.397 ms; bridge TA->DUT Ready 103.143 ms; DUT Ready->first CRF 5.978 ms
+== listener-002 (listener), latency 0.178173963 s
+   disconnect_response_ns                 2.974172 s
+   connect_command_ns                     4.974417 s
+   response_ns                            4.974425 s
+   first_advertise_since_connect_ns       4.977698 s
+   first_ready_since_connect_ns           5.145955 s
+   first_avtp_ns                          5.152599 s
+       0.040711 bridge TalkerAdvertise JoinMt   target-stream None
+       0.945934 DUT    Listener        JoinMt   target-stream 2
+       1.945937 DUT    Listener        JoinMt   target-stream 2
+       2.945940 DUT    Listener        JoinMt   target-stream 2
+       3.145950 DUT    Listener        Lv       target-stream 2
+       3.149795 bridge Listener        Mt       target-stream 2
+       3.240806 bridge TalkerAdvertise Lv       target-stream None
+       4.977698 bridge TalkerAdvertise New      target-stream None
+       5.070071 bridge TalkerAdvertise New      target-stream None
+       5.145955 DUT    Listener        New      target-stream 2
+       5.170227 bridge TalkerAdvertise JoinMt   target-stream None
+       5.345945 DUT    Listener        New      target-stream 2
+       5.545946 DUT    Listener        JoinMt   target-stream 2
+       5.945958 DUT    Listener        JoinMt   target-stream 2
+       6.945951 DUT    Listener        JoinMt   target-stream 2
+       7.945953 DUT    Listener        JoinMt   target-stream 2
+   first bridge MSRP event of any type: 0.040710919 s
+   MSRP PDUs before the response window by sender: {'DUT': 4, 'bridge': 1}
+   decomposition: response->bridge TA 3.273 ms; bridge TA->DUT Ready 168.257 ms; DUT Ready->first CRF 6.644 ms
+== listener-003 (listener), latency 0.126758722 s
+   disconnect_response_ns                 3.021511 s
+   connect_command_ns                     5.021833 s
+   response_ns                            5.021841 s
+   first_advertise_since_connect_ns       5.025225 s
+   first_ready_since_connect_ns           5.145279 s
+   first_avtp_ns                          5.148599 s
+       0.345256 DUT    Listener        JoinMt   target-stream 2
+       1.345259 DUT    Listener        JoinMt   target-stream 2
+       2.345262 DUT    Listener        JoinMt   target-stream 2
+       3.145274 DUT    Listener        Lv       target-stream 2
+       3.146709 bridge Listener        Mt       target-stream 2
+       3.242582 bridge TalkerAdvertise Lv       target-stream None
+       3.345268 DUT    TalkerAdvertise LeaveAll - None
+       3.345268 DUT    Listener        LeaveAll - None
+       3.545268 DUT    Listener        Mt       target-stream 2
+       5.025225 bridge TalkerAdvertise New      target-stream None
+       5.120483 bridge TalkerAdvertise New      target-stream None
+       5.145279 DUT    Listener        New      target-stream 2
+       5.219609 bridge TalkerAdvertise JoinMt   target-stream None
+       5.345270 DUT    Listener        New      target-stream 2
+       5.545280 DUT    Listener        JoinMt   target-stream 2
+       6.345273 DUT    Listener        JoinMt   target-stream 2
+       7.345275 DUT    Listener        JoinMt   target-stream 2
+       8.345278 DUT    Listener        JoinMt   target-stream 2
+   first bridge MSRP event of any type: 3.146708637 s
+   MSRP PDUs before the response window by sender: {'DUT': 3, 'bridge': 0}
+   decomposition: response->bridge TA 3.385 ms; bridge TA->DUT Ready 120.054 ms; DUT Ready->first CRF 3.320 ms
+== listener-004 (listener), latency 0.078599753 s
+   disconnect_response_ns                 3.069763 s
+   connect_command_ns                     5.069991 s
+   response_ns                            5.069999 s
+   first_advertise_since_connect_ns       5.073346 s
+   first_ready_since_connect_ns           5.144603 s
+   first_avtp_ns                          5.148598 s
+       0.744582 DUT    Listener        JoinMt   target-stream 2
+       1.744584 DUT    Listener        JoinMt   target-stream 2
+       2.739472 bridge TalkerAdvertise LeaveAll - None
+       2.739472 bridge TalkerAdvertise JoinMt   target-stream None
+       2.739472 bridge Listener        LeaveAll - None
+       2.744592 DUT    Listener        JoinMt   target-stream 2
+       2.944597 DUT    Listener        JoinMt   target-stream 2
+       3.144598 DUT    Listener        Lv       target-stream 2
+       3.146028 bridge Listener        Mt       target-stream 2
+       3.239718 bridge TalkerAdvertise Lv       target-stream None
+       4.144594 DUT    TalkerAdvertise LeaveAll - None
+       4.144594 DUT    Listener        LeaveAll - None
+       4.344595 DUT    Listener        Mt       target-stream 2
+       5.073346 bridge TalkerAdvertise New      target-stream None
+       5.144603 DUT    Listener        New      target-stream 2
+       5.168755 bridge TalkerAdvertise New      target-stream None
+       5.271329 bridge TalkerAdvertise JoinMt   target-stream None
+       5.344594 DUT    Listener        New      target-stream 2
+       5.544594 DUT    Listener        JoinMt   target-stream 2
+       5.744595 DUT    Listener        JoinMt   target-stream 2
+       6.744598 DUT    Listener        JoinMt   target-stream 2
+       7.744601 DUT    Listener        JoinMt   target-stream 2
+       8.744604 DUT    Listener        JoinMt   target-stream 2
+   first bridge MSRP event of any type: 2.739471559 s
+   MSRP PDUs before the response window by sender: {'DUT': 4, 'bridge': 1}
+   decomposition: response->bridge TA 3.347 ms; bridge TA->DUT Ready 71.258 ms; DUT Ready->first CRF 3.995 ms
+== listener-005 (listener), latency 0.085312416 s
+   disconnect_response_ns                 2.963023 s
+   connect_command_ns                     4.963277 s
+   response_ns                            4.963285 s
+   first_advertise_since_connect_ns       4.966316 s
+   first_ready_since_connect_ns           5.045926 s
+   first_avtp_ns                          5.048597 s
+       0.045902 DUT    Listener        JoinMt   target-stream 2
+       1.045905 DUT    Listener        JoinMt   target-stream 2
+       2.045907 DUT    Listener        JoinMt   target-stream 2
+       3.045920 DUT    Listener        Lv       target-stream 2
+       3.047357 bridge Listener        Mt       target-stream 2
+       3.140898 bridge TalkerAdvertise Lv       target-stream None
+       3.442138 bridge TalkerAdvertise LeaveAll - None
+       3.442138 bridge Listener        LeaveAll - None
+       3.445915 DUT    Listener        Mt       target-stream 2
+       4.966316 bridge TalkerAdvertise New      target-stream None
+       5.045926 DUT    Listener        New      target-stream 2
+       5.060170 bridge TalkerAdvertise New      target-stream None
+       5.160592 bridge TalkerAdvertise JoinMt   target-stream None
+       5.245926 DUT    Listener        New      target-stream 2
+       5.445916 DUT    Listener        JoinMt   target-stream 2
+       6.045918 DUT    Listener        JoinMt   target-stream 2
+       7.045921 DUT    Listener        JoinMt   target-stream 2
+       7.845927 DUT    Listener        LeaveAll - None
+       7.845927 DUT    Listener        JoinMt   target-stream 2
+       7.845927 DUT    TalkerAdvertise LeaveAll - None
+       7.846355 bridge TalkerAdvertise JoinMt   target-stream None
+       7.942998 bridge TalkerAdvertise JoinMt   target-stream None
+       8.045928 DUT    Listener        JoinMt   target-stream 2
+   first bridge MSRP event of any type: 3.047356648 s
+   MSRP PDUs before the response window by sender: {'DUT': 3, 'bridge': 0}
+   decomposition: response->bridge TA 3.031 ms; bridge TA->DUT Ready 79.610 ms; DUT Ready->first CRF 2.671 ms

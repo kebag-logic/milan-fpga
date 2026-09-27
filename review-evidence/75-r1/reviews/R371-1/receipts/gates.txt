@@ -1,0 +1,68 @@
+### python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 172 md files + 917 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+### rc=0
+### python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+### rc=0
+### python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+### rc=2
+### python3 scripts/check_em_dash.py --base 8bc97021f28fb7f729418d3a00851c84ea0b50fd
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+### rc=2
+### python3 scripts/check_doc_paths.py
+doc path gate: OK (850 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+### rc=0
+### python3 scripts/ci_scope.py --selftest
+  ok   mutation: .rst filed as docs-only is rejected
+  ok   mutation: docs/ filed as docs-only is rejected
+  ok   mutation: hdl/ieee1722/avtp/doc/ filed as docs-only is rejected
+  ok   mutation: hdl/ieee8021as/gptp_plane/doc/ filed as docs-only is rejected
+  ok   mutation: tb/ filed as docs-only is rejected
+  ok   mutation: .py filed as docs-only is rejected
+  ok   mutation: .json filed as docs-only is rejected
+  ok   mutation: .svg filed as docs-only is rejected
+  ok   mutation: gate-read docs/reference/REGISTER_MAP.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/REGISTER_MAP.md once the table drops it
+  ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+### rc=0
+### python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 915 tracked first-party file(s))
+### rc=0
+### python3 scripts/check_feature_status.py --self-test
+  PASS  claim inside a block quote
+  PASS  count in a fact block ignored
+  PASS  documented order reversed
+  PASS  order block required
+  PASS  order block unregistered
+  PASS  boot order source tie
+  PASS  boot order reversed in firmware
+  PASS  boot step absent
+  PASS  commented boot call ignored
+  PASS  missing milan_init refused
+  PASS  value register required
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+### rc=0
+### git diff --check 8bc97021f28fb7f729418d3a00851c84ea0b50fd HEAD
+warning: unable to find all commit-graph files
+### rc=0
+## re-run of the two renderer-dependent gates with the pinned renderer from tools/markdown/requirements.txt in a disposable environment
+### pinned-python scripts/gen_toc.py --check
+TOC gate: OK (114 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+### rc=0
+### pinned-python scripts/check_em_dash.py --base 8bc97021f28fb7f729418d3a00851c84ea0b50fd
+check_em_dash: 0 finding(s) over 772 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [8bc97021..HEAD]
+### rc=0
+### pinned-python scripts/docs_check.py
+docs_check: 0 finding(s) across 172 md files + 917 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+### rc=0
+### pinned-python scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+### rc=0

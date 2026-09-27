@@ -1,0 +1,32 @@
+== listener: 100 cycles, median capture 410732 bytes, min 353788, max 469075
+   cycles with latency below one 2 ms PDU period: 0
+   ten largest captures:
+     listener-100: 469075 bytes (+58344), latency 0.024800 s
+     listener-048: 463017 bytes (+52286), latency 0.177925 s
+     listener-015: 462343 bytes (+51612), latency 0.083289 s
+     listener-089: 414702 bytes (+3970), latency 0.065518 s
+     listener-004: 414299 bytes (+3568), latency 0.078600 s
+     listener-049: 414297 bytes (+3566), latency 0.061709 s
+     listener-093: 414288 bytes (+3556), latency 0.136599 s
+     listener-045: 413638 bytes (+2906), latency 0.023757 s
+     listener-053: 413223 bytes (+2492), latency 0.054453 s
+     listener-081: 412833 bytes (+2102), latency 0.017824 s
+   captures >40 kB above median: 3; of those sub-period: 0
+== talker: 100 cycles, median capture 409198 bytes, min 341095, max 524681
+   cycles with latency below one 2 ms PDU period: 3
+   talker-013: latency 0.000363568 s, capture 461102 bytes (+51904 vs median), size rank 6/100
+   talker-024: latency 0.000296777 s, capture 518465 bytes (+109267 vs median), size rank 2/100
+   talker-075: latency 0.001864076 s, capture 518170 bytes (+108972 vs median), size rank 3/100
+   ten largest captures:
+     talker-083: 524681 bytes (+115483), latency 0.018737 s
+     talker-024: 518465 bytes (+109267), latency 0.000297 s
+     talker-075: 518170 bytes (+108972), latency 0.001864 s
+     talker-048: 467106 bytes (+57908), latency 0.021051 s
+     talker-049: 466890 bytes (+57692), latency 0.019252 s
+     talker-013: 461102 bytes (+51904), latency 0.000364 s
+     talker-032: 413627 bytes (+4429), latency 0.017944 s
+     talker-028: 413209 bytes (+4011), latency 0.018665 s
+     talker-073: 412568 bytes (+3370), latency 0.018249 s
+     talker-008: 412145 bytes (+2947), latency 0.020175 s
+   P(all 3 sub-period cycles within top 6 sizes by chance) = 0.000124
+   captures >40 kB above median: 6; of those sub-period: 3

@@ -1,0 +1,36 @@
+# hygiene scan of docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md at 0e8ec0d2bd78b1d87f84d96e095966ae7c07c525
+## pattern hits (expect none)
+(none)
+## hex identifiers 12-16 chars (expect only the stream format)
+75:041060010000bb80
+76:041060010000bb80
+## raw-host/instrument/role words
+49:Six peer LeaveAll cycles emit at most 18 PDUs.
+67:Topology: DUT, inline tap, AVB bridge, reference peer.
+68:The controller shares that AVB network.
+82:The controller then sends `DISCONNECT_RX`.
+90:Controller identity and sequence identify the response.
+100:Its nanosecond word is unwrapped using capture-host timestamps.
+102:Host clock offsets do not enter the elapsed interval.
+111:Capture-host packet drops invalidate evidence.
+139:Bridge Listener Ready arrives after 6.888605 seconds.
+143:A bridge LeaveAll precedes the eventual Ready.
+146:Peer-side capture is required for further causal attribution.
+196:Their source addresses distinguish DUT and adjacent bridge.
+198:Peer-origin stream attributes arrive as bridge declarations.
+199:The peer’s original link-local MSRP exchange is not tapped.
+216:| DUT listener | bridge | 0.245973 | 1.002123 | 0.633241 | 722 | 284 |
+218:| DUT talker | bridge | 0.256313 | 0.933310 | 0.690640 | 608 | 280 |
+235:| DUT listener | bridge | TalkerAdvertise | 200 | 0 | 0 | 268 | 0 | 100 | 71 |
+236:| DUT listener | bridge | TalkerFailed | 0 | 0 | 0 | 0 | 0 | 0 | 71 |
+237:| DUT listener | bridge | Listener | 0 | 0 | 2 | 0 | 108 | 0 | 71 |
+238:| DUT listener | bridge | Domain | 0 | 145 | 0 | 287 | 0 | 0 | 71 |
+243:| DUT talker | bridge | TalkerAdvertise | 0 | 0 | 0 | 0 | 6 | 0 | 70 |
+244:| DUT talker | bridge | TalkerFailed | 0 | 0 | 0 | 0 | 0 | 0 | 70 |
+245:| DUT talker | bridge | Listener | 201 | 0 | 0 | 244 | 0 | 100 | 70 |
+246:| DUT talker | bridge | Domain | 0 | 136 | 0 | 276 | 0 | 0 | 70 |
+250:Paired counts use DUT / bridge order.
+485:Temporary controller scripts and capture driver are removed.
+487:The original capture-host interface set is restored.
+733:| `tools/controller.py` | 4277 | `324ef73599de85abe7e3dff10c5c8de35863a60aa2e3995413085e0d228d11ad` |
+763:All captures report zero capture-host packet drops.

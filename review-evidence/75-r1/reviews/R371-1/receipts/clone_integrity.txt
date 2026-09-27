@@ -1,0 +1,18 @@
+# review-clone integrity after all probes (probes ran only on exports under the packet scratch directory)
+HEAD 0e8ec0d2bd78b1d87f84d96e095966ae7c07c525 tree 0e8e3319b58605fb011425dfa1aa90b64935b9c2
+write-tree(index) 0e8e3319b58605fb011425dfa1aa90b64935b9c2
+worktree blobs+modes == index: yes
+index == HEAD: yes
+untracked/ignored-changes: 0
+index entries sha256 (git ls-files -s): 386ef15d56b94f72b3b8217062f26d5d81e3a258ed570032ee670caa5252cc71
+tree entries sha256 (git ls-tree -r HEAD, mode+obj+path): 945 entries
+gitlinks at HEAD:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+checked-out submodule HEADs:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ 870ff88ad35bbd532244e4c7e6d7661b9f6e1366 protocol-processor (v2.0-275-g870ff88)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)

@@ -1,0 +1,47 @@
+== listener: ledger cycles 100 page cycles 100
+min 0.006641168 median 0.110279505 p95(nr) 0.188503018 max 0.204858977 below1s 100
+  sorted[49]=0.108604181 sorted[50]=0.111954830 (median = mean of both for n=100)
+  p95 alternatives: sorted[94]=0.188503018 sorted[95]=0.190519647 linear=0.188603849
+slope -0.000100 s/cycle; first10 median 0.122844 last10 median 0.118585
+  spearman rho(cycle, latency) -0.0440
+  halves median 0.107696 0.110280
+  block 1-10: median 0.122844 max 0.178174
+  block 11-20: median 0.142162 max 0.191796
+  block 21-30: median 0.095617 max 0.171912
+  block 31-40: median 0.106201 max 0.191218
+  block 41-50: median 0.067111 max 0.177925
+  block 51-60: median 0.090436 max 0.203084
+  block 61-70: median 0.042417 max 0.153266
+  block 71-80: median 0.134288 max 0.204859
+  block 81-90: median 0.087061 max 0.180242
+  block 91-100: median 0.118585 max 0.178821
+  sum PDUs DUT 1419 bridge 722
+  sum LeaveAll DUT 288 bridge 284
+  sum TA decl DUT 0 bridge 468
+  sum Listener decl DUT 1068 bridge 0
+  sum Ready DUT 1068 bridge 0
+  first-AVTP ns mod 100 ms (ms, distinct values): [38.8, 40.5, 40.6, 40.7, 41.0, 42.0, 42.5, 42.6, 42.7, 42.8, 43.0, 43.6] ... count 30
+== talker: ledger cycles 100 page cycles 100
+min 0.000296777 median 0.019165141 p95(nr) 0.039613701 max 0.117736084 below1s 100
+  sorted[49]=0.019160125 sorted[50]=0.019170157 (median = mean of both for n=100)
+  p95 alternatives: sorted[94]=0.039613701 sorted[95]=0.042346644 linear=0.039750348
+slope -0.000008 s/cycle; first10 median 0.019894 last10 median 0.019818
+  spearman rho(cycle, latency) 0.0807
+  halves median 0.019124 0.019193
+  block 1-10: median 0.019894 max 0.117736
+  block 11-20: median 0.018978 max 0.039614
+  block 21-30: median 0.019365 max 0.020036
+  block 31-40: median 0.018961 max 0.020482
+  block 41-50: median 0.018974 max 0.082168
+  block 51-60: median 0.018862 max 0.066967
+  block 61-70: median 0.019376 max 0.042347
+  block 71-80: median 0.019060 max 0.020492
+  block 81-90: median 0.018913 max 0.116171
+  block 91-100: median 0.019818 max 0.021083
+  sum PDUs DUT 1123 bridge 608
+  sum LeaveAll DUT 272 bridge 280
+  sum TA decl DUT 1062 bridge 0
+  sum Listener decl DUT 0 bridge 445
+  sum Ready DUT 0 bridge 445
+  first-AVTP ns mod 100 ms (ms, distinct values): [0.1, 2.1, 4.1, 6.1, 8.1, 10.1, 12.1, 14.1, 16.1, 18.1, 20.1, 22.1] ... count 44
+MISMATCHES 0

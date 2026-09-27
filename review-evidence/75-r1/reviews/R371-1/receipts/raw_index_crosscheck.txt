@@ -1,0 +1,12 @@
+page capture rows 206 raw index entries 206
+image+capture rows compared 210 mismatches [] page rows absent from indexes []
+method tools/action.py bytes 8236 == 8236 True sha True
+method tools/analyze.py bytes 7310 == 7310 True sha True
+method tools/reconnect.py bytes 945 == 945 True sha True
+method tools/capture.py bytes 674 == 674 True sha True
+method tools/controller.py bytes 4277 == 4277 True sha True
+method tools/avdecc_ro.py bytes 10263 == 10263 True sha True
+method tools/wire_summary.py bytes 10371 == 10371 True sha True
+method tools/integrity.py bytes 2758 == 2758 True sha True
+method tools/report.py bytes 15805 == 15816 False sha False
+note: tools/report.py differs from the page's method-artifact row only because the publisher redacted it; packet MANIFEST.json records original sha256 fe76a7aec28831bcded7cd868decde73f44eb43a8fa3146826aeb6aa37e1ef7e (= page) and published cf4d69a6...

@@ -1,0 +1,7 @@
+# docs_check.py on a submodule-free export (git archive) of 0e8ec0d2, filesystem-walk mode, pinned renderer
+docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md:61: broken link -> ../../protocol-processor/docs/architecture/10_srp_engine.md
+docs_check: 1 finding(s) across 172 md files + 917 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+rc=1
+# same export with only the line-61 link rewritten to the gitlink-pinned URL (disposable probe)
+docs_check: 0 finding(s) across 172 md files + 917 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+rc=0
