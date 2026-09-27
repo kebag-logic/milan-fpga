@@ -1890,6 +1890,10 @@ map's "blank media behind a validated image" row, and no longer `0x5B00_008C`.
 console command that itself runs for more than the 2,000 ms liveness deadline
 lets `nvm_backed` lapse until the prompt returns; with nothing outstanding the
 next heartbeat heals it, with a change outstanding `nvm_stale` records the gap.
+Queued input also suppresses the idle hook between commands.
+Several short commands can therefore exceed that same liveness deadline.
+[The service-budget measurements](../findings/397_SERVICE_BUDGET.md) reproduce this at both shapes.
+[Issue #590](https://github.com/kebag-logic/milan-fpga/issues/590) owns dispatch and long-walk tick opportunities.
 The hook heartbeats every 250 ms, half the section 9.4
 maximum, and when `PP_NVM_STAT` reports `nvm_dirty` for a whole debounce
 window (1,000 ms, the provisional value section 14 leaves open) with no record

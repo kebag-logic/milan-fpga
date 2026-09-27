@@ -401,6 +401,10 @@ The manual `nvm_capture_cpu` measurement is the Makefile exception.
 Its LiteX tree, CPU netlist and pinned RV32 SDK are prerequisites.
 The separate `scripts/check_nvm_capture.py` gate needs neither compiler nor simulation.
 It regenerates capture counts and checks clocks against measured inputs.
+The [firmware service-budget sibling](../../tb/verilator/fw_service_budget/README.md)
+has a default Makefile target for its portable oracle and device controls.
+Its full product-CPU measurements are explicit runs with the same prerequisites
+as the capture measurement; the default target does not regenerate timings.
 **Run the suites for verdicts; this page omits them.** The last
 whole-tree sweep recorded here (2026-07-26, Verilator v5.050, 55/55 green)
 described a tree that no longer exists — twelve of the suites it graded have
