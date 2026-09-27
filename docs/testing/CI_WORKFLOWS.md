@@ -53,12 +53,15 @@ Issue template and the root `LICENSE`. The `tsn_fuzz` suite compares
 [the gPTP record](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) with
 the campaign it runs, so those two records are relevant by directory.
 
-Three pages under `docs/` are relevant because Python in a classifier-gated
+Four pages under `docs/` are relevant because Python in a classifier-gated
 job names them. The behave suite of `bdd-conformance`, which no docs job runs,
 asserts on [REGISTER_MAP.md](../reference/REGISTER_MAP.md) and
 [MILAN_V12_AUDIT_2026-08-16.md](MILAN_V12_AUDIT_2026-08-16.md). The trace
 catalogue generator's `--check` compares
-[TRACE_EVENTS.md](../reference/TRACE_EVENTS.md). The classifier's
+[TRACE_EVENTS.md](../reference/TRACE_EVENTS.md).
+`sw/builder/test_clock_contract.py` checks [AAF_LATENCY_TAPS.md](../AAF_LATENCY_TAPS.md).
+Its tap table follows the configured clocks and features.
+The classifier's
 self-test, `scripts/ci_scope.py --selftest`, derives that list from the
 Python, the Makefiles and the shell under `tests/`, `tb/`, `syn/`, `sw/`,
 `hdl/` and `avdecc/` and refuses a table that differs from it. A page
@@ -68,6 +71,7 @@ that a skipped gate reads stays documentation only when an always-run
 | Reader | Skipped job that runs it | `docs-check` runs it too |
 |---|---|---|
 | `sw/builder/test_builder.py`: six pages under `docs/` | `elaborate` (`--require-elaboration` grades only the LiteX arms) | yes, every arm that reads a page |
+| `sw/builder/test_clock_contract.py`: [AAF_LATENCY_TAPS.md](../AAF_LATENCY_TAPS.md) | `elaborate`, through `test_builder.py` | yes, through the same builder bank |
 | `docs/traceability/gen_module_matrix.py --check`: the matrix artifacts | the `tsn_fuzz` suite | yes, the same command |
 | `scripts/ci_events.py --check`: this page | none, it runs in `full-ci-gate` before the decision | yes, the same command |
 

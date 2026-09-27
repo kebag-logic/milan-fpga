@@ -101,6 +101,9 @@ from pp_mem_bridge_sources import (
     test_structural,
 )
 
+sys.path.insert(0, str(HERE.parents[1] / "sw/builder"))
+import endstation_builder as eb
+
 TMO = 32                       # the model's watchdog; the SoC derives its own
 
 #: One response beat as the EMIT state presents it: (data, err, blast).
@@ -384,12 +387,12 @@ def test_recovery() -> None:
 #  4. PRECEDENCE
 # ---------------------------------------------------------------------------
 def configured_clock_pairs() -> list[tuple[str, int, int]]:
-    """Read every tracked shape's declared clocks, independently of the SoC."""
+    """Read every tracked shape's normalized clocks, independently of the SoC."""
     paths = sorted((HERE.parents[1] / "configs").glob("endstation_*.yaml"))
     assert paths, "no end-station configurations found"
     pairs = []
     for path in paths:
-        clocks = yaml.safe_load(path.read_text())["board"]["constraints"]
+        clocks = eb.load_config(path)["constraints"]
         pairs.append((path.stem, clocks["sys_clk_hz"], clocks["milan_clk_hz"]))
     return pairs
 
@@ -402,12 +405,26 @@ def test_configured_clock_pairs() -> None:
         configs.mkdir()
         expected = [("endstation_a", 73_000_000, 41_000_000),
                     ("endstation_b", 97_000_000, 53_000_000)]
+        normalized = []
         for name, sys_hz, milan_hz in expected:
-            (configs / f"{name}.yaml").write_text(yaml.safe_dump(
-                {"board": {"constraints": {"sys_clk_hz": sys_hz, "milan_clk_hz": milan_hz}}}))
-        with patch.dict(configured_clock_pairs.__globals__, HERE=root / "sw/litex"):
+            (configs / f"{name}.yaml").touch()
+            normalized.append({"constraints": {"sys_clk_hz": sys_hz, "milan_clk_hz": milan_hz}})
+        with patch.dict(configured_clock_pairs.__globals__, HERE=root / "sw/litex"), \
+                patch.object(eb, "load_config", side_effect=normalized) as loader:
             assert configured_clock_pairs() == expected, "configuration clock pairs not preserved"
-    print("[clock pairs] independent fixture clocks preserve every shape and domain")
+            assert [call.args[0] for call in loader.call_args_list] == sorted(configs.glob("*.yaml"))
+        for path in configs.glob("*.yaml"):
+            path.unlink()
+        expected = []
+        for source in sorted((HERE.parents[1] / "configs").glob("endstation_*.yaml")):
+            raw = yaml.safe_load(source.read_text())
+            del raw["board"]["constraints"]["sys_clk_hz"]
+            (configs / source.name).write_text(yaml.safe_dump(raw))
+            default_hz = eb.BOARDS[raw["board"]["target"]]["sys_clk_hz_default"]
+            expected.append((source.stem, default_hz, raw["board"]["constraints"]["milan_clk_hz"]))
+        with patch.dict(configured_clock_pairs.__globals__, HERE=root / "sw/litex"):
+            assert configured_clock_pairs() == expected, "omitted system clock lost the board default"
+    print("[clock pairs] normalized fixture pairs preserve every shape and domain; omitted system clocks pass")
 
 
 # Non-configured historical clock pairs remain watchdog stress controls.

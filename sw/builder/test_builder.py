@@ -17119,6 +17119,7 @@ def test_baremetal_profile_contract() -> None:
                 path.unlink()
     # The former 80 MHz ROM variant violates the bare-metal build contract.
     # test_baremetal_clock_contract now requires its named refusal.
+    # test_gptp_rom_clock separately proves the configured clock reaches ROM bytes.
     print("  [gate 1b] gPTP ROM changes with station MAC and priority1; "
           "the bare-metal fabric clock is fixed by the build contract")
 
@@ -27555,12 +27556,14 @@ def test_nvm_firmware_shapes() -> None:
 
 if __name__ == "__main__":
     from test_declarations import test_declaration_contracts
-    from test_clock_contract import test_baremetal_clock_contract, test_extra_sweep_clocks, test_tap_clock_docs
+    from test_clock_contract import (
+        test_baremetal_clock_contract, test_extra_sweep_clocks, test_gptp_rom_clock, test_tap_clock_docs,
+    )
 
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
         sys.exit(0)
-    for fn in (test_baremetal_clock_contract, test_extra_sweep_clocks, test_tap_clock_docs,
+    for fn in (test_baremetal_clock_contract, test_gptp_rom_clock, test_extra_sweep_clocks, test_tap_clock_docs,
                test_declaration_contracts, test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_launch_observer_seam,

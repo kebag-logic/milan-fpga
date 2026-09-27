@@ -55,6 +55,7 @@ the pair by length, CRC32, SHA-256, CPU width, and parsed bitstream identity.
 | `soc.full` | `true` | Elaborate the complete bare-metal SoC (`--full`). |
 | `soc.scala_args` | `[]` | No cache or supervisor-mode tuning. |
 | `board.constraints.l2_bytes` | `0` | No CPU cache. |
+| `board.constraints.milan_clk_hz` | `CPU_HZ` in [recipe.py](../../tb/verilator/nvm_capture_cpu/recipe.py) | Fixed Milan and bare-metal CPU clock; divergent values refuse. |
 | `board.constraints.flashboot` | `none` or `baremetal` | No persistent image, or the bitstream/AEM pair. |
 
 Unknown values and keys are rejected; there are no compatibility aliases.

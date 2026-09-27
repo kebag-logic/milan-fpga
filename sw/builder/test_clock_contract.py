@@ -44,11 +44,20 @@ def test_baremetal_clock_contract() -> None:
             cfg = eb.load_config(path)
             clock = raw["board"]["constraints"]["milan_clk_hz"]
             assert cfg["constraints"]["milan_clk_hz"] == eb.BAREMETAL_CLK_HZ == clock
+            no_flash = copy.deepcopy(raw)
+            no_flash["board"]["constraints"]["flashboot"] = "none"
+            no_flash_path = directory / "no_flash.yaml"
+            no_flash_path.write_text(yaml.safe_dump(no_flash))
+            assert eb.load_config(no_flash_path)["constraints"]["flashboot"] == "none"
             # Issue #582 names both formerly accepted clock regressions.
             # Neighbours ensure equality is enforced, rather than a ceiling.
             for bad_hz in (100_000_000, 80_000_000, clock - 1, clock + 1, 0):
                 bad = copy.deepcopy(raw)
                 bad["board"]["constraints"].update(milan_clk_hz=bad_hz, sys_clk_hz=100_000_000)
+                _refused(bad, directory, "baremetal clock: milan_clk_hz must be "
+                         f"{clock} Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)")
+                refusals += 1
+                bad["board"]["constraints"]["flashboot"] = "none"
                 _refused(bad, directory, "baremetal clock: milan_clk_hz must be "
                          f"{clock} Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)")
                 refusals += 1
@@ -61,6 +70,32 @@ def test_baremetal_clock_contract() -> None:
             _refused(bad, directory, "no scala_args overrides")
     print(f"[clock contract] {len(CONFIGS)} configured positives; {refusals} named clock refusals; "
           "system-clock ordering and non-cache Scala refusals; no output on failure")
+
+
+def test_gptp_rom_clock() -> None:
+    """Compare builder ROM bytes with an independent configured-clock run."""
+    generator = ROOT / "gptp-processor/hdl/ucode/gen_gptp_ucode.py"
+    with tempfile.TemporaryDirectory(prefix="gptp-rom-clock-") as tmp:
+        directory = Path(tmp)
+        for path in CONFIGS:
+            cfg = eb.load_config(path)
+            result = eb.build(path, directory, write_fragment=False)
+            actual = Path(result["paths"]["gptp_ucode"]).read_bytes()
+            expected_path = directory / "expected.hex"
+            command = [sys.executable, str(generator), "-o", str(expected_path),
+                       "--mac", "0x" + cfg["platform"]["mac_address"].replace(":", ""),
+                       "--p1", str(cfg["gptp"]["priority1"])]
+            clocks = cfg["constraints"]
+            subprocess.run(command + ["--clk-hz", str(clocks["milan_clk_hz"])],
+                           check=True, capture_output=True, text=True, timeout=60)
+            expected = expected_path.read_bytes()
+            assert actual == expected, f"{path.stem}: gPTP ROM does not use configured Milan clock"
+            # Both reviewer defects must change bytes, not merely the argv.
+            for wrong_args in ([], ["--clk-hz", str(clocks["sys_clk_hz"])]):
+                subprocess.run(command + wrong_args, check=True, capture_output=True, text=True, timeout=60)
+                assert expected_path.read_bytes() != expected, f"{path.stem}: ROM clock control is insensitive"
+    print(f"[clock contract] {len(CONFIGS)} ROMs match configured Milan clocks; "
+          "default-clock and system-clock controls differ")
 
 
 def _soc_clock_case(soc, argv: list[str], refused: bool) -> None:
@@ -91,6 +126,10 @@ def test_soc_clock_contract() -> None:
         cfg = eb.load_config(path)
         argv = eb.emit_soc_argv(cfg)
         _soc_clock_case(milan_soc, argv, False)
+        for bad in (eb.BAREMETAL_CLK_HZ - 1, eb.BAREMETAL_CLK_HZ + 1, 80_000_000, 100_000_000):
+            bad_argv = list(argv)
+            bad_argv[bad_argv.index("--milan-clk-freq") + 1] = str(bad)
+            _soc_clock_case(milan_soc, bad_argv, True)
     clock = eb.BAREMETAL_CLK_HZ
     for bad in (clock - 1, clock + 1, 80_000_000, 100_000_000, -1, "nan", "inf"):
         _soc_clock_case(milan_soc, ["--milan-clk-freq", str(bad)], True)
@@ -101,8 +140,13 @@ def test_soc_clock_contract() -> None:
     # Zero disables the separate domain, just as in _CRG and the CPU binding.
     _soc_clock_case(milan_soc, ["--milan-clk-freq", "0"], True)
     _soc_clock_case(milan_soc, ["--sys-clk-freq", str(clock), "--milan-clk-freq", "0"], False)
+    _soc_clock_case(milan_soc, ["--no-milan", "--milan-clk-freq", str(clock)], False)
+    _soc_clock_case(milan_soc, ["--no-milan", "--sys-clk-freq", str(clock)], False)
+    for bad in (clock - 1, clock + 1, 80_000_000, 100_000_000):
+        for option in ("--milan-clk-freq", "--sys-clk-freq"):
+            _soc_clock_case(milan_soc, ["--no-milan", option, str(bad)], True)
     print("[clock contract] SoC configured clocks, neighbours, 80/100 MHz, "
-          "nonfinite values, implicit system and disabled-domain paths pass")
+          "nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass")
 
 
 def _sweep(board: str, config: Path | None = None) -> subprocess.CompletedProcess:
@@ -114,8 +158,10 @@ def _sweep(board: str, config: Path | None = None) -> subprocess.CompletedProces
                           cwd=ROOT, env=env, text=True, capture_output=True, timeout=60)
 
 
-def _assert_sweep_clocks(result: subprocess.CompletedProcess, clocks: dict) -> None:
+def _assert_sweep_clocks(result: subprocess.CompletedProcess, config: Path) -> None:
+    """Compare the preview with normalized clocks, including board defaults."""
     assert result.returncode == 0, result.stderr
+    clocks = eb.load_config(config)["constraints"]
     argv = shlex.split(result.stdout)
     for option, key in (("--sys-clk-freq", "sys_clk_hz"), ("--milan-clk-freq", "milan_clk_hz")):
         assert argv.count(option) == 1, argv
@@ -125,18 +171,20 @@ def _assert_sweep_clocks(result: subprocess.CompletedProcess, clocks: dict) -> N
 def test_extra_sweep_clocks() -> None:
     """The real shell command follows defaults and changed configuration clocks."""
     for board, name in (("arty", "endstation_arty_4x4"), ("ax7101", "endstation_ax7101_1x1_tdm8")):
-        raw = yaml.safe_load((ROOT / "configs" / f"{name}.yaml").read_text())
-        _assert_sweep_clocks(_sweep(board), raw["board"]["constraints"])
+        _assert_sweep_clocks(_sweep(board), ROOT / "configs" / f"{name}.yaml")
     for path in CONFIGS:
-        raw = yaml.safe_load(path.read_text())
-        _assert_sweep_clocks(_sweep(raw["board"]["target"], path), raw["board"]["constraints"])
+        cfg = eb.load_config(path)
+        _assert_sweep_clocks(_sweep(cfg["board_target"], path), path)
     with tempfile.TemporaryDirectory(prefix="sweep-clock-") as tmp:
         path = Path(tmp) / "clock variant.yaml"
         raw = yaml.safe_load(CONFIGS[0].read_text())
         raw["board"]["constraints"]["sys_clk_hz"] = 75_000_000
         path.write_text(yaml.safe_dump(raw))
         board = raw["board"]["target"]
-        _assert_sweep_clocks(_sweep(board, path), raw["board"]["constraints"])
+        _assert_sweep_clocks(_sweep(board, path), path)
+        del raw["board"]["constraints"]["sys_clk_hz"]
+        path.write_text(yaml.safe_dump(raw))
+        _assert_sweep_clocks(_sweep(board, path), path)
         mismatch = _sweep("ax7101" if board == "arty" else "arty", path)
         assert mismatch.returncode != 0 and "board does not match" in mismatch.stderr
         raw["board"]["constraints"]["milan_clk_hz"] = 80_000_000
@@ -147,7 +195,7 @@ def test_extra_sweep_clocks() -> None:
         path.unlink()
         assert _sweep(board, path).returncode != 0, "missing configuration accepted"
     print("[clock contract] extra sweep: defaults, all configurations, changed system clock, "
-          "board mismatch, invalid clock and missing configuration pass")
+          "omitted system clock, board mismatch, invalid clock and missing configuration pass")
 
 
 def test_tap_clock_docs() -> None:
@@ -167,6 +215,7 @@ def test_tap_clock_docs() -> None:
 
 if __name__ == "__main__":
     test_baremetal_clock_contract()
+    test_gptp_rom_clock()
     test_extra_sweep_clocks()
     test_tap_clock_docs()
     if "--soc" in sys.argv:
