@@ -1,0 +1,335 @@
+diff --git a/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh b/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+index 67109f232..447eb4445 100644
+--- a/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
++++ b/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+@@ -35,6 +35,7 @@
+   //! one media-clock-reference record per domain.
+   localparam int AEM_N_AUDIO_UNIT_C = 1;
+   localparam int AEM_N_CLKDOM_C     = 1;
++  localparam int AEM_N_CONTROL_C    = 1;
+   //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |
+   //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT
+   //! exists to back it
+diff --git a/configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh b/configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+index 53a48c2ad..1d13b73b8 100644
+--- a/configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
++++ b/configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+@@ -35,6 +35,7 @@
+   //! one media-clock-reference record per domain.
+   localparam int AEM_N_AUDIO_UNIT_C = 1;
+   localparam int AEM_N_CLKDOM_C     = 1;
++  localparam int AEM_N_CONTROL_C    = 1;
+   //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |
+   //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT
+   //! exists to back it
+diff --git a/configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh b/configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+index 152bd54d0..98f432ee7 100644
+--- a/configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
++++ b/configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+@@ -35,6 +35,7 @@
+   //! one media-clock-reference record per domain.
+   localparam int AEM_N_AUDIO_UNIT_C = 1;
+   localparam int AEM_N_CLKDOM_C     = 1;
++  localparam int AEM_N_CONTROL_C    = 1;
+   //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |
+   //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT
+   //! exists to back it
+diff --git a/configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh b/configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+index e7c35196f..1fddac05e 100644
+--- a/configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
++++ b/configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+@@ -35,6 +35,7 @@
+   //! one media-clock-reference record per domain.
+   localparam int AEM_N_AUDIO_UNIT_C = 1;
+   localparam int AEM_N_CLKDOM_C     = 1;
++  localparam int AEM_N_CONTROL_C    = 1;
+   //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |
+   //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT
+   //! exists to back it
+diff --git a/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh b/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+index 304f98260..011ccb558 100644
+--- a/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
++++ b/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+@@ -35,6 +35,7 @@
+   //! one media-clock-reference record per domain.
+   localparam int AEM_N_AUDIO_UNIT_C = 1;
+   localparam int AEM_N_CLKDOM_C     = 1;
++  localparam int AEM_N_CONTROL_C    = 1;
+   //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |
+   //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT
+   //! exists to back it
+diff --git a/docs/reference/PP_DESCRIPTOR_OWNERSHIP.md b/docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+index 96bfe143b..10602e027 100644
+--- a/docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
++++ b/docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+@@ -46,6 +46,29 @@ It emits one AVB_INTERFACE, CLOCK_DOMAIN and AUDIO_UNIT.
+ Five product configurations do not make one five-configuration entity.
+ Cross-configuration claims require separate fixtures and implementation.
+ 
++Processor dynamic-state counts come from that same descriptor census.
++The builder emits them in `gen/adp_shape_defaults.svh`.
++`milan_datapath.pp_shadow` forwards them through `KL_pp_shadow.u_pp`.
++The [processor parameter inventory][integration-parameters] defines their consumers.
++
++| Descriptor count | Generated constant | Parent parameter | Processor parameter |
++|---|---|---|---|
++| AUDIO_UNIT | `AEM_N_AUDIO_UNIT_C` | `N_AUDIO_UNIT_P` | `N_AUDIO_UNIT_P` |
++| CLOCK_DOMAIN | `AEM_N_CLKDOM_C` | `N_CLK_DOM_P` | `N_CLK_DOMAIN_P` |
++| CONTROL | `AEM_N_CONTROL_C` | `N_CONTROL_P` | `N_CONTROL_P` |
++
++These parameters are explicitly bound, including CONTROL for IDENTIFY.
++Milan v1.2 Section 5.3.3 requires these descriptor classes.
++`B._overlay_document` constructs one of each unconditionally.
++`A._entity_descriptors` emits their descriptor bytes unconditionally.
++No configuration input removes them; zero is unreachable.
++Therefore no new configuration refusal is needed for these counts.
++The shape gate checks header, descriptor bytes and both bindings.
++Its self-test rejects unbound, literal and swapped bindings.
++Distinct synthetic counts also test the header derivation.
++
++[integration-parameters]: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/870ff88ad35bbd532244e4c7e6d7661b9f6e1366/docs/guides/integrator.md#integration-parameters
++
+ ## Rule matrix
+ 
+ Rule labels refer to [processor memory-map section 3.1][memory-map].
+diff --git a/hdl/common/gen/adp_shape_defaults.svh b/hdl/common/gen/adp_shape_defaults.svh
+index e7c35196f..1fddac05e 100644
+--- a/hdl/common/gen/adp_shape_defaults.svh
++++ b/hdl/common/gen/adp_shape_defaults.svh
+@@ -35,6 +35,7 @@
+   //! one media-clock-reference record per domain.
+   localparam int AEM_N_AUDIO_UNIT_C = 1;
+   localparam int AEM_N_CLKDOM_C     = 1;
++  localparam int AEM_N_CONTROL_C    = 1;
+   //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |
+   //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT
+   //! exists to back it
+diff --git a/hdl/milan/KL_pp_shadow.sv b/hdl/milan/KL_pp_shadow.sv
+index 2098892e7..45aabe14f 100644
+--- a/hdl/milan/KL_pp_shadow.sv
++++ b/hdl/milan/KL_pp_shadow.sv
+@@ -235,6 +235,8 @@ module KL_pp_shadow #(
+     parameter int unsigned N_SPORT_OUT_P       = 8,
+     parameter int unsigned N_AUDIO_UNIT_P      = 1,
+     parameter int unsigned N_CLK_DOM_P         = 1,
++    //! CONTROL descriptors in the same entity model; sizes processor state.
++    parameter int unsigned N_CONTROL_P         = 1,
+     //! derived source-index width for the maap face — do not override.
+     //! CLAMPED exactly as protocol_processor_top clamps its own SRC_IDX_W_C,
+     //! because the shipping board elaborates this at N_STREAM_OUT_P = 1 and
+@@ -1054,6 +1056,10 @@ module KL_pp_shadow #(
+   protocol_processor_top #(
+       .N_STREAM_IN_P  (N_STREAM_IN_P),
+       .N_STREAM_OUT_P (N_STREAM_OUT_P),
++      //! Dynamic-state rows share the generated descriptor census.
++      .N_AUDIO_UNIT_P (N_AUDIO_UNIT_P),
++      .N_CLK_DOMAIN_P (N_CLK_DOM_P),
++      .N_CONTROL_P    (N_CONTROL_P),
+       .SRP_DOM_DEF_VID_P (SRP_DOM_DEF_VID_P),
+       .CLK_HZ_P       (CLK_HZ_P),
+       .TIM_DIV_US_P   (TIM_DIV_US_P),
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 16a36b902..193d74be5 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -7424,7 +7424,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+       .N_SPORT_IN_P        (ADP_DMAP_IN_NPORTS_C),
+       .N_SPORT_OUT_P       (ADP_DMAP_OUT_NPORTS_C),
+       .N_AUDIO_UNIT_P      (AEM_N_AUDIO_UNIT_C),
+-      .N_CLK_DOM_P         (AEM_N_CLKDOM_C)
++      .N_CLK_DOM_P         (AEM_N_CLKDOM_C),
++      //! IDENTIFY CONTROL rows in the processor use that same census.
++      .N_CONTROL_P         (AEM_N_CONTROL_C)
+     ) pp_shadow (
+       .clk_i             (axis_clk),
+       .rst_n             (axis_resetn),
+diff --git a/scripts/check_entity_shape.py b/scripts/check_entity_shape.py
+index 1dbdd0628..3973ef387 100644
+--- a/scripts/check_entity_shape.py
++++ b/scripts/check_entity_shape.py
+@@ -155,6 +155,7 @@ ROOT = Path(__file__).resolve().parent.parent
+ #: two names always spell the tree's own sources.
+ DATAPATH = ROOT / "hdl/milan/milan_datapath.sv"
+ CSR = ROOT / "hdl/common/csr/milan_csr.sv"
++PP_SHADOW = ROOT / "hdl/milan/KL_pp_shadow.sv"
+ CONFIG_DIR = ROOT / "configs"
+ #: What a per-config `gen/` include dir may hold. adp_shape_defaults.svh is
+ #: the ONE generated entity artifact any RTL still compiles; aecp_aem_rom.svh
+@@ -166,6 +167,12 @@ GEN_DIR_FORBIDDEN = ("aecp_aem_rom.svh",)
+ # IEEE 1722.1-2021 Table 7.1 descriptor types
+ ENTITY = 0x0000
+ STREAM_INPUT, STREAM_OUTPUT = 0x0005, 0x0006
++# Descriptor census -> header -> wrapper -> processor dynamic-state rows.
++UNIT_COUNTS = (
++    ("AUDIO_UNIT", 0x0002, "AEM_N_AUDIO_UNIT_C", "N_AUDIO_UNIT_P", "N_AUDIO_UNIT_P"),
++    ("CLOCK_DOMAIN", 0x0024, "AEM_N_CLKDOM_C", "N_CLK_DOM_P", "N_CLK_DOMAIN_P"),
++    ("CONTROL", 0x001A, "AEM_N_CONTROL_C", "N_CONTROL_P", "N_CONTROL_P"),
++)
+ 
+ #: IEEE 1722.1-2021 7.2.1 Table 7-2: the ENTITY descriptor's firmware_version
+ #: field sits at offset 116 and is 64 octets - "64-octet UTF-8 string
+@@ -362,6 +369,39 @@ def check_include_ambiguity() -> None:
+ 
+ 
+ # ------------------------------------------------------ RTL consumption --
++def check_unit_bindings(datapath: str, shadow: str) -> None:
++    """Require both real instance maps to forward each symbolic count once.
++
++    Equal shipping counts cannot expose a swapped pair numerically. Inspect
++    the named expressions, after removing comments, instead of accepting any
++    expression that happens to evaluate to one at today's shape.
++    """
++    for source, module, instance, hop in (
++            (datapath, "KL_pp_shadow", "pp_shadow", 0),
++            (shadow, "protocol_processor_top", "u_pp", 1)):
++        source = re.sub(r"/\*.*?\*/|//[^\n]*", "", source, flags=re.S)
++        blocks = re.findall(rf"\b{module}\s*#\s*\((.*?)\)\s*{instance}\s*\(",
++                            source, re.S)
++        ck(f"{instance}: exactly one parameter map", len(blocks), 1)
++        for _kind, _dtype, header, wrapper, processor in UNIT_COUNTS:
++            parameter, expected = ((wrapper, header) if hop == 0 else
++                                   (processor, wrapper))
++            values = re.findall(rf"\.{parameter}\s*\(\s*([^()]*)\s*\)",
++                                blocks[0] if len(blocks) == 1 else "")
++            ck(f"{instance}.{parameter} derives from {expected}",
++               [value.strip() for value in values], [expected])
++
++
++def check_unit_header(header: str, counts: dict[str, int], label: str) -> None:
++    """Each generated count equals the descriptor census and is nonzero."""
++    for kind, _dtype, symbol, _wrapper, _processor in UNIT_COUNTS:
++        values = re.findall(rf"localparam\s+int\s+{symbol}\s*=\s*(\d+)\s*;",
++                            header)
++        ck(f"{label}: {symbol} == {kind} census",
++           [int(value) for value in values], [counts[kind]])
++        ck(f"{label}: {kind} has at least one descriptor", counts[kind] >= 1, True)
++
++
+ def check_rtl_wiring() -> None:
+     """F: the RTL CONSUMES the generated shape and serves it read-only.
+ 
+@@ -370,6 +410,7 @@ def check_rtl_wiring() -> None:
+     no path exists for software to overwrite them."""
+     print("== RTL: the shape is included from the config, and is read-only ==")
+     dp = read_text(RTL.datapath)
++    check_unit_bindings(dp, read_text(PP_SHADOW))
+     ck("milan_datapath includes the generated shape",
+        '`include "gen/adp_shape_defaults.svh"' in dp, True)
+     ck("ACMP talker contexts sized by ADP_TALKER_SRC_C",
+@@ -514,6 +555,7 @@ def check_config(builder: ModuleType,
+     # counts ARE the STREAM_OUTPUT/STREAM_INPUT descriptor counts)
+     ovl = builder.emit_aem_overlay(cfg)
+     dc, ec = ovl["descriptor_counts"], ovl["entity_counts"]
++    check_unit_header(adp_svh, dc, name)
+     ck(f"{name}: overlay entity_counts.talker == STREAM_OUTPUT",
+        ec["talker_stream_sources"], dc["STREAM_OUTPUT"])
+     ck(f"{name}: overlay entity_counts.listener == STREAM_INPUT",
+@@ -530,6 +572,8 @@ def check_config(builder: ModuleType,
+     # arm A are derived from that same model. A model that disagrees with
+     # itself produces an ADP count nobody should trust.
+     rom = rom_descriptor_counts(builder.emit_aem_rom_svh(cfg, ovl))
++    for kind, dtype, _symbol, _wrapper, _processor in UNIT_COUNTS:
++        ck(f"{name}: generated ROM {kind} descriptors", rom.get(dtype, 0), dc[kind])
+     ck(f"{name}: generated ROM STREAM_OUTPUT descriptors",
+        rom.get(STREAM_OUTPUT, 0), got["talker_stream_sources"])
+     ck(f"{name}: generated ROM STREAM_INPUT descriptors",
+diff --git a/scripts/entity_shape_selftest.py b/scripts/entity_shape_selftest.py
+index ddb26430a..b0806c7b6 100644
+--- a/scripts/entity_shape_selftest.py
++++ b/scripts/entity_shape_selftest.py
+@@ -595,6 +595,59 @@ def _prove_config_defects(builder: ModuleType, base_cfg: str) -> None:
+                     lambda: gate.check_config(builder, p))
+ 
+ 
++def _prove_unit_counts(builder: ModuleType, cfg_path: Path) -> None:
++    """Kill omissions, literals and swaps at both hops, and emitter drift."""
++    dp = gate.read_text(gate.RTL.datapath)
++    shadow = gate.read_text(gate.PP_SHADOW)
++    # Independent oracle: distinct fixture counts expose a copied constant
++    # or a cross-wired emitter despite the equal counts of shipping models.
++    cfg = builder.load_config(cfg_path)
++    overlay = builder.emit_aem_overlay(cfg)
++    overlay["descriptor_counts"].update(AUDIO_UNIT=2, CLOCK_DOMAIN=3, CONTROL=4)
++    header = builder.emit_adp_shape_svh(cfg, overlay)
++    gate.check_unit_header(header, overlay["descriptor_counts"], "distinct census")
++    for kind, _dtype, symbol, _wrapper, _processor in gate.UNIT_COUNTS:
++        broken = re.sub(rf"({symbol}\s*=\s*)\d+", r"\g<1>1", header)
++        expect_fail(f"{symbol} emitted literal", lambda: gate.check_unit_header(
++            broken, overlay["descriptor_counts"], "mutant census"), symbol)
++        counts = dict(overlay["descriptor_counts"], **{kind: 0})
++        expect_fail(f"{kind} zero census", lambda: gate.check_unit_header(
++            builder.emit_adp_shape_svh(cfg, dict(overlay, descriptor_counts=counts)),
++            counts, "zero census"), f"{kind} has at least one descriptor")
++
++    for hop, source in enumerate((dp, shadow)):
++        pairs = [(row[3], row[2]) if hop == 0 else (row[4], row[3])
++                 for row in gate.UNIT_COUNTS]
++        for index, (parameter, value) in enumerate(pairs):
++            pattern = rf"\.{parameter}\s*\(\s*{value}\s*\)"
++            # The wrapper source also binds the NVM backend. Limit mutations
++            # to u_pp so only the assigned integration boundary is tested.
++            start = source.index("protocol_processor_top #(") if hop else 0
++            prefix, body = source[:start], source[start:]
++            for label, replacement in (("unbound", ""), ("literal", f".{parameter}(1)")):
++                # Drop the separator too when omitting a named parameter;
++                # the mutant must remain a valid default-inheriting map.
++                missing = pattern
++                if label == "unbound":
++                    trailing = pattern + r"\s*,"
++                    missing = (trailing if re.search(trailing, body) else
++                               r",\s*(?://[^\n]*\n\s*)*" + pattern)
++                broken, hits = re.subn(missing, replacement, body, count=1)
++                if hits != 1:
++                    raise SystemExit(f"SELF-TEST SETUP: missing {parameter}")
++                args = (dp, prefix + broken) if hop else (prefix + broken, shadow)
++                expect_fail(f"hop {hop} {parameter} {label}",
++                            lambda: gate.check_unit_bindings(*args), f".{parameter} derives")
++            other, other_value = pairs[(index + 1) % len(pairs)]
++            swapped = re.sub(pattern, f".{parameter}({other_value})", body, count=1)
++            swapped = re.sub(rf"\.{other}\s*\(\s*{other_value}\s*\)",
++                             f".{other}({value})", swapped, count=1)
++            args = (dp, prefix + swapped) if hop else (prefix + swapped, shadow)
++            expect_fail(f"hop {hop} {parameter}/{other} swapped",
++                        lambda: gate.check_unit_bindings(*args),
++                        (f".{parameter} derives", f".{other} derives"))
++
++
+ def self_test() -> None:
+     """Mutation proof: every planted shape disagreement must FAIL."""
+     print("\n== self-test: a disagreeing shape must be REJECTED ==")
+@@ -608,6 +661,7 @@ def self_test() -> None:
+     _prove_frozen_expansion(original, stale)
+     _prove_make_filenames(original, stale)
+     src_cfg = gate.CONFIG_DIR / "endstation_ax7101_8x8.yaml"
++    _prove_unit_counts(builder, src_cfg)
+     base_cfg = gate.read_text(src_cfg)
+     base_dp = gate.read_text(gate.RTL.datapath)
+     base_csr = gate.read_text(gate.RTL.csr)
+diff --git a/sw/builder/endstation_builder.py b/sw/builder/endstation_builder.py
+index 0ea73ac7f..8ebb96524 100644
+--- a/sw/builder/endstation_builder.py
++++ b/sw/builder/endstation_builder.py
+@@ -2776,11 +2776,10 @@ def _adp_shape_params(sh, aem_name_entries, overlay, aem_store):
+     a("  //! This sizes the processor overlay from the generated descriptor")
+     a("  //! shape, so a larger model cannot compile with a smaller cache.")
+     a(f"  localparam int AEM_NAME_ENTRIES_C = {aem_name_entries};")
+-    # The two descriptor counts the saved-state record allocation is sized
+-    # by and nothing else in the fabric had needed until now (design page
+-    # section 4.2: one RATE record per AUDIO_UNIT, one CLKSRC and one MCR
+-    # record per CLOCK_DOMAIN). Read from the overlay's descriptor_counts,
+-    # the same pass that emitted the descriptors, never a hand literal.
++    # Saved-state allocation and processor dynamic-state rows share this
++    # census. _overlay_document always constructs one AUDIO_UNIT, CLOCK_DOMAIN
++    # and IDENTIFY CONTROL (Milan v1.2 section 5.3.3); no config can omit them.
++    # Read the counts from the descriptor pass, never the processor defaults.
+     dc = overlay["descriptor_counts"]
+     a("  //! AUDIO_UNIT and CLOCK_DOMAIN descriptors of this exact AEM model:")
+     a("  //! the saved-state record allocation (KL_nvm_backend) is sized by")
+@@ -2788,6 +2787,7 @@ def _adp_shape_params(sh, aem_name_entries, overlay, aem_store):
+     a("  //! one media-clock-reference record per domain.")
+     a(f"  localparam int AEM_N_AUDIO_UNIT_C = {int(dc.get('AUDIO_UNIT', 0))};")
+     a(f"  localparam int AEM_N_CLKDOM_C     = {int(dc.get('CLOCK_DOMAIN', 0))};")
++    a(f"  localparam int AEM_N_CONTROL_C    = {int(dc['CONTROL'])};")
+     a("  //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |")
+     a("  //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT")
+     a("  //! exists to back it")

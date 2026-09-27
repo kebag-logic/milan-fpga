@@ -1,0 +1,132 @@
+[
+  {
+    "name": "doc-paths",
+    "command": "rtk proxy python3 scripts/check_doc_paths.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/doc-paths.log",
+    "bytes": 84,
+    "sha256": "095a3297a6597fc768401cd8e85340a8400511da1d1df735b0e717e6ccc02105",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "toc",
+    "command": "rtk proxy /tmp/571-a371-markdown-env/bin/python3 scripts/gen_toc.py --check",
+    "rc": 0,
+    "log": "/tmp/571-a371/toc.log",
+    "bytes": 94,
+    "sha256": "809c4d1d747037e3abf90b86d58f95a8830965a48f302e5107fde95e0bbea028",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "feature-status",
+    "command": "rtk proxy python3 scripts/check_feature_status.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/feature-status.log",
+    "bytes": 29,
+    "sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "doc-style",
+    "command": "rtk proxy python3 scripts/check_doc_style.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/doc-style-precheck.log",
+    "bytes": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "declarations",
+    "command": "rtk proxy python3 sw/builder/test_declarations.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/declarations.log",
+    "bytes": 1131,
+    "sha256": "337c677612f1fb6beeb1ca673a344035e8313dc97f2625d2ed00c0b8727bd035",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "nvm-capture",
+    "command": "rtk proxy python3 scripts/check_nvm_capture.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/nvm-capture.log",
+    "bytes": 324,
+    "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "builder-present",
+    "command": "rtk proxy timeout 7200 python3 -u sw/builder/test_builder.py --require-rv32",
+    "rc": 0,
+    "log": "/tmp/571-a371/builder-present.log",
+    "bytes": 85148,
+    "sha256": "2135da8a2e391e770d8cfb4c1356189d142efc0c056c32d1003c971a2c14adad",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "builder-absent",
+    "command": "rtk proxy /usr/bin/python3 -u $MANAGEMENT/2026-09-23/571-a371/builder_absent.py",
+    "rc": 0,
+    "seconds": 559.76,
+    "log": "/tmp/571-a371/builder-absent.log",
+    "bytes": 87246,
+    "sha256": "b327f0e76647b012e0d8188820eed1fe9d5e79e09f99adad8e41a99876e7627b",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "entity-shape-final",
+    "command": "rtk proxy /usr/bin/python3 -u scripts/check_entity_shape.py --self-test",
+    "rc": 0,
+    "seconds": 41.79,
+    "log": "/tmp/571-a371/entity-shape-final.log",
+    "bytes": 24935,
+    "sha256": "498a1436b1bb5aef0da0dcebc4dcf81bee73c26f5bce85e3d70c41bd1cc3a35b",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "python-idiom-final",
+    "command": "rtk proxy /usr/bin/python3 scripts/check_py_idiom.py",
+    "rc": 0,
+    "seconds": 3.47,
+    "log": "/tmp/571-a371/python-idiom-final.log",
+    "bytes": 461,
+    "sha256": "1c4057e7ffa300313f23dd16a2bff6459a438b4a1bff497d0d7ce59b6352e3cd",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "diff-check",
+    "command": "rtk proxy git diff --check",
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "/tmp/571-a371/diff-check.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "em-dash-final",
+    "command": "rtk proxy /tmp/571-a371-markdown-env/bin/python3 scripts/check_em_dash.py --base 2a2a7bb655e528edc3087c88033cd3a47546feb4",
+    "rc": 0,
+    "log": "/tmp/571-a371/em-dash-final.log",
+    "bytes": 139,
+    "sha256": "0ef38b4ac76fde48d82ebecba35380a6fcfc48f4ae94bb5a119060639961e4d1",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "docs-check-final",
+    "command": "rtk proxy python3 scripts/docs_check.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/docs-check-final.log",
+    "bytes": 127,
+    "sha256": "ef25fb89612d403216ca5ec9985ac5d391c96941c1d12b58006c903be0fd14b7",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  },
+  {
+    "name": "diff-check-final",
+    "command": "rtk proxy git diff --check 2a2a7bb655e528edc3087c88033cd3a47546feb4 HEAD",
+    "rc": 0,
+    "log": "/tmp/571-a371/diff-check-final.log",
+    "bytes": 47,
+    "sha256": "ed658cc2701b76b948a5c9308b123bc927a68ee04fbe54746d47d779d0d14f7c",
+    "head": "f8a52f919bd309960046330a5af127b56731cb27"
+  }
+]

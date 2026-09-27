@@ -1,0 +1,82 @@
+[
+  {
+    "name": "entity-shape",
+    "command": "rtk proxy python3 scripts/check_entity_shape.py --self-test",
+    "rc": 0,
+    "log": "/tmp/571-a371/entity-shape.log",
+    "bytes": 24935,
+    "sha256": "498a1436b1bb5aef0da0dcebc4dcf81bee73c26f5bce85e3d70c41bd1cc3a35b"
+  },
+  {
+    "name": "docs-check",
+    "command": "rtk proxy python3 scripts/docs_check.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/docs-check.log",
+    "bytes": 127,
+    "sha256": "ef25fb89612d403216ca5ec9985ac5d391c96941c1d12b58006c903be0fd14b7"
+  },
+  {
+    "name": "doc-paths",
+    "command": "rtk proxy python3 scripts/check_doc_paths.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/doc-paths.log",
+    "bytes": 84,
+    "sha256": "095a3297a6597fc768401cd8e85340a8400511da1d1df735b0e717e6ccc02105"
+  },
+  {
+    "name": "toc",
+    "command": "rtk proxy /tmp/571-a371-markdown-env/bin/python3 scripts/gen_toc.py --check",
+    "rc": 0,
+    "log": "/tmp/571-a371/toc.log",
+    "bytes": 94,
+    "sha256": "809c4d1d747037e3abf90b86d58f95a8830965a48f302e5107fde95e0bbea028"
+  },
+  {
+    "name": "feature-status",
+    "command": "rtk proxy python3 scripts/check_feature_status.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/feature-status.log",
+    "bytes": 29,
+    "sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0"
+  },
+  {
+    "name": "doc-style",
+    "command": "rtk proxy python3 scripts/check_doc_style.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/doc-style-precheck.log",
+    "bytes": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+    "name": "python-idiom",
+    "command": "rtk proxy python3 scripts/check_py_idiom.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/python-idiom-precheck.log",
+    "bytes": 461,
+    "sha256": "0ea0bda282dd817197c3913963dac9750cf0c41fbcf4c71d4c0af4097c917d86"
+  },
+  {
+    "name": "declarations",
+    "command": "rtk proxy python3 sw/builder/test_declarations.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/declarations.log",
+    "bytes": 1131,
+    "sha256": "337c677612f1fb6beeb1ca673a344035e8313dc97f2625d2ed00c0b8727bd035"
+  },
+  {
+    "name": "nvm-capture",
+    "command": "rtk proxy python3 scripts/check_nvm_capture.py",
+    "rc": 0,
+    "log": "/tmp/571-a371/nvm-capture.log",
+    "bytes": 324,
+    "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439"
+  },
+  {
+    "name": "builder-present",
+    "command": "rtk proxy timeout 7200 python3 -u sw/builder/test_builder.py --require-rv32",
+    "rc": 0,
+    "log": "/tmp/571-a371/builder-present.log",
+    "bytes": 85148,
+    "sha256": "2135da8a2e391e770d8cfb4c1356189d142efc0c056c32d1003c971a2c14adad"
+  }
+]
