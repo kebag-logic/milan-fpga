@@ -1,0 +1,36 @@
+$ python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 887 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 166 md files + 889 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+rc=0
+$ python3 scripts/check_em_dash.py --base 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf
+check_em_dash: 0 finding(s) over 292 added line(s) in 7 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [831f94f4..HEAD]
+rc=0
+$ python3 scripts/check_em_dash.py --base 92c6154a17d1f1192f20a3a642e6a01b616afb67
+check_em_dash: 0 finding(s) over 59 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [92c6154a..HEAD]
+rc=0
+$ python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+$ python3 scripts/gen_toc.py --check
+TOC gate: OK (108 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+$ python3 scripts/gen_toc.py --verify-anchors
+anchor check: 177 existing cross-page fragment links reproduced
+rc=0
+$ python3 scripts/check_doc_paths.py
+doc path gate: OK (846 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+$ git diff --check 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf 90ab4a3da5b676f90b768b4f22b77ce7d0bd911d
+warning: unable to find all commit-graph files
+rc=0
+$ git diff --check 92c6154a17d1f1192f20a3a642e6a01b616afb67 90ab4a3da5b676f90b768b4f22b77ce7d0bd911d
+warning: unable to find all commit-graph files
+rc=0
+$ GIT_DIR=/dev/null python3 scripts/docs_check.py (rerun, direct env)
+docs_check: 0 finding(s) across 166 md files + 889 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+rc=0
+$ python3 scripts/lint_rtl.py --check
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+rc=0
