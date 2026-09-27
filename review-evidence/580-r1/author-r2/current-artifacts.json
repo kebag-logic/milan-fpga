@@ -1,0 +1,373 @@
+{
+  "reference": "https://github.com/kebag-logic/milan-fpga/issues/580#issuecomment-5856703787",
+  "commands": [
+    [
+      "/usr/bin/python3",
+      "sw/builder/endstation_builder.py",
+      "configs/endstation_arty_4x4.yaml",
+      "-o",
+      "/tmp/580-a368/artifact-check/endstation_arty_4x4/builder"
+    ],
+    [
+      "/usr/bin/python3",
+      "avdecc/gen_aemi_image.py",
+      "--overlay",
+      "/tmp/580-a368/artifact-check/endstation_arty_4x4/builder/endstation_arty_4x4/aem_overlay.json",
+      "--line-bytes",
+      "576",
+      "-o",
+      "/tmp/580-a368/artifact-check/endstation_arty_4x4/aem.bin",
+      "-m",
+      "/tmp/580-a368/artifact-check/endstation_arty_4x4/aem.map",
+      "--json",
+      "/tmp/580-a368/artifact-check/endstation_arty_4x4/aem.json"
+    ],
+    [
+      "/usr/bin/python3",
+      "sw/builder/endstation_builder.py",
+      "configs/endstation_arty_8ch.yaml",
+      "-o",
+      "/tmp/580-a368/artifact-check/endstation_arty_8ch/builder"
+    ],
+    [
+      "/usr/bin/python3",
+      "avdecc/gen_aemi_image.py",
+      "--overlay",
+      "/tmp/580-a368/artifact-check/endstation_arty_8ch/builder/endstation_arty_8ch/aem_overlay.json",
+      "--line-bytes",
+      "576",
+      "-o",
+      "/tmp/580-a368/artifact-check/endstation_arty_8ch/aem.bin",
+      "-m",
+      "/tmp/580-a368/artifact-check/endstation_arty_8ch/aem.map",
+      "--json",
+      "/tmp/580-a368/artifact-check/endstation_arty_8ch/aem.json"
+    ],
+    [
+      "/usr/bin/python3",
+      "sw/builder/endstation_builder.py",
+      "configs/endstation_arty_current.yaml",
+      "-o",
+      "/tmp/580-a368/artifact-check/endstation_arty_current/builder"
+    ],
+    [
+      "/usr/bin/python3",
+      "avdecc/gen_aemi_image.py",
+      "--overlay",
+      "/tmp/580-a368/artifact-check/endstation_arty_current/builder/endstation_arty_current/aem_overlay.json",
+      "--line-bytes",
+      "576",
+      "-o",
+      "/tmp/580-a368/artifact-check/endstation_arty_current/aem.bin",
+      "-m",
+      "/tmp/580-a368/artifact-check/endstation_arty_current/aem.map",
+      "--json",
+      "/tmp/580-a368/artifact-check/endstation_arty_current/aem.json"
+    ],
+    [
+      "/usr/bin/python3",
+      "sw/builder/endstation_builder.py",
+      "configs/endstation_ax7101_1x1_tdm8.yaml",
+      "-o",
+      "/tmp/580-a368/artifact-check/endstation_ax7101_1x1_tdm8/builder"
+    ],
+    [
+      "/usr/bin/python3",
+      "avdecc/gen_aemi_image.py",
+      "--overlay",
+      "/tmp/580-a368/artifact-check/endstation_ax7101_1x1_tdm8/builder/endstation_ax7101_1x1_tdm8/aem_overlay.json",
+      "--line-bytes",
+      "576",
+      "-o",
+      "/tmp/580-a368/artifact-check/endstation_ax7101_1x1_tdm8/aem.bin",
+      "-m",
+      "/tmp/580-a368/artifact-check/endstation_ax7101_1x1_tdm8/aem.map",
+      "--json",
+      "/tmp/580-a368/artifact-check/endstation_ax7101_1x1_tdm8/aem.json"
+    ],
+    [
+      "/usr/bin/python3",
+      "sw/builder/endstation_builder.py",
+      "configs/endstation_ax7101_8x8.yaml",
+      "-o",
+      "/tmp/580-a368/artifact-check/endstation_ax7101_8x8/builder"
+    ],
+    [
+      "/usr/bin/python3",
+      "avdecc/gen_aemi_image.py",
+      "--overlay",
+      "/tmp/580-a368/artifact-check/endstation_ax7101_8x8/builder/endstation_ax7101_8x8/aem_overlay.json",
+      "--line-bytes",
+      "576",
+      "-o",
+      "/tmp/580-a368/artifact-check/endstation_ax7101_8x8/aem.bin",
+      "-m",
+      "/tmp/580-a368/artifact-check/endstation_ax7101_8x8/aem.map",
+      "--json",
+      "/tmp/580-a368/artifact-check/endstation_ax7101_8x8/aem.json"
+    ]
+  ],
+  "files": {
+    "endstation_arty_4x4/aem.map": {
+      "bytes": 1311,
+      "sha256": "09cf3da5a39730c1acedae4f09474c2d98d1aa17d8fa36f0238adc210fdaa571"
+    },
+    "endstation_arty_4x4/aem.bin": {
+      "bytes": 10112,
+      "sha256": "1b288e13ccbf03410c593a53bc22f4a68e3d289eef8a7f907e63bc98a51415ff"
+    },
+    "endstation_arty_4x4/aem.json": {
+      "bytes": 20716,
+      "sha256": "0ea2e47927e0a0eff12d781d979a255c39a935b7f06e07366d9ab3ff368d4e3e"
+    },
+    "endstation_arty_4x4/builder/platform_shape.json": {
+      "bytes": 246,
+      "sha256": "bbd040ba298a66ff0bd856f8f0b4e75c04c1831ba635a5b3ad756625ab8b0a28"
+    },
+    "endstation_arty_4x4/builder/aecp_aem_rom.svh": {
+      "bytes": 52444,
+      "sha256": "1cd6c92190c1b4f8c14783423a1618328e2fbefe286ab78edb00f96adb45f59d"
+    },
+    "endstation_arty_4x4/builder/adp_shape_defaults.svh": {
+      "bytes": 7562,
+      "sha256": "f5539f2c29b0ab0440be88f5985ba41bebb508bede7095e5387a03721e50a418"
+    },
+    "endstation_arty_4x4/builder/lwsrp_csr_defaults.svh": {
+      "bytes": 2183,
+      "sha256": "90d4615e95883d5c1fdf5ce4eb8e716ac655114d8f0eb9e5579ec8e671bbfa88"
+    },
+    "endstation_arty_4x4/builder/lwsrp_table.svh": {
+      "bytes": 4288,
+      "sha256": "36331d96c16b57ba3660a3183af58752195d94f2681d03ccfcf50003f227b222"
+    },
+    "endstation_arty_4x4/builder/lwsrp_table.json": {
+      "bytes": 4084,
+      "sha256": "90e1aa992317980e97ec42768d524e9b8af65e2279a31e1696f5f68254f05221"
+    },
+    "endstation_arty_4x4/builder/build_plan.md": {
+      "bytes": 11000,
+      "sha256": "c040b872fa0102576fccf0f235cd9436722efd9f66cf885b220a5dfcd502d722"
+    },
+    "endstation_arty_4x4/builder/gptp_ucode.hex": {
+      "bytes": 13312,
+      "sha256": "09f5d05defa759905f23630affc619d6af658e4c5f20aa0f63cc65f41317e651"
+    },
+    "endstation_arty_4x4/builder/aem_overlay.json": {
+      "bytes": 11920,
+      "sha256": "a9b9d900fb425e95e2b3728b47bc5c10b7d7f6b1027be1758f27b01b00b8f98c"
+    },
+    "endstation_arty_4x4/builder/soc_params.json": {
+      "bytes": 589,
+      "sha256": "fe552b1ec220f349b55cd499bc62680e9f7abf28397125cc457fd7cf63f61fb8"
+    },
+    "endstation_arty_8ch/aem.map": {
+      "bytes": 1311,
+      "sha256": "163d5a414e34591ad639c3682747a35c43db64dcb3d46cb06c77d4c33edb634a"
+    },
+    "endstation_arty_8ch/aem.bin": {
+      "bytes": 15360,
+      "sha256": "2b5c008cf3a2ff1eca11ef5e24c5a2e391e97f25435854430e563758de516b9b"
+    },
+    "endstation_arty_8ch/aem.json": {
+      "bytes": 31200,
+      "sha256": "22d2815009a4d468faf1d48322b57e5ef2f6260d34219299810b7e5aafaced18"
+    },
+    "endstation_arty_8ch/builder/platform_shape.json": {
+      "bytes": 246,
+      "sha256": "b818b72a035c5f73870925ffe208eda20292bedc629a399d5d31aa14160242ce"
+    },
+    "endstation_arty_8ch/builder/aecp_aem_rom.svh": {
+      "bytes": 71921,
+      "sha256": "19dd262b93e56aeab1641f3d3e534fc7af372f1c2f8c1801e5a7895d1982ae34"
+    },
+    "endstation_arty_8ch/builder/adp_shape_defaults.svh": {
+      "bytes": 7836,
+      "sha256": "41c02ad55f431ac15262d8a5db8e4a24945d375f217f7f0e552cd0b3f18cdd89"
+    },
+    "endstation_arty_8ch/builder/lwsrp_csr_defaults.svh": {
+      "bytes": 2183,
+      "sha256": "f2519804843397b4bde6393e3be67f348e3b3ef6e73e62fef22b3a71b4ecf87f"
+    },
+    "endstation_arty_8ch/builder/lwsrp_table.svh": {
+      "bytes": 4288,
+      "sha256": "c7189e2e3dcf79a7fcd6c204674fca581d89aea327c77b65ea7aa57f38aa3e19"
+    },
+    "endstation_arty_8ch/builder/lwsrp_table.json": {
+      "bytes": 4084,
+      "sha256": "0e151e2854b3799281d19d01e67c27b04a53ca470a672ad27bc48f93ea840987"
+    },
+    "endstation_arty_8ch/builder/build_plan.md": {
+      "bytes": 11003,
+      "sha256": "1a93c95f35d176c5b52e03c1f0d5ccea7726c682a803948a5763029a509edf76"
+    },
+    "endstation_arty_8ch/builder/gptp_ucode.hex": {
+      "bytes": 13312,
+      "sha256": "09f5d05defa759905f23630affc619d6af658e4c5f20aa0f63cc65f41317e651"
+    },
+    "endstation_arty_8ch/builder/aem_overlay.json": {
+      "bytes": 16978,
+      "sha256": "87fc3c51e2fc5a49b91d67e05ea621449391619430ecfaef4cac5422b5b4b94e"
+    },
+    "endstation_arty_8ch/builder/soc_params.json": {
+      "bytes": 589,
+      "sha256": "7a10be52746259e11e1c43402cb8097ca5234e9b358fd6160af5c5e42673faff"
+    },
+    "endstation_arty_current/aem.map": {
+      "bytes": 1310,
+      "sha256": "77dad531965096987d682f77e93f81e5b6f182eaae879fb43b084be8570bec4c"
+    },
+    "endstation_arty_current/aem.bin": {
+      "bytes": 5792,
+      "sha256": "ac833c3ccde42a2d9a78b517d660b9f7da03c4b3d31227aa65dcaf9e8def6192"
+    },
+    "endstation_arty_current/aem.json": {
+      "bytes": 11356,
+      "sha256": "3c4b9440bccdc59198dacbc073fbb01671dec866d5adcf1b98225c8b6f822057"
+    },
+    "endstation_arty_current/builder/platform_shape.json": {
+      "bytes": 250,
+      "sha256": "03328f238565f45f775a8fb17921a20ac4172d864b218e3703c23e185e678c99"
+    },
+    "endstation_arty_current/builder/aecp_aem_rom.svh": {
+      "bytes": 33428,
+      "sha256": "d8365928caecf01dc79b3d9a75a6c56573669ad121d8cc04b42f44820601c999"
+    },
+    "endstation_arty_current/builder/adp_shape_defaults.svh": {
+      "bytes": 7089,
+      "sha256": "54f350a99a0e6883f394858fe12457cffb4a1fea08ae23f5ba42c02636a46c98"
+    },
+    "endstation_arty_current/builder/lwsrp_csr_defaults.svh": {
+      "bytes": 2187,
+      "sha256": "d10ce5559b108f54800b8432b672a0d33379721bf2a4edf0058e185484f3881d"
+    },
+    "endstation_arty_current/builder/lwsrp_table.svh": {
+      "bytes": 3826,
+      "sha256": "df3c4fa0289d23deea8f8e688573faa1adbb12f8485a7b5613bd30b8b288f8e4"
+    },
+    "endstation_arty_current/builder/lwsrp_table.json": {
+      "bytes": 2274,
+      "sha256": "dc4a200fa4dae047598419a78713677aefeab85b957808b9ec7284f2411a668f"
+    },
+    "endstation_arty_current/builder/build_plan.md": {
+      "bytes": 9105,
+      "sha256": "4eb5e433433f1c3af1311a4585c9a80101178766c8aa9f7573a75d3e034167bf"
+    },
+    "endstation_arty_current/builder/gptp_ucode.hex": {
+      "bytes": 13312,
+      "sha256": "09f5d05defa759905f23630affc619d6af658e4c5f20aa0f63cc65f41317e651"
+    },
+    "endstation_arty_current/builder/aem_overlay.json": {
+      "bytes": 6238,
+      "sha256": "12f48ab98be36408d6090158d5fc27341ca72d53217fcf892e097fbadab4e70e"
+    },
+    "endstation_arty_current/builder/soc_params.json": {
+      "bytes": 498,
+      "sha256": "696350eee365adb614b78e445d6522569e73d0eaa555b4de6603319d45da59cb"
+    },
+    "endstation_ax7101_1x1_tdm8/aem.map": {
+      "bytes": 1243,
+      "sha256": "07151f7c4b493da8e1d3fea32a7e9755951d8e97e021e040ef2a9f3899cb7ede"
+    },
+    "endstation_ax7101_1x1_tdm8/aem.bin": {
+      "bytes": 7352,
+      "sha256": "9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d16214404"
+    },
+    "endstation_ax7101_1x1_tdm8/aem.json": {
+      "bytes": 14387,
+      "sha256": "679d8286a0151b921aa1c6d38370c7c231020f1a5c75a85e565fce9fe1ba0c17"
+    },
+    "endstation_ax7101_1x1_tdm8/builder/platform_shape.json": {
+      "bytes": 253,
+      "sha256": "0325a3cc988f7f97b34997ef3ac53c6624edfc62b0bd4b5ffb42dc72894ddae7"
+    },
+    "endstation_ax7101_1x1_tdm8/builder/aecp_aem_rom.svh": {
+      "bytes": 40979,
+      "sha256": "deea618d789b235c532edc47db08838afc7ffc2f74953f1a117d1fb2c7bd5d33"
+    },
+    "endstation_ax7101_1x1_tdm8/builder/adp_shape_defaults.svh": {
+      "bytes": 7199,
+      "sha256": "eb03dfaa2f914f49b07c31ddcc62ebc4a64e839a466a3387650f25823afb1020"
+    },
+    "endstation_ax7101_1x1_tdm8/builder/lwsrp_csr_defaults.svh": {
+      "bytes": 2190,
+      "sha256": "0e9df2d455d90782c87546dab4dd1fe7b5fb7f4bc81074e910ba71ddc7016d74"
+    },
+    "endstation_ax7101_1x1_tdm8/builder/lwsrp_table.svh": {
+      "bytes": 3832,
+      "sha256": "8209fdee3cd744d24a066b76017f71f16d87f636c4470eb95e9f986dce550522"
+    },
+    "endstation_ax7101_1x1_tdm8/builder/lwsrp_table.json": {
+      "bytes": 2289,
+      "sha256": "61b2e71d9a40c61bfb0eaf884af6257b1b030e441c5f507f99720d0c18dad47d"
+    },
+    "endstation_ax7101_1x1_tdm8/builder/build_plan.md": {
+      "bytes": 10825,
+      "sha256": "203c4859f9557b4a250454fe9e0561706cc581708811988cd926edda9b942858"
+    },
+    "endstation_ax7101_1x1_tdm8/builder/gptp_ucode.hex": {
+      "bytes": 13312,
+      "sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b"
+    },
+    "endstation_ax7101_1x1_tdm8/builder/aem_overlay.json": {
+      "bytes": 7196,
+      "sha256": "e148841ac36dbf3e6d6729c49c7c944ed5194adc75941ceb69e3af80b11e3621"
+    },
+    "endstation_ax7101_1x1_tdm8/builder/soc_params.json": {
+      "bytes": 799,
+      "sha256": "d5ec9866f86c339dc1c178c31c7800a359813660d9cbcc95e242e1e29b13c516"
+    },
+    "endstation_ax7101_8x8/aem.map": {
+      "bytes": 1244,
+      "sha256": "14d38a422d09d4b729032b19cfeb515756b30156c22f65df842184956ffd989f"
+    },
+    "endstation_ax7101_8x8/aem.bin": {
+      "bytes": 18288,
+      "sha256": "193bf18736d23256c1b25d9af1bddb0721d95780fb36a14cf5f91476aff1a2d4"
+    },
+    "endstation_ax7101_8x8/aem.json": {
+      "bytes": 37534,
+      "sha256": "50eaefa69bcad009479d1d7df3ced08f26b319d1a91dfe2ce659ef97c53620ad"
+    },
+    "endstation_ax7101_8x8/builder/platform_shape.json": {
+      "bytes": 248,
+      "sha256": "a08aef1e775ecd345a7f87157f4bf3eed28306250d49003d0c5231e714e6cf17"
+    },
+    "endstation_ax7101_8x8/builder/aecp_aem_rom.svh": {
+      "bytes": 86567,
+      "sha256": "9f6963190256809964376e8747ebc3465d4b4831df01ec3d91c7e8892e46d755"
+    },
+    "endstation_ax7101_8x8/builder/adp_shape_defaults.svh": {
+      "bytes": 8449,
+      "sha256": "26a61e545097a577f1b6bae2e15e92c867e4143a8f8ceb13e2abc21d03279333"
+    },
+    "endstation_ax7101_8x8/builder/lwsrp_csr_defaults.svh": {
+      "bytes": 2185,
+      "sha256": "c9849c561b9aab3f682e2974ce1ba81443c2696a0c1a4e53d3975f2557c159c4"
+    },
+    "endstation_ax7101_8x8/builder/lwsrp_table.svh": {
+      "bytes": 4917,
+      "sha256": "eed72271ec9a0e3d68b8ca9f367d83251140c5464272a65ef0843a00ce95525e"
+    },
+    "endstation_ax7101_8x8/builder/lwsrp_table.json": {
+      "bytes": 6496,
+      "sha256": "b525824ef9b4a7c52bc99946b08807708f5c7a0ac9087d20a0cc62f3b5e95266"
+    },
+    "endstation_ax7101_8x8/builder/build_plan.md": {
+      "bytes": 15175,
+      "sha256": "2d303d06c5fc2f13648734ea1cb9660963bf745e73ee312476cc3a10c914a20e"
+    },
+    "endstation_ax7101_8x8/builder/gptp_ucode.hex": {
+      "bytes": 13312,
+      "sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b"
+    },
+    "endstation_ax7101_8x8/builder/aem_overlay.json": {
+      "bytes": 20163,
+      "sha256": "baef8bb15a57606b047e657c8ba50460d7f806983a0e08bf24432fc32435fb0c"
+    },
+    "endstation_ax7101_8x8/builder/soc_params.json": {
+      "bytes": 786,
+      "sha256": "41763d46738df0e907116212b9bedb85beebba34f6a66057bee0d921321ef823"
+    }
+  },
+  "result": "All 65 files match the public old-pin/new-pin equality table"
+}

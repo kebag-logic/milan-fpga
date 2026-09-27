@@ -1,0 +1,26 @@
+START gen-hdl-reference-selftest
+{"name": "gen-hdl-reference-selftest", "command": ["rtk", "proxy", "/tmp/580-a366-docs-env/bin/python3", "scripts/gen_hdl_reference.py", "--selftest"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.415, "log": "/tmp/580-a368/gen-hdl-reference-selftest.log", "bytes": 385, "sha256": "9e03d6d4241099b990c4cb8bacbbb99a761aa4eefd50b8c9652b03e4745b1d2d"}
+HDL reference schema: hdl-reference-html-v1
+Parser: pyslang 11.0.0
+Source revision: 1111111111111111111111111111111111111111
+Supported sections: 4 (3 modules, 1 packages)
+Module diagrams: 3
+Known limitations:
+  - hdl/bus.sv: interface sample_if
+  - hdl/double.sv: module second
+Wrote: /tmp/hdl-reference-selftest-cok01_x8/positive/index.html
+HDL reference self-test: 44/44 arms passed
+START baremetal-only
+{"name": "baremetal-only", "command": ["rtk", "proxy", "python3", "scripts/check_baremetal_only.py", "--check"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 1, "elapsed_seconds": 14.64, "log": "/tmp/580-a368/baremetal-only.log", "bytes": 255, "sha256": "29b94a1cc427ceace13e67970311d29abad63f5a597bada9a8ba132709ca6812"}
+  - tb/verilator/nvm_capture_cpu/measurements.json:312: [T] retired-stack term 'linux': '"LITEX_ENV_CC_TRIPLE": "riscv32-linux",' (#259: the checkout is bare-metal only; history lives in git)
+baremetal-only: FAIL (1 finding(s) across 900 scanned file(s))
+Traceback (most recent call last):
+  File "$MANAGEMENT/2026-09-23/580-a368/docs_gates.py", line 10, in <module>
+    subprocess.run(['rtk', 'proxy', sys.executable, str(OUT/'gate.py'), name,
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    'rtk', 'proxy', *command], check=True, timeout=14400)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['rtk', 'proxy', '/usr/bin/python3', '$MANAGEMENT/2026-09-23/580-a368/gate.py', 'baremetal-only', 'rtk', 'proxy', 'python3', 'scripts/check_baremetal_only.py', '--check']' returned non-zero exit status 1.

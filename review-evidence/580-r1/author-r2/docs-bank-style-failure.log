@@ -1,0 +1,20 @@
+START docs_check
+{"name": "docs_check", "command": ["rtk", "proxy", "python3", "scripts/docs_check.py"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 4.422, "log": "/tmp/580-a368/docs_check.log", "bytes": 127, "sha256": "84a84432d8adfff3fb83b714ee2e07a9290c6406f11229400a2e0a34ef4c0198"}
+docs_check: 0 finding(s) across 169 md files + 902 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+START docs_check-selftest
+{"name": "docs_check-selftest", "command": ["rtk", "proxy", "python3", "scripts/docs_check.py", "--selftest"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.164, "log": "/tmp/580-a368/docs_check-selftest.log", "bytes": 56, "sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339"}
+docs_check selftest: PASS (23 scrub + 4 routing arm(s))
+START check_doc_style
+{"name": "check_doc_style", "command": ["rtk", "proxy", "python3", "scripts/check_doc_style.py"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 1, "elapsed_seconds": 0.114, "log": "/tmp/580-a368/check_doc_style.log", "bytes": 146, "sha256": "f805976f7e6350d2b25f5e2a16e7aadad58d78c605fdc43804225986a31b084a"}
+CHANGELOG.md:49: sentence has 11 words; maximum is 10: The worst 8x8 copy remains below the 24.5 ms limit.
+documentation style: FAIL (1 findings)
+Traceback (most recent call last):
+  File "$MANAGEMENT/2026-09-23/580-a368/docs_gates.py", line 8, in <module>
+    subprocess.run(['rtk', 'proxy', sys.executable, str(OUT/'gate.py'), name,
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    'rtk', 'proxy', *command], check=True, timeout=14400)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['rtk', 'proxy', '/usr/bin/python3', '$MANAGEMENT/2026-09-23/580-a368/gate.py', 'check_doc_style', 'rtk', 'proxy', 'python3', 'scripts/check_doc_style.py']' returned non-zero exit status 1.

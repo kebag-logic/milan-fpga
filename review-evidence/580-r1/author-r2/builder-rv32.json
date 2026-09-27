@@ -1,0 +1,22 @@
+{
+  "name": "builder-rv32",
+  "command": [
+    "rtk",
+    "proxy",
+    "env",
+    "MILAN_LITEX_PYTHON=$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+    "PYTHONHASHSEED=0",
+    "COURSIER_MODE=offline",
+    "SBT_OPTS=-Dsbt.offline=true",
+    "python3",
+    "-u",
+    "sw/builder/test_builder.py",
+    "--require-rv32"
+  ],
+  "cwd": "$LANES/580-pp-pin-16be6768",
+  "rc": 0,
+  "elapsed_seconds": 807.155,
+  "log": "/tmp/580-a368/builder-rv32.log",
+  "bytes": 84499,
+  "sha256": "25cc88c08b4282c0e8bf669ce48c9e9cec98b8a45f3492ff51621280a730e4a8"
+}

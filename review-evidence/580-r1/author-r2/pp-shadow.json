@@ -1,0 +1,21 @@
+{
+  "name": "pp-shadow",
+  "command": [
+    "rtk",
+    "proxy",
+    "env",
+    "PATH=$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/bin:/usr/bin:/bin",
+    "taskset",
+    "-c",
+    "0-7",
+    "make",
+    "-C",
+    "tb/verilator/pp_shadow"
+  ],
+  "cwd": "$LANES/580-pp-pin-16be6768",
+  "rc": 0,
+  "elapsed_seconds": 28.176,
+  "log": "/tmp/580-a368/pp-shadow.log",
+  "bytes": 212846,
+  "sha256": "aa6b1bb30b60bbfb907a49e715909c9fbaa66c03662cc9f8292b7351a9c9c58a"
+}

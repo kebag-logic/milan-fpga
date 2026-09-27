@@ -1,0 +1,89 @@
+START docs_check
+{"name": "docs_check", "command": ["rtk", "proxy", "python3", "scripts/docs_check.py"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 4.371, "log": "/tmp/580-a368/docs_check.log", "bytes": 127, "sha256": "84a84432d8adfff3fb83b714ee2e07a9290c6406f11229400a2e0a34ef4c0198"}
+docs_check: 0 finding(s) across 169 md files + 902 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+START docs_check-selftest
+{"name": "docs_check-selftest", "command": ["rtk", "proxy", "python3", "scripts/docs_check.py", "--selftest"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.164, "log": "/tmp/580-a368/docs_check-selftest.log", "bytes": 56, "sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339"}
+docs_check selftest: PASS (23 scrub + 4 routing arm(s))
+START check_doc_style
+{"name": "check_doc_style", "command": ["rtk", "proxy", "python3", "scripts/check_doc_style.py"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.064, "log": "/tmp/580-a368/check_doc_style.log", "bytes": 47, "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"}
+documentation style: OK (22 current documents)
+START check_doc_style-selftest
+{"name": "check_doc_style-selftest", "command": ["rtk", "proxy", "python3", "scripts/check_doc_style.py", "--selftest"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.064, "log": "/tmp/580-a368/check_doc_style-selftest.log", "bytes": 33, "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909"}
+documentation style selftest: OK
+START check_gptp_docs
+{"name": "check_gptp_docs", "command": ["rtk", "proxy", "python3", "scripts/check_gptp_docs.py"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.164, "log": "/tmp/580-a368/check_gptp_docs.log", "bytes": 41, "sha256": "d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d"}
+gPTP documentation: OK (8 current pages)
+START check_gptp_docs-selftest
+{"name": "check_gptp_docs-selftest", "command": ["rtk", "proxy", "python3", "scripts/check_gptp_docs.py", "--selftest"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.214, "log": "/tmp/580-a368/check_gptp_docs-selftest.log", "bytes": 46, "sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e"}
+gPTP documentation selftest: OK (30 controls)
+START check_solution_docs
+{"name": "check_solution_docs", "command": ["rtk", "proxy", "python3", "scripts/check_solution_docs.py"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.164, "log": "/tmp/580-a368/check_solution_docs.log", "bytes": 87, "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42"}
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+START check_solution_docs-selftest
+{"name": "check_solution_docs-selftest", "command": ["rtk", "proxy", "python3", "scripts/check_solution_docs.py", "--selftest"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 2.569, "log": "/tmp/580-a368/check_solution_docs-selftest.log", "bytes": 59, "sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30"}
+solution documentation selftest: OK (43 mutation controls)
+START check_submodule_docs
+{"name": "check_submodule_docs", "command": ["rtk", "proxy", "python3", "scripts/check_submodule_docs.py"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.465, "log": "/tmp/580-a368/check_submodule_docs.log", "bytes": 47, "sha256": "dffc750855c2574e23bad0174564fcde9dc0d351b65e2f5e954f2dc64e894835"}
+submodule documentation: OK (4 exact gitlinks)
+START check_submodule_docs-selftest
+{"name": "check_submodule_docs-selftest", "command": ["rtk", "proxy", "python3", "scripts/check_submodule_docs.py", "--selftest"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.114, "log": "/tmp/580-a368/check_submodule_docs-selftest.log", "bytes": 66, "sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b"}
+submodule documentation selftest: OK (table and diagram controls)
+START check_diagram_pngs
+{"name": "check_diagram_pngs", "command": ["rtk", "proxy", "python3", "scripts/check_diagram_pngs.py"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.365, "log": "/tmp/580-a368/check_diagram_pngs.log", "bytes": 66, "sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51"}
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+START check_diagram_pngs-selftest
+{"name": "check_diagram_pngs-selftest", "command": ["rtk", "proxy", "python3", "scripts/check_diagram_pngs.py", "--selftest"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 6.425, "log": "/tmp/580-a368/check_diagram_pngs-selftest.log", "bytes": 59, "sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5"}
+diagram PNG selftest: OK (6 rasters, 28 mutation controls)
+START check_archive
+{"name": "check_archive", "command": ["rtk", "proxy", "python3", "scripts/check_archive.py"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.314, "log": "/tmp/580-a368/check_archive.log", "bytes": 93, "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"}
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+START check_archive-selftest
+{"name": "check_archive-selftest", "command": ["rtk", "proxy", "python3", "scripts/check_archive.py", "--selftest"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.264, "log": "/tmp/580-a368/check_archive-selftest.log", "bytes": 35, "sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a"}
+archive selftest: OK (24 controls)
+START check_em_dash-base
+{"name": "check_em_dash-base", "command": ["rtk", "proxy", "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3", "scripts/check_em_dash.py", "--base", "682ecf0cb995473b72d5b4921088053ba753fc93"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 3.273, "log": "/tmp/580-a368/check_em_dash-base.log", "bytes": 139, "sha256": "dc4fbb399c6357d6c2aa42da1af2b17047f580bb0ae2a34a0ecd77dab4e73f3a"}
+check_em_dash: 0 finding(s) over 29 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [682ecf0c..HEAD]
+START check_em_dash-selftest
+{"name": "check_em_dash-selftest", "command": ["rtk", "proxy", "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3", "scripts/check_em_dash.py", "--selftest"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 3.122, "log": "/tmp/580-a368/check_em_dash-selftest.log", "bytes": 42, "sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a"}
+check_em_dash selftest: PASS (339 arm(s))
+START doc-paths
+{"name": "doc-paths", "command": ["rtk", "proxy", "python3", "scripts/check_doc_paths.py"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.114, "log": "/tmp/580-a368/doc-paths.log", "bytes": 84, "sha256": "095a3297a6597fc768401cd8e85340a8400511da1d1df735b0e717e6ccc02105"}
+doc path gate: OK (847 cited paths all resolve; 0 line anchor(s) within their file)
+START feature-status
+{"name": "feature-status", "command": ["rtk", "proxy", "python3", "scripts/check_feature_status.py"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.665, "log": "/tmp/580-a368/feature-status.log", "bytes": 29, "sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0"}
+feature_status: 0 finding(s)
+START feature-status-selftest
+{"name": "feature-status-selftest", "command": ["rtk", "proxy", "python3", "scripts/check_feature_status.py", "--self-test"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 0.715, "log": "/tmp/580-a368/feature-status-selftest.log", "bytes": 1500, "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"}
+  PASS  wrapped version claim still read
+  PASS  claim inside a block quote
+  PASS  count in a fact block ignored
+  PASS  documented order reversed
+  PASS  order block required
+  PASS  order block unregistered
+  PASS  boot order source tie
+  PASS  boot order reversed in firmware
+  PASS  boot step absent
+  PASS  commented boot call ignored
+  PASS  missing milan_init refused
+  PASS  value register required
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+START module-matrix
+{"name": "module-matrix", "command": ["rtk", "proxy", "python3", "docs/traceability/gen_module_matrix.py", "--check"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 0, "elapsed_seconds": 1.016, "log": "/tmp/580-a368/module-matrix.log", "bytes": 118, "sha256": "cc9edd89394353084471aad6ea6b5f2e292b331712a07fa90ca9beb934a0e2d7"}
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+START gen-hdl-reference-selftest
+{"name": "gen-hdl-reference-selftest", "command": ["rtk", "proxy", "python3", "scripts/gen_hdl_reference.py", "--selftest"], "cwd": "$LANES/580-pp-pin-16be6768", "rc": 2, "elapsed_seconds": 0.164, "log": "/tmp/580-a368/gen-hdl-reference-selftest.log", "bytes": 107, "sha256": "8da1cd187bb14030a082441aef7ae696667236c33d79a5e21374a0d37648bcdb"}
+gen_hdl_reference: REFUSED: the pinned parser is unavailable; install tools/hdl_reference/requirements.txt
+Traceback (most recent call last):
+  File "$MANAGEMENT/2026-09-23/580-a368/docs_gates.py", line 8, in <module>
+    subprocess.run(['rtk', 'proxy', sys.executable, str(OUT/'gate.py'), name,
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    'rtk', 'proxy', *command], check=True, timeout=14400)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['rtk', 'proxy', '/usr/bin/python3', '$MANAGEMENT/2026-09-23/580-a368/gate.py', 'gen-hdl-reference-selftest', 'rtk', 'proxy', 'python3', 'scripts/gen_hdl_reference.py', '--selftest']' returned non-zero exit status 2.
