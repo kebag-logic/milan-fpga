@@ -1327,8 +1327,10 @@ def _req(d, key, ctx):
 
 
 def _eui64(v, ctx):
+    if not isinstance(v, str):
+        raise ConfigError(f"{ctx}: quote the hexadecimal value as a YAML string")
     try:
-        n = v if type(v) is int else int(str(v), 16)
+        n = int(v, 16)
     except ValueError:
         raise ConfigError(f"{ctx}: '{v}' is not a hex EUI-64")
     if not 0 <= n <= EUI64_MAX:
@@ -4371,10 +4373,10 @@ def load_config(path: str) -> dict[str, Any]:
     pin = ent.get("model_id_pin")
     # A pin chooses the emitted identity, but cannot hide an invalid literal.
     literal = None if raw == "hash-derived" else _model_id(raw, "entity.entity_model_id")
-    if pin is not None:
+    if "model_id_pin" in ent:
         mid, src = _model_id(pin, "entity.model_id_pin"), "pin"
     elif raw == "hash-derived":
-        mid, src = _model_id(hashed, "entity.entity_model_id"), "hash"
+        mid, src = _model_id(f"0x{hashed:016X}", "entity.entity_model_id"), "hash"
     else:
         mid, src = literal, "literal"
     if src != "hash" and "vendor_oui" in ent \

@@ -193,7 +193,10 @@ A valid explicit pin overrides that hash without model-history validation.
 `_model_id()` now rejects both endpoint values after numeric-width validation.
 Literal, pinned and resolved hash identities share this refusal (#573).
 A pin cannot shadow an invalid literal.
-Quoted and unquoted hexadecimal scalars retain their numeric value.
+Hexadecimal identities, `srp.stream_dmac_base` and format words require YAML strings.
+Quote these values; optional `0x` prefixes and underscores are accepted.
+Numbers and other non-strings receive a named `ConfigError`: quote them.
+String digits retain their hexadecimal value before field-specific validation.
 
 | Configuration | ENTITY entity_model_id | Source |
 |---|---|---|

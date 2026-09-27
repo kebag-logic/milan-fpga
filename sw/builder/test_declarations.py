@@ -67,25 +67,13 @@ def test_model_id_contract() -> None:
 
 
 def test_model_id_resolution_contract() -> None:
-    """YAML scalars, shadowed literals and derived IDs share validity rules."""
+    """Shadowed literals and derived IDs share validity rules."""
     base = yaml.safe_load((ROOT / "configs/endstation_arty_current.yaml").read_text())
     with tempfile.TemporaryDirectory(prefix="model-id-resolution.") as tmp:
         directory = Path(tmp)
-        for key in ("entity_model_id", "model_id_pin"):
-            raw = copy.deepcopy(base)
-            raw["entity"].pop("model_id_pin", None)
-            raw["entity"][key] = "EUI64_VALUE"
-            template = yaml.safe_dump(raw)
-            assert template.count("EUI64_VALUE") == 1
-            for spelling in ("0x001BC50AC1000005", '"0x001BC50AC1000005"'):
-                path = directory / "scalar.yaml"
-                path.write_text(template.replace("EUI64_VALUE", spelling))
-                cfg = eb.load_config(path)
-                assert cfg["entity"]["entity_model_id"] == "0x001BC50AC1000005"
-                assert eb.emit_aem_overlay(cfg)["entity"]["entity_model_id"] == "0x001BC50AC1000005"
         raw = copy.deepcopy(base)
         raw["entity"].update(model_id_pin="0x001BC50AC1000005")
-        for value in ("0x0000000000000000", "0xFFFFFFFFFFFFFFFF", 0, 0xFFFFFFFFFFFFFFFF):
+        for value in ("0x0000000000000000", "0xFFFFFFFFFFFFFFFF"):
             raw["entity"]["entity_model_id"] = value
             _refused(raw, directory, "entity.entity_model_id", "must not be zero or all ones")
         raw["entity"]["entity_model_id"] = "0x001BC50000000001"
@@ -97,7 +85,65 @@ def test_model_id_resolution_contract() -> None:
                 _refused(raw, directory, "entity.entity_model_id", "must not be zero or all ones")
         with patch.object(eb, "derive_model_id", return_value=0x001BC50000000001):
             assert _load(raw, directory)["entity"]["entity_model_id"] == "0x001BC50000000001"
-    print("[F1] quoted/unquoted IDs equal; shadowed literals and derived endpoints refused")
+    print("[F1] shadowed literals and derived endpoints refused")
+
+
+def test_hex_scalar_contract() -> None:
+    """Preserve hex string digits; reject YAML numbers before field semantics."""
+    base = yaml.safe_load((ROOT / "configs/endstation_arty_4x4.yaml").read_text())
+    cases = (
+        (("entity", "entity_model_id"), "entity.entity_model_id", "0x001BC50AC1000005"),
+        (("entity", "model_id_pin"), "entity.model_id_pin", "0x001BC50AC1000005"),
+        (("entity", "entity_id"), "entity.entity_id", "0x001BC50AC1000005"),
+        (("srp", "stream_dmac_base"), "srp.stream_dmac_base", "0x91E0F000FE01"),
+        (("streams", "talkers", 0, "formats", 0), "streams.talkers[0].formats",
+         "0x0205022000806000"),
+        (("streams", "listeners", 0, "formats", 0), "streams.listeners[0].formats",
+         "0x0205022000806000"),
+        (("clocking", "crf_format"), "clocking.crf_format", "0x041060010000BB80"),
+        (("clocking", "crf_output", "format"), "clocking.crf_output.format",
+         "0x041060010000BB80"),
+    )
+    with tempfile.TemporaryDirectory(prefix="hex-scalar-contract.") as tmp:
+        path = Path(tmp) / "scalar.yaml"
+        for keys, field, legal in cases:
+            # The shared parser's result is independent of MAC width or family.
+            # Those later rules cannot accept an arbitrary legal 64-bit number.
+            for spelling in ("0x001BC50AC1000005", "1234567890123456",
+                             "0012345670123456", "0x001B_C50A_C100_0005"):
+                value = yaml.safe_load(f'"{spelling}"')
+                assert eb._eui64(value, field) == int(spelling, 16)
+                assert eb._fmt64(value, field) == f"0x{int(spelling, 16):016X}"
+            raw = copy.deepcopy(base)
+            raw["entity"].pop("model_id_pin", None)
+            raw["entity"].pop("vendor_oui", None)
+            for direction in ("talkers", "listeners"):
+                raw["streams"][direction][0]["formats"] = ["0x0205022000806000"]
+            node = raw
+            for key in keys[:-1]:
+                node = node[key]
+            node[keys[-1]] = "HEX_SLOT"
+            template = yaml.safe_dump(raw)
+            assert template.count("HEX_SLOT") == 1
+            for spelling in (legal, legal.removeprefix("0x")):
+                path.write_text(template.replace("HEX_SLOT", f'"{spelling}"'))
+                cfg = eb.load_config(path)
+                if keys[0] == "entity":
+                    resolved = "entity_id" if keys[-1] == "entity_id" else "entity_model_id"
+                    assert cfg["entity"][resolved] == legal
+            if keys[0] == "entity":
+                path.write_text(template.replace("HEX_SLOT", '"1234567890123456"'))
+                assert eb.load_config(path)["entity"][resolved] == "0x1234567890123456"
+            for spelling in (legal, "1234567890123456", "0012345670123456",
+                             "0", "18446744073709551615", "true", "null", "1.5", "[]", "{}"):
+                path.write_text(template.replace("HEX_SLOT", spelling))
+                try:
+                    eb.load_config(path)
+                except eb.ConfigError as exc:
+                    assert field in str(exc) and "quote" in str(exc), (field, spelling, str(exc))
+                else:
+                    raise AssertionError(f"accepted non-string {field}: {spelling}")
+    print("[F1] eight hex fields: strings preserve digits; non-strings receive named quote refusals")
 
 
 def test_listener_buffer_contract() -> None:
@@ -302,6 +348,7 @@ def test_declaration_contracts() -> None:
     """Declaration refusals, generated rows, real bindings and mutation controls."""
     test_model_id_contract()
     test_model_id_resolution_contract()
+    test_hex_scalar_contract()
     test_listener_buffer_contract()
     test_stream_format_contract()
     test_crf_format_contract()

@@ -149,7 +149,13 @@ station MAC, serial, and display name do not affect a hash-derived model ID.
 
 Literal, pinned and hash-derived IDs reject zero and all ones.
 A pin cannot hide an invalid literal.
-Quoted and unquoted hexadecimal EUI-64 values retain their numeric value.
+Hexadecimal identity, destination and format values require YAML strings.
+Quote `entity_id`, `entity_model_id`, `model_id_pin` and `srp.stream_dmac_base`.
+Also quote AAF `formats`, `clocking.crf_format` and `clocking.crf_output.format`.
+Hexadecimal text accepts an optional `0x` prefix and underscores.
+For example, `"1234567890123456"` retains those hexadecimal digits.
+YAML numbers and other non-strings receive a named quote instruction.
+The `hash-derived`, `mac-derived` and `maap` selectors remain supported.
 Milan v1.2 5.3.3.1 reserves both endpoints for ENTITY.
 Section 5.6.2 repeats this rule for ADPDUs.
 
