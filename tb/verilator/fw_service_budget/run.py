@@ -366,6 +366,20 @@ def service_findings(result: dict, raw: str) -> list[str]:
     require(timing is not None, 'no target MDIO timing')
     result['phy'] = dict(zip(('transactions', 'publications', 'max_transaction_sys_cycles',
                              'max_poll_sys_cycles', 'down_edges', 'up_edges'), map(int, timing.groups())))
+    # The 125 ms trigger interval leaves another 125 ms for service jitter.
+    # Boot/AEM begin immediately after the first poll, without that phase.
+    poll_ms = int(timing[4]) / 100_000
+    for row in result['rows']:
+        if row['duty'] in ('boot_to_entity_enabled', 'maximum_heartbeat_gap'):
+            continue
+        phase_ms = 0 if row['duty'] in ('aem_copy_crc', 'restore_walk') else 125
+        publication_ms = phase_ms + row['period_bound_ms'] - 250 + poll_ms
+        row['phy_publication_bound_ms'] = publication_ms
+        if publication_ms > 250 + 1e-9:
+            findings.append('over-budget PHY service stretch: ' + row['duty'])
+    reads = [event for event in result.get('events', []) if event['kind'] == 'phy_read']
+    if any(right['cycle'] - left['cycle'] > 25_000_000 for left, right in zip(reads, reads[1:])):
+        findings.append('PHY publication interval exceeds 250 ms')
     if result['media']['plan'] in ('queued-input', 'queued-short', 'device-wait'):
         if (int(timing[5]), int(timing[6])) != (1, 1):
             findings.append('PHY cycle did not reach both fabric counters exactly once')
@@ -407,16 +421,22 @@ def trace_controls() -> int:
 
 def service_controls() -> int:
     """Pin the new service rule at its boundary and kill independent defects."""
-    row = dict(interval('milan_nvm', 1, 80_000_001, 500), period_bound_ms=500)
+    row = dict(interval('milan_nvm', 1, 80_000_001, 500), period_bound_ms=370)
     raw = ('BACKING armed=1 unbacked_cycles=0\n'
            'PHY_TIMING transactions=8 publications=1 max_transaction_cycles=10 '
            'max_poll_cycles=90 down_edges=1 up_edges=1\n')
     result = dict(rows=[row], media=dict(plan='queued-input'), liveness=[dict(backed=1)])
     require(service_findings(result, raw) == [], 'serviced long command must fit')
     row['period_bound_ms'] = 500.00001
-    require(service_findings(result, raw) == ['over-budget tick stretch: milan_nvm'],
+    require(service_findings(result, raw) == ['over-budget tick stretch: milan_nvm',
+                                            'over-budget PHY service stretch: milan_nvm'],
             'one cycle past service allowance escaped')
-    row['period_bound_ms'] = 500
+    row['period_bound_ms'] = 374.9991
+    require(service_findings(result, raw) == [], 'PHY service boundary changed')
+    row['period_bound_ms'] += 0.00001
+    require(service_findings(result, raw) == ['over-budget PHY service stretch: milan_nvm'],
+            'one cycle past PHY service allowance escaped')
+    row['period_bound_ms'] = 370
     require(service_findings(result, raw.replace('unbacked_cycles=0', 'unbacked_cycles=1'))
             == ['continuous backing lost'], 'single-cycle backing loss escaped')
     require(service_findings(result, raw.replace('up_edges=1', 'up_edges=2'))
@@ -425,7 +445,7 @@ def service_controls() -> int:
     for shape in SHAPES:
         require(sum(len(command) + 1 for command in command_plan('queued-input', shape)) == 133,
                 'queued plan is not the full 133-byte schedule')
-    return 6
+    return 8
 
 
 def self_test() -> None:

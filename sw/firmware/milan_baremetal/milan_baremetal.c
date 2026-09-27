@@ -1744,7 +1744,11 @@ static void milan_nvm_handler(int nb_params, char **params)
 	}
 	if (nb_params == 1 && nvm_arg_is(params[0], "wipe")) {
 		int a = nvm_slot_erase(NVM_SLOT_A);
-		int b = nvm_slot_erase(NVM_SLOT_B);
+		int b;
+
+		/* Two no-WIP verification walks otherwise chain past the PHY allowance. */
+		nvm_heartbeat_tick();
+		b = nvm_slot_erase(NVM_SLOT_B);
 
 		nvm_auth_slot = NVM_SLOT_NONE;
 		printf("NVM: slot A %s, slot B %s; the staged image is unchanged, reboot to observe a blank boot.\n",
