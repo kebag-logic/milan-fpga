@@ -1,0 +1,60 @@
+head block uses amap_edit_in_change_w: 1x
+head block uses amap_edit_out_change_w: 1x
+head block uses amap_edit_beat_w: 1x
+expanded head amap_edit_commit == base amap_edit_commit: True
+raw changed lines: 52
+live_wr_p definition: axis_resetn&&amap_edit_beat_w&&(pp_amap_edit_phase_w==3'd5)&&amap_edit_context_w&&(amap_edit_in_change_w||amap_edit_out_change_w)
+pulse == (in-write or out-write) over all reachable atom assignments: True
+pulse == some write branch taken, without the exclusivity assumption: True
+  +  // Preserve the store's input-change priority. The same comparisons feed
+  +  // the shadow's pending input on this axis_clk edge.
+  +  logic amap_edit_beat_w;
+  +  logic amap_edit_in_change_w, amap_edit_out_change_w;
+  +  logic amap_edit_live_wr_p;
+  +  assign amap_edit_beat_w = pp_amap_edit_req_w
+  +                           && (!amap_edit_seen_r
+  +                               || (amap_edit_seen_phase_r != pp_amap_edit_phase_w)
+  +                               || (amap_edit_seen_rec_r != pp_amap_edit_rec_w));
+  +  assign amap_edit_in_change_w = amap_edit_in_key_v_w
+  +      && amap_edit_iclaim_v_r[amap_edit_in_key_w]
+  +      && (amap_edit_in_live_w
+  +          != amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8]);
+  +  assign amap_edit_out_change_w = amap_edit_out_key_v_w
+  +      && amap_edit_oclaim_v_r[amap_edit_out_key_w]
+  +      && ((amap_edit_out_live_w
+  +           != amap_edit_oclaim_word_r[amap_edit_out_key_w*13 +: 13])
+  +          || (amap_edit_out_owner_v_w != !amap_edit_remove_r)
+  +          || (!amap_edit_remove_r
+  +              && ((amap_edit_out_owner_w != amap_edit_index_r)
+  +                  || (amap_edit_out_cluster_w
+  +                      != amap_edit_oclaim_cluster_r[
+  +                           amap_edit_out_key_w*16 +: 16]))));
+  +  assign amap_edit_live_wr_p = axis_resetn && amap_edit_beat_w
+  +      && (pp_amap_edit_phase_w == 3'd5) && amap_edit_context_w
+  +      && (amap_edit_in_change_w || amap_edit_out_change_w);
+  +
+  -      end else if (!amap_edit_seen_r
+  -                   || (amap_edit_seen_phase_r != pp_amap_edit_phase_w)
+  -                   || (amap_edit_seen_rec_r != pp_amap_edit_rec_w)) begin
+  +      end else if (amap_edit_beat_w) begin
+  -            if (amap_edit_context_w && amap_edit_in_key_v_w
+  -                && amap_edit_iclaim_v_r[amap_edit_in_key_w]
+  -                && (amap_edit_in_live_w
+  -                    != amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8])) begin
+  +            if (amap_edit_context_w && amap_edit_in_change_w) begin
+  -            end else if (amap_edit_context_w && amap_edit_out_key_v_w
+  -                         && amap_edit_oclaim_v_r[amap_edit_out_key_w]
+  -                         && ((amap_edit_out_live_w
+  -                              != amap_edit_oclaim_word_r[
+  -                                   amap_edit_out_key_w*13 +: 13])
+  -                             || (amap_edit_out_owner_v_w
+  -                                 != !amap_edit_remove_r)
+  -                             || (!amap_edit_remove_r
+  -                                 && ((amap_edit_out_owner_w
+  -                                      != amap_edit_index_r)
+  -                                     || (amap_edit_out_cluster_w
+  -                                         != amap_edit_oclaim_cluster_r[
+  -                                              amap_edit_out_key_w*16
+  -                                              +: 16]))))) begin
+  +            end else if (amap_edit_context_w && amap_edit_out_change_w) begin
+  +      .amap_live_wr_i    (amap_edit_live_wr_p),

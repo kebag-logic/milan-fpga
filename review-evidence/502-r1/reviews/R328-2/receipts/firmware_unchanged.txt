@@ -1,0 +1,19 @@
+# firmware/CSR/config/pin unchanged checks
+diff 831f94f4..5d4cf33e -- sw hdl/common/csr configs tb/verilator/nvm_capture_cpu: 0 paths
+diff 104c8a54..5d4cf33e -- sw hdl/common/csr configs tb/verilator/nvm_capture_cpu: 0 paths
+gitlinks 104c8a54 vs head:
+  identical
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+firmware blob: a4e560fbdbbed8f54c1e7e18a0dfe005bb050c06 (831f94f4: a4e560fbdbbed8f54c1e7e18a0dfe005bb050c06)
+files changed 104c8a54..head:
+docs/design/SAVED_STATE_MATERIALIZATION.md
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+docs/testing/TESTING.md
+hdl/milan/KL_pp_shadow.sv
+hdl/milan/milan_datapath.sv
+tb/verilator/pp_shadow/README.md
+tb/verilator/pp_shadow/pending_mutant.py
+tb/verilator/pp_shadow/pending_probes.vlt
+tb/verilator/pp_shadow/sim_main.cpp
