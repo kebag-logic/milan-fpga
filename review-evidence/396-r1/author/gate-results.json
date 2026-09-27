@@ -1,0 +1,136 @@
+[
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tb/tools/torture_campaign.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.214,
+    "log": "planner-self-test.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "-m",
+      "behave",
+      "tests/features/torture_campaign_plan.feature",
+      "-f",
+      "plain"
+    ],
+    "rc": 0,
+    "seconds": 0.415,
+    "log": "behave-plan.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.665,
+    "log": "feature-status.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 4.222,
+    "log": "docs-check.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.114,
+    "log": "doc-paths.log"
+  },
+  {
+    "command": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "ac18b50968b12efe4d15c0a06301264b35656b31"
+    ],
+    "rc": 0,
+    "seconds": 3.021,
+    "log": "em-dash.log"
+  },
+  {
+    "command": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 2.671,
+    "log": "contents.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.064,
+    "log": "doc-style.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 3.32,
+    "log": "python-idiom.log"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.016,
+    "log": "diff-check.log"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "ac18b50968b12efe4d15c0a06301264b35656b31",
+      "HEAD",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.008,
+    "log": "commit-diff-check.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "tb/tools/torture_campaign.py",
+      "--coverage-by-area",
+      "--areas",
+      "soak,power"
+    ],
+    "rc": 0,
+    "seconds": 0.114,
+    "log": "release-coverage.json"
+  }
+]
