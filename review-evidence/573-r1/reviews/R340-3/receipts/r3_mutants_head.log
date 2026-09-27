@@ -1,0 +1,18 @@
+KILLED   [KILLED] R3-M1 restore pre-round-3 integer acceptance (int kept, else int(str(v),16)): AssertionError: accepted non-string entity.entity_model_id: 0x001BC50AC1000005
+KILLED   [KILLED] R3-M2 accept non-bool YAML integers as their numeric value: AssertionError: accepted non-string entity.entity_model_id: 0x001BC50AC1000005
+KILLED   [KILLED] R3-M3 drop the type guard and stringify (decimal digits reread as hex): AssertionError: accepted non-string entity.entity_model_id: 0x001BC50AC1000005
+KILLED   [KILLED] R3-M4 refusal no longer tells the user to quote: AssertionError: ('entity.entity_model_id', '0x001BC50AC1000005', 'entity.entity_model_id: must be a hexadecimal string')
+KILLED   [KILLED] R3-M5 refusal no longer names the field: AssertionError: ('entity.entity_model_id', '0x001BC50AC1000005', 'quote the hexadecimal value as a YAML string')
+KILLED   [KILLED] R3-M6 explicit null model_id_pin treated as absent again: AssertionError: accepted non-string entity.model_id_pin: null
+KILLED   [KILLED] R3-M7 hash-derived identity passed as int to the string-only parser: AssertionError: ('entity.entity_model_id', 'must not be zero or all ones', 'entity.entity_model_id: quote the hexadecimal value as a YAML string')
+KILLED   [KILLED] R3-M8 stream_dmac_base site stringifies before parsing: AssertionError: ('srp.stream_dmac_base', '0x91E0F000FE01', 'srp.stream_dmac_base 160395285298689 is wider than a MAC-48')
+KILLED   [KILLED] R3-M9 stream formats site stringifies before parsing: AssertionError: ('streams.talkers[0].formats', '0x0205022000806000', "streams.talkers[0].formats: '145524899430031360' out of EUI-64 range")
+KILLED   [KILLED] R3-M10 entity_id site stringifies before parsing: AssertionError: accepted non-string entity.entity_id: 0x001BC50AC1000005
+KILLED   [KILLED] R3-M11 CRF format site stringifies before parsing: AssertionError: ('clocking.crf_format', '0x041060010000BB80', "clocking.crf_format: '292839533190364032' out of EUI-64 range")
+KILLED   [KILLED] R3-M12 unprefixed all-digit strings read as decimal: AssertionError
+KILLED   [KILLED] R3-M13 unprefixed strings refused (prefix required): endstation_builder.ConfigError: entity.entity_model_id: '1234567890123456' is not a hex EUI-64
+KILLED   [KILLED] R3-M14 underscores refused: endstation_builder.ConfigError: entity.entity_model_id: '0x001B_C50A_C100_0005' is not a hex EUI-64
+KILLED   [KILLED] R3-M15 be32 masking restored: AssertionError: AEM u32 silently truncated -1
+KILLED   [KILLED] R3-M16 be32 clamps instead of refusing: AssertionError: AEM u32 silently truncated -1
+KILLED   [KILLED] R3-M17 be32 refuses only negatives, masks overflow: AssertionError: AEM u32 silently truncated 4294967296
+{'id': 'unmutated control', 'returncode': 0, 'verdict': 'PASS', 'last_line': '[gate 40] 26 refusals; 3 header mutants per config'} {'id': 'sources restored', 'sha256': {'avdecc/aem_descriptors.py': '7f3085be1dfbe0c578fa085cacaba6a31740109b0e624abe7e6ce2d1be878568', 'sw/builder/endstation_builder.py': 'a564085a7ae1bea6b4cda581b0d60493d29865920f1da8d917cd7524daa0b8a4'}, 'identical': True}

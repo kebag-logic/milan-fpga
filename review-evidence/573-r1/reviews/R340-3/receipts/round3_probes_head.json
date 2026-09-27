@@ -1,0 +1,1524 @@
+[
+ {
+  "field": "entity.entity_model_id",
+  "case": "quoted prefixed",
+  "yaml_text": "\"0x001BC50AC1000005\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "quoted unprefixed",
+  "yaml_text": "\"001BC50AC1000005\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "quoted with underscores",
+  "yaml_text": "\"0x001B_C50AC1000005\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "unquoted prefixed",
+  "yaml_text": "0x001BC50AC1000005",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "unquoted 1234567890123456",
+  "yaml_text": "1234567890123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "unquoted 0012345670123456 (YAML 1.1 octal)",
+  "yaml_text": "0012345670123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "unquoted legal digits as octal-looking",
+  "yaml_text": "0111111111111111",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "unquoted true",
+  "yaml_text": "true",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "explicit null",
+  "yaml_text": "null",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "empty value",
+  "yaml_text": "",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "unquoted float",
+  "yaml_text": "1.5",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "flow list",
+  "yaml_text": "[]",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "flow map",
+  "yaml_text": "{}",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "quoted empty string",
+  "yaml_text": "\"\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: '' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "quoted 0x only",
+  "yaml_text": "\"0x\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: '0x' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "quoted negative",
+  "yaml_text": "\"-0x1\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: '-0x1' out of EUI-64 range",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "quoted leading plus",
+  "yaml_text": "\"+0x001BC50AC1000005\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": null
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "quoted surrounding spaces",
+  "yaml_text": "\" 0x001BC50AC1000005 \"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": null
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "quoted uppercase 0X",
+  "yaml_text": "\"0X001BC50AC1000005\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": null
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "quoted fullwidth digits",
+  "yaml_text": "\"\uff10\uff10\uff11BC\uff15\uff10AC\uff11\uff10\uff10\uff10\uff10\uff10\uff15\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": null
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "quoted prefixed",
+  "yaml_text": "\"0x001BC50AC1000005\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "quoted unprefixed",
+  "yaml_text": "\"001BC50AC1000005\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "quoted with underscores",
+  "yaml_text": "\"0x001B_C50AC1000005\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "unquoted prefixed",
+  "yaml_text": "0x001BC50AC1000005",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "unquoted 1234567890123456",
+  "yaml_text": "1234567890123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "unquoted 0012345670123456 (YAML 1.1 octal)",
+  "yaml_text": "0012345670123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "unquoted legal digits as octal-looking",
+  "yaml_text": "0111111111111111",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "unquoted true",
+  "yaml_text": "true",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "explicit null",
+  "yaml_text": "null",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "empty value",
+  "yaml_text": "",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "unquoted float",
+  "yaml_text": "1.5",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "flow list",
+  "yaml_text": "[]",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "flow map",
+  "yaml_text": "{}",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "quoted empty string",
+  "yaml_text": "\"\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: '' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "quoted 0x only",
+  "yaml_text": "\"0x\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: '0x' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "quoted negative",
+  "yaml_text": "\"-0x1\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: '-0x1' out of EUI-64 range",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "quoted leading plus",
+  "yaml_text": "\"+0x001BC50AC1000005\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": null
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "quoted surrounding spaces",
+  "yaml_text": "\" 0x001BC50AC1000005 \"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": null
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "quoted uppercase 0X",
+  "yaml_text": "\"0X001BC50AC1000005\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": null
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "quoted fullwidth digits",
+  "yaml_text": "\"\uff10\uff10\uff11BC\uff15\uff10AC\uff11\uff10\uff10\uff10\uff10\uff10\uff15\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": null
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "quoted prefixed",
+  "yaml_text": "\"0x001BC50AC1000005\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "quoted unprefixed",
+  "yaml_text": "\"001BC50AC1000005\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "quoted with underscores",
+  "yaml_text": "\"0x001B_C50AC1000005\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "unquoted prefixed",
+  "yaml_text": "0x001BC50AC1000005",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "unquoted 1234567890123456",
+  "yaml_text": "1234567890123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "unquoted 0012345670123456 (YAML 1.1 octal)",
+  "yaml_text": "0012345670123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "unquoted legal digits as octal-looking",
+  "yaml_text": "0111111111111111",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "unquoted true",
+  "yaml_text": "true",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "explicit null",
+  "yaml_text": "null",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "empty value",
+  "yaml_text": "",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "unquoted float",
+  "yaml_text": "1.5",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "flow list",
+  "yaml_text": "[]",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "flow map",
+  "yaml_text": "{}",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "entity.entity_id: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "quoted empty string",
+  "yaml_text": "\"\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "entity.entity_id: '' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "quoted 0x only",
+  "yaml_text": "\"0x\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "entity.entity_id: '0x' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "quoted negative",
+  "yaml_text": "\"-0x1\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "entity.entity_id: '-0x1' out of EUI-64 range",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "quoted leading plus",
+  "yaml_text": "\"+0x001BC50AC1000005\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": null
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "quoted surrounding spaces",
+  "yaml_text": "\" 0x001BC50AC1000005 \"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": null
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "quoted uppercase 0X",
+  "yaml_text": "\"0X001BC50AC1000005\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": null
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "quoted fullwidth digits",
+  "yaml_text": "\"\uff10\uff10\uff11BC\uff15\uff10AC\uff11\uff10\uff10\uff10\uff10\uff10\uff15\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x001BC50AC1000005",
+  "ok": null
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "quoted prefixed",
+  "yaml_text": "\"0x91E0F000FE01\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x91E0F000FE01",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "quoted unprefixed",
+  "yaml_text": "\"91E0F000FE01\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x91E0F000FE01",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "quoted with underscores",
+  "yaml_text": "\"0x91E0_F000FE01\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x91E0F000FE01",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "unquoted prefixed",
+  "yaml_text": "0x91E0F000FE01",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "unquoted 1234567890123456",
+  "yaml_text": "1234567890123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "unquoted 0012345670123456 (YAML 1.1 octal)",
+  "yaml_text": "0012345670123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "unquoted legal digits as octal-looking",
+  "yaml_text": "011111111111",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "unquoted true",
+  "yaml_text": "true",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "explicit null",
+  "yaml_text": "null",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "empty value",
+  "yaml_text": "",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "unquoted float",
+  "yaml_text": "1.5",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "flow list",
+  "yaml_text": "[]",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "flow map",
+  "yaml_text": "{}",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "quoted empty string",
+  "yaml_text": "\"\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: '' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "quoted 0x only",
+  "yaml_text": "\"0x\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: '0x' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "quoted negative",
+  "yaml_text": "\"-0x1\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "srp.stream_dmac_base: '-0x1' out of EUI-64 range",
+  "ok": true
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "quoted leading plus",
+  "yaml_text": "\"+0x91E0F000FE01\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x91E0F000FE01",
+  "ok": null
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "quoted surrounding spaces",
+  "yaml_text": "\" 0x91E0F000FE01 \"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x91E0F000FE01",
+  "ok": null
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "quoted uppercase 0X",
+  "yaml_text": "\"0X91E0F000FE01\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x91E0F000FE01",
+  "ok": null
+ },
+ {
+  "field": "srp.stream_dmac_base",
+  "case": "quoted fullwidth digits",
+  "yaml_text": "\"\uff19\uff11E\uff10F\uff10\uff10\uff10FE\uff10\uff11\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x91E0F000FE01",
+  "ok": null
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "quoted prefixed",
+  "yaml_text": "\"0x0205022000806000\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "quoted unprefixed",
+  "yaml_text": "\"0205022000806000\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "quoted with underscores",
+  "yaml_text": "\"0x0205_022000806000\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "unquoted prefixed",
+  "yaml_text": "0x0205022000806000",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "unquoted 1234567890123456",
+  "yaml_text": "1234567890123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "unquoted 0012345670123456 (YAML 1.1 octal)",
+  "yaml_text": "0012345670123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "unquoted legal digits as octal-looking",
+  "yaml_text": "0111111111111111",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "unquoted true",
+  "yaml_text": "true",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "explicit null",
+  "yaml_text": "null",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "empty value",
+  "yaml_text": "",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "unquoted float",
+  "yaml_text": "1.5",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "flow list",
+  "yaml_text": "[]",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "flow map",
+  "yaml_text": "{}",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "quoted empty string",
+  "yaml_text": "\"\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: '' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "quoted 0x only",
+  "yaml_text": "\"0x\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: '0x' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "quoted negative",
+  "yaml_text": "\"-0x1\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: '-0x1' out of EUI-64 range",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "quoted leading plus",
+  "yaml_text": "\"+0x0205022000806000\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": null
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "quoted surrounding spaces",
+  "yaml_text": "\" 0x0205022000806000 \"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": null
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "quoted uppercase 0X",
+  "yaml_text": "\"0X0205022000806000\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": null
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "quoted fullwidth digits",
+  "yaml_text": "\"\uff10\uff12\uff10\uff15\uff10\uff12\uff12\uff10\uff10\uff10\uff18\uff10\uff16\uff10\uff10\uff10\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": null
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "quoted prefixed",
+  "yaml_text": "\"0x0205022000806000\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "quoted unprefixed",
+  "yaml_text": "\"0205022000806000\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "quoted with underscores",
+  "yaml_text": "\"0x0205_022000806000\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "unquoted prefixed",
+  "yaml_text": "0x0205022000806000",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "unquoted 1234567890123456",
+  "yaml_text": "1234567890123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "unquoted 0012345670123456 (YAML 1.1 octal)",
+  "yaml_text": "0012345670123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "unquoted legal digits as octal-looking",
+  "yaml_text": "0111111111111111",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "unquoted true",
+  "yaml_text": "true",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "explicit null",
+  "yaml_text": "null",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "empty value",
+  "yaml_text": "",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "unquoted float",
+  "yaml_text": "1.5",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "flow list",
+  "yaml_text": "[]",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "flow map",
+  "yaml_text": "{}",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "quoted empty string",
+  "yaml_text": "\"\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: '' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "quoted 0x only",
+  "yaml_text": "\"0x\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: '0x' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "quoted negative",
+  "yaml_text": "\"-0x1\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: '-0x1' out of EUI-64 range",
+  "ok": true
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "quoted leading plus",
+  "yaml_text": "\"+0x0205022000806000\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": null
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "quoted surrounding spaces",
+  "yaml_text": "\" 0x0205022000806000 \"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": null
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "quoted uppercase 0X",
+  "yaml_text": "\"0X0205022000806000\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": null
+ },
+ {
+  "field": "streams.listeners[0].formats",
+  "case": "quoted fullwidth digits",
+  "yaml_text": "\"\uff10\uff12\uff10\uff15\uff10\uff12\uff12\uff10\uff10\uff10\uff18\uff10\uff16\uff10\uff10\uff10\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x0205022000806000",
+  "ok": null
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "quoted prefixed",
+  "yaml_text": "\"0x041060010000BB80\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "quoted unprefixed",
+  "yaml_text": "\"041060010000BB80\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "quoted with underscores",
+  "yaml_text": "\"0x0410_60010000BB80\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "unquoted prefixed",
+  "yaml_text": "0x041060010000BB80",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "unquoted 1234567890123456",
+  "yaml_text": "1234567890123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "unquoted 0012345670123456 (YAML 1.1 octal)",
+  "yaml_text": "0012345670123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "unquoted legal digits as octal-looking",
+  "yaml_text": "0111111111111111",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "unquoted true",
+  "yaml_text": "true",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "explicit null",
+  "yaml_text": "null",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "empty value",
+  "yaml_text": "",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "unquoted float",
+  "yaml_text": "1.5",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "flow list",
+  "yaml_text": "[]",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "flow map",
+  "yaml_text": "{}",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "quoted empty string",
+  "yaml_text": "\"\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "clocking.crf_format: '' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "quoted 0x only",
+  "yaml_text": "\"0x\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "clocking.crf_format: '0x' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "quoted negative",
+  "yaml_text": "\"-0x1\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "clocking.crf_format: '-0x1' out of EUI-64 range",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "quoted leading plus",
+  "yaml_text": "\"+0x041060010000BB80\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": null
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "quoted surrounding spaces",
+  "yaml_text": "\" 0x041060010000BB80 \"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": null
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "quoted uppercase 0X",
+  "yaml_text": "\"0X041060010000BB80\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": null
+ },
+ {
+  "field": "clocking.crf_format",
+  "case": "quoted fullwidth digits",
+  "yaml_text": "\"\uff10\uff14\uff11\uff10\uff16\uff10\uff10\uff11\uff10\uff10\uff10\uff10BB\uff18\uff10\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": null
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "quoted prefixed",
+  "yaml_text": "\"0x041060010000BB80\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "quoted unprefixed",
+  "yaml_text": "\"041060010000BB80\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "quoted with underscores",
+  "yaml_text": "\"0x0410_60010000BB80\"",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "unquoted prefixed",
+  "yaml_text": "0x041060010000BB80",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "unquoted 1234567890123456",
+  "yaml_text": "1234567890123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "unquoted 0012345670123456 (YAML 1.1 octal)",
+  "yaml_text": "0012345670123456",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "unquoted legal digits as octal-looking",
+  "yaml_text": "0111111111111111",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "unquoted true",
+  "yaml_text": "true",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "explicit null",
+  "yaml_text": "null",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "empty value",
+  "yaml_text": "",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "unquoted float",
+  "yaml_text": "1.5",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "flow list",
+  "yaml_text": "[]",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "flow map",
+  "yaml_text": "{}",
+  "expect": "quote",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: quote the hexadecimal value as a YAML string",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "quoted empty string",
+  "yaml_text": "\"\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: '' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "quoted 0x only",
+  "yaml_text": "\"0x\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: '0x' is not a hex EUI-64",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "quoted negative",
+  "yaml_text": "\"-0x1\"",
+  "expect": "refuse",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: '-0x1' out of EUI-64 range",
+  "ok": true
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "quoted leading plus",
+  "yaml_text": "\"+0x041060010000BB80\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": null
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "quoted surrounding spaces",
+  "yaml_text": "\" 0x041060010000BB80 \"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": null
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "quoted uppercase 0X",
+  "yaml_text": "\"0X041060010000BB80\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": null
+ },
+ {
+  "field": "clocking.crf_output.format",
+  "case": "quoted fullwidth digits",
+  "yaml_text": "\"\uff10\uff14\uff11\uff10\uff16\uff10\uff10\uff11\uff10\uff10\uff10\uff10BB\uff18\uff10\"",
+  "expect": "record",
+  "loader": "accepted",
+  "resolved": "0x041060010000BB80",
+  "ok": null
+ },
+ {
+  "field": "entity.entity_model_id",
+  "case": "quoted 1234567890123456",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x1234567890123456",
+  "ok": true
+ },
+ {
+  "field": "entity.model_id_pin",
+  "case": "quoted 1234567890123456",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x1234567890123456",
+  "ok": true
+ },
+ {
+  "field": "entity.entity_id",
+  "case": "quoted 1234567890123456",
+  "expect": "accept",
+  "loader": "accepted",
+  "resolved": "0x1234567890123456",
+  "ok": true
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "formats unquoted int scalar",
+  "expect": "record",
+  "loader": "crashed:TypeError",
+  "reason": "'int' object is not iterable",
+  "ok": null
+ },
+ {
+  "field": "streams.talkers[0].formats",
+  "case": "formats quoted string scalar",
+  "expect": "record",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: 'x' is not a hex EUI-64",
+  "ok": null
+ },
+ {
+  "field": "aem_descriptors.be32",
+  "case": "0",
+  "result": "00000000",
+  "ok": true
+ },
+ {
+  "field": "aem_descriptors.be32",
+  "case": "1",
+  "result": "00000001",
+  "ok": true
+ },
+ {
+  "field": "aem_descriptors.be32",
+  "case": "4294967295",
+  "result": "ffffffff",
+  "ok": true
+ },
+ {
+  "field": "aem_descriptors.be32",
+  "case": "-1",
+  "result": "raised:error",
+  "ok": true
+ },
+ {
+  "field": "aem_descriptors.be32",
+  "case": "4294967296",
+  "result": "raised:error",
+  "ok": true
+ },
+ {
+  "field": "aem_descriptors.be32",
+  "case": "4297093295",
+  "result": "raised:error",
+  "ok": true
+ },
+ {
+  "field": "aem_descriptors.be32",
+  "case": "True",
+  "result": "00000001",
+  "ok": true
+ }
+]

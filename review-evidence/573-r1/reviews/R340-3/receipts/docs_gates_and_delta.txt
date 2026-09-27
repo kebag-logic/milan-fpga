@@ -1,0 +1,36 @@
+$ python3 -B scripts/check_em_dash.py --base e0920d77162284d8da52ffaf13a973e451e44f90
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 -B scripts/check_doc_paths.py
+doc path gate: OK (847 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+$ python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+$ python3 -B scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 -B scripts/check_py_idiom.py
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+# commits 08374721..8c956234 (subject | body lines)
+warning: unable to find all commit-graph files
+8c956234699b5dec5e6c9aeada651be667974e9b | Reject out-of-range AEM u32 fields instead of truncating them | body-lines=0
+0d5820aee25e41d8bc9f83a36231c46986dfcfea | Identify the legal 2021 format boundary in descriptor audit probes | body-lines=0
+9e47e48c650ea70b2744696a10061d862f89a3bd | Require string declarations for hexadecimal identities and formats | body-lines=0
+warning: unable to find all commit-graph files
+0
+# per-commit files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+9e47e48c650ea70b2744696a10061d862f89a3bd: docs/reference/PP_DESCRIPTOR_OWNERSHIP.md sw/builder/README-parameters.md sw/builder/endstation_builder.py sw/builder/test_declarations.py 
+warning: unable to find all commit-graph files
+0d5820aee25e41d8bc9f83a36231c46986dfcfea: docs/reference/PP_DESCRIPTOR_OWNERSHIP.md scripts/audit_pp_descriptors.py 
+warning: unable to find all commit-graph files
+8c956234699b5dec5e6c9aeada651be667974e9b: avdecc/aem_descriptors.py docs/reference/PP_DESCRIPTOR_OWNERSHIP.md sw/builder/test_declarations.py 
+# git diff --check e0920d77..HEAD: clean

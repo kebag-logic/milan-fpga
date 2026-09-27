@@ -1,0 +1,121 @@
+[
+ {
+  "id": "R3-M1 restore pre-round-3 integer acceptance (int kept, else int(str(v),16))",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    if not isinstance(v, str):\n        raise ConfigError(f\"{ctx}: quote the hexadecimal value as a YAML string\")\n    try:\n        n = int(v, 16)\n",
+  "new": "    try:\n        n = v if type(v) is int else int(str(v), 16)\n",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M2 accept non-bool YAML integers as their numeric value",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    if not isinstance(v, str):\n        raise ConfigError(f\"{ctx}: quote the hexadecimal value as a YAML string\")\n    try:\n        n = int(v, 16)\n",
+  "new": "    if isinstance(v, bool) or not isinstance(v, (str, int)):\n        raise ConfigError(f\"{ctx}: quote the hexadecimal value as a YAML string\")\n    try:\n        n = v if isinstance(v, int) else int(v, 16)\n",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M3 drop the type guard and stringify (decimal digits reread as hex)",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    if not isinstance(v, str):\n        raise ConfigError(f\"{ctx}: quote the hexadecimal value as a YAML string\")\n    try:\n        n = int(v, 16)\n",
+  "new": "    try:\n        n = int(str(v), 16)\n",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M4 refusal no longer tells the user to quote",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "raise ConfigError(f\"{ctx}: quote the hexadecimal value as a YAML string\")",
+  "new": "raise ConfigError(f\"{ctx}: must be a hexadecimal string\")",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M5 refusal no longer names the field",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "raise ConfigError(f\"{ctx}: quote the hexadecimal value as a YAML string\")",
+  "new": "raise ConfigError(\"quote the hexadecimal value as a YAML string\")",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M6 explicit null model_id_pin treated as absent again",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    if \"model_id_pin\" in ent:\n",
+  "new": "    if pin is not None:\n",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M7 hash-derived identity passed as int to the string-only parser",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "_model_id(f\"0x{hashed:016X}\", \"entity.entity_model_id\")",
+  "new": "_model_id(hashed, \"entity.entity_model_id\")",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M8 stream_dmac_base site stringifies before parsing",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "dmac = _eui64(s[\"stream_dmac_base\"], \"srp.stream_dmac_base\")",
+  "new": "dmac = _eui64(str(s[\"stream_dmac_base\"]), \"srp.stream_dmac_base\")",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M9 stream formats site stringifies before parsing",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "fmts = [_fmt64(f, f\"{sctx}.formats\") for f in fmts]",
+  "new": "fmts = [_fmt64(str(f), f\"{sctx}.formats\") for f in fmts]",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M10 entity_id site stringifies before parsing",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "_fmt64(eid, \"entity.entity_id\")",
+  "new": "_fmt64(str(eid), \"entity.entity_id\")",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M11 CRF format site stringifies before parsing",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "    word = _fmt64(value, ctx)\n",
+  "new": "    word = _fmt64(str(value), ctx)\n",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M12 unprefixed all-digit strings read as decimal",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "        n = int(v, 16)\n",
+  "new": "        n = int(v, 10) if v.isdigit() else int(v, 16)\n",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M13 unprefixed strings refused (prefix required)",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "        n = int(v, 16)\n",
+  "new": "        n = int(v, 16) if v.lower().startswith(\"0x\") else int(\"?\")\n",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M14 underscores refused",
+  "file": "sw/builder/endstation_builder.py",
+  "old": "        n = int(v, 16)\n",
+  "new": "        n = int(v, 16) if \"_\" not in v else int(\"?\")\n",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M15 be32 masking restored",
+  "file": "avdecc/aem_descriptors.py",
+  "old": "    return AEM_U32.pack(v)\n",
+  "new": "    return AEM_U32.pack(v & UINT32_MAX)\n",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M16 be32 clamps instead of refusing",
+  "file": "avdecc/aem_descriptors.py",
+  "old": "    return AEM_U32.pack(v)\n",
+  "new": "    return AEM_U32.pack(min(max(v, 0), UINT32_MAX))\n",
+  "expect": "KILLED"
+ },
+ {
+  "id": "R3-M17 be32 refuses only negatives, masks overflow",
+  "file": "avdecc/aem_descriptors.py",
+  "old": "    return AEM_U32.pack(v)\n",
+  "new": "    if v < 0:\n        raise struct.error(\"negative\")\n    return AEM_U32.pack(v & UINT32_MAX)\n",
+  "expect": "KILLED"
+ }
+]

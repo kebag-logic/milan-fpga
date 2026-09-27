@@ -1,0 +1,173 @@
+True  entity.entity_model_id         quoted prefixed                              accepted   0x001BC50AC1000005
+True  entity.entity_model_id         quoted unprefixed                            accepted   0x001BC50AC1000005
+True  entity.entity_model_id         quoted with underscores                      accepted   0x001BC50AC1000005
+True  entity.entity_model_id         unquoted prefixed                            refused    entity.entity_model_id: quote the hexadecimal value as a YAML string
+True  entity.entity_model_id         unquoted 1234567890123456                    refused    entity.entity_model_id: quote the hexadecimal value as a YAML string
+True  entity.entity_model_id         unquoted 0012345670123456 (YAML 1.1 octal)   refused    entity.entity_model_id: quote the hexadecimal value as a YAML string
+True  entity.entity_model_id         unquoted legal digits as octal-looking       refused    entity.entity_model_id: quote the hexadecimal value as a YAML string
+True  entity.entity_model_id         unquoted true                                refused    entity.entity_model_id: quote the hexadecimal value as a YAML string
+True  entity.entity_model_id         explicit null                                refused    entity.entity_model_id: quote the hexadecimal value as a YAML string
+True  entity.entity_model_id         empty value                                  refused    entity.entity_model_id: quote the hexadecimal value as a YAML string
+True  entity.entity_model_id         unquoted float                               refused    entity.entity_model_id: quote the hexadecimal value as a YAML string
+True  entity.entity_model_id         flow list                                    refused    entity.entity_model_id: quote the hexadecimal value as a YAML string
+True  entity.entity_model_id         flow map                                     refused    entity.entity_model_id: quote the hexadecimal value as a YAML string
+True  entity.entity_model_id         quoted empty string                          refused    entity.entity_model_id: '' is not a hex EUI-64
+True  entity.entity_model_id         quoted 0x only                               refused    entity.entity_model_id: '0x' is not a hex EUI-64
+True  entity.entity_model_id         quoted negative                              refused    entity.entity_model_id: '-0x1' out of EUI-64 range
+None  entity.entity_model_id         quoted leading plus                          accepted   0x001BC50AC1000005
+None  entity.entity_model_id         quoted surrounding spaces                    accepted   0x001BC50AC1000005
+None  entity.entity_model_id         quoted uppercase 0X                          accepted   0x001BC50AC1000005
+None  entity.entity_model_id         quoted fullwidth digits                      accepted   0x001BC50AC1000005
+True  entity.model_id_pin            quoted prefixed                              accepted   0x001BC50AC1000005
+True  entity.model_id_pin            quoted unprefixed                            accepted   0x001BC50AC1000005
+True  entity.model_id_pin            quoted with underscores                      accepted   0x001BC50AC1000005
+True  entity.model_id_pin            unquoted prefixed                            refused    entity.model_id_pin: quote the hexadecimal value as a YAML string
+True  entity.model_id_pin            unquoted 1234567890123456                    refused    entity.model_id_pin: quote the hexadecimal value as a YAML string
+True  entity.model_id_pin            unquoted 0012345670123456 (YAML 1.1 octal)   refused    entity.model_id_pin: quote the hexadecimal value as a YAML string
+True  entity.model_id_pin            unquoted legal digits as octal-looking       refused    entity.model_id_pin: quote the hexadecimal value as a YAML string
+True  entity.model_id_pin            unquoted true                                refused    entity.model_id_pin: quote the hexadecimal value as a YAML string
+True  entity.model_id_pin            explicit null                                refused    entity.model_id_pin: quote the hexadecimal value as a YAML string
+True  entity.model_id_pin            empty value                                  refused    entity.model_id_pin: quote the hexadecimal value as a YAML string
+True  entity.model_id_pin            unquoted float                               refused    entity.model_id_pin: quote the hexadecimal value as a YAML string
+True  entity.model_id_pin            flow list                                    refused    entity.model_id_pin: quote the hexadecimal value as a YAML string
+True  entity.model_id_pin            flow map                                     refused    entity.model_id_pin: quote the hexadecimal value as a YAML string
+True  entity.model_id_pin            quoted empty string                          refused    entity.model_id_pin: '' is not a hex EUI-64
+True  entity.model_id_pin            quoted 0x only                               refused    entity.model_id_pin: '0x' is not a hex EUI-64
+True  entity.model_id_pin            quoted negative                              refused    entity.model_id_pin: '-0x1' out of EUI-64 range
+None  entity.model_id_pin            quoted leading plus                          accepted   0x001BC50AC1000005
+None  entity.model_id_pin            quoted surrounding spaces                    accepted   0x001BC50AC1000005
+None  entity.model_id_pin            quoted uppercase 0X                          accepted   0x001BC50AC1000005
+None  entity.model_id_pin            quoted fullwidth digits                      accepted   0x001BC50AC1000005
+True  entity.entity_id               quoted prefixed                              accepted   0x001BC50AC1000005
+True  entity.entity_id               quoted unprefixed                            accepted   0x001BC50AC1000005
+True  entity.entity_id               quoted with underscores                      accepted   0x001BC50AC1000005
+True  entity.entity_id               unquoted prefixed                            refused    entity.entity_id: quote the hexadecimal value as a YAML string
+True  entity.entity_id               unquoted 1234567890123456                    refused    entity.entity_id: quote the hexadecimal value as a YAML string
+True  entity.entity_id               unquoted 0012345670123456 (YAML 1.1 octal)   refused    entity.entity_id: quote the hexadecimal value as a YAML string
+True  entity.entity_id               unquoted legal digits as octal-looking       refused    entity.entity_id: quote the hexadecimal value as a YAML string
+True  entity.entity_id               unquoted true                                refused    entity.entity_id: quote the hexadecimal value as a YAML string
+True  entity.entity_id               explicit null                                refused    entity.entity_id: quote the hexadecimal value as a YAML string
+True  entity.entity_id               empty value                                  refused    entity.entity_id: quote the hexadecimal value as a YAML string
+True  entity.entity_id               unquoted float                               refused    entity.entity_id: quote the hexadecimal value as a YAML string
+True  entity.entity_id               flow list                                    refused    entity.entity_id: quote the hexadecimal value as a YAML string
+True  entity.entity_id               flow map                                     refused    entity.entity_id: quote the hexadecimal value as a YAML string
+True  entity.entity_id               quoted empty string                          refused    entity.entity_id: '' is not a hex EUI-64
+True  entity.entity_id               quoted 0x only                               refused    entity.entity_id: '0x' is not a hex EUI-64
+True  entity.entity_id               quoted negative                              refused    entity.entity_id: '-0x1' out of EUI-64 range
+None  entity.entity_id               quoted leading plus                          accepted   0x001BC50AC1000005
+None  entity.entity_id               quoted surrounding spaces                    accepted   0x001BC50AC1000005
+None  entity.entity_id               quoted uppercase 0X                          accepted   0x001BC50AC1000005
+None  entity.entity_id               quoted fullwidth digits                      accepted   0x001BC50AC1000005
+True  srp.stream_dmac_base           quoted prefixed                              accepted   0x91E0F000FE01
+True  srp.stream_dmac_base           quoted unprefixed                            accepted   0x91E0F000FE01
+True  srp.stream_dmac_base           quoted with underscores                      accepted   0x91E0F000FE01
+True  srp.stream_dmac_base           unquoted prefixed                            refused    srp.stream_dmac_base: quote the hexadecimal value as a YAML string
+True  srp.stream_dmac_base           unquoted 1234567890123456                    refused    srp.stream_dmac_base: quote the hexadecimal value as a YAML string
+True  srp.stream_dmac_base           unquoted 0012345670123456 (YAML 1.1 octal)   refused    srp.stream_dmac_base: quote the hexadecimal value as a YAML string
+True  srp.stream_dmac_base           unquoted legal digits as octal-looking       refused    srp.stream_dmac_base: quote the hexadecimal value as a YAML string
+True  srp.stream_dmac_base           unquoted true                                refused    srp.stream_dmac_base: quote the hexadecimal value as a YAML string
+True  srp.stream_dmac_base           explicit null                                refused    srp.stream_dmac_base: quote the hexadecimal value as a YAML string
+True  srp.stream_dmac_base           empty value                                  refused    srp.stream_dmac_base: quote the hexadecimal value as a YAML string
+True  srp.stream_dmac_base           unquoted float                               refused    srp.stream_dmac_base: quote the hexadecimal value as a YAML string
+True  srp.stream_dmac_base           flow list                                    refused    srp.stream_dmac_base: quote the hexadecimal value as a YAML string
+True  srp.stream_dmac_base           flow map                                     refused    srp.stream_dmac_base: quote the hexadecimal value as a YAML string
+True  srp.stream_dmac_base           quoted empty string                          refused    srp.stream_dmac_base: '' is not a hex EUI-64
+True  srp.stream_dmac_base           quoted 0x only                               refused    srp.stream_dmac_base: '0x' is not a hex EUI-64
+True  srp.stream_dmac_base           quoted negative                              refused    srp.stream_dmac_base: '-0x1' out of EUI-64 range
+None  srp.stream_dmac_base           quoted leading plus                          accepted   0x91E0F000FE01
+None  srp.stream_dmac_base           quoted surrounding spaces                    accepted   0x91E0F000FE01
+None  srp.stream_dmac_base           quoted uppercase 0X                          accepted   0x91E0F000FE01
+None  srp.stream_dmac_base           quoted fullwidth digits                      accepted   0x91E0F000FE01
+True  streams.talkers[0].formats     quoted prefixed                              accepted   0x0205022000806000
+True  streams.talkers[0].formats     quoted unprefixed                            accepted   0x0205022000806000
+True  streams.talkers[0].formats     quoted with underscores                      accepted   0x0205022000806000
+True  streams.talkers[0].formats     unquoted prefixed                            refused    streams.talkers[0].formats: quote the hexadecimal value as a YAML string
+True  streams.talkers[0].formats     unquoted 1234567890123456                    refused    streams.talkers[0].formats: quote the hexadecimal value as a YAML string
+True  streams.talkers[0].formats     unquoted 0012345670123456 (YAML 1.1 octal)   refused    streams.talkers[0].formats: quote the hexadecimal value as a YAML string
+True  streams.talkers[0].formats     unquoted legal digits as octal-looking       refused    streams.talkers[0].formats: quote the hexadecimal value as a YAML string
+True  streams.talkers[0].formats     unquoted true                                refused    streams.talkers[0].formats: quote the hexadecimal value as a YAML string
+True  streams.talkers[0].formats     explicit null                                refused    streams.talkers[0].formats: quote the hexadecimal value as a YAML string
+True  streams.talkers[0].formats     empty value                                  refused    streams.talkers[0].formats: quote the hexadecimal value as a YAML string
+True  streams.talkers[0].formats     unquoted float                               refused    streams.talkers[0].formats: quote the hexadecimal value as a YAML string
+True  streams.talkers[0].formats     flow list                                    refused    streams.talkers[0].formats: quote the hexadecimal value as a YAML string
+True  streams.talkers[0].formats     flow map                                     refused    streams.talkers[0].formats: quote the hexadecimal value as a YAML string
+True  streams.talkers[0].formats     quoted empty string                          refused    streams.talkers[0].formats: '' is not a hex EUI-64
+True  streams.talkers[0].formats     quoted 0x only                               refused    streams.talkers[0].formats: '0x' is not a hex EUI-64
+True  streams.talkers[0].formats     quoted negative                              refused    streams.talkers[0].formats: '-0x1' out of EUI-64 range
+None  streams.talkers[0].formats     quoted leading plus                          accepted   0x0205022000806000
+None  streams.talkers[0].formats     quoted surrounding spaces                    accepted   0x0205022000806000
+None  streams.talkers[0].formats     quoted uppercase 0X                          accepted   0x0205022000806000
+None  streams.talkers[0].formats     quoted fullwidth digits                      accepted   0x0205022000806000
+True  streams.listeners[0].formats   quoted prefixed                              accepted   0x0205022000806000
+True  streams.listeners[0].formats   quoted unprefixed                            accepted   0x0205022000806000
+True  streams.listeners[0].formats   quoted with underscores                      accepted   0x0205022000806000
+True  streams.listeners[0].formats   unquoted prefixed                            refused    streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+True  streams.listeners[0].formats   unquoted 1234567890123456                    refused    streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+True  streams.listeners[0].formats   unquoted 0012345670123456 (YAML 1.1 octal)   refused    streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+True  streams.listeners[0].formats   unquoted legal digits as octal-looking       refused    streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+True  streams.listeners[0].formats   unquoted true                                refused    streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+True  streams.listeners[0].formats   explicit null                                refused    streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+True  streams.listeners[0].formats   empty value                                  refused    streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+True  streams.listeners[0].formats   unquoted float                               refused    streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+True  streams.listeners[0].formats   flow list                                    refused    streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+True  streams.listeners[0].formats   flow map                                     refused    streams.listeners[0].formats: quote the hexadecimal value as a YAML string
+True  streams.listeners[0].formats   quoted empty string                          refused    streams.listeners[0].formats: '' is not a hex EUI-64
+True  streams.listeners[0].formats   quoted 0x only                               refused    streams.listeners[0].formats: '0x' is not a hex EUI-64
+True  streams.listeners[0].formats   quoted negative                              refused    streams.listeners[0].formats: '-0x1' out of EUI-64 range
+None  streams.listeners[0].formats   quoted leading plus                          accepted   0x0205022000806000
+None  streams.listeners[0].formats   quoted surrounding spaces                    accepted   0x0205022000806000
+None  streams.listeners[0].formats   quoted uppercase 0X                          accepted   0x0205022000806000
+None  streams.listeners[0].formats   quoted fullwidth digits                      accepted   0x0205022000806000
+True  clocking.crf_format            quoted prefixed                              accepted   0x041060010000BB80
+True  clocking.crf_format            quoted unprefixed                            accepted   0x041060010000BB80
+True  clocking.crf_format            quoted with underscores                      accepted   0x041060010000BB80
+True  clocking.crf_format            unquoted prefixed                            refused    clocking.crf_format: quote the hexadecimal value as a YAML string
+True  clocking.crf_format            unquoted 1234567890123456                    refused    clocking.crf_format: quote the hexadecimal value as a YAML string
+True  clocking.crf_format            unquoted 0012345670123456 (YAML 1.1 octal)   refused    clocking.crf_format: quote the hexadecimal value as a YAML string
+True  clocking.crf_format            unquoted legal digits as octal-looking       refused    clocking.crf_format: quote the hexadecimal value as a YAML string
+True  clocking.crf_format            unquoted true                                refused    clocking.crf_format: quote the hexadecimal value as a YAML string
+True  clocking.crf_format            explicit null                                refused    clocking.crf_format: quote the hexadecimal value as a YAML string
+True  clocking.crf_format            empty value                                  refused    clocking.crf_format: quote the hexadecimal value as a YAML string
+True  clocking.crf_format            unquoted float                               refused    clocking.crf_format: quote the hexadecimal value as a YAML string
+True  clocking.crf_format            flow list                                    refused    clocking.crf_format: quote the hexadecimal value as a YAML string
+True  clocking.crf_format            flow map                                     refused    clocking.crf_format: quote the hexadecimal value as a YAML string
+True  clocking.crf_format            quoted empty string                          refused    clocking.crf_format: '' is not a hex EUI-64
+True  clocking.crf_format            quoted 0x only                               refused    clocking.crf_format: '0x' is not a hex EUI-64
+True  clocking.crf_format            quoted negative                              refused    clocking.crf_format: '-0x1' out of EUI-64 range
+None  clocking.crf_format            quoted leading plus                          accepted   0x041060010000BB80
+None  clocking.crf_format            quoted surrounding spaces                    accepted   0x041060010000BB80
+None  clocking.crf_format            quoted uppercase 0X                          accepted   0x041060010000BB80
+None  clocking.crf_format            quoted fullwidth digits                      accepted   0x041060010000BB80
+True  clocking.crf_output.format     quoted prefixed                              accepted   0x041060010000BB80
+True  clocking.crf_output.format     quoted unprefixed                            accepted   0x041060010000BB80
+True  clocking.crf_output.format     quoted with underscores                      accepted   0x041060010000BB80
+True  clocking.crf_output.format     unquoted prefixed                            refused    clocking.crf_output.format: quote the hexadecimal value as a YAML string
+True  clocking.crf_output.format     unquoted 1234567890123456                    refused    clocking.crf_output.format: quote the hexadecimal value as a YAML string
+True  clocking.crf_output.format     unquoted 0012345670123456 (YAML 1.1 octal)   refused    clocking.crf_output.format: quote the hexadecimal value as a YAML string
+True  clocking.crf_output.format     unquoted legal digits as octal-looking       refused    clocking.crf_output.format: quote the hexadecimal value as a YAML string
+True  clocking.crf_output.format     unquoted true                                refused    clocking.crf_output.format: quote the hexadecimal value as a YAML string
+True  clocking.crf_output.format     explicit null                                refused    clocking.crf_output.format: quote the hexadecimal value as a YAML string
+True  clocking.crf_output.format     empty value                                  refused    clocking.crf_output.format: quote the hexadecimal value as a YAML string
+True  clocking.crf_output.format     unquoted float                               refused    clocking.crf_output.format: quote the hexadecimal value as a YAML string
+True  clocking.crf_output.format     flow list                                    refused    clocking.crf_output.format: quote the hexadecimal value as a YAML string
+True  clocking.crf_output.format     flow map                                     refused    clocking.crf_output.format: quote the hexadecimal value as a YAML string
+True  clocking.crf_output.format     quoted empty string                          refused    clocking.crf_output.format: '' is not a hex EUI-64
+True  clocking.crf_output.format     quoted 0x only                               refused    clocking.crf_output.format: '0x' is not a hex EUI-64
+True  clocking.crf_output.format     quoted negative                              refused    clocking.crf_output.format: '-0x1' out of EUI-64 range
+None  clocking.crf_output.format     quoted leading plus                          accepted   0x041060010000BB80
+None  clocking.crf_output.format     quoted surrounding spaces                    accepted   0x041060010000BB80
+None  clocking.crf_output.format     quoted uppercase 0X                          accepted   0x041060010000BB80
+None  clocking.crf_output.format     quoted fullwidth digits                      accepted   0x041060010000BB80
+True  entity.entity_model_id         quoted 1234567890123456                      accepted   0x1234567890123456
+True  entity.model_id_pin            quoted 1234567890123456                      accepted   0x1234567890123456
+True  entity.entity_id               quoted 1234567890123456                      accepted   0x1234567890123456
+None  streams.talkers[0].formats     formats unquoted int scalar                  crashed:TypeError 'int' object is not iterable
+None  streams.talkers[0].formats     formats quoted string scalar                 refused    streams.talkers[0].formats: 'x' is not a hex EUI-64
+True  aem_descriptors.be32           0                                            00000000   
+True  aem_descriptors.be32           1                                            00000001   
+True  aem_descriptors.be32           4294967295                                   ffffffff   
+True  aem_descriptors.be32           -1                                           raised:error 
+True  aem_descriptors.be32           4294967296                                   raised:error 
+True  aem_descriptors.be32           4297093295                                   raised:error 
+True  aem_descriptors.be32           True                                         00000001   
+ROWS 172 FAILED 0
