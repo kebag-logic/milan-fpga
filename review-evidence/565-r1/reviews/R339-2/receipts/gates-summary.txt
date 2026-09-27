@@ -1,0 +1,8 @@
+scripts/docs_check.py rc=0
+scripts/check_em_dash.py --base 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf rc=0
+scripts/check_doc_style.py rc=0
+scripts/gen_toc.py --check rc=0
+scripts/gen_toc.py --verify-anchors rc=0
+scripts/check_doc_paths.py rc=0
+scripts/lint_rtl.py --check rc=0
+git diff --check base..head rc=0

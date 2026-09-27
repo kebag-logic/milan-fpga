@@ -1,0 +1,171 @@
+{
+ "top_level_changed": [
+  "base",
+  "date",
+  "harness_sha256",
+  "measured_for",
+  "measurements",
+  "processor_pins",
+  "remeasurement_assignment"
+ ],
+ "arms": [
+  {
+   "arm": [
+    "endstation_ax7101_8x8",
+    50000000,
+    "on"
+   ],
+   "captures": 16,
+   "rows": 16,
+   "rows_equal_base": true,
+   "changed_keys": [
+    "command",
+    "config_sha256",
+    "configured_cpu_hz",
+    "gptp_ucode_sha256"
+   ],
+   "configured_cpu_hz": 50000000,
+   "minimum_ms": 24.2929,
+   "maximum_ms": 24.30246,
+   "all_ok": true
+  },
+  {
+   "arm": [
+    "endstation_ax7101_8x8",
+    50000000,
+    "off"
+   ],
+   "captures": 16,
+   "rows": 16,
+   "rows_equal_base": true,
+   "changed_keys": [
+    "command",
+    "config_sha256",
+    "configured_cpu_hz",
+    "gptp_ucode_sha256"
+   ],
+   "configured_cpu_hz": 50000000,
+   "minimum_ms": 24.257939999999998,
+   "maximum_ms": 24.26154,
+   "all_ok": true
+  },
+  {
+   "arm": [
+    "endstation_ax7101_1x1_tdm8",
+    50000000,
+    "on"
+   ],
+   "captures": 16,
+   "rows": 16,
+   "rows_equal_base": true,
+   "changed_keys": [
+    "command",
+    "config_sha256",
+    "gptp_ucode_sha256"
+   ],
+   "configured_cpu_hz": 50000000,
+   "minimum_ms": 6.59814,
+   "maximum_ms": 6.60642,
+   "all_ok": true
+  },
+  {
+   "arm": [
+    "endstation_ax7101_1x1_tdm8",
+    50000000,
+    "off"
+   ],
+   "captures": 16,
+   "rows": 16,
+   "rows_equal_base": true,
+   "changed_keys": [
+    "command",
+    "config_sha256",
+    "gptp_ucode_sha256"
+   ],
+   "configured_cpu_hz": 50000000,
+   "minimum_ms": 6.58554,
+   "maximum_ms": 6.58857,
+   "all_ok": true
+  },
+  {
+   "arm": [
+    "endstation_ax7101_8x8",
+    100000000,
+    "on"
+   ],
+   "captures": 16,
+   "rows": 16,
+   "rows_equal_base": true,
+   "changed_keys": [
+    "command",
+    "config_sha256",
+    "configured_cpu_hz",
+    "gptp_ucode_sha256"
+   ],
+   "configured_cpu_hz": 50000000,
+   "minimum_ms": 18.990119999999997,
+   "maximum_ms": 19.00433,
+   "all_ok": true
+  },
+  {
+   "arm": [
+    "endstation_ax7101_8x8",
+    100000000,
+    "off"
+   ],
+   "captures": 16,
+   "rows": 16,
+   "rows_equal_base": true,
+   "changed_keys": [
+    "command",
+    "config_sha256",
+    "configured_cpu_hz",
+    "gptp_ucode_sha256"
+   ],
+   "configured_cpu_hz": 50000000,
+   "minimum_ms": 19.786939999999998,
+   "maximum_ms": 19.79024,
+   "all_ok": true
+  }
+ ],
+ "maxima": [
+  {
+   "shape": "endstation_ax7101_1x1_tdm8",
+   "cpu_hz": 50000000,
+   "maximum_ms": 6.60642,
+   "margin": 7.417027679136355
+  },
+  {
+   "shape": "endstation_ax7101_8x8",
+   "cpu_hz": 50000000,
+   "maximum_ms": 24.30246,
+   "margin": 2.0162567904648334
+  },
+  {
+   "shape": "endstation_ax7101_8x8",
+   "cpu_hz": 100000000,
+   "maximum_ms": 19.79024,
+   "margin": 2.4759679518793103
+  }
+ ],
+ "maxima_equal_base": true,
+ "pinned_hashes_match_head": {
+  "firmware.py": true,
+  "probe.py": true,
+  "recipe.py": true,
+  "run.py": true,
+  "sim_main.cpp": true,
+  "soc.py": true,
+  "product_firmware": true
+ },
+ "config_sha256_match_head": {
+  "endstation_ax7101_8x8": true,
+  "endstation_ax7101_1x1_tdm8": true
+ },
+ "processor_pins_match_gitlinks": {
+  "protocol-processor": true,
+  "gptp-processor": true,
+  "third_party/verilog-axis": true
+ },
+ "base_field": "831f94f4146cc45ec476f8c8dcf5afac7cd8eacf"
+}
