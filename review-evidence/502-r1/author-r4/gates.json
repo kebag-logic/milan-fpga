@@ -1,0 +1,111 @@
+[
+  {
+    "name": "lint",
+    "command": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 7.5
+  },
+  {
+    "name": "test-evidence",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 5.4
+  },
+  {
+    "name": "docs-git",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 4.4
+  },
+  {
+    "name": "docs-no-git",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "environment": {
+      "GIT_DIR": "/dev/null"
+    },
+    "rc": 0,
+    "seconds": 4.3
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "/tmp/502-a349-eq2yv5on/markdown-venv/bin/python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "831f94f4"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 3.1
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "toc",
+    "command": [
+      "/tmp/502-a349-eq2yv5on/markdown-venv/bin/python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 2.5
+  },
+  {
+    "name": "anchors",
+    "command": [
+      "/tmp/502-a349-eq2yv5on/markdown-venv/bin/python",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 1.6
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 0.1
+  },
+  {
+    "name": "diff",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "environment": {},
+    "rc": 0,
+    "seconds": 0.0
+  }
+]

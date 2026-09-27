@@ -1,0 +1,17 @@
+pp_shadow: 295 checks, 0 failures
+RESULT: PASS
+pp_shadow: 295 checks, 12 failures
+RESULT: FAIL
+  [FAIL] K10 no_durable_claim_over_unsaved          got=0x00000759 exp=0x00000000
+  [FAIL] K10 pending_from_accepting_edge            got=0x00000759 exp=0x00000000
+  [FAIL] K10 repeat no_durable_claim_over_unsaved   got=0x00000759 exp=0x00000000
+  [FAIL] K10 repeat pending_from_accepting_edge     got=0x00000759 exp=0x00000000
+  [FAIL] K12 input no_durable_claim_over_unsaved    got=0x0000000F exp=0x00000000
+  [FAIL] K12 input pending_from_accepting_edge      got=0x0000000F exp=0x00000000
+  [FAIL] K12 remove input no_durable_claim_over_unsaved got=0x0000000F exp=0x00000000
+  [FAIL] K12 remove input pending_from_accepting_edge got=0x0000000F exp=0x00000000
+  [FAIL] K12 no_durable_claim_over_unsaved          got=0x0000000F exp=0x00000000
+  [FAIL] K12 pending_from_accepting_edge            got=0x0000000F exp=0x00000000
+  [FAIL] K12 remove output no_durable_claim_over_unsaved got=0x0000000F exp=0x00000000
+  [FAIL] K12 remove output pending_from_accepting_edge got=0x0000000F exp=0x00000000
+PASS: late-mark mutant killed by K10 and K12; clean control passes
