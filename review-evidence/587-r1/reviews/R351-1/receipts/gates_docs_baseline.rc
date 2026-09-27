@@ -1,0 +1,11 @@
+python3 syn/ooc/pp_baseline.py --selftest rc=0
+python3 syn/ooc/pp_baseline_mutants.py rc=0
+python3 -B scripts/docs_check.py rc=0
+env GIT_DIR=/dev/null python3 -B scripts/docs_check.py rc=0
+python3 scripts/check_doc_style.py rc=0
+python3 scripts/check_doc_paths.py rc=0
+git diff --check 63fe4fb0 HEAD rc=0
+[private venv, locked renderer] $REVIEWS/587-r351-1-packet/scratch/mdvenv/bin/python scripts/check_em_dash.py --base 63fe4fb0 rc=0
+[private venv, locked renderer] $REVIEWS/587-r351-1-packet/scratch/mdvenv/bin/python scripts/gen_toc.py --check rc=0
+[private venv, locked renderer] $REVIEWS/587-r351-1-packet/scratch/mdvenv/bin/python scripts/gen_toc.py --verify-anchors rc=0
+python3 syn/ooc/pp_baseline_reports_selftest.py rc=0

@@ -1,0 +1,42 @@
+scope	instance	LUT_rank	FF_rank	LUT	logic_LUT	LUTRAM	SRL	FF	RAMB36	RAMB18	DSP
+wrapper	u_pp	1	1	37657	36791	866	0	29999	25	4	4
+wrapper	u_nvm	2	2	619	619	0	0	1023	0	0	1
+wrapper	ctl_fifo	3	4	74	74	0	0	33	1	1	0
+wrapper	@own	4	3	10	10	0	0	319	0	0	0
+wrapper	@reconciliation			-9	-9	0	0	0	0	0	0
+wrapper	@total			38351	37485	866	0	31374	26	5	5
+u_pp	u_aecp	1	3	15660	15440	220	0	4171	7	0	1
+u_pp	u_srp	2	1	8193	8011	182	0	10393	0	1	2
+u_pp	u_notify	3	4	3237	3141	96	0	3799	0	0	0
+u_pp	u_listener	4	5	1635	1635	0	0	1124	5	0	0
+u_pp	u_timer	5	13	1451	1451	0	0	217	1	0	0
+u_pp	u_talker	6	10	965	965	0	0	473	1	1	0
+u_pp	u_rx_validator	7	8	868	868	0	0	695	0	1	0
+u_pp	u_originator	8	7	761	745	16	0	881	0	0	0
+u_pp	u_dispatch	9	9	724	372	352	0	579	0	0	0
+u_pp	u_nvm_shadow	10	6	721	721	0	0	978	2	1	0
+u_pp	u_adp	11	11	656	656	0	0	441	1	0	1
+u_pp	@own	12	2	495	495	0	0	4636	0	0	0
+u_pp	u_event_router	13	18	355	355	0	0	129	0	0	0
+u_pp	u_tx_slots	14	17	355	355	0	0	138	1	0	0
+u_pp	u_nvm_port	15	19	333	333	0	0	124	0	0	0
+u_pp	u_maap	16	24	249	249	0	0	55	0	0	0
+u_pp	u_tx_arbiter	17	14	194	194	0	0	187	0	0	0
+u_pp	u_prng	18	16	146	146	0	0	150	0	0	0
+u_pp	u_ca_builder	19	15	139	139	0	0	152	0	0	0
+u_pp	u_scoreboard	20	21	90	90	0	0	73	0	0	0
+u_pp	g_rx_pool[5].u_rx_slots	21	23	89	89	0	0	62	1	0	0
+u_pp	u_mrp_strip	22	20	73	73	0	0	107	1	0	0
+u_pp	u_side_port	23	29	55	55	0	0	6	0	0	0
+u_pp	g_rx_pool[2].u_rx_slots	24	22	52	52	0	0	62	1	0	0
+u_pp	g_rx_pool[0].u_rx_slots	25	25	40	40	0	0	38	1	0	0
+u_pp	g_rx_pool[1].u_rx_slots	26	26	36	36	0	0	22	1	0	0
+u_pp	g_rx_pool[4].u_rx_slots	27	27	32	32	0	0	22	1	0	0
+u_pp	u_trace	28	28	28	28	0	0	18	1	0	0
+u_pp	u_normalizer	29	12	18	18	0	0	258	0	0	0
+u_pp	u_nvm_arb	30	31	8	8	0	0	3	0	0	0
+u_pp	u_desc_mem_guard	31	32	1	1	0	0	1	0	0	0
+u_pp	u_lsn_admit	32	33	0	0	0	0	1	0	0	0
+u_pp	u_release_merge	33	30	0	0	0	0	4	0	0	0
+u_pp	@reconciliation			-2	-2	0	0	0	0	0	0
+u_pp	@total			37657	36791	866	0	29999	25	4	4

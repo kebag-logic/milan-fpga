@@ -1,0 +1,39 @@
+# reviewer default 8x8 synthesis, baseline_timing.rpt excerpts
+  milansoc_crg_clkout1             {0.000 10.000}       20.000          50.000          
+ There are 0 register/latch pins with no clock.
+ There are 0 pins that are not constrained for maximum delay.
+ There are 0 pins that are not constrained for maximum delay due to constant clock.
+ There are 46 input ports with no input delay specified. (HIGH)
+ There are 0 input ports with no input delay but user has a false path constraint.
+ There are 86 ports with no output delay specified. (HIGH)
+ There are 0 ports with no output delay but user has a false path constraint
+ There are 0 ports with no output delay but with a timing clock defined on it or propagating through it
+Slack (VIOLATED) :        -1.708ns  (required time - arrival time)
+  Source:                 milan_datapath/pp_shadow/u_pp/u_notify/ctr_pend_r_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            milan_datapath/pp_shadow/u_pp/u_event_router/sel_r_reg[3]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             milansoc_crg_clkout1
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (milansoc_crg_clkout1 rise@20.000ns - milansoc_crg_clkout1 rise@0.000ns)
+  Data Path Delay:        21.543ns  (logic 5.574ns (25.874%)  route 15.969ns (74.126%))
+  Logic Levels:           43  (CARRY4=2 LUT2=4 LUT3=2 LUT4=4 LUT5=10 LUT6=21)
+# baseline.log elaborated wrapper parameters (first binding block)
+	Parameter CLK_HZ_P bound to: 50000000 - type: integer 
+	Parameter CLK_HZ_P bound to: 50000000 - type: integer 
+	Parameter N_STREAM_IN_P bound to: 32'b00000000000000000000000000001001 
+	Parameter N_STREAM_OUT_P bound to: 32'b00000000000000000000000000001001 
+	Parameter SRP_DOM_DEF_VID_P bound to: 16'b0000000000000010 
+	Parameter TIM_DIV_US_P bound to: 32'b00000000000000000000000000110010 
+	Parameter TIM_DIV_MS_P bound to: 32'b00000000000000000000001111101000 
+# warning id counts in baseline.log
+12-4739 10
+12-5201 2
+20-1307 2
+# Synth 8-4445 lines (only the echoed severity command is expected)
+258:# set_msg_config -id {Synth 8-4445} -new_severity ERROR
+# synthesis rc
+synthesis rc=0
+export rc=0
+prepare rc=0
+synthesis rc=0

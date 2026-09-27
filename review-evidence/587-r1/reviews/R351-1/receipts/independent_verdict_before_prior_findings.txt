@@ -1,0 +1,8 @@
+R351-1 independent pre-read record (SUPERSEDED by REPORT.md; not a verdict line).
+Written before any other review of PR #589 was read, at 2026-09-27T13:2xZ.
+Pre-read overall: positive, with three SUGGESTIONs:
+  S1 Provenance tables describe only the #231 run (PP_SHADOW_BASELINE.md:32, :48), Docs.
+  S2 normalized_verilog_sha256 depends on an unrecorded checkout root (INPUTS.json:30-31), Docs and Tests.
+  S3 AREA_BUDGET.md:9 pointer names only #231, Docs.
+Pre-read ledger: Conformance, RTL, Robustness, Tests and Docs all clean at 55079500483970ee244f12fa4c94401783f3df6f.
+After reading the public [R350] comment 5856181980, S2 was re-examined and re-rated MINOR (Docs); see REPORT.md section 7.

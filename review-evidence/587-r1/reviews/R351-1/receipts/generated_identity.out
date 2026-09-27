@@ -1,0 +1,12 @@
+Reviewer 8x8 export at exact head 55079500 (reviewer checkout, reviewer build root).
+Substitution: reviewer checkout root -> executor checkout root ($LANES/587-8x8-baseline-50mhz, public in the REVIEW READY comment);
+reviewer build root -> /tmp/milan-587-a360/default (public in the published HANDOFF);
+reviewer CPU package copy -> $HOME/litex-milan/pythondata-cpu-vexiiriscv (host dependency checkout; home path redacted here).
+
+alinx_ax7101.tcl        after substitution sha256 ce14fb89947b70d27fc7cfb88af21f8d711aaf38d25eab883ef0985eb647a3a1 bytes 29686 ; manifest ce14fb89947b70d27fc7cfb88af21f8d711aaf38d25eab883ef0985eb647a3a1 bytes 29686 : EQUAL
+baseline_integrated.tcl after substitution sha256 6f8e1d4432915eab5fffe2c7bdb8c1a55e029f4a72cd67534af796229c454192 bytes 30195 ; manifest 6f8e1d4432915eab5fffe2c7bdb8c1a55e029f4a72cd67534af796229c454192 bytes 30195 : EQUAL
+alinx_ax7101.xdc        raw sha256 matches manifest (no root strings)
+alinx_ax7101.v          raw differs only by generation timestamps in comments and three checkout-root strings;
+                        comments stripped + checkout root substituted: 3d371f2da7fd185b474e97681a337b061028afd9e73b0bd11a031832e06d22b1
+                        manifest export_comparison.normalized_verilog_sha256: 3d371f2da7fd185b474e97681a337b061028afd9e73b0bd11a031832e06d22b1
+                        with "$BUILD" substituted for the checkout root instead: no match (the checkout root is not normalized by the recorded method)

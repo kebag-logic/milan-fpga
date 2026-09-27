@@ -1,0 +1,13 @@
+
+== pre-build: tracked definition vs endstation_ax7101_8x8 ==
+  [FAIL] tracked ADP shape is endstation_ax7101_8x8's: got False, expected True
+  the tree currently carries configs/endstation_ax7101_1x1_tdm8.yaml. Fix:
+    python3 sw/builder/endstation_builder.py $REVIEWS/r351-1-587/configs/endstation_ax7101_8x8.yaml --write-rtl
+----------------------------------------------------------------------
+checks: 1   failures: 1
+  tracked ADP shape is endstation_ax7101_8x8's: got False, expected True
+RESULT: FAIL
+DRY [ax8x8] a launch would be REFUSED: check_entity_shape.py --built-config configs/endstation_ax7101_8x8.yaml exited 1 - the tracked entity definition is not configs/endstation_ax7101_8x8.yaml's (clear it with: python3 sw/builder/endstation_builder.py configs/endstation_ax7101_8x8.yaml --write-rtl), or the check could not run on that config; its output is above
+[ax8x8] design argv from $REVIEWS/r351-1-587/sw/builder/out/endstation_ax7101_8x8/soc_params.json (regenerated from configs/endstation_ax7101_8x8.yaml); flow flags from cfg_ax8x8
+DRY [ax8x8] -> $HOME/litex-milan/work/build_ax8x8_09271430
+ cd $REVIEWS/r351-1-587/sw/litex && source $HOME/Xilinx2/2026.1/Vivado/settings64.sh && export PATH=$HOME/litex-milan/venv/bin:$PATH && export PYTHONHASHSEED=0 && exec python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir $REVIEWS/r351-1-587/configs/generated/endstation_ax7101_8x8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive AltSpreadLogic_high --vivado-max-threads 32 --build --output-dir $HOME/litex-milan/work/build_ax8x8_09271430
