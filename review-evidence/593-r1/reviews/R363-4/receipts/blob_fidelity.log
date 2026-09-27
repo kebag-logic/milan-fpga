@@ -1,0 +1,60 @@
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+SAME-AS-PR-HEAD 100644 blob 4a94414d8ae8176d34908b217f23b6d03cc22e31	REQUIREMENTS.md
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+SAME-AS-PR-HEAD 100644 blob a5c36369918705fde37924df2fefed9a27567ac8	docs/design/GM_LOSS_RECOVERY.md
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+DIFFERS docs/testing/TESTING.md
+  cand: 100644 blob d31177238f9c06f7593ccb52808676c0d982cece	docs/testing/TESTING.md
+  prh : 100644 blob 7ed8cc33cb135b974cff77ebc23fc4334bebf496	docs/testing/TESTING.md
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+SAME-AS-PR-HEAD 100644 blob ecf857789e15707e2db65143e75c6353b4abd30e	tb/tools/torture_campaign.py
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+SAME-AS-PR-HEAD 100644 blob 64373b231dd952bd160e1ae60fe93c7dfc6ed826	tb/tools/torture_release_mutants.py
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+SAME-AS-PR-HEAD 100644 blob bb7688e976d53ce06d01f53b40c2cb6979414f23	tests/features/torture_campaign_plan.feature
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+SAME-AS-PR-HEAD 100644 blob 25a166d35119d7d60dce7d58483bcb95523689db	tests/steps/torture_release_steps.py
+== residual candidate vs PR head (all paths the PR changed)
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 7ed8cc33c..d31177238 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -401,6 +401,10 @@ The manual `nvm_capture_cpu` measurement is the Makefile exception.
+ Its LiteX tree, CPU netlist and pinned RV32 SDK are prerequisites.
+ The separate `scripts/check_nvm_capture.py` gate needs neither compiler nor simulation.
+ It regenerates capture counts and checks clocks against measured inputs.
++The [firmware service-budget sibling](../../tb/verilator/fw_service_budget/README.md)
++has a default Makefile target for its portable oracle and device controls.
++Its full product-CPU measurements are explicit runs with the same prerequisites
++as the capture measurement; the default target does not regenerate timings.
+ **Run the suites for verdicts; this page omits them.** The last
+ whole-tree sweep recorded here (2026-07-26, Verilator v5.050, 55/55 green)
+ described a tree that no longer exists — twelve of the suites it graded have
+== train's own delta on those paths since PR base
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 7dfc90ce2..6e301e927 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -401,6 +401,10 @@ The manual `nvm_capture_cpu` measurement is the Makefile exception.
+ Its LiteX tree, CPU netlist and pinned RV32 SDK are prerequisites.
+ The separate `scripts/check_nvm_capture.py` gate needs neither compiler nor simulation.
+ It regenerates capture counts and checks clocks against measured inputs.
++The [firmware service-budget sibling](../../tb/verilator/fw_service_budget/README.md)
++has a default Makefile target for its portable oracle and device controls.
++Its full product-CPU measurements are explicit runs with the same prerequisites
++as the capture measurement; the default target does not regenerate timings.
+ **Run the suites for verdicts; this page omits them.** The last
+ whole-tree sweep recorded here (2026-07-26, Verilator v5.050, 55/55 green)
+ described a tree that no longer exists — twelve of the suites it graded have

@@ -1,0 +1,8 @@
+r_freeze	rc=0	$REVIEWS/593-r363-4-packet/scratch/venv/bin/python -m pip freeze
+r_gen_toc_check	rc=0	$REVIEWS/593-r363-4-packet/scratch/venv/bin/python -B scripts/gen_toc.py --check
+r_gen_toc_anchors	rc=0	$REVIEWS/593-r363-4-packet/scratch/venv/bin/python -B scripts/gen_toc.py --verify-anchors
+r_gen_toc_selftest	rc=0	$REVIEWS/593-r363-4-packet/scratch/venv/bin/python -B scripts/gen_toc.py --selftest
+r_em_dash_vs_train	rc=0	$REVIEWS/593-r363-4-packet/scratch/venv/bin/python -B scripts/check_em_dash.py --base 1304205cfc9fa4c9e69a32130fb366895c5f883b
+r_em_dash_vs_prbase	rc=0	$REVIEWS/593-r363-4-packet/scratch/venv/bin/python -B scripts/check_em_dash.py --base 6d5ebd7357c1e468e446f18a61527c5be6118a04
+r_em_dash_selftest	rc=0	$REVIEWS/593-r363-4-packet/scratch/venv/bin/python -B scripts/check_em_dash.py --selftest
+r_docs_check	rc=0	$REVIEWS/593-r363-4-packet/scratch/venv/bin/python -B scripts/docs_check.py
