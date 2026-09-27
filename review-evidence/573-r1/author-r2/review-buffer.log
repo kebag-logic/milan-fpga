@@ -1,0 +1,35 @@
+[
+ {
+  "declared": 2126000,
+  "loader": "accepted",
+  "image": "accepted",
+  "image_bytes": 18288,
+  "overlay_value": 2126000,
+  "packed_stream_input0_buffer_length": 2126000,
+  "packed_below_floor": false
+ },
+ {
+  "declared": 2125999,
+  "loader": "refused",
+  "reason": "streams.listeners[0].buffer_length_ns: must be an integer >= 2126000 ns (Milan v1.2 5.3.3.4 listener buffer floor)"
+ },
+ {
+  "declared": 4294967295,
+  "loader": "accepted",
+  "image": "accepted",
+  "image_bytes": 18288,
+  "overlay_value": 4294967295,
+  "packed_stream_input0_buffer_length": 4294967295,
+  "packed_below_floor": false
+ },
+ {
+  "declared": 4294967296,
+  "loader": "refused",
+  "reason": "streams.listeners[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)"
+ },
+ {
+  "declared": 4297093295,
+  "loader": "refused",
+  "reason": "streams.listeners[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)"
+ }
+]

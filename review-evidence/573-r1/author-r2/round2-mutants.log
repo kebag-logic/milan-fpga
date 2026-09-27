@@ -1,0 +1,9 @@
+KILLED   cap raised by one: AssertionError: accepted invalid streams.listeners[0].formats: format count
+KILLED   buffer upper bound removed: AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer width
+KILLED   buffer upper bound excludes maximum: endstation_builder.ConfigError: streams.listeners[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)
+KILLED   empty source refusal removed: IndexError: list index out of range
+KILLED   pin shadows invalid literal: AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones
+KILLED   YAML integer reparsed as hex digits: AssertionError
+KILLED   derived ID bypasses guard: AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones
+KILLED   CRF output arm removed: AssertionError: CRF output accepted without INTERNAL
+{'id': 'unmutated control', 'origin': 'reviewer', 'returncode': 0, 'verdict': 'PASS', 'last_line': '[gate 40] 26 refusals; 3 header mutants per config'} {'id': 'source restored', 'sha256': '09524249c32f335863b672a99550f6546f86fe1e861b16fc29b8e26f47deae08', 'identical': True}

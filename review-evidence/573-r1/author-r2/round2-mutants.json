@@ -1,0 +1,50 @@
+[
+  {
+    "id": "cap raised by one",
+    "origin": "author",
+    "old": "if len(formats) > MAX_STREAM_FORMATS:",
+    "new": "if len(formats) > MAX_STREAM_FORMATS + 1:"
+  },
+  {
+    "id": "buffer upper bound removed",
+    "origin": "author",
+    "old": "if direction == \"listener\" and length_ns > UINT32_MAX:",
+    "new": "if False:"
+  },
+  {
+    "id": "buffer upper bound excludes maximum",
+    "origin": "author",
+    "old": "length_ns > UINT32_MAX:",
+    "new": "length_ns >= UINT32_MAX:"
+  },
+  {
+    "id": "empty source refusal removed",
+    "origin": "author",
+    "old": "if not srcs:",
+    "new": "if False:"
+  },
+  {
+    "id": "pin shadows invalid literal",
+    "origin": "author",
+    "old": "literal = None if raw == \"hash-derived\" else _model_id(raw, \"entity.entity_model_id\")",
+    "new": "literal = None if raw == \"hash-derived\" or pin is not None else _model_id(raw, \"entity.entity_model_id\")"
+  },
+  {
+    "id": "YAML integer reparsed as hex digits",
+    "origin": "author",
+    "old": "n = v if type(v) is int else int(str(v), 16)",
+    "new": "n = int(str(v), 16)"
+  },
+  {
+    "id": "derived ID bypasses guard",
+    "origin": "author",
+    "old": "mid, src = _model_id(hashed, \"entity.entity_model_id\"), \"hash\"",
+    "new": "mid, src = hashed, \"hash\""
+  },
+  {
+    "id": "CRF output arm removed",
+    "origin": "author",
+    "old": "if (talkers or clocking[\"crf_output\"]) and \"internal\" not in clocking[\"media_clock_sources\"]:",
+    "new": "if talkers and \"internal\" not in clocking[\"media_clock_sources\"]:"
+  }
+]

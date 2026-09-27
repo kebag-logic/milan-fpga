@@ -1,0 +1,37 @@
+F1 control unchanged arty_current                    accepted                                      0x001BC50AC1000005
+F1 literal YAML int 0                                refused                                       entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)
+F1 literal YAML int all-ones                         refused                                       entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)
+F1 literal short '0x0'                               refused                                       entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)
+F1 literal lowercase all-ones                        refused                                       entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)
+F1 pin YAML int 0                                    refused                                       entity.model_id_pin: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)
+F1 pin decimal string all-ones                       refused                                       entity.model_id_pin: '18446744073709551615' out of EUI-64 range
+F1 zero literal shadowed by legal pin                refused                                       entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)
+F1 hash-derived with vendor_oui 0                    accepted               accepted               0x00000057FC6ABBC8
+F1 literal legal 1                                   accepted                                      0x0000000000000001
+F2 default omitted                                   accepted                                      0x001BC572F79BC5D1
+F2 last listener 2125999                             refused                                       streams.listeners[7].buffer_length_ns: must be an integer >= 2126000 ns (Milan v1.2 5.3.3.4 listener buffer floor)
+F2 null                                              refused                                       streams.listeners[0].buffer_length_ns: must be an integer >= 2126000 ns (Milan v1.2 5.3.3.4 listener buffer floor)
+F2 float 2126000.0                                   refused                                       streams.listeners[0].buffer_length_ns: must be an integer >= 2126000 ns (Milan v1.2 5.3.3.4 listener buffer floor)
+F2 2**32 (field is 32-bit)                           refused                                       streams.listeners[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)
+F2 2**32+2125999 wraps below floor if truncated      refused                                       streams.listeners[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)
+F2 talker 1 ns (talker unaffected)                   accepted                                      0x001BC572F79BC5D1
+F2 talker string (talker unaffected)                 accepted                                      0x001BC572F79BC5D1
+F3 listener 46 declared (47 final)                   refused                                       streams.listeners[0].formats: format count 47 exceeds 46 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)
+F3 listener 47 declared (48 final)                   refused                                       streams.listeners[0].formats: format count 48 exceeds 46 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)
+F3 talker 47                                         refused                                       streams.talkers[0].formats: format count 47 exceeds 46 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)
+F3 talker 48                                         refused                                       streams.talkers[0].formats: format count 48 exceeds 46 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)
+F3 last talker mixed                                 refused                                       streams.talkers[7].formats: must contain only AAF formats (Milan v1.2 5.3.3.4; AAF/CRF families must not mix)
+F3 last listener mixed                               refused                                       streams.listeners[7].formats: must contain only AAF formats (Milan v1.2 5.3.3.4; AAF/CRF families must not mix)
+F3 listener empty list (default)                     accepted                                      0x001BC557FC6ABBC8
+F3 CRF input YAML int word                           accepted                                      0x001BC557FC6ABBC8
+F3 CRF input altered word, sink disabled             refused                                       clocking.crf_format: CRF format must be 0x041060010000BB80 (Milan v1.2 7.3.2 Table 7.1)
+F3 CRF output altered word, output disabled          refused                                       clocking.crf_output.format: CRF format must be 0x041060010000BB80 (Milan v1.2 7.3.2 Table 7.1)
+F3 CRF output altered word, output enabled           refused                                       clocking.crf_output.format: CRF format must be 0x041060010000BB80 (Milan v1.2 7.3.2 Table 7.1)
+F3 CRF output plural 'formats' key (alternate key)   accepted                                      0x001BC50AC1000005
+F4 [internal] only, sink off, outputs                accepted                                      0x001BC50AC1000005
+F4 reversed [crf, internal]                          accepted                                      0x001BC50AC1000005
+F4 [crf] default omitted                             refused                                       default_source 'internal' not in media_clock_sources
+F4 [crf] + CRF output enabled                        refused                                       clocking.media_clock_sources: every Stream Output requires INTERNAL among its clock sources (Milan v1.2 5.3.3.6)
+F4 empty sources, default omitted                    refused                                       clocking.media_clock_sources: L6 requires at least one source (Milan v1.2 5.3.3.6)
+F4 empty sources, default internal                   refused                                       clocking.media_clock_sources: L6 requires at least one source (Milan v1.2 5.3.3.6)
+F4 [crf] on 8x8                                      refused                                       clocking.media_clock_sources: every Stream Output requires INTERNAL among its clock sources (Milan v1.2 5.3.3.6)

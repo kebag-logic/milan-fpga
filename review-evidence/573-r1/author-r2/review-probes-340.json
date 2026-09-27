@@ -1,0 +1,248 @@
+[
+ {
+  "case": "F1 control unchanged arty_current",
+  "config": "arty_current",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC50AC1000005"
+ },
+ {
+  "case": "F1 literal YAML int 0",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)"
+ },
+ {
+  "case": "F1 literal YAML int all-ones",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)"
+ },
+ {
+  "case": "F1 literal short '0x0'",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)"
+ },
+ {
+  "case": "F1 literal lowercase all-ones",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)"
+ },
+ {
+  "case": "F1 pin YAML int 0",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)"
+ },
+ {
+  "case": "F1 pin decimal string all-ones",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "entity.model_id_pin: '18446744073709551615' out of EUI-64 range"
+ },
+ {
+  "case": "F1 zero literal shadowed by legal pin",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)"
+ },
+ {
+  "case": "F1 hash-derived with vendor_oui 0",
+  "config": "arty_4x4",
+  "loader": "accepted",
+  "entity_model_id": "0x00000057FC6ABBC8",
+  "image": "accepted",
+  "image_bytes": 10112,
+  "stream_inputs": [
+   {
+    "buffer": 2126000,
+    "n": 2
+   },
+   {
+    "buffer": 2126000,
+    "n": 2
+   },
+   {
+    "buffer": 2126000,
+    "n": 2
+   },
+   {
+    "buffer": 2126000,
+    "n": 2
+   },
+   {
+    "buffer": 2126000,
+    "n": 1
+   }
+  ]
+ },
+ {
+  "case": "F1 literal legal 1",
+  "config": "arty_current",
+  "loader": "accepted",
+  "entity_model_id": "0x0000000000000001"
+ },
+ {
+  "case": "F2 default omitted",
+  "config": "ax7101_8x8",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC572F79BC5D1"
+ },
+ {
+  "case": "F2 last listener 2125999",
+  "config": "ax7101_8x8",
+  "loader": "refused",
+  "reason": "streams.listeners[7].buffer_length_ns: must be an integer >= 2126000 ns (Milan v1.2 5.3.3.4 listener buffer floor)"
+ },
+ {
+  "case": "F2 null",
+  "config": "ax7101_8x8",
+  "loader": "refused",
+  "reason": "streams.listeners[0].buffer_length_ns: must be an integer >= 2126000 ns (Milan v1.2 5.3.3.4 listener buffer floor)"
+ },
+ {
+  "case": "F2 float 2126000.0",
+  "config": "ax7101_8x8",
+  "loader": "refused",
+  "reason": "streams.listeners[0].buffer_length_ns: must be an integer >= 2126000 ns (Milan v1.2 5.3.3.4 listener buffer floor)"
+ },
+ {
+  "case": "F2 2**32 (field is 32-bit)",
+  "config": "ax7101_8x8",
+  "loader": "refused",
+  "reason": "streams.listeners[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)"
+ },
+ {
+  "case": "F2 2**32+2125999 wraps below floor if truncated",
+  "config": "ax7101_8x8",
+  "loader": "refused",
+  "reason": "streams.listeners[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)"
+ },
+ {
+  "case": "F2 talker 1 ns (talker unaffected)",
+  "config": "ax7101_8x8",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC572F79BC5D1"
+ },
+ {
+  "case": "F2 talker string (talker unaffected)",
+  "config": "ax7101_8x8",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC572F79BC5D1"
+ },
+ {
+  "case": "F3 listener 46 declared (47 final)",
+  "config": "arty_4x4",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: format count 47 exceeds 46 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)"
+ },
+ {
+  "case": "F3 listener 47 declared (48 final)",
+  "config": "arty_4x4",
+  "loader": "refused",
+  "reason": "streams.listeners[0].formats: format count 48 exceeds 46 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)"
+ },
+ {
+  "case": "F3 talker 47",
+  "config": "arty_4x4",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: format count 47 exceeds 46 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)"
+ },
+ {
+  "case": "F3 talker 48",
+  "config": "arty_4x4",
+  "loader": "refused",
+  "reason": "streams.talkers[0].formats: format count 48 exceeds 46 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)"
+ },
+ {
+  "case": "F3 last talker mixed",
+  "config": "ax7101_8x8",
+  "loader": "refused",
+  "reason": "streams.talkers[7].formats: must contain only AAF formats (Milan v1.2 5.3.3.4; AAF/CRF families must not mix)"
+ },
+ {
+  "case": "F3 last listener mixed",
+  "config": "ax7101_8x8",
+  "loader": "refused",
+  "reason": "streams.listeners[7].formats: must contain only AAF formats (Milan v1.2 5.3.3.4; AAF/CRF families must not mix)"
+ },
+ {
+  "case": "F3 listener empty list (default)",
+  "config": "arty_4x4",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC557FC6ABBC8"
+ },
+ {
+  "case": "F3 CRF input YAML int word",
+  "config": "arty_4x4",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC557FC6ABBC8"
+ },
+ {
+  "case": "F3 CRF input altered word, sink disabled",
+  "config": "arty_4x4",
+  "loader": "refused",
+  "reason": "clocking.crf_format: CRF format must be 0x041060010000BB80 (Milan v1.2 7.3.2 Table 7.1)"
+ },
+ {
+  "case": "F3 CRF output altered word, output disabled",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: CRF format must be 0x041060010000BB80 (Milan v1.2 7.3.2 Table 7.1)"
+ },
+ {
+  "case": "F3 CRF output altered word, output enabled",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "clocking.crf_output.format: CRF format must be 0x041060010000BB80 (Milan v1.2 7.3.2 Table 7.1)"
+ },
+ {
+  "case": "F3 CRF output plural 'formats' key (alternate key)",
+  "config": "arty_current",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC50AC1000005"
+ },
+ {
+  "case": "F4 [internal] only, sink off, outputs",
+  "config": "arty_current",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC50AC1000005"
+ },
+ {
+  "case": "F4 reversed [crf, internal]",
+  "config": "arty_current",
+  "loader": "accepted",
+  "entity_model_id": "0x001BC50AC1000005"
+ },
+ {
+  "case": "F4 [crf] default omitted",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "default_source 'internal' not in media_clock_sources"
+ },
+ {
+  "case": "F4 [crf] + CRF output enabled",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "clocking.media_clock_sources: every Stream Output requires INTERNAL among its clock sources (Milan v1.2 5.3.3.6)"
+ },
+ {
+  "case": "F4 empty sources, default omitted",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "clocking.media_clock_sources: L6 requires at least one source (Milan v1.2 5.3.3.6)"
+ },
+ {
+  "case": "F4 empty sources, default internal",
+  "config": "arty_current",
+  "loader": "refused",
+  "reason": "clocking.media_clock_sources: L6 requires at least one source (Milan v1.2 5.3.3.6)"
+ },
+ {
+  "case": "F4 [crf] on 8x8",
+  "config": "ax7101_8x8",
+  "loader": "refused",
+  "reason": "clocking.media_clock_sources: every Stream Output requires INTERNAL among its clock sources (Milan v1.2 5.3.3.6)"
+ }
+]
