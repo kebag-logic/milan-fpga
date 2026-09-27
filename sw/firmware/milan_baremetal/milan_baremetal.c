@@ -892,8 +892,12 @@ static void phy_link_tick(uint64_t now)
 		phy_found = 1;
 	}
 	bmsr = phy_mdio_read(1);
-	/* Preserve a latched loss while previously up. Once down, read again
-	 * to clear BMSR's latch and observe recovery without duplicate edges. */
+	/* Preserve a latched loss, then resolve current state in this poll.
+	 * The second MDIO read separates the publications across the CDC. */
+	if (bmsr >= 0 && !(bmsr & PHY_BMSR_LINK) && (phy_published & 1u)) {
+		milan_mac_link_status_write(0);
+		phy_published = 0;
+	}
 	if (bmsr >= 0 && !(phy_published & 1u))
 		bmsr = phy_mdio_read(1);
 	if (bmsr >= 0 && bmsr != 0xffff && (bmsr & PHY_BMSR_LINK))

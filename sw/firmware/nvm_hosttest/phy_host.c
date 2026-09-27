@@ -91,7 +91,7 @@ static void expect_poll(uint64_t now, unsigned int expected)
 	unsigned int before = publishes;
 
 	phy_link_tick(now);
-	assert(publishes == before + 1u);
+	assert(publishes > before);
 	assert(status_word == expected);
 }
 
@@ -148,6 +148,18 @@ int main(void)
 		now += 125000000u;
 		expect_poll(now, expected[i]);
 	}
+	/* A brief loss recovered before this poll. Publish both edges now. */
+	registers[1] = 0x24;
+	registers[5] = 0x101;
+	latched_down = 1;
+	up_before = ups;
+	down_before = downs;
+	now += 200000000u;
+	expect_poll(now, 11);
+	assert(ups == up_before + 1u && downs == down_before + 1u);
+	now += 125000000u;
+	expect_poll(now, 11);
+	assert(ups == up_before + 1u && downs == down_before + 1u);
 	/* Forced 100 full; incomplete negotiation; missing ACK; clock rewind. */
 	registers[0] = 0x2100;
 	now += 125000000u;

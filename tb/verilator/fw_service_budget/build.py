@@ -87,36 +87,43 @@ def build(args: argparse.Namespace) -> dict:
         pads = soc.platform.request('observe')
         soc.comb += [getattr(pads, n).eq(v) for n, v in values.items()]
 
-    firmware_path = ROOT / 'sw/firmware/milan_baremetal'
     def firmware_source(root: Path, destination: Path, mutation: str) -> Path:
-        """Keep production bytes unchanged except for explicit negative controls."""
-        if args.mutation == 'none':
-            return firmware_path
-        source = (firmware_path / 'milan_baremetal.c').read_text()
-        if args.mutation == 'remove-dispatch':
-            names = ('milan_status', 'milan_nvm', 'milan_gettime', 'milan_settime', 'milan_utc')
-            for name in names:
-                anchor = f'static void {name}_handler(int nb_params, char **params)\n{{\n\tnvm_heartbeat_tick();'
-                if source.count(anchor) != 1:
-                    raise RuntimeError('dispatch mutation anchor is not unique')
-                source = source.replace(anchor, anchor.removesuffix('\n\tnvm_heartbeat_tick();'))
-        else:
-            anchor = '\tmilan_mac_link_status_write(status);'
-            if source.count(anchor) != 1:
-                raise RuntimeError('publication mutation anchor is not unique')
-            source = source.replace(anchor, '\t(void)status;')
-        destination.mkdir(parents=True, exist_ok=True)
-        (destination / 'milan_baremetal.c').write_text(source)
-        (destination / 'Makefile').write_bytes((firmware_path / 'Makefile').read_bytes())
-        return destination
+        """Adapt the shared capture callback to the explicit service control."""
+        return prepare_firmware(destination, args.mutation)
     with patch.object(capture_soc.ProductSimulation, 'add_spi_flash', add_flash), \
          patch.object(capture_soc, '_firmware_constants', constants), \
          patch.object(capture_soc, 'packet_ports', packet_ports), \
          patch.object(capture_firmware, 'prepare', side_effect=firmware_source):
         capture_soc.build(args)
     spec = json.loads((args.build_dir / 'sources.json').read_text())
-    spec['firmware_sha256'] = hashlib.sha256((firmware_path / 'milan_baremetal.c').read_bytes()).hexdigest()
+    spec['firmware_sha256'] = hashlib.sha256(
+        (ROOT / 'sw/firmware/milan_baremetal/milan_baremetal.c').read_bytes()).hexdigest()
     return spec
+
+
+def prepare_firmware(destination: Path, mutation: str) -> Path:
+    """Retain production bytes except for explicit negative-control mutations."""
+    firmware_path = ROOT / 'sw/firmware/milan_baremetal'
+    if mutation == 'none':
+        return firmware_path
+    source = (firmware_path / 'milan_baremetal.c').read_text()
+    if mutation == 'remove-dispatch':
+        names = ('milan_status', 'milan_nvm', 'milan_gettime', 'milan_settime', 'milan_utc')
+        for name in names:
+            anchor = f'static void {name}_handler(int nb_params, char **params)\n{{\n\tnvm_heartbeat_tick();'
+            if source.count(anchor) != 1:
+                raise RuntimeError('dispatch mutation anchor is not unique')
+            source = source.replace(anchor, anchor.removesuffix('\n\tnvm_heartbeat_tick();'))
+    else:
+        anchor = '\tmilan_mac_link_status_write(status);'
+        if source.count(anchor) != 1:
+            raise RuntimeError('publication mutation anchor is not unique')
+        source = source.replace(anchor, '\t(void)status;')
+        source = source.replace('milan_mac_link_status_write(0);', '(void)0;')
+    destination.mkdir(parents=True, exist_ok=True)
+    (destination / 'milan_baremetal.c').write_text(source)
+    (destination / 'Makefile').write_bytes((firmware_path / 'Makefile').read_bytes())
+    return destination
 
 
 def compile_sim(build_dir: Path, spec: dict) -> None:

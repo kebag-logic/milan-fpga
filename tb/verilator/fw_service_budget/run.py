@@ -170,7 +170,8 @@ def build_hashes(build_dir: Path, spec: dict) -> dict[str, str]:
     files.update(build_dir.glob('software/include/generated/*.h'))
     files.update(build_dir / p for p in ('native/Vsim', 'software/bios/bios.bin', 'software/bios/bios.elf',
                                        'retirement.hpp', 'aem_desc.bin'))
-    files.update(HERE / p for p in ('build.py', 'sim_main.cpp', 'flash.hpp', 'observe.vlt'))
+    files.update(HERE / p for p in ('build.py', 'sim_main.cpp', 'flash.hpp', 'observe.vlt',
+                                       'phy.py', 'phy.hpp'))
     files.update(ROOT / p for p in inputs() if not p.startswith('tb/verilator/fw_service_budget/'))
     result = {}
     for path in sorted(files):
@@ -367,7 +368,7 @@ def service_findings(result: dict, raw: str) -> list[str]:
     result['phy'] = dict(zip(('transactions', 'publications', 'max_transaction_sys_cycles',
                              'max_poll_sys_cycles', 'down_edges', 'up_edges'), map(int, timing.groups())))
     # The 125 ms trigger interval leaves another 125 ms for service jitter.
-    # Boot/AEM begin immediately after the first poll, without that phase.
+    # Startup rows compare isolated service cost; actual read gaps include intervening work.
     poll_ms = int(timing[4]) / 100_000
     for row in result['rows']:
         if row['duty'] in ('boot_to_entity_enabled', 'maximum_heartbeat_gap'):
@@ -380,6 +381,11 @@ def service_findings(result: dict, raw: str) -> list[str]:
     reads = [event for event in result.get('events', []) if event['kind'] == 'phy_read']
     if any(right['cycle'] - left['cycle'] > 25_000_000 for left, right in zip(reads, reads[1:])):
         findings.append('PHY publication interval exceeds 250 ms')
+    if reads and reads[0]['status'] != 13:
+        findings.append('PHY initial gigabit negotiation was not published')
+    if reads and reads[-1]['cycle'] >= 265_000_000:
+        if not any(event['cycle'] >= 240_000_000 and event['status'] == 11 for event in reads):
+            findings.append('PHY did not publish the 100 Mb/s negotiation')
     if result['media']['plan'] in ('queued-input', 'queued-short', 'device-wait'):
         if (int(timing[5]), int(timing[6])) != (1, 1):
             findings.append('PHY cycle did not reach both fabric counters exactly once')
@@ -445,7 +451,26 @@ def service_controls() -> int:
     for shape in SHAPES:
         require(sum(len(command) + 1 for command in command_plan('queued-input', shape)) == 133,
                 'queued plan is not the full 133-byte schedule')
-    return 8
+    return 8 + publication_controls(result, raw)
+
+
+def publication_controls(result: dict, raw: str) -> int:
+    """Reject false negotiation values and one-cycle publication overruns."""
+    result['events'] = [dict(kind='phy_read', cycle=240_000_000, status=13),
+                        dict(kind='phy_read', cycle=265_000_000, status=11)]
+    require(service_findings(result, raw) == [], '250 ms publication boundary changed')
+    result['events'][1]['status'] = 13
+    require(service_findings(result, raw) == ['PHY did not publish the 100 Mb/s negotiation'],
+            'missing negotiated speed change escaped')
+    result['events'][1]['status'] = 11
+    result['events'][1]['cycle'] += 1
+    require(service_findings(result, raw) == ['PHY publication interval exceeds 250 ms'],
+            'one-cycle publication gap escaped')
+    result['events'][1]['cycle'] -= 1
+    result['events'][0]['status'] = 0
+    require(service_findings(result, raw) == ['PHY initial gigabit negotiation was not published'],
+            'missing initial negotiated status escaped')
+    return 4
 
 
 def self_test() -> None:
