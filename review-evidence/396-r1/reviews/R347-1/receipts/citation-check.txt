@@ -1,0 +1,28 @@
+R347-1 citation check (reviewer summary; clause headings only, page numbers are PDF page indices)
+Sources: Milan Specification Consolidated v1.2 (2023-11-30); IEEE Std 1722-2016; IEEE Std 1722.1-2021.
+Page numbers were located via transient full-text conversions, deleted at once; only the pages below were then extracted and read (unpublished scratch).
+
+Cited in head b7b74b8b                                  | Standard text at that clause                          | Result
+--------------------------------------------------------|-------------------------------------------------------|--------
+Milan 5.3.7.7 / Table 5.4 (p40)                          | Diagnostic counters for Stream Output                 | correct
+Milan 5.3.8.10 / Table 5.6 (p43-44)                      | Diagnostic counters for Stream Input (MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH) | correct
+Milan 4.2.6.2.2 / Table 4.1 (p23)                        | gPTP Message Intervals                                | correct as tolerance source
+Milan 4.2.6.2.3 / Table 4.2 (p24)                        | gPTP Timeout Value Tolerances                         | correct as tolerance source
+  (not cited) Milan 4.2.6.2.4 (p24)                      | asCapable                                             | MISSING for "no asCapable loss"
+Milan Annex B.1.1 (p141)                                 | tu field: set to 1 for 0.25 s on GM change            | correct (repo calls this the holdover, GM_LOSS_RECOVERY.md)
+IEEE 1722-2016 4.4.4.6 (p37)                             | sequence_num field                                    | WRONG under soak.tu-within-holdover
+IEEE 1722-2016 4.4.4.7 (p37)                             | tu (timestamp uncertain) field                        | correct
+IEEE 1722.1-2021 6.2.6 (p58-60)                          | Discovery State machine (controller entity database)  | WRONG for "entity advertises within valid time"
+  (not cited) IEEE 1722.1-2021 6.2.2.5 (p49)             | valid_time field, 2-second units, 2..62 s             | the decoding authority
+  (not cited) IEEE 1722.1-2021 6.2.4 / Figure 6-2 (p56)  | Advertise Entity State Machine, reannounce timer      | the re-advertisement authority
+Milan 5.3.5.1 (p36)                                      | Sampling rate, saved and restored                     | correct
+Milan 5.3.7.1 (p37)                                      | Stream Output format, saved and restored              | correct
+Milan 5.3.8.7 (p42)                                      | Started/stopped state, saved and restored             | correct
+Milan 5.3.11.1 (p45)                                     | Clock source, saved and restored                      | correct
+Milan 5.3.13 (p46)                                       | User names                                            | correct
+  (not cited) Milan 5.3.8.2 / 5.3.8.3 (p41)              | Bound state / Binding parameters, saved and restored  | MISSING: the only item the default inventory persists
+  (not cited) Milan 5.3.7.6, 5.3.8.1, 5.3.9.1, 5.3.10.1  | presentation offset, input format, channel mappings   | MISSING vs docs/MILAN_V12_ROADMAP.md:399 inventory
+Milan 5.5.1.4 (p72)                                      | Auto Connect (restart after power cycle)              | correct
+Milan 5.5.2.6 (p76)                                      | Auto Connect (persistent connections)                 | correct
+Issue #75 acceptance                                     | CONNECT_RX response to first valid AVTP PDU < 1 s     | matches rebind_limit_s=1 exclusive
+REGISTER_MAP.md:1251                                     | AVTPRX_TSD 0x6EC signed ns, last STREAM_INPUT[0] PDU  | matches plan timestamp_margin

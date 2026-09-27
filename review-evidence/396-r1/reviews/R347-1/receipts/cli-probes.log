@@ -1,0 +1,166 @@
+### --plan --areas soak,power --json --persisted-items 
+-checklist] [--areas AREAS]
+                           [--coverage] [--coverage-by-area] [--dut DUT]
+                           [--peer PEER] [--soak-duration-s SOAK_DURATION_S]
+                           [--soak-interval-s SOAK_INTERVAL_S]
+                           [--power-cycles POWER_CYCLES]
+                           [--idle-cycles IDLE_CYCLES]
+                           [--commit-cycles COMMIT_CYCLES]
+                           [--persisted-items PERSISTED_ITEMS] [--json]
+                           [--self-test]
+torture_campaign.py: error: persisted items must be nonempty, unique names
+rc=2
+### --plan --areas power --json --idle-cycles 150 --commit-cycles 40
+checklist] [--areas AREAS]
+                           [--coverage] [--coverage-by-area] [--dut DUT]
+                           [--peer PEER] [--soak-duration-s SOAK_DURATION_S]
+                           [--soak-interval-s SOAK_INTERVAL_S]
+                           [--power-cycles POWER_CYCLES]
+                           [--idle-cycles IDLE_CYCLES]
+                           [--commit-cycles COMMIT_CYCLES]
+                           [--persisted-items PERSISTED_ITEMS] [--json]
+                           [--self-test]
+torture_campaign.py: error: idle and commit cycles must sum to power cycles
+rc=2
+### --plan --areas soak --json --soak-interval-s 0
+] [--checklist] [--areas AREAS]
+                           [--coverage] [--coverage-by-area] [--dut DUT]
+                           [--peer PEER] [--soak-duration-s SOAK_DURATION_S]
+                           [--soak-interval-s SOAK_INTERVAL_S]
+                           [--power-cycles POWER_CYCLES]
+                           [--idle-cycles IDLE_CYCLES]
+                           [--commit-cycles COMMIT_CYCLES]
+                           [--persisted-items PERSISTED_ITEMS] [--json]
+                           [--self-test]
+torture_campaign.py: error: soak_interval_s must be a positive integer
+rc=2
+### --plan --areas soak --json --dut crf_in=
+t call last):
+  File "$REVIEWS/396-r347-1-packet/scratch/tree/tb/tools/torture_campaign.py", line 5196, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/396-r347-1-packet/scratch/tree/tb/tools/torture_campaign.py", line 5156, in main
+    dut = parse_device_spec(a.dut, ARTY) if a.dut else ARTY
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/396-r347-1-packet/scratch/tree/tb/tools/torture_campaign.py", line 1990, in parse_device_spec
+    out[k] = int(v, 0)
+             ~~~^^^^^^
+ValueError: invalid literal for int() with base 0: ''
+rc=1
+### --coverage-by-area --areas soak,power --dut talker_index_set=0|1|4,crf_out=4
+     1,
+        4
+      ],
+      "dut_listener": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "peer_talker": [
+        0,
+        2
+      ],
+      "peer_listener": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ]
+    },
+    "expected": {
+      "dut_talker": [
+        0,
+        1,
+        4
+      ],
+      "dut_listener": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "peer_talker": [
+        0,
+        2
+      ],
+      "peer_listener": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ]
+    },
+    "missing": {}
+  }
+}
+rc=0
+### --coverage-by-area --areas soak,power --dut listener_index_set=0|1,crf_in=1
+ker": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dut_listener": [
+        0,
+        1
+      ],
+      "peer_talker": [
+        0,
+        2
+      ],
+      "peer_listener": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ]
+    },
+    "expected": {
+      "dut_talker": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "dut_listener": [
+        0,
+        1
+      ],
+      "peer_talker": [
+        0,
+        2
+      ],
+      "peer_listener": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ]
+    },
+    "missing": {}
+  }
+}
+rc=0
+### --plan --areas soak --json --peer entity=020000fffe000002
+ecklist] [--areas AREAS]
+                           [--coverage] [--coverage-by-area] [--dut DUT]
+                           [--peer PEER] [--soak-duration-s SOAK_DURATION_S]
+                           [--soak-interval-s SOAK_INTERVAL_S]
+                           [--power-cycles POWER_CYCLES]
+                           [--idle-cycles IDLE_CYCLES]
+                           [--commit-cycles COMMIT_CYCLES]
+                           [--persisted-items PERSISTED_ITEMS] [--json]
+                           [--self-test]
+torture_campaign.py: error: release campaigns require a distinct DUT and peer
+rc=2
+CRF listed in talker_index_set -> incompatible outbound pairs: [(4, 4)] audit ok: True
