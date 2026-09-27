@@ -1,0 +1,47 @@
+PASS: pristine planner self-test
+KILLED: restore eligibility check removed: test_release_eligibility_boundaries
+KILLED: restore ceiling relaxed: test_release_eligibility_boundaries
+KILLED: power-off hold hardcoded: test_release_timing_and_snapshot_contract
+KILLED: power-off CLI value discarded: test_release_cli_parameters
+KILLED: ADP window charged for pre-cut time: test_release_timing_and_snapshot_contract
+KILLED: missing ADP evidence skipped: test_release_timing_and_snapshot_contract
+KILLED: tu bound uses media-clock holdover: test_release_tu_contract
+KILLED: uncorrelated tu ignored: test_release_tu_contract
+KILLED: boot evidence ends before the next cut: test_release_boot_negative_control
+KILLED: tu anchor uses the first discontinuity: test_release_tu_chained_discontinuities
+KILLED: tu clearing deadline ignores observation resolution: test_release_tu_chained_discontinuities
+KILLED: tu oracle accepts an uncorrelated interval: test_release_tu_chained_discontinuities
+KILLED: tu plan uses the first discontinuity: test_release_tu_contract
+KILLED: tu plan drops capture resolution: test_release_tu_contract
+KILLED: tu assertion allows five seconds: test_release_assertion_text
+KILLED: tu assertion drops uncorrelated failure: test_release_assertion_text
+KILLED: ADP assertion uses the pre-cut anchor: test_release_assertion_text
+KILLED: ADP assertion charges the off time: test_release_assertion_text
+KILLED: CLI power hold default changes: test_release_cli_power_hold_default
+KILLED: tu containment drops the start allowance: test_release_tu_start_resolution
+KILLED: tu containment doubles the start allowance: test_release_tu_start_resolution
+KILLED: tu containment excludes its inclusive start: test_release_tu_start_resolution
+KILLED: tu containment includes the clear instant: test_release_tu_start_resolution
+KILLED: tu assertion drops the event window: test_release_assertion_text
+KILLED: tu plan drops the start allowance: test_release_tu_contract
+KILLED: mr clock-source cause removed: test_release_mr_allowed_causes
+KILLED: mr CRF disruption cause removed: test_release_mr_allowed_causes
+KILLED: mr received CRF toggle cause removed: test_release_mr_allowed_causes
+KILLED: mr uncorrelated toggle accepted: test_release_mr_no_cause
+KILLED: mr GM-only toggle accepted: test_release_mr_gm_only
+KILLED: mr cause time window removed: test_release_mr_resolution
+KILLED: mr foreign-stream cause accepted: test_release_mr_stream_scope
+KILLED: mr eight-PDU minimum removed: test_release_mr_eight_pdus
+KILLED: mr terminal hold evidence ignored: test_release_mr_eight_pdus
+KILLED: MEDIA_RESET cause check removed: test_release_media_reset_no_cause
+KILLED: MEDIA_RESET reuses a toggle for two increments: test_release_media_reset_intervals
+KILLED: MEDIA_RESET interval update allowance removed: test_release_media_reset_intervals
+KILLED: tu GM minimum removed: test_release_tu_gm_minimum
+KILLED: tu GM minimum anchored at the first GM change: test_release_tu_gm_minimum
+KILLED: tu GM minimum drops recorded resolution: test_release_tu_gm_minimum
+KILLED: tu missing GM history accepted: test_release_tu_missing_gm_history
+KILLED: mr missing evidence accepted: test_release_mr_missing_evidence
+KILLED: mr plan hold weakened: test_release_mr_plan_contract
+KILLED: tu plan GM minimum removed: test_release_mr_plan_contract
+PASS: 44 mutations killed; source unchanged
+rc=0

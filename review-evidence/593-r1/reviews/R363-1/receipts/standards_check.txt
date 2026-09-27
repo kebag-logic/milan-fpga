@@ -1,0 +1,28 @@
+R363-1 standards check (local layout-preserving text extraction of $WORKSPACE_HOME/standards/1722-2016.pdf and the Milan v1.2 consolidated PDF; short key phrases only)
+
+IEEE 1722-2016 4.4.4.3 (mr), extraction lines 1914-1932:
+  - mr indicates "a change in the source of the media clock".
+  - Toggled "each time a media clock restart is needed"; once toggled it "shall remain in
+    its new state for a minimum of eight (8) AVTPDUs for a given continuous stream".
+  - Streams deriving timestamps from a received CRF stream "shall toggle the mr bit if a
+    disruption of the CRF stream occurs or if the mr bit in the CRF stream has been toggled".
+  -> Matches the corrected decision's cause list, per-stream 8-PDU hold, CRF propagation.
+     One restart = one toggle (supports finding F3).
+
+IEEE 1722-2016 4.4.4.7 (tu), extraction lines 1981-2000:
+  - Discontinuity examples: GM identity change, GM timing-source change, "or other events".
+  - Talker "should" set tu on detecting a discontinuity and reset it once gPTP is normal.
+  -> Matches the accepted-kind list in REQ-VER-06 and the plan's tu_discontinuity_kinds.
+
+Milan v1.2 Table 5.4 (STREAM_OUTPUT) / Table 5.6 (STREAM_INPUT) MEDIA_RESET, lines 1898-1902, 2103-2106:
+  - Incremented at the end of every observation interval (<= 1 s) during which mr was toggled
+    in transmitted / received Stream Data AVTPDUs.
+  - Output counter: "Reset to 0 each time the Talker starts streaming" (relevant to S2).
+  -> Supports interval counting, the 1 s update lag, and delta <= caused toggles.
+
+Milan v1.2 Annex B.1 (informative), lines ~7148-7170:
+  - B.1.1: on a change of grandmaster, tu "shall be set to 1 for the duration of 0.25 seconds".
+    (Applies to every GM change, including one after which no tu interval appears: finding F2.)
+  - B.1.2: a GM change "shall not result in media clock unlock" when the recovery stream was
+    stable > 60 s and all devices agree on the new GM within 5 s.
+  -> Consistent with "GM change alone fails" for mr.
