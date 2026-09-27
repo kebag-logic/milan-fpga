@@ -1,0 +1,27 @@
+$ git rev-parse HEAD HEAD^{tree}
+warning: unable to find all commit-graph files
+b7b74b8b20c166cf69f84c2fcbb6162b420cd2d3
+1b8951188447bddf54204e146796b6775e4bf72a
+$ git status --porcelain=v1 --untracked-files=all --ignored=no
+warning: unable to find all commit-graph files
+(end status)
+$ git diff --quiet HEAD && git diff --cached --quiet
+warning: unable to find all commit-graph files
+warning: unable to find all commit-graph files
+worktree and index match HEAD
+$ index entries vs HEAD tree (mode sha path)
+warning: unable to find all commit-graph files
+index == HEAD tree (modes, blobs, paths, gitlinks)
+$ git ls-files -s | grep ^160000
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+160000 0922e43408f891fc0b84a84691df86b4fd0f1c0d 0	protocol-processor
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+$ git fsck-free blob recheck of changed files
+OK a787c2ded3cc208e13c5ecd026728e2c5674dd51 CONTRIBUTING.md
+OK f819f5fb2d9c3475ba29ec9fab22abdbe107f042 REQUIREMENTS.md
+OK 5c706f0c7e6cac319547d2a836c8948a7fa60588 docs/testing/TESTING.md
+OK 931971197065bcf47f941d3e7ea4b720fe4869d7 tb/tools/torture_campaign.py
+OK cb4ac34482c13718198fc3b1df4d0286d980914b tests/features/torture_campaign_plan.feature
+OK ef832d1b612f82eb3a790a874e214536416b5517 tests/steps/torture_plan_steps.py
+OK 13496032b93b386d860ccfbce5daa31b12885b6d tests/steps/torture_release_steps.py

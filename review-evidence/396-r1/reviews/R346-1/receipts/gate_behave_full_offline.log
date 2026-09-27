@@ -1,0 +1,10 @@
+$ cd tests && python3 -B -m behave --tags ~@open-finding -f plain
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then every SRP verdict is SKIP ... passed in 0.000s
+    And the SRP skip says an inline tap is required ... passed in 0.000s
+
+14 features passed, 0 failed, 0 skipped
+353 scenarios passed, 0 failed, 0 skipped
+1784 steps passed, 0 failed, 0 skipped
+Took 0min 0.721s
+rc=0

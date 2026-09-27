@@ -1,0 +1,14 @@
+$ python3 -B tb/tools/torture_campaign.py --plan --areas soak,power --json --soak-duration-s 7200 --soak-interval-s 900 --power-cycles 10 --idle-cycles 7 --commit-cycles 3 --persisted-items stream_binding,clock_source | <extract>
+soak.continuous {'duration_s': 7200, 'interval_s': 900, 'cycles': None, 'total_cycles': None, 'phase': None, 'persisted_items': None, 'release_eligible': False, 'snapshot_policy': None, 'cut_requires': None}
+power.idle {'duration_s': None, 'interval_s': None, 'cycles': 7, 'total_cycles': 10, 'phase': 'idle', 'persisted_items': ['stream_binding', 'clock_source'], 'release_eligible': False, 'snapshot_policy': 'exact pre-cut committed snapshot', 'cut_requires': 'journal_idle'}
+power.journal_commit {'duration_s': None, 'interval_s': None, 'cycles': 3, 'total_cycles': 10, 'phase': 'journal_commit', 'persisted_items': ['stream_binding', 'clock_source'], 'release_eligible': False, 'snapshot_policy': 'complete old or new committed snapshot', 'cut_requires': 'journal_commit_window'}
+rc=0
+
+$ ... --power-cycles 200 --idle-cycles 161 --commit-cycles 39 (eligibility)
+[('idle', 161, False), ('journal_commit', 39, False)]
+
+$ ... --soak-interval-s 604800 (interval equal to duration)
+604800 True
+
+$ ... --persisted-items clock_source (inventory without the binding)
+[(['clock_source'], True), (['clock_source'], True)]

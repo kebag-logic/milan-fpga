@@ -1,0 +1,40 @@
+$ python3 -B tb/tools/torture_campaign.py --plan --areas soak --json --soak-duration-s 125 --soak-interval-s 60
+  }
+]
+rc=0
+
+$ python3 -B tb/tools/torture_campaign.py --plan --areas power --persisted-items stream_binding, clock_source
+                           [--self-test]
+torture_campaign.py: error: persisted items must be nonempty, unique names
+rc=2
+
+$ python3 -B tb/tools/torture_campaign.py --plan --areas power --persisted-items 
+                           [--self-test]
+torture_campaign.py: error: persisted items must be nonempty, unique names
+rc=2
+
+$ python3 -B tb/tools/torture_campaign.py --plan --areas soak --dut crf_in=,crf_out=4
+             ~~~^^^^^^
+ValueError: invalid literal for int() with base 0: ''
+rc=1
+
+$ python3 -B tb/tools/torture_campaign.py --plan --areas soak --dut talkers=4,listeners=4 --peer crf_in=8,crf_out=2,entity_id=020000fffe000002
+                           [--self-test]
+torture_campaign.py: error: release campaigns require a distinct DUT and peer
+rc=2
+
+$ python3 -B tb/tools/torture_campaign.py --plan --areas power --soak-interval-s 0
+                           [--self-test]
+torture_campaign.py: error: soak_interval_s must be a positive integer
+rc=2
+
+$ python3 -B tb/tools/torture_campaign.py --plan --areas matrix --power-cycles 201
+                           [--self-test]
+torture_campaign.py: error: idle and commit cycles must sum to power cycles
+rc=2
+
+$ python3 -B tb/tools/torture_campaign.py --plan --areas soak --dut listener_index_set=,crf_in=4
+                     f"pairs at all; omit the key instead")
+ValueError: listener_index_set: an empty index set would run no pairs at all; omit the key instead
+rc=1
+

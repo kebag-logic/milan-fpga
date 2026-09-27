@@ -1,0 +1,18 @@
+$ git diff --name-status ac18b509..b7b74b8b
+warning: unable to find all commit-graph files
+M	CONTRIBUTING.md
+M	REQUIREMENTS.md
+M	docs/testing/TESTING.md
+M	tb/tools/torture_campaign.py
+M	tests/features/torture_campaign_plan.feature
+M	tests/steps/torture_plan_steps.py
+A	tests/steps/torture_release_steps.py
+$ git diff --submodule=short --raw (gitlinks)
+warning: unable to find all commit-graph files
+no gitlink changes
+$ git ls-tree HEAD (gitlinks)
+warning: unable to find all commit-graph files
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 0922e43408f891fc0b84a84691df86b4fd0f1c0d	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
