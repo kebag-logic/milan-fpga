@@ -2321,7 +2321,7 @@ class NxnDatapathHarness {
 
     void prove_the_identity_and_provision_the_entity_id() {
         ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-        ck("VERSION 0x0060 widens the saved-state pending bit to the binding manager's unflushed sinks and the AECP commit marks, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
+        ck("VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
            axi_read(A_VERSION), 0x00020060);
 
         //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).

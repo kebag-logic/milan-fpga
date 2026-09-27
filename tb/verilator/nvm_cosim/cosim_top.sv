@@ -422,11 +422,11 @@ module cosim_top
   //! something this harness models — the same dbg_dirty_o the shadow above
   //! drives. The alarm the processor already exports reaches the backend.
   //!
-  //! The glue's THIRD term, the sticky bit an AECP commit mark of class 6 or
-  //! 7 sets (donor scope D2), has no producer here: this harness elaborates
-  //! the dynamic-state store and the binding manager, not the AECP engine, so
-  //! no mark can be raised and the term would be a constant. It is graded
-  //! where its producer is, in the processor's own pp_top suite.
+  //! The glue's third source is accepted live name/map writes plus their
+  //! sticky history (#502). Neither producer is present here: this harness
+  //! elaborates the dynamic-state store and binding manager. The shipping
+  //! pp_shadow suite grades names and actual parent phase-5 map writes,
+  //! including unchanged maps that must leave pending clear.
   logic pend_w;
   assign pend_w = aecp_dyn_dirty_w | (|mgr_dirty_w);
 `else

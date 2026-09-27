@@ -198,9 +198,9 @@ module KL_nvm_backend #(
     //! ---- fabric evidence ----
     //! A LEVEL, not an event: 1 while the producer holds an accepted change
     //! it has not yet written through the device face (the AECP store's
-    //! sticky level, the binding manager's unflushed state, and a sticky bit
-    //! for an AECP commit mark of a group nothing writes). No acknowledgement
-    //! retires it.
+    //! sticky level, the binding manager's unflushed state, and accepted
+    //! live name/map writes with their sticky history). Names and maps have
+    //! no record writer. No acknowledgement retires that pending source.
     input  wire         pend_i,
     //! the producer's bounded-retry exhaustion alarm (sticky in the donor
     //! until reset): section 9.2 lists it as a revocation cause

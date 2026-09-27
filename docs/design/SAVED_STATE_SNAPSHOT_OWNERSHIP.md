@@ -29,6 +29,9 @@
 > place that was reserved for them. A binding accepted inside the manager's
 > debounce now reads PENDING (case E3, an ordinary passing case since), and a
 > channel map or user name change is reported instead of reading durable.
+> Issue #502 closes the original marks' program-tail reporting window.
+> Names use accepted writes; maps use actual parent phase-5 writes.
+> The marks retain their command-completion meaning.
 > What is still a KNOWN LIMITATION of the shipping build, and a scope rather
 > than a defect of this contract, is MATERIALIZATION: no record writer exists
 > for the non-binding groups, which is scope D3 and UNRESOLVED 1.
@@ -89,12 +92,14 @@
 > are re-graded, and the evidence was re-run in full from a clean state.
 > Section 21 maps every re-review finding to its answer.
 
-Source examined: dev `36ee8a37` (protocol-processor `8f2f58fb`, gptp-processor
-`c1b61743`, third_party/verilog-axis `48ff7a7e`). Where this page says the
-current source, it means that commit. The evidence ran there, and its run
-script refuses any other checkout. A claim marked EXECUTED comes from the run
+Historical evidence source: dev `36ee8a37` (protocol-processor `8f2f58fb`, gptp-processor
+`c1b61743`, third_party/verilog-axis `48ff7a7e`).
+Historical references to the current source mean that commit.
+The evidence ran there; its script refuses any other checkout.
+A claim marked EXECUTED comes from the run
 script at that source, graded in its results files; a claim marked DERIVED
 does not. Case and check names are the ones the run script grades.
+Current pending sources are defined in section 6.1, including #502.
 
 <!-- milan-feature-value:gateware_version:historic -->
 This page lands on dev `f56fa168`. Its protocol-processor pin is `6a9a1241`,
@@ -301,8 +306,10 @@ work after it (U1).
    never advances, no acknowledgement can quote a capture, no slot is
    written, no flash erase is issued, the committable bit never falls and the
    status can never read durable. The saved state stays at the last verified
-   slot, the pending bit reads 1, nvm_backed reads 0, and only a reset leaves
-   the state. Rule 8 keeps a later RELOAD from retiring work; this rule keeps
+   slot. Pending follows the remaining sources, as section 6.1 defines.
+   Section 5.3 states the ordering-dependent status, including writer retirement.
+   Only a reset leaves the state.
+   Rule 8 keeps a later RELOAD from retiring work; this rule keeps
    the boot that validated nothing from retiring any. A writer restarted in
    that state does not re-attach: it reads the flag and stays retired, and
    this rule is what makes a writer that ignores that harmless (section 5.3).
@@ -505,8 +512,9 @@ The rule, in the backend (revision b, with the two bounds revision c adds):
   An accepted RELOAD closes every record, clears both dirty halves, ends any
   capture, closes the commit bracket and clears reload refused.
 - **A refused RELOAD** changes nothing but reload refused, PP_NVM_STAT[11].
-  Every record stays as the last re-base left it, which is open, so nvm_pend
-  reads 1, no durable reading is possible and nothing is retired.
+  Existing record ownership and producer work remain unchanged.
+  Open records and producer sources assert pending (section 6.1).
+  The refusal itself retires nothing.
 - **Load accepted**, PP_NVM_STAT[2] (revision d). 0 at reset. An accepted
   RELOAD sets it. NOTHING clears it but a reset. **No capture is armed while
   it is 0**: the arm condition of section 5.2 reads it directly. So a boot
@@ -816,7 +824,7 @@ graded bit by bit ("mismatches none; every allocated record open True (53 of
 | capture | closed: open 0, hold 0, valid 0, attested 0; arm refused 0, ack refused 0 |
 | identity | 0; the first accepted ARM names capture 1 |
 | dirty_live, dirty_cap | 0 and 0, so nvm_dirty is 0 |
-| open vector | every allocated record open, so nvm_pend (PP_NVM_STAT[22]) reads 1 until the first accepted RELOAD |
+| open vector | every allocated record open, so nvm_pend (PP_NVM_STAT[22]) reads 1 at reset; whole-record WRITE completion closes its record; accepted RELOAD closes all records |
 | load | load flag 0, load pending PP_NVM_STAT[3] 1, **load accepted PP_NVM_STAT[2] 0** (#484), reload refused 0; a RELOAD before a re-base is refused (the flag is not readable, so U7 does not grade that clause bit by bit; the same term is executed by U5 and by U8) |
 | image | length 0 (not configured) and img_valid 0 |
 | an ARM here (#484) | REFUSED, and it stays refused after a writer configures and validates the image: load accepted is 0, and the arm condition reads it directly (rule 9). An implementation that refused only on the unconfigured image would pass a reset-row test and still open a capture in a boot that accepted no load |
@@ -949,29 +957,44 @@ img_valid and [15:12] verdict are taken). Proposed status dictionary row for
 
 | bit | name | meaning |
 |---|---|---|
-| [11] | nvm_pend | accepted work that no verified slot holds and nvm_dirty does not report: a change the producer still holds, a record whose logical write has not completed, or -- from reset until the boot window load is accepted -- every record, because none is known yet |
+| [11] | nvm_pend | accepted work that no verified slot holds and nvm_dirty does not report: a change the producer still holds or an open record; every allocated record starts open at reset; accepted RELOAD or whole-record WRITE completion closes records as section 4 defines |
 
-SETS, one cycle after its cause, whenever:
+The backend registers `pend_i` on each `clk_i` edge.
+Issue #502 aligns name/map reporting with live acceptance.
+`KL_pp_shadow` combines these sources:
 
-- pend_i is 1. pend_i is a LEVEL wired in KL_pp_shadow: the dynamic-state
-  store's sticky persisted-field level (aecp_dyn_dirty_o, today reduced to its
-  rising edge), OR, once donor scope D1 lands, any sink the binding manager
-  has accepted and not yet flushed; or
-- any record is open (section 4). Between reset and the first accepted window
-  load that is EVERY allocated record, so a reader of PP_STAT[11] sees 1
-  through the whole boot interval, and a build with no writer at all reads 1
-  for ever where saved-state section 9.3 documents (0,0,0). That is the truth
-  told conservatively -- nothing is known durable yet -- and it is why the
-  three bits are read together.
+- The dynamic-state store's sticky `aecp_dyn_dirty_o` level.
+- The binding manager's `nvm_unflushed_o` vector, reduced with OR.
+- Accepted name writes from `aecp_name_wr_o`.
+- Actual phase-5 map writes through `amap_live_wr_i`.
+- Sticky history of those name/map writes, cleared only by reset.
 
-CLEARS only when pend_i is 0 AND no record is open. pend_i falls when the
-manager has flushed every sink (its dirty bit clears on done, or is dropped on
-retry exhaustion, which raises the alarm and revokes nvm_backed) and the
-dynamic-state level is 0, which today happens only at reset because nothing
-writes those fields (section 11). An open record closes at its whole-record
-WRITE completion, or at the accepted boot RELOAD (section 5.3), which the
-backend accepts only when no mutating operation was granted since the last
-re-base and none was in flight at it. It never closes on device idle.
+The accepting pulses bypass the history register into `pend_i`.
+The backend therefore reports pending on the accepting edge.
+All producers share the backend's clock and reset.
+Map phase 5 cannot stall after phase 1 accepts.
+The parent derives `amap_live_wr_i` from `amap_edit_live_wr_p`.
+The store and pulse share the same change conditions.
+The store retains input-change priority over output changes.
+Unchanged duplicate records produce no pulse.
+Unchanged name lanes produce no pulse.
+The later class-6/7 marks retain their command-completion meaning.
+
+Open records independently assert pending (section 4).
+Every allocated record starts open at reset.
+An accepted boot RELOAD closes those initial records.
+A whole-record WRITE completion closes its corresponding record.
+Device idle alone never closes a record.
+
+Pending clears only when every source is clear.
+The binding manager clears flushed sinks or reports retry exhaustion.
+Retry exhaustion raises the alarm and revokes `nvm_backed`.
+Names, maps and dynamic fields still lack record writers.
+Their sticky sources therefore clear only at reset.
+
+The [shipping K10/K12 tests](../../tb/verilator/pp_shadow/README.md) cover this wiring.
+They include unchanged commands, both groups and reset.
+They also exercise both map directions and snapshot acknowledgement.
 
 NOTHING ELSE affects it: no ACK, RELEASE, commit, deadline or heartbeat.
 It does not drive a commit: the writer commits on nvm_dirty only, so a
@@ -1228,7 +1251,9 @@ the status, because the contract relies on neither ever ending.
 
 ## 11. Persistent-field materialization
 
-Traced at dev 36ee8a37 and donor 8f2f58fb. The only device-face initiator in
+Historical tracing used dev 36ee8a37 and donor 8f2f58fb.
+The table includes subsequent D1, D2 and #502 reporting updates.
+The only device-face initiator in
 the gateware is KL_pp_nvm_port, driven only by KL_acmp_nvm_shadow; the
 firmware writes no record content (it copies whole containers). Record ids
 are
@@ -1245,16 +1270,16 @@ are
 | 0x30 to 0x3F | stream format in | KL_aecp_dyn_state, selector 3 | the dynamic-state level | NONE | nvm_pend 1 until reset (E1: two accepted format changes; the tracked and composite builds commit record 0x30 erased, and the prototype commits no slot at all, "record 0x30 in slot None") |
 | 0x40 to 0x4F | stream format out | KL_aecp_dyn_state, selector 4 | the dynamic-state level | NONE | nvm_pend 1 until reset |
 | 0x50 to 0x5F | presentation time offset | KL_aecp_dyn_state, selector 5 | the dynamic-state level | NONE | nvm_pend 1 until reset |
-| 0x60 to 0x7F | channel maps in and out | the AECP engine's mapping state | its commit mark, class 6, on aecp_nvm_stb_o / aecp_nvm_mark_o (donor scope D2, landed) | NONE | nvm_pend 1 from the first marked change until reset; never durable, and never written (UNRESOLVED 1) |
-| 0x80 to 0xFF | user names | KL_aecp_desc_store (SET_NAME) | commit mark class 7, on the same pair | NONE | as the maps row: reported from the mark, never written (UNRESOLVED 1) |
+| 0x60 to 0x7F | channel maps in and out | milan_datapath and KL_chan_map_capture | actual phase-5 map write enable (#502) | NONE | nvm_pend 1 from the first actual write until reset; never durable, and never written (UNRESOLVED 1) |
+| 0x80 to 0xFF | user names | KL_aecp_desc_store (SET_NAME) | accepted aecp_name_wr_o pulse (#502) | NONE | as the maps row: reported from acceptance, never written (UNRESOLVED 1) |
 
 Acknowledgement identity repairs none of the NONE rows; what this contract
 guarantees for them is only that the status never claims durability over a
 change it can see (E1 on the prototype: no_durable_claim_unmaterialized@first
 and @end pass, and the tracked build fails both). Materialization itself is
 UNRESOLVED 1. The channel-map and name rows are now REPORTED, because donor
-scope D2 landed and the glue makes either mark sticky; what they still lack
-is a writer, which is the same UNRESOLVED 1.
+scope D2 landed. Issue #502 makes accepted live writes sticky instead.
+They still lack a writer, which is the same UNRESOLVED 1.
 
 A writer for every NONE row is proposed on its own page,
 [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500,
@@ -1333,8 +1358,11 @@ revision 424c688f (issue 90, merged): one new output port, no behaviour change.
   (the burst re-serializes), so the bit spans the whole unflushed interval
   and not just the first attempt. Neither weakens the parent use: both make
   the vector report exactly the changes the manager still owes.
-- Parent use: KL_pp_shadow drives the backend's
-  `pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_o) | <the D2 sticky bit>`.
+- Current parent use: `KL_pp_shadow` drives the backend's pending input.
+  `pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_live_wr_w | aecp_live_pend_r`.
+  Here `aecp_live_wr_w = aecp_name_wr_w | amap_live_wr_i`.
+  The pulse covers acceptance; the history stays set until reset.
+  Section 6.1 defines each source and its clearing rule.
 - EXECUTED: E3_binding_inside_manager_debounce is an ordinary PASSING case of
   `tb/verilator/nvm_cosim` with the export bound. It was the suite's one
   labelled expected failure while the term was tied to zero, and the label is
@@ -1357,11 +1385,14 @@ revision 424c688f (issue 90, merged): one new output port, no behaviour change.
   dynamic-state field (SET_SAMPLING_RATE, SET_CLOCK_SOURCE,
   SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO), **6** channel maps
   (ADD/REMOVE_AUDIO_MAPPINGS), **7** user names (SET_NAME).
-- Parent use: a mark of class 6 or class 7 sets a sticky pend_i source until
+- Original parent use: a class-6/7 mark set sticky pending until
   the record that materializes it is written, or until reset while no writer
   exists -- and none does (section 11 is NONE for both), so at this revision
   it clears only at reset. Class 1 is deliberately not taken: the processor
   already publishes that group as the aecp_dyn_dirty_o level.
+- Issue #502 replaces that trigger with accepted live writes.
+  Section 6.1 defines the current pending sources.
+  The marks retain their command-completion meaning.
 - EXECUTED at the pin: `protocol-processor/tb/pp_top` R21 grades a committed
   ADD_AUDIO_MAPPINGS raising one strobe carrying 6, a committed SET_NAME one
   carrying 7, and a GET raising none; tying `aecp_nvm_stb_o` to zero fails
@@ -1475,8 +1506,11 @@ that no rule consumes and that races the producer by construction.
 - **A boot in which no window load was accepted can write nothing.** No
   capture is armed there, so no slot is written, no flash erase is issued and
   no acknowledgement retires anything; the writer RETIRES for that reset; the
-  entity runs on defaults; nvm_pend reads 1 and nvm_backed 0 until the next
-  reset. The saved state is not lost (no slot is touched); it is not restored
+  entity runs on defaults. Pending follows the remaining sources (section 6.1).
+  Closing every record can clear pending if no producer work remains.
+  Committable work and writer retirement still prevent a durable reading.
+  Section 5.3 separates fixed bits from ordering-dependent bits.
+  The saved state is not lost (no slot is touched); it is not restored
   either, and the status says so through img_valid 0 and the restore-fail
   bit. **Only a reset leaves that state**, and a writer restart does not: it
   reads the load-accepted bit and stays retired. The trade is availability,
@@ -1719,7 +1753,7 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) (issue #500).
 2. CLOSED for reporting by donor scope D2 (issue 90): the channel-map and
    name commit marks reach the parent on `aecp_nvm_stb_o` /
-   `aecp_nvm_mark_o`, and either sets a sticky pending source, so the status
+   `aecp_nvm_mark_o`. Issue #502 uses live acceptance instead, so the status
    no longer reads durable over them. Making them durable still needs D3,
    which is item 1.
 3. CLOSED by donor scope D1 (issue 90): `nvm_unflushed_o` is bound in

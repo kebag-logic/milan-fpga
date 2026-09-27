@@ -9,7 +9,7 @@
 > UNRESOLVED 1: who materializes the configuration index, the sampling rate,
 > the clock source, the stream formats in and out, the presentation time
 > offset, the channel maps and the user names into NVM records, and how they
-> come back at boot. Nothing on this page is implemented. Two independent
+> come back at boot. The D3 materializer remains unimplemented. Two independent
 > contract reviews accept or reject it; an implementation lane opens only on
 > an accepted page, with the tickets of section 10.
 >
@@ -53,12 +53,14 @@
 > `d0256846`. Section 16 maps every finding of the three rounds to its
 > answer.
 
-Source examined: dev `07294a76` (protocol-processor `424c688f`,
+Historical evidence source: dev `07294a76` (protocol-processor `424c688f`,
 gptp-processor `c1b61743`, third_party/verilog-axis `48ff7a7e`), which is
-VERSION `0x0002_0060`. Where this page says the current source, it means that
+VERSION `0x0002_0060`. Historical references to the current source mean that
 commit. A claim marked EXECUTED comes from the run script at that source,
 graded in its results files; a claim marked DERIVED does not. Case and check
 names are the ones the run script grades.
+Explicit #502 notes describe the current reporting correction.
+Sections 3 through 13 otherwise describe proposed D3 behavior.
 
 The executable evidence is kept out of this tree, on a branch that is never
 merged. Every evidence citation on this page names the branch, the commit and
@@ -125,10 +127,18 @@ The binding survives a cold power cycle on silicon since 2026-09-21
 The seven other Milan items have no record writer. The
 [snapshot-ownership page section 11](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#11-persistent-field-materialization)
 reads NONE for each, and the contract reports them honestly instead: the
-parent's `pend_i` is the dynamic-state store's sticky level OR the binding
-manager's unflushed sinks OR a sticky bit a class-6 or class-7 commit mark
-sets (`hdl/milan/KL_pp_shadow.sv` lines 935 to 946). After any such change
-the pending bit reads 1 until reset, and no slot ever holds the change.
+parent's `pend_i` combines four terms in `KL_pp_shadow.sv`:
+
+`pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_live_wr_w | aecp_live_pend_r`.
+
+The first two report dynamic-state dirtiness and unflushed bindings.
+Here `aecp_live_wr_w = aecp_name_wr_w | amap_live_wr_i`.
+Accepted name writes pulse `aecp_name_wr_o`.
+The parent's `amap_edit_live_wr_p` reports actual phase-5 map writes.
+It also drives the shadow's `amap_live_wr_i` input.
+`latch_live_pending` retains both live-write sources until reset.
+The live pulse also feeds `pend_i` directly, covering acceptance.
+No slot holds these unmaterialized name/map changes.
 
 Where each live value is held, read at the current source:
 
@@ -139,8 +149,8 @@ Where each live value is held, read at the current source:
 | `0x0A`.. | clock source | selector 2 | the same level |
 | `0x30`.. and `0x40`.. | stream formats in and out | selectors 3 and 4 | the same level |
 | `0x50`.. | presentation time offset | selector 5 | the same level |
-| `0x60` to `0x7F` | channel maps in and out | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map RAM. The processor reaches them only through the GET_AUDIO_MAP read face and the ADD/REMOVE edit face. Their reset value is the EMPTY set (`KL_chan_map_capture.sv` line 427, `milan_datapath.sv` lines 4193 to 4196) | the class-6 commit mark |
-| `0x80`.. | user names | the writable name table of `KL_aecp_desc_store`, on chip, initialized from the image by the store's walk | the class-7 commit mark |
+| `0x60` to `0x7F` | channel maps in and out | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map RAM. The processor reaches them only through the GET_AUDIO_MAP read face and the ADD/REMOVE edit face. Their reset value is the EMPTY set (`KL_chan_map_capture.sv` line 427, `milan_datapath.sv` block `amap_edit_commit`) | actual phase-5 write enable `amap_edit_live_wr_p`, held sticky |
+| `0x80`.. | user names | the writable name table of `KL_aecp_desc_store`, on chip, initialized from the image by the store's walk | accepted `aecp_name_wr_o` pulse, held sticky |
 
 `0x01` (system unique id) and `0x12` to `0x19` (media clock reference) are
 allocated, but no AECP program writes them, so they have nothing to
@@ -206,17 +216,43 @@ read-only GET_RX_STATE served between a sink's stored record and its
 preload writes the reset record back, the manager takes it as a live
 change, and the saved binding is flushed away.
 
-The K10 and K12 durability rows are a finding about today's glue, not only
-the gap. It takes the class-6 and class-7 COMMIT MARKS, and the programs
-raise them only after the live write: in
+The K10/K12 failures describe the historical pre-#502 glue.
+It used class-6/7 commit marks as pending triggers.
+Those marks follow live writes in
 `protocol-processor/hdl/aecp/ucode/gen_ucode.py`, SET_NAME's `NVM_MARK` (line 2092) follows its last `NAME_WR` by COMPARE,
 BR_STATUS and COMMIT, and ADD/REMOVE_AUDIO_MAPPINGS's (line 1792) follows
 the commit loop by FINISH, COMMIT, SET_STATUS, COMPARE and BR_STATUS.
-Between the two, the status reads durable over an applied name or map: 7
-and 6 model cycles here, a few instructions in the product (DERIVED). This
-design triggers on the write instead (section 3, rule 3). The defect is
-issue #502, and section 10 makes its correction a condition of every stage
-declared shippable.
+That historical status falsely read durable during the program tail.
+The model measured seven name cycles and six map cycles.
+The corresponding product instruction delay was DERIVED.
+Issue #502 corrects reporting with live-write triggers, described below.
+Section 10 retains that correction as a stage-release prerequisite.
+
+Issue #502 implements that standalone reporting correction.
+The processor pin is now `870ff88a`.
+`KL_pp_shadow` consumes `aecp_name_wr_o` and `amap_live_wr_i`.
+The parent derives `amap_live_wr_i` from its store-change conditions.
+Both sources share `clk_i` and `rst_n` with the backend.
+Their pulses and sticky history feed the registered pending input.
+Pending therefore rises on the accepting live-write edge.
+The later marks still delimit command completion.
+An unchanged duplicate map record raises neither pending nor mark.
+Neither group gains a record writer in this correction.
+Only reset retires their sticky source.
+
+The [shipping harness](../../tb/verilator/pp_shadow/README.md) ports K10/K12.
+Live storage changes start its unsaved interval.
+It checks every edge through command completion and acknowledgement.
+Changed names and both map directions use the real processor.
+Controls cover unchanged names, zero-record maps and reset.
+Static output edits are refused before record validation.
+Dynamic input/output controls cover record-validation refusals and unchanged duplicates.
+ADD and REMOVE each start from a durable baseline.
+REMOVE and duplicate controls preload their mapping through CSRs.
+The late-mark mutant must fail both durability checks.
+These checks replace neither D3 convergence nor power-cycle evidence.
+The table above remains evidence at its stated historical source.
+
 
 ## 3. Decision
 
@@ -263,9 +299,9 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    channel-map tables), and neither the writer nor the drain writes a
    control-face register. Obligation O3, which orders device-face
    initiators after the restore walk, holds as well (section 8.1).
-6. **The pending source.** `pend_i` becomes the binding manager's unflushed
+6. **The proposed pending source.** `pend_i` becomes the binding manager's unflushed
    sinks OR the writer's unflushed records. The dynamic-state level and the
-   parent's sticky class-6/7 bit LEAVE `pend_i`: a per-record bit replaces
+   parent's live-name/map pulse and sticky history LEAVE `pend_i`: a per-record bit replaces
    each of them, stage by stage (section 10).
 7. **The restore is a transaction** (section 8.6), after the binding
    walk's drained terminal (seam S4) and before the entity is enabled. The
@@ -451,10 +487,12 @@ says what the mark trigger would need.
 
 ### 5.2 In the parent
 
-`KL_pp_shadow.sv` changes three lines of glue and adds no CSR:
+The proposed D3 glue changes `KL_pp_shadow.sv` without adding CSRs:
 
-- `pend_i = (|nvm_unflushed_o) | d3_unflushed_o`. The `aecp_mark_pend_r` bit
-  is deleted with the stage that retires its last class (section 10);
+- The proposed final composition is
+  `pend_i = (|nvm_unflushed_o) | d3_unflushed_o`.
+  Each stage replaces its group's current pending terms (section 10).
+  Stage 3 removes `aecp_live_wr_w` and `aecp_live_pend_r` from `pend_i`.
   `aecp_dyn_dirty_o` stays exported for diagnosis but leaves `pend_i`.
 - `alarm_i` takes the processor's combined alarm.
 - the restore outputs take the processor's combined verdicts; the blind-walk
@@ -700,9 +738,10 @@ sources:
 
 So each pending source clears when its record is in the window, and the
 status reads durable only when the record is in a slot. The old sources
-cannot do this: `aecp_dyn_dirty_o` and the class-6/7 bit are one bit for
-many records, so no single record write can clear them. They leave `pend_i`
-and the per-record bits replace them (rule 6).
+cannot do this: `aecp_dyn_dirty_o` and `aecp_live_pend_r` each cover
+many records, so no single record write can clear them.
+The proposal replaces these levels and the direct live-write pulse.
+Per-record bits then supply pending (rule 6).
 
 The global check is the definition. `no_durable_claim_over_unsaved` runs on
 every case of every build: whenever the status reads durable (backed 1,
@@ -1622,12 +1661,12 @@ descriptor store's roll-back. They add gates, and change no allocation:
   hard reset only. Stage 2 adds no owner: its names come back on the same
   reset.
 
-- **No stage is declared shippable before #502 is closed.** A shipped
-  stage's proof reads the status durable, and until names and maps are
-  materialized that reading can be false over them for a program's tail
-  (section 2). The correction is #502's standalone one: the live-write
-  trigger feeding the parent's pending bit from the first accepted write,
-  for both classes. Filing #502 does not close it; the correction must land.
+- **No stage is declared shippable before #502 is closed.**
+  Issue #502 corrects the historical reporting window (section 2).
+  Accepted name writes and actual parent phase-5 writes raise pending.
+  Unchanged maps raise nothing; marks remain command-completion triggers.
+  That correction must land before any stage ships.
+  Name/map materialization remains separate D3 work.
 - **Stage 3 requires #501's allocation and donor adoption.**
   The manager decided output-record growth on 2026-09-23.
   The [saved-state allocation](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
@@ -1639,10 +1678,10 @@ descriptor store's roll-back. They add gates, and change no allocation:
   Processor #61/#83 must adopt the capacity when implementing maps.
   The historical K16 evidence below exercised the old allocation.
   Permanent pending still does not satisfy persistence.
-- **Work that may proceed while those are open:** stages 1 and 2 may be
-  implemented and merged, and released only after #502; #502's correction
-  itself; design-level evidence for maps at 1x1, where every legal output
-  set fits its record (16 stream channels, 17 entries).
+- **Work permitted before release:** stages 1 and 2 may proceed.
+  Their release still requires the #502 correction to land.
+  Map design evidence may proceed at 1x1.
+  Its 17-entry record fits all 16 legal stream channels.
   The #501 allocation decision permits stage-3 implementation.
   Release still requires donor adoption, #502, and silicon persistence proof.
 - **Stated in every stage's release notes:** a persistence device that
@@ -1655,8 +1694,8 @@ descriptor store's roll-back. They add gates, and change no allocation:
 | Stage | Records | What lands | Silicon proof | Tickets |
 |---|---|---|---|---|
 | 1. the dynamic-state selectors | configuration index, sampling rate, clock source, stream formats, presentation offset: 9 records at 1x1, 30 at 8x8 | on the seams S1 to S4: the writer with the state-bus trigger, `own` from reset, the flush, the restore transaction from the binding walk's drained terminal with its deadline, its cause classification, its descriptor-fault aborts and the roll-back of BOTH stores (the dynamic-state store, and the descriptor store, whose reset re-arms its fetch watchdog and re-walks the image), held while the descriptor memory owes a burst (S2); the format rule on "supported"; the arbiter and its drain of either manager; the enable released by the restore; the exports; `pend_i` loses the dynamic-state level; the three firmware changes | SET_CLOCK_SOURCE 1, SET_STREAM_INFO, SET_STREAM_FORMAT on an unbound input; power cycle; GET_CLOCK_SOURCE, GET_STREAM_INFO, GET_STREAM_FORMAT, and the ADPDU's configuration index | T8, T9 (processor, prerequisites), T1 (processor), T4 (this repository); released after #502 |
-| 2. names | 38 at 1x1, 99 at 8x8 | the name trigger, the eight-lane latch, the restore after the image walk; the names' roll-back rides stage 1's descriptor-store reset; `pend_i` stops taking class 7 | SET_NAME on the entity name, the group name and a stream name, one of them to the EMPTY name; power cycle; GET_NAME | T2, T4; released after #502 |
-| 3. channel maps | 2 at 1x1, 16 at 8x8 | Requires donor adoption of the decided #501 allocation: the edit-face trigger, the GET_AUDIO_MAP latch, the framing rule, the coupled restore, the map plane's roll-back, #501's capacity decision; the sticky class-6/7 bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T3, T4, #501 |
+| 2. names | 38 at 1x1, 99 at 8x8 | the name trigger, the eight-lane latch, the restore after the image walk; the names' roll-back rides stage 1's descriptor-store reset; the sticky pending source stops taking live name writes | SET_NAME on the entity name, the group name and a stream name, one of them to the EMPTY name; power cycle; GET_NAME | T2, T4; released after #502 |
+| 3. channel maps | 2 at 1x1, 16 at 8x8 | Requires donor adoption of the decided #501 allocation: the edit-face trigger, the GET_AUDIO_MAP latch, the framing rule, the coupled restore, the map plane's roll-back, #501's capacity decision; the sticky live-name/map bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T3, T4, #501 |
 
 Stage 1's descriptor recovery is shown alone: section 8.6's S1 cases run
 on the stage-1 build, which rolls back the two stores and not the map
@@ -1664,9 +1703,13 @@ plane, on a slot holding stage-1 records only, and ST1 deletes the store's
 reset from it. Stage 1 restores formats while the maps still reset: the
 maps come back empty, so nothing restored can be orphaned. Both shipped
 shapes list one sampling rate, so the rate record can only be proved at its default on the
-board; V2 covers its refusal and the synthetic 1x1r2 its replay. Until stage
-3 the class-6 bit stays in `pend_i`, and until stage 2 the class-7 one,
-unless #502's correction has already replaced them.
+board; V2 covers its refusal and the synthetic 1x1r2 its replay.
+Issue #502 already supplies live-write pulses and their sticky history.
+`aecp_live_wr_w` combines accepted names and actual phase-5 map writes.
+It feeds `pend_i` directly and sets `aecp_live_pend_r`.
+Stage 2 transfers name reporting to its record writer.
+It removes names from both the pulse and sticky history.
+Stage 3 transfers maps and removes both remaining terms.
 
 The area of each stage is a subset of section 12's row; each lane owes its
 own post-place delta by the saved-state page's recipe, at both shipped
@@ -1685,7 +1728,7 @@ to a burst the descriptor store abandoned (section 8.6, V23).
 |---|---|---|
 | (a) A manager per group, in the image of `KL_acmp_nvm_shadow` | the reference replication costs three to four times the LUT of (b) and one to three RAMB36 on a device whose binding constraint is block RAM; seven debounces, seven retries and seven restore walks to grade | reference replication estimate, section 4 |
 | (c) The firmware materializes the records from CSR reads | D3 records would never cross the device face, so a second ownership mechanism, on a larger control face, must carry the clear rule beside the accepted contract; the firmware becomes a writer of processor state; the framing and the value rules move into firmware; the donor's F07.9 must be amended. Its measured fabric proxy is smaller by 1,847 LUT at 1x1 and 1,485 at 8x8, excluding firmware and integration costs | measured proxy, section 4 |
-| Triggering on the commit marks, as the tracked glue does | the marks follow the live write by the program's tail, so the status reads durable over an applied name or map | EXECUTED on the tracked glue, section 2 |
+| Triggering on commit marks, as the pre-#502 glue did | Marks followed live writes. Historical status falsely read durable during that tail. | Historical EXECUTED evidence, section 2; corrected by #502 |
 | A shadow of every record inside (b) | 2,432 bytes of names at 1x1 and 6,336 at 8x8 alone; the live value is readable at flush, and latching it costs at most 179 cycles of dispatch hold-off | the (a) shadow rows, section 4; latch windows, section 12 |
 | Staging every record before applying any, so a failed read applies nothing | the same shadow: one to three RAMB36 of names and maps held only for the restore. The roll-back gets the same outcome from resets the owners already have | section 8.6 |
 | Rolling back by undoing each applied record | needs the pre-restore value of every record, which nobody keeps. Holding the state bus from reset makes that value the reset state, so a reset is the exact undo | section 8.6 |
@@ -1791,7 +1834,8 @@ walk 20,660 cycles after that, meeting the drained port (W13: "silence from
 enabled at 40733"). The model's memory answers in 2 or 3 cycles; the
 product's in about 1.4 µs, so every figure grows on the board (UNRESOLVED 8).
 
-Latency, DERIVED: the pending bit rises the cycle after the accepted write.
+Proposed D3 latency, DERIVED: pending rises the cycle after acceptance.
+Current #502 reporting instead covers the accepting edge (section 2).
 The record reaches the window within `DEB_TICKS_P` (500 ms at the binding
 manager's value) plus the latch and the write. The firmware commits after
 its provisional 1,000 ms debounce, and a commit takes at most 3.07 s at 1x1
@@ -1803,8 +1847,9 @@ The board's own figure is a measurement each stage owes.
 
 ## 13. Consequences
 
-- A controller change to any of the seven items becomes durable, and the
-  pending bit clears once it is; today it reads 1 until reset.
+- D3 hands pending to `nvm_dirty` at whole-record completion (section 7.1).
+  Durability follows the verified-slot acknowledgement, once all work is saved.
+  Current unmaterialized sources remain sticky until reset.
 - A D3 restore is all or nothing against a transport failure in either pass
   (a device error the port reports, a torn read, a difference between the
   passes, a descriptor fault, a deadline): complete, or every D3 group at its
@@ -1997,7 +2042,7 @@ The board's own figure is a measurement each stage owes.
 1. **AMENDMENT REQUESTED: the trigger is the live write, not the commit
    mark.** Both reviews support it in principle; it is not adopted until
    the contract acceptance records it, and this page edits none of the
-   wording below. Adopting it changes exactly:
+   remaining acceptance wording below. Adopting it changes exactly:
    - [`SAVED_STATE_FASTCONNECT.md` section 16](SAVED_STATE_FASTCONNECT.md#16-acceptance-for-the-implementation),
      "The marks", first bullet, now "Each of the **eight** marks in section
      12.1 is graded end to end: deleting it alone must redden a save/restore
@@ -2020,13 +2065,13 @@ The board's own figure is a measurement each stage owes.
      firmware's) reported beforehand."
    - The same page,
      [section 12.2](SAVED_STATE_FASTCONNECT.md#122-where-they-go-today),
-     "mapping a class plus the program's descriptor index onto section 4's
-     allocation is the missing manager's job". Proposed: the manager decodes
-     the live write, and the marks stay for notification only.
-   - [`SAVED_STATE_SNAPSHOT_OWNERSHIP.md` section 13](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#13-donor-dependencies-each-its-own-scope),
-     D2, "Parent use: a mark of class 6 or class 7 sets a sticky pend_i
-     source until the record that materializes it is written". Proposed:
-     retired stage by stage as section 10 retires each class.
+     originally assigned record selection to a manager decoding marks.
+     It now distinguishes that history from #502's reporting correction.
+     D3 still proposes live-write record selection and notification-only marks.
+   - [`SAVED_STATE_SNAPSHOT_OWNERSHIP.md` section 13](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#13-donor-dependencies-each-its-own-scope)
+     records D2's original mark-based pending as history.
+     Issue #502 replaces it with accepted live name/map writes.
+     D3 retires these sticky sources stage by stage (section 10).
    - The processor's `07_memory_maps.md` F07.9: the node "committed state
      change (COMMIT + NVM_MARK)" becomes "accepted live write of a persisted
      field (state-bus write, name-table write, map edit commit beat)"; "clear
@@ -2038,8 +2083,8 @@ The board's own figure is a measurement each stage owes.
    deleting its trigger alone (TRG_*) fails V1a's value_in_slot check of
    that group's record, and deleting its replay alone (RPL_*) fails V1b's
    value_restored check of it (sections 7.2 and 8.2). The reasons for the
-   amendment: a mark trigger reads durable over an applied change for the
-   program's tail (EXECUTED on today's glue, section 2), and the class-1
+   amendment: the pre-#502 mark trigger falsely read durable during
+   the program tail (historical EXECUTED evidence, section 2). The class-1
    mark cannot name its record. If the reviews keep the mark, the mark must
    carry the opcode and the descriptor so it can name a record, and the tail
    window must be accepted and stated.
@@ -2049,9 +2094,13 @@ The board's own figure is a measurement each stage owes.
    Its pending-and-skip result remains historical containment evidence.
    The new record reserves `9 * 8 = 72` entries.
    Product save/replay still needs the donor implementation.
-3. **The mark-tail window of today's glue** (#502, open): the status reads
-   durable over an applied name or map for a program's tail. Every stage
-   declared shippable waits for its correction (section 10).
+3. **RESOLVED by #502: the historical mark-tail reporting window.**
+   Accepted name writes now raise pending through `aecp_name_wr_o`.
+   Actual parent phase-5 map writes use `amap_edit_live_wr_p`.
+   Unchanged map records raise nothing.
+   The mark remains the command-completion trigger.
+   Pending stays sticky until reset; neither group gains materialization.
+   Section 10 retains the correction's landing as a release prerequisite.
 4. **The port has no deadline and no cancellation** (processor issue 15,
    open: its criterion 2, that the port serves the next request, is
    undelivered, and its proposed amendment is unaccepted). This contract no
@@ -2085,9 +2134,10 @@ The board's own figure is a measurement each stage owes.
    estimates. Each stage owes its post-place delta at both shapes.
 10. **System unique id and media clock reference** have allocated records
     and no source; nothing here writes them.
-11. **An edit that changes nothing** still raises commit beats, so its port's
-    record is written again for nothing; the program's FINISH knows, the
-    trigger does not.
+11. **Proposed D3 writer: unchanged edits still offer commit beats.**
+    Its proposed phase-5 trigger rewrites the unchanged port record.
+    This remains a D3 limitation, outside #502's reporting correction.
+    The current parent pending trigger requires an actual map write.
 12. **The writer's alarm is sticky until reset**, as the binding manager's
     is; the snapshot page's UNRESOLVED 7 (forgiveness) covers it too.
 13. **Commands before the restore's terminal wait.** Bounded by the binding
@@ -2185,6 +2235,8 @@ below are this revision's, which keeps every round-two control.
 The round-one review findings at `d0256846`, with the reviewers' own
 severities and lenses, as revision b answered them; the evidence names
 below are this revision's cases, which keep every round-one control.
+These are historical answers at that head, including issue statuses.
+Current #501 and #502 dispositions are in section 15.
 
 | Finding | Severity and lenses | Answer | Evidence |
 |---|---|---|---|
