@@ -1,0 +1,174 @@
+{
+  "measured_rtl_commit": "7eb3b0d4a6987fd2e93ffc3b5be125267df7f53a",
+  "sdk_archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f",
+  "configurations": {
+    "endstation_ax7101_1x1_tdm8": {
+      "wrapper_parameters": {
+        "TDATA_WIDTH_P": 64,
+        "CLK_HZ_P": 50000000,
+        "N_STREAM_IN_P": 2,
+        "N_STREAM_OUT_P": 2,
+        "SRP_DOM_DEF_VID_P": 2,
+        "TIM_DIV_US_P": 50,
+        "TIM_DIV_MS_P": 1000,
+        "TROM_HEX_P": "configs/generated/ltn_rom.hex",
+        "UCODE_HEX_P": "configs/generated/ucode.hex",
+        "DESC_BASE_P": 2138046464,
+        "DESC_LINE_BYTES_P": 576,
+        "DESC_IDX_ENTRIES_P": 32,
+        "DESC_NAME_ENTRIES_P": 38,
+        "DESC_MEM_TMO_CYC_P": 4096,
+        "RESP_BASE_P": 2139090944,
+        "N_SPORT_IN_P": 1,
+        "N_SPORT_OUT_P": 1,
+        "N_AUDIO_UNIT_P": 1,
+        "N_CLK_DOM_P": 1,
+        "RX_FIFO_BYTES_P": 4096
+      },
+      "images": [
+        {
+          "path": "ax7101/gateware/alinx_ax7101_rom.init",
+          "bytes": 116451,
+          "words": 12939,
+          "digits": [
+            8
+          ],
+          "sha256": "3e1583250135f0323db8270eb585d21a9397f98a2bbe15b5c7171592130b9d12",
+          "root": "work"
+        },
+        {
+          "path": "ax7101/gateware/alinx_ax7101_sram.init",
+          "bytes": 0,
+          "words": 0,
+          "digits": [],
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "root": "work"
+        },
+        {
+          "path": "ax7101/gateware/alinx_ax7101_mem.init",
+          "bytes": 147,
+          "words": 49,
+          "digits": [
+            2
+          ],
+          "sha256": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335",
+          "root": "work"
+        },
+        {
+          "path": "configs/generated/ltn_rom.hex",
+          "bytes": 6138,
+          "words": 128,
+          "digits": [
+            8
+          ],
+          "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956",
+          "root": "repository"
+        },
+        {
+          "path": "configs/generated/ucode.hex",
+          "bytes": 26624,
+          "words": 2048,
+          "digits": [
+            12
+          ],
+          "sha256": "23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144",
+          "root": "repository"
+        },
+        {
+          "path": "builder/endstation_ax7101_1x1_tdm8/gptp_ucode.hex",
+          "bytes": 13312,
+          "words": 1024,
+          "digits": [
+            12
+          ],
+          "sha256": "78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b",
+          "root": "work"
+        }
+      ]
+    },
+    "endstation_ax7101_8x8": {
+      "wrapper_parameters": {
+        "TDATA_WIDTH_P": 64,
+        "CLK_HZ_P": 100000000,
+        "N_STREAM_IN_P": 9,
+        "N_STREAM_OUT_P": 9,
+        "SRP_DOM_DEF_VID_P": 2,
+        "TIM_DIV_US_P": 100,
+        "TIM_DIV_MS_P": 1000,
+        "TROM_HEX_P": "configs/generated/ltn_rom.hex",
+        "UCODE_HEX_P": "configs/generated/ucode.hex",
+        "DESC_BASE_P": 2138046464,
+        "DESC_LINE_BYTES_P": 576,
+        "DESC_IDX_ENTRIES_P": 32,
+        "DESC_NAME_ENTRIES_P": 99,
+        "DESC_MEM_TMO_CYC_P": 4096,
+        "RESP_BASE_P": 2139090944,
+        "N_SPORT_IN_P": 8,
+        "N_SPORT_OUT_P": 8,
+        "N_AUDIO_UNIT_P": 1,
+        "N_CLK_DOM_P": 1,
+        "RX_FIFO_BYTES_P": 4096
+      },
+      "images": [
+        {
+          "path": "ax8x8/gateware/alinx_ax7101_rom.init",
+          "bytes": 116811,
+          "words": 12979,
+          "digits": [
+            8
+          ],
+          "sha256": "c05e5c24ed202eee530f6dcd44585eafca46e74d94d82865bbf404e03cd964dd",
+          "root": "work"
+        },
+        {
+          "path": "ax8x8/gateware/alinx_ax7101_sram.init",
+          "bytes": 0,
+          "words": 0,
+          "digits": [],
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "root": "work"
+        },
+        {
+          "path": "ax8x8/gateware/alinx_ax7101_mem.init",
+          "bytes": 147,
+          "words": 49,
+          "digits": [
+            2
+          ],
+          "sha256": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335",
+          "root": "work"
+        },
+        {
+          "path": "configs/generated/ltn_rom.hex",
+          "bytes": 6138,
+          "words": 128,
+          "digits": [
+            8
+          ],
+          "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956",
+          "root": "repository"
+        },
+        {
+          "path": "configs/generated/ucode.hex",
+          "bytes": 26624,
+          "words": 2048,
+          "digits": [
+            12
+          ],
+          "sha256": "23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144",
+          "root": "repository"
+        },
+        {
+          "path": "builder/endstation_ax7101_8x8/gptp_ucode.hex",
+          "bytes": 13312,
+          "words": 1024,
+          "digits": [
+            12
+          ],
+          "sha256": "21e846a7e1989091e555486bbb571b6967eb014925f768dbca7d41124d1d3748",
+          "root": "work"
+        }
+      ]
+    }
+  }
+}

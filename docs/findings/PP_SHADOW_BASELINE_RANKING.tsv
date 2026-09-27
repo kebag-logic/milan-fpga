@@ -1,0 +1,329 @@
+measurement	scope	instance	LUT_rank	FF_rank	LUT	logic_LUT	LUTRAM	SRL	FF	RAMB36	RAMB18	DSP
+ooc-1x1	wrapper	u_pp	1	1	21762	20560	1202	0	23704	20	2	4
+ooc-1x1	wrapper	u_nvm	2	2	507	507	0	0	469	0	0	1
+ooc-1x1	wrapper	ctl_fifo	3	4	79	79	0	0	33	1	1	0
+ooc-1x1	wrapper	@own	4	3	11	11	0	0	327	0	0	0
+ooc-1x1	wrapper	@reconciliation			-9	-9	0	0	0	0	0	0
+ooc-1x1	wrapper	@total			22350	21148	1202	0	24533	21	3	5
+ooc-1x1	u_pp	u_aecp	1	4	4663	4443	220	0	3010	6	0	1
+ooc-1x1	u_pp	u_srp	2	1	4296	4110	186	0	6377	0	1	2
+ooc-1x1	u_pp	u_notify	3	2	3150	3054	96	0	3299	0	0	0
+ooc-1x1	u_pp	u_listener	4	5	1553	1553	0	0	1099	5	0	0
+ooc-1x1	u_pp	u_dispatch	5	9	879	403	476	0	759	0	0	0
+ooc-1x1	u_pp	u_talker	6	10	860	804	56	0	514	0	0	0
+ooc-1x1	u_pp	u_originator	7	7	771	751	20	0	885	0	0	0
+ooc-1x1	u_pp	u_nvm_shadow	8	6	746	646	100	0	1083	0	0	0
+ooc-1x1	u_pp	u_maap	9	11	727	727	0	0	499	0	0	0
+ooc-1x1	u_pp	u_timer	10	15	694	694	0	0	179	1	0	0
+ooc-1x1	u_pp	u_adp	11	12	622	574	48	0	463	0	0	1
+ooc-1x1	u_pp	@own	12	3	566	566	0	0	3242	0	0	0
+ooc-1x1	u_pp	u_rx_validator	13	8	510	510	0	0	773	0	1	0
+ooc-1x1	u_pp	u_nvm_port	14	19	271	271	0	0	121	0	0	0
+ooc-1x1	u_pp	u_event_router	15	24	233	233	0	0	51	0	0	0
+ooc-1x1	u_pp	u_tx_slots	16	18	219	219	0	0	138	1	0	0
+ooc-1x1	u_pp	u_tx_arbiter	17	14	186	186	0	0	187	0	0	0
+ooc-1x1	u_pp	u_prng	18	17	156	156	0	0	150	0	0	0
+ooc-1x1	u_pp	u_ca_builder	19	16	155	155	0	0	152	0	0	0
+ooc-1x1	u_pp	g_rx_pool[5].u_rx_slots	20	23	90	90	0	0	62	1	0	0
+ooc-1x1	u_pp	u_mrp_strip	21	20	72	72	0	0	107	1	0	0
+ooc-1x1	u_pp	u_scoreboard	22	21	63	63	0	0	73	0	0	0
+ooc-1x1	u_pp	u_side_port	23	29	53	53	0	0	6	0	0	0
+ooc-1x1	u_pp	g_rx_pool[2].u_rx_slots	24	22	52	52	0	0	62	1	0	0
+ooc-1x1	u_pp	g_rx_pool[0].u_rx_slots	25	25	44	44	0	0	38	1	0	0
+ooc-1x1	u_pp	g_rx_pool[4].u_rx_slots	26	27	40	40	0	0	22	1	0	0
+ooc-1x1	u_pp	u_trace	27	28	40	40	0	0	18	1	0	0
+ooc-1x1	u_pp	g_rx_pool[1].u_rx_slots	28	26	29	29	0	0	22	1	0	0
+ooc-1x1	u_pp	u_normalizer	29	13	16	16	0	0	304	0	0	0
+ooc-1x1	u_pp	u_nvm_arb	30	31	6	6	0	0	3	0	0	0
+ooc-1x1	u_pp	u_lsn_admit	31	33	2	2	0	0	1	0	0	0
+ooc-1x1	u_pp	u_desc_mem_guard	32	32	1	1	0	0	1	0	0	0
+ooc-1x1	u_pp	u_release_merge	33	30	0	0	0	0	4	0	0	0
+ooc-1x1	u_pp	@reconciliation			-3	-3	0	0	0	0	0	0
+ooc-1x1	u_pp	@total			21762	20560	1202	0	23704	20	2	4
+ooc-8x8	wrapper	u_pp	1	1	28166	27172	994	0	31600	25	4	4
+ooc-8x8	wrapper	u_nvm	2	2	745	745	0	0	1024	0	0	1
+ooc-8x8	wrapper	ctl_fifo	3	4	79	79	0	0	33	1	1	0
+ooc-8x8	wrapper	@own	4	3	11	11	0	0	327	0	0	0
+ooc-8x8	wrapper	@reconciliation			-9	-9	0	0	0	0	0	0
+ooc-8x8	wrapper	@total			28992	27998	994	0	32984	26	5	5
+ooc-8x8	u_pp	u_srp	1	1	8302	8116	186	0	11130	0	1	2
+ooc-8x8	u_pp	u_aecp	2	3	5053	4833	220	0	4152	7	0	1
+ooc-8x8	u_pp	u_notify	3	4	2948	2852	96	0	3799	0	0	0
+ooc-8x8	u_pp	u_listener	4	5	1669	1669	0	0	1131	5	0	0
+ooc-8x8	u_pp	u_timer	5	14	1452	1452	0	0	217	1	0	0
+ooc-8x8	u_pp	u_talker	6	10	1354	1354	0	0	522	1	1	0
+ooc-8x8	u_pp	u_rx_validator	7	8	861	861	0	0	773	0	1	0
+ooc-8x8	u_pp	u_dispatch	8	9	857	381	476	0	759	0	0	0
+ooc-8x8	u_pp	u_maap	9	11	846	846	0	0	506	0	0	0
+ooc-8x8	u_pp	u_adp	10	12	798	798	0	0	449	1	0	1
+ooc-8x8	u_pp	u_originator	11	7	767	751	16	0	881	0	0	0
+ooc-8x8	u_pp	u_nvm_shadow	12	6	724	724	0	0	978	2	1	0
+ooc-8x8	u_pp	@own	13	2	448	448	0	0	4700	0	0	0
+ooc-8x8	u_pp	u_event_router	14	19	389	389	0	0	129	0	0	0
+ooc-8x8	u_pp	u_tx_slots	15	18	343	343	0	0	138	1	0	0
+ooc-8x8	u_pp	u_nvm_port	16	20	333	333	0	0	124	0	0	0
+ooc-8x8	u_pp	u_tx_arbiter	17	15	180	180	0	0	187	0	0	0
+ooc-8x8	u_pp	u_ca_builder	18	16	168	168	0	0	152	0	0	0
+ooc-8x8	u_pp	u_prng	19	17	158	158	0	0	150	0	0	0
+ooc-8x8	u_pp	g_rx_pool[5].u_rx_slots	20	24	95	95	0	0	62	1	0	0
+ooc-8x8	u_pp	u_mrp_strip	21	21	77	77	0	0	107	1	0	0
+ooc-8x8	u_pp	u_scoreboard	22	22	73	73	0	0	73	0	0	0
+ooc-8x8	u_pp	u_side_port	23	29	54	54	0	0	6	0	0	0
+ooc-8x8	u_pp	g_rx_pool[2].u_rx_slots	24	23	52	52	0	0	62	1	0	0
+ooc-8x8	u_pp	g_rx_pool[4].u_rx_slots	25	27	42	42	0	0	22	1	0	0
+ooc-8x8	u_pp	g_rx_pool[0].u_rx_slots	26	25	40	40	0	0	38	1	0	0
+ooc-8x8	u_pp	g_rx_pool[1].u_rx_slots	27	26	33	33	0	0	22	1	0	0
+ooc-8x8	u_pp	u_trace	28	28	28	28	0	0	18	1	0	0
+ooc-8x8	u_pp	u_normalizer	29	13	18	18	0	0	304	0	0	0
+ooc-8x8	u_pp	u_nvm_arb	30	31	4	4	0	0	3	0	0	0
+ooc-8x8	u_pp	u_desc_mem_guard	31	32	1	1	0	0	1	0	0	0
+ooc-8x8	u_pp	u_lsn_admit	32	33	0	0	0	0	1	0	0	0
+ooc-8x8	u_pp	u_release_merge	33	30	0	0	0	0	4	0	0	0
+ooc-8x8	u_pp	@reconciliation			-1	-1	0	0	0	0	0	0
+ooc-8x8	u_pp	@total			28166	27172	994	0	31600	25	4	4
+default-synth-1x1	wrapper	u_pp	1	1	22775	21701	1074	0	22678	20	2	4
+default-synth-1x1	wrapper	u_nvm	2	2	423	423	0	0	469	0	0	1
+default-synth-1x1	wrapper	ctl_fifo	3	4	74	74	0	0	33	1	1	0
+default-synth-1x1	wrapper	@own	4	3	9	9	0	0	319	0	0	0
+default-synth-1x1	wrapper	@reconciliation			-9	-9	0	0	0	0	0	0
+default-synth-1x1	wrapper	@total			23272	22198	1074	0	23499	21	3	5
+default-synth-1x1	u_pp	u_aecp	1	4	6639	6419	220	0	3013	6	0	1
+default-synth-1x1	u_pp	u_srp	2	1	4329	4147	182	0	6210	0	1	2
+default-synth-1x1	u_pp	u_notify	3	2	3231	3135	96	0	3299	0	0	0
+default-synth-1x1	u_pp	u_listener	4	5	1506	1506	0	0	1106	5	0	0
+default-synth-1x1	u_pp	u_originator	5	7	756	736	20	0	885	0	0	0
+default-synth-1x1	u_pp	u_nvm_shadow	6	6	755	655	100	0	1083	0	0	0
+default-synth-1x1	u_pp	u_talker	7	10	750	694	56	0	480	0	0	0
+default-synth-1x1	u_pp	u_timer	8	14	717	717	0	0	179	1	0	0
+default-synth-1x1	u_pp	u_dispatch	9	9	711	359	352	0	579	0	0	0
+default-synth-1x1	u_pp	u_rx_validator	10	8	533	533	0	0	695	0	1	0
+default-synth-1x1	u_pp	u_adp	11	11	450	402	48	0	455	0	0	1
+default-synth-1x1	u_pp	@own	12	3	390	390	0	0	3164	0	0	0
+default-synth-1x1	u_pp	u_tx_slots	13	17	355	355	0	0	138	1	0	0
+default-synth-1x1	u_pp	u_nvm_port	14	18	266	266	0	0	121	0	0	0
+default-synth-1x1	u_pp	u_event_router	15	24	230	230	0	0	51	0	0	0
+default-synth-1x1	u_pp	u_maap	16	23	199	199	0	0	54	0	0	0
+default-synth-1x1	u_pp	u_tx_arbiter	17	13	184	184	0	0	187	0	0	0
+default-synth-1x1	u_pp	u_prng	18	16	143	143	0	0	150	0	0	0
+default-synth-1x1	u_pp	u_ca_builder	19	15	125	125	0	0	152	0	0	0
+default-synth-1x1	u_pp	g_rx_pool[5].u_rx_slots	20	22	81	81	0	0	62	1	0	0
+default-synth-1x1	u_pp	u_mrp_strip	21	19	73	73	0	0	107	1	0	0
+default-synth-1x1	u_pp	u_scoreboard	22	20	66	66	0	0	73	0	0	0
+default-synth-1x1	u_pp	g_rx_pool[2].u_rx_slots	23	21	53	53	0	0	62	1	0	0
+default-synth-1x1	u_pp	u_side_port	24	29	53	53	0	0	6	0	0	0
+default-synth-1x1	u_pp	g_rx_pool[0].u_rx_slots	25	25	48	48	0	0	38	1	0	0
+default-synth-1x1	u_pp	u_trace	26	28	40	40	0	0	18	1	0	0
+default-synth-1x1	u_pp	g_rx_pool[4].u_rx_slots	27	27	33	33	0	0	22	1	0	0
+default-synth-1x1	u_pp	g_rx_pool[1].u_rx_slots	28	26	32	32	0	0	22	1	0	0
+default-synth-1x1	u_pp	u_normalizer	29	12	17	17	0	0	258	0	0	0
+default-synth-1x1	u_pp	u_nvm_arb	30	31	12	12	0	0	3	0	0	0
+default-synth-1x1	u_pp	u_desc_mem_guard	31	32	1	1	0	0	1	0	0	0
+default-synth-1x1	u_pp	u_lsn_admit	32	33	1	1	0	0	1	0	0	0
+default-synth-1x1	u_pp	u_release_merge	33	30	0	0	0	0	4	0	0	0
+default-synth-1x1	u_pp	@reconciliation			-4	-4	0	0	0	0	0	0
+default-synth-1x1	u_pp	@total			22775	21701	1074	0	22678	20	2	4
+default-route-1x1	wrapper	u_pp	1	1	21980	20912	1068	0	22672	20	2	4
+default-route-1x1	wrapper	u_nvm	2	2	391	391	0	0	469	0	0	1
+default-route-1x1	wrapper	ctl_fifo	3	4	73	73	0	0	33	1	1	0
+default-route-1x1	wrapper	@own	4	3	9	9	0	0	319	0	0	0
+default-route-1x1	wrapper	@reconciliation			-12	-12	0	0	0	0	0	0
+default-route-1x1	wrapper	@total			22441	21373	1068	0	23493	21	3	5
+default-route-1x1	u_pp	u_aecp	1	4	6428	6210	218	0	3013	6	0	1
+default-route-1x1	u_pp	u_srp	2	1	4166	3986	180	0	6203	0	1	2
+default-route-1x1	u_pp	u_notify	3	2	3158	3062	96	0	3299	0	0	0
+default-route-1x1	u_pp	u_listener	4	5	1381	1381	0	0	1107	5	0	0
+default-route-1x1	u_pp	u_originator	5	7	743	723	20	0	885	0	0	0
+default-route-1x1	u_pp	u_nvm_shadow	6	6	732	634	98	0	1083	0	0	0
+default-route-1x1	u_pp	u_talker	7	10	716	660	56	0	480	0	0	0
+default-route-1x1	u_pp	u_timer	8	14	716	716	0	0	179	1	0	0
+default-route-1x1	u_pp	u_dispatch	9	9	707	355	352	0	579	0	0	0
+default-route-1x1	u_pp	u_rx_validator	10	8	508	508	0	0	695	0	1	0
+default-route-1x1	u_pp	u_adp	11	11	446	398	48	0	455	0	0	1
+default-route-1x1	u_pp	@own	12	3	382	382	0	0	3164	0	0	0
+default-route-1x1	u_pp	u_tx_slots	13	17	354	354	0	0	138	1	0	0
+default-route-1x1	u_pp	u_nvm_port	14	18	259	259	0	0	121	0	0	0
+default-route-1x1	u_pp	u_event_router	15	24	219	219	0	0	51	0	0	0
+default-route-1x1	u_pp	u_maap	16	23	192	192	0	0	54	0	0	0
+default-route-1x1	u_pp	u_tx_arbiter	17	13	181	181	0	0	187	0	0	0
+default-route-1x1	u_pp	u_prng	18	16	135	135	0	0	150	0	0	0
+default-route-1x1	u_pp	u_ca_builder	19	15	120	120	0	0	152	0	0	0
+default-route-1x1	u_pp	g_rx_pool[5].u_rx_slots	20	22	79	79	0	0	62	1	0	0
+default-route-1x1	u_pp	u_mrp_strip	21	19	70	70	0	0	107	1	0	0
+default-route-1x1	u_pp	u_scoreboard	22	20	63	63	0	0	73	0	0	0
+default-route-1x1	u_pp	u_side_port	23	29	52	52	0	0	6	0	0	0
+default-route-1x1	u_pp	g_rx_pool[2].u_rx_slots	24	21	48	48	0	0	62	1	0	0
+default-route-1x1	u_pp	g_rx_pool[0].u_rx_slots	25	25	45	45	0	0	38	1	0	0
+default-route-1x1	u_pp	u_trace	26	28	40	40	0	0	18	1	0	0
+default-route-1x1	u_pp	g_rx_pool[4].u_rx_slots	27	27	32	32	0	0	22	1	0	0
+default-route-1x1	u_pp	g_rx_pool[1].u_rx_slots	28	26	31	31	0	0	22	1	0	0
+default-route-1x1	u_pp	u_normalizer	29	12	17	17	0	0	258	0	0	0
+default-route-1x1	u_pp	u_nvm_arb	30	31	12	12	0	0	3	0	0	0
+default-route-1x1	u_pp	u_desc_mem_guard	31	32	1	1	0	0	1	0	0	0
+default-route-1x1	u_pp	u_lsn_admit	32	33	1	1	0	0	1	0	0	0
+default-route-1x1	u_pp	u_release_merge	33	30	0	0	0	0	4	0	0	0
+default-route-1x1	u_pp	@reconciliation			-54	-54	0	0	0	0	0	0
+default-route-1x1	u_pp	@total			21980	20912	1068	0	22672	20	2	4
+default-synth-8x8	wrapper	u_pp	1	1	37100	36230	870	0	30015	25	4	4
+default-synth-8x8	wrapper	u_nvm	2	2	635	635	0	0	1024	0	0	1
+default-synth-8x8	wrapper	ctl_fifo	3	4	74	74	0	0	33	1	1	0
+default-synth-8x8	wrapper	@own	4	3	9	9	0	0	319	0	0	0
+default-synth-8x8	wrapper	@reconciliation			-9	-9	0	0	0	0	0	0
+default-synth-8x8	wrapper	@total			37809	36939	870	0	31391	26	5	5
+default-synth-8x8	u_pp	u_aecp	1	3	15199	14979	220	0	4169	7	0	1
+default-synth-8x8	u_pp	u_srp	2	1	8155	7973	182	0	10393	0	1	2
+default-synth-8x8	u_pp	u_notify	3	4	3316	3220	96	0	3799	0	0	0
+default-synth-8x8	u_pp	u_listener	4	5	1652	1652	0	0	1136	5	0	0
+default-synth-8x8	u_pp	u_timer	5	13	1460	1460	0	0	217	1	0	0
+default-synth-8x8	u_pp	u_rx_validator	6	8	858	858	0	0	695	0	1	0
+default-synth-8x8	u_pp	u_talker	7	10	848	848	0	0	473	1	1	0
+default-synth-8x8	u_pp	u_originator	8	7	771	751	20	0	881	0	0	0
+default-synth-8x8	u_pp	u_nvm_shadow	9	6	715	715	0	0	978	2	1	0
+default-synth-8x8	u_pp	u_dispatch	10	9	680	328	352	0	579	0	0	0
+default-synth-8x8	u_pp	u_adp	11	11	655	655	0	0	441	1	0	1
+default-synth-8x8	u_pp	@own	12	2	504	504	0	0	4643	0	0	0
+default-synth-8x8	u_pp	u_nvm_port	13	19	357	357	0	0	124	0	0	0
+default-synth-8x8	u_pp	u_event_router	14	18	356	356	0	0	129	0	0	0
+default-synth-8x8	u_pp	u_tx_slots	15	17	355	355	0	0	138	1	0	0
+default-synth-8x8	u_pp	u_maap	16	24	249	249	0	0	54	0	0	0
+default-synth-8x8	u_pp	u_tx_arbiter	17	14	191	191	0	0	187	0	0	0
+default-synth-8x8	u_pp	u_prng	18	16	143	143	0	0	150	0	0	0
+default-synth-8x8	u_pp	u_ca_builder	19	15	123	123	0	0	152	0	0	0
+default-synth-8x8	u_pp	u_scoreboard	20	21	90	90	0	0	73	0	0	0
+default-synth-8x8	u_pp	g_rx_pool[5].u_rx_slots	21	23	85	85	0	0	62	1	0	0
+default-synth-8x8	u_pp	u_mrp_strip	22	20	73	73	0	0	107	1	0	0
+default-synth-8x8	u_pp	g_rx_pool[2].u_rx_slots	23	22	57	57	0	0	62	1	0	0
+default-synth-8x8	u_pp	u_side_port	24	29	54	54	0	0	6	0	0	0
+default-synth-8x8	u_pp	g_rx_pool[0].u_rx_slots	25	25	40	40	0	0	38	1	0	0
+default-synth-8x8	u_pp	g_rx_pool[4].u_rx_slots	26	27	32	32	0	0	22	1	0	0
+default-synth-8x8	u_pp	g_rx_pool[1].u_rx_slots	27	26	31	31	0	0	22	1	0	0
+default-synth-8x8	u_pp	u_trace	28	28	28	28	0	0	18	1	0	0
+default-synth-8x8	u_pp	u_normalizer	29	12	17	17	0	0	258	0	0	0
+default-synth-8x8	u_pp	u_nvm_arb	30	31	4	4	0	0	3	0	0	0
+default-synth-8x8	u_pp	u_desc_mem_guard	31	32	2	2	0	0	1	0	0	0
+default-synth-8x8	u_pp	u_lsn_admit	32	33	2	2	0	0	1	0	0	0
+default-synth-8x8	u_pp	u_release_merge	33	30	0	0	0	0	4	0	0	0
+default-synth-8x8	u_pp	@reconciliation			-2	-2	0	0	0	0	0	0
+default-synth-8x8	u_pp	@total			37100	36230	870	0	30015	25	4	4
+attribution-synth-1x1	wrapper	u_pp	1	1	21716	20514	1202	0	23706	20	2	4
+attribution-synth-1x1	wrapper	u_nvm	2	2	517	517	0	0	469	0	0	1
+attribution-synth-1x1	wrapper	ctl_fifo	3	4	79	79	0	0	33	1	1	0
+attribution-synth-1x1	wrapper	@own	4	3	11	11	0	0	327	0	0	0
+attribution-synth-1x1	wrapper	@reconciliation			-9	-9	0	0	0	0	0	0
+attribution-synth-1x1	wrapper	@total			22314	21112	1202	0	24535	21	3	5
+attribution-synth-1x1	u_pp	u_aecp	1	4	4678	4458	220	0	3010	6	0	1
+attribution-synth-1x1	u_pp	u_srp	2	1	4271	4085	186	0	6376	0	1	2
+attribution-synth-1x1	u_pp	u_notify	3	2	3193	3097	96	0	3299	0	0	0
+attribution-synth-1x1	u_pp	u_listener	4	5	1535	1535	0	0	1103	5	0	0
+attribution-synth-1x1	u_pp	u_dispatch	5	9	857	381	476	0	759	0	0	0
+attribution-synth-1x1	u_pp	u_talker	6	10	833	777	56	0	514	0	0	0
+attribution-synth-1x1	u_pp	u_maap	7	11	764	764	0	0	499	0	0	0
+attribution-synth-1x1	u_pp	u_originator	8	7	756	736	20	0	885	0	0	0
+attribution-synth-1x1	u_pp	u_nvm_shadow	9	6	754	654	100	0	1083	0	0	0
+attribution-synth-1x1	u_pp	u_timer	10	15	723	723	0	0	179	1	0	0
+attribution-synth-1x1	u_pp	u_adp	11	12	593	545	48	0	463	0	0	1
+attribution-synth-1x1	u_pp	u_rx_validator	12	8	540	540	0	0	773	0	1	0
+attribution-synth-1x1	u_pp	@own	13	3	365	365	0	0	3241	0	0	0
+attribution-synth-1x1	u_pp	u_tx_slots	14	18	349	349	0	0	138	1	0	0
+attribution-synth-1x1	u_pp	u_nvm_port	15	19	266	266	0	0	121	0	0	0
+attribution-synth-1x1	u_pp	u_event_router	16	24	230	230	0	0	51	0	0	0
+attribution-synth-1x1	u_pp	u_tx_arbiter	17	14	184	184	0	0	187	0	0	0
+attribution-synth-1x1	u_pp	u_ca_builder	18	16	157	157	0	0	152	0	0	0
+attribution-synth-1x1	u_pp	u_prng	19	17	157	157	0	0	150	0	0	0
+attribution-synth-1x1	u_pp	g_rx_pool[5].u_rx_slots	20	23	85	85	0	0	62	1	0	0
+attribution-synth-1x1	u_pp	u_mrp_strip	21	20	73	73	0	0	107	1	0	0
+attribution-synth-1x1	u_pp	u_scoreboard	22	21	66	66	0	0	73	0	0	0
+attribution-synth-1x1	u_pp	g_rx_pool[2].u_rx_slots	23	22	53	53	0	0	62	1	0	0
+attribution-synth-1x1	u_pp	u_side_port	24	29	53	53	0	0	6	0	0	0
+attribution-synth-1x1	u_pp	g_rx_pool[0].u_rx_slots	25	25	48	48	0	0	38	1	0	0
+attribution-synth-1x1	u_pp	u_trace	26	28	40	40	0	0	18	1	0	0
+attribution-synth-1x1	u_pp	g_rx_pool[4].u_rx_slots	27	27	33	33	0	0	22	1	0	0
+attribution-synth-1x1	u_pp	g_rx_pool[1].u_rx_slots	28	26	32	32	0	0	22	1	0	0
+attribution-synth-1x1	u_pp	u_normalizer	29	13	17	17	0	0	304	0	0	0
+attribution-synth-1x1	u_pp	u_nvm_arb	30	31	12	12	0	0	3	0	0	0
+attribution-synth-1x1	u_pp	u_desc_mem_guard	31	32	1	1	0	0	1	0	0	0
+attribution-synth-1x1	u_pp	u_lsn_admit	32	33	1	1	0	0	1	0	0	0
+attribution-synth-1x1	u_pp	u_release_merge	33	30	0	0	0	0	4	0	0	0
+attribution-synth-1x1	u_pp	@reconciliation			-3	-3	0	0	0	0	0	0
+attribution-synth-1x1	u_pp	@total			21716	20514	1202	0	23706	20	2	4
+attribution-route-1x1	wrapper	u_pp	1	1	20110	19038	1072	0	22737	20	2	4
+attribution-route-1x1	wrapper	u_nvm	2	2	474	474	0	0	469	0	0	1
+attribution-route-1x1	wrapper	ctl_fifo	3	4	75	75	0	0	33	1	1	0
+attribution-route-1x1	wrapper	@own	4	3	9	9	0	0	319	0	0	0
+attribution-route-1x1	wrapper	@reconciliation			-13	-13	0	0	0	0	0	0
+attribution-route-1x1	wrapper	@total			20655	19583	1072	0	23558	21	3	5
+attribution-route-1x1	u_pp	u_aecp	1	4	4504	4286	218	0	3010	6	0	1
+attribution-route-1x1	u_pp	u_srp	2	1	3998	3814	184	0	6246	0	1	2
+attribution-route-1x1	u_pp	u_notify	3	2	3111	3015	96	0	3299	0	0	0
+attribution-route-1x1	u_pp	u_listener	4	5	1404	1404	0	0	1103	5	0	0
+attribution-route-1x1	u_pp	u_talker	5	10	789	733	56	0	492	0	0	0
+attribution-route-1x1	u_pp	u_originator	6	7	739	719	20	0	885	0	0	0
+attribution-route-1x1	u_pp	u_nvm_shadow	7	6	734	636	98	0	1083	0	0	0
+attribution-route-1x1	u_pp	u_dispatch	8	9	729	377	352	0	579	0	0	0
+attribution-route-1x1	u_pp	u_timer	9	14	723	723	0	0	179	1	0	0
+attribution-route-1x1	u_pp	u_adp	10	11	542	494	48	0	455	0	0	1
+attribution-route-1x1	u_pp	u_rx_validator	11	8	513	513	0	0	695	0	1	0
+attribution-route-1x1	u_pp	@own	12	3	356	356	0	0	3173	0	0	0
+attribution-route-1x1	u_pp	u_tx_slots	13	17	348	348	0	0	138	1	0	0
+attribution-route-1x1	u_pp	u_nvm_port	14	18	259	259	0	0	121	0	0	0
+attribution-route-1x1	u_pp	u_maap	15	23	227	227	0	0	62	0	0	0
+attribution-route-1x1	u_pp	u_event_router	16	24	218	218	0	0	51	0	0	0
+attribution-route-1x1	u_pp	u_tx_arbiter	17	13	182	182	0	0	187	0	0	0
+attribution-route-1x1	u_pp	u_ca_builder	18	15	152	152	0	0	152	0	0	0
+attribution-route-1x1	u_pp	u_prng	19	16	136	136	0	0	150	0	0	0
+attribution-route-1x1	u_pp	g_rx_pool[5].u_rx_slots	20	22	81	81	0	0	62	1	0	0
+attribution-route-1x1	u_pp	u_mrp_strip	21	19	70	70	0	0	107	1	0	0
+attribution-route-1x1	u_pp	u_scoreboard	22	20	64	64	0	0	73	0	0	0
+attribution-route-1x1	u_pp	u_side_port	23	29	52	52	0	0	6	0	0	0
+attribution-route-1x1	u_pp	g_rx_pool[2].u_rx_slots	24	21	48	48	0	0	62	1	0	0
+attribution-route-1x1	u_pp	g_rx_pool[0].u_rx_slots	25	25	45	45	0	0	38	1	0	0
+attribution-route-1x1	u_pp	u_trace	26	28	40	40	0	0	18	1	0	0
+attribution-route-1x1	u_pp	g_rx_pool[4].u_rx_slots	27	27	33	33	0	0	22	1	0	0
+attribution-route-1x1	u_pp	g_rx_pool[1].u_rx_slots	28	26	31	31	0	0	22	1	0	0
+attribution-route-1x1	u_pp	u_normalizer	29	12	17	17	0	0	258	0	0	0
+attribution-route-1x1	u_pp	u_nvm_arb	30	31	12	12	0	0	3	0	0	0
+attribution-route-1x1	u_pp	u_desc_mem_guard	31	32	1	1	0	0	1	0	0	0
+attribution-route-1x1	u_pp	u_lsn_admit	32	33	1	1	0	0	1	0	0	0
+attribution-route-1x1	u_pp	u_release_merge	33	30	0	0	0	0	4	0	0	0
+attribution-route-1x1	u_pp	@reconciliation			-49	-49	0	0	0	0	0	0
+attribution-route-1x1	u_pp	@total			20110	19038	1072	0	22737	20	2	4
+attribution-synth-8x8	wrapper	u_pp	1	1	28277	27279	998	0	31607	25	4	4
+attribution-synth-8x8	wrapper	u_nvm	2	2	1131	1131	0	0	1024	0	0	4
+attribution-synth-8x8	wrapper	ctl_fifo	3	4	79	79	0	0	33	1	1	0
+attribution-synth-8x8	wrapper	@own	4	3	11	11	0	0	327	0	0	0
+attribution-synth-8x8	wrapper	@reconciliation			-9	-9	0	0	0	0	0	0
+attribution-synth-8x8	wrapper	@total			29489	28491	998	0	32991	26	5	8
+attribution-synth-8x8	u_pp	u_srp	1	1	8382	8196	186	0	11130	0	1	2
+attribution-synth-8x8	u_pp	u_aecp	2	3	5025	4805	220	0	4154	7	0	1
+attribution-synth-8x8	u_pp	u_notify	3	4	2895	2799	96	0	3799	0	0	0
+attribution-synth-8x8	u_pp	u_listener	4	5	1655	1655	0	0	1124	5	0	0
+attribution-synth-8x8	u_pp	u_timer	5	14	1451	1451	0	0	217	1	0	0
+attribution-synth-8x8	u_pp	u_talker	6	10	1350	1350	0	0	522	1	1	0
+attribution-synth-8x8	u_pp	u_rx_validator	7	8	883	883	0	0	773	0	1	0
+attribution-synth-8x8	u_pp	u_dispatch	8	9	849	373	476	0	759	0	0	0
+attribution-synth-8x8	u_pp	u_maap	9	11	839	839	0	0	506	0	0	0
+attribution-synth-8x8	u_pp	u_adp	10	12	812	812	0	0	449	1	0	1
+attribution-synth-8x8	u_pp	u_originator	11	7	792	772	20	0	881	0	0	0
+attribution-synth-8x8	u_pp	u_nvm_shadow	12	6	714	714	0	0	978	2	1	0
+attribution-synth-8x8	u_pp	@own	13	2	457	457	0	0	4712	0	0	0
+attribution-synth-8x8	u_pp	u_nvm_port	14	20	434	434	0	0	124	0	0	0
+attribution-synth-8x8	u_pp	u_tx_slots	15	18	362	362	0	0	138	1	0	0
+attribution-synth-8x8	u_pp	u_event_router	16	19	358	358	0	0	129	0	0	0
+attribution-synth-8x8	u_pp	u_tx_arbiter	17	15	191	191	0	0	187	0	0	0
+attribution-synth-8x8	u_pp	u_prng	18	17	158	158	0	0	150	0	0	0
+attribution-synth-8x8	u_pp	u_ca_builder	19	16	154	154	0	0	152	0	0	0
+attribution-synth-8x8	u_pp	u_scoreboard	20	22	90	90	0	0	73	0	0	0
+attribution-synth-8x8	u_pp	g_rx_pool[5].u_rx_slots	21	24	81	81	0	0	62	1	0	0
+attribution-synth-8x8	u_pp	u_mrp_strip	22	21	77	77	0	0	107	1	0	0
+attribution-synth-8x8	u_pp	g_rx_pool[2].u_rx_slots	23	23	57	57	0	0	62	1	0	0
+attribution-synth-8x8	u_pp	u_side_port	24	29	55	55	0	0	6	0	0	0
+attribution-synth-8x8	u_pp	g_rx_pool[0].u_rx_slots	25	25	39	39	0	0	38	1	0	0
+attribution-synth-8x8	u_pp	g_rx_pool[4].u_rx_slots	26	27	32	32	0	0	22	1	0	0
+attribution-synth-8x8	u_pp	g_rx_pool[1].u_rx_slots	27	26	29	29	0	0	22	1	0	0
+attribution-synth-8x8	u_pp	u_trace	28	28	28	28	0	0	18	1	0	0
+attribution-synth-8x8	u_pp	u_normalizer	29	13	18	18	0	0	304	0	0	0
+attribution-synth-8x8	u_pp	u_nvm_arb	30	31	11	11	0	0	3	0	0	0
+attribution-synth-8x8	u_pp	u_desc_mem_guard	31	32	1	1	0	0	1	0	0	0
+attribution-synth-8x8	u_pp	u_lsn_admit	32	33	1	1	0	0	1	0	0	0
+attribution-synth-8x8	u_pp	u_release_merge	33	30	0	0	0	0	4	0	0	0
+attribution-synth-8x8	u_pp	@reconciliation			-3	-3	0	0	0	0	0	0
+attribution-synth-8x8	u_pp	@total			28277	27279	998	0	31607	25	4	4

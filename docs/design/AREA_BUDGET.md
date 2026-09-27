@@ -6,6 +6,10 @@ figures are useful for comparing isolated fabric blocks; the builder's model is
 useful for refusing obviously oversized configurations. Neither is a placement
 result.
 
+The [protocol processor baseline](../findings/PP_SHADOW_BASELINE.md) records issue #231.
+It separates standalone synthesis from integrated implementation.
+Its [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) binds both product geometries.
+
 The current command and media-clock claims are checked against the
 [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 
