@@ -1,0 +1,13 @@
+PASS assert_stop accepts zero settled PDUs with first PDU at the response
+PASS assert_stop accepts zero settled PDUs with first PDU after the response
+PASS assert_stop rejects one settled PDU
+PASS assert_stop rejects continuous hold traffic (750 settled PDUs)
+PASS assert_stop rejects a zero count whose first post-settle PDU precedes the response
+PASS listener: addendum distribution() on published rows reproduces summary {'n': 100, 'below_one_second': 100, 'minimum': 0.006641168, 'median': 0.1102795055, 'p95': 0.188503018, 'maximum': 0.204858977}
+PASS listener: addendum fit() reproduces summary
+PASS listener: series-expanded t 1.984467437 vs exact 1.984467455 (df 98)
+PASS talker: addendum distribution() on published rows reproduces summary {'n': 97, 'below_one_second': 97, 'minimum': 0.017426921, 'median': 0.019174613, 'p95': 0.042346644, 'maximum': 0.117736084}
+PASS talker: addendum fit() reproduces summary
+PASS talker: series-expanded t 1.985250984 vs exact 1.985251004 (df 95)
+RESULT PASS
+rc=0
