@@ -1,0 +1,31 @@
+== removed round-1 sentences (expect no hits)
+none
+== required statements (line numbers)
+11:| #387 acceptance 4 | NOT MET (not exercised) | Every step occurred during HOLDOVER with both streams absent. Needed: a grandmaster change while a locked CRF stream keeps running. |
+163:That row is #117 outage-recovery context, not #387's bound.
+169:The contract requires one counted event per step.
+175:It specifies no step-to-relocked-media time bound.
+177:Every observed step occurred while the servo was in HOLDOVER.
+179:Both CRF streams were absent from the wire.
+181:These intervals measure outage recovery, including stream return and acquisition.
+185:DUT MAC_STATUS stayed at its software-published reset value, `0x0d`.
+187:Nothing in this build writes it ([#599](https://github.com/kebag-logic/milan-fpga/issues/599)).
+189:Whether the DUT PHY link dropped was not observed.
+191:The inline capture point may hold that link up.
+282:MAC_STATUS remains at its unwritten reset value, `0x0d` ([#599](https://github.com/kebag-logic/milan-fpga/issues/599)).
+284:Whatever the PHY did, this status cannot advance LINK_UP/LINK_DOWN.
+286:The counters also depend on the link guard's RX-clock-alive veto.
+288:Neither LINKG_STAT nor LINK_CTRL was sampled.
+292:The reference peer's LINK_UP/LINK_DOWN also stayed flat at 1/0.
+294:The build defect is missing publication, not an observed missed edge.
+298:| AVB_INTERFACE LINK_UP / LINK_DOWN | `+0 / +0`; expected increments absent; publication defect #599 |
+305:The media servo moved LOCKED, HOLDOVER, ACQUIRE, then LOCKED.
+345:#387 acceptance 4 remains NOT MET: its condition was not exercised.
+347:A grandmaster change must occur while locked CRF keeps running.
+383:The [public packet archive](https://github.com/kebag-logic/milan-fpga/tree/8f983d245a12e18a47ced37904d405b624c7e024/review-evidence/394-387-r1) contains scripts, transcripts and analyses.
+385:Its branch is `394-387-review-evidence`; its path is `review-evidence/394-387-r1`.
+387:The archive commit is `8f983d245a12e18a47ced37904d405b624c7e024`.
+389:The publisher's [MANIFEST.json](https://github.com/kebag-logic/milan-fpga/blob/8f983d245a12e18a47ced37904d405b624c7e024/review-evidence/394-387-r1/MANIFEST.json) records the published files' SHA-256 values.
+391:Raw captures are retained in private cold storage.
+393:[RAW-ARTIFACTS.json](https://github.com/kebag-logic/milan-fpga/blob/8f983d245a12e18a47ced37904d405b624c7e024/review-evidence/394-387-r1/author/RAW-ARTIFACTS.json) indexes them by size and SHA-256.
+397:Their temporary-directory paths are historical names, not current storage locators.
