@@ -27,8 +27,8 @@
     "pythondata-cpu-vexiiriscv": "15cfab529a17c473d0fc75edf3f409eb374cef35"
   },
   "export_comparison": {
-    "normalized_verilog_sha256": "3d371f2da7fd185b474e97681a337b061028afd9e73b0bd11a031832e06d22b1",
-    "normalization": "Replace each absolute build root with $BUILD; strip block and line comments from generated Verilog. Tcl and XDC compare after build-root replacement only.",
+    "normalized_verilog_sha256": "38f6c8dd93ba018d009875412b82dd9f34e2149244eda20ab1e2f81d3f85f575",
+    "normalization": "Replace each absolute build root with $BUILD, then the absolute checkout root with $REPO (including GPTP_UCODE_HEX_P, PP_TROM_HEX_P and PP_UCODE_HEX_P paths). Strip block comments with /\\*.*?\\*/ in DOTALL mode, then line comments with //[^\\n]*; preserve all other whitespace and hash UTF-8 bytes. Tcl and XDC compare after both root replacements only.",
     "equal": true
   },
   "roots": {
