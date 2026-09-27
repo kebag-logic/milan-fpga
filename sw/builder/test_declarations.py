@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import sys
 import tempfile
+from unittest.mock import patch
 
 import yaml
 import endstation_builder as eb
@@ -63,6 +64,40 @@ def test_model_id_contract() -> None:
                 raw["entity"][key] = value
                 _refused(raw, directory, f"entity.{key}", "must not be zero or all ones")
     print("[F1] literal/pinned legal IDs, ENTITY/ADP equality, four endpoint refusals")
+
+
+def test_model_id_resolution_contract() -> None:
+    """YAML scalars, shadowed literals and derived IDs share validity rules."""
+    base = yaml.safe_load((ROOT / "configs/endstation_arty_current.yaml").read_text())
+    with tempfile.TemporaryDirectory(prefix="model-id-resolution.") as tmp:
+        directory = Path(tmp)
+        for key in ("entity_model_id", "model_id_pin"):
+            raw = copy.deepcopy(base)
+            raw["entity"].pop("model_id_pin", None)
+            raw["entity"][key] = "EUI64_VALUE"
+            template = yaml.safe_dump(raw)
+            assert template.count("EUI64_VALUE") == 1
+            for spelling in ("0x001BC50AC1000005", '"0x001BC50AC1000005"'):
+                path = directory / "scalar.yaml"
+                path.write_text(template.replace("EUI64_VALUE", spelling))
+                cfg = eb.load_config(path)
+                assert cfg["entity"]["entity_model_id"] == "0x001BC50AC1000005"
+                assert eb.emit_aem_overlay(cfg)["entity"]["entity_model_id"] == "0x001BC50AC1000005"
+        raw = copy.deepcopy(base)
+        raw["entity"].update(model_id_pin="0x001BC50AC1000005")
+        for value in ("0x0000000000000000", "0xFFFFFFFFFFFFFFFF", 0, 0xFFFFFFFFFFFFFFFF):
+            raw["entity"]["entity_model_id"] = value
+            _refused(raw, directory, "entity.entity_model_id", "must not be zero or all ones")
+        raw["entity"]["entity_model_id"] = "0x001BC50000000001"
+        assert _load(raw, directory)["entity"]["entity_model_id"] == "0x001BC50AC1000005"
+        raw["entity"].pop("model_id_pin")
+        raw["entity"]["entity_model_id"] = "hash-derived"
+        for value in (0, 0xFFFFFFFFFFFFFFFF):
+            with patch.object(eb, "derive_model_id", return_value=value):
+                _refused(raw, directory, "entity.entity_model_id", "must not be zero or all ones")
+        with patch.object(eb, "derive_model_id", return_value=0x001BC50000000001):
+            assert _load(raw, directory)["entity"]["entity_model_id"] == "0x001BC50000000001"
+    print("[F1] quoted/unquoted IDs equal; shadowed literals and derived endpoints refused")
 
 
 def test_listener_buffer_contract() -> None:
@@ -198,7 +233,15 @@ def test_output_clock_source_contract() -> None:
             raw["clocking"].update(media_clock_sources=["crf"], default_source="crf")
             _refused(raw, directory, "clocking.media_clock_sources", "requires INTERNAL")
             if crf_output:
-                # Isolate the CRF-output obligation from the AAF-output arm.
+                # Exercise the CRF-only output arm directly: no talker guard
+                # exists here to detect its removal through refusal precedence.
+                clocking = eb._load_clocking(raw, "CRF-only output control")
+                try:
+                    eb._validate_output_clock_sources([], clocking)
+                except eb.ConfigError as exc:
+                    assert "requires INTERNAL" in str(exc), str(exc)
+                else:
+                    raise AssertionError("CRF output accepted without INTERNAL")
                 raw["streams"]["talkers"] = []
                 _refused(raw, directory, "clocking.media_clock_sources", "requires INTERNAL")
         # Input-only clock loading already supports CRF-only. Keep this narrow
@@ -208,6 +251,14 @@ def test_output_clock_source_contract() -> None:
         assert clocking["media_clock_sources"] == ["crf"]
         eb._validate_output_clock_sources([], clocking)
         _refused(raw, directory, "streams.talkers", "needs at least one talker stream")
+        raw = copy.deepcopy(base)
+        raw["clocking"].update(media_clock_sources=["internal"], default_source="internal",
+                               crf_sink=False, crf_output={"enabled": False})
+        assert _load(raw, directory)["clocking"]["media_clock_sources"] == ["internal"]
+        raw["clocking"]["media_clock_sources"] = []
+        _refused(raw, directory, "clocking.media_clock_sources", "L6 requires at least one source")
+        raw["clocking"].pop("default_source")
+        _refused(raw, directory, "clocking.media_clock_sources", "L6 requires at least one source")
     print("[F4] INTERNAL+CRF accepted; AAF/CRF outputs refused without INTERNAL; input-only unchanged")
 
 
@@ -250,6 +301,7 @@ def assert_header(header: str, n: int) -> None:
 def test_declaration_contracts() -> None:
     """Declaration refusals, generated rows, real bindings and mutation controls."""
     test_model_id_contract()
+    test_model_id_resolution_contract()
     test_listener_buffer_contract()
     test_stream_format_contract()
     test_crf_format_contract()

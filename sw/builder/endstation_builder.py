@@ -1328,7 +1328,7 @@ def _req(d, key, ctx):
 
 def _eui64(v, ctx):
     try:
-        n = int(str(v), 16)
+        n = v if type(v) is int else int(str(v), 16)
     except ValueError:
         raise ConfigError(f"{ctx}: '{v}' is not a hex EUI-64")
     if not 0 <= n <= EUI64_MAX:
@@ -3838,6 +3838,10 @@ def _load_clocking(cfg, path):
         raise ConfigError(f"sampling_rate_hz {rate} not an AAF base rate "
                           f"(Milan v1.2 6.2: {sorted(BASE_RATE_HZ)})")
     srcs = clk.get("media_clock_sources", ["internal", "crf"])
+    if not srcs:
+        raise ConfigError(
+            "clocking.media_clock_sources: L6 requires at least one source "
+            "(Milan v1.2 5.3.3.6)")
     # #389: an INPUT_STREAM CLOCK_SOURCE on an AAF listener was advertised,
     # accepted and stored while nothing in the fabric followed it (the media
     # plane resolves the stored index against the CRF source alone, and
@@ -4365,12 +4369,14 @@ def load_config(path: str) -> dict[str, Any]:
     hashed = derive_model_id(shape, oui)
     raw = _req(ent, "entity_model_id", "entity")
     pin = ent.get("model_id_pin")
+    # A pin chooses the emitted identity, but cannot hide an invalid literal.
+    literal = None if raw == "hash-derived" else _model_id(raw, "entity.entity_model_id")
     if pin is not None:
         mid, src = _model_id(pin, "entity.model_id_pin"), "pin"
     elif raw == "hash-derived":
-        mid, src = hashed, "hash"
+        mid, src = _model_id(hashed, "entity.entity_model_id"), "hash"
     else:
-        mid, src = _model_id(raw, "entity.entity_model_id"), "literal"
+        mid, src = literal, "literal"
     if src != "hash" and "vendor_oui" in ent \
             and (mid >> MODEL_ID_HASH_BITS) != oui:
         raise ConfigError(

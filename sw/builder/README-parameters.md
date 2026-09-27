@@ -118,6 +118,8 @@ Every AAF or CRF output requires `internal` in `clocking.media_clock_sources`.
 Milan v1.2 5.3.3.6 requires its availability, not its selection.
 `default_source: crf` remains valid with both sources available.
 Input-only clock loading retains CRF-only support.
+Empty source lists raise a named L6 refusal.
+`[internal]` remains valid.
 Complete product configurations still require AAF listeners and talkers.
 
 AAF declarations accept only AAF formats; CRF declarations accept only CRF.
@@ -145,7 +147,9 @@ AAF_CTRL and MAAP_CTRL reset neutral; firmware supplies active values.
 under the vendor OUI, `entity.vendor_oui`. Instance-only fields such as the
 station MAC, serial, and display name do not affect a hash-derived model ID.
 
-Literal and pinned model IDs reject zero and all ones.
+Literal, pinned and hash-derived IDs reject zero and all ones.
+A pin cannot hide an invalid literal.
+Quoted and unquoted hexadecimal EUI-64 values retain their numeric value.
 Milan v1.2 5.3.3.1 reserves both endpoints for ENTITY.
 Section 5.6.2 repeats this rule for ADPDUs.
 
