@@ -30,14 +30,21 @@ The capability rows on this page are checked against the
 
 The authoritative product shape is
 [`configs/endstation_ax7101_1x1_tdm8.yaml`](../../configs/endstation_ax7101_1x1_tdm8.yaml).
-The builder and `milan_soc.py` both reject a bare-metal profile unless all of
-these statements hold:
+[`endstation_builder.py`](../../sw/builder/endstation_builder.py) and
+[`milan_soc.py`](../../sw/litex/milan_soc.py) enforce these bare-metal profile checks:
 
 - CPU is VexiiRiscv, XLEN is 32, and `cpu_count` is one.
-- `l2_bytes` is zero, no FPU is selected, and no cache or prefetch Scala
-  arguments are present.
-- `flashboot` is `baremetal` or `none`; these are the only accepted product
-  manifests.
+- `l2_bytes` is zero, and no Scala overrides are present.
+
+The builder also restricts `flashboot` to `baremetal` or `none`.
+`milan_soc.py` additionally refuses an FPU.
+
+The 50 MHz target is not checked by either tool.
+For clocks, the builder only requires `milan_clk_hz <= sys_clk_hz`.
+Clock enforcement is tracked in [#582](https://github.com/kebag-logic/milan-fpga/issues/582).
+
+The product contract also requires these properties:
+
 - The Vexii netlist ISA is RV32I plus `zicsr` and `zifencei`. Machine mode is
   the only privilege level and the CPU has no MMU.
 - The cacheless CPU side and the 64-bit Milan plane run at 50 MHz. Vexii's

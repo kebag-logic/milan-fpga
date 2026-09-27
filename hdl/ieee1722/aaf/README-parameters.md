@@ -34,7 +34,7 @@ TDM/AES3/SPDIF ser/des families sibling selections of this module.
 
 | Localparam | Derivation | Why it matters |
 |------------|------------|----------------|
-| `MCLK_DIV_LOG2_C` (parent) | `$clog2(MILAN_CLK_FREQ_HZ / 12_500_000)` | Shared with `KL_tone_gen` / `aaf_talker_i2s` (their MCLK dividers ARE still sys-clock derived); the 100 MHz AX build needs it re-derived — the un-parameterized value sampled wrong there. |
+| `MCLK_DIV_LOG2_C` (parent) | `$clog2(MILAN_CLK_FREQ_HZ / 12_500_000)` | Shared with `KL_tone_gen` / `aaf_talker_i2s` (their MCLK dividers ARE still sys-clock derived); derive it from the selected shape's clock to avoid incorrect sampling with a fixed divider. |
 | FIFO midpoint | `2**(FIFO_LOG2-1)` | The converged_o window centre and the prefill release level at `SETPOINT_P = 0` only (MID +/-64 enter, +/-128 exit, 100 ms sustain); with a setpoint the centre is `SETPOINT_C`, +/-12 enter and +/-24 exit. The window is the EXTERNAL media-lock condition: lock is judged from observed FIFO behaviour, never self-declared by the servo, so a broken servo cannot vouch for its own convergence. |
 
 ## Config-driven ports (not parameters, still schema-owned)
