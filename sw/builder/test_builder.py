@@ -13301,7 +13301,7 @@ def test_baremetal_profile_contract() -> None:
          if which.endswith("ifdef CSR_UART_BASE`: CSR_UART_BASE defined, "
                            "arm 1 of 1 taken")),
         None)
-    assert len(split_digraph_selections) == 2 and split_digraph_product_arm, \
+    assert len(split_digraph_selections) == 4 and split_digraph_product_arm, \
         "gate 1b's directive readers do not find the #ifdef a split `%:` " \
         "digraph spells in the UART handler, where the pinned GCC does: " \
         f"they read the selections {sorted(split_digraph_selections)}"
