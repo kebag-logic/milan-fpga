@@ -1,0 +1,52 @@
+{
+  "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+  "tree": "f5af9ab56ca4bea9b059eeeffdf012de1d8d02ec",
+  "parent": "8153576af6d739427b54f6c40299b0e57bc481ae",
+  "branch": "396-release-gates",
+  "origin": "https://github.com/kebag-logic/milan-fpga.git",
+  "commit_message": "Anchor release uncertainty at the last recorded discontinuity",
+  "worktree_clean": true,
+  "gitlinks_unchanged": true,
+  "gitlinks": [
+    "160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5\texternal",
+    "160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d\tgptp-processor",
+    "160000 commit 0922e43408f891fc0b84a84691df86b4fd0f1c0d\tprotocol-processor",
+    "160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce\tthird_party/verilog-axis"
+  ],
+  "changed_blobs": [
+    {
+      "path": "REQUIREMENTS.md",
+      "blob": "fc9bef64b22fb5ced4ce5ca2767c4cce2421ab36",
+      "sha256": "9ced2eb4ff818238a9ae4f8e9a89aaf0d279f43605a7ad2cf9c2b6694df59587"
+    },
+    {
+      "path": "docs/testing/TESTING.md",
+      "blob": "7a0338d3fc534a73346d8d3f61ed9f45e3bd9f7d",
+      "sha256": "0bf80f1ad23b7d7e5630f9a95dc485a256ab8be809cef9d8d4abd229279f2826"
+    },
+    {
+      "path": "tb/tools/torture_campaign.py",
+      "blob": "33956cb8179cc3efc60848ca6d6114d9147abc22",
+      "sha256": "409f9d9de776d3059621a3e5de3747455d970bfd784bd7ba51d54bf33871386a"
+    },
+    {
+      "path": "tb/tools/torture_release_mutants.py",
+      "blob": "2bd04c06a8463cede2506aee46fef8b4eaa8bd0b",
+      "sha256": "3c708fd7bb42be528943c84f519ca4f1fec27a98a38ea2282570817333a8c770"
+    },
+    {
+      "path": "tests/features/torture_campaign_plan.feature",
+      "blob": "8da9b384a6a3921308187bb9d921258fbde45378",
+      "sha256": "82b929ae0d59959339c6f46e44034131df32180c819d38b425254d2f355cae5c"
+    },
+    {
+      "path": "tests/steps/torture_release_steps.py",
+      "blob": "6dc1ec743930e5511b9e8d65aed7fd3e6867eed3",
+      "sha256": "1c643dda67235c9893020f6df8d10313013d0a318b6e4b0147a8767e8a22375b"
+    }
+  ],
+  "gates_passed": 17,
+  "public_scripts_passed": 32,
+  "public_attempts": 33,
+  "public_script_bytes_unchanged": true
+}

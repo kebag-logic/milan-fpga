@@ -1,0 +1,231 @@
+[
+  {
+    "name": "planner-self-test",
+    "command": [
+      "python3",
+      "-B",
+      "tb/tools/torture_campaign.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 0.415,
+    "log": "planner-self-test.log"
+  },
+  {
+    "name": "behave-plan",
+    "command": [
+      "python3",
+      "-B",
+      "-m",
+      "behave",
+      "tests/features/torture_campaign_plan.feature",
+      "-f",
+      "plain"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 0.765,
+    "log": "behave-plan.log"
+  },
+  {
+    "name": "behave-torture-tier",
+    "command": [
+      "python3",
+      "-B",
+      "-m",
+      "behave",
+      "tests/features",
+      "--tags=@torture",
+      "-f",
+      "progress"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 1.166,
+    "log": "behave-torture-tier.log"
+  },
+  {
+    "name": "release-mutants",
+    "command": [
+      "python3",
+      "-B",
+      "tb/tools/torture_release_mutants.py"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 8.229,
+    "log": "release-mutants.log"
+  },
+  {
+    "name": "feature-status-selftest",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 0.665,
+    "log": "feature-status-selftest.log"
+  },
+  {
+    "name": "feature-status",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_feature_status.py"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 0.665,
+    "log": "feature-status.log"
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 4.223,
+    "log": "docs-check.log"
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 0.114,
+    "log": "doc-paths.log"
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 0.064,
+    "log": "doc-style.log"
+  },
+  {
+    "name": "py-idiom",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 3.422,
+    "log": "py-idiom.log"
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "/tmp/396-a362-markdown/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "ac18b50968b12efe4d15c0a06301264b35656b31"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 3.075,
+    "log": "em-dash.log"
+  },
+  {
+    "name": "gen-toc",
+    "command": [
+      "/tmp/396-a362-markdown/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 2.568,
+    "log": "gen-toc.log"
+  },
+  {
+    "name": "coverage-by-area",
+    "command": [
+      "python3",
+      "-B",
+      "tb/tools/torture_campaign.py",
+      "--coverage-by-area",
+      "--areas",
+      "soak,power"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 0.114,
+    "log": "coverage-by-area.log"
+  },
+  {
+    "name": "plan-json",
+    "command": [
+      "python3",
+      "-B",
+      "tb/tools/torture_campaign.py",
+      "--plan",
+      "--areas",
+      "soak,power",
+      "--json"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 0.114,
+    "log": "plan-json.log"
+  },
+  {
+    "name": "diff-check-worktree",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 0.032,
+    "log": "diff-check-worktree.log"
+  },
+  {
+    "name": "diff-check-base",
+    "command": [
+      "git",
+      "diff",
+      "ac18b50968b12efe4d15c0a06301264b35656b31",
+      "HEAD",
+      "--check"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 0.016,
+    "log": "diff-check-base.log"
+  },
+  {
+    "name": "diff-check-round4",
+    "command": [
+      "git",
+      "diff",
+      "8153576af6d739427b54f6c40299b0e57bc481ae",
+      "HEAD",
+      "--check"
+    ],
+    "rc": 0,
+    "head": "54d9beea2888bd07369e67e5cb025d1405d03495",
+    "seconds": 0.016,
+    "log": "diff-check-round4.log"
+  }
+]

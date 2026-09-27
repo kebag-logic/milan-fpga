@@ -1,0 +1,47 @@
+warning: unable to find all commit-graph files
+pristine: self-test rc=0 behave rc=0
+KILLED    G01 soak/power targets drop DUT listener 1         self-test,behave
+KILLED    G02 targets drop DUT CRF sink                      self-test,behave
+KILLED    G03 targets drop peer CRF sink                     self-test,behave
+KILLED    G04 targets drop DUT CRF output                    self-test,behave
+KILLED    G05 pairs outbound direction only                  self-test,behave
+KILLED    G06 pairs omit return CRF pair                     self-test,behave
+KILLED    G07 commit repeat drops DUT listener 1 target      self-test,behave
+KILLED    G08 commit repeat drops return direction           self-test,behave
+KILLED    G09 power emits idle phase only                    self-test,behave
+KILLED    G10 CRF output bound to AAF sink                   self-test,behave
+KILLED    P01 soak interval hardcoded 60                     self-test,behave
+KILLED    P02 soak duration hardcoded 604800                 self-test,behave
+KILLED    P03 total cycles hardcoded 200                     self-test,behave
+KILLED    P04 idle count hardcoded 160                       self-test,behave
+KILLED    P05 commit count hardcoded 40                      self-test,behave
+KILLED    P06 persisted items hardcoded                      self-test
+KILLED    P07 CLI ignores --soak-interval-s                  self-test
+KILLED    P08 CLI ignores --soak-duration-s                  self-test
+KILLED    P09 CLI ignores --persisted-items                  self-test
+KILLED    C01 snapshot policies swapped                      self-test,behave
+KILLED    C02 commit cut not tied to commit window           self-test,behave
+KILLED    C03 rebind limit 2 s                               self-test,behave
+KILLED    C04 rebind limit inclusive                         self-test,behave
+KILLED    C05 resets counted                                 self-test,behave
+KILLED    C06 warm cuts                                      self-test,behave
+KILLED    C07 soak release_eligible always true              self-test
+KILLED    C08 power eligibility ignores commit count         self-test
+KILLED    C09 crf flag never set                             self-test
+KILLED    C10 no endpoint sample                             self-test,behave
+KILLED    C11 TSD register offset wrong                      self-test
+KILLED    C12 uptime assertion dropped                       self-test,behave
+INVALID   C13 boot observation 60 s                          anchor matches 0 times
+KILLED    C14 needs_human false on power                     self-test
+KILLED    V01 phase sum not enforced                         self-test
+KILLED    V02 interval > duration allowed                    self-test
+KILLED    V03 duplicate persisted items allowed              self-test
+KILLED    A01 audit ignores counter targets                  self-test,behave
+KILLED    A02 audit checks outbound only                     self-test,behave
+KILLED    A03 audit drops CRF binding check                  self-test,behave
+KILLED    A04 audit drops AAF binding check                  self-test,behave
+KILLED    A05 audit only first repeat                        self-test,behave
+KILLED    A06 audit drops phase check                        self-test
+KILLED    A07 release audit branch removed                   self-test,behave
+SURVIVED  A08 generic coverage ignores counter targets       -
+44 mutants: 42 killed, 1 survived, 1 invalid

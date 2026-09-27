@@ -1,0 +1,37 @@
+warning: unable to find all commit-graph files
+pristine: self-test rc=0 behave rc=0
+KILLED    N01 restore eligibility check dropped                   self-test,behave
+KILLED    N02 restore ceiling exclusive (<)                       self-test,behave
+KILLED    N03 restore ceiling 31                                  self-test,behave
+KILLED    N04 restore ceiling 60                                  self-test,behave
+KILLED    N05 power area skips shared profile check               self-test,behave
+KILLED    N06 soak area skips shared profile check                self-test,behave
+KILLED    N07 (R13') ADP deadline literal 20                      self-test,behave
+KILLED    N08 ADP deadline charges the hold                       self-test,behave
+KILLED    N09 ADP start at pre-cut advert                         self-test,behave
+KILLED    N10 ADP required valid_time 31                          self-test,behave
+KILLED    N11 ADP required valid_time key dropped                 self-test,behave
+KILLED    N12 (R19') ADP missing/expired weakened                 self-test
+KILLED    N13 ADP elapsed from power OFF                          self-test,behave
+KILLED    N14 hold charged to ADP window flag                     self-test,behave
+KILLED    N15 hold not validated                                  self-test
+KILLED    N16 hold default 5                                      self-test,behave
+KILLED    N17 hold origin dropped                                 self-test
+SURVIVED  N18 [equiv] CLI hold default hardcoded 8                -
+KILLED    N19 tu bound 0.25 (B.1.1 only)                          self-test,behave
+INVALID   N20 tu origin any time                                  anchor matches 0 times
+INVALID   N21 tu resolution unrecorded                            anchor matches 0 times
+KILLED    N22 tu evidence dropped from continuous list            behave
+INVALID   N23 [info] tu assertion text reverted to round 2        anchor matches 0 times
+SURVIVED  N24 [info] ADP assertion text charges pre-cut expiry    -
+KILLED    N25 explicit check ignores entity                       self-test
+KILLED    N26 explicit check ignores crf_in only                  self-test
+KILLED    N27 explicit check ignores crf_out only                 self-test
+KILLED    N28 explicit check peer only                            self-test,behave
+KILLED    N29 explicit check dut only                             self-test,behave
+KILLED    N30 listener_index_set not accepted                     self-test
+KILLED    N31 entity_id alias accepted                            self-test
+KILLED    N32 boot evidence stops at minimum window               self-test
+KILLED    N33 boot oracle accepts bool restarts                   self-test
+SURVIVED  S01 [info] step drops redundant eligible oracle         -
+34 mutants (30 required): 28 killed, 3 survived, 3 invalid; required not killed: ['N20 tu origin any time', 'N21 tu resolution unrecorded']

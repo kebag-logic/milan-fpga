@@ -1,0 +1,36 @@
+== release_eligible [soak, power.idle, power.journal_commit] via API
+  decided profile, explicit topology: [True, True, True] {'restore_bound_s': 30, 'boot_observation_s': 35}
+  restore_bound_s relaxed to 3600: [False, False, False] {'restore_bound_s': 3600, 'boot_observation_s': 3605}
+  restore_bound_s relaxed to 31: [False, False, False] {'restore_bound_s': 31, 'boot_observation_s': 36}
+  restore_bound_s tightened to 10: [True, True, True] {'restore_bound_s': 10, 'boot_observation_s': 15}
+  boot_margin_s 1: [True, True, True] {'restore_bound_s': 30, 'boot_observation_s': 31}
+  boot_margin_s 600: [True, True, True] {'restore_bound_s': 30, 'boot_observation_s': 630}
+  soak_interval_s 61 (power judged on the soak cadence): [False, False, False] {'restore_bound_s': 30, 'boot_observation_s': 35}
+== release_eligible via CLI with both explicit specs
+  flags none: rc 0; release_eligible [True, True, True]; restore_bound_s [None, 30, 30]
+  flags ['--restore-bound-s', '3600']: rc 0; release_eligible [False, False, False]; restore_bound_s [None, 3600, 3600]
+  flags ['--restore-bound-s', '3600', '--boot-margin-s', '1']: rc 0; release_eligible [False, False, False]; restore_bound_s [None, 3600, 3600]
+== CRF/AAF overlap refusal (round-1 S2)
+  --dut talker_index_set=0|1|4,crf_out=4: rc 2; torture_campaign.py: error: release AAF indices must not include a CRF index
+  --dut listener_index_set=0|4,crf_in=4: rc 2; torture_campaign.py: error: release AAF indices must not include a CRF index
+  --dut talkers=5,crf_out=2: rc 2; torture_campaign.py: error: release AAF indices must not include a CRF index
+  --dut listeners=5,crf_in=2: rc 2; torture_campaign.py: error: release AAF indices must not include a CRF index
+  matrix-only with the overlapping spec: rc 0; 
+== topology_explicit from CLI specs
+  dut spec without mac: rc 0; topology_explicit [False, False]
+  peer spec without listeners: rc 0; topology_explicit [False, False]
+  empty value for entity: rc 2; topology_explicit torture_campaign.py: error: release campaigns require a distinct DUT and peer
+== check_release_boot
+  check_release_boot(1, 0), {'capture_complete': True}: PASS
+  check_release_boot(2, 1), {'capture_complete': True}: FAIL
+  check_release_boot(1, 1), {'capture_complete': True}: FAIL
+  check_release_boot(0, 0), {'capture_complete': True}: FAIL
+  check_release_boot(1, 0), {'capture_complete': 1}: SKIP
+  check_release_boot(1, 0), {'capture_complete': False}: SKIP
+  check_release_boot(None, None), {'capture_complete': True}: SKIP
+== ADP window arithmetic implied by the plan formula (DUT valid_time=10 per Milan 5.6.2)
+  cut 0 s after last ADP, T0 2 s after cut: adp_deadline 18 s after T0
+  cut 5 s after last ADP, T0 2 s after cut: adp_deadline 13 s after T0
+  cut 5 s after last ADP, T0 10 s after cut: adp_deadline 5 s after T0
+  cut 5 s after last ADP, T0 15 s after cut: adp_deadline 0 s after T0
+  cut 0 s after last ADP, T0 20 s after cut: adp_deadline 0 s after T0

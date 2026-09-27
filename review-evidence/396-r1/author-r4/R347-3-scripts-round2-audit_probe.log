@@ -1,0 +1,16 @@
+reviewed audit (True = defect rejected):
+  REJECTS  D1 power.journal_commit misses DUT stream_input 1
+  REJECTS  D2 power.journal_commit misses peer stream_input 2
+  REJECTS  D3 power.journal_commit misses DUT stream_output 3
+  REJECTS  D4 soak loses the outbound (DUT->peer) direction
+  REJECTS  D5 power.idle loses the outbound CRF pair
+  REJECTS  D6 power.journal_commit loses the return CRF pair
+A1 audit checks only the first repeat group of an area: accepts ['D1', 'D2', 'D3', 'D6'] that the reviewed audit rejects
+A2 per-repeat observation audit checks the DUT only: accepts ['D2'] that the reviewed audit rejects
+A3 direction audit checks the return direction only: accepts ['D4', 'D5'] that the reviewed audit rejects
+A5 CRF binding audit skipped for the outbound direction: accepts ['D5'] that the reviewed audit rejects
+A6 per-repeat observation audit checks listeners only: accepts ['D3'] that the reviewed audit rejects
+A7 power phase-mix audit removed: accepts none that the reviewed audit rejects
+non-default threading: {'interval_s': 300, 'total_cycles': 10, 'cycles': [8, 2]}
+200 cuts split 199/1 release_eligible: [False, False]
+7-day soak sampled only at the endpoints release_eligible: False

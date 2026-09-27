@@ -1,0 +1,110 @@
+target sha256 409f9d9de776d3059621a3e5de3747455d970bfd784bd7ba51d54bf33871386a
+A1 audit checks only the first repeat group of an area
+  self-test: test_release_binding_omissions_in_every_repeat, test_release_counter_omissions_in_every_repeat
+  behave: tests/features/torture_campaign_plan.feature:369  each repeat detects omissions on both sides -- @1.21
+  behave: tests/features/torture_campaign_plan.feature:370  each repeat detects omissions on both sides -- @1.22
+  behave: tests/features/torture_campaign_plan.feature:371  each repeat detects omissions on both sides -- @1.23
+  behave: tests/features/torture_campaign_plan.feature:372  each repeat detects omissions on both sides -- @1.24
+  behave: tests/features/torture_campaign_plan.feature:373  each repeat detects omissions on both sides -- @1.25
+  behave: tests/features/torture_campaign_plan.feature:374  each repeat detects omissions on both sides -- @1.26
+  behave: tests/features/torture_campaign_plan.feature:375  each repeat detects omissions on both sides -- @1.27
+  behave: tests/features/torture_campaign_plan.feature:376  each repeat detects omissions on both sides -- @1.28
+  behave: tests/features/torture_campaign_plan.feature:377  each repeat detects omissions on both sides -- @1.29
+  behave: tests/features/torture_campaign_plan.feature:378  each repeat detects omissions on both sides -- @1.30
+A2 per-repeat observation audit checks the DUT only
+  self-test: test_release_counter_omissions_in_every_repeat
+  behave: tests/features/torture_campaign_plan.feature:354  each repeat detects omissions on both sides -- @1.6
+  behave: tests/features/torture_campaign_plan.feature:355  each repeat detects omissions on both sides -- @1.7
+  behave: tests/features/torture_campaign_plan.feature:356  each repeat detects omissions on both sides -- @1.8
+  behave: tests/features/torture_campaign_plan.feature:364  each repeat detects omissions on both sides -- @1.16
+  behave: tests/features/torture_campaign_plan.feature:365  each repeat detects omissions on both sides -- @1.17
+  behave: tests/features/torture_campaign_plan.feature:366  each repeat detects omissions on both sides -- @1.18
+  behave: tests/features/torture_campaign_plan.feature:374  each repeat detects omissions on both sides -- @1.26
+  behave: tests/features/torture_campaign_plan.feature:375  each repeat detects omissions on both sides -- @1.27
+  behave: tests/features/torture_campaign_plan.feature:376  each repeat detects omissions on both sides -- @1.28
+A3 direction audit checks the return direction only
+  self-test: test_release_binding_omissions_in_every_repeat
+  behave: tests/features/torture_campaign_plan.feature:352  each repeat detects omissions on both sides -- @1.4
+  behave: tests/features/torture_campaign_plan.feature:353  each repeat detects omissions on both sides -- @1.5
+  behave: tests/features/torture_campaign_plan.feature:362  each repeat detects omissions on both sides -- @1.14
+  behave: tests/features/torture_campaign_plan.feature:363  each repeat detects omissions on both sides -- @1.15
+  behave: tests/features/torture_campaign_plan.feature:372  each repeat detects omissions on both sides -- @1.24
+  behave: tests/features/torture_campaign_plan.feature:373  each repeat detects omissions on both sides -- @1.25
+A4 direction audit checks the outbound direction only (control)
+  self-test: test_release_binding_omissions_in_every_repeat
+  behave: tests/features/torture_campaign_plan.feature:328  release coverage refuses omissions even with a complete matrix -- @1.2
+  behave: tests/features/torture_campaign_plan.feature:331  release coverage refuses omissions even with a complete matrix -- @1.5
+  behave: tests/features/torture_campaign_plan.feature:357  each repeat detects omissions on both sides -- @1.9
+  behave: tests/features/torture_campaign_plan.feature:358  each repeat detects omissions on both sides -- @1.10
+  behave: tests/features/torture_campaign_plan.feature:367  each repeat detects omissions on both sides -- @1.19
+  behave: tests/features/torture_campaign_plan.feature:368  each repeat detects omissions on both sides -- @1.20
+  behave: tests/features/torture_campaign_plan.feature:377  each repeat detects omissions on both sides -- @1.29
+  behave: tests/features/torture_campaign_plan.feature:378  each repeat detects omissions on both sides -- @1.30
+A5 CRF binding audit skipped for the outbound direction
+  self-test: test_release_binding_omissions_in_every_repeat
+  behave: tests/features/torture_campaign_plan.feature:353  each repeat detects omissions on both sides -- @1.5
+  behave: tests/features/torture_campaign_plan.feature:363  each repeat detects omissions on both sides -- @1.15
+  behave: tests/features/torture_campaign_plan.feature:373  each repeat detects omissions on both sides -- @1.25
+A6 per-repeat observation audit checks listeners only
+  self-test: test_release_counter_omissions_in_every_repeat
+  behave: tests/features/torture_campaign_plan.feature:349  each repeat detects omissions on both sides -- @1.1
+  behave: tests/features/torture_campaign_plan.feature:354  each repeat detects omissions on both sides -- @1.6
+  behave: tests/features/torture_campaign_plan.feature:359  each repeat detects omissions on both sides -- @1.11
+  behave: tests/features/torture_campaign_plan.feature:364  each repeat detects omissions on both sides -- @1.16
+  behave: tests/features/torture_campaign_plan.feature:369  each repeat detects omissions on both sides -- @1.21
+  behave: tests/features/torture_campaign_plan.feature:374  each repeat detects omissions on both sides -- @1.26
+A7 power phase-mix audit removed
+  self-test: test_release_binding_omissions_in_every_repeat
+  behave: none
+P1 soak interval hardcoded to 60 s
+  self-test: test_release_cli_parameters, test_release_settings_validation
+  behave: tests/features/torture_campaign_plan.feature:381  release timing and totals are parameterized
+P2 power total_cycles hardcoded to 200
+  self-test: test_release_cli_parameters, test_release_settings_validation
+  behave: tests/features/torture_campaign_plan.feature:381  release timing and totals are parameterized
+P3 power release_eligible ignores the idle/commit minimums
+  self-test: test_release_eligibility_boundaries
+  behave: none
+P4 soak release_eligible always true
+  self-test: test_release_eligibility_boundaries
+  behave: none
+P5 soak duration hardcoded
+  self-test: test_release_cli_parameters, test_release_settings_validation
+  behave: tests/features/torture_campaign_plan.feature:381  release timing and totals are parameterized
+P6 persisted items hardcoded
+  self-test: test_release_cli_parameters, test_release_settings_validation
+  behave: none
+P7 idle/commit sum check removed
+  self-test: test_release_cli_parameters, test_release_settings_validation
+  behave: none
+P8 rebind bound made inclusive
+  self-test: test_release_defaults_and_assertions
+  behave: tests/features/torture_campaign_plan.feature:335  release defaults encode the decided soak and cold-cut mix
+P9 soak endpoint sample dropped
+  self-test: test_release_settings_validation
+  behave: tests/features/torture_campaign_plan.feature:335  release defaults encode the decided soak and cold-cut mix
+T1 outbound CRF pair dropped
+  self-test: test_coverage_is_audited_PER_AREA, test_release_counter_omissions_in_every_repeat, test_release_sparse_shapes_and_compatible_pairs
+  behave: tests/features/torture_campaign_plan.feature:149  coverage is audited PER AREA, because the whole-plan audit is blind
+  behave: tests/features/torture_campaign_plan.feature:316  release areas observe every index and bind both directions -- @1.1
+  behave: tests/features/torture_campaign_plan.feature:317  release areas observe every index and bind both directions -- @1.2
+T2 peer CRF sink counter target dropped
+  self-test: test_coverage_is_audited_PER_AREA, test_release_counter_omissions_in_every_repeat, test_release_sparse_shapes_and_compatible_pairs
+  behave: tests/features/torture_campaign_plan.feature:149  coverage is audited PER AREA, because the whole-plan audit is blind
+  behave: tests/features/torture_campaign_plan.feature:316  release areas observe every index and bind both directions -- @1.1
+  behave: tests/features/torture_campaign_plan.feature:317  release areas observe every index and bind both directions -- @1.2
+T3 return AAF pairs dropped
+  self-test: test_coverage_is_audited_PER_AREA, test_release_counter_omissions_in_every_repeat, test_release_sparse_shapes_and_compatible_pairs
+  behave: tests/features/torture_campaign_plan.feature:149  coverage is audited PER AREA, because the whole-plan audit is blind
+  behave: tests/features/torture_campaign_plan.feature:316  release areas observe every index and bind both directions -- @1.1
+  behave: tests/features/torture_campaign_plan.feature:317  release areas observe every index and bind both directions -- @1.2
+T4 AAF bound into the CRF sink
+  self-test: test_release_sparse_shapes_and_compatible_pairs
+  behave: tests/features/torture_campaign_plan.feature:316  release areas observe every index and bind both directions -- @1.1
+  behave: tests/features/torture_campaign_plan.feature:317  release areas observe every index and bind both directions -- @1.2
+T5 DUT talker counter targets dropped above index 0
+  self-test: test_coverage_is_audited_PER_AREA, test_release_counter_omissions_in_every_repeat, test_release_sparse_shapes_and_compatible_pairs
+  behave: tests/features/torture_campaign_plan.feature:149  coverage is audited PER AREA, because the whole-plan audit is blind
+  behave: tests/features/torture_campaign_plan.feature:316  release areas observe every index and bind both directions -- @1.1
+  behave: tests/features/torture_campaign_plan.feature:317  release areas observe every index and bind both directions -- @1.2
+restored target sha256 409f9d9de776d3059621a3e5de3747455d970bfd784bd7ba51d54bf33871386a
