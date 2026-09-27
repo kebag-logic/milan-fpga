@@ -1,0 +1,132 @@
+[
+  {
+    "gate": "docs-submodules",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "head": "9c18068512dec844d24fdff7fe0a3eb0d63c14f5",
+    "context": "physical candidate; pinned submodules present",
+    "return_code": 0
+  },
+  {
+    "gate": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "head": "9c18068512dec844d24fdff7fe0a3eb0d63c14f5",
+    "context": "physical candidate; pinned submodules present",
+    "return_code": 0
+  },
+  {
+    "gate": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "head": "9c18068512dec844d24fdff7fe0a3eb0d63c14f5",
+    "context": "physical candidate; pinned submodules present",
+    "return_code": 0
+  },
+  {
+    "gate": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "8bc97021"
+    ],
+    "head": "9c18068512dec844d24fdff7fe0a3eb0d63c14f5",
+    "context": "physical candidate; pinned submodules present",
+    "return_code": 0
+  },
+  {
+    "gate": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "head": "9c18068512dec844d24fdff7fe0a3eb0d63c14f5",
+    "context": "physical candidate; pinned submodules present",
+    "return_code": 0
+  },
+  {
+    "gate": "ci-scope",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "head": "9c18068512dec844d24fdff7fe0a3eb0d63c14f5",
+    "context": "physical candidate; pinned submodules present",
+    "return_code": 0
+  },
+  {
+    "gate": "baremetal",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "head": "9c18068512dec844d24fdff7fe0a3eb0d63c14f5",
+    "context": "physical candidate; pinned submodules present; base interpreter with PyYAML",
+    "return_code": 0
+  },
+  {
+    "gate": "feature-status",
+    "command": [
+      "python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "head": "9c18068512dec844d24fdff7fe0a3eb0d63c14f5",
+    "context": "physical candidate; pinned submodules present",
+    "return_code": 0
+  },
+  {
+    "gate": "diff",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "head": "9c18068512dec844d24fdff7fe0a3eb0d63c14f5",
+    "context": "physical candidate; committed head",
+    "return_code": 0
+  },
+  {
+    "gate": "diff-committed",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "8bc97021",
+      "HEAD"
+    ],
+    "head": "9c18068512dec844d24fdff7fe0a3eb0d63c14f5",
+    "context": "physical candidate; full committed PR delta",
+    "return_code": 0
+  },
+  {
+    "gate": "docs-no-submodules",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "head": "9c18068512dec844d24fdff7fe0a3eb0d63c14f5",
+    "context": "exact-head validation clone; no submodules",
+    "return_code": 0
+  },
+  {
+    "gate": "docs-no-git",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "head": "9c18068512dec844d24fdff7fe0a3eb0d63c14f5",
+    "context": "same validation tree; no submodules or Git metadata",
+    "return_code": 0
+  }
+]

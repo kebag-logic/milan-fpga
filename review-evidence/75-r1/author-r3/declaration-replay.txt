@@ -1,0 +1,95 @@
+{
+  "hold_window": "[disconnect response, connect command)",
+  "declaration_events": [
+    "JoinIn",
+    "JoinMt",
+    "New"
+  ],
+  "inspected_holds": 100,
+  "holds_with_dut_declaration": 99,
+  "holds_without_dut_declaration": [
+    1
+  ],
+  "raw_msrp_tsv_matches": 101,
+  "cycle_one": {
+    "cycle": 1,
+    "disconnect_response_ns": 2714949175,
+    "connect_command_ns": 4715194401,
+    "response_ns": 4724328879,
+    "declaration_count": 0,
+    "withdrawal_count": 1,
+    "empty_count": 2,
+    "latency_s": 0.117736084,
+    "declarations_disconnect_to_response": 0,
+    "first_advert_after_response_s": 0.111313165,
+    "ready_after_response_s": 0.117612572,
+    "advert_to_ready_s": 0.006299407,
+    "ready_to_crf_s": 0.000123512
+  },
+  "initial_bind": {
+    "latency_s": 6.889398468,
+    "declarations_before_response": 0,
+    "first_advert_after_response_s": 0.07923725
+  },
+  "nonstops": [
+    {
+      "cycle": 13,
+      "disconnect_response_ns": 2984319650,
+      "connect_command_ns": 4984581689,
+      "response_ns": 4993703367,
+      "listener_lv_ns": 2994090329,
+      "lv_after_disconnect_s": 0.009770679,
+      "first_listener_declaration_ns": 5067479780,
+      "first_declaration_after_disconnect_s": 2.08316013,
+      "first_declaration_after_response_s": 0.073776413,
+      "declarations_between_lv_and_response": 0,
+      "pdus_lv_to_response": 999,
+      "pdus_lv_to_redeclaration": 1036,
+      "maximum_lv_to_redeclaration_gap_s": 0.002000053,
+      "maximum_hold_gap_s": 0.002000053,
+      "dut_start_delta": 0,
+      "dut_stop_delta": 0,
+      "disconnect_tx_count": 0
+    },
+    {
+      "cycle": 24,
+      "disconnect_response_ns": 3032865750,
+      "connect_command_ns": 5033109378,
+      "response_ns": 5041770854,
+      "listener_lv_ns": 3043222631,
+      "lv_after_disconnect_s": 0.010356881,
+      "first_listener_declaration_ns": 5060475394,
+      "first_declaration_after_disconnect_s": 2.027609644,
+      "first_declaration_after_response_s": 0.01870454,
+      "declarations_between_lv_and_response": 0,
+      "pdus_lv_to_response": 999,
+      "pdus_lv_to_redeclaration": 1009,
+      "maximum_lv_to_redeclaration_gap_s": 0.002000053,
+      "maximum_hold_gap_s": 0.002000053,
+      "dut_start_delta": 0,
+      "dut_stop_delta": 0,
+      "disconnect_tx_count": 0
+    },
+    {
+      "cycle": 75,
+      "disconnect_response_ns": 3041183545,
+      "connect_command_ns": 5041435978,
+      "response_ns": 5050203663,
+      "listener_lv_ns": 3066491140,
+      "lv_after_disconnect_s": 0.025307595,
+      "first_listener_declaration_ns": 5068891395,
+      "first_declaration_after_disconnect_s": 2.02770785,
+      "first_declaration_after_response_s": 0.018687732,
+      "declarations_between_lv_and_response": 0,
+      "pdus_lv_to_response": 992,
+      "pdus_lv_to_redeclaration": 1001,
+      "maximum_lv_to_redeclaration_gap_s": 0.002000053,
+      "maximum_hold_gap_s": 0.002000053,
+      "dut_start_delta": 0,
+      "dut_stop_delta": 0,
+      "disconnect_tx_count": 0
+    }
+  ]
+}
+
+Return code: 0
