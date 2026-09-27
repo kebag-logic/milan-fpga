@@ -1,0 +1,11 @@
+docs/AAF_LATENCY_TAPS.md -> true
+ rc=0
+docs/LATENCY_HISTORY_RING.md -> false
+ rc=0
+docs/testing/CI_WORKFLOWS.md -> false
+ rc=0
+usage: ci_scope.py [-h] [--selftest] [paths ...]
+
+Classify a changed-file list as docs-only or RTL/tooling relevant. A submodule
+pointer is never docs-only. The gitlink entries (`protocol-processor`, `gptp-
+processor`, `external`, `third_party/...`) and `.gitmodules` itself move the

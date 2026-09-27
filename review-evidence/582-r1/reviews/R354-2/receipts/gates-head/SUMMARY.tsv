@@ -1,0 +1,30 @@
+0	2.7	$HOME/litex-milan/venv/bin/python3 scripts/ci_scope.py --selftest
+0	0.2	$HOME/litex-milan/venv/bin/python3 scripts/check_solution_docs.py
+0	2.8	$HOME/litex-milan/venv/bin/python3 scripts/check_solution_docs.py --selftest
+0	4.6	$HOME/litex-milan/venv/bin/python3 scripts/docs_check.py
+0	0.2	$HOME/litex-milan/venv/bin/python3 scripts/docs_check.py --selftest
+2	0.9	$HOME/litex-milan/venv/bin/python3 scripts/check_em_dash.py --base 9e9954e96bf55181edb9949ae94c9abd4ab6aaf5
+2	0.9	$HOME/litex-milan/venv/bin/python3 scripts/check_em_dash.py --selftest
+0	0.1	$HOME/litex-milan/venv/bin/python3 scripts/check_doc_style.py
+0	0.1	$HOME/litex-milan/venv/bin/python3 scripts/check_doc_style.py --selftest
+0	0.1	$HOME/litex-milan/venv/bin/python3 scripts/check_doc_paths.py
+0	0.4	$HOME/litex-milan/venv/bin/python3 docs/DOC_MAP.gen.py --check
+2	0.1	$HOME/litex-milan/venv/bin/python3 scripts/gen_toc.py --check
+2	0.1	$HOME/litex-milan/venv/bin/python3 scripts/gen_toc.py --verify-anchors
+0	15.1	$HOME/litex-milan/venv/bin/python3 scripts/check_baremetal_only.py --check
+0	5.8	$HOME/litex-milan/venv/bin/python3 scripts/check_baremetal_only.py --selftest
+0	43.1	$HOME/litex-milan/venv/bin/python3 scripts/check_entity_shape.py --self-test
+0	0.5	$HOME/litex-milan/venv/bin/python3 scripts/check_deploy_shape.py --self-test
+0	14.0	$HOME/litex-milan/venv/bin/python3 scripts/check_sweep_shape.py --self-test
+0	3.9	$HOME/litex-milan/venv/bin/python3 scripts/check_py_idiom.py
+0	0.3	$HOME/litex-milan/venv/bin/python3 scripts/check_sh_idiom.py
+0	0.4	$HOME/litex-milan/venv/bin/python3 scripts/check_hygiene.py --check
+0	0.5	$HOME/litex-milan/venv/bin/python3 scripts/measure_naming.py --check
+0	1.5	$HOME/litex-milan/venv/bin/python3 scripts/measure_fail_fast.py --check
+0	5.4	$HOME/litex-milan/venv/bin/python3 scripts/measure_test_evidence.py --check
+0	0.2	$HOME/litex-milan/venv/bin/python3 scripts/check_soc_sources.py
+0	0.9	$HOME/litex-milan/venv/bin/python3 scripts/check_nvm_capture.py
+0	3.0	$HOME/litex-milan/venv/bin/python3 sw/builder/test_declarations.py
+0	4.0	cd sw/builder && $HOME/litex-milan/venv/bin/python3 test_clock_contract.py --soc
+0	12.1	$HOME/litex-milan/venv/bin/python3 sw/litex/test_pp_mem_bridge.py
+0	0.0	git diff --check 9e9954e96bf55181edb9949ae94c9abd4ab6aaf5 HEAD

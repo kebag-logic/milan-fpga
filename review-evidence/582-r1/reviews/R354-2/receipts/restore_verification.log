@@ -1,0 +1,30 @@
+HEAD 77998f14b16bf7605956332d0f0ac8af0cecab5a
+HEAD tree 8efca551799d1ef09c09e6194720bc6fb25b840a
+index tree 8efca551799d1ef09c09e6194720bc6fb25b840a
+ls-files -s sha256 61578bf5ae31b9778bb6405af299501655db853e69a3bdb8f47c0bd20b2c2b0e
+ls-tree -r HEAD sha256 87e49b2723ca14ce3cc67d846c154be99d1c96f6eedada651f4dd3fdaff20d00
+ls-files -s (mode blob path) vs ls-tree -r HEAD: identical
+worktree vs index (diff-files, stat-refreshed): clean
+status --porcelain: []
+gitlinks:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ 870ff88ad35bbd532244e4c7e6d7661b9f6e1366 protocol-processor (v2.0-275-g870ff88)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor status: []
+protocol-processor status: []
+third_party/verilog-axis status: []
+ignored:
+!! avdecc/__pycache__/
+!! scripts/__pycache__/
+!! sw/builder/__pycache__/
+!! sw/builder/out/
+!! sw/litex/__pycache__/
+!! sw/litex/platforms/__pycache__/
+!! tb/verilator/nvm_capture_cpu/__pycache__/
+after: []

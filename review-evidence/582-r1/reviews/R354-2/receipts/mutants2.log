@@ -1,0 +1,168 @@
+C1-control-builder-identity: CONTROL-PASS rc=0 test=test_clock_contract.py --soc
+    | [clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+    | [clock contract] 5 tap conversions and presence declarations match configurations
+    | [clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass
+C2-control-soc-identity: CONTROL-PASS rc=0 test=-c import test_clock_contract as t; t.test_soc_clock_contract()
+    | [clock contract] SoC configured clocks, neighbours, 80/100 MHz, nonfinite values, product argv, no-Milan, implicit system and disabled-domain paths pass
+C3-control-pairs-identity: CONTROL-PASS rc=0 test=-c import test_pp_mem_bridge as t; t.test_configured_clock_pairs()
+    | [clock pairs] normalized fixture pairs preserve every shape and domain; omitted system clocks pass
+C4-control-sweep-identity: CONTROL-PASS rc=0 test=-c import test_clock_contract as t; t.test_extra_sweep_clocks()
+    | [clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+C5-control-rom-identity: CONTROL-PASS rc=0 test=-c import test_clock_contract as t; t.test_gptp_rom_clock()
+    | [clock contract] 5 ROMs match configured Milan clocks; default-clock and system-clock controls differ
+M01-builder-guard-removed: KILLED rc=1 test=-c import test_clock_contract as t; t.test_baremetal_clock_contract()
+    |   File "$VALIDATION_STORAGE/reviews/r354-2-582/sw/builder/test_clock_contract.py", line 32, in _refused
+    |     raise AssertionError(f"accepted invalid input: {reason}")
+    | AssertionError: accepted invalid input: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+M02-builder-guard-ceiling: KILLED rc=1 test=-c import test_clock_contract as t; t.test_baremetal_clock_contract()
+    |   File "$VALIDATION_STORAGE/reviews/r354-2-582/sw/builder/test_clock_contract.py", line 32, in _refused
+    |     raise AssertionError(f"accepted invalid input: {reason}")
+    | AssertionError: accepted invalid input: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+M03-builder-guard-floor: KILLED rc=1 test=-c import test_clock_contract as t; t.test_baremetal_clock_contract()
+    |   File "$VALIDATION_STORAGE/reviews/r354-2-582/sw/builder/test_clock_contract.py", line 32, in _refused
+    |     raise AssertionError(f"accepted invalid input: {reason}")
+    | AssertionError: accepted invalid input: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+M04-builder-message-unnamed: KILLED rc=1 test=-c import test_clock_contract as t; t.test_baremetal_clock_contract()
+    |     assert reason in str(exc), str(exc)
+    |            ^^^^^^^^^^^^^^^^^^
+    | AssertionError: clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+M05-builder-scala-message-narrowed: KILLED rc=1 test=-c import test_clock_contract as t; t.test_baremetal_clock_contract()
+    |     assert reason in str(exc), str(exc)
+    |            ^^^^^^^^^^^^^^^^^^
+    | AssertionError: baremetal SoC requires l2_bytes: 0 and no cache/prefetch scala_args
+M06-soc-guard-removed: KILLED rc=1 test=-c import test_clock_contract as t; t.test_soc_clock_contract()
+    |     assert not refused, f"clock accepted before platform: {argv}"
+    |            ^^^^^^^^^^^
+    | AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-master', '--talker-w
+M07-soc-ignores-system-fallback: KILLED rc=1 test=-c import test_clock_contract as t; t.test_soc_clock_contract()
+    |     assert not refused, f"clock accepted before platform: {argv}"
+    |            ^^^^^^^^^^^
+    | AssertionError: clock accepted before platform: ['--sys-clk-freq', '80000000']
+M08-soc-guard-ceiling: KILLED rc=1 test=-c import test_clock_contract as t; t.test_soc_clock_contract()
+    |     assert not refused, f"clock accepted before platform: {argv}"
+    |            ^^^^^^^^^^^
+    | AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-master', '--talker-w
+M09-soc-message-unnamed: KILLED rc=1 test=-c import test_clock_contract as t; t.test_soc_clock_contract()
+    |                     [--bios-console {full,no-history,no-autocomplete,lite,disable}] [--bios-no-ansi]
+    |                     [--bios-stack-margin BIOS_STACK_MARGIN] [--libc-mode {full,minimal}] [--no-integrated-rom-auto-size]
+    | milan_soc.py: error: clock: effective --milan-clk-freq must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract); without a Milan clock domain, --sys-clk-freq supplies that clock
+M10-soc-checks-system-only: KILLED rc=1 test=-c import test_clock_contract as t; t.test_soc_clock_contract()
+    |     assert not refused, f"clock accepted before platform: {argv}"
+    |            ^^^^^^^^^^^
+    | AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-master', '--talker-w
+M11-recipe-clock-100mhz: KILLED rc=1 test=-c import test_clock_contract as t; t.test_baremetal_clock_contract()
+    |         f"baremetal clock: milan_clk_hz must be {BAREMETAL_CLK_HZ} Hz "
+    |         "(docs/integration/BAREMETAL_FIRMWARE.md build contract)")
+    | endstation_builder.ConfigError: baremetal clock: milan_clk_hz must be 100000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+M12-sweep-hardcoded-pair: KILLED rc=1 test=-c import test_clock_contract as t; t.test_extra_sweep_clocks()
+    |     assert float(argv[argv.index(option) + 1]) == clocks[key], (option, argv)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AssertionError: ('--sys-clk-freq', ['python3', '$VALIDATION_STORAGE/reviews/r354-2-582/sw/litex/milan_soc.py', '--board', 'arty', '--sys-clk-freq', '100000000', '--milan-clk-freq', '50000000', '--cpu', 'vexiiriscv', '--software-
+M13-sweep-swallows-config-failure: KILLED rc=1 test=-c import test_clock_contract as t; t.test_extra_sweep_clocks()
+    |     assert mismatch.returncode != 0 and "board does not match" in mismatch.stderr
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AssertionError
+M14-sweep-board-check-removed: KILLED rc=1 test=-c import test_clock_contract as t; t.test_extra_sweep_clocks()
+    |     assert mismatch.returncode != 0 and "board does not match" in mismatch.stderr
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AssertionError
+M15-sweep-ignores-SWEEP_CFG: KILLED rc=1 test=-c import test_clock_contract as t; t.test_extra_sweep_clocks()
+    |     assert float(argv[argv.index(option) + 1]) == clocks[key], (option, argv)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AssertionError: ('--sys-clk-freq', ['python3', '$VALIDATION_STORAGE/reviews/r354-2-582/sw/litex/milan_soc.py', '--board', 'arty', '--sys-clk-freq', '83333000', '--milan-clk-freq', '50000000', '--cpu', 'vexiiriscv', '--software-p
+M16-pairs-swapped: KILLED rc=1 test=-c import test_pp_mem_bridge as t; t.test_configured_clock_pairs()
+    |     assert configured_clock_pairs() == expected, "configuration clock pairs not preserved"
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AssertionError: configuration clock pairs not preserved
+M17-pairs-first-only: KILLED rc=1 test=-c import test_pp_mem_bridge as t; t.test_configured_clock_pairs()
+    |     assert configured_clock_pairs() == expected, "configuration clock pairs not preserved"
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AssertionError: configuration clock pairs not preserved
+M18-pairs-milan-copied-to-sys: KILLED rc=1 test=-c import test_pp_mem_bridge as t; t.test_configured_clock_pairs()
+    |     assert configured_clock_pairs() == expected, "configuration clock pairs not preserved"
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AssertionError: configuration clock pairs not preserved
+M19-tap-doc-old-10ns: KILLED rc=1 test=-c import test_clock_contract as t; t.test_tap_clock_docs()
+    |     assert actual == "\n".join(table), "tap clock table differs from the configurations"
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AssertionError: tap clock table differs from the configurations
+M20-tap-doc-8x8-unpruned: KILLED rc=1 test=-c import test_clock_contract as t; t.test_tap_clock_docs()
+    |     assert actual == "\n".join(table), "tap clock table differs from the configurations"
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AssertionError: tap clock table differs from the configurations
+M21-rom-clock-not-forwarded: KILLED rc=1 test=-c import test_clock_contract as t; t.test_gptp_rom_clock()
+    |     assert actual == expected, f"{path.stem}: gPTP ROM does not use configured Milan clock"
+    |            ^^^^^^^^^^^^^^^^^^
+    | AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock
+M21b-rom-clock-not-forwarded-cc: KILLED rc=1 test=test_clock_contract.py --soc
+    |     assert actual == expected, f"{path.stem}: gPTP ROM does not use configured Milan clock"
+    |            ^^^^^^^^^^^^^^^^^^
+    | AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock
+M21d-rom-clock-not-forwarded-gate1b-replica: SURVIVED rc=0 test=$VALIDATION_STORAGE/reviews/582-r354-2-packet/scripts/rom_clock_probe.py
+    | gate-1b ROM assertions: pass
+    | shipping AX gptp_ucode sha256 21e846a7e1989091e555486bbb571b6967eb014925f768dbca7d41124d1d3748
+M22-rom-clock-is-sys: KILLED rc=1 test=-c import test_clock_contract as t; t.test_gptp_rom_clock()
+    |     assert actual == expected, f"{path.stem}: gPTP ROM does not use configured Milan clock"
+    |            ^^^^^^^^^^^^^^^^^^
+    | AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock
+M22b-rom-clock-is-sys-cc: KILLED rc=1 test=test_clock_contract.py --soc
+    |     assert actual == expected, f"{path.stem}: gPTP ROM does not use configured Milan clock"
+    |            ^^^^^^^^^^^^^^^^^^
+    | AssertionError: endstation_arty_4x4: gPTP ROM does not use configured Milan clock
+S1-soc-guard-exempts-no-milan: KILLED rc=1 test=-c import test_clock_contract as t; t.test_soc_clock_contract()
+    |     assert not refused, f"clock accepted before platform: {argv}"
+    |            ^^^^^^^^^^^
+    | AssertionError: clock accepted before platform: ['--no-milan', '--milan-clk-freq', '49999999']
+S2-soc-guard-exempts-full: KILLED rc=1 test=-c import test_clock_contract as t; t.test_soc_clock_contract()
+    |     assert not refused, f"clock accepted before platform: {argv}"
+    |            ^^^^^^^^^^^
+    | AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-master', '--talker-w
+S3-soc-guard-exempts-arty: KILLED rc=1 test=-c import test_clock_contract as t; t.test_soc_clock_contract()
+    |     assert not refused, f"clock accepted before platform: {argv}"
+    |            ^^^^^^^^^^^
+    | AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-master', '--talker-w
+S4-soc-guard-exempts-spiflash: KILLED rc=1 test=-c import test_clock_contract as t; t.test_soc_clock_contract()
+    |     assert not refused, f"clock accepted before platform: {argv}"
+    |            ^^^^^^^^^^^
+    | AssertionError: clock accepted before platform: ['--board', 'arty', '--sys-clk-freq', '83.333e6', '--milan-clk-freq', '49999999', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-master', '--talker-w
+B3-builder-guard-baremetal-flash-only: KILLED rc=1 test=-c import test_clock_contract as t; t.test_baremetal_clock_contract()
+    |   File "$VALIDATION_STORAGE/reviews/r354-2-582/sw/builder/test_clock_contract.py", line 32, in _refused
+    |     raise AssertionError(f"accepted invalid input: {reason}")
+    | AssertionError: accepted invalid input: baremetal clock: milan_clk_hz must be 50000000 Hz (docs/integration/BAREMETAL_FIRMWARE.md build contract)
+M23-pairs-raw-yaml: KILLED rc=1 test=-c import test_pp_mem_bridge as t; t.test_configured_clock_pairs()
+    |     clocks = yaml.safe_load(path.read_text())["board"]["constraints"]
+    |              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+    | TypeError: 'NoneType' object is not subscriptable
+M24-pairs-raw-yaml-wrong-default: KILLED rc=1 test=-c import test_pp_mem_bridge as t; t.test_configured_clock_pairs()
+    |     clocks = dict(yaml.safe_load(path.read_text())["board"]["constraints"]); clocks.setdefault("sys_clk_hz", clocks["milan_clk_hz"])
+    |                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+    | TypeError: 'NoneType' object is not subscriptable
+M25-sweep-omitted-sys-uses-milan: KILLED rc=1 test=-c import test_clock_contract as t; t.test_extra_sweep_clocks()
+    |     assert float(argv[argv.index(option) + 1]) == clocks[key], (option, argv)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AssertionError: ('--sys-clk-freq', ['python3', '$VALIDATION_STORAGE/reviews/r354-2-582/sw/litex/milan_soc.py', '--board', 'arty', '--sys-clk-freq', '50000000', '--milan-clk-freq', '50000000', '--cpu', 'vexiiriscv', '--software-p
+M26-builder-argv-drops-milan-clock: KILLED rc=1 test=-c import test_clock_contract as t; t.test_soc_clock_contract()
+    |     assert refused and exc.code == 2, (argv, stderr.getvalue())
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^
+    | AssertionError: (['--board', 'arty', '--sys-clk-freq', '83.333e6', '--num-streams', '4', '--audio-interface', 'tdm8', '--audio-interface-master', '--talker-wire-chans', '4', '--fabric-gptp', '--cpu', 'vexiiriscv', '--sof
+M27-scope-page-unregistered: KILLED rc=1 test=scripts/ci_scope.py --selftest
+    |   ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+    |   ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+    | selftest: 2 FAILURE(S)
+M28-scope-case-says-docs-only: KILLED rc=1 test=scripts/ci_scope.py --selftest
+    |   ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+    |   ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+    | selftest: 2 FAILURE(S)
+M29-ci-workflows-row-removed: SURVIVED rc=0 test=scripts/ci_scope.py --selftest
+    |   ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+    |   ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+    | selftest: PASS
+M30-soc-system-default-80mhz: KILLED rc=1 test=scripts/check_solution_docs.py
+    | sw/litex/milan_soc.py: system clock default differs from product contract: 80000000
+    | sw/litex/deploy.sh: deployment system clock differs from product contract: 80000000
+    | solution documentation: FAIL (2 findings)
+M31-soc-no-milan-checks-milan-only: KILLED rc=1 test=-c import test_clock_contract as t; t.test_soc_clock_contract()
+    |     assert not refused, f"clock accepted before platform: {argv}"
+    |            ^^^^^^^^^^^
+    | AssertionError: clock accepted before platform: ['--no-milan', '--sys-clk-freq', '49999999']
+unexpected=['M21d-rom-clock-not-forwarded-gate1b-replica', 'M29-ci-workflows-row-removed']
