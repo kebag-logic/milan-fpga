@@ -1418,7 +1418,7 @@ class PpShadowHarness {
     }
 
     void pending_map_value(uint16_t type, unsigned count, uint16_t seq,
-                           const char* tag = "K12") {
+                           const char* tag) {
         std::vector<uint8_t> get(8, 0);
         put16be(get.data(), type);
         const auto response = pending_command(0x002b, get, seq, 0, tag);
@@ -1426,12 +1426,14 @@ class PpShadowHarness {
         snprintf(label, sizeof label, "%s GET_AUDIO_MAP record count", tag);
         ck(label, response.size() >= 48
            ? get_be(response, 46, 2) : 0xffffu, count);
-        if (count != 0)
-            ck("K12 GET_AUDIO_MAP exact record", response.size() >= 58
+        if (count != 0) {
+            snprintf(label, sizeof label, "%s GET_AUDIO_MAP exact record", tag);
+            ck(label, response.size() >= 58
                && get_be(response, 50, 8) == 0, 1);
+        }
     }
 
-    void pending_preload_map(uint16_t type) {
+    void pending_preload_map(uint16_t type, const char* tag) {
         // A control-face load establishes a present mapping while durable.
         // Its persistence is outside this command-reporting test's claim.
         axi_write(A_CHMAP_CTRL, 1);
@@ -1441,7 +1443,7 @@ class PpShadowHarness {
         axi_write(A_CHMAP_WORD, type == 0xe ? 0x8000 : 0xa000);
         axi_write(A_CHMAP_CTRL, 0);
         run_idle(200);
-        pending_map_value(type, 1, 0x5080);
+        pending_map_value(type, 1, 0x5080, tag);
         ck("K12 preloaded baseline durable", axi_read(A_PP_STAT) & 0xb40u, 0x40u);
     }
 
@@ -1481,23 +1483,26 @@ class PpShadowHarness {
         pending_boot(6);
         pending_command(0x002c, map, static_cast<uint16_t>(0x5040 + type));
         pending_commit_control();
-        pending_map_value(type, 1, 0x5050);
+        pending_map_value(type, 1, 0x5050,
+                          type == 0xe ? "K12 input" : "K12 output");
         pending_report(type == 0xe ? "K12 input" : "K12", 0, 1, 1);
 
         pending_boot(6);
-        pending_preload_map(type);
+        const char* duplicate_tag = type == 0xe ? "K12 duplicate input"
+                                               : "K12 duplicate output";
+        pending_preload_map(type, duplicate_tag);
         pending_command(0x002c, map, static_cast<uint16_t>(0x5060 + type));
-        pending_map_value(type, 1, 0x5061);
-        pending_report(type == 0xe ? "K12 duplicate input"
-                                  : "K12 duplicate output", 0, 1, 0);
+        pending_map_value(type, 1, 0x5061, duplicate_tag);
+        pending_report(duplicate_tag, 0, 1, 0);
 
         pending_boot(6);
-        pending_preload_map(type);
+        const char* remove_tag = type == 0xe ? "K12 remove input"
+                                            : "K12 remove output";
+        pending_preload_map(type, remove_tag);
         pending_command(0x002d, map, static_cast<uint16_t>(0x5070 + type));
         pending_commit_control();
-        pending_map_value(type, 0, 0x5071);
-        pending_report(type == 0xe ? "K12 remove input"
-                                  : "K12 remove output", 0, 1, 1);
+        pending_map_value(type, 0, 0x5071, remove_tag);
+        pending_report(remove_tag, 0, 1, 1);
     }
 
     void grade_pending_live_writes() {

@@ -194,10 +194,9 @@ module milan_csr #(
   //! #502 closes the original marks' program-tail window: accepted name
   //! writes and actual parent phase-5 map writes now raise pending.
   //! Unchanged maps raise nothing; marks still delimit command completion.
-  //! No CSR
-  //! address, width, access or OTHER field moves, and PP_NVM_STAT 0x93C,
-  //! PP_NVM_SEL 0x934 and 0x005C's SRP status words are unchanged. The
-  //! register occupies four bytes.
+  //! No CSR address, width, access or OTHER field moves. PP_NVM_STAT
+  //! 0x93C, PP_NVM_SEL 0x934 and 0x005C's SRP status words are unchanged.
+  //! The register occupies four bytes.
   parameter logic [31:0] VERSION = 32'h0002_0060
 
 )(

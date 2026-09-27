@@ -53,12 +53,14 @@
 > `d0256846`. Section 16 maps every finding of the three rounds to its
 > answer.
 
-Source examined: dev `07294a76` (protocol-processor `424c688f`,
+Historical evidence source: dev `07294a76` (protocol-processor `424c688f`,
 gptp-processor `c1b61743`, third_party/verilog-axis `48ff7a7e`), which is
-VERSION `0x0002_0060`. Where this page says the current source, it means that
+VERSION `0x0002_0060`. Historical references to the current source mean that
 commit. A claim marked EXECUTED comes from the run script at that source,
 graded in its results files; a claim marked DERIVED does not. Case and check
 names are the ones the run script grades.
+Explicit #502 notes describe the current reporting correction.
+Sections 3 through 13 otherwise describe proposed D3 behavior.
 
 The executable evidence is kept out of this tree, on a branch that is never
 merged. Every evidence citation on this page names the branch, the commit and
@@ -125,12 +127,17 @@ The binding survives a cold power cycle on silicon since 2026-09-21
 The seven other Milan items have no record writer. The
 [snapshot-ownership page section 11](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#11-persistent-field-materialization)
 reads NONE for each, and the contract reports them honestly instead: the
-parent's `pend_i` combines three sources in `KL_pp_shadow.sv`.
-These are dynamic-state dirtiness, unflushed bindings and live name/map writes.
+parent's `pend_i` combines four terms in `KL_pp_shadow.sv`:
+
+`pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_live_wr_w | aecp_live_pend_r`.
+
+The first two report dynamic-state dirtiness and unflushed bindings.
+Here `aecp_live_wr_w = aecp_name_wr_w | amap_live_wr_i`.
 Accepted name writes pulse `aecp_name_wr_o`.
 The parent's `amap_edit_live_wr_p` reports actual phase-5 map writes.
 It also drives the shadow's `amap_live_wr_i` input.
 `latch_live_pending` retains both live-write sources until reset.
+The live pulse also feeds `pend_i` directly, covering acceptance.
 No slot holds these unmaterialized name/map changes.
 
 Where each live value is held, read at the current source:
@@ -292,9 +299,9 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    channel-map tables), and neither the writer nor the drain writes a
    control-face register. Obligation O3, which orders device-face
    initiators after the restore walk, holds as well (section 8.1).
-6. **The pending source.** `pend_i` becomes the binding manager's unflushed
+6. **The proposed pending source.** `pend_i` becomes the binding manager's unflushed
    sinks OR the writer's unflushed records. The dynamic-state level and the
-   parent's sticky live-name/map bit LEAVE `pend_i`: a per-record bit replaces
+   parent's live-name/map pulse and sticky history LEAVE `pend_i`: a per-record bit replaces
    each of them, stage by stage (section 10).
 7. **The restore is a transaction** (section 8.6), after the binding
    walk's drained terminal (seam S4) and before the entity is enabled. The
@@ -480,10 +487,12 @@ says what the mark trigger would need.
 
 ### 5.2 In the parent
 
-`KL_pp_shadow.sv` changes three lines of glue and adds no CSR:
+The proposed D3 glue changes `KL_pp_shadow.sv` without adding CSRs:
 
-- `pend_i = (|nvm_unflushed_o) | d3_unflushed_o`. The `aecp_live_pend_r` bit
-  is deleted with the stage that retires its last class (section 10);
+- The proposed final composition is
+  `pend_i = (|nvm_unflushed_o) | d3_unflushed_o`.
+  Each stage replaces its group's current pending terms (section 10).
+  Stage 3 removes `aecp_live_wr_w` and `aecp_live_pend_r` from `pend_i`.
   `aecp_dyn_dirty_o` stays exported for diagnosis but leaves `pend_i`.
 - `alarm_i` takes the processor's combined alarm.
 - the restore outputs take the processor's combined verdicts; the blind-walk
@@ -730,8 +739,9 @@ sources:
 So each pending source clears when its record is in the window, and the
 status reads durable only when the record is in a slot. The old sources
 cannot do this: `aecp_dyn_dirty_o` and `aecp_live_pend_r` each cover
-many records, so no single record write can clear them. They leave `pend_i`
-and the per-record bits replace them (rule 6).
+many records, so no single record write can clear them.
+The proposal replaces these levels and the direct live-write pulse.
+Per-record bits then supply pending (rule 6).
 
 The global check is the definition. `no_durable_claim_over_unsaved` runs on
 every case of every build: whenever the status reads durable (backed 1,
@@ -1694,10 +1704,12 @@ reset from it. Stage 1 restores formats while the maps still reset: the
 maps come back empty, so nothing restored can be orphaned. Both shipped
 shapes list one sampling rate, so the rate record can only be proved at its default on the
 board; V2 covers its refusal and the synthetic 1x1r2 its replay.
-Issue #502 already replaces mark-based pending with `aecp_live_pend_r`.
-It combines accepted name writes and actual phase-5 map writes.
+Issue #502 already supplies live-write pulses and their sticky history.
+`aecp_live_wr_w` combines accepted names and actual phase-5 map writes.
+It feeds `pend_i` directly and sets `aecp_live_pend_r`.
 Stage 2 transfers name reporting to its record writer.
-Stage 3 transfers map reporting and removes the sticky source.
+It removes names from both the pulse and sticky history.
+Stage 3 transfers maps and removes both remaining terms.
 
 The area of each stage is a subset of section 12's row; each lane owes its
 own post-place delta by the saved-state page's recipe, at both shipped
@@ -1822,7 +1834,8 @@ walk 20,660 cycles after that, meeting the drained port (W13: "silence from
 enabled at 40733"). The model's memory answers in 2 or 3 cycles; the
 product's in about 1.4 µs, so every figure grows on the board (UNRESOLVED 8).
 
-Latency, DERIVED: the pending bit rises the cycle after the accepted write.
+Proposed D3 latency, DERIVED: pending rises the cycle after acceptance.
+Current #502 reporting instead covers the accepting edge (section 2).
 The record reaches the window within `DEB_TICKS_P` (500 ms at the binding
 manager's value) plus the latch and the write. The firmware commits after
 its provisional 1,000 ms debounce, and a commit takes at most 3.07 s at 1x1
@@ -1834,8 +1847,9 @@ The board's own figure is a measurement each stage owes.
 
 ## 13. Consequences
 
-- A controller change to any of the seven items becomes durable, and the
-  pending bit clears once it is; today it reads 1 until reset.
+- D3 hands pending to `nvm_dirty` at whole-record completion (section 7.1).
+  Durability follows the verified-slot acknowledgement, once all work is saved.
+  Current unmaterialized sources remain sticky until reset.
 - A D3 restore is all or nothing against a transport failure in either pass
   (a device error the port reports, a torn read, a difference between the
   passes, a descriptor fault, a deadline): complete, or every D3 group at its

@@ -92,12 +92,14 @@
 > are re-graded, and the evidence was re-run in full from a clean state.
 > Section 21 maps every re-review finding to its answer.
 
-Source examined: dev `36ee8a37` (protocol-processor `8f2f58fb`, gptp-processor
-`c1b61743`, third_party/verilog-axis `48ff7a7e`). Where this page says the
-current source, it means that commit. The evidence ran there, and its run
-script refuses any other checkout. A claim marked EXECUTED comes from the run
+Historical evidence source: dev `36ee8a37` (protocol-processor `8f2f58fb`, gptp-processor
+`c1b61743`, third_party/verilog-axis `48ff7a7e`).
+Historical references to the current source mean that commit.
+The evidence ran there; its script refuses any other checkout.
+A claim marked EXECUTED comes from the run
 script at that source, graded in its results files; a claim marked DERIVED
 does not. Case and check names are the ones the run script grades.
+Current pending sources are defined in section 6.1, including #502.
 
 <!-- milan-feature-value:gateware_version:historic -->
 This page lands on dev `f56fa168`. Its protocol-processor pin is `6a9a1241`,
@@ -304,8 +306,10 @@ work after it (U1).
    never advances, no acknowledgement can quote a capture, no slot is
    written, no flash erase is issued, the committable bit never falls and the
    status can never read durable. The saved state stays at the last verified
-   slot, the pending bit reads 1, nvm_backed reads 0, and only a reset leaves
-   the state. Rule 8 keeps a later RELOAD from retiring work; this rule keeps
+   slot. Pending follows the remaining sources, as section 6.1 defines.
+   Section 5.3 states the ordering-dependent status, including writer retirement.
+   Only a reset leaves the state.
+   Rule 8 keeps a later RELOAD from retiring work; this rule keeps
    the boot that validated nothing from retiring any. A writer restarted in
    that state does not re-attach: it reads the flag and stays retired, and
    this rule is what makes a writer that ignores that harmless (section 5.3).
@@ -508,8 +512,9 @@ The rule, in the backend (revision b, with the two bounds revision c adds):
   An accepted RELOAD closes every record, clears both dirty halves, ends any
   capture, closes the commit bracket and clears reload refused.
 - **A refused RELOAD** changes nothing but reload refused, PP_NVM_STAT[11].
-  Every record stays as the last re-base left it, which is open, so nvm_pend
-  reads 1, no durable reading is possible and nothing is retired.
+  Existing record ownership and producer work remain unchanged.
+  Open records and producer sources assert pending (section 6.1).
+  The refusal itself retires nothing.
 - **Load accepted**, PP_NVM_STAT[2] (revision d). 0 at reset. An accepted
   RELOAD sets it. NOTHING clears it but a reset. **No capture is armed while
   it is 0**: the arm condition of section 5.2 reads it directly. So a boot
@@ -819,7 +824,7 @@ graded bit by bit ("mismatches none; every allocated record open True (53 of
 | capture | closed: open 0, hold 0, valid 0, attested 0; arm refused 0, ack refused 0 |
 | identity | 0; the first accepted ARM names capture 1 |
 | dirty_live, dirty_cap | 0 and 0, so nvm_dirty is 0 |
-| open vector | every allocated record open, so nvm_pend (PP_NVM_STAT[22]) reads 1 until the first accepted RELOAD |
+| open vector | every allocated record open, so nvm_pend (PP_NVM_STAT[22]) reads 1 at reset; whole-record WRITE completion closes its record; accepted RELOAD closes all records |
 | load | load flag 0, load pending PP_NVM_STAT[3] 1, **load accepted PP_NVM_STAT[2] 0** (#484), reload refused 0; a RELOAD before a re-base is refused (the flag is not readable, so U7 does not grade that clause bit by bit; the same term is executed by U5 and by U8) |
 | image | length 0 (not configured) and img_valid 0 |
 | an ARM here (#484) | REFUSED, and it stays refused after a writer configures and validates the image: load accepted is 0, and the arm condition reads it directly (rule 9). An implementation that refused only on the unconfigured image would pass a reset-row test and still open a capture in a boot that accepted no load |
@@ -952,7 +957,7 @@ img_valid and [15:12] verdict are taken). Proposed status dictionary row for
 
 | bit | name | meaning |
 |---|---|---|
-| [11] | nvm_pend | accepted work that no verified slot holds and nvm_dirty does not report: a change the producer still holds, a record whose logical write has not completed, or -- from reset until the boot window load is accepted -- every record, because none is known yet |
+| [11] | nvm_pend | accepted work that no verified slot holds and nvm_dirty does not report: a change the producer still holds or an open record; every allocated record starts open at reset; accepted RELOAD or whole-record WRITE completion closes records as section 4 defines |
 
 The backend registers `pend_i` on each `clk_i` edge.
 Issue #502 aligns name/map reporting with live acceptance.
@@ -1246,7 +1251,9 @@ the status, because the contract relies on neither ever ending.
 
 ## 11. Persistent-field materialization
 
-Traced at dev 36ee8a37 and donor 8f2f58fb. The only device-face initiator in
+Historical tracing used dev 36ee8a37 and donor 8f2f58fb.
+The table includes subsequent D1, D2 and #502 reporting updates.
+The only device-face initiator in
 the gateware is KL_pp_nvm_port, driven only by KL_acmp_nvm_shadow; the
 firmware writes no record content (it copies whole containers). Record ids
 are
@@ -1351,8 +1358,11 @@ revision 424c688f (issue 90, merged): one new output port, no behaviour change.
   (the burst re-serializes), so the bit spans the whole unflushed interval
   and not just the first attempt. Neither weakens the parent use: both make
   the vector report exactly the changes the manager still owes.
-- Parent use: KL_pp_shadow drives the backend's
-  `pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_o) | <the D2 sticky bit>`.
+- Current parent use: `KL_pp_shadow` drives the backend's pending input.
+  `pend_i = aecp_dyn_dirty_o | (|nvm_unflushed_w) | aecp_live_wr_w | aecp_live_pend_r`.
+  Here `aecp_live_wr_w = aecp_name_wr_w | amap_live_wr_i`.
+  The pulse covers acceptance; the history stays set until reset.
+  Section 6.1 defines each source and its clearing rule.
 - EXECUTED: E3_binding_inside_manager_debounce is an ordinary PASSING case of
   `tb/verilator/nvm_cosim` with the export bound. It was the suite's one
   labelled expected failure while the term was tied to zero, and the label is
@@ -1496,8 +1506,11 @@ that no rule consumes and that races the producer by construction.
 - **A boot in which no window load was accepted can write nothing.** No
   capture is armed there, so no slot is written, no flash erase is issued and
   no acknowledgement retires anything; the writer RETIRES for that reset; the
-  entity runs on defaults; nvm_pend reads 1 and nvm_backed 0 until the next
-  reset. The saved state is not lost (no slot is touched); it is not restored
+  entity runs on defaults. Pending follows the remaining sources (section 6.1).
+  Closing every record can clear pending if no producer work remains.
+  Committable work and writer retirement still prevent a durable reading.
+  Section 5.3 separates fixed bits from ordering-dependent bits.
+  The saved state is not lost (no slot is touched); it is not restored
   either, and the status says so through img_valid 0 and the restore-fail
   bit. **Only a reset leaves that state**, and a writer restart does not: it
   reads the load-accepted bit and stays retired. The trade is availability,
