@@ -1,0 +1,6 @@
+KILLED   [KILLED] A3-01 restore integer acceptance: AssertionError: accepted non-string entity.entity_model_id: 0x001BC50AC1000005
+KILLED   [KILLED] A3-02 restore integer and boolean acceptance: AssertionError: accepted non-string entity.entity_model_id: 0x001BC50AC1000005
+KILLED   [KILLED] A3-03 ignore a declared null pin: AssertionError: accepted non-string entity.model_id_pin: null
+KILLED   [KILLED] A3-04 bypass hash-derived reserved ID guard: AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones
+KILLED   [KILLED] A3-05 restore u32 truncation: AssertionError: AEM u32 silently truncated -1
+{'id': 'unmutated control', 'returncode': 0, 'verdict': 'PASS', 'last_line': '[gate 40] 26 refusals; 3 header mutants per config'} {'id': 'sources restored', 'sha256': {'avdecc/aem_descriptors.py': '7f3085be1dfbe0c578fa085cacaba6a31740109b0e624abe7e6ce2d1be878568', 'sw/builder/endstation_builder.py': 'a564085a7ae1bea6b4cda581b0d60493d29865920f1da8d917cd7524daa0b8a4'}, 'identical': True}

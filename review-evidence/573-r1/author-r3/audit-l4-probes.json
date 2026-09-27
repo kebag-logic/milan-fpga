@@ -1,0 +1,50 @@
+[
+  {
+    "rule": "L4",
+    "probe": "buffer at 2126000 ns",
+    "result": "accepted",
+    "image_bytes": 5792
+  },
+  {
+    "rule": "L4",
+    "probe": "buffer one ns below floor",
+    "result": "accepted",
+    "image_bytes": 5792
+  },
+  {
+    "rule": "L4",
+    "probe": "CLASS_A cleared",
+    "result": "accepted",
+    "image_bytes": 5792
+  },
+  {
+    "rule": "L4",
+    "probe": "current format outside list",
+    "result": "accepted",
+    "image_bytes": 5792
+  },
+  {
+    "rule": "L4",
+    "probe": "mixed AAF and CRF formats",
+    "result": "accepted",
+    "image_bytes": 5792
+  },
+  {
+    "rule": "L4",
+    "probe": "46 formats at 2021 Table 7-8 cap (506 octets)",
+    "result": "accepted",
+    "image_bytes": 6144
+  },
+  {
+    "rule": "L4",
+    "probe": "47 formats above 2021 Table 7-8 cap (514 octets)",
+    "result": "accepted",
+    "image_bytes": 6152
+  },
+  {
+    "rule": "L4",
+    "probe": "48 formats below line-buffer cap",
+    "result": "accepted",
+    "image_bytes": 6160
+  }
+]

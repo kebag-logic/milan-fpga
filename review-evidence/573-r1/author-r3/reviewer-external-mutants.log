@@ -1,0 +1,100 @@
+{
+ "head": "8c956234699b5dec5e6c9aeada651be667974e9b",
+ "cases": [
+  {
+   "id": "R2-M1 format cap raised by one at the use site",
+   "file": "sw/builder/endstation_builder.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: format count"
+  },
+  {
+   "id": "R2-M2 descriptor maximum raised by one format (cap 47)",
+   "file": "avdecc/aem_descriptors.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: format count"
+  },
+  {
+   "id": "R2-M3 2013 formats_offset 132 (cap 47, layout moved)",
+   "file": "avdecc/aem_descriptors.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError"
+  },
+  {
+   "id": "R2-M4 listener upper bound removed",
+   "file": "sw/builder/endstation_builder.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer width"
+  },
+  {
+   "id": "R2-M5 upper bound exclusive (refuses 0xFFFFFFFF)",
+   "file": "sw/builder/endstation_builder.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "endstation_builder.ConfigError: streams.listeners[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)"
+  },
+  {
+   "id": "R2-M6 upper bound raised by one (accepts 2^32)",
+   "file": "sw/builder/endstation_builder.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer width"
+  },
+  {
+   "id": "R2-M7 upper bound applied to talkers too",
+   "file": "sw/builder/endstation_builder.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "endstation_builder.ConfigError: streams.talkers[0].buffer_length_ns: must be <= 4294967295 ns (IEEE 1722.1-2021 Table 7-8 listener buffer width)"
+  },
+  {
+   "id": "R2-M8 field maximum derived as 2^32",
+   "file": "avdecc/aem_descriptors.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer width"
+  },
+  {
+   "id": "R2-M9 empty clock-source refusal removed",
+   "file": "sw/builder/endstation_builder.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "IndexError: list index out of range"
+  },
+  {
+   "id": "R2-M10 literal not validated when a pin is present",
+   "file": "sw/builder/endstation_builder.py",
+   "applied": true,
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid entity.entity_model_id: must not be zero or all ones"
+  },
+  {
+   "id": "R2-M11 hash-derived arm bypasses the guard",
+   "applied": false,
+   "occurrences": 0
+  },
+  {
+   "id": "R2-M12 YAML integer reparsed as hex text (round-1 behaviour)",
+   "applied": false,
+   "occurrences": 0
+  }
+ ],
+ "restored": {
+  "sw/builder/endstation_builder.py": true,
+  "avdecc/aem_descriptors.py": true
+ },
+ "restored_control_returncode": 0
+}

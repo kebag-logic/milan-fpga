@@ -1,0 +1,37 @@
+[
+  {
+    "id": "A3-01 restore integer acceptance",
+    "file": "sw/builder/endstation_builder.py",
+    "old": "    if not isinstance(v, str):\n        raise ConfigError(f\"{ctx}: quote the hexadecimal value as a YAML string\")\n    try:\n        n = int(v, 16)",
+    "new": "    try:\n        n = v if type(v) is int else int(str(v), 16)",
+    "expect": "KILLED"
+  },
+  {
+    "id": "A3-02 restore integer and boolean acceptance",
+    "file": "sw/builder/endstation_builder.py",
+    "old": "    if not isinstance(v, str):\n        raise ConfigError(f\"{ctx}: quote the hexadecimal value as a YAML string\")\n    try:\n        n = int(v, 16)",
+    "new": "    try:\n        n = v if isinstance(v, int) else int(str(v), 16)",
+    "expect": "KILLED"
+  },
+  {
+    "id": "A3-03 ignore a declared null pin",
+    "file": "sw/builder/endstation_builder.py",
+    "old": "    if \"model_id_pin\" in ent:\n",
+    "new": "    if pin is not None:\n",
+    "expect": "KILLED"
+  },
+  {
+    "id": "A3-04 bypass hash-derived reserved ID guard",
+    "file": "sw/builder/endstation_builder.py",
+    "old": "mid, src = _model_id(f\"0x{hashed:016X}\", \"entity.entity_model_id\"), \"hash\"",
+    "new": "mid, src = hashed, \"hash\"",
+    "expect": "KILLED"
+  },
+  {
+    "id": "A3-05 restore u32 truncation",
+    "file": "avdecc/aem_descriptors.py",
+    "old": "    return AEM_U32.pack(v)\n",
+    "new": "    return AEM_U32.pack(v & UINT32_MAX)\n",
+    "expect": "KILLED"
+  }
+]

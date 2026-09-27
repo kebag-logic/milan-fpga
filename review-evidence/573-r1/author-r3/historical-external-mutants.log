@@ -1,0 +1,127 @@
+{
+ "head": "8c956234699b5dec5e6c9aeada651be667974e9b",
+ "source_sha256": "a564085a7ae1bea6b4cda581b0d60493d29865920f1da8d917cd7524daa0b8a4",
+ "cases": [
+  {
+   "case": "R-M1 listener list validated before family derivation",
+   "issue": "575",
+   "applied": true,
+   "source": "reviewer_mutants.json",
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: format count"
+  },
+  {
+   "case": "R-M2 floor lowered by one ns",
+   "issue": "574",
+   "applied": true,
+   "source": "reviewer_mutants.json",
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer floor"
+  },
+  {
+   "case": "R-M3 floor made exclusive",
+   "issue": "574",
+   "applied": true,
+   "source": "reviewer_mutants.json",
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "endstation_builder.ConfigError: streams.listeners[0].buffer_length_ns: must be an integer >= 2126000 ns (Milan v1.2 5.3.3.4 listener buffer floor)"
+  },
+  {
+   "case": "R-M4 integer type check removed",
+   "issue": "574",
+   "applied": true,
+   "source": "reviewer_mutants.json",
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer floor"
+  },
+  {
+   "case": "R-M5 floor applied to talkers instead of listeners",
+   "issue": "574",
+   "applied": true,
+   "source": "reviewer_mutants.json",
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid streams.listeners[0].buffer_length_ns: listener buffer floor"
+  },
+  {
+   "case": "R-M6 family compare ignores the v bit",
+   "issue": "575",
+   "applied": true,
+   "source": "reviewer_mutants.json",
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: must contain only AAF formats"
+  },
+  {
+   "case": "R-M7 family compare only inspects the current format",
+   "issue": "575",
+   "applied": true,
+   "source": "reviewer_mutants.json",
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: must contain only AAF formats"
+  },
+  {
+   "case": "R-M8 count cap raised to 48",
+   "issue": "575",
+   "applied": false,
+   "occurrences": 0
+  },
+  {
+   "case": "R-M9 AAF stream list validation call removed",
+   "issue": "575",
+   "applied": true,
+   "source": "reviewer_mutants.json",
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid streams.listeners[0].formats: format count"
+  },
+  {
+   "case": "R-M10 CRF family check skipped (word check kept)",
+   "issue": "575",
+   "applied": true,
+   "source": "reviewer_mutants.json",
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: ('clocking.crf_format', 'must contain only CRF formats', 'clocking.crf_format: CRF format must be 0x041060010000BB80 (Milan v1.2 7.3.2 Table 7.1)')"
+  },
+  {
+   "case": "R-M11 INTERNAL availability replaced by INTERNAL selection",
+   "issue": "576",
+   "applied": true,
+   "source": "reviewer_mutants.json",
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "endstation_builder.ConfigError: clocking.media_clock_sources: every Stream Output requires INTERNAL among its clock sources (Milan v1.2 5.3.3.6)"
+  },
+  {
+   "case": "R-M12 output clock-source call removed from the loader",
+   "issue": "576",
+   "applied": true,
+   "source": "reviewer_mutants.json",
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "AssertionError: accepted invalid clocking.media_clock_sources: requires INTERNAL"
+  },
+  {
+   "case": "R-M13 reserved-ID check on a value adjacent to all ones",
+   "issue": "573",
+   "applied": true,
+   "source": "reviewer_mutants.json",
+   "returncode": 1,
+   "verdict": "KILLED",
+   "last_line": "endstation_builder.ConfigError: entity.entity_model_id: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)"
+  },
+  {
+   "case": "R-M14 cap lowered to the IEEE 1722.1-2021 Table 7-8 value 46 (spec probe, expected to fail the 47-acceptance control)",
+   "issue": "575",
+   "applied": false,
+   "occurrences": 0
+  }
+ ],
+ "restored_control_returncode": 0
+}
