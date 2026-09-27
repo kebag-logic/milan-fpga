@@ -1,0 +1,42 @@
+== clean (pinned bytes, in place) ==
+.test_index_mismatch_bytes)
+An index-only mismatch in literal bytes is refused by build and CLI. ... ok
+test_index_mismatch_fields (__main__.BodyKeyTest.test_index_mismatch_fields)
+An index-only mismatch in fields is refused by build and CLI. ... ok
+test_legal_bytes (__main__.BodyKeyTest.test_legal_bytes)
+Matching literal byte bodies are accepted unchanged by build and CLI. ... ok
+test_legal_fields (__main__.BodyKeyTest.test_legal_fields)
+Matching field bodies are accepted unchanged by build and CLI. ... ok
+test_type_mismatch_bytes (__main__.BodyKeyTest.test_type_mismatch_bytes)
+A type-only mismatch in literal bytes is refused by build and CLI. ... ok
+test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields)
+A type-only mismatch in fields is refused by build and CLI. ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.096s
+
+OK
+
+== mutant (refusal disabled, scratch copy) ==
+ 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+======================================================================
+FAIL: test_type_mismatch_fields (__main__.BodyKeyTest.test_type_mismatch_fields) (key=4660)
+A type-only mismatch in fields is refused by build and CLI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/580-r352-1-packet/scratch/packer-mut/tb/desc_store/test_gen_desc_image.py", line 97, in refused
+    with self.assertRaises(gen_desc_image.ImageError) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ImageError not raised
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.386s
+
+FAILED (failures=16)
+
+clean rc=0 mutant rc=1
+rc=0

@@ -1,0 +1,19 @@
+$ measure_test_evidence.py --check
+rc=0
+
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 75
+120:   protocol-processor/tb/desc_store/test_gen_desc_image.py: unit test of the descriptor packer; it imports the generator by path to call build() and its CLI on synthetic models and reads no expectation from source
+## probe: remove the new disposition entry
+rc=1
+118:   gptp-processor/tb/tsngen/mutants.py: mutation campaign; it stages three engine defects and requires failure
+119:   protocol-processor/tb/desc_mem_guard/mutate.py: mutation campaign; it removes the guard's two request holds in a copy and requires the completed late-byte assertion to fail
+120:   protocol-processor/tb/desc_store/test_gen_desc_image.py: UNEXPLAINED
+121:   protocol-processor/tb/nvm_port/measure_figures.py: mutation campaign; it rewrites one RTL arm and requires the suite to fail
+122:   protocol-processor/tb/pp_top/gsi_mutants.py: mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table into an isolated copy and requires the named response check to fail
+123:   protocol-processor/tb/pp_top/name_wr_mutant.py: mutation campaign; removes the accepted name-write export in a copy and requires the named pulse check to fail
+124:   protocol-processor/tb/srp_admission/mutants.py: mutation campaign; it plants one admission defect into a temporary tree, requires the named check to fail, and runs clean controls first
+125:   tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept-edge, ignored-validity and PI-resume defects; no expectations read from RTL
+RESTORED

@@ -1,0 +1,106 @@
+$ python3 scripts/check_port_contracts.py
+rc=0
+port contract gate: OK (3682 first-party port(s): hdl 1908, gptp-processor 125, protocol-processor 1649; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 93 open and 58 literal-bound named connection(s), 62 without a local rationale (all recorded; none may be added); 118 test-only hierarchical observation(s)
+
+$ python3 scripts/docs_check.py
+rc=0
+docs_check: 0 finding(s) across 169 md files + 902 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+
+$ python3 scripts/docs_check.py --selftest
+rc=0
+docs_check selftest: PASS (23 scrub + 4 routing arm(s))
+
+$ python3 scripts/check_em_dash.py --base 682ecf0cb995473b72d5b4921088053ba753fc93
+rc=2
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+
+$ python3 scripts/check_em_dash.py --selftest
+rc=2
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+
+$ python3 scripts/check_doc_style.py
+rc=0
+documentation style: OK (22 current documents)
+
+$ python3 scripts/check_doc_style.py --selftest
+rc=0
+documentation style selftest: OK
+
+$ python3 scripts/check_gptp_docs.py
+rc=0
+gPTP documentation: OK (8 current pages)
+
+$ python3 scripts/check_gptp_docs.py --selftest
+rc=0
+gPTP documentation selftest: OK (30 controls)
+
+$ python3 docs/DOC_MAP.gen.py --check
+rc=0
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+
+$ python3 docs/diagrams/timesync_chain.gen.py --check
+rc=0
+time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+
+$ python3 scripts/check_solution_docs.py
+rc=0
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+
+$ python3 docs/diagrams/submodule_boundaries.gen.py --check
+rc=0
+submodule diagram: OK (4 exact gitlinks, decoded PNG)
+
+$ python3 scripts/check_submodule_docs.py
+rc=0
+submodule documentation: OK (4 exact gitlinks)
+
+$ python3 scripts/check_submodule_docs.py --selftest
+rc=0
+submodule documentation selftest: OK (table and diagram controls)
+
+$ python3 scripts/check_diagram_pngs.py
+rc=0
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+
+$ python3 scripts/check_diagram_pngs.py --selftest
+rc=0
+diagram PNG selftest: OK (6 rasters, 28 mutation controls)
+
+$ python3 scripts/check_feature_status.py --self-test
+rc=0
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+
+$ python3 docs/traceability/gen_module_matrix.py --check
+rc=0
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+
+$ python3 scripts/gen_toc.py --check
+rc=2
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+
+$ python3 scripts/gen_toc.py --verify-anchors
+rc=2
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+
+$ python3 scripts/check_doc_paths.py
+rc=0
+doc path gate: OK (847 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+
+$ python3 scripts/check_archive.py
+rc=0
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+
+$ python3 scripts/check_baremetal_only.py --check
+rc=0
+baremetal-only: OK (0 findings across 900 tracked first-party file(s))
+
+$ git diff --check 682ecf0cb995473b72d5b4921088053ba753fc93 HEAD
+rc=0
+
+
+overall=1

@@ -1,0 +1,50 @@
+## receipt identity fields at head
+date 2026-09-26
+base 831f94f4146cc45ec476f8c8dcf5afac7cd8eacf
+simulator Verilator 5.052
+processor_pins {'protocol-processor': '16be6768f710e79450aace277abacd6c2c3336e5', 'gptp-processor': '5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d', 'third_party/verilog-axis': '48ff7a7e2ef782cf778d47910cf85835c64b1bce'}
+maxima [{'shape': 'endstation_ax7101_1x1_tdm8', 'cpu_hz': 50000000, 'maximum_ms': 6.60642, 'margin': 7.417027679136355}, {'shape': 'endstation_ax7101_8x8', 'cpu_hz': 50000000, 'maximum_ms': 24.30246, 'margin': 2.0162567904648334}, {'shape': 'endstation_ax7101_8x8', 'cpu_hz': 100000000, 'maximum_ms': 19.79024, 'margin': 2.4759679518793103}]
+## gitlink of the receipt base and of the commit that introduced processor_pins with its re-measure
+831f94f4146cc45ec476f8c8dcf5afac7cd8eacf protocol-processor=0922e43408f891fc0b84a84691df86b4fd0f1c0d
+054e59b41471ffbb3b4999a60c4cb04abcfc895f protocol-processor=0922e43408f891fc0b84a84691df86b4fd0f1c0d
+682ecf0cb995473b72d5b4921088053ba753fc93 protocol-processor=870ff88ad35bbd532244e4c7e6d7661b9f6e1366
+499b15f97eb0a469b7cd1308fbba7af3c64d1851 protocol-processor=16be6768f710e79450aace277abacd6c2c3336e5
+## head diff of the receipt
+diff --git a/tb/verilator/nvm_capture_cpu/measurements.json b/tb/verilator/nvm_capture_cpu/measurements.json
+index 894e9f5ae..d40f69baa 100644
+--- a/tb/verilator/nvm_capture_cpu/measurements.json
++++ b/tb/verilator/nvm_capture_cpu/measurements.json
+@@ -301,7 +301,7 @@
+   ],
+   "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/565#issuecomment-5848231174",
+   "processor_pins": {
+-    "protocol-processor": "0922e43408f891fc0b84a84691df86b4fd0f1c0d",
++    "protocol-processor": "16be6768f710e79450aace277abacd6c2c3336e5",
+     "gptp-processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+     "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+   }
+## processor HDL (non-generator) changed between measured pin 0922e434 and recorded pin 16be6768
+ hdl/aecp/KL_aecp_desc_store.sv    |  9 ++++++++-
+ hdl/aecp/KL_aecp_engine.sv        |  6 ++++++
+ hdl/top/protocol_processor_top.sv | 12 +++++++++++-
+ 3 files changed, 25 insertions(+), 2 deletions(-)
+## parent RTL on the measured SoC path changed since receipt base
+ hdl/common/csr/milan_csr.sv | 12 +++++---
+ hdl/milan/KL_nvm_backend.sv |  6 ++--
+ hdl/milan/KL_pp_shadow.sv   | 68 ++++++++++++++++++++++-----------------------
+ hdl/milan/milan_datapath.sv | 52 ++++++++++++++++++++--------------
+ 4 files changed, 75 insertions(+), 63 deletions(-)
+## the measured SoC instantiates milan_datapath / KL_pp_shadow
+24:import milan_soc
+62:class ProductSimulation(milan_soc.MilanSoC):
+450:      * protocol-processor descriptor/response memory faces bridged by the SoC.
+499:# milan_datapath instantiates KL_pp_shadow UNCONDITIONALLY - there is no
+528:    "hdl/milan/KL_pp_shadow.sv", "hdl/milan/KL_pp_maap_shim.sv",
+3499:    # milan_datapath instantiates KL_pp_shadow unconditionally and every build
+85:It retains the product memory CDC, buses and PP bridges.
+107:Traffic uses continuous 60-byte AEM READ_DESCRIPTOR ENTITY 0 requests.
+113:They count accepted frames, successful responses and descriptor-memory read ACKs.
+136:The [receipt](measurements.json) identifies simulator version and input hashes.
+## CHANGELOG / issue wording
+44:- The capture receipt refreshes its pin.
+45:- Measured inputs remain unchanged.

@@ -1,0 +1,64 @@
+## parent commits 682ecf0cb995473b72d5b4921088053ba753fc93..499b15f97eb0a469b7cd1308fbba7af3c64d1851
+499b15f97eb0a469b7cd1308fbba7af3c64d1851 682ecf0cb995473b72d5b4921088053ba753...
+## changed paths (mode, status)
+:100644 100644 0d25bd867 cb1546b3f M	CHANGELOG.md
+:100644 100644 e11b8e936 c48d19818 M	docs/design/SAVED_STATE_MATERIALIZATION.md
+:100644 100644 d059be411 dd828beb9 M	docs/diagrams/PNG_MANIFEST.json
+:100644 100644 81cf5faff 26fd014a7 M	docs/diagrams/submodule_boundaries.drawio
+:100644 100644 9cbef5153 b6fdd4bdb M	docs/diagrams/submodule_boundaries.png
+:100644 100644 c345708a5 98b5ae93b M	docs/diagrams/submodule_boundaries.svg
+:100644 100644 ba9674d4b 0019f73bd M	docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+:100644 100644 2c6ed9761 172a03ea6 M	docs/reference/SUBMODULES.md
+:160000 160000 870ff88ad 16be6768f M	protocol-processor
+:100644 100644 26a6fd470 47f4c2bcc M	scripts/measure_test_evidence.py
+:100644 100644 b565dc2c2 8ef6d49da M	syn/yosys/rom_digests.tsv
+:100644 100644 894e9f5ae d40f69baa M	tb/verilator/nvm_capture_cpu/measurements.json
+ CHANGELOG.md                                   |  12 ++++++++++++
+ docs/design/SAVED_STATE_MATERIALIZATION.md     |   3 ++-
+ docs/diagrams/PNG_MANIFEST.json                |   4 ++--
+ docs/diagrams/submodule_boundaries.drawio      |   2 +-
+ docs/diagrams/submodule_boundaries.png         | Bin 323919 -> 323461 bytes
+ docs/diagrams/submodule_boundaries.svg         |   2 +-
+ docs/reference/PP_DESCRIPTOR_OWNERSHIP.md      |   7 +++++--
+ docs/reference/SUBMODULES.md                   |  13 ++++++++++---
+ protocol-processor                             |   2 +-
+ scripts/measure_test_evidence.py               |   3 +++
+ syn/yosys/rom_digests.tsv                      |   2 ++
+ tb/verilator/nvm_capture_cpu/measurements.json |   2 +-
+ 12 files changed, 40 insertions(+), 12 deletions(-)
+
+Changes:
+
+## parent RTL / firmware / CSR paths changed (expect none)
+
+(end)
+## processor pin ancestry
+870ff88a is ancestor of 16be6768
+493e5e4b is ancestor of 16be6768
+## processor 870ff88a..16be6768
+e04234e115cfdcaace393ae62ba68562d47834c6 docs: align descriptor rule authorit...
+1d249e6e18a91c16a2620904483634548b0414a6 docs: state descriptor ownership and...
+11dd3e903685183250e7cd8ecc391b04fe7fd494 Align descriptor body-key tests with...
+eb734969154d5a75ff84b2779ff6088a2f4311a5 Refuse descriptor bodies that disagr...
+docs/architecture/07_memory_maps.md  |  59 ++++++++++++++-
+ docs/guides/integrator.md            |  19 ++++-
+ hdl/aecp/desc/gen_desc_image.py      |  11 +++
+ tb/desc_store/Makefile               |   7 +-
+ tb/desc_store/README.md              |  33 +++++++++
+ tb/desc_store/test_gen_desc_image.py | 135 +++++++++++++++++++++++++++++++++++
+ 6 files changed, 258 insertions(+), 6 deletions(-)
+## processor HDL other than the packer generator changed 870ff88a..16be6768 (expect none)
+
+(end)
+## commit message line count
+1
+## git diff --check base..head
+
+rc=0
+## raw processor log 870ff88a..16be6768 including merges
+16be6768f710e79450aace277abacd6c2c3336e5 493e5e4bf58a6146bf9310194d71c72e18610704 e04234e115cfdcaace393ae62ba68562d47834c6 | Merge PR #126: state the descriptor ownership contract and keep the Milan cluster minimum
+e04234e115cfdcaace393ae62ba68562d47834c6 1d249e6e18a91c16a2620904483634548b0414a6 | docs: align descriptor rule authority with parent contract
+1d249e6e18a91c16a2620904483634548b0414a6 493e5e4bf58a6146bf9310194d71c72e18610704 | docs: state descriptor ownership and preserve Milan cluster minimum
+493e5e4bf58a6146bf9310194d71c72e18610704 870ff88ad35bbd532244e4c7e6d7661b9f6e1366 11dd3e903685183250e7cd8ecc391b04fe7fd494 | Merge PR #124: refuse descriptor bodies that disagree with their directory keys
+11dd3e903685183250e7cd8ecc391b04fe7fd494 eb734969154d5a75ff84b2779ff6088a2f4311a5 | Align descriptor body-key tests with consumer conventions
+eb734969154d5a75ff84b2779ff6088a2f4311a5 870ff88ad35bbd532244e4c7e6d7661b9f6e1366 | Refuse descriptor bodies that disagree with their directory keys

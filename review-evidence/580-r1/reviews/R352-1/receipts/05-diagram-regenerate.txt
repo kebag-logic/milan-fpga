@@ -1,0 +1,15 @@
+$ submodule_boundaries.gen.py --check
+submodule diagram: OK (4 exact gitlinks, decoded PNG)
+rc=0
+$ submodule_boundaries.gen.py --selftest
+submodule diagram selftest: OK (valid wrong-raster control)
+rc=0
+$ submodule_boundaries.gen.py (regenerate in place)
+wrote docs/diagrams/submodule_boundaries.svg and docs/diagrams/submodule_boundaries.drawio and docs/diagrams/submodule_boundaries.png
+rc=0
+$ git status --porcelain docs/diagrams
+$ git diff --stat
+
+$ check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+rc=0

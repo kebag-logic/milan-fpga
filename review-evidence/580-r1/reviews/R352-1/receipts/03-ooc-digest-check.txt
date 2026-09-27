@@ -1,0 +1,10 @@
+$ syn/yosys/ooc.sh KL_chan_map_render
+== OOC area (synth_xilinx -family xc7 -flatten) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4
+KL_chan_map_render               5468        0     5468     2101        0        0        0        2
+
+real	0m6.209s
+user	0m5.406s
+sys	0m0.909s
+rc=0
