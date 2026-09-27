@@ -1,0 +1,22 @@
+# shipping milan_datapath.sv sha256 ba1c8b6c375c38fa0d3902cd22fe9c11fe710c42bb834f87e24978298c164e55
+D2_pulse_no_in_change  dyn    FAIL             pp_shadow: 263 checks, 10 failures
+    [FAIL] K commit preserves unmaterialized pending
+    [FAIL] K12 input no_durable_claim_over_unsaved
+    [FAIL] K12 input pending_from_accepting_edge
+    [FAIL] K12 input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 input sticky_pending_PP_STAT
+    [FAIL] K12 remove input no_durable_claim_over_unsaved
+    [FAIL] K12 remove input pending_from_accepting_edge
+    [FAIL] K12 remove input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 remove input sticky_pending_PP_STAT
+D2_pulse_no_in_change  static FAIL             pp_shadow: 173 checks, 10 failures
+    [FAIL] K commit preserves unmaterialized pending
+    [FAIL] K12 input no_durable_claim_over_unsaved
+    [FAIL] K12 input pending_from_accepting_edge
+    [FAIL] K12 input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 input sticky_pending_PP_STAT
+    [FAIL] K12 remove input no_durable_claim_over_unsaved
+    [FAIL] K12 remove input pending_from_accepting_edge
+    [FAIL] K12 remove input sticky_pending_PP_NVM_STAT
+    [FAIL] K12 remove input sticky_pending_PP_STAT
+# shipping datapath unchanged after campaign: True

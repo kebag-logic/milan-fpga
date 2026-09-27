@@ -1,0 +1,44 @@
+author adapter (public author-r3/r329-reanchored-results.txt @c5b80faa) vs reviewer adapter (receipts/mutants/adapter.*)
+M10_late_mark        dyn    author=('FAIL', 'pp_shadow: 263 checks, 12 failures') reviewer=('FAIL', 'pp_shadow: 263 checks, 12 failures') MATCH
+M10_late_mark        static author=('FAIL', 'pp_shadow: 173 checks, 8 failures') reviewer=('FAIL', 'pp_shadow: 173 checks, 8 failures') MATCH
+M1_drop_map          dyn    author=('FAIL', 'pp_shadow: 263 checks, 20 failures') reviewer=('FAIL', 'pp_shadow: 263 checks, 20 failures') MATCH
+M1_drop_map          static author=('FAIL', 'pp_shadow: 173 checks, 10 failures') reviewer=('FAIL', 'pp_shadow: 173 checks, 10 failures') MATCH
+M2_drop_name         dyn    author=('FAIL', 'pp_shadow: 263 checks, 13 failures') reviewer=('FAIL', 'pp_shadow: 263 checks, 13 failures') MATCH
+M2_drop_name         static author=('FAIL', 'pp_shadow: 173 checks, 11 failures') reviewer=('FAIL', 'pp_shadow: 173 checks, 11 failures') MATCH
+M4_wrong_phase_2     dyn    author=('FAIL', 'pp_shadow: 263 checks, 16 failures') reviewer=('FAIL', 'pp_shadow: 263 checks, 16 failures') MATCH
+M4_wrong_phase_2     static author=('FAIL', 'pp_shadow: 173 checks, 8 failures') reviewer=('FAIL', 'pp_shadow: 173 checks, 8 failures') MATCH
+M5_early_phase_4     dyn    author=('FAIL', 'pp_shadow: 263 checks, 8 failures') reviewer=('FAIL', 'pp_shadow: 263 checks, 8 failures') MATCH
+M5_early_phase_4     static author=('FAIL', 'pp_shadow: 173 checks, 4 failures') reviewer=('FAIL', 'pp_shadow: 173 checks, 4 failures') MATCH
+M6_add_only          dyn    author=('FAIL', 'pp_shadow: 263 checks, 14 failures') reviewer=('FAIL', 'pp_shadow: 263 checks, 14 failures') MATCH
+M6_add_only          static author=('FAIL', 'pp_shadow: 173 checks, 7 failures') reviewer=('FAIL', 'pp_shadow: 173 checks, 7 failures') MATCH
+M8_input_ports_only  dyn    author=('FAIL', 'pp_shadow: 263 checks, 12 failures') reviewer=('FAIL', 'pp_shadow: 263 checks, 12 failures') MATCH
+M8_input_ports_only  static author=('FAIL', 'pp_shadow: 173 checks, 2 failures') reviewer=('FAIL', 'pp_shadow: 173 checks, 2 failures') MATCH
+M9_any_phase         dyn    author=('FAIL', 'pp_shadow: 263 checks, 12 failures') reviewer=('FAIL', 'pp_shadow: 263 checks, 12 failures') MATCH
+M9_any_phase         static author=('FAIL', 'pp_shadow: 173 checks, 8 failures') reviewer=('FAIL', 'pp_shadow: 173 checks, 8 failures') MATCH
+U11_unqualified_p5   dyn    author=None reviewer=('FAIL', 'pp_shadow: 263 checks, 4 failures') reviewer-only variant
+U11_unqualified_p5   static author=None reviewer=('FAIL', 'pp_shadow: 173 checks, 2 failures') reviewer-only variant
+U1_drop_map          dyn    author=None reviewer=('FAIL', 'pp_shadow: 263 checks, 20 failures') reviewer-only variant
+U1_drop_map          static author=None reviewer=('FAIL', 'pp_shadow: 173 checks, 10 failures') reviewer-only variant
+U5_refused_live      dyn    author=None reviewer=('FAIL', 'pp_shadow: 263 checks, 8 failures') reviewer-only variant
+U5_refused_live      static author=None reviewer=('FAIL', 'pp_shadow: 173 checks, 4 failures') reviewer-only variant
+U6_add_only          dyn    author=None reviewer=('FAIL', 'pp_shadow: 263 checks, 10 failures') reviewer-only variant
+U6_add_only          static author=None reviewer=('FAIL', 'pp_shadow: 173 checks, 5 failures') reviewer-only variant
+U8_input_only        dyn    author=None reviewer=('FAIL', 'pp_shadow: 263 checks, 10 failures') reviewer-only variant
+U8_input_only        static author=None reviewer=('PASS', 'pp_shadow: 173 checks, 0 failures') reviewer-only variant
+c074fde0ab79ec7f923ec14a101dfe9a2fd8df5ecdbb6cfddbef96b67cefb150  pub/adapt-reviewers.py
+"""Rebind only the old anchor; preserve every published replacement body.
+This is a separately reported author replay, not an unchanged reviewer run.
+"""
+from pathlib import Path
+import runpy, sys
+script=Path(sys.argv[1])
+ns=runpy.run_path(str(script))
+old=ns["LIVE"]
+new="  assign aecp_live_wr_w = aecp_name_wr_w\n                        | amap_live_wr_i;"
+for name,spec in ns["MUTANTS"].items():
+    if spec is not None:
+        anchor,replacement=spec
+        if anchor == old:
+            ns["MUTANTS"][name]=(new,replacement)
+sys.argv=sys.argv[1:]
+ns["main"]()
