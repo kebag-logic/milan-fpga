@@ -1,0 +1,73 @@
+# identity receipt 2026-09-27T14:32:23Z
+HEAD 499b15f97eb0a469b7cd1308fbba7af3c64d1851
+warning: unable to find all commit-graph files
+TREE 83b988d3b59a398a7d0cd1977194c50be92522da
+warning: unable to find all commit-graph files
+PARENT 682ecf0cb995473b72d5b4921088053ba753fc93
+## gitlinks at HEAD
+warning: unable to find all commit-graph files
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 16be6768f710e79450aace277abacd6c2c3336e5	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+## gitlinks at base 682ecf0c
+warning: unable to find all commit-graph files
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 870ff88ad35bbd532244e4c7e6d7661b9f6e1366	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+## submodule status
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ 16be6768f710e79450aace277abacd6c2c3336e5 protocol-processor (v2.0-281-g16be676)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+## index stage records for protocol-processor
+160000 16be6768f710e79450aace277abacd6c2c3336e5 0	protocol-processor
+## working tree status
+warning: unable to find all commit-graph files
+## processor ancestry
+870ff88ad35bbd532244e4c7e6d7661b9f6e1366 is-ancestor-of 16be6768: yes
+493e5e4bf58a6146bf9310194d71c72e18610704 is-ancestor-of 16be6768: yes
+16be6768f710e79450aace277abacd6c2c3336e5 493e5e4bf58a6146bf9310194d71c72e18610704 e04234e115cfdcaace393ae62ba68562d47834c6 Merge PR #126: state the descriptor ownership contract and keep the Milan cluster minimum
+e04234e115cfdcaace393ae62ba68562d47834c6 1d249e6e18a91c16a2620904483634548b0414a6 docs: align descriptor rule authority with parent contract
+1d249e6e18a91c16a2620904483634548b0414a6 493e5e4bf58a6146bf9310194d71c72e18610704 docs: state descriptor ownership and preserve Milan cluster minimum
+493e5e4bf58a6146bf9310194d71c72e18610704 870ff88ad35bbd532244e4c7e6d7661b9f6e1366 11dd3e903685183250e7cd8ecc391b04fe7fd494 Merge PR #124: refuse descriptor bodies that disagree with their directory keys
+11dd3e903685183250e7cd8ecc391b04fe7fd494 eb734969154d5a75ff84b2779ff6088a2f4311a5 Align descriptor body-key tests with consumer conventions
+eb734969154d5a75ff84b2779ff6088a2f4311a5 870ff88ad35bbd532244e4c7e6d7661b9f6e1366 Refuse descriptor bodies that disagree with their directory keys
+## processor diff stat 870ff88a..16be6768
+ docs/architecture/07_memory_maps.md  |  59 ++++++++++++++-
+ docs/guides/integrator.md            |  19 ++++-
+ hdl/aecp/desc/gen_desc_image.py      |  11 +++
+ tb/desc_store/Makefile               |   7 +-
+ tb/desc_store/README.md              |  33 +++++++++
+ tb/desc_store/test_gen_desc_image.py | 135 +++++++++++++++++++++++++++++++++++
+ 6 files changed, 258 insertions(+), 6 deletions(-)
+## processor RTL/ROM-generator paths changed (sv/v/svh/hex, rom, ucode)
+(end)
+## public processor main (GitHub API)
+16be6768f710e79450aace277abacd6c2c3336e5
+compare pin...main: identical ahead=0 behind=0
+## PR 591 head (GitHub API)
+head=499b15f97eb0a469b7cd1308fbba7af3c64d1851 base=dev draft=false state=OPEN
+## parent diff paths base..head
+warning: unable to find all commit-graph files
+M	CHANGELOG.md
+M	docs/design/SAVED_STATE_MATERIALIZATION.md
+M	docs/diagrams/PNG_MANIFEST.json
+M	docs/diagrams/submodule_boundaries.drawio
+M	docs/diagrams/submodule_boundaries.png
+M	docs/diagrams/submodule_boundaries.svg
+M	docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+M	docs/reference/SUBMODULES.md
+M	protocol-processor
+M	scripts/measure_test_evidence.py
+M	syn/yosys/rom_digests.tsv
+M	tb/verilator/nvm_capture_cpu/measurements.json
+## parent diff touching hdl/ sw/firmware/ csr
+warning: unable to find all commit-graph files
+(end)
+## verilator
+Verilator 5.050 2026-07-01 rev v5.050
+44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd  $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator_bin
+## python
+Python 3.14.7
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]

@@ -1,0 +1,23 @@
+## base..head measurements.json diff
+warning: unable to find all commit-graph files
+diff --git a/tb/verilator/nvm_capture_cpu/measurements.json b/tb/verilator/nvm_capture_cpu/measurements.json
+index 894e9f5ae..d40f69baa 100644
+--- a/tb/verilator/nvm_capture_cpu/measurements.json
++++ b/tb/verilator/nvm_capture_cpu/measurements.json
+@@ -304 +304 @@
+-    "protocol-processor": "0922e43408f891fc0b84a84691df86b4fd0f1c0d",
++    "protocol-processor": "16be6768f710e79450aace277abacd6c2c3336e5",
+## readers of processor_pins in parent (excluding submodules)
+syn/yosys/ooc_arms.py:23:    _preloadable_library, _processor_pins, _read_text, _run, _stub, _track,
+syn/yosys/ooc_arms.py:811:    gptp_pin = _processor_pins()["gptp-processor"]
+syn/yosys/ooc_harness.py:82:def _processor_pins():
+syn/yosys/ooc_harness.py:111:    pins = _processor_pins()
+tb/verilator/nvm_capture_cpu/measurements.json:303:  "processor_pins": {
+## receipt keys read by scripts/check_nvm_capture.py
+60:receipt['measured_for']
+70:receipt['measurements']
+93:receipt['maxima']
+## maxima
+{'shape': 'endstation_ax7101_1x1_tdm8', 'cpu_hz': 50000000, 'maximum_ms': 6.60642, 'margin': 7.417027679136355}
+{'shape': 'endstation_ax7101_8x8', 'cpu_hz': 50000000, 'maximum_ms': 24.30246, 'margin': 2.0162567904648334}
+{'shape': 'endstation_ax7101_8x8', 'cpu_hz': 100000000, 'maximum_ms': 19.79024, 'margin': 2.4759679518793103}

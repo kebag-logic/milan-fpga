@@ -1,0 +1,41 @@
+rom-record-rerun	0	1	syn/yosys/ooc.sh --record-rom-digests
+rom-check	0	7	syn/yosys/ooc.sh KL_chan_map_render
+probe-rom-A-wrong-digest	2	1	syn/yosys/ooc.sh KL_chan_map_render
+probe-rom-B-rows-removed	2	0	syn/yosys/ooc.sh KL_chan_map_render
+diagram-check	0	0	python3 docs/diagrams/submodule_boundaries.gen.py --check
+diagram-selftest	0	1	python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+diagram-regenerate	0	0	python3 docs/diagrams/submodule_boundaries.gen.py
+test-evidence	0	5	python3 scripts/measure_test_evidence.py --check
+probe-disposition-removed	1	5	python3 scripts/measure_test_evidence.py --check
+packer-tests	0	1	python3 -B tb/desc_store/test_gen_desc_image.py
+probe-packer-refusal-removed	1	0	python3 -B tb/desc_store/test_gen_desc_image.py
+pin-equality	0	3	$REVIEWS/580-r353-1-packet/scripts/pin_equality.sh $REVIEWS/r353-1-580 $REVIEWS/580-r353-1-packet/scratch/pin_eq $REVIEWS/580-r353-1-packet/receipts
+parent-bodykey-probe	0	0	python3 -B $REVIEWS/580-r353-1-packet/scripts/parent_bodykey_probe.py $REVIEWS/580-r353-1-packet/scratch/pin_eq
+parent-bodykey-probe	0	0	python3 -B $REVIEWS/580-r353-1-packet/scripts/parent_bodykey_probe.py $REVIEWS/580-r353-1-packet/scratch/pin_eq
+capture	0	1	python3 -B scripts/check_nvm_capture.py
+probe-capture-pin-planted	0	1	python3 -B scripts/check_nvm_capture.py
+probe-capture-firmware-digest	1	1	python3 -B scripts/check_nvm_capture.py
+pp-shadow	0	81	taskset -c 0-7 make -C tb/verilator/pp_shadow VERILATOR=$REVIEWS/580-r353-1-packet/scratch/bin/verilator
+port-contracts	0	2	python3 -B scripts/check_port_contracts.py
+docs_check	0	4	python3 -B scripts/docs_check.py
+check_doc_style	0	0	python3 -B scripts/check_doc_style.py
+check_submodule_docs	0	1	python3 -B scripts/check_submodule_docs.py
+check_submodule_docs-selftest	0	0	python3 -B scripts/check_submodule_docs.py --selftest
+check_diagram_pngs	0	0	python3 -B scripts/check_diagram_pngs.py
+gen_toc-check	2	0	python3 -B scripts/gen_toc.py --check
+check_em_dash-base	2	1	python3 -B scripts/check_em_dash.py --base 682ecf0cb995473b72d5b4921088053ba753fc93
+check_doc_paths	0	0	python3 -B scripts/check_doc_paths.py
+check_archive	0	1	python3 -B scripts/check_archive.py
+check_solution_docs	0	0	python3 -B scripts/check_solution_docs.py
+check_gptp_docs	0	0	python3 -B scripts/check_gptp_docs.py
+diff-check	0	0	git diff --check 682ecf0cb995473b72d5b4921088053ba753fc93 499b15f97eb0a469b7cd1308fbba7af3c64d1851
+gen_toc-check-pinned	0	3	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/gen_toc.py --check
+gen_toc-verify-anchors-pinned	0	1	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/gen_toc.py --verify-anchors
+check_em_dash-base-pinned	0	4	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/check_em_dash.py --base 682ecf0cb995473b72d5b4921088053ba753fc93
+docs_check-pinned	0	4	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/docs_check.py
+milan-dp	0	1490	taskset -c 0-7 make -C tb/verilator/milan_dp VERILATOR=$REVIEWS/580-r353-1-packet/scratch/bin/verilator VERILATOR_JOBS=8
+verify-tracked-bytes	0	0	python3 -B $REVIEWS/580-r353-1-packet/scripts/verify_tracked_bytes.py $REVIEWS/r353-1-580
+check_feature_status	0	1	$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3 -B scripts/check_feature_status.py
+check_rtl_source_lists	0	1	python3 -B scripts/check_rtl_source_lists.py
+check_baremetal_only	0	15	python3 -B scripts/check_baremetal_only.py --check
+module-matrix-check	0	1	python3 -B docs/traceability/gen_module_matrix.py --check

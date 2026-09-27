@@ -1,0 +1,6 @@
+NOTES on receipts
+- check_baremetal_only: a first invocation without a mode exited 2 with a usage error (reviewer invocation error, not a gate result); its gates.tsv line was removed and the gate was rerun with --check (rc 0, log overwritten).
+- gen_toc-check.log and check_em_dash-base.log (rc 2) are system-interpreter runs without the pinned Markdown renderer; the same gates were rerun with an interpreter whose cmarkgfm/html5lib/cffi/pycparser/six/webencodings versions equal tools/markdown/requirements.txt (the *-pinned logs, rc 0).
+- Probe logs (probe-*) are deliberate fault injections; their nonzero rc is the expected outcome where stated in REPORT.md.
+- The assigned Verilator path $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator does not exist; scratch/bin/verilator wraps the same Verilator 5.050 install (verilator_bin sha256 in identity.txt) that the existing manager wrappers point at.
+- parent-bodykey-probe appears twice in gates.tsv: the first version swapped directory indices and was refused at both pins through name binding, so it did not discriminate; the script was reworked to alter only body type/index bytes and rerun (the log and script in this packet are the second, discriminating version).
