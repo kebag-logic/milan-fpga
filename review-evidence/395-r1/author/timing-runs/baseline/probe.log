@@ -1,0 +1,269 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Sun Sep 27 23:23:54 2026
+# Process ID         : 999379
+# Current directory  : $VALIDATION_STORAGE/395-a387-work
+# Command line       : vivado -mode batch -nojournal -notrace -log $VALIDATION_STORAGE/395-a387-work/probe.log -source $VALIDATION_STORAGE/395-a387-work/probe.tcl
+# Log file           : $VALIDATION_STORAGE/395-a387-work/probe.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 56610 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source $VALIDATION_STORAGE/395-a387-work/probe.tcl -notrace
+Command: open_checkpoint $WORKSPACE_HOME/litex-milan/work/build_ax7101_eto_tdm8dev9e9954e9/gateware/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1457.707 ; gain = 7.938 ; free physical = 6062 ; free virtual = 57035
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.27 ; elapsed = 00:00:00.26 . Memory (MB): peak = 1992.613 ; gain = 0.000 ; free physical = 5248 ; free virtual = 56595
+INFO: [Netlist 29-17] Analyzing 5506 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.12 ; elapsed = 00:00:00.11 . Memory (MB): peak = 2147.738 ; gain = 0.000 ; free physical = 5756 ; free virtual = 57118
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.08 . Memory (MB): peak = 2888.449 ; gain = 8.984 ; free physical = 4609 ; free virtual = 56027
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2890.449 ; gain = 2.000 ; free physical = 4597 ; free virtual = 56015
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2890.449 ; gain = 0.000 ; free physical = 4597 ; free virtual = 56014
+Read placeStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2967.738 ; gain = 77.289 ; free physical = 4074 ; free virtual = 55494
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2967.738 ; gain = 0.000 ; free physical = 4074 ; free virtual = 55494
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:00.56 . Memory (MB): peak = 2991.738 ; gain = 24.000 ; free physical = 3900 ; free virtual = 55320
+Read Physdb Files: Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2991.738 ; gain = 112.273 ; free physical = 3807 ; free virtual = 55227
+Restored from archive | CPU: 4.220000 secs | Memory: 85.993912 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:04 ; elapsed = 00:00:02 . Memory (MB): peak = 2991.738 ; gain = 112.273 ; free physical = 3799 ; free virtual = 55220
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3020.793 ; gain = 0.000 ; free physical = 3621 ; free virtual = 55091
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 686 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM16X1S => RAM32X1S (RAMS32): 48 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 443 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 26 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 2 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:28 ; elapsed = 00:00:21 . Memory (MB): peak = 3028.828 ; gain = 1585.027 ; free physical = 3683 ; free virtual = 55192
+Property                 Type     Read-only  Value
+CLASS                    string   true       design
+CONSTRSET                fileset  true       constrs_1
+DCP_VERSION              string   true       Vivado v2026.1 (64-bit) SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+ENABLE_AIE_NETLIST_VIEW  bool     false      1
+ENABLE_NOC_NETLIST_VIEW  bool     false      1
+IS_BLOCK                 bool     true       0
+MLO_VERSION_NUMBER       string   false      2026.1_9
+NAME                     string   true       checkpoint_alinx_ax7101_route
+NEEDS_REFRESH            bool     true       0
+NEEDS_SAVE               bool     true       0
+PART                     part     true       xc7a100tfgg484-2
+SRCSET                   fileset  true       sources_1
+TELEMETRY_DATA           string   false      {
+                                               "Design Characteristics Data": {
+                                                 "Timing Summary": {
+                                                   "Status": "Timing constraints are not met.",
+                                                   "Timing requirement": "20.000000",
+                                                   "Total Hold Slack (THS)": "-41.139188",
+                                                   "Total Negative Slack (TNS)": "-8.647181",
+                                                   "Worst Hold Slack (WHS)": "-0.760578",
+                                                   "Worst Negative Slack (WNS)": "-1.201029"
+                                                 },
+                                                 "Utilization Report": {
+                                                   "BRAM": {
+                                                     "Available": "135",
+                                                     "Utilization": "92"
+                                                   },
+                                                   "BUFGCTRL": {
+                                                     "Available": "32",
+                                                     "Utilization": "11"
+                                                   },
+                                                   "DSP": {
+                                                     "Available": "240",
+                                                     "Utilization": "11"
+                                                   },
+                                                   "F7MUX": {
+                                                     "Available": "31700",
+                                                     "Utilization": "1387"
+                                                   },
+                                                   "F8MUX": {
+                                                     "Available": "15850",
+                                                     "Utilization": "46"
+                                                   },
+                                                   "LUT": {
+                                                     "Available": "63400",
+                                                     "Utilization": "48746"
+                                                   },
+                                                   "LUTAsLogic": {
+                                                     "Available": "63400",
+                                                     "Utilization": "46586"
+                                                   },
+                                                   "LUTAsMem": {
+                                                     "Available": "19000",
+                                                     "Utilization": "2160"
+                                                   },
+                                                   "MMCM": {
+                                                     "Available": "6",
+                                                     "Utilization": "1"
+                                                   },
+                                                   "PLL": {
+                                                     "Available": "6",
+                                                     "Utilization": "2"
+                                                   },
+                                                   "REG": {
+                                                     "Available": "126800",
+                                                     "Utilization": "57927"
+                                                   }
+                                                 }
+                                               },
+                                               "Design Flow Data": {
+                                                 "Design Data": {
+                                                   "Design Mode": "Project flow",
+                                                   "Top Methodology": "Verilog"
+                                                 },
+                                                 "Implementation": {
+                                                   "Opt Design": {
+                                                     "Run Time": "50 seconds"
+                                                   },
+                                                   "Place Design": {
+                                                     "Run Time": "391.240000 seconds"
+                                                   },
+                                                   "Route Design": {
+                                                     "Run Time": "278.370000 seconds"
+                                                   }
+                                                 },
+                                                 "Synthesis": {
+                                                   "Run Time": "811.419983 seconds"
+                                                 }
+                                               }
+                                             }
+TOP                      string   true       alinx_ax7101
+XLNX_PROJ_DIR            string   false      $WORKSPACE_HOME/litex-milan/work/build_ax7101_eto_tdm8dev9e9954e9/gateware
+Property                   Type     Read-only  Value
+ARCHITECTURE               string   true       artix7
+ARCHITECTURE_FULL_NAME     string   true       Artix-7
+AVAILABLE_CONFIG_MODES     string*  true       {Master SPI x1} {Master SPI x2} {Master SPI x4} {Master Serial} {Slave Serial} {Master BPI-Up x8} {Master BPI-Up x16} {Slave SelectMap x8} {Slave SelectMap x16} {Slave SelectMap x32} {JTAG/Boundary Scan} {Master SelectMap x8} {Master SelectMap x16}
+AVAILABLE_IOBS             int      true       285
+BLOCK_RAMS                 int      true       135
+CLASS                      string   true       part
+COLS                       int      true       148
+COMPATIBLE_PARTS           string*  true       xc7a15tfgg484 xc7a35tfgg484 xc7a50tfgg484 xc7a75tfgg484 xc7a200tfbg484 xc7a200tfbv484 xc7a200tsbg484 xc7a200tsbv484
+C_FAMILY                   string   true       artix7
+DEVICE                     string   true       xc7a100t
+DSP                        int      true       240
+FAMILY                     string   true       artix7
+FE                         int      true       0
+FLIPFLOPS                  int      true       126800
+GB_TRANSCEIVERS            int      true       4
+GTPE2_TRANSCEIVERS         int      true       4
+GTP_TRANSCEIVERS           int      true       4
+IDCODE                     string   true       0x03631093
+IO_PIN_COUNT               int      true       484
+IO_STANDARDS               string   true       LVTTL LVCMOS33 LVCMOS25 LVCMOS18 LVCMOS15 LVCMOS12 HSUL_12 HSTL_I HSTL_II HSTL_I_18 HSTL_II_18 SSTL18_I SSTL18_II SSTL15 SSTL15_R SSTL135 SSTL135_R DIFF_HSTL_I DIFF_HSTL_II DIFF_HSTL_I_18 DIFF_HSTL_II_18 DIFF_SSTL18_I DIFF_SSTL18_II DIFF_SSTL15 DIFF_SSTL15_R DIFF_SSTL135 DIFF_SSTL135_R DIFF_HSUL_12 PCI33_3 MOBILE_DDR DIFF_MOBILE_DDR BLVDS_25 LVDS_25 RSDS_25 TMDS_33 MINI_LVDS_25 PPDS_25
+LUT_ELEMENTS               int      true       63400
+MAX_OPERATING_TEMPERATURE  int      true       0
+MAX_OPERATING_VOLTAGE      double   true       1.050
+MCBS                       int      true       0
+MIN_OPERATING_TEMPERATURE  int      true       0
+MIN_OPERATING_VOLTAGE      double   true       0.950
+MMCM                       int      true       6
+NAME                       string   true       xc7a100tfgg484-2
+PACKAGE                    string   true       fgg484
+PACKAGE_PINOUT_VERSION     string   true       FINAL 2012-11-02
+PACKAGE_PIN_DELAY_VERSION  string   true       VERS. 2.0 2012-11-02
+PCI_BUSES                  int      true       1
+REF_OPERATING_TEMPERATURE  int      true       0
+REF_OPERATING_VOLTAGE      double   true       0.950
+ROWS                       int      true       209
+SLICES                     int      true       15850
+SLRS                       int      true       1
+SPEED                      string   true       -2
+SPEED_LABEL                string   true       PRODUCTION
+SPEED_LEVEL_ID             string   true       1.23
+SPEED_LEVEL_ID_DATE        string   true       2018-06-13
+SSN_REPORT                 bool     true       1
+SUPPORTS_NEXTGEN_VERSAL    bool     true       0
+TEMAC_NETWORK_CONTROLLERS  int      true       0
+TEMPERATURE_GRADE_LETTER   string   true       
+Device Grade = commercial
+Process Type = typical
+Junction Temp = 25.2 (C)
+Ambient Temp = 25.0 (C)
+ThetaJa = 2.68
+ThetaSa = 4.6 (C/W)
+ThetaJb = 6.8 (C/W)
+Airflow = 250 (LFM)
+Heat Sink Type = medium (Medium Profile)
+Board Type = medium (10"x10")
+Board Temp = 25.0 (C)
+Number Of Board Layers = 12to15 (12 to 15 Layers)
+Vccint = 1.000 V
+Vccaux = 1.800 V
+Vcco33 = 3.300 V
+Vcco25 = 2.500 V
+Vcco18 = 1.800 V
+Vcco15 = 1.500 V
+Vcco135 = 1.350 V
+Vcco12 = 1.200 V
+Vccaux_io = 1.800 V
+Vccbram = 1.000 V
+MGTAVcc = 1.000 V
+MGTAVtt = 1.200 V
+Vccadc = 1.800 V
+{{Vccint 0.950V 1.000V 1.050V}
+ {Vccaux 1.710V 1.800V 1.890V}
+ {Vcco33 3.000V 3.300V 3.450V}
+ {Vcco25 2.380V 2.500V 2.630V}
+ {Vcco18 1.710V 1.800V 1.900V}
+ {Vcco15 1.430V 1.500V 1.580V}
+ {Vcco135 1.300V 1.350V 1.400V}
+ {Vcco12 1.140V 1.200V 1.260V}
+ {Vccaux_io 1.710V 1.800V 1.890V}
+ {Vccbram 0.950V 1.000V 1.050V}
+ {MGTAVcc 0.950V 1.000V 1.050V}
+ {MGTAVtt 1.140V 1.200V 1.260V}
+ {Vccadc 1.710V 1.800V 1.890V}}
+Design Power Budget = Unspecified
+Supply Current Budget: Vccint = Unspecified
+Supply Current Budget: Vccaux = Unspecified
+Supply Current Budget: Vcco33 = Unspecified
+Supply Current Budget: Vcco25 = Unspecified
+Supply Current Budget: Vcco18 = Unspecified
+Supply Current Budget: Vcco15 = Unspecified
+Supply Current Budget: Vcco135 = Unspecified
+Supply Current Budget: Vcco12 = Unspecified
+Supply Current Budget: Vccaux_io = Unspecified
+Supply Current Budget: Vccbram = Unspecified
+Supply Current Budget: MGTAVcc = Unspecified
+Supply Current Budget: MGTAVtt = Unspecified
+Supply Current Budget: Vccadc = Unspecified
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:43 ; elapsed = 00:00:08 . Memory (MB): peak = 3372.082 ; gain = 187.789 ; free physical = 1939 ; free virtual = 53900
+INFO: [Common 17-206] Exiting Vivado at Sun Sep 27 23:24:28 2026...

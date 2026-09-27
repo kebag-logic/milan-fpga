@@ -1,0 +1,361 @@
+[
+  {
+    "gate": "timing-script",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "python3",
+      "-B",
+      "sw/litex/report_timing_grade.py",
+      "$WORKSPACE_HOME/litex-milan/work/build_ax7101_eto_tdm8dev9e9954e9/gateware/alinx_ax7101_route.dcp",
+      "$VALIDATION_STORAGE/395-a387-work/final-66001a307"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T21:37:18.073525+00:00",
+    "seconds": 0.05,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/timing-script.log",
+    "bytes": 53,
+    "sha256": "cf1c8235063751596742dd7bb342671d06bc419a7531de0ea96135af484ed1ae",
+    "small_copy": "gates/timing-script.log"
+  },
+  {
+    "gate": "timing",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "1800",
+      "$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-nojournal",
+      "-notrace",
+      "-log",
+      "$VALIDATION_STORAGE/395-a387-work/final-66001a307/vivado.log",
+      "-source",
+      "$VALIDATION_STORAGE/395-a387-work/final-66001a307/report.tcl"
+    ],
+    "cwd": "$VALIDATION_STORAGE/395-a387-work/final-66001a307",
+    "started": "2026-09-27T21:37:18.121805+00:00",
+    "seconds": 56.89,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/timing.log",
+    "bytes": 9310,
+    "sha256": "c42c239227c42071873c9b3c53e556c2a666ad584387d684adf8928a0bae638b",
+    "small_copy": "gates/timing.log"
+  },
+  {
+    "gate": "builder-present",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "14400",
+      "python3",
+      "-B",
+      "sw/builder/test_builder.py",
+      "--require-rv32",
+      "--require-elaboration"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T21:38:15.011684+00:00",
+    "seconds": 775.77,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/builder-present.log",
+    "bytes": 85652,
+    "sha256": "ea712050cf15b9acc26ddf88fb2b863f67358540af72859625c660d4c6ee72a2",
+    "small_copy": "gates/builder-present.log"
+  },
+  {
+    "gate": "builder-absent",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "14400",
+      "python3",
+      "-B",
+      "$VALIDATION_STORAGE/395-a387-work/run_builder_absent.py"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T21:51:10.783865+00:00",
+    "seconds": 559.57,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/builder-absent.log",
+    "bytes": 87772,
+    "sha256": "0c524e10bc5f3916130458fde38b2242af50e4d56d7ac37f0e97a06d2cf3abe9",
+    "small_copy": "gates/builder-absent.log"
+  },
+  {
+    "gate": "ci-scope-selftest",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "python3",
+      "-B",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:30.353780+00:00",
+    "seconds": 2.06,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/ci-scope-selftest.log",
+    "bytes": 5513,
+    "sha256": "28161d5982dcae0b4de065681fd30e6784d0587e138c854b29a426b6f8df99f5",
+    "small_copy": "gates/ci-scope-selftest.log"
+  },
+  {
+    "gate": "docs",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:32.412806+00:00",
+    "seconds": 4.31,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/docs.log",
+    "bytes": 127,
+    "sha256": "94d114fc0dbddc697df2b4d5bdff6dfdf2d4887154b4c2298eacc72681ec2f76",
+    "small_copy": "gates/docs.log"
+  },
+  {
+    "gate": "doc-paths",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:36.720636+00:00",
+    "seconds": 0.07,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/doc-paths.log",
+    "bytes": 84,
+    "sha256": "739bb2ef18557ca83fc94ed48b185be243b7748f792347da6cde11c908edceab",
+    "small_copy": "gates/doc-paths.log"
+  },
+  {
+    "gate": "toc",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:36.788549+00:00",
+    "seconds": 2.6,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/toc.log",
+    "bytes": 94,
+    "sha256": "d4a9157e6cf23862be13da58165eef08c5a35fee49d88b6f7dbac6df966035c8",
+    "small_copy": "gates/toc.log"
+  },
+  {
+    "gate": "em-dash",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "8bc97021f28fb7f729418d3a00851c84ea0b50fd"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:39.388106+00:00",
+    "seconds": 3.18,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/em-dash.log",
+    "bytes": 140,
+    "sha256": "40092a811073597a3c2e584126ed862a7e4b571f4ee6f8b55fe8de7d25f811c5",
+    "small_copy": "gates/em-dash.log"
+  },
+  {
+    "gate": "feature-status",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "python3",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:42.575145+00:00",
+    "seconds": 0.67,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/feature-status.log",
+    "bytes": 1500,
+    "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+    "small_copy": "gates/feature-status.log"
+  },
+  {
+    "gate": "doc-style",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:43.247172+00:00",
+    "seconds": 0.05,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/doc-style.log",
+    "bytes": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "small_copy": "gates/doc-style.log"
+  },
+  {
+    "gate": "doc-style-selftest",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:43.299056+00:00",
+    "seconds": 0.04,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/doc-style-selftest.log",
+    "bytes": 33,
+    "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+    "small_copy": "gates/doc-style-selftest.log"
+  },
+  {
+    "gate": "solution-docs",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "python3",
+      "-B",
+      "scripts/check_solution_docs.py"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:43.338354+00:00",
+    "seconds": 0.11,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/solution-docs.log",
+    "bytes": 87,
+    "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42",
+    "small_copy": "gates/solution-docs.log"
+  },
+  {
+    "gate": "python-idiom",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:43.448261+00:00",
+    "seconds": 3.37,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/python-idiom.log",
+    "bytes": 461,
+    "sha256": "c491ee067460b35dd025e7b920ef19bad78f7230305301f6d6fbbc54f3463fc2",
+    "small_copy": "gates/python-idiom.log"
+  },
+  {
+    "gate": "python-idiom-selftest",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:46.825001+00:00",
+    "seconds": 3.33,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/python-idiom-selftest.log",
+    "bytes": 2531,
+    "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "small_copy": "gates/python-idiom-selftest.log"
+  },
+  {
+    "gate": "diff-committed",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "git",
+      "diff",
+      "--check",
+      "8bc97021f28fb7f729418d3a00851c84ea0b50fd",
+      "HEAD"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:50.158729+00:00",
+    "seconds": 0.02,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/diff-committed.log",
+    "bytes": 47,
+    "sha256": "ed658cc2701b76b948a5c9308b123bc927a68ee04fbe54746d47d779d0d14f7c",
+    "small_copy": "gates/diff-committed.log"
+  },
+  {
+    "gate": "diff-worktree",
+    "head": "66001a307ce5de57577e66d6e3a18b9f4020764b",
+    "command": [
+      "timeout",
+      "--foreground",
+      "300",
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "$LANES/395-timing-grade",
+    "started": "2026-09-27T22:00:50.179729+00:00",
+    "seconds": 0.02,
+    "returncode": 0,
+    "log": "$VALIDATION_STORAGE/395-a387-work/gates-66001a307/diff-worktree.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "small_copy": "gates/diff-worktree.log"
+  }
+]

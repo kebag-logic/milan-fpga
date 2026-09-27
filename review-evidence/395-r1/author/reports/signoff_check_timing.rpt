@@ -1,0 +1,233 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sun Sep 27 23:38:14 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : check_timing -verbose -file $VALIDATION_STORAGE/395-a387-work/final-66001a307/signoff_check_timing.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+
+check_timing report
+
+Table of Contents
+-----------------
+1. checking no_clock (0)
+2. checking constant_clock (0)
+3. checking pulse_width_clock (0)
+4. checking unconstrained_internal_endpoints (0)
+5. checking no_input_delay (46)
+6. checking no_output_delay (87)
+7. checking multiple_clock (0)
+8. checking generated_clocks (0)
+9. checking loops (0)
+10. checking partial_input_delay (0)
+11. checking partial_output_delay (0)
+12. checking latch_loops (0)
+
+1. checking no_clock (0)
+------------------------
+ There are 0 register/latch pins with no clock.
+
+
+2. checking constant_clock (0)
+------------------------------
+ There are 0 register/latch pins with constant_clock.
+
+
+3. checking pulse_width_clock (0)
+---------------------------------
+ There are 0 register/latch pins which need pulse_width check
+
+
+4. checking unconstrained_internal_endpoints (0)
+------------------------------------------------
+ There are 0 pins that are not constrained for maximum delay.
+
+ There are 0 pins that are not constrained for maximum delay due to constant clock.
+
+
+5. checking no_input_delay (46)
+-------------------------------
+ There are 46 input ports with no input delay specified. (HIGH)
+
+cpu_reset_n
+ddram_dq[0]
+ddram_dq[10]
+ddram_dq[11]
+ddram_dq[12]
+ddram_dq[13]
+ddram_dq[14]
+ddram_dq[15]
+ddram_dq[16]
+ddram_dq[17]
+ddram_dq[18]
+ddram_dq[19]
+ddram_dq[1]
+ddram_dq[20]
+ddram_dq[21]
+ddram_dq[22]
+ddram_dq[23]
+ddram_dq[24]
+ddram_dq[25]
+ddram_dq[26]
+ddram_dq[27]
+ddram_dq[28]
+ddram_dq[29]
+ddram_dq[2]
+ddram_dq[30]
+ddram_dq[31]
+ddram_dq[3]
+ddram_dq[4]
+ddram_dq[5]
+ddram_dq[6]
+ddram_dq[7]
+ddram_dq[8]
+ddram_dq[9]
+eth0_mdio
+eth0_rx_data[0]
+eth0_rx_data[1]
+eth0_rx_data[2]
+eth0_rx_data[3]
+eth0_rx_data[4]
+eth0_rx_data[5]
+eth0_rx_data[6]
+eth0_rx_data[7]
+eth0_rx_dv
+serial_rx
+spiflash_miso
+tdm_din
+
+ There are 0 input ports with no input delay but user has a false path constraint.
+
+
+6. checking no_output_delay (87)
+--------------------------------
+ There are 87 ports with no output delay specified. (HIGH)
+
+ddram_a[0]
+ddram_a[10]
+ddram_a[11]
+ddram_a[12]
+ddram_a[13]
+ddram_a[14]
+ddram_a[1]
+ddram_a[2]
+ddram_a[3]
+ddram_a[4]
+ddram_a[5]
+ddram_a[6]
+ddram_a[7]
+ddram_a[8]
+ddram_a[9]
+ddram_ba[0]
+ddram_ba[1]
+ddram_ba[2]
+ddram_cas_n
+ddram_cke
+ddram_clk_p
+ddram_cs_n
+ddram_dm[0]
+ddram_dm[1]
+ddram_dm[2]
+ddram_dm[3]
+ddram_dq[0]
+ddram_dq[10]
+ddram_dq[11]
+ddram_dq[12]
+ddram_dq[13]
+ddram_dq[14]
+ddram_dq[15]
+ddram_dq[16]
+ddram_dq[17]
+ddram_dq[18]
+ddram_dq[19]
+ddram_dq[1]
+ddram_dq[20]
+ddram_dq[21]
+ddram_dq[22]
+ddram_dq[23]
+ddram_dq[24]
+ddram_dq[25]
+ddram_dq[26]
+ddram_dq[27]
+ddram_dq[28]
+ddram_dq[29]
+ddram_dq[2]
+ddram_dq[30]
+ddram_dq[31]
+ddram_dq[3]
+ddram_dq[4]
+ddram_dq[5]
+ddram_dq[6]
+ddram_dq[7]
+ddram_dq[8]
+ddram_dq[9]
+ddram_dqs_p[0]
+ddram_dqs_p[1]
+ddram_dqs_p[2]
+ddram_dqs_p[3]
+ddram_odt
+ddram_ras_n
+ddram_reset_n
+ddram_we_n
+eth0_mdc
+eth0_mdio
+eth0_rst_n
+eth0_tx_data[0]
+eth0_tx_data[1]
+eth0_tx_data[2]
+eth0_tx_data[3]
+eth0_tx_data[4]
+eth0_tx_data[5]
+eth0_tx_data[6]
+eth0_tx_data[7]
+eth0_tx_en
+eth_clocks0_gtx
+serial_tx
+spiflash_cs_n
+spiflash_mosi
+tdm_bclk
+tdm_dout
+tdm_fsync
+tdm_lrclk
+tdm_mclk
+
+ There are 0 ports with no output delay but user has a false path constraint
+
+ There are 0 ports with no output delay but with a timing clock defined on it or propagating through it
+
+
+7. checking multiple_clock (0)
+------------------------------
+ There are 0 register/latch pins with multiple clocks.
+
+
+8. checking generated_clocks (0)
+--------------------------------
+ There are 0 generated clocks that are not connected to a clock source.
+
+
+9. checking loops (0)
+---------------------
+ There are 0 combinational loops in the design.
+
+
+10. checking partial_input_delay (0)
+------------------------------------
+ There are 0 input ports with partial input delay specified.
+
+
+11. checking partial_output_delay (0)
+-------------------------------------
+ There are 0 ports with partial output delay specified.
+
+
+12. checking latch_loops (0)
+----------------------------
+ There are 0 combinational latch loops in the design through latch input
+
+

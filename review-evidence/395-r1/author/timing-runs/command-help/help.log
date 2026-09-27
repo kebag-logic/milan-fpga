@@ -1,0 +1,1907 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Sun Sep 27 23:26:03 2026
+# Process ID         : 1037442
+# Current directory  : $VALIDATION_STORAGE/395-a387-work
+# Command line       : vivado -mode batch -nojournal -notrace -log $VALIDATION_STORAGE/395-a387-work/help.log -source $VALIDATION_STORAGE/395-a387-work/help.tcl
+# Log file           : $VALIDATION_STORAGE/395-a387-work/help.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 59487 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source $VALIDATION_STORAGE/395-a387-work/help.tcl -notrace
+config_timing_corners
+
+Description: 
+Configure single / multi corner timing analysis settings
+
+Syntax: 
+config_timing_corners  [-corner <arg>] [-delay_type <arg>] [-setup] [-hold]
+                       [-quiet] [-verbose]
+
+Usage: 
+  Name           Description
+  --------------------------
+  [-corner]      Name of the timing corner to be modified : Values: Slow, 
+                 Fast
+  [-delay_type]  Type of path delays to be analyzed for specified timing 
+                 corner: Values: none, max, min, min_max
+  [-setup]       Enable timing corner for setup analysis (equivalent to 
+                 -delay_type max)
+  [-hold]        Enable timing corner for hold analysis (equivalent to 
+                 -delay_type min)
+  [-quiet]       Ignore command errors
+  [-verbose]     Suspend message limits during command execution
+
+Categories: 
+Timing
+
+Description:
+
+  This command configures the Slow and Fast timing corners in the current
+  design for single or multi-corner timing analysis. A synthesized or
+  implemented design must be opened when running this command.
+
+  The variation in the manufacturing process of the physical device, and the
+  voltage and temperature at which the device is operating, combine to create
+  a timing corner. These three variables (PVT) determine the delay across the
+  device. The fast corner represents a device operating with the smallest
+  manufacturing process tolerances, the highest voltage, and the lowest
+  temperature. The slow corner represents a device operating with the
+  greatest manufacturing tolerances, the lowest voltage, and the highest
+  temperature. By default the AMD Vivado Design Suite performs both a setup
+  and hold analysis for both slow and fast process corners, also known as
+  quad analysis:
+
+    config_timing_corners -corner Slow -setup -hold
+    config_timing_corners -corner Fast -setup -hold
+
+  The config_timing_corners command can be used to limit the default four
+  corner analysis performed by the Vivado timing engine as appropriate to the
+  design, to improve timing performance. To change or disable the default
+  analysis for both corners, you must configure both the Fast and Slow
+  corners:
+
+    config_timing_corners -corner Slow -delay_type max
+    config_timing_corners -corner Fast -delay_type none
+
+  Note: This command returns nothing if successful, or returns an error if it
+  fails.
+
+Arguments:
+
+  -corner [ slow | fast ] - (Optional) Specifies the timing corner to be
+  configured. Valid values are "slow" and "fast". If -corner is not
+  specified, the -delay_type applies to both corners.
+
+  -delay_type <value> - (Optional) Specify the type of path delays to be
+  analyzed for the specified timing corner. Valid values are "none", "max",
+  "min" and "min_max". A -delay_type of "none" excludes the specified -corner
+  from timing analysis.
+
+  Tip: Although -delay_type and -setup/-hold are both optional, one of these
+  options are required to configure the specified corner.
+
+  -setup - (Optional) Specifies setup analysis for the specified timing
+  corner. This is the same as -delay_type max.
+
+  -hold - (Optional) Specifies hold analysis for the timing corner. This is
+  the same as -delay_type min.
+
+  Tip: You can specify both -setup and -hold which is the same as -delay_type
+  min_max.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example configures the Slow timing corner for both setup and
+  hold analysis:
+
+    config_timing_corners -corner slow -setup -hold
+    config_timing_corners -corner slow -delay_type min_max
+
+  Note: The two preceding examples have the same effect.
+
+  The following example configures the Fast corner for min delay analysis,
+  and disables the Slow corner analysis:
+
+    config_timing_corners -corner fast -delay_type min
+    config_timing_corners -corner slow -delay_type none
+
+See Also:
+
+   *  config_timing_analysis
+   *  report_config_timing
+   *  report_timing
+
+report_timing_summary
+
+Description: 
+Report timing summary
+
+Syntax: 
+report_timing_summary  [-check_timing_verbose] [-delay_type <arg>]
+                       [-no_detailed_paths] [-setup] [-hold] [-max_paths <arg>]
+                       [-nworst <arg>] [-unique_pins] [-path_type <arg>]
+                       [-no_reused_label] [-input_pins] [-no_pr_attribute]
+                       [-no_pblock] [-routable_nets] [-inter_slr <arg>]
+                       [-slack_lesser_than <arg>] [-report_unconstrained]
+                       [-significant_digits <arg>] [-no_header] [-file <arg>]
+                       [-append] [-name <arg>] [-return_string]
+                       [-warn_on_violation] [-datasheet] [-cells <args>]
+                       [-rpx <arg>] [-quiet] [-verbose]
+
+Usage: 
+  Name                     Description
+  ------------------------------------
+  [-check_timing_verbose]  Produce a verbose report when checking the design 
+                           for potential timing problems
+  [-delay_type]            Type of path delay: Values: max, min, min_max
+                           Default: min_max
+  [-no_detailed_paths]     Do not report timing paths for each clock and path
+                           group analyzed
+  [-setup]                 Report max delay timing paths (equivalent to 
+                           -delay_type max)
+  [-hold]                  Report min delay timing paths (equivalent to 
+                           -delay_type min)
+  [-max_paths]             Maximum number of paths to report per clock or 
+                           path group: Value >=1
+                           Default: 1
+  [-nworst]                List up to N worst paths to endpoint: Value >=1
+                           Default: 1
+  [-unique_pins]           For each unique set of pins, show at most 1 path 
+                           per path group
+  [-path_type]             Format for path report: Values: end summary short 
+                           full full_clock full_clock_expanded
+                           Default: full_clock_expanded
+  [-no_reused_label]       Do not label reuse status on pins in the report
+  [-input_pins]            Show input pins in path
+  [-no_pr_attribute]       For Dynamic Function eXchange designs, do not 
+                           report whether netlist resources are in the static
+                           or reconfigurable regions
+  [-no_pblock]             Report timing summary without pblock column
+  [-routable_nets]         Store the number of routable nets traversed as a 
+                           property on timing paths.
+  [-inter_slr]             Report timing paths crossing between SLRs: Values:
+                           any_crossing, data_crossing, only_data_crossing, 
+                           clock_crossing, no_crossing
+  [-slack_lesser_than]     Display paths with slack less than this
+                           Default: 1e+30
+  [-report_unconstrained]  Report unconstrained and user ignored paths
+  [-significant_digits]    Number of digits to display: Range: 0 to 3
+                           Default: 3
+  [-no_header]             Do not generate a report header
+  [-file]                  Filename to output results to. (send output to 
+                           console if -file is not used)
+  [-append]                Append the results to file, don't overwrite the 
+                           results file
+  [-name]                  Output the results to GUI panel with this name
+  [-return_string]         Return report as string
+  [-warn_on_violation]     Issue a critical warning when the report contains 
+                           a timing violation
+  [-datasheet]             Include data sheet report
+  [-cells]                 Run report_timing_summary on the specified cell(s)
+  [-rpx]                   Filename to output interactive results to.
+  [-quiet]                 Ignore command errors
+  [-verbose]               Suspend message limits during command execution
+
+Categories: 
+Report, Timing
+
+Description:
+
+  Generates a timing summary to understand if the design meets timing
+  requirements. The timing summary runs on an open Synthesized or Implemented
+  Design.
+
+  Tip: The report_timing_summary can be multi-threaded to speed the process.
+  Refer to the set_param command for more information on setting the
+  general.maxThreads parameter.
+
+  The timing summary report includes the following information:
+
+   *  Timer Settings - Details the timing engine settings uses to generate
+      the timing information in the report.
+
+   *  Check Timing - Contains the check_timing command generated information
+      which summarizes potential timing issues.
+
+   *  Design Timing Summary - Provides a summary of the design timing,
+      including values of worst and total negative slack (WNS/TNS), worst and
+      total hold slack (WHS/THS), and component switching limits (CSL).
+
+   *  Clock Definitions - Contains the report_clocks command generated
+      information, showing all the clocks created for the design by
+      create_clock, create_generated_clock, or automatically by the tool.
+
+   *  Intra-Clock Table - Summarizes timing paths with the same source and
+      destination clocks.
+
+   *  Inter-Clock Table - Summarizes timing paths with different source and
+      destination clocks.
+
+   *  Path Group Table - Shows default path groups and user-defined path
+      groups created by the group_path command.
+
+   *  Timing Details - Contains detailed timing paths, both max delay and min
+      delay, and component switching limits for each clock defined which are
+      similar to the report_timing command.
+
+   *  Data sheet - Contains the report_datasheet command generated
+      information with timing characteristics of a design at the I/O ports.
+      It adds the data sheet information to the summary report only when the
+      -datasheet option is specified.
+
+  This command automatically runs during implementation as part of the
+  launch_runs command.
+
+  Note: By default, the report is available in the Tcl console or STD output.
+  You can also write results to a file or return them as a string.
+
+Arguments:
+
+  -check_timing_verbose - (Optional) Outputs a verbose timing summary report.
+
+  -delay_type <arg> - (Optional) Specifies the delay type to analyze when
+  running the timing report. The valid values are min, max, or min_max. The
+  default setting for -delay_type is min_max.
+
+  -no_detailed_paths - (Optional) Does not report the full timing path for
+  each clock or path group analyzed.
+
+  -setup - (Optional) Checks for setup violations and same as specifying
+  -delay_type max.
+
+  -hold - (Optional) Checks for hold violations and same as specifying
+  -delay_type min.
+
+  Note: You can specify -setup and -hold together, which is the same as
+  specifying -delay_type min_max.
+
+  -max_paths <arg> - (Optional) Specifies the maximum number of paths to
+  report per clock or per path group. This value must be greater than or
+  equal to 1. By default, the report_timing_summary command reports the
+  single worst timing path or the worst path per path group.
+
+  -nworst <arg> - (Optional) Specifies the number of timing paths to output
+  in the timing report. The timing report returns the <N> worst paths to
+  endpoints based on the specified value, greater than or equal to 1. The
+  default setting is 1.
+
+  -unique_pins - (Optional) Specifies only report timing paths through each
+  unique set of pins, reporting one path per path group.
+
+  -inter_slr <args> (Optional) Reports the timing paths based on the
+  SLR-crossing characteristics. Ensure to specify one of the following
+  values: any_crossing, data_crossing, clock_crossing, or no_crossing.
+
+  -path_type <arg> - (Optional) Specifies the path data to output in the
+  timing summary report. The default format is full_clock_expanded. The valid
+  path types are:
+
+   *  end - Shows the endpoint of the path only, with calculated timing values.
+
+   *  summary - Displays the startpoints and endpoints with slack calculation.
+
+   *  short - Displays the startpoints and endpoints with calculated timing
+      values.
+
+   *  full - Displays the full timing path, including startpoints, through
+      points, and endpoints.
+
+   *  full_clock - Displays full clock paths in addition to the full timing
+      path.
+
+   *  full_clock_expanded - Displays full clock paths between a master clock
+      and generated clocks in addition to the full_clock timing path. This is
+      the default setting.
+
+  -no_reused_label - (Optional) Disables reuse information reporting in
+  designs that use incremental place and route based on an existing design
+  checkpoint (DCP) file. Both placement and routing complete incrementally,
+  based on prior results stored in a DCP file using the incremental
+  implementation flow. Refer to the read_checkpoint command, or to Vivado
+  Design Suite User Guide: Implementation (UG904) for more information on
+  incremental place and route.
+
+  By default, designs using incremental place and route have pins labeled
+  with information related to the physical data reused from the specified
+  incremental checkpoint. This option removes the reuse labels including the
+  following:
+
+   *  Routing: Reuses placement and routing to this pin.
+
+   *  Placement: Reuses cell placement but does not routing to this pin.
+
+   *  Moved: Reuses neither cell placement nor routing to this pin.
+
+   *  New: The cell, net, or pin is new. It does not exist in the incremental
+      checkpoint.
+
+  -input_pins - (Optional) Shows input pins in the timing path report. For
+  use with -path_type full, full_clock, and full_clock_expanded.
+
+  -no_pr_attribute <arg> - (Optional) For Partial Reconfiguration (PR)
+  designs, this option disables the standard data reporting that indicates
+  whether netlist resources are in static or reconfigurable regions.
+
+  -no_pblock - (Optional) Does not report the Pblock information when there
+  are some Pblocks on the path.
+
+  -routable_nets - (Optional) Reports the number of routable nets traversed
+  as a property of the timing paths returned.
+
+  -slack_lesser_than <arg> - (Optional) Reports timing on paths with a
+  calculated slack value less than the specified value.
+
+  -report_unconstrained - (Optional) Reports timing on unconstrained paths in
+  the current design. By default, the report_timing_summary command does not
+  include unconstrained timing paths.
+
+  Tip: In the Vivado IDE, enable this option to report the User Ignored Paths
+  in the Timing report.
+
+  -significant_digits <arg> - (Optional) Specifies the number of significant
+  digits in the output results. The valid range is 0 to 3. The default
+  setting is 3 significant digits.
+
+  -no_header - (Optional) Does not add header information to the report. This
+  is useful when returning the timing summary report to a string for further
+  processing.
+
+  -file <arg> - (Optional) Write the report into the specified file. This
+  options overwrites the existing file unless -append is specified.
+
+  Note: If you do not specify the path, the tool searches for the specified
+  file in the current working directory and then in the launch directory.
+
+  -append - (Optional) Appends the output of the command to the specified
+  file rather than overwriting it.
+
+  Note: The -append option is used with the -file option only.
+
+  -name <arg> - (Optional) Specifies the name of the results set for the GUI.
+  Using delete_timing_results command deletes the Timing summary reports in
+  the GUI.
+
+  -return_string - (Optional) Directs the output to a Tcl string rather than
+  to the standard output. A variable definition captures the Tcl string,
+  parses, or processes as required.
+
+  Note: This argument cannot be used with the -file option.
+
+  -warn_on_violation - (Optional) Specifies that Vivado Design Suite
+  generates Critical Warning when the timing report contains a timing
+  violation.
+
+  -datasheet - (Optional) Generates data sheet information to add to the
+  summary report.
+
+  -cells <arg> - (Option) Generates the timing summary report on the
+  specified hierarchical cells. The report details are based on the specified
+  cells rather than the whole design.
+
+  -rpx <arg> - (Optional) Specifies the file name and path of the report file
+  (RPX) to write. This is different from writing the report results to a file
+  using the -file argument. An RPX file stores all the report information as
+  an interactive report and lets you reload into the Vivado Design Suite
+  using the open_report command. You must add a .rpx file extension to the
+  specified file name, as the Vivado tool does not automatically assign a
+  file extension.
+
+  Note: If you do not specify the path, the tool searches for the specified
+  file in the current working directory and then in the launch directory.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example reports the timing summary of the current design:
+
+    report_timing_summary
+
+  The following example reports the hold timing summary of the current
+  design, including unconstrained paths, with the specified options:
+
+    report_timing_summary -delay_type min -path_type full_clock_expanded \
+       -report_unconstrained -max_paths 2 -nworst 1 -significant_digits 2 \
+       -input_pins -name {timing_6}
+
+  The following example reports the timing summary of only the paths with
+  datapath crossing SLRs:
+
+    report_timing -inter_slr data_crossing
+
+See Also:
+
+   *  check_timing
+   *  create_clock
+   *  create_generated_clock
+   *  delete_timing_results
+   *  get_path_groups
+   *  get_timing_paths
+   *  group_path
+   *  open_report
+   *  report_clocks
+   *  report_timing
+   *  set_msg_config
+   *  report_datasheet
+
+get_timing_paths
+
+Description: 
+Get timing paths
+
+Syntax: 
+get_timing_paths  [-from <args>] [-rise_from <args>] [-fall_from <args>]
+                  [-to <args>] [-rise_to <args>] [-fall_to <args>]
+                  [-through <args>] [-rise_through <args>]
+                  [-fall_through <args>] [-delay_type <arg>] [-setup] [-hold]
+                  [-max_paths <arg>] [-nworst <arg>] [-unique_pins]
+                  [-slack_lesser_than <arg>] [-slack_greater_than <arg>]
+                  [-group <args>] [-no_report_unconstrained] [-user_ignored]
+                  [-routable_nets] [-inter_slr <arg>] [-sort_by <arg>]
+                  [-filter <arg>] [-regexp] [-nocase] [-cell <args>] [-quiet]
+                  [-verbose]
+
+Usage: 
+  Name                        Description
+  ---------------------------------------
+  [-from]                     From pins, ports, cells or clocks
+  [-rise_from]                Rising from pins, ports, cells or clocks
+  [-fall_from]                Falling from pins, ports, cells  or clocks
+  [-to]                       To pins, ports, cells or clocks
+  [-rise_to]                  Rising to pins, ports, cells or clocks
+  [-fall_to]                  Falling to pins, ports, cells or clocks
+  [-through]                  Through pins, ports, cells or nets
+  [-rise_through]             Rising through pins, ports, cells or nets
+  [-fall_through]             Falling through pins, ports, cells or nets
+  [-delay_type]               Type of path delay: Values: max, min, min_max, 
+                              max_rise, max_fall, min_rise, min_fall
+                              Default: max
+  [-setup]                    Get max delay timing paths (equivalent to 
+                              -delay_type max)
+  [-hold]                     Get min delay timing paths (equivalent to 
+                              -delay_type min)
+  [-max_paths]                Maximum number of paths to return: Value >=1
+                              Default: 1
+  [-nworst]                   List N worst paths to endpoint: Value >=1
+                              Default: 1
+  [-unique_pins]              for each unique set of pins, show at most 1 
+                              path per path group
+  [-slack_lesser_than]        Include paths with slack less than this
+                              Default: 1e+30
+  [-slack_greater_than]       Include paths with slack greater than this
+                              Default: -1e+30
+  [-group]                    Limit paths in this group(s)
+  [-no_report_unconstrained]  Do not get unconstrained paths
+  [-user_ignored]             only report paths which have infinite slack 
+                              because of set_false_path or set_clock_groups 
+                              timing constraints
+  [-routable_nets]            store the number of routable nets traversed as 
+                              a property on timing paths.
+  [-inter_slr]                report timing paths crossing between SLRs: 
+                              Values: any_crossing, data_crossing, 
+                              only_data_crossing, clock_crossing, no_crossing
+  [-sort_by]                  Sorting order of paths: Values: group, slack
+                              Default: slack
+  [-filter]                   Filter list with expression
+  [-regexp]                   Patterns specified in filter are full regular 
+                              expressions
+  [-nocase]                   Perform case-insensitive matching for patterns 
+                              specified in filter (valid only when -regexp 
+                              specified)
+  [-cell]                     run get_timing_paths on the cell
+  [-quiet]                    Ignore command errors
+  [-verbose]                  Suspend message limits during command execution
+
+Categories: 
+Object, Timing
+
+Description:
+
+  Gets timing path objects that meet the specified criteria. It predefines
+  timing paths to pass to the report_timing command for instance and creates
+  custom reporting and analysis.
+
+  The get_timing_paths command is very similar to the report_timing command.
+  However, get_timing_paths returns timing path objects to query for
+  properties, or passes to other Tcl commands for processing, where
+  report_timing returns a file or a string.
+
+  Note: To improve memory and performance, the get_* commands return a
+  container list of a single type of objects (for example, cells, nets, pins,
+  or ports). You can add new objects to the list (using lappend for instance),
+  but you can only add the same type of object that is currently in the list.
+  Adding a different type of object, or string, to the list is not permitted
+  and results in a Tcl error.
+
+Arguments:
+
+  -from <args> - (Optional) Defines the starting points of the timing paths
+  to run the analysis. You can specify ports, pins, or cells can be specified
+  as timing path startpoints. For a clock object, it analyzes all startpoints
+  clocked by the named clock.
+
+  -rise_from <args> - (Optional) Similar to the -from option, but considers
+  only the rising edge of signals from the startpoints. For a clock
+  object, it analyzes only the paths launched by the rising edge of the clock
+  as startpoints.
+
+  -fall_from <args> - (Optional) Similar to the -from option, but considers
+  only the falling edge of signals from the startpoints. For a clock
+  object, it analyzes only the paths launched by the falling edge of the
+  clock are considered as startpoints.
+
+  -to <args> - (Optional) Specifies the endpoints or destination objects of
+  timing paths to run the analysis.You can specify ports, pins, and cell
+  objects as endpoints. For a clock object, it analyzes endpoints clocked by
+  the named clock.
+
+  -rise_to <args> - (Optional) Similar to the -to option, but considers only
+  the rising edge of signals to the endpoints. For a clock object, it
+  analyzes only the paths captured by the rising edge of the named clock as
+  endpoints.
+
+  -fall_to <args> - (Optional) Similar to the -to option, but considers only
+  the falling edge of signals to the endpoints. For a clock object, it 
+  analyzes only the paths captured by the falling edge of the named clock as 
+  endpoints.
+
+  -through <args> - (Optional) Considers paths through the specified pins,
+  cell instance, or nets only for timing analysis. You can specify individual
+  -through (or -rise_through and -fall_through ) points in sequence to define
+  a specific path through the design for analysis. The order of the specified
+  through points is important to define a specific path. You can also specify
+  through points with multiple objects, in which case the timing path passes
+  through any of the specified through objects.
+
+  -rise_through <args> - (Optional) Similar to the -through option, but it
+  performs timing analysis on paths with a rising transition at the specified
+  objects.
+
+  -fall_through <args> - (Optional) Similar to the -through option, but it
+  performs timing analysis on paths with a falling transition at the
+  specified objects.
+
+  -delay_type <arg> - (Optional) Specifies the type of delay to analyze when
+  running the timing report. The valid values are min, max, min_max,
+  max_rise, max_fall, min_rise, min_fall. The default setting for -delay_type
+  is max.
+
+  -setup - (Optional) Checks for setup violations. This is same as
+  specifying -delay_type max.
+
+  -hold - (Optional) Checks for hold violations. This is same as
+  specifying -delay_type min.
+
+  Note: You can specify -setup and -hold together, which is same as
+  specifying -delay_type min_max.
+
+  -max_paths <arg> - (Optional) The maximum number of paths to output when
+  sorted by slack; or the maximum number of paths per path group when sorted
+  by group, as specified by -sort_by. The value must be greater than or equal
+  to 1. The default value is 1 and returns the single worst timing path or
+  the worst path per group.
+
+  -nworst <arg> - (Optional) The number of timing paths to show to each
+  endpoint. The timing report shows the N worst paths based on the specified
+  value. The value must be greater than or equal to 1. The default setting is
+  1.
+
+  -unique_pins - (Optional) Shows only one timing path per each unique pin or
+  group of pins. This is a boolean option, enabled by the use.
+
+  -inter_slr <args> - (Optional) Reports the timing paths based on their
+  SLR-crossing characteristics. Ensure to specify one of the following
+  values: any_crossing, data_crossing, clock_crossing, or no_crossing.
+
+  -routable_nets - (Optional) Reports the number of routable nets traversed
+  as a property of the returned timing paths.
+
+  -slack_greater_than <arg> - (Optional) Reports timing on paths with a
+  calculated slack value greater than the specified value. Provides a range
+  of slack values of specific interest with -slack_lesser_than.
+
+  -slack_lesser_than <arg> - (Optional) Reports timing on paths with a
+  calculated slack value less than the specified value. Provides a range of
+  slack values of specific interest with -slack_greater_than.
+
+  -group <args> - (Optional) Reports timing for paths in the specified path
+  groups.
+
+  -no_report_unconstrained - (Optional) Does not report timing on
+  unconstrained paths.
+
+  -user_ignored - (Optional) Shows the timing paths that are ignored during
+  timing analysis because the user has specified set_false_path or
+  set_clock_groups timing constraints. This is a boolean option and enabled 
+  as per usage.
+
+  -sort_by [ slack | group ] - (Optional) Sorts timing paths by path groups
+  or by slack values. The default sort order is by slack values.
+
+  -filter <args> - (Optional) Filters the result list with the specified
+  expression. The -filter argument filters the list of objects returned by
+  get_timing_paths based on property values on the timing paths. You can find
+  the properties on an object with the report_property or list_property
+  commands. For timing path object, properties "DATAPATH_DELAY",
+  "ENDPOINT_PIN" and "ENDPOINT_CLOCK" filters result.
+
+  The filter search pattern should be quoted to avoid having to escape
+  special characters. String matching is case-sensitive and is always
+  anchored to the start and to the end of the search string. The wildcard "*"
+  character can be used at the beginning or at the end of a search string to
+  widen the search to include a substring of the property value.
+
+  Note: The filter returns an object if a specified property exists on the
+  object, and the specified pattern matches the property value on the object.
+  In the case of the "*" wildcard character, this will match a property with
+  a defined value of "".
+
+  The following example gets the first 100 most critical timing paths objects
+  and returns only those from the path group clk_tx_clk_core_1:
+
+    get_timing_paths -max_paths 100 -filter {GROUP == clk_tx_clk_core_1}
+
+  For string comparison, the specific operators that can be used in filter
+  expressions are "equal" (==), "not-equal" (!=), "match" (=~), and
+  "not-match" (!~). Numeric comparison operators <, >, <=, and >= can also be
+  used. Multiple filter expressions can be joined by AND and OR (&& and ||).
+  The following gets input pins that do NOT contain the "RESET" substring
+  within their name:
+
+    get_pins * -filter {DIRECTION == IN && NAME !~ "*RESET*"}
+
+  Boolean (bool) type properties can be directly evaluated in filter
+  expressions as true or not true:
+
+    -filter {IS_PRIMITIVE && !IS_LOC_FIXED}
+
+  -regexp - (Optional) Specifies that the search <patterns> are written as
+  regular expressions. Both search <patterns> and -filter expressions must be
+  written as regular expressions when this argument is used. AMD regular
+  expression Tcl commands are always anchored to the start of the search
+  string. You can add ".*" to the beginning or end of a search string to
+  widen the search to include a substring. See
+  http://perldoc.perl.org/perlre.html for help with regular expression
+  syntax.
+
+  Note: The Tcl built-in command regexp is not anchored, and works as a
+  standard Tcl command. For more information refer to
+  http://www.tcl.tk/man/tcl8.5/TclCmd/regexp.htm.
+
+  -nocase - (Optional) Performs case-insensitive matching when a pattern has
+  been specified. This argument applies to the use of -regexp only.
+
+  -cell <arg> - (Optional) Applies the get_timing_paths command to the
+  specified cell. You can specify the cells by name or as an object returned
+  by the get_cells command.
+
+  -quiet - (Optional) Executes the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example gets the five worst timing paths from the specified
+  endpoint and reports all the properties of the fourth timing path in the
+  list:
+
+    report_property -all [lindex [get_timing_paths -to [get_ports led_pins[*]]\
+    -nworst 5] 3]
+
+  The following example defines a procedure called custom_report and report
+  the 100 worst paths from the clk_tx_clk_core_1 path group:
+
+    proc custom_report { listOfPaths } {
+       puts [format {%-40s %-40s %-20s %-20s %7s} "Startpoint" "Endpoint" \
+          "Launch Clock" "Capture Clock" "Slack"]
+       puts [string repeat "-" 140]
+       foreach path $listOfPaths {
+          set startpoint [get_property STARTPOINT_PIN $path]
+          set startclock [get_property STARTPOINT_CLOCK $path]
+          set endpoint [get_property ENDPOINT_PIN $path]
+          set endclock [get_property ENDPOINT_CLOCK $path]
+          set slack [get_property SLACK $path]
+          puts [format {%-40s %-40s %-20s %-20s %7s} $startpoint $endpoint \
+             $startclock $endclock $slack]
+       }
+    }
+    set paths [get_timing_paths -group clk_tx_clk_core_1 -max_paths 100]\
+    custom_report $paths
+
+  The following example uses get_timing_paths to perform a timing analysis on
+  the specified paths:
+
+    set paths [get_timing_paths -group clk_tx_clk_core_1 -max_paths 100]
+    report_timing -of_objects $paths
+
+  The following example is the equivalent of:
+
+    report_timing -group clk_tx_clk_core_1 -max_paths 100
+
+  The following example returns timing paths where the logic levels are
+  greater than the specified number of logic levels.
+
+    get_timing_paths -max_paths 1000 -filter {LOGIC_LEVELS > 1}
+
+  The following example returns the number of SLR crossings in the worst
+  setup path with the datapath crossing SLRs:
+
+    get_property SLR_CROSSINGS [get_timing_path -inter_slr data_crossing]
+
+See Also:
+
+   *  report_property
+   *  report_timing
+
+report_operating_conditions
+
+Description: 
+Get operating conditions values for power estimation
+
+Syntax: 
+report_operating_conditions  [-voltage <args>] [-voltage_range <args>] [-grade]
+                             [-process] [-junction_temp] [-ambient_temp]
+                             [-thetaja] [-thetasa] [-airflow] [-heatsink]
+                             [-thetajb] [-board] [-board_temp] [-board_layers]
+                             [-design_power_budget] [-all] [-file <arg>]
+                             [-return_string] [-append]
+                             [-supply_current_budget <args>] [-quiet]
+                             [-verbose]
+
+Usage: 
+  Name                      Description
+  -------------------------------------
+  [-voltage]                Gets voltage value.  Supported voltage supplies 
+                            vary by family.
+  [-voltage_range]          Gets voltage range.  Supported voltage supplies 
+                            vary by family.
+  [-grade]                  Temperature grade.  Supported values vary by 
+                            family.
+  [-process]                Gets process
+  [-junction_temp]          Junction Temperature (C): auto|degC
+  [-ambient_temp]           Ambient Temperature (C): default|degC
+  [-thetaja]                ThetaJA (C/W): auto|degC/W
+  [-thetasa]                Gets ThetaSA
+  [-airflow]                Airflow (LFM): 0 to 750
+  [-heatsink]               Gets dimensions of heatsink
+  [-thetajb]                Gets ThetaJB
+  [-board]                  Board type: jedec, small, medium, large, custom
+  [-board_temp]             Board Temperature degC
+  [-board_layers]           Board layers: 4to7, 8to11, 12to15, 16+
+  [-design_power_budget]    Design Power Budget (W)
+  [-all]                    Gets all operating conditions listed in this help
+                            message
+  [-file]                   Filename to output results to. (send output to 
+                            console if -file is not used)
+  [-return_string]          Return operating conditions as string
+  [-append]                 Append operating conditions to end of file
+  [-supply_current_budget]  Reports a list of supply current budget 'name 
+                            value' pairs.  Supported voltage supplies vary by
+                            family.
+  [-quiet]                  Ignore command errors
+  [-verbose]                Suspend message limits during command execution
+
+Categories: 
+Report
+
+Description:
+
+  Displays the real-world operating conditions that are used when performing
+  analysis of the design. The reported values of operating conditions can be
+  defined by the set_operating_conditions command.
+
+  The environmental operating conditions of the device are used for power
+  analysis when running the report_power command, but are not used during
+  timing analysis.
+
+  Note: By default the report is written to the Tcl console or STD output.
+  However, the results can also be written to a file or returned as a string
+  if desired.
+
+Arguments:
+
+  -voltage - (Optional) Report the list of voltage pairs. Supported voltage
+  supplies vary by family.
+
+  -voltage_range - (Optional) Report the list of voltage ranges. Supported
+  voltage supplies vary by family.
+
+  -grade - (Optional) Report the temperature grade of the target device
+
+  -process - (Optional) Report the manufacturing process characteristics to
+  be assumed.
+
+  -junction_temp - (Optional) Report the device junction temperature used for
+  modeling
+
+  -ambient_temp - (Optional) Reports the environment ambient temperature
+
+  -thetaja - (Optional) Report the Theta-JA thermal resistance used for
+  modeling
+
+  -thetasa - (Optional) Report the Theta-SA thermal resistance used for
+  modeling
+
+  -airflow - (Optional) Report the Linear Feet Per Minute (LFM) airflow to be
+  used for modeling.
+
+  -heatsink - (Optional) Report the heatsink type to be used for modeling.
+
+  -thetajb - (Optional) Report the Theta-JB thermal resistance used for
+  modeling
+
+  -board - (Optional) Report the board size to be used for modeling.
+
+  -board_temp - (Optional) Report the board temperature in degrees Centigrade
+  to be used for modeling.
+
+  -board_layers - (Optional) Report the number of board layers to be used for
+  modeling
+
+  -design_power_budget - (Optional) Report the design power budget in Watts.
+  This value is used by the report_power command to report the difference
+  between the calculated on-chip power and the design power budget.
+
+  -all - (Optional) Report the current values of all operating conditions.
+  Use this to avoid having to report each condition separately.
+
+  -file <arg> - (Optional) Write the report into the specified file. This
+  will overwrite an existing file of the same name, unless the -append option
+  is also used.
+
+  Note: If the path is not specified as part of the file name, the file will
+  be written into the current working directory, or the directory from which
+  the tool was launched.
+
+  -append - (Optional) Append the output of the command to the specified file
+  rather than overwriting it.
+
+  Note: The -append option can only be used with the -file option.
+
+  -return_string - (Optional) Directs the output to a Tcl string rather than
+  to the standard output. The Tcl string can be captured by a variable
+  definition and parsed or otherwise processed.
+
+  Note: This argument cannot be used with the -file option.
+
+  -supply_current_budget - (Optional) Report the list of supply name and
+  current budget pairs. Supported voltage supplies vary by family.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  Specify an industrial temperature grade device with an ambient temperature
+  of 75 degrees C and then write those settings to a file on disk.
+
+    set_operating_conditions -grade industrial -junction_temp 75  
+    report_operating_conditions -grade -junction_temp -return_string -file \  
+    ~/conditions.txt 
+    
+
+  Get voltage ranges of VCCINT and VCCAUX for the target device.
+
+    report_operating_conditions -voltage_range {VCCINT VCCAUX}
+
+See Also:
+
+   *  set_operating_conditions
+
+report_cdc
+
+Description: 
+Report the clock domain crossing (CDC) paths in the current design.
+
+Syntax: 
+report_cdc  [-from <args>] [-to <args>] [-cells <args>] [-details] [-summary]
+            [-all_checks_per_endpoint] [-severity <arg>] [-no_header]
+            [-show_waiver] [-no_waiver] [-waived] [-file <arg>] [-append]
+            [-return_string] [-name <arg>] [-quiet] [-verbose]
+
+Usage: 
+  Name                        Description
+  ---------------------------------------
+  [-from]                     From clocks
+  [-to]                       To clocks
+  [-cells]                    Run report_cdc on the cells
+  [-details]                  Report the detail of the CDC timing paths not 
+                              safely timed
+  [-summary]                  Report a summary by clocks of the CDC
+  [-all_checks_per_endpoint]  Report all checks per endpoint
+  [-severity]                 Report only the severity specified (Info, 
+                              Warning or Critical)
+  [-no_header]                Do not generate a report header
+  [-show_waiver]              Show the waived paths
+  [-no_waiver]                Ignore the waiver
+  [-waived]                   Show only the waived paths
+  [-file]                     Filename to output results to. (send output to 
+                              console if -file is not used)
+  [-append]                   Append the results to file, don't overwrite the
+                              results file
+  [-return_string]            Return report as string
+  [-name]                     Output the results to GUI panel with this name
+  [-quiet]                    Ignore command errors
+  [-verbose]                  Suspend message limits during command execution
+
+Categories: 
+Report, Timing
+
+Description:
+
+  This report shows in detail the clock domain crossing (CDC) paths in the
+  current synthesized or implemented design. The command analyzes paths
+  between asynchronous clocks, or clocks with no common period, as well as
+  synchronous paths ignored by the user due to false path or max delay
+  datapath_only exceptions.
+
+  By default the report_cdc command reports domain crossing between all
+  clocks in the design. However, you can limit the clocks of interest using
+  the -from and -to options to specify the clock domains of interest.
+
+  The report_cdc command only reports on paths where both source and
+  destination clocks are defined. You should run the check_timing command
+  prior to report_cdc to ensure that there are no unconstrained clocks in the
+  design. I/O paths are only covered by report_cdc when input or output delay
+  constraints have been specified on the I/O ports.
+
+  The severity of the path report could be Critical, Warning or Info
+  depending on the CDC topology identified. An unknown synchronization
+  topology is Critical and needs to be reviewed. A double register
+  synchronizer with missing ASYNC_REG property is a Warning. Clock Enable,
+  MUX, and MUX Hold CDC structures are categorized as Warnings because you
+  should check to ensure that the structure is safe. Other CDC paths are of
+  severity Info.
+
+  The report_cdc command returns the following information:
+
+   *  Severity
+
+   *  Source Clock
+
+   *  Destination Clock
+
+   *  CDC Type
+
+   *  Exceptions
+
+   *  Endpoints
+
+   *  Safe
+
+   *  Unknown
+
+   *  No ASYNC_REG property
+
+  Important: You cannot use the set_msg_config command to configure the
+  severity of messages returned by the report_cdc command. This command does
+  not generate messages through the message manager.
+
+Arguments:
+
+  -from <args> - (Optional) Report clock domain crossing from the specified
+  clock domain. Clocks can be specified by name or as returned by the
+  get_clocks command.
+
+  -to <args> - (Optional) Report clock domain crossing into the specified
+  clock domain. Clocks can be specified by name or as returned by the
+  get_clocks command.
+
+  -cells <arg> - (Option) Generate the report on the specified hierarchical
+  cells. The details of the report will be based on the specified cells
+  rather than the whole design.
+
+  -details - (Optional) Provide a detailed report on the timing paths. The
+  detailed report lists a summary table of the CDC paths, and then lists
+  details of the source/destination clock, and the CDC paths for each clock
+  pair.
+
+  -summary - (Optional) This is the default report returned for the design.
+  The summary report generates a table with a message severity, the
+  source/destination clock pair, safe CDC, and unknown or unrecognized CDC,
+  and the number of path endpoints.
+
+  -all_checks_per_endpoint - (Optional) Report all violations for each
+  endpoint of a CDC path, instead of only reporting the most critical
+  violation per endpoint. This option works with the -severity option to
+  report all violations per endpoint, of the specified severity.
+
+  -severity [ Critical | Warning | Info ] - (Optional) Report only the CDC
+  paths with the specified severity level.
+
+  -no_header - (Optional) Eliminate the report header from the results. This
+  can be especially useful when returning the results as a string with
+  -return_string.
+
+  -show_waiver - (Optional) Used with the -details argument, this option adds
+  the waived CDC paths to the report, and adds a "Waived" column to the
+  report to indicate which paths have been waived and which have not.
+
+  -no_waiver - (Optional) Ignore the waivers defined by the create_waivers
+  command and report all CDC paths.
+
+  -waived - (Optional) Causes only the CDC paths waived by the create_waiver
+  command to be reported. This returns the actual violation rather than the
+  definition of the waiver, which can be reported by the report_waivers
+  command.
+
+  -file <arg> - (Optional) Write the report into the specified file.
+
+  Note: If the path is not specified as part of the file name, the file will
+  be written into the current working directory, or the directory from which
+  the tool was launched.
+
+  -append - (Optional) Append the output of the command to the specified file
+  rather than overwriting it.
+
+  Note: The -append option can only be used with the -file option.
+
+  -return_string - (Optional) Directs the output to a Tcl string rather than
+  to the standard output. The Tcl string can be captured by a variable
+  definition and parsed or otherwise processed.
+
+  Note: This argument cannot be used with the -file option.
+
+  -name <arg> - (Optional) The name of the Clock Domain Crossing report view
+  to display in the AMD Vivado IDE when run in GUI mode. If the name has
+  already been used in an open report view, that view will be closed and a
+  new report opened.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example reports the clock domain crossings in the current
+  design, including any waived paths, using a verbose report form, and saving
+  the results to a file:
+
+    report_cdc -details -show_waiver -file C:/Data/cdc_report.txt
+
+  The following example reports the clock domain crossings from a clock
+  specified by name, to another specified as a clock object:
+
+    report_cdc -from clk_pin_p -to [get_clocks clk_rx_clk_core]
+
+See Also:
+
+   *  all_clocks
+   *  create_clock
+   *  create_generated_clock
+   *  get_clocks
+   *  report_clock_interaction
+   *  report_clock_networks
+   *  report_clocks
+   *  report_timing
+   *  report_timing_summary
+   *  set_clock_groups
+   *  set_false_path
+
+report_clock_interaction
+
+Description: 
+Report on clock timing paths and unclocked registers
+
+Syntax: 
+report_clock_interaction  [-from <args>] [-to <args>] [-delay_type <arg>]
+                          [-setup] [-hold] [-significant_digits <arg>]
+                          [-no_header] [-file <arg>] [-append] [-name <arg>]
+                          [-return_string] [-cells <args>] [-quiet] [-verbose]
+
+Usage: 
+  Name                   Description
+  ----------------------------------
+  [-from]                From clocks
+  [-to]                  To clocks
+  [-delay_type]          Type of path delay: Values: max, min, min_max
+                         Default: max
+  [-setup]               Consider max delay timing paths (equivalent to 
+                         -delay_type max)
+  [-hold]                Consider min delay timing paths (equivalent to 
+                         -delay_type min)
+  [-significant_digits]  Number of digits to display: Range: 0 to 3
+                         Default: 2
+  [-no_header]           Do not generate a report header
+  [-file]                Filename to output results to. (send output to 
+                         console if -file is not used)
+  [-append]              Append the results to file, don't overwrite the 
+                         results file
+  [-name]                Output the results to GUI panel with this name
+  [-return_string]       Return report as string
+  [-cells]               Run report_clock_interaction on the specified 
+                         cell(s)
+  [-quiet]               Ignore command errors
+  [-verbose]             Suspend message limits during command execution
+
+Categories: 
+Report, Timing
+
+Description:
+
+  Reports clock interactions and signals that cross clock domains to identify
+  potential problems such a metastability, or data loss, or incoherency,
+  where some visibility into the paths that cross clock domains is
+  beneficial. This command requires an open synthesized or implemented
+  design.
+
+  Note: By default the report is written to the Tcl console or STD output.
+  However, the results can also be written to a file or returned as a string
+  if desired.
+
+Arguments:
+
+  -from <args> - (Optional) The source clocks of the clock pairs relationship
+  between which the clock interactions should be analyzed. You can specify
+  clock names or clock objects.
+
+  -to <args> - (Optional) The destination clocks of the clock pairs
+  relationship between which the clock interactions should be analyzed. You
+  can specify clock names or clock objects.
+
+  -delay_type <arg> - (Optional) Specifies the type of delay to analyze when
+  running the clock interaction report. The valid values are min, max, and
+  min_max. The default setting for -delay_type is max.
+
+  -setup - (Optional) Check for setup violations. This is the same as
+  specifying -delay_type max.
+
+  -hold - (Optional) Check for hold violations. This is the same as
+  specifying -delay_type min.
+
+  Note: -setup and -hold can be specified together, which is the same as
+  specifying -delay_type min_max.
+
+  -significant_digits <arg> - (Optional) The number of significant digits in
+  the output results. The valid range is 0 to 3. The default setting is 2
+  significant digits.
+
+  -no_header - (Optional) Do not write a header to the report.
+
+  -file <arg> - (Optional) Write the report into the specified file. Unless
+  you also specify -append, the specified file will be overwritten if it
+  already exists.
+
+  Note: If the path is not specified as part of the file name, the file will
+  be written into the current working directory, or the directory from which
+  the tool was launched.
+
+  -append - (Optional) Append the output of the command to the specified file
+  rather than overwriting it.
+
+  Note: The -append option can only be used with the -file option.
+
+  -name <arg> - (Optional) The name of the Clock Interaction Report view to
+  display in the tool GUI mode. If the name has already been used in an open
+  Report view, that view will be closed and a new report opened.
+
+  -return_string - (Optional) Directs the output to a Tcl string rather than
+  to the standard output. The Tcl string can be captured by a variable
+  definition and parsed or otherwise processed.
+
+  Note: This argument cannot be used with the -file option.
+
+  -cells <arg> - (Option) Generate the report for the specified hierarchical
+  cells. The details of the report will be based on the specified cells
+  rather than the whole design.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example sets the model for interconnect delay, selects a
+  device speed grade, and then runs report_clock_interaction:
+
+    set_delay_model -interconnect none  
+    set_speed_grade -3  
+    report_clock_interaction -delay_type min_max \  
+       -significant_digits 3 -name "results_1" 
+
+  The following example returns the clock interactions, writing the report to
+  the GUI, to the specified file, and returns a string which is assigned to
+  the specified variable:
+
+    set clk_int [report_clock_interaction -file clk_int.txt -name clk_int1 \  
+    -return_string] 
+
+See Also:
+
+   *  create_clock
+   *  create_generated_clock
+   *  report_clocks
+   *  set_delay_model
+   *  set_speed_grade
+
+report_timing
+
+Description: 
+Report timing paths
+
+Syntax: 
+report_timing  [-from <args>] [-rise_from <args>] [-fall_from <args>]
+               [-to <args>] [-rise_to <args>] [-fall_to <args>]
+               [-through <args>] [-rise_through <args>] [-fall_through <args>]
+               [-delay_type <arg>] [-setup] [-hold] [-max_paths <arg>]
+               [-nworst <arg>] [-unique_pins] [-path_type <arg>] [-input_pins]
+               [-no_header] [-no_reused_label] [-slack_lesser_than <arg>]
+               [-slack_greater_than <arg>] [-group <args>] [-sort_by <arg>]
+               [-no_report_unconstrained] [-user_ignored] [-of_objects <args>]
+               [-significant_digits <arg>] [-column_style <arg>] [-file <arg>]
+               [-append] [-name <arg>] [-no_pr_attribute] [-no_pblock]
+               [-routable_nets] [-inter_slr <arg>] [-return_string]
+               [-warn_on_violation] [-cells <args>] [-rpx <arg>] [-quiet]
+               [-verbose]
+
+Usage: 
+  Name                        Description
+  ---------------------------------------
+  [-from]                     From pins, ports, cells or clocks
+  [-rise_from]                Rising from pins, ports, cells or clocks
+  [-fall_from]                Falling from pins, ports, cells  or clocks
+  [-to]                       To pins, ports, cells or clocks
+  [-rise_to]                  Rising to pins, ports, cells or clocks
+  [-fall_to]                  Falling to pins, ports, cells or clocks
+  [-through]                  Through pins, ports, cells or nets
+  [-rise_through]             Rising through pins, ports, cells or nets
+  [-fall_through]             Falling through pins, ports, cells or nets
+  [-delay_type]               Type of path delay: Values: max, min, min_max, 
+                              max_rise, max_fall, min_rise, min_fall
+                              Default: max
+  [-setup]                    Report max delay timing paths (equivalent to 
+                              -delay_type max)
+  [-hold]                     Report min delay timing paths (equivalent to 
+                              -delay_type min)
+  [-max_paths]                Maximum number of paths to output when sorted 
+                              by slack, or per path group when sorted by 
+                              group: Value >=1
+                              Default: 1
+  [-nworst]                   List up to N worst paths to endpoint: Value >=1
+                              Default: 1
+  [-unique_pins]              For each unique set of pins, show at most 1 
+                              path per path group
+  [-path_type]                Format for path report: Values: end, summary, 
+                              short, full, full_clock, full_clock_expanded
+                              Default: full_clock_expanded
+  [-input_pins]               Show input pins in path
+  [-no_header]                Do not generate a report header
+  [-no_reused_label]          Do not label reuse status on pins in the report
+  [-slack_lesser_than]        Display paths with slack less than this
+                              Default: 1e+30
+  [-slack_greater_than]       Display paths with slack greater than this
+                              Default: -1e+30
+  [-group]                    Limit report to paths in this group(s)
+  [-sort_by]                  Sorting order of paths: Values: group, slack
+                              Default: slack
+  [-no_report_unconstrained]  Do not report infinite slack paths
+  [-user_ignored]             Only report paths which have infinite slack 
+                              because of set_false_path or set_clock_groups 
+                              timing constraints
+  [-of_objects]               Report timing for these paths
+  [-significant_digits]       Number of digits to display: Range: 0 to 3
+                              Default: 3
+  [-column_style]             Style for path report columns: Values: 
+                              variable_width, anchor_left, fixed_width
+                              Default: anchor_left
+  [-file]                     Filename to output results to. (send output to 
+                              console if -file is not used)
+  [-append]                   Append the results to file, don't overwrite the
+                              results file
+  [-name]                     Output the results to GUI panel with this name
+  [-no_pr_attribute]          For Dynamic Function eXchange designs, do not 
+                              report whether netlist resources are in the 
+                              static or reconfigurable regions
+  [-no_pblock]                Report timing without pblock column
+  [-routable_nets]            Store the number of routable nets traversed as 
+                              a property on timing paths.
+  [-inter_slr]                Report timing paths crossing between SLRs: 
+                              Values: any_crossing, data_crossing, 
+                              only_data_crossing, clock_crossing, no_crossing
+  [-return_string]            Return report as string
+  [-warn_on_violation]        Issue a critical warning when the report 
+                              contains a timing violation
+  [-cells]                    Run report_timing on the specified cell(s)
+  [-rpx]                      Filename to output interactive results to.
+  [-quiet]                    Ignore command errors
+  [-verbose]                  Suspend message limits during command execution
+
+Categories: 
+Report, Timing
+
+Description:
+
+  This command performs timing analysis on the specified timing paths of the
+  current Synthesized or Implemented Design. By default, the tool reports the
+  timing path with the worst calculated slack within each path group.
+  However, you can optionally increase the number of paths and delays
+  reported with the use of the -nworst or -max_paths arguments.
+
+  Important: If the design has no timing constraints, report_timing reports
+  on unconstrained paths in the design. However, if even one path has timing
+  constraints then report_timing only reports on the constrained paths in the
+  design, unless -from/-to options specifies unconstrained timing paths.
+
+  Tip: The report_timing allows multi-threading to speed the process. Refer
+  to the set_param command for more information on setting the
+  general.maxThreads parameter.
+
+  The timing engine runs in "quad" timing mode, analyzing minimum and maximum
+  delays for both slow and fast corners. You can configure the type of
+  analysis performed by the config_timing_corners command. Changing the
+  default value is not recommended as it reduces timing analysis coverage.
+
+  Note: By default, the report is generated in the Tcl console or STD output.
+  You can also generate the report to the GUI, to a file, or as a string.
+
+Arguments:
+
+  -from <args> - (Optional) Specifies starting points of the timing paths to
+  run the analysis. You can specify ports, pins, or cells as timing path
+  startpoints. For clock object, it analyzes all startpoints clocked by the
+  named clock.
+
+  -rise_from <args> - (Optional) Similar to the -from option, but it
+  considers the rising edge of signals from the startpoints. For a clock
+  object, it considers only the paths launched by the rising edge of the
+  clock as startpoints.
+
+  -fall_from <args> - (Optional) Similar to the -from option, but it
+  considers only the falling edge of signals coming from the startpoints for
+  timing analysis. For a clock object, it considers only the paths launched
+  by the falling edge of the clock as startpoints.
+
+  -to <args> - (Optional) Specifes endpoints or destination objects of timing
+  paths to run the analysis. You can specify ports, pins, and cell objects as
+  endpoints. For a clock object, it analyzes all endpoints clocked by the
+  named clock.
+
+  -rise_to <args> - (Optional) Similar to the -to option, but it considers
+  only the rising edge of signals going to the endpoints. For a clock object,
+  it considers only the paths captured by the rising edge of the named clock
+  as endpoints.
+
+  -fall_to <args> - (Optional) Similar to the -to option, but it considers 
+  only the falling edge of signals going to the endpoints. For a clock object,
+  it considers only the paths captured by the falling edge of the named clock 
+  as endpoints.
+
+  -through <args> - (Optional) Considers only paths through the specified
+  pins, cell instance, or nets during timing analysis. You can specify
+  individual -through (or -rise_through and -fall_through) points in sequence
+  to define a specific path through the design for analysis. The order of the
+  specified through points is important to define a specific path. You can
+  also specify through points with multiple objects, in which case the timing
+  path passes through any of the specified objects.
+
+  -rise_through <args> - (Optional) Similar to the -through option, but
+  performs timing analysis only on the paths with a rising transition at the
+  specified objects.
+
+  -fall_through <args> - (Optional) Similar to the -through option, but
+  performs timing analysis only on the paths with a falling transition at the
+  specified objects.
+
+  -delay_type <arg> - (Optional) Specifies the type of delay to analyze when
+  running the timing report. The valid values are min, max, min_max,
+  max_rise, max_fall, min_rise, min_fall. The default value for -delay_type
+  is max.
+
+  -setup - (Optional) Check for setup violations. This is same as specifying
+  -delay_type max.
+
+  -hold - (Optional) Check for hold violations. This is same as specifying
+  -delay_type min.
+
+  Tip: -setup and -hold can be specified together, which is the same as
+  specifying -delay_type min_max.
+
+  -max_paths <arg> - (Optional) The maximum number of paths to output when
+  sorted by slack; or maximum number of paths per path group when sorted by
+  group, as specified by -sort_by. The value must be greater than or equal to
+  1. By default, the report_timing command reports the single worst timing
+  path, or the worst path per path group.
+
+  -nworst <arg> - (Optional) The number of timing paths per endpoint to
+  output in the timing report. The timing report returns the <N> worst paths
+  based on the specified value, greater than or equal to 1. The default
+  setting is 1.
+
+  -unique_pins - (Optional) Show only one timing path for each unique set of
+  pins.
+
+  -path_type <arg> - (Optional) Specify the path data to output in the timing
+  report. The default format is full_clock_expanded. The valid path types
+  are:
+
+   *  end - Shows the endpoint of the path only, with calculated timing values.
+
+   *  summary - Displays the startpoints and endpoints with slack calculation.
+
+   *  short - Displays the startpoints and endpoints with calculated timing
+      values.
+
+   *  full - Displays the full timing path, including startpoints, through
+      points, and endpoints.
+
+   *  full_clock - Displays full clock paths in addition to the full timing
+      path.
+
+   *  full_clock_expanded - Displays full clock paths between a master clock
+      and generated clocks in addition to the full_clock timing path. This is
+      the default setting.
+
+  -input_pins - (Optional) Show input pins in the timing path report. For use
+  with -path_type full, full_clock, and full_clock_expanded.
+
+  -no_header - (Optional) Do not write a header to the report.
+
+  -no_reused_label - (Optional) Disable the reporting of reuse information in
+  designs that use incremental place and route based on an existing design
+  checkpoint (DCP) file. Both placement and routing completes incrementally,
+  based on prior results stored in a DCP using the incremental implementation
+  flow. Refer to the read_checkpoint command, or to Vivado Design Suite User
+  Guide: Implementation (UG904) for more information on incremental place and
+  route. By default, designs using incremental place and route have pins
+  labeled with information related to the physical data reused from the
+  specified incremental checkpoint. This option removes the reuse labels
+  including the following:
+
+   *  Routing: Reuses placement and routing to this pin.
+
+   *  Placement: Reuses cell placement but does not reuse routing to this pin.
+
+   *  Moved: Reuses neither cell placement nor routing to this pin.
+
+   *  New: The cell, net, or pin is new. It does not exist in the incremental
+      checkpoint.
+
+  -slack_lesser_than <arg> - (Optional) Report timing on paths with a
+  calculated slack value less than the specified value. Used with
+  -slack_greater_than to provide a range of slack values of specific
+  interest.
+
+  -slack_greater_than <arg> - (Optional) Report timing on paths with a
+  calculated slack value greater than the specified value. Used with
+  -slack_lesser_than to provide a range of slack values of specific interest.
+
+  -group <args> - (Optional) Report timing for paths in the specified path
+  groups. Currently, get_path_groups command determines the defined path
+  groups.
+
+  Tip: Each clock creates a path group. Path groups can also be defined with
+  the group_path command. The -group option cannot be specified with
+  -of_objects, which also specifies timing path objects.
+
+  -sort_by [ slack | group ] - (Optional) Sort timing paths in the report by
+  slack values, or by path group. Valid values are slack or group. By
+  default, the report_timing command reports the worst, or -nworst, timing
+  paths in the design. However, with -sort_by group, the report_timing
+  command returns the worst, or -nworst, paths of each path group.
+
+  -no_report_unconstrained - (Optional) Do not report timing on unconstrained
+  paths. Without this option specified, the report_timing command includes
+  unconstrained paths with infinite slack.
+
+  -user_ignored - (Optional) Report only the paths that are ignored by timing
+  due to presence of set_false_path or set_clock_groups constraints.
+
+  Note: The -user_ignored and -no_report_unconstrained options are mutually
+  exclusive and cannot be specified together. The -user_ignored option is
+  also mutually exclusive with the -slack_lesser_than and -slack_greater_than
+  options.
+
+  -of_objects <args> - (Optional) Report timing on the specified timing path
+  objects. Used with the get_timing_paths command.
+
+  Tip: The -of_objects option cannot be used with the various forms of -from,
+  -to, or -through options which are also used to identify timing paths to
+  report. The -of_objects option, which defines a timing path object
+  containing a DELAY_TYPE property, cannot be used with -setup, -hold or
+  -delay_type, which all also define a delay type. The -of_objects option
+  also cannot be specified with -group, which defines groups of timing path
+  objects.
+
+  -significant_digits <arg> - (Optional) The number of significant digits in
+  the output results. The valid range is 0 to 3. The default setting is 3
+  significant digits.
+
+  -column_style [ variable_width | anchor_left | fixed_width ] - (Optional)
+  Specify the format of the timing path portion of the timing report output.
+  The default format is anchor_left.
+
+  -file <arg> - (Optional) Write the report into the specified file. The
+  command overwrites the existing file unless -append is specified.
+
+  Note: If you do not specify the path, the tool searches for the specified
+  file in the current working directory and then in the launch directory.
+
+  -append - (Optional) Appends the output of the command to the specified
+  file rather than overwriting it.
+
+  Note: The -append option is used only with the -file option.
+
+  -name <arg> - (Optional) Specifies the name of the results set for the GUI.
+
+  -no_pr_attribute <arg> - (Optional) This option disables the standard
+  reporting of the Partial Reconfiguration (PR) attribute data. For PR
+  designs, it appends the logical path to identify cells belonging either to
+  a reconfigurable partition (:RP#) or to the static region (:S).
+
+  -no_pblock - (Optional) Does not report the Pblock information when there
+  are some Pblocks on the path.
+
+  -routable_nets - (Optional) Reports the number of routable nets traversed
+  as a property of the timing paths returned.
+
+  -inter_slr <args> (Optional) Reports the timing paths based on the SLR
+  crossing characteristics. Ensure to specify one of the following values:
+  any_crossing, data_crossing, clock_crossing, or no_crossing.
+
+  -return_string - (Optional) Directs the output to a Tcl string rather than
+  to the standard output. A variable definition captures the Tcl string,
+  parses, or processes as required.
+
+  Note: This argument cannot be used with the -file option.
+
+  -warn_on_violation - (Optional) Specifies that Vivado Design Suite
+  generates Critical Warnings when the timing report contains a timing
+  violation.
+
+  -cells <arg> - (Option) Generates the timing report on the specified
+  hierarchical cells. Report details are based on the specified cells rather
+  than the whole design.
+
+  -rpx <arg> - (Optional) Specifies the file name and path of the report file
+  (RPX) to write. This is different from writing the report results to a file
+  using the -file argument. An RPX file stores all the report information as
+  an interactive report and lets you reload into the Vivado Design Suite
+  using the open_report command. You must add a .rpx file extension to the
+  specified file name, as the Vivado tool does not automatically assign a
+  file extension.
+
+  Note: If you do not specify the path, the tool searches for the specified
+  file in the current working directory and then in the launch directory.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Temporarily override any message limits and return
+  all messages from this command.
+
+  Note: Message limits can be defined with the set_msg_config command.
+
+Examples:
+
+  The following example reports the timing for 5 worst paths in the design
+  and reports the full timing path including input pins with timing values:
+
+    report_timing -nworst 5 -path_type full -input_pins
+
+  The following example shows the use of the multiple through points. It
+  defines both specific path (through state_reg1) and alternate paths
+  (through count_3 or count_4), and writes the timing results to the
+  specified file:
+
+    report_timing -from go -through {state_reg1} \
+       -through { count_3  count_4 } \
+       -to done -path_type summary -file C:/Data/timing1.txt
+
+  The following example only reports the worst timing path with datapath
+  crossing SLRs:
+
+    report_timing -inter_slr data_crossing
+
+See Also:
+
+   *  get_path_groups
+   *  get_timing_paths
+   *  group_path
+   *  place_design
+   *  report_timing_summary
+   *  route_design
+   *  set_clock_groups
+   *  set_false_path
+   *  get_msg_config
+   *  set_msg_config
+
+check_timing
+
+Description: 
+Check the design for possible timing problems
+
+Syntax: 
+check_timing  [-file <arg>] [-no_header] [-loop_limit <arg>] [-append]
+              [-name <arg>] [-override_defaults <args>] [-include <args>]
+              [-exclude <args>] [-return_string] [-rpx <arg>] [-cells <args>]
+              [-verbose] [-quiet]
+
+Usage: 
+  Name                  Description
+  ---------------------------------
+  [-file]               Filename to output results to. (send output to 
+                        console if -file is not used)
+  [-no_header]          do not generate a report header
+  [-loop_limit]         Limit the number of loops reported for loops check
+                        Default: 100
+  [-append]             Append the results to file, don't overwrite the 
+                        results file
+  [-name]               Output the results to GUI panel with this name
+  [-override_defaults]  Overrides the checks in the default timing checks 
+                        listed below
+  [-include]            Add this list of checks to be performed along with 
+                        default timing checks listed below
+  [-exclude]            Exclude this list of checks to be performed from the 
+                        default timing checks listed below
+  [-return_string]      return report as string
+  [-rpx]                Filename to output interactive results to.
+  [-cells]              run check_timing on the specified cell(s)
+  [-verbose]            Return a detailed list of all timing problems found
+  [-quiet]              Ignore command errors
+
+Categories: 
+Report, Timing
+
+Description:
+
+  Checks the design elements of ports, pins, and paths, against the current
+  timing constraints. Use this command to identify possible problems with
+  design data and timing constraints before running the report_timing
+  command. The check_timing command runs a series of default timing checks,
+  and reports a summary of any violations found. To get detailed information
+  about violations, use the -verbose option.
+
+  Note: By default the report is written to the Tcl console or STD output.
+  However, the results can also be written to the GUI with the -name option,
+  or to a file with -file.
+
+  Default Timing Checks:
+
+   *  constant_clock - Checks for clock signals connected to a constant
+      signal (gnd/vss/data).
+
+   *  generated_clocks - Checks for loops, or circular definitions within the
+      generated clock network. This check will return an error if a generated
+      clock uses a second generated clock as its source, when the second
+      generated clock uses the first clock as its source.
+
+   *  latch_loops - Checks for and warns of combinational latch loops in the
+      design.
+
+   *  loops - Checks for and warns of combinational feedback loops in the
+      design.
+
+   *  multiple_clock - Warns if multiple clocks reach a register clock pin.
+      If more than one clock signal reaches a register clock pin it is
+      unclear which clock will be used for analysis. In this case, use the
+      set_case_analysis command so that only one clock will propagate to the
+      register clock pin.
+
+   *  no_clock - Reports unclocked registers. In this case, no setup or hold
+      checks are performed on data pins related to the register clock pin.
+
+   *  no_input_delay - Reports the input ports without an input delay
+      constraint. Input delays can be assigned using the set_input_delay
+      command. Input ports that are unclocked will not be checked for input
+      delays.
+
+   *  no_output_delay - Reports the output ports without an output delay
+      constraint. Output delays can be assigned using the set_output_delay
+      command. Output ports that are unclocked will not be checked for output
+      delays.
+
+   *  partial_input_delay - Reports the input ports having partially defined
+      input delay constraints. Assigning set_input_delay -max or
+      set_input_delay -min to an input port, without assigning the other,
+      creates a partially defined input delay. In such cases, paths starting
+      from the input port may become unconstrained and no timing checks will
+      be done against the port. Assigning set_input_delay without specifying
+      either -min or -max allows the tool to assume both min and max delays,
+      and so does not result in a partial input delay.
+
+      Note: Unclocked input ports are not checked for partial input
+      delays.
+
+   *  partial_output_delay - Reports the output ports having partially
+      defined output delay constraints. Assigning set_output_delay -max or
+      set_output_delay -min to an output port, without assigning the other,
+      creates a partially defined output delay. In such cases, paths reaching
+      the port may become unconstrained and no timing checks will be done
+      against the port. Assigning set_output_delay without specifying either
+      -min or -max allows the tool to assume both min and max delays, and so
+      does not result in a partial output delay.
+
+      Note: Unclocked output ports are not checked for partial output
+      delays.
+
+   *  pulse_width_clock - Reports clock pins that have only a pulse width
+      check associated with the pin, and no setup or hold check, no recovery,
+      removal, or clk->Q check.
+
+   *  unconstrained_internal_endpoints - This warning identifies timing path
+      endpoints at register data pins that are not constrained. Endpoints at
+      register data pins are constrained by clock assignment using the
+      create_clock command. Endpoints at output ports are checked and
+      reported by the no_output_delay check.
+
+Arguments:
+
+  -file <arg> - (Optional) Write the results to the specified file on disk.
+  By default, the output of this command is written to the Tcl console.
+
+  Note: If the path is not specified as part of the file name, the tool will
+  write the named file into the current working directory, or the directory
+  from which the tool was launched.
+
+  -append - Append the results to the specified file. As a default the
+  check_timing command will overwrite an existing file when the -file
+  argument is specified.
+
+  -no_header - (Optional) Do not write the standard header to the report.
+  This is a boolean option that is enabled by its use.
+
+  -loop_limit <arg> - (Optional) The number of loops to identify and report
+  during the loop and latch_loop checks. The check_timing command will
+  continue to perform other checks after the -loop_limit has been reached.
+
+  -name <arg> - (Optional) Creates the named report in the Timing Results
+  view of the GUI.
+
+  -override_defaults <args> - (Optional) Override the default timing checks
+  and run only the specified checks.
+
+  Tip: Multiple checks should be enclosed in quotes, "", or braces, {}.
+
+  -include <args> - (Optional) Run the specified checks in addition to the
+  current default checks.
+
+  -exclude <args> - (Optional) Exclude the specified checks from the default
+  checks performed by the check_timing command. Specify the checks to be
+  excluded from the list of default checks.
+
+  -return_string - (Optional) Directs the output to a Tcl string rather than
+  to the standard output. The Tcl string can be captured by a variable
+  definition and parsed or otherwise processed.
+
+  Note: This argument cannot be used with the -file option.
+
+  -rpx <arg> - (Optional) Specify the file name and path of the report file
+  (RPX) to write. This is different from writing the report results to a file
+  using the -file argument. The RPX file is an interactive report that
+  contains all the report information and can be reloaded into memory in the
+  AMD Vivado Design Suite using the open_report command. You should add a
+  .rpx file extension to the specified file name, as the Vivado tool will not
+  automatically assign a file extension.
+
+  Note: If the path is not specified as part of the file name, the file will
+  be written into the current working directory, or the directory from which
+  the tool was launched.
+
+  -cells <arg> - (Option) Perform the timing checks for the specified
+  hierarchical cells. The details of the report will be based on the
+  specified cells rather than the whole design.
+
+  -quiet - (Optional) Execute the command quietly, returning no messages from
+  the command. The command also returns TCL_OK regardless of any errors
+  encountered during execution.
+
+  Note: Any errors encountered on the command-line, while launching the
+  command, will be returned. Only errors occurring inside the command will be
+  trapped.
+
+  -verbose - (Optional) Return more detailed results from the checks that are
+  run. Returns details of the problems found:
+
+Examples:
+
+  The following example runs check_timing, but excludes the specified checks
+  from the default timing checks.
+
+    check_timing -exclude {loops generated_clocks}
+
+  The following example uses the -verbose argument to obtain detailed results
+  running just the multiple_clocks check, and then uses get_clocks to look
+  further into the issue:
+
+    check_timing -verbose -override_defaults {multiple_clock}
+      Checking multiple_clock.
+      There are 2 register/latch pins with multiple clocks.
+      procEngine/mode_du/set_reg[0]/C
+      provEngine/mode_du/set_reg[1]/C
+    get_clocks -of_objects [get_pin procEngine/mode_du/set_reg[0]/C]
+      sysClk coreClk
+
+See Also:
+
+   *  create_clock
+   *  get_clocks
+   *  open_report
+   *  report_timing
+   *  set_case_analysis
+   *  set_input_delay
+   *  set_max_delay
+   *  set_output_delay
+
+INFO: [Common 17-206] Exiting Vivado at Sun Sep 27 23:26:05 2026...
