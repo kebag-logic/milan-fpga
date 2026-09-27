@@ -1,0 +1,21 @@
+planner-self-test            rc=0  python3 -B tb/tools/torture_campaign.py --self-test
+release-mutants              rc=0  python3 -B tb/tools/torture_release_mutants.py
+behave-plan                  rc=0  python3 -B -m behave tests/features/torture_campaign_plan.feature -f plain --no-capture
+behave-torture-tier          rc=0  python3 -B -m behave tests/features --tags=@torture -f progress
+feature-status-selftest      rc=0  python3 -B scripts/check_feature_status.py --self-test
+feature-status               rc=0  python3 -B scripts/check_feature_status.py
+docs-check                   rc=0  python3 -B scripts/docs_check.py
+doc-paths                    rc=0  python3 -B scripts/check_doc_paths.py
+doc-style                    rc=0  python3 -B scripts/check_doc_style.py
+py-idiom                     rc=0  python3 -B scripts/check_py_idiom.py
+em-dash                      rc=2  python3 -B scripts/check_em_dash.py --base ac18b50968b12efe4d15c0a06301264b35656b31
+gen-toc                      rc=2  python3 -B scripts/gen_toc.py --check
+coverage-by-area             rc=0  python3 -B tb/tools/torture_campaign.py --coverage-by-area --areas soak,power
+plan-json                    rc=0  python3 -B tb/tools/torture_campaign.py --plan --areas soak,power --json
+diff-check-delta             rc=0  git diff --check 54d9beea2888bd07369e67e5cb025d1405d03495 07f72ad640f99c43bc1354642ad4d7ed8ba410cc
+diff-check-base              rc=0  git diff --check ac18b50968b12efe4d15c0a06301264b35656b31 07f72ad640f99c43bc1354642ad4d7ed8ba410cc
+worktree-clean               rc=0  git status --porcelain=v1 --untracked-files=all
+em-dash-pinned rc=0
+gen-toc-pinned rc=0
+docs_check-pinned rc=0
+check_doc_style-pinned rc=0

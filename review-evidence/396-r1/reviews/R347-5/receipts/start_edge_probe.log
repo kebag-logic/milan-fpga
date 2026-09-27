@@ -1,0 +1,24 @@
+Part 1: decision arms, observed interval (0, 0.4), bound 0.5
+  0.5x resolution before start           event=-0.000500 res=0.001 -> PASS (want PASS)
+  2x resolution before start             event=-0.002000 res=0.001 -> FAIL (want FAIL)
+  exactly at start                       event=+0.000000 res=0.001 -> PASS (want PASS)
+  exactly at start, zero resolution      event=+0.000000 res=0.0 -> PASS (want PASS)
+  -0.1 s arm                             event=-0.100000 res=0.001 -> FAIL (want FAIL)
+  1 ns before start, zero resolution     event=-0.000000 res=0.0 -> FAIL (want FAIL)
+  exactly at clear                       event=+0.400000 res=0.001 -> FAIL (want FAIL)
+Part 2: absolute capture times, lag in {0.5x, 1x, 2x} resolution
+  cases=240000 verdicts differing from exact arithmetic on the same inputs=37180
+  lag entered as exactly 1x resolution but excluded by rounding=2
+  (0.5x and 2x arms all as decided)
+Part 3: clear edge symmetry, clear exactly at event + bound + resolution
+  clear entered as exactly the deadline but failed by rounding=0 of 20000
+Part 4: multi-event shapes
+  GM edge 0.5x res before start, step at +0.2, clear +0.69   -> PASS (want PASS)
+  GM edge 0.5x res before start, step at +0.2, clear +0.71   -> FAIL (want FAIL)
+  pre-window event ignored, in-window event anchors          -> PASS (want PASS)
+  only event after clear                                     -> FAIL (want FAIL)
+  empty event list                                           -> FAIL (want FAIL)
+Part 5: tu raised 10 s before its only discontinuity (decided, disclosed)
+  -> PASS {'last_discontinuity_s': 10.0, 'deadline_s': 10.501, 'clear_s': 10.4}
+DECISION ARMS OK: True
+rc=0

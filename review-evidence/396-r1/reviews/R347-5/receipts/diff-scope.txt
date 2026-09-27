@@ -1,0 +1,31 @@
+# full PR name-status ac18b509..07f72ad6
+M	CONTRIBUTING.md
+M	REQUIREMENTS.md
+M	docs/testing/TESTING.md
+M	tb/tools/torture_campaign.py
+A	tb/tools/torture_release_mutants.py
+M	tests/features/torture_campaign_plan.feature
+M	tests/steps/torture_plan_steps.py
+A	tests/steps/torture_release_steps.py
+# delta name-status 54d9beea..07f72ad6
+M	REQUIREMENTS.md
+M	docs/testing/TESTING.md
+M	tb/tools/torture_campaign.py
+M	tb/tools/torture_release_mutants.py
+M	tests/features/torture_campaign_plan.feature
+M	tests/steps/torture_release_steps.py
+# delta numstat
+4	0	REQUIREMENTS.md
+21	1	docs/testing/TESTING.md
+40	3	tb/tools/torture_campaign.py
+19	0	tb/tools/torture_release_mutants.py
+17	0	tests/features/torture_campaign_plan.feature
+10	0	tests/steps/torture_release_steps.py
+# gitlink entries changed across PR (mode 160000)
+none
+# commits
+07f72ad640f99c43bc1354642ad4d7ed8ba410cc 54d9beea2888bd07369e67e5cb025d1405d03495 fix: allow capture resolution at release uncertainty start
+54d9beea2888bd07369e67e5cb025d1405d03495 8153576af6d739427b54f6c40299b0e57bc481ae Anchor release uncertainty at the last recorded discontinuity
+8153576af6d739427b54f6c40299b0e57bc481ae 24d32d549fa7470318a93984403a92423a63fa25 Tighten release eligibility and correct post-cut timing
+24d32d549fa7470318a93984403a92423a63fa25 b7b74b8b20c166cf69f84c2fcbb6162b420cd2d3 fix: enforce release timing and qualification contracts
+b7b74b8b20c166cf69f84c2fcbb6162b420cd2d3 ac18b50968b12efe4d15c0a06301264b35656b31 Define soak and cold power-cycle release plans for #396

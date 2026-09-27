@@ -1,0 +1,27 @@
+PASS: pristine planner self-test
+KILLED: restore eligibility check removed: test_release_eligibility_boundaries
+KILLED: restore ceiling relaxed: test_release_eligibility_boundaries
+KILLED: power-off hold hardcoded: test_release_timing_and_snapshot_contract
+KILLED: power-off CLI value discarded: test_release_cli_parameters
+KILLED: ADP window charged for pre-cut time: test_release_timing_and_snapshot_contract
+KILLED: missing ADP evidence skipped: test_release_timing_and_snapshot_contract
+KILLED: tu bound uses media-clock holdover: test_release_tu_contract
+KILLED: uncorrelated tu ignored: test_release_tu_contract
+KILLED: boot evidence ends before the next cut: test_release_boot_negative_control
+KILLED: tu anchor uses the first discontinuity: test_release_tu_chained_discontinuities
+KILLED: tu clearing deadline ignores observation resolution: test_release_tu_chained_discontinuities
+KILLED: tu oracle accepts an uncorrelated interval: test_release_tu_chained_discontinuities
+KILLED: tu plan uses the first discontinuity: test_release_tu_contract
+KILLED: tu plan drops capture resolution: test_release_tu_contract
+KILLED: tu assertion allows five seconds: test_release_assertion_text
+KILLED: tu assertion drops uncorrelated failure: test_release_assertion_text
+KILLED: ADP assertion uses the pre-cut anchor: test_release_assertion_text
+KILLED: ADP assertion charges the off time: test_release_assertion_text
+KILLED: CLI power hold default changes: test_release_cli_power_hold_default
+KILLED: tu containment drops the start allowance: test_release_tu_start_resolution
+KILLED: tu containment doubles the start allowance: test_release_tu_start_resolution
+KILLED: tu containment excludes its inclusive start: test_release_tu_start_resolution
+KILLED: tu containment includes the clear instant: test_release_tu_start_resolution
+KILLED: tu assertion drops the event window: test_release_assertion_text
+KILLED: tu plan drops the start allowance: test_release_tu_contract
+PASS: 25 mutations killed; source unchanged

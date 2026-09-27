@@ -1,0 +1,259 @@
+diff --git a/REQUIREMENTS.md b/REQUIREMENTS.md
+index fc9bef64b..9a244676c 100644
+--- a/REQUIREMENTS.md
++++ b/REQUIREMENTS.md
+@@ -260,13 +260,17 @@ verified blocks outside the shipping datapath; the station-address rules
+   No `asCapable` loss is permitted.
+   `asCapable` authority: Milan v1.2 4.2.6.2.4.
+   Each `tu` interval contains at least one recorded discontinuity.
++  Containment uses `[observed_start - observation_resolution_s, clear)`.
++  The observed start is the first captured `tu=1` packet.
+   Accepted kinds: PHC settime/adjtime, fabric discontinuity, or GM-identity edge.
+   Measure from the last recorded discontinuity before `tu` clears.
+   It clears within 0.5 seconds plus stated observation resolution.
+   Any `tu` without a recorded discontinuity fails.
+   Resolution comes from wire capture and correlated event timestamps.
++  It includes launch-to-capture latency and event-to-capture correlation error.
+   Periodic counter-read cadence cannot supply that resolution.
+   The [round-4 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855792297) defines this anchor.
++  The [round-5 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5856062292) defines start-edge containment.
+   Uncertainty authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1/B.1.1.
+   B.1.1 states 0.25 seconds; the project reads this as a minimum.
+   Clock validity implements 0.25-0.5 seconds of discontinuity holdover.
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 7a0338d3f..b594b8a22 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -912,7 +912,7 @@ Teardown follows the final snapshot.
+ | `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED`; IEEE 1722-2016 4.4.4.6 | Zero growth throughout the soak |
+ | `MEDIA_UNLOCKED` | Every increase explained with retained evidence |
+ | Coherent fabric gPTP publication and transition history | No `asCapable` loss; Milan 4.2.6.2.4 |
+-| Timestamped discontinuities and wire `tu` intervals | Contain at least one recorded discontinuity: PHC settime/adjtime, fabric discontinuity, or GM-identity edge; measure from the last recorded discontinuity before `tu` clears; clear within 0.5 seconds plus stated observation resolution; uncorrelated `tu` fails |
++| Timestamped discontinuities and wire `tu` intervals | Contain at least one recorded discontinuity in `[observed_start - observation_resolution_s, clear)`: PHC settime/adjtime, fabric discontinuity, or GM-identity edge; measure from the last recorded discontinuity before `tu` clears; clear within 0.5 seconds plus stated observation resolution; uncorrelated `tu` fails |
+ | `AVTPRX_TSD`, signed nanoseconds | Fresh margin observations for `STREAM_INPUT[0]` only |
+ | DUT uptime | Monotonic advance, with no reboot |
+ 
+@@ -921,10 +921,19 @@ Retain continuous transition, streaming, and uncertainty evidence too.
+ Unavailable event evidence leaves the release gate unsatisfied.
+ The single-index timestamp register cannot prove other streams' margins.
+ Record wire-capture and correlated event-timestamp resolution in seconds.
++It includes launch-to-capture latency and event-to-capture correlation error.
+ Periodic counter-read cadence cannot supply that resolution.
+ The bound is 0.5 seconds plus that recorded resolution.
+ Missing resolution or discontinuity evidence cannot pass.
+ Each `tu` interval contains at least one recorded discontinuity.
++Containment uses `[observed_start - observation_resolution_s, clear)`.
++The observed start is the first captured `tu=1` packet.
++The clear is the first subsequent captured `tu=0` packet.
++AAF and CRF latch `tu` at frame launch.
++Their first observed packet can lag the causing discontinuity.
++Allow the stated resolution before the observed start, inclusive.
++An event exactly at clear remains excluded.
++The [round-5 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5856062292) defines this start-edge allowance.
+ Accepted kinds: PHC settime/adjtime, fabric discontinuity, or GM-identity edge.
+ Measure from the last recorded discontinuity before `tu` clears.
+ The [round-4 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855792297) defines this anchor.
+@@ -939,6 +948,17 @@ A PHC step follows at 0.2 seconds.
+ Clearing at 0.62 seconds passes with 0.001-second resolution.
+ Clearing at 0.8 seconds fails under that same resolution.
+ An interval without a recorded discontinuity fails.
++With 0.001-second resolution, consider one event before observed start.
++An event 0.0005 seconds before start counts as contained.
++An event 0.002 seconds before start does not count.
++An event exactly at start counts, including with zero resolution.
++The clearing deadline still uses the recorded event timestamp.
++
++The decided rule permits uncertainty before its first recorded discontinuity.
++It adds no separate bound for that preceding duration.
++For example, an observed interval spans zero through 10.4 seconds.
++Its lone discontinuity at 10 seconds satisfies this uncertainty check.
++All other soak assertions still apply independently.
+ Authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1.1.
+ B.1.1 states 0.25 seconds; the project reads this as a minimum.
+ [`KL_ptp_clock_validity.sv`](../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv) implements 0.25-0.5 seconds.
+diff --git a/tb/tools/torture_campaign.py b/tb/tools/torture_campaign.py
+index 33956cb81..275f02f60 100644
+--- a/tb/tools/torture_campaign.py
++++ b/tb/tools/torture_campaign.py
+@@ -3391,10 +3391,12 @@ SOAK_ASSERTS = (
+                "; Milan v1.2 Annex B.1/B.1.1 / IEEE 1722-2016 4.4.4.7: "
+                "each tu interval contains at least one recorded discontinuity: "
+                "PHC settime/adjtime, fabric discontinuity, or GM-identity edge; "
++               "containment uses [observed_start - observation_resolution_s, clear); "
+                "measure from the last recorded discontinuity before tu clears; "
+                "it clears within 0.5 s plus "
+                "the stated observation resolution; uncorrelated tu fails; "
+                "resolution comes from wire capture and correlated event timestamps; "
++               "it includes launch-to-capture latency and event-to-capture correlation error; "
+                "B.1.1 states 0.25 s, read by the project as a minimum; clock validity "
+                "implements 0.25-0.5 s; B.1's 5 s media-clock holdover is "
+                "not a tu bound; "
+@@ -3534,20 +3536,23 @@ def check_release_boot(boot_passes: int | None, restarts: int | None, *,
+ def check_release_tu(interval_s: tuple[float, float], discontinuities_s: list[float], *,
+                      holdover_bound_s: float, observation_resolution_s: float | None,
+                      capture_complete: bool) -> tuple[str, dict]:
+-    """L3 #396 round 4: grade one complete interval against the emitted bound.
++    """L3 #396 round 5: grade one wire-observed interval with capture resolution.
+ 
+     The caller supplies only recorded PHC settime/adjtime, fabric discontinuity,
+     or GM-identity events, on the same clock as the wire interval. Missing
+     evidence cannot pass; a complete interval with no such event fails.
++    Events in [observed_start - observation_resolution_s, clear) are contained.
+     """
+     import math
+     values = (*interval_s, *discontinuities_s, holdover_bound_s, observation_resolution_s)
+     if (capture_complete is not True or len(interval_s) != 2
+             or any(type(value) not in (int, float) or not math.isfinite(value) for value in values)):
+         return "SKIP", {"why": "complete finite interval, events and resolution required"}
+-    start_s, clear_s = interval_s
+-    if clear_s < start_s or holdover_bound_s <= 0 or observation_resolution_s < 0:
++    observed_start_s, clear_s = interval_s
++    if clear_s < observed_start_s or holdover_bound_s <= 0 or observation_resolution_s < 0:
+         return "SKIP", {"why": "ordered interval, positive bound and nonnegative resolution required"}
++    # Frame launch and capture can lag the event; include that measured allowance.
++    start_s = observed_start_s - observation_resolution_s
+     events_s = [event_s for event_s in discontinuities_s if start_s <= event_s < clear_s]
+     if not events_s:
+         return "FAIL", {"why": "uncorrelated tu fails"}
+@@ -3573,6 +3578,7 @@ def plan_soak(dut: Device = ARTY, peer: Device = PEER,
+                                      "stream_flow", "uptime"],
+                 tu_holdover_bound_s=0.5,
+                 tu_time_origin="last recorded discontinuity before tu clears",
++                tu_event_window="[observed_start - observation_resolution_s, clear)",
+                 tu_discontinuity_kinds=["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"],
+                 tu_observation_resolution="record wire-capture and correlated event-timestamp resolution in seconds",
+                 tu_uncorrelated="fail",
+@@ -5139,6 +5145,7 @@ class _ReleasePlanChecks:
+         soak = build_plan(["soak"])[0]
+         self.assertEqual(soak.args["tu_holdover_bound_s"], 0.5)
+         self.assertEqual(soak.args["tu_time_origin"], "last recorded discontinuity before tu clears")
++        self.assertEqual(soak.args["tu_event_window"], "[observed_start - observation_resolution_s, clear)")
+         self.assertEqual(soak.args["tu_discontinuity_kinds"],
+                          ["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"])
+         self.assertEqual(soak.args["tu_observation_resolution"],
+@@ -5174,12 +5181,42 @@ class _ReleasePlanChecks:
+                 interval_s, events_s, holdover_bound_s=bound_s,
+                 observation_resolution_s=resolution_s, capture_complete=complete)[0], "SKIP")
+ 
++    def test_release_tu_start_resolution(self) -> None:
++        """L3 #396 round 5: lone events bracket the observed start independently."""
++        for event_s, resolution_s, expected in (
++                (-0.0005, 0.001, "PASS"),
++                (-0.002, 0.001, "FAIL"),
++                (0, 0.001, "PASS"),
++                (0, 0, "PASS"),
++                (-0.1, 0.001, "FAIL"),
++                (-0.001, 0.001, "PASS"),
++                (-0.001001, 0.001, "FAIL"),
++                (0.4, 0.001, "FAIL"),
++                (0.401, 0.001, "FAIL")):
++            with self.subTest(event_s=event_s, resolution_s=resolution_s):
++                verdict, evidence = check_release_tu(
++                    (0, 0.4), [event_s], holdover_bound_s=0.5,
++                    observation_resolution_s=resolution_s, capture_complete=True)
++                self.assertEqual(verdict, expected, evidence)
++                if expected == "PASS":
++                    self.assertEqual(evidence["last_discontinuity_s"], event_s)
++
++    def test_release_tu_before_first_discontinuity(self) -> None:
++        """L3 #396: containment adds no bound before the first recorded event."""
++        for clear_s, expected in ((10.4, "PASS"), (10.6, "FAIL")):
++            verdict, evidence = check_release_tu(
++                (0, clear_s), [10], holdover_bound_s=0.5,
++                observation_resolution_s=0.001, capture_complete=True)
++            self.assertEqual(verdict, expected, evidence)
++
+     def test_release_assertion_text(self) -> None:
+         """L3 #396: operator-facing instructions must preserve the decided rules."""
+         specs = {spec.name: spec.clause for step in build_plan(["soak", "power"])
+                  for spec in step.asserts}
+         for phrase in ("contains at least one recorded discontinuity",
+                        "PHC settime/adjtime, fabric discontinuity, or GM-identity edge",
++                       "containment uses [observed_start - observation_resolution_s, clear)",
++                       "launch-to-capture latency and event-to-capture correlation error",
+                        "last recorded discontinuity before tu clears", "within 0.5 s plus",
+                        "uncorrelated tu fails", "wire capture and correlated event timestamps"):
+             self.assertIn(phrase, specs["soak.tu-within-holdover"])
+diff --git a/tb/tools/torture_release_mutants.py b/tb/tools/torture_release_mutants.py
+index 2bd04c06a..a022a8713 100644
+--- a/tb/tools/torture_release_mutants.py
++++ b/tb/tools/torture_release_mutants.py
+@@ -75,6 +75,25 @@ MUTANTS = (
+      "pre-cut advertisement age are charged to", "test_release_assertion_text"),
+     ("CLI power hold default changes",
+      "default=ReleaseSettings.power_off_hold_s", "default=5", "test_release_cli_power_hold_default"),
++    ("tu containment drops the start allowance",
++     "start_s = observed_start_s - observation_resolution_s", "start_s = observed_start_s",
++     "test_release_tu_start_resolution"),
++    ("tu containment doubles the start allowance",
++     "start_s = observed_start_s - observation_resolution_s",
++     "start_s = observed_start_s - 2 * observation_resolution_s",
++     "test_release_tu_start_resolution"),
++    ("tu containment excludes its inclusive start",
++     "if start_s <= event_s < clear_s]", "if start_s < event_s < clear_s]",
++     "test_release_tu_start_resolution"),
++    ("tu containment includes the clear instant",
++     "if start_s <= event_s < clear_s]", "if start_s <= event_s <= clear_s]",
++     "test_release_tu_start_resolution"),
++    ("tu assertion drops the event window",
++     '"containment uses [observed_start - observation_resolution_s, clear); "', '""',
++     "test_release_assertion_text"),
++    ("tu plan drops the start allowance",
++     'tu_event_window="[observed_start - observation_resolution_s, clear)",',
++     'tu_event_window="[observed_start, clear)",', "test_release_tu_contract"),
+ )
+ 
+ 
+diff --git a/tests/features/torture_campaign_plan.feature b/tests/features/torture_campaign_plan.feature
+index 8da9b384a..e1ced39c4 100644
+--- a/tests/features/torture_campaign_plan.feature
++++ b/tests/features/torture_campaign_plan.feature
+@@ -417,6 +417,23 @@ Feature: The torture campaign's own coverage is auditable at a desk
+     And a chained discontinuity clearing at 0.8 seconds is FAIL
+     And an uncertainty interval without a discontinuity fails
+ 
++  @class:release @clause:REQ-VER-06 @negative-control
++  Scenario Outline: wire observation resolution contains a lone discontinuity
++    When the soak release area is planned
++    Then a lone discontinuity at <event> seconds with <resolution> second resolution is <verdict>
++
++    Examples:
++      | event     | resolution | verdict |
++      | -0.0005   | 0.001      | PASS    |
++      | -0.002    | 0.001      | FAIL    |
++      | 0         | 0.001      | PASS    |
++      | 0         | 0          | PASS    |
++      | -0.1      | 0.001      | FAIL    |
++      | -0.001    | 0.001      | PASS    |
++      | -0.001001 | 0.001      | FAIL    |
++      | 0.4       | 0.001      | FAIL    |
++      | 0.401     | 0.001      | FAIL    |
++
+   @class:release @clause:REQ-VER-06 @negative-control
+   Scenario: a second successful boot cannot hide the first-boot restart
+     Then the first-boot restart control fails the release boot assertion
+diff --git a/tests/steps/torture_release_steps.py b/tests/steps/torture_release_steps.py
+index 6dc1ec743..e1bef6ce5 100644
+--- a/tests/steps/torture_release_steps.py
++++ b/tests/steps/torture_release_steps.py
+@@ -264,6 +264,7 @@ def step_tp_release_tu_bound(context: Context) -> None:
+     args = context.tp_plan[0].args
+     assert args["tu_holdover_bound_s"] == 0.5
+     assert args["tu_time_origin"] == "last recorded discontinuity before tu clears"
++    assert args["tu_event_window"] == "[observed_start - observation_resolution_s, clear)"
+     assert args["tu_discontinuity_kinds"] == ["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"]
+     assert args["tu_uncorrelated"] == "fail"
+     assert args["tu_observation_resolution"] == \
+@@ -286,3 +287,12 @@ def step_tp_release_tu_no_event(context: Context) -> None:
+         (0, 0.62), [], holdover_bound_s=context.tp_plan[0].args["tu_holdover_bound_s"],
+         observation_resolution_s=0.001, capture_complete=True)
+     assert actual == "FAIL", evidence
++
++
++@then("a lone discontinuity at {event_s:g} seconds with {resolution_s:g} second resolution is {verdict}")
++def step_tp_release_tu_start(context: Context, event_s: float, resolution_s: float, verdict: str) -> None:
++    """L3 #396 round 5: the observed interval is [0, 0.4) seconds."""
++    actual, evidence = tp.check_release_tu(
++        (0, 0.4), [event_s], holdover_bound_s=context.tp_plan[0].args["tu_holdover_bound_s"],
++        observation_resolution_s=resolution_s, capture_complete=True)
++    assert actual == verdict, evidence

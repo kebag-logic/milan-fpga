@@ -1,0 +1,19 @@
+BASELINE self-test rc=0 behave rc=0
+KILLED T01 anchor at first event: self-test rc=1 behave rc=1
+KILLED T02 event at interval start excluded: self-test rc=1 behave rc=1
+KILLED T03 event at clear instant counted: self-test rc=1 behave rc=1
+KILLED T04 events outside the interval counted: self-test rc=1 behave rc=1
+KILLED T05 deadline exclusive: self-test rc=1 behave rc=0
+KILLED T06 deadline from interval start: self-test rc=1 behave rc=1
+KILLED T07 incomplete capture graded: self-test rc=1 behave rc=0
+KILLED T08 zero resolution refused: self-test rc=1 behave rc=1
+KILLED T09 non-finite values graded: self-test rc=1 behave rc=0
+KILLED T10 uncorrelated tu skipped: self-test rc=1 behave rc=1
+KILLED T11 kinds drop GM-identity edge: self-test rc=1 behave rc=1
+KILLED T12 double resolution: self-test rc=1 behave rc=0
+KILLED T13 assertion text anchors first event: self-test rc=1 behave rc=0
+KILLED T14 assertion text drops accepted kinds: self-test rc=1 behave rc=0
+KILLED T15 bool resolution accepted: self-test rc=1 behave rc=0
+KILLED I01 start edge honors resolution (informational): self-test rc=1 behave rc=1
+TOTAL killed=16 survived=0 invalid=0
+rc=0
