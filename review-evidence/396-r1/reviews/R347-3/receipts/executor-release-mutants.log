@@ -1,0 +1,12 @@
+PASS: pristine planner self-test
+KILLED: restore eligibility check removed: test_release_eligibility_boundaries
+KILLED: restore ceiling relaxed: test_release_eligibility_boundaries
+KILLED: power-off hold hardcoded: test_release_timing_and_snapshot_contract
+KILLED: power-off CLI value discarded: test_release_cli_parameters
+KILLED: ADP window charged for pre-cut time: test_release_timing_and_snapshot_contract
+KILLED: missing ADP evidence skipped: test_release_timing_and_snapshot_contract
+KILLED: tu bound uses media-clock holdover: test_release_tu_contract
+KILLED: uncorrelated tu ignored: test_release_tu_contract
+KILLED: boot evidence ends before the next cut: test_release_boot_negative_control
+PASS: 9 mutations killed; source unchanged
+rc=0

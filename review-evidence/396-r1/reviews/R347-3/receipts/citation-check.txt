@@ -1,0 +1,23 @@
+R347-3 citation check at 8153576af6d739427b54f6c40299b0e57bc481ae (reviewer summary; clause headings and short facts only)
+Sources: Milan Specification Consolidated v1.2 (2023-11-30); IEEE Std 1722.1-2021. Only the pages below were extracted,
+into unpublished scratch. Page numbers are PDF page indices.
+
+Citation changed or added in 24d32d54..8153576a         | Where cited                                              | Standard text at that clause                                           | Result
+--------------------------------------------------------|----------------------------------------------------------|------------------------------------------------------------------------|--------
+Milan v1.2 5.6.2 ADPDUs (heading p108-109; field p109)  | REQUIREMENTS.md:289,296; TESTING.md:959,972;             | valid_time shall be set to 10 in ENTITY_AVAILABLE; advertise every 5 s  | correct
+                                                        | torture_campaign.py:3420-3426                            |                                                                        |
+Milan v1.2 5.6.3 Advertise state machine (p109-110)     | REQUIREMENTS.md:296; TESTING.md:972; :3420               | Advertise state machine                                                | correct
+IEEE 1722.1-2021 6.2.2.5 (p49)                          | REQUIREMENTS.md:295; TESTING.md:972; :3420               | valid_time in two-second increments; entity valid period 2..62 s       | correct (two-second decode)
+Milan v1.2 Annex B.1 (p141)                             | REQUIREMENTS.md:267,270; TESTING.md:929; :3390-3397      | media clock holdover during GM change; recommends minimum 5 s           | correct: "never bounds tu" / "not a tu bound"
+Milan v1.2 Annex B.1.1 (p141)                           | REQUIREMENTS.md:267-268; TESTING.md:926-927; :3390-3397  | on a GM change, tu shall be 1 "for the duration of 0.25 seconds"       | clause correct; "0.25-second minimum" is the project's established
+                                                        |                                                          |                                                                        | reading (KL_ptp_clock_validity.sv:119-122, GM_LOSS_RECOVERY.md:64),
+                                                        |                                                          |                                                                        | not the literal wording (suggestion S2)
+IEEE 1722-2016 4.4.4.7                                  | unchanged from round 2 (verified then, p37)              | tu field                                                               | correct
+
+Repository facts used:
+- tb/tools/torture_campaign.py:3230-3232 phys.dut-cycle.power-cycle holds off_s 8 (origin of power_off_hold_s default); :4673 self-test requires off_s >= 5.
+- hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv:119-122 HOLD_QTICK_P=2 gives 0.25..0.5 s per pulse; :188-201 reloads hold on every
+  discontinuity pulse; :211 tu = ~sync_ok | hold | disc (input to finding F1).
+- docs/findings/117_GPTP_SILICON_EVIDENCE.md:346-351, :443-444: GM adoption on an Announce, then holdover set and PHC stepped; tu cleared
+  0.41..0.52 s after adoption at 0.1 s console sampling (input to finding F1).
+Pre-existing, outside the diff and unchanged: IEEE 1722.1-2021 6.2.6 at torture_campaign.py:1456, :2769, :3096, :3104 (manager duty since R347-1).
