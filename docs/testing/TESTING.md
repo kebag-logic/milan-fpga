@@ -912,7 +912,7 @@ Teardown follows the final snapshot.
 | `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED`; IEEE 1722-2016 4.4.4.6 | Zero growth throughout the soak |
 | `MEDIA_UNLOCKED` | Every increase explained with retained evidence |
 | Coherent fabric gPTP publication and transition history | No `asCapable` loss; Milan 4.2.6.2.4 |
-| Timestamped discontinuities and wire `tu` intervals | Contain at least one recorded discontinuity: PHC settime/adjtime, fabric discontinuity, or GM-identity edge; measure from the last recorded discontinuity before `tu` clears; clear within 0.5 seconds plus stated observation resolution; uncorrelated `tu` fails |
+| Timestamped discontinuities and wire `tu` intervals | Contain at least one recorded discontinuity in `[observed_start - observation_resolution_s, clear)`: PHC settime/adjtime, fabric discontinuity, or GM-identity edge; measure from the last recorded discontinuity before `tu` clears; clear within 0.5 seconds plus stated observation resolution; uncorrelated `tu` fails |
 | `AVTPRX_TSD`, signed nanoseconds | Fresh margin observations for `STREAM_INPUT[0]` only |
 | DUT uptime | Monotonic advance, with no reboot |
 
@@ -921,10 +921,19 @@ Retain continuous transition, streaming, and uncertainty evidence too.
 Unavailable event evidence leaves the release gate unsatisfied.
 The single-index timestamp register cannot prove other streams' margins.
 Record wire-capture and correlated event-timestamp resolution in seconds.
+It includes launch-to-capture latency and event-to-capture correlation error.
 Periodic counter-read cadence cannot supply that resolution.
 The bound is 0.5 seconds plus that recorded resolution.
 Missing resolution or discontinuity evidence cannot pass.
 Each `tu` interval contains at least one recorded discontinuity.
+Containment uses `[observed_start - observation_resolution_s, clear)`.
+The observed start is the first captured `tu=1` packet.
+The clear is the first subsequent captured `tu=0` packet.
+AAF and CRF latch `tu` at frame launch.
+Their first observed packet can lag the causing discontinuity.
+Allow the stated resolution before the observed start, inclusive.
+An event exactly at clear remains excluded.
+The [round-5 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5856062292) defines this start-edge allowance.
 Accepted kinds: PHC settime/adjtime, fabric discontinuity, or GM-identity edge.
 Measure from the last recorded discontinuity before `tu` clears.
 The [round-4 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855792297) defines this anchor.
@@ -939,6 +948,17 @@ A PHC step follows at 0.2 seconds.
 Clearing at 0.62 seconds passes with 0.001-second resolution.
 Clearing at 0.8 seconds fails under that same resolution.
 An interval without a recorded discontinuity fails.
+With 0.001-second resolution, consider one event before observed start.
+An event 0.0005 seconds before start counts as contained.
+An event 0.002 seconds before start does not count.
+An event exactly at start counts, including with zero resolution.
+The clearing deadline still uses the recorded event timestamp.
+
+The decided rule permits uncertainty before its first recorded discontinuity.
+It adds no separate bound for that preceding duration.
+For example, an observed interval spans zero through 10.4 seconds.
+Its lone discontinuity at 10 seconds satisfies this uncertainty check.
+All other soak assertions still apply independently.
 Authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1.1.
 B.1.1 states 0.25 seconds; the project reads this as a minimum.
 [`KL_ptp_clock_validity.sv`](../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv) implements 0.25-0.5 seconds.

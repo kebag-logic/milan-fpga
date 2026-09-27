@@ -260,13 +260,17 @@ verified blocks outside the shipping datapath; the station-address rules
   No `asCapable` loss is permitted.
   `asCapable` authority: Milan v1.2 4.2.6.2.4.
   Each `tu` interval contains at least one recorded discontinuity.
+  Containment uses `[observed_start - observation_resolution_s, clear)`.
+  The observed start is the first captured `tu=1` packet.
   Accepted kinds: PHC settime/adjtime, fabric discontinuity, or GM-identity edge.
   Measure from the last recorded discontinuity before `tu` clears.
   It clears within 0.5 seconds plus stated observation resolution.
   Any `tu` without a recorded discontinuity fails.
   Resolution comes from wire capture and correlated event timestamps.
+  It includes launch-to-capture latency and event-to-capture correlation error.
   Periodic counter-read cadence cannot supply that resolution.
   The [round-4 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855792297) defines this anchor.
+  The [round-5 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5856062292) defines start-edge containment.
   Uncertainty authority: IEEE 1722-2016 4.4.4.7; Milan Annex B.1/B.1.1.
   B.1.1 states 0.25 seconds; the project reads this as a minimum.
   Clock validity implements 0.25-0.5 seconds of discontinuity holdover.

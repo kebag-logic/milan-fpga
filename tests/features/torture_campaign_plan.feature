@@ -418,6 +418,23 @@ Feature: The torture campaign's own coverage is auditable at a desk
     And an uncertainty interval without a discontinuity fails
 
   @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: wire observation resolution contains a lone discontinuity
+    When the soak release area is planned
+    Then a lone discontinuity at <event> seconds with <resolution> second resolution is <verdict>
+
+    Examples:
+      | event     | resolution | verdict |
+      | -0.0005   | 0.001      | PASS    |
+      | -0.002    | 0.001      | FAIL    |
+      | 0         | 0.001      | PASS    |
+      | 0         | 0          | PASS    |
+      | -0.1      | 0.001      | FAIL    |
+      | -0.001    | 0.001      | PASS    |
+      | -0.001001 | 0.001      | FAIL    |
+      | 0.4       | 0.001      | FAIL    |
+      | 0.401     | 0.001      | FAIL    |
+
+  @class:release @clause:REQ-VER-06 @negative-control
   Scenario: a second successful boot cannot hide the first-boot restart
     Then the first-boot restart control fails the release boot assertion
 

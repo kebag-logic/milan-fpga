@@ -3391,10 +3391,12 @@ SOAK_ASSERTS = (
                "; Milan v1.2 Annex B.1/B.1.1 / IEEE 1722-2016 4.4.4.7: "
                "each tu interval contains at least one recorded discontinuity: "
                "PHC settime/adjtime, fabric discontinuity, or GM-identity edge; "
+               "containment uses [observed_start - observation_resolution_s, clear); "
                "measure from the last recorded discontinuity before tu clears; "
                "it clears within 0.5 s plus "
                "the stated observation resolution; uncorrelated tu fails; "
                "resolution comes from wire capture and correlated event timestamps; "
+               "it includes launch-to-capture latency and event-to-capture correlation error; "
                "B.1.1 states 0.25 s, read by the project as a minimum; clock validity "
                "implements 0.25-0.5 s; B.1's 5 s media-clock holdover is "
                "not a tu bound; "
@@ -3534,20 +3536,23 @@ def check_release_boot(boot_passes: int | None, restarts: int | None, *,
 def check_release_tu(interval_s: tuple[float, float], discontinuities_s: list[float], *,
                      holdover_bound_s: float, observation_resolution_s: float | None,
                      capture_complete: bool) -> tuple[str, dict]:
-    """L3 #396 round 4: grade one complete interval against the emitted bound.
+    """L3 #396 round 5: grade one wire-observed interval with capture resolution.
 
     The caller supplies only recorded PHC settime/adjtime, fabric discontinuity,
     or GM-identity events, on the same clock as the wire interval. Missing
     evidence cannot pass; a complete interval with no such event fails.
+    Events in [observed_start - observation_resolution_s, clear) are contained.
     """
     import math
     values = (*interval_s, *discontinuities_s, holdover_bound_s, observation_resolution_s)
     if (capture_complete is not True or len(interval_s) != 2
             or any(type(value) not in (int, float) or not math.isfinite(value) for value in values)):
         return "SKIP", {"why": "complete finite interval, events and resolution required"}
-    start_s, clear_s = interval_s
-    if clear_s < start_s or holdover_bound_s <= 0 or observation_resolution_s < 0:
+    observed_start_s, clear_s = interval_s
+    if clear_s < observed_start_s or holdover_bound_s <= 0 or observation_resolution_s < 0:
         return "SKIP", {"why": "ordered interval, positive bound and nonnegative resolution required"}
+    # Frame launch and capture can lag the event; include that measured allowance.
+    start_s = observed_start_s - observation_resolution_s
     events_s = [event_s for event_s in discontinuities_s if start_s <= event_s < clear_s]
     if not events_s:
         return "FAIL", {"why": "uncorrelated tu fails"}
@@ -3573,6 +3578,7 @@ def plan_soak(dut: Device = ARTY, peer: Device = PEER,
                                      "stream_flow", "uptime"],
                 tu_holdover_bound_s=0.5,
                 tu_time_origin="last recorded discontinuity before tu clears",
+                tu_event_window="[observed_start - observation_resolution_s, clear)",
                 tu_discontinuity_kinds=["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"],
                 tu_observation_resolution="record wire-capture and correlated event-timestamp resolution in seconds",
                 tu_uncorrelated="fail",
@@ -5139,6 +5145,7 @@ class _ReleasePlanChecks:
         soak = build_plan(["soak"])[0]
         self.assertEqual(soak.args["tu_holdover_bound_s"], 0.5)
         self.assertEqual(soak.args["tu_time_origin"], "last recorded discontinuity before tu clears")
+        self.assertEqual(soak.args["tu_event_window"], "[observed_start - observation_resolution_s, clear)")
         self.assertEqual(soak.args["tu_discontinuity_kinds"],
                          ["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"])
         self.assertEqual(soak.args["tu_observation_resolution"],
@@ -5174,12 +5181,42 @@ class _ReleasePlanChecks:
                 interval_s, events_s, holdover_bound_s=bound_s,
                 observation_resolution_s=resolution_s, capture_complete=complete)[0], "SKIP")
 
+    def test_release_tu_start_resolution(self) -> None:
+        """L3 #396 round 5: lone events bracket the observed start independently."""
+        for event_s, resolution_s, expected in (
+                (-0.0005, 0.001, "PASS"),
+                (-0.002, 0.001, "FAIL"),
+                (0, 0.001, "PASS"),
+                (0, 0, "PASS"),
+                (-0.1, 0.001, "FAIL"),
+                (-0.001, 0.001, "PASS"),
+                (-0.001001, 0.001, "FAIL"),
+                (0.4, 0.001, "FAIL"),
+                (0.401, 0.001, "FAIL")):
+            with self.subTest(event_s=event_s, resolution_s=resolution_s):
+                verdict, evidence = check_release_tu(
+                    (0, 0.4), [event_s], holdover_bound_s=0.5,
+                    observation_resolution_s=resolution_s, capture_complete=True)
+                self.assertEqual(verdict, expected, evidence)
+                if expected == "PASS":
+                    self.assertEqual(evidence["last_discontinuity_s"], event_s)
+
+    def test_release_tu_before_first_discontinuity(self) -> None:
+        """L3 #396: containment adds no bound before the first recorded event."""
+        for clear_s, expected in ((10.4, "PASS"), (10.6, "FAIL")):
+            verdict, evidence = check_release_tu(
+                (0, clear_s), [10], holdover_bound_s=0.5,
+                observation_resolution_s=0.001, capture_complete=True)
+            self.assertEqual(verdict, expected, evidence)
+
     def test_release_assertion_text(self) -> None:
         """L3 #396: operator-facing instructions must preserve the decided rules."""
         specs = {spec.name: spec.clause for step in build_plan(["soak", "power"])
                  for spec in step.asserts}
         for phrase in ("contains at least one recorded discontinuity",
                        "PHC settime/adjtime, fabric discontinuity, or GM-identity edge",
+                       "containment uses [observed_start - observation_resolution_s, clear)",
+                       "launch-to-capture latency and event-to-capture correlation error",
                        "last recorded discontinuity before tu clears", "within 0.5 s plus",
                        "uncorrelated tu fails", "wire capture and correlated event timestamps"):
             self.assertIn(phrase, specs["soak.tu-within-holdover"])

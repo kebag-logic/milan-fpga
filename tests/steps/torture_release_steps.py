@@ -264,6 +264,7 @@ def step_tp_release_tu_bound(context: Context) -> None:
     args = context.tp_plan[0].args
     assert args["tu_holdover_bound_s"] == 0.5
     assert args["tu_time_origin"] == "last recorded discontinuity before tu clears"
+    assert args["tu_event_window"] == "[observed_start - observation_resolution_s, clear)"
     assert args["tu_discontinuity_kinds"] == ["PHC settime/adjtime", "fabric discontinuity", "GM-identity edge"]
     assert args["tu_uncorrelated"] == "fail"
     assert args["tu_observation_resolution"] == \
@@ -286,3 +287,12 @@ def step_tp_release_tu_no_event(context: Context) -> None:
         (0, 0.62), [], holdover_bound_s=context.tp_plan[0].args["tu_holdover_bound_s"],
         observation_resolution_s=0.001, capture_complete=True)
     assert actual == "FAIL", evidence
+
+
+@then("a lone discontinuity at {event_s:g} seconds with {resolution_s:g} second resolution is {verdict}")
+def step_tp_release_tu_start(context: Context, event_s: float, resolution_s: float, verdict: str) -> None:
+    """L3 #396 round 5: the observed interval is [0, 0.4) seconds."""
+    actual, evidence = tp.check_release_tu(
+        (0, 0.4), [event_s], holdover_bound_s=context.tp_plan[0].args["tu_holdover_bound_s"],
+        observation_resolution_s=resolution_s, capture_complete=True)
+    assert actual == verdict, evidence
