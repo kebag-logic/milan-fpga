@@ -1,0 +1,218 @@
+{
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "base": "6d5ebd7357c1e468e446f18a61527c5be6118a04",
+  "branch": "602-phc-step-mr",
+  "origin": "https://github.com/kebag-logic/milan-fpga.git",
+  "commits": [
+    {
+      "head": "f7660247e2df93f83b6ac1998bcc90870684153a",
+      "subject": "Keep PHC-only re-base separate from media clock restart"
+    },
+    {
+      "head": "81893de43af69791c5e368150487ba3351a69cc1",
+      "subject": "Correct the restart input comment for PHC-only steps"
+    },
+    {
+      "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+      "subject": "Align builder restart assertions with the PHC-only ruling"
+    }
+  ],
+  "clean": true,
+  "submodules": {
+    "protocol-processor": {
+      "head": "870ff88ad35bbd532244e4c7e6d7661b9f6e1366",
+      "clean": true,
+      "root_verified_before_each_git_command": true,
+      "pinned_blobs_verified": 248
+    },
+    "gptp-processor": {
+      "head": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+      "clean": true,
+      "root_verified_before_each_git_command": true,
+      "pinned_blobs_verified": 104
+    },
+    "third_party/verilog-axis": {
+      "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "clean": true,
+      "root_verified_before_each_git_command": true,
+      "pinned_blobs_verified": 214
+    }
+  },
+  "output_files_checked": 104,
+  "largest_output_file_bytes": 87245,
+  "verification_status": "Complete: all 34 final-head commands returned 0; explicit builder not-run bounds documented.",
+  "gate_results_at_head": [
+    {
+      "gate": "archive",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "artifact-identity",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "baremetal-check",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "baremetal-selftest",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "builder-absent",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "builder-rv32",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "ci-scope",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "cpp-idiom",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "diagram-pngs",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "diff-check",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "doc-paths",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "doc-style-selftest",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "doc-style",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "docs",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "em-dash",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "feature-status",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "gmstep-mutants",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "gptp-docs",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "hygiene",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "milan-dp",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "module-matrix",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "ooc-after",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "ooc-before",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "ooc-neutral",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "py-idiom",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "rtl-lint",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "solution-docs",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "source-lists",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "submodule-docs",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "sv-idiom",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "test-evidence",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "tkdiag",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "toc-selftest",
+      "rc": 0,
+      "log_sha256_verified": true
+    },
+    {
+      "gate": "toc",
+      "rc": 0,
+      "log_sha256_verified": true
+    }
+  ],
+  "all_foreground_gates_finished": true,
+  "review_ready_comment": "https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859870644"
+}

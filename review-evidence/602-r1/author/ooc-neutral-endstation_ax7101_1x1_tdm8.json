@@ -1,0 +1,67 @@
+{
+  "head": "49012143b335ea48d6a71c441a05d0c1796887ff",
+  "base": "6d5ebd7357c1e468e446f18a61527c5be6118a04",
+  "neutral_control": {
+    "kind": "local wire/register identifier rename only",
+    "old": "tkd_crflk_q_r",
+    "new": "tkd_crf_lock_prev_r",
+    "references": 4,
+    "inverse_rename_byte_identical": true
+  },
+  "phase": "neutral",
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "parameters": {
+    "MILAN_CLK_FREQ_HZ": 50000000,
+    "TALKER_WIRE_CHANS_P": 8,
+    "AUDIO_IF_MASTER_P": 1,
+    "GPTP_INGRESS_LAT_NS_P": 656,
+    "GPTP_EGRESS_LAT_NS_P": 219,
+    "I2SPB_P": 0,
+    "LPF_P": 0,
+    "N_STREAMS": 1,
+    "AUDIO_IF_SLOTS_P": 8,
+    "AUDIO_IF_CLK_HZ_P": 24576000,
+    "AUDIO_IF_RENDER_SLOTS_P": 8,
+    "LOOPBACK_P": 1
+  },
+  "rc": 0,
+  "source_sha256": "caf21feee4956d834f2176940e8a0a8143ac99b313cc12b7fe4b2dcf50f01ccc",
+  "artifacts": {
+    "$VALIDATION_STORAGE/602-a383-work/ooc-neutral-endstation_ax7101_1x1_tdm8/artifacts/gptp_ucode.hex": {
+      "bytes": 13312,
+      "sha256": "c496ed8af59edd424e7d980aa3442bb725c745f44469ce53ec3a4d219fa30371"
+    },
+    "$VALIDATION_STORAGE/602-a383-work/ooc-neutral-endstation_ax7101_1x1_tdm8/artifacts/ltn_rom.hex": {
+      "bytes": 6138,
+      "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956"
+    },
+    "$VALIDATION_STORAGE/602-a383-work/ooc-neutral-endstation_ax7101_1x1_tdm8/artifacts/milan_datapath.ooc.json": {
+      "bytes": 176952243,
+      "sha256": "2cc5f847602f2c1b311922f166d93caaa2d266a8cd19a0d2333a84f261a7b459"
+    },
+    "$VALIDATION_STORAGE/602-a383-work/ooc-neutral-endstation_ax7101_1x1_tdm8/artifacts/milan_datapath.ooc.log": {
+      "bytes": 18792640,
+      "sha256": "a9f9efe2df79cccd2a07c4fb4da06889b3aa58a0a7256644d88947358dac6233"
+    },
+    "$VALIDATION_STORAGE/602-a383-work/ooc-neutral-endstation_ax7101_1x1_tdm8/artifacts/milan_datapath.ooc.sv2v.err": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "$VALIDATION_STORAGE/602-a383-work/ooc-neutral-endstation_ax7101_1x1_tdm8/artifacts/milan_datapath.ooc.v": {
+      "bytes": 1414216,
+      "sha256": "04cdb48b6c0cf1d0a24a298400b953669911080bf4742e3eaece37e2e044dcc0"
+    },
+    "$VALIDATION_STORAGE/602-a383-work/ooc-neutral-endstation_ax7101_1x1_tdm8/artifacts/ucode.hex": {
+      "bytes": 26624,
+      "sha256": "23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144"
+    },
+    "$VALIDATION_STORAGE/602-a383-work/ooc-neutral-endstation_ax7101_1x1_tdm8/milan_datapath.sv": {
+      "bytes": 424220,
+      "sha256": "47bf6cf1644161fd9de9243c27bc02684e2da53b708a8d32e973505be08fb8de"
+    },
+    "$VALIDATION_STORAGE/602-a383-work/ooc-neutral-endstation_ax7101_1x1_tdm8/ooc.sh": {
+      "bytes": 43516,
+      "sha256": "e56aefb4fec9f76de6aceb32d895b126490ac72caa4c875e061a14a1caf0a375"
+    }
+  }
+}
