@@ -76,7 +76,7 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
 | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
-| `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387: a grandmaster change that steps the PHC by 1.5 s under CRF selection is one counted media event (`tu`, one render re-base, one `mr` toggle, one MEDIA_RESET) and stops no stream; `gmstep_mutants.py` plants the acceptance's three controls in the sweep and `make gmstep-mutants` the whole inventory |
+| `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602: a 1.5 s PHC step under CRF selection asserts `tu` and counts one render re-base, with unchanged `mr` and MEDIA_RESET; source-change and CRF propagation controls still toggle `mr`; `gmstep_mutants.py` plants five controls in the sweep and `make gmstep-mutants` the whole inventory |
 
 The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 
@@ -90,7 +90,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[AX7101 1x1 eight-channel gPTP physical-rate run](#ax7101-1x1-eight-channel-gptp-physical-rate-run)** -- Run combined clocks, peer exchange, and diagnostic audio checks.
 - **[The #530 CRF talker licence leg (obj_crflic)](#the-530-crf-talker-licence-leg-obj_crflic)** -- The compressed-time leg that reproduces the Run B CRF bursts and early emission, what each phase proves, the failing arms, and why FRAMES_TX is an interval count
 - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
-- **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 decision, and its negative controls
+- **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
 - **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
@@ -647,20 +647,21 @@ A further 100 PDUs must produce no second event.
 elaboration: the AX7101 1x1 TDM8 entity, fabric gPTP on, a 2 MHz fabric clock
 and an 8 ns PHC. It drives issue #387's acceptance 3: a grandmaster change
 that steps the PHC by 1.5 s while the AAF listener is bound and locked under
-CRF selection.
+CRF selection. The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes PHC-only restart causes.
 
 | Phase | What it grades |
 |---|---|
 | Acquisition | Pdelay to asCapable, then GM A's Sync; the link-up pair steps once, above 20 us |
-| Media | SET_CLOCK_SOURCE to the CRF answers SUCCESS and the root resolves it; the CRF sink locks; the talker gate opens |
+| Media | SET_CLOCK_SOURCE to the CRF answers SUCCESS and the root resolves it; the CRF sink locks; the talker gate opens; the real source change toggles outgoing `mr` exactly once |
 | Baseline | every PDU push leaves the #386 target fill (setpoint 8 + one PDU = 14 events); the talker streams with `tu` clear |
-| GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear, with talker PDUs graded both inside the hold and after it; every talker PDU carries the verdict of its instant; the talker keeps its gate, sequence and rate, and no pause beyond four of its intervals up to the end of the window; the listener stays locked and its FRAMES_RX moves by the PDUs it accepted; one counted render re-base, no rail, every push on the target fill; one outgoing `mr` toggle; the talker's MEDIA_RESET counts one |
+| GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear, with talker PDUs graded both inside the hold and after it; every talker PDU carries the verdict of its instant; the talker keeps its gate, sequence and rate, and no pause beyond four of its intervals up to the end of the window; the listener stays locked and its FRAMES_RX moves by the PDUs it accepted; one counted render re-base, no rail, every push on the target fill; outgoing `mr` stays unchanged; MEDIA_RESET adds zero |
+| Selected CRF restart | a received CRF `mr` toggle propagates exactly once; the sink stays locked; no PHC step supplies the restart |
 
 **The counted event is the step's, not the commit's.** The render re-base
 must be counted at a PDU end within two AAF periods (500 cycles) after the
-plane's step pulse, and the first PDU carrying the new `mr` level must leave
-within two talker intervals of it. The talker's counters are read once more
-between the commit and the step, and MEDIA_RESET must not have moved there.
+plane's step pulse. Outgoing `mr` stays unchanged throughout the window.
+The talker's counters are read before, between and after both events.
+MEDIA_RESET must not move in either interval.
 A re-base keyed to the grandmaster identity change therefore fails; in this
 scenario the identity change lands about 160000 cycles before the step.
 
@@ -677,19 +678,18 @@ through `make`, idles that many fabric cycles before the peer's media feed
 starts. One media tick is 41.67 cycles at 2 MHz, so delays 0 to 41 cover every
 accept phase. With the #387 datapath edit the leg passes at all 42.
 
-**It runs in the default sweep, with its negative controls.** Before the
-#387 datapath edit the leg passed 44 of its 48 checks: the render stage
-counted two re-bases, one on the grandmaster identity (outside the step's
-window) and one on the step, and the step neither toggled `mr` nor counted
-MEDIA_RESET. With the edit it passes 48 of 48. `run` then runs
-`gmstep_mutants.py`, which rebuilds the leg against a mutated copy through the
-`gmstep-build` recipe (`GMSTEP_MDIR` and `DP_SRC`, `CLKV_SRC` or `RSP_SRC`
-overridden), and each control must fail its named check by the leg's own
-verdict:
+**It runs in the default sweep, with its negative controls.**
+`run` invokes `gmstep_mutants.py` after the clean leg.
+It rebuilds through the same `gmstep-build` recipe.
+`GMSTEP_MDIR` selects a disposable build directory.
+`DP_SRC`, `CLKV_SRC`, `RSP_SRC` and `MCR_SRC` select mutated copies.
+Each control must fail its named check:
 
 | Control | Planted in | Named check it fails | Runs in |
 |---|---|---|---|
-| the step does not toggle `mr` | datapath | restart: the outgoing mr toggles exactly once | the sweep |
+| the PHC re-base restart term is restored | datapath | restart: a PHC-only step leaves outgoing mr unchanged | the sweep |
+| the source-change term is removed | restart engine | source control: a real source change toggles mr once | the sweep |
+| selected CRF `mr` propagation is removed | datapath | CRF control: selected CRF mr propagates exactly once | the sweep |
 | the grandmaster identity re-bases the render stage as well as the step | datapath | render: the GM change is one counted re-base event | the sweep |
 | the step does not re-centre the render stage (ruling 5802264260 item 1) | datapath | render: the GM change is one counted re-base event | the sweep |
 | the render re-base is keyed to the identity, not the step | datapath | render: every counted re-base lands at a PDU end right after the step | `gmstep-mutants` |
@@ -698,23 +698,23 @@ verdict:
 | `tu` stops the talker | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
 | the grandmaster change stops the talker for good | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
 | the step's re-centre snaps one event off the setpoint | render stage | render: every PDU push leaves the target fill across the event | `gmstep-mutants` |
-| a software settime does not toggle `mr` | datapath | CLKV: the settime toggled mr once more (#387) | `gmstep-mutants`, option-off leg |
-| the step's `mr` toggle is gated by the CRF clock-source selection | datapath | CLKV: its mr toggled once per PHC step issued so far (#387) | `gmstep-mutants`, option-off leg |
+| software settime is restored as an `mr` cause | datapath | CLKV: the settime leaves mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+| PHC adjtime is restored as an `mr` cause | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
 
 Each control costs one datapath elaboration.
-The sweep carries the three controls named by acceptance.
+The sweep carries five controls named by the two acceptances.
 
-The explicit `make gmstep-mutants` target runs all fourteen controls.
+The explicit `make gmstep-mutants` target runs all sixteen controls.
 The `CONTROLS` list in [`gmstep_mutants.py`](gmstep_mutants.py) defines that inventory.
 
-It includes the eleven tabulated above, plus three #545 controls.
+It includes the thirteen tabulated above, plus three #545 controls.
 The additions cover the policy level and applied-rate tail.
 
 See the [explicit-campaign rule](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression).
 The table's last two grade the option-off leg (`sim_main.cpp`, rebuilt through
 `option-off-build` with `OPTOFF_MDIR` and `DP_SRC` overridden) on an INTERNAL
 media clock, where the harness issues a CLKV adjtime and then a software
-settime: each is one `mr` toggle, and the settime one MEDIA_RESET. The runner
+settime: neither changes `mr`, and settime adds no MEDIA_RESET. The runner
 prints every check each control broke, not only the named one. A clean binary
 older than its recipe's inputs is rebuilt, not graded.
 
@@ -723,16 +723,17 @@ What the leg does not grade:
 - The grid aligner. The TDM clocks are held, so it stays disengaged. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) it gets no re-centre of its own: #539 keeps the step out of its reference at the CRF servo, and #545 and #546 close the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path.
 - The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades step and slew discard (#539, #545).
 - An lwSRP licence. The talker is opened by `AAF_CTRL[1]`; no SRP peer exists here.
-- A step that lands while an `mr` restart is pending. Ruling 5802264260 item 2 merges the two, and pending lasts until a PDU at the new level has gone out (ruling 5818091077). `tb/verilator/tkdiag` T17 and T18 grade the restart engine PDU by PDU, and its `mcr_mutants.py` plants the engine that cancels, a shared target, and a pending window that ends at the adoption or runs to the end of the hold.
+- A pending genuine restart. Under #602 a PHC-only step adds no request. Genuine requests still merge until a PDU at the adopted level has gone out (ruling 5818091077). `tb/verilator/tkdiag` T17 and T18 grade the restart engine PDU by PDU, and its `mcr_mutants.py` plants the engine that cancels, a shared target, and a pending window that ends at the adoption or runs to the end of the hold.
 - The step policy's thresholds. The donor's engine suite proves them; this leg only relies on them.
 - The physical re-base. The #117 bench measures it.
 
 The talker's cadence in this compressed model is not the product's, so its
 stream is graded against its own baseline rate.
 
-`CLKV_SRC`, like `RSP_SRC` and `DP_SRC`, rebuilds this leg against a mutated copy.
-Measured on 2026-09-24 with Verilator 5.050: 8.04 M cycles, about 40 s including the build.
-On the same eight-job host the sweep's three controls took 133 s, and `make gmstep-mutants` (the leg and all eleven controls) 405 s.
+The disabled-re-base control fails the counted-event check.
+It does not induce fill drift in this accept-timed stage.
+[#387 ruling 5802264260](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5802264260) records that correction.
+Render re-base and media-clock restart remain separate events.
 
 ## 2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it
 

@@ -112,6 +112,8 @@ RSP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv
 DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
 # #443: selector controls mutate only a disposable CSR source.
 CSR_SRC ?= $(RTL_DIR)/common/csr/milan_csr.sv
+# #602: override only a disposable restart-engine copy for source-change mutants.
+MCR_SRC ?= $(RTL_DIR)/ieee1722/avtp/KL_media_clock_restart.sv
 # #387: the clock-validity block, overridable the same way so the gmstep
 # leg's negative controls elaborate a MUTATED copy through its recipe (their
 # runner joins the tree with the #387 datapath edit).
@@ -182,7 +184,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/avtp/KL_stream_table.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv \
-       $(RTL_DIR)/ieee1722/avtp/KL_media_clock_restart.sv \
+       $(MCR_SRC) \
        $(RTL_DIR)/ieee1722/avtp/KL_talker_diag_ctx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_crf_tx.sv \
@@ -342,8 +344,8 @@ gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 # bound and locked under CRF selection (sim_gmstep.cpp's banner has the
 # model). `run` runs it and then its negative controls, gmstep_mutants.py,
 # which build mutated copies through this same recipe (GMSTEP_MDIR and
-# DP_SRC, CLKV_SRC or RSP_SRC overridden); the sweep plants the three
-# controls the acceptance names, and gmstep-mutants below the whole
+# DP_SRC, CLKV_SRC, RSP_SRC or MCR_SRC overridden); the sweep plants the five
+# controls the #387/#602 acceptances name, and gmstep-mutants below the whole
 # inventory. The AEM image is the shipping config's. GMSTEP_FEED_DELAY idles
 # that many fabric cycles before the peer's media feed starts, which moves
 # the accept phase against the media tick; the leg must pass at every delay.
@@ -393,8 +395,8 @@ gptp-lat: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 # Focused ownerless boundary: the same 1x1 harness used by the broad suite,
 # with the gPTP product plane structurally absent and every legacy write inert.
 # Its build alone, into OPTOFF_MDIR, is what gmstep_mutants.py rebuilds with
-# a MUTATED datapath (DP_SRC) for its option-off controls (#387: a settime is
-# one mr toggle and one MEDIA_RESET, whatever the clock source).
+# a MUTATED datapath (DP_SRC) for its option-off controls (#602: a PHC-only
+# re-base leaves mr and MEDIA_RESET unchanged).
 OPTOFF_MDIR ?= obj_dir
 option-off-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir $(OPTOFF_MDIR) $(SRCS) $(CPP) -o Vmilan_dp_sim

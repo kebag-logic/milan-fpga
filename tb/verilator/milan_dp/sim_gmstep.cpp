@@ -1,22 +1,21 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// Issue #387 acceptance 3: a grandmaster change that steps the PHC by more
-// than one second, while an AAF stream is bound and locked under CRF
-// selection, graded against the #387 decision (comments 5606198212 part b and
-// 5794731090): every step is ONE counted media event - tu rises on the commit
-// edge and clears after the step's holdover, the talker keeps streaming and
-// the listener keeps its lock, the render stage re-centres once, the outgoing
-// mr toggles once and the talker's MEDIA_RESET counts once. The counted event
-// is the STEP's: the re-base and the toggle land inside a short window after
-// the plane's step pulse, and MEDIA_RESET has not moved between the commit and
-// the step, so a re-base keyed to the grandmaster identity fails.
+// Issues #387 and #602: a grandmaster change steps the PHC by more than
+// one second while an AAF stream is bound and locked under CRF selection.
+// The #602 ruling (5859297355) keeps mr and MEDIA_RESET unchanged for this
+// PHC-only event. tu rises on the commit edge and clears after the step's
+// holdover, transport and listener lock continue, and the render stage
+// re-centres once at a PDU end just after the plane's step pulse.
+// Independent controls require a real source change and selected-CRF mr
+// propagation to toggle outgoing mr. gmstep_mutants.py proves these checks
+// reject restored PHC restart coupling and missing legitimate triggers.
 //
 // What this leg does NOT grade: the grid aligner (the TDM clocks are held),
 // the CRF servo (the DRP answers zero; #539), an lwSRP licence (the talker is
-// opened by the escape bit), a step that lands inside a pending mr restart
-// (ruling 5802264260 item 2: tb/verilator/tkdiag T17 and T18 grade the
-// restart engine PDU by PDU), and the physical re-base (#117). Its
+// opened by the escape bit), pending genuine mr requests (tb/verilator/tkdiag
+// T17 and T18 grade the unchanged restart engine PDU by PDU), and the
+// physical re-base (#117). Its
 // negative controls are gmstep_mutants.py.
 //
 // Elaboration: the `gptp` leg's (AX7101 1x1 TDM8 entity, fabric gPTP ON, the
@@ -116,10 +115,6 @@ constexpr uint64_t kTalkerPauseIntervals = 4;
 //! the step's counted re-base lands at a PDU end this soon after the plane's
 //! step pulse: the next PDU end, with one PDU of slack
 constexpr uint64_t kRebaseWindowCyc = 2 * kAafPeriodCyc;
-//! the step's mr toggle is first sent this many talker intervals after the
-//! plane's step pulse at most: a PDU granted before the pulse keeps the old
-//! level, the next one carries the new
-constexpr double kToggleWindowIntervals = 2.0;
 constexpr uint16_t kCrfClockSource = 1;        //! AX 1x1: INTERNAL 0, CRF 1
 //! the Stream Input counters_valid bits this leg reads: MEDIA_UNLOCKED (1)
 //! and FRAMES_RX (11), Milan Table 5.6
@@ -187,10 +182,10 @@ Frame aaf_pdu(uint8_t seq, uint64_t gm_ns) {
     return f;
 }
 
-Frame crf_pdu(uint8_t seq, uint64_t gm_ns) {
+Frame crf_pdu(uint8_t seq, uint64_t gm_ns, bool mr) {
     Frame f;
     f.u48(0x91E0F0002A03ULL); f.u48(0x020000000002ULL); f.u16(0x22F0);
-    f.u8(0x04); f.u8(0x80); f.u8(seq); f.u8(0x01);
+    f.u8(0x04); f.u8(mr ? 0x88 : 0x80); f.u8(seq); f.u8(0x01);
     f.u64(0x0200000000020001ULL);
     f.u32(0x0000BB80); f.u16(8); f.u16(96);
     f.u64(gm_ns + kPresentationNs);
@@ -303,6 +298,7 @@ class GmStepHarness {
     uint16_t announce_seq_ = 0;
     uint8_t aaf_seq_ = 0;
     uint8_t crf_seq_ = 0;
+    bool crf_mr_ = false;
     std::deque<Outgoing> control_;
     std::vector<uint8_t> rx_;
     Outgoing rx_what_;
@@ -372,6 +368,8 @@ class GmStepHarness {
     void baseline();
     void change_grandmaster();
     void check_slew_connection();
+    void check_crf_restart();
+    size_t mr_toggles_since(size_t first) const;
     void observe_slew_alignment(bool raw, uint64_t increment);
     void grade_the_event(const std::vector<uint8_t>& sout0, const std::vector<uint8_t>& sout_mid,
                          uint64_t mid_cyc, const std::vector<uint8_t>& sin0,
@@ -608,7 +606,7 @@ void GmStepHarness::start_frame(Outgoing what) {
 std::vector<uint8_t> GmStepHarness::build(const Outgoing& what) {
     switch (what.kind) {
     case Kind::Aaf: return aaf_pdu(static_cast<uint8_t>(what.seq), media_ns(cyc_)).b;
-    case Kind::Crf: return crf_pdu(static_cast<uint8_t>(what.seq), media_ns(cyc_)).b;
+    case Kind::Crf: return crf_pdu(static_cast<uint8_t>(what.seq), media_ns(cyc_), crf_mr_).b;
     case Kind::Announce: return announce(what.seq, gm_id_, gm_priority_).b;
     case Kind::Sync: {
         Frame f = ptp(0x0, what.seq, 0x0208, 10);
@@ -810,11 +808,16 @@ void GmStepHarness::provision_media() {
     next_aaf_ = cyc_ + kAafPeriodCyc;
     next_crf_ = cyc_ + kSlotGuardCyc;
     run_cycles(kClkHz / 20);
+    const size_t source_talker0 = talker_.size();
     const auto set = aecp_transaction(0x0016, 0x7301, {0x00, 0x24, 0x00, 0x00,
                                                         0x00, kCrfClockSource, 0x00, 0x00});
     check_.dec("media: SET_CLOCK_SOURCE to the CRF answers SUCCESS",
                set.size() > 16 ? set[16] >> 3 : 255, 0);
     run_cycles(kClkHz / 10);
+    check_.that("source control: PDUs bracket the source change",
+                source_talker0 > 0 && talker_.size() > source_talker0 + 8);
+    check_.dec("source control: a real source change toggles mr once",
+               mr_toggles_since(source_talker0), 1);
     check_.dec("media: the root resolves the CRF selection",
                dut_->rootp->milan_datapath__DOT__crf_clk_selected_r, 1);
     check_.dec("media: the CRF sink is locked", read(0x738) >> 31, 1);
@@ -861,8 +864,8 @@ void GmStepHarness::baseline() {
 //! GM B, 1.5 s ahead of GM A, is announced through the same parent and its
 //! first Sync follows kGmSyncDelayCyc later. The peer's media timestamps
 //! follow its grandmaster from the Announce on. Between the commit and the
-//! step the talker's counters are read once more, so MEDIA_RESET is seen to
-//! belong to the step rather than to the identity change.
+//! step the talker's counters are read once more. Neither event may add
+//! MEDIA_RESET when the media source remains unchanged (#602).
 void GmStepHarness::change_grandmaster() {
     const auto sout0 = counters(0x7310, 0x0006);
     sin0_accepts_.first = accepts_.size();
@@ -1028,28 +1031,21 @@ void GmStepHarness::grade_the_render(uint64_t recentres0, uint64_t rails0, uint6
     check_.dec("render: every PDU push leaves the target fill across the event", off_target, 0);
 }
 
-//! IEEE 1722-2016 4.4.4.3 and Milan Table 5.4: the step restarts the media
-//! clock once on the wire, and MEDIA_RESET counts that one toggle. Both are
-//! the step's: the toggle is first sent right after the step pulse, and the
-//! count has not moved at the reading taken between the commit and the step.
+//! Count wire transitions including the first PDU after the stimulus.
+size_t GmStepHarness::mr_toggles_since(size_t first) const {
+    size_t toggles = 0;
+    for (size_t i = std::max(size_t{1}, first); i < talker_.size(); ++i)
+        if (talker_[i].mr != talker_[i - 1].mr) ++toggles;
+    return toggles;
+}
+
+//! #602: a PHC-only re-base never requests 4.4.4.3 mr. Table 5.4
+//! MEDIA_RESET reports transmitted toggles, so the step adds none.
 void GmStepHarness::grade_the_restart(size_t talker0, const std::vector<uint8_t>& sout0,
                                       const std::vector<uint8_t>& sout_mid,
                                       const std::vector<uint8_t>& sout1) {
-    const double window = kToggleWindowIntervals * talker_interval_;
-    size_t toggles = 0;
-    size_t outside = 0;
-    for (size_t i = talker0 + 1; i < talker_.size(); ++i) {
-        if (talker_[i].mr == talker_[i - 1].mr) continue;
-        ++toggles;
-        const uint64_t at = talker_[i].cyc;
-        printf("RESTART: mr toggle first sent at cycle %llu (step pulse %+lld)\n",
-               static_cast<unsigned long long>(at),
-               static_cast<long long>(at) - static_cast<long long>(trace_.step_pulse_cyc));
-        if (at <= trace_.step_pulse_cyc || double(at - trace_.step_pulse_cyc) > window)
-            ++outside;
-    }
-    check_.dec("restart: the outgoing mr toggles exactly once", toggles, 1);
-    check_.dec("restart: every mr toggle is first sent right after the step", outside, 0);
+    check_.dec("restart: a PHC-only step leaves outgoing mr unchanged",
+               mr_toggles_since(talker0), 0);
     check_.hex("restart: the Stream Output counters are valid before the change",
                counter_word(sout0, 32), 0x1F);
     check_.hex("restart: the Stream Output counters are valid between commit and step",
@@ -1058,8 +1054,23 @@ void GmStepHarness::grade_the_restart(size_t talker0, const std::vector<uint8_t>
                counter_word(sout1, 32), 0x1F);
     check_.dec("restart: MEDIA_RESET does not move between the commit and the step",
                counter_word(sout_mid, 2) - counter_word(sout0, 2), 0);
-    check_.dec("restart: the talker's MEDIA_RESET counts exactly one",
-               counter_word(sout1, 2) - counter_word(sout0, 2), 1);
+    check_.dec("restart: a PHC-only step adds no MEDIA_RESET",
+               counter_word(sout1, 2) - counter_word(sout0, 2), 0);
+}
+
+//! IEEE 1722-2016 10.4.3 remains mandatory after the PHC-only exclusion.
+void GmStepHarness::check_crf_restart() {
+    const size_t first = talker_.size();
+    const unsigned steps0 = trace_.steps;
+    check_.dec("CRF control: the selected sink starts locked", read(0x738) >> 31, 1);
+    crf_mr_ = !crf_mr_;
+    run_cycles(16 * kCrfPeriodCyc);
+    check_.that("CRF control: outgoing PDUs bracket the received toggle",
+                first > 0 && talker_.size() > first + 8);
+    check_.dec("CRF control: selected CRF mr propagates exactly once",
+               mr_toggles_since(first), 1);
+    check_.dec("CRF control: the sink stays locked", read(0x738) >> 31, 1);
+    check_.dec("CRF control: no PHC step supplies the restart", trace_.steps - steps0, 0);
 }
 
 //! Wire-driven policy verdict from the real engine through the actual
@@ -1103,6 +1114,7 @@ int GmStepHarness::run() {
         provision_media();
         baseline();
         change_grandmaster();
+        check_crf_restart();
         check_slew_connection();
     } catch (const std::exception& e) {
         check_.fail(e.what());
